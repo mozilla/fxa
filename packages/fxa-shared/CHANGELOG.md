@@ -1,5 +1,23 @@
 # Change history
 
+## 1.151.1
+
+### Bug fixes
+
+- emails: Add email templates for adding secondary email, recovery key, and both after account verified (7e329ffb3)
+
+## 1.151.0
+
+### New features
+
+- sign-up: validate email domain with DNS (3facc9c30)
+- audit: run npm audit on push instead of in ci (ccd3c2b07)
+- metrics: Allow RPs to submit a generic 'engage' event to amplitude (9cfd5ec79)
+
+### Other changes
+
+- monorepo: eslint consolidation (0a5e3950f)
+
 ## 1.150.9
 
 No changes.

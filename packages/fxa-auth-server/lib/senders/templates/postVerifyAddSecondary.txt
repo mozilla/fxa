@@ -1,0 +1,7 @@
+{{t "Protect yourself from being locked out" }}
+
+{{t "Adding a secondary email helps get back into your account if you’re locked out and can’t access your email." }}
+
+{{{ link }}}
+
+{{> automatedEmailNoAction}}

@@ -1554,6 +1554,22 @@ const conf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  experiments: {
+    postVerifyEmails: {
+      enabled: {
+        doc: 'Feature flag for whether post verify experiments are active',
+        default: false,
+        env: 'EXPERIMENT_POST_VERIFY_EMAIL_ENABLED',
+        format: Boolean,
+      },
+      rolloutRate: {
+        doc: 'Rollout rate for post verify email experiment',
+        default: 0,
+        env: 'EXPERIMENT_POST_VERIFY_EMAIL_ROLLOUT_RATE',
+        format: Number,
+      },
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
@@ -1597,6 +1613,12 @@ conf.set('smtp.verifyPrimaryEmailUrl', `${baseUri}/verify_primary_email`);
 conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
 conf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
 conf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
+
+conf.set('smtp.settingsEmailsUrl', `${baseUri}/settings/emails/`);
+conf.set(
+  'smtp.settingsRecoveryKeyUrl',
+  `${baseUri}/settings/account_recovery/`
+);
 
 conf.set('isProduction', conf.get('env') === 'prod');
 

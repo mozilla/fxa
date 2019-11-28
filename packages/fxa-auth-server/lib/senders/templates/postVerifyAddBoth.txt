@@ -1,0 +1,15 @@
+{{t "Avoid account lockout" }}
+
+{{t "Two simple steps help you get back into your account and protect your data if you need to reset your password." }}
+
+{{t "Set up a secondary email:" }}
+
+{{t "Helps you get back in if you lose access to your email." }}
+
+{{t "Create a recovery key:" }}
+
+{{t "Firefox protects your data by erasing your synced data if you reset your password. A recovery key restores it." }}
+
+{{{ link }}}
+
+{{> automatedEmailNoAction}}

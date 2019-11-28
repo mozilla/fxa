@@ -253,14 +253,11 @@ module.exports = (log, db, mailer, customs, config) => {
           window: config.window,
         };
 
-        const authenticator = new otplib.authenticator.Authenticator();
-        authenticator.options = Object.assign(
-          {},
-          otplib.authenticator.options,
-          otpOptions,
-          { secret: sharedSecret }
+        const isValidCode = otpUtils.verifyOtpCode(
+          code,
+          sharedSecret,
+          otpOptions
         );
-        const isValidCode = authenticator.check(code, sharedSecret);
 
         // Once a valid TOTP code has been detected, the token becomes verified
         // and enabled for the user.

@@ -361,9 +361,9 @@ module.exports = function(
         const account = await db.account(sessionToken.uid);
         const secret = account.primaryEmail.emailCode;
 
-        const expectedCode = otpUtils.generateOtpCode(secret, otpOptions);
+        const isValidCode = otpUtils.verifyOtpCode(code, secret, otpOptions);
 
-        if (expectedCode !== code) {
+        if (!isValidCode) {
           throw error.invalidOrExpiredOtpCode();
         }
 

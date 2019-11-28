@@ -1,3 +1,40 @@
+## 1.151.1
+
+No changes.
+
+## 1.151.0
+
+### New features
+
+- sign-up: validate email domain with DNS (3facc9c30)
+- cwts: 100% of sync users see CWTS on signup page (42c8daa67)
+- signup: fix #3197 - Autocomplete common email domains during signup for better UX (259679b0e)
+- audit: run npm audit on push instead of in ci (ccd3c2b07)
+- metrics: Add metrics to subscription account create funnel (6aacf923e)
+- metrics: Allow RPs to submit a generic 'engage' event to amplitude (9cfd5ec79)
+- email-first: Email-first everywhere! (3173773c0)
+
+### Bug fixes
+
+- deps: Fix a bunch of audit warnings (f8a1da3be)
+- input: Don't focus vpassword element when invalid (d667541a9)
+- codes: Update resend signin code link text (50b7bcf1f)
+- tests: update a support form functional test (2eaf78db8)
+- password: Add inline confirm password validation (0d7e0c7aa)
+- style: Support panel - disable horizontal textarea resizing (f14e3c432)
+- style: Update payments product avatar/logo style to prevent overlap (f81c59381)
+- links: stop converting links to text on Firefox iOS (f207cc2cc)
+
+### Other changes
+
+- test: Avoid timing issues in sign_in_totp tests (53f01c55e)
+- docs: Remove irrelevant content server docs, update query-params.md (6a36abece)
+- deps: Get audit-filter working for all packages in monorepo (1b0141e2b)
+- email-first: Remove sign_in/sign_up templates (2239f71bd)
+- email-first: Remove email-first related experiment code (46d9b79e2)
+- monorepo: eslint consolidation (0a5e3950f)
+- email-first: Remove legacy signin/signup views. (244618fd7)
+
 ## 1.150.9
 
 ### New features
