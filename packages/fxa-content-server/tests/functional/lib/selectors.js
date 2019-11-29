@@ -182,6 +182,9 @@ module.exports = {
     TOOLTIP: 'input[type=email] ~ .tooltip',
     TOOLTIP_BOUNCED_EMAIL: 'input[type=email] ~ .tooltip',
   },
+  FIREFOX_NOTES: {
+    HEADER: '#notes-by-firefox',
+  },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',
     EMAIL_NOT_EDITABLE: '.prefillEmail',
