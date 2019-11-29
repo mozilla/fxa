@@ -12,7 +12,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
 const QUERY_PARAMS =
-  '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true&action=email';
+  '?context=fx_desktop_v3&service=sync&automatedBrowser=true&action=email';
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
 const REDIRECT_HOST = encodeURIComponent(config.fxaContentRoot);
 const BAD_CLIENT_ID = 'dcdb5ae7add825d2';

@@ -21,7 +21,6 @@ const {
   fillOutForceAuth,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
-  noPageTransition,
   noSuchBrowserNotification,
   noSuchElement,
   openForceAuth,
@@ -203,7 +202,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               query: {
                 context: 'fx_desktop_v3',
                 email: unregisteredEmail,
-                forceAboutAccounts: 'true',
                 service: 'sync',
                 uid: accountInfo.uid,
               },
@@ -246,7 +244,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               query: {
                 context: 'fx_desktop_v3',
                 email: email,
-                forceAboutAccounts: 'true',
                 service: 'sync',
                 uid: TestHelpers.createUID(),
               },
@@ -275,40 +272,36 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
     'verified, blocked': function() {
       email = TestHelpers.createEmail('blocked{id}');
 
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openForceAuth({
-              query: {
-                context: 'fx_desktop_v3',
-                email: email,
-                forceAboutAccounts: 'true',
-                service: 'sync',
-                uid: TestHelpers.createUID(),
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openForceAuth({
+            query: {
+              context: 'fx_desktop_v3',
+              email: email,
+              service: 'sync',
+              uid: TestHelpers.createUID(),
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': {
+                ok: true,
               },
-              webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
               },
-            })
-          )
-          .then(noSuchBrowserNotification('fxaccounts:logout'))
-          .then(fillOutForceAuth(PASSWORD))
+            },
+          })
+        )
+        .then(noSuchBrowserNotification('fxaccounts:logout'))
+        .then(fillOutForceAuth(PASSWORD))
 
-          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(fillOutSignInUnblock(email, 0))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(fillOutSignInUnblock(email, 0))
 
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
   },
 });

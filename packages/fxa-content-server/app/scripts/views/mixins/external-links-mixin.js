@@ -14,18 +14,9 @@ import $ from 'jquery';
 export default {
   afterRender() {
     const $externalLinks = this.$('a[href^=http]');
-    const isAboutAccounts =
-      this.broker &&
-      this.broker.environment &&
-      this.broker.environment.isAboutAccounts();
 
     $externalLinks.each((index, el) => {
       $(el).attr('rel', 'noopener noreferrer');
-      if (isAboutAccounts) {
-        // if env is aboutAccounts then we need to open links in new tabs
-        // otherwise we get a "No Connection" window. Issue #4448.
-        $(el).attr('target', '_blank');
-      }
     });
   },
 

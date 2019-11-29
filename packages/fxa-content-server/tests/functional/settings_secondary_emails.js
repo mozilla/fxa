@@ -310,7 +310,6 @@ registerSuite('settings secondary emails', {
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                automatedBrowser: true,
                 context: 'fx_desktop_v3',
                 forceUA: uaStrings['desktop_firefox_71'],
                 service: 'sync',
@@ -361,7 +360,6 @@ registerSuite('settings secondary emails', {
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                automatedBrowser: true,
                 context: 'fx_desktop_v3',
                 forceUA: uaStrings['desktop_firefox_71'],
                 service: 'sync',

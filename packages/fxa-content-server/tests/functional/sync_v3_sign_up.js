@@ -12,7 +12,7 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
 
 let email;
 const PASSWORD = 'password12345678';
@@ -24,12 +24,10 @@ const {
   fillOutSignUpCode,
   getWebChannelMessageData,
   storeWebChannelMessageData,
-  noPageTransition,
   noSuchElement,
   noSuchBrowserNotification,
   openPage,
   testElementExists,
-  testEmailExpected,
   testIsBrowserNotified,
   type,
 } = FunctionalHelpers;
@@ -41,13 +39,13 @@ registerSuite('Firefox Desktop Sync v3 signup', {
   },
 
   tests: {
-    'Fx <= 55, verify at /confirm_signup_code': function() {
+    'verify at CWTS': function() {
       return (
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                forceUA: uaStrings['desktop_firefox_55'],
+                forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': {
@@ -77,29 +75,21 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           // user should be transitioned to the "go confirm your address" page
           .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
+          .then(fillOutSignUpCode(email, 0))
           // the login message is only sent after the sync preferences screen
           // has been cleared.
           .then(testIsBrowserNotified('fxaccounts:login'))
-          // verify the user
-          .then(fillOutSignUpCode(email, 0))
 
-          // We do not expect the verification poll to occur. The poll
-          // will take a few seconds to complete if it erroneously occurs.
-          // Add an affordance just in case the poll happens unexpectedly.
-          .then(noPageTransition(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-
-          // A post-verification email should be sent, this is Sync.
-          .then(testEmailExpected(email, 1))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       );
     },
 
-    'Fx >= 58, verify at /confirm_signup_code, force SMS': function() {
+    'verify at /confirm_signup_code, force SMS': function() {
       return (
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                automatedBrowser: true,
                 country: 'US',
                 forceExperiment: 'sendSms',
                 forceExperimentGroup: 'treatment',
@@ -140,14 +130,13 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'Fx >= 58, verify at /confirm_signup_code, SMS not supported': function() {
+    'verify at /confirm_signup_code, SMS not supported': function() {
       return (
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                automatedBrowser: true,
-                forceUA: uaStrings.desktop_firefox_58,
+                forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': {
@@ -182,13 +171,13 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'Fx >= 56, engines not supported': function() {
+    'engines not supported': function() {
       return (
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                forceUA: uaStrings['desktop_firefox_56'],
+                forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': {
@@ -211,13 +200,13 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'Fx >= 56, neither `creditcards` nor `addresses` supported': function() {
+    'neither `creditcards` nor `addresses` supported': function() {
       return (
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                forceUA: uaStrings['desktop_firefox_56'],
+                forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': {
@@ -243,13 +232,13 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'Fx >= 56, `creditcards` and `addresses` supported': function() {
+    '`creditcards` and `addresses` supported': function() {
       return (
         this.remote
           .then(
             openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {
-                forceUA: uaStrings['desktop_firefox_56'],
+                forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': {

@@ -27,10 +27,9 @@ const {
 } = FunctionalHelpers;
 
 const config = intern._config;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync&forceAboutAccounts=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync`;
 const SETTINGS_URL =
-  config.fxaContentRoot +
-  'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
+  config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync';
 const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
 const FIRST_PASSWORD = 'password';

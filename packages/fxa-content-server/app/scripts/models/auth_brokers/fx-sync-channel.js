@@ -60,8 +60,6 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
     commands: null,
 
     defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-      sendAfterSignInConfirmationPollNotice: false,
-      sendAfterSignUpConfirmationPollNotice: false,
       sendChangePasswordNotice: true,
     }),
 
@@ -146,35 +144,13 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
       );
     },
 
-    afterSignInConfirmationPoll(account) {
-      return proto.afterSignInConfirmationPoll
-        .call(this, account)
-        .then(behavior => {
-          if (this.hasCapability('sendAfterSignInConfirmationPollNotice')) {
-            const loginData = this._getLoginData(account);
-            return this.send(this.getCommand('VERIFIED'), loginData).then(
-              () => behavior
-            );
-          }
-          return behavior;
-        });
-    },
-
     afterSignUpConfirmationPoll(account) {
       // The relier is notified of login here because `beforeSignUpConfirmationPoll`
       // is never called for users who verify at CWTS. Without the login notice,
       // the browser will never know the user signed up.
-      return this._notifyRelierOfLogin(account)
-        .then(() => proto.afterSignUpConfirmationPoll.call(this, account))
-        .then(behavior => {
-          if (this.hasCapability('sendAfterSignUpConfirmationPollNotice')) {
-            const loginData = this._getLoginData(account);
-            return this.send(this.getCommand('VERIFIED'), loginData).then(
-              () => behavior
-            );
-          }
-          return behavior;
-        });
+      return this._notifyRelierOfLogin(account).then(() =>
+        proto.afterSignUpConfirmationPoll.call(this, account)
+      );
     },
 
     afterChangePassword(account) {

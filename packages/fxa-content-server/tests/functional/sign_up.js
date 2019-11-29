@@ -327,7 +327,12 @@ registerSuite('signup here', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
-              forceUA: UA_STRINGS['desktop_firefox'],
+              forceUA: UA_STRINGS['desktop_firefox_58'],
+            },
+            webChannelResponses: {
+              'fxaccounts:fxa_status': {
+                signedInUser: null,
+              },
             },
           })
         )
