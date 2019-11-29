@@ -19,6 +19,7 @@ const {
   closeCurrentWindow,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
+  getFxaClient,
   getSignupCode,
   openPage,
   openVerificationLinkInNewTab,
@@ -27,6 +28,7 @@ const {
   testElementTextInclude,
   testSuccessWasShown,
   type,
+  visibleByQSA,
 } = FunctionalHelpers;
 
 const experimentTreatmentParams = {
@@ -82,6 +84,26 @@ registerSuite('signup with code', {
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(testSuccessWasShown());
+    },
+
+    'treatment - bounced email': function() {
+      const client = getFxaClient();
+      return (
+        this.remote
+          .then(
+            openPage(
+              ENTER_EMAIL_URL,
+              selectors.ENTER_EMAIL.HEADER,
+              experimentTreatmentParams
+            )
+          )
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+          .then(testAtConfirmScreen(email))
+          .then(() => client.accountDestroy(email, PASSWORD))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          // expect an error message to already be present on redirect
+          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
+      );
     },
 
     'treatment - valid code': function() {
