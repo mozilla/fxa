@@ -96,6 +96,19 @@ describe('views/sign_in_token_code', () => {
     });
   });
 
+  describe('afterVisible', () => {
+    it('starts polling in case the email bounces', () => {
+      const account = { uid: 'uid' };
+
+      sinon.stub(view, 'waitForSessionVerification');
+      sinon.stub(view, 'getAccount').returns(account);
+
+      view.afterVisible();
+
+      assert.isTrue(view.waitForSessionVerification.calledOnceWith(account));
+    });
+  });
+
   describe('validateAndSubmit', () => {
     beforeEach(() => {
       sinon.stub(view, 'submit').callsFake(() => Promise.resolve());

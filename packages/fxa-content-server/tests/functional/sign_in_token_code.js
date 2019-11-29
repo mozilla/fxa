@@ -17,8 +17,10 @@ const {
   click,
   closeCurrentWindow,
   createUser,
+  destroySessionForEmail,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
+  getStoredAccountByEmail,
   noSuchElement,
   openFxaFromRp,
   openVerificationLinkInNewTab,
@@ -101,6 +103,22 @@ registerSuite('signin token code', {
             )
           )
       );
+    },
+
+    'verified - treatment-code - bounce': function() {
+      experimentParams.query.forceExperiment = 'tokenCode';
+      experimentParams.query.forceExperimentGroup = 'treatment-code';
+
+      return this.remote
+        .then(openFxaFromRp('enter-email', experimentParams))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(getStoredAccountByEmail(email))
+        .then(destroySessionForEmail(email))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.HEADER))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.BACK))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
     },
 
     'verified - treatment-code - valid code': function() {

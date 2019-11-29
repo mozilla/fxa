@@ -78,7 +78,7 @@ describe('views/mixins/session-verification-poll-mixin', () => {
   });
 
   describe('_handleSessionVerificationPollErrors', () => {
-    it('displays an error message allowing the user to re-signup if their email bounces on signup', () => {
+    it('navigates to / if SIGNUP_EMAIL_BOUNCE occurs on signup', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => true);
       sinon.spy(view, 'navigate');
       view._handleSessionVerificationPollErrors(
@@ -91,12 +91,36 @@ describe('views/mixins/session-verification-poll-mixin', () => {
       assert.isTrue(account.get('hasBounced'));
     });
 
-    it('navigates to the signin-bounced screen if their email bounces on signin', () => {
+    it('navigates to /signin_bounced if SIGNUP_EMAIL_BOUNCE occurs on signin', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => false);
       sinon.spy(view, 'navigate');
       view._handleSessionVerificationPollErrors(
         account,
         AuthErrors.toError('SIGNUP_EMAIL_BOUNCE')
+      );
+
+      assert.isTrue(
+        view.navigate.calledWith('signin_bounced', { email: 'a@a.com' })
+      );
+    });
+
+    it('navigates to / if INVALID_TOKEN occurs on signup', () => {
+      sinon.stub(view, 'isSignUp').callsFake(() => true);
+      sinon.spy(view, 'navigate');
+      view._handleSessionVerificationPollErrors(
+        account,
+        AuthErrors.toError('INVALID_TOKEN')
+      );
+
+      assert.isTrue(view.navigate.calledWith('/', { account }));
+    });
+
+    it('navigates to /signin_bounced if INVALID_TOKEN occurs on signin', () => {
+      sinon.stub(view, 'isSignUp').callsFake(() => false);
+      sinon.spy(view, 'navigate');
+      view._handleSessionVerificationPollErrors(
+        account,
+        AuthErrors.toError('INVALID_TOKEN')
       );
 
       assert.isTrue(
