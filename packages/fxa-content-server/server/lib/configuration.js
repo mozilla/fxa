@@ -531,24 +531,6 @@ const conf = (module.exports = convict({
     },
   },
   sentry: {
-    api_key: {
-      default: undefined,
-      doc: 'Sentry API key',
-      env: 'SENTRY_API_KEY',
-      format: String,
-    },
-    api_secret: {
-      default: undefined,
-      doc: 'Sentry API secret',
-      env: 'SENTRY_API_SECRET',
-      format: String,
-    },
-    endpoint: {
-      default: undefined,
-      doc: 'Remote Sentry endpoint',
-      env: 'SENTRY_ENDPOINT',
-      format: String,
-    },
     server_errors_dsn: {
       default: undefined,
       doc:
