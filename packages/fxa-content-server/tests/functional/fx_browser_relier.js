@@ -29,21 +29,18 @@ const {
   clearBrowserState,
   click,
   createUser,
-  type,
-  closeCurrentWindow,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   openPage,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testIsBrowserNotified,
+  type,
 } = FunctionalHelpers;
 
 registerSuite('Firefox Desktop non-sync', {
   beforeEach: function() {
     email = TestHelpers.createEmail();
-    return this.remote.then(clearBrowserState());
+    return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
@@ -68,17 +65,16 @@ registerSuite('Firefox Desktop non-sync', {
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          // verify the account
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          // switch back to the original window, choose to "do not sync".
-          .then(closeCurrentWindow())
+
           .then(
             click(
               selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC,
-              selectors.CONNECT_ANOTHER_DEVICE.HEADER
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
             )
           )
+          // verify the account
+          .then(fillOutSignUpCode(email, 0))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
@@ -103,17 +99,12 @@ registerSuite('Firefox Desktop non-sync', {
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+
           // verify the account
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          // switch back to the original window, choose to "do not sync".
-          .then(closeCurrentWindow())
-          .then(
-            click(
-              selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT,
-              selectors.CONNECT_ANOTHER_DEVICE.HEADER
-            )
-          )
+          .then(fillOutSignUpCode(email, 0))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
@@ -211,7 +202,7 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
           .then(
             openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
               query: {
-                forceExperiment: 'signupCode',
+                forceExperiment: 'signupPasswordCWTS',
                 forceExperimentGroup: 'treatment',
                 forceUA: uaStrings['desktop_firefox_71'],
               },
@@ -260,7 +251,7 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
         .then(
           openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
             query: {
-              forceExperiment: 'signupCode',
+              forceExperiment: 'signupPasswordCWTS',
               forceExperimentGroup: 'treatment',
               forceUA: uaStrings['desktop_firefox_71'],
             },

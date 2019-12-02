@@ -18,9 +18,9 @@ const {
   click,
   closeCurrentWindow,
   createUser,
+  fillOutEmailFirstSignUp,
   fillOutForceAuth,
   fillOutSignInUnblock,
-  fillOutEmailFirstSignUp,
   noPageTransition,
   noSuchBrowserNotification,
   noSuchElement,
@@ -193,7 +193,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
           // the default behavior of not transitioning to the confirm
           // screen is overridden because the user is signing up outside
           // of about:accounts.
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );

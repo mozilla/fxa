@@ -21,16 +21,14 @@ let email;
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
   confirmTotpCode,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   generateTotpCode,
   openFxaFromRp,
   openPage,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testElementTextInclude,
   testErrorTextInclude,
@@ -73,12 +71,9 @@ registerSuite('oauth require totp', {
         )
 
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
-        .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-        .then(closeCurrentWindow())
+        .then(fillOutSignUpCode(email, 0))
 
         .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },

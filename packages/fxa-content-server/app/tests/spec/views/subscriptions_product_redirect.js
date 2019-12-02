@@ -33,6 +33,7 @@ describe('views/subscriptions_product_redirect', function() {
     notifier = new Notifier();
     windowMock = new WindowMock();
     windowMock.location.href = `http://example.com/products${SEARCH_QUERY}`;
+    windowMock.location.search = SEARCH_QUERY;
 
     config = {
       subscriptions: {
@@ -59,8 +60,6 @@ describe('views/subscriptions_product_redirect', function() {
     sinon
       .stub(PaymentServer, 'navigateToPaymentServer')
       .callsFake(() => Promise.resolve(true));
-
-    return render();
   });
 
   afterEach(function() {
@@ -72,16 +71,33 @@ describe('views/subscriptions_product_redirect', function() {
 
   describe('render', () => {
     it('renders, initializes flow metrics, navigates to payments server', () => {
-      assert.lengthOf(view.$('.subscriptions-redirect'), 1);
-      assert.isTrue(view.initializeFlowEvents.calledOnce);
-      assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
-        [
-          view,
-          config.subscriptions,
-          `products/${PRODUCT_ID}`,
-          { plan: 'plk_12345' },
-        ],
-      ]);
+      return render().then(() => {
+        assert.lengthOf(view.$('.subscriptions-redirect'), 1);
+        assert.isTrue(view.initializeFlowEvents.calledOnce);
+        assert.isTrue(
+          PaymentServer.navigateToPaymentServer.calledOnceWith(
+            view,
+            config.subscriptions,
+            `products/${PRODUCT_ID}`,
+            { plan: 'plk_12345' }
+          )
+        );
+      });
+    });
+
+    it('works with a local redirect with no query params', () => {
+      windowMock.location.href = `http://127.0.0.1:3030/subscriptions/products/${PRODUCT_ID}`;
+      windowMock.location.search = '';
+      return render().then(() => {
+        assert.isTrue(
+          PaymentServer.navigateToPaymentServer.calledOnceWith(
+            view,
+            config.subscriptions,
+            `products/pk_8675309`,
+            {}
+          )
+        );
+      });
     });
   });
 });

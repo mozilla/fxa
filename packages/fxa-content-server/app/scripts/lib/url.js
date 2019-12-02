@@ -9,7 +9,8 @@ import _ from 'underscore';
 export default {
   /**
    * Convert a search string to its object representation, one entry
-   * per query parameter
+   * per query parameter. Assumes the string is a search string and
+   * not a full URL without a search string.
    *
    * @param {String} [str=''] - string to convert
    * @param {String[]} [allowedFields] - list of allowed fields. If not

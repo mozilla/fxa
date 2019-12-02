@@ -106,63 +106,7 @@ registerSuite('signup with an email that bounces', {
           .then(
             click(
               selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
-            )
-          )
-      );
-    },
-
-    'sign up, bounce email at /confirm': function() {
-      const client = getFxaClient();
-
-      return (
-        this.remote
-          .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
-
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-          .then(
-            click(
-              selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
-            )
-          )
-
-          .then(() => client.accountDestroy(bouncedEmail, PASSWORD))
-
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          // The first can_link_account handler is removed, hook up another.
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          // expect an error message to already be present on redirect
-          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
-          .then(type(selectors.ENTER_EMAIL.EMAIL, bouncedEmail))
-          // user must change the email address
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
-          // error message should still be around
-          .then(visibleByQSA(selectors.ENTER_EMAIL.TOOLTIP_BOUNCED_EMAIL))
-          .then(type(selectors.ENTER_EMAIL.EMAIL, deliveredEmail))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNUP_PASSWORD.HEADER
-            )
-          )
-
-          // password is remembered
-          .then(
-            click(
-              selectors.SIGNUP_PASSWORD.SUBMIT,
-              selectors.CHOOSE_WHAT_TO_SYNC.HEADER
-            )
-          )
-
-          .then(
-            click(
-              selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
             )
           )
       );

@@ -30,6 +30,7 @@ const {
   fillOutEmailFirstSignUp,
   fillOutEmailFirstSignIn,
   fillOutSignInUnblock,
+  fillOutSignUpCode,
   openPage,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
@@ -52,8 +53,8 @@ registerSuite('settings change email', {
         .then(clearBrowserState())
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click(selectors.EMAIL.MENU_BUTTON))
 
@@ -278,8 +279,8 @@ registerSuite('settings change email - unblock', {
         .then(clearBrowserState())
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(click(selectors.EMAIL.MENU_BUTTON))
 

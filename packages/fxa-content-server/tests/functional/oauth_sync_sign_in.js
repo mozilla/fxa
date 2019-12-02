@@ -23,6 +23,7 @@ const {
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openFxaFromRp,
   openPage,
   openVerificationLinkInNewTab,
@@ -91,15 +92,8 @@ registerSuite('signin with OAuth after Sync', {
           )
           .then(fillOutEmailFirstSignUp(email2, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInNewTab(email2, 0))
-          .then(switchToWindow(1))
-
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-
-          // switch to the original window
-          .then(closeCurrentWindow())
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email2, 0))
 
           // RP is logged in, logout then back in again.
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -140,6 +134,7 @@ registerSuite('signin to Sync after OAuth', {
       FunctionalHelpers.clearBrowserState({
         '123done': true,
         contentServer: true,
+        force: true,
       })
     );
   },

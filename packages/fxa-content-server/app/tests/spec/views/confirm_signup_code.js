@@ -179,7 +179,7 @@ describe('views/confirm_signup_code', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon
-          .stub(account, 'verifySessionCode')
+          .stub(user, 'verifyAccountSessionCode')
           .callsFake(() => Promise.resolve());
         sinon
           .stub(view, 'invokeBrokerMethod')
@@ -190,7 +190,9 @@ describe('views/confirm_signup_code', () => {
 
       it('calls correct broker methods', () => {
         assert.isTrue(
-          account.verifySessionCode.calledWith(CODE, { service: 'sync' }),
+          user.verifyAccountSessionCode.calledWith(account, CODE, {
+            service: 'sync',
+          }),
           'verify with correct code'
         );
         assert.isTrue(

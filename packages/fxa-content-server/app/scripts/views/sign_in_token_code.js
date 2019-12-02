@@ -57,23 +57,13 @@ const View = FormView.extend({
   submit() {
     const account = this.getAccount();
     const code = this.getElementValue(CODE_INPUT_SELECTOR);
-    return (
-      account
-        // Note the name `verifySessionCode` here. This is used instead of
-        // `verifyShortCode` (as with auth-server) because it verifies both the account
-        // and the session associated with it.
-        .verifySessionCode(code)
-        .then(() => {
-          this.logViewEvent('success');
-          return this.invokeBrokerMethod(
-            'afterCompleteSignInWithCode',
-            account
-          );
-        })
-        .catch(err =>
-          this.showValidationError(this.$(CODE_INPUT_SELECTOR), err)
-        )
-    );
+    return this.user
+      .verifyAccountSessionCode(account, code)
+      .then(() => {
+        this.logViewEvent('success');
+        return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
+      })
+      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
   },
 
   resend() {
