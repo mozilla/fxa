@@ -1,3 +1,13 @@
+## 1.151.2
+
+### New features
+
+- cwts: Add CWTS to the /signup page in Sync optional flow (d1a8cf965)
+
+### Bug fixes
+
+- cwts: Ensure CWTS tests in sync optional flow test reality. (7311d0922)
+
 ## 1.151.1
 
 No changes.

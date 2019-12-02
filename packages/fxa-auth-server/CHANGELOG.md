@@ -1,3 +1,9 @@
+## 1.151.2
+
+### Bug fixes
+
+- totp: Increase otp code test window (e877f7442)
+
 ## 1.151.1
 
 ### Bug fixes

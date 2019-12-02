@@ -1,5 +1,9 @@
 # Change history
 
+## 1.151.2
+
+No changes.
+
 ## 1.151.1
 
 ### Bug fixes
