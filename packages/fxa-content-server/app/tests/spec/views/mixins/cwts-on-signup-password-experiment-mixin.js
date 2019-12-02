@@ -18,12 +18,16 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
   let view;
 
   beforeEach(() => {
-    account = new Model({ email: 'foomail' });
+    account = new Model({
+      email: 'foomail',
+    });
     context = new Model();
     view = new SignupPasswordView({});
     view.createExperiment = sinon.spy();
     view.getAccount = () => account;
-    view.relier = new Model({ service: 'sync' });
+    view.relier = new Model({
+      service: 'sync',
+    });
     view.notifier = {
       trigger: sinon.spy(),
     };
@@ -116,6 +120,7 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
         .stub(view, '_getOfferedEngineIds')
         .callsFake(() => ['foo', 'bar', 'baz']);
       sinon.stub(view, '_getDeclinedEngineIds').callsFake(() => ['foo', 'baz']);
+      sinon.stub(view, 'enableSync');
 
       view.beforeSubmit();
 
@@ -132,7 +137,35 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
         view.notifier.trigger.calledOnceWith('set-sync-engines', ['bar'])
       );
 
-      assert.isTrue(view.relier.get('syncPreference'));
+      assert.isTrue(view.enableSync.calledOnce);
+    });
+
+    it('if in treatment group and deselects all engines, notify that sync is disabled', () => {
+      sinon.stub(view, 'isCWTSOnSignupPasswordEnabled').returns(true);
+      sinon.stub(view, '_getOfferedEngineIds').returns(['foo', 'bar', 'baz']);
+      sinon.stub(view, '_getDeclinedEngineIds').returns(['foo', 'bar', 'baz']);
+      sinon.stub(view, 'disableSync');
+
+      view.beforeSubmit();
+
+      assert.deepEqual(account.get('declinedSyncEngines'), [
+        'foo',
+        'bar',
+        'baz',
+      ]);
+      assert.deepEqual(account.get('offeredSyncEngines'), [
+        'foo',
+        'bar',
+        'baz',
+      ]);
+      assert.isTrue(
+        view._trackDeclinedEngineIds.calledOnceWith(['foo', 'bar', 'baz'])
+      );
+      assert.isTrue(
+        view.notifier.trigger.calledOnceWith('set-sync-engines', [])
+      );
+
+      assert.isTrue(view.disableSync.calledOnce);
     });
   });
 });

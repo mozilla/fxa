@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import DoNotSyncMixin from 'views/mixins/do-not-sync-mixin';
+import SyncOptionalMixin from 'views/mixins/sync-optional-mixin';
 import BaseView from 'views/base';
 import Relier from 'models/reliers/base';
 import Broker from 'models/auth_brokers/base';
@@ -22,9 +22,9 @@ class View extends BaseView {
   }
 }
 
-Cocktail.mixin(View, DoNotSyncMixin);
+Cocktail.mixin(View, SyncOptionalMixin);
 
-describe('views/mixins/do-not-sync-mixin', function() {
+describe('views/mixins/sync-optional-mixin', function() {
   let broker;
   let view;
   let relier;
@@ -51,9 +51,28 @@ describe('views/mixins/do-not-sync-mixin', function() {
       return view.doNotSync().then(() => {
         assert.isTrue(view.onSubmitComplete.calledOnce);
         assert.isFalse(relier.get('syncPreference'));
-        assert.isTrue(view.logFlowEvent.calledOnce);
-        assert.isTrue(view.logFlowEvent.calledWith('cwts_do_not_sync', 'test'));
+        assert.isTrue(
+          view.logFlowEvent.calledOnceWith('cwts_do_not_sync', 'test')
+        );
       });
+    });
+  });
+
+  describe('disableSync', () => {
+    it('logs and event, updates the relier', () => {
+      view.disableSync();
+
+      assert.isFalse(relier.get('syncPreference'));
+      assert.isTrue(
+        view.logFlowEvent.calledOnceWith('cwts_do_not_sync', 'test')
+      );
+    });
+  });
+
+  describe('enableSync', () => {
+    it('updates the relier', () => {
+      view.enableSync();
+      assert.isTrue(relier.get('syncPreference'));
     });
   });
 });

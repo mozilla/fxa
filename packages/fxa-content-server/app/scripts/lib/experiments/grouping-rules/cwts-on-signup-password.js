@@ -10,7 +10,7 @@ const EXPERIMENT_NAME = 'signupPasswordCWTS';
 
 const GROUPS = ['control', 'treatment'];
 
-const ROLLOUT_RATE = 1;
+const ROLLOUT_RATE = 0.2;
 
 class CWTSOnSignupPasswordGroupingRule extends BaseGroupingRule {
   constructor(rolloutRate) {
@@ -30,19 +30,24 @@ class CWTSOnSignupPasswordGroupingRule extends BaseGroupingRule {
       return false;
     }
 
-    if (subject.service !== 'sync') {
+    if (subject.service === 'sync') {
+      // force sync flow is forced into treatment
+      return 'treatment';
+    }
+
+    if (!subject.multiService) {
+      // if not multi service, no possibility of enabling
+      // Sync, get outta here.
       return false;
     }
+    // multi-service, use the normal bucketing logic.
 
     const rolloutRate =
       'rolloutRate' in subject ? subject.rolloutRate : ROLLOUT_RATE;
 
     if (rolloutRate === 0) {
       return false;
-    } else if (rolloutRate === 1 || this.isTestEmail(subject.email)) {
-      // fully rolled out gets treatment, to allow us to fully
-      // roll out treatment to everyone w/ minimal fuss if the
-      // experiment is positive.
+    } else if (this.isTestEmail(subject.email)) {
       return 'treatment';
       // these extra hacky email checks are because there are so many
       // long running experiments in play that using &forceExperiment
@@ -52,6 +57,11 @@ class CWTSOnSignupPasswordGroupingRule extends BaseGroupingRule {
       return 'treatment';
     } else if (/^signupPasswordCWTS\.control/.test(subject.email)) {
       return 'control';
+    } else if (rolloutRate === 1) {
+      // fully rolled out gets treatment, to allow us to fully
+      // roll out treatment to everyone w/ minimal fuss if the
+      // experiment is positive.
+      return 'treatment';
     } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
       return this.uniformChoice(GROUPS, subject.uniqueUserId);
     }
@@ -70,6 +80,7 @@ class CWTSOnSignupPasswordGroupingRule extends BaseGroupingRule {
     return !!(
       subject &&
       subject.email &&
+      'multiService' in subject &&
       subject.service &&
       subject.uniqueUserId
     );

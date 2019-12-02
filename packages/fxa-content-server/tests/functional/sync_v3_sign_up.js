@@ -4,6 +4,7 @@
 
 'use strict';
 
+const { assert } = intern.getPlugin('chai');
 const { registerSuite } = intern.getInterface('object');
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
@@ -556,7 +557,22 @@ registerSuite(
               )
             )
 
-            .then(testIsBrowserNotified('fxaccounts:login'))
+            .then(
+              testIsBrowserNotified('fxaccounts:login', event => {
+                assert.deepEqual(event.data.declinedSyncEngines, [
+                  'history',
+                  'passwords',
+                ]);
+                assert.deepEqual(event.data.offeredSyncEngines, [
+                  'bookmarks',
+                  'history',
+                  'passwords',
+                  'addons',
+                  'tabs',
+                  'prefs',
+                ]);
+              })
+            )
             .then(fillOutSignUpCode(email, 0))
 
             // about:accounts does not take over, expect a screen transition.

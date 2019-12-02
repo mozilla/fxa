@@ -18,11 +18,29 @@ export default {
   },
 
   doNotSync() {
-    this.relier.set('syncPreference', false);
-    this.logFlowEvent('cwts_do_not_sync', this.viewName);
+    this.disableSync();
     return Promise.resolve().then(() => {
       const account = this.getAccount();
       return this.onSubmitComplete(account);
     });
+  },
+
+  /**
+   * Mark that the user opted to disable Sync. Used
+   * to prevent sending the list of displayed/disabled
+   * Sync buckets to the browser with the login message.
+   */
+  disableSync() {
+    this.relier.set('syncPreference', false);
+    this.logFlowEvent('cwts_do_not_sync', this.viewName);
+  },
+
+  /**
+   * Mark that the user opted to enable Sync. Used
+   * to send the list of displayed/disabled
+   * Sync buckets to the browser with the login message.
+   */
+  enableSync() {
+    this.relier.set('syncPreference', true);
   },
 };

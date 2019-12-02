@@ -18,6 +18,7 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.isTrue(
         experiment._isValidSubject({
           email: 'baz',
+          multiService: true,
           service: 'bar',
           uniqueUserId: 'foo',
         })
@@ -26,19 +27,29 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.isFalse(
         experiment._isValidSubject({
           service: 'bar',
+          multiService: true,
           uniqueUserId: 'foo',
         })
       );
       assert.isFalse(
         experiment._isValidSubject({
           email: 'baz',
+          multiService: true,
           uniqueUserId: 'foo',
+        })
+      );
+      assert.isFalse(
+        experiment._isValidSubject({
+          email: 'baz',
+          multiService: true,
+          service: 'bar',
         })
       );
       assert.isFalse(
         experiment._isValidSubject({
           email: 'baz',
           service: 'bar',
+          uniqueUserId: 'foo',
         })
       );
     });
@@ -49,22 +60,36 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.isFalse(experiment.choose({}));
     });
 
-    it('returns false if service !== sync', () => {
+    it('returns `treatment` if service === sync', () => {
+      assert.equal(
+        experiment.choose({
+          email: 'foo',
+          multiService: false,
+          service: 'sync',
+          uniqueUserId: 'baz',
+        }),
+        'treatment'
+      );
+    });
+
+    it('returns false if service !== sync and multiService === false', () => {
       assert.isFalse(
         experiment.choose({
           email: 'foo',
+          multiService: false,
           service: 'bar',
           uniqueUserId: 'baz',
         })
       );
     });
 
-    it('returns false if rollout  rate is 0', () => {
+    it('returns false if rollout rate is 0', () => {
       assert.isFalse(
         experiment.choose({
           email: 'foo',
+          multiService: true,
           rolloutRate: 0,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         })
       );
@@ -74,8 +99,9 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'foo',
+          multiService: true,
           rolloutRate: 1,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         }),
         'treatment'
@@ -86,8 +112,9 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'testuser@mozilla.com',
+          multiService: true,
           rolloutRate: 0.2,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         }),
         'treatment'
@@ -98,8 +125,9 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'signupPasswordCWTS.treatment1234513125@restmail.net',
+          multiService: true,
           rolloutRate: 0.2,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         }),
         'treatment'
@@ -110,8 +138,9 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'signupPasswordCWTS.control@restmail.net',
+          multiService: true,
           rolloutRate: 0.2,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         }),
         'control'
@@ -125,8 +154,9 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.equal(
         experiment.choose({
           email: 'foo',
+          multiService: true,
           rolloutRate: 0.2,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         }),
         'quix'
@@ -139,8 +169,9 @@ describe('lib/experiments/grouping-rules/cwts-on-signup-password', () => {
       assert.isFalse(
         experiment.choose({
           email: 'foo',
+          multiService: true,
           rolloutRate: 0.2,
-          service: 'sync',
+          service: 'bar',
           uniqueUserId: 'baz',
         })
       );

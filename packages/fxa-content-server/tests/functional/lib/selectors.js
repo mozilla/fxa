@@ -20,6 +20,17 @@ const NEWSLETTERS = {
   ONLINE_SAFETY: 'input[value="knowledge-is-power"]',
 };
 
+const CWTS_ENGINES = {
+  ENGINE_ADDONS: '#sync-engine-addons',
+  ENGINE_ADDRESSES: '#sync-engine-addresses',
+  ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
+  ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',
+  ENGINE_HISTORY: '#sync-engine-history',
+  ENGINE_PASSWORDS: '#sync-engine-passwords',
+  ENGINE_PREFS: '#sync-engine-prefs',
+  ENGINE_TABS: '#sync-engine-tabs',
+};
+
 /*eslint-disable max-len*/
 module.exports = {
   '123DONE': {
@@ -59,15 +70,11 @@ module.exports = {
   },
   CHOOSE_WHAT_TO_SYNC: {
     DO_NOT_SYNC: '#do-not-sync-device',
-    ENGINE_ADDRESSES: '#sync-engine-addresses',
-    ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
-    ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',
-    ENGINE_HISTORY: '#sync-engine-history',
-    ENGINE_PASSWORDS: '#sync-engine-passwords',
     HEADER: '#fxa-choose-what-to-sync-header',
     NEWSLETTERS,
     NEWSLETTERS_HEADER: '.get-involved',
     SUBMIT: 'button[type=submit]',
+    ...CWTS_ENGINES,
   },
   COMPLETE_RESET_PASSWORD: {
     DAMAGED_LINK_HEADER: '#fxa-reset-link-damaged-header',
@@ -404,14 +411,6 @@ module.exports = {
     AGE: '#age',
     CHOOSE_WHAT_TO_SYNC_HEADER: '#fxa-choose-what-to-sync-header',
     EMAIL: 'input[type=email]',
-    ENGINE_ADDONS: '#sync-engine-addons',
-    ENGINE_ADDRESSES: '#sync-engine-addresses',
-    ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
-    ENGINE_CREDIT_CARDS: '#sync-engine-creditcards',
-    ENGINE_HISTORY: '#sync-engine-history',
-    ENGINE_PASSWORDS: '#sync-engine-passwords',
-    ENGINE_PREFS: '#sync-engine-prefs',
-    ENGINE_TABS: '#sync-engine-tabs',
     ERROR: '.error',
     ERROR_PASSWORDS_DO_NOT_MATCH: '.error',
     FIREFOX_FAMILY_SERVICES: '.firefox-family-services',
@@ -428,6 +427,7 @@ module.exports = {
     TOS: '#fxa-tos',
     TOOLTIP: '.tooltip',
     VPASSWORD: '#vpassword',
+    ...CWTS_ENGINES,
   },
   SMS_LEARN_MORE: {
     HEADER: '#firefox-notice',
