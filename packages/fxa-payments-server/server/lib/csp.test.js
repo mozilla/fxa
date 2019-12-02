@@ -15,7 +15,7 @@ describe('CSP blocking rules', () => {
   it('has correct connectSrc directives', () => {
     const { connectSrc } = directives;
 
-    expect(connectSrc).toHaveLength(5);
+    expect(connectSrc).toHaveLength(6);
     expect(connectSrc).toContain(Sources.SELF);
     expect(connectSrc).toContain(Sources.AUTH_SERVER);
     expect(connectSrc).toContain(Sources.OAUTH_SERVER);

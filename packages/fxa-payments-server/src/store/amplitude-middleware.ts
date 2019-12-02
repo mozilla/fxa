@@ -1,7 +1,9 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from 'redux';
 import { logAmplitudeEvent } from '../lib/flow-event';
-import * as Sentry from '@sentry/browser';
+import SentryMetrics from '../lib/sentry';
 import { config } from '../lib/config';
+
+const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 const eventGroupNames = {
   createSubscription: 'subPaySetup',
@@ -207,7 +209,7 @@ export const AmplitudeMiddleware: Middleware = (
     }
   } catch (e) {
     console.error('AppError', e);
-    Sentry.captureException(e);
+    sentryMetrics.captureException(e);
   }
 
   next(action);

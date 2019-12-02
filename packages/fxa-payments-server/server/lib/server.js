@@ -39,7 +39,10 @@ module.exports = () => {
       termsOfService: config.get('legalDocLinks.termsOfService'),
     },
     productRedirectURLs: config.get('productRedirectURLs'),
-    sentryDsn: config.get('sentryDsn'),
+    sentry: {
+      dsn: config.get('sentry.dsn'),
+      url: config.get('sentry.url'),
+    },
     servers: {
       auth: {
         url: config.get('servers.auth.url'),
@@ -64,9 +67,9 @@ module.exports = () => {
 
   app.disable('x-powered-by');
 
-  const sentryDsn = config.get('sentryDsn');
-  if (sentryDsn) {
-    sentry.init({ dsn: sentryDsn });
+  const sentryDSN = config.get('sentry.dsn');
+  if (sentryDSN) {
+    sentry.init({ dsn: sentryDSN });
     app.use(sentry.Handlers.requestHandler());
   }
 
@@ -224,7 +227,7 @@ module.exports = () => {
 
   app.use(routeHelpers.validationErrorHandler);
 
-  if (sentryDsn) {
+  if (sentryDSN) {
     app.use(sentry.Handlers.errorHandler());
   }
 

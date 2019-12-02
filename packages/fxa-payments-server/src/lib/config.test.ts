@@ -155,7 +155,10 @@ const expectedMergedConfig = {
       jenny: '8675309',
     },
   },
-  sentryDsn: '',
+  sentry: {
+    dsn: '',
+    url: 'https://sentry.prod.mozaws.net',
+  },
   servers: {
     auth: {
       url: '',

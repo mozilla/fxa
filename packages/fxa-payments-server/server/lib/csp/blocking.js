@@ -22,6 +22,7 @@ module.exports = function(config) {
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
   const ACCOUNTS_STATIC_CDN = 'https://accounts-static.cdn.mozilla.net/';
+  const SENTRY_SERVER = getOrigin(config.get('sentry.url'));
   const OAUTH_SERVER = getOrigin(config.get('servers.oauth.url'));
   const PROFILE_SERVER = getOrigin(config.get('servers.profile.url'));
   const PROFILE_IMAGES_SERVER = getOrigin(
@@ -60,6 +61,7 @@ module.exports = function(config) {
         AUTH_SERVER,
         OAUTH_SERVER,
         PROFILE_SERVER,
+        SENTRY_SERVER,
         STRIPE_API_URL,
       ],
       defaultSrc: [SELF],
@@ -96,6 +98,7 @@ module.exports = function(config) {
       ACCOUNTS_STATIC_CDN,
       PROFILE_SERVER,
       PUBLIC_URL,
+      SENTRY_SERVER,
       STRIPE_API_URL,
       STRIPE_HOOKS_URL,
       STRIPE_SCRIPT_URL,

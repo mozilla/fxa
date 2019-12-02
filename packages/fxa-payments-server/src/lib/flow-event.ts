@@ -1,5 +1,8 @@
-import * as Sentry from '@sentry/browser';
 import SpeedTrap from 'speed-trap';
+import SentryMetrics from './sentry';
+import { config } from './config';
+
+const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 interface FlowEventParams {
   device_id?: string;
@@ -71,7 +74,7 @@ export function logAmplitudeEvent(
     postMetrics(eventData);
   } catch (e) {
     console.error('AppError', e);
-    Sentry.captureException(e);
+    sentryMetrics.captureException(e);
   }
 }
 
@@ -104,7 +107,7 @@ export function logPerformanceEvent(view: string, perfStartTime: number) {
     postMetrics(eventData);
   } catch (e) {
     console.error('AppError', e);
-    Sentry.captureException(e);
+    sentryMetrics.captureException(e);
   }
 }
 
