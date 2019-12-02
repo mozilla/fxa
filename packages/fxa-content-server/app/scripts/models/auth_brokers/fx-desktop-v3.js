@@ -11,21 +11,24 @@
 
 import _ from 'underscore';
 import Cocktail from 'cocktail';
-import FxDesktopV2AuthenticationBroker from './fx-desktop-v2';
+import FxSyncWebChannelAuthenticationBroker from './fx-sync-web-channel';
 import UserAgentMixin from 'lib/user-agent-mixin';
 
-const proto = FxDesktopV2AuthenticationBroker.prototype;
+const proto = FxSyncWebChannelAuthenticationBroker.prototype;
 
-const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
-  defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
-    allowUidChange: true,
-    disableLegacySigninSignup: true,
-    emailFirst: true,
-    tokenCode: true,
-  }),
+const FxDesktopV3AuthenticationBroker = FxSyncWebChannelAuthenticationBroker.extend(
+  {
+    defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
+      allowUidChange: true,
+      disableLegacySigninSignup: true,
+      emailFirst: true,
+      openWebmailButtonVisible: true,
+      tokenCode: true,
+    }),
 
-  type: 'fx-desktop-v3',
-});
+    type: 'fx-desktop-v3',
+  }
+);
 
 Cocktail.mixin(FxDesktopV3AuthenticationBroker, UserAgentMixin);
 
