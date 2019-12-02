@@ -124,20 +124,19 @@ const View = FormView.extend(
       return _.map(items, item => {
         item.title = item.name;
 
-        if (item.scope) {
-          item.title += ' - ' + item.scope;
-        }
-
         if (item.lastAccessTimeFormatted) {
           if (item.clientType === Constants.CLIENT_TYPE_WEB_SESSION) {
             if (item.userAgent) {
-              item.title = this.translate(t('Web Session, %(userAgent)s'), {
+              item.title = this.translate(t('%(userAgent)s (Web Session)'), {
                 userAgent: item.userAgent,
               });
             } else {
               item.title = t('Web Session');
             }
             this._setLastAccessTimeFormatted(item, LAST_ACTIVITY_FORMATS.web);
+          } else if (item.deviceId === null) {
+            item.name = `${item.name} (Web Session)`;
+            item.title = item.name;
           } else if (item.clientType === Constants.CLIENT_TYPE_DEVICE) {
             this._setLastAccessTimeFormatted(
               item,
@@ -153,6 +152,10 @@ const View = FormView.extend(
             // unknown lastAccessTimeFormatted or not possible to format.
             item.lastAccessTimeFormatted = '';
           }
+        }
+
+        if (item.scope) {
+          item.title = `${item.title} - ${item.scope}`;
         }
 
         return item;

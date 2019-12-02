@@ -754,6 +754,15 @@ describe('views/settings/clients', () => {
             isDevice: true,
             name: 'device-2',
           },
+          {
+            clientType: 'device',
+            deviceId: null,
+            deviceType: 'mobile',
+            isCurrentSession: false,
+            isDevice: true,
+            name: 'device-3',
+            lastAccessTimeFormatted: '20 minutes ago',
+          },
         ]);
 
         assert.equal(formatted[0].title, '123Done - profile');
@@ -763,7 +772,7 @@ describe('views/settings/clients', () => {
         );
         assert.equal(formatted[1].title, 'Pocket - profile,profile:write');
         assert.equal(formatted[2].title, 'Add-ons');
-        assert.equal(formatted[3].title, 'Web Session, Firefox 40');
+        assert.equal(formatted[3].title, 'Firefox 40 (Web Session)');
         assert.equal(formatted[4].title, 'Web Session');
         assert.equal(formatted[5].title, 'device-1');
         assert.equal(
@@ -775,6 +784,7 @@ describe('views/settings/clients', () => {
           formatted[6].lastAccessTimeFormatted,
           'Last seen time unknown'
         );
+        assert.equal(formatted[7].title, 'device-3 (Web Session)');
       });
     });
   });
