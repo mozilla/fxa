@@ -53,17 +53,7 @@ registerSuite('signin with OAuth after Sync', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openPage(SYNC_EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(SYNC_EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
 
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
@@ -143,17 +133,7 @@ registerSuite('signin to Sync after OAuth', {
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testElementTextEquals(selectors['123DONE'].AUTHENTICATED, email))
 
-        .then(
-          openPage(SYNC_EMAIL_FIRST_URL, selectors.SIGNIN_PASSWORD.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
-          })
-        )
+        .then(openPage(SYNC_EMAIL_FIRST_URL, selectors.SIGNIN_PASSWORD.HEADER))
         .then(
           testElementTextEquals(
             selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,

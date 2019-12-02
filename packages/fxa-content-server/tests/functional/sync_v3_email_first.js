@@ -49,13 +49,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       return (
         this.remote
           // redirected immediately to the / page
-          .then(
-            openPage(SIGNUP_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-              },
-            })
-          )
+          .then(openPage(SIGNUP_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
           .then(
             click(
@@ -76,13 +70,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
           // redirected immediately to the / page
-          .then(
-            openPage(SIGNIN_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-              },
-            })
-          )
+          .then(openPage(SIGNIN_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
           .then(
             click(
@@ -100,13 +88,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
     'enter a firefox.com address': function() {
       return this.remote
-        .then(
-          openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-            },
-          })
-        )
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
 
         .then(type(selectors.ENTER_EMAIL.EMAIL, 'testuser@firefox.com'))
@@ -122,13 +104,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
     signup: function() {
       return (
         this.remote
-          .then(
-            openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-              },
-            })
-          )
+          .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
           .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
           .then(
@@ -202,9 +178,6 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             query: {
               coppa: 'false',
             },
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-            },
           })
         )
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
@@ -227,13 +200,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
     'merge cancelled': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(
-          openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: false },
-            },
-          })
-        )
+        .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
 
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -250,9 +217,6 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
               email: invalidEmail,
-            },
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
             },
           })
         )
@@ -275,9 +239,6 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             query: {
               email: emptyEmail,
             },
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-            },
           })
         )
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, emptyEmail))
@@ -297,9 +258,6 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             openPage(INDEX_PAGE_URL, selectors.SIGNUP_PASSWORD.HEADER, {
               query: {
                 email,
-              },
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
               },
             })
           )
@@ -324,9 +282,6 @@ registerSuite('Firefox Desktop Sync v3 email first', {
             openPage(INDEX_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
               query: {
                 email,
-              },
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
               },
             })
           )
@@ -367,17 +322,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
 
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
           .then(
@@ -397,17 +342,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
           .then(fillOutSignInTokenCode(email, 0))
 
           // Use cached credentials form last time, but user must enter password
-          .then(
-            openPage(INDEX_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(INDEX_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email))
           // user wants to use a different email
           .then(

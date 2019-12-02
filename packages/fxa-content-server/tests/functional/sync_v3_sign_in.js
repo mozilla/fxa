@@ -54,10 +54,6 @@ const setupTest = thenify(function(options = {}) {
     .then(
       openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
         query,
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true },
-          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
-        },
       })
     )
     .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
@@ -83,13 +79,6 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query,
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
           })
         )
         .then(fillOutEmailFirstSignIn(email, PASSWORD))

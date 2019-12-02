@@ -283,15 +283,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               service: 'sync',
               uid: createUID(),
             },
-            webChannelResponses: {
-              'fxaccounts:can_link_account': {
-                ok: true,
-              },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
           })
         )
         .then(noSuchBrowserNotification('fxaccounts:logout'))

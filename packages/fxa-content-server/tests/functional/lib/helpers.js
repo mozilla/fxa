@@ -9,10 +9,11 @@ const pollUntil = require('@theintern/leadfoot/helpers/pollUntil').default;
 const Url = require('url');
 const Querystring = require('querystring');
 const nodeXMLHttpRequest = require('xmlhttprequest');
-const assert = intern.getPlugin('chai').assert;
 const mkdirp = require('mkdirp');
 const fs = require('fs');
 const crypto = require('crypto');
+const { assert } = intern.getPlugin('chai');
+const UAParser = require('ua-parser-js');
 
 // Default options for TOTP
 const otplib = require('otplib');
@@ -113,6 +114,7 @@ const takeScreenshot = function() {
               `Screenshot saved at: ${screenCaptureHost}${res.headers.location}`
             );
           },
+          //eslint-disable-next-line handle-callback-err
           err => {
             console.error('Capturing base64 screenshot:');
             console.error(`data:image/png;base64,${buffer.toString('base64')}`);
@@ -1370,13 +1372,54 @@ const openSignUpInNewTab = thenify(function() {
  * @returns {Promise} - resolves when complete
  */
 const openPage = thenify(function(url, readySelector, options = {}) {
+  url = addQueryParamsToLink(url, options.query || {});
+
+  function isWebChannelSync() {
+    return (
+      /context=fx_desktop_v3/.test(url) || /context=fx_fennec_v1/.test(url)
+    );
+  }
+
+  function isUAWithWebChannelSupport() {
+    const forceUARegExp = /forceUA=([^&]+)/;
+    const matches = forceUARegExp.exec(url);
+    if (matches) {
+      const uap = UAParser(decodeURIComponent(matches[1]));
+
+      return (
+        uap.browser.name === 'Firefox' &&
+        uap.os.name !== 'iOS' &&
+        parseInt(uap.browser.major, 10) > 40
+      );
+    }
+    return false;
+  }
+
+  if (isWebChannelSync() || isUAWithWebChannelSupport()) {
+    if (!options.webChannelResponses) {
+      options.webChannelResponses = {};
+    }
+
+    if (!options.webChannelResponses['fxaccounts:can_link_account']) {
+      options.webChannelResponses['fxaccounts:can_link_account'] = { ok: true };
+    }
+
+    if (!options.webChannelResponses['fxaccounts:fxa_status']) {
+      options.webChannelResponses['fxaccounts:fxa_status'] = {
+        capabilities: null,
+        signedInUser: null,
+      };
+    }
+  }
   if (options.webChannelResponses) {
-    options.query = options.query || {};
     // If there are webChannelResponses, the automatedBrowser
     // query param introduces a short delay so that the web
     // channel response listeners can be hooked up before FxA
     // sends the fxaccounts:fxa_status message.
-    options.query.automatedBrowser = true;
+    options.query = {
+      automatedBrowser: true,
+      ...options.query,
+    };
   }
 
   url = addQueryParamsToLink(url, options.query);

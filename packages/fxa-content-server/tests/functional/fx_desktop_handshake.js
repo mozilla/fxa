@@ -248,15 +248,7 @@ registerSuite('Firefox desktop user info handshake', {
 
     'Sync - no user signed into browser, no user signed in locally': function() {
       return this.remote
-        .then(
-          openPage(SYNC_ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                signedInUser: null,
-              },
-            },
-          })
-        )
+        .then(openPage(SYNC_ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''));
     },
 
@@ -264,29 +256,14 @@ registerSuite('Firefox desktop user info handshake', {
       return (
         this.remote
           // First, sign in the user to populate localStorage
-          .then(
-            openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
           .then(
             openPage(
               SYNC_ENTER_EMAIL_PAGE_URL,
-              selectors.SIGNIN_PASSWORD.HEADER,
-              {
-                webChannelResponses: {
-                  'fxaccounts:fxa_status': {
-                    signedInUser: null,
-                  },
-                },
-              }
+              selectors.SIGNIN_PASSWORD.HEADER
             )
           )
 
@@ -388,51 +365,23 @@ registerSuite('Firefox desktop user info handshake', {
 
     'Sync settings page - no user signed into browser': function() {
       return this.remote.then(
-        openPage(SYNC_SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-          webChannelResponses: {
-            'fxaccounts:fxa_status': {
-              signedInUser: null,
-            },
-          },
-        })
+        openPage(SYNC_SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER)
       );
     },
 
     'Non-Sync settings page - no user signed into browser, no user signed in locally': function() {
       return this.remote.then(
-        openPage(SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-          webChannelResponses: {
-            'fxaccounts:fxa_status': {
-              signedInUser: null,
-            },
-          },
-        })
+        openPage(SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER)
       );
     },
 
     'Non-Sync settings page - no user signed into browser, user signed in locally': function() {
       return this.remote
-        .then(
-          openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                signedInUser: null,
-              },
-            },
-          })
-        )
+        .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
-        .then(
-          openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                signedInUser: null,
-              },
-            },
-          })
-        )
+        .then(openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER))
 
         .then(
           testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, otherEmail)
