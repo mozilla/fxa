@@ -30,7 +30,9 @@
           {{/emailVerified}}
 
           {{^emailVerified}}
-              <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
+            {{#noRelierServiceDefault}}
+              <p class="account-ready-generic">{{#t}}You are now ready to use %(noRelierServiceDefault)s{{/t}}</p>
+            {{/noRelierServiceDefault}}
           {{/emailVerified}}
       {{/serviceName}}
     {{/isSync}}

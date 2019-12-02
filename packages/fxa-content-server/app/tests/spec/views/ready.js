@@ -109,14 +109,20 @@ describe('views/ready', function() {
     });
 
     // regression test for #1216
-    it('does not show service name if service is defined but serviceName is not', function() {
+    it('shows `noRelierServiceDefault` text if service is defined but serviceName is not', function() {
       createView(VerificationReasons.SIGN_UP);
       sinon.stub(view, 'setInitialContext').callsFake(context => {
-        context.set('service', 'sync');
+        context.set({
+          service: 'sync',
+          noRelierServiceDefault: 'Another Service',
+        });
       });
 
       return view.render().then(function() {
-        assert.ok(view.$('.account-ready-generic').length);
+        assert.equal(
+          view.$('.account-ready-generic').text(),
+          'You are now ready to use Another Service'
+        );
       });
     });
 

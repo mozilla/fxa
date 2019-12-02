@@ -171,7 +171,10 @@ describe('/views/force_auth', function() {
 
       it('renders as expected', () => {
         assert.isFalse(view.navigate.called);
-        assert.lengthOf(view.$(Selectors.SUB_HEADER), 0);
+        assert.equal(
+          view.$(Selectors.SUB_HEADER).text(),
+          'Continue to Account Settings'
+        );
         assert.equal(view.$(Selectors.EMAIL).val(), email);
         assert.equal(view.$(Selectors.EMAIL_NOT_EDITABLE).text(), email);
         assert.lengthOf(view.$('.error.visible'), 0);

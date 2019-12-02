@@ -63,6 +63,12 @@ describe('views/mixins/service-mixin', () => {
       assert.equal(context.get('service'), 'sync');
       assert.equal(context.get('serviceName'), 'Firefox Sync');
     });
+
+    it('sets `noRelierServiceDefault`', () => {
+      const context = new Backbone.Model({});
+      view.setInitialContext(context);
+      assert.equal(context.get('noRelierServiceDefault'), 'Account Settings');
+    });
   });
 
   describe('render', () => {

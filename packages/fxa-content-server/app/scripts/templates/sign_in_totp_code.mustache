@@ -1,9 +1,14 @@
 <div id="main-content" class="card">
   <header>
     <h1 id="fxa-totp-code-header">{{#t}}Enter security code{{/t}}
-        {{#serviceName}}
-            <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-        {{/serviceName}}
+      {{#serviceName}}
+          <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      {{/serviceName}}
+      {{^serviceName}}
+        {{#noRelierServiceDefault}}
+          <span class="service">{{#t}}Continue to %(noRelierServiceDefault)s{{/t}}
+        {{/noRelierServiceDefault}}
+      {{/serviceName}}
     </h1>
   </header>
 

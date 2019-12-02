@@ -21,12 +21,15 @@
     {{^isLinkExpired}}
         <header>
             <h1 id="fxa-recovery-key-confirm">
+                {{#t}}Reset password with recovery key{{/t}}
+                <!-- L10N: For languages structured like English, this phrase can read "to continue to %(serviceName)s" -->
                 {{#serviceName}}
-                    <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                    {{#t}}Reset password with recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+                    <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
                 {{/serviceName}}
                 {{^serviceName}}
-                    {{#t}}Reset password with recovery key{{/t}}
+                    {{#noRelierServiceDefault}}
+                        <span class="service">{{#t}}Continue to %(noRelierServiceDefault)s{{/t}}</span>
+                    {{/noRelierServiceDefault}}
                 {{/serviceName}}
             </h1>
         </header>

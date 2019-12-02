@@ -14,7 +14,10 @@ export default {
   },
 
   setInitialContext(context) {
-    context.set(this.relier.pick('service', 'serviceName'));
+    context.set({
+      ...this.relier.pick('service', 'serviceName'),
+      noRelierServiceDefault: 'Account Settings',
+    });
   },
 
   transformLinks() {
