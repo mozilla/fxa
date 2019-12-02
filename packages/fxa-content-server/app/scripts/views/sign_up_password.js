@@ -36,7 +36,6 @@ const SignUpPasswordView = FormView.extend({
 
   events: assign({}, FormView.prototype.events, {
     'click .use-different': preventDefaultThen('useDifferentAccount'),
-    'keyup #vpassword': '_onConfirmPasswordKeyUp',
   }),
 
   useDifferentAccount() {
@@ -86,6 +85,12 @@ const SignUpPasswordView = FormView.extend({
     return proto.isValidEnd.call(this);
   },
 
+  onFormChange() {
+    this.checkPasswordsMatchDebounce();
+
+    return proto.onFormChange.call(this);
+  },
+
   showValidationErrorsEnd() {
     if (!this._doPasswordsMatch()) {
       this.showValidationError(
@@ -93,6 +98,9 @@ const SignUpPasswordView = FormView.extend({
         AuthErrors.toError('PASSWORDS_DO_NOT_MATCH'),
         false
       );
+    } else {
+      // Called to clear validation tooltips.
+      this.$(VPASSWORD_INPUT_SELECTOR).change();
     }
   },
 
@@ -123,10 +131,6 @@ const SignUpPasswordView = FormView.extend({
 
   _doPasswordsMatch() {
     return this._getPassword() === this._getVPassword();
-  },
-
-  _onConfirmPasswordKeyUp() {
-    this.checkPasswordsMatchDebounce();
   },
 
   _checkPasswordsMatch() {
