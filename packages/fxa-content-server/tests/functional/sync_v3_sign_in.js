@@ -11,7 +11,7 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&automatedBrowser=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
 
 let email;
 const PASSWORD = '12345678';

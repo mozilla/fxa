@@ -47,7 +47,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(function(accountInfo) {
           return openForceAuth({
             query: {
-              automatedBrowser: true,
               context: 'fx_desktop_v3',
               email,
               forceUA: uaStrings['desktop_firefox_71'],
@@ -80,7 +79,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(function(accountInfo) {
           return openForceAuth({
             query: {
-              automatedBrowser: true,
               context: 'fx_desktop_v3',
               email: email,
               forceUA: uaStrings['desktop_firefox_71'],
@@ -115,7 +113,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(
           openForceAuth({
             query: {
-              automatedBrowser: true,
               context: 'fx_desktop_v3',
               email: email,
               forceUA: uaStrings['desktop_firefox_71'],
@@ -154,7 +151,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               // specified email
               header: selectors.SIGNUP_PASSWORD.HEADER,
               query: {
-                automatedBrowser: true,
                 context: 'fx_desktop_v3',
                 email: email,
                 forceUA: uaStrings['desktop_firefox_71'],
@@ -205,7 +201,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               // specified email
               header: selectors.SIGNUP_PASSWORD.HEADER,
               query: {
-                automatedBrowser: true,
                 context: 'fx_desktop_v3',
                 email: unregisteredEmail,
                 forceAboutAccounts: 'true',
@@ -249,7 +244,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               // specified email
               header: selectors.SIGNUP_PASSWORD.HEADER,
               query: {
-                automatedBrowser: true,
                 context: 'fx_desktop_v3',
                 email: email,
                 forceAboutAccounts: 'true',
@@ -287,7 +281,6 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
           .then(
             openForceAuth({
               query: {
-                automatedBrowser: true,
                 context: 'fx_desktop_v3',
                 email: email,
                 forceAboutAccounts: 'true',

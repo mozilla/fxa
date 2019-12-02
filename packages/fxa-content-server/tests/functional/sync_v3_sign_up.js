@@ -12,7 +12,7 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
 
 let email;
 const PASSWORD = 'password12345678';
@@ -177,8 +177,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           // the login message is only sent after the sync preferences screen
           // has been cleared.
           .then(testIsBrowserNotified('fxaccounts:login'))
-          // verify the user
-          .then(getWebChannelMessageData('fxaccounts:login'))
           .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       );

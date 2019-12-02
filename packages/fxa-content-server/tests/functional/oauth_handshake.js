@@ -81,7 +81,6 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
             openFxaFromRp('enter-email', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
               query: {
-                automatedBrowser: true,
                 forceUA: userAgent,
               },
               webChannelResponses: {
@@ -117,7 +116,6 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
             openFxaFromRp('enter-email', {
               header: selectors.ENTER_EMAIL.HEADER,
               query: {
-                automatedBrowser: true,
                 forceUA: userAgent,
               },
               webChannelResponses: {
@@ -142,7 +140,6 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
             openFxaFromRp('enter-email', {
               header: selectors.SIGNIN_PASSWORD.HEADER,
               query: {
-                automatedBrowser: true,
                 forceUA: userAgent,
               },
               webChannelResponses: {
