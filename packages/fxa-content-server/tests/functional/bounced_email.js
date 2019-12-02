@@ -48,17 +48,7 @@ registerSuite('signup with an email that bounces', {
         // ensure a fresh signup page is loaded. If this suite is
         // run after a Sync suite, these tests try to use a Sync broker
         // which results in a channel timeout.
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
-          })
-        )
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     );
   },
 
@@ -121,14 +111,7 @@ const setUpBouncedSignIn = thenify(function(email) {
   return this.parent
     .then(clearBrowserState({ force: true }))
     .then(createUser(email, PASSWORD, { preVerified: true }))
-    .then(
-      openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true },
-          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
-        },
-      })
-    )
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))

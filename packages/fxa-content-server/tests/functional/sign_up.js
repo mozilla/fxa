@@ -327,11 +327,6 @@ registerSuite('signup here', {
             query: {
               forceUA: UA_STRINGS['desktop_firefox_58'],
             },
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                signedInUser: null,
-              },
-            },
           })
         )
         .then(click(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))

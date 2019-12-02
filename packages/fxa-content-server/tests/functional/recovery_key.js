@@ -95,16 +95,7 @@ registerSuite('Recovery key', {
     'can reset password with recovery key': function() {
       return (
         this.remote
-          .then(
-            openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
           .then(openVerificationLinkInSameTab(email, 2))
@@ -143,16 +134,7 @@ registerSuite('Recovery key', {
     'can reset password when forgot recovery key': function() {
       return (
         this.remote
-          .then(
-            openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
           .then(openVerificationLinkInSameTab(email, 2))
@@ -183,16 +165,7 @@ registerSuite('Recovery key', {
     'can not re-use recovery key': function() {
       return (
         this.remote
-          .then(
-            openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
+          .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
           .then(fillOutResetPassword(email))
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
           .then(openVerificationLinkInSameTab(email, 2))

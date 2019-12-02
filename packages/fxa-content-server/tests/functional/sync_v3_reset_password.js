@@ -40,9 +40,6 @@ const setupTest = thenify(function(query) {
       .then(
         openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER, {
           query,
-          webChannelResponses: {
-            'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
-          },
         })
       )
       .then(fillOutResetPassword(email))
