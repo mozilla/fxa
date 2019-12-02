@@ -235,7 +235,9 @@ const Router = Backbone.Router.extend({
     }),
     'signin_recovery_code(/)': createViewHandler(SignInRecoveryCodeView),
     'signin_reported(/)': createViewHandler(SignInReportedView),
-    'signin_token_code(/)': createViewHandler(SignInTokenCodeView),
+    'signin_token_code(/)': createViewHandler(SignInTokenCodeView, {
+      type: VerificationReasons.SIGN_IN,
+    }),
     'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
     'signin_unblock(/)': createViewHandler(SignInUnblockView),
     'signin_verified(/)': createViewHandler(ReadyView, {

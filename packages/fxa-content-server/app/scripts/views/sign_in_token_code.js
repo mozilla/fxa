@@ -11,6 +11,7 @@ import Constants from '../lib/constants';
 import FormView from './form';
 import Template from 'templates/sign_in_token_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
+import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
@@ -27,6 +28,17 @@ const View = FormView.extend({
     if (!this.model.get('account')) {
       this.navigate(this._getAuthPage());
     }
+  },
+
+  afterVisible() {
+    // waitForSessionVerification handles bounced emails and will redirect
+    // the user to the appropriate screen depending on whether the account
+    // is deleted. If the account no longer exists, redirects the user to
+    // sign up, if the account exists, then notifies them their account
+    // has been blocked.
+    this.waitForSessionVerification(this.getAccount(), () => {
+      // don't do anything on verification, that's taken care of in the submit handler.
+    });
   },
 
   setInitialContext(context) {
@@ -82,6 +94,6 @@ const View = FormView.extend({
   },
 });
 
-Cocktail.mixin(View, ResendMixin());
+Cocktail.mixin(View, ResendMixin(), SessionVerificationPollMixin);
 
 export default View;
