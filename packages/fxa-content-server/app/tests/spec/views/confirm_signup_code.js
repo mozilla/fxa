@@ -122,12 +122,10 @@ describe('views/confirm_signup_code', () => {
   });
 
   describe('afterVisible', () => {
-    it('notifies the broker before the confirmation', () => {
+    it('notifies the broker before the confirmation, starts polling', () => {
       sinon.spy(broker, 'persistVerificationData');
-
-      sinon
-        .stub(broker, 'beforeSignUpConfirmationPoll')
-        .callsFake(() => Promise.resolve());
+      sinon.stub(broker, 'beforeSignUpConfirmationPoll').resolves({});
+      sinon.stub(view, 'waitForSessionVerification');
 
       return view.afterVisible().then(function() {
         assert.isTrue(
@@ -138,6 +136,7 @@ describe('views/confirm_signup_code', () => {
           broker.beforeSignUpConfirmationPoll.calledOnce,
           'called beforeSignUpConfirmationPoll'
         );
+        assert.isTrue(view.waitForSessionVerification.calledOnceWith(account));
         assert.isTrue(broker.beforeSignUpConfirmationPoll.calledWith(account));
       });
     });
