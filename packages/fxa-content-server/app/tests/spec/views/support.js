@@ -62,6 +62,10 @@ describe('views/support', function() {
         captureException() {},
       },
     });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
+
     sinon.spy(notifier, 'trigger');
     profileClient = new ProfileClient();
     relier = new Relier();
