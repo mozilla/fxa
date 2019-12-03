@@ -15,8 +15,6 @@ const userAgent = require('./lib/ua-strings');
 const config = intern._config;
 
 const ENTER_EMAIL_URL = config.fxaContentRoot;
-// The automatedBrowser query param tells signin/up to stub parts of the flow
-// that require a functioning desktop channel
 const PAGE_ENTER_EMAIL_SYNC_DESKTOP = `${config.fxaContentRoot}?context=${FX_DESKTOP_V3_CONTEXT}&service=sync`;
 
 const PASSWORD = 'password12345678';
@@ -360,7 +358,6 @@ registerSuite('cached signin', {
             selectors.SIGNIN_PASSWORD.HEADER,
             {
               query: {
-                automatedBrowser: true,
                 forceUA: userAgent['desktop_firefox_71'],
               },
               webChannelResponses: {

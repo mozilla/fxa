@@ -1360,8 +1360,15 @@ const openSignUpInNewTab = thenify(function() {
  *  @param {Object} [options.query] - extra query parameters to add
  * @returns {Promise} - resolves when complete
  */
-const openPage = thenify(function(url, readySelector, options) {
-  options = options || {};
+const openPage = thenify(function(url, readySelector, options = {}) {
+  if (options.webChannelResponses) {
+    options.query = options.query || {};
+    // If there are webChannelResponses, the automatedBrowser
+    // query param introduces a short delay so that the web
+    // channel response listeners can be hooked up before FxA
+    // sends the fxaccounts:fxa_status message.
+    options.query.automatedBrowser = true;
+  }
 
   url = addQueryParamsToLink(url, options.query);
 

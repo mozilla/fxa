@@ -100,7 +100,7 @@ registerSuite('oauth webchannel', {
         .then(testIsBrowserNotified('fxaccounts:oauth_login'));
     },
     settings: function() {
-      const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?automatedBrowser=true&context=oauth_webchannel_v1`;
+      const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?context=oauth_webchannel_v1`;
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
