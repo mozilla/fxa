@@ -1,3 +1,9 @@
+## 1.151.3
+
+### Bug fixes
+
+- sentry: Remove Sentry until we get everything else figured out. (58796a368)
+
 ## 1.151.2
 
 ### New features
