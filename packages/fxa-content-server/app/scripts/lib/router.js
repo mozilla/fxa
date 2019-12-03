@@ -147,6 +147,15 @@ const Router = Backbone.Router.extend({
     'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
     'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
     'pair/unsupported(/)': createViewHandler('pair/unsupported'),
+    'post_verify/secondary_email/add_secondary_email': createViewHandler(
+      'post_verify/secondary_email/add_secondary_email'
+    ),
+    'post_verify/secondary_email/confirm_secondary_email': createViewHandler(
+      'post_verify/secondary_email/confirm_secondary_email'
+    ),
+    'post_verify/secondary_email/verified_secondary_email': createViewHandler(
+      'post_verify/verified'
+    ),
     'primary_email_verified(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.PRIMARY_EMAIL_VERIFIED,
     }),

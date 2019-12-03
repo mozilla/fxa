@@ -223,6 +223,26 @@ module.exports = {
   PAYMENTS: {
     HEADER: '.plan-details',
   },
+  POST_VERIFY_ADD_SECONDARY_EMAIL: {
+    EMAIL: 'input[type=email]',
+    ERROR: '.error',
+    HEADER: '#fxa-add-secondary-email-header',
+    SUBMIT: 'button[type="submit"]',
+    TOOLTIP: 'input[type=email] ~ .tooltip',
+    TOOLTIP_BOUNCED_EMAIL: 'input[type=email] ~ .tooltip',
+  },
+  POST_VERIFY_CONFIRM_SECONDARY_EMAIL: {
+    INPUT: 'input[type=text]',
+    ERROR: '.error',
+    HEADER: '#fxa-confirm-secondary-email-header',
+    RESEND: '#resend',
+    SUBMIT: 'button[type="submit"]',
+    TOOLTIP: 'input[type=text] ~ .tooltip',
+  },
+  POST_VERIFY_VERIFIED: {
+    READY: '.account-ready-service',
+    SUBMIT: 'button[type="submit"]',
+  },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',

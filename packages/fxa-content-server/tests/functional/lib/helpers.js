@@ -925,6 +925,29 @@ const getSignupCode = thenify(function(user, index) {
 });
 
 /**
+ * Get the code to verify a secondary email.
+ *
+ * @param {string} user or email
+ * @param {number} index
+ * @returns {promise} that resolves with code
+ */
+const getEmailCode = thenify(function(user, index) {
+  if (/@/.test(user)) {
+    user = TestHelpers.emailToUser(user);
+  }
+
+  return this.parent.then(getEmailHeaders(user, index)).then(headers => {
+    const code = headers['x-verify-code'];
+    if (!code) {
+      throw new Error(
+        'Email does not contain code: ' + headers['x-template-name']
+      );
+    }
+    return code;
+  });
+});
+
+/**
  * Test to ensure an expected email arrives
  *
  * @param {string} user - username or email address
@@ -1612,6 +1635,17 @@ const fillOutSignUpCode = thenify(function(email, number) {
     .then(getSignupCode(email, number))
     .then(code => {
       return this.parent.then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, code));
+    })
+    .then(click('button[type=submit]'));
+});
+
+const fillOutPostVerifySecondaryEmailCode = thenify(function(email, number) {
+  return this.parent
+    .then(getEmailCode(email, number))
+    .then(code => {
+      return this.parent.then(
+        type(selectors.POST_VERIFY_CONFIRM_SECONDARY_EMAIL.INPUT, code)
+      );
     })
     .then(click('button[type=submit]'));
 });
@@ -2584,6 +2618,7 @@ module.exports = {
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutForceAuth,
+  fillOutPostVerifySecondaryEmailCode,
   fillOutRecoveryKey,
   fillOutResetPassword,
   fillOutSignIn,
@@ -2595,6 +2630,7 @@ module.exports = {
   generateTotpCode,
   getEmail,
   getEmailHeaders,
+  getEmailCode,
   getFxaClient,
   getQueryParamValue,
   getSignupCode,

@@ -1,0 +1,34 @@
+<div id="main-content" class="card confirm-signup">
+    <header>
+        <h1 id="fxa-confirm-secondary-email-header">
+            {{#serviceName}}
+                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Enter verification code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+            {{/serviceName}}
+            {{^serviceName}}
+                {{#t}}Enter verification code{{/t}}
+            {{/serviceName}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="error"></div>
+        <div class="success"></div>
+
+        <div class="graphic graphic-mail"></div>
+
+        <p class="verification-email-message">{{#unsafeTranslate}}Please enter the verification code that was sent to %(escapedEmail)s within 5 minutes.{{/unsafeTranslate}}</p>
+        <form novalidate>
+            <div class="input-row">
+                <!-- Using `type="text" inputmode="numeric"` shows the numericpad on mobile and strips out whitespace on desktop. -->
+                <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+            </div>
+            <div class="button-row">
+                <button id="submit-btn" type="submit">{{#t}}Verify{{/t}}</button>
+            </div>
+            <div class="links">
+                <a id="resend" class="left delayed-fadein" href="#">{{#t}}Need another code? Resend{{/t}}</a>
+            </div>
+        </form>
+    </section>
+</div>

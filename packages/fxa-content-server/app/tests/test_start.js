@@ -227,6 +227,8 @@ require('./spec/views/password_strength/password_strength_balloon');
 require('./spec/views/password_strength/password_with_strength_balloon');
 require('./spec/views/permissions');
 require('./spec/views/pp');
+require('./spec/views/post_verify/secondary_email/add_secondary_email');
+require('./spec/views/post_verify/secondary_email/confirm_secondary_email');
 require('./spec/views/progress_indicator');
 require('./spec/views/ready');
 require('./spec/views/report_sign_in');

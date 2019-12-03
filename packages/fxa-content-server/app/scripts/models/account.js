@@ -1326,13 +1326,15 @@ const Account = Backbone.Model.extend(
      * Associates a new email to a user's account.
      *
      * @param {String} email
-     *
+     * @param {Object} [options={}] options
+     *   @param {Boolean} [options.verificationMethod]  method to verify the recovery email with, ex. email-otp (for codes)
      * @returns {Promise}
      */
-    recoveryEmailCreate(email) {
+    recoveryEmailCreate(email, options = {}) {
       return this._fxaClient.recoveryEmailCreate(
         this.get('sessionToken'),
-        email
+        email,
+        options
       );
     },
 
@@ -1345,6 +1347,36 @@ const Account = Backbone.Model.extend(
      */
     recoveryEmailDestroy(email) {
       return this._fxaClient.recoveryEmailDestroy(
+        this.get('sessionToken'),
+        email
+      );
+    },
+
+    /**
+     * Verify a secondary email via a code.
+     *
+     * @param {String} email
+     * @param {Number} code
+     *
+     * @returns {Promise}
+     */
+    recoveryEmailSecondaryVerifyCode(email, code) {
+      return this._fxaClient.recoveryEmailSecondaryVerifyCode(
+        this.get('sessionToken'),
+        email,
+        code
+      );
+    },
+
+    /**
+     * Resend secondary email verification code.
+     *
+     * @param {String} email
+     *
+     * @returns {Promise}
+     */
+    recoveryEmailSecondaryResendCode(email) {
+      return this._fxaClient.recoveryEmailSecondaryResendCode(
         this.get('sessionToken'),
         email
       );

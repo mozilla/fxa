@@ -2132,6 +2132,34 @@ FxAccountClient.prototype.recoveryEmailSetPrimaryEmail = function(
     });
 };
 
+FxAccountClient.prototype.recoveryEmailSecondaryVerifyCode = function(
+  sessionToken,
+  email,
+  code
+) {
+  var request = this.request;
+  return Promise.resolve()
+    .then(function() {
+      required(sessionToken, 'sessionToken');
+      required(email, 'email');
+      required(code, 'code');
+
+      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+    })
+    .then(function(creds) {
+      var data = {
+        email: email,
+        code: code,
+      };
+      return request.send(
+        '/recovery_email/secondary/verify_code',
+        'POST',
+        creds,
+        data
+      );
+    });
+};
+
 /**
  * Verify a secondary email via a short code.
  *

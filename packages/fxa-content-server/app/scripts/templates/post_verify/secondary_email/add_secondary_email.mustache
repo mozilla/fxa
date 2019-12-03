@@ -1,0 +1,33 @@
+<div id="main-content" class="card add-secondary-email">
+    <header>
+        <h1 id="fxa-add-secondary-email-header">
+            {{#serviceName}}
+                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Add a secondary email address{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+            {{/serviceName}}
+            {{^serviceName}}
+                {{#t}}Add a secondary email address{{/t}}
+            {{/serviceName}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="error"></div>
+        <div class="success"></div>
+
+        <div class="graphic graphic-mail"></div>
+
+        <p class="verification-email-message">{{#unsafeTranslate}}Adding a secondary email helps you get back into your account if you are locked out and can not access %(escapedEmail)s.{{/unsafeTranslate}}</p>
+        <form novalidate>
+            <div class="input-row">
+                <input type="email" class="new-email tooltip-below" placeholder="{{#t}}Secondary email{{/t}}" value="{{newEmail}}" autofocus autocomplete="off"/>
+            </div>
+            <div class="button-row">
+                <button id="submit-btn" type="submit">{{#t}}Continue{{/t}}</button>
+            </div>
+            <div class="links">
+                <a id="maybe-later-btn" href="/connect_another_device" data-flow-event="link.maybe-later" class="left">{{#t}}Maybe later{{/t}}</a>
+            </div>
+        </form>
+    </section>
+</div>
