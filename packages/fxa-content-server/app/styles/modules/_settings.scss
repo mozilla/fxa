@@ -545,52 +545,44 @@ section.modal-panel {
   &[data-os='Linux'] {
     background-image: url('/images/icon-device-laptop-linux.svg');
   }
-}
 
-.client.mobile {
-  background-image: url('/images/icon-device-phone.svg');
+  &.mobile {
+    background-image: url('/images/icon-device-phone.svg');
 
-  &[data-os='iOS'] {
-    background-image: url('/images/icon-device-phone-iphone.svg');
+    &[data-os='iOS'] {
+      background-image: url('/images/icon-device-phone-iphone.svg');
+    }
+
+    &[data-os='Android'],
+    // Preview is only offered on Android
+    &[data-name^='Firefox Preview'] {
+      background-image: url('/images/icon-device-phone-android.svg');
+    }
+
+    &[data-os='Windows'] {
+      background-image: url('/images/icon-device-phone-windows.svg');
+    }
   }
 
-  &[data-os='Android'] {
-    background-image: url('/images/icon-device-phone-android.svg');
+  &.tablet {
+    background-image: url('/images/icon-device-tablet.svg');
+
+    &[data-os='iOS'] {
+      background-image: url('/images/icon-device-tablet-ipad.svg');
+    }
+
+    &[data-os='Android'] {
+      background-image: url('/images/icon-device-tablet-android.svg');
+    }
   }
 
-  &[data-os='Windows'] {
-    background-image: url('/images/icon-device-phone-windows.svg');
-  }
-}
-
-.client.tablet {
-  background-image: url('/images/icon-device-tablet.svg');
-
-  &[data-os='iOS'] {
-    background-image: url('/images/icon-device-tablet-ipad.svg');
+  &.vr {
+    background-image: url('/images/icon-device-vr.svg');
   }
 
-  &[data-os='Android'] {
-    background-image: url('/images/icon-device-tablet-android.svg');
+  &.tv {
+    background-image: url('/images/icon-device-tv.svg');
   }
-}
-
-.client.vr {
-  background-image: url('/images/icon-device-vr.svg');
-}
-
-.client.tv {
-  background-image: url('/images/icon-device-tv.svg');
-}
-
-.client-device {
-  &.client-current {
-    background-position: left 5px;
-  }
-}
-
-.client-oAuthApp {
-  background-image: url('/images/icon-client-default.svg');
 
   &[data-name='Add-ons'],
   &[data-name='Firefox Add-ons'] {
@@ -602,6 +594,7 @@ section.modal-panel {
     background-image: url('/images/icon-service-lockbox.svg');
   }
 
+  // this selector must come after .mobile to take precedence
   &[data-name^='Firefox Lockwise'] {
     background-image: url('/images/icon-service-lockwise.svg');
   }
@@ -633,6 +626,10 @@ section.modal-panel {
   &[data-name='Screenshots'] {
     background-image: url('/images/icon-service-screenshots.svg');
   }
+}
+
+.client-oAuthApp {
+  background-image: url('/images/icon-client-default.svg');
 
   &[data-name='Fenix'],
   &[data-name='Android Components Reference Browser'],
@@ -648,6 +645,12 @@ section.modal-panel {
 
 .client-webSession {
   background-image: url('/images/icon-web-session.svg');
+}
+
+.client-device {
+  &.client-current {
+    background-position: left 5px;
+  }
 }
 
 #client-disconnect {
