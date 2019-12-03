@@ -86,11 +86,11 @@ export default {
     ) {
       account.set('hasBounced', true);
       if (this.isSignUp()) {
-        this.navigate('/', {
+        this.replaceCurrentPage('/', {
           account,
         });
       } else {
-        this.navigate('signin_bounced', account.pick('email'));
+        this.replaceCurrentPage('signin_bounced', account.pick('email'));
       }
     } else if (
       AuthErrors.is(err, 'UNEXPECTED_ERROR') ||

@@ -14,7 +14,6 @@ import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import EmailMxValidationExperimentMixin from './mixins/email-mx-validation-experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
-import TokenCodeExperimentMixin from './mixins/token-code-experiment-mixin';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
@@ -245,7 +244,6 @@ Cocktail.mixin(
   CoppaMixin({}),
   EmailAutocompleteDomainsMixin,
   EmailMxValidationExperimentMixin,
-  TokenCodeExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
   ServiceMixin,

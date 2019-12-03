@@ -16,11 +16,10 @@ const {
   fillOutChangePassword,
   fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   noSuchBrowserNotification,
   noSuchElement,
   openPage,
-  openVerificationLinkInDifferentBrowser,
-  respondToWebChannelMessage,
   testElementExists,
   testIsBrowserNotified,
   visibleByQSA,
@@ -28,11 +27,9 @@ const {
 
 const config = intern._config;
 const ENTER_EMAIL_URL =
-  config.fxaContentRoot +
-  '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  config.fxaContentRoot + '?context=fx_desktop_v3&service=sync';
 const SETTINGS_URL =
-  config.fxaContentRoot +
-  'settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  config.fxaContentRoot + 'settings?context=fx_desktop_v3&service=sync';
 const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
 const FIRST_PASSWORD = 'password';
@@ -47,18 +44,22 @@ registerSuite('Firefox Desktop Sync v3 settings', {
       this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(
-          respondToWebChannelMessage('fxaccounts:can_link_account', {
-            ok: true,
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+            webChannelResponses: {
+              'fxaccounts:can_link_account': {
+                ok: true,
+              },
+            },
           })
         )
         .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(fillOutSignInTokenCode(email, 0))
         .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(openVerificationLinkInDifferentBrowser(email))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
         // wait until account data is in localstorage before redirecting
         .then(

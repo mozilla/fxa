@@ -14,9 +14,9 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutForceAuth,
+  fillOutSignInTokenCode,
   fillOutSignInUnblock,
   openForceAuth,
-  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   respondToWebChannelMessage,
   switchToWindow,
@@ -34,7 +34,7 @@ const setupTest = thenify(function(options) {
   const successSelector = options.blocked
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
-    ? selectors.CONFIRM_SIGNIN.HEADER
+    ? selectors.SIGNIN_TOKEN_CODE.HEADER
     : selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
@@ -55,12 +55,7 @@ const setupTest = thenify(function(options) {
     .then(fillOutForceAuth(PASSWORD))
 
     .then(testElementExists(successSelector))
-    .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-    .then(() => {
-      if (!options.blocked) {
-        return this.parent.then(testIsBrowserNotified('fxaccounts:login'));
-      }
-    });
+    .then(testIsBrowserNotified('fxaccounts:can_link_account'));
 });
 
 registerSuite('Fx Fennec Sync v1 force_auth', {
@@ -72,25 +67,27 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
       return this.remote
         .then(setupTest({ preVerified: true }))
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
+        .then(fillOutSignInTokenCode(email, 0))
+
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-    },
-
-    "verified, verify different browser - from original tab's P.O.V.": function() {
-      return this.remote
-        .then(setupTest({ preVerified: true }))
-
-        .then(openVerificationLinkInDifferentBrowser(email))
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     unverified: function() {
-      return this.remote.then(setupTest({ preVerified: false }));
+      return (
+        this.remote
+          .then(setupTest({ preVerified: false }))
+          // email 0 - initial sign up email
+          // email 1 - sign in w/ unverified address email
+          // email 2 - "You have verified your Firefox Account"
+          .then(openVerificationLinkInNewTab(email, 1))
+          .then(switchToWindow(1))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(closeCurrentWindow())
+
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(testIsBrowserNotified('fxaccounts:login'))
+      );
     },
 
     'verified, blocked': function() {

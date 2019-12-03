@@ -60,7 +60,6 @@ describe('views/mixins/signin-mixin', function() {
         currentPage: 'force_auth',
         displayError: sinon.spy(),
         getStringifiedResumeToken: sinon.spy(() => RESUME_TOKEN),
-        getTokenCodeExperimentGroup: sinon.spy(() => 'control'),
         invokeBrokerMethod: sinon.spy(() => Promise.resolve()),
         logEvent: sinon.spy(),
         logFlowEvent: sinon.spy(),
@@ -453,9 +452,10 @@ describe('views/mixins/signin-mixin', function() {
           return Promise.reject(AuthErrors.toError('EMAIL_HARD_BOUNCE'));
         });
 
-        return view
-          .signIn(account, 'password')
-          .then(() => (succeeded = true), () => (failed = true));
+        return view.signIn(account, 'password').then(
+          () => (succeeded = true),
+          () => (failed = true)
+        );
       });
 
       it('succeeded', () => {
@@ -481,9 +481,10 @@ describe('views/mixins/signin-mixin', function() {
           return Promise.reject(AuthErrors.toError('EMAIL_SOFT_BOUNCE'));
         });
 
-        return view
-          .signIn(account, 'password')
-          .then(() => (succeeded = true), e => (err = e));
+        return view.signIn(account, 'password').then(
+          () => (succeeded = true),
+          e => (err = e)
+        );
       });
 
       it('failed', () => {
@@ -505,9 +506,10 @@ describe('views/mixins/signin-mixin', function() {
           return Promise.reject(AuthErrors.toError('EMAIL_SENT_COMPLAINT'));
         });
 
-        return view
-          .signIn(account, 'password')
-          .then(() => (succeeded = true), e => (failed = true));
+        return view.signIn(account, 'password').then(
+          () => (succeeded = true),
+          e => (failed = true)
+        );
       });
 
       it('succeeded', () => {

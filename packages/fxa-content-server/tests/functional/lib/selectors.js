@@ -370,7 +370,7 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-signin-code-header',
     INPUT: '.otp-code',
-    RESEND: '#resend',
+    LINK_RESEND: '#resend',
     SUCCESS: '.success',
     SUBMIT: 'button[type="submit"]',
     TOOLTIP: '.tooltip',

@@ -16,10 +16,10 @@ const {
   fillOutChangePassword,
   fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   noSuchBrowserNotification,
   noSuchElement,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   respondToWebChannelMessage,
   testElementExists,
   testIsBrowserNotified,
@@ -54,12 +54,12 @@ registerSuite('Fx Fennec Sync v1 settings', {
         .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
         // User must confirm their Sync signin
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(openVerificationLinkInDifferentBrowser(email))
+        .then(fillOutSignInTokenCode(email, 0))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // wait until account data is in localstorage before redirecting
         .then(

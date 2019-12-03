@@ -80,58 +80,62 @@ describe('views/mixins/session-verification-poll-mixin', () => {
   describe('_handleSessionVerificationPollErrors', () => {
     it('navigates to / if SIGNUP_EMAIL_BOUNCE occurs on signup', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => true);
-      sinon.spy(view, 'navigate');
+      sinon.spy(view, 'replaceCurrentPage');
       view._handleSessionVerificationPollErrors(
         account,
         AuthErrors.toError('SIGNUP_EMAIL_BOUNCE')
       );
 
-      assert.isTrue(view.navigate.calledWith('/', { account }));
+      assert.isTrue(view.replaceCurrentPage.calledWith('/', { account }));
 
       assert.isTrue(account.get('hasBounced'));
     });
 
     it('navigates to /signin_bounced if SIGNUP_EMAIL_BOUNCE occurs on signin', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => false);
-      sinon.spy(view, 'navigate');
+      sinon.spy(view, 'replaceCurrentPage');
       view._handleSessionVerificationPollErrors(
         account,
         AuthErrors.toError('SIGNUP_EMAIL_BOUNCE')
       );
 
       assert.isTrue(
-        view.navigate.calledWith('signin_bounced', { email: 'a@a.com' })
+        view.replaceCurrentPage.calledWith('signin_bounced', {
+          email: 'a@a.com',
+        })
       );
     });
 
     it('navigates to / if INVALID_TOKEN occurs on signup', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => true);
-      sinon.spy(view, 'navigate');
+      sinon.spy(view, 'replaceCurrentPage');
       view._handleSessionVerificationPollErrors(
         account,
         AuthErrors.toError('INVALID_TOKEN')
       );
 
-      assert.isTrue(view.navigate.calledWith('/', { account }));
+      assert.isTrue(view.replaceCurrentPage.calledWith('/', { account }));
     });
 
     it('navigates to /signin_bounced if INVALID_TOKEN occurs on signin', () => {
       sinon.stub(view, 'isSignUp').callsFake(() => false);
-      sinon.spy(view, 'navigate');
+      sinon.spy(view, 'replaceCurrentPage');
       view._handleSessionVerificationPollErrors(
         account,
         AuthErrors.toError('INVALID_TOKEN')
       );
 
       assert.isTrue(
-        view.navigate.calledWith('signin_bounced', { email: 'a@a.com' })
+        view.replaceCurrentPage.calledWith('signin_bounced', {
+          email: 'a@a.com',
+        })
       );
     });
 
     it('displays an error when an unknown error occurs', function() {
       const unknownError = 'Something failed';
 
-      sinon.spy(view, 'navigate');
+      sinon.spy(view, 'replaceCurrentPage');
       sinon.spy(view, 'displayError');
       view._handleSessionVerificationPollErrors(account, unknownError);
 
