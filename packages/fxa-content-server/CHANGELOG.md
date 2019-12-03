@@ -1,3 +1,10 @@
+## 1.151.3
+
+### Bug fixes
+
+- sentry: Remove Sentry until we get everything else figured out. (58796a368)
+- sentry: add sourcemaps to sentry for content server (b3d65586)
+
 ## 1.151.2
 
 ### New features
