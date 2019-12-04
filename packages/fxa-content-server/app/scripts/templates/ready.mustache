@@ -16,23 +16,23 @@
     {{/isSync}}
 
     {{^isSync}}
-      {{#serviceName}}
+      {{#isFromRelyingParty}}
         <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
-          {{#showContinueButton}}
-              <div class="button-row">
-                  <button class="primary-button btn-continue">{{#t}}Continue{{/t}}</button>
-              </div>
-          {{/showContinueButton}}
-      {{/serviceName}}
-      {{^serviceName}}
-          {{#emailVerified}}
-              <p class="account-ready-service">{{{escapedEmailReadyText}}}</p>
-          {{/emailVerified}}
+        {{#showContinueButton}}
+          <div class="button-row">
+            <button class="primary-button btn-continue">{{#t}}Continue{{/t}}</button>
+          </div>
+        {{/showContinueButton}}
+      {{/isFromRelyingParty}}
+      {{^isFromRelyingParty}}
+        {{#emailVerified}}
+          <p class="account-ready-service">{{{escapedEmailReadyText}}}</p>
+        {{/emailVerified}}
 
-          {{^emailVerified}}
-              <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
-          {{/emailVerified}}
-      {{/serviceName}}
+        {{^emailVerified}}
+          <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
+        {{/emailVerified}}
+      {{/isFromRelyingParty}}
     {{/isSync}}
 
       {{#isPasswordReset}}

@@ -106,6 +106,9 @@ const View = FormView.extend({
         this.getSearchParam('secondary_email_verified') ||
         this.getSearchParam('primary_email_verified'),
       escapedEmailReadyText: this._getEscapedEmailReadyText(),
+      isFromRelyingParty:
+        this.relier.pick('serviceName').serviceName !==
+        Constants.RELIER_DEFAULT_SERVICE_NAME,
       escapedHeaderTitle: this._getEscapedHeaderTitle(),
       escapedReadyToSyncText: this._getEscapedReadyToSyncText(),
       headerId: this._getHeaderId(),

@@ -15,6 +15,11 @@ import sinon from 'sinon';
 import BrowserRelier from 'models/reliers/browser';
 import View from 'views/ready';
 import WindowMock from '../../mocks/window';
+import {
+  SIGNIN_COMPLETE,
+  SIGNUP_COMPLETE,
+  RESET_PASSWORD_COMPLETE,
+} from '../../../../tests/functional/lib/selectors';
 
 describe('views/ready', function() {
   let broker;
@@ -78,11 +83,11 @@ describe('views/ready', function() {
       view.destroy();
     });
 
-    var expectedHeaders = {
+    const expectedHeaders = {
       FORCE_AUTH: '#fxa-force-auth-complete-header',
-      PASSWORD_RESET: '#fxa-reset-password-complete-header',
-      SIGN_IN: '#fxa-sign-in-complete-header',
-      SIGN_UP: '#fxa-sign-up-complete-header',
+      PASSWORD_RESET: RESET_PASSWORD_COMPLETE.HEADER,
+      SIGN_IN: SIGNIN_COMPLETE.HEADER,
+      SIGN_UP: SIGNUP_COMPLETE.HEADER,
       SUCCESSFUL_OAUTH: '#fxa-oauth-success-header',
     };
 
@@ -98,13 +103,14 @@ describe('views/ready', function() {
       );
     }
 
-    it('shows service name if available', function() {
+    it('shows service name if set by the relier', function() {
       createView(VerificationReasons.SIGN_UP);
       relier.set('serviceName', 'Firefox Sync');
-
       return view.render().then(function() {
-        var html = view.$('section').text();
-        assert.include(html, 'Firefox Sync');
+        assert.equal(
+          view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
+          'You are now ready to use Firefox Sync'
+        );
       });
     });
 
@@ -223,7 +229,7 @@ describe('views/ready', function() {
 
       return view.render().then(() => {
         assert.lengthOf(view.$('#fxa-oauth-success-header'), 1);
-        assert.lengthOf(view.$('.account-ready-service'), 1);
+        assert.lengthOf(view.$(SIGNIN_COMPLETE.SERVICE_NAME), 1);
       });
     });
   });
