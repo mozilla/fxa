@@ -30,6 +30,7 @@ describe('views/mixins/experiment-mixin', () => {
     // a spy can be added to `chooseExperiments`
     experiments = {
       chooseExperiments: sinon.spy(),
+      getAndReportExperimentGroup: sinon.spy(),
       createExperiment: sinon.spy(() => {
         return {};
       }),
@@ -135,26 +136,10 @@ describe('views/mixins/experiment-mixin', () => {
     });
   });
 
-  describe('createExperiment', () => {
-    it('forces the flow model to initialize, then creates the experiment', () => {
-      assert.ok(view.createExperiment('experimentName', 'control'));
-
-      assert.isTrue(notifier.trigger.calledOnce);
-      assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-      assert.isTrue(experiments.createExperiment.calledOnce);
-      assert.isTrue(
-        experiments.createExperiment.calledWith('experimentName', 'control')
-      );
-    });
-
-    it('does nothing if the view has been destroyed', () => {
-      view.destroy();
-      assert.notOk(view.createExperiment('experimentName', 'control'));
-    });
-  });
-
   describe('delegate methods', () => {
     const delegateMethods = [
+      'getAndReportExperimentGroup',
+      'createExperiment',
       'getExperimentGroup',
       'isInExperiment',
       'isInExperimentGroup',

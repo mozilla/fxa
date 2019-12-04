@@ -37,6 +37,8 @@ describe('lib/experiment', () => {
     });
 
     notifier = new Notifier();
+    sinon.stub(notifier, 'trigger');
+
     metrics = new Metrics({ notifier });
     expOptions = {
       experimentGroupingRules,
@@ -86,12 +88,13 @@ describe('lib/experiment', () => {
   });
 
   describe('createExperiment', () => {
-    it('creates an experiment, only once', () => {
+    it('creates an experiment, only once, notifies of flow.initialize', () => {
       const firstExperiment = expInt.createExperiment('sendSms', 'treatment');
       assert.ok(firstExperiment);
       const secondExperiment = expInt.createExperiment('sendSms', 'treatment');
       // It's the same object, not updated
       assert.strictEqual(firstExperiment, secondExperiment);
+      assert.isTrue(notifier.trigger.calledOnceWith('flow.initialize'));
     });
   });
 
@@ -190,6 +193,42 @@ describe('lib/experiment', () => {
           expInt.createExperiment.calledWith('experiment3', 'control')
         );
       });
+    });
+  });
+
+  describe('getAndReportExperimentGroup', () => {
+    const additionalInfo = {
+      foo: 'bar',
+    };
+
+    beforeEach(() => {
+      sinon.stub(expInt, 'createExperiment');
+    });
+
+    it('returns false if no group', () => {
+      sinon.stub(expInt, 'getExperimentGroup').returns(false);
+
+      assert.isFalse(
+        expInt.getAndReportExperimentGroup('exp-name', additionalInfo)
+      );
+      assert.isTrue(
+        expInt.getExperimentGroup.calledOnceWith('exp-name', additionalInfo)
+      );
+      assert.isFalse(expInt.createExperiment.called);
+    });
+
+    it('returns the group name, creates an experiment, if part of the experiment', () => {
+      sinon.stub(expInt, 'getExperimentGroup').returns('treatment');
+      assert.equal(
+        expInt.getAndReportExperimentGroup('exp-name', additionalInfo),
+        'treatment'
+      );
+      assert.isTrue(
+        expInt.getExperimentGroup.calledOnceWith('exp-name', additionalInfo)
+      );
+      assert.isTrue(
+        expInt.createExperiment.calledOnceWith('exp-name', 'treatment')
+      );
     });
   });
 

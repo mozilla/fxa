@@ -23,11 +23,6 @@ export default {
   dependsOn: [ExperimentMixin, SyncOptionalMixin],
 
   setInitialContext(context) {
-    const experimentGroup = this.getCWTSOnSignupPasswordExperimentGroup();
-    if (experimentGroup) {
-      this.createExperiment(EXPERIMENT_NAME, experimentGroup);
-    }
-
     if (this.isCWTSOnSignupPasswordEnabled()) {
       context.set({
         engines: this._getOfferedEngines(),
@@ -37,11 +32,11 @@ export default {
   },
 
   isCWTSOnSignupPasswordEnabled() {
-    return this.getCWTSOnSignupPasswordExperimentGroup() === 'treatment';
+    return this.chooseCWTSOnSignupPasswordExperimentGroup() === 'treatment';
   },
 
-  getCWTSOnSignupPasswordExperimentGroup() {
-    return this.getExperimentGroup(EXPERIMENT_NAME, {
+  chooseCWTSOnSignupPasswordExperimentGroup() {
+    return this.getAndReportExperimentGroup(EXPERIMENT_NAME, {
       email: this.getAccount().get('email'),
       multiService: this.relier.get('multiService'),
       service: this.relier.get('service'),

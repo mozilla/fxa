@@ -9,8 +9,6 @@ import Mixin from 'views/mixins/email-mx-validation-experiment-mixin';
 import sinon from 'sinon';
 import TestTemplate from 'templates/test_template.mustache';
 
-const EXPERIMENT_NAME = 'emailMxValidation';
-
 const View = BaseView.extend({
   template: TestTemplate,
 });
@@ -32,6 +30,7 @@ const createViewWithExperiments = experiments => {
 const createMockExperiments = mock => {
   const defaultMock = {
     chooseExperiments: sinon.stub(),
+    getAndReportExperimentGroup: sinon.stub(),
     createExperiment: sinon.stub(),
     destroy() {},
     getExperimentGroup: sinon.stub(),
@@ -60,38 +59,28 @@ describe('views/mixins/email-mx-validation-experiment-mixin', () => {
 
     it('returns false when user is not in the treatment group', () => {
       const CONTROL_GROUP_NAME = 'control';
-      const isInExperiment = sinon.stub().returns(true);
-      const getExperimentGroup = sinon.stub().returns(CONTROL_GROUP_NAME);
-      const createExperiment = sinon.stub();
+      const getAndReportExperimentGroup = sinon
+        .stub()
+        .returns(CONTROL_GROUP_NAME);
       view = createViewWithExperiments(
         createMockExperiments({
-          isInExperiment,
-          createExperiment,
-          getExperimentGroup,
+          getAndReportExperimentGroup,
         })
       );
       assert.isFalse(view.isInEmailMxValidationExperimentTreatment());
-      assert.isTrue(
-        createExperiment.calledOnceWith(EXPERIMENT_NAME, CONTROL_GROUP_NAME)
-      );
     });
 
     it('returns true when user is in the treatment group', () => {
       const TREATMENT_GROUP_NAME = 'treatment';
-      const isInExperiment = sinon.stub().returns(true);
-      const getExperimentGroup = sinon.stub().returns(TREATMENT_GROUP_NAME);
-      const createExperiment = sinon.stub();
+      const getAndReportExperimentGroup = sinon
+        .stub()
+        .returns(TREATMENT_GROUP_NAME);
       view = createViewWithExperiments(
         createMockExperiments({
-          isInExperiment,
-          createExperiment,
-          getExperimentGroup,
+          getAndReportExperimentGroup,
         })
       );
       assert.isTrue(view.isInEmailMxValidationExperimentTreatment());
-      assert.isTrue(
-        createExperiment.calledOnceWith(EXPERIMENT_NAME, TREATMENT_GROUP_NAME)
-      );
     });
   });
 });
