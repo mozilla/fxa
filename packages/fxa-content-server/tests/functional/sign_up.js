@@ -27,6 +27,7 @@ const {
   noSuchElement,
   openPage,
   openSignUpInNewTab,
+  pollUntilHiddenByQSA,
   switchToWindow,
   testElementExists,
   testElementTextEquals,
@@ -303,6 +304,19 @@ registerSuite('signup here', {
               'Passwords do not match'
             )
           )
+          // Tooltip should disappear
+          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
+          .then(pollUntilHiddenByQSA(selectors.SIGNUP_PASSWORD.TOOLTIP))
+
+          // Tooltip should reappear
+          .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, DROWSSAP))
+          .then(
+            testElementTextEquals(
+              selectors.SIGNUP_PASSWORD.TOOLTIP,
+              'Passwords do not match'
+            )
+          )
+
           // user can enter to next input despite tooltip error
           .then(type(selectors.SIGNUP_PASSWORD.AGE, '42'))
       );
