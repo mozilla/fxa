@@ -335,20 +335,19 @@ describe('views/mixins/connect-another-device-mixin', () => {
           sinon
             .stub(view, '_isEligibleForSms')
             .callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
-          sinon.stub(view, 'createExperiment').callsFake(() => {});
           sinon.spy(notifier, 'trigger');
         });
 
         describe('user is not part of experiment', () => {
-          it('does not enroll the user in an experiment, logs a flow event', () => {
-            sinon.stub(view, 'getExperimentGroup').callsFake(() => false);
+          it('logs a flow event', () => {
+            sinon
+              .stub(view, 'getAndReportExperimentGroup')
+              .callsFake(() => false);
             return view.getEligibleSmsCountry(account).then(country => {
               assert.isUndefined(country);
 
               assert.isTrue(notifier.trigger.calledOnce);
               assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
-
-              assert.isFalse(view.createExperiment.called);
 
               assert.isTrue(view.logFlowEvent.calledOnce);
               assert.isTrue(
@@ -359,12 +358,12 @@ describe('views/mixins/connect-another-device-mixin', () => {
         });
 
         describe('country is fully rolled out', () => {
-          it('does not create the experiment, returns the country', () => {
-            sinon.stub(view, 'getExperimentGroup').callsFake(() => true);
+          it('returns the country', () => {
+            sinon
+              .stub(view, 'getAndReportExperimentGroup')
+              .callsFake(() => true);
             return view.getEligibleSmsCountry(account).then(country => {
               assert.equal(country, 'GB');
-
-              assert.isFalse(view.createExperiment.called);
 
               assert.isFalse(view.logFlowEvent.called);
             });
@@ -372,29 +371,23 @@ describe('views/mixins/connect-another-device-mixin', () => {
         });
 
         describe('in treatment group', () => {
-          it('creates the experiment, returns the country', () => {
-            sinon.stub(view, 'getExperimentGroup').callsFake(() => 'treatment');
+          it('returns the country', () => {
+            sinon
+              .stub(view, 'getAndReportExperimentGroup')
+              .callsFake(() => 'treatment');
             return view.getEligibleSmsCountry(account).then(country => {
               assert.equal(country, 'GB');
-
-              assert.isTrue(view.createExperiment.calledOnce);
-              assert.isTrue(
-                view.createExperiment.calledWith('sendSms', 'treatment')
-              );
             });
           });
         });
 
         describe('in control group', () => {
-          it('creates the experiment, does not return a country', () => {
-            sinon.stub(view, 'getExperimentGroup').callsFake(() => 'control');
+          it('does not return a country', () => {
+            sinon
+              .stub(view, 'getAndReportExperimentGroup')
+              .callsFake(() => 'control');
             return view.getEligibleSmsCountry(account).then(country => {
               assert.isUndefined(country);
-
-              assert.isTrue(view.createExperiment.calledOnce);
-              assert.isTrue(
-                view.createExperiment.calledWith('sendSms', 'control')
-              );
 
               assert.isTrue(view.logFlowEvent.calledOnce);
               assert.isTrue(

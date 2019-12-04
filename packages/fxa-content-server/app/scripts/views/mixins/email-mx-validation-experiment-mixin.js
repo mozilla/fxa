@@ -9,14 +9,7 @@ export default {
   dependsOn: [ExperimentMixin],
 
   isInEmailMxValidationExperimentTreatment() {
-    const isInExperiment = this.isInExperiment(EXPERIMENT_NAME);
-
-    if (isInExperiment) {
-      const experimentGroup = this.getExperimentGroup(EXPERIMENT_NAME);
-      this.createExperiment(EXPERIMENT_NAME, experimentGroup);
-      return experimentGroup === 'treatment';
-    }
-
-    return false;
+    const experimentGroup = this.getAndReportExperimentGroup(EXPERIMENT_NAME);
+    return experimentGroup === 'treatment';
   },
 };
