@@ -6,7 +6,7 @@
 
 const sinon = require('sinon');
 
-const { assert } = require('chai');
+const assert = require('../../assert');
 const crypto = require('crypto');
 const error = require('../../../lib/error');
 const getRoute = require('../../routes_helpers').getRoute;
@@ -23,6 +23,12 @@ const MS_IN_DAY = 1000 * 60 * 60 * 24;
 // This is slightly less than 2 months ago, regardless of which
 // months are in question (I'm looking at you, February...)
 const MS_IN_ALMOST_TWO_MONTHS = MS_IN_DAY * 58;
+
+const otpOptions = {
+  step: 60,
+  window: 1,
+  digits: 6,
+};
 
 const makeRoutes = function(options = {}, requireMocks) {
   const config = options.config || {};
@@ -44,6 +50,7 @@ const makeRoutes = function(options = {}, requireMocks) {
   config.push = {
     allowedServerRegex: /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
   };
+  config.otp = otpOptions;
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
@@ -962,7 +969,7 @@ describe('/recovery_email/verify_code', () => {
 describe('/recovery_email', () => {
   const uid = uuid.v4('binary').toString('hex');
   const mockLog = mocks.mockLog();
-  let dbData, accountRoutes, mockDB, mockRequest, route;
+  let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils;
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
@@ -985,6 +992,7 @@ describe('/recovery_email', () => {
       email: TEST_EMAIL,
       uid: uid,
       secondEmail: TEST_EMAIL_ADDITIONAL,
+      secondEmailCode: '123123',
     };
     mockDB = mocks.mockDB(dbData);
     accountRoutes = makeRoutes({
@@ -1002,6 +1010,12 @@ describe('/recovery_email', () => {
       mailer: mockMailer,
       push: mockPush,
     });
+
+    otpUtils = require('../../../lib/routes/utils/otp')(
+      {},
+      { otp: otpOptions },
+      {}
+    );
   });
 
   describe('/recovery_email', () => {
@@ -1009,6 +1023,14 @@ describe('/recovery_email', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
         return P.reject(error.unknownSecondaryEmail());
       });
+
+      mockDB.createEmail.resetHistory();
+      mockDB.deleteAccount.resetHistory();
+      mockMailer.sendVerifySecondaryEmail.resetHistory();
+      mockDB.accountEmails.resetHistory();
+      mockDB.setPrimaryEmail.resetHistory();
+      mockPush.notifyProfileUpdated.resetHistory();
+      mockMailer.sendPostChangePrimaryEmail.resetHistory();
     });
 
     it('should create email on account', () => {
@@ -1029,48 +1051,37 @@ describe('/recovery_email', () => {
           mockMailer.sendVerifySecondaryEmail.args[0][2].uid,
           mockRequest.auth.credentials.uid
         );
-      }).then(() => {
-        mockDB.createEmail.resetHistory();
-        mockMailer.sendVerifySecondaryEmail.resetHistory();
       });
     });
 
     it('should fail with unverified primary email', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.auth.credentials.emailVerified = false;
-      return runTest(route, mockRequest)
-        .then(
-          () =>
-            assert.fail(
-              'Should have failed adding secondary email with unverified primary email'
-            ),
-          err => assert.equal(err.errno, 104, 'unverified account')
-        )
-        .then(() => {
-          mockDB.createEmail.resetHistory();
-        });
+      return runTest(route, mockRequest).then(
+        () =>
+          assert.fail(
+            'Should have failed adding secondary email with unverified primary email'
+          ),
+        err => assert.equal(err.errno, 104, 'unverified account')
+      );
     });
 
     it('should fail when adding secondary email that is same as primary', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.payload.email = TEST_EMAIL;
 
-      return runTest(route, mockRequest)
-        .then(
-          () =>
-            assert.fail(
-              'Should have failed when adding secondary email that is same as primary'
-            ),
-          err =>
-            assert.equal(
-              err.errno,
-              139,
-              'cannot add secondary email, same as primary'
-            )
-        )
-        .then(() => {
-          mockDB.createEmail.resetHistory();
-        });
+      return runTest(route, mockRequest).then(
+        () =>
+          assert.fail(
+            'Should have failed when adding secondary email that is same as primary'
+          ),
+        err =>
+          assert.equal(
+            err.errno,
+            139,
+            'cannot add secondary email, same as primary'
+          )
+      );
     });
 
     it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
@@ -1105,15 +1116,11 @@ describe('/recovery_email', () => {
           'call mailer.sendVerifySecondaryEmail'
         );
 
-        assert.equal(mockLog.info.callCount, 5);
-        args = mockLog.info.args[4];
+        assert.equal(mockLog.info.callCount, 6);
+        args = mockLog.info.args[5];
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'accountDeleted.unverifiedSecondaryEmail');
         assert.equal(args[1].normalizedEmail, TEST_EMAIL);
-      }).then(() => {
-        mockDB.deleteAccount.resetHistory();
-        mockDB.createEmail.resetHistory();
-        mockMailer.sendVerifySecondaryEmail.resetHistory();
       });
     });
 
@@ -1149,41 +1156,35 @@ describe('/recovery_email', () => {
 
       return runTest(route, mockRequest, () => {
         assert.fail('should have failed');
-      })
-        .catch(err => {
-          assert.equal(err.errno, 151, 'failed to send email error');
-          assert.equal(err.output.payload.code, 422);
-          assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
-          assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
-          assert.equal(
-            mockDB.deleteEmail.args[0][0],
-            mockRequest.auth.credentials.uid,
-            'correct uid passed'
-          );
-          assert.equal(
-            mockDB.deleteEmail.args[0][1],
-            TEST_EMAIL_ADDITIONAL,
-            'correct email passed'
-          );
-          assert.equal(
-            mockMailer.sendVerifySecondaryEmail.callCount,
-            1,
-            'call db.sendVerifySecondaryEmail'
-          );
-          assert.equal(
-            mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId,
-            mockRequest.auth.credentials.deviceId
-          );
-          assert.equal(
-            mockMailer.sendVerifySecondaryEmail.args[0][2].uid,
-            mockRequest.auth.credentials.uid
-          );
-        })
-        .then(() => {
-          mockDB.createEmail.resetHistory();
-          mockDB.deleteEmail.resetHistory();
-          mockMailer.sendVerifySecondaryEmail.resetHistory();
-        });
+      }).catch(err => {
+        assert.equal(err.errno, 151, 'failed to send email error');
+        assert.equal(err.output.payload.code, 422);
+        assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
+        assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
+        assert.equal(
+          mockDB.deleteEmail.args[0][0],
+          mockRequest.auth.credentials.uid,
+          'correct uid passed'
+        );
+        assert.equal(
+          mockDB.deleteEmail.args[0][1],
+          TEST_EMAIL_ADDITIONAL,
+          'correct email passed'
+        );
+        assert.equal(
+          mockMailer.sendVerifySecondaryEmail.callCount,
+          1,
+          'call db.sendVerifySecondaryEmail'
+        );
+        assert.equal(
+          mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId,
+          mockRequest.auth.credentials.deviceId
+        );
+        assert.equal(
+          mockMailer.sendVerifySecondaryEmail.args[0][2].uid,
+          mockRequest.auth.credentials.uid
+        );
+      });
     });
   });
 
@@ -1198,8 +1199,6 @@ describe('/recovery_email', () => {
           'should return users email'
         );
         assert.equal(mockDB.account.callCount, 1, 'call db.account');
-      }).then(() => {
-        mockDB.accountEmails.resetHistory();
       });
     });
   });
@@ -1367,10 +1366,6 @@ describe('/recovery_email', () => {
           TEST_EMAIL_ADDITIONAL,
           'third argument was event data with new email'
         );
-      }).then(() => {
-        mockDB.setPrimaryEmail.resetHistory();
-        mockPush.notifyProfileUpdated.resetHistory();
-        mockMailer.sendPostChangePrimaryEmail.resetHistory();
       });
     });
 
@@ -1414,6 +1409,80 @@ describe('/recovery_email', () => {
             'correct errno changing email to unverified email'
           )
       );
+    });
+  });
+
+  describe('/recovery_email/secondary/verify_code', () => {
+    it('should verify a secondary email with valid otp code', async () => {
+      route = getRoute(accountRoutes, '/recovery_email/secondary/verify_code');
+      mockRequest.payload.code = otpUtils.generateOtpCode(
+        dbData.secondEmailCode,
+        otpOptions
+      );
+      const response = await runTest(route, mockRequest);
+
+      assert.ok(response);
+      assert.calledOnce(mockDB.account);
+      assert.calledOnce(mockDB.accountEmails);
+      assert.calledOnce(mockDB.verifyEmail);
+
+      const args = mockDB.verifyEmail.args[0];
+      assert.equal(args[1], dbData.secondEmailCode, 'correct email code sent');
+
+      assert.calledOnce(mockMailer.sendPostVerifySecondaryEmail);
+    });
+
+    it('fails for mismatched email', async () => {
+      route = getRoute(accountRoutes, '/recovery_email/secondary/verify_code');
+      mockRequest.payload.code = otpUtils.generateOtpCode(
+        dbData.secondEmailCode,
+        otpOptions
+      );
+      mockRequest.payload.email = 'notcorrectemail@a.com';
+
+      await assert.failsAsync(runTest(route, mockRequest), {
+        errno: 105,
+        message: 'Invalid verification code',
+      });
+    });
+
+    it('fails for invalid code', async () => {
+      route = getRoute(accountRoutes, '/recovery_email/secondary/verify_code');
+      mockRequest.payload.code = '000000';
+
+      await assert.failsAsync(runTest(route, mockRequest), {
+        errno: 105,
+        message: 'Invalid verification code',
+      });
+    });
+  });
+
+  describe('/recovery_email/secondary/resend_code', () => {
+    it('should resend otp code', async () => {
+      route = getRoute(accountRoutes, '/recovery_email/secondary/resend_code');
+
+      const response = await runTest(route, mockRequest);
+
+      assert.ok(response);
+      assert.calledOnce(mockDB.account);
+      assert.calledOnce(mockDB.accountEmails);
+      assert.calledOnce(mockMailer.sendVerifySecondaryCodeEmail);
+
+      const expectedCode = otpUtils.generateOtpCode(
+        dbData.secondEmailCode,
+        otpOptions
+      );
+      const args = mockMailer.sendVerifySecondaryCodeEmail.args[0];
+      assert.equal(args[2].code, expectedCode, 'verification codes match');
+    });
+  });
+
+  it('fails to resend if email does not belong to account', async () => {
+    route = getRoute(accountRoutes, '/recovery_email/secondary/resend_code');
+    mockRequest.payload.email = 'notcorrectemail@a.com';
+
+    await assert.failsAsync(runTest(route, mockRequest), {
+      errno: 150,
     });
   });
 });

@@ -42,6 +42,7 @@ const EMAIL_SENDING_ACTION = {
   accountCreate: true,
   createEmail: true,
   recoveryEmailResendCode: true,
+  recoveryEmailSecondaryResendCode: true,
   passwordForgotSendCode: true,
   passwordForgotResendCode: true,
   sendUnblockCode: true,

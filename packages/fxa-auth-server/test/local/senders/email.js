@@ -99,6 +99,40 @@ const COMMON_TESTS = new Map([
 
 // prettier-ignore
 const TESTS = new Map([
+  ['verifySecondaryCodeEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Confirm secondary email' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('verifySecondaryCode') }],
+      ['X-Template-Name', { test: 'equal', expected: 'verifySecondaryCode' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.verifySecondaryCode }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'welcome-secondary', 'privacy') },
+      { test: 'include', expected: configHref('supportUrl', 'welcome-secondary', 'support') },
+      { test: 'include', expected: 'Verify secondary email' },
+      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account:` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'Use this verification code:' },
+      { test: 'include', expected: `${MESSAGE.code}` },
+      { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: configUrl('privacyUrl', 'welcome-secondary', 'privacy') },
+      { test: 'include', expected: configUrl('supportUrl', 'welcome-secondary', 'support') },
+      { test: 'include', expected: 'Verify secondary email' },
+      { test: 'include', expected: `A request to use ${MESSAGE.email} as a secondary email address has been made from the following Firefox Account:` },
+      { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
+      { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
+      { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'include', expected: 'Use this verification code:' },
+      { test: 'include', expected: `${MESSAGE.code}` },
+      { test: 'include', expected: 'It expires in 5 minutes. Once verified, this address will begin receiving security notifications and confirmations.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
   ['downloadSubscriptionEmail', new Map([
     ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}!` }],
     ['headers', new Map([

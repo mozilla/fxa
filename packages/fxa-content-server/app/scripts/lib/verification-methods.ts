@@ -9,10 +9,10 @@
  */
 
 enum VerificationMethods {
-    EMAIL = 'email',
-    EMAIL_2FA = 'email-2fa',
-    EMAIL_CAPTCHA = 'email-captcha',
-    TOTP_2FA = 'totp-2fa',
+  EMAIL = 'email',
+  EMAIL_2FA = 'email-2fa',
+  EMAIL_CAPTCHA = 'email-captcha',
+  TOTP_2FA = 'totp-2fa',
 }
 
 export default VerificationMethods;

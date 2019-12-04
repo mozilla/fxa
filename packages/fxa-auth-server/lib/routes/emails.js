@@ -27,6 +27,9 @@ module.exports = (
     `^(?:${verificationReminders.keys.join('|')})$`
   );
 
+  const otpOptions = config.otp;
+  const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+
   return [
     {
       method: 'GET',
@@ -534,6 +537,7 @@ module.exports = (
         validate: {
           payload: {
             email: validators.email().required(),
+            verificationMethod: validators.verificationMethod,
           },
         },
         response: {},
@@ -545,7 +549,7 @@ module.exports = (
         const uid = sessionToken.uid;
         const primaryEmail = sessionToken.email;
         const ip = request.app.clientAddress;
-        const email = request.payload.email;
+        const { email, verificationMethod } = request.payload;
         const emailData = {
           email: email,
           normalizedEmail: email.toLowerCase(),
@@ -577,21 +581,45 @@ module.exports = (
 
         const geoData = request.app.geo;
         try {
-          await mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
-            code: emailData.emailCode,
-            deviceId: sessionToken.deviceId,
-            acceptLanguage: request.app.acceptLanguage,
-            email: emailData.email,
-            primaryEmail,
-            ip,
-            location: geoData.location,
-            timeZone: geoData.timeZone,
-            uaBrowser: sessionToken.uaBrowser,
-            uaBrowserVersion: sessionToken.uaBrowserVersion,
-            uaOS: sessionToken.uaOS,
-            uaOSVersion: sessionToken.uaOSVersion,
-            uid,
-          });
+          switch (verificationMethod) {
+            case 'email-otp':
+              await mailer.sendVerifySecondaryCodeEmail(
+                [emailData],
+                sessionToken,
+                {
+                  code: otpUtils.generateOtpCode(hex, otpOptions),
+                  deviceId: sessionToken.deviceId,
+                  acceptLanguage: request.app.acceptLanguage,
+                  email: emailData.email,
+                  primaryEmail,
+                  ip,
+                  location: geoData.location,
+                  timeZone: geoData.timeZone,
+                  uaBrowser: sessionToken.uaBrowser,
+                  uaBrowserVersion: sessionToken.uaBrowserVersion,
+                  uaOS: sessionToken.uaOS,
+                  uaOSVersion: sessionToken.uaOSVersion,
+                  uid,
+                }
+              );
+              break;
+            default:
+              await mailer.sendVerifySecondaryEmail([emailData], sessionToken, {
+                code: emailData.emailCode,
+                deviceId: sessionToken.deviceId,
+                acceptLanguage: request.app.acceptLanguage,
+                email: emailData.email,
+                primaryEmail,
+                ip,
+                location: geoData.location,
+                timeZone: geoData.timeZone,
+                uaBrowser: sessionToken.uaBrowser,
+                uaBrowserVersion: sessionToken.uaBrowserVersion,
+                uaOS: sessionToken.uaOS,
+                uaOSVersion: sessionToken.uaOSVersion,
+                uid,
+              });
+          }
         } catch (err) {
           log.error('mailer.sendVerifySecondaryEmail', { err: err });
           await db.deleteEmail(emailData.uid, emailData.normalizedEmail);
@@ -757,6 +785,159 @@ module.exports = (
             uid,
           });
         }
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery_email/secondary/resend_code',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            email: validators.email().required(),
+          },
+        },
+        response: {},
+      },
+      handler: async function(request) {
+        log.begin('Account.RecoveryEmailSecondaryResend', request);
+
+        const sessionToken = request.auth.credentials;
+        const ip = request.app.clientAddress;
+        const geoData = request.app.geo;
+        const { email } = request.payload;
+
+        await customs.check(
+          request,
+          sessionToken.email,
+          'recoveryEmailSecondaryResendCode'
+        );
+
+        const {
+          deviceId,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid,
+        } = sessionToken;
+
+        const account = await db.account(uid);
+        const emails = await db.accountEmails(uid);
+
+        // Get the secondary email code
+        const foundEmail = emails.find(
+          userEmail => userEmail.normalizedEmail === email.toLowerCase()
+        );
+
+        // This user is attempting to verify a secondary email that doesn't belong to the account.
+        if (!foundEmail) {
+          throw error.cannotResendEmailCodeToUnownedEmail();
+        }
+
+        const secret = foundEmail.emailCode;
+
+        const code = otpUtils.generateOtpCode(secret, otpOptions);
+
+        const mailerOpts = {
+          code,
+          deviceId,
+          ip,
+          location: geoData.location,
+          timeZone: geoData.timeZone,
+          timestamp: Date.now(),
+          acceptLanguage: request.app.acceptLanguage,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid,
+        };
+
+        await mailer.sendVerifySecondaryCodeEmail(
+          [foundEmail],
+          account,
+          mailerOpts
+        );
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recovery_email/secondary/verify_code',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            email: validators.email().required(),
+            code: isA
+              .string()
+              .max(32)
+              .regex(validators.DIGITS)
+              .required(),
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('Account.RecoveryEmailSecondaryVerify', request);
+
+        const sessionToken = request.auth.credentials;
+        const { email, code } = request.payload;
+
+        await customs.check(
+          request,
+          sessionToken.email,
+          'recoveryEmailSecondaryVerifyCode'
+        );
+
+        const { uid } = sessionToken;
+        const account = await db.account(uid);
+        const emails = await db.accountEmails(uid);
+
+        // Get the secondary email code
+        const matchedEmail = emails.find(
+          userEmail => userEmail.normalizedEmail === email.toLowerCase()
+        );
+
+        if (!matchedEmail) {
+          throw error.invalidVerificationCode();
+        }
+
+        const secret = matchedEmail.emailCode;
+        const isValid = otpUtils.verifyOtpCode(code, secret, otpOptions);
+
+        if (!isValid) {
+          throw error.invalidVerificationCode();
+        }
+
+        // User is attempting to verify a secondary email that has already been verified.
+        // Silently succeed and don't send post verification email.
+        if (matchedEmail.isVerified) {
+          log.info('account.verifyEmail.secondary.already-verified', {
+            uid,
+          });
+          return {};
+        }
+
+        await db.verifyEmail(account, matchedEmail.emailCode);
+        log.info('account.verifyEmail.secondary.confirmed', {
+          uid,
+        });
+
+        await mailer.sendPostVerifySecondaryEmail([], account, {
+          acceptLanguage: request.app.acceptLanguage,
+          secondaryEmail: matchedEmail.email,
+          uid,
+        });
 
         return {};
       },
