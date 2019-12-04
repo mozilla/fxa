@@ -130,21 +130,6 @@ Force a country to be used when testing the SMS feature.
 - `RO`
 - `US`
 
-### `customizeSync`
-
-Set the default value of the "Customize which values to sync" checkbox.
-
-#### Options
-
-- `true`
-- `false` (default)
-
-#### When to specify
-
-Only available if `context` equals `fx_fennec_v1`, or `fx_ios_v1` and `service` equals `sync`.
-
-- /signup
-
 ### `entrypoint`
 
 If they user arrived at Firefox Accounts from within Firefox browser chrome, specify where in Firefox the user came from.
