@@ -224,30 +224,44 @@ module.exports = function createBackendServiceAPI(
       const payload = validation.payload
         ? await validate('request', args[i++], payloadSchema)
         : opts.method === 'GET'
-          ? null
-          : {};
+        ? null
+        : {};
 
       const headers = validation.headers
         ? await validate('headers', args[i++], headerSchema)
         : {};
 
       const startTime = Date.now();
+      let response;
 
       // Unexpected extra fields in the service response should not be a fatal error,
       // but we also don't want them polluting our code. So, stripUnknown=true.
-      const response = await sendRequest(
-        this._pool,
-        opts.method,
-        path,
-        params,
-        query,
-        payload,
-        { ...this._headers, ...headers }
-      );
+      try {
+        response = await sendRequest(
+          this._pool,
+          opts.method,
+          path,
+          params,
+          query,
+          payload,
+          { ...this._headers, ...headers }
+        );
 
-      // The statsD dependency is optional
-      if (statsd) {
-        statsd.timing(`${serviceName}.${methodName}`, Date.now() - startTime);
+        // The statsD dependency is optional
+        if (statsd) {
+          statsd.timing(
+            `${serviceName}.${methodName}.success`,
+            Date.now() - startTime
+          );
+        }
+      } catch (err) {
+        if (statsd) {
+          statsd.timing(
+            `${serviceName}.${methodName}.failure`,
+            Date.now() - startTime
+          );
+        }
+        throw err;
       }
 
       return await validate('response', response, responseSchema, {
