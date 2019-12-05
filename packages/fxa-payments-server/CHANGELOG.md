@@ -1,5 +1,11 @@
 # Change history
 
+## 1.151.4
+
+### Bug fixes
+
+- metrics: use flush time as Payments Amplitude event time (b35ca2de1)
+
 ## 1.151.3
 
 No changes.
