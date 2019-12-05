@@ -41,9 +41,9 @@ export default ({
   ]);
 
   // TODO: date formats will need i18n someday
-  const cancelledAtDate = formatPeriodEndDate(
-    (subscription.cancelledAt as number) / 1000
-  );
+  const cancelledAtDate = subscription.cancelledAt
+    ? formatPeriodEndDate((subscription.cancelledAt as number) / 1000)
+    : null;
 
   // TODO: date formats will need i18n someday
   const periodEndDate = formatPeriodEndDate(
@@ -62,7 +62,11 @@ export default ({
       <div className="subscription-cancelled">
         <div className="with-settings-button">
           <div className="subscription-cancelled-details">
-            <p>You cancelled your subscription on {cancelledAtDate}.</p>
+            {cancelledAtDate && (
+              <p data-testid="subscription-cancelled-date">
+                You cancelled your subscription on {cancelledAtDate}.
+              </p>
+            )}
             <p>
               You will lose access to {plan.product_name} on{' '}
               <strong>{periodEndDate}</strong>.

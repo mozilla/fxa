@@ -426,7 +426,10 @@ describe('routes/Subscriptions', () => {
     await findByTestId('cancellation-message-title');
   });
 
-  async function commonReactivationSetup(useDefaultIcon = false) {
+  async function commonReactivationSetup({
+    useDefaultIcon = false,
+    cancelledAtIsUnavailable = false,
+  }) {
     // To exercise the default icon fallback, delete webIconURL from the second plan.
     const plans = !useDefaultIcon
       ? MOCK_PLANS
@@ -456,7 +459,7 @@ describe('routes/Subscriptions', () => {
             subscriptionId: 'sub0.28964929339372136',
             productId: '123doneProProduct',
             createdAt: 1565816388815,
-            cancelledAt: 1566252991684,
+            cancelledAt: cancelledAtIsUnavailable ? null : 1566252991684,
           },
         ]);
     nock(authServer)
@@ -524,17 +527,30 @@ describe('routes/Subscriptions', () => {
     }
   };
 
+  it('hides cancellation date message when date is unavailable', async () => {
+    commonReactivationSetup({ cancelledAtIsUnavailable: true });
+    const { findByTestId, queryByTestId } = render(<Subject />);
+    await findByTestId('subscription-management-loaded');
+    expect(
+      queryByTestId('subscription-cancelled-date')
+    ).not.toBeInTheDocument();
+  });
+
   const reactivationTests = (useDefaultIcon = true) => () => {
     it('supports reactivating a subscription through the confirmation flow', async () => {
-      commonReactivationSetup(useDefaultIcon);
+      commonReactivationSetup({ useDefaultIcon });
       nock(authServer)
         .post('/v1/oauth/subscriptions/reactivate')
         .reply(200, {});
 
-      const { findByTestId, getByTestId, getByAltText } = render(<Subject />);
+      const { findByTestId, queryByTestId, getByTestId, getByAltText } = render(
+        <Subject />
+      );
 
       // Wait for the page to load with one subscription
       await findByTestId('subscription-management-loaded');
+
+      expect(queryByTestId('subscription-cancelled-date')).toBeInTheDocument();
 
       const reactivateButton = getByTestId('reactivate-subscription-button');
       fireEvent.click(reactivateButton);
@@ -561,7 +577,7 @@ describe('routes/Subscriptions', () => {
     });
 
     it('should display an error message if reactivation fails', async () => {
-      commonReactivationSetup(useDefaultIcon);
+      commonReactivationSetup({ useDefaultIcon });
       nock(authServer)
         .post('/v1/oauth/subscriptions/reactivate')
         .reply(500, {});
