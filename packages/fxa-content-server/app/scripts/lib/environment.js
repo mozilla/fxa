@@ -69,22 +69,6 @@
       // END MODERNIZR BASED CODE
     },
 
-    /**
-     * Detects if environment is about:accounts
-     * @returns {Boolean}
-     */
-    isAboutAccounts: function() {
-      var win = this.window;
-      var isValidNativeFrame = !!(
-        win.top &&
-        win.top !== win &&
-        win.name === 'remote'
-      );
-      // cannot use url.js module here because environment.js is on its own.
-      var isForced = win.location.search.indexOf('forceAboutAccounts=true') > 0;
-      return isValidNativeFrame || isForced;
-    },
-
     isFxiOS: function() {
       // User agent sniffing. Gross.
       return /FxiOS/.test(this.window.navigator.userAgent);

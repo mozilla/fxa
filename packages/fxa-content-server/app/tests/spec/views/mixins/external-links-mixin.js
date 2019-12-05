@@ -42,28 +42,6 @@ describe('views/mixins/external-links-mixin', function() {
     return view.destroy();
   });
 
-  describe('link conversion', () => {
-    it('uses opens external links in new tabs with about:accounts', () => {
-      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function() {
-        return true;
-      });
-
-      return view.render().then(function() {
-        assert.equal(view.$('#external-link').attr('target'), '_blank');
-      });
-    });
-
-    it('has no target attr if not about:accounts', () => {
-      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(function() {
-        return false;
-      });
-
-      return view.render().then(function() {
-        assert.notOk(view.$('#external-link').attr('target'));
-      });
-    });
-  });
-
   describe('_onExternalLinkClick', () => {
     it('does nothing of the link is ignored', () => {
       sinon.stub(view, '_shouldIgnoreClick').callsFake(() => true);

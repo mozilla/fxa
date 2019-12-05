@@ -14,8 +14,7 @@ const config = intern._config;
 const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const RESET_PASSWORD_URL =
-  config.fxaContentRoot +
-  'reset_password?context=fx_desktop_v3&service=sync&forceAboutAccounts=true';
+  config.fxaContentRoot + 'reset_password?context=fx_desktop_v3&service=sync';
 const PASSWORD = 'passwordzxcv';
 const NEW_PASSWORD = '()()():|';
 let email, recoveryKey;

@@ -12,7 +12,7 @@ const selectors = require('./lib/selectors');
 const config = intern._config;
 
 const QUERY_PARAMS =
-  '?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&action=email';
+  '?context=fx_desktop_v3&service=sync&action=email';
 const INDEX_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup${QUERY_PARAMS}`;
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;
@@ -27,7 +27,6 @@ const {
   createUser,
   fillOutSignUpCode,
   fillOutSignInTokenCode,
-  noPageTransition,
   noSuchElement,
   openPage,
   testElementExists,
@@ -193,10 +192,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
 
           .then(fillOutSignUpCode(email, 0))
 
-          // We do not expect the verification poll to occur. The poll
-          // will take a few seconds to complete if it erroneously occurs.
-          // Add an affordance just in case the poll happens unexpectedly.
-          .then(noPageTransition(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       );
     },
 

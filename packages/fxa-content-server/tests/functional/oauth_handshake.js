@@ -10,7 +10,7 @@ const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
-const userAgent = uaStrings['desktop_firefox_55'];
+const userAgent = uaStrings['desktop_firefox_58'];
 
 var browserSignedInEmail;
 let browserSignedInAccount;

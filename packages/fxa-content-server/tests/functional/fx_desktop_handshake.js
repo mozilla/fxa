@@ -12,7 +12,7 @@ const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 
-const userAgent = uaStrings['desktop_firefox_55'];
+const userAgent = uaStrings['desktop_firefox_58'];
 
 const FORCE_AUTH_PAGE_URL = `${
   config.fxaContentRoot

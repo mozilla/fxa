@@ -140,7 +140,6 @@ require('./spec/views/authorization');
 require('./spec/views/base');
 require('./spec/views/behaviors/connect-another-device');
 require('./spec/views/behaviors/halt');
-require('./spec/views/behaviors/halt-if-browser-transitions');
 require('./spec/views/behaviors/navigate');
 require('./spec/views/behaviors/null');
 require('./spec/views/behaviors/settings');

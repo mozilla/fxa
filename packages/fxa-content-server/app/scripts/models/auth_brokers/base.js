@@ -553,7 +553,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      * Does the browser handle screen transitions after
      * an email verification?
      */
-    browserTransitionsAfterEmailVerification: true,
+    browserTransitionsAfterEmailVerification: false,
     /**
      * Should the legacy signin/signup pages be disabled?
      */

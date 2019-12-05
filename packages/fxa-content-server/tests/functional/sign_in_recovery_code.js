@@ -125,8 +125,8 @@ registerSuite('recovery code', {
           .then(type(selectors.SIGNIN_RECOVERY_CODE.INPUT, recoveryCode))
           .then(click(selectors.SIGNIN_RECOVERY_CODE.SUBMIT))
 
-          // about:accounts will take over post-verification, no transition
           .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       );
     },
 

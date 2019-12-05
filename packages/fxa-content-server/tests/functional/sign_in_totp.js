@@ -111,33 +111,31 @@ registerSuite('TOTP', {
     },
 
     'can add TOTP to account and confirm sync signin': function() {
-      return (
-        this.remote
-          .then(confirmTotpCode(secret))
+      return this.remote
+        .then(confirmTotpCode(secret))
 
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
-          .then(
-            openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              query: {},
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
+        .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+            query: {},
+            webChannelResponses: {
+              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
               },
-            })
-          )
+            },
+          })
+        )
 
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
 
-          .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
-          .then(click(selectors.TOTP_SIGNIN.SUBMIT))
+        .then(type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret)))
+        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
 
-          // about:accounts will take over post-verification, no transition
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
     'can remove TOTP from account and skip confirmation': function() {

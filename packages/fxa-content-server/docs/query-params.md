@@ -291,18 +291,6 @@ Used by functional tests to synthesize localStorage being disabled.
 
 Should not be used by relying parties. Should only be used by functional tests.
 
-### `forceAboutAccounts`
-
-Force Sync brokers to act as if the user opened FxA from within about:accounts.
-
-#### Options
-
-- `true`
-
-#### When to use
-
-Should not be used by relying parties. Should only be used for Sync based functional tests.
-
 ### `forceExperiment`
 
 Force a particular AB test.

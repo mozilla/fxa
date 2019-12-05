@@ -4,7 +4,6 @@
 
 import { assert } from 'chai';
 import FxDesktopV3AuthenticationBroker from 'models/auth_brokers/fx-desktop-v3';
-import sinon from 'sinon';
 import WindowMock from '../../../mocks/window';
 
 describe('models/auth_brokers/fx-desktop-v3', () => {
@@ -23,26 +22,6 @@ describe('models/auth_brokers/fx-desktop-v3', () => {
     it('has the expected capabilities', () => {
       assert.isTrue(broker.hasCapability('allowUidChange'));
       assert.isTrue(broker.hasCapability('emailFirst'));
-    });
-  });
-
-  describe('fetch', () => {
-    it('sets `browserTransitionsAfterEmailVerification` to false if Fx >= 58', () => {
-      sinon.stub(broker.environment, 'isAboutAccounts').callsFake(() => true);
-      sinon.stub(broker, 'getUserAgent').callsFake(() => {
-        return {
-          parseVersion() {
-            return { major: 58 };
-          },
-          isFirefoxDesktop: () => true,
-        };
-      });
-
-      return broker.fetch().then(() => {
-        assert.isFalse(
-          broker.getCapability('browserTransitionsAfterEmailVerification')
-        );
-      });
     });
   });
 });

@@ -19,6 +19,9 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
   function createAuthBroker(options = {}) {
     broker = new FxSyncWebChannelAuthenticationBroker({
       channel: channelMock,
+      metrics: {
+        setViewNamePrefix: sinon.spy(),
+      },
       window: windowMock,
       ...options,
     });
