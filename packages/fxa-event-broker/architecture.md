@@ -40,7 +40,7 @@ sequenceDiagram
 
 <br /><br /><br /><br /><br />
 
-## Subscription State Change Events
+## Relying Party Events
 
 Note: SQS participant not shown here to save space.
 
@@ -53,13 +53,13 @@ sequenceDiagram
     participant RP as Relying Party
     participant FS as Google Firestore
 
-    Auth->>Ev: SubscriptionEvent via SQS
+    Auth->>Ev: RelyingPartyEvent via SQS
     Ev-->>+FS: Get RPs the User has logged into (FetchClientIds)
     FS-->>-Ev: List of Client Ids
 
-    loop on clientIds
-    Ev->>PS: StateChangeEvent
+    Ev->>PS: RPEvent
 
+    loop on clientIds
     PS-->>+Ev: POST /proxy/{clientId}
     Ev-->>+RP: POST /client/webhook
     RP-->>-Ev: {Status: 200}

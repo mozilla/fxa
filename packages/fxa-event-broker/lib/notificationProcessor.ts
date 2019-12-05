@@ -17,14 +17,17 @@ import {
   deleteSchema,
   LOGIN_EVENT,
   loginSchema,
+  PASSWORD_CHANGE_EVENT,
+  PASSWORD_RESET_EVENT,
+  passwordSchema,
+  PRIMARY_EMAIL_EVENT,
+  PROFILE_CHANGE_EVENT,
+  profileSchema,
   ServiceNotification,
   SUBSCRIPTION_UPDATE_EVENT,
   subscriptionUpdateSchema
 } from './serviceNotifications';
 
-// Use never type to force exhaustive switch handling for defined
-// ServiceNotifications.
-function unhandledEventType(e: never): never;
 function unhandledEventType(e: ServiceNotification) {
   throw new Error('Unhandled message event type: ' + e);
 }
@@ -93,6 +96,33 @@ class ServiceNotificationProcessor {
       const messageId = await this.pubsub
         .topic(topicName)
         .publishJSON({ event: message.event, uid: message.uid, timestamp: Date.now() });
+      this.logger.debug('publishedMessage', { topicName, messageId });
+    }
+  }
+
+  private async handleProfileEvent(message: profileSchema) {
+    this.metrics.increment('message.type.profile');
+    const clientIds = await this.db.fetchClientIds(message.uid);
+    for (const clientId of clientIds) {
+      const topicName = this.topicPrefix + clientId;
+      const messageId = await this.pubsub
+        .topic(topicName)
+        .publishJSON({ event: message.event, uid: message.uid, timestamp: Date.now() });
+      this.logger.debug('publishedMessage', { topicName, messageId });
+    }
+  }
+
+  private async handlePasswordEvent(message: passwordSchema) {
+    this.metrics.increment('message.type.password');
+    const clientIds = await this.db.fetchClientIds(message.uid);
+    for (const clientId of clientIds) {
+      const topicName = this.topicPrefix + clientId;
+      const messageId = await this.pubsub.topic(topicName).publishJSON({
+        changeTime: message.timestamp ? message.timestamp : message.ts * 1000,
+        event: message.event,
+        timestamp: Date.now(),
+        uid: message.uid
+      });
       this.logger.debug('publishedMessage', { topicName, messageId });
     }
   }
@@ -178,6 +208,16 @@ class ServiceNotificationProcessor {
       }
       case DELETE_EVENT: {
         await this.handleDeleteEvent(message);
+        break;
+      }
+      case PRIMARY_EMAIL_EVENT:
+      case PROFILE_CHANGE_EVENT: {
+        await this.handleProfileEvent(message);
+        break;
+      }
+      case PASSWORD_CHANGE_EVENT:
+      case PASSWORD_RESET_EVENT: {
+        await this.handlePasswordEvent(message);
         break;
       }
       default:
