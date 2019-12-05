@@ -15,6 +15,61 @@ A relying party will get webhook calls for events. These events are encoded in
 [SET][set]s with the following formats. See the [SET RFC][set] for definitions and other
 examples.
 
+### Password Change
+
+Sent when a user has reset or changed their password. Services receiving this event
+should terminate user login sessions that were established prior to the event.
+
+- Event Identifier
+  - `https://schemas.accounts.firefox.com/event/password-change`
+- Event Payload
+  - [Password Event Identifier]
+    - changeTime
+      - Time when the password reset took place. All logins established before this
+        time should be terminated.
+
+### Example Password Change Event
+
+    {
+     "iss": "https://accounts.firefox.com/",
+     "sub": "FXA_USER_ID",
+     "aud": "REMOTE_SYSTEM",
+     "iat": 1565720808,
+     "jti": "e19ed6c5-4816-4171-aa43-56ffe80dbda1",
+     "events": {
+       "https://schemas.accounts.firefox.com/event/password-change": {
+           "changeTime": 1565721242227
+       }
+     }
+
+### Profile Change
+
+Sent when a user has changed their profile data in some manner. Updates to their
+profile may include a new primary email address, display name, or 2FA status. This
+event does not include what changed and the profile data a service has access to
+may not show any changes if the data changed was outside the OAuth scope the service
+was granted.
+
+Services should update any cached profile data they hold about the user.
+
+- Event Identifier
+  - `https://schemas.accounts.firefox.com/event/profile-change`
+- Event Payload
+  - [Profile Event Identifier]
+    - `{}`
+
+### Example Profile Change Event
+
+    {
+     "iss": "https://accounts.firefox.com/",
+     "sub": "FXA_USER_ID",
+     "aud": "REMOTE_SYSTEM",
+     "iat": 1565720808,
+     "jti": "e19ed6c5-4816-4171-aa43-56ffe80dbda1",
+     "events": {
+       "https://schemas.accounts.firefox.com/event/profile-change": {}
+     }
+
 ### Subscription State Change
 
 Sent when a user's subscription state has changed to RPs that provide the changed
@@ -112,10 +167,12 @@ Where `CAPABILITIES` is a comma-seperated string of capabilities to include.
 
 #### Usage
 
-    $ npm run build
-    $ export LOG_FORMAT=pretty
-    $ node dist/bin/simulate-webhook-call.js a9238ba https://example.com/webhook capability_1
-    fxa-event-broker.simulateWebhookCall.INFO: webhookCall {"statusCode":200,"body":"ok\n"}
-    $
+```bash
+$ npm run build
+$ export LOG_FORMAT=pretty
+$ node dist/bin/simulate-webhook-call.js a9238ba https://example.com/webhook capability_1
+fxa-event-broker.simulateWebhookCall.INFO: webhookCall {"statusCode":200,"body":"ok\n"}
+$
+```
 
 [set]: https://tools.ietf.org/html/rfc8417

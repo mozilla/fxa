@@ -7,9 +7,13 @@ import { Logger } from 'mozlog';
 import joi from 'typesafe-joi';
 
 // Event strings
-export const LOGIN_EVENT = 'login';
-export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
 export const DELETE_EVENT = 'delete';
+export const LOGIN_EVENT = 'login';
+export const PASSWORD_CHANGE_EVENT = 'passwordChange';
+export const PASSWORD_RESET_EVENT = 'reset';
+export const PRIMARY_EMAIL_EVENT = 'primaryEmailChanged';
+export const PROFILE_CHANGE_EVENT = 'profileDataChange';
+export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
 
 // Message schemas
 const BASE_MESSAGE_SCHEMA = joi
@@ -84,11 +88,45 @@ const DELETE_SCHEMA = joi
   .unknown(true)
   .required();
 
-export type loginSchema = joi.Literal<typeof LOGIN_SCHEMA>;
-export type subscriptionUpdateSchema = joi.Literal<typeof SUBSCRIPTION_UPDATE_SCHEMA>;
-export type deleteSchema = joi.Literal<typeof DELETE_SCHEMA>;
+// Whether its a password change or reset, the service must handle it the
+// same so we only pass that the prior password is no longer valid.
+const PASSWORD_CHANGE_SCHEMA = joi
+  .object()
+  .keys({
+    event: joi.string().valid(PASSWORD_CHANGE_EVENT, PASSWORD_RESET_EVENT),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
+    uid: joi.string().required()
+  })
+  .unknown(true)
+  .required();
 
-export type ServiceNotification = loginSchema | subscriptionUpdateSchema | deleteSchema | undefined;
+// Whether its the primary email, or some other data in the profile changing, the
+// profile has changed and a new request should be made to handle it.
+const PROFILE_CHANGE_SCHEMA = joi
+  .object()
+  .keys({
+    event: joi.string().valid(PRIMARY_EMAIL_EVENT, PROFILE_CHANGE_EVENT),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
+    uid: joi.string().required()
+  })
+  .unknown(true)
+  .required();
+
+export type deleteSchema = joi.Literal<typeof DELETE_SCHEMA>;
+export type loginSchema = joi.Literal<typeof LOGIN_SCHEMA>;
+export type passwordSchema = joi.Literal<typeof PASSWORD_CHANGE_SCHEMA>;
+export type profileSchema = joi.Literal<typeof PROFILE_CHANGE_SCHEMA>;
+export type subscriptionUpdateSchema = joi.Literal<typeof SUBSCRIPTION_UPDATE_SCHEMA>;
+
+export type ServiceNotification =
+  | deleteSchema
+  | loginSchema
+  | passwordSchema
+  | profileSchema
+  | subscriptionUpdateSchema
+  | undefined;
 
 interface SchemaTable {
   [key: string]: joi.ObjectSchema<any>;
@@ -98,7 +136,11 @@ interface SchemaTable {
 const eventSchemas = {
   [LOGIN_EVENT]: LOGIN_SCHEMA,
   [SUBSCRIPTION_UPDATE_EVENT]: SUBSCRIPTION_UPDATE_SCHEMA,
-  [DELETE_EVENT]: DELETE_SCHEMA
+  [DELETE_EVENT]: DELETE_SCHEMA,
+  [PROFILE_CHANGE_EVENT]: PROFILE_CHANGE_SCHEMA,
+  [PRIMARY_EMAIL_EVENT]: PROFILE_CHANGE_SCHEMA,
+  [PASSWORD_CHANGE_EVENT]: PASSWORD_CHANGE_SCHEMA,
+  [PASSWORD_RESET_EVENT]: PASSWORD_CHANGE_SCHEMA
 };
 
 /**

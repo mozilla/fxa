@@ -62,6 +62,26 @@ const baseDeleteMessage = {
   event: 'delete'
 };
 
+const basePasswordResetMessage = {
+  ...baseMessage,
+  event: 'reset'
+};
+
+const basePasswordChangeMessage = {
+  ...baseMessage,
+  event: 'passwordChange'
+};
+
+const basePrimaryEmailMessage = {
+  ...baseMessage,
+  event: 'primaryEmailChanged'
+};
+
+const baseProfileMessage = {
+  ...baseMessage,
+  event: 'profileDataChange'
+};
+
 describe('ServiceNotificationProcessor', () => {
   let sqs: any;
   let db: Datastore;
@@ -137,51 +157,47 @@ describe('ServiceNotificationProcessor', () => {
     assert.calledWith(db.storeLogin as SinonSpy, baseLoginMessage.uid, baseLoginMessage.clientId);
   });
 
-  it('fetches on valid legacy subscription message', async () => {
-    updateStubMessage(baseSubscriptionUpdateLegacyMessage);
-    consumer.start();
-    await pEvent(consumer.app, 'message_processed');
-    consumer.stop();
-    assert.calledWith(db.fetchClientIds as SinonSpy);
-  });
+  const fetchOnValidMessage = {
+    'delete message': baseDeleteMessage,
+    'legacy subscription message': baseSubscriptionUpdateLegacyMessage,
+    'password change message': basePasswordChangeMessage,
+    'password reset message': basePasswordResetMessage,
+    'primary email message': basePrimaryEmailMessage,
+    'profile change message': baseProfileMessage,
+    'subscription message': baseSubscriptionUpdateMessage
+  };
 
-  it('fetches on valid subscription message', async () => {
-    updateStubMessage(baseSubscriptionUpdateMessage);
-    consumer.start();
-    await pEvent(consumer.app, 'message_processed');
-    consumer.stop();
-    assert.calledWith(db.fetchClientIds as SinonSpy);
-  });
+  // Ensure that all our message types can be handled without error.
+  for (const [key, value] of Object.entries(fetchOnValidMessage)) {
+    it(`fetches on valid ${key}`, async () => {
+      updateStubMessage(value);
+      consumer.start();
+      await pEvent(consumer.app, 'message_processed');
+      consumer.stop();
+      assert.calledWith(db.fetchClientIds as SinonSpy);
+    });
+  }
 
-  it('fetches on valid delete message', async () => {
-    updateStubMessage(baseDeleteMessage);
-    consumer.start();
-    await pEvent(consumer.app, 'message_processed');
-    consumer.stop();
-    assert.calledWith(db.fetchClientIds as SinonSpy);
-  });
-
-  it('logs an error on invalid login message', async () => {
-    updateStubMessage(Object.assign({}, { ...baseLoginMessage, email: false }));
-    consumer.start();
-    await pEvent(consumer.app, 'message_processed');
-    consumer.stop();
-    assert.calledOnce(logger.error as SinonSpy);
-    const callArgs = (logger.error as SinonSpy).getCalls()[0].args;
-    cassert.equal(callArgs[0], 'from.sqsMessage');
-    cassert.equal(callArgs[1].message, 'Invalid message');
-  });
-
-  it('logs an error on invalid subscription message', async () => {
-    updateStubMessage(Object.assign({}, { ...baseSubscriptionUpdateMessage, productId: false }));
-    consumer.start();
-    await pEvent(consumer.app, 'message_processed');
-    consumer.stop();
-    assert.calledOnce(logger.error as SinonSpy);
-    assert.calledWithMatch(logger.error as SinonSpy, 'from.sqsMessage');
-    const callArgs = (logger.error as SinonSpy).getCalls()[0].args;
-    cassert.equal(callArgs[1].message, 'Invalid message');
-  });
+  const invalidMessages = {
+    login: { ...baseLoginMessage, ts: false },
+    'password change': { ...basePasswordChangeMessage, ts: false },
+    'password reset': { ...basePasswordResetMessage, ts: false },
+    'primary email change': { ...basePrimaryEmailMessage, ts: false },
+    'profile change': { ...baseProfileMessage, ts: false },
+    subscription: { ...baseSubscriptionUpdateMessage, productId: false }
+  };
+  for (const [key, value] of Object.entries(invalidMessages)) {
+    it(`logs an error on invalid ${key} message`, async () => {
+      updateStubMessage(value);
+      consumer.start();
+      await pEvent(consumer.app, 'message_processed');
+      consumer.stop();
+      assert.calledOnce(logger.error as SinonSpy);
+      const callArgs = (logger.error as SinonSpy).getCalls()[0].args;
+      cassert.equal(callArgs[0], 'from.sqsMessage');
+      cassert.equal(callArgs[1].message, 'Invalid message');
+    });
+  }
 
   it('logs on message its not interested in', async () => {
     updateStubMessage(Object.assign({}, { ...baseLoginMessage, event: 'logout' }));
