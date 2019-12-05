@@ -1,14 +1,26 @@
-import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import React, { useState, useCallback } from 'react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  RenderResult,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { useClickOutsideEffect, useCheckboxState, useBooleanState } from './hooks';
+import {
+  useClickOutsideEffect,
+  useCheckboxState,
+  useBooleanState,
+  useAwait,
+  PromiseState,
+  PromiseStateResolved,
+} from './hooks';
 
 afterEach(cleanup);
 
 describe('useBooleanStateResult', () => {
-  const Subject = ({ initialState = false } : { initialState?: boolean }) => {
-    const [ state, setTrue, setFalse ] = useBooleanState(initialState);
+  const Subject = ({ initialState = false }: { initialState?: boolean }) => {
+    const [state, setTrue, setFalse] = useBooleanState(initialState);
     return (
       <div>
         <div data-testid="result">{state ? 'true' : 'false'}</div>
@@ -34,8 +46,8 @@ describe('useBooleanStateResult', () => {
 });
 
 describe('useCheckboxStateResult', () => {
-  const Subject = ({ initialState = false } : { initialState?: boolean }) => {
-    const [ state, onChange ] = useCheckboxState(initialState);
+  const Subject = ({ initialState = false }: { initialState?: boolean }) => {
+    const [state, onChange] = useCheckboxState(initialState);
     return (
       <div>
         <div data-testid="result">{state ? 'true' : 'false'}</div>
@@ -69,7 +81,9 @@ describe('useClickOutsideEffect', () => {
     return (
       <div>
         <div data-testid="outside">Outside</div>
-        <div data-testid="inside" ref={dialogInsideRef}>Inside</div>
+        <div data-testid="inside" ref={dialogInsideRef}>
+          Inside
+        </div>
       </div>
     );
   };
@@ -88,5 +102,210 @@ describe('useClickOutsideEffect', () => {
     const inside = getByTestId('inside');
     fireEvent.click(inside);
     expect(onDismiss).not.toBeCalled();
+  });
+});
+
+describe('useAwait', () => {
+  const Subject = ({
+    fn = async () => 'test',
+    fnArgs,
+    initialState,
+    executeImmediately,
+    rethrowError,
+  }: {
+    fn?: (...args: any) => Promise<string>;
+    fnArgs?: any;
+    initialState?: PromiseState<string, any>;
+    executeImmediately?: boolean;
+    rethrowError?: boolean;
+  }) => {
+    const useDefaults = [initialState, executeImmediately, rethrowError].every(
+      item => typeof item === 'undefined'
+    );
+    const options = useDefaults
+      ? undefined
+      : {
+          initialState,
+          executeImmediately,
+          rethrowError,
+        };
+    const [state, execute, reset] = useAwait(fn, options);
+    const [thrownState, setThrownState] = useState('');
+    const executeMaybeThrows = useCallback(async () => {
+      try {
+        await execute(fnArgs);
+      } catch (e) {
+        setThrownState(e);
+      }
+    }, [execute]);
+    return (
+      <div>
+        {state.pending && <div data-testid="pending">pending</div>}
+        {!state.pending && <div data-testid="not-pending">not-pending</div>}
+        <div data-testid="state">{JSON.stringify(state)}</div>
+        <div data-testid="thrown">{JSON.stringify(thrownState)}</div>
+        <button data-testid="execute" onClick={executeMaybeThrows}></button>
+        <button data-testid="reset" onClick={reset}></button>
+      </div>
+    );
+  };
+
+  const parseState = (getByTestId: RenderResult['getByTestId']) =>
+    JSON.parse(getByTestId('state').textContent as string);
+
+  it('accepts initial state', async () => {
+    const initialState: PromiseStateResolved<string> = {
+      result: 'expected',
+      pending: false,
+      error: undefined,
+    };
+    const { getByTestId } = render(
+      <Subject {...{ initialState, executeImmediately: false }} />
+    );
+    expect(parseState(getByTestId)).toEqual(initialState);
+  });
+
+  it('executes immediately by default', async () => {
+    const expected = 'asdasdasd';
+    const { findByTestId, getByTestId } = render(
+      <Subject {...{ fn: async () => expected }} />
+    );
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: expected,
+      pending: false,
+      error: undefined,
+    });
+  });
+
+  it('execute passes args to factory function', async () => {
+    const arg = 'hi mom';
+    const fn = async (arg: string) => `result ${arg}`;
+    const { findByTestId, getByTestId } = render(
+      <Subject {...{ fn, fnArgs: [arg], executeImmediately: false }} />
+    );
+    fireEvent.click(getByTestId('execute'));
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: `result ${arg}`,
+      pending: false,
+      error: undefined,
+    });
+  });
+
+  it('updates state for a resolved promise', async () => {
+    const expected = 'asdasdasd';
+    const fn = async () => expected;
+    const { findByTestId, getByTestId } = render(
+      <Subject {...{ fn, executeImmediately: false }} />
+    );
+    expect(parseState(getByTestId)).toEqual({
+      pending: undefined,
+      result: undefined,
+      erorr: undefined,
+    });
+    fireEvent.click(getByTestId('execute'));
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: expected,
+      pending: false,
+      error: undefined,
+    });
+  });
+
+  it('updates state for a rejected promise', async () => {
+    const expectedError = 'oops!';
+    const fn = async () => {
+      throw expectedError;
+    };
+    const { findByTestId, getByTestId, debug } = render(
+      <Subject {...{ fn, executeImmediately: false }} />
+    );
+    expect(parseState(getByTestId)).toEqual({
+      pending: undefined,
+      result: undefined,
+      erorr: undefined,
+    });
+    fireEvent.click(getByTestId('execute'));
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: undefined,
+      pending: false,
+      error: expectedError,
+    });
+    expect(getByTestId('thrown').textContent).not.toEqual(
+      JSON.stringify(expectedError)
+    );
+  });
+
+  it('optionally re-throws error for rejected promise', async () => {
+    const expectedError = 'oops!';
+    const fn = async () => {
+      throw expectedError;
+    };
+    const { findByTestId, getByTestId, debug } = render(
+      <Subject {...{ fn, executeImmediately: false, rethrowError: true }} />
+    );
+    expect(parseState(getByTestId)).toEqual({
+      pending: undefined,
+      result: undefined,
+      erorr: undefined,
+    });
+    fireEvent.click(getByTestId('execute'));
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: undefined,
+      pending: false,
+      error: expectedError,
+    });
+    expect(getByTestId('thrown').textContent).toEqual(
+      JSON.stringify(expectedError)
+    );
+  });
+
+  it('allows state to be reset', async () => {
+    const expected = 'asdasdasd';
+    const fn = async () => expected;
+    const { findByTestId, getByTestId } = render(
+      <Subject {...{ fn, executeImmediately: false }} />
+    );
+    expect(parseState(getByTestId)).toEqual({});
+    fireEvent.click(getByTestId('execute'));
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: expected,
+      pending: false,
+    });
+    fireEvent.click(getByTestId('reset'));
+    expect(parseState(getByTestId)).toEqual({});
+  });
+
+  it('does not re-execute when a promise is already pending', async () => {
+    const expectedError = 'oops!';
+    let count = 0;
+    const fn = async () => `count: ${++count}`;
+    const { findByTestId, getByTestId, debug } = render(
+      <Subject {...{ fn, executeImmediately: false }} />
+    );
+    expect(parseState(getByTestId)).toEqual({
+      pending: undefined,
+      result: undefined,
+      erorr: undefined,
+    });
+    fireEvent.click(getByTestId('execute'));
+    fireEvent.click(getByTestId('execute'));
+    fireEvent.click(getByTestId('execute'));
+    await findByTestId('pending');
+    await findByTestId('not-pending');
+    expect(parseState(getByTestId)).toEqual({
+      result: 'count: 1',
+      pending: false,
+    });
   });
 });

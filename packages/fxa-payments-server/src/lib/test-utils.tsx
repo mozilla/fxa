@@ -1,5 +1,4 @@
 import React, { useContext, ReactNode } from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config, updateConfig } from '../../src/lib/config';
 import {
@@ -9,10 +8,7 @@ import {
 import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
-
-import { State } from '../store/state';
-import { Store, createAppStore } from '../../src/store';
-import { Plan } from '../../src/store/types';
+import { Plan, Profile, Customer, Subscription, Token } from './types';
 
 declare global {
   namespace NodeJS {
@@ -204,45 +200,49 @@ export const defaultAppContextValue = (): AppContextType => ({
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
   locationReload: jest.fn(),
+  token: MOCK_TOKEN,
+  plans: MOCK_PLANS,
+  profile: MOCK_PROFILE,
+  customer: MOCK_CUSTOMER,
+  subscriptions: MOCK_ACTIVE_SUBSCRIPTIONS,
+  fetchCustomer: () => Promise.resolve(),
+  fetchSubscriptions: () => Promise.resolve(),
 });
 
 type MockAppProps = {
   children: ReactNode;
-  store?: Store;
   appContextValue?: AppContextType;
-  initialState?: State;
-  storeEnhancers?: Array<any>;
   mockStripe?: MockStripeType;
 };
 
 export const MockApp = ({
   children,
-  store,
-  initialState,
-  storeEnhancers,
   appContextValue,
   mockStripe,
 }: MockAppProps) => {
   return (
-    <ReduxProvider
-      store={store || createAppStore(initialState, storeEnhancers)}
-    >
-      <MockStripeContext.Provider value={{ mockStripe }}>
-        <AppContext.Provider
-          value={appContextValue || defaultAppContextValue()}
-        >
-          <React.Suspense
-            fallback={<div data-testid="is-loading">Loading</div>}
-          >
-            {children}
-          </React.Suspense>
-        </AppContext.Provider>
-      </MockStripeContext.Provider>
-    </ReduxProvider>
+    <MockStripeContext.Provider value={{ mockStripe }}>
+      <AppContext.Provider value={appContextValue || defaultAppContextValue()}>
+        <React.Suspense fallback={<div data-testid="is-loading">Loading</div>}>
+          {children}
+        </React.Suspense>
+      </AppContext.Provider>
+    </MockStripeContext.Provider>
   );
 };
 
 export const MOCK_CLIENT_TOKEN = 'tok-8675309';
+
+export const MOCK_TOKEN: Token = {
+  active: true,
+  scope: 'mock-scope',
+  client_id: 'abcde8675309',
+  token_type: 'refresh',
+  exp: 0,
+  iat: 0,
+  sub: 'foo@bar.com',
+  jti: '',
+};
 
 export const STRIPE_FIELDS = [
   'cardNumberElement',
@@ -303,7 +303,8 @@ export const MOCK_PLANS: Plan[] = [
   },
 ];
 
-export const MOCK_PROFILE = {
+export const MOCK_PROFILE: Profile = {
+  displayName: 'Foo Barson',
   email: 'foo@example.com',
   locale: 'en-US,en;q=0.5',
   amrValues: ['pwd', 'email'],
@@ -313,9 +314,8 @@ export const MOCK_PROFILE = {
   avatarDefault: true,
 };
 
-export const MOCK_ACTIVE_SUBSCRIPTIONS = [
+export const MOCK_ACTIVE_SUBSCRIPTIONS: Subscription[] = [
   {
-    uid: 'a90fef48240b49b2b6a33d333aee9b13',
     subscriptionId: 'sub0.28964929339372136',
     productId: '123doneProProduct',
     createdAt: 1565816388815,
@@ -323,16 +323,14 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS = [
   },
 ];
 
-export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
+export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION: Subscription[] = [
   {
-    uid: 'a90fef48240b49b2b6a33d333aee9b13',
     subscriptionId: 'sub0.28964929339372136',
     productId: '123doneProProduct',
     createdAt: 1565816388815,
     cancelledAt: null,
   },
   {
-    uid: 'a90fef48240b49b2b6a33d333aee9b13',
     subscriptionId: 'sub0.21234123424',
     productId: 'prod_67890',
     createdAt: 1565816388815,
@@ -340,32 +338,34 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
   },
 ];
 
-export const MOCK_CUSTOMER = {
+export const MOCK_CUSTOMER: Customer = {
   payment_type: 'tok_1F7TltEOSeHhIAfQo9u6eqTc',
   last4: '8675',
-  exp_month: 8,
-  exp_year: 2020,
+  exp_month: '8',
+  exp_year: '2020',
   subscriptions: [
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
-      plan_name: '123done Pro Monthly',
+      nickname: '123done Pro Monthly',
       status: 'active',
       cancel_at_period_end: false,
+      end_at: null,
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
     },
   ],
 };
 
-export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
+export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION: Customer = {
   ...MOCK_CUSTOMER,
   subscriptions: [
     ...MOCK_CUSTOMER.subscriptions,
     {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
-      plan_name: 'Plan 12345',
+      nickname: 'Plan 12345',
+      end_at: null,
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,

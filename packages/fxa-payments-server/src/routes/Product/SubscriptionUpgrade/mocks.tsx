@@ -1,4 +1,4 @@
-import { Profile, Plan, Customer } from '../../../store/types';
+import { Profile, Plan, Customer } from '../../../lib/types';
 
 export const PROFILE: Profile = {
   amrValues: [],

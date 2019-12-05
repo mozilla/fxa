@@ -1,6 +1,5 @@
 import React from 'react';
 import { render } from 'react-dom';
-import { createAppStore } from './store';
 
 import { config, readConfigFromMeta } from './lib/config';
 import { updateAPIClientToken, updateAPIClientConfig } from './lib/apiClient';
@@ -8,12 +7,8 @@ import './index.scss';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 
-import { actions } from './store/actions';
-
 async function init() {
   readConfigFromMeta(headQuerySelector);
-
-  const store = createAppStore();
 
   const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
@@ -24,14 +19,11 @@ async function init() {
   if (accessToken) {
     updateAPIClientConfig(config);
     updateAPIClientToken(accessToken);
-    store.dispatch(actions.fetchToken());
-    store.dispatch(actions.fetchProfile());
 
     render(
       <App
         {...{
           config,
-          store,
           queryParams,
           matchMedia,
           navigateToUrl,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plan } from '../../../store/types';
+import { Plan } from '../../../lib/types';
 
 import './index.scss';
 
@@ -12,16 +12,15 @@ type availableDetailsType = {
   >;
 };
 
-
 const loadDetails123DonePro =
-      /* istanbul ignore next */
-      () => import('./Details123DonePro');
+  /* istanbul ignore next */
+  () => import('./Details123DonePro');
 
 const availableDetails: availableDetailsType = {
-  'fortressProMonthly': React.lazy(loadDetails123DonePro),
-  'plan_FUUOYlhpIhWtoo': React.lazy(loadDetails123DonePro),
-  'plan_F4bof27uz71Vk7': React.lazy(loadDetails123DonePro),
-  'prod_FfiuDs9u11ESbD': React.lazy(loadDetails123DonePro),
+  fortressProMonthly: React.lazy(loadDetails123DonePro),
+  plan_FUUOYlhpIhWtoo: React.lazy(loadDetails123DonePro),
+  plan_F4bof27uz71Vk7: React.lazy(loadDetails123DonePro),
+  prod_FfiuDs9u11ESbD: React.lazy(loadDetails123DonePro),
 };
 const defaultDetails = React.lazy(() => import('./DetailsDefault'));
 

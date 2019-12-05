@@ -1,23 +1,22 @@
 import React from 'react';
-import { FetchState } from '../store/types';
-import { APIError } from '../lib/apiClient';
 import DialogMessage from './DialogMessage';
+
+/* istanbul ignore next - no-op function not worth testing */
+const noop = () => {};
 
 export default ({
   title,
   testid = '',
-  fetchState,
-  onDismiss = () => {},
+  error,
+  onDismiss = noop,
 }: {
   title: string;
   testid?: string;
-  fetchState: FetchState<any, APIError>;
+  error: any;
   onDismiss?: Function;
 }) => (
   <DialogMessage className="dialog-error" onDismiss={onDismiss}>
     <h4 data-testid={testid}>{title}</h4>
-    {fetchState.error && fetchState.error.message && (
-      <p>{fetchState.error.message}</p>
-    )}
+    {error && error.message && <p>{error.message}</p>}
   </DialogMessage>
 );

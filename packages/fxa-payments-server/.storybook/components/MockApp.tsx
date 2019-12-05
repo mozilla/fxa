@@ -2,7 +2,11 @@ import React, { useEffect, useMemo, ReactNode } from 'react';
 import { action } from '@storybook/addon-actions';
 import { StripeProvider } from 'react-stripe-elements';
 import { MockLoader } from './MockLoader';
-import { AppContext, AppContextType } from '../../src/lib/AppContext';
+import {
+  AppContext,
+  AppContextType,
+  defaultAppContext,
+} from '../../src/lib/AppContext';
 import { config } from '../../src/lib/config';
 import ScreenInfo from '../../src/lib/screen-info';
 
@@ -20,6 +24,7 @@ type MockAppProps = {
 };
 
 export const defaultAppContextValue: AppContextType = {
+  ...defaultAppContext,
   config: {
     ...config,
     productRedirectURLs: {
@@ -37,6 +42,8 @@ export const defaultAppContextValue: AppContextType = {
   getScreenInfo: () => new ScreenInfo(window),
   matchMedia: (query: string) => window.matchMedia(query).matches,
   locationReload: action('locationReload'),
+  fetchCustomer: () => Promise.resolve(),
+  fetchSubscriptions: () => Promise.resolve(),
 };
 
 export const defaultStripeStubs = (stripe: stripe.Stripe) => {

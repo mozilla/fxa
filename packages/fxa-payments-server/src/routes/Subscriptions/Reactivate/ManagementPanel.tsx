@@ -4,11 +4,12 @@ import {
   CustomerSubscription,
   Subscription,
   Customer,
-} from '../../../store/types';
+  FunctionWithIgnoredReturn,
+} from '../../../lib/types';
 import { useBooleanState } from '../../../lib/hooks';
 import { formatPeriodEndDate } from '../../../lib/formats';
-import { ActionFunctions } from '../../../store/actions';
 import ReactivationConfirmationDialog from './ConfirmationDialog';
+import { apiReactivateSubscription } from '../../../lib/apiClient';
 
 export default ({
   plan,
@@ -21,7 +22,9 @@ export default ({
   customerSubscription: CustomerSubscription;
   subscription: Subscription;
   customer: Customer;
-  reactivateSubscription: ActionFunctions['reactivateSubscription'];
+  reactivateSubscription: FunctionWithIgnoredReturn<
+    typeof apiReactivateSubscription
+  >;
 }) => {
   const { subscription_id } = customerSubscription;
   const [
@@ -31,7 +34,10 @@ export default ({
   ] = useBooleanState();
 
   const onReactivateClick = useCallback(() => {
-    reactivateSubscription(subscription_id, plan);
+    reactivateSubscription({
+      subscriptionId: subscription_id,
+      planId: plan.plan_id,
+    });
     hideReactivateConfirmation();
   }, [
     reactivateSubscription,

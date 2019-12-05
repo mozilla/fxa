@@ -1,10 +1,22 @@
-import React from 'react';
-import { Plan } from '../../../store/types';
-import { metadataFromPlan } from '../../../store/utils';
+import React, { useContext } from 'react';
+import { Plan } from '../../../lib/types';
+import { metadataFromPlan } from '../../../lib/metadataFromPlan';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
+import { AppContext } from '../../../lib/AppContext';
 
-export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
+export default ({
+  planId,
+  onDismiss,
+}: {
+  planId: string;
+  onDismiss: () => void;
+}) => {
+  const { plans } = useContext(AppContext);
+  const plan = planForId(planId, plans);
+  if (!plan) {
+    return null;
+  }
   const { product_name: productName } = plan;
   const { webIconURL } = metadataFromPlan(plan);
   return (
@@ -33,4 +45,8 @@ export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
       </button>
     </DialogMessage>
   );
+};
+
+const planForId = (planId: string, plans: Plan[] | undefined) => {
+  return plans && plans.filter(plan => plan.plan_id === planId)[0];
 };

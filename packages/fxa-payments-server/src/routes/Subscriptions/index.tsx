@@ -5,23 +5,19 @@ import React, {
   useState,
   useRef,
 } from 'react';
-import { connect } from 'react-redux';
+
 import dayjs from 'dayjs';
 
-import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
+import * as Amplitude from '../../lib/amplitude';
 import FlowEvent from '../../lib/flow-event';
 
-import { actions, ActionFunctions } from '../../store/actions';
-import { selectors, SelectorReturns } from '../../store/selectors';
-import { sequences, SequenceFunctions } from '../../store/sequences';
-import { State } from '../../store/state';
 import {
   CustomerSubscription,
   Profile,
   Subscription,
   Plan,
-} from '../../store/types';
+} from '../../lib/types';
 
 import './index.scss';
 import SubscriptionItem from './SubscriptionItem';
@@ -29,58 +25,63 @@ import ReactivateSubscriptionSuccessDialog from './Reactivate/SuccessDialog';
 
 import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
-import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import CloseIcon from '../../components/CloseIcon';
+import {
+  apiCancelSubscription,
+  apiUpdatePayment,
+  apiReactivateSubscription,
+} from '../../lib/apiClient';
+import { useAwait, PromiseState } from '../../lib/hooks';
 
 export type SubscriptionsProps = {
-  profile: SelectorReturns['profile'];
-  plans: SelectorReturns['plans'];
-  customer: SelectorReturns['customer'];
-  subscriptions: SelectorReturns['subscriptions'];
-  cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
-  reactivateSubscriptionStatus: SelectorReturns['reactivateSubscriptionStatus'];
-  updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
-  customerSubscriptions: SelectorReturns['customerSubscriptions'];
-  cancelSubscription: SequenceFunctions['cancelSubscriptionAndRefresh'];
-  resetCancelSubscription: ActionFunctions['resetCancelSubscription'];
-  reactivateSubscription: ActionFunctions['reactivateSubscription'];
-  fetchSubscriptionsRouteResources: SequenceFunctions['fetchSubscriptionsRouteResources'];
-  resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
-  updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
-  resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
-  manageSubscriptionsMounted: ActionFunctions['manageSubscriptionsMounted'];
-  manageSubscriptionsEngaged: ActionFunctions['manageSubscriptionsEngaged'];
-  cancelSubscriptionMounted: ActionFunctions['cancelSubscriptionMounted'];
-  cancelSubscriptionEngaged: ActionFunctions['cancelSubscriptionEngaged'];
-  updatePaymentMounted: ActionFunctions['updatePaymentMounted'];
-  updatePaymentEngaged: ActionFunctions['updatePaymentEngaged'];
+  match: {
+    params: any;
+  };
+  initialCancelSubscriptionStatus?: PromiseState;
+  initialUpdatePaymentStatus?: PromiseState;
+  initialReactivateSubscriptionStatus?: PromiseState;
 };
 
 export const Subscriptions = ({
-  profile,
-  customer,
-  plans,
-  subscriptions,
-  customerSubscriptions,
-  fetchSubscriptionsRouteResources,
-  cancelSubscription,
-  cancelSubscriptionStatus,
-  reactivateSubscription,
-  reactivateSubscriptionStatus,
-  resetReactivateSubscription,
-  updatePayment,
-  resetUpdatePayment,
-  resetCancelSubscription,
-  updatePaymentStatus,
-  manageSubscriptionsMounted,
-  manageSubscriptionsEngaged,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
+  initialCancelSubscriptionStatus,
+  initialUpdatePaymentStatus,
+  initialReactivateSubscriptionStatus,
 }: SubscriptionsProps) => {
-  const { config, locationReload, navigateToUrl } = useContext(AppContext);
+  const {
+    config,
+    navigateToUrl,
+    profile,
+    plans,
+    customer,
+    subscriptions,
+  } = useContext(AppContext);
+
+  const [
+    cancelSubscriptionStatus,
+    cancelSubscription,
+    resetCancelSubscription,
+  ] = useAwait(apiCancelSubscription, {
+    initialState: initialCancelSubscriptionStatus,
+    executeImmediately: false,
+  });
+
+  const [updatePaymentStatus, updatePayment, resetUpdatePayment] = useAwait(
+    apiUpdatePayment,
+    {
+      initialState: initialUpdatePaymentStatus,
+      executeImmediately: false,
+    }
+  );
+
+  const [
+    reactivateSubscriptionStatus,
+    reactivateSubscription,
+    resetReactivateSubscription,
+  ] = useAwait(apiReactivateSubscription, {
+    initialState: initialReactivateSubscriptionStatus,
+    executeImmediately: false,
+  });
 
   const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
   const clearSuccessAlert = useCallback(
@@ -93,8 +94,8 @@ export const Subscriptions = ({
   const engaged = useRef(false);
 
   useEffect(() => {
-    manageSubscriptionsMounted();
-  }, [manageSubscriptionsMounted]);
+    Amplitude.manageSubscriptionsMounted();
+  }, []);
 
   // Any button click is engagement
   const onAnyClick = useCallback(
@@ -104,86 +105,26 @@ export const Subscriptions = ({
         (evt.target.tagName === 'BUTTON' ||
           evt.target.parentNode.tagName === 'BUTTON')
       ) {
-        manageSubscriptionsEngaged();
+        Amplitude.manageSubscriptionsEngaged();
         engaged.current = true;
       }
     },
-    [manageSubscriptionsEngaged, engaged]
+    [engaged]
   );
-
-  // Fetch subscriptions and customer on initial render or auth change.
-  useEffect(() => {
-    fetchSubscriptionsRouteResources();
-  }, [fetchSubscriptionsRouteResources]);
 
   const onSupportClick = useCallback(() => navigateToUrl(SUPPORT_FORM_URL), [
     navigateToUrl,
     SUPPORT_FORM_URL,
   ]);
 
-  if (
-    customer.loading ||
-    subscriptions.loading ||
-    profile.loading ||
-    plans.loading
-  ) {
-    return <LoadingOverlay isLoading={true} />;
+  if (!profile || !plans || !subscriptions) {
+    return null;
   }
 
-  if (!profile.result || profile.error !== null) {
-    return (
-      <FetchErrorDialogMessage
-        testid="error-loading-profile"
-        title="Problem loading profile"
-        fetchState={profile}
-        onDismiss={locationReload}
-      />
-    );
-  }
-
-  if (!plans.result || plans.error !== null) {
-    return (
-      <FetchErrorDialogMessage
-        testid="error-loading-plans"
-        title="Problem loading plans"
-        fetchState={plans}
-        onDismiss={locationReload}
-      />
-    );
-  }
-
-  if (!subscriptions.result || subscriptions.error !== null) {
-    return (
-      <FetchErrorDialogMessage
-        testid="error-subscriptions-fetch"
-        title="Problem loading subscriptions"
-        fetchState={subscriptions}
-        onDismiss={locationReload}
-      />
-    );
-  }
-
-  if (
-    customer.error &&
-    // Unknown customer just means the user hasn't subscribed to anything yet
-    customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
-  ) {
-    return (
-      <FetchErrorDialogMessage
-        testid="error-loading-customer"
-        title="Problem loading customer"
-        fetchState={customer}
-        onDismiss={locationReload}
-      />
-    );
-  }
+  const customerSubscriptions = customer ? customer.subscriptions : [];
 
   // If the customer has no subscriptions, redirect to the settings page
-  if (
-    (customerSubscriptions && customerSubscriptions.length === 0) ||
-    (customer.error &&
-      customer.error.errno === AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER)
-  ) {
+  if (customerSubscriptions.length === 0) {
     const SETTINGS_URL = `${config.servers.content.url}/settings`;
     navigateToUrl(SETTINGS_URL);
     return <LoadingOverlay isLoading={true} />;
@@ -191,18 +132,17 @@ export const Subscriptions = ({
 
   return (
     <div className="subscription-management" onClick={onAnyClick}>
-      {customerSubscriptions && cancelSubscriptionStatus.result !== null && (
+      {cancelSubscriptionStatus.result && (
         <CancellationDialogMessage
           {...{
-            subscription: cancelSubscriptionStatus.result,
+            subscriptionId: cancelSubscriptionStatus.result.subscriptionId,
             customerSubscriptions,
-            plans: plans.result,
+            plans,
             resetCancelSubscription,
             supportFormUrl: SUPPORT_FORM_URL,
           }}
         />
       )}
-
       {updatePaymentStatus.result && showPaymentSuccessAlert && (
         <AlertBar className="alert alertSuccess alertCenter">
           <span data-testid="success-billing-update" className="checked">
@@ -219,13 +159,11 @@ export const Subscriptions = ({
           </span>
         </AlertBar>
       )}
-
-      {updatePaymentStatus.loading && (
+      {updatePaymentStatus.pending && (
         <AlertBar className="alert alertPending">
           <span>Updating billing information...</span>
         </AlertBar>
       )}
-
       {reactivateSubscriptionStatus.error && (
         <DialogMessage
           className="dialog-error"
@@ -237,14 +175,12 @@ export const Subscriptions = ({
           <p>{reactivateSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}
-
       {reactivateSubscriptionStatus.result && (
         <ReactivateSubscriptionSuccessDialog
-          plan={reactivateSubscriptionStatus.result.plan}
+          planId={reactivateSubscriptionStatus.result.planId}
           onDismiss={resetReactivateSubscription}
         />
       )}
-
       {cancelSubscriptionStatus.error && (
         <DialogMessage
           className="dialog-error"
@@ -256,9 +192,7 @@ export const Subscriptions = ({
           <p>{cancelSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}
-
-      {profile.result && <ProfileBanner profile={profile.result} />}
-
+      <ProfileBanner profile={profile} />
       <div className="child-views" data-testid="subscription-management-loaded">
         <div className="settings-child-view support">
           <div className="settings-unit">
@@ -276,28 +210,24 @@ export const Subscriptions = ({
             </div>
           </div>
 
-          {customer.result &&
+          {customer &&
             customerSubscriptions &&
             customerSubscriptions.map((customerSubscription, idx) => (
               <SubscriptionItem
                 key={idx}
                 {...{
-                  customer: customer.result,
+                  customer,
                   updatePayment,
                   resetUpdatePayment,
                   updatePaymentStatus,
                   cancelSubscription,
                   reactivateSubscription,
                   customerSubscription,
-                  cancelSubscriptionMounted,
-                  cancelSubscriptionEngaged,
                   cancelSubscriptionStatus,
-                  updatePaymentMounted,
-                  updatePaymentEngaged,
-                  plan: planForId(customerSubscription.plan_id, plans.result),
+                  plan: planForId(customerSubscription.plan_id, plans),
                   subscription: subscriptionForId(
                     customerSubscription.subscription_id,
-                    subscriptions.result
+                    subscriptions
                   ),
                 }}
               />
@@ -328,22 +258,22 @@ const planForId = (planId: string, plans: Plan[]): Plan | null =>
   plans.filter(plan => plan.plan_id === planId)[0];
 
 type CancellationDialogMessageProps = {
-  subscription: Subscription;
+  subscriptionId: string;
   customerSubscriptions: CustomerSubscription[];
   plans: Plan[];
-  resetCancelSubscription: SubscriptionsProps['resetCancelSubscription'];
+  resetCancelSubscription: () => void;
   supportFormUrl: string;
 };
 
 const CancellationDialogMessage = ({
-  subscription,
+  subscriptionId,
   customerSubscriptions,
   plans,
   resetCancelSubscription,
   supportFormUrl,
 }: CancellationDialogMessageProps) => {
   const customerSubscription = customerSubscriptionForId(
-    subscription.subscriptionId,
+    subscriptionId,
     customerSubscriptions
   ) as CustomerSubscription;
   const plan = planForId(customerSubscription.plan_id, plans) as Plan;
@@ -388,34 +318,4 @@ const ProfileBanner = ({
   </header>
 );
 
-// TODO replace this with Redux hooks in component function body
-// https://github.com/mozilla/fxa/issues/3020
-export default connect(
-  (state: State) => ({
-    plans: selectors.plans(state),
-    profile: selectors.profile(state),
-    customer: selectors.customer(state),
-    customerSubscriptions: selectors.customerSubscriptions(state),
-    subscriptions: selectors.subscriptions(state),
-    updatePaymentStatus: selectors.updatePaymentStatus(state),
-    cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
-    reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),
-    plansByProductId: selectors.plansByProductId(state),
-  }),
-  {
-    fetchSubscriptionsRouteResources:
-      sequences.fetchSubscriptionsRouteResources,
-    updatePayment: sequences.updatePaymentAndRefresh,
-    resetUpdatePayment: actions.resetUpdatePayment,
-    cancelSubscription: sequences.cancelSubscriptionAndRefresh,
-    resetCancelSubscription: actions.resetCancelSubscription,
-    reactivateSubscription: sequences.reactivateSubscriptionAndRefresh,
-    resetReactivateSubscription: actions.resetReactivateSubscription,
-    manageSubscriptionsMounted: actions.manageSubscriptionsMounted,
-    manageSubscriptionsEngaged: actions.manageSubscriptionsEngaged,
-    cancelSubscriptionMounted: actions.cancelSubscriptionMounted,
-    cancelSubscriptionEngaged: actions.cancelSubscriptionEngaged,
-    updatePaymentMounted: actions.updatePaymentMounted,
-    updatePaymentEngaged: actions.updatePaymentEngaged,
-  }
-)(Subscriptions);
+export default Subscriptions;

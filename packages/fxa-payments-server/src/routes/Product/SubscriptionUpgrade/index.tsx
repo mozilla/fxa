@@ -1,13 +1,8 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect } from 'react';
 
-import {
-  Plan,
-  Profile,
-  Customer,
-  CustomerSubscription,
-} from '../../../store/types';
-import { SelectorReturns } from '../../../store/selectors';
-import { metadataFromPlan } from '../../../store/utils';
+import { Plan, CustomerSubscription } from '../../../lib/types';
+import { metadataFromPlan } from '../../../lib/metadataFromPlan';
+import * as Amplitude from '../../../lib/amplitude';
 
 import {
   formatCurrencyInCents,
@@ -24,62 +19,79 @@ import ProfileBanner from '../ProfileBanner';
 
 import './index.scss';
 
-import { ProductProps } from '../index';
+import AppContext from '../../../lib/AppContext';
+import { apiUpdateSubscriptionPlan } from '../../../lib/apiClient';
+import { useAwait, PromiseState } from '../../../lib/hooks';
+import { SignInLayoutContext } from '../../../components/AppLayout';
 
 export type SubscriptionUpgradeProps = {
-  customer: Customer;
-  profile: Profile;
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   upgradeFromSubscription: CustomerSubscription;
-  updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
-  updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
-  resetUpdateSubscriptionPlan: ProductProps['resetUpdateSubscriptionPlan'];
-  onMounted: Function;
-  onEngaged: Function;
+  initialUpdateSubscriptionPlan?: PromiseState;
 };
 
 export const SubscriptionUpgrade = ({
-  customer,
-  profile,
   selectedPlan,
   upgradeFromPlan,
   upgradeFromSubscription,
-  updateSubscriptionPlanAndRefresh,
-  resetUpdateSubscriptionPlan,
-  updateSubscriptionPlanStatus,
-  onMounted,
-  onEngaged,
+  initialUpdateSubscriptionPlan,
 }: SubscriptionUpgradeProps) => {
+  const { customer, profile, fetchCustomer, fetchSubscriptions } = useContext(
+    AppContext
+  );
+
+  const { setHideLogo } = useContext(SignInLayoutContext);
+  useEffect(() => {
+    setHideLogo(true);
+  }, [setHideLogo]);
+
+  const [
+    updateSubscriptionPlanStatus,
+    updateSubscriptionPlan,
+    resetUpdateSubscriptionPlan,
+  ] = useAwait(apiUpdateSubscriptionPlan, {
+    initialState: initialUpdateSubscriptionPlan,
+    executeImmediately: false,
+  });
+
   const validator = useValidatorState();
 
-  const inProgress = updateSubscriptionPlanStatus.loading;
+  const inProgress = updateSubscriptionPlanStatus.pending;
 
   useEffect(() => {
-    onMounted(selectedPlan);
-  }, [onMounted, selectedPlan]);
+    Amplitude.updateSubscriptionPlanMounted(selectedPlan);
+  }, [selectedPlan]);
 
   const engageOnce = useCallbackOnce(() => {
-    onEngaged(selectedPlan);
-  }, [onEngaged, selectedPlan]);
+    Amplitude.updateSubscriptionPlanEngaged(selectedPlan);
+  }, [selectedPlan]);
 
   const onSubmit = useCallback(
-    ev => {
+    async ev => {
       ev.preventDefault();
       if (validator.allValid()) {
-        updateSubscriptionPlanAndRefresh(
-          upgradeFromSubscription.subscription_id,
-          selectedPlan
-        );
+        await updateSubscriptionPlan({
+          subscriptionId: upgradeFromSubscription.subscription_id,
+          planId: selectedPlan.plan_id,
+          productId: selectedPlan.product_id,          
+        });
+        await Promise.all([fetchCustomer(), fetchSubscriptions()]);
       }
     },
     [
       validator,
-      updateSubscriptionPlanAndRefresh,
+      updateSubscriptionPlan,
       upgradeFromSubscription,
       selectedPlan,
+      fetchCustomer,
+      fetchSubscriptions,
     ]
   );
+
+  if (!customer || !profile) {
+    return null;
+  }
 
   const {
     last4: cardLast4,

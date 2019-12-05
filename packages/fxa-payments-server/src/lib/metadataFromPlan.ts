@@ -13,3 +13,5 @@ export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
   ...plan.product_metadata,
   ...plan.plan_metadata,
 });
+
+export default metadataFromPlan;

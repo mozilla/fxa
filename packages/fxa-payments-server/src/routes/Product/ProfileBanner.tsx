@@ -1,5 +1,5 @@
 import React from 'react';
-import { Profile } from '../../store/types';
+import { Profile } from '../../lib/types';
 
 export default ({
   profile: { email, avatar, displayName },

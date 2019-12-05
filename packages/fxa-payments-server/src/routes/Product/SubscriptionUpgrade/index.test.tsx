@@ -2,17 +2,35 @@ import React from 'react';
 import { render, cleanup, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { APIError } from '../../../lib/apiClient';
+jest.mock('../../../lib/sentry');
+
+import {
+  apiUpdateSubscriptionPlan
+} from '../../../lib/apiClient';
+jest.mock('../../../lib/apiClient');
+
+import {
+  updateSubscriptionPlanMounted,
+  updateSubscriptionPlanEngaged,
+} from '../../../lib/amplitude';
+jest.mock('../../../lib/amplitude');
 
 import { MockApp } from '../../../lib/test-utils';
 
-import { PROFILE, CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
+import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 
 describe('routes/Product/SubscriptionUpgrade', () => {
+  const mockApiUpdateSubscriptionPlan = apiUpdateSubscriptionPlan as jest.Mock;
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    return cleanup();
+  });
+
   it('renders as expected', async () => {
     const { findByTestId, container } = render(<Subject />);
     await findByTestId('subscription-upgrade');
@@ -28,43 +46,37 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   });
 
   it('can be submitted after confirmation is checked', async () => {
-    const updateSubscriptionPlanAndRefresh = jest.fn();
+    mockApiUpdateSubscriptionPlan.mockResolvedValue({});
 
-    const { findByTestId, getByTestId } = render(
-      <Subject
-        props={{
-          updateSubscriptionPlanAndRefresh,
-        }}
-      />
-    );
+    const { findByTestId, getByTestId } = render(<Subject />);
     await findByTestId('subscription-upgrade');
 
     expect(getByTestId('submit')).toHaveAttribute('disabled');
     fireEvent.submit(getByTestId('upgrade-form'));
-    expect(updateSubscriptionPlanAndRefresh).not.toBeCalled();
+    expect(mockApiUpdateSubscriptionPlan).not.toBeCalled();
 
     fireEvent.click(getByTestId('confirm'));
     expect(getByTestId('submit')).not.toHaveAttribute('disabled');
-    fireEvent.click(getByTestId('submit'));
-    expect(updateSubscriptionPlanAndRefresh).toBeCalledWith(
-      CUSTOMER.subscriptions[0].subscription_id,
-      SELECTED_PLAN
-    );
+    await act(async () => {
+      fireEvent.click(getByTestId('submit'));
+    });
+    expect(mockApiUpdateSubscriptionPlan).toBeCalledWith({
+      subscriptionId: CUSTOMER.subscriptions[0].subscription_id,
+      planId: SELECTED_PLAN.plan_id,
+      productId: SELECTED_PLAN.product_id,      
+    });
   });
 
   it('displays a loading spinner while submitting', async () => {
-    const { findByTestId, getByTestId, getByText } = render(
-      <Subject
-        props={{
-          updateSubscriptionPlanStatus: {
-            error: null,
-            loading: true,
-            result: null,
-          },
-        }}
-      />
-    );
+    mockApiUpdateSubscriptionPlan.mockReturnValue(new Promise(() => {}));
+
+    const { findByTestId, getByTestId } = render(<Subject />);
     await findByTestId('subscription-upgrade');
+
+    fireEvent.click(getByTestId('confirm'));
+    await act(async () => {
+      fireEvent.click(getByTestId('submit'));
+    });
 
     expect(getByTestId('spinner-submit')).toBeInTheDocument();
   });
@@ -72,41 +84,28 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   it('displays a dialog when updating subscription results in error', async () => {
     const expectedMessage = 'game over man';
 
-    const { findByTestId, getByTestId, getByText } = render(
-      <Subject
-        props={{
-          updateSubscriptionPlanStatus: {
-            error: new APIError({
-              message: expectedMessage,
-            }),
-            loading: false,
-            result: null,
-          },
-        }}
-      />
-    );
+    mockApiUpdateSubscriptionPlan.mockRejectedValue({
+      message: expectedMessage,
+    });
+
+    const { findByTestId, getByTestId, getByText } = render(<Subject />);
     await findByTestId('subscription-upgrade');
+
+    fireEvent.click(getByTestId('confirm'));
+    await act(async () => {
+      fireEvent.click(getByTestId('submit'));
+    });
 
     expect(getByTestId('error-plan-update-failed')).toBeInTheDocument();
     expect(getByText(expectedMessage)).toBeInTheDocument();
   });
 
-  it('calls onMounted and onEngaged', async () => {
-    const onMounted = jest.fn();
-    const onEngaged = jest.fn();
-
-    const { findByTestId, getByTestId } = render(
-      <Subject
-        props={{
-          onMounted,
-          onEngaged,
-        }}
-      />
-    );
+  it('calls updateSubscriptionPlanMounted and updateSubscriptionPlanEngaged', async () => {
+    const { findByTestId, getByTestId } = render(<Subject />);
     await findByTestId('subscription-upgrade');
     fireEvent.click(getByTestId('confirm'));
-    expect(onMounted).toBeCalledTimes(1);
-    expect(onEngaged).toBeCalledTimes(1);
+    expect(updateSubscriptionPlanMounted).toBeCalledTimes(1);
+    expect(updateSubscriptionPlanEngaged).toBeCalledTimes(1);
   });
 });
 
@@ -121,18 +120,7 @@ const Subject = ({ props = {} }: { props?: object }) => {
 };
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
-  profile: PROFILE,
-  customer: CUSTOMER,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,
   upgradeFromSubscription: CUSTOMER.subscriptions[0],
-  updateSubscriptionPlanStatus: {
-    error: null,
-    loading: false,
-    result: null,
-  },
-  updateSubscriptionPlanAndRefresh: jest.fn(),
-  resetUpdateSubscriptionPlan: jest.fn(),
-  onMounted: jest.fn(),
-  onEngaged: jest.fn(),
 };

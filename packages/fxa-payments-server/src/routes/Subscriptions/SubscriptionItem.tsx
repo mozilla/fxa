@@ -1,36 +1,46 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { formatPeriodEndDate } from '../../lib/formats';
-import { useBooleanState, useCheckboxState } from '../../lib/hooks';
+import {
+  useBooleanState,
+  useCheckboxState,
+  PromiseState,
+} from '../../lib/hooks';
 import {
   CustomerSubscription,
   Subscription,
   Plan,
   Customer,
-} from '../../store/types';
-import { SelectorReturns } from '../../store/selectors';
-import { SubscriptionsProps } from './index';
+} from '../../lib/types';
+import * as Amplitude from '../../lib/amplitude';
 
 import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
 
 import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
+import {
+  apiCancelSubscription,
+  apiReactivateSubscription,
+  apiUpdatePayment,
+} from '../../lib/apiClient';
+import { FunctionWithIgnoredReturn } from '../../lib/types';
 
 type SubscriptionItemProps = {
   customerSubscription: CustomerSubscription;
   subscription: Subscription | null;
   plan: Plan | null;
-  cancelSubscription: SubscriptionsProps['cancelSubscription'];
-  reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
   customer: Customer;
-  updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
-  resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
-  updatePayment: SubscriptionsProps['updatePayment'];
-  cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
-  cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
-  cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
-  updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
-  updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
+  cancelSubscription: FunctionWithIgnoredReturn<typeof apiCancelSubscription>;
+  cancelSubscriptionStatus: PromiseState<
+    { subscriptionId: string } | undefined,
+    any
+  >;
+  reactivateSubscription: FunctionWithIgnoredReturn<
+    typeof apiReactivateSubscription
+  >;
+  updatePayment: FunctionWithIgnoredReturn<typeof apiUpdatePayment>;
+  updatePaymentStatus: PromiseState;
+  resetUpdatePayment: () => void;
 };
 
 export const SubscriptionItem = ({
@@ -44,10 +54,6 @@ export const SubscriptionItem = ({
   resetUpdatePayment,
   updatePaymentStatus,
   customerSubscription,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
@@ -93,15 +99,11 @@ export const SubscriptionItem = ({
                 updatePayment,
                 resetUpdatePayment,
                 updatePaymentStatus,
-                updatePaymentMounted,
-                updatePaymentEngaged,
               }}
             />
             <CancelSubscriptionPanel
               {...{
                 cancelSubscription,
-                cancelSubscriptionEngaged,
-                cancelSubscriptionMounted,
                 cancelSubscriptionStatus,
                 customerSubscription,
                 plan,
@@ -128,26 +130,26 @@ export const SubscriptionItem = ({
 
 type CancelSubscriptionPanelProps = {
   plan: Plan;
-  cancelSubscription: SubscriptionsProps['cancelSubscription'];
   customerSubscription: CustomerSubscription;
-  cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
-  cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
-  cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  cancelSubscription: SubscriptionItemProps['cancelSubscription'];
+  cancelSubscriptionStatus: SubscriptionItemProps['cancelSubscriptionStatus'];
 };
 
 const CancelSubscriptionPanel = ({
   plan,
   cancelSubscription,
   customerSubscription: { subscription_id, current_period_end },
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
   cancelSubscriptionStatus,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
 
   const confirmCancellation = useCallback(() => {
-    cancelSubscription(subscription_id, plan);
+    cancelSubscription({
+      subscriptionId: subscription_id,
+      planId: plan.plan_id,
+      productId: plan.product_id,
+    });
   }, [cancelSubscription, subscription_id, plan]);
 
   const viewed = useRef(false);
@@ -155,17 +157,17 @@ const CancelSubscriptionPanel = ({
 
   useEffect(() => {
     if (!viewed.current && cancelRevealed) {
-      cancelSubscriptionMounted(plan);
+      Amplitude.cancelSubscriptionMounted(plan);
       viewed.current = true;
     }
-  }, [cancelRevealed, viewed, plan, cancelSubscriptionMounted]);
+  }, [cancelRevealed, viewed, plan]);
 
   const engage = useCallback(() => {
     if (!engaged.current) {
-      cancelSubscriptionEngaged(plan);
+      Amplitude.cancelSubscriptionEngaged(plan);
       engaged.current = true;
     }
-  }, [engaged, plan, cancelSubscriptionEngaged]);
+  }, [engaged, plan]);
 
   const engagedOnHideCancel = useCallback(() => {
     engage();
@@ -235,10 +237,10 @@ const CancelSubscriptionPanel = ({
                 className="settings-button secondary-button"
                 onClick={confirmCancellation}
                 disabled={
-                  cancelSubscriptionStatus.loading || !confirmationChecked
+                  cancelSubscriptionStatus.pending || !confirmationChecked
                 }
               >
-                {cancelSubscriptionStatus.loading ? (
+                {cancelSubscriptionStatus.pending ? (
                   <span data-testid="spinner-update" className="spinner">
                     &nbsp;
                   </span>

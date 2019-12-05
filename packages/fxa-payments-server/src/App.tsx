@@ -1,13 +1,16 @@
 import React, { useContext } from 'react';
-import { Provider as ReduxProvider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Route,
+  Redirect,
+  RouteComponentProps,
+} from 'react-router-dom';
 
 import SentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
 import { Config, config } from './lib/config';
-import { getErrorMessage } from './lib/errors';
-import { Store } from './store';
+import { getErrorMessage, AuthServerErrno } from './lib/errors';
 import { AppContext, AppContextType } from './lib/AppContext';
 
 import './App.scss';
@@ -17,6 +20,19 @@ import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import * as FlowEvents from './lib/flow-event';
 
+import {
+  apiFetchPlans,
+  apiFetchProfile,
+  apiFetchCustomer,
+  apiFetchSubscriptions,
+  apiFetchToken,
+} from './lib/apiClient';
+
+import { useAwait } from './lib/hooks';
+
+import ErrorDialogMessage from './components/ErrorDialogMessage';
+import { StaticContext } from 'react-router';
+
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
@@ -25,9 +41,8 @@ const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
 const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
-type AppProps = {
+export type AppProps = {
   config: Config;
-  store: Store;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
   navigateToUrl: (url: string) => void;
@@ -37,13 +52,77 @@ type AppProps = {
 
 export const App = ({
   config,
-  store,
   queryParams,
   matchMedia,
   navigateToUrl,
   getScreenInfo,
   locationReload,
 }: AppProps) => {
+  FlowEvents.init(queryParams);
+
+  const [token] = useAwait(apiFetchToken);
+  const [plans] = useAwait(apiFetchPlans);
+  const [profile] = useAwait(apiFetchProfile);
+  const [customer, fetchCustomer] = useAwait(apiFetchCustomer);
+  const [subscriptions, fetchSubscriptions] = useAwait(apiFetchSubscriptions);
+
+  if (
+    subscriptions.pending ||
+    customer.pending ||
+    plans.pending ||
+    profile.pending
+  ) {
+    return <LoadingOverlay isLoading={true} />;
+  }
+
+  if (!plans.result || plans.error) {
+    return (
+      <ErrorDialogMessage
+        testid="error-loading-plans"
+        title="Problem loading plans"
+        error={plans.error}
+        onDismiss={locationReload}
+      />
+    );
+  }
+
+  if (!profile.result || profile.error) {
+    return (
+      <ErrorDialogMessage
+        testid="error-loading-profile"
+        title="Problem loading profile"
+        error={profile.error}
+        onDismiss={locationReload}
+      />
+    );
+  }
+
+  if (!subscriptions.result || subscriptions.error) {
+    return (
+      <ErrorDialogMessage
+        testid="error-subscriptions-fetch"
+        title="Problem loading subscriptions"
+        error={subscriptions.error}
+        onDismiss={locationReload}
+      />
+    );
+  }
+
+  if (
+    customer.error &&
+    // Unknown customer just means the user hasn't subscribed to anything yet
+    customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
+  ) {
+    return (
+      <ErrorDialogMessage
+        testid="error-loading-customer"
+        title="Problem loading customer"
+        error={customer.error}
+        onDismiss={locationReload}
+      />
+    );
+  }
+
   const appContextValue: AppContextType = {
     config,
     queryParams,
@@ -51,46 +130,50 @@ export const App = ({
     navigateToUrl,
     getScreenInfo,
     locationReload,
+    token: token.result,
+    plans: plans.result,
+    profile: profile.result,
+    customer: customer.result,
+    subscriptions: subscriptions.result,
+    fetchCustomer,
+    fetchSubscriptions,
   };
-  FlowEvents.init(queryParams);
+
   return (
     <AppContext.Provider value={appContextValue}>
       <AppErrorBoundary>
         <StripeProvider apiKey={config.stripe.apiKey}>
-          <ReduxProvider store={store}>
-            <Router>
-              <React.Suspense fallback={<RouteFallback />}>
-                {/* Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js */}
-                <Route
-                  path="/"
-                  exact
-                  render={() => <Redirect to="/subscriptions" />}
-                />
-                <Route
-                  path="/subscriptions"
-                  exact
-                  render={props => (
-                    <SettingsLayout>
-                      <Subscriptions {...props} />
-                    </SettingsLayout>
-                  )}
-                />
-                <Route
-                  path="/products/:productId"
-                  render={props => (
-                    <SignInLayout>
-                      <Product {...props} />
-                    </SignInLayout>
-                  )}
-                />
-              </React.Suspense>
-            </Router>
-          </ReduxProvider>
+          <Router>
+            <React.Suspense fallback={<RouteFallback />}>
+              {/* Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js */}
+              <Route path="/" exact render={subscriptionsRedirect} />
+              <Route path="/subscriptions" exact render={subscriptionsRoute} />
+              <Route path="/products/:productId" render={productRoute} />
+            </React.Suspense>
+          </Router>
         </StripeProvider>
       </AppErrorBoundary>
     </AppContext.Provider>
   );
 };
+
+export const subscriptionsRedirect = () => <Redirect to="/subscriptions" />;
+
+export const subscriptionsRoute = (
+  props: RouteComponentProps<any, StaticContext, any>
+) => (
+  <SettingsLayout>
+    <Subscriptions {...props} />
+  </SettingsLayout>
+);
+
+export const productRoute = (
+  props: RouteComponentProps<any, StaticContext, any>
+) => (
+  <SignInLayout>
+    <Product {...props} />
+  </SignInLayout>
+);
 
 export class AppErrorBoundary extends React.Component {
   state: {

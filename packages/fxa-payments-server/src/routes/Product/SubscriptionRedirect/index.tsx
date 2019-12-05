@@ -1,8 +1,8 @@
 import React, { useEffect, useContext } from 'react';
-import { Plan } from '../../../store/types';
+import { Plan } from '../../../lib/types';
 import { AppContext } from '../../../lib/AppContext';
 
-import { metadataFromPlan } from '../../../store/utils';
+import { metadataFromPlan } from '../../../lib/metadataFromPlan';
 import fpnImage from '../../../images/fpn';
 import './index.scss';
 

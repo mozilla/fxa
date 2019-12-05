@@ -2,8 +2,8 @@ import React from 'react';
 import { formatCurrencyInCents } from '../../../lib/formats';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
-import { Plan, Customer } from '../../../store/types';
-import { metadataFromPlan } from '../../../store/utils';
+import { Plan, Customer } from '../../../lib/types';
+import { metadataFromPlan } from '../../../lib/metadataFromPlan';
 
 export default ({
   onDismiss,

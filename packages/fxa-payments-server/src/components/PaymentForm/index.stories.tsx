@@ -8,7 +8,7 @@ import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
-import { Plan } from '../../store/types';
+import { Plan } from '../../lib/types';
 
 function init() {
   storiesOf('components/PaymentForm', module)

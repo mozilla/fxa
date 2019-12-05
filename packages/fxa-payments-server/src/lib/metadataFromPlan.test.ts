@@ -1,6 +1,6 @@
 import { Plan, ProductMetadata } from './types';
 
-import { metadataFromPlan } from './utils';
+import { metadataFromPlan } from './metadataFromPlan';
 
 describe('metadataFromPlan', () => {
   it('produces default null values', () => {
