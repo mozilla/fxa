@@ -473,8 +473,27 @@ describe('createBackendServiceAPI', () => {
     assert.equal(statsd.timing.calledOnce, true, 'statsd.timing was called');
     assert.equal(
       statsd.timing.args[0][0],
-      's.testSimpleGet',
-      'timing stat name is apiName.methodName'
+      's.testSimpleGet.success',
+      'timing stat name is apiName.methodName.success'
+    );
+    assert.equal(
+      typeof statsd.timing.args[0][1],
+      'number',
+      'timing stat value is a number'
+    );
+
+    statsd.timing.resetHistory();
+    mockService.get('/test_get/one/two', '').reply(400);
+    try {
+      await api.testSimpleGet('one', 'two');
+    } catch (err) {
+      // NOOP
+    }
+    assert.equal(statsd.timing.calledOnce, true, 'statsd.timing was called');
+    assert.equal(
+      statsd.timing.args[0][0],
+      's.testSimpleGet.failure',
+      'timing stat name is apiName.methodName.failure'
     );
     assert.equal(
       typeof statsd.timing.args[0][1],
