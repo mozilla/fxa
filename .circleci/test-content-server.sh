@@ -28,8 +28,13 @@ function check() {
 
 function test_suite() {
   local suite=$1
-  node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox || \
-  node tests/intern.js --suites=${suite} --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
+  local numGroups=3
+
+  for i in $(seq $numGroups)
+  do
+    node tests/intern.js --suites=${suite} --groupsCount=${numGroups} --groupNum=${i} --firefoxBinary=./firefox/firefox || \
+    node tests/intern.js --suites=${suite} --groupsCount=${numGroups} --groupNum=${i} --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
+  done
 }
 
 if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then

@@ -10,7 +10,7 @@
  * exactly the same size and will take a different amount of time to run,
  * but this is a good place to start.
  */
-function selectCircleTests(allTests) {
+function selectCircleTests(allTests, groupsCount, groupNum) {
   var testsToRun = allTests;
 
   if (process.env.CIRCLE_NODE_TOTAL) {
@@ -26,7 +26,14 @@ function selectCircleTests(allTests) {
     });
   }
 
+  if (groupsCount && groupNum) {
+    testsToRun = testsToRun.slice(
+      Math.floor(((groupNum - 1) / groupsCount) * testsToRun.length),
+      Math.floor((groupNum / groupsCount) * testsToRun.length)
+    );
+  }
+
   return testsToRun;
 }
 
-module.exports = selectCircleTests(require('./functional'));
+module.exports = selectCircleTests;

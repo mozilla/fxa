@@ -9,7 +9,11 @@ const firefoxProfile = require('./tools/firefox_profile');
 
 // Tests
 const testsMain = require('./functional');
-const testsCircleCi = require('./functional_circle');
+const testsCircleCi = require('./functional_circle')(
+  testsMain,
+  args.groupsCount,
+  args.groupNum
+);
 const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
