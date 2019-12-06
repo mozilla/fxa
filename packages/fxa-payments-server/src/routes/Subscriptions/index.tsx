@@ -47,7 +47,7 @@ export type SubscriptionsProps = {
   reactivateSubscription: ActionFunctions['reactivateSubscription'];
   fetchSubscriptionsRouteResources: SequenceFunctions['fetchSubscriptionsRouteResources'];
   resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
-  updatePayment: SequenceFunctions['updateSubscriptionPlanAndRefresh'];
+  updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
   resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
   manageSubscriptionsMounted: ActionFunctions['manageSubscriptionsMounted'];
   manageSubscriptionsEngaged: ActionFunctions['manageSubscriptionsEngaged'];
