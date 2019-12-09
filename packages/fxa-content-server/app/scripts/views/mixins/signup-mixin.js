@@ -61,8 +61,8 @@ export default {
             !this.isCWTSOnSignupPasswordEnabled())
         ) {
           return this.navigate('choose_what_to_sync', {
-            account: account,
-            allowToDisableSync: this.relier.get('service') !== 'sync',
+            account,
+            allowToDisableSync: this.broker.hasCapability('syncOptional'),
             pollVerification: this.relier.get('service') === 'sync',
             // choose_what_to_sync screen will call onSubmitComplete
             // with an updated account

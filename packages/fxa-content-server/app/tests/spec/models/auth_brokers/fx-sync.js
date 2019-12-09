@@ -55,7 +55,7 @@ describe('models/auth_brokers/fx-sync', () => {
     windowMock = null;
   });
 
-  describe('chooseWhatToSyncWebV1Engines', () => {
+  describe('chooseWhatToSyncWebV1Engines capability', () => {
     let response;
     beforeEach(() => {
       response = {
@@ -81,6 +81,36 @@ describe('models/auth_brokers/fx-sync', () => {
         const syncEngines = broker.get('chooseWhatToSyncWebV1Engines');
         assert.ok(syncEngines.get('creditcards'));
       });
+    });
+  });
+
+  describe('syncOptional capability', () => {
+    it('sets `syncOptional` to false if no multiService capability', () => {
+      relier.set('service', 'foo');
+      broker.onFxaStatus({ capabilities: {} });
+
+      assert.isFalse(broker.hasCapability('syncOptional'));
+    });
+
+    it('sets `syncOptional` to false if multiService: false', () => {
+      relier.set('service', 'foo');
+      broker.onFxaStatus({ capabilities: { multiService: false } });
+
+      assert.isFalse(broker.hasCapability('syncOptional'));
+    });
+
+    it('sets `syncOptional` to false if service===sync', () => {
+      relier.set('service', 'sync');
+      broker.onFxaStatus({ capabilities: { multiService: true } });
+
+      assert.isFalse(broker.hasCapability('syncOptional'));
+    });
+
+    it('sets `syncOptional` to true if multiService and not sync', () => {
+      relier.set('service', 'foo');
+      broker.onFxaStatus({ capabilities: { multiService: true } });
+
+      assert.isTrue(broker.hasCapability('syncOptional'));
     });
   });
 

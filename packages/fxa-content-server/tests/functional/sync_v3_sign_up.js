@@ -53,6 +53,9 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
+                  capabilities: {
+                    multiService: true,
+                  },
                 },
               },
             })
@@ -66,6 +69,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           .then(
             noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS)
           )
+          .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC))
 
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
           .then(noSuchBrowserNotification('fxaccounts:login'))

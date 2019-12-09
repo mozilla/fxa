@@ -596,6 +596,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      */
     supportsPairing: false,
     /**
+     * Does this environment support the Sync Optional flow?
+     */
+    syncOptional: false,
+    /**
      * Are token codes flow supported?
      */
     tokenCode: true,
