@@ -10,6 +10,9 @@ const Url = require('url');
 const Querystring = require('querystring');
 const nodeXMLHttpRequest = require('xmlhttprequest');
 const assert = intern.getPlugin('chai').assert;
+const mkdirp = require('mkdirp');
+const fs = require('fs');
+const crypto = require('crypto');
 
 // Default options for TOTP
 const otplib = require('otplib');
@@ -92,6 +95,12 @@ function thenify(callback, context) {
 const takeScreenshot = function() {
   return function() {
     return this.parent.takeScreenshot().then(function(buffer) {
+      if (process.env.CIRCLECI) {
+        const rando = crypto.randomBytes(4).toString('hex');
+        mkdirp.sync('/home/circleci/screenshots');
+        fs.writeFileSync(`/home/circleci/screenshots/${rando}.png`, buffer);
+        console.log(`Screenshot saved to screenshots/${rando}.png`);
+      }
       const screenCaptureHost = 'https://screencap.co.uk';
       return got
         .post(`${screenCaptureHost}/png`, {
