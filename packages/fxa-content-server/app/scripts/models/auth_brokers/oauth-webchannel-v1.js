@@ -72,6 +72,7 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
       });
       return this.set('chooseWhatToSyncWebV1Engines', syncEngines);
     }
+    return proto.onFxaStatus.call(this, response);
   },
 
   createChannel() {

@@ -21,6 +21,7 @@ const {
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  noSuchElement,
   openPage,
   openFxaFromRp,
   openVerificationLinkInNewTab,
@@ -73,6 +74,7 @@ registerSuite('oauth webchannel', {
             testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS)
           )
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+          .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC))
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
