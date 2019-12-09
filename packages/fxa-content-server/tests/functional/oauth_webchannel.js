@@ -20,6 +20,7 @@ const {
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
+  noSuchElement,
   openPage,
   openFxaFromRp,
   testElementExists,
@@ -66,6 +67,7 @@ registerSuite('oauth webchannel', {
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC))
         .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
         .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
