@@ -1,5 +1,11 @@
 # Change history
 
+## 1.152.0
+
+### Other changes
+
+* deps: update babel monorepo to v7.7.4 (aac281caf)
+
 ## 1.151.5
 
 No changes.
