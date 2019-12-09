@@ -1,3 +1,30 @@
+## 1.151.5
+
+### Bug fixes
+
+- fenix: Do not use Sync Optional with Fenix (b12263ed0)
+
+## 1.151.4
+
+No changes.
+
+## 1.151.3
+
+### Bug fixes
+
+- sentry: Remove Sentry until we get everything else figured out. (58796a368)
+- sentry: add sourcemaps to sentry for content server (b3d65586)
+
+## 1.151.2
+
+### New features
+
+- cwts: Add CWTS to the /signup page in Sync optional flow (d1a8cf965)
+
+### Bug fixes
+
+- cwts: Ensure CWTS tests in sync optional flow test reality. (7311d0922)
+
 ## 1.151.1
 
 No changes.

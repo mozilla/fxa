@@ -11,8 +11,7 @@ const selectors = require('./lib/selectors');
 
 const config = intern._config;
 
-const QUERY_PARAMS =
-  '?context=fx_desktop_v3&service=sync&action=email';
+const QUERY_PARAMS = '?context=fx_desktop_v3&service=sync&action=email';
 const INDEX_PAGE_URL = `${config.fxaContentRoot}${QUERY_PARAMS}`;
 const SIGNUP_PAGE_URL = `${config.fxaContentRoot}signup${QUERY_PARAMS}`;
 const SIGNIN_PAGE_URL = `${config.fxaContentRoot}signin${QUERY_PARAMS}`;

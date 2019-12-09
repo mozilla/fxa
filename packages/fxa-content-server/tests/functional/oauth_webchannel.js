@@ -61,9 +61,7 @@ registerSuite('oauth webchannel', {
           })
         )
         .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
-
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS))
         .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))

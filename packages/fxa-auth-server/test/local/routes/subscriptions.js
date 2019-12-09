@@ -52,8 +52,8 @@ const PLANS = [
     currency: 'usd',
     product_metadata: {
       emailIconURL: 'http://example.com/image.jpg',
-      downloadURL: 'http://getfirefox.com'
-    }
+      downloadURL: 'http://getfirefox.com',
+    },
   },
   {
     plan_id: 'firefox_pro_basic_999',

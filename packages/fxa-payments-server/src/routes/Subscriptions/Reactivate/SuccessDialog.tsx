@@ -8,7 +8,10 @@ export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
   const { product_name: productName } = plan;
   const { webIconURL } = metadataFromPlan(plan);
   return (
-    <DialogMessage onDismiss={onDismiss} data-testid="reactivate-subscription-success-dialog">
+    <DialogMessage
+      onDismiss={onDismiss}
+      data-testid="reactivate-subscription-success-dialog"
+    >
       <img
         alt={productName}
         src={webIconURL || fpnImage}

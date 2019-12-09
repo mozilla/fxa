@@ -1755,12 +1755,7 @@ module.exports = function(log, config, oauthdb) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'downloadSubscription';
-    const links = this._generateLinks(
-      planDownloadURL,
-      email,
-      query,
-      template
-    );
+    const links = this._generateLinks(planDownloadURL, email, query, template);
     const headers = {
       'X-Link': links.link,
     };

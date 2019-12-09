@@ -9,7 +9,7 @@ const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 const StripeHelper = require('../payments/stripe');
-const { metadataFromPlan } = require ('./utils/subscriptions');
+const { metadataFromPlan } = require('./utils/subscriptions');
 
 const createRoutes = (
   log,

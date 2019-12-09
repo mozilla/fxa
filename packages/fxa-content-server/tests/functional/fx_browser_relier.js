@@ -64,7 +64,6 @@ registerSuite('Firefox Desktop non-sync', {
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-
           .then(
             click(
               selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC,
