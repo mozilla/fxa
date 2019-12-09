@@ -89,30 +89,6 @@ describe('lib/environment', function() {
     });
   });
 
-  describe('isAboutAccounts', function() {
-    it('returns `true` if `remote` framed', function() {
-      windowMock.top = new WindowMock();
-      windowMock.name = 'remote';
-      assert.isTrue(environment.isAboutAccounts());
-    });
-
-    it('returns `false` if name is not remote', function() {
-      windowMock.top = new WindowMock();
-      windowMock.name = undefined;
-      assert.isFalse(environment.isAboutAccounts());
-
-      windowMock.name = '';
-      assert.isFalse(environment.isAboutAccounts());
-    });
-
-    it('returns `true` if query param used', function() {
-      windowMock.top = new WindowMock();
-      windowMock.name = undefined;
-      windowMock.location.search = '?service=sync&forceAboutAccounts=true';
-      assert.isTrue(environment.isAboutAccounts());
-    });
-  });
-
   describe('isFxiOS', function() {
     it('returns `true` if on Fx for iOS', function() {
       windowMock.navigator.userAgent = 'FxiOS/1.0';

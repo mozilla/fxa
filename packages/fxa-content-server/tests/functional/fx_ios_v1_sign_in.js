@@ -27,11 +27,11 @@ const {
   deleteAllSms,
   disableInProd,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   fillOutSignInUnblock,
   getSmsSigninCode,
   noPageTransition,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
@@ -53,7 +53,7 @@ const setupTest = thenify(function(options = {}) {
   const successSelector = options.blocked
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
-    ? selectors.CONFIRM_SIGNIN.HEADER
+    ? selectors.SIGNIN_TOKEN_CODE.HEADER
     : selectors.CONFIRM_SIGNUP.HEADER;
 
   return this.parent
@@ -66,14 +66,7 @@ const setupTest = thenify(function(options = {}) {
     .execute(listenForFxaCommands)
     .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(successSelector))
-    .then(testIsBrowserNotified('can_link_account'))
-    .then(() => {
-      if (!options.blocked) {
-        return this.parent.then(
-          testIsBrowserNotifiedOfLogin(email, { expectVerified: false })
-        );
-      }
-    });
+    .then(testIsBrowserNotified('can_link_account'));
 });
 
 registerSuite('FxiOS v1 signin', {
@@ -93,7 +86,7 @@ registerSuite('FxiOS v1 signin', {
       );
     },
 
-    'verified, verify same browser': function() {
+    verified: function() {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 
@@ -136,31 +129,17 @@ registerSuite('FxiOS v1 signin', {
           .then(
             click(
               selectors.SIGNIN_PASSWORD.SUBMIT,
-              selectors.CONFIRM_SIGNIN.HEADER
+              selectors.SIGNIN_TOKEN_CODE.HEADER
             )
           )
+          .then(fillOutSignInTokenCode(email, 0))
           .then(testIsBrowserNotifiedOfLogin(email, { expectVerified: false }))
-
-          .then(openVerificationLinkInNewTab(email, 0, { query }))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
 
           .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
       );
     },
 
-    "verified, verify different browser - from original tab's P.O.V.": function() {
-      const forceUA = UA_STRINGS['ios_firefox_6_1'];
-      return this.remote
-        .then(setupTest({ preVerified: true, query: { forceUA } }))
-
-        .then(openVerificationLinkInDifferentBrowser(email))
-
-        .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER));
-    },
-
-    'unverified, verify same browser': function() {
+    unverified: function() {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 

@@ -16,7 +16,6 @@ class CWTSOnSignupPasswordGroupingRule extends BaseGroupingRule {
   constructor(rolloutRate) {
     super();
     this.name = EXPERIMENT_NAME;
-    this.forceExperimentAllow = 'signupCode';
   }
 
   /**

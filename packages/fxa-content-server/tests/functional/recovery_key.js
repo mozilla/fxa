@@ -14,8 +14,7 @@ const config = intern._config;
 const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SETTINGS_URL = `${config.fxaContentRoot}settings`;
 const RESET_PASSWORD_URL =
-  config.fxaContentRoot +
-  'reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true';
+  config.fxaContentRoot + 'reset_password?context=fx_desktop_v3&service=sync';
 const PASSWORD = 'passwordzxcv';
 const NEW_PASSWORD = '()()():|';
 let email, recoveryKey;
@@ -25,11 +24,12 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
-  fillOutRecoveryKey,
   fillOutCompleteResetPassword,
-  fillOutResetPassword,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutRecoveryKey,
+  fillOutResetPassword,
+  fillOutSignUpCode,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
@@ -48,10 +48,11 @@ registerSuite('Recovery key', {
 
     return (
       this.remote
+        .then(clearBrowserState({ force: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
 
@@ -74,23 +75,13 @@ registerSuite('Recovery key', {
           );
         })
         .end()
+        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
     );
   },
 
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
-  },
-
   tests: {
-    'can add recovery key': function() {
-      return this.remote
-        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
-        .end();
-    },
-
     'can revoke recovery key': function() {
       return this.remote
-        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
         .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE))
         .then(
           testElementExists(selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION)
@@ -239,6 +230,7 @@ registerSuite('Recovery key - unverified session', {
 
     return (
       this.remote
+        .then(clearBrowserState({ force: true }))
         .then(createUser(email, PASSWORD, { preVerified: true }))
         // when an account is created, the original session is verified
         // re-login to destroy original session and created an unverified one
@@ -248,10 +240,6 @@ registerSuite('Recovery key - unverified session', {
         // unlock panel
         .then(click(selectors.RECOVERY_KEY.UNLOCK_BUTTON))
     );
-  },
-
-  afterEach: function() {
-    return this.remote.then(clearBrowserState());
   },
 
   tests: {

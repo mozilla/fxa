@@ -129,6 +129,7 @@ module.exports = {
     EMAIL_FIELD: '.verification-email-message',
     INPUT: '.otp-code',
     LINK_BACK: '#back',
+    LINK_RESEND: '#resend',
   },
   CONNECT_ANOTHER_DEVICE: {
     HEADER: '#fxa-connect-another-device-header',
@@ -189,6 +190,9 @@ module.exports = {
     TOOLTIP: 'input[type=email] ~ .tooltip',
     TOOLTIP_BOUNCED_EMAIL: 'input[type=email] ~ .tooltip',
   },
+  FIREFOX_NOTES: {
+    HEADER: '#notes-by-firefox',
+  },
   FORCE_AUTH: {
     EMAIL: 'input[type=email]',
     EMAIL_NOT_EDITABLE: '.prefillEmail',
@@ -215,6 +219,9 @@ module.exports = {
     PAIR_FAILURE: '#fxa-pair-failure-header',
     START_PAIRING: '#start-pairing',
     SUPP_SUBMIT: '#supp-approve-btn',
+  },
+  PAYMENTS: {
+    HEADER: '.plan-details',
   },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
@@ -363,7 +370,7 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-signin-code-header',
     INPUT: '.otp-code',
-    RESEND: '#resend',
+    LINK_RESEND: '#resend',
     SUCCESS: '.success',
     SUBMIT: 'button[type="submit"]',
     TOOLTIP: '.tooltip',

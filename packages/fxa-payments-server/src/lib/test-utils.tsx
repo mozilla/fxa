@@ -274,6 +274,7 @@ export const MOCK_PLANS: Plan[] = [
     currency: 'usd',
     product_metadata: {
       productSet: 'example_upgrade',
+      webIconURL: 'http://example.com/product.jpg',
     },
   },
   {
@@ -284,6 +285,10 @@ export const MOCK_PLANS: Plan[] = [
     interval: 'month',
     amount: 2500,
     currency: 'usd',
+    product_metadata: {
+      productSet: '123done',
+      webIconURL: 'http://example.com/123donepro.jpg',
+    },
   },
   {
     plan_id: 'plan_upgrade',

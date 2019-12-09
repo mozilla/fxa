@@ -130,21 +130,6 @@ Force a country to be used when testing the SMS feature.
 - `RO`
 - `US`
 
-### `customizeSync`
-
-Set the default value of the "Customize which values to sync" checkbox.
-
-#### Options
-
-- `true`
-- `false` (default)
-
-#### When to specify
-
-Only available if `context` equals `fx_fennec_v1`, or `fx_ios_v1` and `service` equals `sync`.
-
-- /signup
-
 ### `entrypoint`
 
 If they user arrived at Firefox Accounts from within Firefox browser chrome, specify where in Firefox the user came from.
@@ -305,18 +290,6 @@ Used by functional tests to synthesize localStorage being disabled.
 #### When to use
 
 Should not be used by relying parties. Should only be used by functional tests.
-
-### `forceAboutAccounts`
-
-Force Sync brokers to act as if the user opened FxA from within about:accounts.
-
-#### Options
-
-- `true`
-
-#### When to use
-
-Should not be used by relying parties. Should only be used for Sync based functional tests.
 
 ### `forceExperiment`
 

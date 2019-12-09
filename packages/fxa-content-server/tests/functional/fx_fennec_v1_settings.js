@@ -16,10 +16,10 @@ const {
   fillOutChangePassword,
   fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   noSuchBrowserNotification,
   noSuchElement,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   respondToWebChannelMessage,
   testElementExists,
   testIsBrowserNotified,
@@ -27,10 +27,9 @@ const {
 } = FunctionalHelpers;
 
 const config = intern._config;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync&forceAboutAccounts=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync`;
 const SETTINGS_URL =
-  config.fxaContentRoot +
-  'settings?context=fx_fennec_v1&service=sync&forceAboutAccounts=true';
+  config.fxaContentRoot + 'settings?context=fx_fennec_v1&service=sync';
 const SETTINGS_NOCONTEXT_URL = config.fxaContentRoot + 'settings';
 
 const FIRST_PASSWORD = 'password';
@@ -54,12 +53,12 @@ registerSuite('Fx Fennec Sync v1 settings', {
         .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
 
         // User must confirm their Sync signin
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(testIsBrowserNotified('fxaccounts:login'))
 
-        .then(openVerificationLinkInDifferentBrowser(email))
+        .then(fillOutSignInTokenCode(email, 0))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'))
 
         // wait until account data is in localstorage before redirecting
         .then(

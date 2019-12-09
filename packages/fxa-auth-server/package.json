@@ -22,7 +22,8 @@
     "test-scripts": "NODE_ENV=dev mocha test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote",
     "format": "prettier '**' --write",
-    "gen-keys": "./scripts/gen_keys.js; ./scripts/oauth_gen_keys.js; ./scripts/gen_vapid_keys.js"
+    "gen-keys": "./scripts/gen_keys.js; ./scripts/oauth_gen_keys.js; ./scripts/gen_vapid_keys.js",
+    "write-emails": "node ./scripts/write-emails-to-disk.js"
   },
   "repository": {
     "type": "git",

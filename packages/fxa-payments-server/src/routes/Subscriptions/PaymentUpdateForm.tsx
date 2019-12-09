@@ -11,7 +11,7 @@ import ErrorMessage from '../../components/ErrorMessage';
 import { SubscriptionsProps } from './index';
 
 type PaymentUpdateFormProps = {
-  customer: SelectorReturns['customer'];
+  customer: Customer;
   customerSubscription: CustomerSubscription;
   plan: Plan;
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
@@ -73,7 +73,7 @@ export const PaymentUpdateForm = ({
 
   const { upgradeCTA } = metadataFromPlan(plan);
 
-  const { last4, exp_month, exp_year } = customer.result as Customer;
+  const { last4, exp_month, exp_year } = customer;
 
   // TODO: date formats will need i18n someday
   const periodEndDate = dayjs

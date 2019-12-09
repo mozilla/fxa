@@ -175,7 +175,6 @@ module.exports = function(log, config, oauthdb) {
     );
     this.sender = mailerConfig.sender;
     this.sesConfigurationSet = mailerConfig.sesConfigurationSet;
-    this.subscriptionDownloadUrl = mailerConfig.subscriptionDownloadUrl;
     this.subscriptionSettingsUrl = mailerConfig.subscriptionSettingsUrl;
     this.subscriptionSupportUrl = mailerConfig.subscriptionSupportUrl;
     this.subscriptionTermsUrl = mailerConfig.subscriptionTermsUrl;
@@ -1742,28 +1741,28 @@ module.exports = function(log, config, oauthdb) {
   };
 
   Mailer.prototype.downloadSubscriptionEmail = async function(message) {
-    const { email, productId, uid } = message;
+    const {
+      email,
+      productId,
+      planId,
+      productName,
+      planEmailIconURL,
+      planDownloadURL,
+      uid,
+    } = message;
 
     log.trace('mailer.downloadSubscription', { email, productId, uid });
 
-    const query = { product_id: productId, uid };
+    const query = { plan_id: planId, product_id: productId, uid };
     const template = 'downloadSubscription';
-    const links = this._generateLinks(
-      this.subscriptionDownloadUrl,
-      email,
-      query,
-      template
-    );
+    const links = this._generateLinks(planDownloadURL, email, query, template);
     const headers = {
       'X-Link': links.link,
     };
-    // TODO: product, subject, action and icon must vary per subscription for phase 2 - https://github.com/mozilla/fxa/issues/2026
+
     // TODO: re-enable translations when subscriptions are more widely available
-    const product = 'Firefox Private Network';
-    const subject = `Welcome to ${product}!`;
-    const action = `Download ${product}`;
-    // TODO: we're waiting on a production-ready icon - https://github.com/mozilla/fxa/issues/2027
-    //const icon = 'https://image.e.mozilla.org/lib/fe9915707361037e75/m/4/todo.png';
+    const subject = `Welcome to ${productName}!`;
+    const action = `Download ${productName}`;
 
     return this.send({
       ...message,
@@ -1775,8 +1774,8 @@ module.exports = function(log, config, oauthdb) {
         ...links,
         action,
         email,
-        //icon,
-        product,
+        icon: planEmailIconURL,
+        product: productName,
         subject,
       },
     });

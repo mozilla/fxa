@@ -39,7 +39,7 @@ registerSuite('signin blocked', {
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(clearBrowserState());
+      .then(clearBrowserState({ force: true }));
   },
 
   tests: {

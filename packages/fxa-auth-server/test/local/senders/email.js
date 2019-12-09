@@ -20,8 +20,6 @@ if (!config.smtp.prependVerificationSubdomain.enabled) {
 if (!config.smtp.sesConfigurationSet) {
   config.smtp.sesConfigurationSet = 'ses-config';
 }
-config.smtp.subscriptionDownloadUrl =
-  'http://example.com/download?foo=bar&baz=quux';
 config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
@@ -43,6 +41,10 @@ const MESSAGE = {
   numberRemaining: 2,
   primaryEmail: 'c@d.com',
   productId: 'wibble',
+  planId: 'plan-example',
+  productName: 'example product',
+  planEmailIconURL: 'http://example.com/icon.jpg',
+  planDownloadURL: 'http://getfirefox.com/',
   service: 'sync',
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
@@ -61,6 +63,7 @@ const MESSAGE_PARAMS = new Map([
   ['email', 'email'],
   ['primary_email_verified', 'email'],
   ['product_id', 'productId'],
+  ['plan_id', 'planId'],
   ['secondary_email_verified', 'email'],
   ['service', 'service'],
   ['uid', 'uid'],
@@ -94,13 +97,10 @@ const COMMON_TESTS = new Map([
   ],
 ]);
 
-// TODO: subscription product, subject, action and icon must vary per subscription for phase 2 - https://github.com/mozilla/fxa/issues/2026
-const subscriptionProductEmail = 'Firefox Private Network';
-
 // prettier-ignore
 const TESTS = new Map([
   ['downloadSubscriptionEmail', new Map([
-    ['subject', { test: 'equal', expected: `Welcome to ${subscriptionProductEmail}!` }],
+    ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}!` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('downloadSubscription') }],
       ['X-Template-Name', { test: 'equal', expected: 'downloadSubscription' }],
@@ -108,23 +108,23 @@ const TESTS = new Map([
     ])],
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'new-subscription', 'privacy') },
-      { test: 'include', expected: configHref('subscriptionDownloadUrl', 'new-subscription', 'download-subscription', 'product_id', 'uid') },
-      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'product_id', 'uid') },
+      { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
-      { test: 'include', expected: `Welcome to ${subscriptionProductEmail}!` },
-      { test: 'include', expected: `If you haven&#x27;t already downloaded ${subscriptionProductEmail}, let&#x27;s get started using all the features included in your subscription.` },
-      { test: 'include', expected: `>Download ${subscriptionProductEmail}</a>` },
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}!` },
+      { test: 'include', expected: `If you haven&#x27;t already downloaded ${MESSAGE.productName}, let&#x27;s get started using all the features included in your subscription.` },
+      { test: 'include', expected: `>Download ${MESSAGE.productName}</a>` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `Privacy notice:\n${configUrl('privacyUrl', 'new-subscription', 'privacy')}` },
-      { test: 'include', expected: configUrl('subscriptionDownloadUrl', 'new-subscription', 'download-subscription', 'product_id', 'uid') },
-      { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'product_id', 'uid') },
+      { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
-      { test: 'include', expected: `Welcome to ${subscriptionProductEmail}!` },
-      { test: 'include', expected: `If you haven't already downloaded ${subscriptionProductEmail}, let's get started using all the features included in your subscription:` },
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}!` },
+      { test: 'include', expected: `If you haven't already downloaded ${MESSAGE.productName}, let's get started using all the features included in your subscription:` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

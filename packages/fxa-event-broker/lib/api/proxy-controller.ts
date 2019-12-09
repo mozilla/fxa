@@ -9,7 +9,14 @@ import requests from 'request-promise-native';
 
 import { JWT } from '../jwts';
 import { ClientWebhookService } from '../selfUpdatingService/clientWebhookService';
-import { DELETE_EVENT, SUBSCRIPTION_UPDATE_EVENT } from '../serviceNotifications';
+import {
+  DELETE_EVENT,
+  PASSWORD_CHANGE_EVENT,
+  PASSWORD_RESET_EVENT,
+  PRIMARY_EMAIL_EVENT,
+  PROFILE_CHANGE_EVENT,
+  SUBSCRIPTION_UPDATE_EVENT
+} from '../serviceNotifications';
 import { version } from '../version';
 import { proxyPayload } from './proxy-validator';
 
@@ -117,6 +124,21 @@ export default class ProxyController {
       }
       case DELETE_EVENT: {
         return await this.jwt.generateDeleteSET({
+          clientId,
+          uid: message.uid
+        });
+      }
+      case PASSWORD_RESET_EVENT:
+      case PASSWORD_CHANGE_EVENT: {
+        return await this.jwt.generatePasswordSET({
+          changeTime: message.changeTime,
+          clientId,
+          uid: message.uid
+        });
+      }
+      case PRIMARY_EMAIL_EVENT:
+      case PROFILE_CHANGE_EVENT: {
+        return await this.jwt.generateProfileSET({
           clientId,
           uid: message.uid
         });

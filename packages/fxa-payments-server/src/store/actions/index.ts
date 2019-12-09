@@ -1,7 +1,7 @@
 import apiActions from './api';
 import metricsActions from './metrics';
 import resetActions from './reset';
-import { FunctionWithIgnoredReturn } from '../../lib/types';
+import { FunctionWithIgnoredReturn, PromiseResolved } from '../../lib/types';
 
 // https://gist.github.com/schettino/c8bf5062ef99993ce32514807ffae849#gistcomment-2906407
 export type ActionType<
@@ -28,5 +28,24 @@ export type ActionsParameters = Parameters<ActionsCollection[ActionsKey]>;
 export type ActionFunctions = {
   [key in ActionsKey]: FunctionWithIgnoredReturn<ActionsCollection[key]>;
 };
+
+type PromisePayloadSequenceCreator = (
+  ...a: any
+) => { payload: () => Promise<any> };
+type PromisePayloadActionCreator = (...a: any) => { payload: Promise<any> };
+type PayloadActionCreator = (...a: any) => { payload: any };
+
+export type ActionPayload<
+  A extends
+    | PromisePayloadSequenceCreator
+    | PromisePayloadActionCreator
+    | PayloadActionCreator
+> = A extends PromisePayloadSequenceCreator
+  ? PromiseResolved<ReturnType<ReturnType<A>['payload']>>
+  : A extends PromisePayloadActionCreator
+  ? PromiseResolved<ReturnType<A>['payload']>
+  : A extends PayloadActionCreator
+  ? ReturnType<A>['payload']
+  : unknown;
 
 export default actions;

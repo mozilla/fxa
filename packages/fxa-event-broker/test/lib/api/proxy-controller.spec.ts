@@ -14,10 +14,20 @@ import sinon from 'sinon';
 import { stubInterface } from 'ts-sinon';
 
 import Config from '../../../config';
-import { DELETE_USER_EVENT_ID, SUBSCRIPTION_STATE_EVENT_ID } from '../../../lib/jwts';
+import {
+  DELETE_EVENT_ID,
+  PASSWORD_EVENT_ID,
+  PROFILE_EVENT_ID,
+  SUBSCRIPTION_STATE_EVENT_ID
+} from '../../../lib/jwts';
 import * as proxyserver from '../../../lib/proxy-server';
 import { ClientWebhookService } from '../../../lib/selfUpdatingService/clientWebhookService';
-import { DELETE_EVENT, SUBSCRIPTION_UPDATE_EVENT } from '../../../lib/serviceNotifications';
+import {
+  DELETE_EVENT,
+  PASSWORD_CHANGE_EVENT,
+  PROFILE_CHANGE_EVENT,
+  SUBSCRIPTION_UPDATE_EVENT
+} from '../../../lib/serviceNotifications';
 
 const TEST_KEY = {
   d:
@@ -47,6 +57,7 @@ const TEST_PUBLIC_KEY = {
 };
 const TEST_CLIENT_ID = 'abc1234';
 const PUBLIC_JWT = jwtool.JWK.fromObject(TEST_PUBLIC_KEY);
+const CHANGE_TIME = Date.now();
 
 describe('Proxy Controller', () => {
   let logger: Logger;
@@ -81,6 +92,25 @@ describe('Proxy Controller', () => {
     return Buffer.from(
       JSON.stringify({
         event: DELETE_EVENT,
+        uid: 'uid1234'
+      })
+    ).toString('base64');
+  };
+
+  const createValidProfileMessage = (): string => {
+    return Buffer.from(
+      JSON.stringify({
+        event: PROFILE_CHANGE_EVENT,
+        uid: 'uid1234'
+      })
+    ).toString('base64');
+  };
+
+  const createValidPasswordMessage = (): string => {
+    return Buffer.from(
+      JSON.stringify({
+        changeTime: CHANGE_TIME,
+        event: PASSWORD_CHANGE_EVENT,
         uid: 'uid1234'
       })
     ).toString('base64');
@@ -160,26 +190,40 @@ describe('Proxy Controller', () => {
     cassert.equal(payload.events[SUBSCRIPTION_STATE_EVENT_ID].isActive, true);
   });
 
-  it('notifies successfully on delete', async () => {
-    mockWebhook();
-    const message = createValidDeleteMessage();
+  describe('handles common RP events: ', () => {
+    const eventTypes: { [key: string]: [string, () => string] } = {
+      delete: [DELETE_EVENT_ID, createValidDeleteMessage],
+      password: [PASSWORD_EVENT_ID, createValidPasswordMessage],
+      profile: [PROFILE_EVENT_ID, createValidProfileMessage]
+    };
+    for (const [key, value] of Object.entries(eventTypes)) {
+      const [eventId, creatFunc] = value;
+      it(`notifies successfully on ${key}`, async () => {
+        mockWebhook();
+        const message = creatFunc();
 
-    const result = await server.inject({
-      method: 'POST',
-      payload: JSON.stringify({
-        message: { data: message, messageId: 'test-message' },
-        subscription: 'test-sub'
-      }),
-      url: '/v1/proxy/abc1234'
-    });
-    const bearer = result.headers['x-auth'] as string;
-    const token = (bearer.match(/Bearer (.*)/) as string[])[1];
+        const result = await server.inject({
+          method: 'POST',
+          payload: JSON.stringify({
+            message: { data: message, messageId: 'test-message' },
+            subscription: 'test-sub'
+          }),
+          url: '/v1/proxy/abc1234'
+        });
+        const bearer = result.headers['x-auth'] as string;
+        const token = (bearer.match(/Bearer (.*)/) as string[])[1];
 
-    const payload = await PUBLIC_JWT.verify(token);
-    cassert.equal(payload.aud, 'abc1234');
-    cassert.equal(payload.sub, 'uid1234');
-    cassert.equal(payload.iss, 'testing');
-    cassert.deepEqual(payload.events[DELETE_USER_EVENT_ID], {});
+        const payload = await PUBLIC_JWT.verify(token);
+        cassert.equal(payload.aud, 'abc1234');
+        cassert.equal(payload.sub, 'uid1234');
+        cassert.equal(payload.iss, 'testing');
+        if (key === 'password') {
+          cassert.deepEqual(payload.events[PASSWORD_EVENT_ID], { changeTime: CHANGE_TIME });
+        } else {
+          cassert.deepEqual(payload.events[eventId], {});
+        }
+      });
+    }
   });
 
   it('logs an error on invalid message payloads', async () => {

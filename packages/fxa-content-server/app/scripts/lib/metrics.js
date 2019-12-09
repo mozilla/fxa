@@ -33,6 +33,13 @@ import xhr from './xhr';
 const SpeedTrap = function() {};
 SpeedTrap.prototype = speedTrap;
 
+// Some integrations, such as Fx for iOS, close the WebView
+// as soon as a login notification is sent to the browser, preventing
+// events from being properly flushed. Instead of waiting for an
+// unload or for an activity timeout, flush every time one of these
+// events comes in.
+const IMMEDIATE_FLUSH_EVENTS = /^(?:screen\..*|.*\.(?:complete|success))$/;
+
 const ALLOWED_FIELDS = [
   'broker',
   'context',
@@ -73,7 +80,7 @@ const ALLOWED_FIELDS = [
   'utm_term',
 ];
 
-var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('2m').milliseconds();
+var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('10s').milliseconds();
 var NOT_REPORTED_VALUE = 'none';
 var UNKNOWN_CAMPAIGN_ID = 'unknown';
 
@@ -181,7 +188,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
   ALLOWED_FIELDS: ALLOWED_FIELDS,
 
   initialize() {
-    this._flush = _.bind(this.flush, this, true);
+    this._flush = () => this.flush(true);
     $(this._window).on('unload', this._flush);
     // iOS will not send events once the window is in the background,
     // meaning the `unload` handler is ineffective. Send events on blur
@@ -207,8 +214,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
     'set-email-domain': '_setEmailDomain',
     'set-sync-engines': '_setSyncEngines',
     'set-uid': '_setUid',
-    'subscription.initialize': '_initializeSubscriptionModel',
     'clear-uid': '_clearUid',
+    'subscription.initialize': '_initializeSubscriptionModel',
     'once!view-shown': '_setInitialView',
   },
 
@@ -454,8 +461,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
   },
 
   _send(data, isPageUnloading) {
-    var url = this._collector + '/metrics';
-    var payload = JSON.stringify(data);
+    const url = `${this._collector}/metrics`;
+    const payload = JSON.stringify(data);
 
     if (this._env.hasSendBeacon()) {
       // Always use sendBeacon if it is available because:
@@ -469,23 +476,21 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
     // XHR is a fallback option because synchronous XHR has been deprecated,
     // but we must call it synchronously in the unload case.
-    return this._xhr
-      .ajax({
-        async: !isPageUnloading,
-        contentType: 'application/json',
-        data: payload,
-        type: 'POST',
-        url: url,
-      })
-      .then(
-        function() {
-          // Boolean return values imitate the behaviour of sendBeacon
-          return true;
-        },
-        function() {
-          return false;
-        }
-      );
+    return (
+      this._xhr
+        .ajax({
+          async: !isPageUnloading,
+          contentType: 'application/json',
+          data: payload,
+          type: 'POST',
+          url,
+        })
+        // Boolean return values imitate the behaviour of sendBeacon
+        .then(
+          () => true,
+          () => false
+        )
+    );
   },
 
   /**
@@ -496,6 +501,9 @@ _.extend(Metrics.prototype, Backbone.Events, {
   logEvent(eventName) {
     this._resetInactivityFlushTimeout();
     this.events.capture(eventName);
+    if (IMMEDIATE_FLUSH_EVENTS.test(eventName)) {
+      this.flush();
+    }
   },
 
   /**

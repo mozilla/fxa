@@ -16,18 +16,15 @@ const UA_OVERRIDE = 'FxATester';
 const STARTUP_EXPERIMENTS = {};
 
 /**
- * Experiments created manually by calling `createExperiment`,
- * after the app has started.
+ * Experiments created manually by calling `getAndReportExperimentGroup`
+ * or `createExperiment` after the app has started.
  */
 const MANUAL_EXPERIMENTS = {
   emailMxValidation: BaseExperiment,
   // For now, the send SMS experiment only needs to log "enrolled", so
   // no special experiment is created.
-  signupCode: BaseExperiment,
   sendSms: BaseExperiment,
   signupPasswordCWTS: BaseExperiment,
-  tokenCode: BaseExperiment,
-  totp: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
@@ -153,11 +150,7 @@ _.extend(
 
       // eslint-disable-next-line no-unused-vars
       for (const experimentName in this._startupExperiments) {
-        const groupType = this.getExperimentGroup(experimentName);
-
-        if (groupType) {
-          this.createExperiment(experimentName, groupType);
-        }
+        this.getAndReportExperimentGroup(experimentName);
       }
     },
 
@@ -176,6 +169,10 @@ _.extend(
       }
       const ExperimentConstructor = this._allExperiments[experimentName];
       if (_.isFunction(ExperimentConstructor)) {
+        // force the flow model to be initialized so that
+        // the experiment is logged.
+        this.notifier.trigger('flow.initialize');
+
         const experiment = new ExperimentConstructor();
         const initResult = experiment.initialize(experimentName, {
           groupType,
@@ -200,11 +197,14 @@ _.extend(
     },
 
     /**
-     * Get the experiment group for `experimentName` the user is in.
+     * Get the experiment group for the user is in for `experimentName`.
+     * **NOTE** Does not report experiment or group to Amplitude. Use
+     * `getAndReportExperimentGroup` or `createExperiment` to ensure experiment
+     * and group name are reported.
      *
      * @param {String} experimentName
      * @param {Object} [additionalInfo] additional info to pass to the experiment grouping rule.
-     * @returns {String}
+     * @returns {false|String}
      */
     getExperimentGroup(experimentName, additionalInfo = {}) {
       // can't be in an experiment group if not initialized.
@@ -212,23 +212,36 @@ _.extend(
         return false;
       }
 
-      return this.experimentGroupingRules.choose(
-        experimentName,
-        _.extend(
-          {
-            account: this.account,
-            // yes, this is a hack because experiments do not have a reference
-            // to experimentGroupingRules internally. This allows experiments to reference other
-            // experiments
-            experimentGroupingRules: this.experimentGroupingRules,
-            forceExperiment: this.forceExperiment,
-            forceExperimentGroup: this.forceExperimentGroup,
-            isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
-            uniqueUserId: this.user.get('uniqueUserId'),
-          },
-          additionalInfo
-        )
-      );
+      return this.experimentGroupingRules.choose(experimentName, {
+        account: this.account,
+        // yes, this is a hack because experiments do not have a reference
+        // to experimentGroupingRules internally. This allows experiments to reference other
+        // experiments
+        experimentGroupingRules: this.experimentGroupingRules,
+        forceExperiment: this.forceExperiment,
+        forceExperimentGroup: this.forceExperimentGroup,
+        isMetricsEnabledValue: this.metrics.isCollectionEnabled(),
+        uniqueUserId: this.user.get('uniqueUserId'),
+        ...additionalInfo,
+      });
+    },
+
+    /**
+     * Get the experiment group for the user is in for `experimentName` and
+     * if part of an experiment, report the experiment name and group to Amplitude.
+     *
+     * @param {String} experimentName
+     * @param {Object} [additionalInfo] additional info to pass to the experiment grouping rule.
+     * @returns {false|String}
+     */
+    getAndReportExperimentGroup(experimentName, additionalInfo) {
+      const groupType = this.getExperimentGroup(experimentName, additionalInfo);
+      if (!groupType) {
+        return false;
+      }
+
+      this.createExperiment(experimentName, groupType);
+      return groupType;
     },
   }
 );

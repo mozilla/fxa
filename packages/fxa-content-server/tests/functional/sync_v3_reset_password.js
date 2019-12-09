@@ -13,7 +13,7 @@ const uaStrings = require('./lib/ua-strings');
 const config = intern._config;
 
 const PASSWORD = 'passwordzxcv';
-const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync&automatedBrowser=true&forceAboutAccounts=true`;
+const RESET_PASSWORD_URL = `${config.fxaContentRoot}reset_password?context=fx_desktop_v3&service=sync`;
 
 let email;
 
@@ -23,14 +23,12 @@ const {
   createUser,
   fillOutResetPassword,
   fillOutCompleteResetPassword,
-  noPageTransition,
   noSuchBrowserNotification,
   openPage,
   openVerificationLinkInNewTab,
   switchToWindow,
   testElementExists,
   testIsBrowserNotified,
-  testSuccessWasShown,
   thenify,
   type,
 } = FunctionalHelpers;
@@ -83,23 +81,7 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'reset password, verify same browser, Fx <= 57': function() {
-      const query = { forceUA: uaStrings['desktop_firefox_57'] };
-
-      return (
-        this.remote
-          .then(setupTest(query))
-
-          // In fx <= 56, about:accounts takes over the screen, no need to transition
-          .then(noPageTransition(selectors.CONFIRM_RESET_PASSWORD.HEADER))
-          .then(testSuccessWasShown())
-          // Only expect the login message in the verification tab to avoid
-          // a race condition within the browser when it receives two login messages.
-          .then(noSuchBrowserNotification('fxaccounts:login'))
-      );
-    },
-
-    'reset password, verify same browser, Fx >= 58': function() {
+    'reset password, verify same browser': function() {
       const query = { forceUA: uaStrings['desktop_firefox_58'] };
 
       return (

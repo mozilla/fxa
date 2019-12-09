@@ -14,15 +14,13 @@ const PASSWORD = 'passwordzxcv';
 let email;
 
 const {
+  clearBrowserState,
   click,
-  closeCurrentWindow,
   createUser,
+  destroySessionForEmail,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
-  noSuchElement,
   openFxaFromRp,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testElementTextInclude,
   getEmailHeaders,
@@ -48,14 +46,14 @@ const experimentParams = {
   },
 };
 
-registerSuite('signin token code', {
+registerSuite('OAuth signin token code', {
   beforeEach: function() {
     // The `sync` prefix is needed to force confirmation.
     email = TestHelpers.createEmail('sync{id}');
 
     return this.remote
       .then(
-        FunctionalHelpers.clearBrowserState({
+        clearBrowserState({
           contentServer: true,
           force: true,
         })
@@ -64,49 +62,22 @@ registerSuite('signin token code', {
   },
 
   tests: {
-    'verified - control': function() {
-      experimentParams.query.forceExperiment = 'tokenCode';
-
-      // Currently the control will default to which ever verification
-      // the auth-server chooses which is sign-in link.
-      experimentParams.query.forceExperimentGroup = 'control';
-      return (
-        this.remote
-          .then(openFxaFromRp('enter-email', experimentParams))
-
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(openVerificationLinkInNewTab(email, 0))
-
-          .then(switchToWindow(1))
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNIN_COMPLETE.HEADER))
-          .then(noSuchElement(selectors.SIGNIN_COMPLETE.CONTINUE_BUTTON))
-          // user sees the name of the RP, but cannot redirect
-          .then(
-            testElementTextInclude(
-              selectors.SIGNIN_COMPLETE.SERVICE_NAME,
-              'notes'
-            )
-          )
-
-          // switch to the original window
-          .then(closeCurrentWindow())
-
-          .then(
-            testElementTextInclude(
-              selectors.SIGNIN_COMPLETE.SERVICE_NAME,
-              'notes'
-            )
-          )
-      );
-    },
-
-    'verified - treatment-code - valid code': function() {
+    'verified - - bounce': function() {
       experimentParams.query.forceExperiment = 'tokenCode';
       experimentParams.query.forceExperimentGroup = 'treatment-code';
 
+      return this.remote
+        .then(openFxaFromRp('enter-email', experimentParams))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(destroySessionForEmail(email))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.HEADER))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.BACK))
+        .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
+    },
+
+    'verified - valid code': function() {
       return (
         this.remote
           .then(openFxaFromRp('enter-email', experimentParams))
@@ -122,7 +93,7 @@ registerSuite('signin token code', {
             )
           )
           // Can resend code
-          .then(click(selectors.SIGNIN_TOKEN_CODE.RESEND))
+          .then(click(selectors.SIGNIN_TOKEN_CODE.LINK_RESEND))
           .then(
             testElementTextInclude(
               selectors.SIGNIN_TOKEN_CODE.SUCCESS,
@@ -147,9 +118,7 @@ registerSuite('signin token code', {
       );
     },
 
-    'verified - treatment-code - valid code then click back': function() {
-      experimentParams.query.forceExperiment = 'tokenCode';
-      experimentParams.query.forceExperimentGroup = 'treatment-code';
+    'verified - valid code then click back': function() {
       return (
         this.remote
           .then(openFxaFromRp('enter-email', experimentParams))
@@ -169,24 +138,6 @@ registerSuite('signin token code', {
           .goBack()
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
       );
-    },
-
-    'verified - treatment-link - open link new tab': function() {
-      experimentParams.query.forceExperiment = 'tokenCode';
-      experimentParams.query.forceExperimentGroup = 'treatment-link';
-      return this.remote
-        .then(openFxaFromRp('enter-email', experimentParams))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInNewTab(email, 0))
-
-        .then(
-          testElementTextInclude(
-            selectors.SIGNIN_COMPLETE.SERVICE_NAME,
-            'notes'
-          )
-        );
     },
   },
 });

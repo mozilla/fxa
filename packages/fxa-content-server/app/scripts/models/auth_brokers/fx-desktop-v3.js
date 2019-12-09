@@ -25,14 +25,6 @@ const FxDesktopV3AuthenticationBroker = FxDesktopV2AuthenticationBroker.extend({
   }),
 
   type: 'fx-desktop-v3',
-
-  fetch() {
-    return proto.fetch.call(this).then(() => {
-      if (this.getUserAgent().parseVersion().major >= 58) {
-        this.setCapability('browserTransitionsAfterEmailVerification', false);
-      }
-    });
-  },
 });
 
 Cocktail.mixin(FxDesktopV3AuthenticationBroker, UserAgentMixin);

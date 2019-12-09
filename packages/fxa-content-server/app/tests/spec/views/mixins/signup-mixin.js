@@ -80,6 +80,7 @@ describe('views/mixins/signup-mixin', function() {
         assert.isTrue(
           user.signUpAccount.calledWith(account, 'password', relier, {
             resume: 'resume token',
+            verificationMethod: 'email-otp',
           })
         );
 
@@ -131,6 +132,7 @@ describe('views/mixins/signup-mixin', function() {
         assert.isTrue(
           user.signUpAccount.calledWith(account, 'password', relier, {
             resume: 'resume token',
+            verificationMethod: 'email-otp',
           })
         );
 
@@ -166,6 +168,7 @@ describe('views/mixins/signup-mixin', function() {
         assert.isTrue(
           user.signUpAccount.calledWith(account, 'password', relier, {
             resume: 'resume token',
+            verificationMethod: 'email-otp',
           })
         );
 

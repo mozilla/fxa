@@ -52,6 +52,11 @@ const conf = convict({
       doc: 'Location of "report-uri" for report-only CSP rules',
       env: 'CSP_REPORT_ONLY_URI',
     },
+    extraImgSrc: {
+      default: [],
+      doc: 'Additional hosts to allow as image sources',
+      env: 'CSP_EXTRA_IMG_SRC',
+    },
   },
   env: {
     default: 'production',

@@ -68,6 +68,10 @@ describe('views/complete_reset_password', () => {
     notifier = new Notifier();
     sentryMetrics = new SentryMetrics();
     metrics = new Metrics({ notifier, sentryMetrics });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
+
     relier = new Relier();
     user = new User({
       fxaClient: fxaClient,

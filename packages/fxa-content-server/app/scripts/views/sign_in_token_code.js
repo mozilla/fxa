@@ -11,6 +11,7 @@ import Constants from '../lib/constants';
 import FormView from './form';
 import Template from 'templates/sign_in_token_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
+import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
@@ -29,6 +30,17 @@ const View = FormView.extend({
     }
   },
 
+  afterVisible() {
+    // waitForSessionVerification handles bounced emails and will redirect
+    // the user to the appropriate screen depending on whether the account
+    // is deleted. If the account no longer exists, redirects the user to
+    // sign up, if the account exists, then notifies them their account
+    // has been blocked.
+    this.waitForSessionVerification(this.getAccount(), () => {
+      // don't do anything on verification, that's taken care of in the submit handler.
+    });
+  },
+
   setInitialContext(context) {
     const email = this.getAccount().get('email');
 
@@ -45,23 +57,13 @@ const View = FormView.extend({
   submit() {
     const account = this.getAccount();
     const code = this.getElementValue(CODE_INPUT_SELECTOR);
-    return (
-      account
-        // Note the name `verifySessionCode` here. This is used instead of
-        // `verifyShortCode` (as with auth-server) because it verifies both the account
-        // and the session associated with it.
-        .verifySessionCode(code)
-        .then(() => {
-          this.logViewEvent('success');
-          return this.invokeBrokerMethod(
-            'afterCompleteSignInWithCode',
-            account
-          );
-        })
-        .catch(err =>
-          this.showValidationError(this.$(CODE_INPUT_SELECTOR), err)
-        )
-    );
+    return this.user
+      .verifyAccountSessionCode(account, code)
+      .then(() => {
+        this.logViewEvent('success');
+        return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
+      })
+      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
   },
 
   resend() {
@@ -82,6 +84,6 @@ const View = FormView.extend({
   },
 });
 
-Cocktail.mixin(View, ResendMixin());
+Cocktail.mixin(View, ResendMixin(), SessionVerificationPollMixin);
 
 export default View;

@@ -24,10 +24,10 @@ const {
   deleteAllSms,
   disableInProd,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   fillOutSignInUnblock,
   getSmsSigninCode,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   respondToWebChannelMessage,
   switchToWindow,
@@ -39,9 +39,7 @@ const {
   type,
 } = FunctionalHelpers;
 
-const setupTest = thenify(function(successSelector, options) {
-  options = options || {};
-
+const setupTest = thenify(function(successSelector, options = {}) {
   return this.parent
     .then(clearBrowserState())
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
@@ -51,12 +49,7 @@ const setupTest = thenify(function(successSelector, options) {
     )
     .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(successSelector))
-    .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-    .then(() => {
-      if (!options.blocked) {
-        return this.parent.then(testIsBrowserNotified('fxaccounts:login'));
-      }
-    });
+    .then(testIsBrowserNotified('fxaccounts:can_link_account'));
 });
 
 registerSuite('Fx Fennec Sync v1 sign_in', {
@@ -64,25 +57,16 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
     email = TestHelpers.createEmail('sync{id}');
   },
   tests: {
-    'verified, verify same browser': function() {
+    verified: function() {
       return this.remote
-        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true }))
+        .then(
+          setupTest(selectors.SIGNIN_TOKEN_CODE.HEADER, { preVerified: true })
+        )
 
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
+        .then(fillOutSignInTokenCode(email, 0))
+
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow())
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-    },
-
-    "verified, verify different browser - from original tab's P.O.V.": function() {
-      return this.remote
-        .then(setupTest(selectors.CONFIRM_SIGNIN.HEADER, { preVerified: true }))
-
-        .then(openVerificationLinkInDifferentBrowser(email))
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     unverified: function() {
@@ -101,6 +85,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
           .then(closeCurrentWindow())
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
 

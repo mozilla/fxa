@@ -11,8 +11,7 @@ const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
-const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true&automatedBrowser=true`;
-const TOKEN_CODE_PAGE_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&automatedBrowser=true`;
+const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
 
 let email;
 const PASSWORD = '12345678';
@@ -26,9 +25,7 @@ const {
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   noEmailExpected,
-  noPageTransition,
   openPage,
-  openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   respondToWebChannelMessage,
   switchToWindow,
@@ -47,16 +44,19 @@ const setupTest = thenify(function(options = {}) {
   const successSelector = options.blocked
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
-    ? selectors.CONFIRM_SIGNIN.HEADER
+    ? selectors.SIGNIN_TOKEN_CODE.HEADER
     : selectors.CONFIRM_SIGNUP.HEADER;
 
+  const query = options.query || {
+    forceUA: uaStrings['desktop_firefox_58'],
+  };
   return this.parent
     .then(
       createUser(signUpEmail, PASSWORD, { preVerified: options.preVerified })
     )
     .then(
       openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-        query: options.query,
+        query,
         webChannelResponses: {
           'fxaccounts:can_link_account': { ok: true },
           'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
@@ -65,12 +65,7 @@ const setupTest = thenify(function(options = {}) {
     )
     .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
     .then(testElementExists(successSelector))
-    .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-    .then(() => {
-      if (!options.blocked) {
-        return this.parent.then(testIsBrowserNotified('fxaccounts:login'));
-      }
-    });
+    .then(testIsBrowserNotified('fxaccounts:can_link_account'));
 });
 
 registerSuite('Firefox Desktop Sync v3 signin', {
@@ -79,13 +74,13 @@ registerSuite('Firefox Desktop Sync v3 signin', {
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
+
   tests: {
-    'Fx >= 58, verified, does not need to confirm ': function() {
-      const forceUA = uaStrings['desktop_firefox_58'];
-      const query = { forceUA };
-
+    'verified, does not need to confirm ': function() {
       email = TestHelpers.createEmail();
-
+      const query = {
+        forceUA: uaStrings['desktop_firefox_58'],
+      };
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -102,64 +97,47 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         )
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    "verified, verify same browser, new tab's P.O.V ": function() {
+    verified: function() {
       return this.remote
         .then(setupTest({ preVerified: true }))
-        .then(openVerificationLinkInNewTab(email, 0))
-        .then(switchToWindow(1))
+        .then(fillOutSignInTokenCode(email, 0))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-        .then(closeCurrentWindow());
-      // tests for the original tab are below.
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    "Fx <= 57, verified, verify same browser, original tab's P.O.V.": function() {
-      const forceUA = uaStrings['desktop_firefox_57'];
-      const query = { forceUA };
-
-      return (
-        this.remote
-          .then(setupTest({ preVerified: true, query }))
-
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
-      );
-    },
-
-    "Fx >= 58, verified, verify same browser, original tab's P.O.V.": function() {
-      const forceUA = uaStrings['desktop_firefox_58'];
-      const query = { forceUA };
-
-      return (
-        this.remote
-          .then(setupTest({ preVerified: true, query }))
-
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          // about:accounts does not take over post-verification in Fx >= 57
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      );
-    },
-
-    'verified, resend email, verify same browser': function() {
+    'verified, resend': function() {
       return (
         this.remote
           .then(setupTest({ preVerified: true }))
 
-          .then(click(selectors.CONFIRM_SIGNIN.LINK_RESEND))
-          .then(visibleByQSA(selectors.CONFIRM_SIGNIN.RESEND_SUCCESS))
+          .then(click(selectors.SIGNIN_TOKEN_CODE.LINK_RESEND))
+          .then(visibleByQSA(selectors.SIGNIN_TOKEN_CODE.SUCCESS))
 
           // email 0 is the original signin email, open the resent email instead
-          .then(openVerificationLinkInNewTab(email, 1))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignInTokenCode(email, 1))
 
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(testIsBrowserNotified('fxaccounts:login'))
+      );
+    },
+
+    'verified - invalid code': function() {
+      return (
+        this.remote
+          .then(setupTest({ preVerified: true }))
+
+          // Displays invalid code errors
+          .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, 'INVALID'))
+          .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
+          .then(visibleByQSA(selectors.SIGNIN_TOKEN_CODE.TOOLTIP))
+          .then(fillOutSignInTokenCode(email, 0))
+
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
 
@@ -191,43 +169,20 @@ registerSuite('Firefox Desktop Sync v3 signin', {
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(closeCurrentWindow())
 
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.CONFIRM_SIGNUP.HEADER))
-      );
-    },
-
-    'Fx <= 57, verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
-      const forceUA = uaStrings['desktop_firefox_57'];
-      const query = { forceUA };
-
-      return (
-        this.remote
-          .then(setupTest({ blocked: true, preVerified: true, query }))
-
-          .then(fillOutSignInUnblock(email, 0))
-
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
-    },
-
-    'Fx >= 58, verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
-      const forceUA = uaStrings['desktop_firefox_58'];
-      const query = { forceUA };
-
-      return (
-        this.remote
-          .then(setupTest({ blocked: true, preVerified: true, query }))
-
-          .then(fillOutSignInUnblock(email, 0))
-
-          // about:accounts does not take over post-verification in Fx >= 58
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
+    },
+
+    'verified, blocked': function() {
+      email = TestHelpers.createEmail('blocked{id}');
+      return this.remote
+        .then(setupTest({ blocked: true, preVerified: true }))
+
+        .then(fillOutSignInUnblock(email, 0))
+
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'verified, blocked, incorrect email case': function() {
@@ -256,124 +211,9 @@ registerSuite('Firefox Desktop Sync v3 signin', {
           )
           .then(fillOutSignInUnblock(signUpEmail, 0))
 
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
-    },
-  },
-});
-
-registerSuite('Firefox Desktop Sync v3 signin - token code', {
-  beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
-
-    return this.remote
-      .then(clearBrowserState({ force: true }))
-      .then(createUser(email, PASSWORD, { preVerified: true }));
-  },
-
-  tests: {
-    'verified - control': function() {
-      const query = {
-        forceExperiment: 'tokenCode',
-        forceExperimentGroup: 'control',
-      };
-      return (
-        this.remote
-          .then(
-            openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              query,
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
-            })
-          )
-
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          // about:accounts will take over post-verification, no transition
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
-    },
-
-    'verified - treatment-code - valid code': function() {
-      const query = {
-        forceExperiment: 'tokenCode',
-        forceExperimentGroup: 'treatment-code',
-      };
-      return (
-        this.remote
-          .then(
-            openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              query,
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': { signedInUser: null },
-              },
-            })
-          )
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          // Correctly submits the token code
-          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-          .then(fillOutSignInTokenCode(email, 0))
-
-          // about:accounts will take over post-verification, no transition
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
-    },
-
-    'verified - treatment-code - invalid code': function() {
-      const query = {
-        forceExperiment: 'tokenCode',
-        forceExperimentGroup: 'treatment-code',
-      };
-      return (
-        this.remote
-          .then(
-            openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-              query,
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': { signedInUser: null },
-              },
-            })
-          )
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          // Displays invalid code errors
-          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-          .then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, 'INVALID'))
-          .then(click(selectors.SIGNIN_TOKEN_CODE.SUBMIT))
-      );
-    },
-
-    'verified - treatment-link - open link new tab': function() {
-      const query = {
-        forceExperiment: 'tokenCode',
-        forceExperimentGroup: 'treatment-link',
-      };
-      return this.remote
-        .then(
-          openPage(TOKEN_CODE_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
-            query,
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': { signedInUser: null },
-            },
-          })
-        )
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-        .then(openVerificationLinkInNewTab(email, 0))
-
-        .then(testIsBrowserNotified('fxaccounts:login'));
     },
   },
 });

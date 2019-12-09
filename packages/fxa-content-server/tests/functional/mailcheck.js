@@ -7,7 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-var ENTER_EMAIL_URL = intern._config.fxaContentRoot + '?automatedBrowser=true';
+var ENTER_EMAIL_URL = intern._config.fxaContentRoot;
 
 const {
   clearBrowserState,

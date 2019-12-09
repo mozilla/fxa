@@ -10,14 +10,13 @@ import NavigateBehavior from '../behaviors/navigate';
 import ResumeTokenMixin from './resume-token-mixin';
 import VerificationMethods from '../../lib/verification-methods';
 import VerificationReasons from '../../lib/verification-reasons';
-import TokenCodeExperimentMixin from '../mixins/token-code-experiment-mixin';
 
 const t = msg => msg;
 const TOTP_SUPPORT_URL =
   'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
 
 export default {
-  dependsOn: [ResumeTokenMixin, TokenCodeExperimentMixin],
+  dependsOn: [ResumeTokenMixin],
 
   /**
    * Sign in a user
@@ -49,20 +48,7 @@ export default {
         // This is important for the infamous signin-from-signup feature.
         this.logFlowEvent('attempt', 'signin');
 
-        // Check to see if this user is in the token code experiment,
-        // if so, override to use the correct verification method. `email-2fa` sends
-        // an email with the verification code and `email` sends a confirmation link.
-        let verificationMethod;
-        if (this.getTokenCodeExperimentGroup) {
-          switch (this.getTokenCodeExperimentGroup()) {
-            case 'treatment-code':
-              verificationMethod = VerificationMethods.EMAIL_2FA;
-              break;
-            case 'treatment-link':
-              verificationMethod = VerificationMethods.EMAIL;
-              break;
-          }
-        }
+        let verificationMethod = VerificationMethods.EMAIL_2FA;
 
         // Check to see if this is an oauth client is requesting 2FA.
         // If it is, set/override the corresponding verificationMethod.

@@ -414,8 +414,13 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @param {Object} account
    * @return {Promise}
    */
-  afterSignUpConfirmationPoll(/* account */) {
-    return Promise.resolve(this.getBehavior('afterSignUpConfirmationPoll'));
+  afterSignUpConfirmationPoll(account) {
+    // with signup codes, afterCompleteSignUp is not called and
+    // verification data must be unpersisted to avoid cross contaminating
+    // subsequent email verifications.
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterSignUpConfirmationPoll')
+    );
   },
 
   /**
@@ -548,7 +553,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      * Does the browser handle screen transitions after
      * an email verification?
      */
-    browserTransitionsAfterEmailVerification: true,
+    browserTransitionsAfterEmailVerification: false,
     /**
      * Should the legacy signin/signup pages be disabled?
      */

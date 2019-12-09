@@ -10,13 +10,12 @@ const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const { FX_DESKTOP_V3_CONTEXT } = require('../../app/scripts/lib/constants');
 const selectors = require('./lib/selectors');
+const userAgent = require('./lib/ua-strings');
 
 const config = intern._config;
 
 const ENTER_EMAIL_URL = config.fxaContentRoot;
-// The automatedBrowser query param tells signin/up to stub parts of the flow
-// that require a functioning desktop channel
-const PAGE_ENTER_EMAIL_SYNC_DESKTOP = `${config.fxaContentRoot}?context=${FX_DESKTOP_V3_CONTEXT}&service=sync&forceAboutAccounts=true`;
+const PAGE_ENTER_EMAIL_SYNC_DESKTOP = `${config.fxaContentRoot}?context=${FX_DESKTOP_V3_CONTEXT}&service=sync`;
 
 const PASSWORD = 'password12345678';
 let email;
@@ -31,6 +30,7 @@ const {
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignInTokenCode,
   getStoredAccountByEmail,
   openPage,
   respondToWebChannelMessage,
@@ -196,7 +196,7 @@ registerSuite('cached signin', {
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           .then(openPage(ENTER_EMAIL_URL, selectors.SIGNIN_PASSWORD.HEADER))
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
@@ -221,8 +221,7 @@ registerSuite('cached signin', {
             })
           )
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
           .then(
             openPage(
@@ -268,8 +267,7 @@ registerSuite('cached signin', {
             })
           )
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
           // ensure signin page is visible otherwise credentials might
           // not be cleared by clicking .use-different
@@ -357,17 +355,33 @@ registerSuite('cached signin', {
         .then(
           openPage(
             PAGE_ENTER_EMAIL_SYNC_DESKTOP,
-            selectors.SIGNIN_PASSWORD.HEADER
+            selectors.SIGNIN_PASSWORD.HEADER,
+            {
+              query: {
+                forceUA: userAgent['desktop_firefox_71'],
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true,
+                },
+                'fxaccounts:fxa_status': {
+                  signedInUser: null,
+                },
+              },
+            }
           )
         )
-        .then(
-          respondToWebChannelMessage('fxaccounts:can_link_account', {
-            ok: true,
-          })
-        )
+        .then(respondToWebChannelMessage())
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
-        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
+        .then(
+          click(
+            selectors.SIGNIN_PASSWORD.SUBMIT,
+            selectors.SIGNIN_TOKEN_CODE.HEADER
+          )
+        )
+        .then(fillOutSignInTokenCode(email, 0))
 
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(getStoredAccountByEmail(email))
         .then(accountData => {

@@ -17,12 +17,10 @@ var PASSWORD = 'password12345678';
 
 const {
   click,
-  closeCurrentWindow,
+  fillOutSignUpCode,
   noSuchBrowserNotification,
   openPage,
-  openVerificationLinkInNewTab,
   respondToWebChannelMessage,
-  switchToWindow,
   testElementExists,
   testElementValueEquals,
   testEmailExpected,
@@ -41,7 +39,7 @@ registerSuite('Fx Fennec Sync v1 sign_up', {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
   tests: {
-    'sign up, verify same browser': function() {
+    'sign up': function() {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -98,19 +96,15 @@ registerSuite('Fx Fennec Sync v1 sign_up', {
           .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
 
           // user should be transitioned to the "go confirm your address" page
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           // the login message is only sent after the sync preferences screen
           // has been cleared.
           .then(testIsBrowserNotified('fxaccounts:login'))
 
           // verify the user
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
+          .then(fillOutSignUpCode(email, 0))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-
-          .then(closeCurrentWindow())
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           // A post-verification email should be sent, this is Sync.
           .then(testEmailExpected(email, 1))

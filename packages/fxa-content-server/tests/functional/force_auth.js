@@ -140,7 +140,7 @@ registerSuite('force_auth', {
           .then(
             click(
               selectors.SIGNUP_PASSWORD.SUBMIT,
-              selectors.CONFIRM_SIGNUP.HEADER
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
             )
           )
       );

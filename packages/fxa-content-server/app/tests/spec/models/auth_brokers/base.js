@@ -442,9 +442,15 @@ describe('models/auth_brokers/base', function() {
 
   describe('afterSignUpConfirmationPoll', function() {
     it('returns a promise, behavior navigates to signup_confirmed', function() {
+      sinon.spy(broker, 'unpersistVerificationData');
       return broker
         .afterSignUpConfirmationPoll(account)
-        .then(testNavigates('signup_confirmed'));
+        .then(testNavigates('signup_confirmed'))
+        .then(() => {
+          assert.isTrue(
+            broker.unpersistVerificationData.calledOnceWith(account)
+          );
+        });
     });
   });
 

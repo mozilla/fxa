@@ -93,6 +93,7 @@ jobs:
       - run: ../../.circleci/deploy.sh << parameters.module >>
 
   fxa-content-server:
+    resource_class: medium+
     parallelism: 6
     docker:
       - image: mozilla/fxa-circleci

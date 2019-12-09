@@ -26,7 +26,7 @@ class SubscriptionsProductRedirectView extends FormView {
   }
 
   afterRender() {
-    const queryParams = Url.searchParams(this.window.location.href);
+    const queryParams = Url.searchParams(this.window.location.search);
     const productId = this._currentPage.split('/').pop();
     const redirectPath = `products/${productId}`;
     return PaymentServer.navigateToPaymentServer(

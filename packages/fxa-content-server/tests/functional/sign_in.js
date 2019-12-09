@@ -22,15 +22,13 @@ const {
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignUpCode,
   openPage,
   openTab,
-  openVerificationLinkInSameTab,
   switchToWindow,
   testAttributeMatches,
-  testErrorTextInclude,
   testElementExists,
   testElementTextInclude,
-  testElementValueEquals,
   type,
   visibleByQSA,
 } = FunctionalHelpers;
@@ -43,33 +41,6 @@ registerSuite('signin', {
   },
 
   tests: {
-    'with an invalid email': function() {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL + '?email=invalid', selectors['400'].HEADER)
-        )
-        .then(testErrorTextInclude('invalid'))
-        .then(testErrorTextInclude('email'));
-    },
-
-    'signin unverified': function() {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: false }))
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(
-          testElementTextInclude(selectors.CONFIRM_SIGNUP.EMAIL_MESSAGE, email)
-        );
-    },
-
-    'signin verified with correct password': function() {
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER));
-    },
-
     'signin verified with incorrect password, click `forgot password?`': function() {
       return (
         this.remote
@@ -115,31 +86,6 @@ registerSuite('signin', {
               'password'
             )
           )
-      );
-    },
-
-    'form prefill information is cleared after signin->sign out': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          // success is seeing the sign-in-complete screen.
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
-
-          // check the email and password were cleared
-          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''))
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(
-            click(
-              selectors.ENTER_EMAIL.SUBMIT,
-              selectors.SIGNIN_PASSWORD.HEADER
-            )
-          )
-
-          .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.PASSWORD, ''))
       );
     },
 
@@ -195,9 +141,9 @@ registerSuite('signin', {
 
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-        .then(openVerificationLinkInSameTab(email, 0))
+        .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.SETTINGS.HEADER))
 
         .then(closeCurrentWindow())

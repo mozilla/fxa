@@ -12,6 +12,8 @@ import {
   UpdateSubscriptionPlanResult,
 } from './types';
 
+import { actions, ActionPayload } from './actions';
+
 export const defaultState = {
   customer: uninitializedFetch<Customer, APIError>(),
   plans: uninitializedFetch<Array<Plan>, APIError>(),
@@ -19,7 +21,10 @@ export const defaultState = {
   subscriptions: uninitializedFetch<Array<Subscription>>(),
   token: uninitializedFetch<Token>(),
   cancelSubscription: uninitializedFetch<Subscription>(),
-  reactivateSubscription: uninitializedFetch<any>(),
+  reactivateSubscription: uninitializedFetch<
+    ActionPayload<typeof actions['reactivateSubscription']>,
+    APIError
+  >(),
   createSubscription: uninitializedFetch<
     CreateSubscriptionResult,
     CreateSubscriptionError

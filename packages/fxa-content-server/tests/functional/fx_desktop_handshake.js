@@ -12,26 +12,26 @@ const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 
-const userAgent = uaStrings['desktop_firefox_55'];
+const userAgent = uaStrings['desktop_firefox_58'];
 
 const FORCE_AUTH_PAGE_URL = `${
   config.fxaContentRoot
-}force_auth?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+}force_auth?forceUA=${encodeURIComponent(userAgent)}`;
 const SYNC_FORCE_AUTH_PAGE_URL = `${FORCE_AUTH_PAGE_URL}&service=sync`;
 
 const ENTER_EMAIL_PAGE_URL = `${
   config.fxaContentRoot
-}?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+}?forceUA=${encodeURIComponent(userAgent)}`;
 const SYNC_ENTER_EMAIL_PAGE_URL = `${ENTER_EMAIL_PAGE_URL}&service=sync`;
 
 const SETTINGS_PAGE_URL = `${
   config.fxaContentRoot
-}settings?automatedBrowser=true&forceUA=${encodeURIComponent(userAgent)}`;
+}settings?forceUA=${encodeURIComponent(userAgent)}`;
 const SYNC_SETTINGS_PAGE_URL = `${SETTINGS_PAGE_URL}&service=sync`;
 
 const SYNC_SMS_PAGE_URL = `${
   config.fxaContentRoot
-}sms?automatedBrowser=true&service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes&forceUA=${encodeURIComponent(
+}sms?service=sync&forceExperiment=sendSms&forceExperimentGroup=signinCodes&forceUA=${encodeURIComponent(
   userAgent
 )}`; //eslint-disable-line max-len
 

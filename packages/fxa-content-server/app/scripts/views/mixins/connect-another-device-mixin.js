@@ -106,7 +106,10 @@ export default {
         return;
       }
 
-      const group = this.getExperimentGroup('sendSms', { account, country });
+      const group = this.getAndReportExperimentGroup('sendSms', {
+        account,
+        country,
+      });
       if (!group) {
         // Auth server said "OK" but user was not selected
         // for the experiment, this mode is not logged in
@@ -116,8 +119,6 @@ export default {
         return country;
       } else {
         // User is eligible and a member of the experiment.
-        this.createExperiment('sendSms', group);
-
         if (group === 'control') {
           this.logFlowEvent(REASON_CONTROL_GROUP);
         } else {

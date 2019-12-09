@@ -22,8 +22,8 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
       email: 'foomail',
     });
     context = new Model();
+    sinon.stub(context, 'set');
     view = new SignupPasswordView({});
-    view.createExperiment = sinon.spy();
     view.getAccount = () => account;
     view.relier = new Model({
       service: 'sync',
@@ -37,62 +37,57 @@ describe('views/mixins/cwts-on-signup-password-experiment-mixin', () => {
   describe('setInitialContext', () => {
     it('does not initialize experiment or set context if not part of a group', () => {
       sinon
-        .stub(view, 'getCWTSOnSignupPasswordExperimentGroup')
+        .stub(view, 'chooseCWTSOnSignupPasswordExperimentGroup')
         .callsFake(() => false);
 
       view.setInitialContext(context);
-
-      assert.isFalse(view.createExperiment.called);
+      assert.isFalse(context.set.called);
     });
 
-    it('creates the experiment if part of control group, does not set context', () => {
+    it('does not set context if part of the control group', () => {
       sinon
-        .stub(view, 'getCWTSOnSignupPasswordExperimentGroup')
+        .stub(view, 'chooseCWTSOnSignupPasswordExperimentGroup')
         .callsFake(() => 'control');
 
       view.setInitialContext(context);
-      assert.isTrue(
-        view.createExperiment.calledOnceWith('signupPasswordCWTS', 'control')
-      );
-      assert.lengthOf(Object.keys(context.toJSON()), 0);
+      assert.isFalse(context.set.called);
     });
 
     it('creates the experiment if part of treatment group, sets context', () => {
       sinon
-        .stub(view, 'getCWTSOnSignupPasswordExperimentGroup')
+        .stub(view, 'chooseCWTSOnSignupPasswordExperimentGroup')
         .callsFake(() => 'treatment');
       sinon.stub(view, '_getOfferedEngines').callsFake(() => ['foo', 'bar']);
 
       view.setInitialContext(context);
 
       assert.isTrue(
-        view.createExperiment.calledOnceWith('signupPasswordCWTS', 'treatment')
+        context.set.calledOnceWith({
+          engines: ['foo', 'bar'],
+          isCWTSOnSignupPasswordEnabled: true,
+        })
       );
-      assert.deepEqual(context.toJSON(), {
-        engines: ['foo', 'bar'],
-        isCWTSOnSignupPasswordEnabled: true,
-      });
     });
   });
 
   describe('isCWTSOnSignupPasswordEnabled', () => {
     it('returns false if not part of the experiment', () => {
       sinon
-        .stub(view, 'getCWTSOnSignupPasswordExperimentGroup')
+        .stub(view, 'chooseCWTSOnSignupPasswordExperimentGroup')
         .callsFake(() => false);
       assert.isFalse(view.isCWTSOnSignupPasswordEnabled());
     });
 
     it('returns false if part of control group', () => {
       sinon
-        .stub(view, 'getCWTSOnSignupPasswordExperimentGroup')
+        .stub(view, 'chooseCWTSOnSignupPasswordExperimentGroup')
         .callsFake(() => 'control');
       assert.isFalse(view.isCWTSOnSignupPasswordEnabled());
     });
 
     it('returns true if part of treatment group', () => {
       sinon
-        .stub(view, 'getCWTSOnSignupPasswordExperimentGroup')
+        .stub(view, 'chooseCWTSOnSignupPasswordExperimentGroup')
         .callsFake(() => 'treatment');
       assert.isTrue(view.isCWTSOnSignupPasswordEnabled());
     });

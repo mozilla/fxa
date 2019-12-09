@@ -4,12 +4,13 @@
 
 import _ from 'underscore';
 import AuthErrors from '../lib/auth-errors';
-import Cocktail from 'cocktail';
+import Cocktail from '../lib/cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/confirm_signup_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
+import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
@@ -26,9 +27,17 @@ class ConfirmSignupCodeView extends FormView {
     return proto.afterVisible
       .call(this)
       .then(() => this.broker.persistVerificationData(account))
-      .then(() =>
-        this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
-      );
+      .then(() => {
+        // waitForSessionVerification handles bounced emails and will redirect
+        // the user to the appropriate screen depending on whether the account
+        // is deleted. If the account no longer exists, redirects the user to
+        // sign up, if the account exists, then notifies them their account
+        // has been blocked.
+        this.waitForSessionVerification(this.getAccount(), () => {
+          // don't do anything on verification, that's taken care of in the submit handler.
+        });
+        return this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account);
+      });
   }
 
   getAccount() {
@@ -63,8 +72,8 @@ class ConfirmSignupCodeView extends FormView {
     const options = {
       service: this.relier.get('service') || null,
     };
-    return account
-      .verifySessionCode(code, options)
+    return this.user
+      .verifyAccountSessionCode(account, code, options)
       .then(() => {
         this.logViewEvent('verification.success');
         this.notifier.trigger('verification.success');
@@ -95,7 +104,8 @@ Cocktail.mixin(
   ConfirmSignupCodeView,
   FlowEventsMixin,
   ResendMixin(),
-  ServiceMixin
+  ServiceMixin,
+  SessionVerificationPollMixin
 );
 
 export default ConfirmSignupCodeView;

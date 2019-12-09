@@ -9,6 +9,7 @@ const assert = intern.getPlugin('chai').assert;
 const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 const ENTER_EMAIL_URL = config.fxaContentRoot;
@@ -23,15 +24,16 @@ const {
   click,
   closeCurrentWindow,
   createUser,
-  fillOutResetPassword,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutResetPassword,
+  fillOutSignInTokenCode,
+  fillOutSignUpCode,
   getUnblockInfo,
   openPage,
   openVerificationLinkInDifferentBrowser,
   openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  respondToWebChannelMessage,
   switchToWindow,
   testElementExists,
   testElementTextEquals,
@@ -135,8 +137,8 @@ registerSuite('settings secondary emails', {
           // sign up via the UI, we need a verified session to use secondary email
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.EMAIL.MENU_BUTTON))
 
@@ -198,8 +200,8 @@ registerSuite('settings secondary emails', {
 
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.EMAIL.MENU_BUTTON))
 
           .then(click(selectors.EMAIL.MENU_BUTTON))
@@ -221,8 +223,8 @@ registerSuite('settings secondary emails', {
           // sign up via the UI, we need a verified session to use secondary email
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInSameTab(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.EMAIL.MENU_BUTTON))
 
@@ -292,8 +294,7 @@ registerSuite('settings secondary emails', {
     },
 
     'signin confirmation is sent to secondary emails': function() {
-      const EMAIL_FIRST_URL = `${ENTER_EMAIL_URL}?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
-      const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync&forceAboutAccounts=true`;
+      const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync`;
 
       email = TestHelpers.createEmail('sync{id}');
 
@@ -306,16 +307,29 @@ registerSuite('settings secondary emails', {
               secondaryEmail
             );
           })
-          .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
           .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+              query: {
+                context: 'fx_desktop_v3',
+                forceUA: uaStrings['desktop_firefox_71'],
+                service: 'sync',
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true,
+                },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(openVerificationLinkInDifferentBrowser(email))
+          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+          .then(fillOutSignInTokenCode(email, 0))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
 
           // wait until account data is in localstorage before redirecting
           .then(
@@ -343,19 +357,29 @@ registerSuite('settings secondary emails', {
           // force: true goes to the /clear page.
           .then(clearBrowserState({ force: true }))
 
-          .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
           .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
+            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+              query: {
+                context: 'fx_desktop_v3',
+                forceUA: uaStrings['desktop_firefox_71'],
+                service: 'sync',
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true,
+                },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
+              },
             })
           )
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
-          .then(openVerificationLinkInNewTab(secondaryEmail, 1))
-          .then(switchToWindow(1))
+          .then(fillOutSignInTokenCode(secondaryEmail, 1))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
       );
     },
   },

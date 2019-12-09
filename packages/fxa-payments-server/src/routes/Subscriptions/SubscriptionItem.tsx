@@ -1,12 +1,11 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
-import { formatCurrencyInCents, formatPeriodEndDate } from '../../lib/formats';
+import { formatPeriodEndDate } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
-import { State } from '../../store/state';
 import {
-  Customer,
   CustomerSubscription,
   Subscription,
   Plan,
+  Customer,
 } from '../../store/types';
 import { SelectorReturns } from '../../store/selectors';
 import { SubscriptionsProps } from './index';
@@ -14,7 +13,8 @@ import { SubscriptionsProps } from './index';
 import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
-import fpnImage from '../../images/fpn';
+
+import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
 
 type SubscriptionItemProps = {
   customerSubscription: CustomerSubscription;
@@ -22,7 +22,7 @@ type SubscriptionItemProps = {
   plan: Plan | null;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
-  customer: SelectorReturns['customer'];
+  customer: Customer;
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
@@ -132,7 +132,7 @@ type CancelSubscriptionPanelProps = {
   customerSubscription: CustomerSubscription;
   cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
   cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
-  cancelSubscriptionStatus: State['cancelSubscription'];
+  cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
 };
 
 const CancelSubscriptionPanel = ({
@@ -249,96 +249,6 @@ const CancelSubscriptionPanel = ({
             </div>
           </>
         )}
-      </div>
-    </>
-  );
-};
-
-type ReactivateSubscriptionPanelProps = {
-  plan: Plan;
-  customerSubscription: CustomerSubscription;
-  subscription: Subscription;
-  reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
-  customer: State['customer'];
-};
-const ReactivateSubscriptionPanel = ({
-  plan,
-  customerSubscription,
-  subscription,
-  reactivateSubscription,
-  customer,
-}: ReactivateSubscriptionPanelProps) => {
-  const { subscription_id } = customerSubscription;
-  const [
-    reactivateConfirmationRevealed,
-    revealReactivateConfirmation,
-    hideReactivateConfirmation,
-  ] = useBooleanState();
-
-  const onReactivateClick = useCallback(() => {
-    reactivateSubscription(subscription_id);
-    hideReactivateConfirmation();
-  }, [reactivateSubscription, subscription_id, hideReactivateConfirmation]);
-
-  const { last4 } = customer.result as Customer;
-
-  // TODO: date formats will need i18n someday
-  const cancelledAtDate = formatPeriodEndDate(
-    (subscription.cancelledAt as number) / 1000
-  );
-
-  // TODO: date formats will need i18n someday
-  const periodEndDate = formatPeriodEndDate(
-    customerSubscription.current_period_end
-  );
-
-  return (
-    <>
-      {reactivateConfirmationRevealed && (
-        <DialogMessage onDismiss={hideReactivateConfirmation}>
-          <img
-            className="fpn-reactivate-subscription"
-            alt="Firefox Private Network"
-            src={fpnImage}
-          />
-          <h4>Want to keep using {plan.product_name}?</h4>
-          {/* TO DO: display card type, IE 'to the Visa card ending...' */}
-          <p>
-            Your access to {plan.product_name} will continue, and your billing
-            cycle and payment will stay the same. Your next charge will be $
-            {formatCurrencyInCents(plan.amount)} to the card ending in {last4}{' '}
-            on {periodEndDate}.
-          </p>
-          <div className="action">
-            <button
-              className="settings-button"
-              onClick={onReactivateClick}
-              data-testid="reactivate-subscription-confirm-button"
-            >
-              <span className="change-button">Resubscribe</span>
-            </button>
-          </div>
-        </DialogMessage>
-      )}
-      <div className="subscription-cancelled">
-        <div className="with-settings-button">
-          <div className="subscription-cancelled-details">
-            <p>You cancelled your subscription on {cancelledAtDate}.</p>
-            <p>
-              You will lose access to {plan.product_name} on{' '}
-              <strong>{periodEndDate}</strong>.
-            </p>
-          </div>
-          <div className="action">
-            <button
-              className="settings-button"
-              onClick={revealReactivateConfirmation}
-              data-testid="reactivate-subscription-button"
-            >
-              <span className="change-button">Resubscribe</span>
-            </button>
-          </div>
-        </div>
       </div>
     </>
   );

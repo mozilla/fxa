@@ -50,6 +50,10 @@ describe('/views/force_auth', function() {
         captureException() {},
       },
     });
+    // prevents metrics from being flushed
+    // so we can check if they were emit
+    sinon.stub(metrics, 'flush');
+
     translator = new Translator({ forceEnglish: true });
     relier = new Relier({ service: 'sync' });
     user = new User({

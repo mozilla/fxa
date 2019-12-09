@@ -16,8 +16,6 @@ const experimentGroupingRules = [
   require('./is-sampled-user'),
   require('./send-sms-install-link'),
   require('./sentry'),
-  require('./token-code'),
-  require('./signup-code'),
   require('./email-mx-validation'),
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 

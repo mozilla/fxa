@@ -80,14 +80,17 @@ export default {
   _handleSessionVerificationPollErrors(account, err) {
     // The user's email may have bounced because it was invalid.
     // Redirect them to the sign up page with an error notice.
-    if (AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE')) {
+    if (
+      AuthErrors.is(err, 'SIGNUP_EMAIL_BOUNCE') ||
+      AuthErrors.is(err, 'INVALID_TOKEN')
+    ) {
       account.set('hasBounced', true);
       if (this.isSignUp()) {
-        this.navigate('/', {
+        this.replaceCurrentPage('/', {
           account,
         });
       } else {
-        this.navigate('signin_bounced', account.pick('email'));
+        this.replaceCurrentPage('signin_bounced', account.pick('email'));
       }
     } else if (
       AuthErrors.is(err, 'UNEXPECTED_ERROR') ||

@@ -19,14 +19,13 @@ const PASSWORD = 'passwordzxcv';
 
 const {
   click,
-  closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignInTokenCode,
+  fillOutSignUpCode,
   openFxaFromRp,
   openPage,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testElementTextEquals,
   testIsBrowserNotified,
@@ -67,15 +66,11 @@ registerSuite('signin with OAuth after Sync', {
           )
 
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
           // Sync signins must be verified.
-          .then(openVerificationLinkInNewTab(email, 0))
-
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignInTokenCode(email, 0))
+          .then(testIsBrowserNotified('fxaccounts:login'))
 
           // Sign up for a new account via OAuth
           .then(
@@ -91,15 +86,8 @@ registerSuite('signin with OAuth after Sync', {
           )
           .then(fillOutEmailFirstSignUp(email2, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(openVerificationLinkInNewTab(email2, 0))
-          .then(switchToWindow(1))
-
-          // wait for the verified window in the new tab
-          .then(testElementExists(selectors.SIGNUP_COMPLETE.HEADER))
-
-          // switch to the original window
-          .then(closeCurrentWindow())
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email2, 0))
 
           // RP is logged in, logout then back in again.
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
@@ -140,6 +128,7 @@ registerSuite('signin to Sync after OAuth', {
       FunctionalHelpers.clearBrowserState({
         '123done': true,
         contentServer: true,
+        force: true,
       })
     );
   },
@@ -174,7 +163,9 @@ registerSuite('signin to Sync after OAuth', {
         .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, PASSWORD))
         .then(click(selectors.SIGNIN_PASSWORD.SUBMIT))
 
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER));
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(fillOutSignInTokenCode(email, 0))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
   },
 });

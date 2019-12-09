@@ -13,6 +13,7 @@ import helpers from '../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
+import User from 'models/user';
 import View from 'views/sign_in_token_code';
 import WindowMock from '../../mocks/window';
 
@@ -27,6 +28,7 @@ describe('views/sign_in_token_code', () => {
   let model;
   let notifier;
   let relier;
+  let user;
   let view;
   let windowMock;
 
@@ -56,6 +58,8 @@ describe('views/sign_in_token_code', () => {
     notifier = _.extend({}, Backbone.Events);
     metrics = new Metrics({ notifier });
 
+    user = new User();
+
     view = new View({
       broker,
       canGoBack: true,
@@ -63,6 +67,7 @@ describe('views/sign_in_token_code', () => {
       model,
       notifier,
       relier,
+      user,
       viewName: 'sign-in-token-code',
       window: windowMock,
     });
@@ -93,6 +98,19 @@ describe('views/sign_in_token_code', () => {
       it('redirects to the signin page', () => {
         assert.isTrue(view.navigate.calledWith('signin'));
       });
+    });
+  });
+
+  describe('afterVisible', () => {
+    it('starts polling in case the email bounces', () => {
+      const account = { uid: 'uid' };
+
+      sinon.stub(view, 'waitForSessionVerification');
+      sinon.stub(view, 'getAccount').returns(account);
+
+      view.afterVisible();
+
+      assert.isTrue(view.waitForSessionVerification.calledOnceWith(account));
     });
   });
 
@@ -138,7 +156,7 @@ describe('views/sign_in_token_code', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon
-          .stub(account, 'verifySessionCode')
+          .stub(user, 'verifyAccountSessionCode')
           .callsFake(() => Promise.resolve());
         sinon
           .stub(view, 'invokeBrokerMethod')
@@ -149,7 +167,7 @@ describe('views/sign_in_token_code', () => {
 
       it('calls correct broker methods', () => {
         assert.isTrue(
-          account.verifySessionCode.calledWith(TOKEN_CODE),
+          user.verifyAccountSessionCode.calledWith(account, TOKEN_CODE),
           'verify with correct code'
         );
         assert.isTrue(

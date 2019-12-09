@@ -10,10 +10,10 @@ const selectors = require('./lib/selectors');
 
 const EMAIL_FORM_TREATMENT_URL =
   intern._config.fxaContentRoot +
-  '?automatedBrowser=true&action=email&forceExperiment=emailMxValidation&forceExperimentGroup=treatment';
+  '?action=email&forceExperiment=emailMxValidation&forceExperimentGroup=treatment';
 const EMAIL_FORM_CONTROL_URL =
   intern._config.fxaContentRoot +
-  '?automatedBrowser=true&action=email&forceExperiment=emailMxValidation&forceExperimentGroup=control';
+  '?action=email&forceExperiment=emailMxValidation&forceExperimentGroup=control';
 
 const INVALID_EMAIL = 'nofxauser@asdfafexample.xyz.gd';
 

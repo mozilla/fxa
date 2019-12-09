@@ -16,19 +16,14 @@ const PASSWORD = 'password12345678';
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
   createUser,
-  fillOutForceAuth,
-  fillOutSignInUnblock,
   fillOutEmailFirstSignUp,
-  noPageTransition,
+  fillOutForceAuth,
+  fillOutSignInTokenCode,
+  fillOutSignInUnblock,
   noSuchBrowserNotification,
   noSuchElement,
   openForceAuth,
-  openVerificationLinkInDifferentBrowser,
-  openVerificationLinkInNewTab,
-  respondToWebChannelMessage,
-  switchToWindow,
   testElementDisabled,
   testElementExists,
   testElementTextInclude,
@@ -45,114 +40,104 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
   },
 
   tests: {
-    'with a registered email, no uid, verify same browser': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(function(accountInfo) {
-            return openForceAuth({
-              query: {
-                context: 'fx_desktop_v3',
-                email: email,
-                forceAboutAccounts: 'true',
-
-                service: 'sync',
+    'with a registered email, no uid': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(function(accountInfo) {
+          return openForceAuth({
+            query: {
+              context: 'fx_desktop_v3',
+              email,
+              forceUA: uaStrings['desktop_firefox_71'],
+              service: 'sync',
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': {
+                ok: true,
               },
-            }).call(this);
-          })
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          .then(fillOutForceAuth(PASSWORD))
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
+              },
+            },
+          }).call(this);
+        })
+        .then(fillOutForceAuth(PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
-
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
-      );
+        .then(fillOutSignInTokenCode(email, 0))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'with a registered email, registered uid, verify same browser': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(function(accountInfo) {
-            return openForceAuth({
-              query: {
-                context: 'fx_desktop_v3',
-                email: email,
-                forceAboutAccounts: 'true',
-                service: 'sync',
-                uid: accountInfo.uid,
+    'with a registered email, registered uid': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(function(accountInfo) {
+          return openForceAuth({
+            query: {
+              context: 'fx_desktop_v3',
+              email: email,
+              forceUA: uaStrings['desktop_firefox_71'],
+              service: 'sync',
+              uid: accountInfo.uid,
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': {
+                ok: true,
               },
-            }).call(this);
-          })
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          .then(fillOutForceAuth(PASSWORD))
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
+              },
+            },
+          }).call(this);
+        })
+        .then(fillOutForceAuth(PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
-
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
-      );
+        .then(fillOutSignInTokenCode(email, 0))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'with a registered email, unregistered uid, verify same browser': function() {
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openForceAuth({
-              query: {
-                context: 'fx_desktop_v3',
-                email: email,
-                forceAboutAccounts: 'true',
-                service: 'sync',
-                uid: TestHelpers.createUID(),
+    'with a registered email, unregistered uid': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openForceAuth({
+            query: {
+              context: 'fx_desktop_v3',
+              email: email,
+              forceUA: uaStrings['desktop_firefox_71'],
+              service: 'sync',
+              uid: TestHelpers.createUID(),
+            },
+            webChannelResponses: {
+              'fxaccounts:can_link_account': {
+                ok: true,
               },
-            })
-          )
-          .then(noSuchBrowserNotification('fxaccounts:logout'))
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          .then(fillOutForceAuth(PASSWORD))
+              'fxaccounts:fxa_status': {
+                capabilities: null,
+                signedInUser: null,
+              },
+            },
+          })
+        )
+        .then(noSuchBrowserNotification('fxaccounts:logout'))
+        .then(fillOutForceAuth(PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
 
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
-
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.CONFIRM_SIGNIN.HEADER))
-      );
+        .then(fillOutSignInTokenCode(email, 0))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
     'with an unregistered email, no uid': function() {
@@ -167,14 +152,18 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               query: {
                 context: 'fx_desktop_v3',
                 email: email,
-                forceAboutAccounts: 'true',
+                forceUA: uaStrings['desktop_firefox_71'],
                 service: 'sync',
               },
-            })
-          )
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true,
+                },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
+              },
             })
           )
           .then(visibleByQSA(selectors.SIGNUP_PASSWORD.ERROR))
@@ -193,7 +182,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
           // the default behavior of not transitioning to the confirm
           // screen is overridden because the user is signing up outside
           // of about:accounts.
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
@@ -213,9 +202,17 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               query: {
                 context: 'fx_desktop_v3',
                 email: unregisteredEmail,
-                forceAboutAccounts: 'true',
                 service: 'sync',
                 uid: accountInfo.uid,
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true,
+                },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
               },
             }).call(this);
           })
@@ -247,9 +244,17 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               query: {
                 context: 'fx_desktop_v3',
                 email: email,
-                forceAboutAccounts: 'true',
                 service: 'sync',
                 uid: TestHelpers.createUID(),
+              },
+              webChannelResponses: {
+                'fxaccounts:can_link_account': {
+                  ok: true,
+                },
+                'fxaccounts:fxa_status': {
+                  capabilities: null,
+                  signedInUser: null,
+                },
               },
             })
           )
@@ -267,57 +272,20 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
     'verified, blocked': function() {
       email = TestHelpers.createEmail('blocked{id}');
 
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(
-            openForceAuth({
-              query: {
-                context: 'fx_desktop_v3',
-                email: email,
-                forceAboutAccounts: 'true',
-                service: 'sync',
-                uid: TestHelpers.createUID(),
-              },
-            })
-          )
-          .then(noSuchBrowserNotification('fxaccounts:logout'))
-          .then(
-            respondToWebChannelMessage('fxaccounts:can_link_account', {
-              ok: true,
-            })
-          )
-          .then(fillOutForceAuth(PASSWORD))
-
-          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(fillOutSignInUnblock(email, 0))
-
-          // about:accounts will take over post-verification, no transition
-          .then(noPageTransition(selectors.SIGNIN_UNBLOCK.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
-    },
-
-    "verify from original tab's P.O.V., Fx >= 58": function() {
-      const forceUA = uaStrings['desktop_firefox_58'];
-      const query = {
-        automatedBrowser: true,
-        context: 'fx_desktop_v3',
-        email: email,
-        forceAboutAccounts: 'true',
-        forceUA,
-        service: 'sync',
-        uid: TestHelpers.createUID(),
-      };
-
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
           openForceAuth({
-            query,
+            query: {
+              context: 'fx_desktop_v3',
+              email: email,
+              service: 'sync',
+              uid: TestHelpers.createUID(),
+            },
             webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
+              'fxaccounts:can_link_account': {
+                ok: true,
+              },
               'fxaccounts:fxa_status': {
                 capabilities: null,
                 signedInUser: null,
@@ -328,9 +296,9 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(noSuchBrowserNotification('fxaccounts:logout'))
         .then(fillOutForceAuth(PASSWORD))
 
-        .then(testElementExists(selectors.CONFIRM_SIGNIN.HEADER))
+        .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-        .then(openVerificationLinkInDifferentBrowser(email))
+        .then(fillOutSignInUnblock(email, 0))
 
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'));
