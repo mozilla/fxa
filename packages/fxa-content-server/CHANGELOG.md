@@ -1,3 +1,9 @@
+## 1.151.5
+
+### Bug fixes
+
+- fenix: Do not use Sync Optional with Fenix (b12263ed0)
+
 ## 1.151.4
 
 No changes.
