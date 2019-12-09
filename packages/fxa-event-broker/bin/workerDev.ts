@@ -5,7 +5,6 @@
 import { Firestore } from '@google-cloud/firestore';
 import { PubSub } from '@google-cloud/pubsub';
 import * as grpc from '@grpc/grpc-js';
-import { init as sentryInit } from '@sentry/node';
 import AWS from 'aws-sdk';
 import { SQS } from 'aws-sdk';
 import { StatsD } from 'hot-shots';
@@ -17,9 +16,10 @@ import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 import { proxyServerInit, ServerEnvironment } from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+import { configureHapiSentry, configureSentry } from '../lib/sentry';
 import { version } from '../lib/version';
 
-sentryInit({ enabled: false, release: version.version });
+configureSentry({ enabled: false, release: version.version });
 
 const NODE_ENV = Config.get('env');
 const logger = mozlog(Config.get('log'))('notificationProcessor');
@@ -160,6 +160,7 @@ async function main() {
     metrics,
     webhookService
   );
+  configureHapiSentry(server);
   await server.start();
 }
 
