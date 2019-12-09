@@ -95,8 +95,10 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               webChannelResponses: {
                 'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
-                  capabilities: null,
                   signedInUser: null,
+                  capabilities: {
+                    multiService: true,
+                  },
                 },
               },
             })
@@ -106,6 +108,12 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           .then(fillOutEmailFirstSignUp(email, PASSWORD))
 
           .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+          .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_ADDRESSES))
+          .then(
+            noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_CREDIT_CARDS)
+          )
+          .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC))
+
           .then(testIsBrowserNotified('fxaccounts:can_link_account'))
           .then(openVerificationLinkInNewTab(email, 0))
           .then(switchToWindow(1))

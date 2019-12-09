@@ -55,6 +55,10 @@ export default BaseAuthenticationBroker.extend({
     const multiService =
       response.capabilities && response.capabilities.multiService;
     this.relier.set('multiService', multiService);
+    this.setCapability(
+      'syncOptional',
+      multiService && this.relier.get('service') !== 'sync'
+    );
     if (multiService) {
       // we get the OAuth client id for the browser
       // in order to replicate the uses of the 'service' param on the backend.
@@ -70,6 +74,7 @@ export default BaseAuthenticationBroker.extend({
     if (syncEngines && additionalEngineIds) {
       this.addAdditionalSyncEngines(additionalEngineIds);
     }
+    return proto.onFxaStatus.call(this, response);
   },
 
   /**

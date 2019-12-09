@@ -121,6 +121,7 @@ describe('views/mixins/signup-mixin', function() {
     describe('choose what to sync not displayed when entering password', function() {
       beforeEach(function() {
         broker.set('chooseWhatToSyncWebV1Engines', new Model());
+        broker.setCapability('syncOptional', true);
 
         return view.signUp(account, 'password');
       });
@@ -143,6 +144,7 @@ describe('views/mixins/signup-mixin', function() {
         var args = view.navigate.args[0];
         assert.equal(args[0], 'choose_what_to_sync');
         assert.deepEqual(args[1].account, account);
+        assert.isTrue(args[1].allowToDisableSync);
         assert.isFunction(args[1].onSubmitComplete);
       });
 
