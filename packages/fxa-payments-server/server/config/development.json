@@ -1,5 +1,6 @@
 {
   "csp": {
     "extraImgSrc": [ "https://placekitten.com" ]
-  }
+  },
+  "survey": "test_env"
 }

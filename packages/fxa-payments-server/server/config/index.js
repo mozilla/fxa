@@ -272,6 +272,12 @@ const conf = convict({
       format: 'url',
     },
   },
+  survey: {
+    default: 'test',
+    doc: 'Survey Environment',
+    env: 'SURVEY_ENVIRONMENT',
+    format: 'String',
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

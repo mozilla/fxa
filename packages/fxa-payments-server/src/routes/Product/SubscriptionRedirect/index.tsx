@@ -16,7 +16,7 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
   const { product_id, product_name } = plan;
   const { webIconURL, downloadURL } = metadataFromPlan(plan);
   const {
-    config: { productRedirectURLs },
+    config: { productRedirectURLs, survey },
     navigateToUrl,
   } = useContext(AppContext);
 
@@ -24,26 +24,40 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
     downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;
 
   useEffect(() => {
-    navigateToUrl(redirectUrl);
-  }, [navigateToUrl, redirectUrl]);
+    const handleIframeTask = (e: any) => {
+      if (e.data === 'submitted survey') {
+        setTimeout(() => {
+          navigateToUrl(redirectUrl);
+        }, 250);
+      }
+    };
+    window.addEventListener('message', handleIframeTask);
+    return () => window.removeEventListener('message', handleIframeTask);
+  }, [redirectUrl]);
 
   return (
     <div className="product-payment" data-testid="subscription-redirect">
       <div className="subscription-ready">
-        <h2>Your subscription is ready</h2>
-        <img
-          alt={product_name}
-          src={webIconURL || fpnImage}
-          width="96"
-          height="96"
-        />
-        <p>
-          Hang on for a moment while we send you to the{' '}
-          <span className="plan-name">{product_name}</span> download page.
-        </p>
-        <a href={redirectUrl}>
-          Click here if you're not automatically redirected
-        </a>
+        <div className="subscription-message">
+          <h2>Your subscription is ready</h2>
+          <div className="exp-message">
+            Please take a moment to tell us about your experience.
+          </div>
+        </div>
+        <hr />
+        <div className="survey-frame">
+          <iframe
+            sandbox="allow-scripts allow-forms"
+            scrolling="no"
+            src={
+              'http://www.surveygizmo.com/s3/5294819/VPN-Subscription?__no_style=true&env=' +
+              survey
+            }
+          ></iframe>
+        </div>
+        <div>
+          <a href={redirectUrl}>No thanks, just take me to my product.</a>
+        </div>
       </div>
     </div>
   );
