@@ -1,3 +1,9 @@
+## 1.152.0
+
+### Other changes
+
+* fxa-customs-server: update google-code/pubsub (326cae0df)
+
 ## 1.151.5
 
 No changes.

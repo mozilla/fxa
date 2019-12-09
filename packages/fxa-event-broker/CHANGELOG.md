@@ -1,5 +1,11 @@
 # Change history
 
+## 1.152.0
+
+### New features
+
+* event-broker: add remaining RP events (d5c42ccd8)
+
 ## 1.151.5
 
 No changes.
