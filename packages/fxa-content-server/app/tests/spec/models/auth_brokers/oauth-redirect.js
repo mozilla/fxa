@@ -89,13 +89,9 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
   describe('afterSignInConfirmationPoll', () => {
     it('calls sendOAuthResultToRelier with the correct options', () => {
-      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(() => {
-        return Promise.resolve();
-      });
+      sinon.stub(broker, 'sendOAuthResultToRelier').resolves();
 
       return broker.afterSignInConfirmationPoll(account).then(behavior => {
-        assert.isTrue(metrics.flush.calledOnce);
-        assert.lengthOf(metrics.flush.getCall(0).args, 0);
         assert.isTrue(
           broker.finishOAuthFlow.calledWith(account, {
             action: Constants.OAUTH_ACTION_SIGNIN,
@@ -263,17 +259,12 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
   describe('sendOAuthResultToRelier', () => {
     describe('with no error', () => {
-      it('prepares window to be closed', () => {
-        return broker
-          .sendOAuthResultToRelier({
-            redirect: REDIRECT_TO,
-          })
-          .then(() => {
-            assert.equal(
-              windowMock.location.href,
-              `${REDIRECT_TO}?state=state`
-            );
-          });
+      it('flushes metrics, prepares window to be closed', async () => {
+        await broker.sendOAuthResultToRelier({
+          redirect: REDIRECT_TO,
+        });
+        assert.isTrue(metrics.flush.calledOnce);
+        assert.equal(windowMock.location.href, `${REDIRECT_TO}?state=state`);
       });
     });
 

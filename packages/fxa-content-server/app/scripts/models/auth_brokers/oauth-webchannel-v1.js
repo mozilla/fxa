@@ -112,8 +112,9 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     if (state) {
       result.state = state;
     }
-
-    return this.send(this.getCommand('OAUTH_LOGIN'), result);
+    return this._metrics.flush().then(() => {
+      return this.send(this.getCommand('OAUTH_LOGIN'), result);
+    });
   },
 });
 

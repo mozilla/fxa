@@ -133,7 +133,7 @@ const View = FormView.extend({
   },
 
   gotoProductPage() {
-    this.window.location.href = FXA_PRODUCT_PAGE_URL;
+    this.navigateAway(FXA_PRODUCT_PAGE_URL);
   },
 
   gotoSettings() {

@@ -45,27 +45,22 @@ describe('views/mixins/external-links-mixin', function() {
   describe('_onExternalLinkClick', () => {
     it('does nothing of the link is ignored', () => {
       sinon.stub(view, '_shouldIgnoreClick').callsFake(() => true);
-      sinon
-        .stub(view, '_flushMetricsThenRedirect')
-        .callsFake(() => Promise.resolve());
+      sinon.stub(view, 'navigateAway');
 
       const event = {
         preventDefault: sinon.spy(),
         stopImmediatePropagation: sinon.spy(),
       };
 
-      return view._onExternalLinkClick(event).then(() => {
-        assert.isFalse(event.preventDefault.called);
-        assert.isFalse(event.stopImmediatePropagation.called);
-        assert.isFalse(view._flushMetricsThenRedirect.called);
-      });
+      view._onExternalLinkClick(event);
+      assert.isFalse(event.preventDefault.called);
+      assert.isFalse(event.stopImmediatePropagation.called);
+      assert.isFalse(view.navigateAway.called);
     });
 
     it('handles links that should be handled (cancel event, flush metrics)', () => {
       sinon.stub(view, '_shouldIgnoreClick').callsFake(() => false);
-      sinon
-        .stub(view, '_flushMetricsThenRedirect')
-        .callsFake(() => Promise.resolve());
+      sinon.stub(view, 'navigateAway');
 
       const event = {
         currentTarget: {
@@ -74,11 +69,9 @@ describe('views/mixins/external-links-mixin', function() {
         preventDefault: sinon.spy(),
       };
 
-      return view._onExternalLinkClick(event).then(() => {
-        assert.isTrue(event.preventDefault.calledOnce);
-        assert.isTrue(view._flushMetricsThenRedirect.calledOnce);
-        assert.isTrue(view._flushMetricsThenRedirect.calledWith('url'));
-      });
+      view._onExternalLinkClick(event);
+      assert.isTrue(event.preventDefault.calledOnce);
+      assert.isTrue(view.navigateAway.calledOnceWith('url'));
     });
   });
 
@@ -175,17 +168,6 @@ describe('views/mixins/external-links-mixin', function() {
       };
 
       assert.isFalse(view._doesLinkOpenInAnotherTab($targetEl));
-    });
-  });
-
-  describe('_flushMetricsThenRedirect', () => {
-    it('flushes the metrics, then redirects', () => {
-      sinon.stub(metrics, 'flush').callsFake(() => Promise.resolve());
-
-      return view._flushMetricsThenRedirect('url').then(() => {
-        assert.isTrue(metrics.flush.calledOnce);
-        assert.equal(windowMock.location, 'url');
-      });
     });
   });
 });
