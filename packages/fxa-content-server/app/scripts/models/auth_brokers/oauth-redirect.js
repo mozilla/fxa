@@ -99,8 +99,8 @@ export default BaseAuthenticationBroker.extend({
    * @returns {Promise}
    */
   sendOAuthResultToRelier(result) {
-    return Promise.resolve().then(() => {
-      var extraParams = {};
+    return this._metrics.flush().then(() => {
+      const extraParams = {};
       if (result.error) {
         extraParams.error = result.error;
       }
@@ -349,18 +349,18 @@ export default BaseAuthenticationBroker.extend({
   finishOAuthFlow(account, additionalResultData) {
     this.session.clear('oauth');
 
-    return Promise.resolve().then(() => {
-      // There are no ill side effects if the Original Tab Marker is
-      // cleared in the a tab other than the original. Always clear it just
-      // to make sure the bases are covered.
-      this.clearOriginalTabMarker();
-      return this.getOAuthResult(account).then(result => {
-        result = _.extend(result, additionalResultData);
-
-        return this._metrics.flush().then(() => {
-          return this.sendOAuthResultToRelier(result, account);
-        });
-      });
+    // There are no ill side effects if the Original Tab Marker is
+    // cleared in the a tab other than the original. Always clear it just
+    // to make sure the bases are covered.
+    this.clearOriginalTabMarker();
+    return this.getOAuthResult(account).then(result => {
+      return this.sendOAuthResultToRelier(
+        {
+          ...result,
+          ...additionalResultData,
+        },
+        account
+      );
     });
   },
 
