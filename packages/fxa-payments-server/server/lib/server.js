@@ -205,15 +205,10 @@ module.exports = () => {
       { encoding: 'UTF-8' }
     );
 
-    const renderedStaticHtml = injectHtmlConfig(
-      STATIC_INDEX_HTML,
-      CLIENT_CONFIG,
-      {}
-    );
     INDEX_ROUTES.forEach(route => {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
-        res.send(renderedStaticHtml);
+        res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, {}));
       });
     });
 
