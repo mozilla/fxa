@@ -695,12 +695,12 @@ describe('lib/metrics', () => {
     });
   });
 
-  describe('setBrokerType', () => {
-    it('sets the broker name', () => {
-      metrics.setBrokerType('fx-desktop-v2');
-      const filteredData = metrics.getFilteredData();
+  describe('setBrokerType', function() {
+    it('sets the broker name', function() {
+      metrics.setBrokerType('fx-desktop-v3');
+      const { broker } = metrics.getFilteredData();
 
-      assert.equal(filteredData.broker, 'fx-desktop-v2');
+      assert.equal(broker, 'fx-desktop-v3');
     });
   });
 
