@@ -1,13 +1,8 @@
 <div id="main-content" class="card confirm-signup">
     <header>
         <h1 id="fxa-confirm-signup-code-header">
-            {{#serviceName}}
-                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                {{#t}}Enter verification code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
-            {{/serviceName}}
-            {{^serviceName}}
-                {{#t}}Enter verification code{{/t}}
-            {{/serviceName}}
+            <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+            {{#t}}Enter verification code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
         </h1>
     </header>
 

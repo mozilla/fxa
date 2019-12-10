@@ -19,6 +19,8 @@ import ResumeTokenMixin from '../mixins/resume-token';
 import UrlMixin from '../mixins/url';
 import Vat from '../../lib/vat';
 
+const t = msg => msg;
+
 const RELIER_FIELDS_IN_RESUME_TOKEN = [
   'entrypoint',
   'entrypointExperiment',
@@ -93,6 +95,7 @@ var Relier = BaseRelier.extend({
     migration: null,
     resetPasswordConfirm: true,
     setting: null,
+    serviceName: t(Constants.RELIER_DEFAULT_SERVICE_NAME),
     style: null,
     uid: null,
     utmCampaign: null,
