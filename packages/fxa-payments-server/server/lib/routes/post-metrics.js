@@ -6,7 +6,6 @@
 
 const joi = require('joi');
 const amplitude = require('../amplitude');
-const logPerformanceEvent = require('../flow-performance');
 const logger = require('../logging/log')('server.post-metrics');
 
 const config = require('../../config');
@@ -59,14 +58,8 @@ module.exports = {
     const requestReceivedTime = Date.now();
     const { data, events } = request.body;
     events.forEach(event => {
-      if (event.type === 'loaded') {
-        // This is identical to content-server, where a 'loaded' event type is a
-        // performance event.
-        logPerformanceEvent(event, request, { ...data, requestReceivedTime });
-      } else {
-        event.time = data.flushTime;
-        amplitude(event, request, data, requestReceivedTime);
-      }
+      event.time = data.flushTime;
+      amplitude(event, request, data, requestReceivedTime);
     });
     response.status(200).end();
   },

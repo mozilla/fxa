@@ -82,13 +82,6 @@ export const Subscriptions = ({
 }: SubscriptionsProps) => {
   const { config, locationReload, navigateToUrl } = useContext(AppContext);
 
-  // There is no way to do this with a React Hook. We need the
-  // `navigationTiming.domComplete` value to calculate the "client" perf metric.
-  // When `useEffect` is used, the `domComplete` value is always(?) null because
-  // it fires too early. This is the reliable approach.
-  window.onload = () =>
-    FlowEvent.logPerformanceEvent('subscriptions', config.perfStartTime);
-
   const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
   const clearSuccessAlert = useCallback(
     () => setShowPaymentSuccessAlert(false),
