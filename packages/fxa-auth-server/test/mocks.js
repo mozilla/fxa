@@ -147,6 +147,7 @@ const MAILER_METHOD_NAMES = [
   'sendVerifyLoginEmail',
   'sendVerifyLoginCodeEmail',
   'sendVerifySecondaryEmail',
+  'sendVerifySecondaryCodeEmail',
 ];
 
 const METRICS_CONTEXT_METHOD_NAMES = [
@@ -643,17 +644,19 @@ function mockMetricsContext(methods) {
               this.headers && this.headers.dnt === '1'
                 ? {}
                 : {
-                  entrypoint: this.payload.metricsContext.entrypoint,
-                  entrypoint_experiment: this.payload.metricsContext.entrypointExperiment,
-                  entrypoint_variation: this.payload.metricsContext.entrypointVariation,
-                  utm_campaign: this.payload.metricsContext.utmCampaign,
-                  utm_content: this.payload.metricsContext.utmContent,
-                  utm_medium: this.payload.metricsContext.utmMedium,
-                  utm_source: this.payload.metricsContext.utmSource,
-                  utm_term: this.payload.metricsContext.utmTerm,
-                  product_id: this.payload.metricsContext.productId,
-                  plan_id: this.payload.metricsContext.planId,
-                }
+                    entrypoint: this.payload.metricsContext.entrypoint,
+                    entrypoint_experiment: this.payload.metricsContext
+                      .entrypointExperiment,
+                    entrypoint_variation: this.payload.metricsContext
+                      .entrypointVariation,
+                    utm_campaign: this.payload.metricsContext.utmCampaign,
+                    utm_content: this.payload.metricsContext.utmContent,
+                    utm_medium: this.payload.metricsContext.utmMedium,
+                    utm_source: this.payload.metricsContext.utmSource,
+                    utm_term: this.payload.metricsContext.utmTerm,
+                    product_id: this.payload.metricsContext.productId,
+                    plan_id: this.payload.metricsContext.planId,
+                  }
             );
           }
 

@@ -55,6 +55,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
     - [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
     - [POST /recovery_email/set_primary (:lock: sessionToken)](#post-recovery_emailset_primary)
+    - [POST /recovery_email/secondary/verify_code (:lock: sessionToken)](#post-recovery_emailseconaryverify_code)
+    - [POST /recovery_email/secondary/resend_code (:lock: sessionToken)](#post-recovery_emailseconaryresend_code)
   - [Oauth](#oauth)
     - [GET /oauth/client/{client_id}](#get-oauthclientclient_id)
     - [POST /account/scoped-key-data (:lock: sessionToken)](#post-accountscoped-key-data)
@@ -2195,6 +2197,78 @@ by the following errors
 
 - `code: 400, errno: 148`:
   Can not change primary email to an email that does not belong to this account
+
+#### POST /recovery_email/secondary/verify_code
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-post-recovery_emailsecondaryverify_code-->
+
+This endpoint verifies a secondary email using a time based (otp) code.
+
+<!--end-route-post-recovery_emailsecondaryverify_code-->
+
+##### Request body
+
+- `email`: _validators.email.required_
+
+  <!--begin-request-body-post-recovery_emailsecondaryverify_code-->
+
+  The secondary email address to verify.
+
+  <!--end-request-body-post-recovery_emailsecondaryverify_code-->
+
+- `code`: _validators.code.required_
+
+  <!--begin-request-body-post-recovery_emailsecondaryverify_code-->
+
+  Time based code to verify secondary email.
+
+  <!--end-request-body-post-recovery_emailsecondaryverify_code-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 138`:
+  Unverified session
+
+- `code: 400, errno: 105`:
+  Invalid verification code
+
+#### POST /recovery_email/secondary/resend_code
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-post-recovery_emailsecondaryresend_code-->
+
+This endpoint resend the otp verification to verify the secondary email.
+
+<!--end-route-post-recovery_emailsecondaryresend_code-->
+
+##### Request body
+
+- `email`: _validators.email.required_
+
+  <!--begin-request-body-post-recovery_emailsecondaryresend_code-->
+
+  The secondary email address to verify.
+
+  <!--end-request-body-post-recovery_emailsecondaryresend_code-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 138`:
+  Unverified session
+
+- `code: 400, errno: 150`:
+  Can not resend code for email that does not belong to the account
 
 ### Oauth
 

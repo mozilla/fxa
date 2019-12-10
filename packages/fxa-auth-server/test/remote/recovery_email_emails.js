@@ -939,6 +939,93 @@ describe('remote emails', function() {
     });
   });
 
+  describe('verify secondary email with code', async () => {
+    let secondEmail;
+    beforeEach(async () => {
+      secondEmail = server.uniqueEmail();
+      let res = await client.createEmail(secondEmail, 'email-otp');
+
+      assert.ok(res, 'ok response');
+      res = await client.accountEmails();
+
+      assert.equal(res.length, 2, 'returns number of emails');
+      assert.equal(res[1].email, secondEmail, 'returns correct email');
+      assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
+      assert.equal(res[1].verified, false, 'returns correct verified');
+    });
+
+    it('can verify using a code', async () => {
+      let emailData = await server.mailbox.waitForEmail(secondEmail);
+      let templateName = emailData['headers']['x-template-name'];
+      const code = emailData['headers']['x-verify-code'];
+      assert.equal(templateName, 'verifySecondaryCode');
+
+      assert.ok(code, 'code set');
+      let res = await client.verifySecondaryEmailWithCode(code, secondEmail);
+
+      assert.ok(res, 'ok response');
+      res = await client.accountEmails();
+
+      assert.equal(res.length, 2, 'returns number of emails');
+      assert.equal(res[1].email, secondEmail, 'returns correct email');
+      assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
+      assert.equal(res[1].verified, true, 'returns correct verified');
+
+      emailData = await server.mailbox.waitForEmail(email);
+
+      templateName = emailData['headers']['x-template-name'];
+      assert.equal(templateName, 'postVerifySecondary');
+    });
+
+    it('does not verify on random email code', async () => {
+      const emailData = await server.mailbox.waitForEmail(secondEmail);
+      const templateName = emailData['headers']['x-template-name'];
+      const emailCode = emailData['headers']['x-verify-code'];
+      assert.equal(templateName, 'verifySecondaryCode');
+      assert.ok(emailCode, 'emailCode set');
+      let failed = false;
+      try {
+        await client.verifySecondaryEmailWithCode('123123', secondEmail);
+        failed = true;
+      } catch (err) {
+        assert.equal(err.errno, 105, 'correct error errno');
+        assert.equal(err.code, 400, 'correct error code');
+      }
+
+      if (failed) {
+        assert.fail('should have failed');
+      }
+    });
+
+    it('can resend verify email code', async () => {
+      let emailData = await server.mailbox.waitForEmail(secondEmail);
+      let templateName = emailData['headers']['x-template-name'];
+      const emailCode = emailData['headers']['x-verify-code'];
+      assert.equal(templateName, 'verifySecondaryCode');
+      assert.ok(emailCode, 'emailCode set');
+      assert.equal(emailCode.length, 6);
+      client.options.email = secondEmail;
+      let res = await client.resendVerifySecondaryEmailWithCode(secondEmail);
+
+      assert.ok(res, 'ok response');
+      emailData = await server.mailbox.waitForEmail(secondEmail);
+
+      templateName = emailData['headers']['x-template-name'];
+      const resendEmailCode = emailData['headers']['x-verify-code'];
+      assert.equal(templateName, 'verifySecondaryCode');
+      assert.equal(resendEmailCode, emailCode, 'emailCode matches');
+      res = await client.verifySecondaryEmailWithCode(emailCode, secondEmail);
+
+      assert.ok(res, 'ok response');
+      res = await client.accountEmails();
+
+      assert.equal(res.length, 2, 'returns number of emails');
+      assert.equal(res[1].email, secondEmail, 'returns correct email');
+      assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
+      assert.equal(res[1].verified, true, 'returns correct verified');
+    });
+  });
+
   after(() => {
     return TestServer.stop(server);
   });

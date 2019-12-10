@@ -471,6 +471,40 @@ module.exports = config => {
     );
   };
 
+  ClientApi.prototype.recoveryEmailSecondaryVerifyCode = async function(
+    sessionTokenHex,
+    code,
+    email
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery_email/secondary/verify_code`,
+      token,
+      {
+        code,
+        email,
+      },
+      {}
+    );
+  };
+
+  ClientApi.prototype.recoveryEmailSecondaryResendCode = async function(
+    sessionTokenHex,
+    email
+  ) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/recovery_email/secondary/resend_code`,
+      token,
+      {
+        email,
+      },
+      {}
+    );
+  };
+
   ClientApi.prototype.accountCreateWithShortCode = async function(
     sessionTokenHex,
     code,
@@ -875,13 +909,18 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.createEmail = function(sessionTokenHex, email) {
+  ClientApi.prototype.createEmail = function(
+    sessionTokenHex,
+    email,
+    options = {}
+  ) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
       : P.resolve(null);
     return o.then(token => {
       return this.doRequest('POST', `${this.baseURL}/recovery_email`, token, {
         email: email,
+        verificationMethod: options.verificationMethod,
       });
     });
   };
