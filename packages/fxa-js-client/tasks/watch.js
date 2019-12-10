@@ -11,14 +11,14 @@ module.exports = function(grunt) {
         atBegin: true,
       },
       files: ['Gruntfile.js', 'client/**/*.js', 'tests/**/*.js'],
-      tasks: ['build', 'intern:node'],
+      tasks: ['build'],
     },
     debug: {
       options: {
         atBegin: true,
       },
       files: ['Gruntfile.js', 'client/**/*.js', 'tests/**/*.js'],
-      tasks: ['webpack:app', 'intern:node'],
+      tasks: ['webpack:app'],
     },
   });
 };

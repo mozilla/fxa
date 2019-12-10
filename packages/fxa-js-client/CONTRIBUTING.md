@@ -63,15 +63,9 @@ Adjust this if you need other SJCL features.
 
 ## Testing
 
-This library uses [The Intern](https://github.com/theintern/intern/wiki) testing framework.
-
 `npm test` - run local tests via Node.js
 
 `npm run test-local` - run the tests against the local fxa-auth-server
-
-`grunt intern:browser` - Locally run tests in Selenium (Requires `java -jar selenium-server-standalone-2.37.0.jar`).
-
-`grunt intern:sauce` - Run tests on SauceLabs.
 
 ## Git Commit Guidelines
 
