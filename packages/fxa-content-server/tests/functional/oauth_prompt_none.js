@@ -141,7 +141,7 @@ registerSuite('oauth prompt=none', {
 
         .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
         .then(openRP({ query: { login_hint: email, return_on_error: false } }))
         .then(click(selectors['123DONE'].BUTTON_PROMPT_NONE))

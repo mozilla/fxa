@@ -19,16 +19,13 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   noEmailExpected,
   openPage,
-  openVerificationLinkInNewTab,
   respondToWebChannelMessage,
-  switchToWindow,
   testElementExists,
   testEmailExpected,
   testIsBrowserNotified,
@@ -45,7 +42,7 @@ const setupTest = thenify(function(options = {}) {
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
     ? selectors.SIGNIN_TOKEN_CODE.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+    : selectors.CONFIRM_SIGNUP_CODE.HEADER;
 
   const query = options.query || {
     forceUA: uaStrings['desktop_firefox_58'],
@@ -162,12 +159,8 @@ registerSuite('Firefox Desktop Sync v3 signin', {
           // the verification reminder emails. 5 attempts occur in 5 seconds,
           // the first verification reminder is set after 10 seconds.
           .then(noEmailExpected(email, 2, { maxAttempts: 5 }))
-          .then(openVerificationLinkInNewTab(email, 1))
+          .then(fillOutSignInTokenCode(email, 1))
           .then(testEmailExpected(email, 2))
-
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
