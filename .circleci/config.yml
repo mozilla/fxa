@@ -117,6 +117,9 @@ jobs:
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
+      - store_artifacts:
+          path: ~/screenshots
+          destination: screenshots
 
   build-and-deploy-content-server:
     executor: nodejs
