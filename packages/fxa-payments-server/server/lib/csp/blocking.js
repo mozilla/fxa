@@ -21,6 +21,7 @@ module.exports = function(config) {
   const CDN_URL = config.get('staticResources.url');
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
+  const ACCOUNTS_STATIC_CDN = 'https://accounts-static.cdn.mozilla.net/';
   const OAUTH_SERVER = getOrigin(config.get('servers.oauth.url'));
   const PROFILE_SERVER = getOrigin(config.get('servers.profile.url'));
   const PROFILE_IMAGES_SERVER = getOrigin(
@@ -72,6 +73,7 @@ module.exports = function(config) {
         // their profile image.
         GRAVATAR,
         PROFILE_IMAGES_SERVER,
+        ACCOUNTS_STATIC_CDN,
         ...EXTRA_IMG_SRC,
       ]),
       mediaSrc: [NONE],
@@ -91,6 +93,7 @@ module.exports = function(config) {
       OAUTH_SERVER,
       HOT_RELOAD_WEBSOCKET,
       PROFILE_IMAGES_SERVER,
+      ACCOUNTS_STATIC_CDN,
       PROFILE_SERVER,
       PUBLIC_URL,
       STRIPE_API_URL,
