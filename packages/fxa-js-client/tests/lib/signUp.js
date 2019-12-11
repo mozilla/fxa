@@ -276,7 +276,7 @@ describe('signUp', function() {
     }, assert.fail);
   });
 
-  it('#with verificationMethod `email-opt`', async function() {
+  it('#with verificationMethod `email-otp`', async function() {
     const account = await accountHelper.newUnconfirmedAccount({
       verificationMethod: 'email-otp',
     });

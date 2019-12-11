@@ -805,20 +805,6 @@ const Account = Backbone.Model.extend(
     },
 
     /**
-     * Verify the account using the token code
-     *
-     * @param {String} code - the token code
-     * @returns {Promise} - resolves when complete
-     */
-    verifyTokenCode(code) {
-      return this._fxaClient.verifyTokenCode(
-        this.get('sessionToken'),
-        this.get('uid'),
-        code
-      );
-    },
-
-    /**
      * Check whether the account's email is registered.
      *
      * @returns {Promise} resolves to `true` if email is registered,
