@@ -17,10 +17,15 @@ describe('models/auth_brokers/fx-sync-channel', () => {
   let broker;
   let relier;
   let channelMock;
+  let metrics;
   let user;
   let windowMock;
 
   function createAuthBroker(options = {}) {
+    metrics = {
+      flush: sinon.stub().resolves({}),
+      setViewNamePrefix: sinon.spy(),
+    };
     broker = new FxSyncChannelAuthenticationBroker({
       channel: channelMock,
       commands: {
@@ -34,9 +39,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
         */
         VERIFIED: 'verified',
       },
-      metrics: {
-        setViewNamePrefix: sinon.spy(),
-      },
+      metrics,
       window: windowMock,
       relier,
       ...options,
@@ -85,6 +88,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
   describe('afterLoaded', () => {
     it('sends a `loaded` message', () => {
       return broker.afterLoaded().then(() => {
+        assert.isTrue(metrics.flush.calledOnce);
         assert.isTrue(channelMock.send.calledWith('loaded'));
       });
     });
@@ -95,8 +99,8 @@ describe('models/auth_brokers/fx-sync-channel', () => {
       channelMock.request = sinon.spy(() => Promise.resolve({ ok: true }));
 
       return broker.beforeSignIn(account).then(() => {
-        assert.isTrue(channelMock.request.calledOnce);
-        assert.isTrue(channelMock.request.calledWith('can_link_account'));
+        assert.isTrue(metrics.flush.calledOnce);
+        assert.isTrue(channelMock.request.calledOnceWith('can_link_account'));
       });
     });
 
