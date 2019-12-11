@@ -585,6 +585,17 @@ _.extend(Metrics.prototype, Backbone.Events, {
   },
 
   /**
+   * Set the `service` parameter to use for all future metrics.
+   * This is useful in cases where don't learn the appropriate
+   * service value until after the app has been initialized.
+   *
+   * @param {String} [service] The service identifier
+   */
+  setService(service) {
+    this._service = service || NOT_REPORTED_VALUE;
+  },
+
+  /**
    * Set the view name prefix for metrics that contain a viewName.
    * This is used to differentiate between flows when the same
    * URL can appear in more than one place in the flow, e.g., the
