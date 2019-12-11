@@ -84,33 +84,59 @@ describe('models/auth_brokers/fx-sync', () => {
     });
   });
 
-  describe('syncOptional capability', () => {
-    it('sets `syncOptional` to false if no multiService capability', () => {
-      relier.set('service', 'foo');
-      broker.onFxaStatus({ capabilities: {} });
+  describe('fxa_status response handling', () => {
+    describe('syncOptional capability', () => {
+      it('sets `syncOptional` to false if no multiService capability', () => {
+        relier.set('service', 'foo');
+        broker.onFxaStatus({ capabilities: {} });
 
-      assert.isFalse(broker.hasCapability('syncOptional'));
+        assert.isFalse(broker.hasCapability('syncOptional'));
+      });
+
+      it('sets `syncOptional` to false if multiService: false', () => {
+        relier.set('service', 'foo');
+        broker.onFxaStatus({ capabilities: { multiService: false } });
+
+        assert.isFalse(broker.hasCapability('syncOptional'));
+      });
+
+      it('sets `syncOptional` to false if service===sync', () => {
+        relier.set('service', 'sync');
+        broker.onFxaStatus({ capabilities: { multiService: true } });
+
+        assert.isFalse(broker.hasCapability('syncOptional'));
+      });
+
+      it('sets `syncOptional` to true if multiService and not sync', () => {
+        relier.set('service', 'foo');
+        broker.onFxaStatus({ capabilities: { multiService: true } });
+
+        assert.isTrue(broker.hasCapability('syncOptional'));
+      });
     });
 
-    it('sets `syncOptional` to false if multiService: false', () => {
-      relier.set('service', 'foo');
-      broker.onFxaStatus({ capabilities: { multiService: false } });
+    describe('clientId', () => {
+      it('sets `service` based on `clientId` when not otherwise known', () => {
+        broker.onFxaStatus({
+          capabilities: { multiService: true },
+          clientId: 'fx-desktop',
+        });
 
-      assert.isFalse(broker.hasCapability('syncOptional'));
-    });
+        assert.equal(relier.get('service'), 'fx-desktop');
+        assert.equal(metrics.getFilteredData().service, 'fx-desktop');
+      });
 
-    it('sets `syncOptional` to false if service===sync', () => {
-      relier.set('service', 'sync');
-      broker.onFxaStatus({ capabilities: { multiService: true } });
+      it('does not override an explicit `service` value obtained from query parameters', () => {
+        relier.set('service', 'sync');
+        metrics.setService('sync');
+        broker.onFxaStatus({
+          capabilities: { multiService: true },
+          clientId: 'fx-desktop',
+        });
 
-      assert.isFalse(broker.hasCapability('syncOptional'));
-    });
-
-    it('sets `syncOptional` to true if multiService and not sync', () => {
-      relier.set('service', 'foo');
-      broker.onFxaStatus({ capabilities: { multiService: true } });
-
-      assert.isTrue(broker.hasCapability('syncOptional'));
+        assert.equal(relier.get('service'), 'sync');
+        assert.equal(metrics.getFilteredData().service, 'sync');
+      });
     });
   });
 

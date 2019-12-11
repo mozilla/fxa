@@ -67,6 +67,7 @@ export default BaseAuthenticationBroker.extend({
         // the service in the query parameter currently overrides the status message
         // this is due to backwards compatibility
         this.relier.set('service', response.clientId);
+        this._metrics.setService(response.clientId);
       }
     }
     const additionalEngineIds =
