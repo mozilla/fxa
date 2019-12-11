@@ -4,13 +4,35 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Mocha All",
+      "name": "Mocha All (local)",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
         "--timeout",
         "999999",
         "--colors",
         "${workspaceFolder}/test/local"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "dev",
+        "VERIFIER_VERSION": "0",
+        "NO_COVERAGE": "1",
+        "CORS_ORIGIN": "http://foo,http://bar"
+      },
+      "preLaunchTask": "Stop PM2 Auth Server",
+      "postDebugTask": "Start PM2 Auth Server"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Mocha All (oauth)",
+      "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+      "args": [
+        "--timeout",
+        "999999",
+        "--colors",
+        "${workspaceFolder}/test/oauth"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
