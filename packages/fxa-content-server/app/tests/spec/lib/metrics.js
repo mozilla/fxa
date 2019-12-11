@@ -704,6 +704,15 @@ describe('lib/metrics', () => {
     });
   });
 
+  describe('setService', function() {
+    it('sets the service identifier', function() {
+      metrics.setService('00112233445566');
+      const { service } = metrics.getFilteredData();
+
+      assert.equal(service, '00112233445566');
+    });
+  });
+
   describe('isCollectionEnabled', () => {
     it('reports that collection is enabled if `isSampledUser===true`', () => {
       assert.isTrue(metrics.isCollectionEnabled());
