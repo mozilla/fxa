@@ -5,7 +5,6 @@
 'use strict';
 
 const error = require('./error');
-const P = require('./promise');
 const Pool = require('./pool');
 const random = require('./crypto/random');
 
@@ -508,11 +507,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.devices = new SafeUrl('/account/:uid/devices', 'db.devices');
-  DB.prototype.devices = function(uid) {
+  DB.prototype.devices = async function(uid) {
     log.trace('DB.devices', { uid });
 
     if (!uid) {
-      return P.reject(error.unknownAccount());
+      throw error.unknownAccount();
     }
 
     const promises = [this.pool.get(SAFE_URLS.devices, { uid })];
@@ -529,24 +528,24 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         })
       );
     }
-    return P.all(promises)
-      .spread((devices, redisSessionTokens = {}) => {
-        const lastAccessTimeEnabled =
-          isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
-        return devices.map(device => {
-          return mergeDeviceInfoFromRedis(
-            device,
-            redisSessionTokens,
-            lastAccessTimeEnabled
-          );
-        });
-      })
-      .catch(err => {
-        if (isNotFoundError(err)) {
-          throw error.unknownAccount();
-        }
-        throw err;
+
+    try {
+      const [devices, redisSessionTokens = {}] = await Promise.all(promises);
+      const lastAccessTimeEnabled =
+        isRedisOk && features.isLastAccessTimeEnabledForUser(uid);
+      return devices.map(device => {
+        return mergeDeviceInfoFromRedis(
+          device,
+          redisSessionTokens,
+          lastAccessTimeEnabled
+        );
       });
+    } catch (err) {
+      if (isNotFoundError(err)) {
+        throw error.unknownAccount();
+      }
+      throw err;
+    }
   };
 
   SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id', 'db.sessionToken');

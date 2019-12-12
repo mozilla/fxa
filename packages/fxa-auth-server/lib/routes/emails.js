@@ -391,7 +391,7 @@ module.exports = (
         await accountAndTokenVerification(isAccountVerification, account);
 
         if (device) {
-          const devices = request.app.devices;
+          const devices = await request.app.devices;
           const otherDevices = devices.filter(d => d.id !== device.id);
           await push.notifyDeviceConnected(uid, otherDevices, device.name);
         }
@@ -770,7 +770,7 @@ module.exports = (
         if (!secondaryEmail.isPrimary) {
           await db.setPrimaryEmail(uid, secondaryEmail.normalizedEmail);
 
-          const devices = request.app.devices;
+          const devices = await request.app.devices;
           push.notifyProfileUpdated(uid, devices);
 
           log.notifyAttachedServices('primaryEmailChanged', request, {
