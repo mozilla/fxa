@@ -126,19 +126,6 @@ describe('clientUtils.formatLocation', () => {
     const args = log.warn.args[0];
     assert.lengthOf(args, 2);
     assert.equal(args[0], 'attached-clients.formatLocation.warning');
-    assert.deepEqual(args[1], {
-      err:
-        "Cannot find module 'cldr-localenames-full/main/wibble/territories.json'",
-      language: 'wibble',
-      languages: 'wibble',
-      location: {
-        city: 'Bournemouth',
-        state: 'England',
-        stateCode: 'EN',
-        country: 'United Kingdom',
-        countryCode: 'GB',
-      },
-    });
   });
 });
 
