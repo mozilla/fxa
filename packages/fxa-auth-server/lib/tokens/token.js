@@ -49,36 +49,34 @@ module.exports = (log, config) => {
   // Create a new token of the given type.
   // This uses randomly-generated seed data to derive the keys.
   //
-  Token.createNewToken = function(TokenType, details) {
+  Token.createNewToken = async function(TokenType, details) {
     // Avoid modifying the argument.
     details = Object.assign({}, details);
     details.createdAt = Date.now();
-    return random(32)
-      .then(bytes => Token.deriveTokenKeys(TokenType, bytes))
-      .then(keys => new TokenType(keys, details));
+    const bytes = await random(32);
+    const keys = await Token.deriveTokenKeys(TokenType, bytes);
+    return new TokenType(keys, details);
   };
 
   // Re-create an existing token of the given type.
   // This uses known seed data to derive the keys.
   //
-  Token.createTokenFromHexData = function(TokenType, hexData, details) {
+  Token.createTokenFromHexData = async function(TokenType, hexData, details) {
     const data = Buffer.from(hexData, 'hex');
-    return Token.deriveTokenKeys(TokenType, data).then(
-      keys => new TokenType(keys, details || {})
-    );
+    const keys = await Token.deriveTokenKeys(TokenType, data);
+    return new TokenType(keys, details || {});
   };
 
   // Derive id, authKey and bundleKey from token seed data.
   //
-  Token.deriveTokenKeys = function(TokenType, data) {
-    return hkdf(data, TokenType.tokenTypeID, null, 3 * 32).then(keyMaterial => {
-      return {
-        data: data,
-        id: keyMaterial.slice(0, 32),
-        authKey: keyMaterial.slice(32, 64),
-        bundleKey: keyMaterial.slice(64, 96),
-      };
-    });
+  Token.deriveTokenKeys = async function(TokenType, data) {
+    const keyMaterial = await hkdf(data, TokenType.tokenTypeID, null, 3 * 32);
+    return {
+      data: data,
+      id: keyMaterial.slice(0, 32),
+      authKey: keyMaterial.slice(32, 64),
+      bundleKey: keyMaterial.slice(64, 96),
+    };
   };
 
   // Convenience method to bundle a payload using token bundleKey.
