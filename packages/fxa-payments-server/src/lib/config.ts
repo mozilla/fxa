@@ -1,3 +1,5 @@
+import { string } from 'prop-types';
+
 // This configuration is a subset of the configuration declared in server/config/index.js
 // Which config is copied over is defined in server/lib/server.js
 export interface Config {
@@ -11,7 +13,10 @@ export interface Config {
   productRedirectURLs: {
     [productId: string]: string;
   };
-  sentryDsn: string;
+  sentry: {
+    url: string;
+    dsn: string;
+  };
   servers: {
     auth: {
       url: string;
@@ -43,7 +48,10 @@ export function defaultConfig(): Config {
     },
     perfStartTime: 0,
     productRedirectURLs: {},
-    sentryDsn: '',
+    sentry: {
+      url: 'https://sentry.prod.mozaws.net',
+      dsn: '',
+    },
     servers: {
       auth: {
         url: '',

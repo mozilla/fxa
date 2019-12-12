@@ -3,7 +3,7 @@ import { AmplitudeMiddleware } from './amplitude-middleware';
 import FlowEvent from '../lib/flow-event';
 jest.mock('../lib/flow-event');
 jest.mock('../lib/config', () => ({
-  config: { perfStartTime: 9999 },
+  config: { perfStartTime: 9999, sentry: { dsn: '' } },
 }));
 
 let next: Dispatch<AnyAction>;
