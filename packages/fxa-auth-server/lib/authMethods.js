@@ -35,30 +35,25 @@ module.exports = {
    * Returns the set of authentication methods available
    * for the given account, as amr value strings.
    */
-  availableAuthenticationMethods(db, account) {
+  async availableAuthenticationMethods(db, account) {
     const amrValues = new Set();
     // All accounts can authenticate with a password.
     amrValues.add('pwd');
     // All accounts can authenticate with an email confirmation loop.
     amrValues.add('email');
     // Some accounts have a TOTP token.
-    return db
-      .totpToken(account.uid)
-      .then(
-        res => {
-          if (res && res.verified && res.enabled) {
-            amrValues.add('otp');
-          }
-        },
-        err => {
-          if (err.errno !== error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-            throw err;
-          }
-        }
-      )
-      .then(() => {
-        return amrValues;
-      });
+    let res;
+    try {
+      res = await db.totpToken(account.uid);
+    } catch (err) {
+      if (err.errno !== error.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+        throw err;
+      }
+    }
+    if (res && res.verified && res.enabled) {
+      amrValues.add('otp');
+    }
+    return amrValues;
   },
 
   /**
