@@ -100,8 +100,6 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
     - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
     - [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-subscriptionscustomer)
-  - [Token codes](#token-codes)
-    - [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
   - [Totp](#totp)
     - [POST /totp/create (:lock: sessionToken)](#post-totpcreate)
     - [POST /totp/destroy (:lock: sessionToken)](#post-totpdestroy)
@@ -3570,36 +3568,6 @@ Update the user's default payment method using a payment token.
 
 :lock: authenticated with OAuth bearer token
 Returns customer details, including limited payment information.
-
-### Token codes
-
-#### POST /session/verify/token
-
-:lock: HAWK-authenticated with session token
-
-<!--begin-route-post-sessionverifytoken-->
-
-Verify a session using a token code.
-
-<!--end-route-post-sessionverifytoken-->
-
-##### Request body
-
-- `code`: _string, min(TOKEN_CODE_LENGTH), max(TOKEN_CODE_LENGTH), regex(DIGITS), required_
-
-  <!--begin-request-body-post-sessionverifytoken-code-->
-
-  The code
-
-  <!--end-request-body-post-sessionverifytoken-code-->
-
-- `uid`: _string, max(32), regex(HEX_STRING), optional_
-
-  <!--begin-request-body-post-sessionverifytoken-uid-->
-
-  The uid associated with the token code
-
-  <!--end-request-body-post-sessionverifytoken-uid-->
 
 ### Totp
 

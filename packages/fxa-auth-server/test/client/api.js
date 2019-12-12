@@ -975,25 +975,6 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.verifyTokenCode = function(
-    sessionTokenHex,
-    code,
-    options = {}
-  ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
-      return this.doRequest(
-        'POST',
-        `${this.baseURL}/session/verify/token`,
-        token,
-        {
-          code: code,
-          uid: options.uid || undefined,
-          metricsContext: options.metricsContext,
-        }
-      );
-    });
-  };
-
   ClientApi.prototype.createTotpToken = function(
     sessionTokenHex,
     options = {}

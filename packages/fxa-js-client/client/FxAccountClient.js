@@ -373,27 +373,6 @@ FxAccountClient.prototype.verifyCode = function(uid, code, options) {
   });
 };
 
-FxAccountClient.prototype.verifyTokenCode = function(sessionToken, uid, code) {
-  var self = this;
-
-  required(uid, 'uid');
-  required(code, 'verify token code');
-  required(sessionToken, 'sessionToken');
-
-  return Promise.resolve()
-    .then(function() {
-      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
-    })
-    .then(function(creds) {
-      var data = {
-        uid: uid,
-        code: code,
-      };
-
-      return self.request.send('/session/verify/token', 'POST', creds, data);
-    });
-};
-
 /**
  * @method recoveryEmailStatus
  * @param {String} sessionToken sessionToken obtained from signIn

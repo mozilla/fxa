@@ -166,52 +166,6 @@ describe('remote tokenCodes', function() {
       });
   });
 
-  it('should reject mismatched uid parameter in request body', () => {
-    const uid1 = client.uid;
-    const email2 = server.uniqueEmail('@mozilla.com');
-    return Client.createAndVerify(
-      config.publicUrl,
-      email2,
-      password,
-      server.mailbox
-    )
-      .then(() => {
-        return Client.login(config.publicUrl, email2, password, {
-          verificationMethod: 'email-2fa',
-          keys: true,
-        });
-      })
-      .then(res => {
-        client = res;
-        assert.notEqual(uid1, client.uid, 'new account has a different uid');
-        return server.mailbox.waitForEmail(email2);
-      })
-      .then(emailData => {
-        assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
-        code = emailData.headers['x-signin-verify-code'];
-        assert.ok(code, 'code is sent');
-        return client.verifyTokenCode(code, { uid: uid1 });
-      })
-      .then(
-        () => {
-          assert.fail('using a mismatched uid should have failed');
-        },
-        err => {
-          assert.equal(
-            err.errno,
-            error.ERRNO.INVALID_PARAMETER,
-            'uid parameter was rejected'
-          );
-          return client.emailStatus();
-        }
-      )
-      .then(status => {
-        assert.equal(status.verified, false, 'account is verified');
-        assert.equal(status.emailVerified, true, 'email is verified');
-        assert.equal(status.sessionVerified, false, 'session is not verified');
-      });
-  });
-
   it('should retrieve account keys', () => {
     return Client.login(config.publicUrl, email, password, {
       verificationMethod: 'email-2fa',
