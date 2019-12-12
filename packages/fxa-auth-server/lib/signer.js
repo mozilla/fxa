@@ -10,29 +10,26 @@ module.exports = function(secretKeyFile, domain) {
   const key = jwtool.JWK.fromFile(secretKeyFile, { iss: domain });
 
   return {
-    sign: function(data) {
+    sign: async function(data) {
       const now = Date.now();
-      return key
-        .sign({
-          'public-key': data.publicKey,
-          principal: {
-            email: data.email,
-          },
-          iat: now - 10 * 1000,
-          exp: now + data.duration,
-          'fxa-generation': data.generation,
-          'fxa-lastAuthAt': data.lastAuthAt,
-          'fxa-verifiedEmail': data.verifiedEmail,
-          'fxa-deviceId': data.deviceId,
-          'fxa-tokenVerified': data.tokenVerified,
-          'fxa-amr': data.authenticationMethods,
-          'fxa-aal': data.authenticatorAssuranceLevel,
-          'fxa-profileChangedAt': data.profileChangedAt,
-          'fxa-keysChangedAt': data.keysChangedAt,
-        })
-        .then(cert => {
-          return { cert: cert };
-        });
+      const cert = await key.sign({
+        'public-key': data.publicKey,
+        principal: {
+          email: data.email,
+        },
+        iat: now - 10 * 1000,
+        exp: now + data.duration,
+        'fxa-generation': data.generation,
+        'fxa-lastAuthAt': data.lastAuthAt,
+        'fxa-verifiedEmail': data.verifiedEmail,
+        'fxa-deviceId': data.deviceId,
+        'fxa-tokenVerified': data.tokenVerified,
+        'fxa-amr': data.authenticationMethods,
+        'fxa-aal': data.authenticatorAssuranceLevel,
+        'fxa-profileChangedAt': data.profileChangedAt,
+        'fxa-keysChangedAt': data.keysChangedAt,
+      });
+      return { cert };
     },
   };
 };
