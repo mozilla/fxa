@@ -192,6 +192,12 @@ const suite = {
         .then(testElementExists(selectors.SMS_SEND.HEADER));
     },
 
+    'not now': function() {
+      return this.remote
+        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+        .then(testElementExists(selectors.SMS_SEND.LINK_NOT_NOW));
+    },
+
     'empty phone number': function() {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
