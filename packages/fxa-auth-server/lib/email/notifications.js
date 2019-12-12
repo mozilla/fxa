@@ -4,7 +4,6 @@
 
 'use strict';
 
-const P = require('../promise');
 const utils = require('./utils/helpers');
 
 // Account deletion threshold for new unverified accounts that receive
@@ -34,7 +33,7 @@ module.exports = (log, error) => {
           eventType = 'delivered';
         }
 
-        await P.all(
+        await Promise.all(
           addresses.map(async address => {
             const domain = utils.getAnonymizedEmailDomain(address);
 

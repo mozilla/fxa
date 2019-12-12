@@ -5,7 +5,6 @@
 'use strict';
 
 const eaddrs = require('email-addresses');
-const P = require('./../promise');
 const utils = require('./utils/helpers');
 const isValidEmailAddress = require('./../routes/validators')
   .isValidEmailAddress;
@@ -29,23 +28,23 @@ module.exports = function(log, error) {
       return db.createEmailBounce(bounce);
     }
 
-    function deleteAccountIfUnverifiedNew(record) {
+    async function deleteAccountIfUnverifiedNew(record) {
       // if account is not verified and younger than 6 hours then delete it.
       if (
         !record.emailVerified &&
         record.createdAt &&
         record.createdAt > Date.now() - SIX_HOURS
       ) {
-        return db
-          .deleteAccount(record)
-          .then(
-            accountDeleted.bind(null, record.uid, record.email),
-            gotError.bind(null, record.email)
-          );
+        try {
+          await db.deleteAccount(record);
+        } catch (err) {
+          return gotError(record.email, err);
+        }
+        accountDeleted(record.uid, record.email);
       }
     }
 
-    function handleBounce(message) {
+    async function handleBounce(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'bounce');
 
       let recipients = [];
@@ -65,7 +64,7 @@ module.exports = function(log, error) {
       const templateName = utils.getHeaderValue('X-Template-Name', message);
       const language = utils.getHeaderValue('Content-Language', message);
 
-      return P.each(recipients, recipient => {
+      for (const recipient of recipients) {
         // The email address in the bounce message has been handled by an external
         // system, and depending on the system it can have had some strange things
         // done to it.  Try to normalize as best we can.
@@ -162,11 +161,11 @@ module.exports = function(log, error) {
           }
         }
 
-        return P.all(work);
-      }).then(() => {
-        // We always delete the message, even if handling some addrs failed.
-        message.del();
-      });
+        await Promise.all(work);
+      }
+
+      // We always delete the message, even if handling some addrs failed.
+      message.del();
     }
 
     bounceQueue.on('data', handleBounce);
