@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -20,6 +19,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
@@ -43,7 +43,7 @@ var accountData;
 
 registerSuite('settings', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
@@ -248,7 +248,7 @@ registerSuite('settings', {
 
 registerSuite('settings with expired session', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
@@ -276,7 +276,7 @@ registerSuite('settings with expired session', {
 
 registerSuite('settings with recent activity link', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))

@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -15,6 +14,7 @@ const ENTER_EMAIL_URL = config.fxaContentRoot;
 const {
   clearBrowserState,
   click,
+  createEmail,
   mousedown,
   noSuchAttribute,
   openPage,

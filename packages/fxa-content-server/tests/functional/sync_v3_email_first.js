@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -23,6 +22,7 @@ const PASSWORD_WITH_TYPO = 'PASSWORD1234';
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutSignUpCode,
   fillOutSignInTokenCode,
@@ -39,7 +39,7 @@ const {
 
 registerSuite('Firefox Desktop Sync v3 email first', {
   beforeEach() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },

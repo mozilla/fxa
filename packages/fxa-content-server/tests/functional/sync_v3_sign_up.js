@@ -6,7 +6,6 @@
 
 const { assert } = intern.getPlugin('chai');
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -20,6 +19,7 @@ const PASSWORD = 'password12345678';
 const {
   clearBrowserState,
   click,
+  createEmail,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   getWebChannelMessageData,
@@ -34,7 +34,7 @@ const {
 
 registerSuite('Firefox Desktop Sync v3 signup', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
@@ -281,7 +281,7 @@ registerSuite(
 
     tests: {
       treatment: function() {
-        email = TestHelpers.createEmail();
+        email = createEmail();
         return (
           this.remote
             .then(

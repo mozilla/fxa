@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
@@ -16,6 +15,7 @@ let email;
 const {
   click,
   clearBrowserState,
+  createEmail,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   getFxaClient,
@@ -42,7 +42,7 @@ function testAtConfirmScreen(email) {
 
 registerSuite('signup with code', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 

@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -26,6 +25,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
@@ -49,7 +49,7 @@ const {
 
 registerSuite('TOTP', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return (
       this.remote
         .then(clearBrowserState({ force: true }))
@@ -267,7 +267,7 @@ registerSuite('TOTP', {
 
 registerSuite('TOTP - unverified session', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))

@@ -5,12 +5,12 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const {
   clearBrowserState,
+  createEmail,
   createUser,
   fillOutForceAuth,
   fillOutSignInTokenCode,
@@ -57,7 +57,7 @@ const setupTest = thenify(function(options) {
 
 registerSuite('Fx Fennec Sync v1 force_auth', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
   },
   tests: {
     'verified, verify same browser': function() {
@@ -85,7 +85,7 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return this.remote
         .then(setupTest({ blocked: true, preVerified: true }))

@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -20,6 +19,7 @@ const NEW_PASSWORD = '()()():|';
 let email, recoveryKey;
 
 const {
+  createEmail,
   createUser,
   clearBrowserState,
   click,
@@ -43,7 +43,7 @@ const {
 
 registerSuite('Recovery key', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
     const remote = this.remote;
 
     return (
@@ -226,7 +226,7 @@ registerSuite('Recovery key', {
 
 registerSuite('Recovery key - unverified session', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return (
       this.remote

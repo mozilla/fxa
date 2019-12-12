@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -36,6 +35,8 @@ const {
   click,
   clearBrowserState,
   closeCurrentWindow,
+  createEmail,
+  createPhoneNumber,
   deleteAllSms,
   disableInProd,
   fillOutEmailFirstSignUp,
@@ -76,8 +77,8 @@ function testSmsSupportedCountryForm(country, expectedPrefix) {
 
 const suite = {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
-    testPhoneNumber = TestHelpers.createPhoneNumber();
+    email = createEmail();
+    testPhoneNumber = createPhoneNumber();
     formattedPhoneNumber = `${testPhoneNumber.substr(
       0,
       3

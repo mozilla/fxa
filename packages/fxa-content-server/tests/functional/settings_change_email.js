@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -24,6 +23,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   fillOutChangePassword,
   fillOutResetPassword,
   fillOutCompleteResetPassword,
@@ -46,8 +46,8 @@ const {
 
 registerSuite('settings change email', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
-    secondaryEmail = TestHelpers.createEmail();
+    email = createEmail();
+    secondaryEmail = createEmail();
     return (
       this.remote
         .then(clearBrowserState())
@@ -270,10 +270,10 @@ registerSuite('settings change email', {
 
 registerSuite('settings change email - unblock', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     // Create a new primary email that is always forced through the unblock flow
-    newPrimaryEmail = TestHelpers.createEmail('block{id}');
+    newPrimaryEmail = createEmail('block{id}');
     return (
       this.remote
         .then(clearBrowserState())

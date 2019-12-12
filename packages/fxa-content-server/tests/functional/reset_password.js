@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -28,6 +27,8 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
+  createRandomHexString,
   createUser,
   fillOutCompleteResetPassword,
   fillOutResetPassword,
@@ -48,8 +49,6 @@ const {
   type,
   visibleByQSA,
 } = FunctionalHelpers;
-
-const createRandomHexString = TestHelpers.createRandomHexString;
 
 /**
  * Programatically initiate a reset password using the
@@ -99,7 +98,7 @@ registerSuite('reset_password', {
   beforeEach: function() {
     this.timeout = TIMEOUT;
 
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote
       .then(() => getFxaClient())
       .then(_client => {
@@ -124,7 +123,7 @@ registerSuite('reset_password', {
     },
 
     'open /reset_password page from /signin': function() {
-      const updatedEmail = TestHelpers.createEmail();
+      const updatedEmail = createEmail();
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
@@ -198,13 +197,12 @@ registerSuite('reset_password', {
     },
 
     'open confirm_reset_password page, click resend': function() {
-      const user = TestHelpers.emailToUser(email);
       return (
         this.remote
           .then(fillOutResetPassword(email))
           .then(click(selectors.CONFIRM_RESET_PASSWORD.LINK_RESEND))
 
-          .then(testEmailExpected(user, 1))
+          .then(testEmailExpected(email, 1))
 
           // Success is showing the success message
           .then(testSuccessWasShown())
@@ -464,7 +462,7 @@ registerSuite('reset_password', {
 registerSuite('try to re-use a link', {
   beforeEach: function() {
     this.timeout = TIMEOUT;
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -506,7 +504,7 @@ registerSuite('try to re-use a link', {
 
 registerSuite('reset_password with email specified on URL', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState());
@@ -533,7 +531,7 @@ registerSuite('reset_password with email specified on URL', {
 
 registerSuite('password change while at confirm_reset_password screen', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -565,7 +563,7 @@ registerSuite('password change while at confirm_reset_password screen', {
 
 registerSuite('reset_password with unknown email', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState());
   },
   tests: {

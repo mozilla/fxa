@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -23,6 +22,7 @@ let secret;
 const {
   clearBrowserState,
   click,
+  createEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
@@ -38,7 +38,7 @@ const {
 
 registerSuite('recovery code', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     const self = this;
     return (
       this.remote

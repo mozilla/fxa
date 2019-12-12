@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -25,6 +24,7 @@ let email;
 const {
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutForceAuth,
   fillOutEmailFirstSignIn,
@@ -46,7 +46,7 @@ const {
 registerSuite('oauth permissions for untrusted reliers', {
   beforeEach: function() {
     this.timeout = TIMEOUT;
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({
@@ -363,7 +363,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
 registerSuite('oauth permissions for trusted reliers', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({

@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -20,6 +19,7 @@ let email;
 const {
   clearBrowserState,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutResetPassword,
   fillOutCompleteResetPassword,
@@ -72,7 +72,7 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
     // timeout after 90 seconds
     this.timeout = 90000;
 
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState());
   },
 

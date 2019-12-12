@@ -5,28 +5,30 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;
 var PAGE_URL = config.fxaContentRoot + 'force_auth';
 var PASSWORD = 'password';
 var email;
 
-var clearBrowserState = FunctionalHelpers.clearBrowserState;
-var createUser = FunctionalHelpers.createUser;
-var fillOutForceAuth = FunctionalHelpers.fillOutForceAuth;
-var fillOutSignInUnblock = FunctionalHelpers.fillOutSignInUnblock;
-var openPage = FunctionalHelpers.openPage;
-var testErrorTextInclude = FunctionalHelpers.testErrorTextInclude;
-var testElementExists = FunctionalHelpers.testElementExists;
-var testElementTextInclude = FunctionalHelpers.testElementTextInclude;
-var visibleByQSA = FunctionalHelpers.visibleByQSA;
+const {
+  clearBrowserState,
+  createEmail,
+  createUser,
+  fillOutForceAuth,
+  fillOutSignInUnblock,
+  openPage,
+  testErrorTextInclude,
+  testElementExists,
+  testElementTextInclude,
+  visibleByQSA,
+} = FunctionalHelpers;
 
 var forceAuthPageUrl;
 
 registerSuite('force_auth blocked', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('blocked{id}');
+    email = createEmail('blocked{id}');
 
     forceAuthPageUrl = PAGE_URL + '?email=' + encodeURIComponent(email);
 

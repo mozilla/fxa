@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -23,6 +22,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
@@ -45,8 +45,8 @@ const {
 
 registerSuite('settings secondary emails', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
-    secondaryEmail = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
+    secondaryEmail = createEmail('sync{id}');
     client = FunctionalHelpers.getFxaClient();
 
     return this.remote.then(clearBrowserState({ force: true }));
@@ -148,7 +148,7 @@ registerSuite('settings secondary emails', {
           .then(visibleByQSA(selectors.EMAIL.TOOLTIP))
 
           // add secondary email, resend and remove
-          .then(type(selectors.EMAIL.INPUT, TestHelpers.createEmail()))
+          .then(type(selectors.EMAIL.INPUT, createEmail()))
           .then(click(selectors.EMAIL.ADD_BUTTON))
           .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
 
@@ -186,8 +186,8 @@ registerSuite('settings secondary emails', {
     },
 
     'add secondary email that is primary to another account': function() {
-      const existingUnverified = TestHelpers.createEmail();
-      const existingVerified = TestHelpers.createEmail();
+      const existingUnverified = createEmail();
+      const existingVerified = createEmail();
 
       return (
         this.remote
@@ -244,7 +244,7 @@ registerSuite('settings secondary emails', {
     },
 
     'unblock code is sent to secondary emails': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -296,7 +296,7 @@ registerSuite('settings secondary emails', {
     'signin confirmation is sent to secondary emails': function() {
       const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync`;
 
-      email = TestHelpers.createEmail('sync{id}');
+      email = createEmail('sync{id}');
 
       return (
         this.remote

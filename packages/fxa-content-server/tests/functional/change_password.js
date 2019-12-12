@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -21,6 +20,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   denormalizeStoredEmail,
   fillOutChangePassword,
@@ -54,7 +54,7 @@ const setupTest = thenify(function(options = {}) {
 
 registerSuite('change_password', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
   },
 
   tests: {
