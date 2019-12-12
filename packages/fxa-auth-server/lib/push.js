@@ -7,7 +7,6 @@
 const crypto = require('crypto');
 const base64url = require('base64url');
 const webpush = require('web-push');
-const P = require('./promise');
 
 const ERR_NO_PUSH_CALLBACK = 'No Push Callback';
 const ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)';
@@ -368,18 +367,18 @@ module.exports = function(log, db, config) {
      * @param {Number} [options.TTL] (in seconds)
      * @promise
      */
-    sendPush(uid, devices, reason, options = {}) {
+    async sendPush(uid, devices, reason, options = {}) {
       devices = filterSupportedDevices(options.data, devices);
       const events = pushReasonsToEvents[reason];
       if (!events) {
-        return P.reject(`Unknown push reason: ${reason}`);
+        throw `Unknown push reason: ${reason}`;
       }
       // There's no spec-compliant way to error out as a result of having
       // too many devices to notify.  For now, just log metrics about it.
       if (devices.length > MAX_ACTIVE_DEVICES) {
         reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null);
       }
-      return P.each(devices, device => {
+      for (const device of devices) {
         const deviceId = device.id;
 
         log.trace(LOG_OP_PUSH_TO_DEVICES, {
@@ -398,7 +397,7 @@ module.exports = function(log, db, config) {
             if (!device.pushPublicKey || !device.pushAuthKey) {
               reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId);
               incrementPushAction(events.noKeys);
-              return;
+              continue;
             }
             pushSubscription.keys = {
               p256dh: device.pushPublicKey,
@@ -409,53 +408,51 @@ module.exports = function(log, db, config) {
           if (vapid) {
             pushOptions.vapidDetails = vapid;
           }
-          return webpush
-            .sendNotification(pushSubscription, pushPayload, pushOptions)
-            .then(
-              () => {
-                incrementPushAction(events.success);
-              },
-              err => {
-                // If we've stored an invalid key in the db for some reason, then we
-                // might get an encryption failure here.  Check the key, which also
-                // happens to work around bugginess in node's handling of said failures.
-                let keyWasInvalid = false;
-                if (!err.statusCode && device.pushPublicKey) {
-                  if (!isValidPublicKey(device.pushPublicKey)) {
-                    keyWasInvalid = true;
-                  }
-                }
-                // 404 or 410 error from the push servers means
-                // the push settings need to be reset.
-                // the clients will check this and re-register push endpoints
-                if (
-                  err.statusCode === 404 ||
-                  err.statusCode === 410 ||
-                  keyWasInvalid
-                ) {
-                  // set the push endpoint expired flag
-                  // Warning: this method is called without any session tokens or auth validation.
-                  device.pushEndpointExpired = true;
-                  return db
-                    .updateDevice(uid, device)
-                    .catch(err => {
-                      reportPushError(err, uid, deviceId);
-                    })
-                    .then(() => {
-                      incrementPushAction(events.resetSettings);
-                    });
-                } else {
-                  reportPushError(err, uid, deviceId);
-                  incrementPushAction(events.failed);
-                }
-              }
+          try {
+            await webpush.sendNotification(
+              pushSubscription,
+              pushPayload,
+              pushOptions
             );
+          } catch (err) {
+            // If we've stored an invalid key in the db for some reason, then we
+            // might get an encryption failure here.  Check the key, which also
+            // happens to work around bugginess in node's handling of said failures.
+            let keyWasInvalid = false;
+            if (!err.statusCode && device.pushPublicKey) {
+              if (!isValidPublicKey(device.pushPublicKey)) {
+                keyWasInvalid = true;
+              }
+            }
+            // 404 or 410 error from the push servers means
+            // the push settings need to be reset.
+            // the clients will check this and re-register push endpoints
+            if (
+              err.statusCode === 404 ||
+              err.statusCode === 410 ||
+              keyWasInvalid
+            ) {
+              // set the push endpoint expired flag
+              // Warning: this method is called without any session tokens or auth validation.
+              device.pushEndpointExpired = true;
+              try {
+                await db.updateDevice(uid, device);
+              } catch (err) {
+                reportPushError(err, uid, deviceId);
+              }
+              incrementPushAction(events.resetSettings);
+            } else {
+              reportPushError(err, uid, deviceId);
+              incrementPushAction(events.failed);
+            }
+          }
+          incrementPushAction(events.success);
         } else {
           // keep track if there are any devices with no push urls.
           reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId);
           incrementPushAction(events.noCallback);
         }
-      });
+      }
     },
   };
 };
