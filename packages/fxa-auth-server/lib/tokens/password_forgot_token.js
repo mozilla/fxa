@@ -19,17 +19,16 @@ module.exports = (log, Token, lifetime) => {
 
   PasswordForgotToken.tokenTypeID = 'passwordForgotToken';
 
-  PasswordForgotToken.create = function(details) {
+  PasswordForgotToken.create = async function(details) {
     details = details || {};
     log.trace('PasswordForgotToken.create', {
       uid: details.uid,
       email: details.email,
     });
-    return random.hex(16).then(bytes => {
-      details.passCode = bytes;
-      details.tries = 3;
-      return Token.createNewToken(PasswordForgotToken, details);
-    });
+    const bytes = await random.hex(16);
+    details.passCode = bytes;
+    details.tries = 3;
+    return Token.createNewToken(PasswordForgotToken, details);
   };
 
   PasswordForgotToken.fromHex = function(string, details) {

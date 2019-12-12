@@ -5,7 +5,6 @@
 'use strict';
 
 const inherits = require('util').inherits;
-const P = require('../promise');
 
 module.exports = function(log, Token) {
   function KeyFetchToken(keys, details) {
@@ -21,21 +20,17 @@ module.exports = function(log, Token) {
 
   KeyFetchToken.tokenTypeID = 'keyFetchToken';
 
-  KeyFetchToken.create = function(details) {
+  KeyFetchToken.create = async function(details) {
     log.trace('KeyFetchToken.create', { uid: details && details.uid });
-    return Token.createNewToken(KeyFetchToken, details || {}).then(token => {
-      return token.bundleKeys(details.kA, details.wrapKb).then(keyBundle => {
-        token.keyBundle = keyBundle;
-        return token;
-      });
-    });
+    const token = await Token.createNewToken(KeyFetchToken, details || {});
+    const keyBundle = await token.bundleKeys(details.kA, details.wrapKb);
+    token.keyBundle = keyBundle;
+    return token;
   };
 
-  KeyFetchToken.fromId = function(id, details) {
+  KeyFetchToken.fromId = async function(id, details) {
     log.trace('KeyFetchToken.fromId');
-    return P.resolve(
-      new KeyFetchToken({ id, authKey: details.authKey }, details)
-    );
+    return new KeyFetchToken({ id, authKey: details.authKey }, details);
   };
 
   KeyFetchToken.fromHex = function(string, details) {
@@ -50,14 +45,13 @@ module.exports = function(log, Token) {
     return this.bundle('account/keys', Buffer.concat([kA, wrapKb]));
   };
 
-  KeyFetchToken.prototype.unbundleKeys = function(bundle) {
+  KeyFetchToken.prototype.unbundleKeys = async function(bundle) {
     log.trace('keyFetchToken.unbundleKeys', { id: this.id });
-    return this.unbundle('account/keys', bundle).then(plaintext => {
-      return {
-        kA: plaintext.slice(0, 64), // strings, not buffers
-        wrapKb: plaintext.slice(64, 128),
-      };
-    });
+    const plaintext = await this.unbundle('account/keys', bundle);
+    return {
+      kA: plaintext.slice(0, 64), // strings, not buffers
+      wrapKb: plaintext.slice(64, 128),
+    };
   };
 
   return KeyFetchToken;
