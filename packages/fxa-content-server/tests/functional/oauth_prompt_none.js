@@ -6,7 +6,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const selectors = require('./lib/selectors');
@@ -20,6 +19,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,

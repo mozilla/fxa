@@ -2502,6 +2502,7 @@ const subscribeToTestProduct = thenify(function() {
 });
 
 module.exports = {
+  ...TestHelpers,
   cleanMemory,
   clearBrowserNotifications,
   clearBrowserState,

@@ -6,7 +6,6 @@
 
 const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -16,6 +15,7 @@ let email;
 
 const {
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
@@ -30,7 +30,7 @@ const {
 
 registerSuite('oauth webchannel', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({

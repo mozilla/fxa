@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
@@ -19,6 +18,7 @@ const PASSWORD = 'passwordzxcv';
 
 const {
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
@@ -35,8 +35,8 @@ const {
 
 registerSuite('signin with OAuth after Sync', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
-    email2 = TestHelpers.createEmail();
+    email = createEmail('sync{id}');
+    email2 = createEmail();
 
     // clear localStorage to avoid pollution from other tests.
     return this.remote.then(
@@ -120,8 +120,8 @@ registerSuite('signin with OAuth after Sync', {
 
 registerSuite('signin to Sync after OAuth', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
-    email2 = TestHelpers.createEmail();
+    email = createEmail('sync{id}');
+    email2 = createEmail();
 
     // clear localStorage to avoid pollution from other tests.
     return this.remote.then(

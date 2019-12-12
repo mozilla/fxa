@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -18,6 +17,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
@@ -35,7 +35,7 @@ const {
 
 registerSuite('signin blocked', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('blocked{id}');
+    email = createEmail('blocked{id}');
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -332,7 +332,7 @@ registerSuite('signin blocked', {
     },
 
     unverified: function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return (
         this.remote

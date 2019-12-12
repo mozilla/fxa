@@ -8,11 +8,11 @@ const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
-const TestHelpers = require('../lib/helpers');
 
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutCompleteResetPassword,
   fillOutEmailFirstSignIn,
@@ -73,7 +73,7 @@ const openCompleteResetPassword = thenify(function(email, token, code, header) {
 
 registerSuite('security_events', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))

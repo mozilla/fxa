@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -19,6 +18,7 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
@@ -67,14 +67,14 @@ const setupTest = thenify(function(options = {}) {
 
 registerSuite('Firefox Desktop Sync v3 signin', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
     'verified, does not need to confirm ': function() {
-      email = TestHelpers.createEmail();
+      email = createEmail();
       const query = {
         forceUA: uaStrings['desktop_firefox_58'],
       };
@@ -168,7 +168,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
       return this.remote
         .then(setupTest({ blocked: true, preVerified: true }))
 
@@ -179,7 +179,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
     },
 
     'verified, blocked, incorrect email case': function() {
-      const signUpEmail = TestHelpers.createEmail('blocked{id}');
+      const signUpEmail = createEmail('blocked{id}');
       const signInEmail = signUpEmail.toUpperCase();
       return (
         this.remote

@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -19,6 +18,8 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
+  createEmail,
+  createPhoneNumber,
   createUser,
   deleteAllSms,
   disableInProd,
@@ -51,7 +52,7 @@ const setupTest = thenify(function(successSelector, options = {}) {
 
 registerSuite('Fx Fennec Sync v1 sign_in', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
   },
   tests: {
     verified: function() {
@@ -86,7 +87,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
     },
 
     'blocked, valid code entered': function() {
-      email = TestHelpers.createEmail('block{id}');
+      email = createEmail('block{id}');
 
       return this.remote
         .then(
@@ -107,7 +108,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
 
     'signup in desktop, send an SMS, open deferred deeplink in Fennec': disableInProd(
       function() {
-        const testPhoneNumber = TestHelpers.createPhoneNumber();
+        const testPhoneNumber = createPhoneNumber();
 
         return (
           this.remote

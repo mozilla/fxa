@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const FxDesktopHelpers = require('./lib/fx-desktop');
 const UA_STRINGS = require('./lib/ua-strings');
@@ -21,6 +20,7 @@ const PASSWORD = 'password12345678';
 const {
   click,
   clearBrowserState,
+  createEmail,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   openPage,
@@ -32,7 +32,7 @@ const { listenForFxaCommands, testIsBrowserNotifiedOfLogin } = FxDesktopHelpers;
 
 registerSuite('FxiOS v1 sign_up', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState());
   },
 

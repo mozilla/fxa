@@ -5,14 +5,13 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const ENTER_EMAIL_URL = intern._config.fxaContentRoot;
 const TOS_URL = intern._config.fxaContentRoot + 'legal/terms';
 
-const { click, noSuchElement, openPage, type } = FunctionalHelpers;
+const { click, createEmail, noSuchElement, openPage, type } = FunctionalHelpers;
 
 registerSuite('terms of service', {
   beforeEach: function() {

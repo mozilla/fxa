@@ -7,7 +7,6 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const path = require('path');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const uaStrings = require('./lib/ua-strings');
 const selectors = require('./lib/selectors');
@@ -36,6 +35,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   imageLoadedByQSA,
@@ -48,7 +48,7 @@ const {
 
 registerSuite('settings/avatar', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))

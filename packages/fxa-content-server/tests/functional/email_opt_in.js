@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const PAGE_URL = intern._config.fxaContentRoot + '?action=email';
@@ -15,6 +14,7 @@ const PASSWORD = '12345678';
 
 const {
   clearBrowserState,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   openPage,
@@ -27,7 +27,7 @@ registerSuite('communication preferences', {
   beforeEach: function() {
     // The plus sign is to ensure the email address is URI-encoded when
     // passed to basket. See a43061d3
-    email = TestHelpers.createEmail('signup{id}+extra');
+    email = createEmail('signup{id}+extra');
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState());

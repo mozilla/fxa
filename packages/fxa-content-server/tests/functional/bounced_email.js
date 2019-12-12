@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -22,6 +21,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
@@ -40,8 +40,8 @@ const {
 
 registerSuite('signup with an email that bounces', {
   beforeEach: function() {
-    bouncedEmail = TestHelpers.createEmail();
-    deliveredEmail = TestHelpers.createEmail();
+    bouncedEmail = createEmail();
+    deliveredEmail = createEmail();
     return (
       this.remote
         .then(clearBrowserState())
@@ -116,7 +116,7 @@ registerSuite('signup with an email that bounces', {
 
 const setUpBouncedSignIn = thenify(function(email) {
   const client = getFxaClient();
-  email = email || TestHelpers.createEmail('sync{id}');
+  email = email || createEmail('sync{id}');
 
   return this.parent
     .then(clearBrowserState({ force: true }))
@@ -150,7 +150,7 @@ registerSuite('signin with an email that bounces', {
     },
 
     'click back': function() {
-      const email = TestHelpers.createEmail('sync{id}');
+      const email = createEmail('sync{id}');
       return this.remote
         .then(setUpBouncedSignIn(email))
         .then(click(selectors.SIGNIN_BOUNCED.BACK))

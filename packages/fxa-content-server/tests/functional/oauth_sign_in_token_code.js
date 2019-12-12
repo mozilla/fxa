@@ -6,7 +6,6 @@
 
 const assert = intern.getPlugin('chai').assert;
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -16,6 +15,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
@@ -49,7 +49,7 @@ const experimentParams = {
 registerSuite('OAuth signin token code', {
   beforeEach: function() {
     // The `sync` prefix is needed to force confirmation.
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote
       .then(

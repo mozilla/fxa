@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -17,6 +16,7 @@ const PASSWORD = 'amazingpassword';
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   openPage,
@@ -39,7 +39,7 @@ registerSuite('support form without valid session', {
 registerSuite('support form without active subscriptions', {
   tests: {
     'go to support form, redirects to subscription management, then back to settings': function() {
-      const email = TestHelpers.createEmail();
+      const email = createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
@@ -55,7 +55,7 @@ registerSuite('support form without active subscriptions', {
 registerSuite('support form with an active subscription', {
   tests: {
     'go to support form, submits the form': function() {
-      const email = TestHelpers.createEmail();
+      const email = createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
@@ -84,7 +84,7 @@ registerSuite('support form with an active subscription', {
     },
 
     'go to support form, cancel, redirects to subscription management': function() {
-      const email = TestHelpers.createEmail();
+      const email = createEmail();
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(clearBrowserState())

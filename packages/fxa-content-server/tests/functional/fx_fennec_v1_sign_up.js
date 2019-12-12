@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 var config = intern._config;
@@ -17,6 +16,7 @@ var PASSWORD = 'password12345678';
 
 const {
   click,
+  createEmail,
   fillOutSignUpCode,
   noSuchBrowserNotification,
   openPage,
@@ -31,7 +31,7 @@ const {
 
 registerSuite('Fx Fennec Sync v1 sign_up', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
 

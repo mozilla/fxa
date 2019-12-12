@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
@@ -20,7 +19,9 @@ let accountData;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
+  createUID,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
   openPage,
@@ -41,7 +42,7 @@ const SETTINGS_PAGES = {
 
 const unverifiedSuite = {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(clearBrowserState())
@@ -71,7 +72,7 @@ function unverifiedAccountTest(suite, page) {
 
 const verifiedSuite = {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(clearBrowserState({ force: true }))
@@ -155,7 +156,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
         // Expect to get redirected to signin password since the uid is unknown
         .then(
           openPage(
-            url + '?uid=' + TestHelpers.createUID(),
+            url + '?uid=' + createUID(),
             // TODO - this should go to enter email rather than signin password
             selectors.SIGNIN_PASSWORD.HEADER
           )

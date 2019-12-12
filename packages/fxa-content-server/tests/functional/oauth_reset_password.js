@@ -7,7 +7,6 @@
 const config = intern._config;
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
-const TestHelpers = require('../lib/helpers');
 const selectors = require('./lib/selectors');
 
 const PASSWORD = 'passwordzxcv';
@@ -22,6 +21,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   enableTotp,
   fillOutCompleteResetPassword,
@@ -45,7 +45,7 @@ registerSuite('oauth reset password', {
   beforeEach: function() {
     // timeout after 90 seconds
     this.timeout = TIMEOUT;
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(
@@ -205,7 +205,7 @@ registerSuite('oauth reset password with TOTP', {
   beforeEach: function() {
     // timeout after 90 seconds
     this.timeout = TIMEOUT;
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(

@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -17,6 +16,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   openPage,
   testElementExists,
   type,
@@ -24,7 +24,7 @@ const {
 
 registerSuite('password strength balloon', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote
       .then(clearBrowserState({ force: true }))

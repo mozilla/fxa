@@ -5,13 +5,14 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
+const { createUID } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutForceAuth,
   openForceAuth,
@@ -33,7 +34,7 @@ let email;
 
 registerSuite('force_auth', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(clearBrowserState());
   },
@@ -111,7 +112,7 @@ registerSuite('force_auth', {
           openForceAuth({
             query: {
               email: email,
-              uid: TestHelpers.createUID(),
+              uid: createUID(),
             },
           })
         )
@@ -172,7 +173,7 @@ registerSuite('force_auth', {
             openForceAuth({
               query: {
                 email: email,
-                uid: TestHelpers.createUID(),
+                uid: createUID(),
               },
             })
           )

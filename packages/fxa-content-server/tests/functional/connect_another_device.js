@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const UA_STRINGS = require('./lib/ua-strings');
 const selectors = require('./lib/selectors');
@@ -30,6 +29,7 @@ const CHANNEL_COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
 
 const {
   clearBrowserState,
+  createEmail,
   fillOutEmailFirstSignUp,
   noSuchElement,
   openPage,
@@ -42,7 +42,7 @@ const PASSWORD = 'password12345678';
 
 registerSuite('connect_another_device', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },

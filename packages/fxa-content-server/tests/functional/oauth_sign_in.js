@@ -7,7 +7,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
@@ -33,6 +32,7 @@ const {
   clearBrowserState,
   click,
   confirmTotpCode,
+  createEmail,
   createUser,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,

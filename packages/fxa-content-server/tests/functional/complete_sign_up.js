@@ -6,7 +6,7 @@
 
 const { registerSuite } = intern.getInterface('object');
 const Constants = require('../../app/scripts/lib/constants');
-const { createEmail, createRandomHexString } = require('../lib/helpers');
+const { createRandomHexString } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -19,6 +19,7 @@ let code;
 let uid;
 
 const {
+  createEmail,
   createUser,
   getVerificationLink,
   noSuchElement,

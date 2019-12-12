@@ -7,7 +7,6 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const selectors = require('./lib/selectors');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 
@@ -29,6 +28,7 @@ const {
   createUser,
   click,
   closeCurrentWindow,
+  createEmail,
   confirmTotpCode,
   generateTotpCode,
   openPage,
@@ -109,7 +109,7 @@ registerSuite('pairing', {
   tests: {
     'it can pair': function() {
       let secret;
-      email = TestHelpers.createEmail();
+      email = createEmail();
 
       return (
         this.remote
