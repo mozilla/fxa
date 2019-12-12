@@ -130,6 +130,7 @@ export default {
 
         if (
           AuthErrors.is(err, 'TOTP_REQUIRED') ||
+          AuthErrors.is(err, 'INSUFFICIENT_ACR_VALUES') ||
           OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')
         ) {
           err.forceMessage = t(
@@ -191,9 +192,23 @@ export default {
 
       if (
         verificationReason === VerificationReasons.SIGN_IN &&
+        verificationMethod === VerificationMethods.EMAIL_OTP
+      ) {
+        return this.navigate('signin_token_code', { account });
+      }
+
+      if (
+        verificationReason === VerificationReasons.SIGN_IN &&
         verificationMethod === VerificationMethods.TOTP_2FA
       ) {
         return this.navigate('signin_totp_code', { account });
+      }
+
+      if (
+        verificationReason === VerificationReasons.SIGN_UP &&
+        verificationMethod === VerificationMethods.EMAIL_OTP
+      ) {
+        return this.navigate('confirm_signup_code', { account });
       }
 
       return this.navigate('confirm', { account });

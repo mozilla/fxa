@@ -243,6 +243,12 @@ var ERRORS = {
     errno: 165,
     message: t('Failed due to a conflicting request, please try again.'),
   },
+  INSUFFICIENT_ACR_VALUES: {
+    errno: 170,
+    message: t(
+      'This request requires two step authentication enabled on your account.'
+    ),
+  },
   UNKNOWN_SUBSCRIPTION_CUSTOMER: {
     errno: 176,
     message: t('Unknown customer for subscription.'),

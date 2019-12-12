@@ -43,7 +43,6 @@ const {
   generateTotpCode,
   openFxaFromRp,
   openPage,
-  openVerificationLinkInSameTab,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -206,18 +205,12 @@ registerSuite('oauth signin', {
 
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(
-            testElementTextInclude(
-              selectors.CONFIRM_SIGNUP.EMAIL_MESSAGE,
-              email
-            )
-          )
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           // get the second email, the first was sent on client.signUp w/
           // preVerified: false above. The second email has the `service` and
           // `resume` parameters.
-          .then(openVerificationLinkInSameTab(email, 1))
+          .then(fillOutSignInTokenCode(email, 1))
           // user verifies in the same tab, so they are logged in to the RP.
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       );

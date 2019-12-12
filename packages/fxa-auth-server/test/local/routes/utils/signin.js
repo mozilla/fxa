@@ -1366,7 +1366,7 @@ describe('getSessionVerificationStatus', () => {
     });
   });
 
-  it('does not echo custom verificationMethod param for signups', () => {
+  it('does not echo invalid custom verificationMethod param for signups', () => {
     const sessionToken = {
       emailVerified: false,
       tokenVerified: false,
@@ -1376,6 +1376,20 @@ describe('getSessionVerificationStatus', () => {
     assert.deepEqual(res, {
       verified: false,
       verificationMethod: 'email',
+      verificationReason: 'signup',
+    });
+  });
+
+  it('correctly echos valid custom verificationMethod param for signups', () => {
+    const sessionToken = {
+      emailVerified: false,
+      tokenVerified: false,
+      mustVerify: true,
+    };
+    const res = getSessionVerificationStatus(sessionToken, 'email-otp');
+    assert.deepEqual(res, {
+      verified: false,
+      verificationMethod: 'email-otp',
       verificationReason: 'signup',
     });
   });

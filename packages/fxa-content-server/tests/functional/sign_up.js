@@ -146,8 +146,7 @@ registerSuite('signup here', {
           .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
-          // TODO - this should redirect to CONFIRM_SIGNUP_PASSWORD
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 
@@ -165,8 +164,7 @@ registerSuite('signup here', {
           .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
-          // TODO - this should redirect to CONFIRM_SIGNUP_PASSWORD
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 

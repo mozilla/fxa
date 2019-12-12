@@ -11,15 +11,12 @@ const selectors = require('./lib/selectors');
 
 const {
   clearBrowserState,
-  closeCurrentWindow,
   createUser,
   fillOutForceAuth,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   openForceAuth,
-  openVerificationLinkInNewTab,
   respondToWebChannelMessage,
-  switchToWindow,
   testElementExists,
   testIsBrowserNotified,
   thenify,
@@ -35,7 +32,7 @@ const setupTest = thenify(function(options) {
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
     ? selectors.SIGNIN_TOKEN_CODE.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+    : selectors.CONFIRM_SIGNUP_CODE.HEADER;
 
   return this.parent
     .then(clearBrowserState())
@@ -80,10 +77,7 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
           // email 0 - initial sign up email
           // email 1 - sign in w/ unverified address email
           // email 2 - "You have verified your Firefox Account"
-          .then(openVerificationLinkInNewTab(email, 1))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignInTokenCode(email, 1))
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))

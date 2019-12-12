@@ -20,11 +20,11 @@ const {
   closeCurrentWindow,
   createUser,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   fillOutSignInUnblock,
   getUnblockInfo,
   openPage,
   openTab,
-  openVerificationLinkInSameTab,
   switchToWindow,
   testErrorTextInclude,
   testElementExists,
@@ -331,7 +331,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    'unverified user': function() {
+    unverified: function() {
       email = TestHelpers.createEmail('blocked{id}');
 
       return (
@@ -346,12 +346,12 @@ registerSuite('signin blocked', {
 
           // It's substandard UX, but we decided to punt on making
           // users verified until v2. When submitting an unblock code
-          // verifies unverified users, they will not need to open
-          // the signup verification link, instead they'll go directly
+          // verifies unverified users, they will not need to enter
+          // the verification code, instead they'll go directly
           // to the settings page.
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-          .then(openVerificationLinkInSameTab(email, 2))
+          .then(fillOutSignInTokenCode(email, 2))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },

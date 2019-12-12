@@ -12,6 +12,7 @@ enum VerificationMethods {
   EMAIL = 'email',
   EMAIL_2FA = 'email-2fa',
   EMAIL_CAPTCHA = 'email-captcha',
+  EMAIL_OTP = 'email-otp',
   TOTP_2FA = 'totp-2fa',
 }
 

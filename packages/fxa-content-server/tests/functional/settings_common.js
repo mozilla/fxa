@@ -60,9 +60,10 @@ function unverifiedAccountTest(suite, page) {
       this.remote
         .then(openPage(url, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
         // Expect to get redirected to confirm since the account is unverified
+        // TODO - before merge, fix re-load with an unverified session.
         .then(openPage(url, selectors.CONFIRM_SIGNUP.HEADER))
     );
   };
