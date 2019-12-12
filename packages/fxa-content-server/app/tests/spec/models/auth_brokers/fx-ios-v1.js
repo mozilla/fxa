@@ -18,16 +18,21 @@ describe('models/auth_brokers/fx-ios-v1', () => {
   let broker;
   let channel;
   const loginMessageDelayMS = 250;
+  let metrics;
   let relier;
   let user;
   let windowMock;
   let sandbox;
 
   function initializeBroker(userAgent) {
+    metrics = {
+      flush: sinon.stub().resolves({}),
+    };
     windowMock.navigator.userAgent = userAgent;
     broker = new FxiOSAuthenticationBroker({
       channel: channel,
       loginMessageDelayMS: loginMessageDelayMS,
+      metrics,
       relier: relier,
       window: windowMock,
     });
@@ -68,7 +73,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
 
   describe('_notifyRelierOfLogin', () => {
     beforeEach(() => {
-      sandbox.stub(broker, 'send').callsFake(() => Promise.resolve());
+      sandbox.spy(broker, 'send');
       sandbox.spy(windowMock, 'setTimeout');
       sandbox.spy(windowMock, 'clearTimeout');
     });
@@ -78,8 +83,8 @@ describe('models/auth_brokers/fx-ios-v1', () => {
         broker._notifyRelierOfLogin(account),
         triggerLoginCB && triggerLoginCB(),
       ]).then(() => {
-        assert.isTrue(broker.send.calledOnce);
-        assert.isTrue(broker.send.calledWith('login'));
+        assert.isTrue(metrics.flush.calledOnce);
+        assert.isTrue(broker.send.calledOnceWith('login'));
       });
     }
 
@@ -149,6 +154,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
 
       return broker.afterLoaded().then(() => {
         assert.isTrue(broker.send.calledWith('loaded'));
+        assert.isTrue(metrics.flush.calledOnce);
       });
     });
   });

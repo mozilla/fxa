@@ -13,15 +13,18 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
   let account;
   let broker;
   let channelMock;
+  let metrics;
   let user;
   let windowMock;
 
   function createAuthBroker(options = {}) {
+    metrics = {
+      flush: sinon.stub().resolves(),
+      setViewNamePrefix: sinon.spy(),
+    };
     broker = new FxSyncWebChannelAuthenticationBroker({
       channel: channelMock,
-      metrics: {
-        setViewNamePrefix: sinon.spy(),
-      },
+      metrics,
       window: windowMock,
       ...options,
     });
@@ -58,6 +61,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
       it('notifies the relier of the login', () => {
         account.set('verified', true);
         return broker.afterCompleteResetPassword(account).then(behavior => {
+          assert.isTrue(metrics.flush.calledOnce);
           assert.equal(behavior.type, 'null');
           assert.isTrue(broker._notifyRelierOfLogin.calledOnceWith(account));
         });
@@ -70,6 +74,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
         account.set('verificationReason', 'login');
         account.set('verificationMethod', 'email');
         return broker.afterCompleteResetPassword(account).then(behavior => {
+          assert.isFalse(metrics.flush.called);
           assert.equal(behavior.type, 'null');
           assert.isFalse(broker._notifyRelierOfLogin.calledOnceWith(account));
         });
@@ -80,6 +85,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
       it('does not notify the relier of the login', () => {
         account.set('verified', false);
         return broker.afterCompleteResetPassword(account).then(behavior => {
+          assert.isFalse(metrics.flush.called);
           assert.equal(behavior.type, 'null');
           assert.isFalse(broker._notifyRelierOfLogin.called);
         });
@@ -94,6 +100,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
     });
 
     it('notifies the relier of the login', () => {
+      assert.isTrue(metrics.flush.calledOnce);
       assert.isTrue(broker._notifyRelierOfLogin.calledOnceWith(account));
     });
   });

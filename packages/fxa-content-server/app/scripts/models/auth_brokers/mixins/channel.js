@@ -28,6 +28,10 @@ function ensureActionReturnsPromise(action) {
 }
 
 const ChannelMixin = {
+  initialize(options = {}) {
+    this._metrics = options.metrics;
+  },
+
   /**
    * Get a reference to a channel. If a channel has already been created,
    * the cached channel will be returned. Used by the ChannelMixin.
@@ -62,7 +66,10 @@ const ChannelMixin = {
   },
 
   /**
-   * Send a message to the remote listener, expect no response
+   * Send a message to the remote listener, expect no response.
+   * Flushes metrics before sending to ensure outstanding events
+   * are reported in case the message causes the UA to close
+   * the FxA window.
    *
    * @param {String} message
    * @param {Object} [data]
@@ -73,11 +80,14 @@ const ChannelMixin = {
     const channel = this.getChannel();
     const send = ensureActionReturnsPromise(channel.send.bind(channel));
 
-    return send(message, data);
+    return this._metrics.flush().then(() => send(message, data));
   },
 
   /**
-   * Request information from the remote listener
+   * Request information from the remote listener.
+   * Flushes metrics before sending to ensure outstanding events
+   * are reported in case the message causes the UA to close
+   * the FxA window.
    *
    * @param {String} message
    * @param {Object} [data]
@@ -91,7 +101,7 @@ const ChannelMixin = {
     const action = (channel.request || channel.send).bind(channel);
     const request = ensureActionReturnsPromise(action);
 
-    return request(message, data);
+    return this._metrics.flush().then(() => request(message, data));
   },
 };
 
