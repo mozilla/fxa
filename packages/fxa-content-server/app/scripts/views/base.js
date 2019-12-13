@@ -362,12 +362,19 @@ var BaseView = Backbone.View.extend({
       return this.user.sessionStatus().then(
         account => {
           if (this.mustVerify && !account.get('verified')) {
-            var targetScreen;
+            this.relier.set('redirectTo', this.currentPage);
+            let targetScreen;
 
             if (
               account.get('verificationReason') === VerificationReasons.SIGN_UP
             ) {
-              targetScreen = 'confirm';
+              // Trying to use an unverified account. A code
+              // is not re-sent automatically, so send a new one
+              // and then go to the confirm screen.
+              return account.verifySessionResendCode().then(() => {
+                this.navigate('confirm_signup_code', { account });
+                return false;
+              });
             } else if (
               account.get('verificationReason') === VerificationReasons.SIGN_IN
             ) {
@@ -382,7 +389,7 @@ var BaseView = Backbone.View.extend({
             }
 
             this.navigate(targetScreen, {
-              account: account,
+              account,
             });
 
             return false;

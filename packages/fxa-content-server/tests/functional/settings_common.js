@@ -24,6 +24,7 @@ const {
   createUID,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   openPage,
   testElementExists,
   type,
@@ -57,16 +58,24 @@ function unverifiedAccountTest(suite, page) {
   ] = function() {
     const url = SETTINGS_URL + page;
 
-    return (
-      this.remote
-        .then(openPage(url, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+    return this.remote
+      .then(openPage(url, selectors.ENTER_EMAIL.HEADER))
+      .then(fillOutEmailFirstSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-        // Expect to get redirected to confirm since the account is unverified
-        // TODO - before merge, fix re-load with an unverified session.
-        .then(openPage(url, selectors.CONFIRM_SIGNUP.HEADER))
-    );
+      .then(openPage(url, selectors.CONFIRM_SIGNUP_CODE.HEADER))
+      .then(fillOutSignInTokenCode(email, 1))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(() => {
+        let expectedSelector = SETTINGS_PAGES[page];
+        if (page === '/avatar/crop') {
+          // can only return to crop if an image was uploaded, since no image
+          // is uploaded here can't go back to it. Expect to go back to the
+          // avatar change screen instead.
+          expectedSelector = SETTINGS_PAGES['/avatar/change'];
+        }
+        return this.remote.then(testElementExists(expectedSelector));
+      });
   };
 }
 
