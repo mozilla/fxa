@@ -25,6 +25,7 @@ const GROUPS = {
   subManage: 'fxa_subscribe_manage',
   subPayManage: 'fxa_pay_manage',
   subPaySetup: 'fxa_pay_setup',
+  subPayUpgrade: 'fxa_pay_upgrade',
   subSupport: 'fxa_subscribe_support',
 };
 
@@ -57,6 +58,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subManage]: NOP,
   [GROUPS.subPayManage]: NOP,
   [GROUPS.subPaySetup]: NOP,
+  [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
 };
 
