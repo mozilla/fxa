@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const Constants = require('../../app/scripts/lib/constants');
-const { createRandomHexString } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -20,27 +19,39 @@ let uid;
 
 const {
   createEmail,
+  createRandomHexString,
   createUser,
   getVerificationLink,
   noSuchElement,
   openPage,
+  sendVerificationReminders,
 } = FunctionalHelpers;
 
-registerSuite('complete_sign_up', {
+registerSuite('verification reminders', {
   beforeEach: function() {
     email = createEmail();
-    return this.remote
-      .then(createUser(email, PASSWORD, { preVerified: false }))
-      .then(function(result) {
-        accountData = result;
-        uid = accountData.uid;
-      })
+    return (
+      this.remote
+        .then(
+          createUser(email, PASSWORD, {
+            preVerified: false,
+            verificationMethod: 'email-otp',
+          })
+        )
+        .then(function(result) {
+          accountData = result;
+          uid = accountData.uid;
+        })
 
-      .then(getVerificationLink(email, 0))
+        // The first email is a code, we need to wait for verification
+        // reminders which contain a link.
+        .then(sendVerificationReminders())
+        .then(getVerificationLink(email, 1))
 
-      .then(function(link) {
-        code = link.match(/code=([A-Za-z0-9]+)/)[1];
-      });
+        .then(function(link) {
+          code = link.match(/code=([A-Za-z0-9]+)/)[1];
+        })
+    );
   },
   tests: {
     'open verification link with malformed code': function() {
@@ -93,46 +104,44 @@ registerSuite('complete_sign_up', {
   },
 });
 
-registerSuite(
-  'complete_sign_up with expired link, but without signing up in browser',
-  {
-    beforeEach: function() {
-      email = createEmail();
-      return (
-        this.remote
-          .then(createUser(email, PASSWORD, { preVerified: false }))
-          .then(function(result) {
-            accountData = result;
-            uid = accountData.uid;
+registerSuite('verification reminders - re-sign up after reminders are sent', {
+  beforeEach: function() {
+    email = createEmail();
+    return (
+      this.remote
+        .then(
+          createUser(email, PASSWORD, {
+            preVerified: false,
+            verificationMethod: 'email-otp',
           })
+        )
+        .then(function(result) {
+          accountData = result;
+          uid = accountData.uid;
+        })
 
-          .then(getVerificationLink(email, 0))
-          .then(function(link) {
-            code = link.match(/code=([A-Za-z0-9]+)/)[1];
-          })
-          // re-sign up the same user with a different password, should expire
-          // the original verification link.
-          .then(createUser(email, 'secondpassword', { preVerified: false }))
-      );
+        // The first email is a code, we need to wait for verification
+        // reminders which contain a link.
+        .then(sendVerificationReminders())
+        .then(getVerificationLink(email, 1))
+        .then(function(link) {
+          code = link.match(/code=([A-Za-z0-9]+)/)[1];
+        })
+        // re-sign up the same user with a different password, should expire
+        // the original verification link.
+        .then(createUser(email, 'secondpassword', { preVerified: false }))
+    );
+  },
+  tests: {
+    'open expired email verification link': function() {
+      const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
+
+      return this.remote
+        .then(
+          openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_EXPIRED)
+        )
+
+        .then(noSuchElement(selectors.COMPLETE_SIGNUP.LINK_RESEND));
     },
-    tests: {
-      'open expired email verification link': function() {
-        const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
-
-        return (
-          this.remote
-            .then(
-              openPage(url, selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_EXPIRED)
-            )
-            .then(
-              noSuchElement(selectors.COMPLETE_SIGNUP.VERIFICATION_LINK_DAMAGED)
-            )
-
-            // Give resend time to show up
-            .setFindTimeout(200)
-            .then(noSuchElement(selectors.COMPLETE_SIGNUP.LINK_RESEND))
-        );
-      },
-    },
-  }
-);
+  },
+});
