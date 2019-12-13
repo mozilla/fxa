@@ -27,7 +27,6 @@ const mocks = {
     flowBeginTime: 1570000000000,
     flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     flushTime: 9002,
-    perfStartTime: 9001,
     requestReceivedTime: 11000,
     view: 'product',
   },
@@ -60,7 +59,7 @@ describe('lib/amplitude', () => {
   beforeEach(() => {
     log.info.mockClear();
   });
-  it('logs a correctly formatted message', done => {
+  it('logs a correctly formatted message', () => {
     amplitude(
       mocks.event,
       mocks.request,
@@ -70,7 +69,6 @@ describe('lib/amplitude', () => {
     expect(log.info).toHaveBeenCalled();
     expect(log.info.mock.calls[0][0]).toMatch('amplitudeEvent');
     expect(log.info.mock.calls[0][1]).toMatchObject(expectedOutput);
-    done();
   });
 
   describe('validates inputs', () => {

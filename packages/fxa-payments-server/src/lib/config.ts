@@ -9,7 +9,6 @@ export interface Config {
     privacyNotice: string;
     termsOfService: string;
   };
-  perfStartTime: number;
   productRedirectURLs: {
     [productId: string]: string;
   };
@@ -46,7 +45,6 @@ export function defaultConfig(): Config {
       privacyNotice: '',
       termsOfService: '',
     },
-    perfStartTime: 0,
     productRedirectURLs: {},
     sentry: {
       url: 'https://sentry.prod.mozaws.net',
@@ -98,7 +96,6 @@ type headQuerySelectorType = (
 
 export const META_CONFIG = 'fxa-config';
 export const META_FEATURE_FLAGS = 'fxa-feature-flags';
-export const META_PERF_START_TIME = 'fxa-perf-start-time';
 
 export function readConfigFromMeta(headQuerySelector: headQuerySelectorType) {
   const getMetaElement = (name: string) =>
@@ -117,13 +114,6 @@ export function readConfigFromMeta(headQuerySelector: headQuerySelectorType) {
   updateConfig({
     featureFlags: decodeConfig(featureEl.getAttribute('content')),
   });
-
-  const perfStartTimeEl = getMetaElement(META_PERF_START_TIME);
-  if (perfStartTimeEl) {
-    updateConfig({
-      perfStartTime: decodeConfig(perfStartTimeEl.getAttribute('content')),
-    });
-  }
 
   updateConfig({ lang: document.documentElement.lang });
 }

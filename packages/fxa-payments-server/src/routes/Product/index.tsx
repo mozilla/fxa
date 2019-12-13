@@ -74,13 +74,6 @@ export const Product = ({
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
 
-  // There is no way to do this with a React Hook. We need the
-  // `navigationTiming.domComplete` value to calculate the "client" perf metric.
-  // When `useEffect` is used, the `domComplete` value is always(?) null because
-  // it fires too early. This is the reliable approach.
-  window.onload = () =>
-    FlowEvent.logPerformanceEvent('product', config.perfStartTime);
-
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
     fetchProductRouteResources();

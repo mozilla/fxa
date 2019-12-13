@@ -160,7 +160,6 @@ module.exports = () => {
     return injectMetaContent(html, {
       __SERVER_CONFIG__: config,
       __FEATURE_FLAGS__: featureFlags,
-      __PERF_START_TIME__: Date.now(),
     });
   }
 
