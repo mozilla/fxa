@@ -539,4 +539,22 @@ describe('userAgent, real dependency', () => {
       formFactor: undefined,
     });
   });
+
+  it('correctly parses iPad user agents requesting a desktop site', () => {
+    // Note: the iOS version is not included in this type of user agent
+    // and `osVersion` is therefore not accurate
+    assert.deepEqual(
+      userAgent(
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/20.2 Safari/605.1.15'
+      ),
+      {
+        browser: 'Firefox iOS',
+        browserVersion: '20.2',
+        os: 'Mac OS X',
+        osVersion: '10.15',
+        deviceType: 'tablet',
+        formFactor: 'iPad',
+      }
+    );
+  });
 });

@@ -97,6 +97,33 @@ describe('lib/user-agent', () => {
     });
   });
 
+  describe('isDesktopFirefoxOnIpad', () => {
+    it('returns `true` if a Macintosh OS and iOS is reported', () => {
+      const iosUserAgentStrings = [
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/20.2 Safari/605.1.15',
+      ];
+
+      iosUserAgentStrings.forEach(userAgentString => {
+        const uap = new UserAgent(userAgentString);
+        assert.isTrue(uap.isDesktopFirefoxOnIpad());
+      });
+    });
+
+    it('returns `false` if another OS with iOS is reported', () => {
+      const isNotIosDesktopUserAgentStrings = [
+        // iPhone
+        'Mozilla/5.0 (iPhone; CPU iPhone OS 8_3 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
+        // non-desktop iPad
+        'Mozilla/5.0 (iPad; CPU OS 10_1_1 like Mac OS X) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1',
+      ];
+
+      isNotIosDesktopUserAgentStrings.forEach(userAgentString => {
+        const uap = new UserAgent(userAgentString);
+        assert.isFalse(uap.isDesktopFirefoxOnIpad());
+      });
+    });
+  });
+
   describe('isFirefox', () => {
     it('returns `true` if in Firefox', () => {
       const firefoxUserAgentStrings = [

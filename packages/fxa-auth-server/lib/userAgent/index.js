@@ -27,6 +27,8 @@ const MOBILE_OS_FAMILIES = new Set([
   'Windows Phone',
 ]);
 
+const MOBILE_UA_OS_FAMILIES = new Set(['Firefox iOS']);
+
 // $1 = 'Firefox' indicates Firefox Sync, 'Mobile' indicates Sync mobile library
 // $2 = OS
 // $3 = application version
@@ -68,7 +70,7 @@ function getFamily(data) {
 }
 
 function getDeviceType(data) {
-  if (getFamily(data.device) || isMobileOS(data.os)) {
+  if (getFamily(data.device) || isMobileOS(data)) {
     if (isTablet(data)) {
       return 'tablet';
     } else {
@@ -77,8 +79,11 @@ function getDeviceType(data) {
   }
 }
 
-function isMobileOS(os) {
-  return MOBILE_OS_FAMILIES.has(os.family);
+function isMobileOS(data) {
+  return (
+    MOBILE_OS_FAMILIES.has(data.os.family) ||
+    MOBILE_UA_OS_FAMILIES.has(data.ua.family)
+  );
 }
 
 function isTablet(data) {
@@ -91,7 +96,15 @@ function isTablet(data) {
 }
 
 function isIpad(data) {
-  return /iPad/.test(data.device.family);
+  return /iPad/.test(data.device.family) || isDesktopUaOnIpadFirefox(data);
+}
+
+// iPads using FF iOS 13+ send a desktop UA.
+// The OS shows as a Mac, but 'Firefox iOS' in the UA family.
+function isDesktopUaOnIpadFirefox(data) {
+  return (
+    /Mac/.test(data.os.family) && MOBILE_UA_OS_FAMILIES.has(data.ua.family)
+  );
 }
 
 function isAndroidTablet(data) {
@@ -111,7 +124,9 @@ function isGenericTablet(data) {
 }
 
 function getFormFactor(data) {
-  if (data.device.brand !== 'Generic') {
+  if (isDesktopUaOnIpadFirefox(data)) {
+    return 'iPad';
+  } else if (data.device.brand !== 'Generic') {
     return getFamily(data.device);
   }
 }
