@@ -202,7 +202,10 @@ registerSuite('cached signin', {
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // cached login should still go to email confirmation screen for unverified accounts
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          // get the second email, the first was sent via fillOutEmailFirstSignUp above.
+          .then(fillOutSignInTokenCode(email, 1))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 

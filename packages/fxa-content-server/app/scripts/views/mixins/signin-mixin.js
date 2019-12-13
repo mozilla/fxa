@@ -211,6 +211,18 @@ export default {
         return this.navigate('confirm_signup_code', { account });
       }
 
+      if (
+        verificationReason === VerificationReasons.SIGN_UP &&
+        typeof verificationMethod === 'undefined'
+      ) {
+        // cached signin with an unverified account. A code
+        // is not re-sent automatically, so send a new one
+        // and then go to the confirm screen.
+        return account.verifySessionResendCode().then(() => {
+          this.navigate('confirm_signup_code', { account });
+        });
+      }
+
       return this.navigate('confirm', { account });
     }
 
