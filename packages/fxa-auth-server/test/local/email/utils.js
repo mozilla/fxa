@@ -7,7 +7,6 @@
 const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
-const P = require(`${ROOT_DIR}/lib/promise`);
 const { mockLog } = require('../../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
@@ -82,7 +81,7 @@ describe('email utils helpers', () => {
     });
   });
 
-  it('logEmailEventSent should call amplitude correctly', () => {
+  it('logEmailEventSent should call amplitude correctly', async () => {
     emailHelpers.logEmailEventSent(mockLog(), {
       email: 'foo@example.com',
       ccEmails: ['bar@example.com', 'baz@example.com'],
@@ -103,9 +102,10 @@ describe('email utils helpers', () => {
     const args = amplitude.args[0];
     assert.equal(args.length, 4);
     assert.equal(args[0], 'email.verifyEmail.sent');
+    args[1].app.devices = await args[1].app.devices;
     assert.deepEqual(args[1], {
       app: {
-        devices: P.resolve([]),
+        devices: [],
         geo: {
           location: {},
         },
@@ -132,7 +132,7 @@ describe('email utils helpers', () => {
     assert.ok(args[3].time > Date.now() - 1000);
   });
 
-  it('logEmailEventFromMessage should call amplitude correctly', () => {
+  it('logEmailEventFromMessage should call amplitude correctly', async () => {
     emailHelpers.logEmailEventFromMessage(
       mockLog(),
       {
@@ -160,9 +160,10 @@ describe('email utils helpers', () => {
     const args = amplitude.args[0];
     assert.equal(args.length, 4);
     assert.equal(args[0], 'email.verifyLoginEmail.bounced');
+    args[1].app.devices = await args[1].app.devices;
     assert.deepEqual(args[1], {
       app: {
-        devices: P.resolve([]),
+        devices: [],
         geo: {
           location: {},
         },

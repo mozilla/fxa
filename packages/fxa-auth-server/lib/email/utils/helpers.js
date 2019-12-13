@@ -8,7 +8,6 @@ const ROOT_DIR = '../../..';
 
 const config = require(`${ROOT_DIR}/config`);
 const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`);
-const P = require('../../promise');
 
 let amplitude;
 
@@ -125,7 +124,7 @@ function logAmplitudeEvent(log, message, eventInfo) {
     `email.${eventInfo.template}.${eventInfo.type}`,
     {
       app: {
-        devices: P.resolve([]),
+        devices: Promise.resolve([]),
         geo: {
           location: {},
         },
