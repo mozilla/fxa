@@ -42,6 +42,8 @@ export type ProductProps = {
   fetchProductRouteResources: SequenceFunctions['fetchProductRouteResources'];
   createSubscriptionMounted: ActionFunctions['createSubscriptionMounted'];
   createSubscriptionEngaged: ActionFunctions['createSubscriptionEngaged'];
+  updateSubscriptionPlanMounted: ActionFunctions['updateSubscriptionPlanMounted'];
+  updateSubscriptionPlanEngaged: ActionFunctions['updateSubscriptionPlanEngaged'];
   validatorInitialState?: ValidatorState;
 };
 
@@ -64,6 +66,8 @@ export const Product = ({
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
+  updateSubscriptionPlanMounted,
+  updateSubscriptionPlanEngaged,
 }: ProductProps) => {
   const { config, locationReload, queryParams } = useContext(AppContext);
 
@@ -161,6 +165,8 @@ export const Product = ({
             updateSubscriptionPlanAndRefresh,
             resetUpdateSubscriptionPlan,
             updateSubscriptionPlanStatus,
+            onMounted: updateSubscriptionPlanMounted,
+            onEngaged: updateSubscriptionPlanEngaged,
           }}
         />
       );
@@ -262,6 +268,8 @@ export default connect(
     createSubscriptionAndRefresh: sequences.createSubscriptionAndRefresh,
     createSubscriptionMounted: actions.createSubscriptionMounted,
     createSubscriptionEngaged: actions.createSubscriptionEngaged,
+    updateSubscriptionPlanMounted: actions.updateSubscriptionPlanMounted,
+    updateSubscriptionPlanEngaged: actions.updateSubscriptionPlanEngaged,
     updateSubscriptionPlanAndRefresh:
       sequences.updateSubscriptionPlanAndRefresh,
     resetUpdateSubscriptionPlan: actions.resetUpdateSubscriptionPlan,

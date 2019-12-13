@@ -90,6 +90,24 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     expect(getByTestId('error-plan-update-failed')).toBeInTheDocument();
     expect(getByText(expectedMessage)).toBeInTheDocument();
   });
+
+  it('calls onMounted and onEngaged', async () => {
+    const onMounted = jest.fn();
+    const onEngaged = jest.fn();
+
+    const { findByTestId, getByTestId } = render(
+      <Subject
+        props={{
+          onMounted,
+          onEngaged,
+        }}
+      />
+    );
+    await findByTestId('subscription-upgrade');
+    fireEvent.click(getByTestId('confirm'));
+    expect(onMounted).toBeCalledTimes(1);
+    expect(onEngaged).toBeCalledTimes(1);
+  });
 });
 
 const Subject = ({ props = {} }: { props?: object }) => {
@@ -115,4 +133,6 @@ const MOCK_PROPS: SubscriptionUpgradeProps = {
   },
   updateSubscriptionPlanAndRefresh: jest.fn(),
   resetUpdateSubscriptionPlan: jest.fn(),
+  onMounted: jest.fn(),
+  onEngaged: jest.fn(),
 };

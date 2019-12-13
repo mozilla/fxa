@@ -7,6 +7,7 @@ const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 const eventGroupNames = {
   createSubscription: 'subPaySetup',
+  upgradeSubscription: 'subPayUpgrade',
   updatePayment: 'subPayManage',
   cancelSubscription: 'subCancel',
   manageSubscriptions: 'subManage',
@@ -98,6 +99,50 @@ export const AmplitudeMiddleware: Middleware = (
       case 'createSubscription_REJECTED':
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
+          eventTypeNames.fail,
+          config.perfStartTime,
+          {
+            ...getPlanPropsFromAction(action),
+            ...getFailureReasonFromAction(action),
+          }
+        );
+        break;
+
+      case 'updateSubscriptionPlanMounted':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.view,
+          config.perfStartTime,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlanEngaged':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.engage,
+          config.perfStartTime,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlan_PENDING':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.submit,
+          config.perfStartTime,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlan_FULFILLED':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.success,
+          config.perfStartTime,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlan_REJECTED':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
           eventTypeNames.fail,
           config.perfStartTime,
           {

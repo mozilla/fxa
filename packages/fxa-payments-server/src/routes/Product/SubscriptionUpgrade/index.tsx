@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import {
   Plan,
@@ -13,6 +13,7 @@ import {
   formatCurrencyInCents,
   formatPeriodEndDate,
 } from '../../../lib/formats';
+import { useCallbackOnce } from '../../../lib/hooks';
 
 import { Form, SubmitButton, Checkbox } from '../../../components/fields';
 import { useValidatorState } from '../../../lib/validator';
@@ -34,6 +35,8 @@ export type SubscriptionUpgradeProps = {
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
   updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
   resetUpdateSubscriptionPlan: ProductProps['resetUpdateSubscriptionPlan'];
+  onMounted: Function;
+  onEngaged: Function;
 };
 
 export const SubscriptionUpgrade = ({
@@ -45,10 +48,20 @@ export const SubscriptionUpgrade = ({
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
+  onMounted,
+  onEngaged,
 }: SubscriptionUpgradeProps) => {
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
+
+  useEffect(() => {
+    onMounted(selectedPlan);
+  }, [onMounted, selectedPlan]);
+
+  const engageOnce = useCallbackOnce(() => {
+    onEngaged(selectedPlan);
+  }, [onEngaged, selectedPlan]);
 
   const onSubmit = useCallback(
     ev => {
@@ -143,7 +156,12 @@ export const SubscriptionUpgrade = ({
           you’ll be charged the full amount.
         </p>
 
-        <Checkbox data-testid="confirm" name="confirm" required>
+        <Checkbox
+          data-testid="confirm"
+          name="confirm"
+          onClick={engageOnce}
+          required
+        >
           I authorize Mozilla, maker of Firefox products, to charge my payment
           method{' '}
           <strong>
