@@ -1,3 +1,9 @@
+## 1.152.1
+
+### Other changes
+
+* e05fc86c6 Set `service` tag for metrics events based on fxa_status response. (e05fc86c6)
+
 ## 1.152.0
 
 ### New features
