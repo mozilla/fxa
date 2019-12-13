@@ -2,17 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const restmail = require('../../lib/restmail');
-const TestHelpers = require('../../lib/helpers');
-const selectors = require('./selectors');
-const pollUntil = require('@theintern/leadfoot/helpers/pollUntil').default;
-const Url = require('url');
-const Querystring = require('querystring');
-const nodeXMLHttpRequest = require('xmlhttprequest');
-const assert = intern.getPlugin('chai').assert;
-const mkdirp = require('mkdirp');
-const fs = require('fs');
+const { assert } = intern.getPlugin('chai');
+const cp = require('child_process');
 const crypto = require('crypto');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const nodeXMLHttpRequest = require('xmlhttprequest');
+const path = require('path');
+const pollUntil = require('@theintern/leadfoot/helpers/pollUntil').default;
+const Querystring = require('querystring');
+const restmail = require('../../lib/restmail');
+const selectors = require('./selectors');
+const TestHelpers = require('../../lib/helpers');
+const Url = require('url');
 
 // Default options for TOTP
 const otplib = require('otplib');
@@ -2501,6 +2503,32 @@ const subscribeToTestProduct = thenify(function() {
   );
 });
 
+/**
++ * Send verification reminder emails
++ */
+const sendVerificationReminders = thenify(function() {
+  return this.parent.then(() => {
+    const cwd = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'fxa-auth-server',
+      'scripts'
+    );
+    return cp.execSync('node verification-reminders.js', {
+      cwd,
+      env: {
+        ...process.env,
+        NODE_ENV: 'dev',
+      },
+      stdio: 'ignore',
+      timeout: this.timeout,
+    });
+  });
+});
+
 module.exports = {
   ...TestHelpers,
   cleanMemory,
@@ -2575,6 +2603,7 @@ module.exports = {
   pollUntilGoneByQSA,
   pollUntilHiddenByQSA,
   respondToWebChannelMessage,
+  sendVerificationReminders,
   storeWebChannelMessageData,
   subscribeToTestProduct,
   switchToWindow,

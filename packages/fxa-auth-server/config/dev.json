@@ -403,5 +403,9 @@
         "hasScopedKeys": true
       }
     ]
+  },
+  "verificationReminders": {
+    "firstInterval": "5s",
+    "secondInterval": "10s"
   }
 }
