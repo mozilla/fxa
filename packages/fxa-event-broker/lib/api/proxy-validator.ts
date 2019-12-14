@@ -4,6 +4,12 @@
 
 import joi from 'typesafe-joi';
 
+/**
+ * Validate the Google pubsub message.
+ *
+ * See https://cloud.google.com/pubsub/docs/reference/rest/v1/PubsubMessage for details.
+ *
+ */
 export const proxyPayloadValidator = joi
   .object({
     message: joi

@@ -2,6 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * SQS Notification Processor
+ *
+ * Consumes SQS messages, stores new logins for users, and fans out
+ * messages for delivery to relying party PubSub queues.
+ *
+ * This is the primary start point of the event-broker, as starting the
+ * `ServiceNotificationProcessor` also starts the webhook and capability
+ * self-updating services.
+ *
+ * @module
+ */
 import { PubSub } from '@google-cloud/pubsub';
 import { SQS } from 'aws-sdk';
 import { StatsD } from 'hot-shots';
@@ -32,6 +44,10 @@ function unhandledEventType(e: ServiceNotification) {
   throw new Error('Unhandled message event type: ' + e);
 }
 
+/**
+ * Process SQS Service Notifications using data cached from the
+ * capability and webhook self-updating services.
+ */
 class ServiceNotificationProcessor {
   public readonly app: Consumer;
 
@@ -89,6 +105,11 @@ class ServiceNotificationProcessor {
     this.webhookService.stop();
   }
 
+  /**
+   * Fan out delete messages.
+   *
+   * @param message Incoming SQS Message
+   */
   private async handleDeleteEvent(message: deleteSchema) {
     this.metrics.increment('message.type.delete');
     const clientIds = await this.db.fetchClientIds(message.uid);
@@ -101,6 +122,11 @@ class ServiceNotificationProcessor {
     }
   }
 
+  /**
+   * Fan out profile change messages.
+   *
+   * @param message Incoming SQS Message
+   */
   private async handleProfileEvent(message: profileSchema) {
     this.metrics.increment('message.type.profile');
     const clientIds = await this.db.fetchClientIds(message.uid);
@@ -113,6 +139,11 @@ class ServiceNotificationProcessor {
     }
   }
 
+  /**
+   * Fan out password messages.
+   *
+   * @param message Incoming SQS Message
+   */
   private async handlePasswordEvent(message: passwordSchema) {
     this.metrics.increment('message.type.password');
     const clientIds = await this.db.fetchClientIds(message.uid);
@@ -128,6 +159,15 @@ class ServiceNotificationProcessor {
     }
   }
 
+  /**
+   * Save login to RP to datastore.
+   *
+   * Logins are not distributed to RPs as they already know if a user has
+   * logged in. They are used to keep track of what RPs a user has authenticated
+   * to for future event distribution.
+   *
+   * @param message Incoming SQS Message
+   */
   private async handleLoginEvent(message: loginSchema) {
     // Sync and some logins don't emit a clientId, so we have nothing to track
     if (!message.clientId) {
@@ -140,6 +180,14 @@ class ServiceNotificationProcessor {
     await this.db.storeLogin(message.uid, message.clientId);
   }
 
+  /**
+   * Process and fan out subscription state messages.
+   *
+   * Determines all the capabilities to distribute to each RP that the user
+   * has logged into, then fans the messages out to their PubSub queues.
+   *
+   * @param message Incoming SQS Message
+   */
   private async handleSubscriptionEvent(message: subscriptionUpdateSchema) {
     this.metrics.increment('message.type.subscription');
     const clientIds = await this.db.fetchClientIds(message.uid);
@@ -183,6 +231,11 @@ class ServiceNotificationProcessor {
     await Promise.all(notifyClientPromises);
   }
 
+  /**
+   * Process a SQS message, dispatch based on message event type.
+   *
+   * @param sqsMessage Incoming SQS Message
+   */
   private async handleMessage(sqsMessage: SQS.Message) {
     const processingStart = Date.now();
     const body = JSON.parse(sqsMessage.Body || '{}');

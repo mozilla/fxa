@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * API handling code for proxy routes and base load-balancer routes.
+ *
+ * @module
+ */
 import hapi from '@hapi/hapi';
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
@@ -28,10 +33,22 @@ export default class ProxyController {
     private readonly jwt: JWT
   ) {}
 
+  /**
+   * Load balancer route to verify system is running.
+   *
+   * @param request
+   * @param h
+   */
   public async heartbeat(request: hapi.Request, h: hapi.ResponseToolkit) {
     return h.response({}).code(200);
   }
 
+  /**
+   * QA route to verify version of event-broker deployed.
+   *
+   * @param request
+   * @param h
+   */
   public async version(request: hapi.Request, h: hapi.ResponseToolkit) {
     const body = JSON.stringify(version);
     return h
@@ -40,6 +57,18 @@ export default class ProxyController {
       .code(200);
   }
 
+  /**
+   * Proxy route that Google PubSub queue's publish messages to.
+   *
+   * Translates pubsub message into a `SET` for delivery to the relying
+   * party and then attempts delivery to the webhook URL from the database.
+   * Success/failure is proxied directly back to Google PubSub so that its
+   * retry/backoff logic can automatically handle issues the relying party
+   * may experience in handling requests.
+   *
+   * @param request
+   * @param h
+   */
   public async proxyDelivery(request: hapi.Request, h: hapi.ResponseToolkit) {
     const webhookData = this.webhookService.serviceData();
     const clientId = request.params.clientId;
@@ -111,6 +140,17 @@ export default class ProxyController {
     return resp;
   }
 
+  /**
+   * Generate an appropriate SET based off the pubsub message.
+   *
+   * These need to be generated during delivery as they have limited
+   * lifespans of validity.
+   *
+   * @todo It would be better to use a union type for the message.
+   *
+   * @param message
+   * @param clientId
+   */
   private async generateSET(message: any, clientId: string) {
     switch (message.event) {
       case SUBSCRIPTION_UPDATE_EVENT: {
