@@ -1,7 +1,5 @@
 ## A demo of Firefox Accounts OAuth
 
-[![Build Status](https://travis-ci.org/mozilla/123done.svg?branch=oauth)](https://travis-ci.org/mozilla/123done)
-
 ## running locally
 
 1. install [git], [node] and [redis]

@@ -30,10 +30,4 @@ module.exports = function(grunt) {
   grunt.registerTask('dev', ['watch:dev']);
 
   grunt.registerTask('debug', ['watch:debug']);
-
-  grunt.registerTask('travis', 'Test runner task for Travis CI', [
-    'build',
-    'intern:node',
-    'intern:sauce',
-  ]);
 };

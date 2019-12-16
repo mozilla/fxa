@@ -10,7 +10,6 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   npx grunt sjcl
   node_modules/.bin/grunt eslint
   npm test
-  # TODO ./tests/ci/travis-auth-server-test.sh
 else
   exit 0;
 fi

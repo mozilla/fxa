@@ -1,8 +1,5 @@
 # Firefox Accounts Profile Service
 
-[![Build Status](https://travis-ci.org/mozilla/fxa-profile-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-profile-server)
-[![CircleCI Docker Image Status](https://circleci.com/gh/mozilla/fxa-profile-server/tree/master.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-profile-server/tree/master)
-
 A server to provide common profile-related data for a Firefox Account.
 Such as name, avatar, location, age, gender, [etc](https://wiki.mozilla.org/Identity/Firefox-Accounts#What_information_does_Firefox_Accounts_store_about_the_user.3F_Can_I_use_it_to_store_user_data_for_my_application_or_service.3F).
 

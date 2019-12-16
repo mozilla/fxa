@@ -1,21 +1,19 @@
 # Firefox Accounts Content Server
 
-[![Build Status: Travis](https://travis-ci.org/mozilla/fxa-content-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-content-server)
-[![Build Status: Circle CI](https://circleci.com/gh/mozilla/fxa-content-server.svg?style=shield)](https://circleci.com/gh/mozilla/fxa-content-server)
 [![Coverage Status](https://img.shields.io/coveralls/mozilla/fxa-content-server.svg)](https://coveralls.io/r/mozilla/fxa-content-server)
 
 Static server that hosts [Firefox Account sign up](https://accounts.firefox.com), sign in, email verification, etc. flows.
 
--   [Quick Start](#quick-start)
--   [Development Notes](#development-notes)
-    -   [Changes to Stylesheets](#changes-to-stylesheets)
-    -   [Changes to Scripts and Templates](#changes-to-scripts-and-templates)
--   [Testing](#testing)
-    -   [Prerequisites](#prerequisites)
-    -   [Setup](#setup)
--   [Grunt Commands](#grunt-commands)
--   [Servers](#servers)
--   [License](#license)
+- [Quick Start](#quick-start)
+- [Development Notes](#development-notes)
+  - [Changes to Stylesheets](#changes-to-stylesheets)
+  - [Changes to Scripts and Templates](#changes-to-scripts-and-templates)
+- [Testing](#testing)
+  - [Prerequisites](#prerequisites)
+  - [Setup](#setup)
+- [Grunt Commands](#grunt-commands)
+- [Servers](#servers)
+- [License](#license)
 
 ---
 
@@ -43,7 +41,7 @@ Any changes made to the css resources, scripts or the template files will automa
 
 ### Prerequisites
 
--   Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+- Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
 
 ### Setup
 
@@ -57,7 +55,7 @@ To change the default auth server edit `server/config/*.json` on your deployed i
 
 ```json
 {
-    "fxaccount_url": "http://your.auth.server.here.org"
+  "fxaccount_url": "http://your.auth.server.here.org"
 }
 ```
 
@@ -97,10 +95,10 @@ If you want to test only the unit tests (not Selenium/function tests) you can vi
 
 ## Servers
 
--   latest development - https://latest.dev.lcip.org/
--   stable - https://stable.dev.lcip.org/
--   stage - https://accounts.stage.mozaws.net/
--   production - https://accounts.firefox.com/
+- latest development - https://latest.dev.lcip.org/
+- stable - https://stable.dev.lcip.org/
+- stage - https://accounts.stage.mozaws.net/
+- production - https://accounts.firefox.com/
 
 ---
 

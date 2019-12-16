@@ -1,4 +1,4 @@
-## Firefox Accounts GeoDB Repo for Geolocation based services [![Build Status: Travis](https://travis-ci.org/mozilla/fxa-geodb.svg?branch=master)](https://travis-ci.org/mozilla/fxa-geodb)
+## Firefox Accounts GeoDB Repo for Geolocation based services
 
 Provides a wrapper around [node-maxmind](https://github.com/runk/node-maxmind) for getting the location data in an easy-to-read format.
 
