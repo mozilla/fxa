@@ -1,5 +1,3 @@
-import { string } from 'prop-types';
-
 // This configuration is a subset of the configuration declared in server/config/index.js
 // Which config is copied over is defined in server/lib/server.js
 export interface Config {

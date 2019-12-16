@@ -1,5 +1,8 @@
 import FlowEvent from './flow-event';
 
+import SentryMetrics from './sentry';
+jest.mock('./sentry');
+
 const eventGroup = 'testo';
 const eventType = 'quuz';
 
@@ -8,6 +11,7 @@ const mockNow = 1002003004005;
 beforeEach(() => {
   // `sendBeacon` is undefined in this context
   window.navigator.sendBeacon = jest.fn();
+  global.console.error = jest.fn();
 });
 
 it('does not send metrics when uninitialized', () => {
@@ -29,6 +33,23 @@ it('remains uninitialized when any flow param is empty', () => {
   FlowEvent.logAmplitudeEvent(eventGroup, eventType, {});
 
   expect(window.navigator.sendBeacon).not.toHaveBeenCalled();
+});
+
+it('logs and captures an exception from postMetrics', () => {
+  const error = 'oops';
+  (window.navigator.sendBeacon as jest.Mock).mockImplementation(() => {
+    throw error;
+  });
+  FlowEvent.init({
+    device_id: 'moz9000',
+    flow_begin_time: 9001,
+    flow_id: 'ipsoandfacto',
+  });
+  FlowEvent.logAmplitudeEvent(eventGroup, eventType, {});
+  expect(
+    (SentryMetrics as jest.Mock).mock.instances[0].captureException
+  ).toBeCalledWith(error);
+  expect(global.console.error).toBeCalledWith('AppError', error);
 });
 
 it('initializes when given all flow params', () => {

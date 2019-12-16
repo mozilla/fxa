@@ -9,6 +9,7 @@ import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
 import { SubscriptionsProps } from './index';
+import * as Amplitude from '../../lib/amplitude';
 
 type PaymentUpdateFormProps = {
   customer: Customer;
@@ -17,8 +18,6 @@ type PaymentUpdateFormProps = {
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
-  updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
-  updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
 };
 
 export const PaymentUpdateForm = ({
@@ -28,8 +27,6 @@ export const PaymentUpdateForm = ({
   customer,
   customerSubscription,
   plan,
-  updatePaymentMounted,
-  updatePaymentEngaged,
 }: PaymentUpdateFormProps) => {
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
   const [createTokenError, setCreateTokenError] = useState({
@@ -68,6 +65,16 @@ export const PaymentUpdateForm = ({
     setCreateTokenError({ type: '', error: false });
     resetUpdatePayment();
   }, [setCreateTokenError, resetUpdatePayment]);
+
+  const onFormMounted = useCallback(
+    () => Amplitude.updatePaymentMounted(plan),
+    [plan]
+  );
+
+  const onFormEngaged = useCallback(
+    () => Amplitude.updatePaymentEngaged(plan),
+    [plan]
+  );
 
   const inProgress = updatePaymentStatus.loading;
 
@@ -148,8 +155,8 @@ export const PaymentUpdateForm = ({
               confirm: false,
               onCancel: hideUpdate,
               onChange,
-              onMounted: updatePaymentMounted,
-              onEngaged: updatePaymentEngaged,
+              onMounted: onFormMounted,
+              onEngaged: onFormEngaged,
             }}
           />
         </>

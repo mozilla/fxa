@@ -280,10 +280,6 @@ const MOCK_PROPS: ProductProps = {
   createSubscriptionAndRefresh: linkToSubscriptionSuccess as () => any,
   resetCreateSubscription: action('resetCreateSubscription'),
   fetchProductRouteResources: action('fetchProductRouteResources'),
-  createSubscriptionMounted: () => {},
-  createSubscriptionEngaged: () => {},
-  updateSubscriptionPlanMounted: () => {},
-  updateSubscriptionPlanEngaged: () => {},
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
   updateSubscriptionPlanStatus: {
