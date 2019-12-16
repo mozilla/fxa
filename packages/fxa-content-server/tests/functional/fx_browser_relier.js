@@ -52,7 +52,6 @@ registerSuite('Firefox Desktop non-sync', {
                 forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
                   clientId: FIREFOX_CLIENT_ID,
@@ -85,7 +84,6 @@ registerSuite('Firefox Desktop non-sync', {
                 forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
                   clientId: FIREFOX_CLIENT_ID,
@@ -115,7 +113,6 @@ registerSuite('Firefox Desktop non-sync', {
               forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
               'fxaccounts:fxa_status': {
                 signedInUser: null,
                 clientId: FIREFOX_CLIENT_ID,
@@ -154,7 +151,6 @@ registerSuite('Firefox Desktop non-sync', {
               forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
               'fxaccounts:fxa_status': {
                 signedInUser: null,
                 clientId: FIREFOX_CLIENT_ID,

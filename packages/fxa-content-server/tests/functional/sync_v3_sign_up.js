@@ -48,9 +48,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
                   capabilities: {
@@ -99,14 +96,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 forceExperimentGroup: 'treatment',
                 forceUA: uaStrings.desktop_firefox_58,
               },
-              webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
-                'fxaccounts:fxa_status': {
-                  signedInUser: null,
-                },
-              },
             })
           )
           .then(storeWebChannelMessageData('fxaccounts:login'))
@@ -142,14 +131,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
               query: {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
-              webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
-                'fxaccounts:fxa_status': {
-                  signedInUser: null,
-                },
-              },
             })
           )
           .then(storeWebChannelMessageData('fxaccounts:login'))
@@ -184,9 +165,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
                 },
@@ -213,9 +191,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
                 'fxaccounts:fxa_status': {
                   capabilities: {
                     engines: [],
@@ -245,9 +220,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
                 forceUA: uaStrings['desktop_firefox_58'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': {
-                  ok: true,
-                },
                 'fxaccounts:fxa_status': {
                   capabilities: {
                     engines: ['creditcards', 'addresses'],
@@ -290,13 +262,6 @@ registerSuite(
                   forceExperiment: 'signupPasswordCWTS',
                   forceExperimentGroup: 'treatment',
                   forceUA: uaStrings['desktop_firefox_71'],
-                },
-                webChannelResponses: {
-                  'fxaccounts:can_link_account': { ok: true },
-                  'fxaccounts:fxa_status': {
-                    capabilities: null,
-                    signedInUser: null,
-                  },
                 },
               })
             )
