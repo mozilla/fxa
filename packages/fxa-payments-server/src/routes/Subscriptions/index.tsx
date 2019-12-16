@@ -8,9 +8,10 @@ import React, {
 import { connect } from 'react-redux';
 import dayjs from 'dayjs';
 
+import * as Amplitude from '../../lib/amplitude';
+
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
-import FlowEvent from '../../lib/flow-event';
 
 import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
@@ -49,12 +50,6 @@ export type SubscriptionsProps = {
   resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
   updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
   resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
-  manageSubscriptionsMounted: ActionFunctions['manageSubscriptionsMounted'];
-  manageSubscriptionsEngaged: ActionFunctions['manageSubscriptionsEngaged'];
-  cancelSubscriptionMounted: ActionFunctions['cancelSubscriptionMounted'];
-  cancelSubscriptionEngaged: ActionFunctions['cancelSubscriptionEngaged'];
-  updatePaymentMounted: ActionFunctions['updatePaymentMounted'];
-  updatePaymentEngaged: ActionFunctions['updatePaymentEngaged'];
 };
 
 export const Subscriptions = ({
@@ -73,12 +68,6 @@ export const Subscriptions = ({
   resetUpdatePayment,
   resetCancelSubscription,
   updatePaymentStatus,
-  manageSubscriptionsMounted,
-  manageSubscriptionsEngaged,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
 }: SubscriptionsProps) => {
   const { config, locationReload, navigateToUrl } = useContext(AppContext);
 
@@ -93,8 +82,8 @@ export const Subscriptions = ({
   const engaged = useRef(false);
 
   useEffect(() => {
-    manageSubscriptionsMounted();
-  }, [manageSubscriptionsMounted]);
+    Amplitude.manageSubscriptionsMounted();
+  }, []);
 
   // Any button click is engagement
   const onAnyClick = useCallback(
@@ -104,11 +93,11 @@ export const Subscriptions = ({
         (evt.target.tagName === 'BUTTON' ||
           evt.target.parentNode.tagName === 'BUTTON')
       ) {
-        manageSubscriptionsEngaged();
+        Amplitude.manageSubscriptionsEngaged();
         engaged.current = true;
       }
     },
-    [manageSubscriptionsEngaged, engaged]
+    [engaged]
   );
 
   // Fetch subscriptions and customer on initial render or auth change.
@@ -289,11 +278,7 @@ export const Subscriptions = ({
                   cancelSubscription,
                   reactivateSubscription,
                   customerSubscription,
-                  cancelSubscriptionMounted,
-                  cancelSubscriptionEngaged,
                   cancelSubscriptionStatus,
-                  updatePaymentMounted,
-                  updatePaymentEngaged,
                   plan: planForId(customerSubscription.plan_id, plans.result),
                   subscription: subscriptionForId(
                     customerSubscription.subscription_id,
@@ -411,11 +396,5 @@ export default connect(
     resetCancelSubscription: actions.resetCancelSubscription,
     reactivateSubscription: sequences.reactivateSubscriptionAndRefresh,
     resetReactivateSubscription: actions.resetReactivateSubscription,
-    manageSubscriptionsMounted: actions.manageSubscriptionsMounted,
-    manageSubscriptionsEngaged: actions.manageSubscriptionsEngaged,
-    cancelSubscriptionMounted: actions.cancelSubscriptionMounted,
-    cancelSubscriptionEngaged: actions.cancelSubscriptionEngaged,
-    updatePaymentMounted: actions.updatePaymentMounted,
-    updatePaymentEngaged: actions.updatePaymentEngaged,
   }
 )(Subscriptions);

@@ -14,6 +14,7 @@ import ProfileBanner from '../ProfileBanner';
 import AccountActivatedBanner from './AccountActivatedBanner';
 
 import { ProductProps } from '../index';
+import * as Amplitude from '../../../lib/amplitude';
 
 export type SubscriptionCreateProps = {
   profile: Profile;
@@ -22,8 +23,6 @@ export type SubscriptionCreateProps = {
   createSubscriptionAndRefresh: ProductProps['createSubscriptionAndRefresh'];
   createSubscriptionStatus: ProductProps['createSubscriptionStatus'];
   resetCreateSubscription: ProductProps['resetCreateSubscription'];
-  createSubscriptionMounted: ProductProps['createSubscriptionMounted'];
-  createSubscriptionEngaged: ProductProps['createSubscriptionEngaged'];
   validatorInitialState?: ValidatorState;
 };
 
@@ -35,14 +34,22 @@ export const SubscriptionCreate = ({
   createSubscriptionStatus,
   resetCreateSubscription,
   validatorInitialState,
-  createSubscriptionMounted,
-  createSubscriptionEngaged,
 }: SubscriptionCreateProps) => {
   // Hide the Firefox logo in layout if we want to display the avatar
   const { setHideLogo } = useContext(SignInLayoutContext);
   useEffect(() => {
     setHideLogo(!accountActivated);
   }, [setHideLogo, accountActivated]);
+  
+  const onFormMounted = useCallback(
+    () => Amplitude.createSubscriptionMounted(selectedPlan),
+    [selectedPlan]
+  );
+
+  const onFormEngaged = useCallback(
+    () => Amplitude.createSubscriptionEngaged(selectedPlan),
+    [selectedPlan]
+  );
 
   // Reset subscription creation status on initial render.
   useEffect(() => {
@@ -149,8 +156,8 @@ export const SubscriptionCreate = ({
           validatorInitialState,
           confirm: true,
           plan: selectedPlan,
-          onMounted: createSubscriptionMounted,
-          onEngaged: createSubscriptionEngaged,
+          onMounted: onFormMounted,
+          onEngaged: onFormEngaged,
         }}
       />
     </div>

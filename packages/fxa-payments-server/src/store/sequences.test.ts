@@ -1,5 +1,7 @@
 import { MOCK_PLANS } from '../lib/test-utils';
 
+jest.mock('../lib/sentry');
+
 jest.mock('./actions', () => ({
   ...jest.requireActual('./actions'),
   actions: {

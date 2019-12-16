@@ -30,6 +30,7 @@ export default {
         paymentToken,
         displayName,
         planId: plan.plan_id,
+        productId: plan.product_id,
       }),
     } as const),
   updateSubscriptionPlan: (subscriptionId: string, plan: Plan) =>
@@ -39,6 +40,7 @@ export default {
       payload: apiUpdateSubscriptionPlan({
         subscriptionId,
         planId: plan.plan_id,
+        productId: plan.product_id,
       }),
     } as const),
   cancelSubscription: (subscriptionId: string, plan: Plan) =>
@@ -46,7 +48,11 @@ export default {
       type: 'cancelSubscription',
       meta: { plan },
       payload: async () => {
-        const result = await apiCancelSubscription(subscriptionId);
+        const result = await apiCancelSubscription({
+          subscriptionId,
+          planId: plan.plan_id,
+          productId: plan.product_id,
+        });
         // Cancellation response does not include subscriptionId, but we want it.
         return { ...result, subscriptionId };
       },
@@ -57,7 +63,10 @@ export default {
       meta: { plan },
       payload: async () => {
         // Ignore the API result, because it's just `{}` on success.
-        await apiReactivateSubscription(subscriptionId);
+        await apiReactivateSubscription({
+          subscriptionId,
+          planId: plan.plan_id,
+        });
         return {
           subscriptionId,
           plan,
@@ -68,6 +77,10 @@ export default {
     ({
       type: 'updatePayment',
       meta: { plan },
-      payload: apiUpdatePayment(paymentToken),
+      payload: apiUpdatePayment({
+        paymentToken,
+        planId: plan.plan_id,
+        productId: plan.product_id,
+      }),
     } as const),
 } as const;

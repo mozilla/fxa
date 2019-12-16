@@ -9,6 +9,15 @@ var assert = chai.assert;
 const dsn = 'https://public:private@host:port/1';
 
 describe('lib/sentry', function() {
+  beforeAll(() => {
+    // Reduce console log noise in test output
+    jest.spyOn(console, 'error').mockImplementation();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('init', function() {
     it('properly inits', function() {
       try {

@@ -9,6 +9,8 @@ import {
 import { SelectorReturns } from '../../../store/selectors';
 import { metadataFromPlan } from '../../../store/utils';
 
+import * as Amplitude from '../../../lib/amplitude';
+
 import {
   formatCurrencyInCents,
   formatPeriodEndDate,
@@ -35,8 +37,6 @@ export type SubscriptionUpgradeProps = {
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
   updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
   resetUpdateSubscriptionPlan: ProductProps['resetUpdateSubscriptionPlan'];
-  onMounted: Function;
-  onEngaged: Function;
 };
 
 export const SubscriptionUpgrade = ({
@@ -48,20 +48,18 @@ export const SubscriptionUpgrade = ({
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
-  onMounted,
-  onEngaged,
 }: SubscriptionUpgradeProps) => {
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
 
   useEffect(() => {
-    onMounted(selectedPlan);
-  }, [onMounted, selectedPlan]);
+    Amplitude.updateSubscriptionPlanMounted(selectedPlan);
+  }, [selectedPlan]);
 
   const engageOnce = useCallbackOnce(() => {
-    onEngaged(selectedPlan);
-  }, [onEngaged, selectedPlan]);
+    Amplitude.updateSubscriptionPlanEngaged(selectedPlan);
+  }, [selectedPlan]);
 
   const onSubmit = useCallback(
     ev => {

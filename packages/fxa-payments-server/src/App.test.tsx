@@ -6,6 +6,8 @@ import { defaultAppContextValue } from './lib/test-utils';
 import { AppErrorBoundary, AppErrorDialog } from './App';
 import { AppContext } from './lib/AppContext';
 
+jest.mock('./lib/sentry');
+
 // TODO: backfill general App component tests
 // describe('App', () => {});
 
@@ -14,11 +16,11 @@ describe('App/AppErrorBoundary', () => {
     // HACK: Swallow the exception thrown by BadComponent - it bubbles up
     // unnecesarily to jest and makes noise.
     jest.spyOn(console, 'error');
-    global.console.error.mockImplementation(() => {});
+    (global.console.error as jest.Mock).mockImplementation(() => {});
   });
 
   afterEach(() => {
-    global.console.error.mockRestore();
+    (global.console.error as jest.Mock).mockRestore();
   });
 
   it('renders children that do not cause exceptions', () => {

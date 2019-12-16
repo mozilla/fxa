@@ -4,6 +4,8 @@ import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 import { Omit } from '../../lib/types';
 
+jest.mock('../../lib/sentry');
+
 import {
   mockStripeElementOnChangeFns,
   mockStripeElementOnBlurFns,

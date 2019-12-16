@@ -12,7 +12,7 @@ import nock from 'nock';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
-import { Plan } from '../../src/store/types';
+import { Plan, Token } from '../../src/store/types';
 
 declare global {
   namespace NodeJS {
@@ -243,6 +243,17 @@ export const MockApp = ({
 };
 
 export const MOCK_CLIENT_TOKEN = 'tok-8675309';
+
+export const MOCK_TOKEN: Token = {
+  active: true,
+  scope: 'mock-scope',
+  client_id: 'abcde8675309',
+  token_type: 'refresh',
+  exp: 0,
+  iat: 0,
+  sub: 'foo@bar.com',
+  jti: '',
+};
 
 export const STRIPE_FIELDS = [
   'cardNumberElement',

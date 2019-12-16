@@ -2,7 +2,6 @@ import React, { useEffect, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
-import FlowEvent from '../../lib/flow-event';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
 
@@ -40,10 +39,6 @@ export type ProductProps = {
   updateSubscriptionPlanAndRefresh: SequenceFunctions['updateSubscriptionPlanAndRefresh'];
   resetUpdateSubscriptionPlan: ActionFunctions['resetUpdateSubscriptionPlan'];
   fetchProductRouteResources: SequenceFunctions['fetchProductRouteResources'];
-  createSubscriptionMounted: ActionFunctions['createSubscriptionMounted'];
-  createSubscriptionEngaged: ActionFunctions['createSubscriptionEngaged'];
-  updateSubscriptionPlanMounted: ActionFunctions['updateSubscriptionPlanMounted'];
-  updateSubscriptionPlanEngaged: ActionFunctions['updateSubscriptionPlanEngaged'];
   validatorInitialState?: ValidatorState;
 };
 
@@ -61,15 +56,11 @@ export const Product = ({
   resetCreateSubscription,
   fetchProductRouteResources,
   validatorInitialState,
-  createSubscriptionMounted,
-  createSubscriptionEngaged,
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
-  updateSubscriptionPlanMounted,
-  updateSubscriptionPlanEngaged,
 }: ProductProps) => {
-  const { config, locationReload, queryParams } = useContext(AppContext);
+  const { locationReload, queryParams } = useContext(AppContext);
 
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
@@ -158,8 +149,6 @@ export const Product = ({
             updateSubscriptionPlanAndRefresh,
             resetUpdateSubscriptionPlan,
             updateSubscriptionPlanStatus,
-            onMounted: updateSubscriptionPlanMounted,
-            onEngaged: updateSubscriptionPlanEngaged,
           }}
         />
       );
@@ -181,8 +170,6 @@ export const Product = ({
         createSubscriptionStatus,
         resetCreateSubscription,
         validatorInitialState,
-        createSubscriptionMounted,
-        createSubscriptionEngaged,
       }}
     />
   );
@@ -259,10 +246,6 @@ export default connect(
     resetCreateSubscription: actions.resetCreateSubscription,
     fetchProductRouteResources: sequences.fetchProductRouteResources,
     createSubscriptionAndRefresh: sequences.createSubscriptionAndRefresh,
-    createSubscriptionMounted: actions.createSubscriptionMounted,
-    createSubscriptionEngaged: actions.createSubscriptionEngaged,
-    updateSubscriptionPlanMounted: actions.updateSubscriptionPlanMounted,
-    updateSubscriptionPlanEngaged: actions.updateSubscriptionPlanEngaged,
     updateSubscriptionPlanAndRefresh:
       sequences.updateSubscriptionPlanAndRefresh,
     resetUpdateSubscriptionPlan: actions.resetUpdateSubscriptionPlan,
