@@ -111,7 +111,6 @@ module.exports = function(
     config,
     require('../oauth/db')
   );
-  const tokenCodes = require('./token-codes')(log, db, config, customs);
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(
     log,
@@ -179,7 +178,6 @@ module.exports = function(
     signinCodes,
     sign,
     smsRoute,
-    tokenCodes,
     totp,
     unblockCodes,
     util,

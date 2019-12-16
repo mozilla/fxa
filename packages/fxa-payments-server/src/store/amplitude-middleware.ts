@@ -1,10 +1,13 @@
 import { AnyAction, Dispatch, Middleware, MiddlewareAPI } from 'redux';
 import { logAmplitudeEvent } from '../lib/flow-event';
-import * as Sentry from '@sentry/browser';
+import SentryMetrics from '../lib/sentry';
 import { config } from '../lib/config';
+
+const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 const eventGroupNames = {
   createSubscription: 'subPaySetup',
+  upgradeSubscription: 'subPayUpgrade',
   updatePayment: 'subPayManage',
   cancelSubscription: 'subCancel',
   manageSubscriptions: 'subManage',
@@ -42,7 +45,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.manageSubscriptions,
           eventTypeNames.view,
-          config.perfStartTime,
           {}
         );
         break;
@@ -50,7 +52,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.manageSubscriptions,
           eventTypeNames.engage,
-          config.perfStartTime,
           {}
         );
         break;
@@ -59,7 +60,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
           eventTypeNames.view,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -67,7 +67,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
           eventTypeNames.engage,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -75,7 +74,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
           eventTypeNames.submit,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -83,13 +81,11 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
           eventTypeNames.success,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
           eventTypeNames.complete,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -97,7 +93,45 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.createSubscription,
           eventTypeNames.fail,
-          config.perfStartTime,
+          {
+            ...getPlanPropsFromAction(action),
+            ...getFailureReasonFromAction(action),
+          }
+        );
+        break;
+
+      case 'updateSubscriptionPlanMounted':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.view,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlanEngaged':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.engage,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlan_PENDING':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.submit,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlan_FULFILLED':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.success,
+          getPlanPropsFromAction(action)
+        );
+        break;
+      case 'updateSubscriptionPlan_REJECTED':
+        logAmplitudeEvent(
+          eventGroupNames.upgradeSubscription,
+          eventTypeNames.fail,
           {
             ...getPlanPropsFromAction(action),
             ...getFailureReasonFromAction(action),
@@ -109,7 +143,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.updatePayment,
           eventTypeNames.view,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -117,7 +150,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.updatePayment,
           eventTypeNames.engage,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -125,7 +157,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.updatePayment,
           eventTypeNames.submit,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -133,33 +164,25 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.updatePayment,
           eventTypeNames.success,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         logAmplitudeEvent(
           eventGroupNames.updatePayment,
           eventTypeNames.complete,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
       case 'updatePayment_REJECTED':
-        logAmplitudeEvent(
-          eventGroupNames.updatePayment,
-          eventTypeNames.fail,
-          config.perfStartTime,
-          {
-            ...getPlanPropsFromAction(action),
-            ...getFailureReasonFromAction(action),
-          }
-        );
+        logAmplitudeEvent(eventGroupNames.updatePayment, eventTypeNames.fail, {
+          ...getPlanPropsFromAction(action),
+          ...getFailureReasonFromAction(action),
+        });
         break;
 
       case 'cancelSubscriptionMounted':
         logAmplitudeEvent(
           eventGroupNames.cancelSubscription,
           eventTypeNames.view,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -167,7 +190,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.cancelSubscription,
           eventTypeNames.engage,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -175,7 +197,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.cancelSubscription,
           eventTypeNames.submit,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -183,13 +204,11 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.cancelSubscription,
           eventTypeNames.success,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         logAmplitudeEvent(
           eventGroupNames.cancelSubscription,
           eventTypeNames.complete,
-          config.perfStartTime,
           getPlanPropsFromAction(action)
         );
         break;
@@ -197,7 +216,6 @@ export const AmplitudeMiddleware: Middleware = (
         logAmplitudeEvent(
           eventGroupNames.cancelSubscription,
           eventTypeNames.fail,
-          config.perfStartTime,
           {
             ...getPlanPropsFromAction(action),
             ...getFailureReasonFromAction(action),
@@ -207,7 +225,7 @@ export const AmplitudeMiddleware: Middleware = (
     }
   } catch (e) {
     console.error('AppError', e);
-    Sentry.captureException(e);
+    sentryMetrics.captureException(e);
   }
 
   next(action);

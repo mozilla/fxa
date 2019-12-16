@@ -1,4 +1,4 @@
-FROM node:10-alpine AS builder
+FROM node:12-alpine AS builder
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
@@ -16,17 +16,18 @@ RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.9/community/ --
 
 USER app
 
-COPY package-lock.json package-lock.json
-COPY package.json package.json
-COPY scripts/check_gm.sh scripts/check_gm.sh
-
 RUN npm install --production && rm -rf ~app/.npm /tmp/*
 
-COPY . /app
+COPY --chown=app:app fxa-profile-server /app
 
+COPY --chown=app:app ["fxa-shared", "../fxa-shared/"]
+WORKDIR /fxa-shared
+USER root
+RUN chown -R app:app /fxa-shared
+USER app
 
 # Build final image by copying from builder
-FROM node:10-alpine
+FROM node:12-alpine
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 

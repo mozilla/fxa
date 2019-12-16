@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const fxaProduction = intern._config.fxaProduction;
@@ -19,6 +18,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,

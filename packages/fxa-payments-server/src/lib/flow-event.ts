@@ -1,5 +1,7 @@
-import * as Sentry from '@sentry/browser';
-import SpeedTrap from 'speed-trap';
+import SentryMetrics from './sentry';
+import { config } from './config';
+
+const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 interface FlowEventParams {
   device_id?: string;
@@ -43,7 +45,6 @@ export function init(eventData: FlowEventParams) {
 export function logAmplitudeEvent(
   groupName: string,
   eventName: string,
-  perfStartTime: number,
   eventProperties: object
 ) {
   if (!shouldSend()) {
@@ -60,8 +61,6 @@ export function logAmplitudeEvent(
         },
       ],
       data: {
-        perfStartTime, // start time from the server
-        startTime: SpeedTrap.baseTime,
         flushTime: now,
         ...optEventData,
         ...eventProperties,
@@ -71,45 +70,11 @@ export function logAmplitudeEvent(
     postMetrics(eventData);
   } catch (e) {
     console.error('AppError', e);
-    Sentry.captureException(e);
-  }
-}
-
-export function logPerformanceEvent(view: string, perfStartTime: number) {
-  if (!shouldSend()) {
-    return;
-  }
-
-  try {
-    const loadData = SpeedTrap.getLoad();
-    const now = Date.now();
-
-    const eventData = {
-      events: [
-        {
-          offset: now - SpeedTrap.baseTime,
-          type: 'loaded',
-        },
-      ],
-      data: {
-        view,
-        perfStartTime, // start time from the server
-        startTime: SpeedTrap.baseTime,
-        flushTime: now,
-        navigationTiming: loadData.navigationTiming,
-        ...optEventData,
-      },
-    };
-
-    postMetrics(eventData);
-  } catch (e) {
-    console.error('AppError', e);
-    Sentry.captureException(e);
+    sentryMetrics.captureException(e);
   }
 }
 
 export default {
   init,
   logAmplitudeEvent,
-  logPerformanceEvent,
 };

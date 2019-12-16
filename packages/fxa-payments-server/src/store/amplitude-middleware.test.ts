@@ -3,14 +3,13 @@ import { AmplitudeMiddleware } from './amplitude-middleware';
 import FlowEvent from '../lib/flow-event';
 jest.mock('../lib/flow-event');
 jest.mock('../lib/config', () => ({
-  config: { perfStartTime: 9999 },
+  config: { sentry: { dsn: '' } },
 }));
 
 let next: Dispatch<AnyAction>;
 let dispatch: Dispatch<AnyAction>;
 let getState: any;
 let invoke: Function;
-let perfStartTime: number;
 
 const create = (
   middleware: Middleware,
@@ -26,7 +25,6 @@ beforeEach(() => {
   dispatch = jest.fn();
   getState = jest.fn();
   invoke = create(AmplitudeMiddleware, { dispatch, getState }, next);
-  perfStartTime = 9999;
 });
 
 it('should dispatch the next action', () => {
@@ -47,6 +45,11 @@ it('should call logAmplitudeEvent with the correct event group and type names', 
       ['subPaySetup', 'complete'],
     ],
     ['createSubscription_REJECTED', ['subPaySetup', 'fail']],
+    ['updateSubscriptionPlanMounted', ['subPayUpgrade', 'view']],
+    ['updateSubscriptionPlanEngaged', ['subPayUpgrade', 'engage']],
+    ['updateSubscriptionPlan_PENDING', ['subPayUpgrade', 'submit']],
+    ['updateSubscriptionPlan_FULFILLED', ['subPayUpgrade', 'success']],
+    ['updateSubscriptionPlan_REJECTED', ['subPayUpgrade', 'fail']],
     ['updatePaymentMounted', ['subPayManage', 'view']],
     ['updatePaymentEngaged', ['subPayManage', 'engage']],
     ['updatePayment_PENDING', ['subPayManage', 'submit']],
@@ -62,11 +65,7 @@ it('should call logAmplitudeEvent with the correct event group and type names', 
     invoke({ type: actionType });
 
     for (const args of expectedArgs as string[][]) {
-      expect(FlowEvent.logAmplitudeEvent).toBeCalledWith(
-        ...args,
-        perfStartTime,
-        {}
-      );
+      expect(FlowEvent.logAmplitudeEvent).toBeCalledWith(...args, {});
     }
 
     (<jest.Mock>FlowEvent.logAmplitudeEvent).mockClear();

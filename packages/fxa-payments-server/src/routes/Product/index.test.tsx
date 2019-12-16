@@ -173,8 +173,6 @@ describe('routes/Product', () => {
       expect(queryByTestId('profile-display-name')).toBeInTheDocument();
     }
     expectNockScopesDone(apiMocks);
-
-    expect(FlowEvent.logPerformanceEvent).toBeCalledWith('product', 9001);
   };
 
   it('renders with valid product ID', withExistingAccount(false));

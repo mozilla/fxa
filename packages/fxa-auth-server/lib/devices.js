@@ -120,8 +120,8 @@ module.exports = (log, db, oauthdb, push) => {
     return true;
   }
 
-  function upsert(request, credentials, deviceInfo) {
-    let operation, event, result;
+  async function upsert(request, credentials, deviceInfo) {
+    let operation, event;
     if (deviceInfo.id) {
       operation = 'updateDevice';
       event = 'device.updated';
@@ -143,57 +143,54 @@ module.exports = (log, db, oauthdb, push) => {
     const isPlaceholderDevice =
       !deviceInfo.id && !deviceInfo.name && !deviceInfo.type;
 
-    return db[operation](credentials.uid, deviceInfo)
-      .then(device => {
-        result = device;
-        return request.emitMetricsEvent(event, {
+    const result = await db[operation](credentials.uid, deviceInfo);
+    await request.emitMetricsEvent(event, {
+      uid: credentials.uid,
+      device_id: result.id,
+      is_placeholder: isPlaceholderDevice,
+    });
+    if (operation === 'createDevice') {
+      // Clients expect this notification to always include a name,
+      // so try to synthesize one if necessary.
+      let deviceName = result.name;
+      if (!deviceName) {
+        deviceName =
+          (credentials.client && credentials.client.name) ||
+          synthesizeName(deviceInfo);
+      }
+      if (credentials.tokenVerified) {
+        // Fire off the notify without waiting.
+        (async () => {
+          const devices = await db.devices(credentials.uid);
+          const otherDevices = devices.filter(
+            device => device.id !== result.id
+          );
+          return push.notifyDeviceConnected(
+            credentials.uid,
+            otherDevices,
+            deviceName
+          );
+        })();
+      }
+
+      if (isPlaceholderDevice) {
+        log.info('device:createPlaceholder', {
           uid: credentials.uid,
-          device_id: result.id,
-          is_placeholder: isPlaceholderDevice,
+          id: result.id,
         });
-      })
-      .then(() => {
-        if (operation === 'createDevice') {
-          // Clients expect this notification to always include a name,
-          // so try to synthesize one if necessary.
-          let deviceName = result.name;
-          if (!deviceName) {
-            deviceName =
-              (credentials.client && credentials.client.name) ||
-              synthesizeName(deviceInfo);
-          }
-          if (credentials.tokenVerified) {
-            db.devices(credentials.uid).then(devices => {
-              const otherDevices = devices.filter(
-                device => device.id !== result.id
-              );
-              return push.notifyDeviceConnected(
-                credentials.uid,
-                otherDevices,
-                deviceName
-              );
-            });
-          }
-          if (isPlaceholderDevice) {
-            log.info('device:createPlaceholder', {
-              uid: credentials.uid,
-              id: result.id,
-            });
-          }
-          return log.notifyAttachedServices('device:create', request, {
-            uid: credentials.uid,
-            id: result.id,
-            type: result.type,
-            timestamp: result.createdAt,
-            isPlaceholder: isPlaceholderDevice,
-          });
-        }
-      })
-      .then(() => {
-        delete result.sessionTokenId;
-        delete result.refreshTokenId;
-        return result;
+      }
+      await log.notifyAttachedServices('device:create', request, {
+        uid: credentials.uid,
+        id: result.id,
+        type: result.type,
+        timestamp: result.createdAt,
+        isPlaceholder: isPlaceholderDevice,
       });
+    }
+
+    delete result.sessionTokenId;
+    delete result.refreshTokenId;
+    return result;
   }
 
   async function destroy(request, deviceId) {

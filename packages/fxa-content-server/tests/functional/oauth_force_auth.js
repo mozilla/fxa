@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -14,6 +13,7 @@ var OAUTH_APP = config.fxaOAuthApp;
 
 const {
   clearBrowserState,
+  createEmail,
   createUser,
   fillOutEmailFirstSignUp,
   fillOutForceAuth,
@@ -33,7 +33,7 @@ let email;
 
 registerSuite('oauth force_auth', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(
       clearBrowserState({
         '123done': true,
@@ -87,7 +87,7 @@ registerSuite('oauth force_auth', {
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return (
         this.remote

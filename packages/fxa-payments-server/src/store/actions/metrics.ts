@@ -5,6 +5,10 @@ export default {
     ({ type: 'createSubscriptionMounted', payload: { plan } } as const),
   createSubscriptionEngaged: (plan: Plan) =>
     ({ type: 'createSubscriptionEngaged', payload: { plan } } as const),
+  updateSubscriptionPlanMounted: (plan: Plan) =>
+    ({ type: 'createSubscriptionMounted', payload: { plan } } as const),
+  updateSubscriptionPlanEngaged: (plan: Plan) =>
+    ({ type: 'createSubscriptionEngaged', payload: { plan } } as const),
   manageSubscriptionsMounted: () =>
     ({ type: 'manageSubscriptionsMounted' } as const),
   manageSubscriptionsEngaged: () =>

@@ -162,8 +162,6 @@ describe('routes/Subscriptions', () => {
     const ctas = queryAllByTestId('upgrade-cta');
     expect(ctas.length).toBe(0);
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
-
-    expect(FlowEvent.logPerformanceEvent).toBeCalledWith('subscriptions', 9001);
   });
 
   it('displays upgrade CTA when available for a subscription', async () => {

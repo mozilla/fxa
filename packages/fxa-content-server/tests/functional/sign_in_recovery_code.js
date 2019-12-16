@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -23,6 +22,7 @@ let secret;
 const {
   clearBrowserState,
   click,
+  createEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
@@ -38,7 +38,7 @@ const {
 
 registerSuite('recovery code', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     const self = this;
     return (
       this.remote
@@ -102,13 +102,6 @@ registerSuite('recovery code', {
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
             })
           )
 
@@ -138,13 +131,6 @@ registerSuite('recovery code', {
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
             })
           )
 
@@ -164,13 +150,6 @@ registerSuite('recovery code', {
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
               query: {},
-              webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
-                'fxaccounts:fxa_status': {
-                  capabilities: null,
-                  signedInUser: null,
-                },
-              },
             })
           )
 

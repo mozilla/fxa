@@ -16,21 +16,18 @@ module.exports = (log, config, db) => {
      * @param account
      * @returns boolean
      */
-    hasTotpToken(account) {
+    async hasTotpToken(account) {
       const { uid } = account;
-      return db.totpToken(uid).then(
-        result => {
-          if (result && result.verified && result.enabled) {
-            return true;
-          }
-        },
-        err => {
-          if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-            return false;
-          }
-          throw err;
+      let result;
+      try {
+        result = await db.totpToken(uid);
+      } catch (err) {
+        if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
+          return false;
         }
-      );
+        throw err;
+      }
+      return !!(result && result.verified && result.enabled);
     },
 
     /**

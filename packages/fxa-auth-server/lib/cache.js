@@ -34,10 +34,9 @@ module.exports = (log, config, namespace) => {
      * @param {string} key
      * @param data
      */
-    add(key, data) {
-      return getCache().then(cache =>
-        cache.addAsync(key, data, CACHE_LIFETIME)
-      );
+    async add(key, data) {
+      const cache = await getCache();
+      return await cache.addAsync(key, data, CACHE_LIFETIME);
     },
 
     /**
@@ -47,8 +46,9 @@ module.exports = (log, config, namespace) => {
      *
      * @param {string} key
      */
-    del(key) {
-      return getCache().then(cache => cache.delAsync(key));
+    async del(key) {
+      const cache = await getCache();
+      return await cache.delAsync(key);
     },
 
     /**
@@ -58,36 +58,34 @@ module.exports = (log, config, namespace) => {
      *
      * @param {string} key
      */
-    get(key) {
-      return getCache().then(cache => cache.getAsync(key));
+    async get(key) {
+      const cache = await getCache();
+      return await cache.getAsync(key);
     },
   };
 
-  function getCache() {
-    return P.resolve()
-      .then(() => {
-        if (_cache) {
-          return _cache;
-        }
-
-        if (CACHE_ADDRESS === 'none') {
-          _cache = NULL_CACHE;
-        } else {
-          _cache = new Memcached(CACHE_ADDRESS, {
-            timeout: 500,
-            retries: 1,
-            retry: 1000,
-            reconnect: 1000,
-            idle: CACHE_IDLE,
-            namespace,
-          });
-        }
-
+  async function getCache() {
+    try {
+      if (_cache) {
         return _cache;
-      })
-      .catch(err => {
-        log.error('cache.getCache', { err: err });
-        return NULL_CACHE;
-      });
+      }
+
+      if (CACHE_ADDRESS === 'none') {
+        _cache = NULL_CACHE;
+      } else {
+        _cache = new Memcached(CACHE_ADDRESS, {
+          timeout: 500,
+          retries: 1,
+          retry: 1000,
+          reconnect: 1000,
+          idle: CACHE_IDLE,
+          namespace,
+        });
+      }
+      return _cache;
+    } catch (err) {
+      log.error('cache.getCache', { err: err });
+      return NULL_CACHE;
+    }
   }
 };

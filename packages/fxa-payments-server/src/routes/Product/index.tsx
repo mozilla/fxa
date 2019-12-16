@@ -42,6 +42,8 @@ export type ProductProps = {
   fetchProductRouteResources: SequenceFunctions['fetchProductRouteResources'];
   createSubscriptionMounted: ActionFunctions['createSubscriptionMounted'];
   createSubscriptionEngaged: ActionFunctions['createSubscriptionEngaged'];
+  updateSubscriptionPlanMounted: ActionFunctions['updateSubscriptionPlanMounted'];
+  updateSubscriptionPlanEngaged: ActionFunctions['updateSubscriptionPlanEngaged'];
   validatorInitialState?: ValidatorState;
 };
 
@@ -64,18 +66,13 @@ export const Product = ({
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
+  updateSubscriptionPlanMounted,
+  updateSubscriptionPlanEngaged,
 }: ProductProps) => {
   const { config, locationReload, queryParams } = useContext(AppContext);
 
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
-
-  // There is no way to do this with a React Hook. We need the
-  // `navigationTiming.domComplete` value to calculate the "client" perf metric.
-  // When `useEffect` is used, the `domComplete` value is always(?) null because
-  // it fires too early. This is the reliable approach.
-  window.onload = () =>
-    FlowEvent.logPerformanceEvent('product', config.perfStartTime);
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {
@@ -161,6 +158,8 @@ export const Product = ({
             updateSubscriptionPlanAndRefresh,
             resetUpdateSubscriptionPlan,
             updateSubscriptionPlanStatus,
+            onMounted: updateSubscriptionPlanMounted,
+            onEngaged: updateSubscriptionPlanEngaged,
           }}
         />
       );
@@ -262,6 +261,8 @@ export default connect(
     createSubscriptionAndRefresh: sequences.createSubscriptionAndRefresh,
     createSubscriptionMounted: actions.createSubscriptionMounted,
     createSubscriptionEngaged: actions.createSubscriptionEngaged,
+    updateSubscriptionPlanMounted: actions.updateSubscriptionPlanMounted,
+    updateSubscriptionPlanEngaged: actions.updateSubscriptionPlanEngaged,
     updateSubscriptionPlanAndRefresh:
       sequences.updateSubscriptionPlanAndRefresh,
     resetUpdateSubscriptionPlan: actions.resetUpdateSubscriptionPlan,

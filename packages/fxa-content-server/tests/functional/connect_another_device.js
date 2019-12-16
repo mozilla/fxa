@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const UA_STRINGS = require('./lib/ua-strings');
 const selectors = require('./lib/selectors');
@@ -26,10 +25,9 @@ const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_devi
 const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email`;
 
-const CHANNEL_COMMAND_CAN_LINK_ACCOUNT = 'fxaccounts:can_link_account';
-
 const {
   clearBrowserState,
+  createEmail,
   fillOutEmailFirstSignUp,
   noSuchElement,
   openPage,
@@ -42,7 +40,7 @@ const PASSWORD = 'password12345678';
 
 registerSuite('connect_another_device', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
@@ -55,11 +53,6 @@ registerSuite('connect_another_device', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
-            webChannelResponses: {
-              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
-                ok: true,
-              },
-            },
           })
         )
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -99,11 +92,6 @@ registerSuite('connect_another_device', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: { forceUA },
-            webChannelResponses: {
-              [CHANNEL_COMMAND_CAN_LINK_ACCOUNT]: {
-                ok: true,
-              },
-            },
           })
         )
         .then(fillOutEmailFirstSignUp(email, PASSWORD))

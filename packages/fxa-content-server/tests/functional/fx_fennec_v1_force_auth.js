@@ -5,21 +5,18 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const {
   clearBrowserState,
-  closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutForceAuth,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   openForceAuth,
-  openVerificationLinkInNewTab,
   respondToWebChannelMessage,
-  switchToWindow,
   testElementExists,
   testIsBrowserNotified,
   thenify,
@@ -35,7 +32,7 @@ const setupTest = thenify(function(options) {
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
     ? selectors.SIGNIN_TOKEN_CODE.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+    : selectors.CONFIRM_SIGNUP_CODE.HEADER;
 
   return this.parent
     .then(clearBrowserState())
@@ -60,7 +57,7 @@ const setupTest = thenify(function(options) {
 
 registerSuite('Fx Fennec Sync v1 force_auth', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
   },
   tests: {
     'verified, verify same browser': function() {
@@ -80,10 +77,7 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
           // email 0 - initial sign up email
           // email 1 - sign in w/ unverified address email
           // email 2 - "You have verified your Firefox Account"
-          .then(openVerificationLinkInNewTab(email, 1))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignInTokenCode(email, 1))
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
@@ -91,7 +85,7 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return this.remote
         .then(setupTest({ blocked: true, preVerified: true }))

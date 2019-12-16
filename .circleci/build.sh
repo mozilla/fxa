@@ -21,6 +21,10 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     cd ..
     docker build -f fxa-content-server/Dockerfile-build -t ${MODULE}:build .
     cd fxa-content-server
+  elif [ "${MODULE}" == 'fxa-profile-server' ]; then
+    cd ..
+    docker build -f fxa-profile-server/Dockerfile-build -t ${MODULE}:build .
+    cd fxa-profile-server
   elif [ "${MODULE}" == 'fxa-payments-server' ]; then
     cd ..
     docker build -f fxa-payments-server/Dockerfile -t ${MODULE}:build .

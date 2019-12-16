@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const FxDesktopHelpers = require('./lib/fx-desktop');
 const selectors = require('./lib/selectors');
@@ -22,7 +21,8 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
+  createEmail,
+  createPhoneNumber,
   createUser,
   deleteAllSms,
   disableInProd,
@@ -32,8 +32,6 @@ const {
   getSmsSigninCode,
   noPageTransition,
   openPage,
-  openVerificationLinkInNewTab,
-  switchToWindow,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -54,7 +52,7 @@ const setupTest = thenify(function(options = {}) {
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
     ? selectors.SIGNIN_TOKEN_CODE.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+    : selectors.CONFIRM_SIGNUP_CODE.HEADER;
 
   return this.parent
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
@@ -71,7 +69,7 @@ const setupTest = thenify(function(options = {}) {
 
 registerSuite('FxiOS v1 signin', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
@@ -150,10 +148,7 @@ registerSuite('FxiOS v1 signin', {
           // email 0 - initial sign up email
           // email 1 - sign in w/ unverified address email
           // email 2 - "You have verified your Firefox Account"
-          .then(openVerificationLinkInNewTab(email, 1, { query }))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignInTokenCode(email, 1, { query }))
 
           // In Fx for iOS >= 6.1, user should redirect to the signup-complete
           // page after verification.
@@ -162,7 +157,7 @@ registerSuite('FxiOS v1 signin', {
     },
 
     'blocked, valid code entered': function() {
-      email = TestHelpers.createEmail('block{id}');
+      email = createEmail('block{id}');
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 
@@ -184,7 +179,7 @@ registerSuite('FxiOS v1 signin', {
 
     'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': disableInProd(
       function() {
-        const testPhoneNumber = TestHelpers.createPhoneNumber();
+        const testPhoneNumber = createPhoneNumber();
         const forceUA = UA_STRINGS['ios_firefox_6_1'];
         const query = { forceUA };
 

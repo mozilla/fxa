@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -20,6 +19,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
@@ -43,7 +43,7 @@ var accountData;
 
 registerSuite('settings', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
@@ -246,33 +246,9 @@ registerSuite('settings', {
   },
 });
 
-registerSuite('settings unverified', {
-  beforeEach: function() {
-    email = TestHelpers.createEmail();
-
-    return this.remote
-      .then(createUser(email, FIRST_PASSWORD))
-      .then(clearBrowserState({ force: true }))
-
-      .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-      .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
-
-      .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER));
-  },
-  tests: {
-    'visit settings page with an unverified account redirects to confirm': function() {
-      return (
-        this.remote
-          // Expect to get redirected to confirm since the account is unverified
-          .then(openPage(SETTINGS_URL, selectors.CONFIRM_SIGNUP.HEADER))
-      );
-    },
-  },
-});
-
 registerSuite('settings with expired session', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
@@ -300,7 +276,7 @@ registerSuite('settings with expired session', {
 
 registerSuite('settings with recent activity link', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))

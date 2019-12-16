@@ -117,6 +117,9 @@ jobs:
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
+      - store_artifacts:
+          path: ~/screenshots
+          destination: screenshots
 
   build-and-deploy-content-server:
     executor: nodejs
@@ -131,7 +134,7 @@ jobs:
 
   fxa-shared:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
       - image: redis
     working_directory: ~/project/packages/fxa-shared
     steps:
@@ -235,7 +238,7 @@ jobs:
 
   docs:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
     working_directory: ~/project
     steps:
       - attach_workspace:

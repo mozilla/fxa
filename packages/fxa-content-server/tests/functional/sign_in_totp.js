@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -26,6 +25,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutCompleteResetPassword,
   fillOutDeleteAccount,
@@ -49,7 +49,7 @@ const {
 
 registerSuite('TOTP', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return (
       this.remote
         .then(clearBrowserState({ force: true }))
@@ -118,13 +118,6 @@ registerSuite('TOTP', {
         .then(
           openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {},
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
           })
         )
 
@@ -267,7 +260,7 @@ registerSuite('TOTP', {
 
 registerSuite('TOTP - unverified session', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))

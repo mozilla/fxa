@@ -8,7 +8,6 @@ const bufferEqualConstantTime = require('buffer-equal-constant-time');
 const crypto = require('crypto');
 const HEX_STRING = require('../routes/validators').HEX_STRING;
 const isA = require('joi');
-const P = require('../promise');
 
 const FLOW_ID_LENGTH = 64;
 
@@ -93,29 +92,33 @@ module.exports = function(log, config) {
    * @this request
    * @param token    token to stash the metadata against
    */
-  function stash(token) {
+  async function stash(token) {
     const metadata = this.payload && this.payload.metricsContext;
 
     if (!metadata) {
-      return P.resolve();
+      return;
     }
 
     metadata.service = this.payload.service || this.query.service;
 
-    return P.resolve()
-      .then(() => {
-        return cache
-          .add(getKey(token), metadata)
-          .catch(err => log.warn('metricsContext.stash.add', { err }));
-      })
-      .catch(err =>
-        log.error('metricsContext.stash', {
-          err,
-          hasToken: !!token,
-          hasId: !!(token && token.id),
-          hasUid: !!(token && token.uid),
-        })
-      );
+    let cacheKey;
+    try {
+      cacheKey = getKey(token);
+    } catch (err) {
+      log.error('metricsContext.stash', {
+        err,
+        hasToken: !!token,
+        hasId: !!(token && token.id),
+        hasUid: !!(token && token.uid),
+      });
+      return;
+    }
+
+    try {
+      return await cache.add(cacheKey, metadata);
+    } catch (err) {
+      log.warn('metricsContext.stash.add', { err });
+    }
   }
 
   /**
@@ -222,28 +225,31 @@ module.exports = function(log, config) {
    * @param oldToken    token to gather the metadata from
    * @param newToken    token to stash the metadata against
    */
-  function propagate(oldToken, newToken) {
+  async function propagate(oldToken, newToken) {
     const oldKey = getKey(oldToken);
-    return cache
-      .get(oldKey)
-      .then(metadata => {
-        if (metadata) {
-          return cache
-            .add(getKey(newToken), metadata)
-            .catch(err => log.warn('metricsContext.propagate.add', { err }));
+    let newKey;
+
+    try {
+      const metadata = await cache.get(oldKey);
+      newKey = getKey(newToken);
+      if (metadata) {
+        try {
+          return await cache.add(newKey, metadata);
+        } catch (err) {
+          log.warn('metricsContext.propagate.add', { err });
         }
-      })
-      .catch(err =>
-        log.error('metricsContext.propagate', {
-          err,
-          hasOldToken: !!oldToken,
-          hasOldTokenId: !!(oldToken && oldToken.id),
-          hasOldTokenUid: !!(oldToken && oldToken.uid),
-          hasNewToken: !!newToken,
-          hasNewTokenId: !!(newToken && newToken.id),
-          hasNewTokenUid: !!(newToken && newToken.uid),
-        })
-      );
+      }
+    } catch (err) {
+      log.error('metricsContext.propagate', {
+        err,
+        hasOldToken: !!oldToken,
+        hasOldTokenId: !!(oldToken && oldToken.id),
+        hasOldTokenUid: !!(oldToken && oldToken.uid),
+        hasNewToken: !!newToken,
+        hasNewTokenId: !!(newToken && newToken.id),
+        hasNewTokenUid: !!(newToken && newToken.uid),
+      });
+    }
   }
 
   /**
@@ -252,13 +258,11 @@ module.exports = function(log, config) {
    * @name clearMetricsContext
    * @this request
    */
-  function clear() {
-    return P.resolve().then(() => {
-      const token = getToken(this);
-      if (token) {
-        return cache.del(getKey(token));
-      }
-    });
+  async function clear() {
+    const token = getToken(this);
+    if (token) {
+      return await cache.del(getKey(token));
+    }
   }
 
   /**

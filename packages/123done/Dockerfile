@@ -1,4 +1,4 @@
-FROM node:10-alpine
+FROM node:12-alpine
 
 # as root
 RUN apk update
@@ -22,5 +22,3 @@ USER root
 RUN apk del -r g++ git
 
 CMD node ./server.js
-
-

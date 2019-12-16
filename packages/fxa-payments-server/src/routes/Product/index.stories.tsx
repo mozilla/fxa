@@ -282,6 +282,8 @@ const MOCK_PROPS: ProductProps = {
   fetchProductRouteResources: action('fetchProductRouteResources'),
   createSubscriptionMounted: () => {},
   createSubscriptionEngaged: () => {},
+  updateSubscriptionPlanMounted: () => {},
+  updateSubscriptionPlanEngaged: () => {},
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
   updateSubscriptionPlanStatus: {

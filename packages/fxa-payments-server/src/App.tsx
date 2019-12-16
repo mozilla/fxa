@@ -2,10 +2,10 @@ import React, { useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
-import * as Sentry from '@sentry/browser';
 
+import SentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
-import { Config } from './lib/config';
+import { Config, config } from './lib/config';
 import { getErrorMessage } from './lib/errors';
 import { Store } from './store';
 import { AppContext, AppContextType } from './lib/AppContext';
@@ -22,6 +22,8 @@ const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
 // TODO: Come up with a better fallback component for lazy-loaded routes
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
+
+const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 type AppProps = {
   config: Config;
@@ -103,7 +105,7 @@ export class AppErrorBoundary extends React.Component {
   }
   componentDidCatch(error: Error, errorInfo: any) {
     console.error('AppError', error);
-    Sentry.captureException(error);
+    sentryMetrics.captureException(error);
   }
   render() {
     const { error } = this.state;

@@ -55,6 +55,8 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /recovery_email (:lock: sessionToken)](#post-recovery_email)
     - [POST /recovery_email/destroy (:lock: sessionToken)](#post-recovery_emaildestroy)
     - [POST /recovery_email/set_primary (:lock: sessionToken)](#post-recovery_emailset_primary)
+    - [POST /recovery_email/secondary/verify_code (:lock: sessionToken)](#post-recovery_emailseconaryverify_code)
+    - [POST /recovery_email/secondary/resend_code (:lock: sessionToken)](#post-recovery_emailseconaryresend_code)
   - [Oauth](#oauth)
     - [GET /oauth/client/{client_id}](#get-oauthclientclient_id)
     - [POST /account/scoped-key-data (:lock: sessionToken)](#post-accountscoped-key-data)
@@ -98,8 +100,6 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [DELETE /oauth/subscriptions/active/{subscriptionId} (:lock: oauthToken)](#delete-subscriptionsactivesubscriptionid)
     - [POST /oauth/subscriptions/updatePayment (:lock: oauthToken)](#post-subscriptionsupdatepayment)
     - [GET /oauth/subscriptions/customer (:lock: oauthToken)](#get-subscriptionscustomer)
-  - [Token codes](#token-codes)
-    - [POST /session/verify/token (:lock: sessionToken)](#post-sessionverifytoken)
   - [Totp](#totp)
     - [POST /totp/create (:lock: sessionToken)](#post-totpcreate)
     - [POST /totp/destroy (:lock: sessionToken)](#post-totpdestroy)
@@ -2196,6 +2196,78 @@ by the following errors
 - `code: 400, errno: 148`:
   Can not change primary email to an email that does not belong to this account
 
+#### POST /recovery_email/secondary/verify_code
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-post-recovery_emailsecondaryverify_code-->
+
+This endpoint verifies a secondary email using a time based (otp) code.
+
+<!--end-route-post-recovery_emailsecondaryverify_code-->
+
+##### Request body
+
+- `email`: _validators.email.required_
+
+  <!--begin-request-body-post-recovery_emailsecondaryverify_code-->
+
+  The secondary email address to verify.
+
+  <!--end-request-body-post-recovery_emailsecondaryverify_code-->
+
+- `code`: _validators.code.required_
+
+  <!--begin-request-body-post-recovery_emailsecondaryverify_code-->
+
+  Time based code to verify secondary email.
+
+  <!--end-request-body-post-recovery_emailsecondaryverify_code-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 138`:
+  Unverified session
+
+- `code: 400, errno: 105`:
+  Invalid verification code
+
+#### POST /recovery_email/secondary/resend_code
+
+:lock: HAWK-authenticated with session token
+
+<!--begin-route-post-recovery_emailsecondaryresend_code-->
+
+This endpoint resend the otp verification to verify the secondary email.
+
+<!--end-route-post-recovery_emailsecondaryresend_code-->
+
+##### Request body
+
+- `email`: _validators.email.required_
+
+  <!--begin-request-body-post-recovery_emailsecondaryresend_code-->
+
+  The secondary email address to verify.
+
+  <!--end-request-body-post-recovery_emailsecondaryresend_code-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 138`:
+  Unverified session
+
+- `code: 400, errno: 150`:
+  Can not resend code for email that does not belong to the account
+
 ### Oauth
 
 #### GET /oauth/client/{client_id}
@@ -3496,36 +3568,6 @@ Update the user's default payment method using a payment token.
 
 :lock: authenticated with OAuth bearer token
 Returns customer details, including limited payment information.
-
-### Token codes
-
-#### POST /session/verify/token
-
-:lock: HAWK-authenticated with session token
-
-<!--begin-route-post-sessionverifytoken-->
-
-Verify a session using a token code.
-
-<!--end-route-post-sessionverifytoken-->
-
-##### Request body
-
-- `code`: _string, min(TOKEN_CODE_LENGTH), max(TOKEN_CODE_LENGTH), regex(DIGITS), required_
-
-  <!--begin-request-body-post-sessionverifytoken-code-->
-
-  The code
-
-  <!--end-request-body-post-sessionverifytoken-code-->
-
-- `uid`: _string, max(32), regex(HEX_STRING), optional_
-
-  <!--begin-request-body-post-sessionverifytoken-uid-->
-
-  The uid associated with the token code
-
-  <!--end-request-body-post-sessionverifytoken-uid-->
 
 ### Totp
 

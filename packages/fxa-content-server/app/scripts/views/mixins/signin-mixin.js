@@ -130,6 +130,7 @@ export default {
 
         if (
           AuthErrors.is(err, 'TOTP_REQUIRED') ||
+          AuthErrors.is(err, 'INSUFFICIENT_ACR_VALUES') ||
           OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')
         ) {
           err.forceMessage = t(
@@ -191,9 +192,35 @@ export default {
 
       if (
         verificationReason === VerificationReasons.SIGN_IN &&
+        verificationMethod === VerificationMethods.EMAIL_OTP
+      ) {
+        return this.navigate('signin_token_code', { account });
+      }
+
+      if (
+        verificationReason === VerificationReasons.SIGN_IN &&
         verificationMethod === VerificationMethods.TOTP_2FA
       ) {
         return this.navigate('signin_totp_code', { account });
+      }
+
+      if (
+        verificationReason === VerificationReasons.SIGN_UP &&
+        verificationMethod === VerificationMethods.EMAIL_OTP
+      ) {
+        return this.navigate('confirm_signup_code', { account });
+      }
+
+      if (
+        verificationReason === VerificationReasons.SIGN_UP &&
+        typeof verificationMethod === 'undefined'
+      ) {
+        // cached signin with an unverified account. A code
+        // is not re-sent automatically, so send a new one
+        // and then go to the confirm screen.
+        return account.verifySessionResendCode().then(() => {
+          this.navigate('confirm_signup_code', { account });
+        });
       }
 
       return this.navigate('confirm', { account });

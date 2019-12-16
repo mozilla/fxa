@@ -304,7 +304,7 @@ describe('views/base', function() {
       });
     });
 
-    it('redirects to `/confirm` if mustVerify flag is set and account is unverified', function() {
+    it('redirects to `/confirm_signup_code` if mustVerify flag is set and account is unverified', function() {
       view.mustVerify = true;
       const account = user.initAccount({
         email: 'a@a.com',
@@ -314,13 +314,13 @@ describe('views/base', function() {
         verificationReason: VerificationReasons.SIGN_UP,
         verified: false,
       });
-      sinon
-        .stub(user, 'sessionStatus')
-        .callsFake(() => Promise.resolve(account));
+      sinon.stub(user, 'sessionStatus').resolves(account);
+      sinon.stub(account, 'verifySessionResendCode').resolves();
 
       sinon.spy(view, 'navigate');
       return view.render().then(function() {
-        assert.isTrue(view.navigate.calledWith('confirm'));
+        assert.isTrue(account.verifySessionResendCode.calledOnce);
+        assert.isTrue(view.navigate.calledWith('confirm_signup_code'));
       });
     });
 

@@ -15,6 +15,7 @@ import ProfileErrors from '../lib/profile-errors';
 import ProfileImage from './profile-image';
 import ResumeTokenMixin from './mixins/resume-token';
 import SignInReasons from '../lib/sign-in-reasons';
+import VerificationMethods from '../lib/verification-methods';
 import vat from '../lib/vat';
 
 // Account attributes that can be persisted
@@ -585,6 +586,7 @@ const Account = Backbone.Model.extend(
               // can be updated with the correct case.
               skipCaseError: true,
               unblockCode: options.unblockCode,
+              verificationMethod: VerificationMethods.EMAIL_OTP,
             };
 
             // `originalLoginEmail` is specified when the account's primary email has changed.
@@ -593,10 +595,6 @@ const Account = Backbone.Model.extend(
             const originalLoginEmail = this.get('originalLoginEmail');
             if (originalLoginEmail) {
               signinOptions.originalLoginEmail = originalLoginEmail;
-            }
-
-            if (options.verificationMethod) {
-              signinOptions.verificationMethod = options.verificationMethod;
             }
 
             if (!sessionToken) {
@@ -802,20 +800,6 @@ const Account = Backbone.Model.extend(
      */
     verifySessionResendCode() {
       return this._fxaClient.sessionResendVerifyCode(this.get('sessionToken'));
-    },
-
-    /**
-     * Verify the account using the token code
-     *
-     * @param {String} code - the token code
-     * @returns {Promise} - resolves when complete
-     */
-    verifyTokenCode(code) {
-      return this._fxaClient.verifyTokenCode(
-        this.get('sessionToken'),
-        this.get('uid'),
-        code
-      );
     },
 
     /**

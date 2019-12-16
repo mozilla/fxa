@@ -1047,16 +1047,6 @@ FxaClientWrapper.prototype = {
   ),
 
   /**
-   * Verify the token code to allow user to login.
-   *
-   * @param {String} sessionToken SessionToken obtained from signIn
-   * @param {String} uid account uid
-   * @param {String} code tokenCode
-   * @returns {Promise} resolves when complete
-   */
-  verifyTokenCode: createClientDelegate('verifyTokenCode'),
-
-  /**
    * Creates a new TOTP token for the current user.
    *
    * @param {String} sessionToken SessionToken obtained from signIn

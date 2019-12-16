@@ -7,7 +7,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const OAUTH_APP = config.fxaOAuthApp;
@@ -33,6 +32,7 @@ const {
   clearBrowserState,
   click,
   confirmTotpCode,
+  createEmail,
   createUser,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
@@ -43,7 +43,6 @@ const {
   generateTotpCode,
   openFxaFromRp,
   openPage,
-  openVerificationLinkInSameTab,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -206,18 +205,12 @@ registerSuite('oauth signin', {
 
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
-          .then(
-            testElementTextInclude(
-              selectors.CONFIRM_SIGNUP.EMAIL_MESSAGE,
-              email
-            )
-          )
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           // get the second email, the first was sent on client.signUp w/
           // preVerified: false above. The second email has the `service` and
           // `resume` parameters.
-          .then(openVerificationLinkInSameTab(email, 1))
+          .then(fillOutSignInTokenCode(email, 1))
           // user verifies in the same tab, so they are logged in to the RP.
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       );
@@ -246,7 +239,10 @@ registerSuite('oauth signin', {
 
           // success is using a cached login and being redirected
           // to a confirmation screen
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          // get the second email, the first was sent via fillOutEmailFirstSignUp above.
+          .then(fillOutSignInTokenCode(email, 1))
+          .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       );
     },
 

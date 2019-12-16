@@ -290,6 +290,18 @@ module.exports = config => {
     );
   };
 
+  Client.prototype.verifySecondaryEmailWithCode = async function(code, email) {
+    return this.api.recoveryEmailSecondaryVerifyCode(
+      this.sessionToken,
+      code,
+      email
+    );
+  };
+
+  Client.prototype.resendVerifySecondaryEmailWithCode = async function(email) {
+    return this.api.recoveryEmailSecondaryResendCode(this.sessionToken, email);
+  };
+
   Client.prototype.verifyTokenCode = function(code, options) {
     return this.api.verifyTokenCode(this.sessionToken, code, options);
   };
@@ -607,8 +619,10 @@ module.exports = config => {
     return this.api.accountEmails(this.sessionToken);
   };
 
-  Client.prototype.createEmail = function(email) {
-    return this.api.createEmail(this.sessionToken, email);
+  Client.prototype.createEmail = function(email, verificationMethod) {
+    return this.api.createEmail(this.sessionToken, email, {
+      verificationMethod,
+    });
   };
 
   Client.prototype.deleteEmail = function(email) {

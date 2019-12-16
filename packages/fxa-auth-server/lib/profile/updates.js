@@ -6,27 +6,25 @@
 
 module.exports = function(log) {
   return function start(messageQueue, push, db) {
-    function handleProfileUpdated(message) {
+    async function handleProfileUpdated(message) {
       const uid = message && message.uid;
 
       log.info('handleProfileUpdated', { uid, action: 'notify' });
 
-      return db
-        .devices(uid)
-        .then(devices => push.notifyProfileUpdated(uid, devices))
-        .catch(err =>
-          log.error('handleProfileUpdated', {
-            uid,
-            action: 'error',
-            err,
-            stack: err && err.stack,
-          })
-        )
-        .then(() => {
-          log.info('handleProfileUpdated', { uid, action: 'delete' });
-          // We always delete the message, we are not really mission critical
-          message.del();
+      try {
+        const devices = await db.devices(uid);
+        await push.notifyProfileUpdated(uid, devices);
+      } catch (err) {
+        log.error('handleProfileUpdated', {
+          uid,
+          action: 'error',
+          err,
+          stack: err && err.stack,
         });
+      }
+      log.info('handleProfileUpdated', { uid, action: 'delete' });
+      // We always delete the message, we are not really mission critical
+      message.del();
     }
 
     messageQueue.on('data', handleProfileUpdated);

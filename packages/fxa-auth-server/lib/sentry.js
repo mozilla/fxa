@@ -73,7 +73,7 @@ function filterSentryEvent(event, hint) {
     }
   }
   if (event.tags && event.tags.url) {
-    event.tags.url = event.request.url.replace(TOKENREGEX, FILTERED);
+    event.tags.url = event.tags.url.replace(TOKENREGEX, FILTERED);
   }
   return event;
 }

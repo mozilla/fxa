@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -26,6 +25,7 @@ let accountData;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   noSuchElement,
@@ -40,7 +40,7 @@ const {
 
 registerSuite('settings clients', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     client = FunctionalHelpers.getFxaClient();
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))

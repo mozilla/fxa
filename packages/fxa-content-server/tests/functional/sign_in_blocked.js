@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -18,13 +17,14 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   fillOutSignInUnblock,
   getUnblockInfo,
   openPage,
   openTab,
-  openVerificationLinkInSameTab,
   switchToWindow,
   testErrorTextInclude,
   testElementExists,
@@ -35,7 +35,7 @@ const {
 
 registerSuite('signin blocked', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('blocked{id}');
+    email = createEmail('blocked{id}');
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -331,8 +331,8 @@ registerSuite('signin blocked', {
       );
     },
 
-    'unverified user': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+    unverified: function() {
+      email = createEmail('blocked{id}');
 
       return (
         this.remote
@@ -346,12 +346,12 @@ registerSuite('signin blocked', {
 
           // It's substandard UX, but we decided to punt on making
           // users verified until v2. When submitting an unblock code
-          // verifies unverified users, they will not need to open
-          // the signup verification link, instead they'll go directly
+          // verifies unverified users, they will not need to enter
+          // the verification code, instead they'll go directly
           // to the settings page.
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-          .then(openVerificationLinkInSameTab(email, 2))
+          .then(fillOutSignInTokenCode(email, 2))
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },

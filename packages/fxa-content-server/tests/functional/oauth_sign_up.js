@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
@@ -17,6 +16,7 @@ let bouncedEmail;
 
 const {
   clearBrowserState,
+  createEmail,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   getFxaClient,
@@ -30,8 +30,8 @@ const {
 
 registerSuite('oauth signup', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
-    bouncedEmail = TestHelpers.createEmail();
+    email = createEmail();
+    bouncedEmail = createEmail();
 
     // clear localStorage to avoid polluting other tests.
     // Without the clear, /signup tests fail because of the info stored

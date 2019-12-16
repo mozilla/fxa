@@ -88,6 +88,8 @@ const MOCK_PROPS: SubscriptionUpgradeProps = {
   },
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
+  onMounted: () => {},
+  onEngaged: () => {},
 };
 
 init();

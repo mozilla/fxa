@@ -56,13 +56,29 @@
           "product_id": "123doneProProduct",
           "product_name": "123done Pro",
           "product_metadata": {
-            "upgradeCTA": "Interested in an upgrade? <a href=\"https://getfirefox.com\">Get Firefox!</a>",
+            "productSet": "123done_product",
+            "productSetOrder": "1",
+            "upgradeCTA": "Interested in an upgrade? <a href=\"http://127.0.0.1:3030/subscriptions/products/123doneProPlusProduct \">Get Pro+!</a>",
             "webIconURL": "http://placekitten.com/512/512?image=6",
             "emailIconURL": "http://placekitten.com/512/512?image=0",
             "downloadURL": "http://127.0.0.1:8080/"
           },
           "interval": "month",
           "amount": 50,
+          "currency": "usd"
+        },
+        {
+          "plan_id": "123doneProPlusMonthly",
+          "plan_name": "123done Pro Plus Monthly",
+          "product_id": "123doneProPlusProduct",
+          "product_name": "123done Pro+",
+          "product_metadata": {
+            "downloadURL": "http://127.0.0.1:8080/",
+            "productSet": "123done_product",
+            "productSetOrder": "2"
+          },
+          "interval": "month",
+          "amount": 75,
           "currency": "usd"
         },
         {
@@ -387,5 +403,9 @@
         "hasScopedKeys": true
       }
     ]
+  },
+  "verificationReminders": {
+    "firstInterval": "5s",
+    "secondInterval": "10s"
   }
 }

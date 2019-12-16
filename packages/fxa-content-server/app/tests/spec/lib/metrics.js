@@ -695,12 +695,21 @@ describe('lib/metrics', () => {
     });
   });
 
-  describe('setBrokerType', () => {
-    it('sets the broker name', () => {
-      metrics.setBrokerType('fx-desktop-v2');
-      const filteredData = metrics.getFilteredData();
+  describe('setBrokerType', function() {
+    it('sets the broker name', function() {
+      metrics.setBrokerType('fx-desktop-v3');
+      const { broker } = metrics.getFilteredData();
 
-      assert.equal(filteredData.broker, 'fx-desktop-v2');
+      assert.equal(broker, 'fx-desktop-v3');
+    });
+  });
+
+  describe('setService', function() {
+    it('sets the service identifier', function() {
+      metrics.setService('00112233445566');
+      const { service } = metrics.getFilteredData();
+
+      assert.equal(service, '00112233445566');
     });
   });
 

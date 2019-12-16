@@ -6,7 +6,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const config = intern._config;
 const selectors = require('./lib/selectors');
@@ -20,6 +19,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
@@ -141,7 +141,7 @@ registerSuite('oauth prompt=none', {
 
         .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
         .then(openRP({ query: { login_hint: email, return_on_error: false } }))
         .then(click(selectors['123DONE'].BUTTON_PROMPT_NONE))

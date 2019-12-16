@@ -1,4 +1,6 @@
 {
+  "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by dev dep @storybook/react",
   "exceptions": [
+    "https://npmjs.com/advisories/1426"
   ]
 }

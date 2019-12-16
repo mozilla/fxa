@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -19,7 +18,8 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
+  createEmail,
+  createPhoneNumber,
   createUser,
   deleteAllSms,
   disableInProd,
@@ -28,9 +28,7 @@ const {
   fillOutSignInUnblock,
   getSmsSigninCode,
   openPage,
-  openVerificationLinkInNewTab,
   respondToWebChannelMessage,
-  switchToWindow,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -54,7 +52,7 @@ const setupTest = thenify(function(successSelector, options = {}) {
 
 registerSuite('Fx Fennec Sync v1 sign_in', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
   },
   tests: {
     verified: function() {
@@ -73,16 +71,15 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
       return (
         this.remote
           .then(
-            setupTest(selectors.CONFIRM_SIGNUP.HEADER, { preVerified: false })
+            setupTest(selectors.CONFIRM_SIGNUP_CODE.HEADER, {
+              preVerified: false,
+            })
           )
 
           // email 0 - initial sign up email
           // email 1 - sign in w/ unverified address email
           // email 2 - "You have verified your Firefox Account"
-          .then(openVerificationLinkInNewTab(email, 1))
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
+          .then(fillOutSignInTokenCode(email, 1))
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
@@ -90,7 +87,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
     },
 
     'blocked, valid code entered': function() {
-      email = TestHelpers.createEmail('block{id}');
+      email = createEmail('block{id}');
 
       return this.remote
         .then(
@@ -111,14 +108,14 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
 
     'signup in desktop, send an SMS, open deferred deeplink in Fennec': disableInProd(
       function() {
-        const testPhoneNumber = TestHelpers.createPhoneNumber();
+        const testPhoneNumber = createPhoneNumber();
 
         return (
           this.remote
             // The phoneNumber is reused across tests, delete all
             // if its SMS messages to ensure a clean slate.
             .then(deleteAllSms(testPhoneNumber))
-            .then(setupTest(selectors.CONFIRM_SIGNUP.HEADER))
+            .then(setupTest(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
             .then(openPage(SMS_PAGE_URL, selectors.SMS_SEND.HEADER))
             .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))

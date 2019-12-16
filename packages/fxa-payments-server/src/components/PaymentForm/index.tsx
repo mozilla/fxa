@@ -283,7 +283,7 @@ const validateZip: OnValidateFunction = (value, focused) => {
   } else if (value.length !== 5 && !focused) {
     valid = false;
     error = 'Zip code is too short';
-  } else if (value.length == 5) {
+  } else if (value.length === 5) {
     valid = true;
   }
   return {

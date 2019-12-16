@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const { createEmail } = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const UA_STRINGS = require('./lib/ua-strings');
@@ -20,6 +19,7 @@ const {
   click,
   clearBrowserState,
   closeCurrentWindow,
+  createEmail,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
@@ -146,8 +146,7 @@ registerSuite('signup here', {
           .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
-          // TODO - this should redirect to CONFIRM_SIGNUP_PASSWORD
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 
@@ -165,8 +164,7 @@ registerSuite('signup here', {
           .then(fillOutEmailFirstSignIn(emailWithoutSpace, PASSWORD))
 
           // user is not confirmed, success is seeing the confirm screen.
-          // TODO - this should redirect to CONFIRM_SIGNUP_PASSWORD
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       );
     },
 
@@ -328,11 +326,6 @@ registerSuite('signup here', {
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query: {
               forceUA: UA_STRINGS['desktop_firefox_58'],
-            },
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                signedInUser: null,
-              },
             },
           })
         )

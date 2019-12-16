@@ -29,7 +29,7 @@ const baseMessage = {
   event: 'login',
   timestamp: now,
   ts: now / 1000,
-  uid: '1e2122ba'
+  uid: '993d26bac72b471991b197b3d298a5de'
 };
 
 const baseLoginMessage = {

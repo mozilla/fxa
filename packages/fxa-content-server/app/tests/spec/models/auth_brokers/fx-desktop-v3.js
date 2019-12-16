@@ -21,7 +21,10 @@ describe('models/auth_brokers/fx-desktop-v3', () => {
   describe('capabilities', () => {
     it('has the expected capabilities', () => {
       assert.isTrue(broker.hasCapability('allowUidChange'));
+      assert.isTrue(broker.hasCapability('disableLegacySigninSignup'));
       assert.isTrue(broker.hasCapability('emailFirst'));
+      assert.isTrue(broker.getCapability('openWebmailButtonVisible'));
+      assert.isTrue(broker.getCapability('tokenCode'));
     });
   });
 });

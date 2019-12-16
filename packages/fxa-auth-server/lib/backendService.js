@@ -73,7 +73,6 @@
 
 const Joi = require('joi');
 
-const P = require('./promise');
 const Pool = require('./pool');
 const error = require('./error');
 
@@ -136,7 +135,7 @@ module.exports = function createBackendServiceAPI(
     // to the client.
 
     function validate(location, value, schema, options) {
-      return new P((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         Joi.validate(value, schema, options, (err, value) => {
           if (!err) {
             return resolve(value);
