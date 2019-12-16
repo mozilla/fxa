@@ -46,7 +46,7 @@ module.exports = class SmsGroupingRule extends BaseGroupingRule {
       choice = 'signinCodes';
     } else if (rolloutRate >= 1) {
       // country is fully rolled out.
-      choice = true;
+      choice = subject.country;
     } else if (this.bernoulliTrial(rolloutRate, subject.uniqueUserId)) {
       // country is in the process of being rolled out.
       choice = this.uniformChoice(

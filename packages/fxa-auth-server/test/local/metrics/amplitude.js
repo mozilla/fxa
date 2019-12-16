@@ -573,8 +573,12 @@ describe('metrics/amplitude', () => {
         // Ignore sms based templates since they don't have the
         // same sent/bounce/delivered logic as emails
         if (template.includes('sms')) {
-          return;
+          continue;
         }
+
+        it(`${template} should be in amplitudes email types`, () => {
+          assert.hasAnyKeys(emailTypes, template);
+        });
 
         describe(`email.${template}.bounced`, () => {
           beforeEach(() => {
