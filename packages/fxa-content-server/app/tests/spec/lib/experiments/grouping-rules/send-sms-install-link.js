@@ -53,14 +53,15 @@ describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
         delete CountryTelephoneInfo.GB.rolloutRate;
       });
 
-      it('returns `false', () => {
+      it('returns `false`', () => {
         assert.isFalse(
           experiment.choose({ account, country, uniqueUserId: 'user-id' })
         );
       });
 
       it('featureFlags take precedence', () => {
-        assert.isTrue(
+        assert.equal(
+          'GB',
           experiment.choose({
             account,
             country,
@@ -116,9 +117,10 @@ describe('lib/experiments/grouping-rules/send-sms-install-link', () => {
         );
       });
 
-      it('fully rolled out countries return `true`', () => {
+      it('fully rolled out countries return country', () => {
         CountryTelephoneInfo.GB.rolloutRate = 1.0;
-        assert.isTrue(
+        assert.equal(
+          'GB',
           experiment.choose({ account, country, uniqueUserId: 'user-id' })
         );
       });
