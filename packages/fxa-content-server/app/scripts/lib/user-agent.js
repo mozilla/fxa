@@ -24,7 +24,17 @@ const UserAgent = function(userAgent) {
      * @returns {Boolean}
      */
     isIos() {
-      return this.os.name === 'iOS';
+      return this.os.name === 'iOS' || this.isDesktopFirefoxOnIpad();
+    },
+
+    /**
+     * iPads using FF iOS 13+ send a desktop UA.
+     * The OS shows as a Mac, but 'Firefox iOS' in the UA family.
+     *
+     * @returns {Boolean}
+     */
+    isDesktopFirefoxOnIpad() {
+      return /Mac/.test(this.os.name) && /FxiOS/.test(this.ua);
     },
 
     /**
