@@ -43,6 +43,8 @@ function assertRedirectForProduct(
       <SubscriptionRedirect {...{ navigateToUrl, plan }} />
     </AppContext.Provider>
   );
+  expect(getByText(product_name)).toBeInTheDocument();
+  expect(navigateToUrl).toBeCalledWith(expectedUrl);
 }
 
 const MOCK_PLAN = {

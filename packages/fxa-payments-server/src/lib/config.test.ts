@@ -142,7 +142,6 @@ const expectedMergedConfig = {
   stripe: {
     apiKey: '',
   },
-  survey: 'test',
 };
 
 const headSelector = (name: string | null) => `meta[name="${name}"]`;

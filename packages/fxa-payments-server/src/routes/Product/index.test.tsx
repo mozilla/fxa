@@ -324,6 +324,14 @@ describe('routes/Product', () => {
     useDefaultIcon?: boolean;
   }) => {
     const productMetadata = MOCK_PLANS[0].product_metadata as ProductMetadata;
+    const productImg = getByAltText(PRODUCT_NAME);
+    const imgSrc = productImg.getAttribute('src');
+    if (useDefaultIcon) {
+      // Default icon will be inlined, but let's just look for the data:image prefix
+      expect(imgSrc).toMatch(/^data:image/);
+    } else {
+      expect(imgSrc).toEqual(productMetadata.webIconURL);
+    }
   };
 
   const withProductImageTests = (useDefaultIcon = false) => () => {
@@ -347,6 +355,11 @@ describe('routes/Product', () => {
       expectProductImage({ getByAltText, useDefaultIcon });
       expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
       expect(createToken).toBeCalled();
+      expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
+      expect(
+        queryByText("Click here if you're not automatically redirected")
+      ).toBeInTheDocument();
+      expect(navigateToUrl).toBeCalledWith('https://example.com/product');
       expectNockScopesDone(apiMocks);
     });
 
@@ -366,6 +379,11 @@ describe('routes/Product', () => {
       await findByText('Your subscription is ready');
       expectProductImage({ getByAltText, useDefaultIcon });
       expect(createToken).not.toBeCalled();
+      expect(queryByText('Firefox Tanooki Suit')).toBeInTheDocument();
+      expect(
+        queryByText("Click here if you're not automatically redirected")
+      ).toBeInTheDocument();
+      expect(navigateToUrl).toBeCalledWith('https://example.com/product');
       expectNockScopesDone(apiMocks);
     });
   };
