@@ -2505,45 +2505,33 @@ const destroySessionForEmail = thenify(function(email) {
  */
 const subscribeToTestProduct = thenify(function() {
   const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
-  return (
-    this.parent
-      .then(openPage(TEST_PRODUCT_URL, 'div.product-payment'))
-      .then(getQueryParamValue('device_id'))
-      .then(deviceId => assert.ok(deviceId))
-      .then(getQueryParamValue('flow_begin_time'))
-      .then(flowBeginTime => assert.ok(flowBeginTime))
-      .then(getQueryParamValue('flow_id'))
-      .then(flowId => assert.ok(flowId))
-      .then(type('input[name=name]', 'Testo McTestson'))
-      .switchToFrame(2)
-      .then(type('input[name=cardnumber]', '4242 4242 4242 4242'))
-      .switchToParentFrame()
-      .end(Infinity)
-      .switchToFrame(3)
-      .then(type('input[name=exp-date]', `12${nextYear}`))
-      .switchToParentFrame()
-      .end(Infinity)
-      .switchToFrame(4)
-      .then(type('.InputElement', '123'))
-      .switchToParentFrame()
-      .end(Infinity)
-      .then(type('input[name=zip]', '12345'))
-      .then(click('input[type=checkbox]'))
-      .then(click('button[name=submit]'))
-      // We want to know that the subscription process has been successfully
-      // completed without checking for anything product specific
-      .then(
-        waitForUrl(
-          // waitForUrl is a bit unintuitive in that it stops waiting when the
-          // function returns false
-          url =>
-            url.startsWith(config.fxaContentRoot) ||
-            url.startsWith(config.fxaPaymentsRoot)
-        )
-      )
-      .then(openPage(SUBSCRIPTION_MGMT_URL, '.subscription-management'))
-      .then(testElementExists('div[data-testid="subscription-item"]'))
-  );
+  return this.parent
+    .then(openPage(TEST_PRODUCT_URL, 'div.product-payment'))
+    .then(getQueryParamValue('device_id'))
+    .then(deviceId => assert.ok(deviceId))
+    .then(getQueryParamValue('flow_begin_time'))
+    .then(flowBeginTime => assert.ok(flowBeginTime))
+    .then(getQueryParamValue('flow_id'))
+    .then(flowId => assert.ok(flowId))
+    .then(type('input[name=name]', 'Testo McTestson'))
+    .switchToFrame(2)
+    .then(type('input[name=cardnumber]', '4242 4242 4242 4242'))
+    .switchToParentFrame()
+    .end(Infinity)
+    .switchToFrame(3)
+    .then(type('input[name=exp-date]', `12${nextYear}`))
+    .switchToParentFrame()
+    .end(Infinity)
+    .switchToFrame(4)
+    .then(type('.InputElement', '123'))
+    .switchToParentFrame()
+    .end(Infinity)
+    .then(type('input[name=zip]', '12345'))
+    .then(click('input[type=checkbox]'))
+    .then(click('button[name=submit]'))
+    .then(testElementExists('.download-link'))
+    .then(openPage(SUBSCRIPTION_MGMT_URL, '.subscription-management'))
+    .then(testElementExists('div[data-testid="subscription-item"]'));
 });
 
 /**

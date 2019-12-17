@@ -3,7 +3,6 @@ import { Plan } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
 import { metadataFromPlan } from '../../../store/utils';
-import fpnImage from '../../../images/fpn';
 import './index.scss';
 
 const defaultProductRedirectURL = 'https://mozilla.org';
@@ -13,19 +12,24 @@ export type SubscriptionRedirectProps = {
 };
 
 export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
-  const { product_id, product_name } = plan;
-  const { webIconURL, downloadURL } = metadataFromPlan(plan);
+  const { product_id } = plan;
+  const { downloadURL } = metadataFromPlan(plan);
   const {
-    config: { productRedirectURLs, survey },
+    config: { env, productRedirectURLs },
     navigateToUrl,
   } = useContext(AppContext);
+
+  const surveyEmbedUrl = `http://www.surveygizmo.com/s3/5294819/VPN-Subscription?__no_style=true&env=${env}`;
 
   const redirectUrl =
     downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;
 
   useEffect(() => {
-    const handleIframeTask = (e: any) => {
+    const handleIframeTask = (e: MessageEvent) => {
+      // Note: This event is implemented in code within the SurveyGizmo iframe embed.
+      // https://help.surveygizmo.com/help/adding-javascript-to-your-survey
       if (e.data === 'submitted survey') {
+        // TODO: Why the 250ms delay here?
         setTimeout(() => {
           navigateToUrl(redirectUrl);
         }, 250);
@@ -33,7 +37,7 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
     };
     window.addEventListener('message', handleIframeTask);
     return () => window.removeEventListener('message', handleIframeTask);
-  }, [redirectUrl]);
+  }, [navigateToUrl, redirectUrl]);
 
   return (
     <div className="product-payment" data-testid="subscription-redirect">
@@ -47,16 +51,21 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
         <hr />
         <div className="survey-frame">
           <iframe
+            data-testid="survey-iframe"
+            title="survey"
             sandbox="allow-scripts allow-forms"
             scrolling="no"
-            src={
-              'http://www.surveygizmo.com/s3/5294819/VPN-Subscription?__no_style=true&env=' +
-              survey
-            }
+            src={surveyEmbedUrl}
           ></iframe>
         </div>
         <div>
-          <a href={redirectUrl}>No thanks, just take me to my product.</a>
+          <a
+            href={redirectUrl}
+            className="download-link"
+            data-testid="download-link"
+          >
+            No thanks, just take me to my product.
+          </a>
         </div>
       </div>
     </div>

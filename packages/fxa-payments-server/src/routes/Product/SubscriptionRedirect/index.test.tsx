@@ -31,6 +31,7 @@ function assertRedirectForProduct(
 ) {
   const config = {
     ...defaultConfig,
+    env: 'testing',
     productRedirectURLs: {
       '123doneProProduct': 'http://127.0.0.1:8080/',
     },
@@ -38,10 +39,17 @@ function assertRedirectForProduct(
   const navigateToUrl = jest.fn();
   const appContextValue = { ...defaultAppContext, navigateToUrl, config };
   const plan = { ...MOCK_PLAN, product_id, product_name };
-  const { getByText } = render(
+  const { getByTestId } = render(
     <AppContext.Provider value={appContextValue}>
       <SubscriptionRedirect {...{ navigateToUrl, plan }} />
     </AppContext.Provider>
+  );
+
+  expect(getByTestId('survey-iframe').getAttribute('src')).toContain(
+    `env=testing`
+  );
+  expect(getByTestId('download-link').getAttribute('href')).toEqual(
+    expectedUrl
   );
 }
 

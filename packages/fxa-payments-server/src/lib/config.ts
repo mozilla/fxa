@@ -1,6 +1,7 @@
 // This configuration is a subset of the configuration declared in server/config/index.js
 // Which config is copied over is defined in server/lib/server.js
 export interface Config {
+  env: string;
   featureFlags: { [key: string]: any };
   lang: string;
   legalDocLinks: {
@@ -31,13 +32,13 @@ export interface Config {
   stripe: {
     apiKey: string;
   };
-  survey: string;
 }
 
 export const config: Config = defaultConfig();
 
 export function defaultConfig(): Config {
   return {
+    env: 'development',
     featureFlags: {},
     lang: '',
     legalDocLinks: {
@@ -66,7 +67,6 @@ export function defaultConfig(): Config {
     stripe: {
       apiKey: '',
     },
-    survey: 'test',
   };
 }
 

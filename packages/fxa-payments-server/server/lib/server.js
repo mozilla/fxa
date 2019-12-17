@@ -34,6 +34,7 @@ module.exports = () => {
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
+    env: config.get('env'),
     legalDocLinks: {
       privacyNotice: config.get('legalDocLinks.privacyNotice'),
       termsOfService: config.get('legalDocLinks.termsOfService'),

@@ -109,6 +109,7 @@ const encodedFeatureFlags = encodeURIComponent(
 );
 
 const expectedMergedConfig = {
+  env: 'development',
   featureFlags: { foo: 1, bar: true },
   lang: '',
   legalDocLinks: {
@@ -142,7 +143,6 @@ const expectedMergedConfig = {
   stripe: {
     apiKey: '',
   },
-  survey: 'test',
 };
 
 const headSelector = (name: string | null) => `meta[name="${name}"]`;
