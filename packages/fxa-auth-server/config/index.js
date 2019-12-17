@@ -1533,6 +1533,26 @@ const conf = convict({
       env: 'ZENDESK_PRODUCT_NAME_FIELD_ID',
       format: String,
     },
+    locationCityFieldId: {
+      doc: 'Zendesk support ticket custom field for the city of the location',
+      default: '360026463311',
+      env: 'ZENDESK_LOCATION_CITY_FIELD_ID',
+      format: String,
+    },
+    locationStateFieldId: {
+      doc:
+        'Zendesk support ticket custom field for the state/region of the location',
+      default: '360026463491',
+      env: 'ZENDESK_LOCATION_STATE_FIELD_ID',
+      format: String,
+    },
+    locationCountryFieldId: {
+      doc:
+        'Zendesk support ticket custom field for the country of the location',
+      default: '360026463511',
+      env: 'ZENDESK_LOCATION_COUNTRY_FIELD_ID',
+      format: String,
+    },
   },
   otp: {
     step: {
