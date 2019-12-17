@@ -1,14 +1,20 @@
 .product-payment {
   .subscription-ready {
+    display: grid;
+    grid-template-rows: repeat(6, auto);
+
+    .subscription-message {
+      margin: -16px 0 5px;
+      padding-bottom: 20px;
+    }
 
     h2 {
-      color: #20123b;
       font-size: 24px;
       font-weight: 500;
+      margin: 0 0 8px;
     }
 
     p {
-      color: #0c0c0d;
       font-size: 16px;
       margin: 20px 100px;
     }
@@ -16,5 +22,23 @@
     a {
       font-size: 16px;
     }
+
+    .exp-message {
+      font-size: 16px;
+    }
+
+    .subscription-ready h2 {
+      margin: 0 0 8px;
+    }
+  }
+}
+
+.survey-frame {
+
+  iframe {
+    border: 0;
+    height: 520px;
+    overflow: hidden;
+    width: 550px;
   }
 }

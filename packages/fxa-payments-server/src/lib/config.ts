@@ -31,6 +31,7 @@ export interface Config {
   stripe: {
     apiKey: string;
   };
+  survey: string;
 }
 
 export const config: Config = defaultConfig();
@@ -65,6 +66,7 @@ export function defaultConfig(): Config {
     stripe: {
       apiKey: '',
     },
+    survey: 'test',
   };
 }
 
