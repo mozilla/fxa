@@ -3,7 +3,6 @@ import { Plan } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
 import { metadataFromPlan } from '../../../store/utils';
-import fpnImage from '../../../images/fpn';
 import './index.scss';
 
 const defaultProductRedirectURL = 'https://mozilla.org';
@@ -13,37 +12,61 @@ export type SubscriptionRedirectProps = {
 };
 
 export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
-  const { product_id, product_name } = plan;
-  const { webIconURL, downloadURL } = metadataFromPlan(plan);
+  const { product_id } = plan;
+  const { downloadURL } = metadataFromPlan(plan);
   const {
-    config: { productRedirectURLs },
+    config: { env, productRedirectURLs },
     navigateToUrl,
   } = useContext(AppContext);
+
+  const surveyEmbedUrl = `http://www.surveygizmo.com/s3/5294819/VPN-Subscription?__no_style=true&env=${env}`;
 
   const redirectUrl =
     downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;
 
   useEffect(() => {
-    navigateToUrl(redirectUrl);
+    const handleIframeTask = (e: MessageEvent) => {
+      // Note: This event is implemented in code within the SurveyGizmo iframe embed.
+      // https://help.surveygizmo.com/help/adding-javascript-to-your-survey
+      if (e.data === 'submitted survey') {
+        // TODO: Why the 250ms delay here?
+        setTimeout(() => {
+          navigateToUrl(redirectUrl);
+        }, 250);
+      }
+    };
+    window.addEventListener('message', handleIframeTask);
+    return () => window.removeEventListener('message', handleIframeTask);
   }, [navigateToUrl, redirectUrl]);
 
   return (
     <div className="product-payment" data-testid="subscription-redirect">
       <div className="subscription-ready">
-        <h2>Your subscription is ready</h2>
-        <img
-          alt={product_name}
-          src={webIconURL || fpnImage}
-          width="96"
-          height="96"
-        />
-        <p>
-          Hang on for a moment while we send you to the{' '}
-          <span className="plan-name">{product_name}</span> download page.
-        </p>
-        <a href={redirectUrl}>
-          Click here if you're not automatically redirected
-        </a>
+        <div className="subscription-message">
+          <h2>Your subscription is ready</h2>
+          <div className="exp-message">
+            Please take a moment to tell us about your experience.
+          </div>
+        </div>
+        <hr />
+        <div className="survey-frame">
+          <iframe
+            data-testid="survey-iframe"
+            title="survey"
+            sandbox="allow-scripts allow-forms"
+            scrolling="no"
+            src={surveyEmbedUrl}
+          ></iframe>
+        </div>
+        <div>
+          <a
+            href={redirectUrl}
+            className="download-link"
+            data-testid="download-link"
+          >
+            No thanks, just take me to my product.
+          </a>
+        </div>
       </div>
     </div>
   );
