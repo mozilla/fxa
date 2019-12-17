@@ -140,51 +140,48 @@ module.exports = (
           planId,
         } = await request.app.metricsContext;
 
-        return customs
-          .check(request, email, 'accountCreate')
-          .then(deleteAccountIfUnverified)
-          .then(setMetricsFlowCompleteSignal)
-          .then(generateRandomValues)
-          .then(createPassword)
-          .then(createAccount)
-          .then(createSessionToken)
-          .then(sendVerifyCode)
-          .then(createKeyFetchToken)
-          .then(recordSecurityEvent)
-          .then(createResponse);
+        await customs.check(request, email, 'accountCreate');
+        await deleteAccountIfUnverified();
+        setMetricsFlowCompleteSignal();
+        await generateRandomValues();
+        await createPassword();
+        await createAccount();
+        await createSessionToken();
+        await sendVerifyCode();
+        await createKeyFetchToken();
+        await recordSecurityEvent();
+        return await createResponse();
 
-        function deleteAccountIfUnverified() {
-          return db
-            .getSecondaryEmail(email)
-            .then(secondaryEmailRecord => {
-              // Currently, users can not create an account from a verified
-              // secondary email address
-              if (secondaryEmailRecord.isPrimary) {
-                if (secondaryEmailRecord.isVerified) {
-                  throw error.accountExists(secondaryEmailRecord.email);
-                }
-                request.app.accountRecreated = true;
-                return db.deleteAccount(secondaryEmailRecord).then(() =>
-                  log.info('accountDeleted.unverifiedSecondaryEmail', {
-                    ...secondaryEmailRecord,
-                  })
-                );
-              } else {
-                if (secondaryEmailRecord.isVerified) {
-                  throw error.verifiedSecondaryEmailAlreadyExists();
-                }
+        async function deleteAccountIfUnverified() {
+          try {
+            const secondaryEmailRecord = await db.getSecondaryEmail(email);
+            // Currently, users can not create an account from a verified
+            // secondary email address
+            if (secondaryEmailRecord.isPrimary) {
+              if (secondaryEmailRecord.isVerified) {
+                throw error.accountExists(secondaryEmailRecord.email);
+              }
+              request.app.accountRecreated = true;
+              const deleted = await db.deleteAccount(secondaryEmailRecord);
+              log.info('accountDeleted.unverifiedSecondaryEmail', {
+                ...secondaryEmailRecord,
+              });
+              return deleted;
+            } else {
+              if (secondaryEmailRecord.isVerified) {
+                throw error.verifiedSecondaryEmailAlreadyExists();
+              }
 
-                return db.deleteEmail(
-                  secondaryEmailRecord.uid,
-                  secondaryEmailRecord.email
-                );
-              }
-            })
-            .catch(err => {
-              if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
-                throw err;
-              }
-            });
+              return await db.deleteEmail(
+                secondaryEmailRecord.uid,
+                secondaryEmailRecord.email
+              );
+            }
+          } catch (err) {
+            if (err.errno !== error.ERRNO.SECONDARY_EMAIL_UNKNOWN) {
+              throw err;
+            }
+          }
         }
 
         function setMetricsFlowCompleteSignal() {
@@ -198,26 +195,22 @@ module.exports = (
             flowCompleteSignal,
             'registration'
           );
-
-          return P.resolve();
         }
 
-        function generateRandomValues() {
-          return P.all([random.hex(16), random.hex(32), TokenCode()]).spread(
-            (hex16, hex32, tokenCode) => {
-              emailCode = hex16;
-              tokenVerificationId = emailCode;
-              tokenVerificationCode = tokenCode;
-              authSalt = hex32;
-            }
-          );
+        async function generateRandomValues() {
+          const hex16 = await random.hex(16);
+          const hex32 = await random.hex(32);
+          const tokenCode = await TokenCode();
+
+          emailCode = hex16;
+          tokenVerificationId = emailCode;
+          tokenVerificationCode = tokenCode;
+          authSalt = hex32;
         }
 
-        function createPassword() {
+        async function createPassword() {
           password = new Password(authPW, authSalt, config.verifierVersion);
-          return password.verifyHash().then(result => {
-            verifyHash = result;
-          });
+          verifyHash = await password.verifyHash();
         }
 
         async function createAccount() {
@@ -279,7 +272,7 @@ module.exports = (
           });
         }
 
-        function createSessionToken() {
+        async function createSessionToken() {
           // Verified sessions should only be created for preverified accounts.
           if (preVerified) {
             tokenVerificationId = undefined;
@@ -294,36 +287,28 @@ module.exports = (
             formFactor: uaFormFactor,
           } = request.app.ua;
 
-          return db
-            .createSessionToken({
-              uid: account.uid,
-              email: account.email,
-              emailCode: account.emailCode,
-              emailVerified: account.emailVerified,
-              verifierSetAt: account.verifierSetAt,
-              mustVerify: requestHelper.wantsKeys(request),
-              tokenVerificationCode: tokenVerificationCode,
-              tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
-              tokenVerificationId: tokenVerificationId,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uaFormFactor,
-            })
-            .then(result => {
-              sessionToken = result;
-              return request.stashMetricsContext(sessionToken);
-            })
-            .then(() => {
-              // There is no session token when we emit account.verified
-              // so stash the data against a synthesized "token" instead.
-              return request.stashMetricsContext({
-                uid: account.uid,
-                id: account.emailCode,
-              });
-            });
+          sessionToken = await db.createSessionToken({
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt,
+            mustVerify: requestHelper.wantsKeys(request),
+            tokenVerificationCode: tokenVerificationCode,
+            tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
+            tokenVerificationId: tokenVerificationId,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor,
+          });
+          await request.stashMetricsContext(sessionToken);
+          return await request.stashMetricsContext({
+            uid: account.uid,
+            id: account.emailCode,
+          });
         }
 
         async function sendVerifyCode() {
@@ -411,23 +396,17 @@ module.exports = (
           }
         }
 
-        function createKeyFetchToken() {
+        async function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
-            return password
-              .unwrap(account.wrapWrapKb)
-              .then(wrapKb => {
-                return db.createKeyFetchToken({
-                  uid: account.uid,
-                  kA: account.kA,
-                  wrapKb: wrapKb,
-                  emailVerified: account.emailVerified,
-                  tokenVerificationId: tokenVerificationId,
-                });
-              })
-              .then(result => {
-                keyFetchToken = result;
-                return request.stashMetricsContext(keyFetchToken);
-              });
+            const wrapKb = await password.unwrap(account.wrapWrapKb);
+            keyFetchToken = await db.createKeyFetchToken({
+              uid: account.uid,
+              kA: account.kA,
+              wrapKb: wrapKb,
+              emailVerified: account.emailVerified,
+              tokenVerificationId: tokenVerificationId,
+            });
+            return await request.stashMetricsContext(keyFetchToken);
           }
         }
 
@@ -543,120 +522,115 @@ module.exports = (
           throw error.disabledClientId(service);
         }
 
-        return checkCustomsAndLoadAccount()
-          .then(checkEmailAndPassword)
-          .then(checkSecurityHistory)
-          .then(checkTotpToken)
-          .then(createSessionToken)
-          .then(sendSigninNotifications)
-          .then(createKeyFetchToken)
-          .then(createResponse);
+        await checkCustomsAndLoadAccount();
+        await checkEmailAndPassword();
+        await checkSecurityHistory();
+        await checkTotpToken();
+        await createSessionToken();
+        await sendSigninNotifications();
+        await createKeyFetchToken();
+        return await createResponse();
 
-        function checkCustomsAndLoadAccount() {
-          return signinUtils
-            .checkCustomsAndLoadAccount(request, email)
-            .then(res => {
-              accountRecord = res.accountRecord;
-              // Remember whether they did a signin-unblock,
-              // because we can use it to bypass token verification.
-              didSigninUnblock = res.didSigninUnblock;
-            });
+        async function checkCustomsAndLoadAccount() {
+          const res = await signinUtils.checkCustomsAndLoadAccount(
+            request,
+            email
+          );
+          accountRecord = res.accountRecord;
+          // Remember whether they did a signin-unblock,
+          // because we can use it to bypass token verification.
+          didSigninUnblock = res.didSigninUnblock;
         }
 
-        function checkEmailAndPassword() {
-          return signinUtils
-            .checkEmailAddress(accountRecord, email, originalLoginEmail)
-            .then(() => {
-              password = new Password(
-                authPW,
-                accountRecord.authSalt,
-                accountRecord.verifierVersion
-              );
-              return signinUtils.checkPassword(
-                accountRecord,
-                password,
-                request.app.clientAddress
-              );
-            })
-            .then(match => {
-              if (!match) {
-                throw error.incorrectPassword(accountRecord.email, email);
-              }
-            });
+        async function checkEmailAndPassword() {
+          await signinUtils.checkEmailAddress(
+            accountRecord,
+            email,
+            originalLoginEmail
+          );
+          password = new Password(
+            authPW,
+            accountRecord.authSalt,
+            accountRecord.verifierVersion
+          );
+          const match = await signinUtils.checkPassword(
+            accountRecord,
+            password,
+            request.app.clientAddress
+          );
+          if (!match) {
+            throw error.incorrectPassword(accountRecord.email, email);
+          }
         }
 
-        function checkSecurityHistory() {
-          return db
-            .securityEvents({
+        async function checkSecurityHistory() {
+          try {
+            const events = await db.securityEvents({
               uid: accountRecord.uid,
               ipAddr: request.app.clientAddress,
-            })
-            .then(
-              events => {
-                if (events.length > 0) {
-                  let latest = 0;
-                  events.forEach(ev => {
-                    if (ev.verified) {
-                      securityEventVerified = true;
-                      if (ev.createdAt > latest) {
-                        latest = ev.createdAt;
-                      }
-                    }
-                  });
-                  if (securityEventVerified) {
-                    securityEventRecency = requestNow - latest;
-                    let coarseRecency;
-                    if (securityEventRecency < MS_ONE_DAY) {
-                      coarseRecency = 'day';
-                    } else if (securityEventRecency < MS_ONE_WEEK) {
-                      coarseRecency = 'week';
-                    } else if (securityEventRecency < MS_ONE_MONTH) {
-                      coarseRecency = 'month';
-                    } else {
-                      coarseRecency = 'old';
-                    }
+            });
 
-                    log.info('Account.history.verified', {
-                      uid: accountRecord.uid,
-                      events: events.length,
-                      recency: coarseRecency,
-                    });
-                  } else {
-                    log.info('Account.history.unverified', {
-                      uid: accountRecord.uid,
-                      events: events.length,
-                    });
+            if (events.length > 0) {
+              let latest = 0;
+              events.forEach(ev => {
+                if (ev.verified) {
+                  securityEventVerified = true;
+                  if (ev.createdAt > latest) {
+                    latest = ev.createdAt;
                   }
                 }
-              },
-              err => {
-                // Security event history allows some convenience during login,
-                // but errors here shouldn't fail the entire request.
-                // so errors shouldn't stop the login attempt
-                log.error('Account.history.error', {
-                  err: err,
+              });
+              if (securityEventVerified) {
+                securityEventRecency = requestNow - latest;
+                let coarseRecency;
+                if (securityEventRecency < MS_ONE_DAY) {
+                  coarseRecency = 'day';
+                } else if (securityEventRecency < MS_ONE_WEEK) {
+                  coarseRecency = 'week';
+                } else if (securityEventRecency < MS_ONE_MONTH) {
+                  coarseRecency = 'month';
+                } else {
+                  coarseRecency = 'old';
+                }
+
+                log.info('Account.history.verified', {
                   uid: accountRecord.uid,
+                  events: events.length,
+                  recency: coarseRecency,
+                });
+              } else {
+                log.info('Account.history.unverified', {
+                  uid: accountRecord.uid,
+                  events: events.length,
                 });
               }
-            );
+            }
+          } catch (err) {
+            // Security event history allows some convenience during login,
+            // but errors here shouldn't fail the entire request.
+            // so errors shouldn't stop the login attempt
+            log.error('Account.history.error', {
+              err: err,
+              uid: accountRecord.uid,
+            });
+          }
         }
 
-        function checkTotpToken() {
+        async function checkTotpToken() {
           // Check to see if the user has a TOTP token and it is verified and
           // enabled, if so then the verification method is automatically forced so that
           // they have to verify the token.
-          return otpUtils.hasTotpToken(accountRecord).then(result => {
-            if (result) {
-              // User has enabled TOTP, no way around it, they must verify TOTP token
-              verificationMethod = 'totp-2fa';
-            } else if (!result && verificationMethod === 'totp-2fa') {
-              // Error if requesting TOTP verification with TOTP not setup
-              throw error.totpRequired();
-            }
-          });
+          const hasTotpToken = await otpUtils.hasTotpToken(accountRecord);
+          if (hasTotpToken) {
+            // User has enabled TOTP, no way around it, they must verify TOTP token
+            verificationMethod = 'totp-2fa';
+          } else if (!hasTotpToken && verificationMethod === 'totp-2fa') {
+            // Error if requesting TOTP verification with TOTP not setup
+            throw error.totpRequired();
+          }
         }
 
-        function createSessionToken() {
+        async function createSessionToken() {
           // All sessions are considered unverified by default.
           let needsVerificationId = true;
 
@@ -688,46 +662,40 @@ module.exports = (
             needsVerificationId = true;
           }
 
-          return P.resolve()
-            .then(() => {
-              if (!needsVerificationId) {
-                return [];
-              }
-              return [random.hex(16), TokenCode()];
-            })
-            .spread((tokenVerificationId, tokenVerificationCode) => {
-              const {
-                browser: uaBrowser,
-                browserVersion: uaBrowserVersion,
-                os: uaOS,
-                osVersion: uaOSVersion,
-                deviceType: uaDeviceType,
-                formFactor: uaFormFactor,
-              } = request.app.ua;
+          const [
+            tokenVerificationId,
+            tokenVerificationCode,
+          ] = needsVerificationId
+            ? [await random.hex(16), await TokenCode()]
+            : [];
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+            formFactor: uaFormFactor,
+          } = request.app.ua;
 
-              const sessionTokenOptions = {
-                uid: accountRecord.uid,
-                email: accountRecord.primaryEmail.email,
-                emailCode: accountRecord.primaryEmail.emailCode,
-                emailVerified: accountRecord.primaryEmail.isVerified,
-                verifierSetAt: accountRecord.verifierSetAt,
-                mustVerify: mustVerifySession,
-                tokenVerificationId: tokenVerificationId,
-                tokenVerificationCode: tokenVerificationCode,
-                tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uaFormFactor,
-              };
+          const sessionTokenOptions = {
+            uid: accountRecord.uid,
+            email: accountRecord.primaryEmail.email,
+            emailCode: accountRecord.primaryEmail.emailCode,
+            emailVerified: accountRecord.primaryEmail.isVerified,
+            verifierSetAt: accountRecord.verifierSetAt,
+            mustVerify: mustVerifySession,
+            tokenVerificationId: tokenVerificationId,
+            tokenVerificationCode: tokenVerificationCode,
+            tokenVerificationCodeExpiresAt: Date.now() + tokenCodeLifetime,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor,
+          };
 
-              return db.createSessionToken(sessionTokenOptions);
-            })
-            .then(result => {
-              sessionToken = result;
-            });
+          sessionToken = await db.createSessionToken(sessionTokenOptions);
         }
 
         function forceTokenVerification(request, account) {
@@ -855,18 +823,14 @@ module.exports = (
           }
         }
 
-        function createKeyFetchToken() {
+        async function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
-            return signinUtils
-              .createKeyFetchToken(
-                request,
-                accountRecord,
-                password,
-                sessionToken
-              )
-              .then(result => {
-                keyFetchToken = result;
-              });
+            keyFetchToken = await signinUtils.createKeyFetchToken(
+              request,
+              accountRecord,
+              password,
+              sessionToken
+            );
           }
         }
 
@@ -916,18 +880,16 @@ module.exports = (
         if (sessionToken) {
           return { exists: true, locale: sessionToken.locale };
         } else if (request.query.uid) {
-          const uid = request.query.uid;
-          return db.account(uid).then(
-            account => {
-              return { exists: true };
-            },
-            err => {
-              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                return { exists: false };
-              }
-              throw err;
+          try {
+            const uid = request.query.uid;
+            await db.account(uid);
+            return { exists: true };
+          } catch (err) {
+            if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+              return { exists: false };
             }
-          );
+            throw err;
+          }
         } else {
           throw error.missingRequestParameter('uid');
         }
@@ -951,24 +913,19 @@ module.exports = (
       handler: async function(request) {
         const email = request.payload.email;
 
-        return customs
-          .check(request, email, 'accountStatusCheck')
-          .then(() => {
-            return db.accountExists(email);
-          })
-          .then(
-            exist => {
-              return {
-                exists: exist,
-              };
-            },
-            err => {
-              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                return { exists: false };
-              }
-              throw err;
-            }
-          );
+        await customs.check(request, email, 'accountStatusCheck');
+
+        try {
+          const exist = await db.accountExists(email);
+          return {
+            exists: exist,
+          };
+        } catch (err) {
+          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+            return { exists: false };
+          }
+          throw err;
+        }
       },
     },
     {
@@ -1080,18 +1037,13 @@ module.exports = (
           // don't delete the token on use until the account is verified
           throw error.unverifiedAccount();
         }
-        return db
-          .deleteKeyFetchToken(keyFetchToken)
-          .then(() => {
-            return request.emitMetricsEvent('account.keyfetch', {
-              uid: keyFetchToken.uid,
-            });
-          })
-          .then(() => {
-            return {
-              bundle: keyFetchToken.keyBundle,
-            };
-          });
+        await db.deleteKeyFetchToken(keyFetchToken);
+        await request.emitMetricsEvent('account.keyfetch', {
+          uid: keyFetchToken.uid,
+        });
+        return {
+          bundle: keyFetchToken.keyBundle,
+        };
       },
     },
     {
@@ -1158,14 +1110,14 @@ module.exports = (
           hasTotpToken = false,
           tokenVerificationId;
 
-        return checkRecoveryKey()
-          .then(checkTotpToken)
-          .then(resetAccountData)
-          .then(recoveryKeyDeleteAndEmailNotification)
-          .then(createSessionToken)
-          .then(createKeyFetchToken)
-          .then(recordSecurityEvent)
-          .then(createResponse);
+        await checkRecoveryKey();
+        await checkTotpToken();
+        await resetAccountData();
+        await recoveryKeyDeleteAndEmailNotification();
+        await createSessionToken();
+        await createKeyFetchToken();
+        await recordSecurityEvent();
+        return await createResponse();
 
         function checkRecoveryKey() {
           if (recoveryKeyId) {
@@ -1175,12 +1127,10 @@ module.exports = (
           return P.resolve();
         }
 
-        function checkTotpToken() {
-          return otpUtils
-            .hasTotpToken({ uid: accountResetToken.uid })
-            .then(result => {
-              hasTotpToken = result;
-            });
+        async function checkTotpToken() {
+          hasTotpToken = await otpUtils.hasTotpToken({
+            uid: accountResetToken.uid,
+          });
         }
 
         async function resetAccountData() {
@@ -1227,38 +1177,36 @@ module.exports = (
           ]);
         }
 
-        function recoveryKeyDeleteAndEmailNotification() {
+        async function recoveryKeyDeleteAndEmailNotification() {
           // If the password was reset with a recovery key, then we explicitly delete the
           // recovery key and send an email that the account was reset with it.
           if (recoveryKeyId) {
-            return db.deleteRecoveryKey(account.uid).then(() => {
-              const geoData = request.app.geo;
-              const ip = request.app.clientAddress;
-              const emailOptions = {
-                acceptLanguage: request.app.acceptLanguage,
-                ip: ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser: request.app.ua.browser,
-                uaBrowserVersion: request.app.ua.browserVersion,
-                uaOS: request.app.ua.os,
-                uaOSVersion: request.app.ua.osVersion,
-                uaDeviceType: request.app.ua.deviceType,
-                uid: account.uid,
-              };
+            await db.deleteRecoveryKey(account.uid);
 
-              return mailer.sendPasswordResetAccountRecoveryEmail(
-                account.emails,
-                account,
-                emailOptions
-              );
-            });
+            const geoData = request.app.geo;
+            const ip = request.app.clientAddress;
+            const emailOptions = {
+              acceptLanguage: request.app.acceptLanguage,
+              ip: ip,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser: request.app.ua.browser,
+              uaBrowserVersion: request.app.ua.browserVersion,
+              uaOS: request.app.ua.os,
+              uaOSVersion: request.app.ua.osVersion,
+              uaDeviceType: request.app.ua.deviceType,
+              uid: account.uid,
+            };
+
+            return await mailer.sendPasswordResetAccountRecoveryEmail(
+              account.emails,
+              account,
+              emailOptions
+            );
           }
-
-          return P.resolve();
         }
 
-        function createSessionToken() {
+        async function createSessionToken() {
           if (hasSessionToken) {
             const {
               browser: uaBrowser,
@@ -1269,69 +1217,53 @@ module.exports = (
               formFactor: uaFormFactor,
             } = request.app.ua;
 
-            return Promise.resolve()
-              .then(() => {
-                // Since the only way to reach this point is clicking a
-                // link from the user's email, we create a verified sessionToken
-                // **unless** the user has a TOTP token.
-                if (!hasTotpToken) {
-                  return;
-                }
-                return random.hex(16);
-              })
-              .then(randomHex => {
-                tokenVerificationId = randomHex;
-                const sessionTokenOptions = {
-                  uid: account.uid,
-                  email: account.primaryEmail.email,
-                  emailCode: account.primaryEmail.emailCode,
-                  emailVerified: account.primaryEmail.isVerified,
-                  verifierSetAt: account.verifierSetAt,
-                  mustVerify: !!tokenVerificationId,
-                  tokenVerificationId,
-                  uaBrowser,
-                  uaBrowserVersion,
-                  uaOS,
-                  uaOSVersion,
-                  uaDeviceType,
-                  uaFormFactor,
-                };
+            // Since the only way to reach this point is clicking a
+            // link from the user's email, we create a verified sessionToken
+            // **unless** the user has a TOTP token.
+            tokenVerificationId = hasTotpToken ? await random.hex(16) : null;
 
-                return db
-                  .createSessionToken(sessionTokenOptions)
-                  .then(result => {
-                    sessionToken = result;
-                    return request.propagateMetricsContext(
-                      accountResetToken,
-                      sessionToken
-                    );
-                  });
-              });
+            const sessionTokenOptions = {
+              uid: account.uid,
+              email: account.primaryEmail.email,
+              emailCode: account.primaryEmail.emailCode,
+              emailVerified: account.primaryEmail.isVerified,
+              verifierSetAt: account.verifierSetAt,
+              mustVerify: !!tokenVerificationId,
+              tokenVerificationId,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uaFormFactor,
+            };
+
+            sessionToken = await db.createSessionToken(sessionTokenOptions);
+            return await request.propagateMetricsContext(
+              accountResetToken,
+              sessionToken
+            );
           }
         }
 
-        function createKeyFetchToken() {
+        async function createKeyFetchToken() {
           if (requestHelper.wantsKeys(request)) {
             if (!hasSessionToken) {
               // Sanity-check: any client requesting keys,
               // should also be requesting a sessionToken.
               throw error.missingRequestParameter('sessionToken');
             }
-            return db
-              .createKeyFetchToken({
-                uid: account.uid,
-                kA: account.kA,
-                wrapKb: wrapKb,
-                emailVerified: account.primaryEmail.isVerified,
-                tokenVerificationId,
-              })
-              .then(result => {
-                keyFetchToken = result;
-                return request.propagateMetricsContext(
-                  accountResetToken,
-                  keyFetchToken
-                );
-              });
+            keyFetchToken = await db.createKeyFetchToken({
+              uid: account.uid,
+              kA: account.kA,
+              wrapKb: wrapKb,
+              emailVerified: account.primaryEmail.isVerified,
+              tokenVerificationId,
+            });
+            return await request.propagateMetricsContext(
+              accountResetToken,
+              keyFetchToken
+            );
           }
         }
 
