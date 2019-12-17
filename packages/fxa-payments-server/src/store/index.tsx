@@ -13,7 +13,7 @@ export const createAppStore = (initialState?: State, enhancers?: Array<any>) =>
     composeWithDevTools(
       applyMiddleware(
         ReduxThunk as ThunkMiddleware<State, Action>,
-        promiseMiddleware(),
+        promiseMiddleware()
       ),
       ...(enhancers || [])
     )

@@ -158,11 +158,7 @@ export async function apiUpdateSubscriptionPlan(params: {
   planId: string;
   productId: string;
 }) {
-  const {
-    subscriptionId,
-    planId,
-    productId,
-  } = params;
+  const { subscriptionId, planId, productId } = params;
   const metricsOptions = {
     planId,
     productId,

@@ -8,7 +8,7 @@ No changes.
 
 ### New features
 
-* event-broker: add remaining RP events (d5c42ccd8)
+- event-broker: add remaining RP events (d5c42ccd8)
 
 ## 1.151.5
 

@@ -215,15 +215,13 @@ describe('API requests', () => {
       planId: params.planId,
       productId: params.productId,
     };
-  
+
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {
       const expectedResponse = { ok: true };
       const requestMock = nock(AUTH_BASE_URL)
         .put(path(params.subscriptionId), { planId: params.planId })
         .reply(200, expectedResponse);
-      expect(
-        await apiUpdateSubscriptionPlan(params)
-      ).toEqual(expectedResponse);
+      expect(await apiUpdateSubscriptionPlan(params)).toEqual(expectedResponse);
       expect(<jest.Mock>updateSubscriptionPlan_PENDING).toBeCalledWith(
         metricsOptions
       );
@@ -239,7 +237,7 @@ describe('API requests', () => {
         .reply(400, { message: 'oops' });
       let error = null;
       try {
-        await apiUpdateSubscriptionPlan(params)
+        await apiUpdateSubscriptionPlan(params);
       } catch (e) {
         error = e;
       }

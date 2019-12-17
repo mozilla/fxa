@@ -8,7 +8,7 @@ No changes.
 
 ### Other changes
 
-* deps: update babel monorepo to v7.7.4 (aac281caf)
+- deps: update babel monorepo to v7.7.4 (aac281caf)
 
 ## 1.151.5
 

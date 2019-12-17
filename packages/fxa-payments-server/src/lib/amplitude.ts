@@ -221,7 +221,9 @@ export function cancelSubscription_REJECTED(eventProperties: EventProperties) {
   );
 }
 
-export function updateSubscriptionPlanMounted(eventProperties: EventProperties) {
+export function updateSubscriptionPlanMounted(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.upgradeSubscription,
     eventTypeNames.view,
@@ -229,7 +231,9 @@ export function updateSubscriptionPlanMounted(eventProperties: EventProperties) 
   );
 }
 
-export function updateSubscriptionPlanEngaged(eventProperties: EventProperties) {
+export function updateSubscriptionPlanEngaged(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.upgradeSubscription,
     eventTypeNames.engage,
@@ -237,7 +241,9 @@ export function updateSubscriptionPlanEngaged(eventProperties: EventProperties) 
   );
 }
 
-export function updateSubscriptionPlan_PENDING(eventProperties: EventProperties) {
+export function updateSubscriptionPlan_PENDING(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.upgradeSubscription,
     eventTypeNames.submit,
@@ -245,7 +251,9 @@ export function updateSubscriptionPlan_PENDING(eventProperties: EventProperties)
   );
 }
 
-export function updateSubscriptionPlan_FULFILLED(eventProperties: EventProperties) {
+export function updateSubscriptionPlan_FULFILLED(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.upgradeSubscription,
     eventTypeNames.success,
@@ -253,7 +261,9 @@ export function updateSubscriptionPlan_FULFILLED(eventProperties: EventPropertie
   );
 }
 
-export function updateSubscriptionPlan_REJECTED(eventProperties: EventProperties) {
+export function updateSubscriptionPlan_REJECTED(
+  eventProperties: EventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.upgradeSubscription,
     eventTypeNames.fail,

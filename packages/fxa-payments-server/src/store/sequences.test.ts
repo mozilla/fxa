@@ -39,9 +39,10 @@ describe('updateSubscriptionPlanAndRefresh', () => {
   });
 
   it('handles action exceptions as expected', async () => {
-    await sequences.updateSubscriptionPlanAndRefresh(subscriptionId, plan)(
-      dispatchError
-    );
+    await sequences.updateSubscriptionPlanAndRefresh(
+      subscriptionId,
+      plan
+    )(dispatchError);
 
     expect(dispatchError).toHaveBeenCalledTimes(1);
     expect(actions.updateSubscriptionPlan).toBeCalledWith(subscriptionId, plan);
@@ -50,9 +51,10 @@ describe('updateSubscriptionPlanAndRefresh', () => {
   });
 
   it('calls actions as expected', async () => {
-    await sequences.updateSubscriptionPlanAndRefresh(subscriptionId, plan)(
-      dispatch
-    );
+    await sequences.updateSubscriptionPlanAndRefresh(
+      subscriptionId,
+      plan
+    )(dispatch);
 
     expect(dispatch).toHaveBeenCalledTimes(4);
     expect(actions.updateSubscriptionPlan).toBeCalledWith(subscriptionId, plan);

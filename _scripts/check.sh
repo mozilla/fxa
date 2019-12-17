@@ -3,6 +3,7 @@
 set -ex
 
 node_version="$(node -v | cut -f 1 -d '.' | cut -f 2 -d 'v')"
+
 if [ "$node_version" -ne "12" ] && [ "$node_version" -ne "10" ]; then
   echo "install node 12 or node 10 to continue installation"
   echo "http://nodejs.org/"

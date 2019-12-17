@@ -40,7 +40,7 @@ export const SubscriptionCreate = ({
   useEffect(() => {
     setHideLogo(!accountActivated);
   }, [setHideLogo, accountActivated]);
-  
+
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
     [selectedPlan]

@@ -8,16 +8,16 @@ No changes.
 
 ### New features
 
-* payments: tests to assert that we use fallback product icon when missing metadata (6311bac7c)
-* payments: add server config support for additional imgSrc hosts in CSP (3e76dcad2)
-* payments: use Stripe metadata for product details in UI (03437de40)
-* payments: use Stripe metadata as source for product name, icon, download URL (eb3a58224)
+- payments: tests to assert that we use fallback product icon when missing metadata (6311bac7c)
+- payments: add server config support for additional imgSrc hosts in CSP (3e76dcad2)
+- payments: use Stripe metadata for product details in UI (03437de40)
+- payments: use Stripe metadata as source for product name, icon, download URL (eb3a58224)
 
 ### Bug fixes
 
-* payments: use the correct type for updatePaymentAndRefresh (bda8e1b1b)
-* metrics: use flush time as Payments Amplitude event time (4dc588b71)
-* payments: hide message when cancellation date is unavailable (edb7e9224)
+- payments: use the correct type for updatePaymentAndRefresh (bda8e1b1b)
+- metrics: use flush time as Payments Amplitude event time (4dc588b71)
+- payments: hide message when cancellation date is unavailable (edb7e9224)
 
 ## 1.151.5
 

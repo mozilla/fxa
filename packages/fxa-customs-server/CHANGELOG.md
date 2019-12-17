@@ -6,7 +6,7 @@ No changes.
 
 ### Other changes
 
-* fxa-customs-server: update google-code/pubsub (326cae0df)
+- fxa-customs-server: update google-code/pubsub (326cae0df)
 
 ## 1.151.5
 

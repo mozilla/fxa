@@ -1,17 +1,19 @@
 ## 1.152.1
 
-No changes.
+### Bug fixes
+
+- metrics: Update our email experiment metrics (aee0cff1f)
 
 ## 1.152.0
 
 ### New features
 
-* payments: use Stripe metadata as source for product name, icon, download URL (eb3a58224)
+- payments: use Stripe metadata as source for product name, icon, download URL (eb3a58224)
 
 ### Bug fixes
 
-* stats: collect timing stats on failed HTTP API calls (2e592fc29)
-* payments: change download URLs in subhub stub metadata to point to 123done (319c708bd)
+- stats: collect timing stats on failed HTTP API calls (2e592fc29)
+- payments: change download URLs in subhub stub metadata to point to 123done (319c708bd)
 
 ## 1.151.5
 
