@@ -10,33 +10,24 @@ const AuthServerErrno = {
 
 /*
  * Todos:
- * - L10N
  * - handle General SubHub subscription creation failure on submit
  *   (network issue, server error)
  * - handle Payment token not valid
  */
 
-const BASIC_ERROR = 'Something went wrong. Please try again later.';
-const PAYMENT_ERROR_1 =
-  'Hmm. There was a problem authorizing your payment. Try again or get in touch with your card issuer.';
-const PAYMENT_ERROR_2 =
-  'Hmm. There was a problem authorizing your payment. Get in touch with your card issuer.';
+const BASIC_ERROR = 'basic-error-message';
+const PAYMENT_ERROR_1 = 'payment-error-1';
+const PAYMENT_ERROR_2 = 'payment-error-2';
 
 let errorMessageIndex: { [key: string]: string } = {
-  expired_card: 'It looks like your credit card has expired. Try another card.',
-  insufficient_funds:
-    'It looks like your card has insufficient funds. Try another card.',
-  withdrawal_count_limit_exceeded:
-    'It looks like this transaction will put you over your credit limit. Try another card.',
-  charge_exceeds_source_limit:
-    'It looks like this transaction will put you over your daily credit limit. Try another card or in 24 hours.',
-  instant_payouts_unsupported:
-    "It looks like your debit card isn't setup for instant payments. Try another debit or credit card.",
-  duplicate_transaction:
-    'Hmm. Looks like an identical transaction was just sent. Check your payment history.',
-  coupon_expired: 'It looks like that promo code has expired.',
-  card_error:
-    'Your transaction could not be processed. Please verify your credit card information and try again.',
+  expired_card: 'expired-card-error',
+  insufficient_funds: 'insufficient-funds-error',
+  withdrawal_count_limit_exceeded: 'withdrawal-count-limit-error',
+  charge_exceeds_source_limit: 'charge-exceeds-source-limit-error',
+  instant_payouts_unsupported: 'instant-payouts-unsupported-error',
+  duplicate_transaction: 'duplicate-transaction-error',
+  coupon_expired: 'coupon-expired-error',
+  card_error: 'card-error',
   // todo: handle "parameters_exclusive": "Your already subscribed to _product_"
 };
 
