@@ -1,38 +1,48 @@
+## 1.152.1
+
+### Bug fixes
+
+- metrics: Fix sms experiment metrics (5d6a1d5a1)
+
+### Other changes
+
+- 5481c91e2 Set `service` tag for metrics events based on fxa_status response. (5481c91e2)
+
 ## 1.152.0
 
 ### New features
 
-* signin-code: Signin token codes everywhere. (cc74b2bf5)
-* signup-code: Add bounce handling to /confirm_signup_code (cb475fbe7)
-* signin-code: Add bounce handling to /signin_token_code (2cc8aabb8)
-* cwts: Add CWTS to the /signup page in Sync optional flow (071a75f16)
+- signin-code: Signin token codes everywhere. (cc74b2bf5)
+- signup-code: Add bounce handling to /confirm_signup_code (cb475fbe7)
+- signin-code: Add bounce handling to /signin_token_code (2cc8aabb8)
+- cwts: Add CWTS to the /signup page in Sync optional flow (071a75f16)
 
 ### Bug fixes
 
-* fenix: Do not use Sync Optional with Fenix (88f6119cc)
-* tooltip: Update/remove inline password tooltip when password changes (396548b0f)
-* icons: Shuffle client CSS selectors to properly display Lockwise and FF Preview (78b52ce34)
-* metrics: Flush metrics more often to capture more events on iOS (f267b2184)
-* test: 'signin in Chrome for Android' goes back to RP at the end of the test (2c59d9012)
-* sentry: Remove Sentry until we get everything else figured out. (b42dadfc3)
-* cwts: Ensure CWTS tests in sync optional flow test reality. (20d2b05e6)
-* tests: verify subscriptions in a non-product specific fashion (26d45a734)
+- fenix: Do not use Sync Optional with Fenix (88f6119cc)
+- tooltip: Update/remove inline password tooltip when password changes (396548b0f)
+- icons: Shuffle client CSS selectors to properly display Lockwise and FF Preview (78b52ce34)
+- metrics: Flush metrics more often to capture more events on iOS (f267b2184)
+- test: 'signin in Chrome for Android' goes back to RP at the end of the test (2c59d9012)
+- sentry: Remove Sentry until we get everything else figured out. (b42dadfc3)
+- cwts: Ensure CWTS tests in sync optional flow test reality. (20d2b05e6)
+- tests: verify subscriptions in a non-product specific fashion (26d45a734)
 
 ### Refactorings
 
-* test: Remove Firefox Desktop 57 and below in the tests (2d5efe126)
-* experiments: Simplify how experiments and metrics are created (08b186f45)
-* test: Simplify test setup when WebChannel responses are expected (c59445f53)
+- test: Remove Firefox Desktop 57 and below in the tests (2d5efe126)
+- experiments: Simplify how experiments and metrics are created (08b186f45)
+- test: Simplify test setup when WebChannel responses are expected (c59445f53)
 
 ### Other changes
 
-* fxa-content-server: tidy up sentry configuration in content server (23d421b48)
-* ci: divide functional tests into groups (b8364b91c)
-* docs: Remove docs migrated to ecosystem platform (c2d5b0e25)
-* signup-code: Use signup codes (almost) everywhere. (9b84db9ed)
-* tests: de-duplicate some sign in/up functional tests (b3d442295)
-* deps: update package-lock.json for fxa-content-server (fb472c4e3)
-* deps: update babel monorepo to v7.7.4 (aac281caf)
+- fxa-content-server: tidy up sentry configuration in content server (23d421b48)
+- ci: divide functional tests into groups (b8364b91c)
+- docs: Remove docs migrated to ecosystem platform (c2d5b0e25)
+- signup-code: Use signup codes (almost) everywhere. (9b84db9ed)
+- tests: de-duplicate some sign in/up functional tests (b3d442295)
+- deps: update package-lock.json for fxa-content-server (fb472c4e3)
+- deps: update babel monorepo to v7.7.4 (aac281caf)
 
 ## 1.151.5
 
