@@ -23,6 +23,7 @@ describe('models/auth_brokers/fx-fennec-v1', function() {
   beforeEach(function() {
     channel = new NullChannel();
     metrics = {
+      flush: sinon.stub().resolves({}),
       setViewNamePrefix: sinon.spy(),
     };
     relier = new Relier();

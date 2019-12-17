@@ -1,4 +1,7 @@
 {
+  "rules": {
+    "require-atomic-updates": "off"
+  },
   "extends": ["plugin:fxa/server"],
   "plugins": ["fxa"]
 }

@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/mozilla/browserid-verifier.svg?branch=master)](https://travis-ci.org/mozilla/browserid-verifier)
 [![Docker Build Status](https://circleci.com/gh/mozilla/browserid-verifier/tree/master.svg?style=shield&circle-token=da8b9c7c4c778b238eeadb6d8bc695f2be4e22df)](https://circleci.com/gh/mozilla/browserid-verifier/tree/master)
 
 ## A BrowserID verification server

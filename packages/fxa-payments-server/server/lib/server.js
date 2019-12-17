@@ -39,7 +39,10 @@ module.exports = () => {
       termsOfService: config.get('legalDocLinks.termsOfService'),
     },
     productRedirectURLs: config.get('productRedirectURLs'),
-    sentryDsn: config.get('sentryDsn'),
+    sentry: {
+      dsn: config.get('sentry.dsn'),
+      url: config.get('sentry.url'),
+    },
     servers: {
       auth: {
         url: config.get('servers.auth.url'),
@@ -64,9 +67,9 @@ module.exports = () => {
 
   app.disable('x-powered-by');
 
-  const sentryDsn = config.get('sentryDsn');
-  if (sentryDsn) {
-    sentry.init({ dsn: sentryDsn });
+  const sentryDSN = config.get('sentry.dsn');
+  if (sentryDSN) {
+    sentry.init({ dsn: sentryDSN });
     app.use(sentry.Handlers.requestHandler());
   }
 
@@ -157,7 +160,6 @@ module.exports = () => {
     return injectMetaContent(html, {
       __SERVER_CONFIG__: config,
       __FEATURE_FLAGS__: featureFlags,
-      __PERF_START_TIME__: Date.now(),
     });
   }
 
@@ -205,15 +207,10 @@ module.exports = () => {
       { encoding: 'UTF-8' }
     );
 
-    const renderedStaticHtml = injectHtmlConfig(
-      STATIC_INDEX_HTML,
-      CLIENT_CONFIG,
-      {}
-    );
     INDEX_ROUTES.forEach(route => {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
-        res.send(renderedStaticHtml);
+        res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, {}));
       });
     });
 
@@ -229,7 +226,7 @@ module.exports = () => {
 
   app.use(routeHelpers.validationErrorHandler);
 
-  if (sentryDsn) {
+  if (sentryDSN) {
     app.use(sentry.Handlers.errorHandler());
   }
 

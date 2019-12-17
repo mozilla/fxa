@@ -143,12 +143,7 @@ describe('views/mixins/sync-suggestion-mixin', () => {
     });
 
     it('logs the link.signin event', () => {
-      // Without the _flusthMetricsThenRedirect override, the test
-      // causes the page to redirect.
       sinon.stub(view, 'isSyncSuggestionEnabled').callsFake(() => true);
-      sinon
-        .stub(view, '_flushMetricsThenRedirect')
-        .callsFake(() => Promise.resolve());
       sinon.stub(view, 'logFlowEvent').callsFake(() => {});
 
       return view.render().then(() => {

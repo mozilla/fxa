@@ -35,7 +35,8 @@ import {
   VALID_CREATE_TOKEN_RESPONSE,
 } from '../../lib/test-utils';
 
-import FlowEvent from '../../lib/flow-event';
+jest.mock('../../lib/sentry');
+
 jest.mock('../../lib/flow-event');
 
 import { SignInLayout } from '../../components/AppLayout';
@@ -173,8 +174,6 @@ describe('routes/Product', () => {
       expect(queryByTestId('profile-display-name')).toBeInTheDocument();
     }
     expectNockScopesDone(apiMocks);
-
-    expect(FlowEvent.logPerformanceEvent).toBeCalledWith('product', 9001);
   };
 
   it('renders with valid product ID', withExistingAccount(false));

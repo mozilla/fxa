@@ -83,17 +83,6 @@ export default FxSyncChannelAuthenticationBroker.extend({
   },
 
   /**
-   * Notify the relier of login.
-   *
-   * @param {Object} account
-   * @returns {Promise}
-   * @private
-   */
-  _notifyRelierOfLogin(account) {
-    return proto._notifyRelierOfLogin.call(this, account);
-  },
-
-  /**
    * Notify the relier that a sign-in with a code was performed.
    *
    * @param {Object} account

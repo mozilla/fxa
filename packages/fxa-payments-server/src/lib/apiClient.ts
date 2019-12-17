@@ -1,7 +1,9 @@
 import { Config, defaultConfig } from './config';
+import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
+import * as Amplitude from './amplitude';
 
 // TODO: Use a better type here
-interface APIFetchOptions {
+export interface APIFetchOptions {
   [propName: string]: any;
 }
 
@@ -86,25 +88,25 @@ async function apiFetch(
   return response.json();
 }
 
-export function apiFetchProfile() {
+export async function apiFetchProfile(): Promise<Profile> {
   return apiFetch('GET', `${config.servers.profile.url}/v1/profile`);
 }
 
-export function apiFetchPlans() {
+export async function apiFetchPlans(): Promise<Plan[]> {
   return apiFetch(
     'GET',
     `${config.servers.auth.url}/v1/oauth/subscriptions/plans`
   );
 }
 
-export function apiFetchSubscriptions() {
+export async function apiFetchSubscriptions(): Promise<Subscription[]> {
   return apiFetch(
     'GET',
     `${config.servers.auth.url}/v1/oauth/subscriptions/active`
   );
 }
 
-export function apiFetchToken() {
+export async function apiFetchToken(): Promise<Token> {
   return apiFetch('POST', `${config.servers.oauth.url}/v1/introspect`, {
     body: JSON.stringify({
       token: accessToken,
@@ -112,62 +114,142 @@ export function apiFetchToken() {
   });
 }
 
-export function apiFetchCustomer() {
+export async function apiFetchCustomer(): Promise<Customer> {
   return apiFetch(
     'GET',
     `${config.servers.auth.url}/v1/oauth/subscriptions/customer`
   );
 }
 
-export function apiCreateSubscription(params: {
+export async function apiCreateSubscription(params: {
   paymentToken: string;
   planId: string;
+  productId: string;
   displayName: string;
 }) {
-  return apiFetch(
-    'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/active`,
-    {
-      body: JSON.stringify({
-        ...params,
-      }),
-    }
-  );
+  const metricsOptions = {
+    planId: params.planId,
+    productId: params.productId,
+  };
+  try {
+    Amplitude.createSubscription_PENDING(metricsOptions);
+    const result = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/active`,
+      {
+        body: JSON.stringify({
+          ...params,
+        }),
+      }
+    );
+    Amplitude.createSubscription_FULFILLED(metricsOptions);
+    return result;
+  } catch (error) {
+    Amplitude.createSubscription_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
 }
 
-export function apiUpdateSubscriptionPlan({
+export async function apiUpdateSubscriptionPlan(params: {
+  subscriptionId: string;
+  planId: string;
+  productId: string;
+}) {
+  const { subscriptionId, planId, productId } = params;
+  const metricsOptions = {
+    planId,
+    productId,
+  };
+  try {
+    Amplitude.updateSubscriptionPlan_PENDING(metricsOptions);
+    const result = await apiFetch(
+      'PUT',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`,
+      { body: JSON.stringify({ planId }) }
+    );
+    Amplitude.updateSubscriptionPlan_FULFILLED(metricsOptions);
+    return result;
+  } catch (error) {
+    Amplitude.updateSubscriptionPlan_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
+}
+
+export async function apiCancelSubscription(params: {
+  subscriptionId: string;
+  planId: string;
+  productId: string;
+}) {
+  const { subscriptionId } = params;
+  const metricsOptions = {
+    planId: params.planId,
+    productId: params.productId,
+  };
+  try {
+    Amplitude.cancelSubscription_PENDING(metricsOptions);
+    await apiFetch(
+      'DELETE',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
+    );
+    Amplitude.cancelSubscription_FULFILLED(metricsOptions);
+    // Cancellation response does not include subscriptionId, but we want it.
+    return { subscriptionId };
+  } catch (error) {
+    Amplitude.cancelSubscription_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
+}
+
+export async function apiReactivateSubscription({
   subscriptionId,
   planId,
 }: {
   subscriptionId: string;
   planId: string;
 }) {
-  return apiFetch(
-    'PUT',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`,
-    { body: JSON.stringify({ planId }) }
-  );
-}
-
-export function apiCancelSubscription(subscriptionId: string) {
-  return apiFetch(
-    'DELETE',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`
-  );
-}
-
-export function apiReactivateSubscription(subscriptionId: string): Promise<{}> {
-  return apiFetch(
+  await apiFetch(
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/reactivate`,
     { body: JSON.stringify({ subscriptionId }) }
   );
+  return {
+    subscriptionId,
+    planId,
+  };
 }
 
-export function apiUpdatePayment(paymentToken: string) {
-  return apiFetch(
-    'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
-    { body: JSON.stringify({ paymentToken }) }
-  );
+export async function apiUpdatePayment(params: {
+  planId: string;
+  productId: string;
+  paymentToken: string;
+}) {
+  const metricsOptions = {
+    planId: params.planId,
+    productId: params.productId,
+  };
+  try {
+    Amplitude.updatePayment_PENDING(metricsOptions);
+    const result = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
+      { body: JSON.stringify({ paymentToken: params.paymentToken }) }
+    );
+    Amplitude.updatePayment_FULFILLED(metricsOptions);
+    return result;
+  } catch (error) {
+    Amplitude.updatePayment_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
 }

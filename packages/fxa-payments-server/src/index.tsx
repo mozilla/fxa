@@ -1,7 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { createAppStore } from './store';
-import * as Sentry from '@sentry/browser';
 
 import { config, readConfigFromMeta } from './lib/config';
 import { updateAPIClientToken, updateAPIClientConfig } from './lib/apiClient';
@@ -11,17 +10,8 @@ import ScreenInfo from './lib/screen-info';
 
 import { actions } from './store/actions';
 
-import SpeedTrap from 'speed-trap';
-SpeedTrap.init(); // for perf timing metrics
-
 async function init() {
   readConfigFromMeta(headQuerySelector);
-
-  if (config.sentryDsn) {
-    Sentry.init({
-      dsn: config.sentryDsn,
-    });
-  }
 
   const store = createAppStore();
 

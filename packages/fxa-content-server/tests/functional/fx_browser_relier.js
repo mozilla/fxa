@@ -6,7 +6,6 @@
 
 const { assert } = intern.getPlugin('chai');
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -27,6 +26,7 @@ const PASSWORD = 'passwordvx2';
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
@@ -38,7 +38,7 @@ const {
 
 registerSuite('Firefox Desktop non-sync', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
@@ -52,7 +52,6 @@ registerSuite('Firefox Desktop non-sync', {
                 forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
                   clientId: FIREFOX_CLIENT_ID,
@@ -85,7 +84,6 @@ registerSuite('Firefox Desktop non-sync', {
                 forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
-                'fxaccounts:can_link_account': { ok: true },
                 'fxaccounts:fxa_status': {
                   signedInUser: null,
                   clientId: FIREFOX_CLIENT_ID,
@@ -115,7 +113,6 @@ registerSuite('Firefox Desktop non-sync', {
               forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
               'fxaccounts:fxa_status': {
                 signedInUser: null,
                 clientId: FIREFOX_CLIENT_ID,
@@ -154,7 +151,6 @@ registerSuite('Firefox Desktop non-sync', {
               forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
               'fxaccounts:fxa_status': {
                 signedInUser: null,
                 clientId: FIREFOX_CLIENT_ID,
@@ -189,7 +185,7 @@ registerSuite('Firefox Desktop non-sync', {
 
 registerSuite('Firefox Desktop non-sync - CWTS on signup', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('signupPasswordCWTS.treatment{id}');
+    email = createEmail('signupPasswordCWTS.treatment{id}');
     return this.remote.then(clearBrowserState());
   },
 

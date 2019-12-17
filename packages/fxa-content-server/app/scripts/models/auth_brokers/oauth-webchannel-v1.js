@@ -36,7 +36,6 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     this.session = options.session;
     this._channel = options.channel;
     this._scopedKeys = ScopedKeys;
-    this._metrics = options.metrics;
     options.fxaStatus = true;
 
     proto.initialize.call(this, options);
@@ -112,7 +111,6 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     if (state) {
       result.state = state;
     }
-
     return this.send(this.getCommand('OAUTH_LOGIN'), result);
   },
 });

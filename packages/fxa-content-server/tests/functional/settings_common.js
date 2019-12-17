@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const selectors = require('./lib/selectors');
 
 const config = intern._config;
@@ -20,9 +19,12 @@ let accountData;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
+  createUID,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
+  fillOutSignInTokenCode,
   openPage,
   testElementExists,
   type,
@@ -41,7 +43,7 @@ const SETTINGS_PAGES = {
 
 const unverifiedSuite = {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(clearBrowserState())
@@ -56,21 +58,30 @@ function unverifiedAccountTest(suite, page) {
   ] = function() {
     const url = SETTINGS_URL + page;
 
-    return (
-      this.remote
-        .then(openPage(url, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+    return this.remote
+      .then(openPage(url, selectors.ENTER_EMAIL.HEADER))
+      .then(fillOutEmailFirstSignIn(email, PASSWORD))
+      .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
-        // Expect to get redirected to confirm since the account is unverified
-        .then(openPage(url, selectors.CONFIRM_SIGNUP.HEADER))
-    );
+      .then(openPage(url, selectors.CONFIRM_SIGNUP_CODE.HEADER))
+      .then(fillOutSignInTokenCode(email, 1))
+      .then(testElementExists(selectors.SETTINGS.HEADER))
+      .then(() => {
+        let expectedSelector = SETTINGS_PAGES[page];
+        if (page === '/avatar/crop') {
+          // can only return to crop if an image was uploaded, since no image
+          // is uploaded here can't go back to it. Expect to go back to the
+          // avatar change screen instead.
+          expectedSelector = SETTINGS_PAGES['/avatar/change'];
+        }
+        return this.remote.then(testElementExists(expectedSelector));
+      });
   };
 }
 
 const verifiedSuite = {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(clearBrowserState({ force: true }))
@@ -154,7 +165,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
         // Expect to get redirected to signin password since the uid is unknown
         .then(
           openPage(
-            url + '?uid=' + TestHelpers.createUID(),
+            url + '?uid=' + createUID(),
             // TODO - this should go to enter email rather than signin password
             selectors.SIGNIN_PASSWORD.HEADER
           )

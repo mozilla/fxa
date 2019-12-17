@@ -28,7 +28,6 @@ export default {
    * Interceptor function. Flushes metrics before redirecting.
    *
    * @param {Event} event - click event
-   * @returns {Promise}
    */
   _onExternalLinkClick(event) {
     if (this._shouldIgnoreClick(event)) {
@@ -37,7 +36,7 @@ export default {
 
     event.preventDefault();
 
-    return this._flushMetricsThenRedirect(event.currentTarget.href);
+    this.navigateAway(event.currentTarget.href);
   },
 
   /**
@@ -80,20 +79,5 @@ export default {
    */
   _doesLinkOpenInAnotherTab($targetEl) {
     return !!$targetEl.attr('target');
-  },
-
-  /**
-   * Flush metrics, then redirect to `url`.
-   *
-   * @param {String} url
-   * @returns {Promise}
-   * @private
-   */
-  _flushMetricsThenRedirect(url) {
-    // Safari for iOS will not flush the metrics in an `unload`
-    // handler, so do it manually before redirecting.
-    return this.metrics.flush().then(() => {
-      this.window.location = url;
-    });
   },
 };

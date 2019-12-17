@@ -63,6 +63,7 @@ module.exports = function(log, config, oauthdb) {
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'welcome-primary',
     verifySecondary: 'welcome-secondary',
+    verifySecondaryCode: 'welcome-secondary',
   };
 
   // Email template to UTM content, this is typically the main call out link/button
@@ -96,6 +97,7 @@ module.exports = function(log, config, oauthdb) {
     verifyLoginCode: 'new-signin-verify-code',
     verifyPrimary: 'activate',
     verifySecondary: 'activate',
+    verifySecondaryCode: 'activate',
   };
 
   function extend(target, source) {
@@ -888,6 +890,54 @@ module.exports = function(log, config, oauthdb) {
         privacyUrl: links.privacyUrl,
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
+        subject,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        timestamp: this._constructLocalTimeString(
+          message.timeZone,
+          message.acceptLanguage
+        ),
+      },
+    });
+  };
+
+  Mailer.prototype.verifySecondaryCodeEmail = function(message) {
+    log.trace('mailer.verifySecondaryCodeEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'verifySecondaryCode';
+    const subject = gettext('Confirm secondary email');
+    const action = gettext('Verify email');
+
+    const links = this._generateLinks(
+      undefined,
+      message.email,
+      {},
+      templateName
+    );
+
+    const headers = {
+      'X-Verify-Code': message.code,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      subject,
+      template: templateName,
+      templateValues: {
+        action,
+        code: message.code,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        ip: message.ip,
+        location: this._constructLocationString(message),
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        primaryEmail: message.primaryEmail,
+        privacyUrl: links.privacyUrl,
         subject,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,

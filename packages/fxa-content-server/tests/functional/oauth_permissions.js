@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
@@ -25,17 +24,18 @@ let email;
 const {
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutForceAuth,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
+  fillOutSignInTokenCode,
   fillOutSignUpCode,
   noSuchElement,
   openFxaFromRp: openFxaFromTrustedRp,
   openFxaFromUntrustedRp,
   openPage,
   openSettingsInNewTab,
-  openVerificationLinkInSameTab,
   switchToWindow,
   testElementExists,
   testUrlEquals,
@@ -46,7 +46,7 @@ const {
 registerSuite('oauth permissions for untrusted reliers', {
   beforeEach: function() {
     this.timeout = TIMEOUT;
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({
@@ -112,15 +112,13 @@ registerSuite('oauth permissions for untrusted reliers', {
           .then(
             click(
               selectors.OAUTH_PERMISSIONS.SUBMIT,
-              // TODO - this should go to CONFIRM_SIGNUP_CODE
-              selectors.CONFIRM_SIGNUP.HEADER
+              selectors.CONFIRM_SIGNUP_CODE.HEADER
             )
           )
 
           // get the second email, the first was sent on client.signUp w/
-          // preVerified: false above. The second email has the `service` and
-          // `resume` parameters.
-          .then(openVerificationLinkInSameTab(email, 1))
+          // preVerified: false above.
+          .then(fillOutSignInTokenCode(email, 1))
           // user verifies in the same tab, so they are logged in to the RP.
           .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
       );
@@ -365,7 +363,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 
 registerSuite('oauth permissions for trusted reliers', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       FunctionalHelpers.clearBrowserState({

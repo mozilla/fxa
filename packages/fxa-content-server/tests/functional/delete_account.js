@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const config = intern._config;
@@ -18,6 +17,7 @@ let email;
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
   fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
@@ -29,7 +29,7 @@ const {
 
 registerSuite('delete_account', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote
       .then(clearBrowserState({ force: true }))

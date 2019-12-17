@@ -14,7 +14,7 @@ export default {
   },
 
   setInitialContext(context) {
-    context.set(this.relier.pick('service', 'serviceName'));
+    context.set(this.relier.pick('service', this.translate('serviceName')));
   },
 
   transformLinks() {

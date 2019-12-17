@@ -4,12 +4,11 @@
 
 'use strict';
 
-const P = require('./../promise');
 const utils = require('./utils/helpers');
 
 module.exports = function(log) {
   return function start(deliveryQueue) {
-    function handleDelivery(message) {
+    async function handleDelivery(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery');
 
       let recipients = [];
@@ -23,7 +22,7 @@ module.exports = function(log) {
       // Ref: http://docs.aws.amazon.com/ses/latest/DeveloperGuide/notification-contents.html
       const templateName = utils.getHeaderValue('X-Template-Name', message);
 
-      return P.each(recipients, recipient => {
+      for (const recipient of recipients) {
         const email = recipient;
         const emailDomain = utils.getAnonymizedEmailDomain(email);
         const logData = {
@@ -42,10 +41,9 @@ module.exports = function(log) {
         utils.logEmailEventFromMessage(log, message, 'delivered', emailDomain);
 
         log.info('handleDelivery', logData);
-      }).then(() => {
-        // We always delete the message, even if handling some addrs failed.
-        message.del();
-      });
+      }
+      // We always delete the message, even if handling some addrs failed.
+      message.del();
     }
 
     deliveryQueue.on('data', handleDelivery);

@@ -4,8 +4,6 @@
 
 'use strict';
 
-const P = require('../../promise');
-
 module.exports = (log, db, mailer, push, verificationReminders) => {
   return {
     /**
@@ -29,7 +27,7 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
         planId,
       } = await request.app.metricsContext;
 
-      await P.all([
+      await Promise.all([
         log.notifyAttachedServices('verified', request, {
           country,
           countryCode,

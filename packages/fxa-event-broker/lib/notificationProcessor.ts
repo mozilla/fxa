@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PubSub } from '@google-cloud/pubsub';
-import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
@@ -12,6 +11,7 @@ import { Consumer } from 'sqs-consumer';
 import { Datastore } from './db';
 import { ClientCapabilityService } from './selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from './selfUpdatingService/clientWebhookService';
+import { configureSqsSentry } from './sentry';
 import {
   DELETE_EVENT,
   deleteSchema,
@@ -56,14 +56,15 @@ class ServiceNotificationProcessor {
     });
 
     this.app.on('error', err => {
-      sentry.captureException(err);
       logger.error('consumerError', { err });
     });
 
     this.app.on('processing_error', err => {
-      sentry.captureException(err);
       logger.error('processingError', { err });
     });
+
+    // Sentry error handling
+    configureSqsSentry(this.app);
 
     this.capabilityService = capabilityService;
     this.webhookService = webhookService;

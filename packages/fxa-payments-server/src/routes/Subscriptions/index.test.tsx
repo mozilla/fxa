@@ -10,28 +10,19 @@ import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
 import waitForExpect from 'wait-for-expect';
 
-// mock before the connected Subscriptions is imported below
-jest.mock('../../store/actions', () => ({
-  ...jest.requireActual('../../store/actions'),
-  actions: {
-    ...jest.requireActual('../../store/actions').actions,
-    manageSubscriptionsMounted: jest
-      .fn()
-      .mockReturnValue({ type: 'manageSubscriptionsMounted' }),
-    manageSubscriptionsEngaged: jest
-      .fn()
-      .mockReturnValue({ type: 'manageSubscriptionsEngaged' }),
-    cancelSubscriptionMounted: jest
-      .fn()
-      .mockReturnValue({ type: 'cancelSubscriptionMounted' }),
-    cancelSubscriptionEngaged: jest
-      .fn()
-      .mockReturnValue({ type: 'cancelSubscriptionEngaged' }),
-  },
-}));
+jest.mock('../../lib/sentry');
+
+import {
+  manageSubscriptionsMounted,
+  manageSubscriptionsEngaged,
+  updatePaymentMounted,
+  updatePaymentEngaged,
+  cancelSubscriptionMounted,
+  cancelSubscriptionEngaged,
+} from '../../lib/amplitude';
+jest.mock('../../lib/amplitude');
 
 import { ProductMetadata, Plan } from '../../store/types';
-import { actions } from '../../store/actions';
 
 import { AuthServerErrno } from '../../lib/errors';
 
@@ -72,6 +63,8 @@ describe('routes/Subscriptions', () => {
 
   beforeEach(() => {
     setupMockConfig(mockConfig);
+    jest.clearAllMocks();
+
     contentServer = mockServerUrl('content');
     authServer = mockServerUrl('auth');
     mockOptionsResponses(authServer);
@@ -162,8 +155,6 @@ describe('routes/Subscriptions', () => {
     const ctas = queryAllByTestId('upgrade-cta');
     expect(ctas.length).toBe(0);
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
-
-    expect(FlowEvent.logPerformanceEvent).toBeCalledWith('subscriptions', 9001);
   });
 
   it('displays upgrade CTA when available for a subscription', async () => {
@@ -201,8 +192,6 @@ describe('routes/Subscriptions', () => {
   });
 
   it('calls manageSubscriptionsMounted and manageSubscriptionsEngaged', async () => {
-    (actions.manageSubscriptionsMounted as jest.Mock).mockClear();
-    (actions.manageSubscriptionsEngaged as jest.Mock).mockClear();
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
@@ -210,8 +199,8 @@ describe('routes/Subscriptions', () => {
     const { getAllByTestId, findByTestId } = render(<Subject />);
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
-    expect(actions.manageSubscriptionsMounted).toBeCalledTimes(1);
-    expect(actions.manageSubscriptionsEngaged).toBeCalledTimes(1);
+    expect(manageSubscriptionsMounted).toBeCalledTimes(1);
+    expect(manageSubscriptionsEngaged).toBeCalledTimes(1);
   });
 
   it('displays profile displayName if available', async () => {
@@ -412,12 +401,16 @@ describe('routes/Subscriptions', () => {
     fireEvent.click(getByTestId('reveal-cancel-subscription-button'));
     await findByTestId('cancel-subscription-button');
 
+    expect(cancelSubscriptionMounted).toBeCalledTimes(1);
+
     // Click the confirmation checkbox, wait for the button to be enabled
     const cancelButton = getByTestId('cancel-subscription-button');
     fireEvent.click(getByTestId('confirm-cancel-subscription-checkbox'));
     await waitForExpect(() =>
       expect(cancelButton).not.toHaveAttribute('disabled')
     );
+
+    expect(cancelSubscriptionEngaged).toBeCalledTimes(1);
 
     // Click the cancellation button
     fireEvent.click(cancelButton);
@@ -664,6 +657,8 @@ describe('routes/Subscriptions', () => {
     fireEvent.click(getByTestId('reveal-payment-update-button'));
     await findByTestId('paymentForm');
 
+    expect(updatePaymentMounted).toBeCalledTimes(1);
+
     act(() => {
       for (const testid of STRIPE_FIELDS) {
         mockStripeElementOnChangeFns[testid](
@@ -676,6 +671,8 @@ describe('routes/Subscriptions', () => {
     fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
     fireEvent.blur(getByTestId('zip'));
     fireEvent.click(getByTestId('submit'));
+
+    expect(updatePaymentEngaged).toBeCalledTimes(1);
 
     await findByTestId('success-billing-update');
 

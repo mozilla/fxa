@@ -6,12 +6,12 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
 const {
   clearBrowserState,
+  createEmail,
   fillOutEmailFirstSignUp,
   getEmailHeaders,
   openPage,
@@ -28,13 +28,12 @@ registerSuite('email_service', {
 
   tests: {
     'email_service works': function() {
-      const email = TestHelpers.createEmail('emailservice.{id}');
-      const user = TestHelpers.emailToUser(email);
+      const email = createEmail('emailservice.{id}');
 
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(getEmailHeaders(user, 0))
+        .then(getEmailHeaders(email, 0))
         .then(headers => {
           assert.equal(
             headers['x-email-service'],

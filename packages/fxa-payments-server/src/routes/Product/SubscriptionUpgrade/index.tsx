@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import {
   Plan,
@@ -9,10 +9,13 @@ import {
 import { SelectorReturns } from '../../../store/selectors';
 import { metadataFromPlan } from '../../../store/utils';
 
+import * as Amplitude from '../../../lib/amplitude';
+
 import {
   formatCurrencyInCents,
   formatPeriodEndDate,
 } from '../../../lib/formats';
+import { useCallbackOnce } from '../../../lib/hooks';
 
 import { Form, SubmitButton, Checkbox } from '../../../components/fields';
 import { useValidatorState } from '../../../lib/validator';
@@ -49,6 +52,14 @@ export const SubscriptionUpgrade = ({
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
+
+  useEffect(() => {
+    Amplitude.updateSubscriptionPlanMounted(selectedPlan);
+  }, [selectedPlan]);
+
+  const engageOnce = useCallbackOnce(() => {
+    Amplitude.updateSubscriptionPlanEngaged(selectedPlan);
+  }, [selectedPlan]);
 
   const onSubmit = useCallback(
     ev => {
@@ -143,7 +154,12 @@ export const SubscriptionUpgrade = ({
           you’ll be charged the full amount.
         </p>
 
-        <Checkbox data-testid="confirm" name="confirm" required>
+        <Checkbox
+          data-testid="confirm"
+          name="confirm"
+          onClick={engageOnce}
+          required
+        >
           I authorize Mozilla, maker of Firefox products, to charge my payment
           method{' '}
           <strong>

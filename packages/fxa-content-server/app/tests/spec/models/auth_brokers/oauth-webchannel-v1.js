@@ -145,98 +145,93 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     });
   });
 
-  it('passes code and state', () => {
-    return broker
-      .sendOAuthResultToRelier({
-        code: 'code',
-        state: 'state',
-      })
-      .then(() => {
-        const loginMsg = broker.send.getCall(0).args;
-        assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
-        assert.deepEqual(loginMsg[1], {
-          code: 'code',
-          state: 'state',
-          redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
-        });
-      });
+  it('passes code and state', async () => {
+    await broker.sendOAuthResultToRelier({
+      code: 'code',
+      state: 'state',
+    });
+
+    assert.isTrue(metrics.flush.calledOnce);
+    const loginMsg = broker.send.getCall(0).args;
+    assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
+    assert.deepEqual(loginMsg[1], {
+      code: 'code',
+      state: 'state',
+      redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+    });
   });
 
-  it('handles declinedSyncEngines and offeredSyncEngines', () => {
+  it('handles declinedSyncEngines and offeredSyncEngines', async () => {
     account.set('declinedSyncEngines', ['history']);
     account.set('offeredSyncEngines', ['history']);
 
-    return broker
-      .sendOAuthResultToRelier(
-        {
-          redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
-        },
-        account
-      )
-      .then(() => {
-        const loginMsg = broker.send.getCall(0).args;
-        assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
-        assert.deepEqual(loginMsg[1], {
-          declinedSyncEngines: ['history'],
-          offeredSyncEngines: ['history'],
-          redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
-          state: 'state',
-        });
-      });
+    await broker.sendOAuthResultToRelier(
+      {
+        redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+      },
+      account
+    );
+
+    assert.isTrue(metrics.flush.calledOnce);
+    const loginMsg = broker.send.getCall(0).args;
+    assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
+    assert.deepEqual(loginMsg[1], {
+      declinedSyncEngines: ['history'],
+      offeredSyncEngines: ['history'],
+      redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+      state: 'state',
+    });
   });
 
   describe('login with an error', () => {
-    it('appends an error query parameter', () => {
-      return broker
-        .sendOAuthResultToRelier({
-          error: 'error',
-        })
-        .then(() => {
-          const loginMsg = broker.send.getCall(0).args;
-          assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
-          assert.deepEqual(loginMsg[1], {
-            error: 'error',
-            redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
-            state: 'state',
-          });
-        });
+    it('appends an error query parameter', async () => {
+      await broker.sendOAuthResultToRelier({
+        error: 'error',
+      });
+
+      assert.isTrue(metrics.flush.calledOnce);
+      const loginMsg = broker.send.getCall(0).args;
+      assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
+      assert.deepEqual(loginMsg[1], {
+        error: 'error',
+        redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+        state: 'state',
+      });
     });
   });
 
   describe('login with an action', () => {
-    it('appends an action query parameter', () => {
+    it('appends an action query parameter', async () => {
       const action = Constants.OAUTH_ACTION_SIGNIN;
-      return broker
-        .sendOAuthResultToRelier({
-          action: action,
-        })
-        .then(() => {
-          const loginMsg = broker.send.getCall(0).args;
-          assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
-          assert.deepEqual(loginMsg[1], {
-            action: action,
-            redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
-            state: 'state',
-          });
-        });
+      await broker.sendOAuthResultToRelier({
+        action: action,
+      });
+
+      assert.isTrue(metrics.flush.calledOnce);
+      const loginMsg = broker.send.getCall(0).args;
+      assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
+      assert.deepEqual(loginMsg[1], {
+        action: action,
+        redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+        state: 'state',
+      });
     });
   });
 
   describe('login with existing query parameters', () => {
-    it('passes through existing parameters unchanged', () => {
-      return broker
-        .sendOAuthResultToRelier({
-          error: 'error',
-        })
-        .then(() => {
-          const loginMsg = broker.send.getCall(0).args;
-          assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
-          assert.deepEqual(loginMsg[1], {
-            error: 'error',
-            redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
-            state: 'state',
-          });
-        });
+    it('passes through existing parameters unchanged', async () => {
+      await broker.sendOAuthResultToRelier({
+        error: 'error',
+      });
+
+      assert.isTrue(metrics.flush.calledOnce);
+      const loginMsg = broker.send.getCall(0).args;
+      assert.equal(loginMsg[0], OAUTH_LOGIN_MESSAGE);
+      assert.deepEqual(loginMsg[1], {
+        error: 'error',
+        redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+        state: 'state',
+      });
     });
   });
 });

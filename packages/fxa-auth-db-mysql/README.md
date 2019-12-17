@@ -1,8 +1,5 @@
 # Firefox Accounts database service
 
-[![Build Status][ci-status-icon]][ci-status]
-[![CircleCI](https://circleci.com/gh/mozilla/fxa-auth-db-mysql.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-auth-db-mysql)
-
 Node.js-based database service
 for Firefox Accounts.
 Includes:
@@ -172,8 +169,6 @@ next time you run `npm start`.
 
 [MPL 2.0][license]
 
-[ci-status-icon]: https://travis-ci.org/mozilla/fxa-auth-db-mysql.svg?branch=master
-[ci-status]: https://travis-ci.org/mozilla/fxa-auth-db-mysql
 [apidocs]: docs/API.md
 [dbdocs]: docs/DB_API.md
 [server-readme]: db-server/README.md

@@ -440,14 +440,12 @@ describe('models/account', function() {
     describe('with a password and no sessionToken', () => {
       describe('unverified, reason === undefined', () => {
         beforeEach(() => {
-          sinon.stub(fxaClient, 'signIn').callsFake(() => {
-            return Promise.resolve({
-              sessionToken: SESSION_TOKEN,
-              uid: UID,
-              verificationMethod: VerificationMethods.EMAIL,
-              verificationReason: VerificationReasons.SIGN_UP,
-              verified: false,
-            });
+          sinon.stub(fxaClient, 'signIn').resolves({
+            sessionToken: SESSION_TOKEN,
+            uid: UID,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_UP,
+            verified: false,
           });
 
           sinon.stub(fxaClient, 'signUpResend').callsFake(() => {
@@ -471,6 +469,7 @@ describe('models/account', function() {
               resume: 'resume token',
               skipCaseError: true,
               unblockCode: 'unblock code',
+              verificationMethod: VerificationMethods.EMAIL_OTP,
             })
           );
         });
@@ -496,13 +495,11 @@ describe('models/account', function() {
 
       describe('verified account, unverified session', () => {
         beforeEach(() => {
-          sinon.stub(fxaClient, 'signIn').callsFake(() => {
-            return Promise.resolve({
-              sessionToken: SESSION_TOKEN,
-              verificationMethod: VerificationMethods.EMAIL,
-              verificationReason: VerificationReasons.SIGN_IN,
-              verified: false,
-            });
+          sinon.stub(fxaClient, 'signIn').resolves({
+            sessionToken: SESSION_TOKEN,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: false,
           });
 
           sinon.stub(fxaClient, 'signUpResend').callsFake(() => {
@@ -523,7 +520,7 @@ describe('models/account', function() {
         it('updates the account with the returned data', () => {
           assert.equal(
             account.get('verificationMethod'),
-            VerificationMethods.EMAIL
+            VerificationMethods.EMAIL_OTP
           );
           assert.equal(
             account.get('verificationReason'),
@@ -569,6 +566,7 @@ describe('models/account', function() {
               resume: 'resume token',
               skipCaseError: true,
               unblockCode: 'unblock code',
+              verificationMethod: VerificationMethods.EMAIL_OTP,
             })
           );
         });
@@ -621,6 +619,7 @@ describe('models/account', function() {
             resume: 'resume token',
             skipCaseError: true,
             unblockCode: 'unblock code',
+            verificationMethod: VerificationMethods.EMAIL_OTP,
           };
 
           const secondExpectedOptions = {
@@ -633,6 +632,7 @@ describe('models/account', function() {
             resume: 'resume token',
             skipCaseError: true,
             unblockCode: 'unblock code',
+            verificationMethod: VerificationMethods.EMAIL_OTP,
           };
 
           assert.equal(fxaClient.signIn.callCount, 2);
@@ -744,13 +744,11 @@ describe('models/account', function() {
 
       describe('unverified, reason === undefined', () => {
         beforeEach(() => {
-          sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
-            return Promise.resolve({
-              uid: UID,
-              verificationMethod: VerificationMethods.EMAIL,
-              verificationReason: VerificationReasons.SIGN_UP,
-              verified: false,
-            });
+          sinon.stub(fxaClient, 'sessionReauth').resolves({
+            uid: UID,
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_UP,
+            verified: false,
           });
 
           sinon.stub(fxaClient, 'signIn').callsFake(() => {
@@ -779,6 +777,7 @@ describe('models/account', function() {
                 resume: 'resume token',
                 skipCaseError: true,
                 unblockCode: 'unblock code',
+                verificationMethod: VerificationMethods.EMAIL_OTP,
               }
             )
           );
@@ -805,12 +804,10 @@ describe('models/account', function() {
 
       describe('verified account, unverified session', () => {
         beforeEach(() => {
-          sinon.stub(fxaClient, 'sessionReauth').callsFake(() => {
-            return Promise.resolve({
-              verificationMethod: VerificationMethods.EMAIL,
-              verificationReason: VerificationReasons.SIGN_IN,
-              verified: false,
-            });
+          sinon.stub(fxaClient, 'sessionReauth').resolves({
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: false,
           });
 
           sinon.stub(fxaClient, 'signIn').callsFake(() => {
@@ -838,7 +835,7 @@ describe('models/account', function() {
         it('updates the account with the returned data', () => {
           assert.equal(
             account.get('verificationMethod'),
-            VerificationMethods.EMAIL
+            VerificationMethods.EMAIL_OTP
           );
           assert.equal(
             account.get('verificationReason'),
@@ -890,6 +887,7 @@ describe('models/account', function() {
                 resume: 'resume token',
                 skipCaseError: true,
                 unblockCode: 'unblock code',
+                verificationMethod: VerificationMethods.EMAIL_OTP,
               }
             )
           );
@@ -947,6 +945,7 @@ describe('models/account', function() {
             resume: 'resume token',
             skipCaseError: true,
             unblockCode: 'unblock code',
+            verificationMethod: VerificationMethods.EMAIL_OTP,
           };
 
           const secondExpectedOptions = {
@@ -959,6 +958,7 @@ describe('models/account', function() {
             resume: 'resume token',
             skipCaseError: true,
             unblockCode: 'unblock code',
+            verificationMethod: VerificationMethods.EMAIL_OTP,
           };
 
           assert.equal(fxaClient.sessionReauth.callCount, 2);
@@ -1085,12 +1085,10 @@ describe('models/account', function() {
         beforeEach(function() {
           account.set('sessionToken', SESSION_TOKEN);
 
-          sinon.stub(fxaClient, 'recoveryEmailStatus').callsFake(function() {
-            return Promise.resolve({
-              verificationMethod: VerificationMethods.EMAIL,
-              verificationReason: VerificationReasons.SIGN_IN,
-              verified: false,
-            });
+          sinon.stub(fxaClient, 'recoveryEmailStatus').resolves({
+            verificationMethod: VerificationMethods.EMAIL_OTP,
+            verificationReason: VerificationReasons.SIGN_IN,
+            verified: false,
           });
 
           sinon.stub(fxaClient, 'signUpResend').callsFake(function() {
@@ -1119,7 +1117,7 @@ describe('models/account', function() {
           );
           assert.equal(
             account.get('verificationMethod'),
-            VerificationMethods.EMAIL
+            VerificationMethods.EMAIL_OTP
           );
         });
       });

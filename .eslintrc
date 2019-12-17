@@ -2,6 +2,7 @@
   "extends": ["plugin:fxa/recommended"],
   "plugins": ["fxa"],
   "rules": {
+    "require-atomic-updates": "off",
     "space-unary-ops": "off"
   }
 }

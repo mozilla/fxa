@@ -1,17 +1,15 @@
 # fxa_email_service
 
-[![Build status](https://img.shields.io/travis/mozilla/fxa-email-service.svg?style=flat-square)](https://travis-ci.org/mozilla/fxa-email-service)
-[![CircleCI](https://img.shields.io/circleci/project/github/mozilla/fxa-email-service.svg?style=flat-square)](https://circleci.com/gh/mozilla/fxa-email-service)
 [![License](https://img.shields.io/github/license/mozilla/fxa-email-service.svg?style=flat-square)](https://opensource.org/licenses/MPL-2.0)
 
-* [What's this?](#whats-this)
-* [How can I set up a dev environment?](#how-can-i-set-up-a-dev-environment)
-  * [For standalone development](#for-standalone-development)
-  * [As part of the FxA stack](#as-part-of-the-FxA-stack)
-* [How do I run the tests?](#how-do-i-run-the-tests)
-* [How can I send an email via SES?](#how-can-i-send-an-email-via-ses)
-* [How can I send an email via Sendgrid?](#how-can-i-send-an-email-via-sendgrid)
-* [How do bounce, complaint and delivery notifications work?](#how-do-bounce-complaint-and-delivery-notifications-work)
+- [What's this?](#whats-this)
+- [How can I set up a dev environment?](#how-can-i-set-up-a-dev-environment)
+  - [For standalone development](#for-standalone-development)
+  - [As part of the FxA stack](#as-part-of-the-FxA-stack)
+- [How do I run the tests?](#how-do-i-run-the-tests)
+- [How can I send an email via SES?](#how-can-i-send-an-email-via-ses)
+- [How can I send an email via Sendgrid?](#how-can-i-send-an-email-via-sendgrid)
+- [How do bounce, complaint and delivery notifications work?](#how-do-bounce-complaint-and-delivery-notifications-work)
 
 ## What's this?
 
@@ -129,8 +127,8 @@ You'll need to set up some config
 with your AWS credentials.
 That can be with environment variables:
 
-* `FXA_EMAIL_AWS_KEYS_ACCESS`
-* `FXA_EMAIL_AWS_KEYS_SECRET`
+- `FXA_EMAIL_AWS_KEYS_ACCESS`
+- `FXA_EMAIL_AWS_KEYS_SECRET`
 
 Or in `config/local.json`:
 
@@ -153,8 +151,8 @@ Also note that the AWS IAM limits sending
 to approved `from` addresses.
 Again, you can set that via environment variables:
 
-* `FXA_EMAIL_SENDER_ADDRESS`
-* `FXA_EMAIL_SENDER_NAME`
+- `FXA_EMAIL_SENDER_ADDRESS`
+- `FXA_EMAIL_SENDER_NAME`
 
 Or in `config/local.json`:
 
@@ -262,11 +260,11 @@ The queue URLs and region
 are set via config,
 either using environment variables:
 
-* `FXA_EMAIL_AWS_REGION`
-* `FXA_EMAIL_AWS_SQSURLS_BOUNCE`
-* `FXA_EMAIL_AWS_SQSURLS_COMPLAINT`
-* `FXA_EMAIL_AWS_SQSURLS_DELIVERY`
-* `FXA_EMAIL_AWS_SQSURLS_NOTIFICATION`
+- `FXA_EMAIL_AWS_REGION`
+- `FXA_EMAIL_AWS_SQSURLS_BOUNCE`
+- `FXA_EMAIL_AWS_SQSURLS_COMPLAINT`
+- `FXA_EMAIL_AWS_SQSURLS_DELIVERY`
+- `FXA_EMAIL_AWS_SQSURLS_NOTIFICATION`
 
 Or in `config/local.json`:
 

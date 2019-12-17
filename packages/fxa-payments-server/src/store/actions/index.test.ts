@@ -54,37 +54,3 @@ describe('resetActions', () => {
     });
   });
 });
-
-describe('metricsActions', () => {
-  const withPlanNames: ActionsKey[] = [
-    'createSubscriptionMounted',
-    'createSubscriptionEngaged',
-    'updatePaymentMounted',
-    'updatePaymentEngaged',
-    'cancelSubscriptionMounted',
-    'cancelSubscriptionEngaged',
-  ];
-
-  withPlanNames.forEach(name => {
-    describe(name, () => {
-      const type = name;
-      it('produces the expected type', assertActionType(name, type, [PLAN]));
-      it(
-        'includes plan in payload',
-        assertActionPayload(name, { plan: PLAN }, [PLAN])
-      );
-    });
-  });
-
-  const withoutPlanNames: ActionsKey[] = [
-    'manageSubscriptionsMounted',
-    'manageSubscriptionsEngaged',
-  ];
-
-  withoutPlanNames.forEach(name => {
-    describe(name, () => {
-      const type = name;
-      it('produces the expected type', assertActionType(name, type));
-    });
-  });
-});

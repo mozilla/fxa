@@ -34,44 +34,41 @@ const HASH_ALGORITHM = 'sha256';
 module.exports = {
   // Encrypt the given buffer into a hex ciphertext string.
   //
-  bundle(key, keyInfo, payload) {
+  async bundle(key, keyInfo, payload) {
     key = Buffer.from(key, 'hex');
     payload = Buffer.from(payload, 'hex');
-    return deriveBundleKeys(key, keyInfo, payload.length).then(keys => {
-      const ciphertext = butil.xorBuffers(payload, keys.xorKey);
-      const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
-      hmac.update(ciphertext);
-      const mac = hmac.digest();
-      return Buffer.concat([ciphertext, mac]).toString('hex');
-    });
+    const keys = await deriveBundleKeys(key, keyInfo, payload.length);
+    const ciphertext = butil.xorBuffers(payload, keys.xorKey);
+    const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
+    hmac.update(ciphertext);
+    const mac = hmac.digest();
+    return Buffer.concat([ciphertext, mac]).toString('hex');
   },
 
   // Decrypt the given hex string into a buffer of plaintext data.
   //
-  unbundle(key, keyInfo, payload) {
+  async unbundle(key, keyInfo, payload) {
     key = Buffer.from(key, 'hex');
     payload = Buffer.from(payload, 'hex');
     const ciphertext = payload.slice(0, -32);
     const expectedHmac = payload.slice(-32);
-    return deriveBundleKeys(key, keyInfo, ciphertext.length).then(keys => {
-      const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
-      hmac.update(ciphertext);
-      const mac = hmac.digest();
-      if (!butil.buffersAreEqual(mac, expectedHmac)) {
-        throw error.invalidSignature();
-      }
-      return butil.xorBuffers(ciphertext, keys.xorKey).toString('hex');
-    });
+    const keys = await deriveBundleKeys(key, keyInfo, ciphertext.length);
+    const hmac = crypto.createHmac(HASH_ALGORITHM, keys.hmacKey);
+    hmac.update(ciphertext);
+    const mac = hmac.digest();
+    if (!butil.buffersAreEqual(mac, expectedHmac)) {
+      throw error.invalidSignature();
+    }
+    return butil.xorBuffers(ciphertext, keys.xorKey).toString('hex');
   },
 };
 
 // Derive the HMAC and XOR keys required to encrypt a given size of payload.
 //
-function deriveBundleKeys(key, keyInfo, payloadSize) {
-  return hkdf(key, keyInfo, null, 32 + payloadSize).then(keyMaterial => {
-    return {
-      hmacKey: keyMaterial.slice(0, 32),
-      xorKey: keyMaterial.slice(32),
-    };
-  });
+async function deriveBundleKeys(key, keyInfo, payloadSize) {
+  const keyMaterial = await hkdf(key, keyInfo, null, 32 + payloadSize);
+  return {
+    hmacKey: keyMaterial.slice(0, 32),
+    xorKey: keyMaterial.slice(32),
+  };
 }

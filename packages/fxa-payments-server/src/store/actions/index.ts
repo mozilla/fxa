@@ -1,5 +1,4 @@
 import apiActions from './api';
-import metricsActions from './metrics';
 import resetActions from './reset';
 import { FunctionWithIgnoredReturn, PromiseResolved } from '../../lib/types';
 
@@ -9,14 +8,12 @@ export type ActionType<
 > = ReturnType<TActions[keyof TActions]>;
 
 export type ResetAction = ActionType<typeof resetActions>;
-export type MetricsAction = ActionType<typeof metricsActions>;
 export type ApiAction = ActionType<typeof apiActions>;
-export type Action = ApiAction | ResetAction | MetricsAction;
+export type Action = ApiAction | ResetAction;
 
 export const actions = {
   ...apiActions,
   ...resetActions,
-  ...metricsActions,
 } as const;
 
 export type ActionsCollection = typeof actions;

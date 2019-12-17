@@ -95,6 +95,16 @@ module.exports = async (
     });
   };
 
+  senders.email.sendVerifySecondaryCodeEmail = (emails, account, options) => {
+    return mailer.verifySecondaryCodeEmail({
+      ...options,
+      acceptLanguage: options.acceptLanguage || defaultLanguage,
+      email: emails[0].email,
+      primaryEmail: account.email,
+      uid: account.uid,
+    });
+  };
+
   senders.email.sendPostVerifySecondaryEmail = (emails, account, options) => {
     return mailer.postVerifySecondaryEmail({
       ...options,

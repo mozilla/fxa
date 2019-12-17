@@ -313,12 +313,14 @@ module.exports = (log, config, customs, db, mailer) => {
       }
 
       function sendVerifyAccountEmail() {
+        if (verificationMethod === 'email-otp') {
+          return sendVerifyLoginCodeEmail();
+        }
         // If the session doesn't require verification,
         // fall back to the account-level email code for the link.
         const emailCode =
           sessionToken.tokenVerificationId ||
           accountRecord.primaryEmail.emailCode;
-
         return mailer
           .sendVerifyEmail([], accountRecord, {
             code: emailCode,
@@ -467,9 +469,19 @@ module.exports = (log, config, customs, db, mailer) => {
 
     getSessionVerificationStatus(sessionToken, verificationMethod) {
       if (!sessionToken.emailVerified) {
+        // for unverified accounts, only 'email', and 'email-otp' are valid.
+        // email-otp is the end goal, but a transition train is needed.
+        // Set the default to 'email' to handle train->train upgrades. If
+        // a user of content-server X loads their JS and then auth-server X+1
+        // is deployed, the content server of train X is not able to handle
+        // the 'email-otp' result and still send the user to the /confirm screen
+        // that expect verification links.
+        if (verificationMethod !== 'email-otp') {
+          verificationMethod = 'email';
+        }
         return {
           verified: false,
-          verificationMethod: 'email',
+          verificationMethod: verificationMethod,
           verificationReason: 'signup',
         };
       }

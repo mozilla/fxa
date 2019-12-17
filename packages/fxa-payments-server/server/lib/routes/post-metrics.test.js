@@ -1,7 +1,6 @@
 const request = require('supertest');
 const server = require('../server')();
 const app = server.app;
-jest.mock('../flow-performance', () => () => {});
 
 const validBody = {
   data: {

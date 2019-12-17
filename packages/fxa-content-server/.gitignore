@@ -29,7 +29,6 @@ browser_modules
 !.eslintrc
 !.editorconfig
 !.npmignore
-!.travis.yml
 !.sass-lint.yml
 !.prettier*
 *~

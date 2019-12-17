@@ -6,6 +6,7 @@ import { assert } from 'chai';
 import Backbone from 'backbone';
 import BaseView from 'views/base';
 import Cocktail from 'cocktail';
+import Constants from 'lib/constants';
 import NullBroker from 'models/auth_brokers/base';
 import OAuthRelier from 'models/reliers/oauth';
 import ServiceMixin from 'views/mixins/service-mixin';
@@ -62,6 +63,15 @@ describe('views/mixins/service-mixin', () => {
       view.setInitialContext(context);
       assert.equal(context.get('service'), 'sync');
       assert.equal(context.get('serviceName'), 'Firefox Sync');
+    });
+
+    it('sets `serviceName` default from the relier', () => {
+      const context = new Backbone.Model({});
+      view.setInitialContext(context);
+      assert.equal(
+        context.get('serviceName'),
+        Constants.RELIER_DEFAULT_SERVICE_NAME
+      );
     });
   });
 

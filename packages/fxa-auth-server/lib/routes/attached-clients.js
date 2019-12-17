@@ -122,7 +122,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         // XXX TODO: we could obtain `sessions` and `devices` in a single query to the DB,
         // but would need to add a new db-server endpoint because each set can contain items
         // that the other does not.
-        const devicesP = request.app.devices;
+        const devicesList = await request.app.devices;
         const oauthClientsP = oauthdb.listAuthorizedClients(
           request.auth.credentials
         );
@@ -133,7 +133,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         // with the other lists.
         const clientsBySessionTokenId = new Map();
         const clientsByRefreshTokenId = new Map();
-        for (const device of await devicesP) {
+        for (const device of devicesList) {
           const client = {
             ...defaultFields,
             sessionTokenId: device.sessionTokenId || null,

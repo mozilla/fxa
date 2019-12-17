@@ -185,7 +185,7 @@ describe('remote account create with sign-up code', function() {
       {},
       otplib.authenticator.options,
       config.otp,
-      { secret, epoch: Date.now() / 1000 - 60 * 11 } // Code 11mins old
+      { secret, epoch: Date.now() / 1000 - 60 * 10 } // Code 10mins old
     );
 
     const previousWindowCode = futureAuthenticator.generate(secret);

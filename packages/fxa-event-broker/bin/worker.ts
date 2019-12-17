@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { PubSub } from '@google-cloud/pubsub';
-import * as sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 import mozlog from 'mozlog';
 
@@ -14,10 +13,11 @@ import { ServiceNotificationProcessor } from '../lib/notificationProcessor';
 import { proxyServerInit, ServerEnvironment } from '../lib/proxy-server';
 import { ClientCapabilityService } from '../lib/selfUpdatingService/clientCapabilityService';
 import { ClientWebhookService } from '../lib/selfUpdatingService/clientWebhookService';
+import { configureHapiSentry, configureSentry } from '../lib/sentry';
 import { version } from '../lib/version';
 
 // Initialize Sentry as early as possible
-sentry.init({ dsn: Config.get('sentryDsn'), release: version.version });
+configureSentry({ dsn: Config.get('sentryDsn'), release: version.version });
 
 const logger = mozlog(Config.get('log'))('notificationProcessor');
 
@@ -86,6 +86,7 @@ async function main() {
     metrics,
     webhookService
   );
+  configureHapiSentry(server);
   try {
     await server.start();
   } catch (err) {

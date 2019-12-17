@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -19,16 +18,14 @@ const PASSWORD = '12345678';
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutSignInTokenCode,
   fillOutSignInUnblock,
   noEmailExpected,
   openPage,
-  openVerificationLinkInNewTab,
   respondToWebChannelMessage,
-  switchToWindow,
   testElementExists,
   testEmailExpected,
   testIsBrowserNotified,
@@ -45,7 +42,7 @@ const setupTest = thenify(function(options = {}) {
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
     ? selectors.SIGNIN_TOKEN_CODE.HEADER
-    : selectors.CONFIRM_SIGNUP.HEADER;
+    : selectors.CONFIRM_SIGNUP_CODE.HEADER;
 
   const query = options.query || {
     forceUA: uaStrings['desktop_firefox_58'],
@@ -57,10 +54,6 @@ const setupTest = thenify(function(options = {}) {
     .then(
       openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
         query,
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true },
-          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
-        },
       })
     )
     .then(fillOutEmailFirstSignIn(signInEmail, PASSWORD))
@@ -70,14 +63,14 @@ const setupTest = thenify(function(options = {}) {
 
 registerSuite('Firefox Desktop Sync v3 signin', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
     'verified, does not need to confirm ': function() {
-      email = TestHelpers.createEmail();
+      email = createEmail();
       const query = {
         forceUA: uaStrings['desktop_firefox_58'],
       };
@@ -86,13 +79,6 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
             query,
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
           })
         )
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -162,12 +148,8 @@ registerSuite('Firefox Desktop Sync v3 signin', {
           // the verification reminder emails. 5 attempts occur in 5 seconds,
           // the first verification reminder is set after 10 seconds.
           .then(noEmailExpected(email, 2, { maxAttempts: 5 }))
-          .then(openVerificationLinkInNewTab(email, 1))
+          .then(fillOutSignInTokenCode(email, 1))
           .then(testEmailExpected(email, 2))
-
-          .then(switchToWindow(1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(closeCurrentWindow())
 
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(testIsBrowserNotified('fxaccounts:login'))
@@ -175,7 +157,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
       return this.remote
         .then(setupTest({ blocked: true, preVerified: true }))
 
@@ -186,7 +168,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
     },
 
     'verified, blocked, incorrect email case': function() {
-      const signUpEmail = TestHelpers.createEmail('blocked{id}');
+      const signUpEmail = createEmail('blocked{id}');
       const signInEmail = signUpEmail.toUpperCase();
       return (
         this.remote

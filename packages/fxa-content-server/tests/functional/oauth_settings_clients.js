@@ -6,7 +6,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 var config = intern._config;
 var CONTENT_SERVER = config.fxaContentRoot;
@@ -20,6 +19,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
   noSuchElement,
@@ -35,7 +35,7 @@ var email;
 
 registerSuite('oauth settings clients', {
   beforeEach: function() {
-    email = TestHelpers.createEmail();
+    email = createEmail();
 
     return this.remote.then(
       clearBrowserState({

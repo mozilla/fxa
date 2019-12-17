@@ -178,11 +178,19 @@ const conf = convict({
     env: 'PROXY_STATIC_RESOURCES_FROM',
     format: String,
   },
-  sentryDsn: {
-    default: '',
-    doc: 'Sentry DSN',
-    env: 'SENTRY_DSN',
-    format: 'String',
+  sentry: {
+    dsn: {
+      default: '',
+      doc: 'Sentry DSN',
+      env: 'SENTRY_DSN',
+      format: 'String',
+    },
+    url: {
+      default: 'https://sentry.prod.mozaws.net/444',
+      doc: 'Sentry URL',
+      env: 'SENTRY_URL',
+      format: 'String',
+    },
   },
   servers: {
     auth: {

@@ -67,6 +67,7 @@
     "babel-loader": "^8.0.6",
     "browserslist": "^4.7.2",
     "caniuse-lite": "^1.0.30001010",
+    "chai": "^4.2.0",
     "eslint": "^6.6.0",
     "eslint-plugin-fxa": "2.0.1",
     "eslint-plugin-jest": "22.21.0",
@@ -78,6 +79,7 @@
     "prettier": "^1.19.1",
     "redux-devtools-extension": "^2.13.8",
     "sass-lint": "^1.13.1",
+    "sinon": "^7.5.0",
     "supertest": "4.0.2",
     "ts-jest": "^24.1.0",
     "ts-node": "^8.5.2",
@@ -115,7 +117,6 @@
     "redux-promise-middleware": "^6.1.2",
     "redux-thunk": "^2.3.0",
     "serve-static": "^1.13.2",
-    "speed-trap": "0.0.10",
     "type-to-reducer": "^1.2.0"
   },
   "engines": {

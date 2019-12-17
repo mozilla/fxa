@@ -6,7 +6,6 @@ import {
   readConfigFromMeta,
   META_CONFIG,
   META_FEATURE_FLAGS,
-  META_PERF_START_TIME,
 } from './config';
 
 beforeEach(resetConfig);
@@ -43,7 +42,6 @@ describe('readConfigFromMeta', () => {
     const headQuerySelector = mkHeadQuerySelector(
       encodedConfig,
       encodedFeatureFlags,
-      perfStartTimeConfigVal,
       META_CONFIG
     );
     const subject = () => readConfigFromMeta(headQuerySelector);
@@ -51,12 +49,7 @@ describe('readConfigFromMeta', () => {
   });
 
   it('throws an error if meta[name="fxa-config"] is empty', () => {
-    const headQuerySelector = mkHeadQuerySelector(
-      '',
-      '{}',
-      perfStartTimeConfigVal,
-      null
-    );
+    const headQuerySelector = mkHeadQuerySelector('', '{}', null);
     const subject = () => readConfigFromMeta(headQuerySelector);
     expect(subject).toThrow(Error);
   });
@@ -71,7 +64,6 @@ describe('readConfigFromMeta', () => {
     const headQuerySelector = mkHeadQuerySelector(
       encodedConfig,
       encodedFeatureFlags,
-      perfStartTimeConfigVal,
       META_FEATURE_FLAGS
     );
     const subject = () => readConfigFromMeta(headQuerySelector);
@@ -79,12 +71,7 @@ describe('readConfigFromMeta', () => {
   });
 
   it('throws an error if meta[name="fxa-feature-flags"] is empty', () => {
-    const headQuerySelector = mkHeadQuerySelector(
-      encodedConfig,
-      '',
-      perfStartTimeConfigVal,
-      null
-    );
+    const headQuerySelector = mkHeadQuerySelector(encodedConfig, '', null);
     const subject = () => readConfigFromMeta(headQuerySelector);
     expect(subject).toThrow(Error);
   });
@@ -93,24 +80,6 @@ describe('readConfigFromMeta', () => {
     expect(config.featureFlags).not.toEqual(mockFeatureFlags);
     readConfigFromMeta(baseHeadQuerySelector);
     expect(config.featureFlags).toEqual(mockFeatureFlags);
-  });
-
-  it('does not throw an error if meta[name="fxa-perf-start-time"] is empty', () => {
-    const headQuerySelector = mkHeadQuerySelector(
-      encodedConfig,
-      encodedFeatureFlags,
-      '',
-      null
-    );
-    const subject = () => readConfigFromMeta(headQuerySelector);
-    expect(subject).toThrow(Error);
-  });
-
-  it('merges meta[name="fxa-perf-start-time"] content into config', () => {
-    expect(config.perfStartTime).not.toEqual(perfStartTimeConfigVal);
-    readConfigFromMeta(baseHeadQuerySelector);
-    // decodeConfig in config.ts parsed the string attr value into a number
-    expect(config.perfStartTime).toEqual(0);
   });
 });
 
@@ -139,8 +108,6 @@ const encodedFeatureFlags = encodeURIComponent(
   JSON.stringify(mockFeatureFlags)
 );
 
-const perfStartTimeConfigVal = '0';
-
 const expectedMergedConfig = {
   featureFlags: { foo: 1, bar: true },
   lang: '',
@@ -148,14 +115,16 @@ const expectedMergedConfig = {
     privacyNotice: 'https://abc.xyz/privacy',
     termsOfService: 'https://abc.xyz/terms',
   },
-  perfStartTime: 0,
   productRedirectURLs: {},
   sample: {
     example: {
       jenny: '8675309',
     },
   },
-  sentryDsn: '',
+  sentry: {
+    dsn: '',
+    url: 'https://sentry.prod.mozaws.net',
+  },
   servers: {
     auth: {
       url: '',
@@ -180,7 +149,6 @@ const headSelector = (name: string | null) => `meta[name="${name}"]`;
 const mkHeadQuerySelector = (
   configValue: string | null,
   flagsValue: string | null,
-  perfStartTime: string | null,
   missing: string | null
 ) => (selector: string) =>
   selector === headSelector(missing)
@@ -195,8 +163,6 @@ const mkHeadQuerySelector = (
               return configValue;
             case headSelector(META_FEATURE_FLAGS):
               return flagsValue;
-            case headSelector(META_PERF_START_TIME):
-              return perfStartTime;
             default:
               return null;
           }
@@ -206,6 +172,5 @@ const mkHeadQuerySelector = (
 const baseHeadQuerySelector = mkHeadQuerySelector(
   encodedConfig,
   encodedFeatureFlags,
-  perfStartTimeConfigVal,
   null
 );

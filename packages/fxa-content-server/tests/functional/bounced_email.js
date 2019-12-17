@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -22,6 +21,7 @@ const {
   clearBrowserState,
   click,
   closeCurrentWindow,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
@@ -40,25 +40,15 @@ const {
 
 registerSuite('signup with an email that bounces', {
   beforeEach: function() {
-    bouncedEmail = TestHelpers.createEmail();
-    deliveredEmail = TestHelpers.createEmail();
+    bouncedEmail = createEmail();
+    deliveredEmail = createEmail();
     return (
       this.remote
         .then(clearBrowserState())
         // ensure a fresh signup page is loaded. If this suite is
         // run after a Sync suite, these tests try to use a Sync broker
         // which results in a channel timeout.
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            webChannelResponses: {
-              'fxaccounts:can_link_account': { ok: true },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
-            },
-          })
-        )
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     );
   },
 
@@ -116,19 +106,12 @@ registerSuite('signup with an email that bounces', {
 
 const setUpBouncedSignIn = thenify(function(email) {
   const client = getFxaClient();
-  email = email || TestHelpers.createEmail('sync{id}');
+  email = email || createEmail('sync{id}');
 
   return this.parent
     .then(clearBrowserState({ force: true }))
     .then(createUser(email, PASSWORD, { preVerified: true }))
-    .then(
-      openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-        webChannelResponses: {
-          'fxaccounts:can_link_account': { ok: true },
-          'fxaccounts:fxa_status': { capabilities: null, signedInUser: null },
-        },
-      })
-    )
+    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
     .then(fillOutEmailFirstSignIn(email, PASSWORD))
     .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
     .then(testIsBrowserNotified('fxaccounts:can_link_account'))
@@ -150,7 +133,7 @@ registerSuite('signin with an email that bounces', {
     },
 
     'click back': function() {
-      const email = TestHelpers.createEmail('sync{id}');
+      const email = createEmail('sync{id}');
       return this.remote
         .then(setUpBouncedSignIn(email))
         .then(click(selectors.SIGNIN_BOUNCED.BACK))

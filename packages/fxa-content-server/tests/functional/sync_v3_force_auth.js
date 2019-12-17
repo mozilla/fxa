@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -16,7 +15,9 @@ const PASSWORD = 'password12345678';
 const {
   clearBrowserState,
   click,
+  createEmail,
   createUser,
+  createUID,
   fillOutEmailFirstSignUp,
   fillOutForceAuth,
   fillOutSignInTokenCode,
@@ -34,7 +35,7 @@ const {
 
 registerSuite('Firefox Desktop Sync v3 force_auth', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
+    email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
@@ -116,7 +117,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               email: email,
               forceUA: uaStrings['desktop_firefox_71'],
               service: 'sync',
-              uid: TestHelpers.createUID(),
+              uid: createUID(),
             },
             webChannelResponses: {
               'fxaccounts:can_link_account': {
@@ -245,7 +246,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
                 context: 'fx_desktop_v3',
                 email: email,
                 service: 'sync',
-                uid: TestHelpers.createUID(),
+                uid: createUID(),
               },
               webChannelResponses: {
                 'fxaccounts:can_link_account': {
@@ -270,7 +271,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
     },
 
     'verified, blocked': function() {
-      email = TestHelpers.createEmail('blocked{id}');
+      email = createEmail('blocked{id}');
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -280,16 +281,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
               context: 'fx_desktop_v3',
               email: email,
               service: 'sync',
-              uid: TestHelpers.createUID(),
-            },
-            webChannelResponses: {
-              'fxaccounts:can_link_account': {
-                ok: true,
-              },
-              'fxaccounts:fxa_status': {
-                capabilities: null,
-                signedInUser: null,
-              },
+              uid: createUID(),
             },
           })
         )

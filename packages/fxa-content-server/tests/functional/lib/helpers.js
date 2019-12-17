@@ -2,14 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const restmail = require('../../lib/restmail');
-const TestHelpers = require('../../lib/helpers');
-const selectors = require('./selectors');
-const pollUntil = require('@theintern/leadfoot/helpers/pollUntil').default;
-const Url = require('url');
-const Querystring = require('querystring');
+const { assert } = intern.getPlugin('chai');
+const cp = require('child_process');
+const crypto = require('crypto');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
 const nodeXMLHttpRequest = require('xmlhttprequest');
-const assert = intern.getPlugin('chai').assert;
+const path = require('path');
+const pollUntil = require('@theintern/leadfoot/helpers/pollUntil').default;
+const Querystring = require('querystring');
+const restmail = require('../../lib/restmail');
+const selectors = require('./selectors');
+const TestHelpers = require('../../lib/helpers');
+const UAParser = require('ua-parser-js');
+const Url = require('url');
 
 // Default options for TOTP
 const otplib = require('otplib');
@@ -92,6 +98,12 @@ function thenify(callback, context) {
 const takeScreenshot = function() {
   return function() {
     return this.parent.takeScreenshot().then(function(buffer) {
+      if (process.env.CIRCLECI) {
+        const rando = crypto.randomBytes(4).toString('hex');
+        mkdirp.sync('/home/circleci/screenshots');
+        fs.writeFileSync(`/home/circleci/screenshots/${rando}.png`, buffer);
+        console.log(`Screenshot saved to screenshots/${rando}.png`);
+      }
       const screenCaptureHost = 'https://screencap.co.uk';
       return got
         .post(`${screenCaptureHost}/png`, {
@@ -104,6 +116,7 @@ const takeScreenshot = function() {
               `Screenshot saved at: ${screenCaptureHost}${res.headers.location}`
             );
           },
+          //eslint-disable-next-line handle-callback-err
           err => {
             console.error('Capturing base64 screenshot:');
             console.error(`data:image/png;base64,${buffer.toString('base64')}`);
@@ -1361,13 +1374,54 @@ const openSignUpInNewTab = thenify(function() {
  * @returns {Promise} - resolves when complete
  */
 const openPage = thenify(function(url, readySelector, options = {}) {
+  url = addQueryParamsToLink(url, options.query || {});
+
+  function isWebChannelSync() {
+    return (
+      /context=fx_desktop_v3/.test(url) || /context=fx_fennec_v1/.test(url)
+    );
+  }
+
+  function isUAWithWebChannelSupport() {
+    const forceUARegExp = /forceUA=([^&]+)/;
+    const matches = forceUARegExp.exec(url);
+    if (matches) {
+      const uap = UAParser(decodeURIComponent(matches[1]));
+
+      return (
+        uap.browser.name === 'Firefox' &&
+        uap.os.name !== 'iOS' &&
+        parseInt(uap.browser.major, 10) > 40
+      );
+    }
+    return false;
+  }
+
+  if (isWebChannelSync() || isUAWithWebChannelSupport()) {
+    if (!options.webChannelResponses) {
+      options.webChannelResponses = {};
+    }
+
+    if (!options.webChannelResponses['fxaccounts:can_link_account']) {
+      options.webChannelResponses['fxaccounts:can_link_account'] = { ok: true };
+    }
+
+    if (!options.webChannelResponses['fxaccounts:fxa_status']) {
+      options.webChannelResponses['fxaccounts:fxa_status'] = {
+        capabilities: null,
+        signedInUser: null,
+      };
+    }
+  }
   if (options.webChannelResponses) {
-    options.query = options.query || {};
     // If there are webChannelResponses, the automatedBrowser
     // query param introduces a short delay so that the web
     // channel response listeners can be hooked up before FxA
     // sends the fxaccounts:fxa_status message.
-    options.query.automatedBrowser = true;
+    options.query = {
+      automatedBrowser: true,
+      ...options.query,
+    };
   }
 
   url = addQueryParamsToLink(url, options.query);
@@ -2492,7 +2546,34 @@ const subscribeToTestProduct = thenify(function() {
   );
 });
 
+/**
++ * Send verification reminder emails
++ */
+const sendVerificationReminders = thenify(function() {
+  return this.parent.then(() => {
+    const cwd = path.join(
+      __dirname,
+      '..',
+      '..',
+      '..',
+      '..',
+      'fxa-auth-server',
+      'scripts'
+    );
+    return cp.execSync('node verification-reminders.js', {
+      cwd,
+      env: {
+        ...process.env,
+        NODE_ENV: 'dev',
+      },
+      stdio: 'ignore',
+      timeout: this.timeout,
+    });
+  });
+});
+
 module.exports = {
+  ...TestHelpers,
   cleanMemory,
   clearBrowserNotifications,
   clearBrowserState,
@@ -2565,6 +2646,7 @@ module.exports = {
   pollUntilGoneByQSA,
   pollUntilHiddenByQSA,
   respondToWebChannelMessage,
+  sendVerificationReminders,
   storeWebChannelMessageData,
   subscribeToTestProduct,
   switchToWindow,

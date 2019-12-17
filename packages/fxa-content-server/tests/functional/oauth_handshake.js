@@ -5,7 +5,6 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 const uaStrings = require('./lib/ua-strings');
@@ -23,6 +22,7 @@ const PASSWORD = '12345678';
 const {
   click,
   clearBrowserState,
+  createEmail,
   createUser,
   fillOutEmailFirstSignIn,
   openFxaFromRp,
@@ -35,7 +35,7 @@ const ensureUsers = thenify(function() {
   return this.parent
     .then(() => {
       if (!browserSignedInAccount) {
-        browserSignedInEmail = TestHelpers.createEmail();
+        browserSignedInEmail = createEmail();
         return this.parent
           .then(
             createUser(browserSignedInEmail, PASSWORD, { preVerified: true })
@@ -49,7 +49,7 @@ const ensureUsers = thenify(function() {
     })
     .then(() => {
       if (!otherAccount) {
-        otherEmail = TestHelpers.createEmail();
+        otherEmail = createEmail();
         return this.parent
           .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
           .then(_otherAccount => {

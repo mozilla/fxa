@@ -90,24 +90,25 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
         return null;
       }
 
-      return dbGetFn(id).then(token => {
-        if (token.expired(Date.now())) {
-          const err = error.invalidToken(
-            'The authentication token has expired'
-          );
-
-          if (token.constructor.tokenTypeID === 'sessionToken') {
-            return db
-              .pruneSessionTokens(token.uid, [token])
-              .catch(() => {})
-              .then(() => {
-                throw err;
-              });
-          }
-          return null;
+      return (async () => {
+        const token = await dbGetFn(id);
+        if (!token.expired(Date.now())) {
+          return token;
         }
-        return token;
-      });
+
+        const err = error.invalidToken('The authentication token has expired');
+        if (token.constructor.tokenTypeID === 'sessionToken') {
+          return (async () => {
+            try {
+              await db.pruneSessionTokens(token.uid, [token]);
+            } catch (ignoreError) {
+              // Ignore errors
+            }
+            throw err;
+          })();
+        }
+        return null;
+      })();
     };
   }
 

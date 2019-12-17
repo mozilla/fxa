@@ -4,6 +4,14 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { APIError } from '../../../lib/apiClient';
 
+jest.mock('../../../lib/sentry');
+
+import {
+  updateSubscriptionPlanMounted,
+  updateSubscriptionPlanEngaged,
+} from '../../../lib/amplitude';
+jest.mock('../../../lib/amplitude');
+
 import { MockApp } from '../../../lib/test-utils';
 
 import { PROFILE, CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
@@ -13,6 +21,11 @@ import { SignInLayout } from '../../../components/AppLayout';
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 
 describe('routes/Product/SubscriptionUpgrade', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+    return cleanup();
+  });
+
   it('renders as expected', async () => {
     const { findByTestId, container } = render(<Subject />);
     await findByTestId('subscription-upgrade');
@@ -89,6 +102,14 @@ describe('routes/Product/SubscriptionUpgrade', () => {
 
     expect(getByTestId('error-plan-update-failed')).toBeInTheDocument();
     expect(getByText(expectedMessage)).toBeInTheDocument();
+  });
+
+  it('calls updateSubscriptionPlanMounted and updateSubscriptionPlanEngaged', async () => {
+    const { findByTestId, getByTestId } = render(<Subject />);
+    await findByTestId('subscription-upgrade');
+    fireEvent.click(getByTestId('confirm'));
+    expect(updateSubscriptionPlanMounted).toBeCalledTimes(1);
+    expect(updateSubscriptionPlanEngaged).toBeCalledTimes(1);
   });
 });
 

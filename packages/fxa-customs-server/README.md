@@ -1,8 +1,5 @@
 # Firefox Accounts Customs Server
 
-[![Build Status](https://travis-ci.org/mozilla/fxa-customs-server.svg?branch=master)](https://travis-ci.org/mozilla/fxa-customs-server)
-[![CircleCI](https://circleci.com/gh/mozilla/fxa-customs-server.svg?style=svg)](https://circleci.com/gh/mozilla/fxa-customs-server)
-
 This project is used by the [Firefox Accounts Auth Server](https://github.com/mozilla/fxa-auth-server) to detect and deter [fraud and abuse](https://wiki.mozilla.org/Identity/Firefox_Accounts/Fraud_and_abuse).
 
 ## Development

@@ -6,7 +6,6 @@
 
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const TestHelpers = require('../lib/helpers');
 const FunctionalHelpers = require('./lib/helpers');
 const { FX_DESKTOP_V3_CONTEXT } = require('../../app/scripts/lib/constants');
 const selectors = require('./lib/selectors');
@@ -25,6 +24,7 @@ const {
   clearBrowserState,
   clearSessionStorage,
   click,
+  createEmail,
   createUser,
   denormalizeStoredEmail,
   destroySessionForEmail,
@@ -44,8 +44,8 @@ const {
 
 registerSuite('cached signin', {
   beforeEach: function() {
-    email = TestHelpers.createEmail('sync{id}');
-    email2 = TestHelpers.createEmail();
+    email = createEmail('sync{id}');
+    email2 = createEmail();
     return this.remote
       .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -189,7 +189,7 @@ registerSuite('cached signin', {
     },
 
     'unverified cached signin redirects to confirm email': function() {
-      const email = TestHelpers.createEmail();
+      const email = createEmail();
 
       return (
         this.remote
@@ -202,7 +202,10 @@ registerSuite('cached signin', {
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           // cached login should still go to email confirmation screen for unverified accounts
-          .then(testElementExists(selectors.CONFIRM_SIGNUP.HEADER))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          // get the second email, the first was sent via fillOutEmailFirstSignUp above.
+          .then(fillOutSignInTokenCode(email, 1))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
 

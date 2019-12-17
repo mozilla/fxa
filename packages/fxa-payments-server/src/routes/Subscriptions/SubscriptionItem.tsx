@@ -9,6 +9,7 @@ import {
 } from '../../store/types';
 import { SelectorReturns } from '../../store/selectors';
 import { SubscriptionsProps } from './index';
+import * as Amplitude from '../../lib/amplitude';
 
 import PaymentUpdateForm from './PaymentUpdateForm';
 import DialogMessage from '../../components/DialogMessage';
@@ -26,11 +27,7 @@ type SubscriptionItemProps = {
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
-  cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
-  cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
-  updatePaymentMounted: SubscriptionsProps['updatePaymentMounted'];
-  updatePaymentEngaged: SubscriptionsProps['updatePaymentEngaged'];
 };
 
 export const SubscriptionItem = ({
@@ -44,10 +41,6 @@ export const SubscriptionItem = ({
   resetUpdatePayment,
   updatePaymentStatus,
   customerSubscription,
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
@@ -93,15 +86,11 @@ export const SubscriptionItem = ({
                 updatePayment,
                 resetUpdatePayment,
                 updatePaymentStatus,
-                updatePaymentMounted,
-                updatePaymentEngaged,
               }}
             />
             <CancelSubscriptionPanel
               {...{
                 cancelSubscription,
-                cancelSubscriptionEngaged,
-                cancelSubscriptionMounted,
                 cancelSubscriptionStatus,
                 customerSubscription,
                 plan,
@@ -130,8 +119,6 @@ type CancelSubscriptionPanelProps = {
   plan: Plan;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   customerSubscription: CustomerSubscription;
-  cancelSubscriptionMounted: SubscriptionsProps['cancelSubscriptionMounted'];
-  cancelSubscriptionEngaged: SubscriptionsProps['cancelSubscriptionEngaged'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
 };
 
@@ -139,8 +126,6 @@ const CancelSubscriptionPanel = ({
   plan,
   cancelSubscription,
   customerSubscription: { subscription_id, current_period_end },
-  cancelSubscriptionMounted,
-  cancelSubscriptionEngaged,
   cancelSubscriptionStatus,
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
@@ -155,17 +140,17 @@ const CancelSubscriptionPanel = ({
 
   useEffect(() => {
     if (!viewed.current && cancelRevealed) {
-      cancelSubscriptionMounted(plan);
+      Amplitude.cancelSubscriptionMounted(plan);
       viewed.current = true;
     }
-  }, [cancelRevealed, viewed, plan, cancelSubscriptionMounted]);
+  }, [cancelRevealed, viewed, plan]);
 
   const engage = useCallback(() => {
     if (!engaged.current) {
-      cancelSubscriptionEngaged(plan);
+      Amplitude.cancelSubscriptionEngaged(plan);
       engaged.current = true;
     }
-  }, [engaged, plan, cancelSubscriptionEngaged]);
+  }, [engaged, plan]);
 
   const engagedOnHideCancel = useCallback(() => {
     engage();
