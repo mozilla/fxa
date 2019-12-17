@@ -9,6 +9,7 @@ const authClient = new OAuth2Client();
 
 type PubSubOptions = { audience?: string; authenticate?: boolean; verificationToken?: string };
 
+/** Google PubSub Push Endpoint Authentication Plugin for Hapi */
 export class PubSubScheme {
   private audience: string;
   private verificationToken: string;
@@ -24,6 +25,15 @@ export class PubSubScheme {
     this.verifyAuth = opts.authenticate ?? false;
   }
 
+  /**
+   * Authenticate a Google PubSub message using the included JWT.
+   *
+   * See https://cloud.google.com/pubsub/docs/push#authentication_and_authorization_by_the_push_endpoint
+   * for details on the authentication steps.
+   *
+   * @param request
+   * @param h
+   */
   public async authenticate(
     request: hapi.Request,
     h: hapi.ResponseToolkit
@@ -58,6 +68,7 @@ export class PubSubScheme {
   }
 }
 
+/** Configure the Hapi Authentication Plugin */
 export default function(server: hapi.Server, options?: hapi.ServerAuthSchemeOptions) {
   return new PubSubScheme(server, options);
 }

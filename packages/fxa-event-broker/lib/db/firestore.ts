@@ -1,18 +1,47 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * Firestore implementation of a `Datastore`.
+ *
+ * See https://firebase.google.com/docs/firestore/data-model for details on
+ * the Firestore data model.
+ *
+ * Note that additional types in this module are used for typesafe access
+ * to Firestore documents/collections as Firestore is a schemaless database
+ * and we would like to enforce application-level constraints to the data.
+ *
+ * @module
+ */
 import { Firestore, Settings } from '@google-cloud/firestore';
 import { TypedCollectionReference, TypedDocumentReference } from 'typesafe-node-firestore';
 
 import { ClientWebhooks } from '../selfUpdatingService/clientWebhookService';
 import { Datastore } from './index';
 
+/**
+ * Firestore User document schema
+ *
+ * For every relying party a user logs into, an entry is made
+ * with a `true` value under the OAuth clientId for the RP.
+ *
+ * The collection is keyed by the FxA user ID.
+ */
 interface User {
   oauth_clients: {
     [clientId: string]: boolean;
   };
 }
 
+/**
+ * Firestore WebhookUrl document schema
+ *
+ * RPs that have a registered webhookUrl in this collection will
+ * have a message queued.
+ *
+ * The collection is keyed by the Client ID.
+ */
 interface WebhookUrl {
   webhookUrl: string;
 }
@@ -78,6 +107,12 @@ class FirestoreDatastore implements Datastore {
   /**
    * Register listeners for webhook URL's for all `clientId`s.
    *
+   * This is an additional special-case function for Firestore as it
+   * can push changes out when they occur rather than requiring polling.
+   *
+   * @param listener Function to call when webhooks have changed.
+   * @param error Function that will be called if there's an error
+   *              handling the connection/query.
    * @returns a cancel function to halt the listener
    */
   public listenForClientIdWebhooks(

@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Entry point to setup the Hapi Server for the HTTP API.
+ *
+ * @module
+ */
 import hapi from '@hapi/hapi';
 import { StatsD } from 'hot-shots';
 import { Logger } from 'mozlog';
@@ -16,6 +21,7 @@ export type ServerConfig = ProxyConfig & {
   port: number;
 };
 
+/** Create the Hapi-based HTTP API service */
 export async function proxyServerInit(
   config: ServerConfig,
   logger: Logger,
@@ -26,8 +32,6 @@ export async function proxyServerInit(
     debug: config.env === 'production' ? false : { request: ['error'] },
     port: config.port
   });
-
   apiInit(logger, metrics, config, server, webhookService);
-
   return server;
 }

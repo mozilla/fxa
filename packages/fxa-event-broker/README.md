@@ -175,4 +175,42 @@ fxa-event-broker.simulateWebhookCall.INFO: webhookCall {"statusCode":200,"body":
 $
 ```
 
+## Software Architecture
+
+The event-broker [architecture document](./architecture.md) describes the overall flow of data
+from fxa-auth-server via SQS into event-broker and back out to relying parties (RPs). The [mermaid] diagrams
+found there can be copied into the [mermaid live editor] to view. Extensions
+[are available for VS Code](https://marketplace.visualstudio.com/items?itemName=bpruitt-goddard.mermaid-markdown-syntax-highlighting) and other editors that allow local previews
+of the diagrams.
+
+### Code Organization
+
+- `bin/` - Program directory (Note the runnable versions will be under `dist/` when compiled)
+  - `generate-sqs-traffic` - Create a stream of SQS events for a local test run.
+  - `simulate-webhook-call` - Webhook URL testing script to verify correct webhook handling.
+  - `worker` - Primary entry point for running the event-broker in production.
+  - `workerDev` - Development version of event-broker that uses FxA daemons pm2 starts.
+- `config/` - Configuration loader and `.json` files for runtime environments.
+- `lib/`
+  - `api/` - Hapi-based HTTP API that Google PubSub publishes to which proxies the
+    requests out to RP's.
+  - `db/` - Database handlers for storing RP's a user has logged into and user events.
+  - `selfUpdatingService/` - Global objects used by the HTTP API and SQS processor which automatically
+    update themselves with the latest webhook URLs for RPs and current subscription
+    capabilities for each RP.
+  - `jwts` - JWT generator for the [Security Event Tokens][set] defined above that are sent to RPs.
+  - `notificationProcessor` - SQS notification processor that parses [FxA Service Notifications][fxasp],
+    creates a new event, then fans it out to Google PubSub queues for each RP it
+    should be delivered to.
+  - `proxy-server` - HTTP API server setup for above `api/`.
+  - `result` - Result interface.
+  - `sentry` - Sentry error handling configuration/setup for SQS processor and HTTP API.
+  - `serviceNotification` - [FxA Service Notification][fxasp] message validation and type extraction.
+  - `version` - Version loading for HTTP API version check endpoint.
+- `test` - Unit tests, organized in matching heirarchy with the root event-broker directory.
+- `types` - Additional TypeScript definitions for dependencies missing type information.
+
+[fxasp]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/service_notifications.md
+[mermaid live editor]: https://mermaid-js.github.io/mermaid-live-editor/
+[mermaid]: mermaidjs.github.io/
 [set]: https://tools.ietf.org/html/rfc8417

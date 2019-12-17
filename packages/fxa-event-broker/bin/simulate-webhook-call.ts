@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Webhook URL testing script to verify correct webhook handling.
+ *
+ * See instructions in the project README for usage.
+ *
+ * @module
+ */
 import Chance from 'chance';
 import requests from 'request-promise-native';
 

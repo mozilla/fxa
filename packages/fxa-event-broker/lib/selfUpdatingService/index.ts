@@ -6,6 +6,16 @@ import { Logger } from 'mozlog';
 
 import { isError, Result } from '../result';
 
+/**
+ * SelfUpdatingService is an abstract generic class that implements a
+ * cached set of data that automatically refreshes in the background
+ * to always have a fresh set of data without delay for callers.
+ *
+ * The drawback of this approach is that the resource being requested
+ * will be queried at the desired `refreshInterval` even if its not
+ * needed.
+ *
+ */
 abstract class SelfUpdatingService<T> {
   protected logger: Logger;
   protected data: T;

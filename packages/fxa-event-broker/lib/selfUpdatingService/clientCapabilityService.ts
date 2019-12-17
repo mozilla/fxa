@@ -19,14 +19,14 @@ interface ServiceConfig {
 }
 
 /**
- * Defines an object keyed by clientId with a list of it's capabilities.
+ * Defines an object keyed by clientId with a list of it's subscription capabilities.
  */
 interface ClientCapabilities {
   [clientId: string]: string[];
 }
 
 /**
- * Service that provides a list of Relying Party Client capabilities.
+ * Service that provides a list of Relying Party Client subscription capabilities.
  *
  * This service refreshes its list at the designated interval from the
  * fxa-auth-server.

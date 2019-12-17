@@ -2,6 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Generate SQS Traffic for local event-broker testing.
+ *
+ * Utilizes the `chance` library to generate random FxA
+ * Service Notifications for the event-broker to consume.
+ *
+ * @module
+ */
+
 import AWS from 'aws-sdk';
 import { SQS } from 'aws-sdk';
 import { Chance } from 'chance';
@@ -15,6 +24,10 @@ AWS.config.update({
   region: 'us-east-1'
 });
 
+/** Total messages to generate before stopping.
+ * @constant {number}
+ * @default
+ */
 const MESSAGE_COUNT = 10_000;
 
 const chance = new Chance();
@@ -35,14 +48,23 @@ const sqsSendMessage = (params: SQS.SendMessageRequest): Promise<SQS.SendMessage
     });
   });
 
+/**
+ * Queue a SQS message.
+ *
+ * @param message Object to send via SQS
+ */
 async function queueMessage(message: object): Promise<SQS.SendMessageResult> {
   const params = {
     MessageBody: JSON.stringify(message),
     QueueUrl: queueUrl
   };
-  return await sqsSendMessage(params);
+  return sqsSendMessage(params);
 }
 
+/**
+ * Start the SQS generation, this will run until `MESSAGE_COUNT` messages
+ * have been inserted into the SQS queue.
+ */
 async function main() {
   const capabilityService = new ClientCapabilityService(
     logger,

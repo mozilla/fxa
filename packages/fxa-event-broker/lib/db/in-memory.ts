@@ -2,6 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * In-memory implemention of `Datastore`.
+ *
+ * @todo This should probably be removed as the local tests run against a
+ *       a local firestore emulator.
+ * @module
+ */
 import { Datastore } from './index';
 
 interface UserLogins {

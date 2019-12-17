@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Hapi routing for the proxy HTTP API.
+ *
+ * @module
+ */
 import hapi from '@hapi/hapi';
 import hapiJoi from '@hapi/joi';
 import { StatsD } from 'hot-shots';
@@ -12,6 +17,7 @@ import { ClientWebhookService } from '../selfUpdatingService/clientWebhookServic
 import ProxyController from './proxy-controller';
 import { proxyPayloadValidator } from './proxy-validator';
 
+/** Setup the proxy controller, its routes, and wire them into a Hapi server */
 export default function(
   logger: Logger,
   metrics: StatsD,
