@@ -15,6 +15,7 @@ export default {
     'blur #vpassword': 'hidePasswordHelper',
     'keyup #vpassword': 'onVPasswordChanged',
     'mousedown .show-password-label': 'onShowPasswordMouseDown',
+    'mouseup .show-password-label': 'onShowPasswordMouseUp',
     'touchstart .show-password-label': 'onShowPasswordMouseDown',
     'keydown input.show-password': 'onShowPasswordTV',
   },
@@ -100,6 +101,13 @@ export default {
     this.togglePasswordVisibility($passwordEl);
   },
 
+  onShowPasswordMouseUp(event) {
+    // return focus to input
+    this.$(event.target)
+      .siblings('.password')
+      .focus();
+  },
+
   togglePasswordVisibility($el) {
     if ($el.attr('type') === 'text') {
       this.hidePassword($el);
@@ -109,7 +117,7 @@ export default {
   },
 
   getAffectedPasswordInputs(button) {
-    var $passwordEl = this.$(button).siblings('.password');
+    let $passwordEl = this.$(button).siblings('.password');
     if (this.$(button).data('synchronizeShow')) {
       $passwordEl = this.$('.password[data-synchronize-show]');
     }

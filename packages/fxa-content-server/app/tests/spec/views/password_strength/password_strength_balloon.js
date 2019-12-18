@@ -103,35 +103,37 @@ describe('views/password_strength/password_strength_balloon', () => {
   describe('update', () => {
     beforeEach(() => {
       sinon.spy(view, 'render');
-      sinon.spy(view, 'hideAfterDelay');
     });
 
-    it('renders, does not hide if error', () => {
-      model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
-
+    it('renders', () => {
       return view.update().then(() => {
         assert.isTrue(view.render.calledOnce);
-        assert.isFalse(view.hideAfterDelay.called);
-      });
-    });
-
-    it('hides if the model is valid', () => {
-      model.validationError = null;
-
-      return view.update().then(() => {
-        assert.isTrue(view.render.calledOnce);
-        assert.isTrue(view.hideAfterDelay.calledOnce);
       });
     });
   });
 
-  it('hideAfterDelay hides after a delay', () => {
-    sinon.stub(view, 'setTimeout').callsFake(callback => callback.call(view));
-    sinon.stub(view, 'hide');
+  describe('shouldHide', () => {
+    beforeEach(() => {
+      sinon.spy(view, 'shouldHide');
+      sinon.spy(view, 'hide');
+    });
 
-    view.hideAfterDelay();
+    it('does not hide if error', () => {
+      model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
+      view.shouldHide();
+      assert.isFalse(view.hide.called);
+    });
 
-    assert.isTrue(view.setTimeout.calledOnce);
-    assert.isTrue(view.hide.calledOnce);
+    it('does not hide if input is focused', () => {
+      model.set('inputFocused', true);
+      view.shouldHide();
+      assert.isFalse(view.hide.called);
+    });
+
+    it('hides onblur if no error', () => {
+      model.set('inputFocused', false);
+      view.shouldHide();
+      assert.isTrue(view.hide.called);
+    });
   });
 });
