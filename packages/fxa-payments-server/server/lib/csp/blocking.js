@@ -21,7 +21,7 @@ module.exports = function(config) {
   const CDN_URL = config.get('staticResources.url');
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
-  const ACCOUNTS_STATIC_CDN = 'https://accounts-static.cdn.mozilla.net/';
+  const ACCOUNTS_STATIC_CDN = getOrigin(config.get('servers.accountsCdn.url'));
   const SENTRY_SERVER = getOrigin(config.get('sentry.url'));
   const OAUTH_SERVER = getOrigin(config.get('servers.oauth.url'));
   const PROFILE_SERVER = getOrigin(config.get('servers.profile.url'));
@@ -34,6 +34,9 @@ module.exports = function(config) {
   const STRIPE_API_URL = getOrigin(config.get('stripe.apiUrl'));
   const STRIPE_HOOKS_URL = getOrigin(config.get('stripe.hooksUrl'));
   const STRIPE_SCRIPT_URL = getOrigin(config.get('stripe.scriptUrl'));
+  const SURVEY_GIZMO_IFRAME_EMBED_URL = getOrigin(
+    config.get('servers.surveyGizmo.url')
+  );
 
   const EXTRA_IMG_SRC = config.get('csp.extraImgSrc');
 
@@ -66,7 +69,11 @@ module.exports = function(config) {
       ],
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
-      frameSrc: [STRIPE_SCRIPT_URL, STRIPE_HOOKS_URL],
+      frameSrc: [
+        STRIPE_SCRIPT_URL,
+        STRIPE_HOOKS_URL,
+        SURVEY_GIZMO_IFRAME_EMBED_URL,
+      ],
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,
@@ -96,6 +103,7 @@ module.exports = function(config) {
       HOT_RELOAD_WEBSOCKET,
       PROFILE_IMAGES_SERVER,
       ACCOUNTS_STATIC_CDN,
+      SURVEY_GIZMO_IFRAME_EMBED_URL,
       PROFILE_SERVER,
       PUBLIC_URL,
       SENTRY_SERVER,

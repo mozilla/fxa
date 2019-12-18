@@ -15,11 +15,17 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
   const { product_id } = plan;
   const { downloadURL } = metadataFromPlan(plan);
   const {
-    config: { env, productRedirectURLs },
+    config: {
+      env,
+      productRedirectURLs,
+      servers: {
+        surveyGizmo: { url: surveyGizmoUrl },
+      },
+    },
     navigateToUrl,
   } = useContext(AppContext);
 
-  const surveyEmbedUrl = `http://www.surveygizmo.com/s3/5294819/VPN-Subscription?__no_style=true&env=${env}`;
+  const surveyEmbedUrl = `${surveyGizmoUrl}/s3/5294819/VPN-Subscription?__no_style=true&env=${env}`;
 
   const redirectUrl =
     downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;

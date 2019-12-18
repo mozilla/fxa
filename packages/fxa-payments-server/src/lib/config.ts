@@ -28,6 +28,9 @@ export interface Config {
     profile: {
       url: string;
     };
+    surveyGizmo: {
+      url: string;
+    };
   };
   stripe: {
     apiKey: string;
@@ -61,6 +64,9 @@ export function defaultConfig(): Config {
         url: '',
       },
       profile: {
+        url: '',
+      },
+      surveyGizmo: {
         url: '',
       },
     },

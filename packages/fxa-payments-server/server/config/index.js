@@ -233,6 +233,22 @@ const conf = convict({
         format: 'url',
       },
     },
+    accountsCdn: {
+      url: {
+        default: 'https://accounts-static.cdn.mozilla.net',
+        doc: 'The URL of the Firefox Accounts static content CDN',
+        env: 'FXA_STATIC_CDN_URL',
+        format: 'url',
+      },
+    },
+    surveyGizmo: {
+      url: {
+        default: 'https://www.surveygizmo.com',
+        doc: 'The Survey Gizmo iframe embed url',
+        env: 'SURVEY_GIZMO_EMBED_URL',
+        format: 'url',
+      },
+    },
   },
   staticResources: {
     directory: {

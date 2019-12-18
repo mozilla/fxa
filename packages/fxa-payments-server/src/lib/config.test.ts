@@ -139,6 +139,9 @@ const expectedMergedConfig = {
     profile: {
       url: '',
     },
+    surveyGizmo: {
+      url: '',
+    },
   },
   stripe: {
     apiKey: '',
