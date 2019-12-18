@@ -216,6 +216,12 @@ const conf = convict({
         env: 'OAUTH_SERVER_URL',
         format: 'url',
       },
+      clientId: {
+        default: '59cceb6f8c32317c',
+        doc: 'OAuth client ID for subscriptions management pages',
+        env: 'OAUTH_CLIENT_ID',
+        format: 'String',
+      },
     },
     profile: {
       url: {

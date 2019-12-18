@@ -1,4 +1,5 @@
 import {
+  Config,
   config,
   resetConfig,
   decodeConfig,
@@ -135,6 +136,7 @@ const expectedMergedConfig = {
     },
     oauth: {
       url: '',
+      clientId: '',
     },
     profile: {
       url: '',

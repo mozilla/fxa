@@ -8,6 +8,8 @@ import './index.scss';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 
+import { getVerifiedAccessToken } from './lib/oauth';
+
 import { actions } from './store/actions';
 
 async function init() {
@@ -17,31 +19,35 @@ async function init() {
 
   const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
-  const accessToken = await getVerifiedAccessToken(hashParams);
-
-  // We should have gotten an accessToken or else redirected, but guard here
-  // anyway because App component requires a token.
-  if (accessToken) {
-    updateAPIClientConfig(config);
-    updateAPIClientToken(accessToken);
-    store.dispatch(actions.fetchToken());
-    store.dispatch(actions.fetchProfile());
-
-    render(
-      <App
-        {...{
-          config,
-          store,
-          queryParams,
-          matchMedia,
-          navigateToUrl,
-          getScreenInfo,
-          locationReload,
-        }}
-      />,
-      document.getElementById('root')
-    );
+  const verifiedAccessToken = await getVerifiedAccessToken(
+    hashParams,
+    queryParams
+  );
+  if (!verifiedAccessToken) {
+    return null;
   }
+
+  updateAPIClientConfig(config);
+  updateAPIClientToken(verifiedAccessToken.accessToken);
+
+  // TODO: inject fetched token from getVerifiedAccesToken!
+  // store.dispatch(actions.fetchToken());
+  store.dispatch(actions.fetchProfile());
+
+  render(
+    <App
+      {...{
+        config,
+        store,
+        queryParams,
+        matchMedia,
+        navigateToUrl,
+        getScreenInfo,
+        locationReload,
+      }}
+    />,
+    document.getElementById('root')
+  );
 }
 
 function headQuerySelector(name: string) {
@@ -86,42 +92,6 @@ async function getHashParams() {
     window.location.pathname + window.location.search
   );
   return hashParams;
-}
-
-const ACCESS_TOKEN_KEY = 'fxa-access-token';
-type getVerifiedAccessTokenArgs = { accessToken?: string | null };
-async function getVerifiedAccessToken({
-  accessToken = '',
-}: getVerifiedAccessTokenArgs): Promise<string | null> {
-  if (accessToken) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
-  } else {
-    accessToken = localStorage.getItem(ACCESS_TOKEN_KEY);
-  }
-
-  try {
-    const result = await fetch(`${config.servers.oauth.url}/v1/verify`, {
-      body: JSON.stringify({ token: accessToken }),
-      headers: { 'Content-Type': 'application/json' },
-      method: 'POST',
-    });
-    if (result.status !== 200) {
-      accessToken = null;
-      console.log('accessToken verify failed', result);
-    }
-  } catch (err) {
-    console.log('accessToken verify error', err);
-    accessToken = null;
-  }
-
-  if (!accessToken) {
-    // TODO: bounce through a login redirect to get back here with a token
-    window.location.href = `${config.servers.content.url}/settings`;
-    return accessToken;
-  }
-
-  console.log('accessToken verified');
-  return accessToken;
 }
 
 init().then(

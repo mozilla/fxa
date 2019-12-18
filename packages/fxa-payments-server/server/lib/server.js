@@ -53,6 +53,7 @@ module.exports = () => {
       },
       oauth: {
         url: config.get('servers.oauth.url'),
+        clientId: config.get('servers.oauth.clientId'),
       },
       profile: {
         url: config.get('servers.profile.url'),
