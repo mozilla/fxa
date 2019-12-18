@@ -7,309 +7,237 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-
 const config = require('../../config').getProperties();
 
-function makeMockOAuthHeader(opts) {
-  const token = Buffer.from(JSON.stringify(opts)).toString('hex');
-  return `Bearer ${token}`;
-}
+const CLIENT_ID = config.oauthServer.clients.find(
+  client => client.trusted && client.canGrant && client.publicClient
+).id;
 
-describe('remote account profile', function() {
+describe('fetch user profile data', function() {
   this.timeout(15000);
 
-  let server;
+  let server, client, email, password;
+
   before(async () => {
-    config.oauth.url = 'http://127.0.0.1:9000';
-    server = await TestServer.start(config);
+    server = await TestServer.start(config, false);
   });
 
-  it('account profile authenticated with session returns profile data', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        return c.api.accountProfile(c.sessionToken);
-      })
-      .then(response => {
-        assert.ok(response.email, 'email address is returned');
-        assert.equal(response.locale, 'en-US', 'locale is returned');
-        assert.deepEqual(
-          response.authenticationMethods,
-          ['pwd', 'email'],
-          'authentication methods are returned'
-        );
-        assert.equal(
-          response.authenticatorAssuranceLevel,
-          1,
-          'assurance level is returned'
-        );
-        assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
-      });
+  after(async () => {
+    await TestServer.stop(server);
   });
 
-  it('account profile authenticated with oauth returns profile data', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        return c.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: c.uid,
-            scope: ['profile'],
-          }),
-        });
-      })
-      .then(response => {
-        assert.ok(response.email, 'email address is returned');
-        assert.equal(response.locale, 'en-US', 'locale is returned');
-        assert.deepEqual(
-          response.authenticationMethods,
-          ['pwd', 'email'],
-          'authentication methods are returned'
-        );
-        assert.equal(
-          response.authenticatorAssuranceLevel,
-          1,
-          'assurance level is returned'
-        );
-        assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
-      });
-  });
-
-  it('account profile with no authentication returns a 401', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        return c.api.accountProfile(null, {});
-      })
-      .then(
-        response => {
-          assert.fail('request should have failed');
-        },
-        err => {
-          assert.equal(err.code, 401, 'request failed with a 401');
+  describe('when a request is authenticated with a session token', async () => {
+    beforeEach(async () => {
+      client = await Client.create(
+        config.publicUrl,
+        server.uniqueEmail(),
+        'password',
+        {
+          lang: 'en-US',
         }
       );
-  });
+    });
 
-  it('account profile authenticated with invalid oauth token returns an error', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        return c.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            code: 401,
-            errno: 108,
-          }),
-        });
-      })
-      .then(
-        () => {
-          assert(false, 'should get an error');
-        },
-        e => {
-          assert.equal(e.code, 401, 'correct error status code');
-          assert.equal(e.errno, 110, 'correct errno');
-        }
+    it('returns the profile data', async () => {
+      const response = await client.accountProfile();
+
+      assert.ok(response.email, 'email address is returned');
+      assert.equal(response.locale, 'en-US', 'locale is returned');
+      assert.deepEqual(
+        response.authenticationMethods,
+        ['pwd', 'email'],
+        'authentication methods are returned'
       );
-  });
-
-  it('account status authenticated with oauth for unknown uid returns an error', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        const UNKNOWN_UID = 'abcdef123456';
-        assert.notEqual(c.uid, UNKNOWN_UID);
-        return c.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: UNKNOWN_UID,
-            scope: ['profile'],
-          }),
-        });
-      })
-      .then(
-        () => {
-          assert(false, 'should get an error');
-        },
-        e => {
-          assert.equal(e.code, 400, 'correct error status code');
-          assert.equal(e.errno, 102, 'correct errno');
-        }
+      assert.equal(
+        response.authenticatorAssuranceLevel,
+        1,
+        'assurance level is returned'
       );
+      assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
+    });
   });
 
-  it('account status authenticated with oauth for wrong scope returns no info', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        return c.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: c.uid,
-            scope: ['readinglist', 'payments'],
-          }),
-        });
-      })
-      .then(response => {
-        assert.deepEqual(response, {}, 'no info should be returned');
+  describe('when a request is authenticated with a valid oauth token', async () => {
+    let token;
+
+    async function initialize(scope) {
+      email = server.uniqueEmail();
+      password = 'test password';
+      client = await Client.createAndVerify(
+        config.publicUrl,
+        email,
+        password,
+        server.mailbox,
+        { lang: 'en-US' }
+      );
+
+      const tokenResponse = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: CLIENT_ID,
+        access_type: 'offline',
+        scope: scope,
       });
-  });
 
-  it('account profile authenticated with limited oauth scopes returns limited profile data', () => {
-    let client;
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        client = c;
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['profile:email'],
-          }),
+      token = tokenResponse.access_token;
+    }
+
+    it('returns the profile data', async () => {
+      await initialize('profile');
+      const response = await client.accountProfile(token);
+
+      assert.ok(response.email, 'email address is returned');
+      assert.equal(response.locale, 'en-US', 'locale is returned');
+      assert.deepEqual(
+        response.authenticationMethods,
+        ['pwd', 'email'],
+        'authentication methods are returned'
+      );
+      assert.equal(
+        response.authenticatorAssuranceLevel,
+        1,
+        'assurance level is returned'
+      );
+      assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
+    });
+
+    describe('scopes are applied to profile data returned', async () => {
+      describe('scope does not authorize profile data', async () => {
+        it('returns no profile data', async () => {
+          await initialize('preadinglist payments');
+          const response = await client.accountProfile(token);
+
+          assert.deepEqual(response, {}, 'no info should be returned');
         });
-      })
-      .then(response => {
-        assert.ok(response.email, 'email address is returned');
-        assert.ok(!response.locale, 'locale should not be returned');
-        assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
-      })
-      .then(() => {
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['profile:locale'],
-          }),
-        });
-      })
-      .then(response => {
-        assert.ok(!response.email, 'email address should not be returned');
-        assert.equal(response.locale, 'en-US', 'locale is returned');
-        assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
       });
-  });
 
-  it('account profile authenticated with oauth :write scopes returns profile data', () => {
-    let client;
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: 'en-US',
-    })
-      .then(c => {
-        client = c;
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['profile:write'],
-          }),
+      describe('limited oauth scopes for profile data', async () => {
+        it('returns only email for email only token', async () => {
+          await initialize('profile:email');
+          const response = await client.accountProfile(token);
+
+          assert.ok(response.email, 'email address is returned');
+          assert.ok(!response.locale, 'locale should not be returned');
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
         });
-      })
-      .then(response => {
-        assert.ok(response.email, 'email address is returned');
-        assert.ok(response.locale, 'locale is returned');
-        assert.ok(
-          response.authenticationMethods,
-          'authenticationMethods is returned'
-        );
-        assert.ok(
-          response.authenticatorAssuranceLevel,
-          'authenticatorAssuranceLevel is returned'
-        );
-        assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
-      })
-      .then(() => {
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['profile:locale:write', 'readinglist'],
-          }),
+
+        it('returns only locale for locale only token', async () => {
+          await initialize('profile:locale');
+          const response = await client.accountProfile(token);
+          assert.ok(!response.email, 'email address should not be returned');
+          assert.equal(response.locale, 'en-US', 'locale is returned');
+          assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
         });
-      })
-      .then(response => {
-        assert.ok(!response.email, 'email address should not be returned');
-        assert.ok(response.locale, 'locale is returned');
-        assert.ok(
-          !response.authenticationMethods,
-          'authenticationMethods should not be returned'
-        );
-        assert.ok(
-          !response.authenticatorAssuranceLevel,
-          'authenticatorAssuranceLevel should not be returned'
-        );
-      })
-      .then(() => {
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['storage', 'profile:email:write'],
-          }),
-        });
-      })
-      .then(response => {
-        assert.ok(response.email, 'email address is returned');
-        assert.ok(!response.locale, 'locale should not be returned');
-        assert.ok(
-          !response.authenticationMethods,
-          'authenticationMethods should not be returned'
-        );
-        assert.ok(
-          !response.authenticatorAssuranceLevel,
-          'authenticatorAssuranceLevel should not be returned'
-        );
-      })
-      .then(() => {
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['profile:amr', 'profile:email:write'],
-          }),
-        });
-      })
-      .then(response => {
-        assert.ok(response.email, 'email address is returned');
-        assert.ok(!response.locale, 'locale should not be returned');
-        assert.ok(
-          response.authenticationMethods,
-          'authenticationMethods is returned'
-        );
-        assert.ok(
-          response.authenticatorAssuranceLevel,
-          'authenticatorAssuranceLevel is returned'
-        );
       });
+
+      describe('profile authenticated with :write scopes', async () => {
+        describe('profile:write', async () => {
+          it('returns profile data', async () => {
+            await initialize('profile:write');
+            const response = await client.accountProfile(token);
+
+            assert.ok(response.email, 'email address is returned');
+            assert.ok(response.locale, 'locale is returned');
+            assert.ok(
+              response.authenticationMethods,
+              'authenticationMethods is returned'
+            );
+            assert.ok(
+              response.authenticatorAssuranceLevel,
+              'authenticatorAssuranceLevel is returned'
+            );
+            assert.ok(
+              response.profileChangedAt,
+              'profileChangedAt is returned'
+            );
+          });
+        });
+
+        describe('profile:locale:write readinglist', async () => {
+          it('returns limited profile data', async () => {
+            await initialize('profile:locale:write readinglist');
+            const response = await client.accountProfile(token);
+
+            assert.ok(!response.email, 'email address should not be returned');
+            assert.ok(response.locale, 'locale is returned');
+            assert.ok(
+              !response.authenticationMethods,
+              'authenticationMethods should not be returned'
+            );
+            assert.ok(
+              !response.authenticatorAssuranceLevel,
+              'authenticatorAssuranceLevel should not be returned'
+            );
+          });
+        });
+
+        describe('profile:email:write storage', async () => {
+          it('returns limited profile data', async () => {
+            await initialize('profile:email:write storage');
+            const response = await client.accountProfile(token);
+
+            assert.ok(response.email, 'email address is returned');
+            assert.ok(!response.locale, 'locale should not be returned');
+            assert.ok(
+              !response.authenticationMethods,
+              'authenticationMethods should not be returned'
+            );
+            assert.ok(
+              !response.authenticatorAssuranceLevel,
+              'authenticatorAssuranceLevel should not be returned'
+            );
+          });
+        });
+
+        describe('profile:email:write profile:amr', async () => {
+          it('returns limited profile data', async () => {
+            await initialize('profile:email:write profile:amr');
+            const response = await client.accountProfile(token);
+
+            assert.ok(response.email, 'email address is returned');
+            assert.ok(!response.locale, 'locale should not be returned');
+            assert.ok(
+              response.authenticationMethods,
+              'authenticationMethods is returned'
+            );
+            assert.ok(
+              response.authenticatorAssuranceLevel,
+              'authenticatorAssuranceLevel is returned'
+            );
+          });
+        });
+      });
+    });
   });
 
-  it('account profile works with unicode email address', () => {
-    const email = server.uniqueUnicodeEmail();
-    return Client.create(config.publicUrl, email, 'password')
-      .then(c => {
-        return c.api.accountProfile(c.sessionToken);
-      })
-      .then(response => {
+  describe('when the profile data is not default', async () => {
+    describe('when the email address is unicode', async () => {
+      it('returns the email address correctly with the profile data', async () => {
+        const email = server.uniqueUnicodeEmail();
+
+        client = await Client.create(config.publicUrl, email, 'password');
+        const response = await client.accountProfile();
         assert.equal(response.email, email, 'email address is returned');
       });
-  });
+    });
 
-  it('account profile reflects TOTP status', () => {
-    return Client.createAndVerifyAndTOTP(
-      config.publicUrl,
-      server.uniqueEmail(),
-      'password',
-      server.mailbox,
-      { lang: 'en-US' }
-    )
-      .then(c => {
-        return c.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: c.uid,
-            scope: ['profile'],
-          }),
+    describe('when the account has TOTP', async () => {
+      it('returns correct TOTP status in profile data', async () => {
+        client = await Client.createAndVerifyAndTOTP(
+          config.publicUrl,
+          server.uniqueEmail(),
+          'password',
+          server.mailbox,
+          { lang: 'en-US' }
+        );
+
+        const res = await client.grantOAuthTokensFromSessionToken({
+          grant_type: 'fxa-credentials',
+          client_id: CLIENT_ID,
+          access_type: 'offline',
+          scope: 'profile',
         });
-      })
-      .then(response => {
+
+        const response = await client.accountProfile(res.access_token);
         assert.ok(response.email, 'email address is returned');
         assert.equal(response.locale, 'en-US', 'locale is returned');
         assert.deepEqual(
@@ -323,26 +251,28 @@ describe('remote account profile', function() {
           'correct assurance level is returned'
         );
       });
-  });
+    });
 
-  it('handles empty locale', () => {
-    return Client.create(config.publicUrl, server.uniqueEmail(), 'password', {
-      lang: '',
-    })
-      .then(client => {
-        return client.api.accountProfile(null, {
-          Authorization: makeMockOAuthHeader({
-            user: client.uid,
-            scope: ['profile:locale'],
-          }),
+    describe('when the locale is empty', async () => {
+      it('returns the profile data successfully', async () => {
+        email = server.uniqueEmail();
+        password = 'test password';
+        client = await Client.createAndVerify(
+          config.publicUrl,
+          email,
+          password,
+          server.mailbox
+        );
+
+        const res = await client.grantOAuthTokensFromSessionToken({
+          grant_type: 'fxa-credentials',
+          client_id: CLIENT_ID,
+          scope: 'profile:locale',
         });
-      })
-      .then(response => {
+
+        const response = await client.accountProfile(res.access_token);
         assert.isUndefined(response.locale);
       });
-  });
-
-  after(() => {
-    return TestServer.stop(server);
+    });
   });
 });

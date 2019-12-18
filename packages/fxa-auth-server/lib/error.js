@@ -448,6 +448,20 @@ AppError.invalidNonce = function() {
   });
 };
 
+AppError.unauthorized = function unauthorized(reason) {
+  return new AppError(
+    {
+      code: 401,
+      error: 'Unauthorized',
+      errno: ERRNO.INVALID_TOKEN,
+      message: 'Unauthorized for route',
+    },
+    {
+      detail: reason,
+    }
+  );
+};
+
 AppError.missingContentLength = function() {
   return new AppError({
     code: 411,

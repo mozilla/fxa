@@ -14,6 +14,7 @@ const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
 const authBearer = require('./routes/auth-schemes/auth-bearer');
+const authOauth = require('./routes/auth-schemes/auth-oauth');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 
@@ -335,9 +336,9 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
     getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
     hawk: hawkOptions,
   });
-  await server.register(require('hapi-fxa-oauth'));
 
-  server.auth.strategy('oauthToken', 'fxa-oauth', config.oauth);
+  server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
+  server.auth.strategy('oauthToken', authOauth.AUTH_SCHEME, config.oauth);
 
   server.auth.scheme(
     'fxa-oauth-refreshToken',
