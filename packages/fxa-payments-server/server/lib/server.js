@@ -57,6 +57,9 @@ module.exports = () => {
       profile: {
         url: config.get('servers.profile.url'),
       },
+      surveyGizmo: {
+        url: config.get('servers.surveyGizmo.url'),
+      },
     },
     stripe: {
       apiKey: config.get('stripe.apiKey'),

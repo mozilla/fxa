@@ -41,9 +41,10 @@ describe('CSP blocking rules', () => {
   it('has correct frameSrc directives', () => {
     const { frameSrc } = directives;
 
-    expect(frameSrc).toHaveLength(2);
+    expect(frameSrc).toHaveLength(3);
     expect(frameSrc).toContain(Sources.STRIPE_SCRIPT_URL);
     expect(frameSrc).toContain(Sources.STRIPE_HOOKS_URL);
+    expect(frameSrc).toContain(Sources.SURVEY_GIZMO_IFRAME_EMBED_URL);
   });
 
   it('has correct imgSrc directives', () => {
