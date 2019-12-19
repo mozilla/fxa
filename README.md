@@ -83,7 +83,7 @@ If you get an `error` status for any of the servers please verify that you insta
 
 > Required developer dependencies:
 > [Git](http://git-scm.com/book/en/v2/Getting-Started-Installing-Git),
-> [node.js **10+** with npm 6](http://nodejs.org/),
+> [node.js **12+** with npm 6](http://nodejs.org/),
 > [Python 2.6+](https://www.python.org/),
 > [Java 8+](https://www.java.com/en/download/),
 > [Rust nightly+](https://doc.rust-lang.org/1.5.0/book/nightly-rust.html),
@@ -139,14 +139,14 @@ sudo service docker restart
 
 #### Installing Node.js
 
-We currently use Node 10.
+We currently use Node 12.
 See https://nodejs.org
 
 Alternatively, the [Node Version Manager](https://github.com/nvm-sh/nvm) makes working with different versions of Node easy.
 
 ```
-nvm install 10
-nvm alias default 10
+nvm install 12
+nvm alias default 12
 ```
 
 #### Installing Java
