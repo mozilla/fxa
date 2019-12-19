@@ -66,11 +66,18 @@ module.exports = (log, db, config, customs, zendeskClient) => {
       handler: async function(request) {
         log.begin('support.ticket', request);
         const { uid, email } = await handleAuth(request.auth, true);
+        const { location } = request.app.geo;
         await customs.check(request, email, 'supportRequest');
         let subject = `${request.payload.topic} for ${request.payload.plan}`;
         if (request.payload.subject) {
           subject = subject.concat(': ', request.payload.subject);
         }
+        const {
+          productNameFieldId,
+          locationCityFieldId,
+          locationStateFieldId,
+          locationCountryFieldId,
+        } = config.zendesk;
 
         const zendeskReq = {
           comment: { body: request.payload.message },
@@ -79,9 +86,13 @@ module.exports = (log, db, config, customs, zendeskClient) => {
             email,
             name: email,
           },
+          custom_fields: [
+            { id: productNameFieldId, value: request.payload.productName },
+            { id: locationCityFieldId, value: location.city },
+            { id: locationStateFieldId, value: location.state },
+            { id: locationCountryFieldId, value: location.country },
+          ],
         };
-        zendeskReq[config.zendesk.productNameFieldId] =
-          request.payload.productName;
 
         let operation = 'createRequest';
         try {

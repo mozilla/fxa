@@ -212,9 +212,9 @@ describe('support', () => {
           `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
-        assert.equal(
-          zendeskReq[config.zendesk.productNameFieldId],
-          'FxA - 123done Pro'
+        assert.deepEqual(
+          zendeskReq.custom_fields.map(field => field.value),
+          ['FxA - 123done Pro', 'Mountain View', 'California', 'United States']
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
@@ -255,9 +255,9 @@ describe('support', () => {
           `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
-        assert.equal(
-          zendeskReq[config.zendesk.productNameFieldId],
-          'FxA - 123done Pro'
+        assert.deepEqual(
+          zendeskReq.custom_fields.map(field => field.value),
+          ['FxA - 123done Pro', 'Mountain View', 'California', 'United States']
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
