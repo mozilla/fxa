@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import {
+  render,
+  cleanup,
+  fireEvent,
+  queryByText,
+  queryByTestId,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { DialogMessage } from './DialogMessage';
@@ -38,4 +44,13 @@ it('calls onDismiss on click outside', () => {
   expect(onDismiss).not.toHaveBeenCalled();
   fireEvent.click(container);
   expect(onDismiss).toHaveBeenCalled();
+});
+
+it('hides the close button when onDismiss is not supplied', () => {
+  const { queryByTestId } = render(
+    <DialogMessage>
+      <div data-testid="children">Hi mom</div>
+    </DialogMessage>
+  );
+  expect(queryByTestId('dialog-dismiss')).not.toBeInTheDocument();
 });

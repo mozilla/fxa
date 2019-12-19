@@ -34,6 +34,14 @@ storiesOf('components/DialogMessage', module)
         }
       </DialogToggle>
     </MockPage>
+  ))
+  .add('without onDismiss', () => (
+    <MockPage>
+      <DialogMessage>
+        <h4>This is a basic dialog</h4>
+        <p>Content goes in here.</p>
+      </DialogMessage>
+    </MockPage>
   ));
 
 type MockPageProps = {
