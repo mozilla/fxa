@@ -2,6 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/**
+ * Hapi routes and controller for support panel.
+ *
+ * @module
+ */
 import hapi from '@hapi/hapi';
 import hapiJoi from '@hapi/joi';
 import fs from 'fs';
@@ -10,11 +15,6 @@ import { Logger } from 'mozlog';
 import path from 'path';
 import requests from 'request-promise-native';
 import joi from 'typesafe-joi';
-
-export type SupportConfig = {
-  authHeader: string;
-  authdbUrl: string;
-};
 
 const queryValidator = joi
   .object()
@@ -33,8 +33,9 @@ const queryValidator = joi
 
 type supportQuery = joi.Literal<typeof queryValidator>;
 
-// Note that these are purely for access to known response keys and
-// not an attempt to validate the return payloads from fxa-auth-db-mysql
+// Note that these `*.Response` interfaces are purely for access to known
+// response keys and not an attempt to validate the return payloads from
+// fxa-auth-db-mysql.
 export interface AccountResponse {
   email: string;
   emailVerified: boolean;
@@ -65,6 +66,12 @@ export interface TotpTokenResponse {
   verified: boolean;
   enabled: boolean;
 }
+
+/** SupportController configuration */
+export type SupportConfig = {
+  authHeader: string;
+  authdbUrl: string;
+};
 
 class SupportController {
   constructor(
@@ -105,6 +112,7 @@ class SupportController {
       this.logger.error('infoFetch', { err });
       return h.response('<h1>Unable to fetch user</h1>').code(500);
     }
+
     let totpEnabled: boolean;
     try {
       const totpResponse = await requests.get({
@@ -121,6 +129,7 @@ class SupportController {
         return h.response('<h1>Unable to fetch user</h1>').code(500);
       }
     }
+
     const context = {
       created: String(new Date(account.createdAt)),
       devices: devices.map(d => {
@@ -142,6 +151,7 @@ class SupportController {
   }
 }
 
+/** Initialize the provided Hapi server with the support routes */
 export function init(
   logger: Logger,
   config: SupportConfig,
