@@ -23,8 +23,9 @@ const DELAY_BEFORE_UPDATE_MODEL_MS = 1000;
 const PasswordWithStrengthBalloonView = FormView.extend({
   events: {
     change: 'updateModelAfterDelay',
-    focus: 'createBalloonIfNeeded',
+    focus: 'focusHandler',
     keypress: 'updateModelAfterDelay',
+    blur: 'blurHandler',
   },
 
   initialize(options = {}) {
@@ -46,6 +47,17 @@ const PasswordWithStrengthBalloonView = FormView.extend({
       () => this.updateModel(),
       delayBeforeUpdateModelMS
     );
+  },
+
+  focusHandler() {
+    this.model.set('inputFocused', true);
+    this.createBalloonIfNeeded();
+  },
+
+  // Allow a `change:inputFocused` event to hide the balloon only if the user
+  // has moved focus away from the input
+  blurHandler() {
+    this.model.set('inputFocused', false);
   },
 
   createBalloonIfNeeded() {

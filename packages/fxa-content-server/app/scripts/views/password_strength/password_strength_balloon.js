@@ -18,10 +18,6 @@ import OneVisibleOfTypeMixin from '../mixins/one-visible-of-type-mixin';
 import Template from '../../templates/partial/password-strength-balloon.mustache';
 import XSS from '../../lib/xss';
 
-// Allow the balloon to stay visible for a bit so that
-// the user can see all the criteria were met.
-const DELAY_BEFORE_HIDE_MS = 750;
-
 const DELAY_BEFORE_HIDE_BALLOON_EL_MS = 500;
 
 const PASSWORD_STRENGTH_BALLOON_SELECTOR = '.password-strength-balloon';
@@ -33,9 +29,8 @@ class PasswordStrengthBalloonView extends BaseView {
   template = Template;
 
   initialize(config = {}) {
-    this.delayBeforeHideMS = config.delayBeforeHideMS || DELAY_BEFORE_HIDE_MS;
-
     this.listenTo(this.model, 'change:password', this.update);
+    this.listenTo(this.model, 'change:inputFocused', this.shouldHide);
   }
 
   setInitialContext(context) {
@@ -56,6 +51,12 @@ class PasswordStrengthBalloonView extends BaseView {
     });
   }
 
+  shouldHide() {
+    if (!this.model.validationError && !this.model.get('inputFocused')) {
+      return this.hide();
+    }
+  }
+
   afterRender() {
     if (this.model.validationError) {
       // OneVisibleOfTypeMixin uses 'show' to destroy any other
@@ -65,17 +66,8 @@ class PasswordStrengthBalloonView extends BaseView {
   }
 
   update() {
-    this.clearTimeouts();
-    return this.render().then(() => {
-      if (!this.model.validationError) {
-        return this.hideAfterDelay();
-      }
-    });
-  }
-
-  clearTimeouts() {
-    this.clearTimeout(this._hideTimeout);
     this.clearTimeout(this._hideBalloonElTimeout);
+    return this.render();
   }
 
   show() {
@@ -94,12 +86,6 @@ class PasswordStrengthBalloonView extends BaseView {
       // `transitionend` is not fired for an unknown reason.
       $balloonEl.hide();
     }, DELAY_BEFORE_HIDE_BALLOON_EL_MS);
-  }
-
-  hideAfterDelay() {
-    this._hideTimeout = this.setTimeout(() => {
-      this.hide();
-    }, this.delayBeforeHideMS);
   }
 }
 
