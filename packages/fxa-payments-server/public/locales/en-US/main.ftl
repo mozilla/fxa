@@ -2,6 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+## branding
+project-brand = Firefox Accounts
+
 document =
   .title = Firefox Accounts
 
@@ -21,3 +24,11 @@ instant-payouts-unsupported = It looks like your debit card isn't setup for inst
 duplicate-transaction = Hmm. Looks like an identical transaction was just sent. Check your payment history.
 coupon-expired = It looks like that promo code has expired.
 card-error = Your transaction could not be processed. Please verify your credit card information and try again.
+
+## settings
+settings-home = Account Home
+settings-subscriptions = Subscriptions
+
+## legal footer
+terms = Terms of Service
+privacy = Privacy Notice

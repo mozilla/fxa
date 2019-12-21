@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useContext, useState } from 'react';
 import { AppContext } from '../../lib/AppContext';
+import { Localized } from 'fluent-react';
 import classNames from 'classnames';
 
 import './index.scss';
@@ -33,22 +34,26 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
           </a>
         </div>
         <div id="legal-footer" data-testid="legal-footer">
-          <a
-            className="terms"
-            rel="noopener noreferrer"
-            target="_blank"
-            href={config.legalDocLinks.termsOfService}
-          >
-            Terms of Service
-          </a>
-          <a
-            className="privacy"
-            rel="noopener noreferrer"
-            target="_blank"
-            href={config.legalDocLinks.privacyNotice}
-          >
-            Privacy Notice
-          </a>
+          <Localized id="terms">
+            <a
+              className="terms"
+              rel="noopener noreferrer"
+              target="_blank"
+              href={config.legalDocLinks.termsOfService}
+            >
+              Terms of Service
+            </a>
+          </Localized>
+          <Localized id="privacy">
+            <a
+              className="privacy"
+              rel="noopener noreferrer"
+              target="_blank"
+              href={config.legalDocLinks.privacyNotice}
+            >
+              Privacy Notice
+            </a>
+          </Localized>
         </div>
       </footer>
     </>
@@ -96,10 +101,14 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
   let breadcrumbs = (
     <ol className="breadcrumbs" data-testid="breadcrumbs">
       <li>
-        <a href={homeURL}>Account Home</a>
+        <Localized id="settings-home">
+          <a href={homeURL}>Account Home</a>
+        </Localized>
       </li>
       <li>
-        <a href="/subscriptions">Subscriptions</a>
+        <Localized id="settings-subscriptions">
+          <a href="/subscriptions">Subscriptions</a>
+        </Localized>
       </li>
     </ol>
   );
@@ -110,7 +119,9 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
         <div id="fxa-settings-header-wrapper">
           <header id="fxa-settings-header">
             <h1 id="fxa-manage-account">
-              <span className="fxa-account-title">Firefox Accounts</span>
+              <Localized id="project-brand">
+                <span className="fxa-account-title">Firefox Accounts</span>
+              </Localized>
             </h1>
             {/*
               * TODO: We can't actually sign out of FxA from here. Maybe back to settings?
