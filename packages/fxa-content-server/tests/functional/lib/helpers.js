@@ -2448,14 +2448,24 @@ const generateTotpCode = secret => {
   return authenticator.generate(secret);
 };
 
+const confirmRecoveryCode = thenify(function() {
+  return this.parent
+    .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.FIRST_CODE)
+    .getVisibleText()
+    .then(code => {
+      return this.parent
+        .then(click(selectors.TOTP.RECOVERY_CODES_DONE))
+        .then(type(selectors.TOTP.CONFIRM_RECOVERY_INPUT, code))
+        .then(click(selectors.TOTP.CONFIRM_RECOVERY_BUTTON));
+    });
+});
+
 const confirmTotpCode = thenify(function(secret) {
   return this.parent
     .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
     .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
     .then(testElementExists(selectors.SIGNIN_RECOVERY_CODE.MODAL))
-    .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
-    .then(testSuccessWasShown)
-    .then(testElementExists(selectors.TOTP.STATUS_ENABLED));
+    .then(confirmRecoveryCode());
 });
 
 const enableTotp = thenify(function() {
@@ -2576,6 +2586,7 @@ module.exports = {
   destroySessionForEmail,
   disableInProd,
   enableTotp,
+  confirmRecoveryCode,
   fetchAllMetrics,
   fillOutChangePassword,
   fillOutCompleteResetPassword,

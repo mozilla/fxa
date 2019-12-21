@@ -49,6 +49,12 @@ describe('remote recovery codes', function() {
         otplib.authenticator.options = {
           secret: result.secret,
         };
+        recoveryCodes = result.recoveryCodes;
+        assert.equal(
+          result.recoveryCodes.length,
+          recoveryCodeCount,
+          'recovery codes returned'
+        );
 
         // Verify TOTP token so that initial recovery codes are generated
         const code = otplib.authenticator.generate();
@@ -57,12 +63,6 @@ describe('remote recovery codes', function() {
           .then(response => {
             assert.equal(response.success, true, 'totp codes match');
 
-            recoveryCodes = response.recoveryCodes;
-            assert.equal(
-              response.recoveryCodes.length,
-              recoveryCodeCount,
-              'recovery codes returned'
-            );
             return server.mailbox.waitForEmail(email);
           })
           .then(emailData => {

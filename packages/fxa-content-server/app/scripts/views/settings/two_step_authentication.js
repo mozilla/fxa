@@ -13,6 +13,7 @@ import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
 import Template from 'templates/settings/two_step_authentication.mustache';
 import preventDefaultThen from '../decorators/prevent_default_then';
 import showProgressIndicator from '../decorators/progress_indicator';
+import { check } from '../../lib/crypto/totp';
 
 const t = msg => msg;
 
@@ -41,7 +42,7 @@ const View = FormView.extend({
   _checkTokenExists() {
     const account = this.getSignedInAccount();
     return account.checkTotpTokenExists().then(result => {
-      this._hasToken = result.exists;
+      this._hasToken = result.exists && result.verified;
     });
   },
 
@@ -63,10 +64,11 @@ const View = FormView.extend({
     return code.replace(/(\w{4})/g, '$1 ');
   },
 
-  _showRecoveryCodes(recoveryCodes) {
-    this.model.set('recoveryCodes', recoveryCodes);
+  _showRecoveryCodes(recoveryCodes, totpSecret) {
+    // this.model.set('recoveryCodes', recoveryCodes);
     this.navigate('/settings/two_step_authentication/recovery_codes', {
       recoveryCodes,
+      totpSecret,
     });
   },
 
@@ -109,9 +111,11 @@ const View = FormView.extend({
 
   createToken() {
     const account = this.getSignedInAccount();
+    this.listenTo(account, 'change:totpVerified', this.refresh);
     this.$el.find(SETTINGS_UNIT_DETAILS).hide();
     this.$el.find(LOADING_INDICATOR_BUTTON).show();
     return account.createTotpToken().then(result => {
+      this._recoveryCodes = result.recoveryCodes;
       this.$el.find(SETTINGS_UNIT_DETAILS).show();
       this.$el.find(LOADING_INDICATOR_BUTTON).hide();
       this.$('.qr-image').attr('src', result.qrCodeUrl);
@@ -144,27 +148,24 @@ const View = FormView.extend({
   },
 
   submit() {
-    const account = this.getSignedInAccount();
     const code = this.getElementValue('input.totp-code');
+    const secret = this.$('.code').text();
 
-    return account
-      .verifyTotpCode(code, this.relier.get('service'))
-      .then(result => {
-        if (result.success) {
-          this.displaySuccess(t('Two-step authentication enabled'), {});
-          this._showRecoveryCodes(result.recoveryCodes);
-          this.render();
-        } else {
-          throw AuthErrors.toError('INVALID_TOTP_CODE');
-        }
-      })
-      .catch(err => {
-        // For invalid code param, display invalid TOTP code error
-        if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
-          err = AuthErrors.toError('INVALID_TOTP_CODE');
-        }
-        return this.showValidationError(this.$(CODE_INPUT_SELECTOR), err);
-      });
+    //preverify code
+    return this.checkCode(secret, code).then(ok => {
+      if (!ok) {
+        return this.showValidationError(
+          this.$(CODE_INPUT_SELECTOR),
+          AuthErrors.toError('INVALID_TOTP_CODE')
+        );
+      }
+      this._showRecoveryCodes(this._recoveryCodes, secret);
+      this.render();
+    });
+  },
+
+  checkCode(secret, code) {
+    return check(secret, code);
   },
 
   refresh: showProgressIndicator(

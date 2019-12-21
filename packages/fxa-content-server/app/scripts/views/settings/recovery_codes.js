@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Cocktail from 'cocktail';
+import AuthErrors from 'lib/auth-errors';
 import FormView from '../form';
 import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
 import Template from 'templates/settings/recovery_codes.mustache';
@@ -11,6 +12,7 @@ import RecoveryCode from '../../models/recovery-code';
 import preventDefaultThen from '../decorators/prevent_default_then';
 import SaveOptionsMixin from '../mixins/save-options-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
+import { getCode } from '../../lib/crypto/totp';
 
 const t = msg => msg;
 
@@ -27,8 +29,10 @@ const View = FormView.extend({
     'click .print-option': preventDefaultThen('_printCodes'),
     'click .replace-codes-link': preventDefaultThen('_replaceRecoveryCodes'),
     'click .two-step-authentication-done': preventDefaultThen(
-      '_returnToTwoStepAuthentication'
+      '_showConfirmationForm'
     ),
+    'click .recovery-confirm-code': preventDefaultThen('_verifyCode'),
+    'click .recovery-back': preventDefaultThen('_hideConfirmationForm'),
   },
 
   _returnToTwoStepAuthentication() {
@@ -39,7 +43,50 @@ const View = FormView.extend({
       const account = this.getSignedInAccount();
       return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
     }
-    this.navigate('settings/two_step_authentication');
+    const totpSecret = this.model.get('totpSecret');
+    const done = () => {
+      this.navigate('settings/two_step_authentication');
+    };
+    if (totpSecret) {
+      return getCode(totpSecret)
+        .then(code => {
+          const account = this.getSignedInAccount();
+          return account.verifyTotpCode(code, this.relier.get('service'));
+        })
+        .then(() =>
+          this.displaySuccess(t('Two-step authentication enabled'), {})
+        )
+        .then(done);
+      // todo catch
+    }
+    done();
+  },
+
+  _showConfirmationForm() {
+    if (this.model.get('totpSecret')) {
+      this.model.set('showConfirmation', true);
+      this.render();
+    } else {
+      this._returnToTwoStepAuthentication();
+    }
+  },
+
+  _hideConfirmationForm() {
+    this.model.set('showConfirmation', false);
+    this.render();
+  },
+
+  _verifyCode() {
+    const input = this.getElementValue('input.recovery-code');
+    const codes = this.model.get('recoveryCodes');
+    if (!codes.includes(input.toLowerCase())) {
+      return this.showValidationError(
+        this.$('input.recovery-code'),
+        AuthErrors.toError('INVALID_RECOVERY_CODE')
+      );
+    }
+
+    this._returnToTwoStepAuthentication();
   },
 
   _getFormatedRecoveryCodeFilename() {
@@ -101,12 +148,12 @@ const View = FormView.extend({
   },
 
   beforeRender() {
-    // if user has no totp setup then the user should not be able to
-    // directly navigate to /settings/two_step_authentication/recovery_codes
     const account = this.getSignedInAccount();
     return account.checkTotpTokenExists().then(result => {
-      const totpExists = result.exists;
-      if (!totpExists) {
+      if (!result.exists) {
+        this.navigate('settings/two_step_authentication');
+      }
+      if (!result.verified && !this.model.get('recoveryCodes')) {
         this.navigate('settings/two_step_authentication');
       }
     });
@@ -127,12 +174,7 @@ const View = FormView.extend({
       recoveryCodes = [];
     }
 
-    let modalSuccessMsg = this.model.get('modalSuccessMsg');
-    if (!modalSuccessMsg) {
-      if (recoveryCodes.length > 0) {
-        modalSuccessMsg = t('Two-step authentication enabled');
-      }
-    }
+    const modalSuccessMsg = this.model.get('modalSuccessMsg');
 
     context.set({
       isIos: this.getUserAgent().isIos(),

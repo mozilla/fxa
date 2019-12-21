@@ -469,6 +469,8 @@ module.exports = {
     CANCEL_BUTTON: '.totp-cancel',
     CONFIRM_CODE_BUTTON: '.totp-confirm-code',
     CONFIRM_CODE_INPUT: '.totp-code',
+    CONFIRM_RECOVERY_INPUT: '.recovery-code',
+    CONFIRM_RECOVERY_BUTTON: '.recovery-confirm-code',
     DELETE_BUTTON: '.totp-delete',
     ENABLE_BUTTON: '.secondary-button.totp-create',
     MANUAL_CODE: '.code',

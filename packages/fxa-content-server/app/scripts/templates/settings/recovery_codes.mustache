@@ -5,8 +5,8 @@
         {{/modalSuccessMsg}}
         <div class="error"></div>
 
-        <h2>{{#t}}Recovery codes{{/t}}</h2>
-
+    {{^showConfirmation}}
+    <h2>{{#t}}Recovery codes{{/t}}</h2>
     <form novalidate>
         {{^showRecoveryCodes}}
             <p class="description">
@@ -29,9 +29,6 @@
                 {{#recoveryCodes}}
                     <div class="recovery-code">{{code}}</div>
                 {{/recoveryCodes}}
-            </div>
-            <div class="link-options">
-                <a class="replace-codes-link">{{#t}}Generate new recovery codes{{/t}}</a>
             </div>
 
             {{^isIos}}
@@ -62,8 +59,29 @@
         {{/showRecoveryCodes}}
 
         <div class="button-row">
-            <button class="settings-button secondary-button two-step-authentication-done">{{#t}}Done{{/t}}</button>
+            <button class="settings-button secondary-button two-step-authentication-done">{{#t}}Continue{{/t}}</button>
         </div>
     </form>
+    {{/showConfirmation}}
+    {{#showConfirmation}}
+    <h2>{{#t}}Confirm a recovery code{{/t}}</h2>
+    <form novalidate>
+        <div class="graphic graphic-recovery-codes"></div>
+        <p class="description">
+            {{#t}}To ensure that you will be able to regain access to your account, in the event of a lost device, please enter one of your saved recovery codes.{{/t}}
+        </p>
+        <div class="input-row">
+            <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Recovery code{{/t}}" value="" required autofocus autocomplete="off"/>
+        </div>
+        <div class="button-row">
+            <button type="submit" class="primary-button recovery-confirm-code">{{#t}}Confirm{{/t}}</button>
+        </div>
+        <br>
+        <div class="button-row nav">
+            <a href="#" class="recovery-back">{{#t}}Back{{/t}}</a>
+            <a href="#" class="cancel recovery-cancel">{{#t}}Cancel{{/t}}</a>
+        </div>
+    </form>
+    {{/showConfirmation}}
     </section>
 </div>

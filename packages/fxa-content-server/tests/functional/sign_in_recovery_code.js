@@ -87,6 +87,14 @@ registerSuite('recovery code', {
                   .getVisibleText()
                   .then(code => (recoveryCode2 = code));
               })
+              .then(() => {
+                return self.remote
+                  .then(click(selectors.TOTP.RECOVERY_CODES_DONE))
+                  .then(
+                    type(selectors.TOTP.CONFIRM_RECOVERY_INPUT, recoveryCode)
+                  )
+                  .then(click(selectors.TOTP.CONFIRM_RECOVERY_BUTTON));
+              })
           );
         })
         .end()
@@ -97,7 +105,6 @@ registerSuite('recovery code', {
     'can sign-in with recovery code - sync': function() {
       return (
         this.remote
-          .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -126,7 +133,6 @@ registerSuite('recovery code', {
     'can regenerate recovery code when low': function() {
       return (
         this.remote
-          .then(click(selectors.SIGNIN_RECOVERY_CODE.DONE_BUTTON))
           .then(click(selectors.SETTINGS.SIGNOUT))
           .then(
             openPage(SYNC_ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {

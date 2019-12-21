@@ -43,6 +43,10 @@ describe('views/settings/two_step_authentication', () => {
       .callsFake(() => Promise.resolve(featureEnabled));
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
 
+    sinon.stub(view, 'checkCode').callsFake(() => {
+      return Promise.resolve(validCode);
+    });
+
     return view.render().then(() => $('#container').html(view.$el));
   }
 
@@ -62,7 +66,7 @@ describe('views/settings/two_step_authentication', () => {
     relier = new Relier();
 
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-      return Promise.resolve({ exists: hasToken });
+      return Promise.resolve({ exists: hasToken, verified: hasToken });
     });
 
     sinon.stub(account, 'verifyTotpCode').callsFake(() => {
@@ -185,14 +189,14 @@ describe('views/settings/two_step_authentication', () => {
       sinon.spy(metrics, 'logUserPreferences');
       return initView().then(() => {
         sinon.spy(view, 'render');
-        sinon.spy(view, 'displaySuccess');
+        sinon.spy(view, '_showRecoveryCodes');
         view.submit();
       });
     });
 
     it('confirms code', () => {
       assert.equal(view.render.callCount, 1);
-      assert.equal(view.displaySuccess.callCount, 1);
+      assert.equal(view._showRecoveryCodes.callCount, 1);
     });
 
     it('logs `two_step_authentication` enabled metric', () => {
