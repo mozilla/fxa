@@ -1162,7 +1162,7 @@ const conf = convict({
     sampleRate: {
       doc: 'Sampling rate for StatsD',
       format: Number,
-      default: 0.1,
+      default: 1,
       env: 'STATSD_SAMPLE_RATE',
     },
     maxBufferSize: {
