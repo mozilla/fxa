@@ -8,6 +8,10 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
   if [ "${MODULE}" == 'fxa-auth-server' ]; then
     docker build -f Dockerfile-test -t ${MODULE}:test ..
     docker run --net="host" ${MODULE}:test npm test
+  elif [ "${MODULE}" == 'fxa-profile-server' ]; then
+    cd ../
+    docker build -f ${MODULE}/Dockerfile-test -t ${MODULE}:test .
+    docker run --net="host" ${MODULE}:test npm test
   elif [[ -e Dockerfile-test ]]; then
     docker build -f Dockerfile-test -t ${MODULE}:test .
 
