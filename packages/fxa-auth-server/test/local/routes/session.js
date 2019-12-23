@@ -69,7 +69,8 @@ function makeRoutes(options = {}) {
     config,
     signinUtils,
     signupUtils,
-    mailer
+    mailer,
+    push
   );
 }
 
@@ -1125,14 +1126,15 @@ describe('/session/duplicate', () => {
 });
 
 describe('/session/verify_code', () => {
-  let route, request, log, db, mailer;
+  let route, request, log, db, mailer, push;
 
   function setup(options = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
+    push = mocks.mockPush();
     const config = {};
-    const routes = makeRoutes({ log, config, db, mailer });
+    const routes = makeRoutes({ log, config, db, mailer, push });
     route = getRoute(routes, '/session/verify_code');
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
@@ -1151,6 +1153,7 @@ describe('/session/verify_code', () => {
       log,
       uaBrowser: 'Firefox',
     });
+    request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
   }
 
   beforeEach(() => {
@@ -1184,6 +1187,11 @@ describe('/session/verify_code', () => {
       'sessionTokenId',
       'email-2fa'
     );
+    assert.calledOnce(push.notifyAccountUpdated);
+
+    const args = request.emitMetricsEvent.args[1];
+    assert.equal(args[0], 'account.confirmed');
+    assert.equal(args[1].uid, signupCodeAccount.uid);
   });
 
   it('should fail for invalid code', async () => {
@@ -1197,14 +1205,15 @@ describe('/session/verify_code', () => {
 });
 
 describe('/session/resend_code', () => {
-  let route, request, log, db, mailer;
+  let route, request, log, db, mailer, push;
 
   beforeEach(() => {
     db = mocks.mockDB({ ...signupCodeAccount });
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
+    push = mocks.mockPush();
     const config = {};
-    const routes = makeRoutes({ log, config, db, mailer });
+    const routes = makeRoutes({ log, config, db, mailer, push });
     route = getRoute(routes, '/session/resend_code');
 
     request = mocks.mockRequest({

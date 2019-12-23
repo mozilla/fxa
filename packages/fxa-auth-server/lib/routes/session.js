@@ -19,7 +19,8 @@ module.exports = function(
   config,
   signinUtils,
   signupUtils,
-  mailer
+  mailer,
+  push
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
@@ -371,10 +372,15 @@ module.exports = function(
         // corresponding email and emit metrics.
         if (!account.primaryEmail.isVerified) {
           await signupUtils.verifyAccount(request, account, options);
+        } else {
+          const { uid } = sessionToken;
+          request.emitMetricsEvent('account.confirmed', { uid });
+          const devices = await request.app.devices;
+          await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
         }
 
         // If a valid code was sent, this verifies the session using the `email-2fa` method.
-        // The assurance level will be ["pwd", "emai"] or level 1.
+        // The assurance level will be ["pwd", "email"] or level 1.
         await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
 
         return {};
