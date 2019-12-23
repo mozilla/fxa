@@ -212,8 +212,11 @@ describe('routes/Product', () => {
 
   it('displays an error with invalid product ID', async () => {
     const apiMocks = initApiMocks();
-    const { findByTestId } = render(<Subject productId="bad_product" />);
+    const { findByTestId, queryByTestId } = render(
+      <Subject productId="bad_product" />
+    );
     await findByTestId('no-such-plan-error');
+    expect(queryByTestId('dialog-dismiss')).not.toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   });
 

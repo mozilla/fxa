@@ -122,7 +122,7 @@ export const Product = ({
 
   if (!selectedPlan) {
     return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
+      <DialogMessage className="dialog-error">
         <h4>Plan not found</h4>
         <p data-testid="no-such-plan-error">No such plan for this product.</p>
       </DialogMessage>
