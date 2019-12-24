@@ -1,5 +1,12 @@
 # Change history
 
+## 1.153.0
+
+### Other changes
+
+- support-panel: add README and JSDoc (7ac6ee2d5)
+- node: updated node to v12 (7169a367e)
+
 ## 1.152.1
 
 No changes.

@@ -1,3 +1,41 @@
+## 1.153.0
+
+### New features
+
+- content-server: Improve styling of password advice (083010141)
+- signup: Use signup codes when visiting /settings w/ unverified account (abac0a334)
+- reminders: Test verification reminders. (47f58654a)
+- signin: Cached signin w/ unverified account uses codes now. (52d58fb76)
+- signin: Signin w/ unverified accounts uses codes (f384a7eed)
+- emails: Add verify secondary email by code routes (e06b3edf3)
+- ci: store screenshots as ci artifacts (04a7b0641)
+- content-server: Set relier 'serviceName' default to 'Account Settings' (2ddb35692)
+
+### Bug fixes
+
+- payments: subscription survey tweaks and functional test fixes (a551319e3)
+- metrics: Fix sms experiment metrics (9ea674634)
+- user-agent: Parse user agents as 'tablet' for iPads sending desktop headers (27fd3cc20)
+- metrics: Flush metrics any time messages are sent to the browser (a4f406cdd)
+- buttons: Add `Not now` button back to sms page (2110ef8db)
+- metrics: Ensure metrics are flushed before redirecting to external links (14543fdcd)
+
+### Refactorings
+
+- test: Hook up default WebChannel responses if none specified (06f270865)
+- tests: Expose all TestHelpers within FunctionalHelpers. (a86e324a6)
+- brokers: Merge fx-desktop-v2 and fx-desktop-v3 brokers. (9a26577ee)
+
+### Other changes
+
+- monorepo: remove stale references to travisci (9b4789125)
+- deps: Update nsp for 1426 (60ec68a50)
+- e05fc86c6 Set `service` tag for metrics events based on fxa_status response. (e05fc86c6)
+- node: updated node to v12 (7169a367e)
+- refactor: Remove token code routes, js endpoints and docs (216af8bc2)
+- 16e58737d Set `service` tag for metrics events based on fxa_status response. (16e58737d)
+- test: Remove duplicate "settings unverified" tests (0cd81431b)
+
 ## 1.152.1
 
 ### Bug fixes

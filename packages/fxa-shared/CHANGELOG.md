@@ -1,5 +1,11 @@
 # Change history
 
+## 1.153.0
+
+### New features
+
+- metrics: add Amplitude events for subscription upgrades (d5acb5a65)
+
 ## 1.152.1
 
 No changes.

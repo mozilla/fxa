@@ -1,3 +1,11 @@
+## 1.153.0
+
+### Other changes
+
+- monorepo: remove stale references to travisci (9b4789125)
+- node: updated node to v12 (7169a367e)
+- fxa-profile-server: install fxa-shared directly in docker build (3eda21d1e)
+
 ## 1.152.1
 
 No changes.

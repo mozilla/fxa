@@ -1,5 +1,11 @@
 # Change history
 
+## 1.153.0
+
+### Other changes
+
+- monorepo: remove stale references to travisci (9b4789125)
+
 ## 1.152.1
 
 No changes.
