@@ -67,9 +67,9 @@ Once you are back working on FxA just use the `npm start` command to bring the s
 
 Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server.
 
-When you signup for an account using the form on `127.0.0.1:3030/signup` the (mailer) logs will print out the verification link that you need to copy paste into your browser to verify your account locally:
+When you signup for an account using the form on `127.0.0.1:3030/signup` the "auth-server local mail helper" logs will print out the verification code that you need to copy paste into your browser to verify your account locally:
 
-![](http://i.imgur.com/oGYXSPl.png)
+![](https://i.imgur.com/cdh9Xrl.png)
 
 If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.
 
