@@ -1,9 +1,0 @@
-*~
-/node_modules
-\#*\#
-.\#*
-/coverage.html
-loadtest/venv
-loadtest/*.pyc
-summary.log
-*.log
