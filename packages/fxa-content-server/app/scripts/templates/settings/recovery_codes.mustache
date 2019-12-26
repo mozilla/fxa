@@ -36,27 +36,27 @@
 
             {{^isIos}}
                 <div class="button-row save-options">
-                    <a href="#" class="save-option download-option">
+                    <button type="button" class="save-option download-option">
                         <div class="graphic graphic-download-option"></div>
                         <p class="name">{{#t}}Download{{/t}}</p>
-                    </a>
-                    <a href="#" class="save-option copy-option">
+                    </button>
+                    <button type="button" class="save-option copy-option">
                         <div class="graphic graphic-copy-option"></div>
                         <p class="name">{{#t}}Copy{{/t}}</p>
-                    </a>
-                    <a href="#" class="save-option print-option">
+                    </button>
+                    <button type="button" class="save-option print-option">
                         <div class="graphic graphic-print-option"></div>
                         <p class="name">{{#t}}Print{{/t}}</p>
-                    </a>
+                    </button>
                 </div>
             {{/isIos}}
 
             {{#isIos}}
                 <div class="button-row">
-                    <a href="#" class="save-option copy-option">
+                    <button type="button" class="save-option copy-option">
                         <div class="graphic graphic-copy-option"></div>
                         <p class="name">{{#t}}Copy{{/t}}</p>
-                    </a>
+                    </button>
                 </div>
             {{/isIos}}
         {{/showRecoveryCodes}}

@@ -146,11 +146,26 @@
 
 .save-options {
   display: flex;
-  margin-top: 25px;
+  margin: 15px 0 10px;
 }
 
 .save-option {
+  background-color: transparent;
+  color: $link-color-default;
+  display: inline-block;
+  font-weight: 400;
+  height: initial;
+  padding: 10px 0;
   width: 33%;
+
+  &:hover {
+    background-color: transparent;
+    filter: hue-rotate(3deg) saturate(1.1) brightness(0.85);
+  }
+
+  &:active {
+    filter: hue-rotate(3deg) saturate(1.1) brightness(0.75);
+  }
 
   .name {
     font-size: 14px;
