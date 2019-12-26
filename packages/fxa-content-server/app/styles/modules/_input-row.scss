@@ -13,7 +13,6 @@
 
     &::placeholder {
       color: $input-placeholder-color !important;
-      font-size: 17px;
       font-weight: $font-weight-body-20;
       opacity: 1;
     }
@@ -21,7 +20,7 @@
     &::-webkit-input-placeholder {
       // Fixes a problem in Safari/Fx for iOS where placeholder
       // text is not vertically centered and becomes cut-off.
-      line-height: 1 !important;
+      line-height: 1.3 !important;
     }
 
     // disable arrows on HTML5 number inputs
