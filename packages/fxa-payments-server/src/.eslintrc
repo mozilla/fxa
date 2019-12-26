@@ -1,9 +1,12 @@
-plugins:
-  - fxa
-  - react
-
-extends: ../.eslintrc
-
-rules:
-  consistent-this: 0
-  valid-jsdoc: [2, {"requireReturn": false, "requireParamDescription": false, "requireReturnDescription": false}]
+{
+  "extends": [
+    "plugin:fxa/client",
+  ],
+  "plugins": ["fxa", "react"],
+  "rules": {
+    "consistent-this": 0,
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error",
+    "valid-jsdoc": [2, {"requireReturn": false, "requireParamDescription": false, "requireReturnDescription": false}]
+  }
+}
