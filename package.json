@@ -64,7 +64,8 @@
         "fxa-auth-server"
       ],
       "fxa-profile-server": [
-        "fxa-auth-server"
+        "fxa-auth-server",
+        "fxa-shared"
       ]
     }
   },
