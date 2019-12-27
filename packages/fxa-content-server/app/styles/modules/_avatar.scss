@@ -199,19 +199,25 @@
     margin: 0 -40px -20px -40px;
     padding: 25px 20px 20px;
 
+    button,
     a {
       background: {
+        color: transparent;
         repeat: no-repeat;
         size: 48%;
       }
+      color: $link-color-default;
       display: inline-block;
+      font-weight: 400;
+      font-size: 14px;
       line-height: 1.1;
       padding-top: 11%;
       text-decoration: none;
+      width: initial;
 
       @include respond-to('big') {
         height: 80px;
-        margin: 5px;
+        margin: 5px 5px 10px;
         min-width: 80px;
         padding-top: 52px;
       }
@@ -239,6 +245,7 @@
 
       &#camera {
         background-image: image-url('glyph-camera-32.svg');
+        background-position-y: 0.45vw;
       }
 
       &#file {
