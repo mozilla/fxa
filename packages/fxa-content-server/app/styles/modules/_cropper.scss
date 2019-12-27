@@ -1,11 +1,18 @@
 .cropper {
   .wrapper {
     background-color: $cropper-background-color;
+    box-sizing: content-box;
     height: $avatar-size;
     margin: 0 -30px;
     overflow: hidden;
+    padding: 0 30px;
     position: relative;
-    width: $avatar-size + 180px;
+    width: 100%;
+
+    @include respond-to('small') {
+      margin: 0 -10px;
+      padding: 0 10px;
+    }
 
     img {
       position: absolute;
@@ -15,7 +22,7 @@
   .mask {
     background: image-url('crop-mask.svg');
     height: $avatar-size;
-    left: (420 - $avatar-size) / 2;
+    left: calc((100% - #{$avatar-size}) / 2);
     position: relative;
     top: 0;
     width: $avatar-size;
@@ -23,22 +30,22 @@
 
     &::before,
     &::after {
-      background-color: rgba($cropper-background-color, 0.5);
+      background-color: rgba($cropper-background-color, 0.545);
       content: '';
       display: block;
       height: $avatar-size;
       position: absolute;
       top: 0;
-      width: (420 - $avatar-size) / 2;
+      width: 100%;
       z-index: 1;
     }
 
     &::before {
-      left: -(420 - $avatar-size) / 2;
+      left: -100%;
     }
 
     &::after {
-      right: -(420 - $avatar-size) / 2;
+      right: -100%;
     }
   }
 

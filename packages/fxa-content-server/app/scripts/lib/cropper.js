@@ -6,7 +6,6 @@ import _ from 'underscore';
 
 var DEFAULT_DISPLAY_LENGTH = 240;
 var DEFAULT_EXPORT_LENGTH = 480;
-var DEFAULT_GUTTER = 40;
 
 /*
  * options: {
@@ -14,8 +13,6 @@ var DEFAULT_GUTTER = 40;
  *  src: The image source. Data URIs are okay.
  *  width: The image width. Required if src is set.
  *  height: The image height. Required if src is set.
- *  horizontalGutter: The amount of space between the crop zone and the sides of the wrapper
- *  verticalGutter: The amount of space between the crop zone and the top/bottom of the wrapper
  *  displayLength: The length of the crop square during cropping
  *  exportLength: The length of the final cropped image
  *  onRotate: Function to call back when the rotation button is clicked
@@ -33,8 +30,6 @@ function Cropper(options) {
   this.left = 0;
   this.yCenter = 0;
   this.xCenter = 0;
-  this.verticalGutter = _.result(options, 'verticalGutter', DEFAULT_GUTTER);
-  this.horizontalGutter = _.result(options, 'horizontalGutter', DEFAULT_GUTTER);
   this.onRotate = options.onRotate || _.noop;
   this.onTranslate = options.onTranslate || _.noop;
   this.onZoomIn = options.onZoomIn || _.noop;
@@ -44,15 +39,28 @@ function Cropper(options) {
   if (!options.container) {
     throw new Error('A container element is required');
   }
+
   this._setupElements(options.container);
 
+  this.updateMeasurements();
+
+  window.addEventListener(
+    'resize',
+    _.throttle(() => {
+      this.updateMeasurements();
+
+      const pos = this.updatePosition();
+      this.img.css(pos);
+    }, 500)
+  );
+
   if (options.src) {
-    var img = options;
+    let img = options;
 
     // we want the extra resolution to be able to zoom in later (up to 200%)
-    var maxLength = this.exportLength * 2;
+    const maxLength = this.exportLength * 2;
     if (img.width > maxLength || img.height > maxLength) {
-      var scale = maxLength / Math.max(img.width, img.height);
+      const scale = maxLength / Math.max(img.width, img.height);
       img = this.resize(img, scale);
     }
     this.setImageSrc(img.src, img.width, img.height);
@@ -110,18 +118,36 @@ Cropper.prototype._setupElements = function(container) {
     $sliderEl.val(this.scale);
     this.onZoomIn();
   });
-
-  // Cache some invariants
-  this._wrapperHeight = this.wrapper.height();
-  this._wrapperWidth = this.wrapper.width();
 };
 
-Cropper.prototype.updatePosition = function(pos) {
+Cropper.prototype.updateMeasurements = function() {
+  const wrapperRect = this.wrapper[0].getBoundingClientRect();
+  this._wrapperHeight = wrapperRect.height;
+  this._wrapperWidth = wrapperRect.width;
+
+  this.verticalGutter = (this._wrapperHeight - DEFAULT_DISPLAY_LENGTH) / 2;
+  this.horizontalGutter = (this._wrapperWidth - DEFAULT_DISPLAY_LENGTH) / 2;
+
+  // initialize the center to the middle of the wrapper
+  this.yCenter = this._wrapperHeight / 2;
+  this.xCenter = this._wrapperWidth / 2;
+};
+
+Cropper.prototype.updatePosition = function(_pos) {
+  const pos =
+    _pos ||
+    this.getBoundedPosition(
+      this.yCenter - this._height / 2,
+      this.xCenter - this._width / 2
+    );
+
   this.yCenter = pos.top + this._height / 2;
   this.xCenter = pos.left + this._width / 2;
 
   this.top = pos.top;
   this.left = pos.left;
+
+  return pos;
 };
 
 Cropper.prototype.setImageSrc = function(src, width, height) {
@@ -140,10 +166,6 @@ Cropper.prototype.setImageSrc = function(src, width, height) {
   this.slider.val(this.scale);
 
   img.attr('src', this.src);
-
-  // initialize the center to the middle of the wrapper
-  this.yCenter = this._wrapperHeight / 2;
-  this.xCenter = this._wrapperWidth / 2;
 
   if (
     typeof width !== 'number' ||
@@ -229,11 +251,7 @@ Cropper.prototype.zoom = function zoom(scale) {
 
   this.updateSize(length);
 
-  var pos = this.getBoundedPosition(
-    this.yCenter - this._height / 2,
-    this.xCenter - this._width / 2
-  );
-  this.updatePosition(pos);
+  const pos = this.updatePosition();
   this.img.css(pos);
 };
 

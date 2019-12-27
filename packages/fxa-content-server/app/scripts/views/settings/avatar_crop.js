@@ -13,9 +13,6 @@ import ModalSettingsPanelMixin from '../mixins/modal-settings-panel-mixin';
 import ProfileImage from '../../models/profile-image';
 import Template from 'templates/settings/avatar_crop.mustache';
 
-var HORIZONTAL_GUTTER = 90;
-var VERTICAL_GUTTER = 0;
-
 const proto = FormView.prototype;
 const View = FormView.extend({
   template: Template,
@@ -55,14 +52,12 @@ const View = FormView.extend({
         displayLength: Constants.PROFILE_IMAGE_DISPLAY_SIZE,
         exportLength: Constants.PROFILE_IMAGE_EXPORT_SIZE,
         height: height,
-        horizontalGutter: HORIZONTAL_GUTTER,
         onRotate: this._onRotate.bind(this),
         onTranslate: this._onTranslate.bind(this),
         onZoomIn: this._onZoomIn.bind(this),
         onZoomOut: this._onZoomOut.bind(this),
         onZoomRangeChange: this._onZoomRangeChange.bind(this),
         src: src,
-        verticalGutter: VERTICAL_GUTTER,
         width: width,
       });
     } catch (e) {
