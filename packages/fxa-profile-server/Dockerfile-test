@@ -1,11 +1,5 @@
 FROM fxa-profile-server:build
 USER root
 RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.9/community/ --no-cache --virtual .build-deps git python make g++
-
-COPY --chown=app:app ["fxa-shared", "../fxa-shared/"]
 USER app
-WORKDIR /fxa-shared
-RUN npm ci
-
-WORKDIR /app
 RUN npm install

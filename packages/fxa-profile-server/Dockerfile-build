@@ -1,4 +1,4 @@
-FROM node:12-alpine AS builder
+FROM node:10-alpine AS builder
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
@@ -29,7 +29,7 @@ RUN chown -R app:app /fxa-shared
 USER app
 
 # Build final image by copying from builder
-FROM node:12-alpine
+FROM node:10-alpine
 
 RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
@@ -47,3 +47,4 @@ RUN apk add --repository http://dl-cdn.alpinelinux.org/alpine/v3.11/community/ -
 USER app
 
 COPY --from=builder --chown=app /app/ /app/
+COPY --from=builder --chown=app /fxa-shared/ /fxa-shared/
