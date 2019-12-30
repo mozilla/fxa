@@ -58,7 +58,7 @@
     "accept-language": "^2.0.17",
     "ajv": "^6.10.2",
     "bluebird": "^3.5.5",
-    "celebrate": "^10.0.1",
+    "celebrate": "^11.0.0",
     "cors": "^2.8.5",
     "generic-pool": "^3.7.1",
     "joi": "^14.3.1",
