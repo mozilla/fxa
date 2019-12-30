@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
-import MockApp from '../../.storybook/components/MockApp';
-import LoremIpsum from '../../.storybook/components/LoremIpsum';
-import { useBooleanState } from '../lib/hooks';
-import { SignInLayout } from './AppLayout';
-import { DialogMessage } from './DialogMessage';
+import MockApp from '../../../.storybook/components/MockApp';
+import LoremIpsum from '../../../.storybook/components/LoremIpsum';
+import { useBooleanState } from '../../lib/hooks';
+import { SignInLayout } from '../AppLayout';
+import { DialogMessage } from './index';
 
 storiesOf('components/DialogMessage', module)
   .add('basic', () => (

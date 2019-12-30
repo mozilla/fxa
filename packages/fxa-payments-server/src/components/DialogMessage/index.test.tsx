@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { DialogMessage } from './DialogMessage';
+import { DialogMessage } from './index';
 
 afterEach(cleanup);
 
