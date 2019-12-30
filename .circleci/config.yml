@@ -189,7 +189,7 @@ jobs:
     resource_class: xlarge
     docker:
       - image: mozilla/fxa-circleci
-      - image: mysql:5.6
+      - image: mysql:5.7.27
         environment:
           - MYSQL_DATABASE: fxa
           - MYSQL_ALLOW_EMPTY_PASSWORD: yes
