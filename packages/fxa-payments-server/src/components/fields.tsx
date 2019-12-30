@@ -107,7 +107,8 @@ export const Field = ({
 export type OnValidateFunction = (
   value: any,
   focused: boolean,
-  props: FieldProps
+  props: FieldProps,
+  getString?: Function
 ) => { value: any; valid: boolean | undefined; error: any };
 
 type InputProps = { onValidate?: OnValidateFunction } & FieldProps &

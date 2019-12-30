@@ -1,4 +1,6 @@
 import React, { useCallback, useContext, useEffect } from 'react';
+import { Localized, withLocalization } from 'fluent-react';
+
 import {
   injectStripe,
   CardNumberElement,
@@ -41,6 +43,7 @@ export type PaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
   plan?: Plan;
+  getString?: Function;
   onCancel?: () => void;
   onPayment: (tokenResponse: stripe.TokenResponse, name: string) => void;
   onPaymentError: (error: any) => void;
@@ -56,6 +59,7 @@ export const PaymentForm = ({
   inProgress = false,
   confirm = true,
   plan,
+  getString,
   onCancel,
   onPayment,
   onPaymentError,
@@ -118,107 +122,135 @@ export const PaymentForm = ({
       className="payment"
       {...{ onChange }}
     >
-      <Input
-        type="text"
-        name="name"
-        label="Name as it appears on your card"
-        data-testid="name"
-        placeholder="Full Name"
-        required
-        autoFocus
-        spellCheck={false}
-        onValidate={validateName}
-      />
-
-      <FieldGroup>
-        <StripeElement
-          component={CardNumberElement}
-          name="creditCardNumber"
-          label="Card number"
-          style={stripeElementStyles}
-          className="input-row input-row--xl"
-          required
-        />
-
-        <StripeElement
-          component={CardExpiryElement}
-          name="expDate"
-          label="Exp. date"
-          style={stripeElementStyles}
-          required
-        />
-
-        <StripeElement
-          component={CardCVCElement}
-          name="cvc"
-          label="CVC"
-          style={stripeElementStyles}
-          required
-        />
-
+      <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
         <Input
           type="text"
-          name="zip"
-          label="ZIP code"
-          maxLength={5}
-          minLength={5}
+          name="name"
+          label="Name as it appears on your card"
+          data-testid="name"
+          placeholder="Full Name"
           required
-          data-testid="zip"
-          placeholder="12345"
-          onValidate={validateZip}
+          autoFocus
+          spellCheck={false}
+          onValidate={(value, focused, props) =>
+            validateName(value, focused, props, getString)
+          }
         />
+      </Localized>
+
+      <FieldGroup>
+        <Localized id="payment-ccn" attrs={{ label: true }}>
+          <StripeElement
+            component={CardNumberElement}
+            name="creditCardNumber"
+            label="Card number"
+            style={stripeElementStyles}
+            className="input-row input-row--xl"
+            required
+          />
+        </Localized>
+
+        <Localized id="payment-exp" attrs={{ label: true }}>
+          <StripeElement
+            component={CardExpiryElement}
+            name="expDate"
+            label="Exp. date"
+            style={stripeElementStyles}
+            required
+          />
+        </Localized>
+
+        <Localized id="payment-cvc" attrs={{ label: true }}>
+          <StripeElement
+            component={CardCVCElement}
+            name="cvc"
+            label="CVC"
+            style={stripeElementStyles}
+            required
+          />
+        </Localized>
+
+        <Localized id="payment-zip" attrs={{ label: true }}>
+          <Input
+            type="text"
+            name="zip"
+            label="ZIP code"
+            maxLength={5}
+            minLength={5}
+            required
+            data-testid="zip"
+            placeholder="12345"
+            onValidate={(value, focused, props) =>
+              validateZip(value, focused, props, getString)
+            }
+          />
+        </Localized>
       </FieldGroup>
 
       {confirm && plan && (
-        <Checkbox data-testid="confirm" name="confirm" required>
-          I authorize Mozilla, maker of Firefox products, to charge my payment
-          method{' '}
-          <strong>
-            ${`${formatCurrencyInCents(plan.amount)} per ${plan.interval}`}
-          </strong>
-          , according to payment terms, until I cancel my subscription.
-        </Checkbox>
+        <Localized
+          id="payment-confirm"
+          $interval={plan.interval}
+          $amount={formatCurrencyInCents(plan.amount)}
+          strong={<strong></strong>}
+        >
+          <Checkbox data-testid="confirm" name="confirm" required>
+            I authorize Mozilla, maker of Firefox products, to charge my payment
+            method{' '}
+            <strong>
+              ${`${formatCurrencyInCents(plan.amount)} per ${plan.interval}`}
+            </strong>
+            , according to payment terms, until I cancel my subscription.
+          </Checkbox>
+        </Localized>
       )}
 
       {onCancel ? (
         <div className="button-row">
-          <button
-            data-testid="cancel"
-            className="settings-button cancel secondary-button"
-            onClick={onCancel}
-          >
-            Cancel
-          </button>
-          <SubmitButton
-            data-testid="submit"
-            className="settings-button primary-button"
-            name="submit"
-            disabled={inProgress}
-          >
-            {inProgress ? (
-              <span data-testid="spinner-update" className="spinner">
-                &nbsp;
-              </span>
-            ) : (
-              <span>Update</span>
-            )}
-          </SubmitButton>
+          <Localized id="payment-cancel-btn">
+            <button
+              data-testid="cancel"
+              className="settings-button cancel secondary-button"
+              onClick={onCancel}
+            >
+              Cancel
+            </button>
+          </Localized>
+
+          <Localized id="payment-update-btn">
+            <SubmitButton
+              data-testid="submit"
+              className="settings-button primary-button"
+              name="submit"
+              disabled={inProgress}
+            >
+              {inProgress ? (
+                <span data-testid="spinner-update" className="spinner">
+                  &nbsp;
+                </span>
+              ) : (
+                <span>Update</span>
+              )}
+            </SubmitButton>
+          </Localized>
         </div>
       ) : (
         <div className="button-row">
-          <SubmitButton
-            data-testid="submit"
-            name="submit"
-            disabled={inProgress}
-          >
-            {inProgress ? (
-              <span data-testid="spinner-submit" className="spinner">
-                &nbsp;
-              </span>
-            ) : (
-              <span>Submit</span>
-            )}
-          </SubmitButton>
+          <Localized id="payment-submit-btn">
+            <SubmitButton
+              data-testid="submit"
+              name="submit"
+              disabled={inProgress}
+            >
+              {inProgress ? (
+                <span data-testid="spinner-submit" className="spinner">
+                  &nbsp;
+                </span>
+              ) : (
+                <span>Submit</span>
+              )}
+            </SubmitButton>
+          </Localized>
         </div>
       )}
 
@@ -261,28 +293,40 @@ export function mkStripeElementStyles(useSmallDeviceStyles: boolean) {
   };
 }
 
-const validateName: OnValidateFunction = (value, focused) => {
+const validateName: OnValidateFunction = (
+  value,
+  focused,
+  _props,
+  getString
+) => {
   let valid = true;
   if (value !== null && !value) {
     valid = false;
   }
+  const errorMsg = getString
+    ? getString('payment-validate-name-error')
+    : 'Please enter your name';
   return {
     value,
     valid,
-    error: !valid && !focused ? 'Please enter your name' : null,
+    error: !valid && !focused ? errorMsg : null,
   };
 };
 
-const validateZip: OnValidateFunction = (value, focused) => {
+const validateZip: OnValidateFunction = (value, focused, _props, getString) => {
   let valid = undefined;
   let error = null;
   value = ('' + value).substr(0, 5);
   if (!value) {
     valid = false;
-    error = 'Zip code is required';
+    error = getString
+      ? getString('payment-validate-zip-required')
+      : 'Zip code is required';
   } else if (value.length !== 5 && !focused) {
     valid = false;
-    error = 'Zip code is too short';
+    error = getString
+      ? getString('payment-validate-zip-short')
+      : 'Zip code is too short';
   } else if (value.length === 5) {
     valid = true;
   }
@@ -293,4 +337,4 @@ const validateZip: OnValidateFunction = (value, focused) => {
   };
 };
 
-export default WrappedPaymentForm;
+export default withLocalization(WrappedPaymentForm);

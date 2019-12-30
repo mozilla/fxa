@@ -77,6 +77,7 @@ const Subject = ({
     validatorMiddlewareReducer,
     onMounted: () => {},
     onEngaged: () => {},
+    getString: () => {},
   };
   return (
     <MockPage>

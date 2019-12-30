@@ -50,3 +50,23 @@ product-no-such-plan = No such plan for this product.
 ## payment legal blurb
 payment-legal-copy = Mozilla uses Stripe for secure payment processing.
 payment-legal-link = View the <a>Stripe privacy policy</a>.
+
+## payment form
+payment-name =
+  .placeholder = Full Name
+  .label = Name as it appears on your card
+payment-ccn =
+  .label = Card number
+payment-exp =
+  .label = Exp. date
+payment-cvc =
+  .label = CVC
+payment-zip =
+  .label = ZIP code
+payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
+payment-cancel-btn = Cancel
+payment-update-btn = Update
+
+payment-validate-name-error = Please enter your name
+payment-validate-zip-required = Zip code is required
+payment-validate-zip-short = Zip code is too short
