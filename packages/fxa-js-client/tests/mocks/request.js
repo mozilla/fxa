@@ -114,7 +114,12 @@ module.exports = {
   },
   mailUnverifiedEmail: {
     status: 200,
-    body: '[{"html":"Mocked code=9001"}]',
+    body: '[{"html":"Mocked code=9001", "headers":{"x-verify-code":"123123"}}]',
+  },
+  mailUnverifiedEmailResend: {
+    status: 200,
+    body:
+      '[{"html":"Mocked code=9001", "headers":{"x-verify-code":"123123"}}, {"html":"Mocked code=9001", "headers":{"x-verify-code":"123123"}}]',
   },
   mailSignUpLang: {
     status: 200,
