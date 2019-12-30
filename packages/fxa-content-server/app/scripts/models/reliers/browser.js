@@ -8,6 +8,7 @@
 
 import _ from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
+import Constants from '../../lib/constants';
 import CountryTelephoneInfo from '../../lib/country-telephone-info';
 import Relier from './relier';
 import Vat from '../../lib/vat';
@@ -57,10 +58,10 @@ export default Relier.extend({
     return Relier.prototype.fetch.call(this).then(() => {
       this.importSearchParamsUsingSchema(QUERY_PARAMETER_SCHEMA, AuthErrors);
 
-      if (this.get('service')) {
-        this.set('serviceName', t('Firefox Sync'));
+      // Customize the serviceName based on *why* the user is signing in.
+      if (this.get('service') === 'sync') {
+        this.set('serviceName', t(Constants.RELIER_SYNC_SERVICE_NAME));
       } else {
-        // if no service provided, then we are just signing into the browser
         this.set('serviceName', t('Firefox'));
       }
     });

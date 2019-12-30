@@ -633,8 +633,7 @@ section.modal-panel {
 
   &[data-name='Fenix'],
   &[data-name='Android Components Reference Browser'],
-  // It's a hack, but the only OAuth client named "Firefox Sync" is on Android.
-  &[data-name='Firefox Sync'] {
+  &[data-name='Firefox Preview'] {
     background-image: url('/images/icon-device-phone-android.svg');
   }
 

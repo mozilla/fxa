@@ -36,6 +36,7 @@ describe('models/reliers/oauth', () => {
   var PROMPT = OAuthPrompt.CONSENT;
   var QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
   var SCOPE = 'profile:email profile:uid';
+  var SCOPE_OLDSYNC = 'https://identity.mozilla.com/apps/oldsync';
   var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
   var SCOPE_PROFILE_EXPANDED = Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION.join(
     ' '
@@ -266,6 +267,28 @@ describe('models/reliers/oauth', () => {
       return relier.fetch().then(() => {
         assert.equal(relier.get('serviceName'), SERVICE_NAME);
         assert.equal(relier.get('redirectUri'), SERVER_REDIRECT_URI);
+      });
+    });
+
+    it('overrides serviceName to be "Firefox Sync" if the client is requesting access to Sync', () => {
+      windowMock.location.search = toSearchString({
+        action: ACTION,
+        client_id: CLIENT_ID,
+        redirect_uri: QUERY_REDIRECT_URI,
+        scope: SCOPE_OLDSYNC,
+        state: STATE,
+      });
+
+      sinon.stub(relier, 'isTrusted').callsFake(() => {
+        return true;
+      });
+      sinon.stub(relier, '_validateKeyScopeRequest').callsFake(() => {
+        return true;
+      });
+
+      return relier.fetch().then(() => {
+        assert.notEqual(relier.get('serviceName'), SERVICE_NAME);
+        assert.equal(relier.get('serviceName'), 'Firefox Sync');
       });
     });
 

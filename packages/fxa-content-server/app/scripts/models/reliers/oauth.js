@@ -14,6 +14,8 @@ import Relier from './relier';
 import Transform from '../../lib/transform';
 import Vat from '../../lib/vat';
 
+const t = msg => msg;
+
 /*eslint-disable camelcase*/
 const CLIENT_INFO_SCHEMA = {
   id: Vat.hex()
@@ -163,6 +165,12 @@ var OAuthRelier = Relier.extend({
 
     this.set('scope', permissions.join(' '));
     this.set('permissions', permissions);
+
+    // As a special case for UX purposes, any client requesting access to
+    // the user's sync data must have a display name of "Firefox Sync".
+    if (permissions.includes(Constants.OAUTH_OLDSYNC_SCOPE)) {
+      this.set('serviceName', t(Constants.RELIER_SYNC_SERVICE_NAME));
+    }
   },
 
   isOAuth() {
