@@ -90,6 +90,7 @@ describe('views/sign_in_password', () => {
       assert.lengthOf(view.$('input[type=password]'), 1);
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
+      assert.lengthOf(view.$('.tos-pp'), 1);
     });
   });
 
