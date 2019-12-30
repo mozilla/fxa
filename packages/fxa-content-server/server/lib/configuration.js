@@ -531,6 +531,13 @@ const conf = (module.exports = convict({
     },
   },
   sentry: {
+    client_errors_dsn: {
+      default: undefined,
+      doc:
+        'Sentry config for client side errors. If not set, then no errors reported.',
+      env: 'SENTRY_CLIENT_ERRORS_DSN',
+      format: String,
+    },
     server_errors_dsn: {
       default: undefined,
       doc:

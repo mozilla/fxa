@@ -28,7 +28,7 @@ module.exports = function(config) {
   const MARKETING_EMAIL_PREFERENCES_URL = config.get(
     'marketing_email.preferences_url'
   );
-  const SENTRY_DSN = config.get('sentry')['server_errors_dsn'];
+  const SENTRY_CLIENT_DSN = config.get('sentry')['client_errors_dsn'];
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
   const PAIRING_CLIENTS = config.get('pairing.clients');
@@ -63,7 +63,7 @@ module.exports = function(config) {
     release: RELEASE,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
-    sentryDsn: SENTRY_DSN,
+    sentryDsn: SENTRY_CLIENT_DSN,
     staticResourceUrl: STATIC_RESOURCE_URL,
     subscriptions: SUBSCRIPTIONS,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
