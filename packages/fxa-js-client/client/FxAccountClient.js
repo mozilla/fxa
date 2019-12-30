@@ -2053,7 +2053,11 @@ FxAccountClient.prototype.recoveryEmails = function(sessionToken) {
  * @param {String} sessionToken SessionToken obtained from signIn
  * @param {String} email new email to be added
  */
-FxAccountClient.prototype.recoveryEmailCreate = function(sessionToken, email) {
+FxAccountClient.prototype.recoveryEmailCreate = function(
+  sessionToken,
+  email,
+  options
+) {
   var request = this.request;
 
   return Promise.resolve()
@@ -2067,6 +2071,10 @@ FxAccountClient.prototype.recoveryEmailCreate = function(sessionToken, email) {
       var data = {
         email: email,
       };
+
+      if (options && options.verificationMethod) {
+        data.verificationMethod = options.verificationMethod;
+      }
 
       return request.send('/recovery_email', 'POST', creds, data);
     });
@@ -2121,6 +2129,74 @@ FxAccountClient.prototype.recoveryEmailSetPrimaryEmail = function(
         email: email,
       };
       return request.send('/recovery_email/set_primary', 'POST', creds, data);
+    });
+};
+
+/**
+ * Verify a secondary email via a short code.
+ *
+ * @method recoveryEmailSecondaryVerifyCode
+ * @param {String} sessionToken SessionToken obtained from signIn
+ * @param {String} email Email to verify
+ * @param {String} code Code to verify with
+ */
+FxAccountClient.prototype.recoveryEmailSecondaryVerifyCode = function(
+  sessionToken,
+  email,
+  code
+) {
+  var request = this.request;
+  return Promise.resolve()
+    .then(function() {
+      required(sessionToken, 'sessionToken');
+      required(email, 'email');
+      required(code, 'code');
+
+      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+    })
+    .then(function(creds) {
+      var data = {
+        email: email,
+        code: code,
+      };
+      return request.send(
+        '/recovery_email/secondary/verify_code',
+        'POST',
+        creds,
+        data
+      );
+    });
+};
+
+/**
+ * Resend secondary email verification code.
+ *
+ * @method recoveryEmailSecondaryVerifyCode
+ * @param {String} sessionToken SessionToken obtained from signIn
+ * @param {String} email Email to resend verification code
+ */
+FxAccountClient.prototype.recoveryEmailSecondaryResendCode = function(
+  sessionToken,
+  email
+) {
+  var request = this.request;
+  return Promise.resolve()
+    .then(function() {
+      required(sessionToken, 'sessionToken');
+      required(email, 'email');
+
+      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+    })
+    .then(function(creds) {
+      var data = {
+        email: email,
+      };
+      return request.send(
+        '/recovery_email/secondary/resend_code',
+        'POST',
+        creds,
+        data
+      );
     });
 };
 
