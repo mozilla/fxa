@@ -1,5 +1,32 @@
 # Change history
 
+## 1.153.0
+
+### New features
+
+- payments: re-introduce the post-subscription survey (d40ccf59c)
+- fxa-payments-server: add survey to subscription redirect fixes #3456 (8ac10b191)
+- metrics: add Amplitude events for subscription upgrades (d5acb5a65)
+- payments: add accounts-static CDN as imgSrc to CSP header (f4b519c95)
+
+### Bug fixes
+
+- payments: hide dialog close button for "plan not found" error (b30878566)
+- payments: add survey embed URL to CSP and use https (90f0d0fde)
+- payments: subscription survey tweaks and functional test fixes (a551319e3)
+- payments-server: update meta tags in index.html for each request (8cf386631)
+
+### Refactorings
+
+- payments: move amplitude pings into plain module (03fea43e4)
+
+### Other changes
+
+- c8a81bfa5 Revert "Implement subscribe survey" (c8a81bfa5)
+- deps: Update nsp for 1426 (60ec68a50)
+- metrics: remove flow perf metrics from Payments (42c2492ed)
+- payments-server: update sentry for sourcemaps on payments server (b49c1b451)
+
 ## 1.152.1
 
 No changes.

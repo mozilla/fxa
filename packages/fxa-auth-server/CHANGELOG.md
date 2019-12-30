@@ -1,3 +1,38 @@
+## 1.153.0
+
+### New features
+
+- support: add location to support ticket (8a62b3942)
+- reminders: Test verification reminders. (47f58654a)
+- event-broker: use proper hapi/sqs filtering (6c9899e64)
+- signin: Signin w/ unverified accounts uses codes (f384a7eed)
+- emails: Add verify secondary email by code routes (e06b3edf3)
+
+### Bug fixes
+
+- metrics: Update our email experiment metrics (a4943378b)
+- user-agent: Parse user agents as 'tablet' for iPads sending desktop headers (27fd3cc20)
+- test: Update sign up code previous window test (71b067de9)
+
+### Refactorings
+
+- auth-server: asyncify utils/otp and utils/signup (ab83c956f)
+- auth-server: asyncify lib/email (c75e9e558)
+- api: prefer async/await in lib/routes/account.js (79f2b050b)
+- auth-server: asyncify lib/tokens (811aee303)
+- auth-server: asyncify devices/push/AM (2de519da6)
+- auth-server: asyncify signer/updates/BS (e914b95ac)
+- auth-server: async/await updates (1d44b3dc0)
+
+### Other changes
+
+- metrics: up the default auth server StatsD sampling rate to 1 (d033a1064)
+- monorepo: remove stale references to travisci (9b4789125)
+- node: updated node to v12 (7169a367e)
+- refactor: Add await to `request.app.devices` where needed (9024ec7f5)
+- subhub: handle subscription upgrades in stub API (2f9d9b8cc)
+- refactor: Remove token code routes, js endpoints and docs (216af8bc2)
+
 ## 1.152.1
 
 ### Bug fixes

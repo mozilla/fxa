@@ -1,5 +1,15 @@
 # Change history
 
+## 1.153.0
+
+### New features
+
+- event-broker: use proper hapi/sqs filtering (6c9899e64)
+
+### Other changes
+
+- event-broker: add remaining docs (e92349a2e)
+
 ## 1.152.1
 
 No changes.

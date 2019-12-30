@@ -1,3 +1,14 @@
+## 1.153.0
+
+### New features
+
+- emails: Add verify secondary email by code routes (e06b3edf3)
+
+### Other changes
+
+- monorepo: remove stale references to travisci (9b4789125)
+- node: updated node to v12 (7169a367e)
+
 ## 1.152.1
 
 No changes.
