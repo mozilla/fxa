@@ -57,8 +57,8 @@ describe('fxa-geodb', () => {
     assert.deepEqual(
       location.latLong,
       {
-        latitude: 37.3893,
-        longitude: -122.0783,
+        latitude: 37.3897,
+        longitude: -122.0832,
       },
       'LatLong returned correctly'
     );
