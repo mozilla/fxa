@@ -1,5 +1,5 @@
 import React from 'react';
-import './LoadingOverlay.scss';
+import './index.scss';
 
 // eslint-disable-next-line max-len
 const spinnerImage =
