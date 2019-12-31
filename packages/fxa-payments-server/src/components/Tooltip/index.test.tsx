@@ -1,19 +1,19 @@
 import React, { useRef } from 'react';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { Omit } from '../lib/types';
-import ScreenInfo from '../lib/screen-info';
+import { Omit } from '../../lib/types';
+import ScreenInfo from '../../lib/screen-info';
 import {
   AppContext,
   AppContextType,
   defaultAppContext,
-} from '../lib/AppContext';
+} from '../../lib/AppContext';
 import {
   Tooltip,
   TooltipProps,
   MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW,
   MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW,
-} from './Tooltip';
+} from './index';
 
 const LABEL_TEXT = 'Valid frobnitz required.';
 
@@ -99,11 +99,7 @@ it('handles being dismissible', () => {
 });
 
 it('throws no error if onDismiss was not supplied to dismissable', () => {
-  const { queryByTestId } = render(
-    <Subject dismissible>
-      {LABEL_TEXT}
-    </Subject>
-  );
+  const { queryByTestId } = render(<Subject dismissible>{LABEL_TEXT}</Subject>);
   const control = queryByTestId('dismiss-button');
   expect(control).toBeInTheDocument();
   fireEvent.click(control as Element);
