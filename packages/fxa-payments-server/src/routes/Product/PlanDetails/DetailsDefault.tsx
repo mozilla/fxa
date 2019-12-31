@@ -1,4 +1,5 @@
 import React from 'react';
+import { Localized } from 'fluent-react';
 import { PlanDetailsProps } from './index';
 import { formatCurrencyInCents } from '../../../lib/formats';
 
@@ -7,10 +8,19 @@ export const DefaultDetails = ({
 }: PlanDetailsProps) => {
   return (
     <div className="plan-details" data-testid="plan-default">
-      <h2>Let's set up your subscription</h2>
-      <p>
-        {product_name} for ${formatCurrencyInCents(amount)} per {interval}
-      </p>
+      <Localized id="product-plan-details-heading">
+        <h2>Let's set up your subscription</h2>
+      </Localized>
+      <Localized
+        id="product-plan-details-amount"
+        $productName={product_name}
+        $amount={formatCurrencyInCents(amount)}
+        $interval={interval}
+      >
+        <p>
+          {product_name} for ${formatCurrencyInCents(amount)} per {interval}
+        </p>
+      </Localized>
     </div>
   );
 };
