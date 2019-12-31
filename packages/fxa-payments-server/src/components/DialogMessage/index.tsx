@@ -1,11 +1,11 @@
 import React, { ReactNode } from 'react';
 import classNames from 'classnames';
-import { useClickOutsideEffect } from '../lib/hooks';
+import { useClickOutsideEffect } from '../../lib/hooks';
 
-import Portal from './Portal';
+import Portal from '../Portal';
 
-import './DialogMessage.scss';
-import CloseIcon from './CloseIcon';
+import './index.scss';
+import CloseIcon from '../CloseIcon';
 
 type DialogMessageProps = {
   className?: string;
