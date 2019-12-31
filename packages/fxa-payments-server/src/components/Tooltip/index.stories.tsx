@@ -1,9 +1,9 @@
 import React, { useRef, useState, useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
-import MockApp from '../../.storybook/components/MockApp';
-import ScreenInfo from '../lib/screen-info';
-import { SignInLayout } from './AppLayout';
-import { Tooltip } from './Tooltip';
+import MockApp from '../../../.storybook/components/MockApp';
+import ScreenInfo from '../../lib/screen-info';
+import { SignInLayout } from '../AppLayout';
+import { Tooltip } from './index';
 
 function init() {
   storiesOf('components/Tooltip', module)

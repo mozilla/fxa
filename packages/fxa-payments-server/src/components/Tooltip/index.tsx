@@ -7,8 +7,8 @@
 
 import React, { useEffect, useRef, useContext } from 'react';
 import classNames from 'classnames';
-import ScreenInfo from '../lib/screen-info';
-import { AppContext } from '../lib/AppContext';
+import ScreenInfo from '../../lib/screen-info';
+import { AppContext } from '../../lib/AppContext';
 
 export const PADDING_BELOW_TOOLTIP_PX = 2;
 export const PADDING_ABOVE_TOOLTIP_PX = 4;
