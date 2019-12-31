@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
-import './ErrorMessage.scss';
+import './index.scss';
 
 type ErrorMessageProps = {
   children: ReactNode;
