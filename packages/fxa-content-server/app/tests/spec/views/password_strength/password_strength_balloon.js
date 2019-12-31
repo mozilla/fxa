@@ -112,27 +112,27 @@ describe('views/password_strength/password_strength_balloon', () => {
     });
   });
 
-  describe('shouldHide', () => {
+  describe('hideOrShow', () => {
     beforeEach(() => {
-      sinon.spy(view, 'shouldHide');
+      sinon.spy(view, 'hideOrShow');
       sinon.spy(view, 'hide');
     });
 
     it('does not hide if error', () => {
       model.validationError = AuthErrors.toError('PASSWORD_SAME_AS_EMAIL');
-      view.shouldHide();
+      view.hideOrShow();
       assert.isFalse(view.hide.called);
     });
 
     it('does not hide if input is focused', () => {
       model.set('inputFocused', true);
-      view.shouldHide();
+      view.hideOrShow();
       assert.isFalse(view.hide.called);
     });
 
     it('hides onblur if no error', () => {
       model.set('inputFocused', false);
-      view.shouldHide();
+      view.hideOrShow();
       assert.isTrue(view.hide.called);
     });
   });
