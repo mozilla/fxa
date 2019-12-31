@@ -1,7 +1,7 @@
 import React from 'react';
 
-import './AlertBar.scss';
-import Portal from './Portal';
+import './index.scss';
+import Portal from '../Portal';
 
 type AlertBarProps = {
   children: any;
@@ -11,7 +11,9 @@ type AlertBarProps = {
 export const AlertBar = ({ children, className = 'alert' }: AlertBarProps) => {
   return (
     <Portal id="top-bar">
-      <div data-testid="alert-container" className={className}>{children}</div>
+      <div data-testid="alert-container" className={className}>
+        {children}
+      </div>
     </Portal>
   );
 };
