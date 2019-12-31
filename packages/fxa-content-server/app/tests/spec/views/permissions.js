@@ -35,7 +35,6 @@ describe('views/permissions', function() {
   var CLIENT_ID = 'relier';
   var PERMISSIONS = ['profile:email', 'profile:uid'];
   var SERVICE_NAME = 'Relier';
-  var SERVICE_URI = 'relier.com';
 
   beforeEach(function() {
     broker = new Broker();
@@ -51,7 +50,6 @@ describe('views/permissions', function() {
       clientId: CLIENT_ID,
       permissions: PERMISSIONS,
       serviceName: SERVICE_NAME,
-      serviceUri: SERVICE_URI,
     });
 
     user = new User({});
