@@ -13,7 +13,6 @@ import { getErrorMessage } from './lib/errors';
 import { Store } from './store';
 import { AppContext, AppContextType } from './lib/AppContext';
 
-import './App.scss';
 import DialogMessage from './components/DialogMessage';
 import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
