@@ -36,3 +36,13 @@ privacy = Privacy Notice
 ## plan details
 product-plan-details-heading = Let's set up your subscription
 product-plan-details-amount = { $productName } for { $amount } per { $interval }
+
+## Product route
+product-plan-error =
+  .title = Problem loading plans
+product-profile-error =
+  .title = Problem loading profile
+product-customer-error =
+  .title = Problem loading customer
+product-plan-not-found = Plan not found
+product-no-such-plan = No such plan for this product.

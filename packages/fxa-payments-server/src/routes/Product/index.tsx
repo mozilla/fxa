@@ -1,5 +1,6 @@
 import React, { useEffect, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { Localized } from 'fluent-react';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
@@ -85,23 +86,27 @@ export const Product = ({
 
   if (!plans.result || plans.error !== null) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-loading-plans"
-        title="Problem loading plans"
-        fetchState={plans}
-        onDismiss={locationReload}
-      />
+      <Localized id="product-plan-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-plans"
+          title="Problem loading plans"
+          fetchState={plans}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
   if (!profile.result || profile.error !== null) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-loading-profile"
-        title="Problem loading profile"
-        fetchState={profile}
-        onDismiss={locationReload}
-      />
+      <Localized id="product-plan-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-profile"
+          title="Problem loading profile"
+          fetchState={profile}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
@@ -111,20 +116,26 @@ export const Product = ({
     customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
   ) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-loading-customer"
-        title="Problem loading customer"
-        fetchState={customer}
-        onDismiss={locationReload}
-      />
+      <Localized id="product-customer-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-customer"
+          title="Problem loading customer"
+          fetchState={customer}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
   if (!selectedPlan) {
     return (
       <DialogMessage className="dialog-error">
-        <h4>Plan not found</h4>
-        <p data-testid="no-such-plan-error">No such plan for this product.</p>
+        <Localized id="product-plan-not-found">
+          <h4>Plan not found</h4>
+        </Localized>
+        <Localized id="product-no-such-plan">
+          <p data-testid="no-such-plan-error">No such plan for this product.</p>
+        </Localized>
       </DialogMessage>
     );
   }
