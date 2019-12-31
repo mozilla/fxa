@@ -1,7 +1,7 @@
 import React, { memo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-import './Portal.scss';
+import './index.scss';
 
 type PortalProps = {
   id: string;
