@@ -65,7 +65,6 @@ const View = FormView.extend({
   },
 
   _showRecoveryCodes(recoveryCodes, totpSecret) {
-    // this.model.set('recoveryCodes', recoveryCodes);
     this.navigate('/settings/two_step_authentication/recovery_codes', {
       recoveryCodes,
       totpSecret,

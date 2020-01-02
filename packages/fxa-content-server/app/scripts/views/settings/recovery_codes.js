@@ -56,8 +56,7 @@ const View = FormView.extend({
         .then(() =>
           this.displaySuccess(t('Two-step authentication enabled'), {})
         )
-        .then(done);
-      // todo catch
+        .then(done, err => this.displayError(err));
     }
     done();
   },

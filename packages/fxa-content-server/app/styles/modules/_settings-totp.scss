@@ -78,18 +78,20 @@
   }
 
   .description {
-    font-size: 14px;
-    text-align: left;
+    font-size: 12px;
+    text-align: center;
   }
 
   #recovery-code-container {
     margin-bottom: 20px;
+    background-color: $recovery-code-background-color;
+    border-color: $recovery-code-border-color;
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 2px;
+    padding-top: 8px;
 
     .recovery-code {
-      background-color: $recovery-code-background-color;
-      border-color: $recovery-code-border-color;
-      border-style: dotted;
-      border-width: 2px;
       color: $recovery-code-color;
       display: inline-block;
       font-family: monospace;
@@ -108,6 +110,10 @@
   .two-step-authentication-done {
     float: none;
     width: 100%;
+  }
+
+  .button-row {
+    text-align: center;
   }
 
   .link-options {
@@ -147,6 +153,7 @@
 
 .note {
   color: $color-red;
+  font-size: 12px;
 }
 
 .save-options {

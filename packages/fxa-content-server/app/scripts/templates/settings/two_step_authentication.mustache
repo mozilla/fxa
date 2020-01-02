@@ -77,11 +77,11 @@
                 </div>
 
                 <div class="input-row">
-                    <input type="number" pattern="\d*" class="tooltip-below totp-code" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus autocomplete="off"/>
+                    <input type="number" pattern="\d+" length="6" class="tooltip-below totp-code" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus autocomplete="off"/>
                 </div>
 
                 <div class="button-row">
-                    <button type="submit" class="settings-button primary-button totp-confirm-code">{{#t}}Confirm{{/t}}</button>
+                    <button type="submit" class="settings-button primary-button totp-confirm-code">{{#t}}Ready{{/t}}</button>
                     <button class="settings-button cancel secondary-button enabled totp-cancel">{{#t}}Cancel{{/t}}</button>
                 </div>
             </div>

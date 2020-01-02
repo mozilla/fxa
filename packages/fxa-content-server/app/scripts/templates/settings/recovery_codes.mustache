@@ -6,7 +6,7 @@
         <div class="error"></div>
 
     {{^showConfirmation}}
-    <h2>{{#t}}Recovery codes{{/t}}</h2>
+    <h2>{{#t}}Save recovery codes{{/t}}</h2>
     <form novalidate>
         {{^showRecoveryCodes}}
             <p class="description">
@@ -21,46 +21,49 @@
 
         {{#showRecoveryCodes}}
             <p class="description">
-                <span class="note">{{#t}}NOTE:{{/t}}</span>
-                {{#t}}These are your one time use recovery codes. Store them in a safe place in the event you lose access to your mobile device. You will not be able to see these codes again.{{/t}}
+                {{#t}}Store these one-time use codes in a safe place for when you don't have your mobile device.{{/t}}
             </p>
-
             <div id="recovery-code-container">
                 {{#recoveryCodes}}
                     <div class="recovery-code">{{code}}</div>
                 {{/recoveryCodes}}
+                {{^isIos}}
+                    <div class="button-row save-options">
+                        <button type="button" class="save-option download-option">
+                            <div class="graphic graphic-download-option"></div>
+                            <p class="name">{{#t}}Download{{/t}}</p>
+                        </button>
+                        <button type="button" class="save-option copy-option">
+                            <div class="graphic graphic-copy-option"></div>
+                            <p class="name">{{#t}}Copy{{/t}}</p>
+                        </button>
+                        <button type="button" class="save-option print-option">
+                            <div class="graphic graphic-print-option"></div>
+                            <p class="name">{{#t}}Print{{/t}}</p>
+                        </button>
+                    </div>
+                {{/isIos}}
+
+                {{#isIos}}
+                    <div class="button-row">
+                        <button type="button" class="save-option copy-option">
+                            <div class="graphic graphic-copy-option"></div>
+                            <p class="name">{{#t}}Copy{{/t}}</p>
+                        </button>
+                    </div>
+                {{/isIos}}
             </div>
-
-            {{^isIos}}
-                <div class="button-row save-options">
-                    <button type="button" class="save-option download-option">
-                        <div class="graphic graphic-download-option"></div>
-                        <p class="name">{{#t}}Download{{/t}}</p>
-                    </button>
-                    <button type="button" class="save-option copy-option">
-                        <div class="graphic graphic-copy-option"></div>
-                        <p class="name">{{#t}}Copy{{/t}}</p>
-                    </button>
-                    <button type="button" class="save-option print-option">
-                        <div class="graphic graphic-print-option"></div>
-                        <p class="name">{{#t}}Print{{/t}}</p>
-                    </button>
-                </div>
-            {{/isIos}}
-
-            {{#isIos}}
-                <div class="button-row">
-                    <button type="button" class="save-option copy-option">
-                        <div class="graphic graphic-copy-option"></div>
-                        <p class="name">{{#t}}Copy{{/t}}</p>
-                    </button>
-                </div>
-            {{/isIos}}
         {{/showRecoveryCodes}}
 
         <div class="button-row">
-            <button class="settings-button secondary-button two-step-authentication-done">{{#t}}Continue{{/t}}</button>
+            <button class="settings-button primary-button two-step-authentication-done">{{#t}}Continue{{/t}}</button>
         </div>
+        {{#totpSecret}}
+        <br>
+        <div class="button-row">
+            <a href="#" class="cancel recovery-cancel">{{#t}}Cancel setup{{/t}}</a>
+        </div>
+        {{/totpSecret}}
     </form>
     {{/showConfirmation}}
     {{#showConfirmation}}
@@ -79,7 +82,7 @@
         <br>
         <div class="button-row nav">
             <a href="#" class="recovery-back">{{#t}}Back{{/t}}</a>
-            <a href="#" class="cancel recovery-cancel">{{#t}}Cancel{{/t}}</a>
+            <a href="#" class="cancel recovery-cancel">{{#t}}Cancel setup{{/t}}</a>
         </div>
     </form>
     {{/showConfirmation}}
