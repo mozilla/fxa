@@ -24,7 +24,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
   events: {
     blur: 'updateModelAfterDelay',
     focus: 'focusHandler',
-    keypress: 'updateModelAfterDelay',
+    keydown: 'updateModelAfterDelay',
   },
 
   initialize(options = {}) {
