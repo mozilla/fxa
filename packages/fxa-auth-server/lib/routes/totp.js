@@ -43,6 +43,10 @@ module.exports = (log, db, mailer, customs, config) => {
           schema: isA.object({
             qrCodeUrl: isA.string().required(),
             secret: isA.string().required(),
+            recoveryCodes: isA
+              .array()
+              .items(isA.string())
+              .required(),
           }),
         },
       },
@@ -73,7 +77,18 @@ module.exports = (log, db, mailer, customs, config) => {
         );
 
         const secret = authenticator.generateSecret();
-        await db.createTotpToken(uid, secret, 0);
+        try {
+          await db.createTotpToken(uid, secret, 0);
+        } catch (e) {
+          if (e.errno === errors.ERRNO.TOTP_TOKEN_EXISTS) {
+            const hasEnabledToken = await otpUtils.hasTotpToken({ uid });
+            if (hasEnabledToken) {
+              throw e;
+            }
+            await db.deleteTotpToken(uid);
+            await db.createTotpToken(uid, secret, 0);
+          }
+        }
 
         log.info('totpToken.created', { uid });
         await request.emitMetricsEvent('totpToken.created', { uid });
@@ -86,9 +101,15 @@ module.exports = (log, db, mailer, customs, config) => {
 
         const qrCodeUrl = await qrcode.toDataURL(otpauth, qrCodeOptions);
 
+        const recoveryCodes = await db.replaceRecoveryCodes(
+          uid,
+          RECOVERY_CODE_COUNT
+        );
+
         return {
           qrCodeUrl,
           secret,
+          recoveryCodes,
         };
       },
     },
@@ -170,6 +191,7 @@ module.exports = (log, db, mailer, customs, config) => {
         response: {
           schema: isA.object({
             exists: isA.boolean(),
+            verified: isA.boolean(),
           }),
         },
       },
@@ -177,7 +199,6 @@ module.exports = (log, db, mailer, customs, config) => {
         log.begin('totp.exists', request);
 
         const sessionToken = request.auth.credentials;
-        let exists = false;
 
         if (sessionToken.tokenVerificationId) {
           throw errors.unverifiedSession();
@@ -185,24 +206,20 @@ module.exports = (log, db, mailer, customs, config) => {
 
         try {
           const token = await db.totpToken(sessionToken.uid);
-
-          // If the token is not verified, lets delete it and report that
-          // it doesn't exist. This will help prevent some edge
-          // cases where the user started creating a token but never completed.
-          if (!token.verified) {
-            await db.deleteTotpToken(sessionToken.uid);
-          } else {
-            exists = true;
-          }
+          return {
+            exists: true,
+            verified: !!token.verified,
+          };
         } catch (err) {
           if (err.errno === errors.ERRNO.TOTP_TOKEN_NOT_FOUND) {
-            exists = false;
+            return {
+              exists: false,
+              verified: false,
+            };
           } else {
             throw err;
           }
         }
-
-        return { exists };
       },
     },
     {
@@ -225,10 +242,6 @@ module.exports = (log, db, mailer, customs, config) => {
         response: {
           schema: {
             success: isA.boolean().required(),
-            recoveryCodes: isA
-              .array()
-              .items(isA.string())
-              .optional(),
           },
         },
       },
@@ -238,7 +251,6 @@ module.exports = (log, db, mailer, customs, config) => {
         const code = request.payload.code;
         const sessionToken = request.auth.credentials;
         const { uid, email } = sessionToken;
-        let recoveryCodes;
 
         await customs.check(request, email, 'verifyTotpCode');
 
@@ -272,14 +284,6 @@ module.exports = (log, db, mailer, customs, config) => {
           });
         }
 
-        // If this is a new registration, replace and generate recovery codes
-        if (isValidCode && !tokenVerified) {
-          recoveryCodes = await db.replaceRecoveryCodes(
-            uid,
-            RECOVERY_CODE_COUNT
-          );
-        }
-
         // If a valid code was sent, this verifies the session using the `totp-2fa` method.
         if (isValidCode && sessionToken.authenticatorAssuranceLevel <= 1) {
           await db.verifyTokensWithMethod(sessionToken.id, 'totp-2fa');
@@ -295,15 +299,9 @@ module.exports = (log, db, mailer, customs, config) => {
 
         await sendEmailNotification();
 
-        const response = {
+        return {
           success: isValidCode,
         };
-
-        if (recoveryCodes) {
-          response.recoveryCodes = recoveryCodes;
-        }
-
-        return response;
 
         async function sendEmailNotification() {
           const account = await db.account(sessionToken.uid);

@@ -37,8 +37,6 @@ export default {
     this.$el.on($.modal.AFTER_CLOSE, () => this.onAfterClose());
 
     this._previousActiveElement = document.activeElement;
-    this._boundBlockerClick = this.onBlockerClick.bind(this);
-    $('.blocker').on('click', this._boundBlockerClick);
 
     /**
      * Trap keyboard focus when modal opens.
@@ -110,29 +108,9 @@ export default {
     }
   },
 
-  onBlockerClick(event) {
-    // We take care of closing the panel ourselves so that we can
-    // trigger `modal-cancel` IFF the user clicks on the black area
-    // outside of the content. Clicks on this area are often handled
-    // differently to either the "cancel" or "back" buttons, and
-    // listening directly on `AFTER_CLOSE` causes listeners to
-    // be called on every close.
-    if (event.target === event.currentTarget) {
-      this.closePanel();
-
-      /**
-       * Triggered if the user clicks the black background area of the modal.
-       *
-       * @event modal-cancel
-       */
-      this.trigger('modal-cancel');
-    }
-  },
-
   onAfterClose() {
     this.destroy(true);
     this.trigger('modal-cancel');
-    $('.blocker').off('click', this._boundBlockerClick);
     this._previousActiveElement.focus();
   },
 

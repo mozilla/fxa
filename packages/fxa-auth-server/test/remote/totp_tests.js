@@ -47,6 +47,11 @@ describe('remote totp', function() {
           { secret: result.secret }
         );
         totpToken = result;
+        assert.equal(
+          result.recoveryCodes.length > 1,
+          true,
+          'recovery codes returned'
+        );
 
         // Verify TOTP token
         const code = authenticator.generate();
@@ -54,11 +59,6 @@ describe('remote totp', function() {
       })
       .then(response => {
         assert.equal(response.success, true, 'totp codes match');
-        assert.equal(
-          response.recoveryCodes.length > 1,
-          true,
-          'recovery codes returned'
-        );
         return server.mailbox.waitForEmail(email);
       })
       .then(emailData => {

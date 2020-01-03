@@ -5,8 +5,8 @@
         {{/modalSuccessMsg}}
         <div class="error"></div>
 
-        <h2>{{#t}}Recovery codes{{/t}}</h2>
-
+    {{^showConfirmation}}
+    <h2>{{#t}}Save recovery codes{{/t}}</h2>
     <form novalidate>
         {{^showRecoveryCodes}}
             <p class="description">
@@ -21,49 +21,70 @@
 
         {{#showRecoveryCodes}}
             <p class="description">
-                <span class="note">{{#t}}NOTE:{{/t}}</span>
-                {{#t}}These are your one time use recovery codes. Store them in a safe place in the event you lose access to your mobile device. You will not be able to see these codes again.{{/t}}
+                {{#t}}Store these one-time use codes in a safe place for when you don't have your mobile device.{{/t}}
             </p>
-
             <div id="recovery-code-container">
                 {{#recoveryCodes}}
                     <div class="recovery-code">{{code}}</div>
                 {{/recoveryCodes}}
-            </div>
-            <div class="link-options">
-                <a class="replace-codes-link">{{#t}}Generate new recovery codes{{/t}}</a>
-            </div>
+                {{^isIos}}
+                    <div class="button-row save-options">
+                        <button type="button" class="save-option download-option">
+                            <div class="graphic graphic-download-option"></div>
+                            <p class="name">{{#t}}Download{{/t}}</p>
+                        </button>
+                        <button type="button" class="save-option copy-option">
+                            <div class="graphic graphic-copy-option"></div>
+                            <p class="name">{{#t}}Copy{{/t}}</p>
+                        </button>
+                        <button type="button" class="save-option print-option">
+                            <div class="graphic graphic-print-option"></div>
+                            <p class="name">{{#t}}Print{{/t}}</p>
+                        </button>
+                    </div>
+                {{/isIos}}
 
-            {{^isIos}}
-                <div class="button-row save-options">
-                    <button type="button" class="save-option download-option">
-                        <div class="graphic graphic-download-option"></div>
-                        <p class="name">{{#t}}Download{{/t}}</p>
-                    </button>
-                    <button type="button" class="save-option copy-option">
-                        <div class="graphic graphic-copy-option"></div>
-                        <p class="name">{{#t}}Copy{{/t}}</p>
-                    </button>
-                    <button type="button" class="save-option print-option">
-                        <div class="graphic graphic-print-option"></div>
-                        <p class="name">{{#t}}Print{{/t}}</p>
-                    </button>
-                </div>
-            {{/isIos}}
-
-            {{#isIos}}
-                <div class="button-row">
-                    <button type="button" class="save-option copy-option">
-                        <div class="graphic graphic-copy-option"></div>
-                        <p class="name">{{#t}}Copy{{/t}}</p>
-                    </button>
-                </div>
-            {{/isIos}}
+                {{#isIos}}
+                    <div class="button-row">
+                        <button type="button" class="save-option copy-option">
+                            <div class="graphic graphic-copy-option"></div>
+                            <p class="name">{{#t}}Copy{{/t}}</p>
+                        </button>
+                    </div>
+                {{/isIos}}
+            </div>
         {{/showRecoveryCodes}}
 
         <div class="button-row">
-            <button class="settings-button secondary-button two-step-authentication-done">{{#t}}Done{{/t}}</button>
+            <button class="settings-button primary-button two-step-authentication-done">{{#t}}Continue{{/t}}</button>
+        </div>
+        {{#totpSecret}}
+        <br>
+        <div class="button-row">
+            <a href="#" class="cancel recovery-cancel">{{#t}}Cancel setup{{/t}}</a>
+        </div>
+        {{/totpSecret}}
+    </form>
+    {{/showConfirmation}}
+    {{#showConfirmation}}
+    <h2>{{#t}}Confirm a recovery code{{/t}}</h2>
+    <form novalidate>
+        <div class="graphic graphic-recovery-codes"></div>
+        <p class="description">
+            {{#t}}To ensure that you will be able to regain access to your account, in the event of a lost device, please enter one of your saved recovery codes.{{/t}}
+        </p>
+        <div class="input-row">
+            <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Recovery code{{/t}}" value="" required autofocus autocomplete="off"/>
+        </div>
+        <div class="button-row">
+            <button type="submit" class="primary-button recovery-confirm-code">{{#t}}Confirm{{/t}}</button>
+        </div>
+        <br>
+        <div class="button-row nav">
+            <a href="#" class="recovery-back">{{#t}}Back{{/t}}</a>
+            <a href="#" class="cancel recovery-cancel">{{#t}}Cancel setup{{/t}}</a>
         </div>
     </form>
+    {{/showConfirmation}}
     </section>
 </div>

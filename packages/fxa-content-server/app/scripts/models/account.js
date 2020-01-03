@@ -70,6 +70,7 @@ const DEFAULTS = _.extend(
     unwrapBKey: undefined,
     verificationMethod: undefined,
     verificationReason: undefined,
+    totpVerified: undefined,
   },
   PERSISTENT
 );
@@ -1438,11 +1439,14 @@ const Account = Backbone.Model.extend(
         metricsContext: this._metrics.getFlowEventMetadata(),
         service: service,
       };
-      return this._fxaClient.verifyTotpCode(
-        this.get('sessionToken'),
-        code,
-        options
-      );
+      return this._fxaClient
+        .verifyTotpCode(this.get('sessionToken'), code, options)
+        .then(result => {
+          if (result.success) {
+            this.set('totpVerified', true);
+          }
+          return result;
+        });
     },
 
     /**

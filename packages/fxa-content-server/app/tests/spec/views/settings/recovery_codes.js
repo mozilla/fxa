@@ -82,7 +82,7 @@ describe('views/settings/recovery_codes', () => {
     });
 
     sinon.stub(account, 'checkTotpTokenExists').callsFake(() => {
-      return Promise.resolve({ exists: hasToken });
+      return Promise.resolve({ exists: hasToken, verified: hasToken });
     });
 
     hasToken = true;
@@ -104,7 +104,6 @@ describe('views/settings/recovery_codes', () => {
     describe('totp is not setup', () => {
       beforeEach(() => {
         hasToken = false;
-
         return view.beforeRender();
       });
 
@@ -135,10 +134,6 @@ describe('views/settings/recovery_codes', () => {
       view.$('.recovery-code:first').text(),
       '00001111',
       'correct recovery code'
-    );
-    assert.include(
-      view.$('.modal-success').text(),
-      'translated Two-step authentication enabled'
     );
   });
 

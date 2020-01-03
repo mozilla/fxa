@@ -2923,7 +2923,7 @@ describe('models/account', function() {
     beforeEach(() => {
       sinon
         .stub(fxaClient, 'verifyTotpCode')
-        .callsFake(() => Promise.resolve());
+        .callsFake(() => Promise.resolve({ success: true }));
       sinon
         .stub(metrics, 'getFlowEventMetadata')
         .callsFake(() => flowEventMetaData);

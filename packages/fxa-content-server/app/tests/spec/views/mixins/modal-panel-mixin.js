@@ -68,14 +68,6 @@ describe('views/mixins/modal-panel-mixin', () => {
       view.openPanel();
     });
 
-    it('click on the blocker background closes the panel, triggers `modal-cancel`', () => {
-      $('.blocker').click();
-
-      assert.isTrue(view.trigger.called);
-      assert.isTrue(view.trigger.calledWith('modal-cancel'));
-      assert.isTrue(view.closePanel.calledTwice); // called in onBlockerClick then in destroy
-    });
-
     it('click on a child of the blocker has no effect', () => {
       $('#back').click();
 
