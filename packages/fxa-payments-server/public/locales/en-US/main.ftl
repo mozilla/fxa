@@ -93,3 +93,15 @@ sub-update-confirm =
     <strong>${ $amount }/{ $interval }</strong>
     , according to payment terms, until I cancel my subscription.
 sub-update-submit = Change Plans
+
+## reactivate
+reactivate-confirm-dialog-header = Want to keep using { $productName }?
+reactivate-confirm-copy =
+    Your access to { $name } will continue, and your billing cycle
+    and payment will stay the same. Your next charge will be $
+    { $amount } to the card ending in { $last } on { $endDate }.
+reactivate-confirm-button = Resubscribe
+reactivate-panel-date = You cancelled your subscription on { $date }.
+reactivate-panel-copy = You will lose access to { $name } on <strong>{ $date }</strong>.
+reactivate-success-copy = Thanks! You're all set.
+reactivate-success-button = Close
