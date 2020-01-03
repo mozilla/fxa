@@ -27,10 +27,15 @@
       {{^isFromRelyingParty}}
         {{#emailVerified}}
           <p class="account-ready-service">{{{escapedEmailReadyText}}}</p>
+          <button class="button-link btn-goto-account">{{#t}}Continue to my account{{/t}}</button>
         {{/emailVerified}}
-
         {{^emailVerified}}
-          <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
+          {{#isSignedIn}}
+            <p class="account-ready-service">{{#t}}You are now ready to use %(serviceName)s{{/t}}</p>
+          {{/isSignedIn}}
+          {{^isSignedIn}}
+            <p class="account-ready-generic">{{#t}}Your account is ready!{{/t}}</p>
+          {{/isSignedIn}}
         {{/emailVerified}}
       {{/isFromRelyingParty}}
     {{/isSync}}

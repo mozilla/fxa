@@ -14,6 +14,7 @@ import Session from 'lib/session';
 import sinon from 'sinon';
 import BrowserRelier from 'models/reliers/browser';
 import View from 'views/ready';
+import User from 'models/user';
 import WindowMock from '../../mocks/window';
 import {
   SIGNIN_COMPLETE,
@@ -30,6 +31,7 @@ describe('views/ready', function() {
   let relier;
   let view;
   let windowMock;
+  let user;
 
   function createDeps() {
     windowMock = new WindowMock();
@@ -48,6 +50,7 @@ describe('views/ready', function() {
     fxaClient = new FxaClient();
     model = new Backbone.Model({});
     notifier = new Notifier();
+    user = new User();
 
     metrics = {
       flush: sinon.spy(Promise.resolve),
@@ -63,6 +66,7 @@ describe('views/ready', function() {
       lang: lang,
       metrics: metrics,
       model,
+      user,
       notifier: notifier,
       relier: relier,
       type: type,
@@ -70,6 +74,7 @@ describe('views/ready', function() {
       window: windowMock,
     });
 
+    sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
     sinon.stub(view, 'getSignedInAccount').callsFake(() => {});
   }
 
@@ -230,6 +235,28 @@ describe('views/ready', function() {
       return view.render().then(() => {
         assert.lengthOf(view.$('#fxa-oauth-success-header'), 1);
         assert.lengthOf(view.$(SIGNIN_COMPLETE.SERVICE_NAME), 1);
+      });
+    });
+  });
+
+  describe('isSignedIn', () => {
+    it('shows default `serviceName` if not set by the relier and user is signed in', () => {
+      sinon.stub(relier, 'isSync').callsFake(() => false);
+      assert.equal(
+        view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
+        'You are now ready to use Account Settings'
+      );
+    });
+
+    it('shows generic message if `serviceName` is not set by the relier and user is not signed in', () => {
+      user.isSignedInAccount.restore();
+      sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+
+      return view.render().then(function() {
+        assert.equal(
+          view.$('.account-ready-generic').text(),
+          'Your account is ready!'
+        );
       });
     });
   });
