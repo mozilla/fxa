@@ -1,4 +1,5 @@
 import React, { useEffect, useContext } from 'react';
+import { Localized } from 'fluent-react';
 import { Plan } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
@@ -49,10 +50,14 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
     <div className="product-payment" data-testid="subscription-redirect">
       <div className="subscription-ready">
         <div className="subscription-message">
-          <h2>Your subscription is ready</h2>
-          <div className="exp-message">
-            Please take a moment to tell us about your experience.
-          </div>
+          <Localized id="sub-redirect-ready">
+            <h2>Your subscription is ready</h2>
+          </Localized>
+          <Localized id="sub-redirect-copy">
+            <div className="exp-message">
+              Please take a moment to tell us about your experience.
+            </div>
+          </Localized>
         </div>
         <hr />
         <div className="survey-frame">
@@ -70,7 +75,9 @@ export const SubscriptionRedirect = ({ plan }: SubscriptionRedirectProps) => {
             className="download-link"
             data-testid="download-link"
           >
-            No thanks, just take me to my product.
+            <Localized id="sub-redirect-skip-survey">
+              No thanks, just take me to my product.
+            </Localized>
           </a>
         </div>
       </div>
