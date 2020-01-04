@@ -32,3 +32,7 @@ settings-subscriptions = Subscriptions
 ## legal footer
 terms = Terms of Service
 privacy = Privacy Notice
+
+## plan details
+product-plan-details-heading = Let's set up your subscription
+product-plan-details-amount = { $productName } for { $amount } per { $interval }
