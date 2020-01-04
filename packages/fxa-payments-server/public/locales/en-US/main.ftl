@@ -46,3 +46,7 @@ product-customer-error =
   .title = Problem loading customer
 product-plan-not-found = Plan not found
 product-no-such-plan = No such plan for this product.
+
+## payment legal blurb
+payment-legal-copy = Mozilla uses Stripe for secure payment processing.
+payment-legal-link = View the <a>Stripe privacy policy</a>.
