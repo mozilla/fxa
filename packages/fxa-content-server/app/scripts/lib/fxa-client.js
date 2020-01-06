@@ -999,6 +999,7 @@ FxaClientWrapper.prototype = {
    *
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {String} email new email to be added
+   * @param {Object} options options
    * @returns {Promise} resolves when complete
    */
   recoveryEmailCreate: createClientDelegate('recoveryEmailCreate'),
@@ -1044,6 +1045,28 @@ FxaClientWrapper.prototype = {
    */
   recoveryEmailSetPrimaryEmail: createClientDelegate(
     'recoveryEmailSetPrimaryEmail'
+  ),
+
+  /**
+   * Verify secondary email via a code.
+   *
+   * @param {String} sessionToken User session token
+   * @param {String} email The email address
+   * @param {Number} code Code to verify address with
+   * @return {Promise} resolves when complete
+   */
+  recoveryEmailSecondaryVerifyCode: createClientDelegate(
+    'recoveryEmailSecondaryVerifyCode'
+  ),
+
+  /**
+   * Resend secondary email verification code.
+   *
+   * @param {String} sessionToken User session token
+   * @param {String} email Email to resend verification code
+   */
+  recoveryEmailSecondaryResendCode: createClientDelegate(
+    'recoveryEmailSecondaryResendCode'
   ),
 
   /**
