@@ -68,6 +68,7 @@ registerSuite('recovery code', {
           secret = secretKey;
           return (
             self.remote
+              .then(click(selectors.TOTP.KEY_OK_BUTTON))
               .then(
                 type(
                   selectors.TOTP.CONFIRM_CODE_INPUT,

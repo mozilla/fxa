@@ -78,6 +78,7 @@
   }
 
   .description {
+    color: $faint-text-color;
     font-size: 12px;
     text-align: center;
   }
@@ -123,6 +124,11 @@
   .nav {
     display: flex;
     justify-content: space-between;
+  }
+
+  .code {
+    font-family: monospace;
+    font-weight: 600;
   }
 }
 

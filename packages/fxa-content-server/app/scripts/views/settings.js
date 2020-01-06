@@ -36,6 +36,7 @@ import Template from 'templates/settings.mustache';
 import UserAgentMixin from '../lib/user-agent-mixin';
 
 import TwoStepAuthenticationView from './settings/two_step_authentication';
+import TotpSecretView from './settings/totp_secret';
 import RecoveryCodesView from './settings/recovery_codes';
 
 var PANEL_VIEWS = [
@@ -48,6 +49,7 @@ var PANEL_VIEWS = [
   AccountRecoveryConfirmRevokeView,
   AccountRecoveryKeyView,
   TwoStepAuthenticationView,
+  TotpSecretView,
   RecoveryCodesView,
   ClientsView,
   ClientDisconnectView,

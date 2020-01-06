@@ -114,10 +114,8 @@ registerSuite('oauth require totp', {
             secret = secretKey;
           })
           .end()
-
-          .then(() => {
-            return this.remote.then(confirmTotpCode(secret));
-          })
+          .then(() => this.remote.then(click(selectors.TOTP.KEY_OK_BUTTON)))
+          .then(() => this.remote.then(confirmTotpCode(secret)))
           .then(clearBrowserState({ force: true }))
           .then(
             openFxaFromRp('two-step-authentication', {

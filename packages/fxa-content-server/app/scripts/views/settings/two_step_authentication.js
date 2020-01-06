@@ -55,8 +55,10 @@ const View = FormView.extend({
   },
 
   _showCode() {
-    this.$('.manual-code').removeClass('hidden');
-    this.$('.show-code-link').addClass('hidden');
+    const secret = this.model.get('secret');
+    this.navigate('/settings/two_step_authentication/secret', {
+      secret,
+    });
   },
 
   _getFormattedCode(code) {
@@ -126,8 +128,7 @@ const View = FormView.extend({
         'alt',
         this.translate(qrImageAltText, { code: result.secret })
       );
-
-      this.$('.code').text(this._getFormattedCode(result.secret));
+      this.model.set('secret', this._getFormattedCode(result.secret));
       this._showQrCode();
       this._hideStatus();
     });
@@ -148,7 +149,7 @@ const View = FormView.extend({
 
   submit() {
     const code = this.getElementValue('input.totp-code');
-    const secret = this.$('.code').text();
+    const secret = this.model.get('secret');
 
     //preverify code
     return this.checkCode(secret, code).then(ok => {

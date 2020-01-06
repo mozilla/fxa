@@ -2484,10 +2484,8 @@ const enableTotp = thenify(function() {
       .then(secretKey => {
         secret = secretKey;
       })
-      .end()
-      .then(() => {
-        return this.parent.then(confirmTotpCode(secret));
-      })
+      .then(() => this.parent.then(click(selectors.TOTP.KEY_OK_BUTTON)))
+      .then(() => this.parent.then(confirmTotpCode(secret)))
       .then(() => secret)
   );
 });

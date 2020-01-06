@@ -148,20 +148,6 @@ describe('views/settings/two_step_authentication', () => {
         metrics.logUserPreferences.calledWith(view.className, false)
       );
     });
-
-    describe('should show code and hide `show code link`', () => {
-      beforeEach(() => {
-        assert.equal(view.$('.manual-code.hidden').length, 1);
-        assert.equal(view.$('.show-code-link:not(hidden)').length, 1);
-        return view.$('.show-code-link').click();
-      });
-
-      it('shows correct links', () => {
-        assert.equal(view.$('.code')[0].innerText, 'MZEE 4ODK');
-        assert.equal(view.$('.manual-code:not(hidden)').length, 1);
-        assert.equal(view.$('.show-code-link.hidden').length, 1);
-      });
-    });
   });
 
   describe('should display error for invalid code', () => {

@@ -69,6 +69,9 @@ const Mixin = assign({}, ModalPanelMixin, {
         }
         this._returnToTwoFactorAuthentication();
         break;
+      case 'settings/two_step_authentication/secret':
+        this._returnToTwoFactorAuthentication();
+        break;
       case 'settings/account_recovery/recovery_key':
         this._returnToAccountRecovery(true);
         break;

@@ -56,6 +56,7 @@ module.exports = function() {
     'settings/emails',
     'settings/two_step_authentication',
     'settings/two_step_authentication/recovery_codes',
+    'settings/two_step_authentication/secret',
     'signin',
     'signin_bounced',
     'signin_token_code',
