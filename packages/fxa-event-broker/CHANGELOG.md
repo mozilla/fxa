@@ -1,5 +1,9 @@
 # Change history
 
+## 1.154.0
+
+No changes.
+
 ## 1.153.0
 
 ### New features

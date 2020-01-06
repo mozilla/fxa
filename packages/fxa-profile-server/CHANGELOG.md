@@ -1,3 +1,11 @@
+## 1.154.0
+
+### Bug fixes
+
+* profile-server: fix order of npm install (7f86e81e7)
+* profile-server: revert node to 10 (0a4371212)
+* profile-server: fix graphicsmagick dep in dockerfile (162a8ca8b)
+
 ## 1.153.0
 
 ### Other changes

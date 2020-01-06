@@ -1,3 +1,13 @@
+## 1.154.0
+
+### New features
+
+* totp: Require recovery code confirmation before enabling TOTP (ae3bd5a0f)
+
+### Bug fixes
+
+* metrics: Emit the `email_confirmed` metric when user verifies a sign-in (019574c92)
+
 ## 1.153.0
 
 ### New features
