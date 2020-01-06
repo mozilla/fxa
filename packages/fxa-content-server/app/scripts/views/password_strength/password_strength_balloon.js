@@ -30,7 +30,7 @@ class PasswordStrengthBalloonView extends BaseView {
 
   initialize(config = {}) {
     this.listenTo(this.model, 'change:password', this.update);
-    this.listenTo(this.model, 'change:inputFocused', this.shouldHide);
+    this.listenTo(this.model, 'change:inputFocused', this.hideOrShow);
   }
 
   setInitialContext(context) {
@@ -51,18 +51,22 @@ class PasswordStrengthBalloonView extends BaseView {
     });
   }
 
-  shouldHide() {
+  hideOrShow() {
     if (!this.model.validationError && !this.model.get('inputFocused')) {
       return this.hide();
     }
+    // OneVisibleOfTypeMixin uses 'show' to destroy any other
+    // tooltip-like views.
+    return this.show();
   }
 
   afterRender() {
-    if (this.model.validationError) {
-      // OneVisibleOfTypeMixin uses 'show' to destroy any other
-      // tooltip-like views.
-      this.show();
-    }
+    // We want to conditionally hide after rendering because
+    // users can type an invalid password, and then type a valid
+    // password and quickly change focus to beat the debounce
+    // on the password change event. This allows the model to
+    // update but hides the balloon in that scenario. Ref #3750
+    this.hideOrShow();
   }
 
   update() {

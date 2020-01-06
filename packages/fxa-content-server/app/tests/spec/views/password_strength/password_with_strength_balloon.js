@@ -103,6 +103,16 @@ describe('views/password_strength/password_with_strength_ballon', () => {
     assert.equal(model.get('password'), 'password');
   });
 
+  it('delegates `inputFocused` to the model as expected', () => {
+    requiresFocus(() => {
+      view.$el.trigger('focus');
+      assert.equal(model.get('inputFocused'), true);
+    });
+
+    view.updateModel('blur');
+    assert.equal(model.get('inputFocused'), false);
+  });
+
   it('the element is marked as invalid if password has been entered and is invalid', () => {
     sinon.stub(view, 'markElementValid');
     sinon.stub(view, 'markElementInvalid');

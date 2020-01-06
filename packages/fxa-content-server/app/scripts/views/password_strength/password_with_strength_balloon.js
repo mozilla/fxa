@@ -22,10 +22,9 @@ const DELAY_BEFORE_UPDATE_MODEL_MS = 1000;
 
 const PasswordWithStrengthBalloonView = FormView.extend({
   events: {
-    change: 'updateModelAfterDelay',
+    blur: 'updateModelAfterDelay',
     focus: 'focusHandler',
-    keypress: 'updateModelAfterDelay',
-    blur: 'blurHandler',
+    keydown: 'updateModelAfterDelay',
   },
 
   initialize(options = {}) {
@@ -44,7 +43,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     const delayBeforeUpdateModelMS =
       options.delayBeforeUpdateModelMS || DELAY_BEFORE_UPDATE_MODEL_MS;
     this.updateModelAfterDelay = debounce(
-      () => this.updateModel(),
+      event => this.updateModel(event.type),
       delayBeforeUpdateModelMS
     );
   },
@@ -52,12 +51,6 @@ const PasswordWithStrengthBalloonView = FormView.extend({
   focusHandler() {
     this.model.set('inputFocused', true);
     this.createBalloonIfNeeded();
-  },
-
-  // Allow a `change:inputFocused` event to hide the balloon only if the user
-  // has moved focus away from the input
-  blurHandler() {
-    this.model.set('inputFocused', false);
   },
 
   createBalloonIfNeeded() {
@@ -116,8 +109,16 @@ const PasswordWithStrengthBalloonView = FormView.extend({
   /**
    * Updates the model after some sort of user action.
    */
-  updateModel() {
+  updateModel(eventType = null) {
     this.model.set('password', this.$el.val());
+
+    // `updateModelAfterDelay` debounces this method on `blur` and
+    // `keydown`. `inputFocused` should only be updated on `blur`
+    // and _after_ the model password is updated so we can check
+    // for a validation error on focus change.
+    if (eventType === 'blur') {
+      this.model.set('inputFocused', false);
+    }
   },
 
   updateStyles() {
