@@ -1,5 +1,7 @@
 .marketing-area {
-  margin-top: 20px;
+  &:not(:empty) {
+    margin-top: 20px;
+  }
 
   .links {
     // Links have `overflow: auto` by default, which causes a scrollbar to

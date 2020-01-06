@@ -117,6 +117,7 @@ const View = FormView.extend({
       secondaryEmailVerified:
         this.getSearchParam('secondary_email_verified') || null,
       showContinueButton: !!this.model.get('continueBrokerMethod'),
+      isSignedIn: this.user.isSignedInAccount(this.getSignedInAccount()),
     });
   },
 
