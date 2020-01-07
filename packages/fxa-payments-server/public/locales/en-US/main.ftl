@@ -70,3 +70,8 @@ payment-update-btn = Update
 payment-validate-name-error = Please enter your name
 payment-validate-zip-required = Zip code is required
 payment-validate-zip-short = Zip code is too short
+
+## subscription redirect
+sub-redirect-ready = Your subscription is ready
+sub-redirect-copy = Please take a moment to tell us about your experience.
+sub-redirect-skip-survey = No thanks, just take me to my product.
