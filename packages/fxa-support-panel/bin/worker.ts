@@ -7,17 +7,28 @@
  *
  * @module
  */
+import redis from 'fxa-shared/redis';
 import mozlog from 'mozlog';
 
 import Config from '../config';
 import { init, ServerEnvironment } from '../lib/server';
 
 const logger = mozlog(Config.get('logging'))('supportPanel');
+const redisConfig = Config.get('redis');
+const redisHandle = redis(
+  {
+    host: redisConfig.host,
+    port: redisConfig.port,
+    ...redisConfig.sessionTokens,
+  },
+  logger
+);
 
 async function main() {
   const server = await init(
     { ...Config.getProperties(), env: Config.get('env') as ServerEnvironment },
-    logger
+    logger,
+    redisHandle
   );
 
   try {

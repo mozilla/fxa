@@ -9,16 +9,20 @@ RUN apk add --no-cache git make gcc g++
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
-WORKDIR /app
-
 USER app
 
-COPY package.json package.json
-COPY package-lock.json package-lock.json
+COPY --chown=app:app fxa-shared ../fxa-shared
+WORKDIR /fxa-shared
+RUN npm ci
+
+WORKDIR /app
+
+COPY fxa-support-panel/package.json package.json
+COPY fxa-support-panel/package-lock.json package-lock.json
 
 RUN npm ci && rm -rf ~app/.npm /tmp/*
 
-COPY . /app
+COPY --chown=app:app fxa-support-panel /app
 RUN npm run build
 
 USER root

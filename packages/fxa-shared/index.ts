@@ -9,8 +9,10 @@ import * as amplitude from './metrics/amplitude';
 import * as scopes from './oauth/scopes';
 import * as promise from './promise';
 import * as redis from './redis';
+import * as RedisSessionToken from './redis-session-token';
 
 module.exports = {
+  RedisSessionToken,
   email: {
     popularDomains,
   },

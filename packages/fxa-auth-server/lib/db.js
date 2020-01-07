@@ -7,37 +7,7 @@
 const error = require('./error');
 const Pool = require('./pool');
 const random = require('./crypto/random');
-
-// To save space in Redis, we serialise session token updates as arrays using
-// fixed property indices, thereby not encoding any property names. The order
-// of those properties is defined here in REDIS_SESSION_TOKEN_PROPERTIES and
-// REDIS_SESSION_TOKEN_LOCATION_PROPERTIES. Note that, to maintain backwards
-// compatibility, any future changes to these constants may only append items
-// to the end of each array. There's no safe way to change the array index for
-// any property, without introducing an explicit migration process for our Redis
-// instance.
-const REDIS_SESSION_TOKEN_PROPERTIES = [
-  'lastAccessTime',
-  'location',
-  'uaBrowser',
-  'uaBrowserVersion',
-  'uaOS',
-  'uaOSVersion',
-  'uaDeviceType',
-  'uaFormFactor',
-];
-
-const REDIS_SESSION_TOKEN_LOCATION_INDEX = REDIS_SESSION_TOKEN_PROPERTIES.indexOf(
-  'location'
-);
-
-const REDIS_SESSION_TOKEN_LOCATION_PROPERTIES = [
-  'city',
-  'state',
-  'stateCode',
-  'country',
-  'countryCode',
-];
+const RedisSessionToken = require('../../fxa-shared/redis-session-token');
 
 module.exports = (config, log, Token, UnblockCode = null) => {
   const features = require('./features')(config);
@@ -608,7 +578,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         };
       }
 
-      sessionTokens = unpackTokensFromRedis(sessionTokens);
+      sessionTokens = RedisSessionToken.unpackTokensFromRedis(sessionTokens);
 
       sessionTokens[id] = {
         lastAccessTime: token.lastAccessTime,
@@ -621,7 +591,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         uaOSVersion: token.uaOSVersion,
       };
 
-      return packTokensForRedis(sessionTokens);
+      return RedisSessionToken.packTokensForRedis(sessionTokens);
     });
   };
 
@@ -688,12 +658,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         return;
       }
 
-      sessionTokens = unpackTokensFromRedis(sessionTokens);
+      sessionTokens = RedisSessionToken.unpackTokensFromRedis(sessionTokens);
 
       tokenIds.forEach(id => delete sessionTokens[id]);
 
       if (Object.keys(sessionTokens).length > 0) {
-        return packTokensForRedis(sessionTokens);
+        return RedisSessionToken.packTokensForRedis(sessionTokens);
       }
     });
   };
@@ -1569,7 +1539,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   //
   DB.prototype.safeUnpackTokensFromRedis = async function(uid, tokens) {
     try {
-      return unpackTokensFromRedis(tokens);
+      return RedisSessionToken.unpackTokensFromRedis(tokens);
     } catch (err) {
       log.error('db.unpackTokensFromRedis.error', { err: err.message });
 
@@ -1591,12 +1561,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         return;
       }
 
-      sessionTokens = unpackTokensFromRedis(sessionTokens);
+      sessionTokens = RedisSessionToken.unpackTokensFromRedis(sessionTokens);
 
       delete sessionTokens[id];
 
       if (Object.keys(sessionTokens).length > 0) {
-        return packTokensForRedis(sessionTokens);
+        return RedisSessionToken.packTokensForRedis(sessionTokens);
       }
     });
   };
@@ -1631,96 +1601,6 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       uaDeviceType: mergedInfo.uaDeviceType,
       uaFormFactor: mergedInfo.uaFormFactor,
     };
-  }
-
-  // Reduce redis memory usage by not encoding the keys. Store properties
-  // as fixed indices into arrays instead. Takes an unpacked session tokens
-  // structure as its argument, returns the packed string.
-  function packTokensForRedis(tokens) {
-    return JSON.stringify(
-      Object.keys(tokens).reduce((result, tokenId) => {
-        const unpackedToken = tokens[tokenId];
-
-        result[tokenId] = truncatePackedArray(
-          REDIS_SESSION_TOKEN_PROPERTIES.map((property, index) => {
-            const value = unpackedToken[property];
-
-            if (index === REDIS_SESSION_TOKEN_LOCATION_INDEX && value) {
-              return truncatePackedArray(
-                REDIS_SESSION_TOKEN_LOCATION_PROPERTIES.map(
-                  locationProperty => value[locationProperty]
-                )
-              );
-            }
-
-            return unpackedToken[property];
-          })
-        );
-
-        return result;
-      }, {})
-    );
-  }
-
-  // Trailing null and undefined don't need to be stored.
-  function truncatePackedArray(array) {
-    const length = array.length;
-    if (length === 0) {
-      return array;
-    }
-
-    const item = array[length - 1];
-    if (item !== null && item !== undefined) {
-      return array;
-    }
-
-    array.pop();
-
-    return truncatePackedArray(array);
-  }
-
-  // Sanely unpack both the packed and raw formats from redis. Takes a redis
-  // result as it's argument (may be null or a stringified mish mash of packed
-  // and/or unpacked stored tokens), returns the unpacked session tokens
-  // structure.
-  function unpackTokensFromRedis(tokens) {
-    if (!tokens) {
-      return {};
-    }
-
-    tokens = JSON.parse(tokens);
-
-    return Object.keys(tokens).reduce((result, tokenId) => {
-      const packedToken = tokens[tokenId];
-
-      if (Array.isArray(packedToken)) {
-        const unpackedToken = unpackToken(
-          packedToken,
-          REDIS_SESSION_TOKEN_PROPERTIES
-        );
-
-        const location = unpackedToken.location;
-        if (Array.isArray(location)) {
-          unpackedToken.location = unpackToken(
-            location,
-            REDIS_SESSION_TOKEN_LOCATION_PROPERTIES
-          );
-        }
-
-        result[tokenId] = unpackedToken;
-      } else {
-        result[tokenId] = packedToken;
-      }
-
-      return result;
-    }, {});
-  }
-
-  function unpackToken(packedToken, properties) {
-    return properties.reduce((result, property, index) => {
-      result[property] = packedToken[index];
-      return result;
-    }, {});
   }
 
   function wrapTokenNotFoundError(err) {

@@ -29,6 +29,10 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
     cd ..
     docker build -f fxa-payments-server/Dockerfile -t ${MODULE}:build .
     cd fxa-payments-server
+  elif [ "${MODULE}" == 'fxa-support-panel' ]; then
+    cd ..
+    docker build -f fxa-support-panel/Dockerfile-build -t ${MODULE}:build .
+    cd fxa-support-panel
   elif [[ -e Dockerfile ]]; then
     docker build -f Dockerfile -t ${MODULE}:build .
     # docker run --rm -it ${MODULE}:build npm ls --production

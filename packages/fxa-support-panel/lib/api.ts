@@ -10,6 +10,8 @@
 import hapi from '@hapi/hapi';
 import hapiJoi from '@hapi/joi';
 import fs from 'fs';
+import { FxaRedisClient } from 'fxa-shared/redis';
+import RedisSessionToken, { Token } from 'fxa-shared/redis-session-token';
 import handlebars from 'handlebars';
 import { Logger } from 'mozlog';
 import path from 'path';
@@ -71,13 +73,24 @@ export interface TotpTokenResponse {
 export type SupportConfig = {
   authHeader: string;
   authdbUrl: string;
+  redis: {
+    host: string;
+    port: number;
+    sessionTokens: {
+      enabled: boolean;
+      prefix: string;
+      maxConnections: number;
+      minConnections: number;
+    };
+  };
 };
 
 class SupportController {
   constructor(
     private readonly logger: Logger,
     private readonly config: SupportConfig,
-    private template: handlebars.TemplateDelegate<any>
+    private template: handlebars.TemplateDelegate<any>,
+    private readonly redis: FxaRedisClient
   ) {}
 
   public async heartbeat(request: hapi.Request, h: hapi.ResponseToolkit) {
@@ -130,6 +143,16 @@ class SupportController {
       }
     }
 
+    const tokenMetaData = await this.getTokenMetaData(uid);
+    const signinLocations = Object.entries(tokenMetaData)
+      .filter(([_, v]) => v.location)
+      .map(([_, v]) => ({
+        ...v.location,
+        lastAccessTime: v.lastAccessTime
+          ? String(new Date(v.lastAccessTime))
+          : null,
+      }));
+
     const context = {
       created: String(new Date(account.createdAt)),
       devices: devices.map(d => {
@@ -142,6 +165,7 @@ class SupportController {
       email: account.email,
       emailVerified: !!account.emailVerified,
       locale: account.locale,
+      signinLocations,
       subscriptionStatus: subscriptions.length > 0,
       twoFactorAuth: totpEnabled,
       uid,
@@ -149,13 +173,26 @@ class SupportController {
     const payload = this.template(context);
     return h.response(payload).code(200);
   }
+
+  private async getTokenMetaData(
+    uid: string
+  ): Promise<{ [id: string]: Token }> {
+    try {
+      const packedTokens = await this.redis.get(uid);
+      return RedisSessionToken.unpackTokensFromRedis(packedTokens);
+    } catch (err) {
+      this.logger.error('redis.get', { err });
+      return {};
+    }
+  }
 }
 
 /** Initialize the provided Hapi server with the support routes */
 export function init(
   logger: Logger,
   config: SupportConfig,
-  server: hapi.Server
+  server: hapi.Server,
+  redis: FxaRedisClient
 ) {
   let rootDir;
   // Check to see if we're running in a compiled form for prod/dev or testing
@@ -172,7 +209,12 @@ export function init(
   });
   const template = handlebars.compile(pageTemplate);
 
-  const supportController = new SupportController(logger, config, template);
+  const supportController = new SupportController(
+    logger,
+    config,
+    template,
+    redis
+  );
   server.bind(supportController);
 
   server.route([

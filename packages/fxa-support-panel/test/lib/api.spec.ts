@@ -4,10 +4,11 @@
 
 import hapi from '@hapi/hapi';
 import { assert as cassert } from 'chai';
+import { FxaRedisClient } from 'fxa-shared/redis';
 import 'mocha';
 import { Logger } from 'mozlog';
 import nock from 'nock';
-import { SinonSpy } from 'sinon';
+import { SinonSpy, SinonStub } from 'sinon';
 import { stubInterface } from 'ts-sinon';
 
 import {
@@ -66,6 +67,7 @@ function createDefaults(): MockCallsResponse {
 
 describe('Support Controller', () => {
   let logger: Logger;
+  let redis: FxaRedisClient;
   let server: hapi.Server;
 
   const mockCalls = (obj: MockCallsResponse) => {
@@ -85,6 +87,7 @@ describe('Support Controller', () => {
 
   beforeEach(async () => {
     logger = stubInterface<Logger>();
+    redis = stubInterface<FxaRedisClient>();
 
     server = await supportServer.init(
       {
@@ -95,8 +98,19 @@ describe('Support Controller', () => {
           host: 'localhost',
           port: 8099,
         },
+        redis: {
+          host: '127.0.0.1',
+          port: 6379,
+          sessionTokens: {
+            enabled: false,
+            maxConnections: 1,
+            minConnections: 1,
+            prefix: 'tests',
+          },
+        },
       },
-      logger
+      logger,
+      redis
     );
     await server.start();
   });
@@ -261,5 +275,66 @@ describe('Support Controller', () => {
       url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 500);
+  });
+
+  describe('uses signin locations', () => {
+    describe('when there are no signin locations', () => {
+      it('does not display a signin location row', async () => {
+        (redis.get as SinonStub).resolves(JSON.stringify({}));
+        const defaults = createDefaults();
+        mockCalls(defaults);
+        const result = await server.inject({
+          method: 'GET',
+          url: `/?uid=${uid}`,
+        });
+        cassert.equal(result.statusCode, 200);
+        const payloadMatch = result.payload.match(/Signin Location/);
+        cassert.isNull(payloadMatch);
+      });
+    });
+
+    describe('when there are signin locations', () => {
+      it('displays a row per location', async () => {
+        (redis.get as SinonStub).resolves(
+          JSON.stringify({
+            quux: {
+              lastAccessTime: 1578414423827,
+              location: {
+                city: 'Heapolandia',
+                country: 'United Devices of von Neumann',
+                countryCode: 'UVN',
+                state: 'Memory Palace',
+                stateCode: 'MP',
+              },
+            },
+            quuz: {
+              lastAccessTime: 1578498222026,
+              location: {
+                city: 'Boring',
+                country: 'United States',
+                countryCode: 'US',
+                state: 'Oregon',
+                stateCode: 'OR',
+              },
+            },
+            wibble: { no: 'location' },
+          })
+        );
+
+        const defaults = createDefaults();
+        mockCalls(defaults);
+        const result = await server.inject({
+          method: 'GET',
+          url: `/?uid=${uid}`,
+        });
+        cassert.equal(result.statusCode, 200);
+        const tableHeadingMatch = result.payload.match(/Signin Location/g);
+        cassert.equal(tableHeadingMatch?.length, 2);
+        const locationsMatch = result.payload.match(
+          /Heapolandia, MP|Boring, OR/g
+        );
+        cassert.equal(locationsMatch?.length, 2);
+      });
+    });
   });
 });

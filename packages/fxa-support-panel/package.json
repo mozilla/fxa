@@ -35,6 +35,7 @@
     "@hapi/scooter": "^5.1.1",
     "blankie": "^4.1.1",
     "convict": "^5.2.0",
+    "fxa-shared": "file:../fxa-shared",
     "handlebars": "^4.5.2",
     "mozlog": "2.2.0",
     "raven": "2.6.4",

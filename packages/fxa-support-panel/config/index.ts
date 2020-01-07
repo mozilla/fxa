@@ -27,7 +27,7 @@ const conf = convict({
   },
   listen: {
     host: {
-      default: '127.0.0.1',
+      default: '0.0.0.0',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
       format: 'ipaddress',
@@ -64,6 +64,46 @@ const conf = convict({
       format: {
         default: 'default_fxa',
         format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
+      },
+    },
+  },
+  redis: {
+    host: {
+      default: '127.0.0.1',
+      doc: 'IP address or host name for Redis server',
+      env: 'REDIS_HOST',
+      format: String,
+    },
+    port: {
+      default: 6379,
+      doc: 'Port for Redis server',
+      env: 'REDIS_PORT',
+      format: 'port',
+    },
+    sessionTokens: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for session tokens',
+        env: 'USE_REDIS',
+        format: Boolean,
+      },
+      maxConnections: {
+        default: 20,
+        doc: 'Maximum connection count for the session token Redis pool',
+        env: 'REDIS_POOL_MAX_CONNECTIONS',
+        format: 'int',
+      },
+      minConnections: {
+        default: 1,
+        doc: 'Minimum connection count for the session token Redis pool',
+        env: 'REDIS_POOL_MIN_CONNECTIONS',
+        format: 'int',
+      },
+      prefix: {
+        default: 'fxa-auth-session',
+        doc: 'Key prefix for session tokens in Redis',
+        env: 'SESSIONS_REDIS_KEY_PREFIX',
+        format: String,
       },
     },
   },

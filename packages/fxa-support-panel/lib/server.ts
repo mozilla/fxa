@@ -13,6 +13,7 @@ import Blankie from 'blankie';
 import { Logger } from 'mozlog';
 import Config from '../config';
 
+import { FxaRedisClient } from 'fxa-shared/redis';
 import * as api from './api';
 
 export type ServerEnvironment = 'production' | 'stage' | 'development';
@@ -27,7 +28,8 @@ export type ServerConfig = api.SupportConfig & {
 
 export async function init(
   serverConfig: ServerConfig,
-  logger: Logger
+  logger: Logger,
+  redis: FxaRedisClient
 ): Promise<hapi.Server> {
   const server = new hapi.Server({
     debug: serverConfig.env === 'production' ? false : { request: ['error'] },
@@ -53,7 +55,7 @@ export async function init(
     },
   ]);
 
-  api.init(logger, serverConfig, server);
+  api.init(logger, serverConfig, server, redis);
 
   return server;
 }

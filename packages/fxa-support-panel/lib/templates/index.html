@@ -26,6 +26,14 @@
         <th>Locale:</th>
         <td>{{locale}}</td>
       </tr>
+      {{#signinLocations}}
+      <tr>
+        <th>Signin Location:</th>
+        <td>
+          {{city}}, {{stateCode}}, {{countryCode}} on {{lastAccessTime}}
+        </td>
+      </tr>
+      {{/signinLocations}}
       {{#devices}}
       <tr>
         <th>Device:</th>
