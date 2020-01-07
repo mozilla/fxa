@@ -12,6 +12,7 @@ This log lists the architectural decisions for [project name].
 - [ADR-0005](0005-minimize-password-entry.md) - Minimizing password entry
 - [ADR-0006](0006-json-schemas-for-messaging.md) - Utilizing JSON-Schemas, SemVer, and Tooling for JSON Messaging
 - [ADR-0007](0007-subscription-claim-jwt-access-token.md) - Placing subscription info in the `fxa-subscriptions` claim of JWT access tokens
+- [ADR-0008](0008-redis-lua-scripts.md) - Using lua for Redis transactions
 
 <!-- adrlogstop -->
 
