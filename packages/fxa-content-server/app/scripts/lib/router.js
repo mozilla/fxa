@@ -53,6 +53,7 @@ import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
+import TotpSecretView from '../views/settings/totp_secret';
 import TwoStepAuthenticationView from '../views/settings/two_step_authentication';
 import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
@@ -232,6 +233,10 @@ const Router = Backbone.Router.extend({
     ),
     'settings/two_step_authentication/recovery_codes(/)': createChildViewHandler(
       RecoveryCodesView,
+      SettingsView
+    ),
+    'settings/two_step_authentication/secret(/)': createChildViewHandler(
+      TotpSecretView,
       SettingsView
     ),
     'signin(/)': createViewHandler(SignInPasswordView),

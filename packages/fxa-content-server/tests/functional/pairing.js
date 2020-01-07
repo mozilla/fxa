@@ -181,7 +181,9 @@ registerSuite('pairing', {
           .getVisibleText()
           .then(secretKey => {
             secret = secretKey;
-
+          })
+          .then(() => this.remote.then(click(selectors.TOTP.KEY_OK_BUTTON)))
+          .then(() => {
             return this.remote.then(confirmTotpCode(secret));
           })
           .end()

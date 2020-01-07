@@ -71,11 +71,6 @@
                     <a href="#" class="show-code-link">{{#t}}Can’t scan code?{{/t}}</a>
                 </p>
 
-                <div class="manual-code hidden">
-                    <p class="setup-description">{{#t}}Manually enter this secret key into your authentication app:{{/t}}</p>
-                    <div class="code"></div>
-                </div>
-
                 <div class="input-row">
                     <input type="number" pattern="\d+" length="6" class="tooltip-below totp-code" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus autocomplete="off"/>
                 </div>

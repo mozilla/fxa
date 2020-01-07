@@ -572,6 +572,7 @@ registerSuite('oauth signin - TOTP', {
           secret = secretKey;
         })
         .end()
+        .then(() => this.remote.then(click(selectors.TOTP.KEY_OK_BUTTON)))
     );
   },
 

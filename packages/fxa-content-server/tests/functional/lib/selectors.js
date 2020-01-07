@@ -507,6 +507,7 @@ module.exports = {
     UNLOCK_REFRESH_BUTTON:
       '.two-step-authentication .refresh-verification-state',
     UNLOCK_SEND_VERIFY: '.two-step-authentication .send-verification-email',
+    KEY_OK_BUTTON: '.modal-panel button',
   },
   TOTP_SIGNIN: {
     HEADER: '#fxa-totp-code-header',
