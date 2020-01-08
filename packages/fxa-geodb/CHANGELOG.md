@@ -1,5 +1,11 @@
 # Change history
 
+## 1.154.0
+
+### Bug fixes
+
+* tests: Temporary use fxa hosted cities db to get tests working (2c480cf13)
+
 ## 1.153.0
 
 ### Other changes

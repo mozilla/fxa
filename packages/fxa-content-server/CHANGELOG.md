@@ -1,3 +1,28 @@
+## 1.154.0
+
+### New features
+
+* emails: Add post verify secondary emails view (778ea8ed1)
+* ready-view: Display serviceName if user is signed in (1b1c30935)
+* totp: Require recovery code confirmation before enabling TOTP (ae3bd5a0f)
+
+### Bug fixes
+
+* password-balloon: Display balloon on backspace by changing 'keypress' to 'keydown' (3a62f3829)
+* password-balloon: Hide balloon when user enters invalid password, then valid password, then changes focus (8853f3324)
+* content-server: separate client and server sentry dsn (a2f83435c)
+* css: Add privacy links to sign-in page (0375fc2b3)
+* css: improve line-height of input placeholders in webkit browsers (456afe420)
+
+### Refactorings
+
+* settings: change most actions in 2fa, recovery, and avatar modals from anchors to buttons (18d6ea409)
+
+### Other changes
+
+* totp: updated recovery code style (6a4ad386f)
+* tests: Remove vesitigial reference to `serviceUri` in tests. (66be609a8)
+
 ## 1.153.0
 
 ### New features
