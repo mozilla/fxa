@@ -8,7 +8,7 @@ function inject(server, options) {
   var s = through();
   s.setEncoding = function() {};
   server.inject(options, function(res) {
-    res.raw.res.output.slice(1).forEach(function(chunk) {
+    res.raw.res.outputData.slice(1).forEach(function(chunk) {
       s.write(chunk, 'utf8');
     });
     s.end();
