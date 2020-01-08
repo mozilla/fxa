@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Localized } from 'fluent-react';
 import DocumentTitle from 'react-document-title';
 
-import AppLocalizationProvider from './lib/l10n';
+import AppLocalizationProvider from './lib/AppLocalizationProvider';
 import SentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
 import { Config, config } from './lib/config';

@@ -1,6 +1,6 @@
 {
   "extends": [
-    "plugin:fxa/client",
+    "plugin:fxa/client"
   ],
   "plugins": ["fxa", "react"],
   "rules": {
