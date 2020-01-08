@@ -5,18 +5,23 @@
 /**
  * Post verify view that start the process of creating a secondary email via a code.
  */
-import _ from 'underscore';
+import { _, assign } from 'underscore';
 import Cocktail from 'cocktail';
 import FormView from '../../form';
 import ServiceMixin from '../..//mixins/service-mixin';
 import Template from 'templates/post_verify/secondary_email/add_secondary_email.mustache';
 import VerificationMethods from '../../../lib/verification-methods';
+import preventDefaultThen from '../../decorators/prevent_default_then';
 
 const EMAIL_INPUT_SELECTOR = 'input.new-email';
 
 class AddSecondaryEmail extends FormView {
   template = Template;
   viewName = 'add-secondary-email';
+
+  events = assign(this.events, {
+    'click #maybe-later-btn': preventDefaultThen('_clickMaybeLater'),
+  });
 
   beforeRender() {
     const account = this.getSignedInAccount();
@@ -53,6 +58,12 @@ class AddSecondaryEmail extends FormView {
       .catch(err =>
         this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err)
       );
+  }
+
+  _clickMaybeLater() {
+    const account = this.getSignedInAccount();
+    account.unset('verificationReason');
+    return this.invokeBrokerMethod('afterCompleteSignUp', account);
   }
 }
 

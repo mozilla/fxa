@@ -19,6 +19,7 @@
 import ExperimentMixin from './experiment-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import VerificationReasonMixin from './verification-reason-mixin';
+import VerificationReasons from '../../lib/verification-reasons';
 
 const REASON_ANDROID = 'sms.ineligible.android';
 const REASON_CONTROL_GROUP = 'sms.ineligible.control_group';
@@ -31,6 +32,22 @@ const REASON_XHR_ERROR = 'sms.ineligible.xhr_error';
 
 export default {
   dependsOn: [ExperimentMixin, UserAgentMixin, VerificationReasonMixin],
+
+  /**
+   * Is `account` eligible for secondary email after signup experiment?
+   *
+   * @returns {Boolean}
+   */
+  isEligibleForSecondaryEmailAfterSignup() {
+    const account = this.getSignedInAccount();
+    if (account.get('verificationReason') !== VerificationReasons.SIGN_UP) {
+      return false;
+    }
+    const experimentGroup = this.getAndReportExperimentGroup(
+      'secondaryEmailAfterSignup'
+    );
+    return experimentGroup === 'treatment';
+  },
 
   /**
    * Is `account` eligible for connect another device?

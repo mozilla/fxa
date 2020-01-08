@@ -43,13 +43,9 @@ class Verified extends FormView {
   submit() {
     return Promise.resolve()
       .then(() => {
-        const { account, continueBrokerMethod } = this.model.toJSON();
-        console.log(account, continueBrokerMethod);
-        if (continueBrokerMethod && account) {
-          return this.invokeBrokerMethod(continueBrokerMethod, account);
-        }
-
-        this.navigate('/settings');
+        const account = this.getSignedInAccount();
+        account.unset('verificationReason');
+        return this.invokeBrokerMethod('afterCompleteSignUp', account);
       })
       .catch(err => this.displayError(err));
   }

@@ -31,6 +31,14 @@ class ConnectAnotherDeviceView extends FormView {
   template = Template;
 
   beforeRender() {
+    // If the user is eligible for post verify add secondary email experiment, navigate to
+    // those views.
+    if (this.isEligibleForSecondaryEmailAfterSignup()) {
+      return this.replaceCurrentPage(
+        'post_verify/secondary_email/add_secondary_email'
+      );
+    }
+
     const account = this.getAccount();
     // If the user is eligible for SMS, send them to the SMS screen.
     // This allows the browser to link directly to /connect_another_device
