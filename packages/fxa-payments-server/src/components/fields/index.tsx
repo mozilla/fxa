@@ -6,10 +6,11 @@ import React, {
   DetailedHTMLProps,
   FormHTMLAttributes,
 } from 'react';
+import { withLocalization } from 'fluent-react';
 import { ReactStripeElements } from 'react-stripe-elements';
 import classNames from 'classnames';
-import { Validator, FieldType } from '../lib/validator';
-import Tooltip from './Tooltip';
+import { Validator, FieldType } from '../../lib/validator';
+import Tooltip from '../Tooltip';
 
 export type FormContextValue = { validator: Validator };
 export const FormContext = React.createContext<FormContextValue | null>(null);
@@ -111,7 +112,10 @@ export type OnValidateFunction = (
   getString?: Function
 ) => { value: any; valid: boolean | undefined; error: any };
 
-type InputProps = { onValidate?: OnValidateFunction } & FieldProps &
+type InputProps = {
+  onValidate?: OnValidateFunction;
+  getString?: Function;
+} & FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
@@ -120,19 +124,21 @@ type InputProps = { onValidate?: OnValidateFunction } & FieldProps &
 export const defaultInputValidator: OnValidateFunction = (
   value,
   focused,
-  props
+  props,
+  getString
 ) => {
   if (props.required && value !== null && !value) {
+    const errorMsg = getString ? getString('default-input-error') : 'This field is required';
     return {
       value,
       valid: false,
-      error: focused ? null : 'This field is required',
+      error: focused ? null : errorMsg,
     };
   }
   return { value, valid: true, error: null };
 };
 
-export const Input = (props: InputProps) => {
+const UnwrappedInput = (props: InputProps) => {
   const {
     name,
     label,
@@ -142,6 +148,7 @@ export const Input = (props: InputProps) => {
     autoFocus,
     required = false,
     className,
+    getString,
     ...childProps
   } = props;
 
@@ -152,10 +159,10 @@ export const Input = (props: InputProps) => {
       const { value } = ev.target;
       validator.updateField({
         name,
-        ...onValidate(value, true, props),
+        ...onValidate(value, true, props, getString),
       });
     },
-    [name, props, validator, onValidate]
+    [name, props, validator, onValidate, getString]
   );
 
   const onBlur = useCallback(
@@ -163,10 +170,10 @@ export const Input = (props: InputProps) => {
       const { value } = ev.target;
       validator.updateField({
         name,
-        ...onValidate(value, false, props),
+        ...onValidate(value, false, props, getString),
       });
     },
-    [name, props, validator, onValidate]
+    [name, props, validator, onValidate, getString]
   );
 
   const tooltipParentRef = useRef<HTMLInputElement>(null);
@@ -200,6 +207,8 @@ export const Input = (props: InputProps) => {
     </Field>
   );
 };
+
+export const Input = withLocalization(UnwrappedInput);
 
 type StripeElementProps = { onValidate?: OnValidateFunction } & FieldProps & {
     component: any;

@@ -75,3 +75,6 @@ payment-validate-zip-short = Zip code is too short
 sub-redirect-ready = Your subscription is ready
 sub-redirect-copy = Please take a moment to tell us about your experience.
 sub-redirect-skip-survey = No thanks, just take me to my product.
+
+## fields
+default-input-error = This field is required

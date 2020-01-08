@@ -11,13 +11,14 @@ import {
   StripeElement,
   SubmitButton,
   Checkbox,
-} from './fields';
+  defaultInputValidator,
+} from './index';
 import {
   useValidatorState,
   Validator,
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
-} from '../lib/validator';
+} from '../../lib/validator';
 
 afterEach(cleanup);
 
@@ -158,6 +159,26 @@ describe('Field', () => {
   });
 });
 
+describe('defaultInputValidator', () => {
+  it('returns correct string when not provided `getString` prop', () => {
+    const focused = false;
+    const props = {name: 'my-field', required: true};
+
+    expect(defaultInputValidator(
+      '',
+      focused,
+      props,
+      (id: any) => id,
+    ).error).toEqual('default-input-error');
+
+    expect(defaultInputValidator(
+      '',
+      focused,
+      props,
+    ).error).toEqual('This field is required');
+  });
+});
+
 describe('Input', () => {
   it('considers an optional field without onValidate as always valid', () => {
     const validatorStateRef = mkValidatorStateRef();
@@ -204,14 +225,14 @@ describe('Input', () => {
           required: true,
           value: '',
           valid: false,
-          error: 'This field is required',
+          error: 'default-input-error',
         },
         'input-2': {
           fieldType: 'input',
           required: true,
           value: '',
           valid: false,
-          error: 'This field is required',
+          error: 'default-input-error',
         },
       },
     });
