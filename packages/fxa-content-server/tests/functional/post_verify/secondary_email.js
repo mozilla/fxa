@@ -91,6 +91,23 @@ registerSuite('post_verify_secondary_email', {
       );
     },
 
+    'ignore for sign-in': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openPage(ENTER_EMAIL_SYNC_URL, selectors.ENTER_EMAIL.HEADER, {
+            query: {
+              forceExperiment: 'secondaryEmailAfterSignup',
+              forceExperimentGroup: 'treatment',
+            },
+          })
+        )
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testIsBrowserNotified('fxaccounts:can_link_account'))
+        .then(testIsBrowserNotified('fxaccounts:login'))
+        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+    },
+
     'navigate directly to create secondary email': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
