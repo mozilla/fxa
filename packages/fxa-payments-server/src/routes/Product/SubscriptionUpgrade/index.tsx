@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
+import { Localized } from 'fluent-react';
 
 import {
   Plan,
@@ -97,7 +98,9 @@ export const SubscriptionUpgrade = ({
           className="dialog-error"
           onDismiss={resetUpdateSubscriptionPlan}
         >
-          <h4 data-testid="error-plan-update-failed">Plan update failed</h4>
+          <Localized id="sub-update-failed">
+            <h4 data-testid="error-plan-update-failed">Plan update failed</h4>
+          </Localized>
           <p>{updateSubscriptionPlanStatus.error.message}</p>
         </DialogMessage>
       )}
@@ -133,26 +136,43 @@ export const SubscriptionUpgrade = ({
         {...{ validator, onSubmit }}
       >
         <h3 className="billing-title">
-          <span className="title">Billing Information</span>
+          <Localized id="sub-update-title">
+            <span className="title">Billing Information</span>
+          </Localized>
 
           <span className="card-details">
             {/* TODO: we don't have data from subhub to determine card icon
                 https://github.com/mozilla/fxa/issues/3037
               <span className="icon">&nbsp;</span>
             */}
-            <span className="last4">Card Ending {cardLast4}</span>
-            <span className="expires">
-              Expires {cardExpMonth}/{cardExpYear}
-            </span>
+            <Localized id="sub-update-card-ending" $last={cardLast4}>
+              <span className="last">Card Ending {cardLast4}</span>
+            </Localized>
+            <Localized
+              id="sub-update-card-exp"
+              $cardExpMonth={cardExpMonth}
+              $cardExpYear={cardExpYear}
+            >
+              <span className="expires">
+                Expires {cardExpMonth}/{cardExpYear}
+              </span>
+            </Localized>
           </span>
         </h3>
 
-        <p>
-          Your plan will change immediately, and you’ll be charged an adjusted
-          amount for the rest of your billing cycle. Starting{' '}
-          {formatPeriodEndDate(upgradeFromSubscription.current_period_end)}{' '}
-          you’ll be charged the full amount.
-        </p>
+        <Localized
+          id="sub-update-copy"
+          $startingDate={formatPeriodEndDate(
+            upgradeFromSubscription.current_period_end
+          )}
+        >
+          <p>
+            Your plan will change immediately, and you’ll be charged an adjusted
+            amount for the rest of your billing cycle. Starting{' '}
+            {formatPeriodEndDate(upgradeFromSubscription.current_period_end)}{' '}
+            you’ll be charged the full amount.
+          </p>
+        </Localized>
 
         <Checkbox
           data-testid="confirm"
@@ -160,15 +180,24 @@ export const SubscriptionUpgrade = ({
           onClick={engageOnce}
           required
         >
-          I authorize Mozilla, maker of Firefox products, to charge my payment
-          method{' '}
-          <strong>
-            $
-            {`${formatCurrencyInCents(selectedPlan.amount)}/${
-              selectedPlan.interval
-            }`}
-          </strong>
-          , according to payment terms, until I cancel my subscription.
+          <Localized
+            id="sub-update-confirm"
+            strong={<strong></strong>}
+            $amount={formatCurrencyInCents(selectedPlan.amount)}
+            $interval={selectedPlan.interval}
+          >
+            <p>
+              I authorize Mozilla, maker of Firefox products, to charge my
+              payment method{' '}
+              <strong>
+                $
+                {`${formatCurrencyInCents(selectedPlan.amount)}/${
+                  selectedPlan.interval
+                }`}
+              </strong>
+              , according to payment terms, until I cancel my subscription.
+            </p>
+          </Localized>
         </Checkbox>
 
         <div className="button-row">
@@ -182,7 +211,9 @@ export const SubscriptionUpgrade = ({
                 &nbsp;
               </span>
             ) : (
-              <span>Change Plans</span>
+              <Localized id="sub-update-submit">
+                <span>Change Plans</span>
+              </Localized>
             )}
           </SubmitButton>
         </div>

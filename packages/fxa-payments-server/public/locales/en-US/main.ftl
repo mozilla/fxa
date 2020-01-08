@@ -78,3 +78,18 @@ sub-redirect-skip-survey = No thanks, just take me to my product.
 
 ## fields
 default-input-error = This field is required
+
+## subscription upgrade
+sub-update-failed = Plan update failed
+sub-update-title = Billing Information
+sub-update-card-ending = Card Ending { $last }
+sub-update-card-exp = Expires { $cardExpMonth }/{ $cardExpYear }
+sub-update-copy =
+    Your plan will change immediately, and you’ll be charged an adjusted
+    amount for the rest of your billing cycle. Starting { $startingDate }
+    you’ll be charged the full amount.
+sub-update-confirm =
+    I authorize Mozilla, maker of Firefox products, to charge my payment
+    <strong>${ $amount }/{ $interval }</strong>
+    , according to payment terms, until I cancel my subscription.
+sub-update-submit = Change Plans
