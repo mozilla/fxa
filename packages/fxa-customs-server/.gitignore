@@ -1,4 +1,0 @@
-coverage.html
-node_modules
-.nyc_output
-test/mocks/temp.netset

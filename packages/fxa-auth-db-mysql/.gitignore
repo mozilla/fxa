@@ -1,9 +1,0 @@
-config/dev.js
-db-server/node_modules
-node_modules/
-sandbox/
-coverage.html
-.nyc_output
-*.log
-*.swp
-*~
