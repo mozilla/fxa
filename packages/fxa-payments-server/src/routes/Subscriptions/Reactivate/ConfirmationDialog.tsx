@@ -1,4 +1,5 @@
 import React from 'react';
+import { Localized } from 'fluent-react';
 import { formatCurrencyInCents } from '../../../lib/formats';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
@@ -30,21 +31,33 @@ export default ({
         height="48"
         width="48"
       />
-      <h4>Want to keep using {plan.product_name}?</h4>
+      <Localized id="reactivate-confirm-dialog-header">
+        <h4>Want to keep using {plan.product_name}?</h4>
+      </Localized>
       {/* TO DO: display card type, IE 'to the Visa card ending...' */}
-      <p>
-        Your access to {plan.product_name} will continue, and your billing cycle
-        and payment will stay the same. Your next charge will be $
-        {formatCurrencyInCents(plan.amount)} to the card ending in {last4} on{' '}
-        {periodEndDate}.
-      </p>
+      <Localized
+        id="reactivate-confirm-copy"
+        $name={plan.product_name}
+        $amount={formatCurrencyInCents(plan.amount)}
+        $last={last4}
+        $endDate={periodEndDate}
+      >
+        <p>
+          Your access to {plan.product_name} will continue, and your billing
+          cycle and payment will stay the same. Your next charge will be $
+          {formatCurrencyInCents(plan.amount)} to the card ending in {last4} on{' '}
+          {periodEndDate}.
+        </p>
+      </Localized>
       <div className="action">
         <button
           className="settings-button"
           onClick={onConfirm}
           data-testid="reactivate-subscription-confirm-button"
         >
-          <span className="change-button">Resubscribe</span>
+          <Localized id="reactivate-confirm-button">
+            <span className="change-button">Resubscribe</span>
+          </Localized>
         </button>
       </div>
     </DialogMessage>

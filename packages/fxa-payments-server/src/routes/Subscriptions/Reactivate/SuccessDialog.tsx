@@ -3,6 +3,7 @@ import { Plan } from '../../../store/types';
 import { metadataFromPlan } from '../../../store/utils';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
+import { Localized } from 'fluent-react';
 
 export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
   const { product_name: productName } = plan;
@@ -22,14 +23,16 @@ export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
         data-testid="reactivate-subscription-success"
         className="reactivate-subscription-success"
       >
-        Thanks! You're all set.
+        <Localized id="reactivate-success-copy">
+          Thanks! You're all set.
+        </Localized>
       </p>
       <button
         className="settings-button"
         onClick={onDismiss}
         data-testid="reactivate-subscription-success-button"
       >
-        Close
+        <Localized id="reactivate-success-button">Close</Localized>
       </button>
     </DialogMessage>
   );

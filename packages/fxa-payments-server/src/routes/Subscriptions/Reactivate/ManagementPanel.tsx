@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { Localized } from 'fluent-react';
 import {
   Plan,
   CustomerSubscription,
@@ -63,14 +64,23 @@ export default ({
         <div className="with-settings-button">
           <div className="subscription-cancelled-details">
             {cancelledAtDate && (
-              <p data-testid="subscription-cancelled-date">
-                You cancelled your subscription on {cancelledAtDate}.
-              </p>
+              <Localized id="reactivate-panel-date" $date={cancelledAtDate}>
+                <p data-testid="subscription-cancelled-date">
+                  You cancelled your subscription on {cancelledAtDate}.
+                </p>
+              </Localized>
             )}
-            <p>
-              You will lose access to {plan.product_name} on{' '}
-              <strong>{periodEndDate}</strong>.
-            </p>
+            <Localized
+              id="reactivate-panel-copy"
+              $name={plan.product_name}
+              $date={periodEndDate}
+              strong={<strong></strong>}
+            >
+              <p>
+                You will lose access to {plan.product_name} on{' '}
+                <strong>{periodEndDate}</strong>.
+              </p>
+            </Localized>
           </div>
           <div className="action">
             <button
@@ -78,7 +88,9 @@ export default ({
               onClick={revealReactivateConfirmation}
               data-testid="reactivate-subscription-button"
             >
-              <span className="change-button">Resubscribe</span>
+              <Localized id="reactivate-confirm-button">
+                <span className="change-button">Resubscribe</span>
+              </Localized>
             </button>
           </div>
         </div>
