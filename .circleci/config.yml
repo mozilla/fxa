@@ -201,7 +201,7 @@ jobs:
           at: ~/
       - run: |
           ./scripts/test_with_authdb.sh
-          cargo audit
+          cargo audit --ignore RUSTSEC-2019-0033 --ignore RUSTSEC-2018-0015 --ignore RUSTSEC-2019-0034
           mkdir -m 755 bin
           mkdir -m 755 bin/config
           cargo build --release
