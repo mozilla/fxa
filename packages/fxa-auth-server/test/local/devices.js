@@ -475,18 +475,6 @@ describe('lib/devices:', () => {
               'is_placeholder was correct'
             );
 
-            assert.equal(log.info.callCount, 2);
-            assert.equal(log.info.args[1].length, 2);
-            assert.equal(log.info.args[1][0], 'device:createPlaceholder');
-            assert.deepEqual(
-              log.info.args[1][1],
-              {
-                uid: credentials.uid,
-                id: result.id,
-              },
-              'argument was event data'
-            );
-
             assert.equal(
               log.notifyAttachedServices.callCount,
               1,
@@ -741,18 +729,6 @@ describe('lib/devices:', () => {
               log.activityEvent.args[0][0].is_placeholder,
               true,
               'is_placeholder was correct'
-            );
-
-            assert.equal(log.info.callCount, 2);
-            assert.equal(log.info.args[1].length, 2);
-            assert.equal(log.info.args[1][0], 'device:createPlaceholder');
-            assert.deepEqual(
-              log.info.args[1][1],
-              {
-                uid: credentials.uid,
-                id: result.id,
-              },
-              'argument was event data'
             );
 
             assert.equal(

@@ -99,9 +99,6 @@ describe('bounce messages', () => {
         assert.equal(mockDB.deleteAccount.callCount, 2);
         assert.equal(mockDB.accountRecord.args[0][0], 'test@example.com');
         assert.equal(mockDB.accountRecord.args[1][0], 'foobar@example.com');
-        assert.equal(log.info.callCount, 7);
-        assert.equal(log.info.args[6][0], 'accountDeleted');
-        assert.equal(log.info.args[6][1].email, 'foobar@example.com');
         assert.equal(mockMsg.del.callCount, 1);
       });
   });

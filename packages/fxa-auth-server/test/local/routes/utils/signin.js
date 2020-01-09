@@ -589,9 +589,6 @@ describe('checkCustomsAndLoadAccount', () => {
           'account.login.invalidUnblockCode'
         );
 
-        assert.equal(log.info.callCount, 2);
-        assert.equal(log.info.args[1][0], 'Account.login.unblockCode.expired');
-
         assert.calledOnce(customs.flag);
         assert.calledWithExactly(customs.flag, CLIENT_ADDRESS, {
           email: TEST_EMAIL,
