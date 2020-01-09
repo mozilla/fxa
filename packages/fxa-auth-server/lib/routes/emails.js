@@ -9,9 +9,43 @@ const emailUtils = require('./utils/email');
 const error = require('../error');
 const isA = require('joi');
 const random = require('../crypto/random');
+const Sentry = require('@sentry/node');
 const validators = require('./validators');
 
 const HEX_STRING = validators.HEX_STRING;
+
+async function updateZendeskPrimaryEmail(
+  zendeskClient,
+  uid,
+  currentPrimaryEmail,
+  newPrimaryEmail
+) {
+  const { result: searchResult } = await zendeskClient.searchQueryAll(
+    `type:user user_id:${uid}`
+  );
+  const zenUser = searchResult.find(user => user.email === currentPrimaryEmail);
+  if (!zenUser) {
+    return;
+  }
+  const { result: identityResult } = await zendeskClient.listIdentities(
+    zenUser.id
+  );
+  const primaryIdentity = identityResult.find(
+    identity =>
+      identity.type === 'email' &&
+      identity.primary &&
+      identity.value !== newPrimaryEmail
+  );
+  if (!primaryIdentity) {
+    return;
+  }
+  return zendeskClient.updateIdentity(zenUser.id, primaryIdentity.id, {
+    identity: {
+      verified: true,
+      value: newPrimaryEmail,
+    },
+  });
+}
 
 module.exports = (
   log,
@@ -21,7 +55,8 @@ module.exports = (
   customs,
   push,
   verificationReminders,
-  signupUtils
+  signupUtils,
+  zendeskClient
 ) => {
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
@@ -778,6 +813,27 @@ module.exports = (
             email: email,
           });
 
+          // Fire off intentionally without waiting for all the network requests
+          // required to update Zendesk. Capture enough to manually update Zendesk
+          // if needed.
+          updateZendeskPrimaryEmail(
+            zendeskClient,
+            uid,
+            primaryEmail,
+            secondaryEmail.normalizedEmail
+          ).catch(err => {
+            // While we typically do not want to capture PII in Sentry, in this
+            // case we must record enough data for us to file a bug with Support
+            // to update Zendesk so that this users' email matches their new primary.
+            Sentry.withScope(scope => {
+              scope.setContext('primaryEmailChange', {
+                originalEmail: primaryEmail,
+                newEmail: secondaryEmail.normalizedEmail,
+              });
+              Sentry.captureException(err);
+            });
+          });
+
           const account = await db.account(uid);
 
           await mailer.sendPostChangePrimaryEmail(account.emails, account, {
@@ -944,3 +1000,5 @@ module.exports = (
     },
   ];
 };
+
+module.exports.updateZendeskPrimaryEmail = updateZendeskPrimaryEmail;
