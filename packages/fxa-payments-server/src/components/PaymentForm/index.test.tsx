@@ -249,6 +249,26 @@ it('does not call stripe.createToken if somehow submitted with invalid fields', 
     plan: MOCK_PLAN,
     onPayment,
     stripe,
+    onChange: () => {},
+  });
+  // The user shouldn't be able to click a disabled submit button...
+  const submitButton = getByTestId('submit');
+  expect(submitButton).toHaveAttribute('disabled');
+  // ...but let's force the form to submit and assert nothing happens.
+  fireEvent.submit(getByTestId('paymentForm'));
+  expect(stripe.createToken).not.toHaveBeenCalled();
+});
+
+it('does not call stripe.createToken if somehow submitted while in progress', async () => {
+  const stripe: PaymentFormStripeProps = {
+    createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
+  };
+  const onPayment = jest.fn();
+  let { getByTestId } = renderWithValidFields({
+    inProgress: true,
+    onPayment,
+    stripe,
+    onChange: () => {},
   });
   // The user shouldn't be able to click a disabled submit button...
   const submitButton = getByTestId('submit');
