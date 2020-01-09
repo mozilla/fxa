@@ -18,7 +18,7 @@ module.exports = [
   'tests/server/metrics-unit.js',
   'tests/server/noindex.js',
   'tests/server/configuration.js',
-  'tests/server/raven.js',
+  'tests/server/sentry.js',
   'tests/server/routes/get-apple-app-site-association.js',
   'tests/server/routes/get-config.js',
   'tests/server/routes/get-frontend-pairing.js',

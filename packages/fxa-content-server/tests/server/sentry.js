@@ -3,19 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
-const raven = require('../../server/lib/raven');
+const sentry = require('../../server/lib/sentry');
 
 var suite = {
   tests: {},
 };
 
 suite.tests['exports correctly'] = function() {
-  assert.ok(raven.ravenModule);
-  assert.ok(raven._middlewareConfig);
+  assert.ok(sentry.sentryModule);
+  assert.ok(sentry._eventFilter);
 };
 
-suite.tests['middlewareConfig'] = function() {
-  var config = raven._middlewareConfig;
+suite.tests['eventFilter'] = function() {
   var badUrl =
     'https://accounts.firefox.com/page?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
   var goodUrl = 'https://accounts.firefox.com/page';
@@ -36,7 +35,7 @@ suite.tests['middlewareConfig'] = function() {
     },
   };
 
-  var response = config.dataCallback(mockData);
+  var response = sentry._eventFilter(mockData);
 
   assert.equal(response.request.headers.Referer, goodUrl);
   assert.equal(response.request.url, goodUrl);
@@ -44,4 +43,4 @@ suite.tests['middlewareConfig'] = function() {
   assert.equal(response.exception[0].stacktrace.frames.length, 10);
 };
 
-registerSuite('raven', suite);
+registerSuite('sentry', suite);

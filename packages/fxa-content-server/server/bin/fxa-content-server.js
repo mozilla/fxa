@@ -28,7 +28,7 @@ const path = require('path');
 const serveStatic = require('serve-static');
 
 const config = require('../lib/configuration');
-const raven = require('../lib/raven');
+const sentry = require('../lib/sentry');
 const { cors, routing } = require('../../../fxa-shared/express')();
 
 const userAgent = require('../../../fxa-shared/metrics/user-agent');
@@ -97,7 +97,7 @@ function makeApp() {
   app.set('views', PAGE_TEMPLATE_DIRECTORY);
 
   // The request handler must be the first item
-  app.use(raven.ravenModule.requestHandler());
+  app.use(sentry.sentryModule.Handlers.requestHandler());
 
   // i18n adds metadata to a request to help
   // with translating templates on the server.
@@ -196,12 +196,12 @@ function makeApp() {
     }
   });
 
-  // The raven error handler must be before any other error middleware
-  app.use(raven.ravenModule.errorHandler());
+  // The sentry error handler must be before any other error middleware
+  app.use(sentry.sentryModule.Handlers.errorHandler());
 
   // log and capture any errors
   app.use((err, req, res, next) => {
-    raven.ravenModule.captureException(err);
+    sentry.sentryModule.captureException(err);
     routeHelpers.validationErrorHandler(err, req, res, next);
   });
 
