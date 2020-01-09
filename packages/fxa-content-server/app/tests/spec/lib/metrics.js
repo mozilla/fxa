@@ -463,28 +463,37 @@ describe('lib/metrics', () => {
 
     describe('flush, data has changed, flush again', () => {
       beforeEach(async () => {
-        sinon.stub(environment, 'hasSendBeacon').callsFake(() => true);
-        sinon.stub(windowMock.navigator, 'sendBeacon').callsFake(() => true);
+        sinon.stub(environment, 'hasSendBeacon').returns(true);
+        sinon.stub(windowMock.navigator, 'sendBeacon').returns(true);
         metrics.logMarketingImpression(
           MARKETING_CAMPAIGN,
           MARKETING_CAMPAIGN_URL
         );
         await metrics.flush();
         metrics.logMarketingClick(MARKETING_CAMPAIGN, MARKETING_CAMPAIGN_URL);
+        metrics.logEventOnce('loaded');
+        await metrics.flush();
+        metrics.logEvent('anuther one');
         await metrics.flush();
       });
 
-      it('sends data both times, navigationTiming data only sent on first flush', () => {
-        assert.equal(windowMock.navigator.sendBeacon.callCount, 2);
+      it('sends data multiple times, navigationTiming data only sent on first flush with a loaded event', () => {
+        assert.equal(windowMock.navigator.sendBeacon.callCount, 3);
 
         const firstPayload = JSON.parse(
           windowMock.navigator.sendBeacon.args[0][1]
         );
-        assert.isObject(firstPayload.navigationTiming);
+        assert.notProperty(firstPayload, 'navigationTiming');
+
         const secondPayload = JSON.parse(
           windowMock.navigator.sendBeacon.args[1][1]
         );
-        assert.notProperty(secondPayload, 'navigationTiming');
+        assert.isObject(secondPayload.navigationTiming);
+
+        const thirdPayload = JSON.parse(
+          windowMock.navigator.sendBeacon.args[2][1]
+        );
+        assert.notProperty(thirdPayload, 'navigationTiming');
       });
     });
 

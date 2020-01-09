@@ -452,10 +452,21 @@ _.extend(Metrics.prototype, Backbone.Events, {
     var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
     return _.pick(allowedData, (value, key) => {
-      // navigationTiming is sent in the first flush, no need to re-send it.
-      if (this._lastFlushedData && key === 'navigationTiming') {
-        return false;
+      // navigationTiming is sent once, with 'loaded' event.
+      if (key === 'navigationTiming') {
+        if (this._navigationTimingFlushed) {
+          return false;
+        }
+
+        this._navigationTimingFlushed =
+          allowedData.events &&
+          allowedData.events.some(x => x.type === 'loaded');
+
+        // return false until the first true,
+        // once true, the if above will return false.
+        return this._navigationTimingFlushed;
       }
+
       return !_.isUndefined(value) && value !== '';
     });
   },
