@@ -543,11 +543,16 @@ describe('subscriptions', () => {
 
       beforeEach(() => {
         payments = sinon.stub({});
+        payments.verifyPlanUpgradeForSubscription = sinon.fake();
+        payments.changeSubscriptionPlan = sinon.fake.returns(subscription2);
+        payments.deleteCachedCustomer = sinon.fake();
+        payments.subscriptionForCustomer = sinon.fake.returns({
+          id: SUBSCRIPTION_ID_1,
+          plan: { product: PLANS[0].product_id },
+        });
       });
 
       it('should allow updating of subscription plan', async () => {
-        payments.verifyPlanUpgradeForSubscription = sinon.fake();
-        payments.changeSubscriptionPlan = sinon.fake.returns(subscription2);
         await runTest(
           '/oauth/subscriptions/active/{subscriptionId}',
           {
@@ -1211,6 +1216,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
       it('should allow updating of subscription plan', async () => {
         payments.verifyPlanUpgradeForSubscription = sinon.fake();
         payments.changeSubscriptionPlan = sinon.fake.returns(subscription2);
+        payments.deleteCachedCustomer = sinon.fake();
         await runTest(
           '/oauth/subscriptions/active/{subscriptionId}',
           {
@@ -1225,6 +1231,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
         assert.deepEqual(payments.verifyPlanUpgradeForSubscription.args, [
           [PLANS[0].product_id, PLAN_ID_1],
         ]);
+        assert.equal(payments.deleteCachedCustomer.callCount, 1);
       });
 
       it('should correctly handle an error from stripeHelper', async () => {

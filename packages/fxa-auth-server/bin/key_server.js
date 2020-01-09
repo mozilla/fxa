@@ -7,7 +7,6 @@
 const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');
 const StatsD = require('hot-shots');
-const StripeHelper = require('../lib/payments/stripe');
 
 async function run(config) {
   const statsd = config.statsd.enabled
@@ -26,10 +25,11 @@ async function run(config) {
   const log = require('../lib/log')({ ...config.log, statsd });
   require('../lib/oauth/logging')(log);
 
-  /** @type {undefined | import('../lib/payments/stripe')} */
+  /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    stripeHelper = new StripeHelper(log, config);
+    const createStripeHelper = require('../lib/payments/stripe');
+    stripeHelper = createStripeHelper(log, config);
   }
 
   const DB = require('../lib/db')(

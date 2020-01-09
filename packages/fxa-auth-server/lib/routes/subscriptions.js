@@ -10,8 +10,6 @@ const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 const { metadataFromPlan } = require('./utils/subscriptions');
 
-const stripe = require('../payments/stripe');
-
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
 
@@ -44,9 +42,9 @@ class DirectStripeRoutes {
    * @param {*} push
    * @param {*} mailer
    * @param {*} profile
-   * @param {import('../payments/stripe')} payments
+   * @param {import('../payments/stripe').StripeHelper} stripeHelper
    */
-  constructor(log, db, config, customs, push, mailer, profile, payments) {
+  constructor(log, db, config, customs, push, mailer, profile, stripeHelper) {
     this.log = log;
     this.db = db;
     this.config = config;
@@ -54,11 +52,24 @@ class DirectStripeRoutes {
     this.push = push;
     this.mailer = mailer;
     this.profile = profile;
-    this.payments = payments;
+    this.stripeHelper = stripeHelper;
 
     this.CLIENT_CAPABILITIES = Object.entries(
       config.subscriptions.clientCapabilities
     ).map(([clientId, capabilities]) => ({ clientId, capabilities }));
+  }
+
+  async customerChanged(request, uid, email) {
+    const [devices] = await Promise.all([
+      await request.app.devices,
+      await this.stripeHelper.deleteCachedCustomer(uid, email),
+      await this.profile.deleteCache(uid),
+    ]);
+    await this.push.notifyProfileUpdated(uid, devices);
+    this.log.notifyAttachedServices('profileDataChanged', request, {
+      uid,
+      email,
+    });
   }
 
   async getClients(request) {
@@ -76,14 +87,14 @@ class DirectStripeRoutes {
     const { planId, paymentToken, displayName } = request.payload;
 
     // Find the selected plan and get its product ID
-    const selectedPlan = await this.payments.findPlanById(planId);
+    const selectedPlan = await this.stripeHelper.findPlanById(planId);
     const productId = selectedPlan.product_id;
 
-    let customer = await this.payments.fetchCustomer(uid, email, [
+    let customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
     ]);
     if (!customer) {
-      customer = await this.payments.stripe.customers.create({
+      customer = await this.stripeHelper.stripe.customers.create({
         source: paymentToken,
         email,
         name: displayName,
@@ -95,7 +106,7 @@ class DirectStripeRoutes {
       // Note that if the customer already exists and we were not
       // passed a paymentToken value, we will not update it and use
       // the default source.
-      await this.payments.stripe.customers.update(customer.id, {
+      await this.stripeHelper.stripe.customers.update(customer.id, {
         source: paymentToken,
       });
     }
@@ -116,7 +127,7 @@ class DirectStripeRoutes {
           /** @type {PaymentIntent} */ (invoice.payment_intent);
         if (payment_intent.status === 'requires_payment_method') {
           // Re-run the payment
-          invoice = await this.payments.stripe.invoices.pay(invoice.id, {
+          invoice = await this.stripeHelper.stripe.invoices.pay(invoice.id, {
             expand: ['payment_intent'],
           });
           if (!this.paidInvoice(invoice)) {
@@ -138,7 +149,7 @@ class DirectStripeRoutes {
 
     if (!subscription) {
       // Create the subscription
-      subscription = await this.payments.stripe.subscriptions.create({
+      subscription = await this.stripeHelper.stripe.subscriptions.create({
         customer: customer.id,
         items: [{ plan: selectedPlan.plan_id }],
         expand: ['latest_invoice.payment_intent'],
@@ -153,21 +164,8 @@ class DirectStripeRoutes {
       }
     }
 
-    // Store the record in our local database
-    await this.db.createAccountSubscription({
-      uid,
-      subscriptionId: subscription.id,
-      productId,
-      // Stripe create is in seconds, we use milliseconds
-      createdAt: subscription.created * 1000,
-    });
-    const devices = await request.app.devices;
-    await this.push.notifyProfileUpdated(uid, devices);
-    this.log.notifyAttachedServices('profileDataChanged', request, {
-      uid,
-      email,
-    });
-    await this.profile.deleteCache(uid);
+    await this.customerChanged(request, uid, email);
+
     const account = await this.db.account(uid);
     await this.mailer.sendDownloadSubscriptionEmail(account.emails, account, {
       acceptLanguage: account.locale,
@@ -208,33 +206,20 @@ class DirectStripeRoutes {
 
     const subscriptionId = request.params.subscriptionId;
 
-    try {
-      await this.db.getAccountSubscription(uid, subscriptionId);
-    } catch (err) {
-      if (err.statusCode === 404 && err.errno === 116) {
-        throw error.unknownSubscription();
-      }
+    const hasSubscription = await this.stripeHelper.subscriptionForCustomer(
+      uid,
+      email,
+      subscriptionId
+    );
+    if (!hasSubscription) {
+      throw error.unknownSubscription();
     }
 
-    await this.payments.stripe.subscriptions.update(subscriptionId, {
+    await this.stripeHelper.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
     });
 
-    try {
-      await this.db.cancelAccountSubscription(uid, subscriptionId, Date.now());
-    } catch (err) {
-      if (err.statusCode === 404 && err.errno === 116) {
-        throw error.subscriptionAlreadyCancelled();
-      }
-    }
-
-    const devices = await request.app.devices;
-    await this.push.notifyProfileUpdated(uid, devices);
-    this.log.notifyAttachedServices('profileDataChanged', request, {
-      uid,
-      email,
-    });
-    await this.profile.deleteCache(uid);
+    await this.customerChanged(request, uid, email);
 
     this.log.info('subscriptions.deleteSubscription.success', {
       uid,
@@ -252,13 +237,13 @@ class DirectStripeRoutes {
 
     const { paymentToken } = request.payload;
 
-    const customer = await this.payments.fetchCustomer(uid, email);
+    const customer = await this.stripeHelper.fetchCustomer(uid, email);
     if (!customer) {
       const err = new Error(`No customer for email: ${email}`);
       throw error.backendServiceFailure('stripe', 'updatePayment', {}, err);
     }
 
-    await this.payments.stripe.customers.update(customer.id, {
+    await this.stripeHelper.stripe.customers.update(customer.id, {
       source: paymentToken,
     });
 
@@ -276,15 +261,16 @@ class DirectStripeRoutes {
 
     const { subscriptionId } = request.payload;
 
-    try {
-      await this.db.getAccountSubscription(uid, subscriptionId);
-    } catch (err) {
-      if (err.statusCode === 404 && err.errno === 116) {
-        throw error.unknownSubscription();
-      }
+    const hasSubscription = await this.stripeHelper.subscriptionForCustomer(
+      uid,
+      email,
+      subscriptionId
+    );
+    if (!hasSubscription) {
+      throw error.unknownSubscription();
     }
 
-    const subscription = await this.payments.stripe.subscriptions.update(
+    const subscription = await this.stripeHelper.stripe.subscriptions.update(
       subscriptionId,
       {
         cancel_at_period_end: false,
@@ -302,14 +288,7 @@ class DirectStripeRoutes {
       );
     }
 
-    await this.db.reactivateAccountSubscription(uid, subscriptionId);
-
-    await this.push.notifyProfileUpdated(uid, await request.app.devices);
-    this.log.notifyAttachedServices('profileDataChanged', request, {
-      uid,
-      email,
-    });
-    await this.profile.deleteCache(uid);
+    await this.customerChanged(request, uid, email);
 
     this.log.info('subscriptions.reactivateSubscription.success', {
       uid,
@@ -329,54 +308,27 @@ class DirectStripeRoutes {
     const { subscriptionId } = request.params;
     const { planId } = request.payload;
 
-    let accountSub;
-
-    try {
-      accountSub = await this.db.getAccountSubscription(uid, subscriptionId);
-    } catch (err) {
-      if (err.statusCode === 404 && err.errno === 116) {
-        throw error.unknownSubscription();
-      }
-    }
-    const oldProductId = accountSub.productId;
-
-    // Verify the plan is a valid upgrade for this subscription.
-    await this.payments.verifyPlanUpgradeForSubscription(oldProductId, planId);
-
-    // Upgrade the plan
-    const changeResponse = await this.payments.changeSubscriptionPlan(
-      subscriptionId,
-      planId
-    );
-    const newProductId = changeResponse.plan.product;
-
-    // Update the local db record for the new plan. We don't have a method to
-    // change the product on file for a sub thus the delete/create here even
-    // though its more work to catch both errors for a retry.
-    try {
-      await this.db.deleteAccountSubscription(uid, subscriptionId);
-    } catch (err) {
-      // It's ok if it was already cancelled or deleted.
-      if (err.statusCode !== 404) {
-        throw err;
-      }
-    }
-
-    // This call needs to succeed for us to consider this a success.
-    await this.db.createAccountSubscription({
-      uid,
-      subscriptionId,
-      productId: newProductId,
-      createdAt: Date.now(),
-    });
-
-    const devices = await request.app.devices;
-    await this.push.notifyProfileUpdated(uid, devices);
-    this.log.notifyAttachedServices('profileDataChanged', request, {
+    const subscription = await this.stripeHelper.subscriptionForCustomer(
       uid,
       email,
-    });
-    await this.profile.deleteCache(uid);
+      subscriptionId
+    );
+    if (!subscription) {
+      throw error.unknownSubscription();
+    }
+
+    const oldProductId = subscription.plan.product;
+
+    // Verify the plan is a valid upgrade for this subscription.
+    await this.stripeHelper.verifyPlanUpgradeForSubscription(
+      oldProductId,
+      planId
+    );
+
+    // Upgrade the plan
+    await this.stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
+
+    await this.customerChanged(request, uid, email);
 
     return { subscriptionId };
   }
@@ -384,20 +336,40 @@ class DirectStripeRoutes {
   async listPlans(request) {
     this.log.begin('subscriptions.listPlans', request);
     await handleAuth(this.db, request.auth);
-    const plans = await this.payments.allPlans();
+    const plans = await this.stripeHelper.allPlans();
     return plans;
   }
 
   async listActive(request) {
     this.log.begin('subscriptions.listActive', request);
-    const { uid } = await handleAuth(this.db, request.auth, true);
-    return this.db.fetchAccountSubscriptions(uid);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    const customer = await this.stripeHelper.customer(uid, email);
+    const activeSubscriptions = [];
+
+    if (customer && customer.subscriptions) {
+      for (const subscription of customer.subscriptions.data) {
+        const {
+          id: subscriptionId,
+          created,
+          canceled_at,
+          plan: { product: productId },
+        } = subscription;
+        activeSubscriptions.push({
+          uid,
+          subscriptionId,
+          productId,
+          createdAt: created * 1000,
+          cancelledAt: canceled_at ? canceled_at * 1000 : null,
+        });
+      }
+    }
+    return activeSubscriptions;
   }
 
   async getCustomer(request) {
     this.log.begin('subscriptions.getCustomer', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.payments.fetchCustomer(uid, email, [
+    const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
     ]);
     if (!customer) {
@@ -419,15 +391,23 @@ class DirectStripeRoutes {
       }
     }
 
-    response.subscriptions = await this.payments.subscriptionsToResponse(
+    response.subscriptions = await this.stripeHelper.subscriptionsToResponse(
       customer.subscriptions
     );
     return response;
   }
 }
 
-const directRoutes = (log, db, config, customs, push, mailer, profile) => {
-  const payments = new stripe(log, config);
+const directRoutes = (
+  log,
+  db,
+  config,
+  customs,
+  push,
+  mailer,
+  profile,
+  stripeHelper
+) => {
   const directStripeRoutes = new DirectStripeRoutes(
     log,
     db,
@@ -436,7 +416,7 @@ const directRoutes = (log, db, config, customs, push, mailer, profile) => {
     push,
     mailer,
     profile,
-    payments
+    stripeHelper
   );
 
   // FIXME: All of these need to be wrapped in Stripe error handling
@@ -613,8 +593,17 @@ const createRoutes = (
     return [];
   }
 
-  if (config.subscriptions.stripeApiKey) {
-    return directRoutes(log, db, config, customs, push, mailer, profile);
+  if (stripeHelper) {
+    return directRoutes(
+      log,
+      db,
+      config,
+      customs,
+      push,
+      mailer,
+      profile,
+      stripeHelper
+    );
   }
 
   const CLIENT_CAPABILITIES = Object.entries(

@@ -15,7 +15,6 @@ const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
-const stripe = require('../payments/stripe');
 
 const {
   determineClientVisibleSubscriptionCapabilities,
@@ -28,18 +27,6 @@ const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
 
-/**
- *
- * @param {*} log
- * @param {*} config
- * @returns {void|stripe}
- */
-function createPayments(log, config) {
-  if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    return new stripe(log, config);
-  }
-}
-
 module.exports = (
   log,
   db,
@@ -51,7 +38,8 @@ module.exports = (
   signinUtils,
   push,
   verificationReminders,
-  oauth
+  oauth,
+  stripeHelper
 ) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
   const tokenCodeLifetime =
@@ -67,8 +55,6 @@ module.exports = (
   );
 
   const otpOptions = config.otp;
-
-  const payments = createPayments(log, config);
 
   const routes = [
     {
@@ -1013,7 +999,9 @@ module.exports = (
             auth,
             db,
             uid,
-            client_id
+            client_id,
+            stripeHelper,
+            account.primaryEmail.email
           );
           if (capabilities) {
             res.subscriptions = capabilities;
@@ -1399,13 +1387,13 @@ module.exports = (
 
         if (config.subscriptions && config.subscriptions.enabled) {
           try {
-            if (payments) {
-              const customer = await payments.fetchCustomer(
+            if (stripeHelper) {
+              const customer = await stripeHelper.fetchCustomer(
                 uid,
                 emailRecord.email
               );
               if (customer) {
-                await payments.stripe.customers.del(customer.id);
+                await stripeHelper.stripe.customers.del(customer.id);
               }
             } else {
               await subhub.deleteCustomer(uid);
@@ -1476,19 +1464,22 @@ module.exports = (
 
         if (config.subscriptions.enabled) {
           try {
-            // issue #3109: check for existence of subscriptions in
-            // local DB before making a request to external subhub
-            const activeSubscriptions = await db.fetchAccountSubscriptions(uid);
-            if (activeSubscriptions && activeSubscriptions.length > 0) {
-              if (payments) {
-                const customer = await payments.fetchCustomer(uid, email);
-                if (!customer) {
-                  throw error.unknownCustomer(uid);
-                }
-                subscriptions = await payments.subscriptionsToResponse(
-                  customer.subscriptions
-                );
-              } else {
+            if (stripeHelper) {
+              const customer = await stripeHelper.customer(uid, email);
+              if (!customer) {
+                throw error.unknownCustomer(uid);
+              }
+              subscriptions = await stripeHelper.subscriptionsToResponse(
+                customer.subscriptions
+              );
+            } else {
+              // TODO: issue #3846 - remove this conditional branch
+              // issue #3109: check for existence of subscriptions in
+              // local DB before making a request to external subhub
+              const activeSubscriptions = await db.fetchAccountSubscriptions(
+                uid
+              );
+              if (activeSubscriptions && activeSubscriptions.length > 0) {
                 ({ subscriptions } = await subhub.listSubscriptions(uid));
               }
             }

@@ -274,7 +274,7 @@ describe('generateTokens', () => {
           }
           case 'subscriptions.productCapabilities': {
             return {
-              'my-sub': 'my-sub',
+              prod0: 'my-sub',
             };
           }
           case 'subscriptions.clientCapabilities': {
@@ -307,9 +307,11 @@ describe('generateTokens', () => {
 
     grantModule.setDB({
       fetchAccountSubscriptions: sinon.spy(async () => [
-        { productId: 'my-sub' },
+        { productId: 'prod0' },
       ]),
     });
+
+    grantModule.setStripeHelper(undefined);
 
     generateTokens = grantModule.generateTokens;
   });
@@ -342,6 +344,55 @@ describe('generateTokens', () => {
       mockJWTAccessToken.create.calledOnceWith(mockAccessToken, {
         ...requestedGrant,
         'fxa-subscriptions': ['my-sub'],
+      })
+    );
+
+    assert.isNumber(result.expires_in);
+    assert.strictEqual(result.token_type, 'access_token');
+    assert.strictEqual(
+      result.scope,
+      'profile:uid profile:email profile:subscriptions'
+    );
+
+    assert.isFalse('auth_at' in result);
+    assert.isFalse('keys_jwe' in result);
+    assert.isFalse('refresh_token' in result);
+    assert.isFalse('id_token' in result);
+  });
+
+  it('should generate a JWT access token if enabled, client_id allowed, and direct Stripe access enabled', async () => {
+    const clientId = '9876543210';
+
+    grantModule.setStripeHelper({
+      customer: sinon.spy(async () => ({
+        subscriptions: {
+          data: [
+            { plan: { product: 'prod0' } },
+            { plan: { product: 'prod1' } },
+          ],
+        },
+      })),
+      allPlans: sinon.spy(async () => [
+        {
+          product_id: 'prod0',
+        },
+        {
+          product_id: 'prod1',
+          product_metadata: {
+            [`capabilities:${clientId}`]: 'cap1',
+          },
+        },
+      ]),
+    });
+
+    requestedGrant.clientId = clientId;
+    const result = await generateTokens(requestedGrant);
+    assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
+    assert.strictEqual(result.access_token, 'signed jwt access token');
+    assert.isTrue(
+      mockJWTAccessToken.create.calledOnceWith(mockAccessToken, {
+        ...requestedGrant,
+        'fxa-subscriptions': ['cap1', 'my-sub'],
       })
     );
 

@@ -666,12 +666,14 @@ const conf = convict({
       default: 'YOU MUST CHANGE ME',
       env: 'SUBSCRIPTIONS_SHARED_SECRET',
     },
+    // TODO: issue #3913 - remove support for capabilities from server config
     productCapabilities: {
       doc: 'Mappings from product names to subscription capability names',
       format: Object,
       env: 'SUBSCRIPTIONS_PRODUCT_CAPABILITIES',
       default: {},
     },
+    // TODO: issue #3913 - remove support for capabilities from server config
     clientCapabilities: {
       doc:
         'Mappings from OAuth client IDs to relevant subscription capabilities',
