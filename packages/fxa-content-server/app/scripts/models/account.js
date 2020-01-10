@@ -1456,6 +1456,7 @@ const Account = Backbone.Model.extend(
      * @returns {Promise}
      */
     deleteTotpToken() {
+      this.set('totpVerified', false);
       return this._fxaClient.deleteTotpToken(this.get('sessionToken'));
     },
 
