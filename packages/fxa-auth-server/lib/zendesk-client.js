@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Promise = require('bluebird');
 const zendesk = require('node-zendesk');
 
 module.exports = config => {
@@ -33,6 +32,34 @@ module.exports = config => {
     new Promise((resolve, reject) =>
       zendeskClient.users.update(id, user, (err, req, result) =>
         err ? reject(err) : resolve({ req, result })
+      )
+    );
+
+  zendeskClient.searchQueryAll = query =>
+    new Promise((resolve, reject) =>
+      zendeskClient.search.queryAll(query, (err, req, result) =>
+        err ? reject(err) : resolve({ req, result })
+      )
+    );
+
+  zendeskClient.listIdentities = userId =>
+    new Promise((resolve, reject) =>
+      zendeskClient.useridentities.list(userId, (err, req, result) =>
+        err ? reject(err) : resolve({ req, result })
+      )
+    );
+
+  zendeskClient.updateIdentity = (userId, userIdentityID, payload) =>
+    new Promise((resolve, reject) =>
+      // A very ugly call in to get the actual Zendesk API call because the
+      // update call used in this library hardcodes a payload rather than
+      // accepting one.
+      zendeskClient.useridentities.__proto__.request.call(
+        zendeskClient.useridentities,
+        'PUT',
+        ['users', userId, 'identities', userIdentityID],
+        payload,
+        (err, req, result) => (err ? reject(err) : resolve({ req, result }))
       )
     );
 
