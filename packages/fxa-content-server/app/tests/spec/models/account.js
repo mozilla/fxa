@@ -2943,6 +2943,20 @@ describe('models/account', function() {
     });
   });
 
+  describe('deleteTotpToken', () => {
+    beforeEach(() => {
+      sinon
+        .stub(fxaClient, 'deleteTotpToken')
+        .callsFake(() => Promise.resolve());
+      account.set('totpVerified', true);
+    });
+
+    it('sets totpVerified state to false', async () => {
+      await account.deleteTotpToken();
+      assert.isFalse(account.get('totpVerified'));
+    });
+  });
+
   describe('_fetchShortLivedSubscriptionsOAuthToken', () => {
     it('calls createOAuthToken with the correct arguments', () => {
       const createOAuthTokenStub = sinon.stub(account, 'createOAuthToken');
