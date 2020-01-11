@@ -12,8 +12,11 @@ const config = require(`${ROOT_DIR}/config`).getProperties();
 const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 
-const CLIENT_ID = 'client8675309';
-const CLIENT_ID_FOR_DEFAULT = 'client5551212';
+const validClients = config.oauthServer.clients.filter(
+  client => client.trusted && client.canGrant && client.publicClient
+);
+const CLIENT_ID = validClients.pop().id;
+const CLIENT_ID_FOR_DEFAULT = validClients.pop().id;
 const DISPLAY_NAME = 'Example User';
 const PAYMENT_TOKEN = 'pay8675309';
 const PLAN_ID = 'allDoneProMonthly';
@@ -71,24 +74,35 @@ describe('remote subscriptions:', function() {
     });
 
     beforeEach(async () => {
-      client = await clientFactory.create(
+      client = await clientFactory.createAndVerify(
         config.publicUrl,
         server.uniqueEmail(),
-        'wibble'
+        'wibble',
+        server.mailbox
       );
+
+      const tokenResponse1 = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: CLIENT_ID_FOR_DEFAULT,
+        scope: 'profile:subscriptions',
+      });
+
+      const tokenResponse2 = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: CLIENT_ID,
+        scope: 'profile:subscriptions',
+      });
+
+      const tokenResponse3 = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: CLIENT_ID,
+        scope: 'profile https://identity.mozilla.com/account/subscriptions',
+      });
+
       tokens = [
-        mockRefreshToken(
-          CLIENT_ID_FOR_DEFAULT,
-          client.uid,
-          'profile:subscriptions'
-        ),
-        mockRefreshToken(CLIENT_ID, client.uid, 'profile:subscriptions'),
-        mockRefreshToken(
-          CLIENT_ID,
-          client.uid,
-          'profile',
-          'https://identity.mozilla.com/account/subscriptions'
-        ),
+        tokenResponse1.access_token,
+        tokenResponse2.access_token,
+        tokenResponse3.access_token,
       ];
     });
 
@@ -324,16 +338,20 @@ describe('remote subscriptions:', function() {
     });
 
     beforeEach(async () => {
-      client = await clientFactory.create(
+      client = await clientFactory.createAndVerify(
         config.publicUrl,
         server.uniqueEmail(),
-        'wibble'
+        'wibble',
+        server.mailbox
       );
-      refreshToken = mockRefreshToken(
-        CLIENT_ID,
-        client.uid,
-        'profile:subscriptions'
-      );
+
+      const tokenResponse = await client.grantOAuthTokensFromSessionToken({
+        grant_type: 'fxa-credentials',
+        client_id: CLIENT_ID,
+        scope: 'profile:subscriptions',
+      });
+
+      refreshToken = tokenResponse.access_token;
     });
 
     it('should not include subscriptions with session token', async () => {
@@ -352,13 +370,3 @@ describe('remote subscriptions:', function() {
     });
   });
 });
-
-function mockRefreshToken(clientId, uid, ...scopes) {
-  return Buffer.from(
-    JSON.stringify({
-      client_id: clientId,
-      user: uid,
-      scope: scopes,
-    })
-  ).toString('hex');
-}

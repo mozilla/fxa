@@ -60,7 +60,6 @@
     "hapi": "17.8.3",
     "hapi-auth-hawk": "4.0.0",
     "hapi-error": "1.8.0",
-    "hapi-fxa-oauth": "3.0.0",
     "hkdf": "0.0.2",
     "hot-shots": "^6.4.1",
     "i18n-abide": "0.0.26",

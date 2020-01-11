@@ -70,7 +70,6 @@ TestServer.prototype.start = function() {
     promises.push(createProfileHelper());
   }
   return P.all(promises).spread((auth, mail, profileServer) => {
-    patchVerify(auth.server);
     this.server = auth;
     this.mail = mail;
     this.profileServer = profileServer;
@@ -116,26 +115,3 @@ TestServer.prototype.uniqueUnicodeEmail = function() {
 };
 
 module.exports = TestServer;
-
-function patchVerify(server) {
-  // delete the existing /v1/verify route
-  // unfortunately hapi doesn't have a public api for it
-  const xs = server._core.router.routes.post.routes;
-  xs.splice(xs.findIndex(x => x.path === '/v1/verify'), 1);
-  delete server._core.router.routes.post.router._fulls['/v1/verify'];
-
-  try {
-    server.route([
-      {
-        method: 'POST',
-        path: '/v1/verify',
-        handler: async function(request, h) {
-          const data = JSON.parse(Buffer.from(request.payload.token, 'hex'));
-          return h.response(data).code(data.code || 200);
-        },
-      },
-    ]);
-  } catch (e) {
-    console.error(e);
-  }
-}
