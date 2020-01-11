@@ -13,7 +13,6 @@ const time = require('../time');
 
 const SECONDS_PER_MINUTE = 60;
 const MILLISECONDS_PER_MINUTE = SECONDS_PER_MINUTE * 1000;
-const MILLISECONDS_PER_HOUR = MILLISECONDS_PER_MINUTE * 60;
 const PERIOD_IN_MINUTES = 5;
 
 class MockCloudwatch {
@@ -28,7 +27,10 @@ module.exports = (log, translator, templates, config, statsd) => {
   const cloudwatch = initService(config, Cloudwatch, MockCloudwatch);
   const sns = initService(config, Sns, MockSns);
 
-  const { minimumCreditThresholdUSD: CREDIT_THRESHOLD } = config.sms;
+  const {
+    minimumCreditThresholdUSD: CREDIT_THRESHOLD,
+    pollCurrentSpendInterval: POLL_CURRENT_SPEND_INTERVAL,
+  } = config.sms;
 
   let isBudgetOk = true;
 
@@ -152,7 +154,7 @@ module.exports = (log, translator, templates, config, statsd) => {
         // If we failed to query the data, assume current spend is fine
         isBudgetOk = true;
       })
-      .then(() => setTimeout(pollCurrentSpend, MILLISECONDS_PER_HOUR));
+      .then(() => setTimeout(pollCurrentSpend, POLL_CURRENT_SPEND_INTERVAL));
   }
 
   function getMessage(templateName, acceptLanguage, signinCode) {
