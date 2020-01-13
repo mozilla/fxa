@@ -1404,6 +1404,12 @@ const conf = convict({
       format: 'nat',
       env: 'SMS_MINIMUM_CREDIT_THRESHOLD',
     },
+    pollCurrentSpendInterval: {
+      doc: 'Interval to poll SNS and Cloudwatch for SMS spending data',
+      default: '1 hour',
+      format: 'duration',
+      env: 'SMS_POLL_CURRENT_SPEND_INTERVAL',
+    },
   },
   secondaryEmail: {
     minUnverifiedAccountTime: {
