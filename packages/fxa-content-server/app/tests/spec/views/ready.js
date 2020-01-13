@@ -88,7 +88,7 @@ describe('views/ready', function() {
       view.destroy();
     });
 
-    const expectedHeaders = {
+    const expectedHeadersForSyncViews = {
       FORCE_AUTH: '#fxa-force-auth-complete-header',
       PASSWORD_RESET: RESET_PASSWORD_COMPLETE.HEADER,
       SIGN_IN: SIGNIN_COMPLETE.HEADER,
@@ -96,13 +96,13 @@ describe('views/ready', function() {
       SUCCESSFUL_OAUTH: '#fxa-oauth-success-header',
     };
 
-    for (var type in expectedHeaders) {
+    for (var type in expectedHeadersForSyncViews) {
       it(
         'renders the correct header for `' + type + '`',
         function(type) {
           createView(VerificationReasons[type]);
           return view.render().then(function() {
-            assert.ok(view.$(expectedHeaders[type]).length);
+            assert.ok(view.$(expectedHeadersForSyncViews[type]).length);
           });
         }.bind(null, type)
       );
@@ -116,6 +116,38 @@ describe('views/ready', function() {
           view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
           'You are now ready to use Firefox Sync'
         );
+      });
+    });
+
+    it('renders `escapedEmailReadyText` as expected with `primary_email_verified` view type and param', () => {
+      windowMock.location.search = '?primary_email_verified=some@email.com';
+      sinon.stub(relier, 'isSync').returns(false);
+      createView(VerificationReasons.PRIMARY_EMAIL_VERIFIED);
+
+      return view.render().then(() => {
+        assert.ok(view.$(SIGNUP_COMPLETE.HEADER).length);
+        assert.equal(
+          view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
+          'You are now ready to make changes to your Firefox Account.'
+        );
+        assert.lengthOf(view.$('.btn-goto-account'), 1);
+        relier.isSync.restore();
+      });
+    });
+
+    it('renders `escapedEmailReadyText` as expected with `secondary_email_verified` view type and param', () => {
+      windowMock.location.search = '?secondary_email_verified=some@email.com';
+      sinon.stub(relier, 'isSync').returns(false);
+      createView(VerificationReasons.SECONDARY_EMAIL_VERIFIED);
+
+      return view.render().then(() => {
+        assert.ok(view.$(SIGNUP_COMPLETE.HEADER).length);
+        assert.equal(
+          view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
+          'Account notifications will now also be sent to some@email.com.'
+        );
+        assert.lengthOf(view.$('.btn-goto-account'), 1);
+        relier.isSync.restore();
       });
     });
 
