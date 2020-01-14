@@ -4,7 +4,7 @@
 
 const P = require('../../lib/promise');
 const createServer = require('../../bin/key_server');
-process.env.CONFIG_FILES = require.resolve('../lib/oauth-test.json');
+process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
 const config = require('../../config');
 const version = config.get('oauthServer.api.version');
 config.set('log.level', 'critical');

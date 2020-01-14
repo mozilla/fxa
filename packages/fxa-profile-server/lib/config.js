@@ -339,4 +339,11 @@ var options = {
 
 conf.validate(options);
 
+conf.toString = function() {
+  // RegExp instances serialise to empty objects, display regex strings instead.
+  return JSON.stringify(conf.getProperties(), (k, v) =>
+    v && v.constructor === RegExp ? v.toString() : v
+  );
+};
+
 module.exports = conf;
