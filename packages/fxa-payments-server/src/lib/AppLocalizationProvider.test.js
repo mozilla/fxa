@@ -13,7 +13,7 @@ import { Localized } from 'fluent-react';
 import sinon from 'sinon';
 
 import fetchMock from 'fetch-mock';
-import AppLocalizationProvider from './l10n';
+import AppLocalizationProvider from './AppLocalizationProvider';
 
 
 describe('<AppLocalizationProvider/>', () => {
