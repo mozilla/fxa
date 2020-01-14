@@ -243,6 +243,30 @@ module.exports = {
     READY: '.account-ready-service',
     SUBMIT: 'button[type="submit"]',
   },
+  POST_VERIFY_ADD_RECOVERY_KEY: {
+    ERROR: '.error',
+    HEADER: '#fxa-add-account-recovery-header',
+    MAYBE_LATER: '.maybe-later-btn',
+    SUBMIT: 'button[type="submit"]',
+  },
+  POST_VERIFY_CONFIRM_PASSWORD: {
+    ERROR: '.error',
+    HEADER: '#fxa-confirm-password-header',
+    PASSWORD: 'input[type=password]',
+    SUBMIT: 'button[type="submit"]',
+    TOOLTIP: 'input[type=password] ~ .tooltip',
+  },
+  POST_VERIFY_SAVE_RECOVERY_KEY: {
+    ERROR: '.error',
+    HEADER: '#fxa-save-recovery-key-header',
+    RECOVERY_KEY: '.recovery-key',
+    DONE: '.done-link',
+  },
+  POST_VERIFY_RECOVERY_KEY_VERIFIED: {
+    HEADER: '#fxa-account-recovery-complete-header',
+    READY: '.account-ready-service',
+    SUBMIT: 'button[type="submit"]',
+  },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',

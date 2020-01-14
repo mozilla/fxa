@@ -85,7 +85,7 @@ describe('views/settings/account_recovery/recovery_key', () => {
     it('shows recovery key', () => {
       assert.equal(
         view.$('.recovery-key')[0].innerText,
-        view._formatRecoveryKey(recoveryKey),
+        view.formatRecoveryKey(recoveryKey),
         'displays recovery key'
       );
       assert.equal(
@@ -122,7 +122,7 @@ describe('views/settings/account_recovery/recovery_key', () => {
       assert.equal(view.window.open.called, true, 'open window called');
       assert.include(
         printDocument.document.write.args[0][0],
-        view._formatRecoveryKey(recoveryKey),
+        view.formatRecoveryKey(recoveryKey),
         'window contains recovery key'
       );
       assert.equal(printDocument.print.called, true, 'called print');
@@ -153,7 +153,7 @@ describe('views/settings/account_recovery/recovery_key', () => {
       const padding = Array(256).join('1');
       email = `${padding}@email.com`;
       account.set('email', email);
-      const formattedFilename = view._getFormatedRecoveryKeyFilename();
+      const formattedFilename = view.getFormatedRecoveryKeyFilename();
       assert.equal(formattedFilename.length, 200, 'truncated filename');
       assert.equal(
         formattedFilename.indexOf('.txt') > 0,

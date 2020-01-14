@@ -6,11 +6,11 @@ import Cocktail from 'cocktail';
 import BaseView from '../../base';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
 import PrintTemplate from 'templates/settings/account_recovery/recovery_key_print_template.mustache';
+import RecoveryKeyMixin from '../../mixins/recovery-key-mixin';
 import SaveOptionsMixin from '../../mixins/save-options-mixin';
 import Template from 'templates/settings/account_recovery/recovery_key.mustache';
 import UserAgentMixin from '../../../lib/user-agent-mixin';
 
-const t = msg => msg;
 const ACCOUNT_RECOVERY_ELEMENT = '#account-recovery-key';
 
 const View = BaseView.extend({
@@ -25,24 +25,6 @@ const View = BaseView.extend({
     'click .print-option': '_printKey',
   },
 
-  _formatRecoveryKey(key) {
-    if (key) {
-      // Insert spaces every 4 characters and remove trailing space
-      return key.replace(/(\w{4})/g, '$1 ').replace(/(^\s+|\s+$)/, '');
-    }
-  },
-
-  _getFormatedRecoveryKeyFilename() {
-    const account = this.getSignedInAccount();
-    let formattedFilename =
-      account.get('email') + ' ' + t('Firefox Recovery Key');
-    if (formattedFilename.length > 200) {
-      // 200 bytes (close to filesystem max) - 4 for '.txt' extension
-      formattedFilename = formattedFilename.substring(0, 196);
-    }
-    return `${formattedFilename}.txt`;
-  },
-
   _copyKey() {
     this.logFlowEvent('copy-option', this.viewName);
     return this.copy(this.recoveryKey, ACCOUNT_RECOVERY_ELEMENT);
@@ -52,7 +34,7 @@ const View = BaseView.extend({
     this.logFlowEvent('download-option', this.viewName);
     this.download(
       this.recoveryKey,
-      this._getFormatedRecoveryKeyFilename(),
+      this.getFormatedRecoveryKeyFilename(),
       ACCOUNT_RECOVERY_ELEMENT
     );
   },
@@ -67,7 +49,7 @@ const View = BaseView.extend({
   },
 
   setInitialContext(context) {
-    this.recoveryKey = this._formatRecoveryKey(context.get('recoveryKey'));
+    this.recoveryKey = this.formatRecoveryKey(context.get('recoveryKey'));
     context.set({
       isIos: this.getUserAgent().isIos(),
       recoveryKey: this.recoveryKey,
@@ -86,6 +68,12 @@ const View = BaseView.extend({
   },
 });
 
-Cocktail.mixin(View, ModalSettingsPanelMixin, SaveOptionsMixin, UserAgentMixin);
+Cocktail.mixin(
+  View,
+  ModalSettingsPanelMixin,
+  RecoveryKeyMixin,
+  SaveOptionsMixin,
+  UserAgentMixin
+);
 
 export default View;
