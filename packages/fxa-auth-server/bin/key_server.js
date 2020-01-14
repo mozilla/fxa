@@ -9,11 +9,11 @@
 // If required, modules will be instrumented.
 require('../lib/newrelic')();
 
+const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');
-const P = require('../lib/promise');
 const StatsD = require('hot-shots');
 
-function run(config) {
+async function run(config) {
   let statsd;
   if (config.statsd.enabled) {
     statsd = new StatsD({
@@ -43,8 +43,8 @@ function run(config) {
     log.info(stringifiedConfig, 'starting config');
   }
 
-  const error = require('../lib/error');
   const Token = require('../lib/tokens')(log, config);
+  const Server = require('../lib/server');
   const Password = require('../lib/crypto/password')(log, config);
   const UnblockCode = require('../lib/crypto/random').base32(
     config.signinUnblock.codeLength
@@ -69,130 +69,116 @@ function run(config) {
 
   const Customs = require('../lib/customs')(log, error, statsd);
 
-  const Server = require('../lib/server');
-  let server = null;
-  let senders = null;
-  let statsInterval = null;
   let database = null;
-  let customs = null;
-  let oauthdb = null;
-  let subhub = null;
-  let profile = null;
+  let translator = null;
+  /** @type {undefined | import('../lib/payments/stripe')} */
+  let stripeHelper = undefined;
+
+  if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    const StripeHelper = require('../lib/payments/stripe');
+    stripeHelper = new StripeHelper(log, config);
+  }
+
+  const DB = require('../lib/db')(config, log, Token, UnblockCode);
+  try {
+    [database, translator] = await Promise.all([
+      DB.connect(config[config.db.backend]),
+      require('../lib/senders/translator')(
+        config.i18n.supportedLanguages,
+        config.i18n.defaultLanguage
+      ),
+    ]);
+  } catch (err) {
+    log.error({ op: 'DB.connect', err: { message: err.message } });
+    process.exit(1);
+  }
+
+  const oauthdb = require('../lib/oauthdb')(log, config, statsd);
+  const subhub = require('../lib/subhub/client').client(log, config, statsd);
+  const profile = require('../lib/profile/client')(log, config, statsd);
+  const senders = await require('../lib/senders')(
+    log,
+    config,
+    error,
+    translator,
+    oauthdb,
+    statsd
+  );
+
+  const customs = new Customs(config.customsUrl);
+  const routes = require('../lib/routes')(
+    log,
+    serverPublicKeys,
+    signer,
+    database,
+    oauthdb,
+    senders.email,
+    senders.sms,
+    Password,
+    config,
+    customs,
+    zendeskClient,
+    subhub,
+    statsd,
+    profile,
+    stripeHelper
+  );
+
+  const server = await Server.create(
+    log,
+    error,
+    config,
+    routes,
+    database,
+    oauthdb,
+    translator
+  );
 
   function logStatInfo() {
     log.stat(server.stat());
     log.stat(Password.stat());
   }
+  const statsInterval = setInterval(logStatInfo, 15000);
 
-  const DB = require('../lib/db')(config, log, Token, UnblockCode);
-
-  return P.all([
-    DB.connect(config[config.db.backend]),
-    require('../lib/senders/translator')(
-      config.i18n.supportedLanguages,
-      config.i18n.defaultLanguage
-    ),
-  ])
-    .spread(
-      (db, translator) => {
-        database = db;
-        oauthdb = require('../lib/oauthdb')(log, config, statsd);
-        subhub = require('../lib/subhub/client').client(log, config, statsd);
-        profile = require('../lib/profile/client')(log, config, statsd);
-
-        return require('../lib/senders')(
-          log,
-          config,
-          error,
-          translator,
-          oauthdb,
-          statsd
-        ).then(result => {
-          senders = result;
-          customs = new Customs(config.customsUrl);
-          const routes = require('../lib/routes')(
-            log,
-            serverPublicKeys,
-            signer,
-            db,
-            oauthdb,
-            senders.email,
-            senders.sms,
-            Password,
-            config,
-            customs,
-            zendeskClient,
-            subhub,
-            statsd,
-            profile
-          );
-
-          statsInterval = setInterval(logStatInfo, 15000);
-
-          async function init() {
-            server = await Server.create(
-              log,
-              error,
-              config,
-              routes,
-              db,
-              oauthdb,
-              translator
-            );
-            try {
-              await server.start();
-              log.info({
-                op: 'server.start.1',
-                msg: `running on ${server.info.uri}`,
-              });
-            } catch (err) {
-              log.error({
-                op: 'server.start.1',
-                msg: 'failed startup with error',
-                err: { message: err.message },
-              });
-            }
-          }
-
-          return init();
-        });
-      },
-      err => {
-        log.error({ op: 'DB.connect', err: { message: err.message } });
-        process.exit(1);
-      }
-    )
-    .then(() => {
-      return {
-        server,
-        log: log,
-        close() {
-          return new P(resolve => {
-            log.info({ op: 'shutdown' });
-            clearInterval(statsInterval);
-            server.stop().then(() => {
-              customs.close();
-              oauthdb.close();
-              subhub.close();
-              if (statsd) {
-                statsd.close();
-              }
-              try {
-                senders.email.stop();
-              } catch (e) {
-                // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
-                log.warn({
-                  op: 'shutdown',
-                  message: 'Mailer client already disconnected',
-                });
-              }
-              database.close();
-              resolve();
-            });
-          });
-        },
-      };
+  try {
+    await server.start();
+    log.info({
+      op: 'server.start.1',
+      msg: `running on ${server.info.uri}`,
     });
+  } catch (err) {
+    log.error({
+      op: 'server.start.1',
+      msg: 'failed startup with error',
+      err: { message: err.message },
+    });
+  }
+
+  return {
+    server,
+    log: log,
+    async close() {
+      log.info({ op: 'shutdown' });
+      clearInterval(statsInterval);
+      await server.stop();
+      await customs.close();
+      oauthdb.close();
+      await subhub.close();
+      if (statsd) {
+        statsd.close();
+      }
+      try {
+        senders.email.stop();
+      } catch (e) {
+        // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
+        log.warn({
+          op: 'shutdown',
+          message: 'Mailer client already disconnected',
+        });
+      }
+      await database.close();
+    },
+  };
 }
 
 function main() {
