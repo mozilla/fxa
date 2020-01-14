@@ -1,3 +1,5 @@
+@import '../../../../../fxa-content-server/app/styles/breakpoints';
+
 .product-payment {
   .subscription-ready {
     display: grid;
@@ -40,5 +42,10 @@
     height: 520px;
     overflow: hidden;
     width: 550px;
+
+    @include respond-to('simpleSmall') {
+      height: 580px;
+      width: 100%;
+    }
   }
 }
