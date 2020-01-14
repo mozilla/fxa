@@ -687,6 +687,12 @@ const conf = convict({
       format: String,
       doc: 'Stripe API key for direct Stripe integration',
     },
+    stripeWebhookSecret: {
+      default: '',
+      env: 'STRIPE_WEBHOOK_SECRET',
+      format: String,
+      doc: 'A shared secret to authenticate Stripe webhook requests',
+    },
   },
   oauth: {
     url: {
