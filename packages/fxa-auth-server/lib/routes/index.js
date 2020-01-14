@@ -20,7 +20,8 @@ module.exports = function(
   zendeskClient,
   subhub,
   statsd,
-  profile
+  profile,
+  stripeHelper
 ) {
   // Various extra helpers.
   const push = require('../push')(log, db, config);
@@ -156,7 +157,8 @@ module.exports = function(
     push,
     mailer,
     subhub,
-    profile
+    profile,
+    stripeHelper
   );
   const support = require('./support')(log, db, config, customs, zendeskClient);
   const util = require('./util')(log, config, config.smtp.redirectDomain);

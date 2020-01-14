@@ -8,7 +8,6 @@ const error = require('../error');
 const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
-const StripeHelper = require('../payments/stripe');
 const { metadataFromPlan } = require('./utils/subscriptions');
 
 const createRoutes = (
@@ -19,16 +18,13 @@ const createRoutes = (
   push,
   mailer,
   subhub,
-  profile
+  profile,
+  stripeHelper
 ) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return [];
   }
-
-  let stripeHelper = config.subscriptions.stripeApiKey
-    ? new StripeHelper(log, config)
-    : undefined;
 
   // For testing with Stripe, we attach the stripehelper to the subhub object
   if (subhub.stripeHelper) {
