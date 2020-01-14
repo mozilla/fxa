@@ -364,11 +364,8 @@ describe('/views/force_auth', function() {
       it('delegates to `displayAccountProfileImage` with the correct email', function() {
         assert.isTrue(view.displayAccountProfileImage.called);
 
-        var account = view.displayAccountProfileImage.args[0][0];
+        const account = view.displayAccountProfileImage.args[0][0];
         assert.instanceOf(account, Account);
-
-        var options = view.displayAccountProfileImage.args[0][1];
-        assert.isTrue(options.spinner);
       });
 
       it('isValid is successful when the password is filled out', function() {

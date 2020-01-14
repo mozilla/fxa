@@ -175,7 +175,7 @@ const View = BaseView.extend({
 
   _setupAvatarChangeLinks() {
     if (this.supportsAvatarUpload()) {
-      this.$('.avatar-wrapper > *').wrap(
+      this.$('.change-avatar-inner').wrap(
         '<a href="/settings/avatar/change" class="change-avatar"></a>'
       );
     } else {

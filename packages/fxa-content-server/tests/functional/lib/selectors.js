@@ -295,7 +295,7 @@ module.exports = {
     SUCCESS: '.settings-success',
   },
   SETTINGS_AVATAR: {
-    AVATAR: '.change-avatar > img',
+    AVATAR: '.change-avatar > .change-avatar-inner',
     BACK: '.modal-panel #back',
     BUTTON_CAMERA: '#camera',
     BUTTON_ROTATE: '.rotate',

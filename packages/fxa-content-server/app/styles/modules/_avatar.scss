@@ -86,8 +86,7 @@
   }
 
   &.avatar-settings-view {
-    border: 2px solid $avatar-border-color;
-    box-shadow: $card-box-low;
+    border: 2px solid transparent;
     display: block;
     flex-shrink: 0;
     margin: 0;
@@ -98,6 +97,15 @@
 
     &:not(.nohover):active {
       box-shadow: 0 0 0 1px $color-orange;
+    }
+
+    &.spinner-completed {
+      border: 2px solid $avatar-border-color;
+      box-shadow: $card-box-low;
+    }
+
+    .change-avatar:focus {
+      box-shadow: none;
     }
 
     @include respond-to('big') {
