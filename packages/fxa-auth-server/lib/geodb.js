@@ -9,6 +9,11 @@ const geodb = require('../../fxa-geodb')(config);
 const ACCURACY_MAX_KM = 200;
 const ACCURACY_MIN_KM = 25;
 
+// Force the geo to load and run at startup, not waiting for it to run on
+// some route later.
+const knownIp = '63.245.221.32'; // Mozilla MTV
+geodb(knownIp);
+
 /**
  * Thin wrapper around geodb, to help log the accuracy
  * and catch errors. On success, returns an object with

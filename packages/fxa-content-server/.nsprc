@@ -7,6 +7,7 @@
   "comment_1065": "1065  is prototype pollution in lodash, used by convict, grunt-usemin, grunt-z-schema.",
   "comment_1084": "1084 is Mem denial of service is caused by cache not being removed even with maxage prop",
   "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by uglifyjs-webpack-plugin",
+  "comment_961": "961 is a DOS against node-sass",
   "exceptions": [
     "https://npmjs.com/advisories/532",
     "https://npmjs.com/advisories/577",
@@ -15,6 +16,7 @@
     "https://npmjs.com/advisories/786",
     "https://npmjs.com/advisories/1065",
     "https://npmjs.com/advisories/1084",
-    "https://npmjs.com/advisories/1426"
+    "https://npmjs.com/advisories/1426",
+    "https://npmjs.com/advisories/961"
    ]
 }
