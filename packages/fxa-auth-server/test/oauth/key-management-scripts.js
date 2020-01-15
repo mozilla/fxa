@@ -30,7 +30,7 @@ describe('the signing-key management scripts', function() {
           FXA_OPENID_KEYFILE: keyFile,
           FXA_OPENID_NEWKEYFILE: newKeyFile,
           FXA_OPENID_OLDKEYFILE: oldKeyFile,
-          NODE_ENV: 'dev',
+          NODE_ENV: 'development',
         },
         stdio: [0, 'pipe', 'pipe'],
       });

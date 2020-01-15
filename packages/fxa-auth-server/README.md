@@ -35,6 +35,10 @@ Clone the git repository and install dependencies:
     cd fxa-auth-server
     npm install
 
+To start the server in dev memory store mode (ie. `NODE_ENV=development`), run:
+
+    npm start
+
 This runs a script `scripts/start-local.sh` as defined in `package.json`. This will start up
 4 services, three of which listen on the following ports (by default):
 
@@ -44,7 +48,7 @@ This runs a script `scripts/start-local.sh` as defined in `package.json`. This w
 
 When you `Ctrl-c` your server, all 4 processes will be stopped.
 
-To start the server in dev MySQL store mode (ie. `NODE_ENV=dev`), run:
+To start the server in dev MySQL store mode (ie. `NODE_ENV=development`), run:
 
     npm run start-mysql
 

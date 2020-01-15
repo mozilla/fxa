@@ -20,7 +20,7 @@ const log = mocks.mockLog();
 const modulePath = '../../../lib/tokens/token';
 
 describe('Token', () => {
-  describe('NODE_ENV=dev', () => {
+  describe('NODE_ENV=development', () => {
     let Token;
     before(() => {
       config.isProduction = false;
@@ -125,7 +125,7 @@ describe('Token', () => {
     });
   });
 
-  describe('NODE_ENV=prod', () => {
+  describe('NODE_ENV=production', () => {
     let Token;
     before(() => {
       config.isProduction = true;

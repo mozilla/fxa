@@ -10,7 +10,7 @@
       "restart": true,
       "console": "integratedTerminal",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "development"
       },
       "internalConsoleOptions": "neverOpen",
       "skipFiles": [
@@ -31,7 +31,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
-        "NODE_ENV": "dev",
+        "NODE_ENV": "development",
         "VERIFIER_VERSION": "0",
         "NO_COVERAGE": "1",
         "CORS_ORIGIN": "http://foo,http://bar"
@@ -53,7 +53,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
-        "NODE_ENV": "dev",
+        "NODE_ENV": "development",
         "VERIFIER_VERSION": "0",
         "NO_COVERAGE": "1",
         "CORS_ORIGIN": "http://foo,http://bar"
@@ -76,7 +76,7 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "env": {
-        "NODE_ENV": "dev",
+        "NODE_ENV": "development",
         "VERIFIER_VERSION": "0",
         "NO_COVERAGE": "1",
         "CORS_ORIGIN": "http://foo,http://bar"
@@ -99,7 +99,7 @@
         "${workspaceFolder}/test/local/routes/subscriptions.js",
         "--exit"
       ],
-      "env": { "NODE_ENV": "dev" },
+      "env": { "NODE_ENV": "development" },
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "runtimeVersion": "12.14.0",

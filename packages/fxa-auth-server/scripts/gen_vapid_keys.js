@@ -25,7 +25,7 @@ const fs = require('fs');
 const webpush = require('web-push');
 
 if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'dev';
+  process.env.NODE_ENV = 'development';
 }
 
 const config = require('../config');

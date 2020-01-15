@@ -15,7 +15,7 @@ function on_sigint() {
 trap on_sigint INT
 
 docker run --rm --name fxa_email_service \
-  -e NODE_ENV=dev \
+  -e NODE_ENV=development \
   -e FXA_EMAIL_ENV=dev \
   -e FXA_EMAIL_LOG_LEVEL=debug \
   -e RUST_BACKTRACE=1 \

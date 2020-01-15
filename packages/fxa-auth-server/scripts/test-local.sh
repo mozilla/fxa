@@ -5,7 +5,7 @@ set -e
 rm -rf coverage
 rm -rf .nyc_output
 
-if [ -z "$NODE_ENV" ]; then export NODE_ENV=dev; fi;
+if [ -z "$NODE_ENV" ]; then export NODE_ENV=development; fi;
 if [ -z "$CORS_ORIGIN" ]; then export CORS_ORIGIN="http://foo,http://bar"; fi;
 
 set -u

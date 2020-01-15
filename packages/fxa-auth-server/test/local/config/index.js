@@ -9,7 +9,7 @@ const proxyquire = require('proxyquire');
 const ROOT_DIR = '../../..';
 
 describe('Config', () => {
-  describe('NODE_ENV=prod', () => {
+  describe('NODE_ENV=production', () => {
     let originalEnv;
 
     function mockEnv(key, value) {
@@ -19,7 +19,7 @@ describe('Config', () => {
 
     beforeEach(() => {
       originalEnv = {};
-      mockEnv('NODE_ENV', 'prod');
+      mockEnv('NODE_ENV', 'production');
     });
 
     afterEach(() => {

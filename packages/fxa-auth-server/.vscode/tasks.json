@@ -23,7 +23,7 @@
       },
       "options": {
         "env": {
-          "NODE_ENV": "dev",
+          "NODE_ENV": "development",
           "VERIFIER_VERSION": "0",
           "NO_COVERAGE": "1",
           "CORS_ORIGIN": "http://foo,http://bar"

@@ -79,9 +79,9 @@ where `NODE_ENV` is an environment variable
 set in the shell.
 
 For local development,
-set `NODE_ENV` to `dev`
+set `NODE_ENV` to `development`
 then create a new JSON file
-called `config/dev.json`.
+called `config/development.json`.
 In there,
 you can set any values
 that you'd like to override

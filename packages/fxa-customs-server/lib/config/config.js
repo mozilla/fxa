@@ -7,7 +7,7 @@ module.exports = function(fs, path, url, convict) {
     env: {
       doc: 'The current node.js environment',
       default: 'prod',
-      format: ['dev', 'test', 'stage', 'prod'],
+      format: ['development', 'test', 'stage', 'production'],
       env: 'NODE_ENV',
     },
     log: {

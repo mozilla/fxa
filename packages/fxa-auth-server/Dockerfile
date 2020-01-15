@@ -26,5 +26,5 @@ RUN npm ci
 WORKDIR /app
 RUN npm ci --production && rm -rf ~app/.npm
 RUN node scripts/gen_keys.js
-RUN NODE_ENV=dev node scripts/oauth_gen_keys.js
+RUN NODE_ENV=development node scripts/oauth_gen_keys.js
 RUN node scripts/gen_vapid_keys.js

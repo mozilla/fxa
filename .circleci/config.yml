@@ -81,7 +81,7 @@ jobs:
       - image: circleci/mysql:5.7.27
       - image: mozilla/fxa-email-service
         environment:
-          NODE_ENV: dev
+          NODE_ENV: development
           FXA_EMAIL_ENV: dev
           FXA_EMAIL_LOG_LEVEL: debug
           RUST_BACKTRACE: 1

@@ -28,7 +28,7 @@ const assert = require('assert');
 const crypto = require('crypto');
 
 if (!process.env.NODE_ENV) {
-  process.env.NODE_ENV = 'dev';
+  process.env.NODE_ENV = 'development';
 }
 
 const config = require('../config');

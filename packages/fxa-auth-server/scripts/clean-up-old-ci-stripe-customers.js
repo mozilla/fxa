@@ -10,7 +10,7 @@ const package = require('../package.json');
 async function init() {
   program
     .version(package.version)
-    .option('-c, --config [config]', 'Configuration to use. Ex. dev')
+    .option('-c, --config [config]', 'Configuration to use. Ex. development')
     .option(
       '-k, --stripe-key [key]',
       'Stripe secret key to use - alternatively, use SUBHUB_STRIPE_APIKEY env var'
@@ -41,7 +41,7 @@ async function init() {
     )
     .parse(process.argv);
 
-  process.env.NODE_ENV = program.config || 'dev';
+  process.env.NODE_ENV = program.config || 'development';
 
   if (program.stripeKey) {
     process.env.SUBHUB_STRIPE_APIKEY = program.stripeKey;

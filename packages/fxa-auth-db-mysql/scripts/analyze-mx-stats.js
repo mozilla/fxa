@@ -8,7 +8,7 @@
 
  Usage:
 
- NODE_ENV=prod node scripts/analyze-mx-stats.js
+ NODE_ENV=production node scripts/analyze-mx-stats.js
 
  This script is used to analyze the breakdown of popular MX domain records
  in our accounts data.  It takes a random sample of email addresses from the

@@ -5,7 +5,7 @@
       "script": "test/mail_helper.js",
       "cwd": "packages/fxa-auth-server",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "development"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -15,7 +15,7 @@
       "script": "../../_scripts/start_after_mysql.sh",
       "cwd": "packages/fxa-auth-db-mysql",
       "env": {
-        "NODE_ENV": "dev"
+        "NODE_ENV": "development"
       },
       "max_restarts": "2",
       "min_uptime": "2m"
@@ -26,7 +26,7 @@
       "cwd": "packages/fxa-auth-server",
       "env": {
         "DB": "mysql",
-        "NODE_ENV": "dev",
+        "NODE_ENV": "development",
         "IP_ADDRESS": "0.0.0.0",
         "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$",
         "SIGNIN_CONFIRMATION_ENABLED": "true",
@@ -112,7 +112,7 @@
       "max_restarts": "1",
       "env": {
         "CONFIG_123DONE": "./config-local.json",
-        "NODE_ENV": "dev"
+        "NODE_ENV": "development"
       },
       "min_uptime": "2m"
     },
@@ -123,7 +123,7 @@
       "max_restarts": "1",
       "env": {
         "CONFIG_123DONE": "./config-local-untrusted.json",
-        "NODE_ENV": "dev"
+        "NODE_ENV": "development"
       },
       "min_uptime": "2m"
     }
