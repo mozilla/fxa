@@ -22,6 +22,7 @@ const MOCK_CHECK_RESPONSE = {
   client_id: OAUTH_CLIENT_ID,
   scope: ['https://identity.mozilla.com/apps/oldsync', 'openid'],
 };
+const MOCK_DEVICE_ID = 'a72ed885e66cb9c96a12fde247112daa';
 
 describe('newTokenNotification', () => {
   let db;
@@ -129,5 +130,29 @@ describe('newTokenNotification', () => {
     assert.equal(devices.upsert.callCount, 1);
     const args = devices.upsert.args[0];
     assert.equal(args[1].refreshTokenId, MOCK_REFRESH_TOKEN_ID_2);
+    assert.isUndefined(args[2].id);
+  });
+
+  it('updates the device record using the deviceId', async () => {
+    credentials = {
+      uid: MOCK_UID,
+      deviceId: MOCK_DEVICE_ID,
+    };
+    request = mocks.mockRequest({ credentials });
+    await oauthUtils.newTokenNotification(
+      db,
+      oauthdb,
+      mailer,
+      devices,
+      request,
+      grant
+    );
+
+    assert.equal(oauthdb.checkAccessToken.callCount, 0);
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
+    assert.equal(devices.upsert.callCount, 1);
+    const args = devices.upsert.args[0];
+    assert.equal(args[1].refreshTokenId, MOCK_REFRESH_TOKEN_ID_2);
+    assert.equal(args[2].id, MOCK_DEVICE_ID);
   });
 });

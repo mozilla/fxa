@@ -57,9 +57,12 @@ module.exports = {
     credentials.tokenVerified = true;
     credentials.client = await oauthdb.getClientInfo(clientId);
 
-    // The following upsert gets no `deviceInfo`.
-    // However, `credentials.client` lets it generate a default name for the device.
-    await devices.upsert(request, credentials, {});
+    // Connect the new refreshToken to the existing device record, or create a new placeholder if there isn't one.
+    await devices.upsert(request, credentials, {
+      // We don't provide any other device info, but credentials.client will let it generate a default name for the device.
+      // Pass in the deviceId associated with the credential to reuse the existing device id.
+      id: credentials.deviceId,
+    });
 
     const geoData = request.app.geo;
     const ip = request.app.clientAddress;
