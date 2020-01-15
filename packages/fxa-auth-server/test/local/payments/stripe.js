@@ -11,6 +11,7 @@ const error = require('../../../lib/error');
 
 const StripeHelper = require('../../../lib/payments/stripe');
 
+const customer1 = require('./fixtures/customer1.json');
 const plan1 = require('./fixtures/plan1.json');
 const plan2 = require('./fixtures/plan2.json');
 const plan3 = require('./fixtures/plan3.json');
@@ -139,7 +140,7 @@ describe('StripeHelper', () => {
     });
   });
 
-  it('thrwos an error if the product is not upgradeable', async () => {
+  it('throws an error if the product is not upgradeable', async () => {
     sandbox
       .stub(stripeHelper.stripe.subscriptions, 'retrieve')
       .returns(subscription1);
@@ -153,5 +154,60 @@ describe('StripeHelper', () => {
       thrown = err;
     }
     assert.equal(thrown.errno, error.ERRNO.INVALID_PLAN_UPGRADE);
+  });
+
+  describe('fetchCustomer', () => {
+    it('fetches an existing customer', async () => {
+      const listResponse = {
+        autoPagingToArray: sinon.fake.resolves([customer1]),
+      };
+      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+      const result = await stripeHelper.fetchCustomer(
+        'user123',
+        'test@example.com'
+      );
+      assert.deepEqual(result, customer1);
+    });
+
+    it('throws if the customer record has a fxa id mismatch', async () => {
+      const listResponse = {
+        autoPagingToArray: sinon.fake.resolves([customer1]),
+      };
+      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+      let thrown;
+      try {
+        await stripeHelper.fetchCustomer('user1234', 'test@example.com');
+      } catch (err) {
+        thrown = err;
+      }
+      assert.isObject(thrown);
+      assert.equal(thrown.message, 'A backend service request failed.');
+      assert.equal(
+        thrown.cause().message,
+        'Customer for email: test@example.com in Stripe has mismatched uid'
+      );
+    });
+  });
+
+  describe('findPlanById', () => {
+    it('finds a valid plan', async () => {
+      const planId = 'plan_G93lTs8hfK7NNG';
+      const result = await stripeHelper.findPlanById(planId);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
+      assert(result.plan_id, planId);
+    });
+
+    it('throws on invalid plan id', async () => {
+      const planId = 'plan_9';
+      let thrown;
+      try {
+        await stripeHelper.findPlanById(planId);
+      } catch (err) {
+        thrown = err;
+      }
+      assert(stripeHelper.stripe.plans.list.calledOnce);
+      assert.isObject(thrown);
+      assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+    });
   });
 });

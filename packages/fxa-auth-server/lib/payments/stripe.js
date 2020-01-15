@@ -5,13 +5,13 @@
 const error = require('../error');
 const subhub = require('../subhub/client');
 
-const stripe = require('stripe');
+const stripe = require('stripe').Stripe;
 
-/** @typedef {import('stripe').customers.ICustomer} Customer */
-/** @typedef {import('stripe').products.IProduct} Product */
-/** @typedef {import('stripe').plans.IPlan} Plan */
-/** @typedef {import('stripe').subscriptions.ISubscription} Subscription */
-/** @typedef {import('stripe').customers.ICustomerSubscriptions} Subscriptions */
+/** @typedef {import('stripe').Stripe.Customer} Customer */
+/** @typedef {import('stripe').Stripe.Product} Product */
+/** @typedef {import('stripe').Stripe.Plan} Plan */
+/** @typedef {import('stripe').Stripe.Subscription} Subscription */
+/** @typedef {import('stripe').Stripe.ApiList<Subscription>} Subscriptions */
 
 /**
  * @typedef AbbrevProduct
@@ -95,7 +95,9 @@ class StripeHelper {
     this.plansCacheIsEnabled = this.cacheTtlSeconds && redis;
 
     this.stripe = new stripe(config.subscriptions.stripeApiKey, {
+      apiVersion: '2019-12-03',
       maxNetworkRetries: 3,
+      typescript: undefined,
     });
     this.redis = redis;
   }
@@ -134,6 +136,34 @@ class StripeHelper {
       this.cacheTtlSeconds,
       () => this.fetchAllProducts()
     );
+  }
+
+  /**
+   * Fetch a customer for the record from Stripe based on email.
+   *
+   * @param {string} uid Firefox Account Uid
+   * @param {string} email Firefox Account Email
+   * @param {string[]} [expand] Additional fields to expand in the
+   *                           Stripe call.
+   * @returns {Promise<Customer|void>} Customer if exists in the system.
+   */
+  async fetchCustomer(uid, email, expand) {
+    const customerResponse = await this.stripe.customers
+      .list({ email, expand })
+      .autoPagingToArray({ limit: 20 });
+    if (customerResponse.length === 0) {
+      return;
+    }
+    const customer = customerResponse[0];
+
+    if (customer.metadata.userid !== uid) {
+      // Duplicate email with non-match uid
+      const err = new Error(
+        `Customer for email: ${email} in Stripe has mismatched uid`
+      );
+      throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
+    }
+    return customer;
   }
 
   /**
@@ -187,6 +217,21 @@ class StripeHelper {
       this.cacheTtlSeconds,
       () => this.fetchAllPlans()
     );
+  }
+
+  /**
+   * Find a plan by id or error if its not a valid planId.
+   *
+   * @param {string} planId
+   * @returns {Promise<AbbrevPlan>}
+   */
+  async findPlanById(planId) {
+    const plans = await this.allPlans();
+    const selectedPlan = plans.find(p => p.plan_id === planId);
+    if (!selectedPlan) {
+      throw error.unknownSubscriptionPlan(planId);
+    }
+    return selectedPlan;
   }
 
   /**
@@ -244,6 +289,51 @@ class StripeHelper {
         },
       ],
     });
+  }
+
+  /**
+   * Formats Stripe subscriptions for a customer into an appropriate response.
+   *
+   * @param {Subscriptions} subscriptions Subscriptions to finesse
+   * @returns {Promise<object[]>} Formatted list of subscriptions.
+   */
+  async subscriptionsToResponse(subscriptions) {
+    const subs = [];
+    for (const sub of subscriptions.data) {
+      let failure_code, failure_message;
+      // If this is a charge-automatically payment that is incomplete, attempt
+      // to get details of why it failed. The caller should expand the last_invoice
+      // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
+      // as the `expand` argument or this will not fetch the failure code/message.
+      if (
+        sub.status === 'incomplete' &&
+        typeof sub.latest_invoice !== 'string' &&
+        sub.collection_method === 'charge_automatically' &&
+        typeof sub.latest_invoice.charge === 'string'
+      ) {
+        const charge = await this.stripe.charges.retrieve(
+          sub.latest_invoice.charge
+        );
+        failure_code = charge.failure_code;
+        failure_message = charge.failure_message;
+      }
+      // FIXME: Note that the plan is only set if the subscription contains a single
+      //        plan. Multiple product support will require changes here to fetch all
+      //        plans for this subscription.
+      subs.push({
+        current_period_end: sub.current_period_end,
+        current_period_start: sub.current_period_start,
+        cancel_at_period_end: sub.cancel_at_period_end,
+        end_at: sub.ended_at,
+        plan_name: sub.plan.nickname,
+        plan_id: sub.plan.id,
+        status: sub.status,
+        subscription_id: sub.id,
+        failure_code,
+        failure_message,
+      });
+    }
+    return subs;
   }
 }
 

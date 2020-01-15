@@ -15,6 +15,7 @@ const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const stripe = require('../payments/stripe');
 
 const {
   determineClientVisibleSubscriptionCapabilities,
@@ -26,6 +27,18 @@ const MS_ONE_HOUR = 1000 * 60 * 60;
 const MS_ONE_DAY = MS_ONE_HOUR * 24;
 const MS_ONE_WEEK = MS_ONE_DAY * 7;
 const MS_ONE_MONTH = MS_ONE_DAY * 30;
+
+/**
+ *
+ * @param {*} log
+ * @param {*} config
+ * @returns {void|stripe}
+ */
+function createPayments(log, config) {
+  if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    return new stripe(log, config);
+  }
+}
 
 module.exports = (
   log,
@@ -54,6 +67,8 @@ module.exports = (
   );
 
   const otpOptions = config.otp;
+
+  const payments = createPayments(log, config);
 
   const routes = [
     {
@@ -1384,7 +1399,17 @@ module.exports = (
 
         if (config.subscriptions && config.subscriptions.enabled) {
           try {
-            await subhub.deleteCustomer(uid);
+            if (payments) {
+              const customer = await payments.fetchCustomer(
+                uid,
+                emailRecord.email
+              );
+              if (customer) {
+                await payments.stripe.customers.del(customer.id);
+              }
+            } else {
+              await subhub.deleteCustomer(uid);
+            }
           } catch (err) {
             if (err.message === 'Customer not available') {
               // if subhub didn't know about the customer, no problem.
@@ -1445,7 +1470,7 @@ module.exports = (
       handler: async function(request) {
         log.begin('Account.get', request);
 
-        const { uid } = request.auth.credentials;
+        const { uid, email } = request.auth.credentials;
 
         let subscriptions = [];
 
@@ -1455,7 +1480,17 @@ module.exports = (
             // local DB before making a request to external subhub
             const activeSubscriptions = await db.fetchAccountSubscriptions(uid);
             if (activeSubscriptions && activeSubscriptions.length > 0) {
-              ({ subscriptions } = await subhub.listSubscriptions(uid));
+              if (payments) {
+                const customer = await payments.fetchCustomer(uid, email);
+                if (!customer) {
+                  throw error.unknownCustomer(uid);
+                }
+                subscriptions = await payments.subscriptionsToResponse(
+                  customer.subscriptions
+                );
+              } else {
+                ({ subscriptions } = await subhub.listSubscriptions(uid));
+              }
             }
           } catch (err) {
             if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {
