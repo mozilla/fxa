@@ -13,6 +13,26 @@ const conf = convict({
     env: 'AUTH_HEADER',
     format: String,
   },
+  authServer: {
+    secretBearerToken: {
+      default: 'CHANGE ME!',
+      doc: 'Shared secret for accessing certain auth server endpoints',
+      env: 'AUTH_SECRET_BEARER_TOKEN',
+      format: 'String',
+    },
+    subscriptionsSearchPath: {
+      default: '/v1/oauth/subscriptions/search',
+      doc: 'Auth server path for subscriptions search endpoint',
+      env: 'AUTH_SERVER_SUBS_SEARCH_PATH',
+      format: String,
+    },
+    url: {
+      default: 'http://localhost:9000',
+      doc: 'URL for auth server',
+      env: 'AUTH_SERVER_URL',
+      format: String,
+    },
+  },
   authdbUrl: {
     default: 'http://localhost:8000',
     doc: 'fxa-auth-db-mysql url',
@@ -27,7 +47,7 @@ const conf = convict({
   },
   listen: {
     host: {
-      default: '127.0.0.1',
+      default: '0.0.0.0',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
       format: 'ipaddress',

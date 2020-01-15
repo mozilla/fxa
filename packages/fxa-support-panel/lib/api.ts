@@ -16,6 +16,8 @@ import path from 'path';
 import requests from 'request-promise-native';
 import joi from 'typesafe-joi';
 
+const MS_IN_SEC = 1000;
+
 const queryValidator = joi
   .object()
   .keys({
@@ -52,10 +54,11 @@ interface Device {
 export interface DevicesResponse extends Array<Device> {}
 
 interface Subscription {
-  uid: string;
-  subscriptionId: string;
-  productId: string;
-  createdAt: number;
+  current_period_end: number;
+  current_period_start: number;
+  plan_name: string;
+  status: string;
+  subscription_id: string;
 }
 
 export interface SubscriptionResponse extends Array<Subscription> {}
@@ -71,6 +74,11 @@ export interface TotpTokenResponse {
 export type SupportConfig = {
   authHeader: string;
   authdbUrl: string;
+  authServer: {
+    secretBearerToken: string;
+    subscriptionsSearchPath: string;
+    url: string;
+  };
 };
 
 class SupportController {
@@ -97,21 +105,43 @@ class SupportController {
       requestTicket,
       uid,
     });
+
     let account: AccountResponse;
     let devices: DevicesResponse;
     let subscriptions: SubscriptionResponse;
+
+    const accountInfoReqPromises = [
+      `${this.config.authdbUrl}/account/${uid}`,
+      `${this.config.authdbUrl}/account/${uid}/devices`,
+    ].map(url => requests.get({ ...opts, url }));
+
     try {
-      [account, devices, subscriptions] = await Promise.all(
-        [
-          `${this.config.authdbUrl}/account/${uid}`,
-          `${this.config.authdbUrl}/account/${uid}/devices`,
-          `${this.config.authdbUrl}/account/${uid}/subscriptions`,
-        ].map(url => requests.get({ ...opts, url }))
-      );
+      [account, devices] = await Promise.all(accountInfoReqPromises);
     } catch (err) {
       this.logger.error('infoFetch', { err });
       return h.response('<h1>Unable to fetch user</h1>').code(500);
     }
+
+    try {
+      subscriptions = await requests.get({
+        ...opts,
+        headers: {
+          Authorization: `Bearer ${this.config.authServer.secretBearerToken}`,
+        },
+        url: `${this.config.authServer.url}${this.config.authServer.subscriptionsSearchPath}?uid=${uid}&email=${account.email}`,
+      });
+    } catch (err) {
+      this.logger.error('subscriptionsFetch', { err });
+      return h.response('<h1>Unable to fetch subscriptions</h1>').code(500);
+    }
+
+    const formattedSubscriptions = subscriptions.map(s => ({
+      ...s,
+      current_period_end: String(new Date(s.current_period_end * MS_IN_SEC)),
+      current_period_start: String(
+        new Date(s.current_period_start * MS_IN_SEC)
+      ),
+    }));
 
     let totpEnabled: boolean;
     try {
@@ -143,6 +173,7 @@ class SupportController {
       emailVerified: !!account.emailVerified,
       locale: account.locale,
       subscriptionStatus: subscriptions.length > 0,
+      subscriptions: formattedSubscriptions,
       twoFactorAuth: totpEnabled,
       uid,
     };

@@ -42,7 +42,7 @@ async function run(config) {
   try {
     database = await DB.connect(config[config.db.backend]);
   } catch (err) {
-    log.error({ op: 'DB.connect', err: { message: err.message } });
+    log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
   }
 
@@ -112,13 +112,11 @@ async function run(config) {
 
   try {
     await server.start();
-    log.info({
-      op: 'server.start.1',
+    log.info('server.start.1', {
       msg: `running on ${server.info.uri}`,
     });
   } catch (err) {
-    log.error({
-      op: 'server.start.1',
+    log.error('server.start.1', {
       msg: 'failed startup with error',
       err: { message: err.message },
     });
@@ -128,7 +126,7 @@ async function run(config) {
     server,
     log: log,
     async close() {
-      log.info({ op: 'shutdown' });
+      log.info('shutdown');
       await server.stop();
       await customs.close();
       oauthdb.close();
@@ -138,10 +136,7 @@ async function run(config) {
         senders.email.stop();
       } catch (e) {
         // XXX: simplesmtp module may quit early and set socket to `false`, stopping it may fail
-        log.warn({
-          op: 'shutdown',
-          message: 'Mailer client already disconnected',
-        });
+        log.warn('shutdown', { message: 'Mailer client already disconnected' });
       }
       await database.close();
     },
@@ -153,14 +148,11 @@ async function main() {
   try {
     const server = await run(config.getProperties());
     process.on('uncaughtException', err => {
-      server.log.fatal(err);
+      server.log.fatal('uncaughtException', err);
       process.exit(8);
     });
     process.on('unhandledRejection', (reason, promise) => {
-      server.log.fatal({
-        op: 'promise.unhandledRejection',
-        error: reason,
-      });
+      server.log.fatal('promise.unhandledRejection', { error: reason });
     });
     const shutdown = async () => {
       await server.close();
@@ -170,7 +162,7 @@ async function main() {
     server.log.on('error', shutdown);
 
     if (config.get('env') !== 'prod') {
-      server.log.info(config.toString(), 'starting config');
+      server.log.info('startConfig', { config: config.toString() });
     }
   } catch (err) {
     console.error(err); // eslint-disable-line no-console

@@ -646,6 +646,9 @@ function getConfig() {
     subscriptions: {
       sharedSecret: 'abc',
     },
+    supportPanel: {
+      secretBearerToken: 'topsecrets',
+    },
     verificationReminders: {},
   };
 }

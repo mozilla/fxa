@@ -4,7 +4,6 @@
 
 'use strict';
 
-const crypto = require('crypto');
 const fs = require('fs');
 const Hapi = require('hapi');
 const joi = require('joi');
@@ -15,6 +14,7 @@ const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const schemeServerJWT = require('./routes/auth-schemes/serverJWT');
 const authBearer = require('./routes/auth-schemes/auth-bearer');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
+const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const { HEX_STRING, IP_ADDRESS } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 
@@ -347,17 +347,10 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
 
   server.auth.strategy('refreshToken', 'fxa-oauth-refreshToken');
 
-  server.auth.scheme('subscriptionsSecret', () => ({
-    async authenticate(request, h) {
-      if (
-        constantTimeCompare(request.headers.authorization, SUBSCRIPTIONS_SECRET)
-      ) {
-        return h.authenticated({ credentials: {} });
-      }
-
-      throw error.invalidToken();
-    },
-  }));
+  server.auth.scheme(
+    'subscriptionsSecret',
+    sharedSecretAuth.strategy(SUBSCRIPTIONS_SECRET)
+  );
   server.auth.strategy('subscriptionsSecret', 'subscriptionsSecret');
 
   server.auth.scheme(
@@ -374,19 +367,17 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
   server.auth.scheme(authBearer.AUTH_SCHEME, authBearer.strategy);
   server.auth.strategy(authBearer.AUTH_STRATEGY, authBearer.AUTH_SCHEME);
 
+  server.auth.scheme(
+    'supportPanelSecret',
+    sharedSecretAuth.strategy(`Bearer ${config.supportPanel.secretBearerToken}`)
+  );
+  server.auth.strategy('supportPanelSecret', 'supportPanelSecret');
+
   // routes should be registered after all auth strategies have initialized:
   // ref: http://hapijs.com/tutorials/auth
 
   server.route(routes);
   return server;
-}
-
-function constantTimeCompare(subject, object) {
-  const size = Buffer.byteLength(object);
-  return (
-    crypto.timingSafeEqual(Buffer.alloc(size, subject), Buffer.from(object)) &&
-    subject.length === object.length
-  );
 }
 
 function defineLazyGetter(object, key, getter) {

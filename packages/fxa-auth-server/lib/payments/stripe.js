@@ -7,12 +7,14 @@ const subhub = require('../subhub/client');
 
 const stripe = require('stripe').Stripe;
 
-/** @typedef {import('stripe').Stripe.Customer} Customer */
-/** @typedef {import('stripe').Stripe.Product} Product */
-/** @typedef {import('stripe').Stripe.Plan} Plan */
-/** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.ApiList<Subscription>} Subscriptions */
+/** @typedef {import('stripe').Stripe.ApiListPromise} ApiListPromise */
+/** @typedef {import('stripe').Stripe.Customer} Customer */
 /** @typedef {import('stripe').Stripe.Event} StripeEvent */
+/** @typedef {import('stripe').Stripe.Plan} Plan */
+/** @typedef {import('stripe').Stripe.Product} Product */
+/** @typedef {import('stripe').Stripe.Subscription} Subscription */
+/** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
 
 /**
  * @typedef AbbrevProduct
@@ -176,6 +178,17 @@ class StripeHelper {
       );
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
+
+    // We need to get all the subscriptions for a customer
+    if (customer.subscriptions && customer.subscriptions.has_more) {
+      const additionalSubscriptions = await this.fetchAllSubscriptionsForCustomer(
+        customer.id,
+        customer.subscriptions.data[customer.subscriptions.data.length - 1].id
+      );
+      customer.subscriptions.data.push(...additionalSubscriptions);
+      customer.subscriptions.has_more = false;
+    }
+
     return customer;
   }
 
@@ -215,6 +228,33 @@ class StripeHelper {
     return customer.subscriptions.data.find(
       subscription => subscription.id === subscriptionId
     );
+  }
+
+  /**
+   * Fetch a list of subscriptions for a customer from Stripe.
+   *
+   * @param {string} customerId
+   * @param {string} startAfterSubscriptionId
+   * @returns {Promise<Subscription[]>}
+   */
+  async fetchAllSubscriptionsForCustomer(customerId, startAfterSubscriptionId) {
+    let getMore = true;
+    const subscriptions = [];
+    let startAfter = startAfterSubscriptionId;
+
+    while (getMore) {
+      const moreSubs = await this.stripe.subscriptions.list({
+        customer: customerId,
+        starting_after: startAfter,
+      });
+
+      subscriptions.push(...moreSubs.data);
+
+      getMore = moreSubs.has_more;
+      startAfter = moreSubs.data[moreSubs.data.length - 1].id;
+    }
+
+    return subscriptions;
   }
 
   /**
@@ -387,6 +427,7 @@ class StripeHelper {
       // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
       // as the `expand` argument or this will not fetch the failure code/message.
       if (
+        sub.latest_invoice &&
         sub.status === 'incomplete' &&
         typeof sub.latest_invoice !== 'string' &&
         sub.collection_method === 'charge_automatically' &&

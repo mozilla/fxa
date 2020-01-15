@@ -72,7 +72,7 @@ const SubscriptionUtils = (module.exports = {
 async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   const customer = await stripeHelper.customer(uid, email);
   if (!customer || !customer.subscriptions.data) {
-    return;
+    return [];
   }
   // All accounts get this psuedo-product
   const subscribedProducts = [PRODUCT_REGISTERED];
