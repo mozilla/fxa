@@ -11,6 +11,7 @@ const sinon = require('sinon');
 const ERROR_CODES = {
   NODATA: 'ENODATA',
   NOTFOUND: 'ENOTFOUND',
+  SERVFAIL: 'ESERVFAIL',
 };
 
 const proxyquireWithDns = dns =>
@@ -136,7 +137,7 @@ registerSuite('routes/validate-email-domain', {
         });
       },
 
-      'calls next() with an error when resolve functions throw an error that is not NODATA or NOTFOUND': () => {
+      'calls next() with an error when resolve functions throw a non- dns.* error ': () => {
         const error = { code: 'SOME_SERIOUS_ERROR!' };
         const resolveMxStub = sinon.stub().resolves([]);
         const resolve4Stub = sinon.stub().rejects(error);
@@ -160,6 +161,36 @@ registerSuite('routes/validate-email-domain', {
           assert.isTrue(resolveMxStub.calledOnceWith('abc.xyz'));
           assert.isTrue(resolve4Stub.calledOnceWith('abc.xyz'));
           assert.isTrue(next.calledOnceWith(error));
+        });
+      },
+
+      'calls next() with a wrapped error on a dns.* error, excluding NODATA and NOTFOUND': () => {
+        const error = { code: ERROR_CODES.SERVFAIL };
+        const resolveMxStub = sinon.stub().resolves([]);
+        const resolve4Stub = sinon.stub().rejects(error);
+        const dns = {
+          ...ERROR_CODES,
+          promises: {
+            Resolver: function() {
+              this.resolveMx = resolveMxStub;
+              this.resolve4 = resolve4Stub;
+            },
+          },
+        };
+
+        const validateEmailDomainRoute = proxyquireWithDns(dns);
+        const req = { query: { domain: 'abc.xyz' } };
+        const res = { json: sinon.stub() };
+        const next = sinon.stub();
+        const route = validateEmailDomainRoute();
+
+        return route.process(req, res, next).then(() => {
+          assert.isFalse(next.calledWith(error));
+          assert.isTrue(next.calledOnce);
+          assert.equal(
+            next.args[0][0].message,
+            `DNS query error: ${ERROR_CODES.SERVFAIL}`
+          );
         });
       },
     },

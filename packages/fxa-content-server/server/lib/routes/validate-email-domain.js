@@ -11,12 +11,38 @@
 
 const joi = require('joi');
 const dns = require('dns');
+const VError = require('verror');
 const resolver = new dns.promises.Resolver();
 const results = ['MX', 'A', 'none'].reduce((accumulator, val) => {
   accumulator[val] = val;
   return accumulator;
 }, {});
+
 const NotFoundErrorCodes = [dns.NODATA, dns.NOTFOUND];
+const WrappedErrorCodes = [
+  dns.FORMERR,
+  dns.SERVFAIL,
+  dns.NOTIMP,
+  dns.REFUSED,
+  dns.BADQUERY,
+  dns.BADNAME,
+  dns.BADFAMILY,
+  dns.BADRESP,
+  dns.CONNREFUSED,
+  dns.TIMEOUT,
+  dns.EOF,
+  dns.FILE,
+  dns.NOMEM,
+  dns.DESTRUCTION,
+  dns.BADSTR,
+  dns.BADFLAGS,
+  dns.NONAME,
+  dns.BADHINTS,
+  dns.NOTINITIALIZED,
+  dns.LOADIPHLPAPI,
+  dns.ADDRGETNETWORKPARAMS,
+  dns.CANCELLED,
+];
 
 const tryResolveWith = resolveFunc => async domain => {
   try {
@@ -55,7 +81,11 @@ module.exports = function() {
         }
         return res.json({ result: results.none });
       } catch (err) {
-        next(err);
+        if (WrappedErrorCodes.includes(err.code)) {
+          next(new VError.WError(err, `DNS query error: ${err.code}`));
+        } else {
+          next(err);
+        }
       }
     },
   };
