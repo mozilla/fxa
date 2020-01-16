@@ -8,8 +8,8 @@ const crypto = require('crypto');
 const EventEmitter = require('events');
 const P = require('../lib/promise');
 const mailbox = require('./mailbox');
+const proxyquire = require('proxyquire').noPreserveCache();
 const createDBServer = require('../../fxa-auth-db-mysql');
-const createAuthServer = require('../bin/key_server');
 const createMailHelper = require('./mail_helper');
 const createProfileHelper = require('./profile_helper');
 
@@ -17,6 +17,8 @@ let currentServer;
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
+  this.options = options;
+
   currentServer = this;
   if (printLogs === undefined) {
     // Issue where debugger does not attach if
@@ -61,6 +63,12 @@ TestServer.start = function(config, printLogs, options) {
 };
 
 TestServer.prototype.start = function() {
+  const { authServerMockDependencies = {} } = this.options;
+  const createAuthServer = proxyquire(
+    '../bin/key_server',
+    authServerMockDependencies
+  );
+
   const promises = [
     createAuthServer(this.config),
     createMailHelper(this.printLogs),

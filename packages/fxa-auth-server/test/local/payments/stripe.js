@@ -9,7 +9,11 @@ const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 
-const StripeHelper = require('../../../lib/payments/stripe');
+let mockRedis;
+const proxyquire = require('proxyquire').noPreserveCache();
+const StripeHelper = proxyquire('../../../lib/payments/stripe', {
+  '../redis': (config, log) => mockRedis.init(config, log),
+});
 
 const customer1 = require('./fixtures/customer1.json');
 const plan1 = require('./fixtures/plan1.json');
@@ -24,6 +28,7 @@ const subscription2 = require('./fixtures/subscription2.json');
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
   subscriptions: {
+    cacheTtlSeconds: 10,
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
   },
   subhub: {
@@ -61,6 +66,33 @@ function asyncIterable(lst) {
   };
 }
 
+function createMockRedis() {
+  let _data = {};
+  const mock = {
+    reset() {
+      _data = {};
+    },
+    _data() {
+      return _data;
+    },
+    init(config, log) {
+      this.reset();
+      return this;
+    },
+    async set(key, value, opt, ttl) {
+      _data[key] = value;
+    },
+    async del(key) {
+      delete _data[key];
+    },
+    async get(key) {
+      return _data[key];
+    },
+  };
+  Object.keys(mock).forEach(key => sinon.spy(mock, key));
+  return mock;
+}
+
 mockConfig.redis = mockRedisConfig;
 
 describe('StripeHelper', () => {
@@ -71,6 +103,7 @@ describe('StripeHelper', () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
+    mockRedis = createMockRedis();
     const log = mockLog();
     stripeHelper = new StripeHelper(log, mockConfig);
     sandbox
@@ -85,16 +118,34 @@ describe('StripeHelper', () => {
     sandbox.restore();
   });
 
-  it('pulls a list of plans', async () => {
-    const plans = await stripeHelper.allPlans();
-    assert.lengthOf(plans, 3);
+  it('pulls a list of plans and caches it', async () => {
+    assert.lengthOf(await stripeHelper.allPlans(), 3);
+    assert(mockRedis.get.calledOnce);
+
+    assert.lengthOf(await stripeHelper.allPlans(), 3);
+    assert(mockRedis.get.calledTwice);
+    assert(mockRedis.set.calledOnce);
     assert(stripeHelper.stripe.plans.list.calledOnce);
+
+    assert.deepEqual(
+      await stripeHelper.allPlans(),
+      JSON.parse(await mockRedis.get('listPlans'))
+    );
   });
 
-  it('pulls a list of products', async () => {
-    const products = await stripeHelper.allProducts();
-    assert.lengthOf(products, 3);
+  it('pulls a list of products and caches it', async () => {
+    assert.lengthOf(await stripeHelper.allProducts(), 3);
+    assert(mockRedis.get.calledOnce);
+
+    assert.lengthOf(await stripeHelper.allProducts(), 3);
+    assert(mockRedis.get.calledTwice);
+    assert(mockRedis.set.calledOnce);
     assert(stripeHelper.stripe.products.list.calledOnce);
+
+    assert.deepEqual(
+      await stripeHelper.allProducts(),
+      JSON.parse(await mockRedis.get('listProducts'))
+    );
   });
 
   describe('with tier change', () => {
@@ -186,6 +237,77 @@ describe('StripeHelper', () => {
         thrown.cause().message,
         'Customer for email: test@example.com in Stripe has mismatched uid'
       );
+    });
+  });
+
+  describe('customer caching', () => {
+    const uid = 'user123';
+    const email = 'test@example.com';
+
+    beforeEach(() => {
+      const listResponse = {
+        autoPagingToArray: sinon.fake.resolves([customer1]),
+      };
+      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+    });
+
+    describe('customer', () => {
+      it('fetches an existing customer and caches it', async () => {
+        assert.deepEqual(await stripeHelper.customer(uid, email), customer1);
+        assert(mockRedis.get.calledOnce);
+        assert(mockRedis.set.calledOnce);
+
+        assert.deepEqual(await stripeHelper.customer(uid, email), customer1);
+        assert(mockRedis.get.calledTwice);
+        assert(mockRedis.set.calledOnce);
+        assert(stripeHelper.stripe.customers.list.calledOnce);
+
+        const customerKey = stripeHelper.customerCacheKey(uid, email);
+        assert.deepEqual(
+          await stripeHelper.customer(uid, email),
+          JSON.parse(await mockRedis.get(customerKey))
+        );
+      });
+    });
+
+    describe('subscriptionForCustomer', () => {
+      it('uses cached customer data to look up a subscription', async () => {
+        assert.deepEqual(await stripeHelper.customer(uid, email), customer1);
+        assert(mockRedis.get.calledOnce);
+        assert(mockRedis.set.calledOnce);
+
+        assert.deepEqual(
+          await stripeHelper.subscriptionForCustomer(
+            uid,
+            email,
+            customer1.subscriptions.data[0].id
+          ),
+          customer1.subscriptions.data[0]
+        );
+        assert(mockRedis.get.calledTwice);
+        assert(mockRedis.set.calledOnce);
+        assert(stripeHelper.stripe.customers.list.calledOnce);
+      });
+    });
+
+    describe('cache deletion', () => {
+      let customerKey;
+
+      beforeEach(async () => {
+        customerKey = stripeHelper.customerCacheKey(uid, email);
+        assert.deepEqual(
+          await stripeHelper.customer(uid, email),
+          JSON.parse(await mockRedis.get(customerKey))
+        );
+      });
+
+      describe('deleteCachedCustomer', () => {
+        it('clears a cached customer by uid and email', async () => {
+          await stripeHelper.deleteCachedCustomer(uid, email);
+          assert(mockRedis.del.calledOnce);
+          assert.isUndefined(await mockRedis.get(customerKey));
+        });
+      });
     });
   });
 

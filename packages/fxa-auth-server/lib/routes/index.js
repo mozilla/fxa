@@ -50,7 +50,9 @@ module.exports = function(
   const defaults = require('./defaults')(log, db);
   const idp = require('./idp')(log, serverPublicKeys);
   const oauthServer = require('../oauth/routes');
-  require('../oauth/grant').setDB(db);
+  const grant = require('../oauth/grant');
+  grant.setDB(db);
+  grant.setStripeHelper(stripeHelper);
   const account = require('./account')(
     log,
     db,
@@ -62,7 +64,8 @@ module.exports = function(
     signinUtils,
     push,
     verificationReminders,
-    require('../oauth/db')
+    require('../oauth/db'),
+    stripeHelper
   );
   const oauth = require('./oauth')(
     log,

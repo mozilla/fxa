@@ -73,6 +73,14 @@ async function cachedResult(log, redis, cacheKey, cacheTtl, refreshFunction) {
   return result;
 }
 
+async function deleteCachedResult(log, redis, cacheKey) {
+  try {
+    await redis.del(cacheKey);
+  } catch (err) {
+    log.error(`subhub.deleteCachedResult.failed`, { err });
+  }
+}
+
 class StripeHelper {
   /**
    * Create a Stripe Helper with built-in caching.
@@ -82,7 +90,10 @@ class StripeHelper {
    */
   constructor(log, config) {
     this.log = log;
-    this.cacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
+    // TODO: Should we configure different TTLs for different data? (i.e. plans, products, customers)
+    this.cacheTtlSeconds =
+      config.subhub.plansCacheTtlSeconds ||
+      config.subscriptions.cacheTtlSeconds;
     const redis =
       this.cacheTtlSeconds &&
       require('../redis')(
@@ -164,6 +175,74 @@ class StripeHelper {
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
     return customer;
+  }
+
+  /**
+   * Fetch a customer for the record from Stripe based on user ID & email.
+   *
+   * Uses Redis caching if configured.
+   *
+   * @param {string} uid Firefox Account Uid
+   * @param {string} email Firefox Account Email
+   * @returns {Promise<Customer|void>} Customer if exists in the system.
+   */
+  async customer(uid, email) {
+    const cacheKey = this.customerCacheKey(uid, email);
+    return cachedResult(
+      this.log,
+      this.redis,
+      cacheKey,
+      this.cacheTtlSeconds,
+      async () =>
+        this.fetchCustomer(uid, email, ['data.sources', 'data.subscriptions'])
+    );
+  }
+
+  /**
+   * Fetch a subscription for a customer from Stripe.
+   *
+   * Uses Redis caching if configured.
+   *
+   * @param {string} uid Firefox Account Uid
+   * @param {string} email Firefox Account Email
+   * @param {string} subscriptionId Subscription ID
+   * @returns {Promise<Subscription|void>} Subscription if exists for the customer.
+   */
+  async subscriptionForCustomer(uid, email, subscriptionId) {
+    const customer = await this.customer(uid, email);
+    return customer.subscriptions.data.find(
+      subscription => subscription.id === subscriptionId
+    );
+  }
+
+  /**
+   * Delete a cached customer record based on user ID & email.
+   *
+   * @param {string} uid Firefox Account Uid
+   * @param {string} email Firefox Account Email
+   * @returns {Promise<number|void>} Redis result.
+   */
+  async deleteCachedCustomer(uid, email) {
+    try {
+      return deleteCachedResult(
+        this.log,
+        this.redis,
+        this.customerCacheKey(uid, email)
+      );
+    } catch (err) {
+      this.log.error(`subhub.deleteCachedCustomer.failed`, { err });
+    }
+  }
+
+  /**
+   * Build a key used for Redis cache based on user ID & email.
+   *
+   * @param {string} uid Firefox Account Uid
+   * @param {string} email Firefox Account Email
+   * @returns {string} Cache key.
+   */
+  customerCacheKey(uid, email) {
+    return `customer-${uid}|${email}`;
   }
 
   /**
@@ -337,4 +416,18 @@ class StripeHelper {
   }
 }
 
-module.exports = StripeHelper;
+/**
+ * Create a Stripe Helper with built-in caching.
+ *
+ * @param {object} log
+ * @param {object} config
+ * @returns StripeHelper
+ */
+function createStripeHelper(log, config) {
+  return new StripeHelper(log, config);
+}
+// HACK: Hang a reference for StripeHelper off the factory function so we
+// can use it as a type in bin/key_server.js while keeping the exports simple.
+createStripeHelper.StripeHelper = StripeHelper;
+
+module.exports = createStripeHelper;

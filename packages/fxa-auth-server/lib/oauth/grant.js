@@ -56,6 +56,10 @@ let authdb = {};
 module.exports.setDB = function(db) {
   authdb = db;
 };
+let stripeHelper = null;
+module.exports.setStripeHelper = function(val) {
+  stripeHelper = val;
+};
 
 // Given a set of verified user identity claims, can the given client
 // be granted the specified access to the user's data?
@@ -244,7 +248,9 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
       {},
       authdb,
       hex(grant.userId),
-      grant.clientId
+      grant.clientId,
+      stripeHelper,
+      grant.email
     );
     // To avoid mutating the input grant, create a
     // copy and add the new property there.
