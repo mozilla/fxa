@@ -17,6 +17,8 @@ const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 
+const CUSTOMER_1 = require('../payments/fixtures/customer1.json');
+const CUSTOMER_1_UPDATED = require('../payments/fixtures/customer1_new_email.json');
 const TEST_EMAIL = 'foo@gmail.com';
 const TEST_EMAIL_ADDITIONAL = 'foo2@gmail.com';
 const TEST_EMAIL_INVALID = 'example@dotless-domain';
@@ -132,7 +134,9 @@ const otpOptions = {
 
 let zendeskClient;
 const updateZendeskPrimaryEmail = require('../../../lib/routes/emails')
-  .updateZendeskPrimaryEmail;
+  ._updateZendeskPrimaryEmail;
+const updateStripeEmail = require('../../../lib/routes/emails')
+  ._updateStripeEmail;
 
 const makeRoutes = function(options = {}, requireMocks) {
   const config = options.config || {};
@@ -284,6 +288,39 @@ describe('update zendesk primary email', () => {
     assert.calledOnce(searchSpy);
     assert.calledOnce(listSpy);
     assert.isFalse(updateSpy.called);
+  });
+});
+
+describe('update stripe primary email', () => {
+  let stripeHelper;
+
+  beforeEach(() => {
+    stripeHelper = {};
+  });
+
+  it('should update the primary email address', async () => {
+    stripeHelper.fetchCustomer = sinon.fake.returns(CUSTOMER_1);
+    stripeHelper.stripe = {
+      customers: { update: sinon.fake.returns(CUSTOMER_1_UPDATED) },
+    };
+    const result = await updateStripeEmail(
+      stripeHelper,
+      'test',
+      'test@example.com',
+      'updated.email@example.com'
+    );
+    assert.deepEqual(result, CUSTOMER_1_UPDATED);
+  });
+
+  it('returns if the email was already updated', async () => {
+    stripeHelper.fetchCustomer = sinon.fake.returns(undefined);
+    const result = await updateStripeEmail(
+      stripeHelper,
+      'test',
+      'test@example.com',
+      'updated.email@example.com'
+    );
+    assert.isUndefined(result);
   });
 });
 
