@@ -4,140 +4,211 @@
 
 'use strict';
 
-const LIB_DIR = '../../lib';
-
 const { assert } = require('chai');
-const error = require(`${LIB_DIR}/error`);
-const mocks = require('../mocks');
-const P = require(`${LIB_DIR}/promise`);
-const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const config = require('../../config').getProperties();
+const redis = require('../../lib/redis')(
+  { ...config.redis, ...config.redis.sessionTokens },
+  { error: sinon.spy() }
+);
 
-describe('lib/redis:', () => {
-  let config, log, mockError, redis, fxaShared, wrapper;
+const downRedis = require('../../lib/redis')(
+  { enabled: true, port: 1, timeoutMs: 10, lazyConnect: true },
+  { error: sinon.spy() }
+);
 
-  beforeEach(() => {
-    config = {};
-    log = mocks.mockLog();
-    redis = {
-      foo: sinon.spy(() => {
-        if (mockError) {
-          return P.reject(mockError);
-        }
+const uid = 'uid1';
+const sessionToken = {
+  lastAccessTime: 1573067619720,
+  location: {
+    city: 'a',
+    state: 'b',
+    stateCode: 'c',
+    country: 'd',
+    countryCode: 'e',
+  },
+  uaBrowser: 'Firefox',
+  uaBrowserVersion: '70.0',
+  uaDeviceType: 'f',
+  uaOS: 'Mac OS X',
+  uaOSVersion: '10.14',
+  id: 'token1',
+};
 
-        return P.resolve('bar');
-      }),
-      baz: sinon.spy(),
-      wibble: 'blee',
-    };
-    fxaShared = sinon.spy(() => redis);
-    wrapper = proxyquire(`${LIB_DIR}/redis`, {
-      '../../fxa-shared/redis': fxaShared,
-    })(config, log);
+describe('Redis', () => {
+  after(async () => {
+    await redis.del(uid);
+    redis.close();
   });
 
-  it('returned the wrapped interface', () => {
-    assert.isObject(wrapper);
-    assert.notEqual(wrapper, redis);
-    assert.lengthOf(Object.keys(wrapper), 3);
-
-    assert.isFunction(wrapper.foo);
-    assert.notEqual(wrapper.foo, redis.foo);
-    assert.lengthOf(wrapper.foo, 0);
-
-    assert.isFunction(wrapper.baz);
-    assert.notEqual(wrapper.baz, redis.baz);
-    assert.lengthOf(wrapper.baz, 0);
-
-    assert.equal(wrapper.wibble, 'blee');
-  });
-
-  it('called fxa-shared', () => {
-    assert.equal(fxaShared.callCount, 1);
-    const args = fxaShared.args[0];
-    assert.lengthOf(args, 2);
-    assert.equal(args[0], config);
-    assert.equal(args[1], log);
-  });
-
-  it('did not call any redis methods', () => {
-    assert.equal(redis.foo.callCount, 0);
-    assert.equal(redis.baz.callCount, 0);
-  });
-
-  describe('successful method call:', () => {
-    let result;
-
+  describe('touchSessionToken', () => {
     beforeEach(async () => {
-      result = await wrapper.foo('mock arg 1', 'mock arg 2');
+      await redis.del(uid);
     });
 
-    it('returned the expected result', () => {
-      assert.equal(result, 'bar');
+    it('creates an entry for uid when none exists', async () => {
+      const x = await redis.get(uid);
+      assert.isNull(x);
+      await redis.touchSessionToken(uid, sessionToken);
+      const rawData = await redis.get(uid);
+      assert.ok(rawData);
     });
 
-    it('called the underlying redis method', () => {
-      assert.equal(redis.foo.callCount, 1);
-      const args = redis.foo.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'mock arg 1');
-      assert.equal(args[1], 'mock arg 2');
+    it('appends a new token to an existing uid record', async () => {
+      await redis.touchSessionToken(uid, sessionToken);
+      await redis.touchSessionToken(uid, { ...sessionToken, id: 'token2' });
+      const tokens = await redis.getSessionTokens(uid);
+      assert.deepEqual(Object.keys(tokens), [sessionToken.id, 'token2']);
     });
 
-    it('did not call the other redis method', () => {
-      assert.equal(redis.baz.callCount, 0);
+    it('updates existing tokens with new data', async () => {
+      await redis.touchSessionToken(uid, { ...sessionToken, uaOS: 'Windows' });
+      const tokens = await redis.getSessionTokens(uid);
+      assert.equal(tokens[sessionToken.id].uaOS, 'Windows');
+    });
+
+    it('trims trailing null fields from the stored value', async () => {
+      await redis.touchSessionToken(uid, {
+        id: 'token1',
+        lastAccessTime: 1,
+        location: null,
+        uaBrowser: 'x',
+        uaFormFactor: null,
+      });
+      const rawData = await redis.get(uid);
+      assert.equal(rawData, `{"token1":[1,null,"x"]}`);
     });
   });
 
-  describe('conflicting method call:', () => {
-    let result, err;
-
+  describe('getSessionTokens', () => {
     beforeEach(async () => {
+      await redis.del(uid);
+      await redis.touchSessionToken(uid, sessionToken);
+    });
+
+    it('returns an empty object for unknown uids', async () => {
+      const tokens = await redis.getSessionTokens('x');
+      assert.isEmpty(tokens);
+    });
+
+    it('returns tokens indexed by id', async () => {
+      const tokens = await redis.getSessionTokens(uid);
+      assert.deepEqual(Object.keys(tokens), [sessionToken.id]);
+      // token 'id' not included
+      const s = { ...sessionToken };
+      delete s.id;
+      assert.deepEqual(tokens[sessionToken.id], s);
+    });
+
+    it('returns empty for malformed entries', async () => {
+      await redis.set(uid, 'YOLO!');
+      const tokens = await redis.getSessionTokens(uid);
+      assert.isEmpty(tokens);
+    });
+
+    it('deletes malformed entries', async () => {
+      await redis.set(uid, 'YOLO!');
+      await redis.getSessionTokens(uid);
+      const nothing = await redis.get(uid);
+      assert.isNull(nothing);
+    });
+
+    it('handles old (json) format entries', async () => {
+      const oldFormat = {
+        lastAccessTime: 42,
+        uaBrowser: 'Firefox',
+        uaBrowserVersion: '59',
+        uaOS: 'Mac OS X',
+        uaOSVersion: '10.11',
+        uaDeviceType: null,
+        uaFormFactor: null,
+        location: {
+          city: 'Bournemouth',
+          state: 'England',
+          stateCode: 'EN',
+          country: 'United Kingdom',
+          countryCode: 'GB',
+        },
+      };
+      await redis.set(uid, JSON.stringify({ [uid]: oldFormat }));
+      const tokens = await redis.getSessionTokens(uid);
+      assert.deepEqual(tokens[uid], oldFormat);
+    });
+  });
+
+  describe('pruneSessionTokens', () => {
+    beforeEach(async () => {
+      await redis.del(uid);
+      await redis.touchSessionToken(uid, sessionToken);
+      await redis.touchSessionToken(uid, { ...sessionToken, id: 'token2' });
+    });
+
+    it('does nothing for unknown uids', async () => {
+      await redis.pruneSessionTokens('x');
+      const tokens = await redis.getSessionTokens('x');
+      assert.isEmpty(tokens);
+    });
+
+    it('does nothing for unkown token ids', async () => {
+      await redis.pruneSessionTokens(uid, ['x', 'y']);
+      const tokens = await redis.getSessionTokens(uid);
+      assert.deepEqual(Object.keys(tokens), [sessionToken.id, 'token2']);
+    });
+
+    it('deletes a given token id', async () => {
+      await redis.pruneSessionTokens(uid, ['token2']);
+      const tokens = await redis.getSessionTokens(uid);
+      assert.deepEqual(Object.keys(tokens), [sessionToken.id]);
+    });
+
+    it('deleted the uid record when no tokens remain', async () => {
+      await redis.pruneSessionTokens(uid, [sessionToken.id, 'token2']);
+      const rawData = await redis.get(uid);
+      assert.isNull(rawData);
+    });
+  });
+});
+
+describe('Redis down', () => {
+  before(async () => {
+    try {
+      await downRedis.redis.connect();
+    } catch (e) {
+      // this is expected
+    }
+  });
+
+  after(() => {
+    downRedis.redis.disconnect();
+  });
+
+  describe('touchSessionToken', () => {
+    it('returns without error', async () => {
       try {
-        mockError = new Error('redis.watch.conflict');
-        result = await wrapper.foo();
-      } catch (e) {
-        err = e;
+        await downRedis.touchSessionToken(uid, {});
+      } catch (err) {
+        assert.fail();
       }
     });
+  });
 
-    it('rejected with 409 conflict', () => {
-      assert.isUndefined(result);
-      assert.isObject(err);
-      assert.equal(err.errno, error.ERRNO.REDIS_CONFLICT);
-      assert.equal(err.message, 'Redis WATCH detected a conflicting update');
-      assert.equal(err.output.statusCode, 409);
-      assert.equal(err.output.payload.error, 'Conflict');
-    });
-
-    it('called the underlying redis method', () => {
-      assert.equal(redis.foo.callCount, 1);
+  describe('getSessionTokens', () => {
+    it('returns an empty object without error', async () => {
+      const tokens = await downRedis.getSessionTokens(uid);
+      assert.isEmpty(tokens);
     });
   });
 
-  describe('failing method call:', () => {
-    let result, err;
-
-    beforeEach(async () => {
+  describe('pruneSessionTokens', () => {
+    it('throws a timeout error', async () => {
       try {
-        mockError = new Error('wibble');
-        result = await wrapper.foo();
+        await downRedis.pruneSessionTokens(uid);
       } catch (e) {
-        err = e;
+        assert.typeOf(e, 'Error');
+        assert.equal(e.message, 'redis timeout');
+        return;
       }
-    });
-
-    it('rejected with 500 error', () => {
-      assert.isUndefined(result);
-      assert.isObject(err);
-      assert.equal(err.errno, error.ERRNO.UNEXPECTED_ERROR);
-      assert.equal(err.message, 'Unspecified error');
-      assert.equal(err.output.statusCode, 500);
-      assert.equal(err.output.payload.error, 'Internal Server Error');
-    });
-
-    it('called the underlying redis method', () => {
-      assert.equal(redis.foo.callCount, 1);
+      assert.fail();
     });
   });
 });

@@ -34,7 +34,7 @@ describe('lib/verification-reminders:', () => {
         },
       },
     };
-    redis = require('../../../fxa-shared/redis')(
+    redis = require('../../lib/redis')(
       {
         ...config.redis,
         ...mockConfig.verificationReminders.redis,
@@ -75,14 +75,6 @@ describe('lib/verification-reminders:', () => {
     assert.lengthOf(verificationReminders.close, 0);
   });
 
-  it('called log.info correctly', () => {
-    assert.equal(log.info.callCount, 1);
-    const args = log.info.args[0];
-    assert.lengthOf(args, 2);
-    assert.equal(args[0], 'redis.enabled');
-    assert.isObject(args[1]);
-  });
-
   describe('create without metadata:', () => {
     let createResult;
 
@@ -112,18 +104,6 @@ describe('lib/verification-reminders:', () => {
       assert.isNull(metadata);
     });
 
-    it('called log.info correctly', () => {
-      assert.equal(log.info.callCount, 2);
-      const args = log.info.args[1];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'verificationReminders.create');
-      assert.deepEqual(args[1], {
-        uid: 'wibble',
-        flowId: undefined,
-        flowBeginTime: undefined,
-      });
-    });
-
     describe('delete:', () => {
       let deleteResult;
 
@@ -145,25 +125,16 @@ describe('lib/verification-reminders:', () => {
       it('did not call log.error', () => {
         assert.equal(log.error.callCount, 0);
       });
-
-      it('called log.info correctly', () => {
-        assert.equal(log.info.callCount, 3);
-        const args = log.info.args[2];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'verificationReminders.delete');
-        assert.deepEqual(args[1], { uid: 'wibble' });
-      });
     });
 
     describe('process:', () => {
-      let before, processResult, after;
+      let before, processResult;
 
       beforeEach(done => {
         before = Date.now();
         verificationReminders.create('blee').then(() => {
           setTimeout(async () => {
             processResult = await verificationReminders.process();
-            after = Date.now();
             done();
           }, 2);
         });
@@ -234,38 +205,6 @@ describe('lib/verification-reminders:', () => {
         assert.equal(log.error.callCount, 0);
       });
 
-      it('called log.info correctly', () => {
-        assert.equal(log.info.callCount, 6);
-
-        let args = log.info.args[3];
-        assert.lengthOf(args, 2);
-        assert.equal(args[0], 'verificationReminders.process');
-        assert.isObject(args[1]);
-        assert.equal(args[1].key, 'first');
-        assert.isAtLeast(args[1].now, before);
-        assert.isAtMost(args[1].now, after);
-        assert.equal(
-          args[1].cutoff,
-          args[1].now - mockConfig.verificationReminders.firstInterval
-        );
-
-        args = log.info.args[4];
-        assert.equal(args[1].key, 'second');
-        assert.equal(args[1].now, log.info.args[3][1].now);
-        assert.equal(
-          args[1].cutoff,
-          args[1].now - mockConfig.verificationReminders.secondInterval
-        );
-
-        args = log.info.args[5];
-        assert.equal(args[1].key, 'third');
-        assert.equal(args[1].now, log.info.args[3][1].now);
-        assert.equal(
-          args[1].cutoff,
-          args[1].now - mockConfig.verificationReminders.thirdInterval
-        );
-      });
-
       describe('reinstate:', () => {
         let reinstateResult;
 
@@ -329,19 +268,6 @@ describe('lib/verification-reminders:', () => {
       assert.deepEqual(JSON.parse(metadata), ['blee', 42]);
     });
 
-    it('called log.info', () => {
-      assert.equal(log.info.callCount, 2);
-    });
-
-    it('called log.info correctly', () => {
-      assert.equal(log.info.callCount, 2);
-      assert.deepEqual(log.info.args[1][1], {
-        uid: 'wibble',
-        flowId: 'blee',
-        flowBeginTime: 42,
-      });
-    });
-
     describe('delete:', () => {
       let deleteResult;
 
@@ -367,11 +293,6 @@ describe('lib/verification-reminders:', () => {
 
       it('did not call log.error', () => {
         assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.info correctly', () => {
-        assert.equal(log.info.callCount, 3);
-        assert.deepEqual(log.info.args[2][1], { uid: 'wibble' });
       });
     });
 
@@ -422,10 +343,6 @@ describe('lib/verification-reminders:', () => {
 
       it('did not call log.error', () => {
         assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.info', () => {
-        assert.equal(log.info.callCount, 5);
       });
 
       describe('reinstate:', () => {

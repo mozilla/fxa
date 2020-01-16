@@ -34,7 +34,7 @@ const METADATA_KEY = 'metadata';
  * @returns {VerificationReminders}
  */
 module.exports = (log, config) => {
-  const redis = require('../../fxa-shared/redis')(
+  const redis = require('./redis')(
     {
       ...config.redis,
       ...config.verificationReminders.redis,
@@ -165,23 +165,28 @@ module.exports = (log, config) => {
             const cutoff = now - intervals[key];
             result[key] = redis
               .zpoprangebyscore(key, 0, cutoff, 'WITHSCORES')
-              .reduce(async (reminders, item, index) => {
-                if (index % 2 === 0) {
-                  const uid = item;
-                  let metadata = await redis.get(`${METADATA_KEY}:${uid}`);
-                  if (metadata) {
-                    const [flowId, flowBeginTime] = JSON.parse(metadata);
-                    metadata = { flowId, flowBeginTime };
-                    if (keyIndex === keys.length - 1) {
-                      await redis.del(`${METADATA_KEY}:${uid}`);
+              .then(async items => {
+                const reminders = [];
+                let index = 0;
+                for (const item of items) {
+                  if (index % 2 === 0) {
+                    const uid = item;
+                    let metadata = await redis.get(`${METADATA_KEY}:${uid}`);
+                    if (metadata) {
+                      const [flowId, flowBeginTime] = JSON.parse(metadata);
+                      metadata = { flowId, flowBeginTime };
+                      if (keyIndex === keys.length - 1) {
+                        await redis.del(`${METADATA_KEY}:${uid}`);
+                      }
                     }
+                    reminders.push({ uid, ...metadata });
+                  } else {
+                    reminders[(index - 1) / 2].timestamp = item;
                   }
-                  reminders.push({ uid, ...metadata });
-                } else {
-                  reminders[(index - 1) / 2].timestamp = item;
+                  index++;
                 }
                 return reminders;
-              }, []);
+              });
             log.info('verificationReminders.process', { key, now, cutoff });
             return result;
           }, {})

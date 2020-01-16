@@ -2713,13 +2713,6 @@ describe('/account/destroy', () => {
       );
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid');
 
-      assert.equal(mockLog.info.callCount, 2);
-      args = mockLog.info.args[1];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'accountDeleted.byRequest');
-      assert.equal(args[1].email, email);
-      assert.equal(args[1].uid, uid);
-
       assert.equal(mockSubhub.deleteCustomer.callCount, 1);
       args = mockSubhub.deleteCustomer.args[0];
       assert.lengthOf(args, 1);

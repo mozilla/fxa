@@ -803,7 +803,7 @@ describe('remote db', function() {
           sessionToken.uaBrowserVersion = '44';
           sessionToken.uaOS = 'Mac OS X';
           sessionToken.uaOSVersion = '10.10';
-          sessionToken.uaDeviceType = sessionToken.uaFormFactor = null;
+          sessionToken.uaFormFactor = null;
           // Update the device and the session token
           return P.all([
             db.updateDevice(account.uid, deviceInfo),
@@ -915,7 +915,7 @@ describe('remote db', function() {
           );
           assert.equal(
             device.uaDeviceType,
-            null,
+            'mobile',
             'device.uaDeviceType is correct'
           );
           assert.equal(
