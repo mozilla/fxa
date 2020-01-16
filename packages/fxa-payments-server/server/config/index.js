@@ -272,7 +272,7 @@ const conf = convict({
   },
   stripe: {
     apiKey: {
-      default: 'pk_test_FL2cOisOukoCQUZsrochvTlk00ff4IakfE',
+      default: 'pk_test_UrTy6gLWGrc0aOHtbZZz0UBs005mSI4AS2',
       doc: 'API key for Stripe',
       env: 'STRIPE_API_KEY',
       format: String,

@@ -97,6 +97,8 @@ const ERRNO = {
   INVALID_EXPIRED_OTP_CODE: 183,
   SUBSCRIPTION_ALREADY_CHANGED: 184,
   INVALID_PLAN_UPGRADE: 185,
+  PAYMENT_FAILED: 186,
+  SUBSCRIPTION_ALREADY_EXISTS: 187,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1219,12 +1221,30 @@ AppError.invalidPlanUpgrade = () => {
   });
 };
 
+AppError.paymentFailed = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.PAYMENT_FAILED,
+    message: 'Payment method failed',
+  });
+};
+
 AppError.subscriptionAlreadyChanged = () => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
     errno: ERRNO.SUBSCRIPTION_ALREADY_CHANGED,
     message: 'Subscription has already been cancelled',
+  });
+};
+
+AppError.subscriptionAlreadyExists = () => {
+  return new AppError({
+    code: 409,
+    error: 'Already subscribed',
+    errno: ERRNO.SUBSCRIPTION_ALREADY_EXISTS,
+    message: 'User already subscribed.',
   });
 };
 
