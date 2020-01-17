@@ -47,6 +47,31 @@ async function updateZendeskPrimaryEmail(
   });
 }
 
+/**
+ * Update the primary email in Stripe
+ *
+ * @param {import('../payments/stripe').StripeHelper} stripeHelper
+ * @param {string} uid
+ * @param {string} currentPrimaryEmail
+ * @param {string} newPrimaryEmail
+ * @returns {Promise<void | import('stripe').Stripe.Customer>}
+ */
+async function updateStripeEmail(
+  stripeHelper,
+  uid,
+  currentPrimaryEmail,
+  newPrimaryEmail
+) {
+  const customer = await stripeHelper.fetchCustomer(uid, currentPrimaryEmail);
+  if (!customer) {
+    // No customer to update, or already updated.
+    return;
+  }
+  return stripeHelper.stripe.customers.update(customer.id, {
+    email: newPrimaryEmail,
+  });
+}
+
 module.exports = (
   log,
   db,
@@ -56,7 +81,8 @@ module.exports = (
   push,
   verificationReminders,
   signupUtils,
-  zendeskClient
+  zendeskClient,
+  stripeHelper
 ) => {
   const REMINDER_PATTERN = new RegExp(
     `^(?:${verificationReminders.keys.join('|')})$`
@@ -813,26 +839,38 @@ module.exports = (
             email: email,
           });
 
+          // While we typically do not want to capture PII in Sentry, in this
+          // case we must record enough data for us to file a bug with Support
+          // to update Zendesk so that this users' email matches their new primary.
+          const handleCriticalError = (err, source) => {
+            Sentry.withScope(scope => {
+              scope.setContext('primaryEmailChange', {
+                originalEmail: primaryEmail,
+                newEmail: secondaryEmail.normalizedEmail,
+                system: source,
+              });
+              Sentry.captureException(err);
+            });
+          };
+
           // Fire off intentionally without waiting for all the network requests
-          // required to update Zendesk. Capture enough to manually update Zendesk
-          // if needed.
+          // required to update Zendesk/Stripe. Capture enough to manually update
+          // Zendesk/Stripe if needed.
           updateZendeskPrimaryEmail(
             zendeskClient,
             uid,
             primaryEmail,
             secondaryEmail.normalizedEmail
-          ).catch(err => {
-            // While we typically do not want to capture PII in Sentry, in this
-            // case we must record enough data for us to file a bug with Support
-            // to update Zendesk so that this users' email matches their new primary.
-            Sentry.withScope(scope => {
-              scope.setContext('primaryEmailChange', {
-                originalEmail: primaryEmail,
-                newEmail: secondaryEmail.normalizedEmail,
-              });
-              Sentry.captureException(err);
-            });
-          });
+          ).catch(err => handleCriticalError(err, 'zendesk'));
+
+          if (stripeHelper) {
+            updateStripeEmail(
+              stripeHelper,
+              uid,
+              primaryEmail,
+              secondaryEmail.normalizedEmail
+            ).catch(err => handleCriticalError(err, 'stripe'));
+          }
 
           const account = await db.account(uid);
 
@@ -1001,4 +1039,6 @@ module.exports = (
   ];
 };
 
-module.exports.updateZendeskPrimaryEmail = updateZendeskPrimaryEmail;
+// Exported for testing purposes.
+module.exports._updateZendeskPrimaryEmail = updateZendeskPrimaryEmail;
+module.exports._updateStripeEmail = updateStripeEmail;
