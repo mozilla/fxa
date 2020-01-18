@@ -11,6 +11,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const P = require('../../../lib/promise');
+const Sentry = require('@sentry/node');
 
 const DirectStripeRoutes = require('../../../lib/routes/subscriptions')
   .DirectStripeRoutes;
@@ -1471,6 +1472,108 @@ describe.skip('subscriptions (using direct stripe access)', () => {
       }
 
       assert.isTrue(failed);
+    });
+  });
+
+  describe('POST /oauth/subscriptions/stripe/event', () => {
+    const webhookHandlerPath = '/oauth/subscriptions/stripe/event';
+    const customer = {
+      id: 'cus_9001',
+      email: 'quuz@blackhole.example.io',
+      metadata: { userid: 'fxauidishere' },
+    };
+    const event = {
+      type: 'customer.updated',
+      data: {
+        object: customer,
+      },
+    };
+
+    it('should check for the "stripe-signature" header', async () => {
+      const route = getRoute(routes, webhookHandlerPath, 'POST');
+      assert.hasAllKeys(route.options.validate.headers, 'stripe-signature');
+    });
+
+    it('should invalidate a cached customer on a customer.update event', async () => {
+      subhub.stripeHelper = {
+        constructWebhookEvent: sinon.stub().returns(event),
+        deleteCachedCustomer: sinon.stub(),
+      };
+      await runTest(webhookHandlerPath, {
+        ...requestOptions,
+        method: 'POST',
+      });
+      assert.isTrue(
+        subhub.stripeHelper.deleteCachedCustomer.calledOnceWith(
+          event.data.object.metadata.userid,
+          event.data.object.email
+        )
+      );
+      delete subhub.stripeHelper;
+    });
+
+    it('should log an error if the customer does not have a FxA UID', async () => {
+      const fakeScope = { setConetxt: sinon.spy() };
+      sinon.stub(Sentry, 'withScope');
+      sinon.stub(Sentry, 'captureMessage');
+      subhub.stripeHelper = {
+        constructWebhookEvent: sinon.stub().returns({
+          ...event,
+          data: { object: { ...customer, metadata: {} } },
+        }),
+        deleteCachedCustomer: sinon.stub(),
+      };
+      await runTest(webhookHandlerPath, {
+        ...requestOptions,
+        method: 'POST',
+      });
+      // Call the withScope callback with our scope.
+      Sentry.withScope.arguments[0][0](fakeScope);
+      assert.isTrue(
+        fakeScope.setConetxt.calledOnceWith('stripeEvent', {
+          customer: { id: event.data.object.id },
+          event: { id: event.id, type: event.type },
+        })
+      );
+      assert.isTrue(
+        Sentry.captureMessage.calledOnceWith(
+          'FxA UID does not exist on customer metadata.',
+          Sentry.Severity.Error
+        )
+      );
+      Sentry.withScope.restore();
+      Sentry.captureMessage.restore();
+      delete subhub.stripeHelper;
+    });
+
+    it('should warn about a unhandled event type', async () => {
+      const fakeScope = { setConetxt: sinon.spy() };
+      sinon.stub(Sentry, 'withScope');
+      sinon.stub(Sentry, 'captureMessage');
+      subhub.stripeHelper = {
+        constructWebhookEvent: sinon.stub().returns({
+          ...event,
+          type: 'top.secret',
+        }),
+      };
+      await runTest(webhookHandlerPath, {
+        ...requestOptions,
+        method: 'POST',
+      });
+      assert.isTrue(
+        fakeScope.setConetxt.calledOnceWith('stripeEvent', {
+          event: { id: event.id, type: event.type },
+        })
+      );
+      assert.isTrue(
+        Sentry.captureMessage.calledOnceWith(
+          'Unhandled Stripe event received.',
+          Sentry.Severity.Info
+        )
+      );
+      Sentry.withScope.restore();
+      Sentry.captureMessage.restore();
+      delete subhub.stripeHelper;
     });
   });
 });

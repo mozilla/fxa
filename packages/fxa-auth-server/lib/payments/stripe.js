@@ -12,6 +12,7 @@ const stripe = require('stripe').Stripe;
 /** @typedef {import('stripe').Stripe.Plan} Plan */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.ApiList<Subscription>} Subscriptions */
+/** @typedef {import('stripe').Stripe.Event} StripeEvent */
 
 /**
  * @typedef AbbrevProduct
@@ -94,6 +95,7 @@ class StripeHelper {
     this.cacheTtlSeconds =
       config.subhub.plansCacheTtlSeconds ||
       config.subscriptions.cacheTtlSeconds;
+    this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     const redis =
       this.cacheTtlSeconds &&
       require('../redis')(
@@ -413,6 +415,21 @@ class StripeHelper {
       });
     }
     return subs;
+  }
+
+  /**
+   * Use the Stripe lib to authenticate and get a webhook event.
+   *
+   * @param {any} payload
+   * @param {string | string[]} signature
+   * @returns {StripeEvent}
+   */
+  constructWebhookEvent(payload, signature) {
+    return this.stripe.webhooks.constructEvent(
+      payload,
+      signature,
+      this.webhookSecret
+    );
   }
 }
 

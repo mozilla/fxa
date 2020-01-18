@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Sentry = require('@sentry/node');
 const error = require('../error');
 const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
@@ -396,6 +397,49 @@ class DirectStripeRoutes {
     );
     return response;
   }
+
+  async handleWebhookEvent(request) {
+    const event = this.stripeHelper.constructWebhookEvent(
+      request.payload,
+      request.headers['stripe-signature']
+    );
+
+    switch (event.type) {
+      case 'customer.updated':
+        if (!event.data.object.metadata.userid) {
+          Sentry.withScope(scope => {
+            scope.setContext('stripeEvent', {
+              customer: { id: event.data.object.id },
+              event: { id: event.id, type: event.type },
+            });
+            Sentry.captureMessage(
+              'FxA UID does not exist on customer metadata.',
+              Sentry.Severity.Error
+            );
+          });
+          break;
+        }
+        // There is no need to block the response here.
+        this.stripeHelper.deleteCachedCustomer(
+          event.data.object.metadata.userid,
+          event.data.object.email
+        );
+        break;
+      default:
+        Sentry.withScope(scope => {
+          scope.setContext('stripeEvent', {
+            event: { id: event.id, type: event.type },
+          });
+          Sentry.captureMessage(
+            'Unhandled Stripe event received.',
+            Sentry.Severity.Info
+          );
+        });
+        break;
+    }
+
+    return {};
+  }
 }
 
 const directRoutes = (
@@ -573,6 +617,24 @@ const directRoutes = (
         },
       },
       handler: request => directStripeRoutes.reactivateSubscription(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/stripe/event',
+      options: {
+        // We'll use the official Stripe library to authenticate the payload,
+        // and it will also return an event.
+        auth: false,
+        // The raw payload is needed for authentication.
+        payload: {
+          output: 'data',
+          parse: false,
+        },
+        validate: {
+          headers: { 'stripe-signature': isA.string().required() },
+        },
+      },
+      handler: request => directStripeRoutes.handleWebhookEvent(request),
     },
   ];
 };
