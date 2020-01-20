@@ -438,6 +438,7 @@ const conf = (module.exports = convict({
       default: [
         '3c49430b43dfba77', // Reference browser
         'a2270f727f45f648', // Fenix
+        '1b1a3e44c54fbb58', // Firefox for iOS
       ],
       doc:
         'OAuth Client IDs that are allowed to pair. Remove all clients from this list to disable pairing.',
@@ -514,6 +515,7 @@ const conf = (module.exports = convict({
             'https://accounts.firefox.com/oauth/success/a2270f727f45f648', // Fenix
             'https://accounts.firefox.com/oauth/success/3c49430b43dfba77', // Reference browser
             'https://accounts.firefox.com/oauth/success/85da77264642d6a1', // Firefox for FireTV
+            'https://accounts.firefox.com/oauth/success/1b1a3e44c54fbb58', // Firefox for iOS
             'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
           ],
         },
