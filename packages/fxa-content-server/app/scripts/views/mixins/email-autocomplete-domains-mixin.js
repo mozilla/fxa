@@ -33,6 +33,8 @@ export const DOMAINS = [
   'comcast.net',
   'hotmail.co.uk',
   'hotmail.fr',
+  'protonmail.com',
+  'pm.me',
 ];
 
 export default {
