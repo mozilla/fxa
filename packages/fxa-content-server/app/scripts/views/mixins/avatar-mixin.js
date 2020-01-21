@@ -12,9 +12,9 @@ import ProfileErrors from '../../lib/profile-errors';
 import ProfileImage from '../../models/profile-image';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
-var MAX_SPINNER_COMPLETE_TIME = 400; // ms
+const MAX_SPINNER_COMPLETE_TIME = 800; // ms
 
-var Mixin = {
+const Mixin = {
   dependsOn: [UserAgentMixin],
 
   notifications: {
@@ -26,29 +26,25 @@ var Mixin = {
   },
 
   /**
-   * Adds a profile image for the account to the view, or a default image
+   * Adds a profile image for the account to the view or a default image
    * if none is available.
    *
    * @param {Object} account - The account whose profile image will be shown.
    * @param {Object} [options]
-   *   @param {String} [options.wrapperClass] - The class for the element into
-   *                 which the profile image will be inserted.
-   *   @param {Boolean} [options.spinner] - When true, show a spinner while
-   *                    the profile image is loading.
+   * @param {String} [options.wrapperClass] - The class for the element into
+   *   which the profile image will be inserted.
    * @returns {Promise}
    */
-  displayAccountProfileImage(account, options) {
-    $('#image-holder').css('display', 'none');
-    options = options || {};
-
-    var avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
-    var spinnerEl;
+  displayAccountProfileImage(account, options = {}) {
+    const avatarWrapperEl = this.$(options.wrapperClass || '.avatar-wrapper');
+    avatarWrapperEl.removeClass('spinner-completed');
+    let spinnerEl;
 
     // We'll optimize the UI for the case that the account
     // doesn't have a profile image if it's not cached
     if (this._shouldShowDefaultProfileImage(account)) {
-      this.setDefaultPlaceholderAvatar(avatarWrapperEl);
-    } else if (options.spinner) {
+      avatarWrapperEl.addClass('with-default');
+    } else {
       spinnerEl = this._addLoadingSpinner(avatarWrapperEl);
     }
 
@@ -77,27 +73,35 @@ var Mixin = {
         return this._completeLoadingSpinner(spinnerEl).then(() => profileImage);
       })
       .then(profileImage => {
+        const isAvatarSettingsView = avatarWrapperEl.hasClass(
+          'avatar-settings-view'
+        );
         avatarWrapperEl.find(':not(.avatar-spinner)').remove();
 
-        if (profileImage.isDefault()) {
-          avatarWrapperEl.addClass('with-default').append('<span></span>');
+        if (profileImage.isDefault() || profileImage.attributes.default) {
+          // `.isDefault()` is only true in the signin view.
+          // `profileImage.attributes.default` can be true in other views.
+          // `change-avatar-inner` class is the element that
+          // `change-avatar` link will wrap around.
+          avatarWrapperEl.addClass('with-default');
+          if (isAvatarSettingsView) {
+            avatarWrapperEl.addClass('spinner-completed');
+            avatarWrapperEl.append('<span class="change-avatar-inner"></span>');
+          }
           this.logViewEvent('profile_image_not_shown');
-          $('#image-holder').css('display', 'inline-block');
-          $('#loading-avatar-spinner').css('display', 'none');
         } else {
+          const avatarImage = $(profileImage.get('img'));
           avatarWrapperEl
             .removeClass('with-default')
-            .append($(profileImage.get('img')).addClass('profile-image'));
-          $('#image-holder').css('display', 'inline-block');
-          $('#loading-avatar-spinner').css('display', 'none');
+            .append(avatarImage.addClass('profile-image'));
+
+          if (isAvatarSettingsView) {
+            avatarWrapperEl.addClass('spinner-completed');
+            avatarImage.addClass('change-avatar-inner');
+          }
           this.logViewEvent('profile_image_shown');
         }
       });
-  },
-
-  setDefaultPlaceholderAvatar(avatarWrapperEl) {
-    avatarWrapperEl = avatarWrapperEl || $('.avatar-wrapper');
-    avatarWrapperEl.addClass('with-default');
   },
 
   // Makes sure the account has an up-to-date image cache.
@@ -112,10 +116,10 @@ var Mixin = {
     return !account.has('profileImageUrl');
   },
 
-  _addLoadingSpinner(spinnerWrapperEl) {
-    if (spinnerWrapperEl) {
+  _addLoadingSpinner(avatarWrapperEl) {
+    if (avatarWrapperEl) {
       return $('<span class="avatar-spinner"></span>').appendTo(
-        spinnerWrapperEl.addClass('with-spinner')
+        avatarWrapperEl.addClass('with-spinner')
       );
     }
   },
@@ -128,6 +132,14 @@ var Mixin = {
     }
 
     return new Promise(resolve => {
+      // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
+      // in case we don't receive the expected transitionend events, such as in
+      // the case of IE.
+      this.transitionMaxTimeTimeout = setTimeout(() => {
+        resolve();
+        spinnerEl.remove();
+      }, MAX_SPINNER_COMPLETE_TIME);
+
       spinnerEl.addClass('completed').on('transitionend', function(event) {
         // The first transitionend event will resolve the promise, but the spinner will have
         // subsequent transitions, so we'll also hook on the transitionend event of the
@@ -136,19 +148,12 @@ var Mixin = {
 
         if (
           event.originalEvent &&
-          event.originalEvent.pseudoElement === '::after'
+          event.originalEvent.pseudoElement === '::before'
         ) {
           spinnerEl.remove();
+          clearTimeout(this.transitionMaxTimeTimeout);
         }
       });
-
-      // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
-      // in case we don't receive the expected transitionend events, such as in
-      // the case of IE.
-      this.setTimeout(function transitionMaxTime() {
-        resolve();
-        spinnerEl.remove();
-      }, MAX_SPINNER_COMPLETE_TIME);
     });
   },
 

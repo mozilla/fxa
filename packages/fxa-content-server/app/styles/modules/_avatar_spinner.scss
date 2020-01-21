@@ -5,7 +5,7 @@
   $center-expand-delay: 200ms;
   $center-expand-duration: 200ms;
   $complete-duration: 200ms;
-  $fade-in-delay: 200ms;
+  $fade-in-delay: 0ms;
   $fade-in-duration: 200ms;
   $rotation-period: 2s; // Time for the spinner to make a single rotation
   $solid-part-width: 75%;
@@ -104,7 +104,5 @@
 }
 
 .with-spinner .profile-image {
-  @extend %fill-avatar;
   animation: $profile-image-fade-in-duration ease-in-out 1 both fadein;
-  position: relative;
 }

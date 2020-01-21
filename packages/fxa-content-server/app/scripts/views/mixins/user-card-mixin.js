@@ -23,7 +23,7 @@ export default {
 
   afterVisible() {
     const account = this.getAccount();
-    return this.displayAccountProfileImage(account, { spinner: true });
+    return this.displayAccountProfileImage(account);
   },
 
   setInitialContext(context) {
