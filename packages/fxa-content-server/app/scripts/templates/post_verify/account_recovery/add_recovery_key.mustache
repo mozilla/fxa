@@ -1,0 +1,31 @@
+<div id="main-content" class="card add-account-recovery">
+    <header>
+        <h1 id="fxa-add-account-recovery-header">
+            {{#serviceName}}
+                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Protect your data with a recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+            {{/serviceName}}
+            {{^serviceName}}
+                {{#t}}Protect your data with a recovery key{{/t}}
+            {{/serviceName}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="error"></div>
+        <div class="success"></div>
+
+        <div class="graphic graphic-recovery-codes"></div>
+
+        <p class="verification-message">{{#t}}Your synced data can include passwords you've saved.{{/t}}</p>
+        <p class="verification-message">{{#t}}Because this information is critical to your security, Firefox deletes it to protect you when your password is reset to prevent other people from accessing it.{{/t}}</p>
+        <form novalidate>
+            <div class="button-row">
+                <button id="submit-btn" type="submit">{{#t}}Get a Recovery Key{{/t}}</button>
+            </div>
+            <div class="links">
+                <a id="maybe-later-btn" data-flow-event="link.maybe-later">{{#t}}Maybe later{{/t}}</a>
+            </div>
+        </form>
+    </section>
+</div>

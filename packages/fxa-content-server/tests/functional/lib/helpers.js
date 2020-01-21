@@ -2201,6 +2201,25 @@ const testElementValueEquals = thenify(function(selector, expected) {
 });
 
 /**
+ * Check whether an element text is not empty
+ *
+ * @param {string} selector
+ * @param {string} expected
+ * @param {object} [options]
+ * @returns {promise} rejects if test fails.
+ */
+const testElementTextNotEmpty = thenify(function(selector) {
+  return this.parent
+    .findByCssSelector(selector)
+    .then(visibleByQSA(selector))
+    .getVisibleText()
+    .then(function(resultText) {
+      assert.notEqual(resultText, '');
+    })
+    .end();
+});
+
+/**
  * Check whether an anchor has a href that equals to the expected url
  *
  * @param {string} selector
@@ -2695,6 +2714,7 @@ module.exports = {
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
+  testElementTextNotEmpty,
   testElementValueEquals,
   testEmailExpected,
   testErrorTextInclude,

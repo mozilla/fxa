@@ -49,6 +49,7 @@ module.exports = [
   'tests/functional/pages.js',
   'tests/functional/password_strength.js',
   'tests/functional/password_visibility.js',
+  'tests/functional/post_verify/account_recovery.js',
   'tests/functional/post_verify/secondary_email.js',
   'tests/functional/pp.js',
   'tests/functional/recovery_key.js',

@@ -9,16 +9,25 @@ import Cocktail from 'cocktail';
 import FormView from '../form';
 import ServiceMixin from '../mixins/service-mixin';
 import Template from 'templates/post_verify/verified.mustache';
+import VerificationReasonMixin from '../mixins/verification-reason-mixin';
 
 const t = msg => msg;
 
 const TEMPLATE_INFO = {
+  RECOVERY_KEY: {
+    headerId: 'fxa-account-recovery-complete-header',
+    headerTitle: t('Your sync data is protected'),
+    readyText: t(
+      'If you lose access to your account, youll be able to restore your sync data.'
+    ),
+    buttonText: t('Start browsing'),
+  },
   SECONDARY_EMAIL_VERIFIED: {
     readyText: t(
       'Account notifications will now also be sent to %(secondaryEmail)s.'
     ),
     buttonText: t('Continue to %(serviceName)s '),
-    headerId: 'fxa-sign-up-complete-header',
+    headerId: 'fxa-secondary-email-complete-header',
     headerTitle: t('Secondary email verified'),
   },
 };
@@ -27,31 +36,24 @@ class Verified extends FormView {
   template = Template;
 
   initialize(options = {}) {
-    // This is temporary until I add the recovery key screens
-    this._templateInfo = TEMPLATE_INFO['SECONDARY_EMAIL_VERIFIED'];
+    this._templateInfo =
+      TEMPLATE_INFO[this.keyOfVerificationReason(options.type)];
+    this.type = options.type;
   }
 
   setInitialContext(context) {
-    context.set({
+    const opts = {
       headerId: this._getHeaderId(),
       headerTitle: this._getEscapedHeaderTitle(),
       readyText: this._getReadyText(),
       buttonText: this._getButtonText(),
-    });
+    };
+    context.set(opts);
   }
 
   submit() {
-    return Promise.resolve()
-      .then(() => {
-        const { account, continueBrokerMethod } = this.model.toJSON();
-        console.log(account, continueBrokerMethod);
-        if (continueBrokerMethod && account) {
-          return this.invokeBrokerMethod(continueBrokerMethod, account);
-        }
-
-        this.navigate('/settings');
-      })
-      .catch(err => this.displayError(err));
+    const account = this.getSignedInAccount();
+    return this.invokeBrokerMethod('afterCompleteSignIn', account);
   }
 
   _getHeaderId() {
@@ -77,6 +79,6 @@ class Verified extends FormView {
   }
 }
 
-Cocktail.mixin(Verified, ServiceMixin);
+Cocktail.mixin(Verified, ServiceMixin, VerificationReasonMixin);
 
 export default Verified;

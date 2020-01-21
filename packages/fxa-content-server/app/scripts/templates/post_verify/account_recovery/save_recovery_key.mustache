@@ -1,0 +1,53 @@
+<div id="main-content" class="card save-recovery-key">
+    <header>
+        <h1 id="fxa-save-recovery-key-header">
+            {{#serviceName}}
+                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Save recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+            {{/serviceName}}
+            {{^serviceName}}
+                {{#t}}Save recovery key{{/t}}
+            {{/serviceName}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="success"></div>
+
+        <p class="description">Store it in a safe place on your computer or a printed copy that is easily accessed by only you.</p>
+
+        <div class="recovery-key-container">
+            <div class="recovery-key">{{recoveryKey}}</div>
+        </div>
+
+        {{^isIos}}
+            <div class="button-row save-options">
+                <button class="save-option download-option">
+                    <div class="graphic graphic-download-option"></div>
+                    <p class="name">{{#t}}Download{{/t}}</p>
+                </button>
+                <button class="save-option copy-option">
+                    <div class="graphic graphic-copy-option"></div>
+                    <p class="name">{{#t}}Copy{{/t}}</p>
+                </button>
+                <button class="save-option print-option">
+                    <div class="graphic graphic-print-option"></div>
+                    <p class="name">{{#t}}Print{{/t}}</p>
+                </button>
+            </div>
+        {{/isIos}}
+
+        {{#isIos}}
+            <div class="button-row">
+                <button class="save-option copy-option">
+                    <div class="graphic graphic-copy-option"></div>
+                    <p class="name">{{#t}}Copy{{/t}}</p>
+                </button>
+            </div>
+        {{/isIos}}
+
+        <div class="button-row">
+            <button class="primary-button done-link">{{#t}}Done{{/t}}</button>
+        </div>
+    </section>
+</div>

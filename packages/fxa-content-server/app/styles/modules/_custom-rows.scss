@@ -43,7 +43,8 @@
 .verification-email-message,
 .signed-in-email-message,
 .verification-recovery-code-message,
-.verification-totp-message {
+.verification-totp-message,
+.verification-message {
   color: $text-color;
   font-size: 15px;
   line-height: 1.5;
