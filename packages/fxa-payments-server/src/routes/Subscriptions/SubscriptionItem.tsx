@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
+import { Localized } from 'fluent-react';
 import { formatPeriodEndDate } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
@@ -50,10 +51,14 @@ export const SubscriptionItem = ({
     // the fxa-auth-server database. The two should be kept in eventual sync.
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-fxa-missing-subscription">
-          Problem loading subscriptions
-        </h4>
-        <p>Please try again later.</p>
+        <Localized id="sub-item-missing">
+          <h4 data-testid="error-fxa-missing-subscription">
+            Problem loading subscriptions
+          </h4>
+        </Localized>
+        <Localized id="sub-item-missing-msg">
+          <p>Please try again later.</p>
+        </Localized>
       </DialogMessage>
     );
   }
@@ -63,8 +68,12 @@ export const SubscriptionItem = ({
     // subscription to a plan that no longer exists in API results.
     return (
       <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <h4 data-testid="error-subhub-missing-plan">Plan not found</h4>
-        <p>No such plan for this subscription.</p>
+        <Localized id="product-plan-not-found">
+          <h4 data-testid="error-subhub-missing-plan">Plan not found</h4>
+        </Localized>
+        <Localized id="sub-item-no-such-plan">
+          <p>No such plan for this subscription.</p>
+        </Localized>
       </DialogMessage>
     );
   }
@@ -172,7 +181,9 @@ const CancelSubscriptionPanel = ({
           <>
             <div className="with-settings-button">
               <div className="card-details">
-                <h3>Cancel Subscription</h3>
+                <Localized id="sub-item-cancel-sub">
+                  <h3>Cancel Subscription</h3>
+                </Localized>
               </div>
               <div className="action">
                 <button
@@ -180,19 +191,27 @@ const CancelSubscriptionPanel = ({
                   onClick={revealCancel}
                   data-testid="reveal-cancel-subscription-button"
                 >
-                  <span className="change-button">Cancel</span>
+                  <Localized id="payment-cancel-btn">
+                    <span className="change-button">Cancel</span>
+                  </Localized>
                 </button>
               </div>
             </div>
           </>
         ) : (
           <>
-            <h3>Cancel Subscription</h3>
-            <p>
-              You will no longer be able to use {plan.product_name} after{' '}
-              {formatPeriodEndDate(current_period_end)}, the last day of your
-              billing cycle.
-            </p>
+            <Localized id="sub-item-cancel-sub">
+              <h3>Cancel Subscription</h3>
+            </Localized>
+            <Localized id="sub-item-cancel-msg"
+                       $name={plan.product_name}
+                       $period={formatPeriodEndDate(current_period_end)}>
+              <p>
+                You will no longer be able to use {plan.product_name} after{' '}
+                {formatPeriodEndDate(current_period_end)}, the last day of your
+                billing cycle.
+              </p>
+            </Localized>
             <p>
               <label>
                 <input
@@ -201,20 +220,26 @@ const CancelSubscriptionPanel = ({
                   defaultChecked={confirmationChecked}
                   onChange={engagedOnConfirmationChanged}
                 />
-                <span>
-                  Cancel my access and my saved information within{' '}
-                  {plan.product_name} on{' '}
-                  {formatPeriodEndDate(current_period_end)}
-                </span>
+                <Localized id="sub-item-cancel-confirm"
+                           $name={plan.product_name}
+                           $period={formatPeriodEndDate(current_period_end)}>
+                  <span>
+                    Cancel my access and my saved information within{' '}
+                    {plan.product_name} on{' '}
+                    {formatPeriodEndDate(current_period_end)}
+                  </span>
+                </Localized>
               </label>
             </p>
             <div className="button-row">
-              <button
-                className="settings-button primary-button"
-                onClick={engagedOnHideCancel}
-              >
-                Stay Subscribed
-              </button>
+              <Localized id="sub-item-stay-sub">
+                <button
+                  className="settings-button primary-button"
+                  onClick={engagedOnHideCancel}
+                >
+                  Stay Subscribed
+                </button>
+              </Localized>
               <button
                 data-testid="cancel-subscription-button"
                 className="settings-button secondary-button"
@@ -228,7 +253,9 @@ const CancelSubscriptionPanel = ({
                     &nbsp;
                   </span>
                 ) : (
-                  <span>Cancel Subscription</span>
+                  <Localized id="sub-item-cancel-sub">
+                    <span>Cancel Subscription</span>
+                  </Localized>
                 )}
               </button>
             </div>
