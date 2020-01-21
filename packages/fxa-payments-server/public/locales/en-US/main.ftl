@@ -94,6 +94,13 @@ sub-update-confirm =
     , according to payment terms, until I cancel my subscription.
 sub-update-submit = Change Plans
 
+## payment update
+pay-update-billing-description =
+  You are billed ${ $amount } per { $interval }
+  for { $name }. Your next payment occurs on { $date }.
+pay-update-card-exp = Expires { $expirationDate }
+pay-update-change-btn = Change
+
 ## reactivate
 reactivate-confirm-dialog-header = Want to keep using { $productName }?
 reactivate-confirm-copy =
