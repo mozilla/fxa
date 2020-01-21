@@ -73,7 +73,7 @@ button {
 
   &:disabled,
   &.disabled {
-    cursor: auto;
+    cursor: not-allowed;
     opacity: 0.4;
   }
 }
