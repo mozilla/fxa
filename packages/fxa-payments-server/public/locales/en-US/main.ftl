@@ -112,3 +112,16 @@ reactivate-panel-date = You cancelled your subscription on { $date }.
 reactivate-panel-copy = You will lose access to { $name } on <strong>{ $date }</strong>.
 reactivate-success-copy = Thanks! You're all set.
 reactivate-success-button = Close
+
+## subscription item
+sub-item-missing = Problem loading subscriptions
+sub-item-missing-msg = Please try again later.
+sub-item-no-such-plan = No such plan for this subscription.
+sub-item-cancel-sub = Cancel Subscription
+sub-item-stay-sub = Stay Subscribed
+sub-item-cancel-msg =
+    You will no longer be able to use { $name } after
+    { $period }, the last day of your billing cycle.
+sub-item-cancel-confirm =
+    Cancel my access and my saved information within
+    { $name } on { $period }
