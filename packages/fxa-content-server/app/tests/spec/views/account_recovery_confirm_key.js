@@ -65,7 +65,10 @@ describe('views/account_recovery_confirm_key', () => {
     metrics = new Metrics({ notifier, sentryMetrics });
     user = new User();
     account = user.initAccount();
-    relier = new Relier();
+    relier = new Relier({
+      service: 'sync',
+      serviceName: 'Firefox Sync',
+    });
     windowMock = new WindowMock();
     windowMock.location.search = `?code=${code}&email=${email}&token=${token}&uid=${uid}`;
 
@@ -78,6 +81,19 @@ describe('views/account_recovery_confirm_key', () => {
         keys,
         recoveryKeyId,
       });
+    });
+  });
+
+  it('renders view', () => {
+    return initView().then(() => {
+      assert.lengthOf(view.$('#account-recovery-confirm-password'), 1);
+      assert.include(
+        view.$('#fxa-recovery-key-confirm').text(),
+        'Firefox Sync'
+      );
+      assert.lengthOf(view.$('#recovery-key'), 1);
+      assert.lengthOf(view.$('#submit-btn'), 1);
+      assert.lengthOf(view.$('.lost-recovery-key'), 1);
     });
   });
 
