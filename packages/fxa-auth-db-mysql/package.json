@@ -17,7 +17,7 @@
     "lint:eslint": "eslint .",
     "start": "node ./bin/db_patcher.js >/dev/null && node ./bin/server.js",
     "start-mem": "node ./bin/mem",
-    "test": "npm run test-mysql && npm run test-mem && npm run test-server && npm run lint",
+    "test": "npm run test-mysql && npm run test-server && npm run lint",
     "test-mem": "./scripts/mocha-coverage.js test/mem --exit",
     "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local --exit",
     "test-server": "./scripts/mocha-coverage.js db-server/test/local --exit",

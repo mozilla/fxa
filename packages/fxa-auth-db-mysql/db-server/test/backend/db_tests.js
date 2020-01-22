@@ -187,6 +187,7 @@ function createRecoveryData() {
   const data = {
     recoveryKeyId: hex(16),
     recoveryData: crypto.randomBytes(32).toString('hex'),
+    enabled: true,
   };
   return data;
 }
@@ -4166,6 +4167,9 @@ module.exports = function(config, DB) {
             recoveryKeyIdHash.toString('hex'),
             'recoveryKeyId set'
           );
+          assert.ok(res.createdAt);
+          assert.equal(res.enabled, true);
+          assert.equal(res.verifiedAt, undefined);
         });
       });
 
@@ -4253,6 +4257,36 @@ module.exports = function(config, DB) {
               assert.equal(err.errno, 116, 'correct errno, not found');
             }
           );
+      });
+
+      it('should create disabled key and then verify it', async () => {
+        account = createAccount();
+        await db.createAccount(account.uid, account);
+        data = createRecoveryData();
+        data.enabled = false;
+        await db.createRecoveryKey(account.uid, data);
+
+        let res = await db.getRecoveryKey({
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId,
+        });
+        assert.ok(res.createdAt);
+        assert.equal(res.enabled, false);
+        assert.equal(res.verifiedAt, undefined);
+
+        const updatedKey = Object.assign({}, data, {
+          verifiedAt: Date.now(),
+          enabled: true,
+        });
+        await db.updateRecoveryKey(account.uid, updatedKey);
+
+        res = await db.getRecoveryKey({
+          id: account.uid,
+          recoveryKeyId: data.recoveryKeyId,
+        });
+        assert.ok(res.createdAt);
+        assert.equal(res.enabled, true);
+        assert.equal(res.verifiedAt, updatedKey.verifiedAt);
       });
     });
 

@@ -42,7 +42,10 @@ function createServer(db) {
 
   function withSpreadParams(fn) {
     return reply(function(params, body, query) {
-      return fn.apply(db, Object.keys(params).map(k => params[k]));
+      return fn.apply(
+        db,
+        Object.keys(params).map(k => params[k])
+      );
     });
   }
 
@@ -327,6 +330,10 @@ function createServer(db) {
   api.get('/account/:id/recoveryKey', withIdAndBody(db.recoveryKeyExists));
   api.del('/account/:id/recoveryKey', withParams(db.deleteRecoveryKey));
   api.post('/account/:id/recoveryKey', withIdAndBody(db.createRecoveryKey));
+  api.post(
+    '/account/:id/recoveryKey/update',
+    withIdAndBody(db.updateRecoveryKey)
+  );
 
   api.get(
     '/account/:id/subscriptions/:subscriptionId',

@@ -954,16 +954,14 @@ module.exports = function(cfg, makeServer) {
           assert.lengthOf(r.obj, 0);
 
           // Attempt to fetch a deleted session token
-          return client
-            .getThen('/sessionToken/' + user.sessionTokenId)
-            .then(
-              () =>
-                assert(
-                  false,
-                  'Fetching the non-existant sessionToken should have failed'
-                ),
-              err => testNotFound(err)
-            );
+          return client.getThen('/sessionToken/' + user.sessionTokenId).then(
+            () =>
+              assert(
+                false,
+                'Fetching the non-existant sessionToken should have failed'
+              ),
+            err => testNotFound(err)
+          );
         });
     });
 
@@ -2246,13 +2244,11 @@ module.exports = function(cfg, makeServer) {
           );
 
           // Attempt to consume the sign-in code again
-          return client
-            .postThen(`/signinCodes/${signinCode}/consume`)
-            .then(
-              () =>
-                assert(false, 'consuming a consumed sign-in code should fail'),
-              err => testNotFound(err)
-            );
+          return client.postThen(`/signinCodes/${signinCode}/consume`).then(
+            () =>
+              assert(false, 'consuming a consumed sign-in code should fail'),
+            err => testNotFound(err)
+          );
         })
         .then(() => {
           // Create an expired sign-in code
@@ -2265,13 +2261,11 @@ module.exports = function(cfg, makeServer) {
           respOkEmpty(r);
 
           // Attempt to consume the expired sign-in code
-          return client
-            .postThen(`/signinCodes/${signinCode}/consume`)
-            .then(
-              () =>
-                assert(false, 'consuming an expired sign-in code should fail'),
-              err => testNotFound(err)
-            );
+          return client.postThen(`/signinCodes/${signinCode}/consume`).then(
+            () =>
+              assert(false, 'consuming an expired sign-in code should fail'),
+            err => testNotFound(err)
+          );
         });
     });
 
@@ -2875,6 +2869,7 @@ module.exports = function(cfg, makeServer) {
             recoveryKey = {
               recoveryKeyId: crypto.randomBytes(16).toString('hex'),
               recoveryData: crypto.randomBytes(64).toString('hex'),
+              enabled: true,
             };
             return client.postThen(
               '/account/' + user.accountId + '/recoveryKey',
@@ -2905,6 +2900,8 @@ module.exports = function(cfg, makeServer) {
               recoveryKey.recoveryData,
               'recoveryData match'
             );
+            assert.equal(recoveryKeyResult.enabled, true);
+            assert.ok(recoveryKeyResult.createdAt);
           });
       });
 
@@ -2923,6 +2920,65 @@ module.exports = function(cfg, makeServer) {
             const result = res.obj;
             assert.isTrue(result.exists);
           });
+      });
+
+      it('should create disabled key and then able it', async () => {
+        user = fake.newUserDataHex();
+        let res = await client.putThen(
+          '/account/' + user.accountId,
+          user.account
+        );
+        respOkEmpty(res);
+        recoveryKey = {
+          recoveryKeyId: crypto.randomBytes(16).toString('hex'),
+          recoveryData: crypto.randomBytes(64).toString('hex'),
+          enabled: false,
+        };
+        res = await client.postThen(
+          '/account/' + user.accountId + '/recoveryKey',
+          recoveryKey
+        );
+        respOkEmpty(res);
+
+        res = await client.getThen(
+          '/account/' +
+            user.accountId +
+            '/recoveryKey/' +
+            recoveryKey.recoveryKeyId
+        );
+        let result = res.obj;
+        assert.equal(
+          result.recoveryData,
+          recoveryKey.recoveryData,
+          'recoveryData match'
+        );
+        assert.equal(result.enabled, false);
+        assert.ok(result.createdAt);
+
+        const updatedKey = Object.assign({}, recoveryKey, {
+          enabled: true,
+          verifiedAt: Date.now(),
+        });
+        res = await client.postThen(
+          '/account/' + user.accountId + '/recoveryKey/update',
+          updatedKey
+        );
+        respOkEmpty(res);
+
+        res = await client.getThen(
+          '/account/' +
+            user.accountId +
+            '/recoveryKey/' +
+            recoveryKey.recoveryKeyId
+        );
+        result = res.obj;
+        assert.equal(
+          result.recoveryData,
+          recoveryKey.recoveryData,
+          'recoveryData match'
+        );
+        assert.equal(result.enabled, true);
+        assert.ok(result.verifiedAt);
       });
     });
 
