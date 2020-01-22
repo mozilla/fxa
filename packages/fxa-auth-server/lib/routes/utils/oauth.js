@@ -64,18 +64,26 @@ module.exports = {
       id: credentials.deviceId,
     });
 
-    const geoData = request.app.geo;
-    const ip = request.app.clientAddress;
-    const emailOptions = {
-      acceptLanguage: request.app.acceptLanguage,
-      ip,
-      location: geoData.location,
-      service: clientId,
-      timeZone: geoData.timeZone,
-      uid: credentials.uid,
-    };
+    // Email the user about their new device connection
+    // (but don't send anything if it was an existing device)
+    if (!credentials.deviceId) {
+      const geoData = request.app.geo;
+      const ip = request.app.clientAddress;
+      const emailOptions = {
+        acceptLanguage: request.app.acceptLanguage,
+        ip,
+        location: geoData.location,
+        service: clientId,
+        timeZone: geoData.timeZone,
+        uid: credentials.uid,
+      };
 
-    const account = await db.account(credentials.uid);
-    await mailer.sendNewDeviceLoginEmail(account.emails, account, emailOptions);
+      const account = await db.account(credentials.uid);
+      await mailer.sendNewDeviceLoginEmail(
+        account.emails,
+        account,
+        emailOptions
+      );
+    }
   },
 };

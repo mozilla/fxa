@@ -149,7 +149,7 @@ describe('newTokenNotification', () => {
     );
 
     assert.equal(oauthdb.checkAccessToken.callCount, 0);
-    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 1);
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
     assert.equal(devices.upsert.callCount, 1);
     const args = devices.upsert.args[0];
     assert.equal(args[1].refreshTokenId, MOCK_REFRESH_TOKEN_ID_2);
