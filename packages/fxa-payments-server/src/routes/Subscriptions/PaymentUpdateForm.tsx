@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import { Localized } from 'fluent-react';
 import dayjs from 'dayjs';
 import { formatCurrencyInCents } from '../../lib/formats';
 import { useBooleanState } from '../../lib/hooks';
@@ -96,12 +97,23 @@ export const PaymentUpdateForm = ({
   return (
     <div className="payment-update">
       <h3 className="billing-title">
-        <span className="title">Billing Information</span>
+        <Localized id="sub-update-title">
+          <span className="title">Billing Information</span>
+        </Localized>
       </h3>
-      <p className="billing-description">
-        You are billed ${formatCurrencyInCents(plan.amount)} per {plan.interval}{' '}
-        for {plan.product_name}. Your next payment occurs on {periodEndDate}.
-      </p>
+      <Localized
+        id="pay-update-billing-description"
+        $amount={formatCurrencyInCents(plan.amount)}
+        $interval={plan.interval}
+        $name={plan.product_name}
+        $date={periodEndDate}
+      >
+        <p className="billing-description">
+          You are billed ${formatCurrencyInCents(plan.amount)} per{' '}
+          {plan.interval} for {plan.product_name}. Your next payment occurs on{' '}
+          {periodEndDate}.
+        </p>
+      </Localized>
       {upgradeCTA && (
         <p
           className="upgrade-cta"
@@ -112,11 +124,16 @@ export const PaymentUpdateForm = ({
       {!updateRevealed ? (
         <div className="with-settings-button">
           <div className="card-details">
-            <div className="last-four">
-              {/* TODO: Need to find a way to display a card icon here? */}
-              Card ending {last4}
-            </div>
-            <div className="expiry">Expires {expirationDate}</div>
+            {/* TODO: Need to find a way to display a card icon here? */}
+            <Localized id="sub-update-card-ending" $last={last4}>
+              <div className="last-four">Card ending {last4}</div>
+            </Localized>
+            <Localized
+              id="pay-update-card-exp"
+              $expirationDate={expirationDate}
+            >
+              <div className="expiry">Expires {expirationDate}</div>
+            </Localized>
           </div>
           <div className="action">
             <button
@@ -124,7 +141,9 @@ export const PaymentUpdateForm = ({
               className="settings-button"
               onClick={onRevealUpdateClick}
             >
-              <span className="change-button">Change</span>
+              <Localized id="pay-update-change-btn">
+                <span className="change-button">Change</span>
+              </Localized>
             </button>
           </div>
         </div>
