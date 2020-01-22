@@ -122,34 +122,40 @@ export const Subscriptions = ({
 
   if (!profile.result || profile.error !== null) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-loading-profile"
-        title="Problem loading profile"
-        fetchState={profile}
-        onDismiss={locationReload}
-      />
+      <Localized id="product-profile-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-profile"
+          title="Problem loading profile"
+          fetchState={profile}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
   if (!plans.result || plans.error !== null) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-loading-plans"
-        title="Problem loading plans"
-        fetchState={plans}
-        onDismiss={locationReload}
-      />
+      <Localized id="product-plan-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-plans"
+          title="Problem loading plans"
+          fetchState={plans}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
   if (!subscriptions.result || subscriptions.error !== null) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-subscriptions-fetch"
-        title="Problem loading subscriptions"
-        fetchState={subscriptions}
-        onDismiss={locationReload}
-      />
+      <Localized id="sub-subscription-error">
+        <FetchErrorDialogMessage
+          testid="error-subscriptions-fetch"
+          title="Problem loading subscriptions"
+          fetchState={subscriptions}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
@@ -159,12 +165,14 @@ export const Subscriptions = ({
     customer.error.errno !== AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER
   ) {
     return (
-      <FetchErrorDialogMessage
-        testid="error-loading-customer"
-        title="Problem loading customer"
-        fetchState={customer}
-        onDismiss={locationReload}
-      />
+      <Localized id="sub-customer-error">
+        <FetchErrorDialogMessage
+          testid="error-loading-customer"
+          title="Problem loading customer"
+          fetchState={customer}
+          onDismiss={locationReload}
+        />
+      </Localized>
     );
   }
 
@@ -195,9 +203,11 @@ export const Subscriptions = ({
 
       {updatePaymentStatus.result && showPaymentSuccessAlert && (
         <AlertBar className="alert alertSuccess alertCenter">
-          <span data-testid="success-billing-update" className="checked">
-            Your billing information has been updated successfully
-          </span>
+          <Localized id="sub-billing-update-success">
+            <span data-testid="success-billing-update" className="checked">
+              Your billing information has been updated successfully
+            </span>
+          </Localized>
 
           <Localized id="close-aria">
             <span
@@ -214,7 +224,9 @@ export const Subscriptions = ({
 
       {updatePaymentStatus.loading && (
         <AlertBar className="alert alertPending">
-          <span>Updating billing information...</span>
+          <Localized id="sub-route-idx-updating">
+            <span>Updating billing information...</span>
+          </Localized>
         </AlertBar>
       )}
 
@@ -223,9 +235,11 @@ export const Subscriptions = ({
           className="dialog-error"
           onDismiss={resetReactivateSubscription}
         >
-          <h4 data-testid="error-reactivation">
-            Reactivating subscription failed
-          </h4>
+          <Localized id="sub-route-idx-reactivating">
+            <h4 data-testid="error-reactivation">
+              Reactivating subscription failed
+            </h4>
+          </Localized>
           <p>{reactivateSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}
@@ -242,9 +256,11 @@ export const Subscriptions = ({
           className="dialog-error"
           onDismiss={resetCancelSubscription}
         >
-          <h4 data-testid="error-cancellation">
-            Cancelling subscription failed
-          </h4>
+          <Localized id="sub-route-idx-cancel-failed">
+            <h4 data-testid="error-cancellation">
+              Cancelling subscription failed
+            </h4>
+          </Localized>
           <p>{cancelSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}
@@ -256,14 +272,18 @@ export const Subscriptions = ({
           <div className="settings-unit">
             <div className="settings-unit-stub">
               <header className="settings-unit-summary">
-                <h2 className="settings-unit-title">Subscriptions</h2>
+                <Localized id="settings-subscriptions">
+                  <h2 className="settings-unit-title">Subscriptions</h2>
+                </Localized>
               </header>
               <button
                 data-testid="contact-support-button"
                 className="settings-button primary-button settings-unit-toggle"
                 onClick={onSupportClick}
               >
-                <span className="change-button">Contact Support</span>
+                <Localized id="sub-route-idx-contact">
+                  <span className="change-button">Contact Support</span>
+                </Localized>
               </button>
             </div>
           </div>
@@ -343,17 +363,32 @@ const CancellationDialogMessage = ({
 
   return (
     <DialogMessage onDismiss={resetCancelSubscription}>
-      <h4 data-testid="cancellation-message-title">
-        We're sorry to see you go
-      </h4>
-      <p>
-        Your {plan.product_name} subscription has been cancelled.
-        <br />
-        You will still have access to {plan.product_name} until {periodEndDate}.
-      </p>
-      <p className="small">
-        Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.
-      </p>
+      <Localized id="sub-route-idx-cancel-msg-title">
+        <h4 data-testid="cancellation-message-title">
+          We're sorry to see you go
+        </h4>
+      </Localized>
+      <Localized
+        id="sub-route-idx-cancel-msg"
+        $name={plan.product_name}
+        $date={periodEndDate}
+      >
+        <p>
+          Your {plan.product_name} subscription has been cancelled.
+          <br />
+          You will still have access to {plan.product_name} until{' '}
+          {periodEndDate}.
+        </p>
+      </Localized>
+      <Localized
+        id="sub-route-idx-cancel-aside"
+        $url={supportFormUrl}
+        a={<a href={supportFormUrl}></a>}
+      >
+        <p className="small">
+          Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.
+        </p>
+      </Localized>
     </DialogMessage>
   );
 };

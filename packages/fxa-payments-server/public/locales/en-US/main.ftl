@@ -132,3 +132,21 @@ sub-item-cancel-confirm =
     { $name } on { $period }
 
 account-activated = Your account is activated, <userEl/>
+
+## subscription route index
+sub-route-idx-updating = Updating billing information...
+sub-route-idx-reactivating = Reactivating subscription failed
+sub-route-idx-cancel-failed = Cancelling subscription failed
+sub-route-idx-contact = Contact Support
+sub-route-idx-cancel-msg-title = We're sorry to see you go
+sub-route-idx-cancel-msg =
+    Your { $name } subscription has been cancelled.
+          <br />
+          You will still have access to { $name } until { $date }.
+sub-route-idx-cancel-aside =
+    Have questions? Visit <a>Mozilla Support</a>.
+sub-subscription-error =
+  .title = Problem loading subscriptions
+sub-customer-error =
+  .title = Problem loading customer
+sub-billing-update-success = Your billing information has been updated successfully
