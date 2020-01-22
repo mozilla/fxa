@@ -9,6 +9,7 @@ import FormView from './form';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import preventDefaultThen from './decorators/prevent_default_then';
 import PasswordResetMixin from './mixins/password-reset-mixin';
+import ServiceNameMixin from './mixins/service-mixin';
 import ResendMixin from './mixins/resend-mixin';
 import Template from 'templates/account_recovery_confirm_key.mustache';
 import Url from '../lib/url';
@@ -105,6 +106,12 @@ const View = FormView.extend({
   },
 });
 
-Cocktail.mixin(View, FlowEventsMixin, PasswordResetMixin, ResendMixin);
+Cocktail.mixin(
+  View,
+  FlowEventsMixin,
+  PasswordResetMixin,
+  ResendMixin,
+  ServiceNameMixin
+);
 
 export default View;
