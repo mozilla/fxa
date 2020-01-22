@@ -79,9 +79,11 @@ const View = FormView.extend({
     const input = this.getElementValue('input.recovery-code');
     const codes = this.model.get('recoveryCodes');
     if (!codes.includes(input.toLowerCase())) {
+      const e =
+        input.length > 0 ? 'INVALID_RECOVERY_CODE' : 'RECOVERY_CODE_REQUIRED';
       return this.showValidationError(
         this.$('input.recovery-code'),
-        AuthErrors.toError('INVALID_RECOVERY_CODE')
+        AuthErrors.toError(e)
       );
     }
 
