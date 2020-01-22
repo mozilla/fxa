@@ -2869,6 +2869,7 @@ module.exports = function(cfg, makeServer) {
             recoveryKey = {
               recoveryKeyId: crypto.randomBytes(16).toString('hex'),
               recoveryData: crypto.randomBytes(64).toString('hex'),
+              enabled: true,
             };
             return client.postThen(
               '/account/' + user.accountId + '/recoveryKey',
@@ -2899,6 +2900,8 @@ module.exports = function(cfg, makeServer) {
               recoveryKey.recoveryData,
               'recoveryData match'
             );
+            assert.equal(recoveryKeyResult.enabled, true);
+            assert.ok(recoveryKeyResult.createdAt);
           });
       });
 
@@ -2917,6 +2920,65 @@ module.exports = function(cfg, makeServer) {
             const result = res.obj;
             assert.isTrue(result.exists);
           });
+      });
+
+      it('should create disabled key and then enable it', async () => {
+        user = fake.newUserDataHex();
+        let res = await client.putThen(
+          '/account/' + user.accountId,
+          user.account
+        );
+        respOkEmpty(res);
+        recoveryKey = {
+          recoveryKeyId: crypto.randomBytes(16).toString('hex'),
+          recoveryData: crypto.randomBytes(64).toString('hex'),
+          enabled: false,
+        };
+        res = await client.postThen(
+          '/account/' + user.accountId + '/recoveryKey',
+          recoveryKey
+        );
+        respOkEmpty(res);
+
+        res = await client.getThen(
+          '/account/' +
+            user.accountId +
+            '/recoveryKey/' +
+            recoveryKey.recoveryKeyId
+        );
+        let result = res.obj;
+        assert.equal(
+          result.recoveryData,
+          recoveryKey.recoveryData,
+          'recoveryData match'
+        );
+        assert.equal(result.enabled, false);
+        assert.ok(result.createdAt);
+
+        const updatedKey = Object.assign({}, recoveryKey, {
+          enabled: true,
+          verifiedAt: Date.now(),
+        });
+        res = await client.postThen(
+          '/account/' + user.accountId + '/recoveryKey/update',
+          updatedKey
+        );
+        respOkEmpty(res);
+
+        res = await client.getThen(
+          '/account/' +
+            user.accountId +
+            '/recoveryKey/' +
+            recoveryKey.recoveryKeyId
+        );
+        result = res.obj;
+        assert.equal(
+          result.recoveryData,
+          recoveryKey.recoveryData,
+          'recoveryData match'
+        );
+        assert.equal(result.enabled, true);
+        assert.ok(result.verifiedAt);
       });
     });
 

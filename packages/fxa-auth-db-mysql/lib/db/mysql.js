@@ -1603,7 +1603,9 @@ module.exports = function(log, error) {
       });
   };
 
-  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_3(?, ?, ?)';
+  // Create : recoveryKeys
+  // Where  : uid = $1, recoveryKeyId = $2, recoveryData = $3, createdAt = $4, enabled = $5
+  const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_4(?, ?, ?, ?, ?)';
   MySql.prototype.createRecoveryKey = function(uid, data) {
     const recoveryKeyIdHash = dbUtil.createHash(data.recoveryKeyId);
     const recoveryData = data.recoveryData;
@@ -1611,6 +1613,8 @@ module.exports = function(log, error) {
       uid,
       recoveryKeyIdHash,
       recoveryData,
+      Date.now(),
+      data.enabled,
     ])
       .then(() => {
         return {};
@@ -1624,7 +1628,7 @@ module.exports = function(log, error) {
       });
   };
 
-  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_3(?)';
+  const GET_RECOVERY_KEY = 'CALL getRecoveryKey_4(?)';
   MySql.prototype.getRecoveryKey = function(options) {
     return this.readFirstResult(GET_RECOVERY_KEY, [options.id]).then(
       results => {
@@ -1647,11 +1651,10 @@ module.exports = function(log, error) {
   };
 
   MySql.prototype.recoveryKeyExists = function(uid) {
-    let exists = true;
     return this.read(GET_RECOVERY_KEY, [uid]).then(results => {
-      if (results[0].length === 0) {
-        exists = false;
-      }
+      // A recovery key is considered to exist if and only if there is one key
+      // that is enabled.
+      const exists = results[0].some(k => k.enabled);
 
       return { exists };
     });
@@ -1662,6 +1665,29 @@ module.exports = function(log, error) {
     return this.write(DELETE_RECOVERY_KEY, [options.id]).then(() => {
       return {};
     });
+  };
+
+  // Update : recoveryKeys
+  // Where  : uid = $1, recoveryKeyId = $2, verifiedAt = $3, enabled = $4
+  const UPDATE_RECOVERY_KEY = 'CALL updateRecoveryKey_1(?, ?, ?, ?)';
+  MySql.prototype.updateRecoveryKey = async function(uid, options) {
+    const recoveryKeyIdHash = dbUtil.createHash(options.recoveryKeyId);
+
+    try {
+      await this.write(UPDATE_RECOVERY_KEY, [
+        uid,
+        recoveryKeyIdHash,
+        options.verifiedAt,
+        options.enabled,
+      ]);
+    } catch (err) {
+      if (err.errno === ER_SIGNAL_NOT_FOUND) {
+        throw error.notFound();
+      }
+      throw err;
+    }
+
+    return {};
   };
 
   const CREATE_ACCOUNT_SUBSCRIPTION =
@@ -1708,9 +1734,10 @@ module.exports = function(log, error) {
 
   const DELETE_ACCOUNT_SUBSCRIPTION = 'CALL deleteAccountSubscription_2(?,?)';
   MySql.prototype.deleteAccountSubscription = function(uid, subscriptionId) {
-    return this.write(DELETE_ACCOUNT_SUBSCRIPTION, [uid, subscriptionId]).then(
-      result => ({})
-    );
+    return this.write(DELETE_ACCOUNT_SUBSCRIPTION, [
+      uid,
+      subscriptionId,
+    ]).then(result => ({}));
   };
 
   const CANCEL_ACCOUNT_SUBSCRIPTION = 'CALL cancelAccountSubscription_2(?,?,?)';

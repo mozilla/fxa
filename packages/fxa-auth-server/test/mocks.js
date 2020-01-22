@@ -80,6 +80,7 @@ const DB_METHOD_NAMES = [
   'totpToken',
   'updateDevice',
   'updateLocale',
+  'updateRecoveryKey',
   'updateSessionToken',
   'updateTotpToken',
   'verifyEmail',
