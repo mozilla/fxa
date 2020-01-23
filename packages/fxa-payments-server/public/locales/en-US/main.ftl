@@ -8,8 +8,11 @@ project-brand = Firefox Accounts
 document =
   .title = Firefox Accounts
 
-## app error dialog
+## general-aria
+close-aria =
+  .aria-label = Close modal
 
+## app error dialog
 general-error-heading = General application error
 
 basic-error-message = Something went wrong. Please try again later.
@@ -93,6 +96,8 @@ sub-update-confirm =
     <strong>${ $amount }/{ $interval }</strong>
     , according to payment terms, until I cancel my subscription.
 sub-update-submit = Change Plans
+sub-update-indicator =
+  .aria-label = upgrade indicator
 
 ## payment update
 pay-update-billing-description =
