@@ -50,10 +50,12 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
 
     this.pool = new Pool(options.url, pooleeOptions);
-    this.redis = require('./redis')(
-      { ...config.redis, ...config.redis.sessionTokens },
-      log
-    );
+    this.redis =
+      options.redis ||
+      require('./redis')(
+        { ...config.redis, ...config.redis.sessionTokens },
+        log
+      );
   }
 
   DB.connect = async function(options) {

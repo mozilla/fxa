@@ -21,7 +21,8 @@ module.exports = function(
   subhub,
   statsd,
   profile,
-  stripeHelper
+  stripeHelper,
+  redis
 ) {
   // Various extra helpers.
   const push = require('../push')(log, db, config);
@@ -83,7 +84,8 @@ module.exports = function(
     push,
     pushbox,
     devicesImpl,
-    clientUtils
+    clientUtils,
+    redis
   );
   const attachedClients = require('./attached-clients')(
     log,

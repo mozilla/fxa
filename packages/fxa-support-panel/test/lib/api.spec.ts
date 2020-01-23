@@ -13,6 +13,7 @@ import { stubInterface } from 'ts-sinon';
 import {
   AccountResponse,
   DevicesResponse,
+  SigninLocationResponse,
   SubscriptionResponse,
   TotpTokenResponse,
 } from '../../lib/api';
@@ -28,6 +29,7 @@ type MockCallResponse<T> = {
 type MockCallsResponse = {
   account: MockCallResponse<AccountResponse>;
   devices: MockCallResponse<DevicesResponse>;
+  signinLocations: MockCallResponse<SigninLocationResponse>;
   subscriptions: MockCallResponse<SubscriptionResponse>;
   totp: MockCallResponse<TotpTokenResponse>;
 };
@@ -46,6 +48,27 @@ function createDefaults(): MockCallsResponse {
     },
     devices: {
       response: [],
+      status: 200,
+    },
+    signinLocations: {
+      response: [
+        {
+          city: 'Heapolandia',
+          country: 'United Devices of von Neumann',
+          countryCode: 'UVN',
+          lastAccessTime: 1578414423827,
+          state: 'Memory Palace',
+          stateCode: 'MP',
+        },
+        {
+          city: 'Boring',
+          country: 'United States',
+          countryCode: 'US',
+          lastAccessTime: 1578498222026,
+          state: 'Oregon',
+          stateCode: 'OR',
+        },
+      ],
       status: 200,
     },
     subscriptions: {
@@ -78,6 +101,7 @@ describe('Support Controller', () => {
 
   const authServerConfig = {
     secretBearerToken: '',
+    signinLocationsSearchPath: '/v1/account/sessions/locations',
     subscriptionsSearchPath: '/v1/oauth/subscriptions/search',
     url: 'http://localhost:9000',
   };
@@ -99,6 +123,10 @@ describe('Support Controller', () => {
       .get(authServerConfig.subscriptionsSearchPath)
       .query(() => true)
       .reply(obj.subscriptions.status, obj.subscriptions.response);
+    nock(authServerConfig.url)
+      .get(authServerConfig.signinLocationsSearchPath)
+      .query(() => true)
+      .reply(obj.signinLocations.status, obj.signinLocations.response);
   };
 
   beforeEach(async () => {
@@ -308,5 +336,42 @@ describe('Support Controller', () => {
       url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 500);
+  });
+
+  describe('uses signin locations', () => {
+    describe('when there are no signin locations', () => {
+      it('does not display a signin location row', async () => {
+        const defaults = createDefaults();
+        mockCalls({
+          ...defaults,
+          signinLocations: { response: [], status: 200 },
+        });
+        const result = await server.inject({
+          method: 'GET',
+          url: `/?uid=${uid}`,
+        });
+        cassert.equal(result.statusCode, 200);
+        const payloadMatch = result.payload.match(/Signin Location/);
+        cassert.isNull(payloadMatch);
+      });
+    });
+
+    describe('when there are signin locations', () => {
+      it('displays a row per location', async () => {
+        const defaults = createDefaults();
+        mockCalls(defaults);
+        const result = await server.inject({
+          method: 'GET',
+          url: `/?uid=${uid}`,
+        });
+        cassert.equal(result.statusCode, 200);
+        const tableHeadingMatch = result.payload.match(/Signin Location/g);
+        cassert.equal(tableHeadingMatch?.length, 2);
+        const locationsMatch = result.payload.match(
+          /Heapolandia, MP|Boring, OR/g
+        );
+        cassert.equal(locationsMatch?.length, 2);
+      });
+    });
   });
 });

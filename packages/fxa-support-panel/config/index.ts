@@ -20,6 +20,12 @@ const conf = convict({
       env: 'AUTH_SECRET_BEARER_TOKEN',
       format: 'String',
     },
+    signinLocationsSearchPath: {
+      default: '/v1/account/sessions/locations',
+      doc: 'Auth server path session token metadata locations',
+      env: 'AUTH_SERVER_LOCATIONS_SEARCH_PATH',
+      format: String,
+    },
     subscriptionsSearchPath: {
       default: '/v1/oauth/subscriptions/search',
       doc: 'Auth server path for subscriptions search endpoint',
