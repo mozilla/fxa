@@ -130,3 +130,5 @@ sub-item-cancel-msg =
 sub-item-cancel-confirm =
     Cancel my access and my saved information within
     { $name } on { $period }
+
+account-activated = Your account is activated, <userEl/>
