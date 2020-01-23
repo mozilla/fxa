@@ -8,7 +8,7 @@ import Broker from 'models/auth_brokers/base';
 import AuthErrors from 'lib/auth-errors';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
-import Relier from 'models/reliers/base';
+import Relier from 'models/reliers/relier';
 import SentryMetrics from 'lib/sentry';
 import sinon from 'sinon';
 import TestHelpers from '../../lib/helpers';
@@ -65,10 +65,7 @@ describe('views/account_recovery_confirm_key', () => {
     metrics = new Metrics({ notifier, sentryMetrics });
     user = new User();
     account = user.initAccount();
-    relier = new Relier({
-      service: 'sync',
-      serviceName: 'Firefox Sync',
-    });
+    relier = new Relier();
     windowMock = new WindowMock();
     windowMock.location.search = `?code=${code}&email=${email}&token=${token}&uid=${uid}`;
 
@@ -84,12 +81,12 @@ describe('views/account_recovery_confirm_key', () => {
     });
   });
 
-  it('renders view', () => {
+  it('renders the view with the default serviceName from the relier', () => {
     return initView().then(() => {
       assert.lengthOf(view.$('#account-recovery-confirm-password'), 1);
       assert.include(
         view.$('#fxa-recovery-key-confirm').text(),
-        'Firefox Sync'
+        'Account Settings'
       );
       assert.lengthOf(view.$('#recovery-key'), 1);
       assert.lengthOf(view.$('#submit-btn'), 1);
