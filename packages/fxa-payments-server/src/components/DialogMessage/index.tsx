@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { Localized } from 'fluent-react';
 import classNames from 'classnames';
 import { useClickOutsideEffect } from '../../lib/hooks';
 
@@ -37,14 +38,16 @@ export const DialogMessage = ({
           ref={dialogInsideRef}
         >
           {onDismiss && (
-            <button
-              data-testid="dialog-dismiss"
-              className="dismiss"
-              aria-label="Close modal"
-              onClick={onDismiss as () => void}
-            >
-              <CloseIcon />
-            </button>
+            <Localized id="close-aria">
+              <button
+                data-testid="dialog-dismiss"
+                className="dismiss"
+                aria-label="Close modal"
+                onClick={onDismiss as () => void}
+              >
+                <CloseIcon />
+              </button>
+            </Localized>
           )}
           <div className="message">{children}</div>
         </div>

@@ -115,13 +115,15 @@ export const SubscriptionUpgrade = ({
           <li className="from-plan">
             <PlanDetail plan={upgradeFromPlan} />
           </li>
-          <li
-            role="img"
-            aria-label="upgrade indicator"
-            className="upgrade-indicator"
-          >
-            &nbsp;
-          </li>
+          <Localized id="sub-update-indicator">
+            <li
+              role="img"
+              aria-label="upgrade indicator"
+              className="upgrade-indicator"
+            >
+              &nbsp;
+            </li>
+          </Localized>
           <li className="to-plan">
             <PlanDetail plan={selectedPlan} />
           </li>

@@ -6,6 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { connect } from 'react-redux';
+import { Localized } from 'fluent-react';
 import dayjs from 'dayjs';
 
 import * as Amplitude from '../../lib/amplitude';
@@ -198,14 +199,16 @@ export const Subscriptions = ({
             Your billing information has been updated successfully
           </span>
 
-          <span
-            data-testid="clear-success-alert"
-            className="close"
-            aria-label="Close modal"
-            onClick={clearSuccessAlert}
-          >
-            <CloseIcon className="close" />
-          </span>
+          <Localized id="close-aria">
+            <span
+              data-testid="clear-success-alert"
+              className="close"
+              aria-label="Close modal"
+              onClick={clearSuccessAlert}
+            >
+              <CloseIcon className="close" />
+            </span>
+          </Localized>
         </AlertBar>
       )}
 
