@@ -32,6 +32,11 @@ async function run(config) {
     stripeHelper = createStripeHelper(log, config);
   }
 
+  const redis = require('../lib/redis')(
+    { ...config.redis, ...config.redis.sessionTokens },
+    log
+  );
+
   const DB = require('../lib/db')(
     config,
     log,
@@ -40,7 +45,7 @@ async function run(config) {
   );
   let database = null;
   try {
-    database = await DB.connect(config[config.db.backend]);
+    database = await DB.connect({ ...config[config.db.backend], redis });
   } catch (err) {
     log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
@@ -96,7 +101,8 @@ async function run(config) {
     subhub,
     statsd,
     profile,
-    stripeHelper
+    stripeHelper,
+    redis
   );
 
   const Server = require('../lib/server');

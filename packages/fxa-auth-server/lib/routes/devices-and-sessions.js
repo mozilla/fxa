@@ -33,7 +33,8 @@ module.exports = (
   push,
   pushbox,
   devices,
-  clientUtils
+  clientUtils,
+  redis
 ) => {
   // Loads and compiles a json validator for the payloads received
   // in /account/devices/notify
@@ -735,6 +736,68 @@ module.exports = (
         log.begin('Account.deviceDestroy', request);
         await devices.destroy(request, request.payload.id);
         return {};
+      },
+    },
+    {
+      method: 'GET',
+      path: '/account/sessions/locations',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'supportPanelSecret',
+        },
+        validate: {
+          query: {
+            uid: isA.string().required(),
+          },
+        },
+        response: {
+          schema: isA.array().items(
+            isA.object({
+              city: isA
+                .string()
+                .required()
+                .allow(null),
+              state: isA
+                .string()
+                .required()
+                .allow(null),
+              stateCode: isA
+                .string()
+                .required()
+                .allow(null),
+              country: isA
+                .string()
+                .required()
+                .allow(null),
+              countryCode: isA
+                .string()
+                .required()
+                .allow(null),
+              lastAccessTime: isA.number().required(),
+            })
+          ),
+        },
+      },
+      handler: async function(request) {
+        log.begin('Account.sessionsLocations', request);
+        const { uid } = request.query;
+
+        try {
+          const tokenMetaData = await redis.getSessionTokens(uid);
+          return Object.entries(tokenMetaData)
+            .filter(([_, v]) => v.location)
+            .map(([_, v]) => ({
+              ...v.location,
+              lastAccessTime: v.lastAccessTime,
+            }));
+        } catch (err) {
+          log.error('Account.sessionsLocations', {
+            uid: uid,
+            error: err,
+          });
+          throw error.backendServiceFailure();
+        }
       },
     },
   ];

@@ -52,6 +52,7 @@ function makeRoutes(options = {}, requireMocks) {
   const clientUtils =
     options.clientUtils ||
     require('../../../lib/routes/utils/clients')(log, config);
+  const redis = options.redis || {};
   return proxyquire(
     '../../../lib/routes/devices-and-sessions',
     requireMocks || {}
@@ -63,7 +64,8 @@ function makeRoutes(options = {}, requireMocks) {
     push,
     pushbox,
     options.devices || require('../../../lib/devices')(log, db, oauthdb, push),
-    clientUtils
+    clientUtils,
+    redis
   );
 }
 
@@ -1722,5 +1724,69 @@ describe('/account/sessions', () => {
         },
       ]);
     });
+  });
+});
+
+describe('GET /account/sessions/locations', () => {
+  let redis;
+  const uid = 'de2437db3aee4b3b9830133f0f71bbec';
+  let mockRequest, mockLog, accountRoutes, route;
+  const tokenMetadata = Array(2).fill({
+    location: {
+      city: 'Heapolandia',
+      state: 'Memory Palace',
+      stateCode: 'MP',
+      country: 'United Devices of von Neumann',
+      countryCode: 'UVN',
+    },
+    lastAccessTime: Date.now(),
+  });
+  tokenMetadata.push({ nolocation: 'fact' });
+
+  beforeEach(() => {
+    redis = {};
+    mockRequest = mocks.mockRequest({
+      query: { uid },
+      auth: { strategy: 'supportPanelSecret' },
+    });
+    mockLog = mocks.mockLog();
+    accountRoutes = makeRoutes({
+      config: {},
+      devices: {},
+      log: mockLog,
+      redis,
+    });
+    route = getRoute(accountRoutes, '/account/sessions/locations');
+  });
+
+  it('should return a list of locations from redis', () => {
+    redis.getSessionTokens = sinon.fake.returns(tokenMetadata);
+    return runTest(route, mockRequest, response => {
+      assert.isTrue(redis.getSessionTokens.calledOnceWith(uid));
+      assert.deepEqual(
+        response,
+        tokenMetadata
+          .filter(x => x.location)
+          .map(x => ({ ...x.location, lastAccessTime: x.lastAccessTime }))
+      );
+    });
+  });
+
+  it('should throw and log an error if fetching locations from redis failed', () => {
+    redis.getSessionTokens = sinon.fake.throws(error.backendServiceFailure());
+    return runTest(
+      route,
+      mockRequest,
+      () => {
+        assert.fail('error expected');
+      },
+      err => {
+        mockLog.error.calledOnceWith('Account.sessionsLocations', {
+          uid,
+          error: err,
+        });
+        assert.deepEqual(err, error.backendServiceFailure());
+      }
+    );
   });
 });

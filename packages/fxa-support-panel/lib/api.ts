@@ -63,6 +63,17 @@ interface Subscription {
 
 export interface SubscriptionResponse extends Array<Subscription> {}
 
+interface SigninLocation {
+  city: string;
+  state: string;
+  stateCode: string;
+  country: string;
+  countryCode: string;
+  lastAccessTime: number | Date;
+}
+
+export interface SigninLocationResponse extends Array<SigninLocation> {}
+
 export interface TotpTokenResponse {
   sharedSecret: string;
   epoch: number;
@@ -76,6 +87,7 @@ export type SupportConfig = {
   authdbUrl: string;
   authServer: {
     secretBearerToken: string;
+    signinLocationsSearchPath: string;
     subscriptionsSearchPath: string;
     url: string;
   };
@@ -109,6 +121,7 @@ class SupportController {
     let account: AccountResponse;
     let devices: DevicesResponse;
     let subscriptions: SubscriptionResponse;
+    let signinLocations: SigninLocationResponse = [];
 
     const accountInfoReqPromises = [
       `${this.config.authdbUrl}/account/${uid}`,
@@ -122,12 +135,16 @@ class SupportController {
       return h.response('<h1>Unable to fetch user</h1>').code(500);
     }
 
+    const authServerRequestOptions = {
+      ...opts,
+      headers: {
+        Authorization: `Bearer ${this.config.authServer.secretBearerToken}`,
+      },
+    };
+
     try {
       subscriptions = await requests.get({
-        ...opts,
-        headers: {
-          Authorization: `Bearer ${this.config.authServer.secretBearerToken}`,
-        },
+        ...authServerRequestOptions,
         url: `${this.config.authServer.url}${this.config.authServer.subscriptionsSearchPath}?uid=${uid}&email=${account.email}`,
       });
     } catch (err) {
@@ -142,6 +159,19 @@ class SupportController {
         new Date(s.current_period_start * MS_IN_SEC)
       ),
     }));
+
+    try {
+      const locations: SigninLocationResponse = await requests.get({
+        ...authServerRequestOptions,
+        url: `${this.config.authServer.url}${this.config.authServer.signinLocationsSearchPath}?uid=${uid}`,
+      });
+      signinLocations = locations.map(v => ({
+        ...v,
+        lastAccessTime: new Date(v.lastAccessTime),
+      }));
+    } catch (err) {
+      this.logger.error('locationsFetch', { err });
+    }
 
     let totpEnabled: boolean;
     try {
@@ -172,6 +202,7 @@ class SupportController {
       email: account.email,
       emailVerified: !!account.emailVerified,
       locale: account.locale,
+      signinLocations,
       subscriptionStatus: subscriptions.length > 0,
       subscriptions: formattedSubscriptions,
       twoFactorAuth: totpEnabled,
