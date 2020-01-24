@@ -354,12 +354,14 @@ module.exports = function(
         const options = request.payload;
         const sessionToken = request.auth.credentials;
         const { code } = options;
+        const { uid } = sessionToken;
+        const devices = await request.app.devices;
 
         request.emitMetricsEvent('session.verify_code');
 
         // Check to see if the otp code passed matches the expected value from
         // using the account's' `emailCode` as the secret in the otp code generation.
-        const account = await db.account(sessionToken.uid);
+        const account = await db.account(uid);
         const secret = account.primaryEmail.emailCode;
 
         const isValidCode = otpUtils.verifyOtpCode(code, secret, otpOptions);
@@ -368,20 +370,20 @@ module.exports = function(
           throw error.invalidOrExpiredOtpCode();
         }
 
+        // If a valid code was sent, this verifies the session using the `email-2fa` method.
+        // The assurance level will be ["pwd", "email"] or level 1.
+        // **Note** the order of operations, to avoid any race conditions with push
+        // notifications, we perform all DB operations first.
+        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
+
         // We have a matching code! Let's verify the account, session and send the
         // corresponding email and emit metrics.
         if (!account.primaryEmail.isVerified) {
           await signupUtils.verifyAccount(request, account, options);
         } else {
-          const { uid } = sessionToken;
           request.emitMetricsEvent('account.confirmed', { uid });
-          const devices = await request.app.devices;
           await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
         }
-
-        // If a valid code was sent, this verifies the session using the `email-2fa` method.
-        // The assurance level will be ["pwd", "email"] or level 1.
-        await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
 
         return {};
       },
