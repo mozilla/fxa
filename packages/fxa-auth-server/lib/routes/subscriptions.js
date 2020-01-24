@@ -14,6 +14,7 @@ const { metadataFromPlan } = require('./utils/subscriptions');
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
 
+/** @typedef {import('hapi').Request} Request */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
 
@@ -369,7 +370,8 @@ class DirectStripeRoutes {
 
   async getCustomer(request) {
     this.log.begin('subscriptions.getCustomer', request);
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
+
+    const { uid, email } = await this.getUidEmail(request);
     const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
     ]);
@@ -439,6 +441,41 @@ class DirectStripeRoutes {
     }
 
     return {};
+  }
+
+  /**
+   * Get a list of subscriptions with a FxA UID and email address.
+   *
+   * @param {Request} request a Hapi request
+   * @returns {Promise<object[]>} Formatted list of subscriptions.
+   */
+  async getSubscriptions(request) {
+    this.log.begin('subscriptions.getSubscriptions', request);
+
+    const { uid, email } = await this.getUidEmail(request);
+    const customer = await this.stripeHelper.customer(uid, email);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    const response = await this.stripeHelper.subscriptionsToResponse(
+      customer.subscriptions
+    );
+
+    return response;
+  }
+
+  async getUidEmail(request) {
+    let uid, email;
+
+    if (request.auth.strategy === 'supportPanelSecret') {
+      ({ uid, email } = request.query);
+    } else {
+      // 'oauthToken' is the default
+      ({ uid, email } = await handleAuth(this.db, request.auth, true));
+    }
+
+    return { uid, email };
   }
 }
 
@@ -566,6 +603,29 @@ const directRoutes = (
         },
       },
       handler: request => directStripeRoutes.getCustomer(request),
+    },
+    {
+      method: 'GET',
+      path: '/oauth/subscriptions/search',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'supportPanelSecret',
+        },
+        response: {
+          schema: isA
+            .array()
+            .items(validators.subscriptionsSubscriptionValidator),
+        },
+        validate: {
+          query: {
+            uid: isA.string().required(),
+            email: validators.email().required(),
+            limit: isA.number().optional(),
+          },
+        },
+      },
+      handler: request => directStripeRoutes.getSubscriptions(request),
     },
     {
       method: 'PUT',

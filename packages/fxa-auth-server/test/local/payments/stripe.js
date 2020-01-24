@@ -290,6 +290,58 @@ describe('StripeHelper', () => {
       });
     });
 
+    describe('fetchAllSubscriptionsForCustomer', () => {
+      it('calls Stripe with the correct arguments', async () => {
+        sandbox
+          .stub(stripeHelper.stripe.subscriptions, 'list')
+          .returns({ has_more: false, data: [{ id: 'sub_wibble' }] });
+        await stripeHelper.fetchAllSubscriptionsForCustomer(
+          'cus_9001',
+          'sub_ixi'
+        );
+        assert.isTrue(
+          stripeHelper.stripe.subscriptions.list.calledOnceWith({
+            customer: 'cus_9001',
+            starting_after: 'sub_ixi',
+          })
+        );
+      });
+      it('calls Stripe until has_more is false', async () => {
+        const stub = sandbox.stub(stripeHelper.stripe.subscriptions, 'list');
+        stub
+          .onFirstCall()
+          .returns({ has_more: true, data: [{ id: 'sub_quux' }] });
+        stub
+          .onSecondCall()
+          .returns({ has_more: true, data: [{ id: 'sub_foo' }] });
+        stub
+          .onThirdCall()
+          .returns({ has_more: false, data: [{ id: 'sub_bar' }] });
+        const subs = await stripeHelper.fetchAllSubscriptionsForCustomer(
+          'cus_9001',
+          'sub_ixi'
+        );
+        assert.equal(stripeHelper.stripe.subscriptions.list.callCount, 3);
+        stub.firstCall.calledWithExactly({
+          customer: 'cus_9001',
+          starting_after: 'sub_ixi',
+        });
+        stub.secondCall.calledWithExactly({
+          customer: 'cus_9001',
+          starting_after: 'sub_quux',
+        });
+        stub.thirdCall.calledWithExactly({
+          customer: 'cus_9001',
+          starting_after: 'sub_foo',
+        });
+        assert.deepEqual(subs, [
+          { id: 'sub_quux' },
+          { id: 'sub_foo' },
+          { id: 'sub_bar' },
+        ]);
+      });
+    });
+
     describe('cache deletion', () => {
       let customerKey;
 

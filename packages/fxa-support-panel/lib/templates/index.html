@@ -45,5 +45,31 @@
       </tr>
     </table>
 
+    {{#subscriptionStatus}}
+    <h3>Subscriptions</h3>
+    {{#subscriptions}}
+    <table>
+
+      <tr>
+        <th>Subscription:</th>
+        <td>{{ plan_name }}</td>
+      </tr>
+      <tr>
+        <th>Status:</th>
+        <td>{{ status }}</td>
+      </tr>
+      <tr>
+        <th>Last Payment:</th>
+        <td>{{ current_period_start }}</td>
+      </tr>
+      <tr>
+        <th>Next Payment:</th>
+        <td>{{ current_period_end }}</td>
+      </tr>
+    </table>
+    <br/>
+    {{/subscriptions}}
+    {{/subscriptionStatus}}
+
   </body>
 </html>

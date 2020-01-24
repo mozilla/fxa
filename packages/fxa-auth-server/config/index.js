@@ -1604,6 +1604,15 @@ const conf = convict({
       },
     },
   },
+  supportPanel: {
+    secretBearerToken: {
+      default: 'YOU MUST CHANGE ME',
+      doc:
+        'Shared secret to access certain endpoints.  Please only use for GET.  No state mutation allowed!',
+      env: 'SUPPORT_PANEL_AUTH_SECRET_BEARER_TOKEN',
+      format: 'String',
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
@@ -1735,6 +1744,7 @@ if (conf.get('isProduction')) {
     'oauth.jwtSecretKeys',
     'oauth.secretKey',
     'profileServer.secretBearerToken',
+    'supportPanel.secretBearerToken',
   ];
   for (const key of SECRET_SETTINGS) {
     if (conf.get(key) === conf.default(key)) {

@@ -31,7 +31,7 @@ describe('Config', () => {
     it('errors when secret settings have their default values', () => {
       assert.throws(() => {
         proxyquire(`${ROOT_DIR}/config`, {});
-      // eslint-disable-next-line no-useless-escape
+        // eslint-disable-next-line no-useless-escape
       }, /Config \'[a-zA-Z.]+\' must be set in production/);
     });
 
@@ -41,6 +41,10 @@ describe('Config', () => {
       mockEnv('OAUTH_SERVER_SECRET_KEY', 'production secret here');
       mockEnv(
         'PROFILE_SERVER_AUTH_SECRET_BEARER_TOKEN',
+        'production secret here'
+      );
+      mockEnv(
+        'SUPPORT_PANEL_AUTH_SECRET_BEARER_TOKEN',
         'production secret here'
       );
       assert.doesNotThrow(() => {

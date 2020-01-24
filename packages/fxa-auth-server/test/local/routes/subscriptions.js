@@ -16,6 +16,7 @@ const Sentry = require('@sentry/node');
 const DirectStripeRoutes = require('../../../lib/routes/subscriptions')
   .DirectStripeRoutes;
 const subscription2 = require('../payments/fixtures/subscription2.json');
+const customerFixture = require('../payments/fixtures/customer1.json');
 
 let config,
   log,
@@ -928,6 +929,63 @@ describe.skip('subscriptions (using direct stripe access)', () => {
       assert.equal(db.fetchAccountSubscriptions.callCount, 1);
       assert.equal(db.fetchAccountSubscriptions.args[0][0], UID);
       assert.deepEqual(res, ACTIVE_SUBSCRIPTIONS);
+    });
+  });
+
+  describe('GET /oauth/subscriptions/search', () => {
+    let reqOpts, stripeHelper;
+    const formatter = subs => subs.data.map(s => ({ subscription_id: s.id }));
+
+    beforeEach(() => {
+      reqOpts = {
+        ...requestOptions,
+        method: 'GET',
+        query: { uid: UID, email: 'testo@blackhole.example.io' },
+        auth: { strategy: 'supportPanelSecret' },
+      };
+      stripeHelper = {
+        customer: sinon.fake.returns(customerFixture),
+        subscriptionsToResponse: sinon.fake(formatter),
+      };
+    });
+
+    it('should report error for unknown customer', async () => {
+      stripeHelper.fetchCustomer = sinon.fake.throws(
+        error.unknownCustomer(reqOpts.query.uid)
+      );
+
+      try {
+        await runTest('/oauth/subscriptions/search', reqOpts, stripeHelper);
+        assert.fail();
+      } catch (err) {
+        assert.isTrue(
+          stripeHelper.customer.calledOnceWith(
+            reqOpts.query.uid,
+            reqOpts.query.email
+          )
+        );
+        assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+
+    it('should return a formatted list of subscriptions in the customer response', async () => {
+      const response = await runTest(
+        '/oauth/subscriptions/search',
+        reqOpts,
+        stripeHelper
+      );
+      assert.isTrue(
+        stripeHelper.customer.calledOnceWith(
+          reqOpts.query.uid,
+          reqOpts.query.email
+        )
+      );
+      assert.isTrue(
+        stripeHelper.subscriptionsToResponse.calledOnceWith(
+          customerFixture.subscriptions
+        )
+      );
+      assert.deepEqual(response, formatter(customerFixture.subscriptions));
     });
   });
 

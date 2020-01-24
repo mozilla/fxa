@@ -49,7 +49,15 @@ function createDefaults(): MockCallsResponse {
       status: 200,
     },
     subscriptions: {
-      response: [],
+      response: [
+        {
+          current_period_end: 1579716673,
+          current_period_start: 1579630273,
+          plan_name: 'Learn to Code (Monthly)',
+          status: 'active',
+          subscription_id: 'sub_GZ7WKEJp1YGZ86',
+        },
+      ],
       status: 200,
     },
     totp: {
@@ -68,6 +76,12 @@ describe('Support Controller', () => {
   let logger: Logger;
   let server: hapi.Server;
 
+  const authServerConfig = {
+    secretBearerToken: '',
+    subscriptionsSearchPath: '/v1/oauth/subscriptions/search',
+    url: 'http://localhost:9000',
+  };
+
   const mockCalls = (obj: MockCallsResponse) => {
     nock('http://authdb.firefox.com')
       .get(`/account/${uid}`)
@@ -81,6 +95,10 @@ describe('Support Controller', () => {
     nock('http://authdb.firefox.com')
       .get(`/totp/${uid}`)
       .reply(obj.totp.status, obj.totp.response);
+    nock(authServerConfig.url)
+      .get(authServerConfig.subscriptionsSearchPath)
+      .query(() => true)
+      .reply(obj.subscriptions.status, obj.subscriptions.response);
   };
 
   beforeEach(async () => {
@@ -89,6 +107,7 @@ describe('Support Controller', () => {
     server = await supportServer.init(
       {
         authHeader: 'testing',
+        authServer: authServerConfig,
         authdbUrl: 'http://authdb.firefox.com',
         env: 'development',
         listen: {
@@ -216,6 +235,23 @@ describe('Support Controller', () => {
     ]);
   });
 
+  it('renders the subscription info', async () => {
+    mockCalls(createDefaults());
+    const result = await server.inject({
+      headers: {
+        testing: 'example@example.com',
+      },
+      method: 'GET',
+      url: `/?uid=${uid}`,
+    });
+    cassert.equal(result.statusCode, 200);
+    const headingMatch = result.payload.match(/<h3>Subscriptions<\/h3>/g);
+    const nameMatch = result.payload.match(
+      /<th>Subscription:<\/th>\s*<td>Learn to Code \(Monthly\)<\/td>/g
+    );
+    cassert.isTrue(headingMatch?.length === 1 && nameMatch?.length === 1);
+  });
+
   it('gracefully handles 404s/500', async () => {
     const defaults = createDefaults();
     defaults.account.status = 404;
@@ -255,6 +291,17 @@ describe('Support Controller', () => {
   it('gracefully handles totp service returning 500', async () => {
     const defaults = createDefaults();
     defaults.totp.status = 500;
+    mockCalls(defaults);
+    const result = await server.inject({
+      method: 'GET',
+      url: `/?uid=${uid}`,
+    });
+    cassert.equal(result.statusCode, 500);
+  });
+
+  it('gracefully handles auth server subscriptions search returning 500', async () => {
+    const defaults = createDefaults();
+    defaults.subscriptions.status = 500;
     mockCalls(defaults);
     const result = await server.inject({
       method: 'GET',
