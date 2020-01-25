@@ -135,7 +135,7 @@
         "babel-plugin-dynamic-import-webpack": "1.0.2",
         "chai": "^4.2.0",
         "css": "2.2.3",
-        "eslint": "6.6.0",
+        "eslint": "6.8.0",
         "eslint-plugin-fxa": "2.0.1",
         "firefox-profile": "1.2.0",
         "grunt-ban-word": "0.1.1",
