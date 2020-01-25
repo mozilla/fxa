@@ -134,7 +134,7 @@
         "babel-eslint": "9.0.0",
         "babel-plugin-dynamic-import-webpack": "1.0.2",
         "chai": "^4.2.0",
-        "css": "2.2.3",
+        "css": "2.2.4",
         "eslint": "6.6.0",
         "eslint-plugin-fxa": "2.0.1",
         "firefox-profile": "1.2.0",
