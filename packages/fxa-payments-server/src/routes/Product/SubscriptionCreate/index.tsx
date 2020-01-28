@@ -15,6 +15,7 @@ import AccountActivatedBanner from './AccountActivatedBanner';
 
 import { ProductProps } from '../index';
 import * as Amplitude from '../../../lib/amplitude';
+import { Localized } from 'fluent-react';
 
 export type SubscriptionCreateProps = {
   profile: Profile;
@@ -122,19 +123,27 @@ export const SubscriptionCreate = ({
       <hr />
 
       <h3 className="billing-title">
-        <span className="title">Billing Information</span>
+        <Localized id="sub-update-title">
+          <span className="title">Billing Information</span>
+        </Localized>
       </h3>
 
       <ErrorMessage isVisible={!!createTokenError.error}>
         {createTokenError.error && (
-          <p data-testid="error-payment-submission">
-            {getErrorMessage(createTokenError.type)}
-          </p>
+          <Localized id={getErrorMessage(createTokenError.type)}>
+            <p data-testid="error-payment-submission">
+              {getErrorMessage(createTokenError.type)}
+            </p>
+          </Localized>
         )}
       </ErrorMessage>
 
       <ErrorMessage isVisible={isCardError}>
-        <p data-testid="error-card-rejected">{getErrorMessage('card_error')}</p>
+        <Localized id={getErrorMessage('card-error')}>
+          <p data-testid="error-card-rejected">
+            {getErrorMessage('card_error')}
+          </p>
+        </Localized>
       </ErrorMessage>
 
       {createSubscriptionStatus.error && !isCardError && (
@@ -142,7 +151,9 @@ export const SubscriptionCreate = ({
           className="dialog-error"
           onDismiss={resetCreateSubscription}
         >
-          <h4 data-testid="error-subscription-failed">Subscription failed</h4>
+          <Localized id="sub-failed">
+            <h4 data-testid="error-subscription-failed">Subscription failed</h4>
+          </Localized>
           <p>{createSubscriptionStatus.error.message}</p>
         </DialogMessage>
       )}

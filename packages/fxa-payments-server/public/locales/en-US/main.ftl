@@ -150,3 +150,6 @@ sub-subscription-error =
 sub-customer-error =
   .title = Problem loading customer
 sub-billing-update-success = Your billing information has been updated successfully
+
+## subscription create
+sub-failed = Subscription failed
