@@ -1,23 +1,54 @@
 # Change history
 
+## 1.155.0
+
+### New features
+
+- auth-server: direct stripe API usage (21bccd703)
+
+### Bug fixes
+
+- npm: added https://npmjs.com/advisories/961 to content-server ignores (feadeb3ce)
+- styles: make survey iframe responsive (f4ff0cbab)
+- payments: ensure a request is not already in progress on submission (c018bc3e2)
+
+### Refactorings
+
+- git: merge all package gitignores into single root-level gitignore (a238c3d27)
+
+### Other changes
+
+- payments-server: create subscription index l10n (ec5576884)
+- payments-server: add l10n to subscription route index (64ebd83be)
+- payments-server: aria label l10n (4351d7f7f)
+- payments-server: account activated banner l10n (32d1a7735)
+- payments-server: add l10n to subscriptionItem (43ced7791)
+- payments-server: add l10n to PaymentUpdateForm (430087c04)
+- payments-server: move AppLocalizationProvider into own file (e1288eda6)
+- payments-server: Reactivate l10n (4532841f1)
+- payments-server: SubscriptionUpgrade l10n (201f16a12)
+- payments-server: l10n and componetize for fields.tsx (3f6b31f51)
+- payments-server: SubscriptionRedirect l10n (8ae16b3fa)
+- payments-server: fix Storybook build for missing App.scss (3c6b13cae)
+
 ## 1.154.0
 
 ### Other changes
 
-* payments-server: add l10n to payments form component (ec246ef25)
-* payments-server: add l10n for payment legal blurb (b8e08ca94)
-* payments-server: l10n for product route index (7d643c1fd)
-* payments-server: l10n for plan details (78cc5f0b9)
-* payments-server: remove unused App.scss file (85f1d2529)
-* payments-server: move error message component into directory (a4ad59585)
-* payments-server: move tooltip to directory (22c1f565a)
-* payments-server: move portal to directory (0816a6bce)
-* payments-server: move loading spinner to directory (41b683e01)
-* payments-server: move loading overlay to directory (ba8edc230)
-* payments-server: move dialog message component into directory (c8e28590c)
-* payments-server: move AlertBar component files into directoy (24976b465)
-* payments-server: add l10n to AppLayout component (86a92bccd)
-* payments-server: add fluent to payments server (98b19c4a8)
+- payments-server: add l10n to payments form component (ec246ef25)
+- payments-server: add l10n for payment legal blurb (b8e08ca94)
+- payments-server: l10n for product route index (7d643c1fd)
+- payments-server: l10n for plan details (78cc5f0b9)
+- payments-server: remove unused App.scss file (85f1d2529)
+- payments-server: move error message component into directory (a4ad59585)
+- payments-server: move tooltip to directory (22c1f565a)
+- payments-server: move portal to directory (0816a6bce)
+- payments-server: move loading spinner to directory (41b683e01)
+- payments-server: move loading overlay to directory (ba8edc230)
+- payments-server: move dialog message component into directory (c8e28590c)
+- payments-server: move AlertBar component files into directoy (24976b465)
+- payments-server: add l10n to AppLayout component (86a92bccd)
+- payments-server: add fluent to payments server (98b19c4a8)
 
 ## 1.153.0
 

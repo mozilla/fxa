@@ -1,10 +1,20 @@
 # Change history
 
+## 1.155.0
+
+### Bug fixes
+
+- geo: Add scripts to create custom fxa geodb mmdb file (303ce4b88)
+
+### Refactorings
+
+- git: merge all package gitignores into single root-level gitignore (a238c3d27)
+
 ## 1.154.0
 
 ### Bug fixes
 
-* tests: Temporary use fxa hosted cities db to get tests working (2c480cf13)
+- tests: Temporary use fxa hosted cities db to get tests working (2c480cf13)
 
 ## 1.153.0
 
