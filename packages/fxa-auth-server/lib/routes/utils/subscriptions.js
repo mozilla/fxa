@@ -74,20 +74,19 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   if (!customer || !customer.subscriptions.data) {
     return [];
   }
-  // All accounts get this psuedo-product
-  const subscribedProducts = [PRODUCT_REGISTERED];
 
-  subscribedProducts.push(
+  const subscribedProducts = [
+    // All accounts get this psuedo-product
+    PRODUCT_REGISTERED,
     ...customer.subscriptions.data.map(
       ({ plan: { product: productId } }) => productId
-    )
-  );
+    ),
+  ];
 
   // Accounts with at least one subscription get this product
   if (subscribedProducts.length > 1) {
     subscribedProducts.push(PRODUCT_SUBSCRIBED);
   }
-
   return subscribedProducts;
 }
 
@@ -123,17 +122,16 @@ async function checkCapabilitiesFromStripe(
 
 // TODO: issue #3846 - remove this method
 async function fetchSubscribedProductsFromLocalDB(db, uid) {
-  // All accounts get this psuedo-product
-  const subscribedProducts = [PRODUCT_REGISTERED];
-
   const subscriptions = (await db.fetchAccountSubscriptions(uid)) || [];
-  subscribedProducts.push(...subscriptions.map(({ productId }) => productId));
-
+  const subscribedProducts = [
+    // All accounts get this psuedo-product
+    PRODUCT_REGISTERED,
+    ...subscriptions.map(({ productId }) => productId),
+  ];
   // Accounts with at least one subscription get this product
   if (subscribedProducts.length > 1) {
     subscribedProducts.push(PRODUCT_SUBSCRIBED);
   }
-
   return subscribedProducts;
 }
 
