@@ -1,12 +1,41 @@
+## 1.155.0
+
+### New features
+
+- support-panel: display geo info (693339956)
+- subscriptions: invalidate cache on 'customer.updated' event (979cd53ef)
+- auth-server: update Stripe on email change (f100cd1bb)
+- auth-server: use Stripe data for subscriptions ## 1.154.0 capabilities (e46c8a89d)
+- auth-server: direct stripe API usage (21bccd703)
+- update zendesk email on primary change (3fa78db8b)
+
+### Bug fixes
+
+- oauth: Don't send "new device" email when oauth tokens reuse existing device. (16228ad9b)
+- devices: maintain the device id during the token exchange (3abe69355)
+- sms: expose sms polling interval as a config option (257c0963c)
+
+### Refactorings
+
+- support-panel: get subscriptions from auth-server (25efa5c24)
+- redis: Use lua scripts for session token metadata functions (41498bd9d)
+- key_server: cleanup key_server.js (f44a50f6b)
+- auth-server: async and setup stripeHelper (d957e10e2)
+- git: merge all package gitignores into single root-level gitignore (a238c3d27)
+
+### Other changes
+
+- dependency cleanup: eliminate hapi-fxa-oath dependency (e0ef126c0)
+
 ## 1.154.0
 
 ### New features
 
-* totp: Require recovery code confirmation before enabling TOTP (ae3bd5a0f)
+- totp: Require recovery code confirmation before enabling TOTP (ae3bd5a0f)
 
 ### Bug fixes
 
-* metrics: Emit the `email_confirmed` metric when user verifies a sign-in (019574c92)
+- metrics: Emit the `email_confirmed` metric when user verifies a sign-in (019574c92)
 
 ## 1.153.0
 

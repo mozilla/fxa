@@ -1,5 +1,16 @@
 # Change history
 
+## 1.155.0
+
+### New features
+
+- support-panel: display geo info (693339956)
+
+### Refactorings
+
+- support-panel: get subscriptions from auth-server (25efa5c24)
+- git: merge all package gitignores into single root-level gitignore (a238c3d27)
+
 ## 1.154.0
 
 No changes.

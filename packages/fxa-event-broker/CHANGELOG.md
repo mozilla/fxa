@@ -1,5 +1,11 @@
 # Change history
 
+## 1.155.0
+
+### Refactorings
+
+- git: merge all package gitignores into single root-level gitignore (a238c3d27)
+
 ## 1.154.0
 
 No changes.

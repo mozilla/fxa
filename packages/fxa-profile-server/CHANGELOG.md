@@ -1,10 +1,25 @@
+## 1.155.0
+
+### Bug fixes
+
+- profile: updated test support code for node 12 (eb671f407)
+
+### Refactorings
+
+- key_server: cleanup key_server.js (f44a50f6b)
+- git: merge all package gitignores into single root-level gitignore (a238c3d27)
+
+### Other changes
+
+- dc1181b55 wip pushing to see how acts in ci (dc1181b55)
+
 ## 1.154.0
 
 ### Bug fixes
 
-* profile-server: fix order of npm install (7f86e81e7)
-* profile-server: revert node to 10 (0a4371212)
-* profile-server: fix graphicsmagick dep in dockerfile (162a8ca8b)
+- profile-server: fix order of npm install (7f86e81e7)
+- profile-server: revert node to 10 (0a4371212)
+- profile-server: fix graphicsmagick dep in dockerfile (162a8ca8b)
 
 ## 1.153.0
 
