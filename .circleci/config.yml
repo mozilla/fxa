@@ -53,6 +53,9 @@ jobs:
       db:
         type: boolean
         default: false
+      upload_coverage:
+        type: boolean
+        default: false
     working_directory: ~/project/packages/<< parameters.module >>
     steps:
       - attach_workspace:
@@ -78,6 +81,37 @@ jobs:
                 command: docker pull jdlk7/firestore-emulator && docker run -d --name gcloud-firestore -p 8006:9090 jdlk7/firestore-emulator
 
       - run: ../../.circleci/build-test-deploy.sh << parameters.test >>
+
+      - when:
+          condition: << parameters.upload_coverage >>
+          steps:
+            - run:
+                name: Update coverage files
+                command: sed 's,SF:/app,SF:/home/circleci/project/packages/<< parameters.module >>,' ./coverage/lcov.info > ./coverage/lcov-updated.info
+            - store_artifacts:
+                path: ./coverage
+            - run: |
+                sudo npm install -g coveralls
+                if [ ! $COVERALLS_REPO_TOKEN ]; then
+                  export COVERALLS_REPO_TOKEN=COVERALLS_REPO_TOKEN
+                fi
+                export COVERALLS_ENDPOINT=https://coveralls.io
+                export COVERALLS_FLAG_NAME="<< parameters.module >>"
+                export COVERALLS_PARALLEL=true
+
+                # check for lcov file presence:
+                if [ ! -r ./coverage/lcov-updated.info ]; then
+                  echo "Please specify a valid 'path_to_lcov' parameter."
+                  exit 1
+                fi
+                cd ../..
+                cat ./packages/<< parameters.module >>/coverage/lcov-updated.info | coveralls --verbose
+
+                if << parameters.module >> = "fxa-auth-server"; then
+                  curl "https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN" \
+                    -d "payload[build_num]=$CIRCLE_BUILD_NUM&payload[status]=done"
+                  exit 0
+                fi
 
   deploy-module:
     executor: nodejs
@@ -277,6 +311,7 @@ workflows:
           name: fxa-auth-db-mysql
           module: fxa-auth-db-mysql
           db: true
+          upload_coverage: true
           requires:
             - install
       - build-module:
@@ -284,6 +319,7 @@ workflows:
           module: fxa-auth-server
           db: true
           test: test-ci
+          upload_coverage: true
           requires:
             - install
       - build-module:
@@ -306,6 +342,7 @@ workflows:
       - build-module:
           name: fxa-profile-server
           module: fxa-profile-server
+          upload_coverage: true
           requires:
             - install
       - build-module:
