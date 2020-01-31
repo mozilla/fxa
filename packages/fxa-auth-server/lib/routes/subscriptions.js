@@ -91,6 +91,7 @@ class DirectStripeRoutes {
     // Find the selected plan and get its product ID
     const selectedPlan = await this.stripeHelper.findPlanById(planId);
     const productId = selectedPlan.product_id;
+    const planMetadata = metadataFromPlan(selectedPlan);
 
     let customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
@@ -172,6 +173,10 @@ class DirectStripeRoutes {
     await this.mailer.sendDownloadSubscriptionEmail(account.emails, account, {
       acceptLanguage: account.locale,
       productId,
+      planId,
+      productName: selectedPlan.product_name,
+      planEmailIconURL: planMetadata.emailIconURL,
+      planDownloadURL: planMetadata.downloadURL,
     });
     this.log.info('subscriptions.createSubscription.success', {
       uid,
