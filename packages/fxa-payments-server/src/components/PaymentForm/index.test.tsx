@@ -222,6 +222,13 @@ it('displays an error for empty zip code', () => {
   expect(getByText('Zip code is required')).toBeInTheDocument();
 });
 
+it('filters out non-numbers from zip code field', () => {
+  const { getByText, getByTestId } = render(<Subject />);
+  fireEvent.change(getByTestId('zip'), { target: { value: '!@#123asdf45' } });
+  fireEvent.blur(getByTestId('zip'));
+  expect(getByTestId('zip').getAttribute('value')).toEqual('12345');
+});
+
 it('displays an error for a short zip code', () => {
   const { getByTestId, getByText } = render(<Subject />);
   fireEvent.change(getByTestId('zip'), { target: { value: '123' } });
