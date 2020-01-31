@@ -90,7 +90,7 @@ export const PaymentUpdateForm = ({
 
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate = dayjs()
-    .set('month', Number(exp_month))
+    .set('month', Number(exp_month) - 1)
     .set('year', Number(exp_year))
     .format('MMMM YYYY');
 
@@ -132,7 +132,9 @@ export const PaymentUpdateForm = ({
               id="pay-update-card-exp"
               $expirationDate={expirationDate}
             >
-              <div className="expiry">Expires {expirationDate}</div>
+              <div data-testid="card-expiration-date" className="expiry">
+                Expires {expirationDate}
+              </div>
             </Localized>
           </div>
           <div className="action">

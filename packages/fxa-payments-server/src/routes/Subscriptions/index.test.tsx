@@ -157,6 +157,25 @@ describe('routes/Subscriptions', () => {
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
   });
 
+  it('displays the correct expiration date for current credit card', async () => {
+    initApiMocks({
+      mockCustomer: {
+        ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+        exp_month: 10,
+        exp_year: 2021,
+      },
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+    });
+    const { findByTestId, queryAllByTestId } = render(<Subject />);
+    if (window.onload) {
+      dispatchEvent(new Event('load'));
+    }
+    await findByTestId('subscription-management-loaded');
+    const expDate = queryAllByTestId('card-expiration-date');
+    expect(expDate.length).toBeGreaterThan(0);
+    expect(expDate[0].textContent).toContain('Expires October 2021');
+  });
+
   it('displays upgrade CTA when available for a subscription', async () => {
     // Use mocks for subscription lists that exercise multiple plans
     initApiMocks({
