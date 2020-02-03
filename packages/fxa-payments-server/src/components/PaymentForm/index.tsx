@@ -316,7 +316,7 @@ const validateName: OnValidateFunction = (
 const validateZip: OnValidateFunction = (value, focused, _props, getString) => {
   let valid = undefined;
   let error = null;
-  value = ('' + value).substr(0, 5);
+  value = ('' + value).replace(/[^\d]+/g, '').substr(0, 5);
   if (!value) {
     valid = false;
     error = getString
