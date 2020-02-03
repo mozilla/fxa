@@ -24,6 +24,10 @@ const product2 = require('./fixtures/product2.json');
 const product3 = require('./fixtures/product3.json');
 const subscription1 = require('./fixtures/subscription1.json');
 const subscription2 = require('./fixtures/subscription2.json');
+const paidInvoice = require('../payments/fixtures/invoice_paid.json');
+const unpaidInvoice = require('../payments/fixtures/invoice_open.json');
+const successfulPaymentIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
+const unsuccessfulPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -393,6 +397,92 @@ describe('StripeHelper', () => {
       assert(stripeHelper.stripe.plans.list.calledOnce);
       assert.isObject(thrown);
       assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+    });
+  });
+
+  describe('createSubscription', () => {
+    describe('subscription created', () => {
+      describe('invoice paid', () => {
+        const subscription = Object.create(subscription1);
+        subscription.latest_invoice = Object.create(paidInvoice);
+        subscription.latest_invoice.payment_intent = successfulPaymentIntent;
+
+        it('returns the subscription', async () => {
+          const expected = subscription;
+          sandbox
+            .stub(stripeHelper.stripe.subscriptions, 'create')
+            .resolves(subscription);
+
+          const actual = await stripeHelper.createSubscription(
+            customer1,
+            plan1
+          );
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+
+      describe('invoice not paid', () => {
+        const subscription = Object.create(subscription1);
+        subscription.latest_invoice = Object.create(unpaidInvoice);
+        subscription.latest_invoice.payment_intent = unsuccessfulPaymentIntent;
+
+        it('throws a payment failed error', async () => {
+          let failed = false;
+          sandbox
+            .stub(stripeHelper.stripe.subscriptions, 'create')
+            .resolves(subscription);
+
+          await stripeHelper.createSubscription(customer1, plan1).then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              failed = true;
+              assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
+              assert.equal(err.message, 'Payment method failed');
+            }
+          );
+
+          assert.isTrue(failed);
+        });
+      });
+    });
+  });
+
+  describe('paidInvoice', () => {
+    describe("when Invoice status is 'paid'", () => {
+      describe("Payment Intent Status is 'succeeded'", () => {
+        const invoice = Object.create(paidInvoice);
+        invoice.payment_intent = successfulPaymentIntent;
+        it('should return true', () => {
+          assert.isTrue(stripeHelper.paidInvoice(invoice));
+        });
+      });
+
+      describe("Payment Intent Status is NOT 'succeeded'", () => {
+        const invoice = Object.create(paidInvoice);
+        invoice.payment_intent = unsuccessfulPaymentIntent;
+        it('should return false', () => {
+          assert.isFalse(stripeHelper.paidInvoice(invoice));
+        });
+      });
+    });
+
+    describe("when Invoice status is NOT 'paid'", () => {
+      describe("Payment Intent Status is 'succeeded'", () => {
+        const invoice = Object.create(unpaidInvoice);
+        invoice.payment_intent = successfulPaymentIntent;
+        it('should return false', () => {
+          assert.isFalse(stripeHelper.paidInvoice(invoice));
+        });
+      });
+
+      describe("Payment Intent Status is NOT 'succeeded'", () => {
+        const invoice = Object.create(unpaidInvoice);
+        invoice.payment_intent = unsuccessfulPaymentIntent;
+        it('should return false', () => {
+          assert.isFalse(stripeHelper.paidInvoice(invoice));
+        });
+      });
     });
   });
 });

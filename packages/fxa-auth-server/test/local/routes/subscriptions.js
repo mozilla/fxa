@@ -12,11 +12,16 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const P = require('../../../lib/promise');
 const Sentry = require('@sentry/node');
+const StripeHelper = require('../../../lib/payments/stripe').StripeHelper;
+const WError = require('verror').WError;
 
+const handleAuth = require('../../../lib/routes/subscriptions').handleAuth;
 const DirectStripeRoutes = require('../../../lib/routes/subscriptions')
   .DirectStripeRoutes;
 const subscription2 = require('../payments/fixtures/subscription2.json');
 const customerFixture = require('../payments/fixtures/customer1.json');
+const multiPlanSubscription = require('../payments/fixtures/subscription_multiplan.json');
+const emptyCustomer = require('../payments/fixtures/customer_new.json');
 
 let config,
   log,
@@ -26,7 +31,6 @@ let config,
   push,
   mailer,
   subhub,
-  payments,
   profile,
   routes,
   route,
@@ -118,7 +122,7 @@ function runTest(routePath, requestOptions, payments = null) {
   return route.handler(request);
 }
 
-describe('subscriptions', () => {
+describe('subscriptions - subhub integration', () => {
   beforeEach(() => {
     config = {
       subscriptions: {
@@ -815,22 +819,23 @@ describe('subscriptions', () => {
 /**
  * Direct Stripe integration tests
  */
-describe.skip('subscriptions (using direct stripe access)', () => {
+describe('subscriptions directRoutes', () => {
   beforeEach(() => {
     config = {
       subscriptions: {
-        clientCapabilities: {},
+        clientCapabilities: {
+          client1: ['exampleCap1', 'exampleCap3'],
+          client2: ['exampleCap2'],
+        },
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
-        stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
+        stripeApiKey: 'sk_test_1234',
       },
     };
 
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
-
-    payments = sinon.stub();
 
     db = mocks.mockDB({
       uid: UID,
@@ -861,78 +866,73 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     profile = mocks.mockProfile({
       deleteCache: sinon.spy(async uid => ({})),
     });
-
-    directStripeRoutes = new DirectStripeRoutes(
-      log,
-      db,
-      config,
-      customs,
-      push,
-      mailer,
-      profile,
-      payments
-    );
-    // Only here to make commit hook happy, remove!
-    directStripeRoutes.test();
   });
 
-  describe('GET /oauth/subscriptions/plans', () => {
+  afterEach(() => {
+    sinon.restore();
+  });
+
+  const VALID_REQUEST = {
+    auth: {
+      credentials: {
+        scope: MOCK_SCOPES,
+        user: `${UID}`,
+        email: `${TEST_EMAIL}`,
+      },
+    },
+  };
+
+  describe.skip('Plans', () => {
     it('should list available subscription plans', async () => {
-      const res = await runTest('/oauth/subscriptions/plans', requestOptions);
-      assert.equal(subhub.listPlans.callCount, 1);
+      const stripeHelper = mocks.mockStripeHelper(['allPlans']);
+
+      stripeHelper.allPlans = sinon.spy(async () => {
+        return PLANS;
+      });
+
+      directStripeRoutes = new DirectStripeRoutes(
+        log,
+        db,
+        config,
+        customs,
+        push,
+        mailer,
+        profile,
+        stripeHelper
+      );
+
+      const res = await directStripeRoutes.listPlans(VALID_REQUEST);
       assert.deepEqual(res, PLANS);
     });
-
-    it('should correctly handle payment backend failure', async () => {
-      subhub.listPlans = sinon.spy(async () => {
-        throw error.backendServiceFailure();
-      });
-      try {
-        await runTest('/oauth/subscriptions/plans', requestOptions);
-        assert.fail();
-      } catch (err) {
-        assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
-      }
-    });
-
-    it('should filter out capabilities from plan or product metadata', async () => {
-      subhub.listPlans = sinon.spy(async () =>
-        PLANS.map(plan => ({
-          ...plan,
-          product_metadata: {
-            'capabilities:abcdef': '123done,321done',
-            'capabilities:fdecba': '123456,654321',
-          },
-          plan_metadata: {
-            'capabilities:123456': '123done,321done',
-            'capabilities:8675309': '123456,654321',
-          },
-        }))
-      );
-
-      const res = await runTest('/oauth/subscriptions/plans', requestOptions);
-      assert.equal(subhub.listPlans.callCount, 1);
-      assert.deepEqual(
-        res,
-        PLANS.map(plan => ({
-          ...plan,
-          product_metadata: {},
-          plan_metadata: {},
-        }))
-      );
-    });
   });
 
-  describe('GET /oauth/subscriptions/active', () => {
+  describe.skip('listActive', () => {
     it('should list active subscriptions', async () => {
-      const res = await runTest('/oauth/subscriptions/active', requestOptions);
+      const stripeHelper = mocks.mockStripeHelper(['customer']);
+
+      stripeHelper.customer = sinon.spy(async (uid, customer) => {
+        return CUSTOMER;
+      });
+
+      directStripeRoutes = new DirectStripeRoutes(
+        log,
+        db,
+        config,
+        customs,
+        push,
+        mailer,
+        profile,
+        stripeHelper
+      );
+
+      const res = await directStripeRoutes.listActive(VALID_REQUEST);
       assert.equal(db.fetchAccountSubscriptions.callCount, 1);
       assert.equal(db.fetchAccountSubscriptions.args[0][0], UID);
       assert.deepEqual(res, ACTIVE_SUBSCRIPTIONS);
     });
   });
 
-  describe('GET /oauth/subscriptions/search', () => {
+  describe.skip('GET /oauth/subscriptions/search', () => {
     let reqOpts, stripeHelper;
     const formatter = subs => subs.data.map(s => ({ subscription_id: s.id }));
 
@@ -989,7 +989,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('GET /oauth/subscriptions/customer', () => {
+  describe.skip('GET /oauth/subscriptions/customer', () => {
     it('should fetch customer information', async () => {
       const res = await runTest(
         '/oauth/subscriptions/customer',
@@ -1027,7 +1027,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('POST /oauth/subscriptions/active', () => {
+  describe.skip('POST /oauth/subscriptions/active', () => {
     it('should support creation of a new subscription', async () => {
       const res = await runTest('/oauth/subscriptions/active', {
         ...requestOptions,
@@ -1171,7 +1171,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('POST /oauth/subscriptions/updatePayment', () => {
+  describe.skip('POST /oauth/subscriptions/updatePayment', () => {
     it('should allow updating of payment method', async () => {
       // TODO: TBD subhub response for updatePayment, do something with it?
       await runTest('/oauth/subscriptions/updatePayment', {
@@ -1223,7 +1223,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('PUT /oauth/subscriptions/active/{subscriptionId}', () => {
+  describe.skip('PUT /oauth/subscriptions/active/{subscriptionId}', () => {
     it('should allow updating of subscription plan', async () => {
       await runTest('/oauth/subscriptions/active/{subscriptionId}', {
         ...requestOptions,
@@ -1316,7 +1316,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('DELETE /oauth/subscriptions/active/{subscriptionId}', () => {
+  describe.skip('DELETE /oauth/subscriptions/active/{subscriptionId}', () => {
     it('should support cancellation of an existing subscription', async () => {
       const res = await runTest(
         '/oauth/subscriptions/active/{subscriptionId}',
@@ -1414,7 +1414,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('POST /oauth/subscriptions/reactivate', () => {
+  describe.skip('POST /oauth/subscriptions/reactivate', () => {
     it('should reactivate cancelled subscriptions', async () => {
       const res = await runTest('/oauth/subscriptions/reactivate', {
         ...requestOptions,
@@ -1533,7 +1533,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
     });
   });
 
-  describe('POST /oauth/subscriptions/stripe/event', () => {
+  describe.skip('POST /oauth/subscriptions/stripe/event', () => {
     const webhookHandlerPath = '/oauth/subscriptions/stripe/event';
     const customer = {
       id: 'cus_9001',
@@ -1634,4 +1634,350 @@ describe.skip('subscriptions (using direct stripe access)', () => {
       delete subhub.stripeHelper;
     });
   });
+});
+
+describe('handleAuth', () => {
+  const AUTH_UID = uuid.v4('binary').toString('hex');
+  const AUTH_EMAIL = 'auth@example.com';
+  const DB_EMAIL = 'db@example.com';
+
+  const VALID_AUTH = {
+    credentials: {
+      scope: MOCK_SCOPES,
+      user: `${AUTH_UID}`,
+      email: `${AUTH_EMAIL}`,
+    },
+  };
+
+  const INVALID_AUTH = {
+    credentials: {
+      scope: 'profile',
+      user: `${AUTH_UID}`,
+      email: `${AUTH_EMAIL}`,
+    },
+  };
+
+  let db;
+
+  before(() => {
+    db = mocks.mockDB({
+      uid: AUTH_UID,
+      email: DB_EMAIL,
+      locale: ACCOUNT_LOCALE,
+    });
+  });
+
+  it('throws an error when the scope is invalid', async () => {
+    return handleAuth(db, INVALID_AUTH).then(
+      () => Promise.reject(new Error('Method expected to reject')),
+      err => {
+        assert.instanceOf(err, WError);
+        assert.equal(err.message, 'Requested scopes are not allowed');
+      }
+    );
+  });
+
+  describe('when fetchEmail is set to false', () => {
+    it('returns the uid and the email from the auth header', async () => {
+      const expected = { uid: AUTH_UID, email: AUTH_EMAIL };
+      const actual = await handleAuth(db, VALID_AUTH);
+      assert.deepEqual(actual, expected);
+    });
+  });
+
+  describe('when fetchEmail is set to true', () => {
+    it('returns the uid from the auth credentials and fetches the email from the database', async () => {
+      const expected = { uid: AUTH_UID, email: DB_EMAIL };
+      const actual = await handleAuth(db, VALID_AUTH, true);
+      assert.deepEqual(actual, expected);
+    });
+
+    it('should propogate errors from database', async () => {
+      let failed = false;
+
+      db.account = sinon.spy(async () => {
+        throw error.unknownAccount();
+      });
+
+      await handleAuth(db, VALID_AUTH, true).then(
+        () => Promise.reject(new Error('Method expected to reject')),
+        err => {
+          failed = true;
+          assert.equal(err.message, 'Unknown account');
+        }
+      );
+
+      assert.isTrue(failed);
+    });
+  });
+});
+
+describe('DirectStripeRoutes', () => {
+  let sandbox;
+  let directStripeRoutesInstance;
+
+  const VALID_REQUEST = {
+    auth: {
+      credentials: {
+        scope: MOCK_SCOPES,
+        user: `${UID}`,
+        email: `${TEST_EMAIL}`,
+      },
+    },
+    app: {
+      devices: ['deviceId1', 'deviceId2'],
+    },
+  };
+
+  beforeEach(() => {
+    sandbox = sinon.createSandbox();
+
+    config = {
+      subscriptions: {
+        clientCapabilities: {
+          client1: ['exampleCap1', 'exampleCap3'],
+          client2: ['exampleCap2'],
+        },
+        enabled: true,
+        managementClientId: MOCK_CLIENT_ID,
+        managementTokenTTL: MOCK_TTL,
+        stripeApiKey: 'sk_test_1234',
+      },
+    };
+
+    log = mocks.mockLog();
+
+    profile = mocks.mockProfile({
+      deleteCache: sinon.spy(async uid => ({})),
+    });
+
+    const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
+
+    directStripeRoutesInstance = new DirectStripeRoutes(
+      log,
+      db,
+      config,
+      customs,
+      push,
+      mailer,
+      profile,
+      stripeHelperMock
+    );
+  });
+
+  afterEach(() => {
+    sandbox.reset();
+  });
+
+  describe('customerChanged', () => {
+    it('Creates profile update push notification and logs profile changed event', async () => {
+      await directStripeRoutesInstance.customerChanged(
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
+      );
+      assert.isTrue(
+        directStripeRoutesInstance.stripeHelper.refreshCachedCustomer.calledOnceWith(
+          UID,
+          TEST_EMAIL
+        ),
+        'Expected stripeHelper.refreshCachedCustomer to be called once'
+      );
+
+      assert.isTrue(
+        directStripeRoutesInstance.profile.deleteCache.calledOnceWith(UID),
+        'Expected profile.deleteCache to be called once'
+      );
+
+      assert.isTrue(
+        directStripeRoutesInstance.push.notifyProfileUpdated.calledOnceWith(
+          UID,
+          VALID_REQUEST.app.devices
+        ),
+        'Expected push.notifyProfileUpdated to be called once'
+      );
+
+      assert.isTrue(
+        directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
+          'profileDataChanged',
+          VALID_REQUEST,
+          { uid: UID, email: TEST_EMAIL }
+        ),
+        'Expected log.notifyAttachedServices to be called'
+      );
+    });
+  });
+
+  describe('getClients', () => {
+    it('returns the clients and their capabilities', async () => {
+      const expected = [
+        {
+          clientId: 'client1',
+          capabilities: ['exampleCap1', 'exampleCap3'],
+        },
+        {
+          clientId: 'client2',
+          capabilities: ['exampleCap2'],
+        },
+      ];
+
+      const actual = await directStripeRoutesInstance.getClients();
+      assert.deepEqual(actual, expected, 'Clients were not returned correctly');
+    });
+  });
+
+  describe('createSubscription', () => {});
+
+  describe('createSubscriptionNewCustomer', () => {
+    it('creates a stripe customer and a new subscription', async () => {
+      const expected = subscription2;
+      directStripeRoutesInstance.stripeHelper.createCustomer.returns(
+        emptyCustomer
+      );
+      directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+        subscription2
+      );
+
+      const actual = await directStripeRoutesInstance.createSubscriptionNewCustomer(
+        UID,
+        TEST_EMAIL,
+        DISPLAY_NAME,
+        PAYMENT_TOKEN_NEW,
+        PLANS[0]
+      );
+
+      assert.deepEqual(expected, actual);
+    });
+  });
+
+  describe('createSubscriptionExistingCustomer', () => {
+    describe('user with no subscriptions', async () => {});
+  });
+
+  describe('listPlans', () => {
+    it('returns the available plans when auth headers are valid', async () => {
+      const expected = PLANS;
+
+      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+      const actual = await directStripeRoutesInstance.listPlans(VALID_REQUEST);
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('results in an error when auth headers are invalid', async () => {
+      const invalid_request = {
+        auth: {
+          credentials: {
+            scope: ['profile'],
+            user: `${UID}`,
+            email: `${TEST_EMAIL}`,
+          },
+        },
+      };
+
+      return directStripeRoutesInstance.listPlans(invalid_request).then(
+        () => Promise.reject(new Error('Method expected to reject')),
+        err => {
+          assert.instanceOf(err, WError);
+          assert.equal(err.message, 'Requested scopes are not allowed');
+        }
+      );
+    });
+  });
+
+  describe('findCustomerSubscriptionByPlanId', () => {
+    describe('Customer has Single One-Plan Subscription', () => {
+      const customer = Object.create(customerFixture);
+      it('returns the Subscription when the plan id is found', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+          customer,
+          customer.subscriptions.data[0].items.data[0].plan.id
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+            customer,
+            'plan_test2'
+          )
+        );
+      });
+    });
+
+    describe('Customer has Single Multi-Plan Subscription', () => {
+      const customer = Object.create(customerFixture);
+      customer.subscriptions.data = [multiPlanSubscription];
+
+      it('returns the Subscription when the plan id is found - first in array', () => {
+        const expected = customerFixture.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+          customerFixture,
+          'plan_1'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns the Subscription when the plan id is found - not first in array', () => {
+        const expected = customerFixture.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+          customerFixture,
+          'plan_2'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+            customerFixture,
+            'plan_3'
+          )
+        );
+      });
+    });
+
+    describe('Customer has Multiple Subscriptions', () => {
+      const customer = Object.create(customerFixture);
+      customer.subscriptions.data = [multiPlanSubscription, subscription2];
+
+      it('returns the Subscription when the plan id is found in the first subscription', () => {
+        const expected = customerFixture.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+          customerFixture,
+          'plan_2'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns the Subscription when the plan id is found in not the first subscription', () => {
+        const expected = customerFixture.subscriptions.data[1];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+          customerFixture,
+          'plan_G93mMKnIFCjZek'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
+            customerFixture,
+            'plan_test2'
+          )
+        );
+      });
+    });
+  });
+
+  describe('deleteSubscription', () => {});
+
+  describe('updatePayment', () => {});
 });
