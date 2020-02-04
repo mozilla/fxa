@@ -31,7 +31,10 @@ export default ({
         height="48"
         width="48"
       />
-      <Localized id="reactivate-confirm-dialog-header">
+      <Localized
+        id="reactivate-confirm-dialog-header"
+        $name={plan.product_name}
+      >
         <h4>Want to keep using {plan.product_name}?</h4>
       </Localized>
       {/* TO DO: display card type, IE 'to the Visa card ending...' */}
