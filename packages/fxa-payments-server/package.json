@@ -19,7 +19,7 @@
     "test:frontend": "react-scripts test --coverage --verbose",
     "test:server": "jest --coverage --verbose --config server/jest.config.js",
     "format": "prettier '**' --write",
-    "storybook": "start-storybook -p 6006",
+    "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook"
   },
   "repository": {

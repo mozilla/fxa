@@ -5,6 +5,7 @@ import { MockLoader } from './MockLoader';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config } from '../../src/lib/config';
 import ScreenInfo from '../../src/lib/screen-info';
+import AppLocalizationProvider from '../../src/lib/AppLocalizationProvider';
 
 declare global {
   interface Window {
@@ -77,11 +78,16 @@ export const MockApp = ({
   }, []);
 
   return (
-    <StripeProvider stripe={mockStripe}>
-      <AppContext.Provider value={appContextValue}>
-        <MockLoader>{children}</MockLoader>
-      </AppContext.Provider>
-    </StripeProvider>
+    <AppContext.Provider value={appContextValue}>
+      <AppLocalizationProvider
+        userLocales={navigator.languages}
+        bundles={['main']}
+      >
+        <StripeProvider stripe={mockStripe}>
+          <MockLoader>{children}</MockLoader>
+        </StripeProvider>
+      </AppLocalizationProvider>
+    </AppContext.Provider>
   );
 };
 
