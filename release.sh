@@ -37,11 +37,11 @@ IFS=$'\n'
 #      8.2. For each commit...
 #           8.2.1. Add the commit message to a summary string.
 #      8.3. If CHANGELOG.md exists, write the summary string to CHANGELOG.md.
-#      8.4. If package.json exists, uppdate the version string in package.json.
-#      8.5. If package-lock.json exists, uppdate the version string in package-lock.json.
-#      8.6. If npm-shrinkwrap.json exists, uppdate the version string in npm-shrinkwrap.json.
-#      8.7. If Cargo.toml exists, uppdate the version string in Cargo.toml.
-#      8.8. If Cargo.lock exists, uppdate the version string in Cargo.lock.
+#      8.4. If package.json exists, update the version string in package.json.
+#      8.5. If package-lock.json exists, update the version string in package-lock.json.
+#      8.6. If npm-shrinkwrap.json exists, update the version string in npm-shrinkwrap.json.
+#      8.7. If Cargo.toml exists, update the version string in Cargo.toml.
+#      8.8. If Cargo.lock exists, update the version string in Cargo.lock.
 #   9. Update the AUTHORS file
 #   10. Commit changes.
 #   11. Create a tag.
@@ -265,31 +265,31 @@ $1"
   REVERT_SUMMARY=""
   OTHER_SUMMARY=""
 
-  # 8.4. If package.json exists, uppdate the version string in package.json.
+  # 8.4. If package.json exists, update the version string in package.json.
   if [ -f "$1/package.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package.json"
     rm "$1/package.json.release.bak"
   fi
 
-  # 8.5. If package-lock.json exists, uppdate the version string in package-lock.json.
+  # 8.5. If package-lock.json exists, update the version string in package-lock.json.
   if [ -f "$1/package-lock.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/package-lock.json"
     rm "$1/package-lock.json.release.bak"
   fi
 
-  # 8.6. If npm-shrinkwrap.json exists, uppdate the version string in npm-shrinkwrap.json.
+  # 8.6. If npm-shrinkwrap.json exists, update the version string in npm-shrinkwrap.json.
   if [ -f "$1/npm-shrinkwrap.json" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/npm-shrinkwrap.json"
     rm "$1/npm-shrinkwrap.json.release.bak"
   fi
 
-  # 8.7. If Cargo.toml exists, uppdate the version string in Cargo.toml.
+  # 8.7. If Cargo.toml exists, update the version string in Cargo.toml.
   if [ -f "$1/Cargo.toml" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/Cargo.toml"
     rm "$1/Cargo.toml.release.bak"
   fi
 
-  # 8.8. If Cargo.lock exists, uppdate the version string in Cargo.lock.
+  # 8.8. If Cargo.lock exists, update the version string in Cargo.lock.
   if [ -f "$1/Cargo.lock" ]; then
     sed -i.release.bak -e "s/$SED_FRIENDLY_LAST_VERSION/$NEW_VERSION/g" "$1/Cargo.lock"
     rm "$1/Cargo.lock.release.bak"
@@ -360,7 +360,9 @@ if [ -f "$SCRIPT_DIR/create-deploy-bug.url" ]; then
 fi
 
 # 13. Merge train branch into the private train branch.
-git merge "$TRAIN_BRANCH" -m "Merge $TRAIN_BRANCH into $PRIVATE_BRANCH" > /dev/null 2>&1
+git merge "$TRAIN_BRANCH" -m "Merge $TRAIN_BRANCH into $PRIVATE_BRANCH" || true
+
+read -n1 -r -p "Press space to continue..." key
 
 # 14. Create a private tag.
 PRIVATE_TAG="$NEW_TAG-private"
