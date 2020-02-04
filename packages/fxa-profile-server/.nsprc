@@ -1,6 +1,8 @@
 {
   "comment_1168": "Exception added for 'subtext' vulnerability in hapi 17, fixed in hapi 18 branch. See https://github.com/mozilla/fxa/issues/2601",
+  "comment_1464": "Exception added for insufficient entropy error in 'cryptiles' in hapi 17 (cryptiles 3.x), fixed in hapi 18 (@hapi/cryptiles 4.1.2). See https://github.com/mozilla/fxa/issues/4035",
   "exceptions": [
-    "https://npmjs.com/advisories/1168"
+    "https://npmjs.com/advisories/1168",
+    "https://npmjs.com/advisories/1464"
   ]
 }
