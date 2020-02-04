@@ -1,3 +1,9 @@
+## 1.156.0
+
+### Bug fixes
+
+* content: bump git sha of legal-docs dependency (1359e77e5)
+
 ## 1.155.0
 
 ### New features

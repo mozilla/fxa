@@ -1,5 +1,12 @@
 # Change history
 
+## 1.156.0
+
+### Bug fixes
+
+* payments: filter non-numeric characters out of zip code field (cf04681ca)
+* payments: ensure correct month used in credit card expiration (1bdec7965)
+
 ## 1.155.0
 
 ### New features

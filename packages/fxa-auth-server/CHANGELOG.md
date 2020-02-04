@@ -1,3 +1,13 @@
+## 1.156.0
+
+### Bug fixes
+
+* subscriptions: ensure direct stripe code includes all parameters for download email (77fac7ad1)
+
+### Other changes
+
+* subscriptions: code clarity tweak for determining subscriptions (0adcb91d6)
+
 ## 1.155.0
 
 ### New features
