@@ -53,6 +53,7 @@ IFS=$'\n'
 
 SCRIPT_DIR=`dirname "$0"`/_scripts
 CURRENT_BRANCH=`git branch --no-color | grep '^\*' | cut -d ' ' -f 2`
+FXA_REPO="https://github.com/mozilla/fxa"
 
 abort() {
   git checkout "$CURRENT_BRANCH" > /dev/null 2>&1
@@ -151,6 +152,7 @@ bump() {
     MESSAGE=`echo "$COMMIT" | cut -d ':' -f 2- | awk '{$1=$1};1'`
     TYPE=`echo "$COMMIT" | cut -d ' ' -f 2 | awk '{$1=$1};1' | cut -d ':' -f 1 | cut -d '(' -f 1 | awk '{$1=$1};1'`
     AREA=`echo "$COMMIT" | cut -d '(' -f 2 | cut -d ')' -f 1 | awk '{$1=$1};1'`
+    COMMIT_LINK="[$HASH]($FXA_REPO/commit/$HASH)"
 
     if [ "$AREA" = "$COMMIT" ]; then
       AREA=""
@@ -175,37 +177,37 @@ bump() {
         if [ "$FEAT_SUMMARY" = "" ]; then
           FEAT_SUMMARY="### New features\n"
         fi
-        FEAT_SUMMARY="$FEAT_SUMMARY\n* $AREA$MESSAGE ($HASH)"
+        FEAT_SUMMARY="$FEAT_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "fix")
         if [ "$FIX_SUMMARY" = "" ]; then
           FIX_SUMMARY="### Bug fixes\n"
         fi
-        FIX_SUMMARY="$FIX_SUMMARY\n* $AREA$MESSAGE ($HASH)"
+        FIX_SUMMARY="$FIX_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "perf")
         if [ "$PERF_SUMMARY" = "" ]; then
           PERF_SUMMARY="### Performance improvements\n"
         fi
-        PERF_SUMMARY="$PERF_SUMMARY\n* $AREA$MESSAGE ($HASH)"
+        PERF_SUMMARY="$PERF_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "refactor")
         if [ "$REFACTOR_SUMMARY" = "" ]; then
           REFACTOR_SUMMARY="### Refactorings\n"
         fi
-        REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n* $AREA$MESSAGE ($HASH)"
+        REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "revert")
         if [ "$REVERT_SUMMARY" = "" ]; then
           REVERT_SUMMARY="### Reverted changes\n"
         fi
-        REVERT_SUMMARY="$REVERT_SUMMARY\n* $AREA$MESSAGE ($HASH)"
+        REVERT_SUMMARY="$REVERT_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       *)
         if [ "$OTHER_SUMMARY" = "" ]; then
           OTHER_SUMMARY="### Other changes\n"
         fi
-        OTHER_SUMMARY="$OTHER_SUMMARY\n* $AREA$MESSAGE ($HASH)"
+        OTHER_SUMMARY="$OTHER_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
     esac
   done
