@@ -96,22 +96,29 @@ class DirectStripeRoutes {
     let customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
     ]);
-    if (!customer) {
-      customer = await this.stripeHelper.stripe.customers.create({
-        source: paymentToken,
-        email,
-        name: displayName,
-        description: uid,
-        metadata: { userid: uid },
-      });
-    } else if (paymentToken) {
-      // Always update the source if we are given a paymentToken
-      // Note that if the customer already exists and we were not
-      // passed a paymentToken value, we will not update it and use
-      // the default source.
-      await this.stripeHelper.stripe.customers.update(customer.id, {
-        source: paymentToken,
-      });
+    try {
+      if (!customer) {
+        customer = await this.stripeHelper.stripe.customers.create({
+          source: paymentToken,
+          email,
+          name: displayName,
+          description: uid,
+          metadata: { userid: uid },
+        });
+      } else if (paymentToken) {
+        // Always update the source if we are given a paymentToken
+        // Note that if the customer already exists and we were not
+        // passed a paymentToken value, we will not update it and use
+        // the default source.
+        await this.stripeHelper.stripe.customers.update(customer.id, {
+          source: paymentToken,
+        });
+      }
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
     }
 
     // Check if the customer already has subscribed to this plan.
