@@ -113,7 +113,8 @@ async function run(config) {
     routes,
     database,
     oauthdb,
-    translator
+    translator,
+    statsd
   );
 
   try {

@@ -67,7 +67,15 @@ describe('lib/server', () => {
   });
 
   describe('set up mocks:', () => {
-    let config, log, locale, routes, Token, oauthdb, translator, response;
+    let config,
+      log,
+      locale,
+      routes,
+      Token,
+      oauthdb,
+      translator,
+      response,
+      statsd;
 
     beforeEach(() => {
       config = getConfig();
@@ -82,6 +90,7 @@ describe('lib/server', () => {
         })),
         getLocale: sinon.spy(() => locale),
       };
+      statsd = { increment: sinon.fake(), timing: sinon.fake() };
     });
 
     describe('create:', () => {
@@ -93,7 +102,17 @@ describe('lib/server', () => {
         });
 
         return server
-          .create(log, error, config, routes, db, oauthdb, translator, Token)
+          .create(
+            log,
+            error,
+            config,
+            routes,
+            db,
+            oauthdb,
+            translator,
+            statsd,
+            Token
+          )
           .then(s => {
             instance = s;
           });
@@ -122,6 +141,10 @@ describe('lib/server', () => {
           assert.equal(statusCode, 401);
           assert.equal(result.code, 401);
           assert.equal(result.errno, error.ERRNO.INVALID_TOKEN);
+          assert.equal(
+            statsd.increment.getCall(0).args[0],
+            'oauth_subscriptions_clients.GET.401'
+          );
         });
 
         it('authenticated valid subscription shared secret', async () => {
@@ -525,7 +548,7 @@ describe('lib/server', () => {
     });
 
     describe('authenticated request, session token expired:', () => {
-      let db, instance;
+      let db, instance, statsd;
 
       beforeEach(() => {
         response = 'ok';
@@ -534,9 +557,20 @@ describe('lib/server', () => {
           uid: 'blee',
           expired: true,
         });
+        statsd = { increment: sinon.fake(), timing: sinon.fake() };
 
         return server
-          .create(log, error, config, routes, db, oauthdb, translator, Token)
+          .create(
+            log,
+            error,
+            config,
+            routes,
+            db,
+            oauthdb,
+            translator,
+            statsd,
+            Token
+          )
           .then(s => {
             instance = s;
             return instance.start().then(() => {

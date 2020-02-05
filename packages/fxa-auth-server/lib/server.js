@@ -53,7 +53,16 @@ function logEndpointErrors(response, log) {
   }
 }
 
-async function create(log, error, config, routes, db, oauthdb, translator) {
+async function create(
+  log,
+  error,
+  config,
+  routes,
+  db,
+  oauthdb,
+  translator,
+  statsd
+) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
@@ -255,7 +264,9 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
     return h.continue;
   });
 
-  server.ext('onPreResponse', request => {
+  const metricReporter = metricFactory(statsd);
+
+  server.ext('onPreResponse', (request, h) => {
     let response = request.response;
     if (response.isBoom) {
       logEndpointErrors(response, log);
@@ -266,6 +277,7 @@ async function create(log, error, config, routes, db, oauthdb, translator) {
     }
     response.header('Timestamp', `${Math.floor(Date.now() / 1000)}`);
     log.summary(request, response);
+    metricReporter(request, h);
     return response;
   });
 
@@ -391,6 +403,52 @@ function defineLazyGetter(object, key, getter) {
       return value;
     },
   });
+}
+
+/**
+ * Extracted from hapi-statsd but modified to work with hotshots.
+ * The following function contains MIT licensed code from:
+ *    https://github.com/mac-/hapi-statsd/blob/master/lib/hapi-statsd.js
+ */
+function metricFactory(statsdClient) {
+  const template = '{path}.{method}.{statusCode}';
+  const pathSeparator = '_';
+
+  function normalizePath(path) {
+    path = path.indexOf('/') === 0 ? path.substr(1) : path;
+    return path.replace(/\//g, pathSeparator);
+  }
+
+  function reportMetrics(request, h) {
+    var startDate = new Date(request.info.received);
+    var statusCode = request.response.isBoom
+      ? request.response.output.statusCode
+      : request.response.statusCode;
+
+    var path = request._route.path;
+    var specials = request._core.router.specials;
+
+    if (request._route === specials.notFound.route) {
+      path = '/{notFound*}';
+    } else if (specials.options && request._route === specials.options.route) {
+      path = '/{cors*}';
+    } else if (
+      request._route.path === '/' &&
+      request._route.method === 'options'
+    ) {
+      path = '/{cors*}';
+    }
+
+    var statName = template
+      .replace('{path}', normalizePath(path))
+      .replace('{method}', request.method.toUpperCase())
+      .replace('{statusCode}', statusCode);
+
+    statName = statName.indexOf('.') === 0 ? statName.substr(1) : statName;
+    statsdClient.increment(statName);
+    statsdClient.timing(statName, Date.now() - startDate.getTime());
+  }
+  return reportMetrics;
 }
 
 module.exports = {
