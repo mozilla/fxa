@@ -217,6 +217,7 @@ async function generateImplicitGrant(client, payload, grant) {
   }
   return generateTokens({
     ...grant,
+    grantType: 'fxa-credentials',
     resource: payload.resource,
     ttl: payload.ttl,
   });
