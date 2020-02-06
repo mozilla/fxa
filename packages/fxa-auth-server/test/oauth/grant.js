@@ -367,8 +367,9 @@ describe('generateTokens', () => {
       customer: sinon.spy(async () => ({
         subscriptions: {
           data: [
-            { plan: { product: 'prod0' } },
-            { plan: { product: 'prod1' } },
+            { plan: { product: 'prod0' }, status: 'active' },
+            { plan: { product: 'prod1' }, status: 'active' },
+            { plan: { product: 'prod2' }, status: 'incomplete' },
           ],
         },
       })),

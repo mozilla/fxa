@@ -68,8 +68,9 @@ describe('routes/utils/subscriptions', () => {
         customer: sinon.spy(async () => ({
           subscriptions: {
             data: [
-              { plan: { product: 'prod_123456' } },
-              { plan: { product: 'prod_876543' } },
+              { plan: { product: 'prod_123456' }, status: 'active' },
+              { plan: { product: 'prod_876543' }, status: 'active' },
+              { plan: { product: 'prod_456789' }, status: 'incomplete' },
             ],
           },
         })),
@@ -90,6 +91,12 @@ describe('routes/utils/subscriptions', () => {
           },
           {
             product_id: 'prod_ABCDEF',
+            product_metadata: {
+              'capabilities:c3': 'capZ,capW',
+            },
+          },
+          {
+            product_id: 'prod_456789',
             product_metadata: {
               'capabilities:c3': 'capZ,capW',
             },

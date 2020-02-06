@@ -69,6 +69,13 @@ const SubscriptionUtils = (module.exports = {
   },
 });
 
+/**
+ * Fetch subscribed products from Stripe and format appropriately
+ *
+ * @param {string} uid
+ * @param {import('../../payments/stripe').StripeHelper} stripeHelper
+ * @param {string} email
+ */
 async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   const customer = await stripeHelper.customer(uid, email);
   if (!customer || !customer.subscriptions.data) {
@@ -78,9 +85,10 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   const subscribedProducts = [
     // All accounts get this psuedo-product
     PRODUCT_REGISTERED,
-    ...customer.subscriptions.data.map(
-      ({ plan: { product: productId } }) => productId
-    ),
+    ...customer.subscriptions.data
+      // TODO: Centralize subscription filtering logic for active subs
+      .filter(sub => ['active', 'trialing', 'past_due'].includes(sub.status))
+      .map(({ plan: { product: productId } }) => productId),
   ];
 
   // Accounts with at least one subscription get this product
