@@ -16,9 +16,9 @@ const PADDING_BELOW_TOOLTIP_PX = 2;
 const PADDING_ABOVE_TOOLTIP_PX = 4;
 
 // These values should be the same as
-// https://github.com/mozilla/fxa-content-server/blob/0eab619612897dcda43e8074dafdf55e8cbe11ee/app/styles/_breakpoints.scss#L6
+// https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/styles/_breakpoints.scss#L8
 const MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW = 480;
-const MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW = 520;
+const MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW = 960;
 
 const proto = BaseView.prototype;
 const Tooltip = BaseView.extend({
