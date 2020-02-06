@@ -413,6 +413,24 @@ class StripeHelper {
   }
 
   /**
+   *
+   * Returns the product name of a given product.
+   *
+   * @param {String | Product} product
+   * @returns {Promise<String>} product name
+   */
+  async getProductName(product) {
+    if (typeof product === 'string') {
+      const fetchedProducts = await this.fetchAllProducts();
+      const matchingProduct = fetchedProducts.find(
+        fetchedProduct => fetchedProduct.product_id === product
+      );
+      return matchingProduct ? matchingProduct.product_name : '';
+    }
+    return product.name;
+  }
+
+  /**
    * Formats Stripe subscriptions for a customer into an appropriate response.
    *
    * @param {Subscriptions} subscriptions Subscriptions to finesse
@@ -447,15 +465,29 @@ class StripeHelper {
         failure_code = charge.failure_code;
         failure_message = charge.failure_message;
       }
+
+      // enforce type because it _could_ be a DeletedProduct (but shouldn't be)
+      const productName = await this.getProductName(
+        /** @type {String | Product} */ (sub.plan.product)
+      );
+      const intervalDict = {
+        day: 'Daily',
+        week: 'Weekly',
+        month: 'Monthly',
+        year: 'Yearly',
+      };
+
+      const planName = `${productName} ${intervalDict[sub.plan.interval]}`;
+
       // FIXME: Note that the plan is only set if the subscription contains a single
-      //        plan. Multiple product support will require changes here to fetch all
-      //        plans for this subscription.
+      // plan. Multiple product support will require changes here to fetch all
+      // plans for this subscription.
       subs.push({
         current_period_end: sub.current_period_end,
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
-        plan_name: sub.plan.nickname,
+        plan_name: planName,
         plan_id: sub.plan.id,
         status: sub.status,
         subscription_id: sub.id,
