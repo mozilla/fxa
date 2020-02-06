@@ -31,10 +31,10 @@
     "author": "Mozilla (https://mozilla.org/)",
     "license": "MPL-2.0",
     "dependencies": {
-        "@babel/core": "7.7.4",
-        "@babel/plugin-proposal-class-properties": "7.7.4",
-        "@babel/plugin-syntax-dynamic-import": "7.7.4",
-        "@babel/preset-env": "7.7.4",
+        "@babel/core": "7.8.4",
+        "@babel/plugin-proposal-class-properties": "7.8.3",
+        "@babel/plugin-syntax-dynamic-import": "7.8.3",
+        "@babel/preset-env": "7.8.4",
         "@babel/preset-react": "^7.0.0",
         "@babel/preset-typescript": "^7.3.3",
         "@sentry/browser": "5.6.3",
@@ -127,7 +127,7 @@
         "webpack-cli": "^3.3.10"
     },
     "devDependencies": {
-        "@babel/cli": "7.7.4",
+        "@babel/cli": "7.8.4",
         "@testing-library/react": "^8.0.4",
         "@types/backbone": "^1.4.1",
         "audit-filter": "^0.5.0",

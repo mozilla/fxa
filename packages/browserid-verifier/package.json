@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "async": "2.6.1",
+    "bignum": "^0.13.1",
     "body-parser": "1.18.3",
     "browserid-local-verify": "0.5.2",
     "compute-cluster": "0.0.9",
