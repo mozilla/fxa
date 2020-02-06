@@ -226,6 +226,7 @@ describe('validateRequestedGrant', () => {
 describe('generateTokens', () => {
   let mockAccessToken;
   let mockAmplitude;
+  let mockLog;
   let mockConfig;
   let mockDB;
   let mockJWTAccessToken;
@@ -251,8 +252,13 @@ describe('generateTokens', () => {
 
     requestedGrant = {
       clientId: Buffer.from('0123456789', 'hex'),
+      grantType: 'fxa-credentials',
       scope,
       userId: Buffer.from('ABCDEF123456', 'hex'),
+    };
+
+    mockLog = {
+      info: sinon.spy(),
     };
 
     mockAmplitude = sinon.spy();
@@ -302,6 +308,7 @@ describe('generateTokens', () => {
       '../../config': mockConfig,
       './db': mockDB,
       './jwt_access_token': mockJWTAccessToken,
+      './logging': () => mockLog,
       './metrics/amplitude': () => mockAmplitude,
     });
 
@@ -449,14 +456,30 @@ describe('generateTokens', () => {
     ]);
   });
 
+  it('should log information about the grant being processed', async () => {
+    await generateTokens(requestedGrant);
+
+    assert.equal(mockLog.info.callCount, 1);
+    const args = mockLog.info.args[0];
+    assert.strictEqual(args[0], 'oauth.generateTokens');
+    assert.deepEqual(args[1], {
+      grantType: 'fxa-credentials',
+      keys: false,
+      resource: undefined,
+      scope: scope.getScopeValues(),
+      service: '0123456789',
+    });
+  });
+
   it('should log an amplitude event', async () => {
     await generateTokens(requestedGrant);
 
     assert.equal(mockAmplitude.callCount, 1);
     const args = mockAmplitude.args[0];
-    assert.strictEqual(args[0], 'token.created', {
-      service: 'foo',
-      uid: 'bar',
+    assert.strictEqual(args[0], 'token.created');
+    assert.deepEqual(args[1], {
+      service: '0123456789',
+      uid: 'abcdef123456',
     });
   });
 });

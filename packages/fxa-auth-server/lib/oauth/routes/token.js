@@ -215,6 +215,7 @@ async function validateGrantParameters(client, params) {
       logger.critical('joi.grant_type', { grant_type: params.grant_type });
       throw Error('unreachable');
   }
+  requestedGrant.grantType = params.grant_type;
   requestedGrant.ppidSeed = params.ppid_seed;
   requestedGrant.resource = params.resource;
   requestedGrant.ttl = params.ttl;
