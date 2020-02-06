@@ -102,7 +102,9 @@ module.exports = function(
     customs,
     push,
     verificationReminders,
-    signupUtils
+    signupUtils,
+    zendeskClient,
+    stripeHelper
   );
   const password = require('./password')(
     log,
