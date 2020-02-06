@@ -5,9 +5,6 @@ for Firefox Accounts.
 Includes:
 
 - The [API server](#api-server).
-- A [memory-store backend](#memory-store-backend).
-  Useful as a stub
-  for testing against.
 - A [MySQL backend](#mysql-backend).
   Used in production.
 

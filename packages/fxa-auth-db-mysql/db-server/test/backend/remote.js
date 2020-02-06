@@ -95,7 +95,7 @@ function testVersionResponse(client, route) {
   return client.getThen(route).then(function(r) {
     assert.equal(r.res.statusCode, 200, 'version returns 200 OK');
     assert.match(r.obj.version, /\d+\.\d+\.\d+/);
-    assert.include(['Memory', 'MySql'], r.obj.implementation);
+    assert.include(['MySql'], r.obj.implementation);
   });
 }
 
@@ -954,16 +954,14 @@ module.exports = function(cfg, makeServer) {
           assert.lengthOf(r.obj, 0);
 
           // Attempt to fetch a deleted session token
-          return client
-            .getThen('/sessionToken/' + user.sessionTokenId)
-            .then(
-              () =>
-                assert(
-                  false,
-                  'Fetching the non-existant sessionToken should have failed'
-                ),
-              err => testNotFound(err)
-            );
+          return client.getThen('/sessionToken/' + user.sessionTokenId).then(
+            () =>
+              assert(
+                false,
+                'Fetching the non-existant sessionToken should have failed'
+              ),
+            err => testNotFound(err)
+          );
         });
     });
 
@@ -2246,13 +2244,11 @@ module.exports = function(cfg, makeServer) {
           );
 
           // Attempt to consume the sign-in code again
-          return client
-            .postThen(`/signinCodes/${signinCode}/consume`)
-            .then(
-              () =>
-                assert(false, 'consuming a consumed sign-in code should fail'),
-              err => testNotFound(err)
-            );
+          return client.postThen(`/signinCodes/${signinCode}/consume`).then(
+            () =>
+              assert(false, 'consuming a consumed sign-in code should fail'),
+            err => testNotFound(err)
+          );
         })
         .then(() => {
           // Create an expired sign-in code
@@ -2265,13 +2261,11 @@ module.exports = function(cfg, makeServer) {
           respOkEmpty(r);
 
           // Attempt to consume the expired sign-in code
-          return client
-            .postThen(`/signinCodes/${signinCode}/consume`)
-            .then(
-              () =>
-                assert(false, 'consuming an expired sign-in code should fail'),
-              err => testNotFound(err)
-            );
+          return client.postThen(`/signinCodes/${signinCode}/consume`).then(
+            () =>
+              assert(false, 'consuming an expired sign-in code should fail'),
+            err => testNotFound(err)
+          );
         });
     });
 

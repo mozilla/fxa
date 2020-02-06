@@ -61,7 +61,7 @@ After installing **fxa** run `npm start`. Use `./pm2 status` command to check th
 ![](http://i.imgur.com/eqL8FiZ.png)
 
 To avoid wasting computer resources while not working on FxA make sure to stop the servers using `npm stop`.
-Once you are back working on FxA just use the `npm start` command to bring the servers back up. Keep in mind that the memory store will restart and all your database data will be brand new.
+Once you are back working on FxA just use the `npm start` command to bring the servers back up.
 
 #### Verifying email and viewing logs
 

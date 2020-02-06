@@ -7,7 +7,6 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const createDBServer = require('../../../fxa-auth-db-mysql');
 const log = { trace() {}, info() {} };
 
 const config = require('../../config').getProperties();
@@ -24,84 +23,55 @@ const DB = require('../../lib/db')(
   Token.PasswordChangeToken
 );
 
+let client, db, server;
+
 describe('remote verifier upgrade', function() {
   this.timeout(30000);
 
-  before(() => {
+  before(async () => {
     config.verifierVersion = 0;
     config.securityHistory.ipProfiling.allowedRecency = 0;
+
+    server = await TestServer.start(config);
+    db = await DB.connect(config[config.db.backend]);
   });
 
-  it('upgrading verifierVersion upgrades the account on password change', () => {
-    return createDBServer().then(db_server => {
-      db_server.listen(config.httpdb.url.split(':')[2]);
-      db_server.on('error', () => {});
+  it('upgrading verifierVersion upgrades the account on password change', async () => {
+    const email = `${Math.random()}@example.com`;
+    const password = 'ok';
 
-      const email = `${Math.random()}@example.com`;
-      const password = 'ok';
-      let uid = null;
-
-      return TestServer.start(config)
-        .then(server => {
-          return Client.create(config.publicUrl, email, password, {
-            preVerified: true,
-            keys: true,
-          }).then(c => {
-            uid = c.uid;
-            return server.stop();
-          });
-        })
-        .then(() => {
-          return DB.connect(config[config.db.backend]).then(db => {
-            return db
-              .account(uid)
-              .then(account => {
-                assert.equal(account.verifierVersion, 0, 'wrong version');
-              })
-              .then(() => {
-                return db.close();
-              });
-          });
-        })
-        .then(() => {
-          config.verifierVersion = 1;
-          return TestServer.start(config);
-        })
-        .then(server => {
-          let client;
-          return Client.login(config.publicUrl, email, password, server.mailbox)
-            .then(x => {
-              client = x;
-              return client.changePassword(password);
-            })
-            .then(() => {
-              return server.stop();
-            });
-        })
-        .then(() => {
-          return DB.connect(config[config.db.backend]).then(db => {
-            return db
-              .account(uid)
-              .then(account => {
-                assert.equal(
-                  account.verifierVersion,
-                  1,
-                  'wrong upgrade version'
-                );
-              })
-              .then(() => {
-                return db.close();
-              });
-          });
-        })
-        .then(() => {
-          try {
-            db_server.close();
-          } catch (e) {
-            // This connection may already be dead if a real mysql server is
-            // already bound to :8000.
-          }
-        });
+    client = await Client.create(config.publicUrl, email, password, {
+      preVerified: true,
+      keys: true,
     });
+
+    let account = await db.account(client.uid);
+
+    assert.equal(account.verifierVersion, 0, 'wrong version');
+
+    await TestServer.stop(server);
+
+    config.verifierVersion = 1;
+    server = await TestServer.start(config);
+
+    client = await Client.login(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox
+    );
+
+    await client.changePassword(password);
+
+    account = await db.account(client.uid);
+
+    assert.equal(account.verifierVersion, 1, 'wrong upgrade version');
+  });
+
+  after(async () => {
+    try {
+      await db.close();
+      await TestServer.stop(server);
+    } catch (e) {}
   });
 });

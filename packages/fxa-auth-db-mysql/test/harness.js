@@ -10,7 +10,6 @@ const log = require('./lib/log');
 const P = require('bluebird');
 
 const DBS = {
-  mem: require('../lib/db/mem'),
   mysql: require('../lib/db/mysql'),
 };
 
