@@ -23,7 +23,7 @@ describe('POST /recoveryKey', () => {
       const requestOptions = {
         credentials: { uid, email },
         log,
-        payload: { recoveryKeyId, recoveryData },
+        payload: { recoveryKeyId, recoveryData, enabled: true },
       };
       return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
         r => (response = r)
@@ -45,10 +45,11 @@ describe('POST /recoveryKey', () => {
     it('called db.createRecoveryKey correctly', () => {
       assert.equal(db.createRecoveryKey.callCount, 1);
       const args = db.createRecoveryKey.args[0];
-      assert.equal(args.length, 3);
+      assert.equal(args.length, 4);
       assert.equal(args[0], uid);
       assert.equal(args[1], recoveryKeyId);
       assert.equal(args[2], recoveryData);
+      assert.equal(args[3], true);
     });
 
     it('called log.info correctly', () => {
@@ -82,6 +83,62 @@ describe('POST /recoveryKey', () => {
       const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
+    });
+  });
+
+  describe('should create disabled recovery key', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: { uid, email },
+        log,
+        payload: { recoveryKeyId, recoveryData, enabled: false },
+      };
+      return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
+        r => (response = r)
+      );
+    });
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, {});
+    });
+
+    it('called db.createRecoveryKey correctly', () => {
+      assert.equal(db.createRecoveryKey.callCount, 1);
+      const args = db.createRecoveryKey.args[0];
+      assert.equal(args.length, 4);
+      assert.equal(args[0], uid);
+      assert.equal(args[1], recoveryKeyId);
+      assert.equal(args[2], recoveryData);
+      assert.equal(args[3], false);
+    });
+  });
+
+  describe('should verify recovery key', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: { uid, email },
+        log,
+        payload: { recoveryKeyId, enabled: false },
+      };
+      return setup(
+        { db: { email } },
+        {},
+        '/recoveryKey/verify',
+        requestOptions
+      ).then(r => (response = r));
+    });
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, {});
+    });
+
+    it('called db.updateRecoveryKey correctly', () => {
+      assert.equal(db.updateRecoveryKey.callCount, 1);
+      const args = db.updateRecoveryKey.args[0];
+      assert.equal(args.length, 3);
+      assert.equal(args[0], uid);
+      assert.equal(args[1], recoveryKeyId);
+      assert.equal(args[2], true);
     });
   });
 

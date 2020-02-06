@@ -21,6 +21,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           payload: {
             recoveryKeyId: validators.recoveryKeyId,
             recoveryData: validators.recoveryData,
+            enabled: isA.boolean().default(true),
           },
         },
       },
@@ -34,35 +35,73 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
 
         const { uid } = sessionToken;
-        const { recoveryKeyId, recoveryData } = request.payload;
+        const { recoveryKeyId, recoveryData, enabled } = request.payload;
 
-        await db.createRecoveryKey(uid, recoveryKeyId, recoveryData);
+        await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
 
         log.info('account.recoveryKey.created', { uid });
 
-        await request.emitMetricsEvent('recoveryKey.created', { uid });
+        if (enabled) {
+          await request.emitMetricsEvent('recoveryKey.created', { uid });
 
-        const account = await db.account(uid);
+          const account = await db.account(uid);
 
-        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
-        const emailOptions = {
-          acceptLanguage,
-          ip,
-          location: geo.location,
-          timeZone: geo.timeZone,
-          uaBrowser: ua.browser,
-          uaBrowserVersion: ua.browserVersion,
-          uaOS: ua.os,
-          uaOSVersion: ua.osVersion,
-          uaDeviceType: ua.deviceType,
-          uid,
-        };
+          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+          const emailOptions = {
+            acceptLanguage,
+            ip,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          };
 
-        await mailer.sendPostAddAccountRecoveryEmail(
-          account.emails,
-          account,
-          emailOptions
-        );
+          await mailer.sendPostAddAccountRecoveryEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recoveryKey/verify',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: {
+            recoveryKeyId: validators.recoveryKeyId,
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('verifyRecoveryKey', request);
+
+        const sessionToken = request.auth.credentials;
+
+        if (sessionToken.tokenVerificationId) {
+          throw errors.unverifiedSession();
+        }
+
+        const { uid } = sessionToken;
+        const { recoveryKeyId } = request.payload;
+
+        // Attempt to retrieve a recovery key, if it exists and is not already enabled,
+        // then we enable it.
+        const recoveryKeyData = await db.getRecoveryKey(uid, recoveryKeyId);
+
+        if (!recoveryKeyData.enabled) {
+          await db.updateRecoveryKey(uid, recoveryKeyId, true);
+        }
 
         return {};
       },

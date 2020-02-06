@@ -1651,10 +1651,16 @@ module.exports = function(log, error) {
   };
 
   MySql.prototype.recoveryKeyExists = function(uid) {
-    let exists = true;
+    let exists = false;
     return this.read(GET_RECOVERY_KEY, [uid]).then(results => {
-      if (results[0].length === 0) {
-        exists = false;
+      // A recovery key is considered to exist iff there is one key
+      // that is enabled.
+      for (let i = 0; i < results[0].length; i++) {
+        const key = results[0][i];
+        if (key.enabled) {
+          exists = true;
+          break;
+        }
       }
 
       return { exists };
