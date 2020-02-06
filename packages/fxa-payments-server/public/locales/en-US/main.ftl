@@ -38,7 +38,7 @@ privacy = Privacy Notice
 
 ## plan details
 product-plan-details-heading = Let's set up your subscription
-product-plan-details-amount = { $productName } for { $amount } per { $interval }
+product-plan-details-amount = { $productName } for ${ $amount } per { $interval }
 
 ## Product route
 product-plan-error =
@@ -66,7 +66,7 @@ payment-cvc =
   .label = CVC
 payment-zip =
   .label = ZIP code
-payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
+payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
 payment-cancel-btn = Cancel
 payment-update-btn = Update
 
