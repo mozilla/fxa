@@ -170,13 +170,13 @@ describe('views/tooltip', function() {
     }
 
     it('returns true if screen is large enough', () => {
-      setScreenSize(520, 480);
+      setScreenSize(960, 480);
 
       assert.isTrue(tooltip.canShowTooltipBelow());
     });
 
     it('returns false if screen is not wide enough', () => {
-      setScreenSize(519, 480);
+      setScreenSize(959, 480);
 
       assert.isFalse(tooltip.canShowTooltipBelow());
     });
