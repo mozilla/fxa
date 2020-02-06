@@ -1,10 +1,10 @@
 # prompt=none
 
-`prompt=none` is a flow described by the [OpenID Connect spec][#oidc-spec] as:
+`prompt=none` enables authorized RPs to check a user's authentication state and receive an OAuth grant or access token without requiring user interaction.
+
+More formally, `prompt=none` is a flow described by the [OpenID Connect spec][#oidc-spec] as:
 
 > The Authorization Server MUST NOT display any authentication or consent user interface pages. An error is returned if an End-User is not already authenticated or the Client does not have pre-configured consent for the requested Claims or does not fulfill other conditions for processing the request. The error code will typically be login_required, interaction_required, or another code defined in Section 3.1.2.6. This can be used as a method to check for existing authentication and/or consent.
-
-`prompt=none` enables authorized RPs to check a user's authentication state and receive an OAuth grant or access token without requiring user interaction.
 
 ## prompt=none usage is controlled
 
@@ -13,13 +13,13 @@ it bypasses the normal authorization flow and use could easily fall afoul of use
 
 ## Requesting `prompt=none` during authorization
 
-[`prompt=none` and `login_hint=<email>`][#authorization-api-doc] are appended onto the query parameters when opening the `/authorization` endpoint.
+[`prompt=none` and either `login_hint=<email>` or `id_token_hint=<ID Token>`][#authorization-api-doc] are appended onto the query parameters when opening the `/authorization` endpoint.
 
 ```
 GET https://accounts.firefox.com/authorization?client_id=ea3ca969f8c6bb0d&state=2sfas415FSSF@A5f&scope=profile&prompt=none&login_hint=conscious.chooser%40mozilla.com
 ```
 
-If a different user is currently signed in to the email specified by `login_hint`, an [`account_selection_required` error will be returned](#handling-errors).
+If a different user is currently signed in to the email specified by the `login_hint` or `id_token_hint`, an [`account_selection_required` error will be returned](#handling-errors).
 
 ## Handling errors
 
@@ -32,6 +32,7 @@ The following is a table of [OIDC compliant error codes][#oidc-error-codes] &rar
 | `invalid_request`              | prompt=none is not enabled                |
 | &nbsp;                         | OR `login_hint` is missing                |
 | &nbsp;                         | OR scoped keys are requested              |
+| &nbsp;                         | OR the `id_token_hint` token is invalid   |
 | `unauthorized_client`          | prompt=none is not enabled for the client |
 | `* interaction_required`       | account or session is not verified        |
 | `* login_required`             | user is not signed in                     |
@@ -98,7 +99,7 @@ For users that are already authenticated to Firefox Accounts, `prompt=none` bypa
 
 ## Future directions
 
-Once FxA [accepts the id_token_hint query parameter][#oidc-id-token-hint-github-issue], support for `prompt=none` may be expanded to allow any RP to check the user's FxA login state. Since RPs not on the [authorized list](#prompt=none-usage-is-controlled) can only obtain an [id_token][#oidc-id-token] by going through the normal authorization flow, it is safe to assume an RP presenting the `id_token` as part of a `prompt=none` flow has already been granted authorization.
+Now that FxA accepts the id_token_hint query parameter, support for `prompt=none` [could be expanded][#oidc-id-token-hint-discussion-issue] to allow any RP to check the user's FxA login state. Since RPs not on the [authorized list](#prompt=none-usage-is-controlled) can only obtain an [id_token][#oidc-id-token] by going through the normal authorization flow, it is safe to assume an RP presenting the `id_token` as part of a `prompt=none` flow has already been granted authorization.
 
 Support for [OIDC RP Initiated Logout][#oidc-rp-initiated-logout-github-issue] may go some way to reducing user confusion on what it means to sign out of an RP and whether they should have to enter their password again. Upon signing out of the RP, RPs that support the OIDC RP Initiated Logout protocol will redirect the user to FxA where they are given the option to destroy their FxA session as well.
 
@@ -106,7 +107,7 @@ Support for [OIDC RP Initiated Logout][#oidc-rp-initiated-logout-github-issue] m
 [#fxa-devices-and-apps]: https://accounts.firefox.com/settings/clients
 [#oauth-server-api-destroy]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1destroy
 [#oidc-error-codes]: https://openid.net/specs/openid-connect-core-1_0.html#AuthError
-[#oidc-id-token-hint-github-issue]: https://github.com/mozilla/fxa/issues/590#issuecomment-506153249
+[#oidc-id-token-hint-discussion-issue]: https://github.com/mozilla/fxa/issues/4963
 [#oidc-id-token]: https://openid.net/specs/openid-connect-core-1_0.html#IDToken
 [#oidc-logout-flows]: https://medium.com/@robert.broeckelmann/openid-connect-logout-eccc73df758f
 [#oidc-rp-initiated-logout-github-issue]: https://github.com/mozilla/fxa/issues/1979

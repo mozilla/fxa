@@ -6,6 +6,8 @@ const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
 const CLIENT_ID = 'dcdb5ae7add825d2';
+const ID_TOKEN =
+  '001122334455.66778899aabbccddeeff00112233445566778899.aabbccddeeff';
 const PUBLIC_CLIENT_ID = 'a2270f727f45f648';
 
 describe('oauth', function() {
@@ -189,6 +191,48 @@ describe('oauth', function() {
             'profile'
           ),
           RequestMocks.getOAuthScopedKeyData
+        );
+      })
+      .then(function(resp) {
+        assert.ok(resp);
+      }, assert.fail);
+  });
+
+  it('#verifyIdToken - missing idToken', function() {
+    return accountHelper
+      .newVerifiedAccount()
+      .then(function(account) {
+        return respond(
+          client.verifyIdToken(null, CLIENT_ID),
+          RequestMocks.verifyIdToken
+        );
+      })
+      .then(assert.fail, function(error) {
+        assert.include(error.message, 'Missing idToken');
+      });
+  });
+
+  it('#verifyIdToken - missing clientId', function() {
+    return accountHelper
+      .newVerifiedAccount()
+      .then(function(account) {
+        return respond(
+          client.verifyIdToken(ID_TOKEN, null),
+          RequestMocks.verifyIdToken
+        );
+      })
+      .then(assert.fail, function(error) {
+        assert.include(error.message, 'Missing clientId');
+      });
+  });
+
+  it('#verifyIdToken', function() {
+    return accountHelper
+      .newVerifiedAccount()
+      .then(function(account) {
+        return respond(
+          client.verifyIdToken(ID_TOKEN, CLIENT_ID),
+          RequestMocks.verifyIdToken
         );
       })
       .then(function(resp) {

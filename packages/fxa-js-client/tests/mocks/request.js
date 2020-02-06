@@ -575,4 +575,9 @@ module.exports = {
     status: 200,
     body: '{"success": true, "ticket": "abc123xyz"}',
   },
+  verifyIdToken: {
+    status: 200,
+    body:
+      '{"aud": "59cceb6f8c32317c", "iss": "http://127.0.0.1:3030", "alg": "RS256", "exp": 1587024184, "iat": 1587023184, "sub": "0577e7a5fbf448e3bc60dacbff5dcd5c"}',
+  },
 };

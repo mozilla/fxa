@@ -306,6 +306,19 @@ describe('models/reliers/oauth', () => {
         testInvalidQueryParams('access_type', invalidValues);
       });
 
+      describe('id_token_hint', () => {
+        const invalidValues = ['', ' ', 'unsafe/?%'];
+        it('throws if id_token_hint token is invalid', () => {
+          testInvalidQueryParams('id_token_hint', invalidValues);
+        });
+
+        it('accepts a valid id_token_hint', () => {
+          testValidQueryParams('id_token_hint', ['whatever'], 'idTokenHint', [
+            'whatever',
+          ]);
+        });
+      });
+
       describe('login_hint', () => {
         var validValues = [undefined, 'test@example.com'];
         // login_hint is translated to email if no email is set.
@@ -801,8 +814,14 @@ describe('models/reliers/oauth', () => {
         });
     });
 
-    it('rejects if the client does not specify an email', () => {
+    it('rejects if the client does not specify an email or id_token_hint', () => {
       relier.unset('email');
+      relier.unset('idTokenHint');
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        verified: true,
+      });
       return relier
         .validatePromptNoneRequest(account)
         .then(assert.fail, err => {
@@ -885,6 +904,56 @@ describe('models/reliers/oauth', () => {
         .validatePromptNoneRequest(account)
         .then(assert.fail, err => {
           assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_UNVERIFIED'));
+        });
+    });
+
+    it('rejects if the ID token is invalid', () => {
+      relier.set({
+        idTokenHint: 'ID Token Hint',
+        clientId: CLIENT_ID,
+      });
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        verified: true,
+      });
+      sinon.stub(account, 'verifyIdToken').callsFake(() => {
+        return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
+      });
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(
+            OAuthErrors.is(err, 'PROMPT_NONE_INVALID_ID_TOKEN_HINT')
+          );
+        });
+    });
+
+    it('rejects if account uid does not match the user ID in the token', () => {
+      relier.set({
+        idTokenHint: 'ID Token Hint',
+        clientId: CLIENT_ID,
+      });
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        uid: '6d940dd41e636cc156074109b8092f96',
+        verified: true,
+      });
+
+      sinon.stub(account, 'verifyIdToken').callsFake(() => {
+        return Promise.resolve({
+          sub: '1234567890abcdef1234567890abcdef',
+        });
+      });
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.fail, err => {
+          assert.isTrue(
+            OAuthErrors.is(err, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
+          );
         });
     });
   });

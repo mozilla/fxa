@@ -46,6 +46,7 @@ const SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
     'codeChallengeMethod'
   ),
   keys_jwk: Vat.keysJwk().renameTo('keysJwk'),
+  id_token_hint: Vat.idToken().renameTo('idTokenHint'),
   login_hint: Vat.email().renameTo('loginHint'),
   prompt: Vat.prompt(),
   redirect_uri: Vat.url()
@@ -388,6 +389,10 @@ var OAuthRelier = Relier.extend({
           throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED');
         }
 
+        // `prompt=none` access was controlled when we only used `login_hint`,
+        // but we should consider loosening this restriction, and instead allow
+        // all RPs to use `id_token_hint`. See the discussion issue:
+        // https://github.com/mozilla/fxa/issues/4963
         if (!this._config.isPromptNoneEnabledForClient) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
         }
@@ -396,23 +401,44 @@ var OAuthRelier = Relier.extend({
           throw OAuthErrors.toError('PROMPT_NONE_WITH_KEYS');
         }
 
-        const requestedEmail = this.get('email');
-        if (!requestedEmail) {
-          // yeah yeah, it's a bit strange to look at `email`
-          // and then say `login_hint` is missing. `login_hint`
-          // is the OIDC spec compliant name, we supported `email` first
-          // and don't want to break backwards compatibility.
-          // `login_hint` is copied to the `email` field if no `email`
-          // is specified. If neither is available, throw an error
-          // about `login_hint` since it's spec compliant.
-          throw OAuthErrors.toMissingParameterError('login_hint');
-        }
         if (account.isDefault() || !account.get('sessionToken')) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_SIGNED_IN');
         }
 
-        if (requestedEmail !== account.get('email')) {
-          throw OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
+        // If `id_token_hint` is present, ignore `login_hint` / `email`.
+        const idTokenHint = this.get('idTokenHint');
+        if (idTokenHint) {
+          return account
+            .verifyIdToken(idTokenHint, this.get('clientId'))
+            .catch(err => {
+              throw OAuthErrors.toError('PROMPT_NONE_INVALID_ID_TOKEN_HINT');
+            })
+            .then(claims => {
+              if (claims.sub !== account.get('uid')) {
+                throw OAuthErrors.toError(
+                  'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN'
+                );
+              }
+            });
+        } else {
+          const requestedEmail = this.get('email');
+
+          if (!requestedEmail) {
+            // yeah yeah, it's a bit strange to look at `email`
+            // and then say `login_hint` is missing. `login_hint`
+            // is the OIDC spec compliant name, we supported `email` first
+            // and don't want to break backwards compatibility.
+            // `login_hint` is copied to the `email` field if no `email`
+            // is specified. If neither is available, throw an error
+            // about `login_hint` since it's spec compliant.
+            //
+            // (Should the error mention id_token_hint as well?)
+            throw OAuthErrors.toMissingParameterError('login_hint');
+          }
+
+          if (requestedEmail !== account.get('email')) {
+            throw OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
+          }
         }
 
         // account has all the right bits associated with it,

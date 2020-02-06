@@ -1644,6 +1644,17 @@ const Account = Backbone.Model.extend(
         )
         .then(this.set.bind(this));
     },
+
+    /**
+     * Verify the OIDC ID Token associated with an account.
+     *
+     * @param {String} idToken - the ID Token
+     * @param {String} clientId - the client ID, used to verify the 'aud' claim
+     * @returns {Promise} resolves with response when complete.
+     */
+    verifyIdToken(idToken, clientId) {
+      return this._fxaClient.verifyIdToken(idToken, clientId);
+    },
   },
   {
     ALLOWED_KEYS: ALLOWED_KEYS,
