@@ -133,13 +133,21 @@ class DirectStripeRoutes {
     if (subscription && subscription.latest_invoice) {
       let invoice = /** @type {Invoice} */ (subscription.latest_invoice);
       if (invoice.status === 'open') {
-        const payment_intent =
-          /** @type {PaymentIntent} */ (invoice.payment_intent);
+        const payment_intent = await this.stripeHelper.stripe.paymentIntents.retrieve(
+          /** @type {string} */ (invoice.payment_intent)
+        );
         if (payment_intent.status === 'requires_payment_method') {
           // Re-run the payment
-          invoice = await this.stripeHelper.stripe.invoices.pay(invoice.id, {
-            expand: ['payment_intent'],
-          });
+          try {
+            invoice = await this.stripeHelper.stripe.invoices.pay(invoice.id, {
+              expand: ['payment_intent'],
+            });
+          } catch (err) {
+            if (err.code === 'card_declined') {
+              throw error.paymentFailed();
+            }
+            throw err;
+          }
           if (!this.paidInvoice(invoice)) {
             throw error.paymentFailed();
           }
@@ -368,13 +376,15 @@ class DirectStripeRoutes {
           canceled_at,
           plan: { product: productId },
         } = subscription;
-        activeSubscriptions.push({
-          uid,
-          subscriptionId,
-          productId,
-          createdAt: created * 1000,
-          cancelledAt: canceled_at ? canceled_at * 1000 : null,
-        });
+        if (['trialing', 'active', 'past_due'].includes(subscription.status)) {
+          activeSubscriptions.push({
+            uid,
+            subscriptionId,
+            productId,
+            createdAt: created * 1000,
+            cancelledAt: canceled_at ? canceled_at * 1000 : null,
+          });
+        }
       }
     }
     return activeSubscriptions;

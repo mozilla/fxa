@@ -422,13 +422,21 @@ class StripeHelper {
     const subs = [];
     for (const sub of subscriptions.data) {
       let failure_code, failure_message;
-      // If this is a charge-automatically payment that is incomplete, attempt
+
+      // Don't include incomplete/incomplete_expired subscriptions as we pretend they
+      // don't exist. When a user tries to sign-up, if an incomplete is found, it will
+      // then be used correctly.
+      if (sub.status === 'incomplete' || sub.status === 'incomplete_expired') {
+        continue;
+      }
+
+      // If this is a charge-automatically payment that is past_due, attempt
       // to get details of why it failed. The caller should expand the last_invoice
       // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
       // as the `expand` argument or this will not fetch the failure code/message.
       if (
         sub.latest_invoice &&
-        sub.status === 'incomplete' &&
+        sub.status === 'past_due' &&
         typeof sub.latest_invoice !== 'string' &&
         sub.collection_method === 'charge_automatically' &&
         typeof sub.latest_invoice.charge === 'string'
