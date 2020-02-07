@@ -1,3 +1,19 @@
+## 1.157.0
+
+### New features
+
+* logging: Log details of the grant when generating OAuth tokens. ([3dc7fff5a](https://github.com/mozilla/fxa/commit/3dc7fff5a))
+* auth-server: add hapi route metric timings ([a530f3a17](https://github.com/mozilla/fxa/commit/a530f3a17))
+
+### Bug fixes
+
+* auth-server: screen profile stripe subs ([686c38eb2](https://github.com/mozilla/fxa/commit/686c38eb2))
+* auth-server: handle incomplete subscription ([1d294ef81](https://github.com/mozilla/fxa/commit/1d294ef81))
+* auth-server: Return expected 'plan_name' for subscriptions based on subhub implementation ([ec9a287e0](https://github.com/mozilla/fxa/commit/ec9a287e0))
+* auth-server: pass missing zen/stripe args ([51470ae36](https://github.com/mozilla/fxa/commit/51470ae36))
+* subscriptions: wrap payment token failures in expected error class ([e6f2ea9ec](https://github.com/mozilla/fxa/commit/e6f2ea9ec))
+* codes: Verify session first then send push notifications ([7ce324833](https://github.com/mozilla/fxa/commit/7ce324833))
+
 ## 1.156.0
 
 ### Bug fixes

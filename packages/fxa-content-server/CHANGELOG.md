@@ -1,3 +1,10 @@
+## 1.157.0
+
+### Bug fixes
+
+* tooltip: Adjust tooltip inline PW validation position for tablet/large mobile to match PW balloon functionality and prevent overlap ([54f60536f](https://github.com/mozilla/fxa/commit/54f60536f))
+* viewport: Update viewport metatag to include minimum-scale, and make value consistent across all instances ([fb3afee23](https://github.com/mozilla/fxa/commit/fb3afee23))
+
 ## 1.156.0
 
 ### Bug fixes
