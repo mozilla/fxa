@@ -139,7 +139,7 @@ export const SubscriptionCreate = ({
       </ErrorMessage>
 
       <ErrorMessage isVisible={isCardError}>
-        <Localized id={getErrorMessage('card-error')}>
+        <Localized id={getErrorMessage('card_error')}>
           <p data-testid="error-card-rejected">
             {getErrorMessage('card_error')}
           </p>
