@@ -411,7 +411,6 @@ function defineLazyGetter(object, key, getter) {
  *    https://github.com/mac-/hapi-statsd/blob/master/lib/hapi-statsd.js
  */
 function metricFactory(statsdClient) {
-  const template = '{path}.{method}.{statusCode}';
   const pathSeparator = '_';
 
   function normalizePath(path) {
@@ -439,14 +438,11 @@ function metricFactory(statsdClient) {
       path = '/{cors*}';
     }
 
-    var statName = template
-      .replace('{path}', normalizePath(path))
-      .replace('{method}', request.method.toUpperCase())
-      .replace('{statusCode}', statusCode);
-
-    statName = statName.indexOf('.') === 0 ? statName.substr(1) : statName;
-    statsdClient.increment(statName);
-    statsdClient.timing(statName, Date.now() - startDate.getTime());
+    statsdClient.timing('url_request', Date.now() - startDate.getTime(), 1, {
+      path: normalizePath(path),
+      method: request.method.toUpperCase(),
+      statusCode,
+    });
   }
   return reportMetrics;
 }

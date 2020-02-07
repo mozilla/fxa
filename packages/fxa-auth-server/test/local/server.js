@@ -90,7 +90,7 @@ describe('lib/server', () => {
         })),
         getLocale: sinon.spy(() => locale),
       };
-      statsd = { increment: sinon.fake(), timing: sinon.fake() };
+      statsd = { timing: sinon.fake() };
     });
 
     describe('create:', () => {
@@ -141,10 +141,7 @@ describe('lib/server', () => {
           assert.equal(statusCode, 401);
           assert.equal(result.code, 401);
           assert.equal(result.errno, error.ERRNO.INVALID_TOKEN);
-          assert.equal(
-            statsd.increment.getCall(0).args[0],
-            'oauth_subscriptions_clients.GET.401'
-          );
+          assert.equal(statsd.timing.getCall(0).args[0], 'url_request');
         });
 
         it('authenticated valid subscription shared secret', async () => {
