@@ -547,7 +547,7 @@ describe('subscriptions', () => {
         payments = sinon.stub({});
         payments.verifyPlanUpgradeForSubscription = sinon.fake();
         payments.changeSubscriptionPlan = sinon.fake.returns(subscription2);
-        payments.deleteCachedCustomer = sinon.fake();
+        payments.refreshCachedCustomer = sinon.fake();
         payments.subscriptionForCustomer = sinon.fake.returns({
           id: SUBSCRIPTION_ID_1,
           plan: { product: PLANS[0].product_id },
@@ -1275,7 +1275,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
       it('should allow updating of subscription plan', async () => {
         payments.verifyPlanUpgradeForSubscription = sinon.fake();
         payments.changeSubscriptionPlan = sinon.fake.returns(subscription2);
-        payments.deleteCachedCustomer = sinon.fake();
+        payments.refreshCachedCustomer = sinon.fake();
         await runTest(
           '/oauth/subscriptions/active/{subscriptionId}',
           {
@@ -1290,7 +1290,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
         assert.deepEqual(payments.verifyPlanUpgradeForSubscription.args, [
           [PLANS[0].product_id, PLAN_ID_1],
         ]);
-        assert.equal(payments.deleteCachedCustomer.callCount, 1);
+        assert.equal(payments.refreshCachedCustomer.callCount, 1);
       });
 
       it('should correctly handle an error from stripeHelper', async () => {
@@ -1552,17 +1552,17 @@ describe.skip('subscriptions (using direct stripe access)', () => {
       assert.hasAllKeys(route.options.validate.headers, 'stripe-signature');
     });
 
-    it('should invalidate a cached customer on a customer.update event', async () => {
+    it('should refresh a cached customer on a customer.update event', async () => {
       subhub.stripeHelper = {
         constructWebhookEvent: sinon.stub().returns(event),
-        deleteCachedCustomer: sinon.stub(),
+        refreshCachedCustomer: sinon.stub(),
       };
       await runTest(webhookHandlerPath, {
         ...requestOptions,
         method: 'POST',
       });
       assert.isTrue(
-        subhub.stripeHelper.deleteCachedCustomer.calledOnceWith(
+        subhub.stripeHelper.refreshCachedCustomer.calledOnceWith(
           event.data.object.metadata.userid,
           event.data.object.email
         )
@@ -1579,7 +1579,7 @@ describe.skip('subscriptions (using direct stripe access)', () => {
           ...event,
           data: { object: { ...customer, metadata: {} } },
         }),
-        deleteCachedCustomer: sinon.stub(),
+        refreshCachedCustomer: sinon.stub(),
       };
       await runTest(webhookHandlerPath, {
         ...requestOptions,

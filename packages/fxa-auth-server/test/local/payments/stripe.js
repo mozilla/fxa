@@ -353,11 +353,10 @@ describe('StripeHelper', () => {
         );
       });
 
-      describe('deleteCachedCustomer', () => {
-        it('clears a cached customer by uid and email', async () => {
-          await stripeHelper.deleteCachedCustomer(uid, email);
-          assert(mockRedis.del.calledOnce);
-          assert.isUndefined(await mockRedis.get(customerKey));
+      describe('refreshCachedCustomer', () => {
+        it('forces a refresh of a cached customer by uid and email', async () => {
+          await stripeHelper.refreshCachedCustomer(uid, email);
+          assert(stripeHelper.stripe.customers.list.calledTwice);
         });
       });
     });
