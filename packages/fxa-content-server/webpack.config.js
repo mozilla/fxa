@@ -22,7 +22,6 @@ const webpackConfig = {
       'duration',
       'es6-promise',
       'jquery',
-      'mailcheck',
       'js-md5',
       'modal',
       'speed-trap',
@@ -83,10 +82,6 @@ const webpackConfig = {
       'base32-decode': path.resolve(
         __dirname,
         'node_modules/base32-decode/index'
-      ),
-      mailcheck: path.resolve(
-        __dirname,
-        'node_modules/mailcheck/src/mailcheck'
       ),
       'js-md5': path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
       mocha: 'mocha/mocha',

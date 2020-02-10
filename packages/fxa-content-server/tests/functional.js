@@ -34,7 +34,6 @@ module.exports = [
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/legal.js',
-  'tests/functional/mailcheck.js',
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_handshake.js',
   'tests/functional/oauth_permissions.js',
