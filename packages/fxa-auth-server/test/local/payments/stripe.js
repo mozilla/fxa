@@ -290,6 +290,18 @@ describe('StripeHelper', () => {
       });
     });
 
+    describe('subscriptionForCustomer', () => {
+      it('uses only cached customer data to look up a subscription', async () => {
+        assert.deepEqual(
+          await stripeHelper.customer('nonexistentuid', email, false, true),
+          undefined
+        );
+        assert(mockRedis.get.calledOnce);
+        assert.equal(mockRedis.set.callCount, 0);
+        assert.equal(stripeHelper.stripe.customers.list.callCount, 0);
+      });
+    });
+
     describe('fetchAllSubscriptionsForCustomer', () => {
       it('calls Stripe with the correct arguments', async () => {
         sandbox

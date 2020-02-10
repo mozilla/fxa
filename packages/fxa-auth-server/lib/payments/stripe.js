@@ -44,9 +44,9 @@ const stripe = require('stripe').Stripe;
  * @param {*} redis
  * @param {string} cacheKey
  * @param {number} cacheTtl
- * @param {() => Promise<T>} refreshFunction
+ * @param {() => Promise<T> | undefined} refreshFunction
  * @param {boolean} forceRefresh
- * @returns {Promise<T>} possibly cached result
+ * @returns {Promise<T | undefined>} possibly cached result
  */
 async function cachedResult(
   log,
@@ -68,6 +68,10 @@ async function cachedResult(
         { err }
       );
     }
+  }
+
+  if (!refreshFunction) {
+    return;
   }
 
   const result = await refreshFunction();
@@ -200,17 +204,23 @@ class StripeHelper {
    * @param {string} uid Firefox Account Uid
    * @param {string} email Firefox Account Email
    * @param {boolean} forceRefresh whether to force refresh fetch of customer
+   * @param {boolean} cacheOnly Whether a fetch should only hit our cache.
    * @returns {Promise<Customer|void>} Customer if exists in the system.
    */
-  async customer(uid, email, forceRefresh = false) {
+  async customer(uid, email, forceRefresh = false, cacheOnly = false) {
     const cacheKey = this.customerCacheKey(uid, email);
     return cachedResult(
       this.log,
       this.redis,
       cacheKey,
       this.cacheTtlSeconds,
-      async () =>
-        this.fetchCustomer(uid, email, ['data.sources', 'data.subscriptions']),
+      cacheOnly
+        ? undefined
+        : async () =>
+            this.fetchCustomer(uid, email, [
+              'data.sources',
+              'data.subscriptions',
+            ]),
       forceRefresh
     );
   }
@@ -227,6 +237,10 @@ class StripeHelper {
    */
   async subscriptionForCustomer(uid, email, subscriptionId) {
     const customer = await this.customer(uid, email);
+    if (!customer) {
+      return;
+    }
+
     return customer.subscriptions.data.find(
       subscription => subscription.id === subscriptionId
     );
@@ -300,6 +314,8 @@ class StripeHelper {
     })) {
       // FIXME: Should probably error here if we can't set a product id/name.
       let product_id, product_name, product_metadata;
+
+      // We don't list plans for deleted products
       if (item.product && typeof item.product !== 'string') {
         product_id = item.product.id;
         product_name = item.product.name;
