@@ -1,4 +1,6 @@
 {
-    "exceptions": [
-    ]
+  "comment_1468": "1468 is a hoek vulnerability that only applies if the library is used outside hapi",
+  "exceptions": [
+    "https://npmjs.com/advisories/1468"
+  ]
 }

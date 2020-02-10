@@ -1,8 +1,10 @@
 {
-  "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by dev dep @storybook/react",
   "comment_961": "961 is a DOS against node-sass",
+  "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by dev dep @storybook/react",
+  "comment_1468": "1468 is a hoek vulnerability that only applies if the library is used outside hapi",
   "exceptions": [
+    "https://npmjs.com/advisories/961",
     "https://npmjs.com/advisories/1426",
-    "https://npmjs.com/advisories/961"
+    "https://npmjs.com/advisories/1468"
   ]
 }
