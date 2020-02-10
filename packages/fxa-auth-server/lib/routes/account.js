@@ -1465,7 +1465,12 @@ module.exports = (
         if (config.subscriptions.enabled) {
           try {
             if (stripeHelper) {
-              const customer = await stripeHelper.customer(uid, email);
+              const customer = await stripeHelper.customer(
+                uid,
+                email,
+                false,
+                true
+              );
               if (!customer) {
                 throw error.unknownCustomer(uid);
               }

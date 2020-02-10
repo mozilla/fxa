@@ -77,7 +77,7 @@ const SubscriptionUtils = (module.exports = {
  * @param {string} email
  */
 async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
-  const customer = await stripeHelper.customer(uid, email);
+  const customer = await stripeHelper.customer(uid, email, false, true);
   if (!customer || !customer.subscriptions.data) {
     return [];
   }
