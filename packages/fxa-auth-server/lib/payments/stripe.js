@@ -97,10 +97,11 @@ class StripeHelper {
    */
   constructor(log, config) {
     this.log = log;
-    // TODO: Should we configure different TTLs for different data? (i.e. plans, products, customers)
     this.cacheTtlSeconds =
       config.subhub.plansCacheTtlSeconds ||
       config.subscriptions.cacheTtlSeconds;
+    this.customerCacheTtlSeconds =
+      config.subscriptions.stripeCustomerCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     const redis =
       this.cacheTtlSeconds &&
@@ -213,7 +214,7 @@ class StripeHelper {
       this.log,
       this.redis,
       cacheKey,
-      this.cacheTtlSeconds,
+      this.customerCacheTtlSeconds,
       cacheOnly
         ? undefined
         : async () =>
