@@ -45,10 +45,18 @@ const stripe = require('stripe').Stripe;
  * @param {string} cacheKey
  * @param {number} cacheTtl
  * @param {() => Promise<T>} refreshFunction
+ * @param {boolean} forceRefresh
  * @returns {Promise<T>} possibly cached result
  */
-async function cachedResult(log, redis, cacheKey, cacheTtl, refreshFunction) {
-  if (cacheTtl) {
+async function cachedResult(
+  log,
+  redis,
+  cacheKey,
+  cacheTtl,
+  refreshFunction,
+  forceRefresh = false
+) {
+  if (cacheTtl && !forceRefresh) {
     try {
       const json = await redis.get(cacheKey);
       if (json) {
@@ -74,14 +82,6 @@ async function cachedResult(log, redis, cacheKey, cacheTtl, refreshFunction) {
       );
   }
   return result;
-}
-
-async function deleteCachedResult(log, redis, cacheKey) {
-  try {
-    await redis.del(cacheKey);
-  } catch (err) {
-    log.error(`subhub.deleteCachedResult.failed`, { err });
-  }
 }
 
 class StripeHelper {
@@ -199,9 +199,10 @@ class StripeHelper {
    *
    * @param {string} uid Firefox Account Uid
    * @param {string} email Firefox Account Email
+   * @param {boolean} forceRefresh whether to force refresh fetch of customer
    * @returns {Promise<Customer|void>} Customer if exists in the system.
    */
-  async customer(uid, email) {
+  async customer(uid, email, forceRefresh = false) {
     const cacheKey = this.customerCacheKey(uid, email);
     return cachedResult(
       this.log,
@@ -209,7 +210,8 @@ class StripeHelper {
       cacheKey,
       this.cacheTtlSeconds,
       async () =>
-        this.fetchCustomer(uid, email, ['data.sources', 'data.subscriptions'])
+        this.fetchCustomer(uid, email, ['data.sources', 'data.subscriptions']),
+      forceRefresh
     );
   }
 
@@ -262,17 +264,13 @@ class StripeHelper {
    *
    * @param {string} uid Firefox Account Uid
    * @param {string} email Firefox Account Email
-   * @returns {Promise<number|void>} Redis result.
+   * @returns {Promise<Customer|void>} Customer if exists in the system.
    */
-  async deleteCachedCustomer(uid, email) {
+  async refreshCachedCustomer(uid, email) {
     try {
-      return deleteCachedResult(
-        this.log,
-        this.redis,
-        this.customerCacheKey(uid, email)
-      );
+      return await this.customer(uid, email, true);
     } catch (err) {
-      this.log.error(`subhub.deleteCachedCustomer.failed`, { err });
+      this.log.error(`subhub.refreshCachedCustomer.failed`, { err });
     }
   }
 

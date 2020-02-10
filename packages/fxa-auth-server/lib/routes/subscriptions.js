@@ -64,7 +64,7 @@ class DirectStripeRoutes {
   async customerChanged(request, uid, email) {
     const [devices] = await Promise.all([
       await request.app.devices,
-      await this.stripeHelper.deleteCachedCustomer(uid, email),
+      await this.stripeHelper.refreshCachedCustomer(uid, email),
       await this.profile.deleteCache(uid),
     ]);
     await this.push.notifyProfileUpdated(uid, devices);
@@ -444,7 +444,7 @@ class DirectStripeRoutes {
           break;
         }
         // There is no need to block the response here.
-        this.stripeHelper.deleteCachedCustomer(
+        this.stripeHelper.refreshCachedCustomer(
           event.data.object.metadata.userid,
           event.data.object.email
         );
