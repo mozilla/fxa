@@ -1,5 +1,15 @@
 # Change history
 
+## 1.158.0
+
+### Bug fixes
+
+- deps: Ignore hoek nsp warning https://npmjs.com/advisories/1468 ([6c0edfa9c](https://github.com/mozilla/fxa/commit/6c0edfa9c))
+
+### Other changes
+
+- deps: Update hoek where we use it directly ([ee998b304](https://github.com/mozilla/fxa/commit/ee998b304))
+
 ## 1.157.0
 
 No changes.

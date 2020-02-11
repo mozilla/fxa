@@ -1,8 +1,12 @@
+## 1.158.0
+
+No changes.
+
 ## 1.157.0
 
 ### Bug fixes
 
-* build: Add nsp exception for cryptiles entropy issue to customs and profile servers ([71fa92c23](https://github.com/mozilla/fxa/commit/71fa92c23))
+- build: Add nsp exception for cryptiles entropy issue to customs and profile servers ([71fa92c23](https://github.com/mozilla/fxa/commit/71fa92c23))
 
 ## 1.156.0
 
