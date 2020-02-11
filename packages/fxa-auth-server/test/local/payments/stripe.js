@@ -29,6 +29,7 @@ const mockConfig = {
   publicUrl: 'https://accounts.example.com',
   subscriptions: {
     cacheTtlSeconds: 10,
+    stripeCustomerCacheTtlSeconds: 10,
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
   },
   subhub: {
