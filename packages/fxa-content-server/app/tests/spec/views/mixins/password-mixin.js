@@ -126,17 +126,6 @@ describe('views/mixins/password-mixin', function() {
         assert.equal(view.$('#password').attr('type'), 'password');
       });
 
-      it('works with touch events', () => {
-        view.$('.show-password-label').trigger('touchstart');
-        assert.equal(view.$('#password').attr('type'), 'text');
-
-        $(windowMock).trigger('touchend');
-        assert.equal(view.$('#password').attr('type'), 'text');
-
-        view.$('.show-password-label').trigger('touchstart');
-        assert.equal(view.$('#password').attr('type'), 'password');
-      });
-
       it('logs whether the password is shown or hidden', function() {
         view.$('#password ~ .show-password-label').trigger('mousedown');
         assert.isTrue(

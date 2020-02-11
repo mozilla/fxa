@@ -16,7 +16,6 @@ export default {
     'keyup #vpassword': 'onVPasswordChanged',
     'mousedown .show-password-label': 'onShowPasswordMouseDown',
     'mouseup .show-password-label': 'onShowPasswordMouseUp',
-    'touchstart .show-password-label': 'onShowPasswordMouseDown',
     'keydown input.show-password': 'onShowPasswordTV',
   },
 
