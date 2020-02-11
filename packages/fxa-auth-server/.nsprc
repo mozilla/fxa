@@ -1,10 +1,8 @@
 {
   "comment_766": "766 is sandbox breakout in sandbox.",
   "comment_1168": "Exception added for 'subtext' vulnerability in hapi 17, fixed in hapi 18 branch. See https://github.com/mozilla/fxa/issues/2601",
-  "comment_1468": "1468 is a hoek vulnerability that only applies if the library is used outside hapi",
   "exceptions": [
     "https://npmjs.com/advisories/766",
-    "https://npmjs.com/advisories/1168",
-    "https://npmjs.com/advisories/1468"
+    "https://npmjs.com/advisories/1168"
   ]
 }
