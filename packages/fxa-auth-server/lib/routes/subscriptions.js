@@ -15,13 +15,16 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
 
 /** @typedef {import('hapi').Request} Request */
+/** @typedef {import('stripe').Stripe.Customer} Customer */
+/** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
+/** @typedef {import('../payments/stripe.js').AbbrevPlan} AbbrevPlan*/
 
 async function handleAuth(db, auth, fetchEmail = false) {
   const scope = ScopeSet.fromArray(auth.credentials.scope);
   if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
-    throw error.invalidScopes('Invalid authentication scope in token');
+    throw error.invalidScopes();
   }
   const { user: uid } = auth.credentials;
   let email;
@@ -93,93 +96,26 @@ class DirectStripeRoutes {
     const productId = selectedPlan.product_id;
     const planMetadata = metadataFromPlan(selectedPlan);
 
-    let customer = await this.stripeHelper.fetchCustomer(uid, email, [
+    const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
     ]);
-    try {
-      if (!customer) {
-        customer = await this.stripeHelper.stripe.customers.create({
-          source: paymentToken,
-          email,
-          name: displayName,
-          description: uid,
-          metadata: { userid: uid },
-        });
-      } else if (paymentToken) {
-        // Always update the source if we are given a paymentToken
-        // Note that if the customer already exists and we were not
-        // passed a paymentToken value, we will not update it and use
-        // the default source.
-        await this.stripeHelper.stripe.customers.update(customer.id, {
-          source: paymentToken,
-        });
-      }
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
 
-    // Check if the customer already has subscribed to this plan.
-    // FIXME: Plan only exists for subscriptions with 1 plan.
-    let subscription = customer.subscriptions.data.find(
-      sub => sub.plan.id === selectedPlan.plan_id
-    );
-    // If we have a prior subscription, we have 3 options:
-    //   1) Open subscription that needs a payment method, try to pay it
-    //   2) Paid subscription, stop and return as they already have the sub
-    //   3) Old subscription will have no open invoices, ignore it
-    if (subscription && subscription.latest_invoice) {
-      let invoice = /** @type {Invoice} */ (subscription.latest_invoice);
-      if (invoice.status === 'open') {
-        const payment_intent = await this.stripeHelper.stripe.paymentIntents.retrieve(
-          /** @type {string} */ (invoice.payment_intent)
-        );
-        if (payment_intent.status === 'requires_payment_method') {
-          // Re-run the payment
-          try {
-            invoice = await this.stripeHelper.stripe.invoices.pay(invoice.id, {
-              expand: ['payment_intent'],
-            });
-          } catch (err) {
-            if (err.code === 'card_declined') {
-              throw error.paymentFailed();
-            }
-            throw err;
-          }
-          if (!this.paidInvoice(invoice)) {
-            throw error.paymentFailed();
-          }
-        } else {
-          throw error.backendServiceFailure('stripe', 'invoice status', {
-            invoiceId: invoice.id,
-            invoiceStatus: invoice.status,
-            paymentStatus: payment_intent.status,
-          });
-        }
-      } else if (invoice.status === 'paid') {
-        throw error.subscriptionAlreadyExists();
-      } else {
-        subscription = undefined;
-      }
-    }
+    let subscription;
 
-    if (!subscription) {
-      // Create the subscription
-      subscription = await this.stripeHelper.stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ plan: selectedPlan.plan_id }],
-        expand: ['latest_invoice.payment_intent'],
-      });
-
-      if (
-        !this.paidInvoice(
-          /** @type {import('stripe').Stripe.Invoice} */ (subscription.latest_invoice)
-        )
-      ) {
-        throw error.paymentFailed();
-      }
+    if (!customer) {
+      subscription = this.createSubscriptionNewCustomer(
+        uid,
+        email,
+        displayName,
+        paymentToken,
+        selectedPlan
+      );
+    } else {
+      subscription = this.createSubscriptionExistingCustomer(
+        customer,
+        paymentToken,
+        selectedPlan
+      );
     }
 
     await this.customerChanged(request, uid, email);
@@ -203,20 +139,132 @@ class DirectStripeRoutes {
   }
 
   /**
-   * Verify that the invoice was paid successfully.
+   * Create Subscription for New Customer
    *
-   * Note that the invoice *must have the `payment_intent` expanded*
-   * or this function will fail.
+   * @param {string} uid
+   * @param {string} email
+   * @param {string} displayName
+   * @param {string} paymentToken
+   * @param {AbbrevPlan} selectedPlan
    *
-   * @param {Invoice} invoice
-   * @returns {boolean}
+   * @returns {Promise<Subscription>}
    */
-  paidInvoice(invoice) {
-    return (
-      invoice.status === 'paid' &&
-      /** @type {PaymentIntent} */ (invoice.payment_intent).status ===
-        'succeeded'
+  async createSubscriptionNewCustomer(
+    uid,
+    email,
+    displayName,
+    paymentToken,
+    selectedPlan
+  ) {
+    let customer;
+
+    try {
+      customer = await this.stripeHelper.createCustomer(
+        uid,
+        email,
+        displayName,
+        paymentToken
+      );
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
+    }
+
+    const subscription = await this.stripeHelper.createSubscription(
+      customer,
+      selectedPlan
     );
+
+    return subscription;
+  }
+
+  /**
+   * Create Subscription for Existing Customer
+   *
+   * @param {Customer} customer
+   * @param {string} paymentToken
+   * @param {AbbrevPlan} selectedPlan
+   *
+   * @returns {Promise<Subscription>}
+   */
+  async createSubscriptionExistingCustomer(
+    customer,
+    paymentToken,
+    selectedPlan
+  ) {
+    if (paymentToken) {
+      // Always update the source if we are given a paymentToken
+      // Note that if the customer already exists and we were not
+      // passed a paymentToken value, we will not update it and use
+      // the default source.
+      try {
+        await this.stripeHelper.updateCustomerPaymentMethod(
+          customer.id,
+          paymentToken
+        );
+      } catch (err) {
+        if (err.type === 'StripeCardError') {
+          throw error.rejectedSubscriptionPaymentToken(err.message, err);
+        }
+        throw err;
+      }
+    }
+
+    // Check if the customer already has subscribed to this plan.
+    let subscription = this.findCustomerSubscriptionByPlanId(
+      customer,
+      selectedPlan.plan_id
+    );
+
+    // If we have a prior subscription, we have 3 options:
+    //   1) Open subscription that needs a payment method, try to pay it
+    //   2) Paid subscription, stop and return as they already have the sub
+    //   3) Old subscription will have no open invoices, ignore it
+    if (subscription && subscription.latest_invoice) {
+      const invoice = /** @type {Invoice} */ (subscription.latest_invoice);
+      if (invoice.status === 'open') {
+        await this.handleOpenInvoice(invoice);
+        return subscription;
+      } else if (invoice.status === 'paid') {
+        throw error.subscriptionAlreadyExists();
+      }
+    }
+
+    subscription = await this.stripeHelper.createSubscription(
+      customer,
+      selectedPlan
+    );
+
+    return subscription;
+  }
+
+  /**
+   * @param {Invoice} invoice
+   */
+  async handleOpenInvoice(invoice) {
+    const payment_intent =
+      /** @type {PaymentIntent} */ (invoice.payment_intent);
+
+    if (payment_intent.status !== 'requires_payment_method') {
+      throw error.backendServiceFailure('stripe', 'invoice status', {
+        invoiceId: invoice.id,
+        invoiceStatus: invoice.status,
+        paymentStatus: payment_intent.status,
+      });
+    }
+
+    // Re-run the payment
+    await this.stripeHelper.payInvoice(invoice.id);
+  }
+
+  findCustomerSubscriptionByPlanId(customer, planId) {
+    const subscription = customer.subscriptions.data.find(
+      sub => sub.items.data.find(item => item.plan.id === planId) != null
+    );
+
+    return subscription;
   }
 
   async deleteSubscription(request) {
@@ -265,9 +313,10 @@ class DirectStripeRoutes {
       throw error.backendServiceFailure('stripe', 'updatePayment', {}, err);
     }
 
-    await this.stripeHelper.stripe.customers.update(customer.id, {
-      source: paymentToken,
-    });
+    await this.stripeHelper.updateCustomerPaymentMethod(
+      customer.id,
+      paymentToken
+    );
 
     this.log.info('subscriptions.updatePayment.success', { uid });
 
@@ -1183,3 +1232,4 @@ const createRoutes = (
 
 module.exports = createRoutes;
 module.exports.DirectStripeRoutes = DirectStripeRoutes;
+module.exports.handleAuth = handleAuth;

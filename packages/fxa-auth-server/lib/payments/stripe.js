@@ -15,6 +15,8 @@ const stripe = require('stripe').Stripe;
 /** @typedef {import('stripe').Stripe.Product} Product */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
+/** @typedef {import('stripe').Stripe.Invoice} Invoice */
+/** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
 
 /**
  * @typedef AbbrevProduct
@@ -156,6 +158,44 @@ class StripeHelper {
       this.cacheTtlSeconds,
       () => this.fetchAllProducts()
     );
+  }
+
+  /**
+   * Create a stripe customer
+   *
+   * @param {string} uid
+   * @param {string} email
+   * @param {string} displayName
+   * @param {string} paymentToken
+   *
+   * @returns {Promise<Customer>}
+   */
+  async createCustomer(uid, email, displayName, paymentToken) {
+    const customer = await this.stripe.customers.create({
+      source: paymentToken,
+      email,
+      name: displayName,
+      description: uid,
+      metadata: { userid: uid },
+    });
+
+    return customer;
+  }
+
+  /**
+   * Update a customer's default payment method
+   *
+   * @param {string} customerId
+   * @param {string} paymentToken
+   *
+   * @returns {Promise<Customer>}
+   */
+  async updateCustomerPaymentMethod(customerId, paymentToken) {
+    const updatedCustomer = await this.stripe.customers.update(customerId, {
+      source: paymentToken,
+    });
+
+    return updatedCustomer;
   }
 
   /**
@@ -443,6 +483,82 @@ class StripeHelper {
       return matchingProduct ? matchingProduct.product_name : '';
     }
     return product.name;
+  }
+
+  /**
+   * Attempt to pay invoice by invoice id
+   * Throws payment failed error on failure
+   *
+   * @param {string} invoiceId
+   *
+   * @returns {Promise<Invoice>}
+   * @throws {error}
+   */
+  async payInvoice(invoiceId) {
+    let invoice;
+
+    try {
+      invoice = await this.stripe.invoices.pay(invoiceId, {
+        expand: ['payment_intent'],
+      });
+    } catch (err) {
+      if (err.code === 'card_declined') {
+        throw error.paymentFailed();
+      }
+      throw err;
+    }
+
+    if (!this.paidInvoice(invoice)) {
+      throw error.paymentFailed();
+    }
+
+    return invoice;
+  }
+
+  /**
+   * Wraps all of the necessary checks to ensure successful subscription creation
+   *
+   * 1. Calls Stripe Helper to Subscribe a Customer to a selected Plan
+   * 2. Checks the status of the Invoice returned from the Subscription creation
+   *  2a. If Invoice is marked as Paid: return newly created Subscription
+   *  2b. If Invoice is NOT marked as Paid: throw error
+   *
+   *
+   * @param {Customer} customer
+   * @param {AbbrevPlan} selectedPlan
+   *
+   * @returns {Promise<Subscription>}
+   * @throws {error.paymentFailed}
+   */
+  async createSubscription(customer, selectedPlan) {
+    const subscription = await this.stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ plan: selectedPlan.plan_id }],
+      expand: ['latest_invoice.payment_intent'],
+    });
+    if (
+      !this.paidInvoice(/** @type {Invoice} */ (subscription.latest_invoice))
+    ) {
+      throw error.paymentFailed();
+    }
+    return subscription;
+  }
+
+  /**
+   * Verify that the invoice was paid successfully.
+   *
+   * Note that the invoice *must have the `payment_intent` expanded*
+   * or this function will fail.
+   *
+   * @param {Invoice} invoice
+   * @returns {boolean}
+   */
+  paidInvoice(invoice) {
+    return (
+      invoice.status === 'paid' &&
+      /** @type {PaymentIntent} */ (invoice.payment_intent).status ===
+        'succeeded'
+    );
   }
 
   /**
