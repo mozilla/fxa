@@ -29,7 +29,7 @@ async function run(config) {
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const createStripeHelper = require('../lib/payments/stripe');
-    stripeHelper = createStripeHelper(log, config);
+    stripeHelper = createStripeHelper(log, config, statsd);
   }
 
   const redis = require('../lib/redis')(
