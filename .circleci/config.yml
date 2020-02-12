@@ -311,7 +311,7 @@ workflows:
           name: fxa-auth-db-mysql
           module: fxa-auth-db-mysql
           db: true
-          upload_coverage: true
+          upload_coverage: false
           requires:
             - install
       - build-module:

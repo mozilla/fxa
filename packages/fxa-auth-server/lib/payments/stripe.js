@@ -96,8 +96,9 @@ class StripeHelper {
    *
    * @param {object} log
    * @param {object} config
+   * @param {import('hot-shots').StatsD | undefined} statsd
    */
-  constructor(log, config) {
+  constructor(log, config, statsd) {
     this.log = log;
     this.cacheTtlSeconds =
       config.subhub.plansCacheTtlSeconds ||
@@ -122,6 +123,12 @@ class StripeHelper {
       typescript: undefined,
     });
     this.redis = redis;
+
+    if (statsd) {
+      this.stripe.on('response', response => {
+        statsd.timing('stripe_request', response.elapsed);
+      });
+    }
   }
 
   /**
@@ -650,10 +657,11 @@ class StripeHelper {
  *
  * @param {object} log
  * @param {object} config
+ * @param {import('hot-shots').StatsD | undefined} statsd
  * @returns StripeHelper
  */
-function createStripeHelper(log, config) {
-  return new StripeHelper(log, config);
+function createStripeHelper(log, config, statsd) {
+  return new StripeHelper(log, config, statsd);
 }
 // HACK: Hang a reference for StripeHelper off the factory function so we
 // can use it as a type in bin/key_server.js while keeping the exports simple.
