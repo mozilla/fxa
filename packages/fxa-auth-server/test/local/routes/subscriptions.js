@@ -22,6 +22,11 @@ const subscription2 = require('../payments/fixtures/subscription2.json');
 const customerFixture = require('../payments/fixtures/customer1.json');
 const multiPlanSubscription = require('../payments/fixtures/subscription_multiplan.json');
 const emptyCustomer = require('../payments/fixtures/customer_new.json');
+const subscriptionCreated = require('../payments/fixtures/subscription_created.json');
+const subscriptionCreatedIncomplete = require('../payments/fixtures/subscription_created_incomplete.json');
+const subscriptionDeleted = require('../payments/fixtures/subscription_deleted.json');
+const subscriptionUpdated = require('../payments/fixtures/subscription_updated.json');
+const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscription_updated_from_incomplete.json');
 
 let config,
   log,
@@ -1980,4 +1985,93 @@ describe('DirectStripeRoutes', () => {
   describe('deleteSubscription', () => {});
 
   describe('updatePayment', () => {});
+
+  describe('stripe webhooks', () => {
+    let sendStub, getCustomerStub;
+
+    beforeEach(() => {
+      getCustomerStub = sandbox
+        .stub(directStripeRoutesInstance, 'getCustomerUidEmailFromSubscription')
+        .resolves({ uid: UID, email: TEST_EMAIL });
+      sendStub = sandbox
+        .stub(directStripeRoutesInstance, 'sendSubscriptionStatusToSqs')
+        .resolves(true);
+    });
+
+    describe('handleSubscriptionUpdatedEvent', () => {
+      it('emits a notification when transitioning from "incomplete" to "active/trialing"', async () => {
+        const updatedEvent = Object.create(subscriptionUpdatedFromIncomplete);
+        await directStripeRoutesInstance.handleSubscriptionUpdatedEvent(
+          {},
+          updatedEvent
+        );
+        assert.called(getCustomerStub);
+        assert.called(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.called(profile.deleteCache);
+        assert.called(sendStub);
+      });
+
+      it('does not emit a notification for any other subscription state change', async () => {
+        const updatedEvent = Object.create(subscriptionUpdated);
+        await directStripeRoutesInstance.handleSubscriptionUpdatedEvent(
+          {},
+          updatedEvent
+        );
+        assert.notCalled(getCustomerStub);
+        assert.notCalled(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.notCalled(profile.deleteCache);
+        assert.notCalled(sendStub);
+      });
+    });
+
+    describe('handleSubscriptionDeletedEvent', () => {
+      it('emits a notification when a subscription is deleted', async () => {
+        const deletedEvent = Object.create(subscriptionDeleted);
+        await directStripeRoutesInstance.handleSubscriptionDeletedEvent(
+          {},
+          deletedEvent
+        );
+        assert.called(getCustomerStub);
+        assert.called(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.called(profile.deleteCache);
+        assert.called(sendStub);
+      });
+    });
+
+    describe('handleSubscriptionCreatedEvent', () => {
+      it('emits a notification when a new subscription is "active" or "trialing"', async () => {
+        const createdEvent = Object.create(subscriptionCreated);
+        await directStripeRoutesInstance.handleSubscriptionCreatedEvent(
+          {},
+          createdEvent
+        );
+        assert.called(getCustomerStub);
+        assert.called(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.called(profile.deleteCache);
+        assert.called(sendStub);
+      });
+
+      it('does not emit a notification for incomplete new subscriptions', async () => {
+        const createdEvent = Object.create(subscriptionCreatedIncomplete);
+        await directStripeRoutesInstance.handleSubscriptionCreatedEvent(
+          {},
+          createdEvent
+        );
+        assert.notCalled(getCustomerStub);
+        assert.notCalled(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.notCalled(profile.deleteCache);
+        assert.notCalled(sendStub);
+      });
+    });
+  });
 });

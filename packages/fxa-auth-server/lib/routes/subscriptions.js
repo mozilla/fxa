@@ -16,6 +16,7 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 
 /** @typedef {import('hapi').Request} Request */
 /** @typedef {import('stripe').Stripe.Customer} Customer */
+/** @typedef {import('stripe').Stripe.Event} Event */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
@@ -471,6 +472,133 @@ class DirectStripeRoutes {
     return response;
   }
 
+  /**
+   * Send a subscription status Service Notification event to SQS
+   *
+   * @param {*} request
+   * @param {string} uid
+   * @param {Event} event
+   * @param {{id: string, productId: string}} sub
+   * @param {boolean} isActive
+   */
+  async sendSubscriptionStatusToSqs(request, uid, event, sub, isActive) {
+    this.log.notifyAttachedServices('subscription:update', request, {
+      uid,
+      eventCreatedAt: event.created,
+      subscriptionId: sub.id,
+      isActive,
+      productId: sub.productId,
+      productCapabilities:
+        this.config.subscriptions.productCapabilities[sub.productId] || [],
+    });
+  }
+
+  /**
+   *
+   * @param {*} request
+   * @param {Event} event
+   * @param {Subscription} sub
+   * @param {boolean} isActive
+   */
+  async updateCustomerAndSendStatus(request, event, sub, isActive) {
+    const { uid, email } = await this.getCustomerUidEmailFromSubscription(sub);
+    if (!uid) {
+      return;
+    }
+    await this.stripeHelper.refreshCachedCustomer(uid, email);
+    await this.profile.deleteCache(uid);
+    await this.sendSubscriptionStatusToSqs(
+      request,
+      uid,
+      event,
+      { id: sub.id, productId: /** @type {string} */ (sub.plan.product) },
+      isActive
+    );
+  }
+
+  /**
+   * Handle `subscription.created` Stripe webhook events.
+   *
+   * Only subscriptions that are active/trialing are valid. Emit an event for
+   * those conditions only.
+   *
+   * @param {*} request
+   * @param {Event} event
+   */
+  async handleSubscriptionCreatedEvent(request, event) {
+    const sub = /** @type {Subscription} */ (event.data.object);
+    if (['active', 'trialing'].includes(sub.status)) {
+      return this.updateCustomerAndSendStatus(request, event, sub, true);
+    }
+  }
+
+  /**
+   * Handle `subscription.updated` Stripe webhook events.
+   *
+   * The only time this requires us to emit a subscription event is when an
+   * existing incomplete subscription has now been completed. Unpaid renewals and
+   * subscriptions that are cancelled result in a `subscription.deleted` event.
+   *
+   * @param {*} request
+   * @param {Event} event
+   */
+  async handleSubscriptionUpdatedEvent(request, event) {
+    const stripeData =
+      /** @type {import('stripe').Stripe.Event.Data } */ (event.data);
+    const sub = /** @type {Subscription} */ (stripeData.object);
+
+    // if the subscription changed from 'incomplete' to 'active' or 'trialing'
+    if (
+      ['active', 'trialing'].includes(sub.status) &&
+      stripeData.previous_attributes.status === 'incomplete'
+    ) {
+      return this.updateCustomerAndSendStatus(request, event, sub, true);
+    }
+  }
+
+  /**
+   * Handle `subscription.deleted` Stripe wehbook events.
+   *
+   * @param {*} request
+   * @param {Event} event
+   */
+  async handleSubscriptionDeletedEvent(request, event) {
+    const sub = /** @type {Subscription} */ (event.data.object);
+    return this.updateCustomerAndSendStatus(request, event, sub, false);
+  }
+
+  /**
+   * Fetch a customer record from Stripe by id and return its userid metadata
+   * and the email.
+   *
+   * @param {Subscription} sub
+   * @returns {Promise<{uid: string, email: string} | {uid: undefined, email: undefined}>}
+   */
+  async getCustomerUidEmailFromSubscription(sub) {
+    const customer = await this.stripeHelper.stripe.customers.retrieve(
+      /** @type {string} */ (sub.customer)
+    );
+    if (customer.deleted) {
+      // Deleted customers lost their metadata so we can't send events for them
+      return { uid: undefined, email: undefined };
+    }
+    if (!(/** @type {Customer} */ (customer.metadata.userid))) {
+      Sentry.withScope(scope => {
+        scope.setContext('stripeEvent', {
+          customer: { id: customer.id },
+        });
+        Sentry.captureMessage(
+          'FxA UID does not exist on customer metadata.',
+          Sentry.Severity.Error
+        );
+      });
+    }
+    return {
+      uid: /** @type {Customer} */ (customer).metadata.userid,
+      email: /** @type {Customer} */ (customer).email,
+    };
+  }
+
   async handleWebhookEvent(request) {
     const event = this.stripeHelper.constructWebhookEvent(
       request.payload,
@@ -478,25 +606,14 @@ class DirectStripeRoutes {
     );
 
     switch (event.type) {
-      case 'customer.updated':
-        if (!event.data.object.metadata.userid) {
-          Sentry.withScope(scope => {
-            scope.setContext('stripeEvent', {
-              customer: { id: event.data.object.id },
-              event: { id: event.id, type: event.type },
-            });
-            Sentry.captureMessage(
-              'FxA UID does not exist on customer metadata.',
-              Sentry.Severity.Error
-            );
-          });
-          break;
-        }
-        // There is no need to block the response here.
-        this.stripeHelper.refreshCachedCustomer(
-          event.data.object.metadata.userid,
-          event.data.object.email
-        );
+      case 'customer.subscription.created':
+        await this.handleSubscriptionCreatedEvent(request, event);
+        break;
+      case 'customer.subscription.updated':
+        await this.handleSubscriptionUpdatedEvent(request, event);
+        break;
+      case 'customer.subscription.deleted':
+        await this.handleSubscriptionDeletedEvent(request, event);
         break;
       default:
         Sentry.withScope(scope => {
