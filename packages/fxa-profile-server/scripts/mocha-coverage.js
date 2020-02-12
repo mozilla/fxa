@@ -22,13 +22,15 @@ const NYC_BIN = path.join(
   'nyc'
 );
 
-let bin = NYC_BIN;
-let argv = ['--cache', MOCHA_BIN];
-
-if (process.env.NO_COVERAGE) {
-  bin = MOCHA_BIN;
-  argv = [];
-}
+const bin = NYC_BIN;
+const argv = [
+  '--cache',
+  '--no-clean',
+  '--reporter=lcov',
+  '--reporter=text',
+  '--report-dir=coverage',
+  MOCHA_BIN,
+];
 
 const p = spawn(bin, argv.concat(process.argv.slice(2)), {
   stdio: 'inherit',

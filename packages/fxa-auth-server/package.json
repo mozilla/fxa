@@ -15,7 +15,7 @@
     "lint:eslint": "eslint .",
     "postinstall": "scripts/download_l10n.sh",
     "start": "npm run gen-keys && node ./bin/key_server.js",
-    "test": "VERIFIER_VERSION=0 NO_COVERAGE=1 scripts/test-local.sh",
+    "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-oauth": "fxa-oauth-server/scripts/test-local.sh",
     "test-ci": "npm run gen-keys && scripts/test-local.sh && npm run test-e2e && npm run test-scripts",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
