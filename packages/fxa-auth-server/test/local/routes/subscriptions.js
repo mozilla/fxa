@@ -937,7 +937,7 @@ describe('subscriptions directRoutes', () => {
     });
   });
 
-  describe.skip('GET /oauth/subscriptions/search', () => {
+  describe('GET /oauth/subscriptions/search', () => {
     let reqOpts, stripeHelper;
     const formatter = subs => subs.data.map(s => ({ subscription_id: s.id }));
 
@@ -954,23 +954,23 @@ describe('subscriptions directRoutes', () => {
       };
     });
 
-    it('should report error for unknown customer', async () => {
+    it('should return empty list unknown customer', async () => {
       stripeHelper.fetchCustomer = sinon.fake.throws(
         error.unknownCustomer(reqOpts.query.uid)
       );
 
-      try {
-        await runTest('/oauth/subscriptions/search', reqOpts, stripeHelper);
-        assert.fail();
-      } catch (err) {
-        assert.isTrue(
-          stripeHelper.customer.calledOnceWith(
-            reqOpts.query.uid,
-            reqOpts.query.email
-          )
-        );
-        assert.deepEqual(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
-      }
+      const response = await runTest(
+        '/oauth/subscriptions/search',
+        reqOpts,
+        stripeHelper
+      );
+      assert.isTrue(
+        stripeHelper.customer.calledOnceWith(
+          reqOpts.query.uid,
+          reqOpts.query.email
+        )
+      );
+      assert.deepEqual(response, formatter(customerFixture.subscriptions));
     });
 
     it('should return a formatted list of subscriptions in the customer response', async () => {
