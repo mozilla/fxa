@@ -378,12 +378,14 @@ describe('/oauth/ routes', function() {
       scope: 'openid',
     });
     assert.ok(codeRes.code);
-    const token = (await client.grantOAuthTokens({
-      client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
-      client_secret: JWT_ACCESS_TOKEN_SECRET,
-      code: codeRes.code,
-      ppid_seed: 100,
-    })).access_token;
+    const token = (
+      await client.grantOAuthTokens({
+        client_id: JWT_ACCESS_TOKEN_CLIENT_ID,
+        client_secret: JWT_ACCESS_TOKEN_SECRET,
+        code: codeRes.code,
+        ppid_seed: 100,
+      })
+    ).access_token;
     assert.ok(token);
 
     const tokenJWT = decodeJWT(token);
@@ -397,10 +399,12 @@ describe('/oauth/ routes', function() {
   });
 
   it('sees correct keyRotationTimestamp after password change and password reset', async () => {
-    const keyData1 = (await client.getScopedKeyData({
-      client_id: PUBLIC_CLIENT_ID,
-      scope: OAUTH_SCOPE_OLD_SYNC,
-    }))[OAUTH_SCOPE_OLD_SYNC];
+    const keyData1 = (
+      await client.getScopedKeyData({
+        client_id: PUBLIC_CLIENT_ID,
+        scope: OAUTH_SCOPE_OLD_SYNC,
+      })
+    )[OAUTH_SCOPE_OLD_SYNC];
 
     await client.changePassword('new password');
     await server.mailbox.waitForEmail(email);
@@ -408,10 +412,12 @@ describe('/oauth/ routes', function() {
     client = await Client.login(config.publicUrl, email, 'new password');
     await server.mailbox.waitForEmail(email);
 
-    const keyData2 = (await client.getScopedKeyData({
-      client_id: PUBLIC_CLIENT_ID,
-      scope: OAUTH_SCOPE_OLD_SYNC,
-    }))[OAUTH_SCOPE_OLD_SYNC];
+    const keyData2 = (
+      await client.getScopedKeyData({
+        client_id: PUBLIC_CLIENT_ID,
+        scope: OAUTH_SCOPE_OLD_SYNC,
+      })
+    )[OAUTH_SCOPE_OLD_SYNC];
 
     assert.equal(keyData1.keyRotationTimestamp, keyData2.keyRotationTimestamp);
 
@@ -421,10 +427,12 @@ describe('/oauth/ routes', function() {
     await client.resetPassword(password, {});
     await server.mailbox.waitForEmail(email);
 
-    const keyData3 = (await client.getScopedKeyData({
-      client_id: PUBLIC_CLIENT_ID,
-      scope: OAUTH_SCOPE_OLD_SYNC,
-    }))[OAUTH_SCOPE_OLD_SYNC];
+    const keyData3 = (
+      await client.getScopedKeyData({
+        client_id: PUBLIC_CLIENT_ID,
+        scope: OAUTH_SCOPE_OLD_SYNC,
+      })
+    )[OAUTH_SCOPE_OLD_SYNC];
 
     assert.ok(keyData2.keyRotationTimestamp < keyData3.keyRotationTimestamp);
   });

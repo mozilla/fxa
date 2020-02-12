@@ -14,6 +14,7 @@ const createMailHelper = require('./mail_helper');
 const createProfileHelper = require('./profile_helper');
 
 let currentServer;
+let currentDBServer;
 
 /* eslint-disable no-console */
 function TestServer(config, printLogs, options = {}) {
@@ -48,18 +49,17 @@ function TestServer(config, printLogs, options = {}) {
   );
 }
 
-TestServer.start = function(config, printLogs, options) {
-  return TestServer.stop()
-    .then(() => {
-      return createDBServer();
-    })
-    .then(db => {
-      db.listen(config.httpdb.url.split(':')[2]);
-      db.on('error', () => {});
-      const testServer = new TestServer(config, printLogs, options);
-      testServer.db = db;
-      return testServer.start().then(() => testServer);
-    });
+TestServer.start = async function(config, printLogs, options) {
+  await TestServer.stop();
+  currentDBServer = await createDBServer();
+  currentDBServer.listen(config.httpdb.url.split(':')[2]);
+  currentDBServer.on('error', () => {});
+  currentDBServer.server.keepAliveTimeout = 5000;
+
+  currentServer = new TestServer(config, printLogs, options);
+  currentServer.db = currentDBServer;
+
+  return currentServer.start().then(() => currentServer);
 };
 
 TestServer.prototype.start = function() {
@@ -84,23 +84,34 @@ TestServer.prototype.start = function() {
   });
 };
 
-TestServer.stop = function(maybeServer) {
+TestServer.stop = async function(maybeServer) {
   if (maybeServer) {
-    return maybeServer.stop();
-  } else if (currentServer) {
-    return currentServer.stop();
-  } else {
-    return P.resolve();
+    await maybeServer.stop();
+    maybeServer = undefined;
   }
+
+  if (currentServer) {
+    await currentServer.stop();
+    currentServer = undefined;
+  }
+
+  if (currentDBServer) {
+    await currentDBServer.stop();
+    currentDBServer = undefined;
+  }
+
+  return P.resolve();
 };
 
-TestServer.prototype.stop = function() {
+TestServer.prototype.stop = async function() {
   currentServer = undefined;
+  currentDBServer = undefined;
   try {
-    this.db.close();
+    await this.db.close();
   } catch (e) {}
+
   if (this.server) {
-    const doomed = [this.server.close(), this.mail.close()];
+    const doomed = [this.server.close(), this.mail.close(), this.db.close()];
     if (this.profileServer) {
       doomed.push(this.profileServer.close());
     }

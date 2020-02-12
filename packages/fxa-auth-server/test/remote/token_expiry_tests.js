@@ -18,6 +18,7 @@ describe('remote token expiry', function() {
   before(() => {
     config = require('../../config').getProperties();
     config.tokenLifetimes.passwordChangeToken = 1;
+    config.tokenLifetimes.sessionTokenWithoutDevice = 1;
 
     return TestServer.start(config).then(s => {
       server = s;
@@ -39,22 +40,6 @@ describe('remote token expiry', function() {
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
-  });
-});
-
-describe('remote session token expiry', function() {
-  this.timeout(15000);
-  let server, config;
-
-  before(() => {
-    config = require('../../config').getProperties();
-    config.tokenLifetimes.sessionTokenWithoutDevice = 1;
-
-    return TestServer.start(config).then(result => (server = result));
-  });
-
   it('session token expires', () => {
     return Client.createAndVerify(
       config.publicUrl,
@@ -62,19 +47,19 @@ describe('remote session token expiry', function() {
       'wibble',
       server.mailbox
     ).then(client =>
-      client
-        .sessionStatus()
-        .then(
-          () => assert.ok(false, 'client.sessionStatus should have failed'),
-          err =>
-            assert.equal(
-              err.errno,
-              110,
-              'client.sessionStatus returned the correct error'
-            )
-        )
+      client.sessionStatus().then(
+        () => assert.ok(false, 'client.sessionStatus should have failed'),
+        err =>
+          assert.equal(
+            err.errno,
+            110,
+            'client.sessionStatus returned the correct error'
+          )
+      )
     );
   });
 
-  after(() => TestServer.stop(server));
+  after(() => {
+    return TestServer.stop(server);
+  });
 });

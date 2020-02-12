@@ -60,6 +60,7 @@ describe('remote device with refresh tokens', function() {
 
   after(async () => {
     await TestServer.stop(server);
+    await db.close();
     testUtils.restoreStdoutWrite();
   });
 

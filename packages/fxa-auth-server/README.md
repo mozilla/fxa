@@ -35,10 +35,6 @@ Clone the git repository and install dependencies:
     cd fxa-auth-server
     npm install
 
-To start the server in dev memory store mode (ie. `NODE_ENV=dev`), run:
-
-    npm start
-
 This runs a script `scripts/start-local.sh` as defined in `package.json`. This will start up
 4 services, three of which listen on the following ports (by default):
 
@@ -207,8 +203,6 @@ Valid `level` values (from least to most verbose logging) include: `"fatal", "er
 
 This server depends on a database server
 from the [`fxa-auth-db-mysql` repo](../fxa-auth-db-mysql/).
-When running the tests, it uses a memory-store
-that mocks behaviour of the production MySQL server.
 
 ## License
 

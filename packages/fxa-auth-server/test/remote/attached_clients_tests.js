@@ -39,9 +39,9 @@ describe('attached clients listing', function() {
       password,
       server.mailbox
     );
-    const mySessionTokenId = (await tokens.SessionToken.fromHex(
-      client.sessionToken
-    )).id;
+    const mySessionTokenId = (
+      await tokens.SessionToken.fromHex(client.sessionToken)
+    ).id;
     const deviceInfo = {
       name: 'test device 🍓🔥在𝌆',
       type: 'mobile',
@@ -109,9 +109,9 @@ describe('attached clients listing', function() {
       password,
       server.mailbox
     );
-    const mySessionTokenId = (await tokens.SessionToken.fromHex(
-      client.sessionToken
-    )).id;
+    const mySessionTokenId = (
+      await tokens.SessionToken.fromHex(client.sessionToken)
+    ).id;
 
     const client2 = await Client.login(config.publicUrl, email, password);
     const device = await client2.updateDevice({
@@ -140,14 +140,14 @@ describe('attached clients listing', function() {
       password,
       server.mailbox
     );
-    const mySessionTokenId = (await tokens.SessionToken.fromHex(
-      client.sessionToken
-    )).id;
+    const mySessionTokenId = (
+      await tokens.SessionToken.fromHex(client.sessionToken)
+    ).id;
 
     const client2 = await Client.login(config.publicUrl, email, password);
-    const otherSessionTokenId = (await tokens.SessionToken.fromHex(
-      client2.sessionToken
-    )).id;
+    const otherSessionTokenId = (
+      await tokens.SessionToken.fromHex(client2.sessionToken)
+    ).id;
 
     let allClients = await client.attachedClients();
     assert.equal(allClients.length, 2);
@@ -170,9 +170,9 @@ describe('attached clients listing', function() {
       password,
       server.mailbox
     );
-    const mySessionTokenId = (await tokens.SessionToken.fromHex(
-      client.sessionToken
-    )).id;
+    const mySessionTokenId = (
+      await tokens.SessionToken.fromHex(client.sessionToken)
+    ).id;
 
     const refreshToken = await oauthServerDb.generateRefreshToken({
       clientId: buf(PUBLIC_CLIENT_ID),

@@ -91,7 +91,7 @@ describe('remote subscriptions:', function() {
     });
 
     after(async () => {
-      await server.stop();
+      await testServerFactory.stop(server);
     });
 
     beforeEach(async () => {
@@ -251,7 +251,7 @@ describe('remote subscriptions:', function() {
     });
 
     after(async () => {
-      await server.stop();
+      await testServerFactory.stop(server);
     });
 
     beforeEach(async () => {
@@ -517,7 +517,7 @@ describe('remote subscriptions:', function() {
     });
 
     after(async () => {
-      await server.stop();
+      await testServerFactory.stop(server);
     });
 
     beforeEach(async () => {
