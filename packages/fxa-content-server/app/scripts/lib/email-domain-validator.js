@@ -8,16 +8,15 @@
  *
  * The validation is performed after the existing account email check during
  * the form submission process. At this point, the email address has gone
- * through: 1) regex validation, 2) Mailcheck typo suggestion (which the user
- * can ignore), and 3) existing email address check.
+ * through: 1) regex validation, 2) common domain autocomplete suggestion (which
+ * the user can ignore), and 3) existing email address check.
  *
  * Prior to sending the email domain to the server side, it is checked against
  * a list of known top domains. If the domain is found in the list, then the
  * process is skipped.
  *
- * (Aside: mailcheck, and the forthcoming domain auto-complete suggestion
- * feature, will help with the step above. Hopefully domain resoultion based
- * validation will be kept to the very minimum.)
+ * (Aside: the auto-complete suggestion feature should help with the step above.
+ * Hopefully domain resolution based validation will be kept to the very minimum.)
  *
  * There are three possible validation results: 'MX', 'A', and 'none'.
  *  - 'MX': MX record exists, proceed

@@ -386,22 +386,6 @@ describe('views/index', () => {
     });
   });
 
-  describe('_isCommonDomainMistake', () => {
-    beforeEach(() => {
-      return view.render();
-    });
-
-    it('returns `true` if email domain is a common mistake', () => {
-      view.$('input[type=email]').val('testuser@gnail.com');
-      assert.isTrue(view._isCommonDomainMistake());
-    });
-
-    it('returns `false` if email domain is not a common mistake', () => {
-      view.$('input[type=email]').val('testuser@gmail.com');
-      assert.isFalse(view._isCommonDomainMistake());
-    });
-  });
-
   function renderTestEnterEmailDisplayed(view, expectedServiceName) {
     sinon.spy(view, 'logFlowEventOnce');
     sinon.stub(view, 'chooseEmailActionPage');
