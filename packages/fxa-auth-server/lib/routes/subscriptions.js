@@ -408,14 +408,13 @@ class DirectStripeRoutes {
   async listPlans(request) {
     this.log.begin('subscriptions.listPlans', request);
     await handleAuth(this.db, request.auth);
-    const plans = await this.stripeHelper.allPlans();
-    return plans;
+    return this.stripeHelper.allPlans();
   }
 
   async listActive(request) {
     this.log.begin('subscriptions.listActive', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer(uid, email, false, true);
     const activeSubscriptions = [];
 
     if (customer && customer.subscriptions) {
@@ -641,7 +640,7 @@ class DirectStripeRoutes {
     this.log.begin('subscriptions.getSubscriptions', request);
 
     const { uid, email } = await this.getUidEmail(request);
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer(uid, email, false, true);
 
     // A FxA user isn't always a customer.
     if (!customer) {
