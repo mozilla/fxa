@@ -209,12 +209,18 @@ describe('support', () => {
         const zendeskReq = spy.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
-          `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
+          `${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
           zendeskReq.custom_fields.map(field => field.value),
-          ['FxA - 123done Pro', 'Mountain View', 'California', 'United States']
+          [
+            'FxA - 123done Pro',
+            requestOptions.payload.topic,
+            'Mountain View',
+            'California',
+            'United States',
+          ]
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();
@@ -252,12 +258,18 @@ describe('support', () => {
         const zendeskReq = spy.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
-          `${requestOptions.payload.topic} for ${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
+          `${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
           zendeskReq.custom_fields.map(field => field.value),
-          ['FxA - 123done Pro', 'Mountain View', 'California', 'United States']
+          [
+            'FxA - 123done Pro',
+            requestOptions.payload.topic,
+            'Mountain View',
+            'California',
+            'United States',
+          ]
         );
         assert.deepEqual(res, { success: true, ticket: 91 });
         nock.isDone();

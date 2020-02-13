@@ -1573,6 +1573,12 @@ const conf = convict({
       env: 'ZENDESK_LOCATION_COUNTRY_FIELD_ID',
       format: String,
     },
+    topicFieldId: {
+      doc: 'Zendesk support ticket custom field for topic',
+      default: '360028484432',
+      env: 'ZENDESK_TOPIC_FIELD_ID',
+      format: String,
+    },
   },
   otp: {
     step: {

@@ -68,7 +68,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         const { uid, email } = await handleAuth(request.auth, true);
         const { location } = request.app.geo;
         await customs.check(request, email, 'supportRequest');
-        let subject = `${request.payload.topic} for ${request.payload.plan}`;
+        let subject = `${request.payload.plan}`;
         if (request.payload.subject) {
           subject = subject.concat(': ', request.payload.subject);
         }
@@ -77,6 +77,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           locationCityFieldId,
           locationStateFieldId,
           locationCountryFieldId,
+          topicFieldId,
         } = config.zendesk;
 
         const zendeskReq = {
@@ -88,6 +89,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           },
           custom_fields: [
             { id: productNameFieldId, value: request.payload.productName },
+            { id: topicFieldId, value: request.payload.topic },
             { id: locationCityFieldId, value: location.city },
             { id: locationStateFieldId, value: location.state },
             { id: locationCountryFieldId, value: location.country },
