@@ -319,7 +319,7 @@ workflows:
           module: fxa-auth-server
           db: true
           test: test-ci
-          upload_coverage: true
+          upload_coverage: false
           requires:
             - install
       - build-module:
@@ -342,7 +342,7 @@ workflows:
       - build-module:
           name: fxa-profile-server
           module: fxa-profile-server
-          upload_coverage: true
+          upload_coverage: false
           requires:
             - install
       - build-module:
