@@ -1,23 +1,30 @@
 # Change history
 
+## 1.158.0
+
+### Bug fixes
+
+- deps: Ignore hoek nsp warning https://npmjs.com/advisories/1468 ([6c0edfa9c](https://github.com/mozilla/fxa/commit/6c0edfa9c))
+- payments: ensure correct 'try again' message used for card_declined error ([26224fe8a](https://github.com/mozilla/fxa/commit/26224fe8a))
+
 ## 1.157.0
 
 ### Bug fixes
 
-* payments: Add dollar signs to prices on product subscription page ([030909311](https://github.com/mozilla/fxa/commit/030909311))
-* payments: ensure correct product name used in reactivation confirm dialog ([8058b26d2](https://github.com/mozilla/fxa/commit/8058b26d2))
-* viewport: Update viewport metatag to include minimum-scale, and make value consistent across all instances ([fb3afee23](https://github.com/mozilla/fxa/commit/fb3afee23))
+- payments: Add dollar signs to prices on product subscription page ([030909311](https://github.com/mozilla/fxa/commit/030909311))
+- payments: ensure correct product name used in reactivation confirm dialog ([8058b26d2](https://github.com/mozilla/fxa/commit/8058b26d2))
+- viewport: Update viewport metatag to include minimum-scale, and make value consistent across all instances ([fb3afee23](https://github.com/mozilla/fxa/commit/fb3afee23))
 
 ### Other changes
 
-* payments: add mention of local storybook to payments README ([5df839766](https://github.com/mozilla/fxa/commit/5df839766))
+- payments: add mention of local storybook to payments README ([5df839766](https://github.com/mozilla/fxa/commit/5df839766))
 
 ## 1.156.0
 
 ### Bug fixes
 
-* payments: filter non-numeric characters out of zip code field (cf04681ca)
-* payments: ensure correct month used in credit card expiration (1bdec7965)
+- payments: filter non-numeric characters out of zip code field (cf04681ca)
+- payments: ensure correct month used in credit card expiration (1bdec7965)
 
 ## 1.155.0
 

@@ -1,28 +1,56 @@
+## 1.158.0
+
+### New features
+
+- keys: Add ability to enable/disable recovery key ([dba5ee65d](https://github.com/mozilla/fxa/commit/dba5ee65d))
+- auth-server: support topic as custom fld ([2f0e748b5](https://github.com/mozilla/fxa/commit/2f0e748b5))
+- auth-server: add stripe metric timings ([bc80ac9f6](https://github.com/mozilla/fxa/commit/bc80ac9f6))
+- coverage: Add coveralls coverage ([932b70c3c](https://github.com/mozilla/fxa/commit/932b70c3c))
+- payments: script to populate redis cache with Stripe customers ([f7d1a1f27](https://github.com/mozilla/fxa/commit/f7d1a1f27))
+
+### Bug fixes
+
+- auth-server: use cached customer only ([8b9eee1fd](https://github.com/mozilla/fxa/commit/8b9eee1fd))
+- payments: fix subscription create route with missing awaits ([3a39a7a29](https://github.com/mozilla/fxa/commit/3a39a7a29))
+- subscriptions: return an empty list when FxA user is not a customer ([4d4c40ba7](https://github.com/mozilla/fxa/commit/4d4c40ba7))
+- auth-server: handle stripe webhooks correctly ([c50f6dec9](https://github.com/mozilla/fxa/commit/c50f6dec9))
+- deps: Ignore hoek nsp warning https://npmjs.com/advisories/1468 ([6c0edfa9c](https://github.com/mozilla/fxa/commit/6c0edfa9c))
+- payments: use separate long-term TTL for Stripe customer cache ([b43e317f1](https://github.com/mozilla/fxa/commit/b43e317f1))
+- auth-server: use cached stripe customer ([170b4abd9](https://github.com/mozilla/fxa/commit/170b4abd9))
+- payments: refresh cached customer data rather than delete ([f7e97cf8f](https://github.com/mozilla/fxa/commit/f7e97cf8f))
+- auth-server: use tags for paths/method ([1dfc9aaa7](https://github.com/mozilla/fxa/commit/1dfc9aaa7))
+
+### Other changes
+
+- mem: Remove auth server db memory database ([2fa9dce43](https://github.com/mozilla/fxa/commit/2fa9dce43))
+- subscription routes: e45509d02 test(subscription routes) - add tests for direct stripe integration ([e45509d02](https://github.com/mozilla/fxa/commit/e45509d02))
+- deps: Update hoek where we use it directly ([ee998b304](https://github.com/mozilla/fxa/commit/ee998b304))
+
 ## 1.157.0
 
 ### New features
 
-* logging: Log details of the grant when generating OAuth tokens. ([3dc7fff5a](https://github.com/mozilla/fxa/commit/3dc7fff5a))
-* auth-server: add hapi route metric timings ([a530f3a17](https://github.com/mozilla/fxa/commit/a530f3a17))
+- logging: Log details of the grant when generating OAuth tokens. ([3dc7fff5a](https://github.com/mozilla/fxa/commit/3dc7fff5a))
+- auth-server: add hapi route metric timings ([a530f3a17](https://github.com/mozilla/fxa/commit/a530f3a17))
 
 ### Bug fixes
 
-* auth-server: screen profile stripe subs ([686c38eb2](https://github.com/mozilla/fxa/commit/686c38eb2))
-* auth-server: handle incomplete subscription ([1d294ef81](https://github.com/mozilla/fxa/commit/1d294ef81))
-* auth-server: Return expected 'plan_name' for subscriptions based on subhub implementation ([ec9a287e0](https://github.com/mozilla/fxa/commit/ec9a287e0))
-* auth-server: pass missing zen/stripe args ([51470ae36](https://github.com/mozilla/fxa/commit/51470ae36))
-* subscriptions: wrap payment token failures in expected error class ([e6f2ea9ec](https://github.com/mozilla/fxa/commit/e6f2ea9ec))
-* codes: Verify session first then send push notifications ([7ce324833](https://github.com/mozilla/fxa/commit/7ce324833))
+- auth-server: screen profile stripe subs ([686c38eb2](https://github.com/mozilla/fxa/commit/686c38eb2))
+- auth-server: handle incomplete subscription ([1d294ef81](https://github.com/mozilla/fxa/commit/1d294ef81))
+- auth-server: Return expected 'plan_name' for subscriptions based on subhub implementation ([ec9a287e0](https://github.com/mozilla/fxa/commit/ec9a287e0))
+- auth-server: pass missing zen/stripe args ([51470ae36](https://github.com/mozilla/fxa/commit/51470ae36))
+- subscriptions: wrap payment token failures in expected error class ([e6f2ea9ec](https://github.com/mozilla/fxa/commit/e6f2ea9ec))
+- codes: Verify session first then send push notifications ([7ce324833](https://github.com/mozilla/fxa/commit/7ce324833))
 
 ## 1.156.0
 
 ### Bug fixes
 
-* subscriptions: ensure direct stripe code includes all parameters for download email (77fac7ad1)
+- subscriptions: ensure direct stripe code includes all parameters for download email (77fac7ad1)
 
 ### Other changes
 
-* subscriptions: code clarity tweak for determining subscriptions (0adcb91d6)
+- subscriptions: code clarity tweak for determining subscriptions (0adcb91d6)
 
 ## 1.155.0
 
