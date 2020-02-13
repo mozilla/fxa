@@ -1,3 +1,14 @@
+## 1.158.0
+
+### New features
+
+- keys: Add ability to enable/disable recovery key ([dba5ee65d](https://github.com/mozilla/fxa/commit/dba5ee65d))
+- coverage: Add coveralls coverage ([932b70c3c](https://github.com/mozilla/fxa/commit/932b70c3c))
+
+### Other changes
+
+- mem: Remove auth server db memory database ([2fa9dce43](https://github.com/mozilla/fxa/commit/2fa9dce43))
+
 ## 1.157.0
 
 No changes.
