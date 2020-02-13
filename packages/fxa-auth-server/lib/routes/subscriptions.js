@@ -642,8 +642,10 @@ class DirectStripeRoutes {
 
     const { uid, email } = await this.getUidEmail(request);
     const customer = await this.stripeHelper.customer(uid, email);
+
+    // A FxA user isn't always a customer.
     if (!customer) {
-      throw error.unknownCustomer(uid);
+      return [];
     }
 
     const response = await this.stripeHelper.subscriptionsToResponse(
