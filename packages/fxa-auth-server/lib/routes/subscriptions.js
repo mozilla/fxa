@@ -104,7 +104,7 @@ class DirectStripeRoutes {
     let subscription;
 
     if (!customer) {
-      subscription = this.createSubscriptionNewCustomer(
+      subscription = await this.createSubscriptionNewCustomer(
         uid,
         email,
         displayName,
@@ -112,7 +112,7 @@ class DirectStripeRoutes {
         selectedPlan
       );
     } else {
-      subscription = this.createSubscriptionExistingCustomer(
+      subscription = await this.createSubscriptionExistingCustomer(
         customer,
         paymentToken,
         selectedPlan
