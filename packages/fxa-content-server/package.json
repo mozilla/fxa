@@ -136,7 +136,7 @@
         "css": "2.2.3",
         "eslint": "6.6.0",
         "eslint-plugin-fxa": "2.0.1",
-        "firefox-profile": "1.2.0",
+        "firefox-profile": "1.3.0",
         "grunt-ban-word": "0.1.1",
         "grunt-copyright": "0.3.0",
         "grunt-htmllint": "0.3.0",
