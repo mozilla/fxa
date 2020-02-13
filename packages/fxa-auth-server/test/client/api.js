@@ -1044,12 +1044,14 @@ module.exports = config => {
   ClientApi.prototype.createRecoveryKey = function(
     sessionTokenHex,
     recoveryKeyId,
-    recoveryData
+    recoveryData,
+    enabled = true
   ) {
     return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
       return this.doRequest('POST', `${this.baseURL}/recoveryKey`, token, {
         recoveryKeyId,
         recoveryData,
+        enabled,
       });
     });
   };

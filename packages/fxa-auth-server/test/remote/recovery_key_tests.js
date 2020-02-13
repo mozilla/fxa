@@ -220,7 +220,7 @@ describe('remote recovery keys', function() {
 
   describe('check recovery key status', () => {
     describe('with sessionToken', () => {
-      it('should return true if recovery key exists', () => {
+      it('should return true if recovery key exists and enabled', () => {
         return client.getRecoveryKeyExists().then(res => {
           assert.equal(res.exists, true, 'recovery key exists');
         });
@@ -242,6 +242,30 @@ describe('remote recovery keys', function() {
           .then(res => {
             assert.equal(res.exists, false, 'recovery key doesnt exists');
           });
+      });
+
+      it('should return false if recovery key exist but not enabled', async () => {
+        const email2 = server.uniqueEmail();
+        const client2 = await Client.createAndVerify(
+          config.publicUrl,
+          email2,
+          password,
+          server.mailbox,
+          { keys: true }
+        );
+        const recoveryKeyMock = await createMockRecoveryKey(
+          client2.uid,
+          keys.kB
+        );
+        let res = await client2.createRecoveryKey(
+          recoveryKeyMock.recoveryKeyId,
+          recoveryKeyMock.recoveryData,
+          false
+        );
+        assert.deepEqual(res, {});
+
+        res = await client2.getRecoveryKeyExists();
+        assert.equal(res.exists, false, 'recovery key doesnt exists');
       });
     });
 

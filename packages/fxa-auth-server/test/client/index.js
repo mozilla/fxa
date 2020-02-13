@@ -661,11 +661,16 @@ module.exports = config => {
     return this.api.consumeRecoveryCode(this.sessionToken, code, options);
   };
 
-  Client.prototype.createRecoveryKey = function(recoveryKeyId, recoveryData) {
+  Client.prototype.createRecoveryKey = function(
+    recoveryKeyId,
+    recoveryData,
+    enabled = true
+  ) {
     return this.api.createRecoveryKey(
       this.sessionToken,
       recoveryKeyId,
-      recoveryData
+      recoveryData,
+      enabled
     );
   };
 

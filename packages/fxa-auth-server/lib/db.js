@@ -1335,7 +1335,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   DB.prototype.createRecoveryKey = async function(
     uid,
     recoveryKeyId,
-    recoveryData
+    recoveryData,
+    enabled
   ) {
     log.trace('DB.createRecoveryKey', { uid });
 
@@ -1343,7 +1344,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       return await this.pool.post(
         SAFE_URLS.createRecoveryKey,
         { uid },
-        { recoveryKeyId, recoveryData }
+        { recoveryKeyId, recoveryData, enabled }
       );
     } catch (err) {
       if (isRecordAlreadyExistsError(err)) {
@@ -1395,6 +1396,20 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     log.trace('DB.deleteRecoveryKey', { uid });
 
     return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid });
+  };
+
+  SAFE_URLS.updateRecoveryKey = new SafeUrl(
+    '/account/:uid/recoveryKey/update',
+    'db.updateRecoveryKey'
+  );
+  DB.prototype.updateRecoveryKey = async function(uid, recoveryKeyId, enabled) {
+    log.trace('DB.updateRecoveryKey', { uid });
+
+    return this.pool.post(SAFE_URLS.updateRecoveryKey, {
+      uid,
+      recoveryKeyId,
+      enabled,
+    });
   };
 
   SAFE_URLS.createAccountSubscription = new SafeUrl(
