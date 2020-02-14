@@ -17,6 +17,7 @@ import './index.scss';
 
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
+import PlanDetails from '../../components/PlanDetails';
 
 import SubscriptionRedirect from './SubscriptionRedirect';
 import SubscriptionCreate from './SubscriptionCreate';
@@ -172,17 +173,26 @@ export const Product = ({
   }
 
   return (
-    <SubscriptionCreate
-      {...{
-        profile: profile.result,
-        accountActivated,
-        selectedPlan,
-        createSubscriptionAndRefresh,
-        createSubscriptionStatus,
-        resetCreateSubscription,
-        validatorInitialState,
-      }}
-    />
+    <>
+      {/* <SubscriptionCreate
+        {...{
+          profile: profile.result,
+          accountActivated,
+          selectedPlan,
+          createSubscriptionAndRefresh,
+          createSubscriptionStatus,
+          resetCreateSubscription,
+          validatorInitialState,
+        }}
+      /> */}
+
+      <PlanDetails
+        {...{
+          profile: profile.result,
+          plan: selectedPlan,
+          showExpandButton: true,
+        }} />
+    </>
   );
 };
 

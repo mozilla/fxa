@@ -1,0 +1,122 @@
+@import '../../../../fxa-content-server/app/styles/variables';
+
+.plan-details-component {
+  background: $color-white;
+  border-radius: 8px;
+  box-shadow: $card-box-high;
+  font-size: 15px;
+  margin: 0 auto;
+  padding: 20px 20px 0;
+  width: 342px;
+
+  .plan-details-header-wrap {
+    display: flex;
+  }
+
+  .plan-details-heading-wrap {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    text-align: left;
+
+    .plan-details-product {
+      color: $grey-80;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 19px;
+      margin: 0;
+      word-wrap: break-word;
+    }
+
+    .plan-details-description {
+      color: $grey-80;
+      margin-top: 4px;
+    }
+  }
+
+  .plan-details-header {
+    border-bottom: 1px solid $grey-30;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0;
+    padding-bottom: 20px;
+  }
+
+  .plan-details-header p {
+    margin: 0;
+  }
+
+  .plan-details-header img {
+    display: block;
+    height: 64px;
+    width: 64px;
+  }
+
+  .plan-details-list {
+    border-bottom: 1px solid $grey-30;
+    color: rgba(12, 12, 13, 0.8);
+    margin-top: 10px;
+    text-align: left;
+
+    h4 {
+      margin: 16px 0;
+    }
+
+    ul {
+      color: $grey-50;
+      margin: 0;
+      padding-left: 15px;
+    }
+
+    li {
+      margin-bottom: 16px;
+
+      ::marker {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .btn {
+    background: none;
+    border: 0;
+    color: $blue-60;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: normal;
+    height: unset;
+    line-height: 22px;
+    margin: 15px 0;
+    outline: none;
+    padding: 0;
+    position: relative;
+    width: unset;
+  }
+
+  .up-arrow::before {
+    content: '‹';
+    display: inline-block;
+    font-size: 30px;
+    left: -15px;
+    position: absolute;
+    transform: rotate(90deg);
+  }
+
+  .down-arrow::before {
+    content: '›';
+    display: inline-block;
+    font-size: 30px;
+    left: -15px;
+    position: absolute;
+    transform: rotate(90deg);
+  }
+
+  .up-chevron {
+    transform: rotate(-90deg);
+  }
+
+  .down-chevron {
+    transform: rotate(90deg);
+  }
+}
