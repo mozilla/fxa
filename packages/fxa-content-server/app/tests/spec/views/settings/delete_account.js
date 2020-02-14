@@ -310,6 +310,29 @@ describe('views/settings/delete_account', function() {
           });
       });
 
+      it('renders only one link if the user has more than one subscription', () => {
+        activeSubscriptions = [
+          {
+            plan_id: '321doneProMonthly',
+            plan_name: '321done Pro Monthly',
+            status: 'active',
+          },
+          {
+            plan_id: '321doneProYearly',
+            plan_name: '321done Pro Yearly',
+            status: 'active',
+          },
+        ];
+
+        return view
+          .render()
+          .then(() => view.openPanel())
+          .then(() => {
+            assert.lengthOf(view.$('.delete-account-product-subscription'), 2);
+            assert.lengthOf(view.$('.subscription-link'), 1);
+          });
+      });
+
       it('does not render if user does not have any subscriptions', () => {
         activeSubscriptions = [];
 
