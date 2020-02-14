@@ -4,6 +4,7 @@
 
 import FormView from '../form';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from '../mixins/flow-events-mixin';
 import Template from '../../templates/pair/index.mustache';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
@@ -52,6 +53,7 @@ class PairIndexView extends FormView {
 
 Cocktail.mixin(
   PairIndexView,
+  FlowEventsMixin,
   PairingGraphicsMixin,
   PairingTotpMixin(),
   UserAgentMixin,
