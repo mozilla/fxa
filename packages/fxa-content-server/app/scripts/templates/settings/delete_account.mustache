@@ -12,11 +12,11 @@
 
   <div class="settings-unit-details">
     <div class="error"></div>
-    {{#subscriptions}}
+    {{#subscriptions.0}}
       <p class="subscription-link">
         {{#unsafeTranslate}}Looking to cancel a paid subscription? Go to <a href="/subscriptions">Manage Subscriptions</a>.{{/unsafeTranslate}}
       </p>
-    {{/subscriptions}}
+    {{/subscriptions.0}}
 
     <div class="delete-account-product-container {{#hideProductContainer}}hide{{/hideProductContainer}}">
       <p>{{#t}}You've connected your Firefox account to Mozilla products that keep you secure and productive on the web:{{/t}}</p>
