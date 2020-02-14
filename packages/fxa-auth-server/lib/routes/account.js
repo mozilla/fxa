@@ -39,6 +39,7 @@ module.exports = (
   push,
   verificationReminders,
   oauth,
+  /** @type {import('../payments/stripe').StripeHelper} */
   stripeHelper
 ) => {
   const tokenCodeConfig = config.signinConfirmation.tokenVerificationCode;
@@ -1393,7 +1394,9 @@ module.exports = (
                 emailRecord.email
               );
               if (customer) {
-                await stripeHelper.stripe.customers.del(customer.id);
+                await stripeHelper.stripe.customers.update(customer.id, {
+                  metadata: { delete: 'true' },
+                });
               }
             } else {
               await subhub.deleteCustomer(uid);
