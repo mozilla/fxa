@@ -1,8 +1,7 @@
 // Breakpoint management
 // http://www.sitepoint.com/managing-responsive-breakpoints-sass/
-$breakpoints: (
-  small:
-    '(max-width: 520px), (orientation: landscape) and (max-width: 640px)',
+$media-queries: (
+  small: '(max-width: 520px), (orientation: landscape) and (max-width: 640px)',
   big: '(min-width: 521px), (orientation: landscape) and (min-width: 641px)',
   balloonSmall: '(max-width: 959px)',
   balloonBig: '(min-width: 960px)',
@@ -12,12 +11,52 @@ $breakpoints: (
 );
 
 @mixin respond-to($breakpoint) {
-  @if map-has-key($breakpoints, $breakpoint) {
-    @media #{map-get($breakpoints, $breakpoint)} {
+  @include breakpoint-error-check($breakpoint, $media-queries) {
+    @media #{map-get($media-queries, $breakpoint)} {
       @content;
     }
+  }
+}
+
+// NOTE: We will replace the `media-queries` map and `respond-to` mixin
+// with the `breakpoints` map, `min-width` mixin, and `max-width`
+// mixin. Once this is complete we can remove the former pair.
+// TODO: add example outputs to our documentation
+$breakpoints: (
+  mobileLandscape: 480,
+  tablet: 768,
+  desktop: 1024,
+  desktopXl: 1441
+);
+
+@mixin breakpoint-error-check($breakpoint, $map: $breakpoints) {
+  @if map-has-key($map, $breakpoint) {
+    @content;
   } @else {
-    @warn 'Unfortunately, no value could be retrieved from `#{$breakpoint}`. '
-    + 'Please make sure it is defined in `$breakpoints` map.';
+    @error 'Unfortunately, no value could be retrieved from `#{$breakpoint}`. Ensure it is defined in the map: `#{$map}`';
+  }
+}
+
+@mixin min-width($breakpoint) {
+  @include breakpoint-error-check($breakpoint) {
+    @if $breakpoint == 'tablet' {
+      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) and (min-height: (#{map-get($breakpoints, 'mobileLandscape') + 1px})) {
+        @content;
+      }
+    } @else {
+      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) {
+        @content;
+      }
+    }
+  }
+}
+
+// This mixin should be used sparingly.
+// Favor the mobile-first `min-width` query.
+@mixin max-width($breakpoint) {
+  @include breakpoint-error-check($breakpoint) {
+    @media (max-width: #{map-get($breakpoints, $breakpoint) - 1px}) {
+      @content;
+    }
   }
 }
