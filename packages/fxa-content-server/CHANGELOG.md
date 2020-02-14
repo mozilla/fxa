@@ -1,3 +1,9 @@
+## 1.158.1
+
+### Bug fixes
+
+- show-password: Modify the show-password SVG reference \* Our image references receive a hash via grunt on stage/prod. Since this icon must be in an img tag and not set as a background-image, this commit changes the reference from a hard path to an inlined base64 URI. ([eaaf99b20](https://github.com/mozilla/fxa/commit/eaaf99b20))
+
 ## 1.158.0
 
 ### Bug fixes
