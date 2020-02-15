@@ -1,3 +1,9 @@
+## 1.158.1
+
+### Bug fixes
+
+- auth-server: don't delete the stripe customer ([a9905480e](https://github.com/mozilla/fxa/commit/a9905480e))
+
 ## 1.158.0
 
 ### New features
