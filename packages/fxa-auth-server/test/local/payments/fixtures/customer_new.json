@@ -9,7 +9,7 @@
     "delinquent": false,
     "description": "testuid",
     "discount": null,
-    "email": "mcotetiu+sub11@mozilla.com",
+    "email": "jane@example.com",
     "invoice_prefix": "6A11CA66",
     "invoice_settings": {
       "custom_fields": null,
