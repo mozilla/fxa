@@ -62,11 +62,20 @@ button {
     border: 0;
     color: $message-text-color;
 
-    &:hover:enabled {
-      background: darken($error-background-color, 5);
+    &:disabled,
+    &:enabled {
+      background: $error-background-color;
+    }
 
-      &:active {
+    // 'type' is needed for selector specificity
+    &[type="submit"] {
+      &:active:enabled,
+      &:active:enabled:hover {
         background: darken($error-background-color, 10);
+      }
+
+      &:hover:enabled {
+        background: darken($error-background-color, 5);
       }
     }
   }
