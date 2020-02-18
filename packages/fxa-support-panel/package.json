@@ -31,7 +31,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@hapi/hapi": "^18.4.0",
+    "@hapi/hapi": "^18.4.1",
     "@hapi/scooter": "^5.1.1",
     "blankie": "^4.1.1",
     "convict": "^5.2.0",
