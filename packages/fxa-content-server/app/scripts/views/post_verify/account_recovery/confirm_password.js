@@ -10,6 +10,7 @@
 import _, { assign } from 'underscore';
 import Cocktail from 'cocktail';
 import FormView from '../../form';
+import PasswordMixin from '../..//mixins/password-mixin';
 import ServiceMixin from '../..//mixins/service-mixin';
 import Template from 'templates/post_verify/account_recovery/confirm_password.mustache';
 import AuthErrors from '../../../lib/auth-errors';
@@ -74,6 +75,6 @@ class ConfirmPassword extends FormView {
   }
 }
 
-Cocktail.mixin(ConfirmPassword, ServiceMixin);
+Cocktail.mixin(ConfirmPassword, PasswordMixin, ServiceMixin);
 
 export default ConfirmPassword;
