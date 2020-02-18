@@ -195,6 +195,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
 
     return channel
       .request(channel.COMMANDS.FXA_STATUS, {
+        context: this.relier.get('context'),
         isPairing,
         service: this.relier.get('service'),
       })

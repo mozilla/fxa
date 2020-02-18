@@ -98,7 +98,11 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     return broker.fetch().then(() => {
       const statusMsg = channelMock.request.getCall(0).args;
       assert.equal(statusMsg[0], OAUTH_STATUS_MESSAGE);
-      assert.deepEqual(statusMsg[1], { isPairing: false, service: 'service' });
+      assert.deepEqual(statusMsg[1], {
+        isPairing: false,
+        service: 'service',
+        context: null,
+      });
     });
   });
 
