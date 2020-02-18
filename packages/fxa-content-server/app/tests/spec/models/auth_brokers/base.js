@@ -144,6 +144,32 @@ describe('models/auth_brokers/base', function() {
         });
       });
 
+      it('sets `context` and `service` from the relier', () => {
+        const service = 'foo';
+        const context = 'fx_desktop_v3';
+
+        const response = {
+          engines: ['creditcards'],
+        };
+        relier.set('service', service);
+        relier.set('context', context);
+
+        sinon
+          .stub(notificationChannel, 'request')
+          .callsFake((request, details) => {
+            assert.equal(request, 'fxaccounts:fxa_status');
+            assert.equal(details.context, context);
+            assert.equal(details.service, service);
+
+            return Promise.resolve(response);
+          });
+        sinon.spy(broker, 'trigger');
+
+        return broker._fetchFxaStatus().then(() => {
+          assert.isTrue(broker.trigger.calledWith('fxa_status', response));
+        });
+      });
+
       it('`fxa_status` reports isPairing for pairing urls', () => {
         windowMock.location.pathname = '/pair';
         sinon
