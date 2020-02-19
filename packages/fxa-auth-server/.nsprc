@@ -1,8 +1,16 @@
 {
   "comment_766": "766 is sandbox breakout in sandbox.",
   "comment_1168": "Exception added for 'subtext' vulnerability in hapi 17, fixed in hapi 18 branch. See https://github.com/mozilla/fxa/issues/2601",
+  "comment_1472": "Denial of Service vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
+  "comment_1478": "Denial of Service vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
+  "comment_1479": "Prototype Pollution vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
+  "comment_1481": "Denial of Service vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
   "exceptions": [
     "https://npmjs.com/advisories/766",
-    "https://npmjs.com/advisories/1168"
+    "https://npmjs.com/advisories/1168",
+    "https://npmjs.com/advisories/1472",
+    "https://npmjs.com/advisories/1478",
+    "https://npmjs.com/advisories/1479",
+    "https://npmjs.com/advisories/1481"
   ]
 }
