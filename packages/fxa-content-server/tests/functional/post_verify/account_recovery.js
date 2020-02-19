@@ -53,83 +53,75 @@ registerSuite('post_verify_account_recovery', {
 
   tests: {
     'create account recovery': function() {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-          .then(
-            openPage(
-              ACCOUNT_RECOVERY_URL,
-              selectors.POST_VERIFY_ADD_RECOVERY_KEY.HEADER
-            )
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(
+          openPage(
+            ACCOUNT_RECOVERY_URL,
+            selectors.POST_VERIFY_ADD_RECOVERY_KEY.HEADER
           )
-          .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.SUBMIT))
-          .then(
-            testElementExists(selectors.POST_VERIFY_CONFIRM_PASSWORD.HEADER)
-          )
+        )
+        .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.SUBMIT))
+        .then(testElementExists(selectors.POST_VERIFY_CONFIRM_PASSWORD.HEADER))
 
-          // TODO: This is failing in CI but passing locally. I'll try to debug
-          // in upcoming sprint.
-          // .then(
-          //   type(
-          //     selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD,
-          //     'invalidPassword'
-          //   )
-          // )
-          // .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
-          // .then(
-          //   testElementTextInclude(
-          //     selectors.POST_VERIFY_CONFIRM_PASSWORD.TOOLTIP,
-          //     'incorrect password'
-          //   )
-          // )
-          .then(type(selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD, PASSWORD))
-          .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
-          .then(
-            testElementExists(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.HEADER)
+        .then(
+          type(
+            selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD,
+            'invalidPassword'
           )
-          .then(
-            testElementTextNotEmpty(
-              selectors.POST_VERIFY_SAVE_RECOVERY_KEY.RECOVERY_KEY
+        )
+        .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
+        .then(
+          testElementTextInclude(
+            selectors.POST_VERIFY_CONFIRM_PASSWORD.TOOLTIP,
+            'incorrect password'
+          )
+        )
+        .then(type(selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD, PASSWORD))
+        .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
+        .then(testElementExists(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.HEADER))
+        .then(
+          testElementTextNotEmpty(
+            selectors.POST_VERIFY_SAVE_RECOVERY_KEY.RECOVERY_KEY
+          )
+        )
+        .then(getRecoveryKey())
+        .then(() => {
+          return this.remote
+            .then(click(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.DONE))
+            .then(
+              testElementExists(
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.HEADER
+              )
             )
-          )
-          .then(getRecoveryKey())
-          .then(() => {
-            return this.remote
-              .then(click(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.DONE))
-              .then(
-                testElementExists(
-                  selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.HEADER
-                )
+            .then(
+              type(
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.RECOVERY_KEY,
+                'INVALIDKEY'
               )
-              .then(
-                type(
-                  selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.RECOVERY_KEY,
-                  'INVALIDKEY'
-                )
+            )
+            .then(click(selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT))
+            .then(
+              testElementTextInclude(
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP,
+                'Invalid recovery key'
               )
-              .then(click(selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT))
-              .then(
-                testElementTextInclude(
-                  selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP,
-                  'Invalid recovery key'
-                )
+            )
+            .then(
+              type(
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.RECOVERY_KEY,
+                recoveryKey
               )
-              .then(
-                type(
-                  selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.RECOVERY_KEY,
-                  recoveryKey
-                )
+            )
+            .then(click(selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT))
+            .then(
+              testElementExists(
+                selectors.POST_VERIFY_RECOVERY_KEY_VERIFIED.HEADER
               )
-              .then(click(selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT))
-              .then(
-                testElementExists(
-                  selectors.POST_VERIFY_RECOVERY_KEY_VERIFIED.HEADER
-                )
-              );
-          })
-      );
+            );
+        });
     },
   },
 });
