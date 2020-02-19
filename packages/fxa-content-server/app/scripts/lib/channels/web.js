@@ -60,6 +60,7 @@ _.extend(WebChannel.prototype, new DuplexChannel(), {
   initialize(options = {}) {
     const win = (this.window = options.window || window);
     const webChannelId = this._id;
+    this.isOAuthWebChannel = options.isOAuthWebChannel;
 
     var sender = (this._sender = new WebChannelSender());
     sender.initialize({
@@ -101,7 +102,11 @@ _.extend(WebChannel.prototype, new DuplexChannel(), {
 
     // Browser does not support WebChannels sent on this channel,
     // or from this domain.
-    if (/no such channel/i.test(errorMessage)) {
+    // In addition: There's a hacky workaround to make sure the OAuthWebChannel
+    // is not disabled if we use it in GeckoView + Android WebChannel component
+    // In the cases where it is the OAuthWebchannel we let the requests time out
+    // See details in https://github.com/mozilla/application-services/issues/2650
+    if (/no such channel/i.test(errorMessage) && !this.isOAuthWebChannel) {
       // Since the channel is not supported, reject all outstanding
       // requests to avoid hanging until the requests time out.
       this.rejectAllOutstandingRequests(

@@ -204,6 +204,25 @@ describe('lib/channels/web', () => {
       });
     });
 
+    describe('OAuth WebChannel', () => {
+      it('does not reject outstanding requests for the OAuth WebChannel', () => {
+        channel = new WebChannel('MyChannel');
+        channel.initialize({
+          window: windowMock,
+          isOAuthWebChannel: true,
+        });
+        sandbox
+          .stub(channel, 'rejectAllOutstandingRequests')
+          .callsFake(() => {});
+
+        const webChannelError = {
+          error: new Error('No Such Channel'),
+        };
+        channel.onErrorReceived(webChannelError);
+        assert.isFalse(channel.rejectAllOutstandingRequests.called);
+      });
+    });
+
     describe('with another WebChannel error', () => {
       it('delegates ot the parent method', () => {
         const webChannelError = {
