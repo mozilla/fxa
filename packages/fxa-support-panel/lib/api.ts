@@ -145,7 +145,9 @@ class SupportController {
     try {
       subscriptions = await requests.get({
         ...authServerRequestOptions,
-        url: `${this.config.authServer.url}${this.config.authServer.subscriptionsSearchPath}?uid=${uid}&email=${account.email}`,
+        url: `${this.config.authServer.url}${
+          this.config.authServer.subscriptionsSearchPath
+        }?uid=${uid}&email=${encodeURIComponent(account.email)}`,
       });
     } catch (err) {
       this.logger.error('subscriptionsFetch', { err });
