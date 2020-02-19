@@ -8,6 +8,7 @@ const sinon = require('sinon');
 const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
+const stripeError = require('stripe').Stripe.errors;
 
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -16,6 +17,7 @@ const StripeHelper = proxyquire('../../../lib/payments/stripe', {
 });
 
 const customer1 = require('./fixtures/customer1.json');
+const newCustomer = require('./fixtures/customer_new.json');
 const plan1 = require('./fixtures/plan1.json');
 const plan2 = require('./fixtures/plan2.json');
 const plan3 = require('./fixtures/plan3.json');
@@ -106,10 +108,12 @@ describe('StripeHelper', () => {
   /** @type sinon.SinonSandbox */
   let sandbox;
 
+  let log;
+
   beforeEach(() => {
     sandbox = sinon.createSandbox();
     mockRedis = createMockRedis();
-    const log = mockLog();
+    log = mockLog();
     stripeHelper = new StripeHelper(log, mockConfig);
     sandbox
       .stub(stripeHelper.stripe.plans, 'list')
@@ -123,37 +127,110 @@ describe('StripeHelper', () => {
     sandbox.restore();
   });
 
-  it('pulls a list of plans and caches it', async () => {
-    assert.lengthOf(await stripeHelper.allPlans(), 3);
-    assert(mockRedis.get.calledOnce);
+  describe('allPlans', () => {
+    it('pulls a list of plans and caches it', async () => {
+      assert.lengthOf(await stripeHelper.allPlans(), 3);
+      assert(mockRedis.get.calledOnce);
 
-    assert.lengthOf(await stripeHelper.allPlans(), 3);
-    assert(mockRedis.get.calledTwice);
-    assert(mockRedis.set.calledOnce);
-    assert(stripeHelper.stripe.plans.list.calledOnce);
+      assert.lengthOf(await stripeHelper.allPlans(), 3);
+      assert(mockRedis.get.calledTwice);
+      assert(mockRedis.set.calledOnce);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
 
-    assert.deepEqual(
-      await stripeHelper.allPlans(),
-      JSON.parse(await mockRedis.get('listPlans'))
-    );
+      assert.deepEqual(
+        await stripeHelper.allPlans(),
+        JSON.parse(await mockRedis.get('listPlans'))
+      );
+    });
   });
 
-  it('pulls a list of products and caches it', async () => {
-    assert.lengthOf(await stripeHelper.allProducts(), 3);
-    assert(mockRedis.get.calledOnce);
+  describe('allProducts', () => {
+    it('pulls a list of products and caches it', async () => {
+      assert.lengthOf(await stripeHelper.allProducts(), 3);
+      assert(mockRedis.get.calledOnce);
 
-    assert.lengthOf(await stripeHelper.allProducts(), 3);
-    assert(mockRedis.get.calledTwice);
-    assert(mockRedis.set.calledOnce);
-    assert(stripeHelper.stripe.products.list.calledOnce);
+      assert.lengthOf(await stripeHelper.allProducts(), 3);
+      assert(mockRedis.get.calledTwice);
+      assert(mockRedis.set.calledOnce);
+      assert(stripeHelper.stripe.products.list.calledOnce);
 
-    assert.deepEqual(
-      await stripeHelper.allProducts(),
-      JSON.parse(await mockRedis.get('listProducts'))
-    );
+      assert.deepEqual(
+        await stripeHelper.allProducts(),
+        JSON.parse(await mockRedis.get('listProducts'))
+      );
+    });
   });
 
-  describe('with tier change', () => {
+  describe('verifyPlanUpgradeForSubscription', () => {
+    it('does nothing for valid upgrade', async () => {
+      assert.isUndefined(
+        await stripeHelper.verifyPlanUpgradeForSubscription(
+          'plan_G93lTs8hfK7NNG',
+          'plan_G93mMKnIFCjZek'
+        )
+      );
+    });
+
+    describe('when the upgrade is invalid', () => {
+      it('throws an invalidPlanUpgrade error', async () => {
+        return stripeHelper
+          .verifyPlanUpgradeForSubscription(
+            'plan_G93lTs8hfK7NNG',
+            'plan_F4G9jB3x5i6Dpj'
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPGRADE);
+            }
+          );
+      });
+    });
+
+    describe('when the current plan specified does not exist', () => {
+      it('thows an unknownSubscriptionPlan error', async () => {
+        return stripeHelper
+          .verifyPlanUpgradeForSubscription('plan_bad', 'plan_F4G9jB3x5i6Dpj')
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+            }
+          );
+      });
+    });
+
+    describe('when the new plan specified does not exist', () => {
+      it('thows an unknownSubscriptionPlan error', async () => {
+        return stripeHelper
+          .verifyPlanUpgradeForSubscription('plan_F4G9jB3x5i6Dpj', 'plan_bad')
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+            }
+          );
+      });
+    });
+
+    describe('when the current plan and the new plan are the same', () => {
+      it('thows a subscriptionAlreadyChanged error', async () => {
+        return stripeHelper
+          .verifyPlanUpgradeForSubscription(
+            'plan_G93lTs8hfK7NNG',
+            'plan_G93lTs8hfK7NNG'
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
+            }
+          );
+      });
+    });
+  });
+
+  describe('changeSubscriptionPlan', () => {
     it('accepts valid upgrade', async () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'retrieve')
@@ -161,15 +238,12 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
         .returns(subscription2);
-      await stripeHelper.verifyPlanUpgradeForSubscription(
-        'prod_G93l8Yn7XJHYUs',
-        'plan_G93mMKnIFCjZek'
-      );
-      await stripeHelper.changeSubscriptionPlan(
+
+      const actual = await stripeHelper.changeSubscriptionPlan(
         'sub_GAt1vgMqOSr5hT',
         'plan_G93mMKnIFCjZek'
       );
-      assert(stripeHelper.stripe.plans.list.calledOnce);
+      assert.deepEqual(actual, subscription2);
     });
 
     it('throws an error if the user already upgraded', async () => {
@@ -179,10 +253,6 @@ describe('StripeHelper', () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
         .returns(subscription2);
-      await stripeHelper.verifyPlanUpgradeForSubscription(
-        'prod_G93l8Yn7XJHYUs',
-        'plan_G93mMKnIFCjZek'
-      );
       let thrown;
       try {
         await stripeHelper.changeSubscriptionPlan(
@@ -196,20 +266,96 @@ describe('StripeHelper', () => {
     });
   });
 
-  it('throws an error if the product is not upgradeable', async () => {
-    sandbox
-      .stub(stripeHelper.stripe.subscriptions, 'retrieve')
-      .returns(subscription1);
-    let thrown;
-    try {
-      await stripeHelper.verifyPlanUpgradeForSubscription(
-        'prod_G93l8Yn7XJHYUs',
-        'plan_F4G9jB3x5i6Dpj'
+  describe('createCustomer', () => {
+    it('creates a customer using stripe api', async () => {
+      const expected = Object.create(newCustomer);
+      sandbox.stub(stripeHelper.stripe.customers, 'create').returns(expected);
+
+      const actual = await stripeHelper.createCustomer(
+        'uid',
+        'joe@example.com',
+        'Joe Cool',
+        'tok_visa'
       );
-    } catch (err) {
-      thrown = err;
-    }
-    assert.equal(thrown.errno, error.ERRNO.INVALID_PLAN_UPGRADE);
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('surfaces payment token errors', async () => {
+      const apiError = new stripeError.StripeCardError();
+      sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
+
+      return stripeHelper
+        .createCustomer('uid', 'joe@example.com', 'Joe Cool', 'tok_visa')
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(
+              err.errno,
+              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+            );
+          }
+        );
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
+
+      return stripeHelper
+        .createCustomer('uid', 'joe@example.com', 'Joe Cool', 'tok_visa')
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(err, apiError);
+          }
+        );
+    });
+  });
+
+  describe('updateCustomerPaymentMethod', () => {
+    it('updates a customer using stripe api', async () => {
+      const expected = Object.create(customer1);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').returns(expected);
+
+      const actual = await stripeHelper.updateCustomerPaymentMethod(
+        customer1.id,
+        'tok_visa'
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('surfaces payment token errors', async () => {
+      const apiError = new stripeError.StripeCardError();
+      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
+
+      return stripeHelper
+        .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(
+              err.errno,
+              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+            );
+          }
+        );
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
+
+      return stripeHelper
+        .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(err, apiError);
+          }
+        );
+    });
   });
 
   describe('fetchCustomer', () => {
@@ -242,6 +388,59 @@ describe('StripeHelper', () => {
         thrown.cause().message,
         'Customer for email: test@example.com in Stripe has mismatched uid'
       );
+    });
+
+    it('returns void if no customers are found', async () => {
+      const listResponse = {
+        autoPagingToArray: sinon.fake.resolves([]),
+      };
+      sandbox.stub(stripeHelper.stripe.customers, 'list').returns(listResponse);
+      assert.isUndefined(
+        await stripeHelper.fetchCustomer('user123', 'test@example.com')
+      );
+    });
+
+    describe('when a customer has subscriptions and they are more than one page', () => {
+      it('loads all of the subscriptions for the user', async () => {
+        const customer = Object.create(newCustomer);
+        const custSubscription1 = Object.create(subscription1);
+        const custSubscription2 = Object.create(subscription2);
+
+        customer.subscriptions.data = [custSubscription1];
+        customer.subscriptions.has_more = true;
+
+        const listResponse = {
+          autoPagingToArray: sinon.fake.resolves([customer]),
+        };
+        sandbox
+          .stub(stripeHelper.stripe.customers, 'list')
+          .returns(listResponse);
+        sandbox
+          .stub(stripeHelper, 'fetchAllSubscriptionsForCustomer')
+          .resolves([custSubscription2]);
+
+        const result = await stripeHelper.fetchCustomer(
+          'testuid',
+          customer.email
+        );
+
+        assert.isFalse(result.subscriptions.has_more);
+        assert.strictEqual(
+          result.subscriptions.data.length,
+          2,
+          'both subscriptions should be loaded'
+        );
+        assert.deepEqual(
+          result.subscriptions.data[0],
+          subscription1,
+          'the subscription that was initially present is still present'
+        );
+        assert.deepEqual(
+          result.subscriptions.data[1],
+          subscription2,
+          'the subscription that was loaded should be present'
+        );
+      });
     });
   });
 
@@ -292,6 +491,18 @@ describe('StripeHelper', () => {
         assert(mockRedis.get.calledTwice);
         assert(mockRedis.set.calledOnce);
         assert(stripeHelper.stripe.customers.list.calledOnce);
+      });
+
+      it('returns void if no customer is found', async () => {
+        sandbox.stub(stripeHelper, 'customer').returns(null);
+
+        assert.isUndefined(
+          await stripeHelper.subscriptionForCustomer(
+            uid,
+            email,
+            customer1.subscriptions.data[0].id
+          )
+        );
       });
     });
 
@@ -375,6 +586,59 @@ describe('StripeHelper', () => {
           await stripeHelper.refreshCachedCustomer(uid, email);
           assert(stripeHelper.stripe.customers.list.calledTwice);
         });
+
+        it('logs errors', async () => {
+          sandbox.stub(stripeHelper, 'customer').rejects(Error);
+          await stripeHelper.refreshCachedCustomer(uid, email);
+          assert(
+            stripeHelper.log.error.calledOnceWith(
+              'subhub.refreshCachedCustomer.failed'
+            )
+          );
+        });
+      });
+    });
+
+    describe('error fetching cached result', () => {
+      beforeEach(() => {
+        mockRedis.get.restore();
+        sandbox.stub(mockRedis, 'get').rejects(Error);
+      });
+
+      it('logs error with defined refreshFunction', async () => {
+        const result = await stripeHelper.customer(uid, email, false);
+        assert.isNotEmpty(result);
+        assert(
+          log.error.calledOnceWith(
+            'subhub.cachedResult.getCachedResponse.failed'
+          )
+        );
+      });
+
+      it('logs error with undefined refreshFunction (cacheOnly = true)', async () => {
+        const result = await stripeHelper.customer(uid, email, false, true);
+        assert.isUndefined(result);
+        assert.isFalse(mockRedis.set.calledOnce);
+        assert(
+          log.error.calledOnceWith(
+            'subhub.cachedResult.getCachedResponse.failed'
+          )
+        );
+      });
+    });
+
+    describe('error setting cached result', () => {
+      it('logs error', async () => {
+        mockRedis.set.restore();
+        sandbox.stub(mockRedis, 'set').rejects(Error);
+
+        const result = await stripeHelper.customer(uid, email);
+        assert.isNotEmpty(result);
+        assert(
+          log.error.calledOnceWith(
+            'subhub.cachedResult.setCacheResponse.failed'
+          )
+        );
       });
     });
   });
@@ -402,6 +666,39 @@ describe('StripeHelper', () => {
   });
 
   describe('createSubscription', () => {
+    describe('failed to create subscription', () => {
+      it('surfaces payment token errors', async () => {
+        const apiError = new stripeError.StripeCardError();
+        sandbox
+          .stub(stripeHelper.stripe.subscriptions, 'create')
+          .rejects(apiError);
+
+        return stripeHelper.createSubscription(customer1, plan1).then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(
+              err.errno,
+              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+            );
+          }
+        );
+      });
+
+      it('surfaces stripe errors', async () => {
+        const apiError = new stripeError.StripeAPIError();
+        sandbox
+          .stub(stripeHelper.stripe.subscriptions, 'create')
+          .rejects(apiError);
+
+        return stripeHelper.createSubscription(customer1, plan1).then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(err, apiError);
+          }
+        );
+      });
+    });
+
     describe('subscription created', () => {
       describe('invoice paid', () => {
         const subscription = Object.create(subscription1);
@@ -484,6 +781,104 @@ describe('StripeHelper', () => {
           assert.isFalse(stripeHelper.paidInvoice(invoice));
         });
       });
+    });
+  });
+
+  describe('payInvoice', () => {
+    describe('invoice is created', () => {
+      it('returns the invoice if marked as paid', async () => {
+        const expected = Object.create(paidInvoice);
+        expected.payment_intent = successfulPaymentIntent;
+        sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves(expected);
+
+        const actual = await stripeHelper.payInvoice(paidInvoice.id);
+
+        assert.deepEqual(expected, actual);
+      });
+
+      it('throws an error if invoice is not marked as paid', async () => {
+        const expected = Object.create(paidInvoice);
+        expected.payment_intent = unsuccessfulPaymentIntent;
+        sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves(expected);
+
+        return stripeHelper.payInvoice(paidInvoice.id).then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
+            assert.equal(err.message, 'Payment method failed');
+          }
+        );
+      });
+    });
+
+    describe('invoice is not created', () => {
+      it('returns payment failed error if card_declined is reason', () => {
+        const cardDeclinedError = new stripeError.StripeCardError();
+        cardDeclinedError.code = 'card_declined';
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'pay')
+          .rejects(cardDeclinedError);
+
+        return stripeHelper.payInvoice(paidInvoice.id).then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
+            assert.equal(err.message, 'Payment method failed');
+          }
+        );
+      });
+
+      it('throws caught Stripe error if not card_declined', () => {
+        const apiError = new stripeError.StripeAPIError();
+        apiError.code = 'api_error';
+        sandbox.stub(stripeHelper.stripe.invoices, 'pay').rejects(apiError);
+
+        return stripeHelper.payInvoice(paidInvoice.id).then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.equal(err, apiError);
+          }
+        );
+      });
+    });
+  });
+
+  describe('getProductName', () => {
+    describe('when provided a Product object', () => {
+      it('returns the name of the product', async () => {
+        const expected = product1.name;
+        const actual = await stripeHelper.getProductName(product1);
+
+        assert.equal(expected, actual);
+      });
+    });
+
+    describe('when provided a Product ID', () => {
+      it('returns the product name if found', async () => {
+        const expected = product1.name;
+        const actual = await stripeHelper.getProductName(product1.id);
+
+        assert.equal(expected, actual);
+      });
+
+      it('returns an empty string if not found', async () => {
+        const expected = '';
+        const actual = await stripeHelper.getProductName('bad_planid');
+
+        assert.equal(expected, actual);
+      });
+    });
+  });
+
+  describe('constructWebhookEvent', () => {
+    it('calls stripe.webhooks.construct event', () => {
+      const expected = 'the expected result';
+      sandbox
+        .stub(stripeHelper.stripe.webhooks, 'constructEvent')
+        .returns(expected);
+
+      const actual = stripeHelper.constructWebhookEvent([], 'signature');
+      assert.equal(actual, expected);
     });
   });
 });

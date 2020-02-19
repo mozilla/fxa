@@ -783,11 +783,5 @@ function mockVerificationReminders(data = {}) {
 }
 
 function mockStripeHelper(methods) {
-  //const StripeHelper = require('../lib/payments/stripe').StripeHelper;
-  //const log = module.exports.mockLog();
-  //const config = {
-  //  subhub: {plansCacheTtlSeconds: 1000}
-  //};
-
   return mockObject(methods, require('../lib/payments/stripe').StripeHelper);
 }

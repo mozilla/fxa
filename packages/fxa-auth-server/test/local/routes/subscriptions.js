@@ -576,7 +576,7 @@ describe('subscriptions - subhub integration', () => {
         );
         assert.equal(customs.check.callCount, 1, 'calls customs.check');
         assert.deepEqual(payments.verifyPlanUpgradeForSubscription.args, [
-          [PLANS[0].product_id, PLAN_ID_1],
+          [PLANS[0].id, PLAN_ID_1],
         ]);
       });
 

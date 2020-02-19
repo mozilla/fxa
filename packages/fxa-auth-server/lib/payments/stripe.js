@@ -42,6 +42,10 @@ const stripe = require('stripe').Stripe;
  * Get a cached result at a cache key and regenerated it with `refreshFunction`
  * if its expired.
  *
+ * TODO fix logging messages: as it stands there is no name for the async functions
+ * being passed in, and type safety prevents accessing the caller, so right now it
+ * has been removed from the log messages
+ *
  * @template T
  * @param {*} redis
  * @param {string} cacheKey
@@ -65,10 +69,7 @@ async function cachedResult(
         return JSON.parse(json);
       }
     } catch (err) {
-      log.error(
-        `subhub.cachedResult.${refreshFunction.name}.getCachedResponse.failed`,
-        { err }
-      );
+      log.error(`subhub.cachedResult.getCachedResponse.failed`, { err });
     }
   }
 
@@ -78,14 +79,9 @@ async function cachedResult(
 
   const result = await refreshFunction();
   if (cacheTtl) {
-    redis
-      .set(cacheKey, JSON.stringify(result), 'EX', cacheTtl)
-      .catch(err =>
-        log.error(
-          `subhub.cachedResult.${refreshFunction.name}.cacheResponse.failed`,
-          { err }
-        )
-      );
+    redis.set(cacheKey, JSON.stringify(result), 'EX', cacheTtl).catch(err => {
+      log.error(`subhub.cachedResult.setCacheResponse.failed`, { err });
+    });
   }
   return result;
 }
@@ -178,15 +174,20 @@ class StripeHelper {
    * @returns {Promise<Customer>}
    */
   async createCustomer(uid, email, displayName, paymentToken) {
-    const customer = await this.stripe.customers.create({
-      source: paymentToken,
-      email,
-      name: displayName,
-      description: uid,
-      metadata: { userid: uid },
-    });
-
-    return customer;
+    try {
+      return await this.stripe.customers.create({
+        source: paymentToken,
+        email,
+        name: displayName,
+        description: uid,
+        metadata: { userid: uid },
+      });
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
+    }
   }
 
   /**
@@ -198,11 +199,16 @@ class StripeHelper {
    * @returns {Promise<Customer>}
    */
   async updateCustomerPaymentMethod(customerId, paymentToken) {
-    const updatedCustomer = await this.stripe.customers.update(customerId, {
-      source: paymentToken,
-    });
-
-    return updatedCustomer;
+    try {
+      return await this.stripe.customers.update(customerId, {
+        source: paymentToken,
+      });
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
+    }
   }
 
   /**
@@ -257,6 +263,7 @@ class StripeHelper {
    */
   async customer(uid, email, forceRefresh = false, cacheOnly = false) {
     const cacheKey = this.customerCacheKey(uid, email);
+
     return cachedResult(
       this.log,
       this.redis,
@@ -364,7 +371,11 @@ class StripeHelper {
       let product_id, product_name, product_metadata;
 
       // We don't list plans for deleted products
-      if (item.product && typeof item.product !== 'string') {
+      if (
+        item.product &&
+        typeof item.product !== 'string' &&
+        item.product.deleted !== true
+      ) {
         product_id = item.product.id;
         product_name = item.product.name;
         product_metadata = item.product.metadata;
@@ -418,24 +429,29 @@ class StripeHelper {
   }
 
   /**
-   * Verify that the `planId` is a valid upgrade for this `productId`.
+   * Verify that the `planId` is a valid upgrade for the `currentPlanId`.
    *
    * Throws an error if its an invalid upgrade.
    *
-   * @param {string} productId
-   * @param {string} planId
+   * @param {string} currentPlanId
+   * @param {string} newPlanId
    * @returns {Promise<void>}
    */
-  async verifyPlanUpgradeForSubscription(productId, planId) {
+  async verifyPlanUpgradeForSubscription(currentPlanId, newPlanId) {
     const allPlans = await this.allPlans();
     const currentPlan = allPlans
-      .filter(plan => plan.product_id === productId)
+      .filter(plan => plan.plan_id === currentPlanId)
       .shift();
 
-    const newPlan = allPlans.filter(plan => plan.plan_id === planId).shift();
+    const newPlan = allPlans.filter(plan => plan.plan_id === newPlanId).shift();
     if (!newPlan || !currentPlan) {
       throw error.unknownSubscriptionPlan();
     }
+
+    if (currentPlanId === newPlanId) {
+      throw error.subscriptionAlreadyChanged();
+    }
+
     if (
       !subhub.validateProductUpgrade(
         currentPlan.product_metadata,
@@ -483,7 +499,7 @@ class StripeHelper {
    */
   async getProductName(product) {
     if (typeof product === 'string') {
-      const fetchedProducts = await this.fetchAllProducts();
+      const fetchedProducts = await this.allProducts();
       const matchingProduct = fetchedProducts.find(
         fetchedProduct => fetchedProduct.product_id === product
       );
@@ -538,11 +554,21 @@ class StripeHelper {
    * @throws {error.paymentFailed}
    */
   async createSubscription(customer, selectedPlan) {
-    const subscription = await this.stripe.subscriptions.create({
-      customer: customer.id,
-      items: [{ plan: selectedPlan.plan_id }],
-      expand: ['latest_invoice.payment_intent'],
-    });
+    let subscription;
+
+    try {
+      subscription = await this.stripe.subscriptions.create({
+        customer: customer.id,
+        items: [{ plan: selectedPlan.plan_id }],
+        expand: ['latest_invoice.payment_intent'],
+      });
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
+    }
+
     if (
       !this.paidInvoice(/** @type {Invoice} */ (subscription.latest_invoice))
     ) {

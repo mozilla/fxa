@@ -157,28 +157,14 @@ class DirectStripeRoutes {
     paymentToken,
     selectedPlan
   ) {
-    let customer;
-
-    try {
-      customer = await this.stripeHelper.createCustomer(
-        uid,
-        email,
-        displayName,
-        paymentToken
-      );
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
-      }
-      throw err;
-    }
-
-    const subscription = await this.stripeHelper.createSubscription(
-      customer,
-      selectedPlan
+    const customer = await this.stripeHelper.createCustomer(
+      uid,
+      email,
+      displayName,
+      paymentToken
     );
 
-    return subscription;
+    return this.stripeHelper.createSubscription(customer, selectedPlan);
   }
 
   /**
@@ -214,7 +200,7 @@ class DirectStripeRoutes {
     }
 
     // Check if the customer already has subscribed to this plan.
-    let subscription = this.findCustomerSubscriptionByPlanId(
+    const subscription = this.findCustomerSubscriptionByPlanId(
       customer,
       selectedPlan.plan_id
     );
@@ -233,12 +219,7 @@ class DirectStripeRoutes {
       }
     }
 
-    subscription = await this.stripeHelper.createSubscription(
-      customer,
-      selectedPlan
-    );
-
-    return subscription;
+    return this.stripeHelper.createSubscription(customer, selectedPlan);
   }
 
   /**
@@ -389,11 +370,11 @@ class DirectStripeRoutes {
       throw error.unknownSubscription();
     }
 
-    const oldProductId = subscription.plan.product;
+    const currentPlanId = subscription.plan.id;
 
     // Verify the plan is a valid upgrade for this subscription.
     await this.stripeHelper.verifyPlanUpgradeForSubscription(
-      oldProductId,
+      currentPlanId,
       planId
     );
 

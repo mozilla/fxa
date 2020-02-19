@@ -82,6 +82,26 @@
       },
       "preLaunchTask": "Stop PM2 Auth Server",
       "postDebugTask": "Start PM2 Auth Server"
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Arch 2.0 with Coverage",
+      "program": "${workspaceFolder}/node_modules/nyc/bin/nyc.js",
+      "args": [
+        "--reporter=lcov",
+        "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "--timeout",
+        "999999",
+        "--colors",
+        "${workspaceFolder}/test/local/payments/stripe.js",
+        "${workspaceFolder}/test/local/routes/subscriptions.js"
+      ],
+      "env": { "NODE_ENV": "dev" },
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "runtimeVersion": "12.14.0",
+      "protocol": "inspector"
+    },
   ]
 }
