@@ -34,16 +34,18 @@ type MockCallsResponse = {
   totp: MockCallResponse<TotpTokenResponse>;
 };
 
+const now = new Date().getTime();
+const accountResponse = {
+  createdAt: now,
+  email: 'test+quux@example.com',
+  emailVerified: true,
+  locale: 'en-us',
+};
+
 function createDefaults(): MockCallsResponse {
-  const now = new Date().getTime();
   return {
     account: {
-      response: {
-        createdAt: now,
-        email: 'test@example.com',
-        emailVerified: true,
-        locale: 'en-us',
-      },
+      response: accountResponse,
       status: 200,
     },
     devices: {
@@ -121,7 +123,10 @@ describe('Support Controller', () => {
       .reply(obj.totp.status, obj.totp.response);
     nock(authServerConfig.url)
       .get(authServerConfig.subscriptionsSearchPath)
-      .query(() => true)
+      .query(
+        queryParams =>
+          queryParams.uid === uid && queryParams.email === accountResponse.email
+      )
       .reply(obj.subscriptions.status, obj.subscriptions.response);
     nock(authServerConfig.url)
       .get(authServerConfig.signinLocationsSearchPath)
