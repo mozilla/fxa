@@ -25,12 +25,12 @@ const P = require('../lib/promise');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
-const subhub = require('../lib/subhub/client')(log, config);
+const subhub = require('../lib/subhub/client').client(log, config);
 const mailer = null;
 
 const DB = require('../lib/db')(config, log, Token);
 
-return DB.connect(config[config.db.backend]).then(db => {
+DB.connect(config[config.db.backend]).then(db => {
   // Bypass customs checks.
   const mockCustoms = {
     check: () => {
@@ -56,6 +56,23 @@ return DB.connect(config[config.db.backend]).then(db => {
     return P.resolve(false);
   };
 
+  const push = require('../lib/push')(log, db, config);
+  const oauthdb = require('../lib/oauth/db');
+  const statsd = {
+    timing: () => {},
+    close: () => {},
+  };
+  const verificationReminders = require('../lib/verification-reminders')(
+    log,
+    config
+  );
+  /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
+  let stripeHelper = undefined;
+  if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    const createStripeHelper = require('../lib/payments/stripe');
+    stripeHelper = createStripeHelper(log, config, statsd);
+  }
+
   // Load the account-deletion route, so we can use its logic directly.
   const accountDestroyRoute = require('../lib/routes/account')(
     log,
@@ -66,8 +83,13 @@ return DB.connect(config[config.db.backend]).then(db => {
     mockCustoms,
     subhub,
     signinUtils,
-    require('../lib/push')(log, db, config)
+    push,
+    verificationReminders,
+    oauthdb,
+    stripeHelper
   ).find(r => r.path === '/account/destroy');
+
+  let retval = 0;
 
   P.each(process.argv.slice(2), email => {
     return db.accountRecord(email).then(account => {
@@ -111,13 +133,16 @@ return DB.connect(config[config.db.backend]).then(db => {
   })
     .then(
       () => {
+        retval = 0;
         console.log('ok');
       },
       err => {
+        retval = 1;
         console.log('ERROR:', err.message || err);
       }
     )
     .finally(() => {
-      return db.close();
+      db.close();
+      process.exit(retval);
     });
 });
