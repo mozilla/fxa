@@ -183,7 +183,7 @@ jobs:
 
   js-client:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     working_directory: ~/project/packages/fxa-js-client
     steps:
       - attach_workspace:
@@ -192,7 +192,7 @@ jobs:
 
   fxa-email-event-proxy:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     working_directory: ~/project/packages/fxa-email-event-proxy
     steps:
       - attach_workspace:
@@ -203,7 +203,7 @@ jobs:
 
   fxa-email-event-proxy-tag:
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:12
     working_directory: ~/project/packages/fxa-email-event-proxy
     steps:
       - attach_workspace:
