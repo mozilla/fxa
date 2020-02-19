@@ -6,6 +6,7 @@
  *  Generic view to handle different post verify success screens.
  */
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../mixins/flow-events-mixin';
 import FormView from '../form';
 import ServiceMixin from '../mixins/service-mixin';
 import Template from 'templates/post_verify/verified.mustache';
@@ -79,6 +80,11 @@ class Verified extends FormView {
   }
 }
 
-Cocktail.mixin(Verified, ServiceMixin, VerificationReasonMixin);
+Cocktail.mixin(
+  Verified,
+  FlowEventsMixin,
+  ServiceMixin,
+  VerificationReasonMixin
+);
 
 export default Verified;

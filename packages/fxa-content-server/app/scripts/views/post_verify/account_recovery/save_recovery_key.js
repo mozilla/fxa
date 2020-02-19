@@ -5,6 +5,7 @@
 /**
  */
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import PrintTemplate from 'templates/settings/account_recovery/recovery_key_print_template.mustache';
 import ServiceMixin from '../..//mixins/service-mixin';
@@ -17,6 +18,7 @@ const ACCOUNT_RECOVERY_ELEMENT = '.save-recovery-key';
 
 class SaveRecoveryKey extends FormView {
   template = Template;
+  viewName = 'save-recovery-key';
 
   events = assign(this.events, {
     'click .download-option': '_downloadKey',
@@ -49,20 +51,25 @@ class SaveRecoveryKey extends FormView {
   }
 
   setInitialContext(context) {
-    this.recoveryKey = this.formatRecoveryKey(context.get('recoveryKey'));
+    this.recoveryKey = context.get('recoveryKey');
+    this.recoveryKeyId = context.get('recoveryKeyId');
     context.set({
       isIos: this.getUserAgent().isIos(),
-      recoveryKey: this.recoveryKey,
+      recoveryKey: this.formatRecoveryKey(context.get('recoveryKey')),
     });
   }
 
   done() {
-    this.navigate('/post_verify/account_recovery/verified_recovery_key');
+    this.navigate('/post_verify/account_recovery/confirm_recovery_key', {
+      recoveryKey: this.recoveryKey,
+      recoveryKeyId: this.recoveryKeyId,
+    });
   }
 }
 
 Cocktail.mixin(
   SaveRecoveryKey,
+  FlowEventsMixin,
   ServiceMixin,
   SaveOptionsMixin,
   RecoveryKeyMixin

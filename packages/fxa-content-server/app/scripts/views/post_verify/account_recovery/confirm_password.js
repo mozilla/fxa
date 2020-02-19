@@ -9,6 +9,7 @@
  */
 import _, { assign } from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import PasswordMixin from '../..//mixins/password-mixin';
 import ServiceMixin from '../..//mixins/service-mixin';
@@ -52,10 +53,12 @@ class ConfirmPassword extends FormView {
   submit() {
     const account = this.getSignedInAccount();
     const password = this.getElementValue(PASSWORD_SELECTOR);
+
     return account
-      .createRecoveryBundle(password)
+      .createRecoveryBundle(password, false)
       .then(recoveryKey => {
         this.model.set('recoveryKey', recoveryKey);
+        this.model.set('recoveryKeyId', recoveryKey.recoveryKeyId);
         this.navigate(
           '/post_verify/account_recovery/save_recovery_key',
           recoveryKey
@@ -75,6 +78,6 @@ class ConfirmPassword extends FormView {
   }
 }
 
-Cocktail.mixin(ConfirmPassword, PasswordMixin, ServiceMixin);
+Cocktail.mixin(ConfirmPassword, FlowEventsMixin, PasswordMixin, ServiceMixin);
 
 export default ConfirmPassword;

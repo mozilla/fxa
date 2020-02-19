@@ -10,6 +10,7 @@ import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
+import SentryMetrics from 'lib/sentry';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/post_verify/secondary_email/add_secondary_email';
@@ -27,6 +28,7 @@ describe('views/post_verify/secondary_email/add_secondary_email', () => {
   let model;
   let notifier;
   let relier;
+  let sentryMetrics;
   let user;
   let view;
   let windowMock;
@@ -48,7 +50,8 @@ describe('views/post_verify/secondary_email/add_secondary_email', () => {
       account,
     });
     notifier = _.extend({}, Backbone.Events);
-    metrics = new Metrics({ notifier });
+    sentryMetrics = new SentryMetrics();
+    metrics = new Metrics({ notifier, sentryMetrics });
     user = new User();
     view = new View({
       broker,

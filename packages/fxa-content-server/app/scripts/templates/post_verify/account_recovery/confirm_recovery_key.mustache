@@ -1,0 +1,32 @@
+<div id="main-content" class="card confirm-recovery-key">
+    <header>
+        <h1 id="fxa-confirm-recovery-key-header">
+            {{#serviceName}}
+                <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+                {{#t}}Confirm recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+            {{/serviceName}}
+            {{^serviceName}}
+                {{#t}}Confirm recovery key{{/t}}
+            {{/serviceName}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="success"></div>
+        <div class="error"></div>
+
+        <p class="verification-email-message">{{#t}}Enter your recovery key to confirm that you've saved a copy.{{/t}}</p>
+
+        <form novalidate>
+            <div class="input-row otp-code-row">
+                <input id="recovery-key" type="text" class="text recovery-key tooltip-below" placeholder="{{#t}}Confirm recovery key{{/t}}" autofocus  autocomplete="off"/>
+            </div>
+            <div class="button-row">
+                <button id="submit-btn" type="submit">{{#t}}Confirm{{/t}}</button>
+            </div>
+            <div class="links">
+                <a id="back-btn" href="/post_verify/account_recovery/save_recovery_key">{{#t}}Back{{/t}}</a>
+            </div>
+        </form>
+    </section>
+</div>
