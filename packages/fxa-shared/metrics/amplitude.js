@@ -32,6 +32,7 @@ const GROUPS = {
 const CONNECT_DEVICE_FLOWS = {
   'app-store': 'store_buttons',
   install_from: 'store_buttons',
+  pair: 'pairing',
   signin_from: 'signin',
   sms: 'sms',
 };

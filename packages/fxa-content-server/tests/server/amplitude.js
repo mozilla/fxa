@@ -1936,5 +1936,57 @@ registerSuite('amplitude', {
       assert.equal(arg.time, 'a');
       assert.equal(arg.user_id, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
     },
+
+    'screen.pair': () => {
+      amplitude(
+        {
+          time: '1582051365965',
+          type: 'screen.pair',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0ac',
+          uid: 'none',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_connect_device - view');
+      assert.equal(arg.event_properties.connect_device_flow, 'pairing');
+    },
+
+    'flow.pair.submit': () => {
+      amplitude(
+        {
+          time: '1582051365965',
+          type: 'flow.pair.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1582051366041',
+          flowId:
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0ac',
+          uid: 'none',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_connect_device - submit');
+      assert.equal(arg.event_properties.connect_device_flow, 'pairing');
+    },
   },
 });

@@ -6,6 +6,7 @@ import { assert } from 'chai';
 import sinon from 'sinon';
 import View from 'views/pair/index';
 import BaseBroker from 'models/auth_brokers/base';
+import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
@@ -20,11 +21,13 @@ describe('views/pair/index', () => {
   let user;
   let view;
   let broker;
+  let notifier;
   let relier;
   let windowMock;
 
   beforeEach(() => {
     windowMock = new WindowMock();
+    notifier = new Notifier();
     relier = new Relier(
       {},
       {
@@ -46,6 +49,7 @@ describe('views/pair/index', () => {
     });
     view = new View({
       broker,
+      notifier,
       relier,
       viewName: 'pairIndex',
       window: windowMock,
