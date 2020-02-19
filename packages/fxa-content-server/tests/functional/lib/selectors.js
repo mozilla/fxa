@@ -262,6 +262,14 @@ module.exports = {
     RECOVERY_KEY: '.recovery-key',
     DONE: '.done-link',
   },
+  POST_VERIFY_CONFIRM_RECOVERY_KEY: {
+    ERROR: '.error',
+    HEADER: '#fxa-confirm-recovery-key-header',
+    RECOVERY_KEY: '#recovery-key',
+    SUBMIT: 'button[type="submit"]',
+    TOOLTIP: '#recovery-key ~ .tooltip',
+    BACK: '#back-btn',
+  },
   POST_VERIFY_RECOVERY_KEY_VERIFIED: {
     HEADER: '#fxa-account-recovery-complete-header',
     READY: '.account-ready-service',

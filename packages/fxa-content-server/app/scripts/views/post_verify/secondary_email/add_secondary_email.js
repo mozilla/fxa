@@ -8,6 +8,7 @@
 import _ from 'underscore';
 import Cocktail from 'cocktail';
 import FormView from '../../form';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import ServiceMixin from '../..//mixins/service-mixin';
 import Template from 'templates/post_verify/secondary_email/add_secondary_email.mustache';
 import VerificationMethods from '../../../lib/verification-methods';
@@ -56,6 +57,6 @@ class AddSecondaryEmail extends FormView {
   }
 }
 
-Cocktail.mixin(AddSecondaryEmail, ServiceMixin);
+Cocktail.mixin(AddSecondaryEmail, FlowEventsMixin, ServiceMixin);
 
 export default AddSecondaryEmail;

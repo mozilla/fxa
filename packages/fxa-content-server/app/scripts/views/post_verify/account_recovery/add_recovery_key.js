@@ -7,14 +7,15 @@
  */
 import { assign } from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
-import ServiceMixin from '../..//mixins/service-mixin';
+import ServiceMixin from '../../mixins/service-mixin';
 import Template from 'templates/post_verify/account_recovery/add_recovery_key.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
 
 class AddAccountRecovery extends FormView {
   template = Template;
-  viewName = 'add-secondary-email';
+  viewName = 'add-recovery-email';
 
   events = assign(this.events, {
     'click #maybe-later-btn': preventDefaultThen('clickMaybeLater'),
@@ -46,6 +47,6 @@ class AddAccountRecovery extends FormView {
   }
 }
 
-Cocktail.mixin(AddAccountRecovery, ServiceMixin);
+Cocktail.mixin(AddAccountRecovery, FlowEventsMixin, ServiceMixin);
 
 export default AddAccountRecovery;
