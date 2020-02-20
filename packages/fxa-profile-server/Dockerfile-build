@@ -1,7 +1,5 @@
 FROM node:12-alpine AS builder
 
-RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
-
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app
 
@@ -19,7 +17,7 @@ COPY --chown=app:app ["fxa-shared", "../fxa-shared/"]
 USER app
 WORKDIR /app
 
-RUN npm install --production && rm -rf ~app/.npm /tmp/*
+RUN npm install --production && rm -rf ~app/.npm
 
 WORKDIR /fxa-shared
 RUN npm ci
@@ -30,8 +28,6 @@ USER app
 
 # Build final image by copying from builder
 FROM node:12-alpine
-
-RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
 
 RUN addgroup -g 10001 app && \
     adduser -D -G app -h /app -u 10001 app

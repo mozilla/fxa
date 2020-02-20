@@ -1,7 +1,5 @@
 FROM node:12-alpine
 
-RUN npm install -g npm@6 && rm -rf ~app/.npm /tmp/*
-
 RUN apk add --no-cache make git gcc g++ python
 
 RUN addgroup -g 10001 app && \
@@ -18,6 +16,6 @@ USER app
 COPY package-lock.json package-lock.json
 COPY package.json package.json
 
-RUN npm install --production && rm -rf ~app/.npm /tmp/*
+RUN npm install --production && rm -rf ~app/.npm
 
 COPY . /app

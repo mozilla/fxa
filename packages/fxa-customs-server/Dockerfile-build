@@ -11,6 +11,6 @@ USER app
 COPY --chown=app:app package-lock.json package-lock.json
 COPY --chown=app:app package.json package.json
 
-RUN npm ci --production && rm -rf ~app/.npm /tmp/*
+RUN npm ci --production && rm -rf ~app/.npm
 
 COPY --chown=app:app . /app
