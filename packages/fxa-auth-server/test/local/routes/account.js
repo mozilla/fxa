@@ -85,7 +85,8 @@ const makeRoutes = function(options = {}, requireMocks) {
     {
       removeUser: () => {},
       removePublicAndCanGrantTokens: () => {},
-    }
+    },
+    options.stripeHelper
   );
 };
 
@@ -2646,7 +2647,7 @@ describe('/account/destroy', () => {
     { uid, subscriptionId: '789' },
   ];
 
-  let mockDB, mockSubhub, mockLog, mockRequest, mockPush;
+  let mockDB, mockSubhub, mockLog, mockRequest, mockPush, mockStripeHelper;
 
   beforeEach(async () => {
     mockDB = {
@@ -2665,6 +2666,15 @@ describe('/account/destroy', () => {
       },
     });
     mockPush = mocks.mockPush();
+    mockStripeHelper = mocks.mockStripeHelper(['fetchCustomer', 'stripe']);
+    mockStripeHelper.fetchCustomer = sinon.spy(async (uid, email) => {
+      return { id: 1234 };
+    });
+    mockStripeHelper.stripe = {
+      customers: {
+        update: sinon.spy(async (id, options) => {}),
+      },
+    };
   });
 
   function buildRoute(subscriptionsEnabled = true) {
@@ -2682,6 +2692,7 @@ describe('/account/destroy', () => {
       subhub: mockSubhub,
       log: mockLog,
       push: mockPush,
+      stripeHelper: mockStripeHelper,
     });
     return getRoute(accountRoutes, '/account/destroy');
   }
@@ -2713,10 +2724,15 @@ describe('/account/destroy', () => {
       );
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid');
 
-      assert.equal(mockSubhub.deleteCustomer.callCount, 1);
-      args = mockSubhub.deleteCustomer.args[0];
-      assert.lengthOf(args, 1);
+      assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
+      args = mockStripeHelper.fetchCustomer.args[0];
+      assert.lengthOf(args, 2);
       assert.equal(args[0], uid);
+
+      assert.equal(mockStripeHelper.stripe.customers.update.callCount, 1);
+      args = mockStripeHelper.stripe.customers.update.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 1234);
 
       assert.equal(mockDB.fetchAccountSubscriptions.callCount, 0);
       assert.equal(mockSubhub.cancelSubscription.callCount, 0);
@@ -2766,7 +2782,7 @@ describe('/account/destroy', () => {
     });
   });
 
-  it('should not fail if subhub.deleteCustomer fails with `Customer not available`', async () => {
+  it.skip('should not fail if subhub.deleteCustomer fails with `Customer not available`', async () => {
     mockSubhub.deleteCustomer = sinon.spy(async function() {
       throw new Error('Customer not available');
     });
@@ -2781,7 +2797,7 @@ describe('/account/destroy', () => {
     assert.isTrue(mockDB.deleteAccount.calledOnce);
   });
 
-  it('should fail if subhub.deleteCustomer fails', async () => {
+  it.skip('should fail if subhub.deleteCustomer fails', async () => {
     mockSubhub.deleteCustomer = sinon.spy(async function() {
       throw new Error('wibble');
     });
@@ -2792,6 +2808,29 @@ describe('/account/destroy', () => {
       failed = true;
     }
     assert.isTrue(failed);
+  });
+
+  it('should not fail if stripeHelper cannot locate the customer', async () => {
+    mockStripeHelper.fetchCustomer = sinon.spy(async (uid, email) => {});
+    try {
+      await runTest(buildRoute(), mockRequest);
+    } catch (err) {
+      assert.fail('method should run successfully');
+    }
+
+    assert.isTrue(mockDB.deleteAccount.calledOnce);
+  });
+
+  it('should fail if stripeHelper update customer fails', async () => {
+    mockStripeHelper.stripe.customers.update(async (id, metadata) => {
+      throw new Error('wibble');
+    });
+    try {
+      await runTest(buildRoute(), mockRequest);
+      assert.fail('method should throw an error');
+    } catch (err) {
+      assert.isObject(err);
+    }
   });
 
   it('should not attempt to cancel subscriptions with config.subscriptions.enabled = false', async () => {
