@@ -18,6 +18,7 @@ import { SignInLayout, SettingsLayout } from './components/AppLayout';
 import ScreenInfo from './lib/screen-info';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import * as FlowEvents from './lib/flow-event';
+import { observeNavigationTiming } from './lib/navigation-timing';
 
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
@@ -55,6 +56,8 @@ export const App = ({
     locationReload,
   };
   FlowEvents.init(queryParams);
+  observeNavigationTiming('/navigation-timing');
+
   return (
     <AppContext.Provider value={appContextValue}>
       <AppLocalizationProvider

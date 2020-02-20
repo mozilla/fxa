@@ -55,3 +55,46 @@ describe('Test simple server routes', () => {
     });
   });
 });
+
+describe('Test route dependencies', () => {
+  test('server.js should pass the correct dependencies to routes', () => {
+    const mockUAParser = () => {};
+    const mockGeolocate = jest.fn();
+    const mockStatsdInstance = {};
+    const mockStatsd = function() {
+      return mockStatsdInstance;
+    };
+    const mockRoutes = jest.fn().mockReturnValue([]);
+    // I know this looks 100% wrong, but jest.mock want its variables prefixed
+    // with 'mock'.  Currently jest does not offer a way to mock a return value
+    // based on the received argument(s) of the mocked function.  Here the
+    // actual config module is used when the argument is not 'statsd'.
+    const mockConfig = jest.requireActual('../config');
+
+    jest.mock('../config', () => ({
+      get: key => {
+        switch (key) {
+          case 'statsd':
+            return { enabled: true };
+          default:
+            return mockConfig.get(key);
+        }
+      },
+    }));
+    jest.mock('ua-parser-js', () => mockUAParser);
+    jest.mock(
+      '../../../fxa-shared/express/geo-locate.js',
+      () => () => () => () => mockGeolocate
+    );
+    jest.mock('hot-shots', () => mockStatsd);
+    jest.mock('./routes', () => mockRoutes);
+    require('./server')();
+
+    expect(mockRoutes).toHaveBeenCalledTimes(1);
+    expect(mockRoutes).toHaveBeenLastCalledWith(
+      mockGeolocate,
+      mockUAParser,
+      mockStatsdInstance
+    );
+  });
+});

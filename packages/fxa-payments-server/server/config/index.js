@@ -270,6 +270,44 @@ const conf = convict({
       format: 'url',
     },
   },
+  statsd: {
+    enabled: {
+      doc: 'Enable StatsD',
+      format: Boolean,
+      default: false,
+      env: 'STATSD_ENABLE',
+    },
+    sampleRate: {
+      doc: 'Sampling rate for StatsD',
+      format: Number,
+      default: 1,
+      env: 'STATSD_SAMPLE_RATE',
+    },
+    maxBufferSize: {
+      doc: 'StatsD message buffer size in number of characters',
+      format: Number,
+      default: 500,
+      env: 'STATSD_BUFFER_SIZE',
+    },
+    host: {
+      doc: 'StatsD host to report to',
+      format: String,
+      default: 'localhost',
+      env: 'DD_AGENT_HOST',
+    },
+    port: {
+      doc: 'Port number of StatsD server',
+      format: Number,
+      default: 8125,
+      env: 'DD_DOGSTATSD_PORT',
+    },
+    prefix: {
+      doc: 'StatsD metrics name prefix',
+      format: String,
+      default: 'fxa-payments.',
+      env: 'STATSD_PREFIX',
+    },
+  },
   stripe: {
     apiKey: {
       default: 'pk_test_UrTy6gLWGrc0aOHtbZZz0UBs005mSI4AS2',
