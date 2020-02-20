@@ -14,7 +14,7 @@ RUN apk add --no-cache git
 
 USER app
 COPY --chown=app:app fxa-content-server /app
-RUN npm ci && rm -rf ~/.cache ~/.npm /tmp/*
+RUN npm ci && rm -rf ~/.cache ~/.npm
 
 
 COPY --chown=app:app ["fxa-geodb", "../fxa-geodb/"]
