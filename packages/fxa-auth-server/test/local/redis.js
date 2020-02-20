@@ -5,10 +5,12 @@
 'use strict';
 
 const { assert } = require('chai');
+const AccessToken = require('../../lib/oauth/db/accessToken');
 const sinon = require('sinon');
 const config = require('../../config').getProperties();
+const prefix = 'test:';
 const redis = require('../../lib/redis')(
-  { ...config.redis, ...config.redis.sessionTokens },
+  { ...config.redis, ...config.redis.sessionTokens, prefix },
   { error: sinon.spy() }
 );
 
@@ -165,6 +167,225 @@ describe('Redis', () => {
       await redis.pruneSessionTokens(uid, [sessionToken.id, 'token2']);
       const rawData = await redis.get(uid);
       assert.isNull(rawData);
+    });
+  });
+
+  describe('Access Tokens', () => {
+    const timestamp = new Date('2020-02-19T22:20:58.271Z').getTime();
+    let accessToken1;
+    let accessToken2;
+
+    beforeEach(async () => {
+      await redis.redis.flushall();
+      accessToken2 = AccessToken.parse(
+        JSON.stringify({
+          clientId: '5678',
+          name: 'client2',
+          canGrant: false,
+          publicClient: false,
+          userId: '1234',
+          email: 'hello@world.local',
+          scope: 'profile',
+          token: 'eeee',
+          createdAt: timestamp - 1000,
+          profileChangedAt: timestamp,
+          expiresAt: Date.now() + 1000,
+        })
+      );
+      accessToken1 = AccessToken.parse(
+        JSON.stringify({
+          clientId: 'abcd',
+          name: 'client1',
+          canGrant: false,
+          publicClient: false,
+          userId: '1234',
+          email: 'hello@world.local',
+          scope: 'profile',
+          token: 'ffff',
+          createdAt: timestamp - 1000,
+          profileChangedAt: timestamp,
+          expiresAt: Date.now() + 1000,
+        })
+      );
+    });
+
+    describe('setAccessToken', () => {
+      it('creates an index set for the user', async () => {
+        await redis.setAccessToken(accessToken1);
+        const index = await redis.redis.smembers(
+          accessToken1.userId.toString('hex')
+        );
+        assert.deepEqual(index, [
+          prefix + accessToken1.tokenId.toString('hex'),
+        ]);
+      });
+
+      it('appends to the index', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        const index = await redis.redis.smembers(
+          accessToken2.userId.toString('hex')
+        );
+        assert.deepEqual(
+          index.sort(),
+          [
+            prefix + accessToken1.tokenId.toString('hex'),
+            prefix + accessToken2.tokenId.toString('hex'),
+          ].sort()
+        );
+      });
+
+      it('sets the expiry on the token', async () => {
+        await redis.setAccessToken(accessToken1);
+        const ttl = await redis.redis.pttl(
+          accessToken1.tokenId.toString('hex')
+        );
+        assert.isAtLeast(ttl, 1);
+        assert.isAtMost(ttl, 1000);
+      });
+    });
+
+    describe('getAccessToken', () => {
+      it('returns an AccessToken', async () => {
+        await redis.setAccessToken(accessToken1);
+        const token = await redis.getAccessToken(accessToken1.tokenId);
+        assert.instanceOf(token, AccessToken);
+        assert.deepEqual(token, accessToken1);
+      });
+
+      it('returns null when not found', async () => {
+        const token = await redis.getAccessToken(accessToken1.tokenId);
+        assert.equal(token, null);
+      });
+    });
+
+    describe('getAccessTokens', () => {
+      it('returns an array of AccessTokens', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        const tokens = await redis.getAccessTokens(accessToken2.userId);
+        assert.equal(tokens.length, 2);
+        for (const token of tokens) {
+          assert.instanceOf(token, AccessToken);
+        }
+      });
+
+      it('returns an empty array when not found', async () => {
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.isEmpty(tokens);
+      });
+
+      it('deletes expired tokens from the index', async () => {
+        accessToken1.expiresAt = new Date(Date.now() + 50);
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        await new Promise(r => setTimeout(r, 100));
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.deepEqual(tokens, [accessToken2]);
+        const index = await redis.redis.smembers(
+          accessToken1.userId.toString('hex')
+        );
+        assert.deepEqual(index, [
+          prefix + accessToken2.tokenId.toString('hex'),
+        ]);
+      });
+    });
+
+    describe('removeAccessToken', () => {
+      it('deletes the token', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.removeAccessToken(accessToken1.tokenId);
+        const rawValue = await redis.get(accessToken1.tokenId.toString('hex'));
+        assert.equal(rawValue, null);
+      });
+
+      it('removes the token from the index', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.removeAccessToken(accessToken1.tokenId);
+        const index = await redis.redis.smembers(
+          accessToken1.userId.toString('hex')
+        );
+        assert.isEmpty(index);
+      });
+
+      it('does nothing for nonexistent tokens', async () => {
+        await redis.removeAccessToken(accessToken1.tokenId);
+      });
+    });
+
+    describe('removeAccessTokensForPublicClients', () => {
+      it('does not remove non-public or non-grant tokens', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.deepEqual(tokens, [accessToken1]);
+      });
+
+      it('removes public tokens', async () => {
+        accessToken1.publicClient = true;
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.deepEqual(tokens, [accessToken2]);
+      });
+
+      it('removes grant tokens', async () => {
+        accessToken1.canGrant = true;
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.deepEqual(tokens, [accessToken2]);
+      });
+
+      it('does nothing for nonexistent tokens', async () => {
+        await redis.removeAccessTokensForPublicClients(accessToken1.userId);
+      });
+    });
+
+    describe('removeAccessTokensForUser', () => {
+      it('removes all tokens for the user', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        await redis.removeAccessTokensForUser(accessToken1.userId);
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.isEmpty(tokens);
+      });
+
+      it('does nothing for nonexistent users', async () => {
+        await redis.removeAccessTokensForUser(accessToken1.userId);
+      });
+    });
+
+    describe('removeAccessTokensForUserAndClient', () => {
+      it('removes all tokens for the user', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.setAccessToken(accessToken2);
+        await redis.removeAccessTokensForUserAndClient(
+          accessToken1.userId,
+          accessToken1.clientId
+        );
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.deepEqual(tokens, [accessToken2]);
+      });
+
+      it('does nothing for nonexistent users', async () => {
+        await redis.removeAccessTokensForUserAndClient(
+          accessToken1.userId,
+          accessToken1.clientId
+        );
+      });
+
+      it('does nothing for nonexistent clients', async () => {
+        await redis.setAccessToken(accessToken1);
+        await redis.removeAccessTokensForUserAndClient(
+          accessToken2.userId,
+          accessToken2.clientId
+        );
+        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        assert.deepEqual(tokens, [accessToken1]);
+      });
     });
   });
 });

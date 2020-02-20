@@ -7,6 +7,8 @@
 const Redis = require('ioredis');
 const { readdirSync, readFileSync } = require('fs');
 const { basename, extname, resolve } = require('path');
+const AccessToken = require('./oauth/db/accessToken');
+const hex = require('buf').to.hex;
 
 const scriptNames = readdirSync(resolve(__dirname, 'luaScripts'), {
   withFileTypes: true,
@@ -72,6 +74,85 @@ class FxaRedis {
       this.log.error('redis', e);
       return {};
     }
+  }
+
+  /**
+   *
+   * @param {Buffer | string} tokenId
+   * @return {Promise<AccessToken>}
+   */
+  async getAccessToken(tokenId) {
+    try {
+      const value = await this.redis.getAccessToken(hex(tokenId));
+      return AccessToken.parse(value);
+    } catch (e) {
+      this.log.error('redis', e);
+      return null;
+    }
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @return {Promise<AccessToken[]>}
+   */
+  async getAccessTokens(uid) {
+    try {
+      const values = await this.redis.getAccessTokens(hex(uid));
+      return values.map(v => AccessToken.parse(v));
+    } catch (e) {
+      this.log.error('redis', e);
+      return [];
+    }
+  }
+
+  /**
+   *
+   * @param {AccessToken} token
+   */
+  setAccessToken(token) {
+    return this.redis.setAccessToken(
+      token.userId.toString('hex'),
+      token.tokenId.toString('hex'),
+      JSON.stringify(token),
+      token.ttl
+    );
+  }
+
+  /**
+   *
+   * @param {Buffer | string} id
+   */
+  removeAccessToken(id) {
+    return this.redis.removeAccessToken(hex(id));
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   */
+  removeAccessTokensForPublicClients(uid) {
+    return this.redis.removeAccessTokensForPublicClients(hex(uid));
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} clientId
+   */
+  removeAccessTokensForUserAndClient(uid, clientId) {
+    return this.redis.removeAccessTokensForUserAndClient(
+      hex(uid),
+      hex(clientId)
+    );
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   */
+  removeAccessTokensForUser(uid) {
+    return this.redis.removeAccessTokensForUser(hex(uid));
   }
 
   close() {
