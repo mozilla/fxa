@@ -1,3 +1,23 @@
+## 1.159.0
+
+### New features
+
+- oauth: added redis scripts to store oauth access tokens ([13962dc09](https://github.com/mozilla/fxa/commit/13962dc09))
+
+### Bug fixes
+
+- auth-server: Get delete-account.js working again ([1598b68be](https://github.com/mozilla/fxa/commit/1598b68be))
+- docker: don't rm /tmp after npm i ([6fc34fc45](https://github.com/mozilla/fxa/commit/6fc34fc45))
+- email: Minor CSS tweaks for subscription email ([5a8df880d](https://github.com/mozilla/fxa/commit/5a8df880d))
+- auth-server: don't delete the stripe customer ([50fe8b28b](https://github.com/mozilla/fxa/commit/50fe8b28b))
+
+### Other changes
+
+- auth-server: add missing direct stripe test ([edb0dc7b6](https://github.com/mozilla/fxa/commit/edb0dc7b6))
+- fxa stripeHelper: add tests ([849ee53ed](https://github.com/mozilla/fxa/commit/849ee53ed))
+- nsp: add four nsp exceptions to auth and profile servers. ([ca8b53826](https://github.com/mozilla/fxa/commit/ca8b53826))
+- email: fix fx logo in subscription email ([139ac1a8f](https://github.com/mozilla/fxa/commit/139ac1a8f))
+
 ## 1.158.1
 
 ### Bug fixes
