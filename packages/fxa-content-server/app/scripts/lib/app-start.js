@@ -431,6 +431,7 @@ Start.prototype = {
       );
       this._notificationChannel.initialize({
         window: this._window,
+        isOAuthWebChannel: this.isOAuthWebChannel(),
       });
     }
   },
