@@ -1754,7 +1754,7 @@ describe('DirectStripeRoutes', () => {
     };
 
     log = mocks.mockLog();
-
+    customs = mocks.mockCustoms();
     profile = mocks.mockProfile({
       deleteCache: sinon.spy(async uid => ({})),
     });
@@ -1894,6 +1894,51 @@ describe('DirectStripeRoutes', () => {
             assert.equal(err.message, 'A backend service request failed.');
           }
         );
+      });
+    });
+  });
+
+  describe('updateSubscription', () => {
+    describe('when the plan is a valid upgrade', () => {
+      it('returns the subscription id', async () => {
+        const subscriptionId = 'sub_123';
+        const expected = { subscriptionId: subscriptionId };
+
+        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
+          subscription2
+        );
+        directStripeRoutesInstance.stripeHelper.verifyPlanUpgradeForSubscription.resolves();
+        directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
+
+        sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+
+        VALID_REQUEST.params = { subscriptionId: subscriptionId };
+        VALID_REQUEST.payload = { planId: 'plan_123' };
+
+        const actual = await directStripeRoutesInstance.updateSubscription(
+          VALID_REQUEST
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    describe('when the orginal subscription is not found', () => {
+      it('throws an exception', async () => {
+        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves();
+        VALID_REQUEST.params = { subscriptionId: 'sub_123' };
+        VALID_REQUEST.payload = { planId: 'plan_123' };
+
+        return directStripeRoutesInstance
+          .updateSubscription(VALID_REQUEST)
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.instanceOf(err, WError);
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+              assert.equal(err.message, 'Unknown subscription');
+            }
+          );
       });
     });
   });
