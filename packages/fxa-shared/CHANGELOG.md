@@ -1,5 +1,11 @@
 # Change history
 
+## 1.159.0
+
+### Bug fixes
+
+- metrics: add Amplitude events for /pair on content server ([a345e36bc](https://github.com/mozilla/fxa/commit/a345e36bc))
+
 ## 1.158.1
 
 No changes.

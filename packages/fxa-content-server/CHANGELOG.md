@@ -1,3 +1,21 @@
+## 1.159.0
+
+### New features
+
+- webchannels: report context in the status message ([9f727b867](https://github.com/mozilla/fxa/commit/9f727b867))
+- css: Add new breakpoints and corresponding mixins ([5f9c216ab](https://github.com/mozilla/fxa/commit/5f9c216ab))
+
+### Bug fixes
+
+- docker: missed content-server in #4219 ([8ab150085](https://github.com/mozilla/fxa/commit/8ab150085))
+- webchannel: ignore native Gecko WebChannel errors for the OAuth WebChannel ([e42f31caf](https://github.com/mozilla/fxa/commit/e42f31caf))
+- warning-button: Remove classes from create PW button flow, fix warning-button specificity for delete-account per UX as the button should be red ([f9453701e](https://github.com/mozilla/fxa/commit/f9453701e))
+- metrics: add Amplitude events for /pair on content server ([a345e36bc](https://github.com/mozilla/fxa/commit/a345e36bc))
+- password-eye: added to post_verify/account_recovery/confirm_password ([30de7d0bd](https://github.com/mozilla/fxa/commit/30de7d0bd))
+- delete_account: Change manage subscription link conditional from 'for' loop to 'if at least one' ([246a8215a](https://github.com/mozilla/fxa/commit/246a8215a))
+- show-password: Modify the show-password SVG reference \* Our image references receive a hash via grunt on stage/prod. Since this icon must be in an img tag and not set as a background-image, this commit changes the reference from a hard path to an inlined base64 URI. ([627c80f47](https://github.com/mozilla/fxa/commit/627c80f47))
+- l10n: Remove empty `value` field since that fails to extract string ([8fd7bf84c](https://github.com/mozilla/fxa/commit/8fd7bf84c))
+
 ## 1.158.1
 
 ### Bug fixes

@@ -1,5 +1,11 @@
 # Change history
 
+## 1.159.0
+
+### Other changes
+
+- nsp: add four nsp exceptions to auth and profile servers. ([ca8b53826](https://github.com/mozilla/fxa/commit/ca8b53826))
+
 ## 1.158.1
 
 No changes.
