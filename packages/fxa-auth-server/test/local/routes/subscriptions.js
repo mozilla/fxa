@@ -27,6 +27,9 @@ const subscriptionCreatedIncomplete = require('../payments/fixtures/subscription
 const subscriptionDeleted = require('../payments/fixtures/subscription_deleted.json');
 const subscriptionUpdated = require('../payments/fixtures/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscription_updated_from_incomplete.json');
+const openInvoice = require('../payments/fixtures/invoice_open.json');
+const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
+const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
 
 let config,
   log,
@@ -1857,6 +1860,42 @@ describe('DirectStripeRoutes', () => {
 
   describe('createSubscriptionExistingCustomer', () => {
     describe('user with no subscriptions', async () => {});
+  });
+
+  describe('handleOpenInvoice', () => {
+    describe('when the payment_intent status requires payment method', () => {
+      it('calls payInvoice', async () => {
+        const invoice = Object.create(openInvoice);
+        invoice.payment_intent = Object.create(openPaymentIntent);
+
+        directStripeRoutesInstance.stripeHelper.payInvoice.resolves();
+
+        await directStripeRoutesInstance.handleOpenInvoice(invoice);
+
+        assert.isTrue(
+          directStripeRoutesInstance.stripeHelper.payInvoice.calledOnceWith(
+            invoice.id
+          ),
+          'Expected stripeHelper.payInvoice to be called'
+        );
+      });
+    });
+
+    describe('when the payment_intent status is in any other state', () => {
+      it('thows a backendServiceFailure error', async () => {
+        const invoice = Object.create(openInvoice);
+        invoice.payment_intent = Object.create(closedPaymementIntent);
+
+        return directStripeRoutesInstance.handleOpenInvoice(invoice).then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          err => {
+            assert.instanceOf(err, WError);
+            assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+            assert.equal(err.message, 'A backend service request failed.');
+          }
+        );
+      });
+    });
   });
 
   describe('listPlans', () => {

@@ -95,7 +95,8 @@
         "999999",
         "--colors",
         "${workspaceFolder}/test/local/payments/stripe.js",
-        "${workspaceFolder}/test/local/routes/subscriptions.js"
+        "${workspaceFolder}/test/local/routes/subscriptions.js",
+        "--exit"
       ],
       "env": { "NODE_ENV": "dev" },
       "console": "integratedTerminal",
