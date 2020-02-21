@@ -258,18 +258,11 @@ class DirectStripeRoutes {
 
     const subscriptionId = request.params.subscriptionId;
 
-    const hasSubscription = await this.stripeHelper.subscriptionForCustomer(
+    await this.stripeHelper.cancelSubscriptionForCustomer(
       uid,
       email,
       subscriptionId
     );
-    if (!hasSubscription) {
-      throw error.unknownSubscription();
-    }
-
-    await this.stripeHelper.stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-    });
 
     await this.customerChanged(request, uid, email);
 

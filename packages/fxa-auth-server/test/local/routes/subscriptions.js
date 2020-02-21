@@ -2066,7 +2066,32 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('deleteSubscription', () => {});
+  describe('deleteSubscription', () => {
+    const deleteSubRequest = {
+      auth: {
+        credentials: {
+          scope: MOCK_SCOPES,
+          user: `${UID}`,
+          email: `${TEST_EMAIL}`,
+        },
+      },
+      app: {
+        devices: ['deviceId1', 'deviceId2'],
+      },
+      params: { subscriptionId: subscription2.id },
+    };
+
+    it('returns the subscription id', async () => {
+      const expected = { subscriptionId: subscription2.id };
+
+      directStripeRoutesInstance.stripeHelper.cancelSubscriptionForCustomer.resolves();
+      const actual = await directStripeRoutesInstance.deleteSubscription(
+        deleteSubRequest
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+  });
 
   describe('updatePayment', () => {});
 
