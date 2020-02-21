@@ -491,6 +491,29 @@ class StripeHelper {
   }
 
   /**
+   * Cancel a givel subscription for a customer
+   * If the subscription does not belong to the customer, throw an error
+   *
+   * @param {string} uid
+   * @param {string} email
+   * @param {Subscription[id]} subscriptionId
+   */
+  async cancelSubscriptionForCustomer(uid, email, subscriptionId) {
+    const hasSubscription = await this.subscriptionForCustomer(
+      uid,
+      email,
+      subscriptionId
+    );
+    if (!hasSubscription) {
+      throw error.unknownSubscription();
+    }
+
+    await this.stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    });
+  }
+
+  /**
    *
    * Returns the product name of a given product.
    *

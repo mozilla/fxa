@@ -266,6 +266,54 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('cancelSubscriptionForCustomer', () => {
+    let stripeSubscriptionsUpdateStub;
+
+    beforeEach(() => {
+      stripeSubscriptionsUpdateStub = sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'update')
+        .resolves();
+    });
+
+    describe('customer owns subscription', () => {
+      it('calls subscription update', async () => {
+        sandbox
+          .stub(stripeHelper, 'subscriptionForCustomer')
+          .resolves(subscription2);
+
+        await stripeHelper.cancelSubscriptionForCustomer(
+          '123',
+          'test@example.com',
+          subscription2.id
+        );
+        assert.isTrue(
+          stripeSubscriptionsUpdateStub.calledOnceWith(subscription2.id, {
+            cancel_at_period_end: true,
+          })
+        );
+      });
+    });
+
+    describe('customer does not own the subscription', () => {
+      it('throws an error', async () => {
+        sandbox.stub(stripeHelper, 'subscriptionForCustomer').resolves();
+        return stripeHelper
+          .cancelSubscriptionForCustomer(
+            '123',
+            'test@example.com',
+            subscription2.id
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+              assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
+            }
+          );
+      });
+    });
+  });
+
   describe('createCustomer', () => {
     it('creates a customer using stripe api', async () => {
       const expected = Object.create(newCustomer);
