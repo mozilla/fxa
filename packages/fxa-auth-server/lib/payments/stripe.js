@@ -491,7 +491,7 @@ class StripeHelper {
   }
 
   /**
-   * Cancel a givel subscription for a customer
+   * Cancel a given subscription for a customer
    * If the subscription does not belong to the customer, throw an error
    *
    * @param {string} uid
@@ -510,6 +510,46 @@ class StripeHelper {
 
     await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
+    });
+  }
+
+  /**
+   * Reactivate a given subscription for a customer
+   * If a customer has an active subscription that is set to cancel at the period end:
+   *  1. Update the subscription to remain active at the period end
+   *  2. Verify that after the update the subscription is still in an active state
+   *    True: return the updated Subscription
+   *    False: throw an error
+   * If the customer does not own the subscription, throw an error
+   *
+   * @param {string} uid
+   * @param {string} email
+   * @param {Subscription[id]} subscriptionId
+   */
+  async reactivateSubscriptionForCustomer(uid, email, subscriptionId) {
+    const subscription = await this.subscriptionForCustomer(
+      uid,
+      email,
+      subscriptionId
+    );
+    if (!subscription) {
+      throw error.unknownSubscription();
+    }
+
+    if (!['active', 'trialing'].includes(subscription.status)) {
+      const err = new Error(
+        `Reactivated subscription (${subscriptionId}) is not active/trialing`
+      );
+      throw error.backendServiceFailure(
+        'stripe',
+        'reactivateSubscription',
+        {},
+        err
+      );
+    }
+
+    return this.stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: false,
     });
   }
 
