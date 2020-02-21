@@ -49,9 +49,9 @@
     {{/isAndroid}}
 
     {{#isOther}}
-      <div class="links clearfix">
-        <a target="_blank" class="marketing-link marketing-link-ios left" href="{{ downloadLinkIos }}" data-flow-event="link.app-store.ios" data-marketing-id="{{ marketingId }}" data-marketing-type="ios"><img width="152" height="45" src="{{ appStoreImage }}" alt="{{#t}}Download Firefox for iOS!{{/t}}" /></a>
-        <a target="_blank" class="marketing-link marketing-link-android right" href="{{ downloadLinkAndroid }}" data-flow-event="link.app-store.android" data-marketing-id="{{ marketingId }}" data-marketing-type="android"><img width="152" height="45"  src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}" /></a>
+      <div class="links clearfix centered">
+        <a target="_blank" class="marketing-link marketing-link-ios" href="{{ downloadLinkIos }}" data-flow-event="link.app-store.ios" data-marketing-id="{{ marketingId }}" data-marketing-type="ios"><img width="152" height="45" src="{{ appStoreImage }}" alt="{{#t}}Download Firefox for iOS!{{/t}}" /></a>
+        <a target="_blank" class="marketing-link marketing-link-android" href="{{ downloadLinkAndroid }}" data-flow-event="link.app-store.android" data-marketing-id="{{ marketingId }}" data-marketing-type="android"><img width="152" height="45"  src="{{ playStoreImage }}" alt="{{#t}}Download Firefox for Android.{{/t}}" /></a>
       </div>
     {{/isOther}}
   {{/isAutumn2016}}

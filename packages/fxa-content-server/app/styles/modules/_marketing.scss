@@ -7,6 +7,9 @@
     // Links have `overflow: auto` by default, which causes a scrollbar to
     // appear around the images. Get rid of that.
     overflow: inherit;
+    &.centered {
+      flex-direction: row;
+    }
   }
 
   + .links {
@@ -19,6 +22,10 @@
     display: inline-block;
     height: 45px;
     width: 152px;
+  }
+
+  .clearfix::after {
+    content: none;
   }
 }
 
