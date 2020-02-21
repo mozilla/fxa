@@ -133,6 +133,7 @@ const otpOptions = {
 };
 
 let zendeskClient;
+
 const updateZendeskPrimaryEmail = require('../../../lib/routes/emails')
   ._updateZendeskPrimaryEmail;
 const updateStripeEmail = require('../../../lib/routes/emails')
@@ -188,7 +189,9 @@ const makeRoutes = function(options = {}, requireMocks) {
     customs,
     push,
     verificationReminders,
-    signupUtils
+    signupUtils,
+    undefined,
+    options.stripeHelper
   );
 };
 
@@ -1205,7 +1208,7 @@ describe('/recovery_email/verify_code', () => {
 describe('/recovery_email', () => {
   const uid = uuid.v4('binary').toString('hex');
   const mockLog = mocks.mockLog();
-  let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils;
+  let dbData, accountRoutes, mockDB, mockRequest, route, otpUtils, stripeHelper;
   const mockMailer = mocks.mockMailer();
   const mockPush = mocks.mockPush();
   const mockCustoms = mocks.mockCustoms();
@@ -1231,6 +1234,7 @@ describe('/recovery_email', () => {
       secondEmailCode: '123123',
     };
     mockDB = mocks.mockDB(dbData);
+    stripeHelper = mocks.mockStripeHelper();
     accountRoutes = makeRoutes({
       checkPassword: function() {
         return P.resolve(true);
@@ -1245,6 +1249,7 @@ describe('/recovery_email', () => {
       log: mockLog,
       mailer: mockMailer,
       push: mockPush,
+      stripeHelper,
     });
 
     otpUtils = require('../../../lib/routes/utils/otp')(
@@ -1538,6 +1543,12 @@ describe('/recovery_email', () => {
 
   describe('/recovery_email/set_primary', () => {
     it('should set primary email on account', () => {
+      stripeHelper.fetchCustomer = sinon.fake.returns(CUSTOMER_1);
+      stripeHelper.refreshCachedCustomer = sinon.fake.resolves();
+      stripeHelper.stripe = {
+        customers: { update: sinon.fake.returns(CUSTOMER_1_UPDATED) },
+      };
+
       mockDB.getSecondaryEmail = sinon.spy(() => {
         return P.resolve({
           uid: mockRequest.auth.credentials.uid,
@@ -1596,6 +1607,9 @@ describe('/recovery_email', () => {
           TEST_EMAIL_ADDITIONAL,
           'third argument was event data with new email'
         );
+        assert.equal(stripeHelper.fetchCustomer.callCount, 1);
+        assert.equal(stripeHelper.stripe.customers.update.callCount, 1);
+        assert.equal(stripeHelper.refreshCachedCustomer.callCount, 1);
       });
     });
 
