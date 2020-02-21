@@ -1986,6 +1986,69 @@ describe('DirectStripeRoutes', () => {
 
   describe('updatePayment', () => {});
 
+  describe('updateCustomerAndSendStatus', () => {
+    let event;
+
+    beforeEach(() => {
+      event = Object.create(subscriptionUpdatedFromIncomplete);
+      sinon
+        .stub(directStripeRoutesInstance, 'sendSubscriptionStatusToSqs')
+        .resolves();
+    });
+
+    describe('when the customer is found from the subscription', () => {
+      it('calls all the update and notification functions', async () => {
+        sinon
+          .stub(
+            directStripeRoutesInstance,
+            'getCustomerUidEmailFromSubscription'
+          )
+          .returns({ uid: UID, email: TEST_EMAIL });
+
+        await directStripeRoutesInstance.updateCustomerAndSendStatus(
+          VALID_REQUEST,
+          event,
+          subscription2,
+          true
+        );
+
+        assert.calledOnce(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.calledOnce(profile.deleteCache);
+        assert.calledOnce(
+          directStripeRoutesInstance.sendSubscriptionStatusToSqs
+        );
+      });
+    });
+
+    describe('when the customer is not found from the subscription', () => {
+      it('returns without calling anything', async () => {
+        sinon
+          .stub(
+            directStripeRoutesInstance,
+            'getCustomerUidEmailFromSubscription'
+          )
+          .returns({ uid: undefined, email: undefined });
+
+        await directStripeRoutesInstance.updateCustomerAndSendStatus(
+          VALID_REQUEST,
+          event,
+          subscription2,
+          true
+        );
+
+        assert.notCalled(
+          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        );
+        assert.notCalled(profile.deleteCache);
+        assert.notCalled(
+          directStripeRoutesInstance.sendSubscriptionStatusToSqs
+        );
+      });
+    });
+  });
+
   describe('stripe webhooks', () => {
     let sendStub, getCustomerStub;
 
