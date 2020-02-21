@@ -2176,4 +2176,39 @@ describe('DirectStripeRoutes', () => {
       });
     });
   });
+
+  describe('getUidEmail', () => {
+    let handleAuthSpy;
+
+    beforeEach(() => {
+      handleAuthSpy = sandbox.spy(handleAuth);
+    });
+
+    describe('when the auth strategy is supportPanelSecret', () => {
+      it('returns the uid and email from reques.query', async () => {
+        const expected = { uid: '12345', email: 'test@example.com' };
+        const request = {
+          auth: {
+            strategy: 'supportPanelSecret',
+          },
+          query: expected,
+        };
+
+        const actual = await directStripeRoutesInstance.getUidEmail(request);
+        assert.deepEqual(actual, expected);
+        assert.isFalse(handleAuthSpy.called);
+      });
+    });
+    describe('when the auth strategy is not supportPanelSecret', () => {
+      it('returns the uid and email from handleAuth', async () => {
+        const expected = { uid: UID, email: TEST_EMAIL };
+
+        const actual = await directStripeRoutesInstance.getUidEmail(
+          VALID_REQUEST
+        );
+        assert.deepEqual(actual, expected);
+        assert.isFalse(handleAuthSpy.called);
+      });
+    });
+  });
 });
