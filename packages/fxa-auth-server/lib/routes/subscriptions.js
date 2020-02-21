@@ -300,32 +300,11 @@ class DirectStripeRoutes {
 
     const { subscriptionId } = request.payload;
 
-    const hasSubscription = await this.stripeHelper.subscriptionForCustomer(
+    await this.stripeHelper.reactivateSubscriptionForCustomer(
       uid,
       email,
       subscriptionId
     );
-    if (!hasSubscription) {
-      throw error.unknownSubscription();
-    }
-
-    const subscription = await this.stripeHelper.stripe.subscriptions.update(
-      subscriptionId,
-      {
-        cancel_at_period_end: false,
-      }
-    );
-    if (!['active', 'trialing'].includes(subscription.status)) {
-      const err = new Error(
-        `Reactivated subscription (${subscriptionId}) is not active/trialing`
-      );
-      throw error.backendServiceFailure(
-        'stripe',
-        'reactivateSubscription',
-        {},
-        err
-      );
-    }
 
     await this.customerChanged(request, uid, email);
 

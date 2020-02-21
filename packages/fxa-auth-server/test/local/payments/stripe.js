@@ -314,6 +314,111 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('reactivateSubscriptionForCustomer', () => {
+    let stripeSubscriptionsUpdateStub;
+
+    beforeEach(() => {
+      stripeSubscriptionsUpdateStub = sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'update')
+        .resolves();
+    });
+
+    describe('customer owns subscription', () => {
+      describe('the intial subscription has a active status', () => {
+        it('returns the updated subscription', async () => {
+          const expected = Object.create(subscription2);
+          sandbox
+            .stub(stripeHelper, 'subscriptionForCustomer')
+            .resolves(subscription2);
+          stripeHelper.stripe.subscriptions.update.resolves(expected);
+
+          const actual = await stripeHelper.reactivateSubscriptionForCustomer(
+            '123',
+            'test@example.com',
+            expected.id
+          );
+
+          assert.deepEqual(actual, expected);
+
+          assert.isTrue(
+            stripeSubscriptionsUpdateStub.calledOnceWith(expected.id, {
+              cancel_at_period_end: false,
+            })
+          );
+        });
+      });
+
+      describe('the initial subscription has a trialing status', () => {
+        it('returns the updated subscription', async () => {
+          const expected = Object.create(subscription2);
+          expected.status = 'trialing';
+
+          sandbox
+            .stub(stripeHelper, 'subscriptionForCustomer')
+            .resolves(expected);
+          stripeHelper.stripe.subscriptions.update.resolves(expected);
+
+          const actual = await stripeHelper.reactivateSubscriptionForCustomer(
+            '123',
+            'test@example.com',
+            expected.id
+          );
+
+          assert.deepEqual(actual, expected);
+
+          assert.isTrue(
+            stripeSubscriptionsUpdateStub.calledOnceWith(expected.id, {
+              cancel_at_period_end: false,
+            })
+          );
+        });
+      });
+      describe('the updated subscription is not in a active||trialing state', () => {
+        it('throws an error', () => {
+          const expected = Object.create(subscription2);
+          expected.status = 'unpaid';
+
+          sandbox
+            .stub(stripeHelper, 'subscriptionForCustomer')
+            .resolves(expected);
+
+          return stripeHelper
+            .reactivateSubscriptionForCustomer(
+              '123',
+              'test@example.com',
+              expected.id
+            )
+            .then(
+              () => Promise.reject(new Error('Method expected to reject')),
+              err => {
+                assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+                assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
+              }
+            );
+        });
+      });
+    });
+
+    describe('customer does not own the subscription', () => {
+      it('throws an error', async () => {
+        sandbox.stub(stripeHelper, 'subscriptionForCustomer').resolves();
+        return stripeHelper
+          .reactivateSubscriptionForCustomer(
+            '123',
+            'test@example.com',
+            subscription2.id
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+              assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
+            }
+          );
+      });
+    });
+  });
+
   describe('createCustomer', () => {
     it('creates a customer using stripe api', async () => {
       const expected = Object.create(newCustomer);

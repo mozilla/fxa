@@ -2200,82 +2200,6 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('updateSubscription', () => {
-    describe('when the plan is a valid upgrade', () => {
-      it('returns the subscription id', async () => {
-        const subscriptionId = 'sub_123';
-        const expected = { subscriptionId: subscriptionId };
-
-        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
-          subscription2
-        );
-        directStripeRoutesInstance.stripeHelper.verifyPlanUpgradeForSubscription.resolves();
-        directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
-
-        sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
-
-        VALID_REQUEST.params = { subscriptionId: subscriptionId };
-        VALID_REQUEST.payload = { planId: 'plan_123' };
-
-        const actual = await directStripeRoutesInstance.updateSubscription(
-          VALID_REQUEST
-        );
-
-        assert.deepEqual(actual, expected);
-      });
-    });
-
-    describe('when the orginal subscription is not found', () => {
-      it('throws an exception', async () => {
-        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves();
-        VALID_REQUEST.params = { subscriptionId: 'sub_123' };
-        VALID_REQUEST.payload = { planId: 'plan_123' };
-
-        return directStripeRoutesInstance
-          .updateSubscription(VALID_REQUEST)
-          .then(
-            () => Promise.reject(new Error('Method expected to reject')),
-            err => {
-              assert.instanceOf(err, WError);
-              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
-              assert.equal(err.message, 'Unknown subscription');
-            }
-          );
-      });
-    });
-  });
-
-  describe('listPlans', () => {
-    it('returns the available plans when auth headers are valid', async () => {
-      const expected = PLANS;
-
-      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
-      const actual = await directStripeRoutesInstance.listPlans(VALID_REQUEST);
-
-      assert.deepEqual(actual, expected);
-    });
-
-    it('results in an error when auth headers are invalid', async () => {
-      const invalid_request = {
-        auth: {
-          credentials: {
-            scope: ['profile'],
-            user: `${UID}`,
-            email: `${TEST_EMAIL}`,
-          },
-        },
-      };
-
-      return directStripeRoutesInstance.listPlans(invalid_request).then(
-        () => Promise.reject(new Error('Method expected to reject')),
-        err => {
-          assert.instanceOf(err, WError);
-          assert.equal(err.message, 'Requested scopes are not allowed');
-        }
-      );
-    });
-  });
-
   describe('findCustomerSubscriptionByPlanId', () => {
     describe('Customer has Single One-Plan Subscription', () => {
       const customer = Object.create(customerFixture);
@@ -2396,6 +2320,113 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('updatePayment', () => {});
+
+  describe('reactivateSubscription', () => {
+    const reactivateRequest = {
+      auth: {
+        credentials: {
+          scope: MOCK_SCOPES,
+          user: `${UID}`,
+          email: `${TEST_EMAIL}`,
+        },
+      },
+      app: {
+        devices: ['deviceId1', 'deviceId2'],
+      },
+      payload: { subscriptionId: subscription2.id },
+    };
+
+    it('returns an empty object', async () => {
+      directStripeRoutesInstance.stripeHelper.reactivateSubscriptionForCustomer.resolves();
+      const actual = await directStripeRoutesInstance.reactivateSubscription(
+        reactivateRequest
+      );
+
+      assert.isEmpty(actual);
+    });
+  });
+
+  describe('updateSubscription', () => {
+    describe('when the plan is a valid upgrade', () => {
+      it('returns the subscription id', async () => {
+        const subscriptionId = 'sub_123';
+        const expected = { subscriptionId: subscriptionId };
+
+        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
+          subscription2
+        );
+        directStripeRoutesInstance.stripeHelper.verifyPlanUpgradeForSubscription.resolves();
+        directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
+
+        sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+
+        VALID_REQUEST.params = { subscriptionId: subscriptionId };
+        VALID_REQUEST.payload = { planId: 'plan_123' };
+
+        const actual = await directStripeRoutesInstance.updateSubscription(
+          VALID_REQUEST
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    describe('when the orginal subscription is not found', () => {
+      it('throws an exception', async () => {
+        directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves();
+        VALID_REQUEST.params = { subscriptionId: 'sub_123' };
+        VALID_REQUEST.payload = { planId: 'plan_123' };
+
+        return directStripeRoutesInstance
+          .updateSubscription(VALID_REQUEST)
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.instanceOf(err, WError);
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
+              assert.equal(err.message, 'Unknown subscription');
+            }
+          );
+      });
+    });
+  });
+
+  describe('listPlans', () => {
+    it('returns the available plans when auth headers are valid', async () => {
+      const expected = PLANS;
+
+      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+      const actual = await directStripeRoutesInstance.listPlans(VALID_REQUEST);
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('results in an error when auth headers are invalid', async () => {
+      const invalid_request = {
+        auth: {
+          credentials: {
+            scope: ['profile'],
+            user: `${UID}`,
+            email: `${TEST_EMAIL}`,
+          },
+        },
+      };
+
+      return directStripeRoutesInstance.listPlans(invalid_request).then(
+        () => Promise.reject(new Error('Method expected to reject')),
+        err => {
+          assert.instanceOf(err, WError);
+          assert.equal(err.message, 'Requested scopes are not allowed');
+        }
+      );
+    });
+  });
+
+  describe('listActive', () => {});
+
+  describe('getCustomer', () => {});
+
+  describe('sendSubscriptionStatusToSqs', () => {});
 
   describe('updateCustomerAndSendStatus', () => {
     let event;
@@ -2548,6 +2579,10 @@ describe('DirectStripeRoutes', () => {
       });
     });
   });
+
+  describe('getCustomerUidEmailFromSubscription', () => {});
+
+  describe('getSubscriptions', () => {});
 
   describe('getUidEmail', () => {
     describe('when the auth strategy is supportPanelSecret', () => {
