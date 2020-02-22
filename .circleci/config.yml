@@ -308,6 +308,13 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fxa-admin-server
+          module: fxa-admin-server
+          db: true
+          upload_coverage: false
+          requires:
+            - install
+      - build-module:
           name: fxa-auth-db-mysql
           module: fxa-auth-db-mysql
           db: true
@@ -421,6 +428,16 @@ workflows:
               ignore: /.*/
           name: browserid-verifier
           module: browserid-verifier
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-admin-server
+          module: fxa-admin-server
           requires:
             - install
       - deploy-module:
