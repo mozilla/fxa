@@ -82,6 +82,7 @@ module.exports = (
   verificationReminders,
   signupUtils,
   zendeskClient,
+  /** @type import('../payments/stripe').StripeHelper */
   stripeHelper
 ) => {
   const REMINDER_PATTERN = new RegExp(
@@ -864,12 +865,25 @@ module.exports = (
           ).catch(err => handleCriticalError(err, 'zendesk'));
 
           if (stripeHelper) {
-            updateStripeEmail(
-              stripeHelper,
-              uid,
-              primaryEmail,
-              secondaryEmail.normalizedEmail
-            ).catch(err => handleCriticalError(err, 'stripe'));
+            // Wait here to update stripe and our local cache to avoid loss of
+            // valid subscription status.
+            try {
+              await updateStripeEmail(
+                stripeHelper,
+                uid,
+                primaryEmail,
+                secondaryEmail.normalizedEmail
+              );
+              await stripeHelper.refreshCachedCustomer(
+                uid,
+                secondaryEmail.normalizedEmail
+              );
+            } catch (err) {
+              // Due to the work involved by this point, we cannot abort the
+              // request. We instead report it for manual fixing with sufficient
+              // context to locate the user and update Stripe and our cache.
+              handleCriticalError(err, 'stripe');
+            }
           }
 
           const account = await db.account(uid);

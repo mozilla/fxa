@@ -70,7 +70,8 @@
         "--timeout",
         "999999",
         "--colors",
-        "${workspaceFolder}/${relativeFile}"
+        "${workspaceFolder}/${relativeFile}",
+        "--exit"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
