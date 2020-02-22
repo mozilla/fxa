@@ -4,13 +4,7 @@
 
 'use strict';
 
-const PRODUCT_SUBSCRIBED = 'defaultSubscribed';
-const PRODUCT_REGISTERED = 'defaultRegistered';
-
 const SubscriptionUtils = (module.exports = {
-  PRODUCT_SUBSCRIBED,
-  PRODUCT_REGISTERED,
-
   // Support some default null values for product / plan metadata and
   // allow plan metadata to override product metadata
   metadataFromPlan: plan => ({
@@ -24,45 +18,33 @@ const SubscriptionUtils = (module.exports = {
     ...plan.plan_metadata,
   }),
 
+  // Parse a comma-separated list of capabilities with allowance for varied whitespace
+  splitCapabilities: s =>
+    (s || '')
+      .trim()
+      .split(',')
+      .map(c => c.trim())
+      .filter(c => !!c),
+
   determineClientVisibleSubscriptionCapabilities: async function(
-    config,
-    auth,
-    db,
+    stripeHelper,
     uid,
     client_id,
-    stripeHelper,
     email
   ) {
-    const capabilitiesToReveal = new Set();
-
-    let subscribedProducts = [];
-
-    if (stripeHelper) {
-      subscribedProducts = await fetchSubscribedProductsFromStripe(
-        uid,
-        stripeHelper,
-        email
-      );
-      await checkCapabilitiesFromStripe(
-        subscribedProducts,
-        capabilitiesToReveal,
-        client_id,
-        stripeHelper
-      );
-    } else {
-      // TODO: issue #3846 - remove this conditional branch
-      subscribedProducts = await fetchSubscribedProductsFromLocalDB(db, uid);
+    if (!stripeHelper) {
+      return undefined;
     }
-
-    // TODO: issue #3913 - remove support for capabilities from server config
-    checkCapabilitiesFromServerConfig(
-      capabilitiesToReveal,
+    const subscribedProducts = await fetchSubscribedProductsFromStripe(
+      uid,
+      stripeHelper,
+      email
+    );
+    const capabilitiesToReveal = await checkCapabilitiesFromStripe(
       subscribedProducts,
       client_id,
-      config,
-      auth
+      stripeHelper
     );
-
     return capabilitiesToReveal.size > 0
       ? Array.from(capabilitiesToReveal)
       : undefined;
@@ -82,28 +64,20 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
     return [];
   }
 
-  const subscribedProducts = [
-    // All accounts get this psuedo-product
-    PRODUCT_REGISTERED,
-    ...customer.subscriptions.data
-      // TODO: Centralize subscription filtering logic for active subs
-      .filter(sub => ['active', 'trialing', 'past_due'].includes(sub.status))
-      .map(({ plan: { product: productId } }) => productId),
-  ];
-
-  // Accounts with at least one subscription get this product
-  if (subscribedProducts.length > 1) {
-    subscribedProducts.push(PRODUCT_SUBSCRIBED);
-  }
+  const subscribedProducts = customer.subscriptions.data
+    // TODO: Centralize subscription filtering logic for active subs
+    .filter(sub => ['active', 'trialing', 'past_due'].includes(sub.status))
+    .map(({ plan: { product: productId } }) => productId);
   return subscribedProducts;
 }
 
 async function checkCapabilitiesFromStripe(
   subscribedProducts,
-  capabilitiesToReveal,
   client_id,
   stripeHelper
 ) {
+  const capabilitiesToReveal = new Set();
+
   // Run through all plans and collect capabilitiies for subscribed products
   const plans = await stripeHelper.allPlans();
   for (const plan of plans) {
@@ -120,54 +94,12 @@ async function checkCapabilitiesFromStripe(
       ),
     ].filter(key => key in metadata);
     for (const key of capabilityKeys) {
-      const capabilities = metadata[key].split(',');
+      const capabilities = SubscriptionUtils.splitCapabilities(metadata[key]);
       for (const capability of capabilities) {
         capabilitiesToReveal.add(capability);
       }
     }
   }
-}
 
-// TODO: issue #3846 - remove this method
-async function fetchSubscribedProductsFromLocalDB(db, uid) {
-  const subscriptions = (await db.fetchAccountSubscriptions(uid)) || [];
-  const subscribedProducts = [
-    // All accounts get this psuedo-product
-    PRODUCT_REGISTERED,
-    ...subscriptions.map(({ productId }) => productId),
-  ];
-  // Accounts with at least one subscription get this product
-  if (subscribedProducts.length > 1) {
-    subscribedProducts.push(PRODUCT_SUBSCRIBED);
-  }
-  return subscribedProducts;
-}
-
-// TODO: issue #3913 - remove support for capabilities from server config
-function checkCapabilitiesFromServerConfig(
-  capabilitiesToReveal,
-  subscribedProducts,
-  client_id,
-  config,
-  auth
-) {
-  const {
-    subscriptions: { productCapabilities = {}, clientCapabilities = {} } = {},
-  } = config;
-
-  const subscribedCapabilities = subscribedProducts.reduce(
-    (capabilities, product) =>
-      capabilities.concat(productCapabilities[product] || []),
-    []
-  );
-
-  const clientVisibleCapabilities = clientCapabilities[client_id] || [];
-
-  subscribedCapabilities
-    .filter(
-      capability =>
-        auth.strategy === 'sessionToken' ||
-        clientVisibleCapabilities.includes(capability)
-    )
-    .forEach(capability => capabilitiesToReveal.add(capability));
+  return capabilitiesToReveal;
 }

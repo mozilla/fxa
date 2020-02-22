@@ -56,6 +56,7 @@
           "product_id": "123doneProProduct",
           "product_name": "123done Pro",
           "product_metadata": {
+            "capabilities:dcdb5ae7add825d2": "123donePro",
             "productSet": "123done_product",
             "productSetOrder": "1",
             "upgradeCTA": "Interested in an upgrade? <a href=\"http://127.0.0.1:3030/subscriptions/products/123doneProPlusProduct \">Get Pro+!</a>",
@@ -73,6 +74,7 @@
           "product_id": "123doneProPlusProduct",
           "product_name": "123done Pro+",
           "product_metadata": {
+            "capabilities:dcdb5ae7add825d2": "123donePro",
             "downloadURL": "http://127.0.0.1:8080/",
             "productSet": "123done_product",
             "productSetOrder": "2"
@@ -87,6 +89,7 @@
           "product_id": "321doneProProduct",
           "product_name": "321done Pro",
           "product_metadata": {
+            "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=7",
             "emailIconURL": "http://placekitten.com/512/512?image=1",
             "downloadURL": "http://127.0.0.1:8080/"
@@ -101,6 +104,8 @@
           "product_id": "allDoneProProduct",
           "product_name": "123done Pro and 321done Pro",
           "product_metadata": {
+            "capabilities:dcdb5ae7add825d2": "123donePro",
+            "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=8",
             "emailIconURL": "http://placekitten.com/512/512?image=2",
             "downloadURL": "http://127.0.0.1:8080/"
@@ -115,6 +120,7 @@
           "product_id": "fortressProProduct",
           "product_name": "Fortress Pro",
           "product_metadata": {
+            "capabilities": "fortress",
             "webIconURL": "http://placekitten.com/512/512?image=9",
             "emailIconURL": "http://placekitten.com/512/512?image=3",
             "downloadURL": "http://127.0.0.1:9292/"
@@ -129,6 +135,7 @@
           "product_id": "321doneProProduct",
           "product_name": "321done Pro",
           "product_metadata": {
+            "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=10",
             "emailIconURL": "http://placekitten.com/512/512?image=4",
             "downloadURL": "http://127.0.0.1:8080/"
@@ -143,6 +150,8 @@
           "product_id": "allDoneProProduct",
           "product_name": "123done Pro and 321done Pro",
           "product_metadata": {
+            "capabilities:dcdb5ae7add825d2": "123donePro",
+            "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=11",
             "emailIconURL": "http://placekitten.com/512/512?image=5",
             "downloadURL": "http://127.0.0.1:8080/"
@@ -156,35 +165,7 @@
   },
   "subscriptions": {
     "enabled": true,
-    "productCapabilities": {
-      "123doneProProduct": ["123donePro"],
-      "321doneProProduct": ["321donePro"],
-      "allDoneProProduct": ["123donePro", "321donePro"],
-      "exampleProd1": ["exampleCap1", "exampleCap2", "exampleCap3"],
-      "exampleProd2": ["exampleCap4", "exampleCap5"],
-      "exampleProd3": [
-        "exampleCap1",
-        "exampleCap2",
-        "exampleCap3",
-        "exampleCap4",
-        "exampleCap5"
-      ]
-    },
-    "sharedSecret": "devsecret",
-    "clientCapabilities": {
-      "dcdb5ae7add825d2": [
-        "123donePro",
-        "exampleCap1",
-        "exampleCap3",
-        "exampleCap5"
-      ],
-      "325b4083e32fe8e7": [
-        "321donePro",
-        "exampleCap2",
-        "exampleCap4",
-        "exampleCap6"
-      ]
-    }
+    "sharedSecret": "devsecret"
   },
   "totp": {
     "recoveryCodes": {
