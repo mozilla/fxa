@@ -17,12 +17,6 @@ const amplitude = require('./metrics/amplitude')(
   config.getProperties()
 );
 const sub = require('./jwt_sub');
-const subConfig = {
-  subscriptions: {
-    productCapabilities: config.get('subscriptions.productCapabilities'),
-    clientCapabilities: config.get('subscriptions.clientCapabilities'),
-  },
-};
 const {
   determineClientVisibleSubscriptionCapabilities,
 } = require('../routes/utils/subscriptions');
@@ -52,10 +46,6 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'profile:email',
   'profile:display_name',
 ]);
-let authdb = {};
-module.exports.setDB = function(db) {
-  authdb = db;
-};
 let stripeHelper = null;
 module.exports.setStripeHelper = function(val) {
   stripeHelper = val;
@@ -252,12 +242,9 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
 
   if (grant.scope.contains('profile:subscriptions')) {
     const capabilities = await determineClientVisibleSubscriptionCapabilities(
-      subConfig,
-      {},
-      authdb,
+      stripeHelper,
       hex(grant.userId),
       grant.clientId,
-      stripeHelper,
       grant.email
     );
     // To avoid mutating the input grant, create a

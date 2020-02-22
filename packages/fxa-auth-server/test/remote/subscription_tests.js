@@ -44,20 +44,6 @@ describe('remote subscriptions:', function() {
       ],
     };
     config.subscriptions = {
-      productCapabilities: {
-        defaultRegistered: ['isRegistered'],
-        defaultSubscribed: ['isSubscribed'],
-        [PRODUCT_ID]: [
-          '123donePro',
-          '321donePro',
-          'FirefoxPlus',
-          'MechaMozilla',
-        ],
-      },
-      clientCapabilities: {
-        [CLIENT_ID]: ['123donePro', 'ILikePie', 'MechaMozilla', 'FooBar'],
-        [CLIENT_ID_FOR_DEFAULT]: ['isRegistered', 'isSubscribed'],
-      },
       sharedSecret: 'wibble',
     };
   });
@@ -80,6 +66,30 @@ describe('remote subscriptions:', function() {
           interval: 'month',
           amount: 50,
           currency: 'usd',
+          product_metadata: {
+            [`capabilities:${CLIENT_ID}`]: '123donePro, ILikePie',
+          }
+        },
+        {
+          plan_id: 'plan_1a',
+          plan_name: 'plan 1a',
+          product_id: 'prod_1a',
+          product_name: 'product 1a',
+          interval: 'month',
+          amount: 50,
+          currency: 'usd',
+        },
+        {
+          plan_id: 'plan_1b',
+          plan_name: 'plan 1b',
+          product_id: 'prod_1b',
+          product_name: 'product 1b',
+          interval: 'month',
+          amount: 50,
+          currency: 'usd',
+          plan_metadata: {
+            [`capabilities:${CLIENT_ID}`]: 'MechaMozilla,FooBar',
+          }
         },
       ];
       mockStripeHelper.customer = async (uid, email) => ({});
@@ -127,6 +137,30 @@ describe('remote subscriptions:', function() {
       ];
     });
 
+    it('should return client capabilities with shared secret', async () => {
+      const response = await client.getSubscriptionClients('wibble');
+      assert.deepEqual(response, [
+        {
+          clientId: CLIENT_ID,
+          capabilities: ['123donePro', 'ILikePie', 'MechaMozilla', 'FooBar'],
+        },
+      ]);
+    });
+
+    it('should not return client capabilities with invalid shared secret', async () => {
+      let succeeded = false;
+
+      try {
+        await client.getSubscriptionClients('blee');
+        succeeded = true;
+      } catch (err) {
+        assert.equal(err.code, 401);
+        assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
+      }
+
+      assert.isFalse(succeeded);
+    });
+
     describe('with no subscriptions', () => {
       beforeEach(() => {
         mockStripeHelper.customer = async (uid, email) => ({
@@ -135,17 +169,17 @@ describe('remote subscriptions:', function() {
         mockStripeHelper.subscriptionsToResponse = async subscriptions => [];
       });
 
-      it('should return default capability with session token', async () => {
+      it('should not return any subscription capabilities by default with session token', async () => {
         const response = await client.accountProfile();
-        assert.deepEqual(response.subscriptions, ['isRegistered']);
+        assert.isUndefined(response.subscriptions);
       });
 
-      it('should return default capability with refresh token', async () => {
+      it('should not return any subscription capabilities for client without capabilities', async () => {
         const response = await client.accountProfile(tokens[0]);
-        assert.deepEqual(response.subscriptions, ['isRegistered']);
+        assert.isUndefined(response.subscriptions);
       });
 
-      it('should not return any subscription capabilities', async () => {
+      it('should not return any subscription capabilities for client with capabilities', async () => {
         const response = await client.accountProfile(tokens[1]);
         assert.isUndefined(response.subscriptions);
       });
@@ -193,32 +227,19 @@ describe('remote subscriptions:', function() {
         ];
       });
 
-      it('should return client capabilities with shared secret', async () => {
-        const response = await client.getSubscriptionClients('wibble');
-        assert.deepEqual(response, [
-          {
-            clientId: CLIENT_ID,
-            capabilities: ['123donePro', 'ILikePie', 'MechaMozilla', 'FooBar'],
-          },
-          {
-            clientId: CLIENT_ID_FOR_DEFAULT,
-            capabilities: ['isRegistered', 'isSubscribed'],
-          },
-        ]);
+      it('should not return any subscription capabilities by default with session token', async () => {
+        const response = await client.accountProfile();
+        assert.deepEqual(response.subscriptions, [ '123donePro', 'ILikePie' ]);
       });
 
-      it('should not return client capabilities with invalid shared secret', async () => {
-        let succeeded = false;
+      it('should not return any subscription capabilities for client without capabilities', async () => {
+        const response = await client.accountProfile(tokens[0]);
+        assert.isUndefined(response.subscriptions);
+      });
 
-        try {
-          await client.getSubscriptionClients('blee');
-          succeeded = true;
-        } catch (err) {
-          assert.equal(err.code, 401);
-          assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
-        }
-
-        assert.isFalse(succeeded);
+      it('should return subscription capabilities for client with capabilities', async () => {
+        const response = await client.accountProfile(tokens[1]);
+        assert.deepEqual(response.subscriptions, [ '123donePro', 'ILikePie' ]);
       });
 
       it('should return active subscriptions', async () => {
@@ -287,20 +308,6 @@ describe('remote subscriptions:', function() {
       ];
     });
 
-    it('should return client capabilities with shared secret', async () => {
-      const response = await client.getSubscriptionClients('wibble');
-      assert.deepEqual(response, [
-        {
-          clientId: CLIENT_ID,
-          capabilities: ['123donePro', 'ILikePie', 'MechaMozilla', 'FooBar'],
-        },
-        {
-          clientId: CLIENT_ID_FOR_DEFAULT,
-          capabilities: ['isRegistered', 'isSubscribed'],
-        },
-      ]);
-    });
-
     it('should not return client capabilities with invalid shared secret', async () => {
       let succeeded = false;
 
@@ -313,16 +320,6 @@ describe('remote subscriptions:', function() {
       }
 
       assert.isFalse(succeeded);
-    });
-
-    it('should return default capability with session token', async () => {
-      const response = await client.accountProfile();
-      assert.deepEqual(response.subscriptions, ['isRegistered']);
-    });
-
-    it('should return default capability with refresh token', async () => {
-      const response = await client.accountProfile(tokens[0]);
-      assert.deepEqual(response.subscriptions, ['isRegistered']);
     });
 
     it('should not return any subscription capabilities', async () => {
@@ -370,34 +367,6 @@ describe('remote subscriptions:', function() {
         assert.notEqual(subscriptionId, '');
       });
 
-      it('should return subscription capabilities with session token', async () => {
-        const response = await client.accountProfile();
-        assert.deepEqual(response.subscriptions, [
-          'isRegistered',
-          '123donePro',
-          '321donePro',
-          'FirefoxPlus',
-          'MechaMozilla',
-          'isSubscribed',
-        ]);
-      });
-
-      it('should return default capability with refresh token', async () => {
-        const response = await client.accountProfile(tokens[0]);
-        assert.deepEqual(response.subscriptions, [
-          'isRegistered',
-          'isSubscribed',
-        ]);
-      });
-
-      it('should return relevant capabilities with refresh token', async () => {
-        const response = await client.accountProfile(tokens[1]);
-        assert.deepEqual(response.subscriptions, [
-          '123donePro',
-          'MechaMozilla',
-        ]);
-      });
-
       it('should return active subscriptions', async () => {
         let result = await client.getActiveSubscriptions(tokens[2]);
         assert.isArray(result);
@@ -420,34 +389,6 @@ describe('remote subscriptions:', function() {
           await client.cancelSubscription(tokens[2], subscriptionId);
         });
 
-        it('should return subscription capabilities with session token', async () => {
-          const response = await client.accountProfile();
-          assert.deepEqual(response.subscriptions, [
-            'isRegistered',
-            '123donePro',
-            '321donePro',
-            'FirefoxPlus',
-            'MechaMozilla',
-            'isSubscribed',
-          ]);
-        });
-
-        it('should return default capability with refresh token', async () => {
-          const response = await client.accountProfile(tokens[0]);
-          assert.deepEqual(response.subscriptions, [
-            'isRegistered',
-            'isSubscribed',
-          ]);
-        });
-
-        it('should return relevant capabilities with refresh token', async () => {
-          const response = await client.accountProfile(tokens[1]);
-          assert.deepEqual(response.subscriptions, [
-            '123donePro',
-            'MechaMozilla',
-          ]);
-        });
-
         it('should return cancelled subscriptions', async () => {
           const result = await client.getActiveSubscriptions(tokens[2]);
           assert.isArray(result);
@@ -462,34 +403,6 @@ describe('remote subscriptions:', function() {
         describe('reactivateSubscription:', () => {
           beforeEach(async () => {
             await client.reactivateSubscription(tokens[2], subscriptionId);
-          });
-
-          it('should return subscription capabilities with session token', async () => {
-            const response = await client.accountProfile();
-            assert.deepEqual(response.subscriptions, [
-              'isRegistered',
-              '123donePro',
-              '321donePro',
-              'FirefoxPlus',
-              'MechaMozilla',
-              'isSubscribed',
-            ]);
-          });
-
-          it('should return default capability with refresh token', async () => {
-            const response = await client.accountProfile(tokens[0]);
-            assert.deepEqual(response.subscriptions, [
-              'isRegistered',
-              'isSubscribed',
-            ]);
-          });
-
-          it('should return relevant capabilities with refresh token', async () => {
-            const response = await client.accountProfile(tokens[1]);
-            assert.deepEqual(response.subscriptions, [
-              '123donePro',
-              'MechaMozilla',
-            ]);
           });
 
           it('should return reactivated subscriptions', async () => {

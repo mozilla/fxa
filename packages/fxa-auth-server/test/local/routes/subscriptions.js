@@ -7,17 +7,20 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const uuid = require('uuid');
-const getRoute = require('../../routes_helpers').getRoute;
+const { getRoute } = require('../../routes_helpers');
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const P = require('../../../lib/promise');
 const Sentry = require('@sentry/node');
-const StripeHelper = require('../../../lib/payments/stripe').StripeHelper;
+const { StripeHelper } = require('../../../lib/payments/stripe');
 const WError = require('verror').WError;
 
-const handleAuth = require('../../../lib/routes/subscriptions').handleAuth;
-const DirectStripeRoutes = require('../../../lib/routes/subscriptions')
-  .DirectStripeRoutes;
+const {
+  sanitizePlans,
+  handleAuth,
+  DirectStripeRoutes,
+} = require('../../../lib/routes/subscriptions');
+
 const subscription2 = require('../payments/fixtures/subscription2.json');
 const customerFixture = require('../payments/fixtures/customer1.json');
 const multiPlanSubscription = require('../payments/fixtures/subscription_multiplan.json');
@@ -71,6 +74,8 @@ const PLANS = [
     product_metadata: {
       emailIconURL: 'http://example.com/image.jpg',
       downloadURL: 'http://getfirefox.com',
+      capabilities: 'exampleCap0',
+      'capabilities:client1': 'exampleCap1',
     },
   },
   {
@@ -81,15 +86,23 @@ const PLANS = [
     interval: 'month',
     amount: '456',
     currency: 'usd',
+    product_metadata: {
+      'capabilities:client2': 'exampleCap2, exampleCap4',
+    },
   },
   {
     plan_id: PLAN_ID_1,
     plan_name: 'Basic FN',
     product_id: 'prod_G93l8Yn7XJHYUs',
-    produuct_name: 'FN Tier 1',
+    product_name: 'FN Tier 1',
     interval: 'month',
     amount: 499,
     current: 'usd',
+    plan_metadata: {
+      'capabilities:client1': 'exampleCap3',
+      // NOTE: whitespace in capabilities list should be flexible for human entry
+      'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
+    },
   },
 ];
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
@@ -130,6 +143,48 @@ function runTest(routePath, requestOptions, payments = null) {
   return route.handler(request);
 }
 
+describe('sanitizePlans', () => {
+  it('removes capabilities from product & plan metadata', () => {
+    const expected = [
+      {
+        plan_id: 'firefox_pro_basic_823',
+        plan_name: 'Firefox Pro Basic Weekly',
+        product_id: 'firefox_pro_basic',
+        product_name: 'Firefox Pro Basic',
+        interval: 'week',
+        amount: '123',
+        currency: 'usd',
+        product_metadata: {
+          emailIconURL: 'http://example.com/image.jpg',
+          downloadURL: 'http://getfirefox.com',
+        },
+      },
+      {
+        plan_id: 'firefox_pro_basic_999',
+        plan_name: 'Firefox Pro Pro Monthly',
+        product_id: 'firefox_pro_pro',
+        product_name: 'Firefox Pro Pro',
+        interval: 'month',
+        amount: '456',
+        currency: 'usd',
+        product_metadata: {},
+      },
+      {
+        plan_id: PLAN_ID_1,
+        plan_name: 'Basic FN',
+        product_id: 'prod_G93l8Yn7XJHYUs',
+        product_name: 'FN Tier 1',
+        interval: 'month',
+        amount: 499,
+        current: 'usd',
+        plan_metadata: {},
+      },
+    ];
+
+    assert.deepEqual(sanitizePlans(PLANS), expected);
+  });
+});
+
 describe('subscriptions - subhub integration', () => {
   beforeEach(() => {
     config = {
@@ -137,7 +192,6 @@ describe('subscriptions - subhub integration', () => {
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
-        clientCapabilities: {},
       },
     };
 
@@ -224,7 +278,7 @@ describe('subscriptions - subhub integration', () => {
     it('should list available subscription plans', async () => {
       const res = await runTest('/oauth/subscriptions/plans', requestOptions);
       assert.equal(subhub.listPlans.callCount, 1);
-      assert.deepEqual(res, PLANS);
+      assert.deepEqual(res, sanitizePlans(PLANS));
     });
 
     it('should correctly handle payment backend failure', async () => {
@@ -831,10 +885,6 @@ describe('subscriptions directRoutes', () => {
   beforeEach(() => {
     config = {
       subscriptions: {
-        clientCapabilities: {
-          client1: ['exampleCap1', 'exampleCap3'],
-          client2: ['exampleCap2'],
-        },
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
@@ -890,7 +940,7 @@ describe('subscriptions directRoutes', () => {
     },
   };
 
-  describe.skip('Plans', () => {
+  describe('Plans', () => {
     it('should list available subscription plans', async () => {
       const stripeHelper = mocks.mockStripeHelper(['allPlans']);
 
@@ -910,7 +960,7 @@ describe('subscriptions directRoutes', () => {
       );
 
       const res = await directStripeRoutes.listPlans(VALID_REQUEST);
-      assert.deepEqual(res, PLANS);
+      assert.deepEqual(res, sanitizePlans(PLANS));
     });
   });
 
@@ -1742,11 +1792,6 @@ describe('DirectStripeRoutes', () => {
 
     config = {
       subscriptions: {
-        clientCapabilities: {
-          client1: ['exampleCap1', 'exampleCap3'],
-          client2: ['exampleCap2'],
-        },
-        productCapabilities: {},
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
@@ -1825,14 +1870,23 @@ describe('DirectStripeRoutes', () => {
 
   describe('getClients', () => {
     it('returns the clients and their capabilities', async () => {
+      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+
       const expected = [
         {
           clientId: 'client1',
-          capabilities: ['exampleCap1', 'exampleCap3'],
+          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
         },
         {
           clientId: 'client2',
-          capabilities: ['exampleCap2'],
+          capabilities: [
+            'exampleCap0',
+            'exampleCap2',
+            'exampleCap4',
+            'exampleCap5',
+            'exampleCap6',
+            'exampleCap7',
+          ],
         },
       ];
 
@@ -2394,7 +2448,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('listPlans', () => {
     it('returns the available plans when auth headers are valid', async () => {
-      const expected = PLANS;
+      const expected = sanitizePlans(PLANS);
 
       directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
       const actual = await directStripeRoutesInstance.listPlans(VALID_REQUEST);
@@ -2419,6 +2473,24 @@ describe('DirectStripeRoutes', () => {
           assert.instanceOf(err, WError);
           assert.equal(err.message, 'Requested scopes are not allowed');
         }
+      );
+    })
+  });
+
+  describe('getProductCapabilties', () => {
+    it('extracts all capabilities for all products', async () => {
+      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+      assert.deepEqual(
+        await directStripeRoutesInstance.getProductCapabilities(
+          'firefox_pro_basic'
+        ),
+        ['exampleCap0', 'exampleCap1']
+      );
+      assert.deepEqual(
+        await directStripeRoutesInstance.getProductCapabilities(
+          'prod_G93l8Yn7XJHYUs'
+        ),
+        ['exampleCap3', 'exampleCap5', 'exampleCap6', 'exampleCap7']
       );
     });
   });

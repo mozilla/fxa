@@ -278,16 +278,6 @@ describe('generateTokens', () => {
           case 'oauthServer.jwtAccessTokens.enabledClientIds': {
             return ['9876543210'];
           }
-          case 'subscriptions.productCapabilities': {
-            return {
-              prod0: 'my-sub',
-            };
-          }
-          case 'subscriptions.clientCapabilities': {
-            return {
-              '9876543210': 'my-sub',
-            };
-          }
           default: {
             return config.get(key);
           }
@@ -312,12 +302,6 @@ describe('generateTokens', () => {
       './metrics/amplitude': () => mockAmplitude,
     });
 
-    grantModule.setDB({
-      fetchAccountSubscriptions: sinon.spy(async () => [
-        { productId: 'prod0' },
-      ]),
-    });
-
     grantModule.setStripeHelper(undefined);
 
     generateTokens = grantModule.generateTokens;
@@ -329,31 +313,6 @@ describe('generateTokens', () => {
     assert.isFalse(mockJWTAccessToken.create.called);
 
     assert.strictEqual(result.access_token, 'token');
-    assert.isNumber(result.expires_in);
-    assert.strictEqual(result.token_type, 'access_token');
-    assert.strictEqual(
-      result.scope,
-      'profile:uid profile:email profile:subscriptions'
-    );
-
-    assert.isFalse('auth_at' in result);
-    assert.isFalse('keys_jwe' in result);
-    assert.isFalse('refresh_token' in result);
-    assert.isFalse('id_token' in result);
-  });
-
-  it('should generate a JWT access token if enabled, client_id allowed', async () => {
-    requestedGrant.clientId = '9876543210';
-    const result = await generateTokens(requestedGrant);
-    assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
-    assert.strictEqual(result.access_token, 'signed jwt access token');
-    assert.isTrue(
-      mockJWTAccessToken.create.calledOnceWith(mockAccessToken, {
-        ...requestedGrant,
-        'fxa-subscriptions': ['my-sub'],
-      })
-    );
-
     assert.isNumber(result.expires_in);
     assert.strictEqual(result.token_type, 'access_token');
     assert.strictEqual(
@@ -400,7 +359,7 @@ describe('generateTokens', () => {
     assert.isTrue(
       mockJWTAccessToken.create.calledOnceWith(mockAccessToken, {
         ...requestedGrant,
-        'fxa-subscriptions': ['cap1', 'my-sub'],
+        'fxa-subscriptions': ['cap1'],
       })
     );
 

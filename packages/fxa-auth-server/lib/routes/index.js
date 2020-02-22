@@ -52,7 +52,6 @@ module.exports = function(
   const idp = require('./idp')(log, serverPublicKeys);
   const oauthServer = require('../oauth/routes');
   const grant = require('../oauth/grant');
-  grant.setDB(db);
   grant.setStripeHelper(stripeHelper);
   const account = require('./account')(
     log,
