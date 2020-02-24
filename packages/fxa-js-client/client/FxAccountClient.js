@@ -2392,7 +2392,8 @@ FxAccountClient.prototype.consumeRecoveryCode = function(sessionToken, code) {
 FxAccountClient.prototype.createRecoveryKey = function(
   sessionToken,
   recoveryKeyId,
-  bundle
+  bundle,
+  enabled
 ) {
   var request = this.request;
   return Promise.resolve()
@@ -2400,6 +2401,7 @@ FxAccountClient.prototype.createRecoveryKey = function(
       required(sessionToken, 'sessionToken');
       required(recoveryKeyId, 'recoveryKeyId');
       required(bundle, 'bundle');
+      required(enabled, 'enabled');
 
       return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
     })
@@ -2407,6 +2409,7 @@ FxAccountClient.prototype.createRecoveryKey = function(
       var data = {
         recoveryKeyId: recoveryKeyId,
         recoveryData: bundle,
+        enabled: enabled,
       };
 
       return request.send('/recoveryKey', 'POST', creds, data);
@@ -2552,7 +2555,7 @@ FxAccountClient.prototype.deleteRecoveryKey = function(sessionToken) {
  *
  * @param sessionToken
  * @param {String} email User's email
- * @returns {Promise} A promise that will be fulfilled with whether or not account has recovery ket
+ * @returns {Promise} A promise that will be fulfilled with whether or not account has recovery key
  */
 FxAccountClient.prototype.recoveryKeyExists = function(sessionToken, email) {
   var request = this.request;
@@ -2569,6 +2572,31 @@ FxAccountClient.prototype.recoveryKeyExists = function(sessionToken, email) {
       email: email,
     });
   });
+};
+
+/**
+ * @param sessionToken
+ * @param {String} email User's email
+ * @param {String} recoveryKeyId User's recovery key id to verify
+ * @returns {Promise} A promise that will be fulfilled with after the recovery key has been verified
+ */
+FxAccountClient.prototype.verifyRecoveryKey = function(
+  sessionToken,
+  recoveryKeyId
+) {
+  var request = this.request;
+  return Promise.resolve()
+    .then(function() {
+      required(sessionToken, 'sessionToken');
+      required(recoveryKeyId, 'recoveryKeyId');
+
+      return hawkCredentials(sessionToken, 'sessionToken', HKDF_SIZE);
+    })
+    .then(function(creds) {
+      return request.send('/recoveryKey/verify', 'POST', creds, {
+        recoveryKeyId: recoveryKeyId,
+      });
+    });
 };
 
 /**

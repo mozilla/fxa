@@ -37,7 +37,26 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         const { uid } = sessionToken;
         const { recoveryKeyId, recoveryData, enabled } = request.payload;
 
-        await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
+        // Users that already have an enabled recovery key can not
+        // create a second recovery key
+        try {
+          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
+        } catch (err) {
+          if (err.errno !== errors.ERRNO.RECOVERY_KEY_EXISTS) {
+            throw err;
+          }
+
+          // `recoveryKeyExists` will return true if and only if there is an enabled recovery
+          // key. In other scenarios a user started creating one but never completed the enable
+          // process.
+          const result = await db.recoveryKeyExists(uid);
+          if (result.exists) {
+            throw err;
+          }
+
+          await db.deleteRecoveryKey(uid);
+          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
+        }
 
         log.info('account.recoveryKey.created', { uid });
 
