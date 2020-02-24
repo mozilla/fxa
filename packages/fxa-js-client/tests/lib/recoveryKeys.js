@@ -68,7 +68,8 @@ describe('recovery key', function() {
       client.createRecoveryKey(
         account.signIn.sessionToken,
         recoveryKeyId,
-        bundle
+        bundle,
+        true
       ),
       RequestMocks.createRecoveryKey
     )
@@ -185,7 +186,8 @@ describe('recovery key', function() {
       client.createRecoveryKey(
         account.signIn.sessionToken,
         recoveryKeyId,
-        bundle
+        bundle,
+        true
       ),
       RequestMocks.createRecoveryKey
     )
@@ -220,7 +222,8 @@ describe('recovery key', function() {
           client.createRecoveryKey(
             account.signIn.sessionToken,
             recoveryKeyId,
-            bundle
+            bundle,
+            true
           ),
           RequestMocks.createRecoveryKey
         );
@@ -261,7 +264,8 @@ describe('recovery key', function() {
           client.createRecoveryKey(
             account.signIn.sessionToken,
             recoveryKeyId,
-            bundle
+            bundle,
+            true
           ),
           RequestMocks.createRecoveryKey
         );
