@@ -1758,7 +1758,13 @@ describe('DirectStripeRoutes', () => {
     profile = mocks.mockProfile({
       deleteCache: sinon.spy(async uid => ({})),
     });
+    mailer = mocks.mockMailer();
 
+    db = mocks.mockDB({
+      uid: UID,
+      email: TEST_EMAIL,
+      locale: ACCOUNT_LOCALE,
+    });
     const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
@@ -1834,7 +1840,106 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('createSubscription', () => {});
+  describe('createSubscription', () => {
+    let expected, actual;
+    let createForNewStub, createForExistingStub;
+    const planId = PLAN_ID_1;
+    const plan = PLANS[2];
+    const paymentToken = 'tok_visa';
+    const displayName = DISPLAY_NAME;
+    const request = {
+      auth: {
+        credentials: {
+          scope: MOCK_SCOPES,
+          user: `${UID}`,
+          email: `${TEST_EMAIL}`,
+        },
+      },
+      app: {
+        devices: ['deviceId1', 'deviceId2'],
+      },
+      payload: {
+        planId: planId,
+        paymentToken: paymentToken,
+        displayName: displayName,
+      },
+    };
+
+    beforeEach(() => {
+      const subscription = Object.create(subscription2);
+      expected = { subscriptionId: subscription.id };
+
+      createForNewStub = sandbox
+        .stub(directStripeRoutesInstance, 'createSubscriptionNewCustomer')
+        .resolves(subscription);
+      createForExistingStub = sandbox
+        .stub(directStripeRoutesInstance, 'createSubscriptionExistingCustomer')
+        .resolves(subscription);
+
+      sandbox.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+
+      directStripeRoutesInstance.stripeHelper.findPlanById.returns(plan);
+    });
+
+    describe('when called for a new customer', () => {
+      it('creates a new subscription', async () => {
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+
+        actual = await directStripeRoutesInstance.createSubscription(request);
+        assert.isTrue(log.begin.calledOnce);
+        assert.isTrue(customs.check.calledOnce);
+        assert.isTrue(
+          createForNewStub.calledOnceWith(
+            UID,
+            TEST_EMAIL,
+            displayName,
+            paymentToken,
+            plan
+          )
+        );
+        assert.isTrue(createForExistingStub.notCalled);
+        assert.isTrue(
+          directStripeRoutesInstance.customerChanged.calledOnceWith(
+            request,
+            UID,
+            TEST_EMAIL
+          )
+        );
+        assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
+
+        assert.isTrue(log.info.calledOnce);
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    describe('when called for an existing customer', () => {
+      it('creates a new subscription', async () => {
+        const customer = Object.create(customerFixture);
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+          customer
+        );
+
+        actual = await directStripeRoutesInstance.createSubscription(request);
+        assert.isTrue(log.begin.calledOnce);
+        assert.isTrue(customs.check.calledOnce);
+        assert.isTrue(createForNewStub.notCalled);
+        assert.isTrue(
+          createForExistingStub.calledOnceWith(customer, paymentToken, plan)
+        );
+        assert.isTrue(
+          directStripeRoutesInstance.customerChanged.calledOnceWith(
+            request,
+            UID,
+            TEST_EMAIL
+          )
+        );
+        assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
+
+        assert.isTrue(log.info.calledOnce);
+        assert.deepEqual(actual, expected);
+      });
+    });
+  });
 
   describe('createSubscriptionNewCustomer', () => {
     it('creates a stripe customer and a new subscription', async () => {
@@ -2445,12 +2550,6 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('getUidEmail', () => {
-    let handleAuthSpy;
-
-    beforeEach(() => {
-      handleAuthSpy = sandbox.spy(handleAuth);
-    });
-
     describe('when the auth strategy is supportPanelSecret', () => {
       it('returns the uid and email from reques.query', async () => {
         const expected = { uid: '12345', email: 'test@example.com' };
@@ -2463,7 +2562,6 @@ describe('DirectStripeRoutes', () => {
 
         const actual = await directStripeRoutesInstance.getUidEmail(request);
         assert.deepEqual(actual, expected);
-        assert.isFalse(handleAuthSpy.called);
       });
     });
     describe('when the auth strategy is not supportPanelSecret', () => {
@@ -2474,7 +2572,6 @@ describe('DirectStripeRoutes', () => {
           VALID_REQUEST
         );
         assert.deepEqual(actual, expected);
-        assert.isFalse(handleAuthSpy.called);
       });
     });
   });
