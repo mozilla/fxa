@@ -186,17 +186,10 @@ class DirectStripeRoutes {
       // Note that if the customer already exists and we were not
       // passed a paymentToken value, we will not update it and use
       // the default source.
-      try {
-        await this.stripeHelper.updateCustomerPaymentMethod(
-          customer.id,
-          paymentToken
-        );
-      } catch (err) {
-        if (err.type === 'StripeCardError') {
-          throw error.rejectedSubscriptionPaymentToken(err.message, err);
-        }
-        throw err;
-      }
+      await this.stripeHelper.updateCustomerPaymentMethod(
+        customer.id,
+        paymentToken
+      );
     }
 
     // Check if the customer already has subscribed to this plan.
