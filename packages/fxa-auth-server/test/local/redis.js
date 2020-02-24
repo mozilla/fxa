@@ -275,15 +275,14 @@ describe('Redis', () => {
         assert.isEmpty(tokens);
       });
 
-      it('deletes expired tokens from the index', async () => {
-        accessToken1.expiresAt = new Date(Date.now() + 50);
+      it('prunes missing tokens from the index', async () => {
         await redis.setAccessToken(accessToken1);
         await redis.setAccessToken(accessToken2);
-        await new Promise(r => setTimeout(r, 100));
-        const tokens = await redis.getAccessTokens(accessToken1.userId);
+        await redis.redis.del(accessToken1.tokenId.toString('hex'));
+        const tokens = await redis.getAccessTokens(accessToken2.userId);
         assert.deepEqual(tokens, [accessToken2]);
         const index = await redis.redis.smembers(
-          accessToken1.userId.toString('hex')
+          accessToken2.userId.toString('hex')
         );
         assert.deepEqual(index, [
           prefix + accessToken2.tokenId.toString('hex'),
@@ -299,17 +298,15 @@ describe('Redis', () => {
         assert.equal(rawValue, null);
       });
 
-      it('removes the token from the index', async () => {
+      it('returns true when the token was deleted', async () => {
         await redis.setAccessToken(accessToken1);
-        await redis.removeAccessToken(accessToken1.tokenId);
-        const index = await redis.redis.smembers(
-          accessToken1.userId.toString('hex')
-        );
-        assert.isEmpty(index);
+        const done = await redis.removeAccessToken(accessToken1.tokenId);
+        assert.equal(done, true);
       });
 
-      it('does nothing for nonexistent tokens', async () => {
-        await redis.removeAccessToken(accessToken1.tokenId);
+      it('returns false for nonexistent tokens', async () => {
+        const done = await redis.removeAccessToken(accessToken1.tokenId);
+        assert.equal(done, false);
       });
     });
 

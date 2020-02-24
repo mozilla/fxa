@@ -1,8 +1,6 @@
-local tokenId = KEYS[1]
-local _, _, prefix = tokenId:find('(%a+:)')
-local value = redis.call('get', tokenId)
-if value then
-  local token = cjson.decode(value)
-  redis.call('srem', prefix..token.userId, tokenId)
-  return redis.call('del', tokenId)
+local id = KEYS[1]
+local exists = redis.call('exists', id)
+if exists then
+  redis.call('del', id)
 end
+return exists

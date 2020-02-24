@@ -11,7 +11,6 @@ const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 const encrypt = require('../../../lib/oauth/encrypt');
 const db = require('../../../lib/oauth/db');
-const config = require('../../../config');
 const Promise = require('../../../lib/promise');
 const mock = require('../../lib/mocks');
 
@@ -20,31 +19,6 @@ function randomString(len) {
 }
 
 describe('db', function() {
-  describe('#_initialClients', function() {
-    it('should not insert already existing clients', function() {
-      return db.ping().then(function() {
-        return db._initialClients();
-      });
-    });
-
-    it('should update existing clients', function() {
-      var clients = config.get('oauthServer.clients');
-      return db
-        .ping()
-        .then(function() {
-          clients[0].imageUri = 'http://other.domain/foo/bar.png';
-          config.set('oauthServer.clients', clients);
-          return db._initialClients();
-        })
-        .then(function() {
-          return db.getClient(clients[0].id);
-        })
-        .then(function(c) {
-          assert.equal(c.imageUri, clients[0].imageUri);
-        });
-    });
-  });
-
   describe('utf-8', function() {
     function makeTest(clientId, clientName) {
       return function() {
@@ -222,6 +196,8 @@ describe('db', function() {
         .then(function() {
           return db.generateAccessToken({
             clientId: clientId,
+            canGrant: clientOptions.canGrant,
+            publicClient: clientOptions.publicClient,
             userId: userId,
             email: email,
             scope: scope,
@@ -455,7 +431,6 @@ describe('db', function() {
 
       it('should delete developers', function() {
         var email = 'email' + randomString(10) + '@mozilla.com';
-
         return db
           .activateDeveloper(email)
           .then(function(developer) {
@@ -466,7 +441,7 @@ describe('db', function() {
           .then(function() {
             return db.getDeveloper(email);
           })
-          .done(function(developer) {
+          .then(function(developer) {
             assert.equal(developer, null);
           });
       });
@@ -485,7 +460,7 @@ describe('db', function() {
         mock.log('db', rec => {
           return rec.levelname === 'ERROR' && rec.args[0] === 'getDeveloper';
         });
-        return db.getDeveloper().done(assert.fail, function(err) {
+        return db.getDeveloper().then(assert.fail, function(err) {
           assert.equal(err.message, 'Email is required');
         });
       });
@@ -495,7 +470,7 @@ describe('db', function() {
       it('should create developers', function() {
         var email = 'email' + randomString(10) + '@mozilla.com';
 
-        return db.activateDeveloper(email).done(function(developer) {
+        return db.activateDeveloper(email).then(function(developer) {
           assert.equal(developer.email, email);
         });
       });
@@ -513,7 +488,7 @@ describe('db', function() {
           .then(function() {
             return db.activateDeveloper(email);
           })
-          .done(
+          .then(
             function() {
               assert.fail();
             },
@@ -529,7 +504,7 @@ describe('db', function() {
             rec.levelname === 'ERROR' && rec.args[0] === 'activateDeveloper'
           );
         });
-        return db.activateDeveloper().done(assert.fail, function(err) {
+        return db.activateDeveloper().then(assert.fail, function(err) {
           assert.equal(err.message, 'Email is required');
         });
       });
@@ -579,7 +554,7 @@ describe('db', function() {
           });
       });
 
-      it('should attach a developer to a client', function(done) {
+      it('should attach a developer to a client', function() {
         var email = 'email' + randomString(10) + '@mozilla.com';
 
         return db
@@ -593,7 +568,7 @@ describe('db', function() {
           .then(function() {
             return db.getClientDevelopers(hex(clientId));
           })
-          .done(function(developers) {
+          .then(function(developers) {
             if (developers) {
               var found = false;
 
@@ -604,9 +579,8 @@ describe('db', function() {
               });
 
               assert.equal(found, true);
-              return done();
             }
-          }, done);
+          });
       });
     });
   });

@@ -44,6 +44,9 @@ const CLAIMS = {
 
 const CLIENT = {
   id: Buffer.from('0123456789', 'hex'),
+  name: 'Mocha',
+  canGrant: true,
+  publicClient: false,
   trusted: true,
 };
 
@@ -62,6 +65,9 @@ describe('validateRequestedGrant', () => {
     const grant = await validateRequestedGrant(CLAIMS, CLIENT, { scope });
     assert.deepEqual(grant, {
       clientId: CLIENT.id,
+      name: CLIENT.name,
+      canGrant: CLIENT.canGrant,
+      publicClient: CLIENT.publicClient,
       userId: Buffer.from(CLAIMS.uid, 'hex'),
       sessionTokenId: undefined,
       email: CLAIMS['fxa-verifiedEmail'],

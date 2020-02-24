@@ -168,15 +168,15 @@ function assertInvalidRequestParam(result, param) {
 // helper function to create a new user, email and token for some client
 /**
  *
- * @param {String} cId - hex client id
+ * @param {Object} client - client object
  * @param {Object} [options] - custom options
  * @param {Object} [options.uid] - custom uid
  * @param {Object} [options.email] - custom email
  * @param {Object} [options.scopes] - custom scopes
  */
-function getUniqueUserAndToken(cId, options) {
+function getUniqueUserAndToken(client, options) {
   options = options || {};
-  if (!cId) {
+  if (!client) {
     throw new Error('No client id set');
   }
 
@@ -185,7 +185,10 @@ function getUniqueUserAndToken(cId, options) {
 
   return db
     .generateAccessToken({
-      clientId: buf(cId),
+      clientId: client.id,
+      name: client.name,
+      canGrant: client.canGrant,
+      publicClient: client.publicClient,
       userId: buf(uid),
       email: email,
       scope: options.scopes
@@ -2849,38 +2852,7 @@ describe('/v1', function() {
         .then(function(res) {
           assert.equal(res.statusCode, 400);
           assertSecurityHeaders(res);
-          assert.equal(res.result.errno, 115);
-        })
-        .finally(function() {
-          config.set('oauthServer.expiration.accessTokenExpiryEpoch', epoch);
-        });
-    });
-
-    it('should accept expired tokens from before the epoch', function() {
-      this.slow(2200);
-      var epoch = config.get('oauthServer.expiration.accessTokenExpiryEpoch');
-      config.set(
-        'oauthServer.expiration.accessTokenExpiryEpoch',
-        Date.now() + 2000
-      );
-      return newToken({
-        ttl: 1,
-      })
-        .delay(1500)
-        .then(function(res) {
-          assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
-          assert.equal(res.result.expires_in, 1);
-          return Server.api.post({
-            url: '/verify',
-            payload: {
-              token: res.result.access_token,
-            },
-          });
-        })
-        .then(function(res) {
-          assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
+          assert.equal(res.result.errno, 108);
         })
         .finally(function() {
           config.set('oauthServer.expiration.accessTokenExpiryEpoch', epoch);
@@ -3283,7 +3255,7 @@ describe('/v1', function() {
         .registerClient(client1)
         .then(function() {
           // user1 gets a client write token
-          return getUniqueUserAndToken(client1Id.toString('hex'), {
+          return getUniqueUserAndToken(client1, {
             uid: user1.uid,
             email: user1.email,
             scopes: ['profile', 'clients:write'],
@@ -3299,7 +3271,7 @@ describe('/v1', function() {
         return db
           .registerClient(client2)
           .then(function() {
-            return getUniqueUserAndToken(client2Id.toString('hex'), {
+            return getUniqueUserAndToken(client2, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['profile'],
@@ -3362,7 +3334,7 @@ describe('/v1', function() {
         return db
           .registerClient(client2)
           .then(function() {
-            return getUniqueUserAndToken(client2Id.toString('hex'), {
+            return getUniqueUserAndToken(client2, {
               uid: user2.uid,
               email: user2.email,
               scopes: ['profile'],
@@ -3390,6 +3362,7 @@ describe('/v1', function() {
       });
 
       it('should not list canGrant=1 clients that only have access tokens', function() {
+        client2.canGrant = true;
         return db
           .registerClient({
             name: 'test/api/client-tokens/list-can-grant',
@@ -3401,7 +3374,7 @@ describe('/v1', function() {
             canGrant: true,
           })
           .then(function() {
-            return getUniqueUserAndToken(client2Id.toString('hex'), {
+            return getUniqueUserAndToken(client2, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['profile'],
@@ -3424,18 +3397,12 @@ describe('/v1', function() {
       });
 
       it('should list canGrant=1 clients that have refresh tokens', function() {
+        client2.name = 'test/api/client-tokens/aaaa-list-can-grant';
+        client2.canGrant = true;
         return db
-          .registerClient({
-            name: 'test/api/client-tokens/aaaa-list-can-grant',
-            id: client2Id,
-            hashedSecret: encrypt.hash(unique.secret()),
-            redirectUri: 'https://example.domain',
-            imageUri: 'https://example.com/logo.png',
-            trusted: true,
-            canGrant: true,
-          })
+          .registerClient(client2)
           .then(function() {
-            return getUniqueUserAndToken(client2Id.toString('hex'), {
+            return getUniqueUserAndToken(client2, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['profile'],
@@ -3471,20 +3438,20 @@ describe('/v1', function() {
 
       it('should only list one client for multiple tokens', function() {
         var tok;
-        return getUniqueUserAndToken(client1Id.toString('hex'), {
+        return getUniqueUserAndToken(client1, {
           uid: user1.uid,
           email: user1.email,
           scopes: ['profile', 'profile:write'],
         })
           .then(function() {
-            return getUniqueUserAndToken(client1Id.toString('hex'), {
+            return getUniqueUserAndToken(client1, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['clients:write'],
             });
           })
           .then(function() {
-            return getUniqueUserAndToken(client1Id.toString('hex'), {
+            return getUniqueUserAndToken(client1, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['profile'],
@@ -3520,27 +3487,27 @@ describe('/v1', function() {
       });
 
       it('should only return union of scopes for multiple tokens', function() {
-        return getUniqueUserAndToken(client1Id.toString('hex'), {
+        return getUniqueUserAndToken(client1, {
           uid: user1.uid,
           email: user1.email,
           scopes: ['profile', 'profile:write'],
         })
           .then(function() {
-            return getUniqueUserAndToken(client1Id.toString('hex'), {
+            return getUniqueUserAndToken(client1, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['clients:write'],
             });
           })
           .then(function() {
-            return getUniqueUserAndToken(client1Id.toString('hex'), {
+            return getUniqueUserAndToken(client1, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['basket', 'profile:email'],
             });
           })
           .then(function() {
-            return getUniqueUserAndToken(client1Id.toString('hex'), {
+            return getUniqueUserAndToken(client1, {
               uid: user1.uid,
               email: user1.email,
               scopes: ['profile:uid', 'profile', 'profile:write'],
@@ -3582,7 +3549,7 @@ describe('/v1', function() {
 
       it('errors for bad scopes', function() {
         function reqWithScopes(scopes) {
-          return getUniqueUserAndToken(client1Id.toString('hex'), {
+          return getUniqueUserAndToken(client1, {
             uid: user1.uid,
             email: user1.email,
             scopes: scopes,
@@ -3633,14 +3600,14 @@ describe('/v1', function() {
         return db
           .registerClient(client2)
           .then(function() {
-            return getUniqueUserAndToken(client2Id.toString('hex'), {
+            return getUniqueUserAndToken(client2, {
               uid: user1.uid,
               email: user1.email,
               scopes: scopes,
             });
           })
           .then(function() {
-            return getUniqueUserAndToken(client2Id.toString('hex'), {
+            return getUniqueUserAndToken(client2, {
               uid: user2.uid,
               email: user2.email,
               scopes: ['profile', 'clients:write'],
@@ -3816,7 +3783,7 @@ describe('/v1', function() {
 
       it('errors for bad scopes', function() {
         function reqWithScopes(scopes) {
-          return getUniqueUserAndToken(clientId, {
+          return getUniqueUserAndToken(client, {
             scopes: scopes,
           }).then(function(result) {
             return Server.api.delete({
@@ -3864,6 +3831,8 @@ describe('/v1', function() {
     async function makeAccessToken(client, user, scope) {
       const token = await db.generateAccessToken({
         clientId: client.id,
+        name: client.name,
+        canGrant: client.canGrant,
         userId: buf(user.uid),
         email: user.email,
         scope: ScopeSet.fromArray(scope),
@@ -4008,10 +3977,8 @@ describe('/v1', function() {
       });
 
       it('should not list canGrant=1 clients that only have access tokens', async () => {
-        await db.updateClient({
-          ...client2,
-          canGrant: true,
-        });
+        client2.canGrant = true;
+        await db.updateClient(client2);
         await makeAccessToken(client1, user1, ['profile']);
         await makeAccessToken(client2, user1, ['profile']);
         const res = await Server.api.post({

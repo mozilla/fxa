@@ -41,6 +41,7 @@ class AccessToken {
     this.token = token || unique.token();
     /** @type {Date} */
     this.createdAt = createdAt || new Date();
+    this.createdAt.setMilliseconds(0);
     /** @type {number} */
     this.profileChangedAt = profileChangedAt || 0;
     /** @type {Date} */
@@ -61,6 +62,14 @@ class AccessToken {
 
   get ttl() {
     return this.expiresAt.getTime() - Date.now();
+  }
+
+  get lastAccessTime() {
+    return this.createdAt;
+  }
+
+  get id() {
+    return this.clientId;
   }
 
   /**

@@ -3,5 +3,5 @@ local ids = redis.call('smembers', uid)
 
 if #ids > 0 then
   redis.call('unlink', unpack(ids))
+  redis.call('del', uid)
 end
-redis.call('del', uid)

@@ -138,9 +138,11 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
   //   * Is this client allowed to request ACCESS_TYPE_OFFLINE?
   //   * Is this client allowed to request all the non-key-bearing scopes?
   //   * Do we expect this client to be using OIDC?
-
   return {
     clientId: client.id,
+    name: client.name,
+    canGrant: client.canGrant,
+    publicClient: client.publicClient,
     userId: buf(verifiedClaims.uid),
     email: verifiedClaims['fxa-verifiedEmail'],
     scope: requestedGrant.scope,
