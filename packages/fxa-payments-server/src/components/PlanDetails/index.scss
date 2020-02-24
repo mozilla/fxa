@@ -1,0 +1,122 @@
+@import '../../../../fxa-content-server/app/styles/variables';
+
+.plan-details-component {
+  background: $color-white;
+  border-radius: 8px;
+  box-shadow: $card-box-high;
+  font-size: 15px;
+  margin: 0 auto;
+  padding: 20px 20px 0;
+  width: 342px;
+
+  .plan-details-logo-wrap {
+    align-items: center;
+    background: #20123A; // this will need to be pulled from a source per product in future
+    border-radius: 8px;
+    display: flex;
+    flex-shrink: 0;
+    height: 64px;
+    justify-content: center;
+    width: 64px;
+  }
+
+  .plan-details-logo-wrap img {
+    height: 32px;
+    width: 32px;
+  }
+
+  .plan-details-header-wrap {
+    display: flex;
+  }
+
+  .plan-details-heading-wrap {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    text-align: left;
+
+    .plan-details-product {
+      color: $grey-80;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 19px;
+      margin: 0;
+      word-wrap: break-word;
+    }
+
+    .plan-details-description {
+      color: $grey-80;
+      margin-top: 4px;
+    }
+  }
+
+  .plan-details-header {
+    border-bottom: 1px solid $grey-30;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0;
+    padding-bottom: 20px;
+  }
+
+  .plan-details-header p {
+    margin: 0;
+  }
+
+  .plan-details-list {
+    border-bottom: 1px solid $grey-30;
+    color: rgba(12, 12, 13, 0.8);
+    margin-top: 10px;
+    text-align: left;
+
+    h4 {
+      margin: 16px 0;
+    }
+
+    ul {
+      color: $grey-50;
+      margin: 0;
+      padding-left: 15px;
+    }
+
+    li {
+      margin-bottom: 16px;
+
+      &::marker {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .footer {
+    text-align: center;
+  }
+
+  .btn {
+    background: none;
+    color: $blue-60;
+    font-size: 15px;
+    font-weight: normal;
+    height: initial;
+    line-height: 22px;
+    margin: 15px 0;
+    outline: none;
+    padding: 0;
+    position: relative;
+    width: initial;
+  }
+
+  .arrow::before {
+    background: url('./images/chevron.svg');
+    content: '';
+    display: inline-block;
+    height: 16px;
+    left: -24px;
+    position: absolute;
+    top: 3px;
+    width: 24px;
+  }
+
+  .up-arrow::before {
+    transform: rotate(180deg);
+  }
+}
