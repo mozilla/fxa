@@ -23,7 +23,7 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string().required(),
+            email: Joi.string().email().required(),
             ip: Joi.string().required(),
             action: Joi.string().required(),
             headers: Joi.object().optional(),
@@ -80,7 +80,7 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string().required(),
+            email: Joi.string().email().required(),
             ip: Joi.string().required(),
             errno: Joi.number().required(),
           },
@@ -93,7 +93,7 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string().required(),
+            email: Joi.string().email().required(),
           },
           response: {},
         },

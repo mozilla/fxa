@@ -10,6 +10,9 @@ var mcHelper = require('../memcache-helper');
 var TEST_EMAIL = 'test@example.com';
 var TEST_IP = '192.0.2.1';
 
+const TEST_ACTION = 'recoveryEmailVerifyCode'
+process.env.MAX_VERIFY_CODES = '3'
+
 var config = {
   listen: {
     port: 7000,
@@ -134,6 +137,39 @@ test('blocking an email using weird caps', function(t) {
       t.end();
     })
     .catch(function(err) {
+      t.fail(err);
+      t.end();
+    });
+});
+
+test('treat gmail email alias containing `+` and `.` as the same email', (t) => {
+  return client.postAsync('/check', {email: 'test@gmail.com', ip: TEST_IP, action: TEST_ACTION})
+    .spread((req, res, obj) => {
+      t.equal(res.statusCode, 200, 'first login attempt noted');
+      t.equal(obj.block, false, 'login not blocked');
+      return client.postAsync('/check', {email: 'tes.t@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+    })
+    .spread((req, res, obj) => {
+      t.equal(res.statusCode, 200, 'second login attempt noted');
+      t.equal(obj.block, false, 'login not blocked');
+      return client.postAsync('/check', {email: 'test+1@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+    })
+    .spread((req, res, obj) => {
+      t.equal(res.statusCode, 200, 'third login attempt noted');
+      t.equal(obj.block, false, 'login not blocked');
+      return client.postAsync('/check', {email: 't.e.s.t+1234@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+    })
+    .spread((req, res, obj) => {
+      t.equal(res.statusCode, 200, '4th login attempt blocked');
+      t.equal(obj.block, true, 'login blocked');
+      return client.postAsync('/check', {email: 'someotheremail@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+    })
+    .spread((req, res, obj) => {
+      t.equal(res.statusCode, 200, 'login check succeeds');
+      t.equal(obj.block, false, 'login not blocked on different email');
+      t.end();
+    })
+    .catch((err) => {
       t.fail(err);
       t.end();
     });

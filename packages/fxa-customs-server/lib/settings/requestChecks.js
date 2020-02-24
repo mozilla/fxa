@@ -16,7 +16,15 @@ module.exports = (config, Settings, log) => {
 
     setAll(settings) {
       this.treatEveryoneWithSuspicion = settings.treatEveryoneWithSuspicion;
-      // The private branch puts some additional private config here.
+      this.flowIdRequiredOnLogin = settings.flowIdRequiredOnLogin;
+      this.flowIdExemptUserAgentREs = settings.flowIdExemptUserAgentREs;
+      if (!this.flowIdExemptUserAgentREs) {
+        this.flowIdExemptUserAgentCompiledREs = [];
+      } else {
+        this.flowIdExemptUserAgentCompiledREs = this.flowIdExemptUserAgentREs.map(function(re) {
+          return new RegExp(re);
+        });
+      }
       return this;
     }
 

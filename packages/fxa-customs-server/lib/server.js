@@ -178,7 +178,21 @@ module.exports = function createServer(config, log) {
   }
 
   function normalizedEmail(rawEmail) {
-    return rawEmail.toLowerCase();
+    const lowercaseEmail = rawEmail.toLowerCase();
+
+    if (/@gmail\.com$/.test(lowercaseEmail)) {
+      // gmail addresses have some special rules:
+      // Everything from `+` to the end of the local part is ignored.
+      // All periods are ignored.
+      // Remove these optional portions so that these emails are treated the same:
+      // attacker@gmail.com
+      // attacker+20190507@gmail.com
+      // a.ttack.e.r+is+a+goon@gmail.com
+      let [local, domain] = lowercaseEmail.split('@');
+      return `${local.replace(/\+.*$/, '').replace(/\./g, '')}@${domain}`;
+    }
+
+    return lowercaseEmail;
   }
 
   api.post('/check', (req, res, next) => {
@@ -256,9 +270,32 @@ module.exports = function createServer(config, log) {
       ) {
         suspect = true;
       }
-      // The private branch puts some additional request checks here.
-      // We just use the variables so that eslint doesn't complain about them.
-      payload || headers;
+
+      if (!block && action === 'accountLogin') {
+        // All login requests should include a valid flowId.
+        if (!payload.metricsContext || !payload.metricsContext.flowId) {
+          // Unless they're legacy user-agents that we know will not include it.
+          var isExemptUA = false;
+          var userAgent = headers['user-agent'];
+          isExemptUA = requestChecks.flowIdExemptUserAgentCompiledREs.some(function (re) {
+            return re.test(userAgent);
+          });
+          // Or unless it's for non-signin-related reasons, e.g. changing password.
+          // We know these requests will not include it.
+          var isExemptRequest = false;
+          if (payload.reason && payload.reason !== 'signin') {
+            isExemptRequest = true;
+          }
+          if (!isExemptUA && !isExemptRequest) {
+            // By default we just treat a missing flowId as suspicious,
+            // but config can change this to a hard block.
+            suspect = true;
+            if (requestChecks.flowIdRequiredOnLogin) {
+              block = true;
+            }
+          }
+        }
+      }
 
       const canUnblock = emailRecord.canUnblock();
 
