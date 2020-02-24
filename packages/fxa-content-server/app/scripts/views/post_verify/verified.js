@@ -19,7 +19,7 @@ const TEMPLATE_INFO = {
     headerId: 'fxa-account-recovery-complete-header',
     headerTitle: t('Your sync data is protected'),
     readyText: t(
-      'If you lose access to your account, youll be able to restore your sync data.'
+      'If you lose access to your account, you’ll be able to restore your sync data.'
     ),
     buttonText: t('Start browsing'),
   },
