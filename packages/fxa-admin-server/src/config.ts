@@ -7,6 +7,38 @@ import fs from 'fs';
 import path from 'path';
 
 const conf = convict({
+  database: {
+    database: {
+      default: 'fxa',
+      doc: 'MySQL database',
+      env: 'DB_DATABASE',
+      format: String
+    },
+    host: {
+      default: 'localhost',
+      doc: 'MySQL host',
+      env: 'DB_HOST',
+      format: String
+    },
+    password: {
+      default: '',
+      doc: 'MySQL password',
+      env: 'DB_PASSWORD',
+      format: String
+    },
+    port: {
+      default: 3306,
+      doc: 'MySQL port',
+      env: 'DB_PORT',
+      format: Number
+    },
+    user: {
+      default: 'root',
+      doc: 'MySQL username',
+      env: 'DB_USERNAME',
+      format: String
+    }
+  },
   env: {
     default: 'production',
     doc: 'The current node.js environment',

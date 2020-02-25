@@ -4,12 +4,16 @@
 
 import { Arg, Mutation, Resolver } from 'type-graphql';
 
+import { EmailBounces } from '../db/models';
 import { EmailBounce } from './types/email-bounces';
 
 @Resolver(of => EmailBounce)
 export class EmailBounceResolver {
   @Mutation(returns => Boolean)
   public async clearEmailBounce(@Arg('email') email: string) {
-    return false;
+    const result = await EmailBounces.query()
+      .delete()
+      .where('email', email);
+    return !!result;
   }
 }

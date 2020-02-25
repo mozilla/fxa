@@ -6,12 +6,16 @@ import { ApolloServer } from 'apollo-server';
 import * as TypeGraphQL from 'type-graphql';
 import { Container } from 'typedi';
 
+import { DatabaseConfig, setupDatabase } from './db';
 import { AccountResolver } from './resolvers/account-resolver';
 import { EmailBounceResolver } from './resolvers/email-bounce-resolver';
 
-type ServerConfig = {};
+type ServerConfig = {
+  database: DatabaseConfig;
+};
 
 export async function createServer(config: ServerConfig): Promise<ApolloServer> {
+  setupDatabase(config.database);
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
     resolvers: [AccountResolver, EmailBounceResolver]
