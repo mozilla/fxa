@@ -9,7 +9,10 @@ const error = require('../error');
 const isA = require('joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
-const { metadataFromPlan } = require('./utils/subscriptions');
+const {
+  metadataFromPlan,
+  splitCapabilities,
+} = require('./utils/subscriptions');
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
@@ -38,6 +41,33 @@ async function handleAuth(db, auth, fetchEmail = false) {
   return { uid, email };
 }
 
+// Delete any metadata keys prefixed by `capabilities:` before
+// sending response. We don't need to reveal those.
+// https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
+function sanitizePlans(plans) {
+  return plans.map(planIn => {
+    // Try not to mutate the original in case we cache plans in memory.
+    const plan = { ...planIn };
+    for (const metadataKey of ['plan_metadata', 'product_metadata']) {
+      if (plan[metadataKey]) {
+        // Make a clone of the metadata object so we don't mutate the original.
+        const metadata = { ...plan[metadataKey] };
+        const capabilityKeys = [
+          'capabilities',
+          ...Object.keys(metadata).filter(key =>
+            key.startsWith('capabilities:')
+          ),
+        ];
+        for (const key of capabilityKeys) {
+          delete metadata[key];
+        }
+        plan[metadataKey] = metadata;
+      }
+    }
+    return plan;
+  });
+}
+
 class DirectStripeRoutes {
   /**
    *
@@ -59,10 +89,6 @@ class DirectStripeRoutes {
     this.mailer = mailer;
     this.profile = profile;
     this.stripeHelper = stripeHelper;
-
-    this.CLIENT_CAPABILITIES = Object.entries(
-      config.subscriptions.clientCapabilities
-    ).map(([clientId, capabilities]) => ({ clientId, capabilities }));
   }
 
   async customerChanged(request, uid, email) {
@@ -80,7 +106,34 @@ class DirectStripeRoutes {
 
   async getClients(request) {
     this.log.begin('subscriptions.getClients', request);
-    return this.CLIENT_CAPABILITIES;
+    const capabilitiesByClientId = {};
+
+    const plans = await this.stripeHelper.allPlans();
+
+    const capabilitiesForAll = [];
+    for (const plan of plans) {
+      const metadata = metadataFromPlan(plan);
+      if (metadata.capabilities) {
+        capabilitiesForAll.push(...splitCapabilities(metadata.capabilities));
+      }
+      const capabilityKeys = Object.keys(metadata).filter(key =>
+        key.startsWith('capabilities:')
+      );
+      for (const key of capabilityKeys) {
+        const clientId = key.split(':')[1];
+        const capabilities = splitCapabilities(metadata[key]);
+        capabilitiesByClientId[clientId] = (
+          capabilitiesByClientId[clientId] || []
+        ).concat(capabilities);
+      }
+    }
+
+    return Object.entries(capabilitiesByClientId).map(
+      ([clientId, capabilities]) => ({
+        clientId,
+        capabilities: [...capabilitiesForAll, ...capabilities],
+      })
+    );
   }
 
   async createSubscription(request) {
@@ -354,7 +407,8 @@ class DirectStripeRoutes {
   async listPlans(request) {
     this.log.begin('subscriptions.listPlans', request);
     await handleAuth(this.db, request.auth);
-    return this.stripeHelper.allPlans();
+    const plans = await this.stripeHelper.allPlans();
+    return sanitizePlans(plans);
   }
 
   async listActive(request) {
@@ -418,6 +472,30 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Gather all capabilities granted by a product across all clients
+   *
+   * @param {*} productId
+   */
+  async getProductCapabilities(productId) {
+    const plans = await this.stripeHelper.allPlans();
+    const capabilitiesForProduct = [];
+    for (const plan of plans) {
+      if (plan.product_id !== productId) {
+        continue;
+      }
+      const metadata = metadataFromPlan(plan);
+      const capabilityKeys = [
+        'capabilities',
+        ...Object.keys(metadata).filter(key => key.startsWith('capabilities:')),
+      ];
+      for (const key of capabilityKeys) {
+        capabilitiesForProduct.push(...splitCapabilities(metadata[key]));
+      }
+    }
+    return capabilitiesForProduct;
+  }
+
+  /**
    * Send a subscription status Service Notification event to SQS
    *
    * @param {*} request
@@ -433,8 +511,7 @@ class DirectStripeRoutes {
       subscriptionId: sub.id,
       isActive,
       productId: sub.productId,
-      productCapabilities:
-        this.config.subscriptions.productCapabilities[sub.productId] || [],
+      productCapabilities: await this.getProductCapabilities(sub.productId),
     });
   }
 
@@ -863,10 +940,6 @@ const createRoutes = (
     );
   }
 
-  const CLIENT_CAPABILITIES = Object.entries(
-    config.subscriptions.clientCapabilities
-  ).map(([clientId, capabilities]) => ({ clientId, capabilities }));
-
   return [
     {
       method: 'GET',
@@ -887,7 +960,9 @@ const createRoutes = (
       },
       handler: async function(request) {
         log.begin('subscriptions.getClients', request);
-        return CLIENT_CAPABILITIES;
+        return Object.entries(
+          config.subscriptions.clientCapabilities || {}
+        ).map(([clientId, capabilities]) => ({ clientId, capabilities }));
       },
     },
     {
@@ -906,28 +981,7 @@ const createRoutes = (
         log.begin('subscriptions.listPlans', request);
         await handleAuth(db, request.auth);
         const plans = await subhub.listPlans();
-
-        // Delete any metadata keys prefixed by `capabilities:` before
-        // sending response. We don't need to reveal those.
-        // https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
-        return plans.map(planIn => {
-          // Try not to mutate the original in case we cache plans in memory.
-          const plan = { ...planIn };
-          for (const metadataKey of ['plan_metadata', 'product_metadata']) {
-            if (plan[metadataKey]) {
-              // Make a clone of the metadata object so we don't mutate the original.
-              const metadata = { ...plan[metadataKey] };
-              const capabilityKeys = Object.keys(metadata).filter(key =>
-                key.startsWith('capabilities:')
-              );
-              for (const key of capabilityKeys) {
-                delete metadata[key];
-              }
-              plan[metadataKey] = metadata;
-            }
-          }
-          return plan;
-        });
+        return sanitizePlans(plans);
       },
     },
     {
@@ -1297,3 +1351,4 @@ const createRoutes = (
 module.exports = createRoutes;
 module.exports.DirectStripeRoutes = DirectStripeRoutes;
 module.exports.handleAuth = handleAuth;
+module.exports.sanitizePlans = sanitizePlans;

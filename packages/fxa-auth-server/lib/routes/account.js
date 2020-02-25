@@ -996,12 +996,9 @@ module.exports = (
           scope.contains('profile:subscriptions')
         ) {
           const capabilities = await determineClientVisibleSubscriptionCapabilities(
-            config,
-            auth,
-            db,
+            stripeHelper,
             uid,
             client_id,
-            stripeHelper,
             account.primaryEmail.email
           );
           if (capabilities) {
