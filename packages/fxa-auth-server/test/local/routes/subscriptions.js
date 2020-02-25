@@ -1746,6 +1746,7 @@ describe('DirectStripeRoutes', () => {
           client1: ['exampleCap1', 'exampleCap3'],
           client2: ['exampleCap2'],
         },
+        productCapabilities: {},
         enabled: true,
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
@@ -2426,7 +2427,37 @@ describe('DirectStripeRoutes', () => {
 
   describe('getCustomer', () => {});
 
-  describe('sendSubscriptionStatusToSqs', () => {});
+  describe('sendSubscriptionStatusToSqs', () => {
+    it('notifies attached services', async () => {
+      const event = Object.create(subscriptionUpdatedFromIncomplete);
+      const subscription = Object.create(subscription2);
+      const sub = { id: subscription.id, productId: subscription.plan.product };
+      console.log(sub);
+      await directStripeRoutesInstance.sendSubscriptionStatusToSqs(
+        VALID_REQUEST,
+        UID,
+        event,
+        sub,
+        true
+      );
+
+      assert.isTrue(
+        directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
+          'subscription:update',
+          VALID_REQUEST,
+          {
+            uid: UID,
+            eventCreatedAt: event.created,
+            subscriptionId: sub.id,
+            isActive: true,
+            productId: sub.productId,
+            productCapabilities: [],
+          }
+        ),
+        'Expected log.notifyAttachedServices to be called'
+      );
+    });
+  });
 
   describe('updateCustomerAndSendStatus', () => {
     let event;
