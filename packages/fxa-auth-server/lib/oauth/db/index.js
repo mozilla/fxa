@@ -61,7 +61,10 @@ class OauthDB {
       vals.ttl
     );
     if (POCKET_IDS.includes(hex(vals.clientId))) {
-      // since Pocket access tokens are long lived store them in mysql
+      // Pocket tokens are persisted past their expiration for legacy
+      // reasons: https://bugzilla.mozilla.org/show_bug.cgi?id=1547902
+      // since they are long lived we continue to store them in mysql
+      // so that redis can be exclusively ephemeral
       const db = await this.mysql;
       await db._generateAccessToken(token);
     } else {

@@ -650,4 +650,92 @@ describe('db', function() {
       assert.notOk(await db.getAccessToken(tokenIdHash));
     });
   });
+
+  describe('Access Token storage', () => {
+    describe('Pocket tokens', () => {
+      const pocketId = buf('749818d3f2e7857f');
+      const userId = buf(randomString(16));
+      const tokenData = {
+        clientId: pocketId,
+        name: 'pocket',
+        canGrant: false,
+        publicClient: true,
+        userId: userId,
+        email: 'foo@bar.local',
+        scope: ScopeSet.fromArray(['no_scope']),
+      };
+
+      before(function() {
+        return db.registerClient({
+          id: pocketId,
+          name: 'pocket',
+          hashedSecret: randomString(32),
+          imageUri: 'https://example.domain/logo',
+          redirectUri: 'https://example.domain/return?foo=bar',
+          trusted: true,
+        });
+      });
+      after(function() {
+        return db.removeClient(pocketId);
+      });
+
+      it('stores them in mysql', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const mysql = await db.mysql;
+        const tt = await mysql._getAccessToken(t.tokenId);
+        await db.removeAccessToken(t.tokenId);
+        assert.equal(hex(tt.token), hex(t.tokenId));
+      });
+
+      it('retrieves them with getAccessToken', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const tt = await db.getAccessToken(t.tokenId);
+        await db.removeAccessToken(t.tokenId);
+        assert.equal(hex(tt.token), hex(t.tokenId));
+      });
+
+      it('retrieves them with getActiveClientsByUid', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const clients = await db.getActiveClientsByUid(userId);
+        await db.removeAccessToken(t.tokenId);
+        assert.isArray(clients);
+        assert.lengthOf(clients, 1);
+        assert.deepEqual(clients[0].id, pocketId);
+        assert.equal(clients[0].name, 'pocket');
+      });
+
+      it('retrieves them with getAccessTokensByUid', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const tokens = await db.getAccessTokensByUid(userId);
+        await db.removeAccessToken(t.tokenId);
+        assert.isArray(tokens);
+        assert.lengthOf(tokens, 1);
+        assert.deepEqual(tokens[0].accessTokenId, t.tokenId);
+        assert.deepEqual(tokens[0].clientId, t.clientId);
+      });
+
+      it('deletes them with removeAccessToken', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const tt = await db.getAccessToken(t.tokenId);
+        await db.removeAccessToken(t.tokenId);
+        assert.isNotNull(tt);
+        const ttt = await db.getAccessToken(t.tokenId);
+        assert.isUndefined(ttt);
+      });
+
+      it('deletes them with deleteClientAuthorization', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        await db.deleteClientAuthorization(t.clientId, t.userId);
+        const tt = await db.getAccessToken(t.tokenId);
+        assert.isUndefined(tt);
+      });
+
+      it('deletes them with removeUser', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        await db.removeUser(t.userId);
+        const tt = await db.getAccessToken(t.tokenId);
+        assert.isUndefined(tt);
+      });
+    });
+  });
 });

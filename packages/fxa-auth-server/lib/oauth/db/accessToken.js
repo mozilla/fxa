@@ -40,8 +40,7 @@ class AccessToken {
     /** @type {Buffer} */
     this.token = token || unique.token();
     /** @type {Date} */
-    this.createdAt = createdAt || new Date();
-    this.createdAt.setMilliseconds(0);
+    this.createdAt = createdAt || new Date(new Date().setMilliseconds(0));
     /** @type {number} */
     this.profileChangedAt = profileChangedAt || 0;
     /** @type {Date} */
