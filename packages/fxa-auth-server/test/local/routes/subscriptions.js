@@ -1780,7 +1780,7 @@ describe('DirectStripeRoutes', () => {
   });
 
   afterEach(() => {
-    sandbox.reset();
+    sandbox.restore();
   });
 
   describe('customerChanged', () => {
@@ -2501,6 +2501,143 @@ describe('DirectStripeRoutes', () => {
       sendStub = sandbox
         .stub(directStripeRoutesInstance, 'sendSubscriptionStatusToSqs')
         .resolves(true);
+    });
+
+    describe('handleWebhookEvent', () => {
+      let subCreatedStub, subUpdatedStub, subDeletedStub;
+      let scopeContextSpy, scopeSpy;
+      const request = {
+        payload: {},
+        headers: {
+          'stripe-signature': 'stripe_123',
+        },
+      };
+      beforeEach(() => {
+        subCreatedStub = sandbox
+          .stub(directStripeRoutesInstance, 'handleSubscriptionCreatedEvent')
+          .resolves();
+        subUpdatedStub = sandbox
+          .stub(directStripeRoutesInstance, 'handleSubscriptionUpdatedEvent')
+          .resolves();
+        subDeletedStub = sandbox
+          .stub(directStripeRoutesInstance, 'handleSubscriptionDeletedEvent')
+          .resolves();
+
+        scopeContextSpy = sinon.fake();
+        scopeSpy = {
+          setContext: scopeContextSpy,
+        };
+        sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
+      });
+
+      describe('when the event.type is customer.subscription.created', () => {
+        it('only calls handleSubscriptionCreatedEvent', async () => {
+          const createdEvent = Object.create(subscriptionCreated);
+          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
+            createdEvent
+          );
+          await directStripeRoutesInstance.handleWebhookEvent(request);
+
+          assert.isTrue(
+            subCreatedStub.called,
+            'Expected to call handleSubscriptionCreatedEvent'
+          );
+          assert.isTrue(
+            subUpdatedStub.notCalled,
+            'Expected to not call handleSubscriptionUpdatedEvent'
+          );
+          assert.isTrue(
+            subDeletedStub.notCalled,
+            'Expected to not call handleSubscriptionDeletedEvent'
+          );
+          assert.isTrue(
+            scopeContextSpy.notCalled,
+            'Expected to not call Sentry'
+          );
+        });
+      });
+
+      describe('when the event.type is customer.subscription.updated', () => {
+        it('only calls handleSubscriptionUpdatedEvent', async () => {
+          const event = Object.create(subscriptionUpdated);
+          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
+            event
+          );
+
+          await directStripeRoutesInstance.handleWebhookEvent(request);
+
+          assert.isTrue(
+            subCreatedStub.notCalled,
+            'Expected to not call handleSubscriptionCreatedEvent'
+          );
+          assert.isTrue(
+            subUpdatedStub.called,
+            'Expected to call handleSubscriptionUpdatedEvent'
+          );
+          assert.isTrue(
+            subDeletedStub.notCalled,
+            'Expected to not call handleSubscriptionDeletedEvent'
+          );
+          assert.isTrue(
+            scopeContextSpy.notCalled,
+            'Expected to not call Sentry'
+          );
+        });
+      });
+
+      describe('when the event.type is customer.subscription.deleted', () => {
+        it('only calls handleSubscriptionDeletedEvent', async () => {
+          const event = Object.create(subscriptionDeleted);
+          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
+            event
+          );
+
+          await directStripeRoutesInstance.handleWebhookEvent(request);
+
+          assert.isTrue(
+            subCreatedStub.notCalled,
+            'Expected to not call handleSubscriptionCreatedEvent'
+          );
+          assert.isTrue(
+            subUpdatedStub.notCalled,
+            'Expected to not call handleSubscriptionUpdatedEvent'
+          );
+          assert.isTrue(
+            subDeletedStub.called,
+            'Expected to call handleSubscriptionDeletedEvent'
+          );
+          assert.isTrue(
+            scopeContextSpy.notCalled,
+            'Expected to not call Sentry'
+          );
+        });
+      });
+
+      describe('when the event.type is something else', () => {
+        it('only calls sentry', async () => {
+          const event = Object.create(subscriptionCreated);
+          event.type = 'customer.updated';
+          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
+            event
+          );
+
+          await directStripeRoutesInstance.handleWebhookEvent(request);
+
+          assert.isTrue(
+            subCreatedStub.notCalled,
+            'Expected to not call handleSubscriptionCreatedEvent'
+          );
+          assert.isTrue(
+            subUpdatedStub.notCalled,
+            'Expected to not call handleSubscriptionUpdatedEvent'
+          );
+          assert.isTrue(
+            subDeletedStub.notCalled,
+            'Expected to not call handleSubscriptionDeletedEvent'
+          );
+          assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
+        });
+      });
     });
 
     describe('handleSubscriptionUpdatedEvent', () => {
