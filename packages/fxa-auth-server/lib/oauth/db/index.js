@@ -31,7 +31,10 @@ class OauthDB {
       await preClients();
       await scopes();
     });
-    this.redis = redis({ enabled: true, prefix: 'oauth:' }, logger); //TODO oauth redis config
+    this.redis = redis(
+      { ...config.get('redis.accessTokens'), enabled: true },
+      logger
+    );
     Object.keys(mysql.prototype).forEach(key => {
       const self = this;
       this[key] = async function() {

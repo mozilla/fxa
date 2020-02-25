@@ -337,6 +337,24 @@ const conf = convict({
       format: 'port',
       doc: 'Port for Redis server',
     },
+    accessTokens: {
+      host: {
+        default: '127.0.0.1',
+        env: 'ACCESS_TOKEN_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'ACCESS_TOKEN_REDIS_PORT',
+        format: 'port',
+      },
+      prefix: {
+        default: 'at:',
+        env: 'ACCESS_TOKEN_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for access tokens in Redis',
+      },
+    },
     sessionTokens: {
       enabled: {
         default: true,
