@@ -1859,7 +1859,204 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('createSubscriptionExistingCustomer', () => {
-    describe('user with no subscriptions', async () => {});
+    let customer;
+    const selectedPlan = {
+      plan_id: 'plan_G93mMKnIFCjZek',
+      plan_name: 'Firefox Pro Basic Weekly',
+      product_id: 'firefox_pro_basic',
+      product_name: 'Firefox Pro Basic',
+      interval: 'week',
+      amount: '123',
+      currency: 'usd',
+      product_metadata: {
+        emailIconURL: 'http://example.com/image.jpg',
+        downloadURL: 'http://getfirefox.com',
+      },
+    };
+    const paymentToken = 'tok_visa';
+
+    beforeEach(() => {
+      customer = Object.create(emptyCustomer);
+    });
+
+    describe('the optional paymentToken parameter', () => {
+      beforeEach(() => {
+        directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.returns();
+      });
+
+      describe('when a payment token is provided', () => {
+        it('calls updateCustomerPaymentMethod', async () => {
+          const expected = Object.create(subscription2);
+          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+            expected
+          );
+          const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
+            customer,
+            paymentToken,
+            selectedPlan
+          );
+          assert.isTrue(
+            directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.calledOnceWith(
+              customer.id,
+              paymentToken
+            )
+          );
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+      describe('when a payment token is not provided', () => {
+        it('does not call updateCustomerPaymentMethod', async () => {
+          const expected = Object.create(subscription2);
+          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+            expected
+          );
+          const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
+            customer,
+            null,
+            selectedPlan
+          );
+          assert.isTrue(
+            directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod
+              .notCalled
+          );
+          assert.deepEqual(actual, expected);
+        });
+      });
+    });
+
+    describe('user with no subscriptions', () => {
+      it('calls createSubscription', async () => {
+        const expected = Object.create(subscription2);
+        directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+          expected
+        );
+        const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
+          customer,
+          null,
+          selectedPlan
+        );
+        assert.isTrue(
+          directStripeRoutesInstance.stripeHelper.createSubscription.calledOnceWith(
+            customer,
+            selectedPlan
+          )
+        );
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    describe('user with existing subscription for plan', () => {
+      let existingSubscription;
+      let invoice;
+      let handleStub;
+      beforeEach(() => {
+        existingSubscription = Object.create(subscription2);
+        handleStub = sandbox
+          .stub(directStripeRoutesInstance, 'handleOpenInvoice')
+          .resolves();
+      });
+
+      describe('there is no latest invoice', () => {
+        it('calls createSubscription', async () => {
+          existingSubscription.latest_invoice = null;
+          customer.subscriptions.data = [existingSubscription];
+
+          const expected = Object.create(subscription2);
+          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+            expected
+          );
+          const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
+            customer,
+            null,
+            selectedPlan
+          );
+          assert.isTrue(
+            directStripeRoutesInstance.stripeHelper.createSubscription.calledOnceWith(
+              customer,
+              selectedPlan
+            )
+          );
+          assert.deepEqual(actual, expected);
+        });
+      });
+
+      describe('the latest invoice status is open', () => {
+        it('calls handleOpenInvoice', async () => {
+          invoice = Object.create(openInvoice);
+          existingSubscription.latest_invoice = invoice;
+          customer.subscriptions.data = [existingSubscription];
+
+          const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
+            customer,
+            null,
+            selectedPlan
+          );
+
+          assert.isTrue(
+            handleStub.called,
+            'handleOpenInvoice should be called'
+          );
+          assert.isTrue(
+            directStripeRoutesInstance.stripeHelper.createSubscription.notCalled
+          );
+          assert.deepEqual(actual, existingSubscription);
+        });
+      });
+
+      describe('the latest invoice status is paid', () => {
+        it('throws an error', async () => {
+          invoice = Object.create(openInvoice);
+          invoice.status = 'paid';
+          existingSubscription.latest_invoice = invoice;
+          customer.subscriptions.data = [existingSubscription];
+
+          return directStripeRoutesInstance
+            .createSubscriptionExistingCustomer(customer, null, selectedPlan)
+            .then(
+              () => Promise.reject(new Error('Method expected to reject')),
+              err => {
+                assert.instanceOf(err, WError);
+                assert.equal(
+                  err.errno,
+                  error.ERRNO.SUBSCRIPTION_ALREADY_EXISTS
+                );
+                assert.equal(err.message, 'User already subscribed.');
+                assert.isTrue(
+                  directStripeRoutesInstance.stripeHelper.createSubscription
+                    .notCalled
+                );
+              }
+            );
+        });
+      });
+
+      describe('the latest invoice status is something else', () => {
+        it('calls createSubscription', async () => {
+          invoice = Object.create(openInvoice);
+          invoice.status = 'draft';
+          existingSubscription.latest_invoice = invoice;
+          customer.subscriptions.data = [existingSubscription];
+
+          const expected = Object.create(subscription2);
+          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+            expected
+          );
+          const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
+            customer,
+            null,
+            selectedPlan
+          );
+          assert.isTrue(
+            directStripeRoutesInstance.stripeHelper.createSubscription.calledOnceWith(
+              customer,
+              selectedPlan
+            )
+          );
+          assert.deepEqual(actual, expected);
+        });
+      });
+    });
   });
 
   describe('handleOpenInvoice', () => {
