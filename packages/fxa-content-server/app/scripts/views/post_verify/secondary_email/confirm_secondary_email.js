@@ -46,7 +46,7 @@ class ConfirmSecondaryEmail extends FormView {
     return account
       .recoveryEmailSecondaryVerifyCode(email, code)
       .then(() => {
-        this.metrics.logUserPreferences('email', true);
+        this.metrics.logUserPreferences('emails', true);
         return this.navigate(
           '/post_verify/secondary_email/verified_secondary_email',
           {
