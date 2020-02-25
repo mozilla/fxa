@@ -73,7 +73,7 @@ describe('views/post_verify/account_recovery/save_recovery_key', () => {
   describe('render', () => {
     it('renders the view', () => {
       assert.lengthOf(view.$('#fxa-save-recovery-key-header'), 1);
-      assert.lengthOf(view.$('.done-link'), 1);
+      assert.lengthOf(view.$('.primary-button'), 1);
       assert.lengthOf(view.$('.graphic-download-option'), 1);
       assert.lengthOf(view.$('.graphic-copy-option'), 1);
       assert.lengthOf(view.$('.graphic-print-option'), 1);
@@ -96,7 +96,7 @@ describe('views/post_verify/account_recovery/save_recovery_key', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon.spy(view, 'navigate');
-        return view.done();
+        return view.submit();
       });
 
       it('navigates to confirm page', () => {
