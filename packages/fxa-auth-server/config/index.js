@@ -1675,10 +1675,13 @@ conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
 conf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
 conf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
 
-conf.set('smtp.settingsEmailsUrl', `${baseUri}/settings/emails/`);
 conf.set(
-  'smtp.settingsRecoveryKeyUrl',
-  `${baseUri}/settings/account_recovery/`
+  'smtp.postVerifyAddSecondaryEmailUrl',
+  `${baseUri}/post_verify/secondary_email/add_secondary_email`
+);
+conf.set(
+  'smtp.postVerifyAddRecoveryKeyUrl',
+  `${baseUri}/post_verify/account_recovery/add_recovery_key`
 );
 
 conf.set('isProduction', conf.get('env') === 'prod');

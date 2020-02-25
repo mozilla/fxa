@@ -22,8 +22,18 @@ class AddSecondaryEmail extends FormView {
   beforeRender() {
     const account = this.getSignedInAccount();
     if (account.isDefault()) {
+      this.relier.set('redirectTo', this.window.location.href);
       return this.replaceCurrentPage('/');
     }
+
+    // An account can support multiple emails, however this flow is specific
+    // to adding the first secondary email. In these cases navigate to user's
+    // settings page.
+    return account.recoveryEmails().then(emails => {
+      if (emails && emails.length > 1) {
+        return this.navigate('/settings');
+      }
+    });
   }
 
   setInitialContext(context) {

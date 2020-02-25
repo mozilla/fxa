@@ -27,9 +27,9 @@ module.exports = printLogs => {
   const console = printLogs
     ? global.console
     : {
-      log() {},
-      error() {},
-    };
+        log() {},
+        error() {},
+      };
   return new P((resolve, reject) => {
     const smtp = simplesmtp.createSimpleServer(
       {
@@ -61,7 +61,7 @@ module.exports = printLogs => {
           if (vsc) {
             console.log('\x1B[34mSignin code', vsc, '\x1B[39m');
           } else if (vc) {
-            console.log('\x1B[32m', link, '\x1B[39m');
+            console.log('\x1B[32m', link || vc, '\x1B[39m');
           } else if (sc) {
             console.log('\x1B[32mToken code: ', sc, '\x1B[39m');
           } else if (rc) {

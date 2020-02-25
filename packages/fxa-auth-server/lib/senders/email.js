@@ -44,7 +44,6 @@ module.exports = function(log, config, oauthdb) {
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'account-verified',
-    postVerifyAddBoth: 'account-verified',
     postVerifyAddRecoveryKey: 'account-verified',
     postVerifyAddSecondary: 'account-verified',
     postChangePrimary: 'account-email-changed',
@@ -78,7 +77,6 @@ module.exports = function(log, config, oauthdb) {
     passwordResetRequired: 'password-reset',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
-    postVerifyAddBoth: 'manage-account',
     postVerifyAddRecoveryKey: 'add-recovery-key',
     postVerifyAddSecondary: 'add-secondary-email',
     postChangePrimary: 'account-email-changed',
@@ -188,8 +186,9 @@ module.exports = function(log, config, oauthdb) {
     this.verifyLoginUrl = mailerConfig.verifyLoginUrl;
     this.verifySecondaryEmailUrl = mailerConfig.verifySecondaryEmailUrl;
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
-    this.settingsEmailsUrl = mailerConfig.settingsEmailsUrl;
-    this.settingsRecoveryKeyUrl = mailerConfig.settingsRecoveryKeyUrl;
+    this.postVerifyAddSecondaryEmailUrl =
+      mailerConfig.postVerifyAddSecondaryEmailUrl;
+    this.postVerifyAddRecoveryKeyUrl = mailerConfig.postVerifyAddRecoveryKeyUrl;
   }
 
   Mailer.prototype.stop = function() {
@@ -1159,8 +1158,6 @@ module.exports = function(log, config, oauthdb) {
           return this.postVerifyAddSecondaryEmail(message);
         case 'treatment-recovery':
           return this.postVerifyAddRecoveryKeyEmail(message);
-        case 'treatment-both':
-          return this.postVerifyAddBothEmail(message);
         case 'control':
           // The control for the experiment is the default `Connect another device` email
           break;
@@ -1247,43 +1244,6 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postVerifyAddBothEmail = function(message) {
-    log.trace('mailer.postVerifyAddBothEmail', {
-      email: message.email,
-      uid: message.uid,
-    });
-
-    const templateName = 'postVerifyAddBoth';
-    const links = this._generateSettingLinks(message, templateName);
-    const subject = gettext('Set up account recovery');
-    const action = gettext('Open account settings');
-
-    const headers = {
-      'X-Link': links.link,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      subject,
-      template: templateName,
-      templateValues: {
-        email: message.email,
-        action,
-        androidLink: links.androidLink,
-        iosLink: links.iosLink,
-        link: links.link,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        privacyUrl: links.privacyUrl,
-        secondaryEmail: message.secondaryEmail,
-        subject,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-      },
-    });
-  };
-
   Mailer.prototype.postVerifyAddSecondaryEmail = function(message) {
     log.trace('mailer.postVerifyAddSecondaryEmail', {
       email: message.email,
@@ -1294,7 +1254,7 @@ module.exports = function(log, config, oauthdb) {
     const links = this._generateSettingLinks(
       message,
       templateName,
-      this.settingsEmailsUrl
+      this.postVerifyAddSecondaryEmailUrl
     );
     const subject = gettext('Set up recovery email');
     const action = gettext('Add a secondary email');
@@ -1332,11 +1292,21 @@ module.exports = function(log, config, oauthdb) {
     });
 
     const templateName = 'postVerifyAddRecoveryKey';
-    const links = this._generateSettingLinks(
-      message,
-      templateName,
-      this.settingsRecoveryKeyUrl
+
+    // To fetch encryption keys (required to enable recovery keys), the user must specify the `keys=true`
+    const query = {
+      email: message.email,
+      uid: message.uid,
+      keys: true,
+    };
+
+    const links = this._generateLinks(
+      this.postVerifyAddRecoveryKeyUrl,
+      message.email,
+      query,
+      templateName
     );
+
     const subject = gettext('Get a recovery key');
     const action = gettext('Get a recovery key');
 
