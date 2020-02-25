@@ -5,12 +5,7 @@
 const BaseGroupingRule = require('../../../fxa-shared').experiments
   .BaseGroupingRule;
 
-const GROUPS_DEFAULT = [
-  'control',
-  'treatment-secondary',
-  'treatment-recovery',
-  'treatment-both',
-];
+const GROUPS_DEFAULT = ['control', 'treatment-secondary', 'treatment-recovery'];
 
 class PostVerifyEmailGroupingRule extends BaseGroupingRule {
   constructor(config) {

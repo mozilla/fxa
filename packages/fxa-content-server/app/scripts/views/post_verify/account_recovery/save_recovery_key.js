@@ -24,7 +24,6 @@ class SaveRecoveryKey extends FormView {
     'click .download-option': '_downloadKey',
     'click .copy-option': '_copyKey',
     'click .print-option': '_printKey',
-    'click .done-link': 'done',
   });
 
   beforeRender() {
@@ -35,10 +34,12 @@ class SaveRecoveryKey extends FormView {
   }
 
   _copyKey() {
+    this.logFlowEventOnce('copy', this.viewName);
     return this.copy(this.recoveryKey, ACCOUNT_RECOVERY_ELEMENT);
   }
 
   _downloadKey() {
+    this.logFlowEventOnce('download', this.viewName);
     this.download(
       this.recoveryKey,
       this.getFormatedRecoveryKeyFilename(),
@@ -47,11 +48,11 @@ class SaveRecoveryKey extends FormView {
   }
 
   _printKey() {
+    this.logFlowEventOnce('print', this.viewName);
     this.print(PrintTemplate({ recoveryKey: this.recoveryKey }));
   }
 
   setInitialContext(context) {
-    console.log('setInitialContext', context);
     this.recoveryKey = context.get('recoveryKey');
     this.recoveryKeyId = context.get('recoveryKeyId');
     context.set({
@@ -60,7 +61,7 @@ class SaveRecoveryKey extends FormView {
     });
   }
 
-  done() {
+  submit() {
     this.navigate('/post_verify/account_recovery/confirm_recovery_key', {
       recoveryKey: this.recoveryKey,
       recoveryKeyId: this.recoveryKeyId,
