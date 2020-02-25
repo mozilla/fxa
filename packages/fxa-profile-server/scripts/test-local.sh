@@ -2,6 +2,9 @@
 
 set -e
 
+rm -rf coverage
+rm -rf .nyc_output
+
 if [ -z "$NODE_ENV" ]; then export NODE_ENV=test; fi;
 
 set -u
