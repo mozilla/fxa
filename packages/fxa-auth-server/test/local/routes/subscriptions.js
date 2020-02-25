@@ -2471,12 +2471,9 @@ describe('DirectStripeRoutes', () => {
 
     describe('when the customer is found from the subscription', () => {
       it('calls all the update and notification functions', async () => {
-        sinon
-          .stub(
-            directStripeRoutesInstance,
-            'getCustomerUidEmailFromSubscription'
-          )
-          .returns({ uid: UID, email: TEST_EMAIL });
+        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.returns(
+          { uid: UID, email: TEST_EMAIL }
+        );
 
         await directStripeRoutesInstance.updateCustomerAndSendStatus(
           VALID_REQUEST,
@@ -2497,12 +2494,9 @@ describe('DirectStripeRoutes', () => {
 
     describe('when the customer is not found from the subscription', () => {
       it('returns without calling anything', async () => {
-        sinon
-          .stub(
-            directStripeRoutesInstance,
-            'getCustomerUidEmailFromSubscription'
-          )
-          .returns({ uid: undefined, email: undefined });
+        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.returns(
+          { uid: undefined, email: undefined }
+        );
 
         await directStripeRoutesInstance.updateCustomerAndSendStatus(
           VALID_REQUEST,
@@ -2523,12 +2517,12 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('stripe webhooks', () => {
-    let sendStub, getCustomerStub;
+    let sendStub;
 
     beforeEach(() => {
-      getCustomerStub = sandbox
-        .stub(directStripeRoutesInstance, 'getCustomerUidEmailFromSubscription')
-        .resolves({ uid: UID, email: TEST_EMAIL });
+      directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
+        { uid: UID, email: TEST_EMAIL }
+      );
       sendStub = sandbox
         .stub(directStripeRoutesInstance, 'sendSubscriptionStatusToSqs')
         .resolves(true);
@@ -2678,7 +2672,10 @@ describe('DirectStripeRoutes', () => {
           {},
           updatedEvent
         );
-        assert.called(getCustomerStub);
+        assert.called(
+          directStripeRoutesInstance.stripeHelper
+            .getCustomerUidEmailFromSubscription
+        );
         assert.called(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
@@ -2692,7 +2689,10 @@ describe('DirectStripeRoutes', () => {
           {},
           updatedEvent
         );
-        assert.notCalled(getCustomerStub);
+        assert.notCalled(
+          directStripeRoutesInstance.stripeHelper
+            .getCustomerUidEmailFromSubscription
+        );
         assert.notCalled(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
@@ -2708,7 +2708,10 @@ describe('DirectStripeRoutes', () => {
           {},
           deletedEvent
         );
-        assert.called(getCustomerStub);
+        assert.called(
+          directStripeRoutesInstance.stripeHelper
+            .getCustomerUidEmailFromSubscription
+        );
         assert.called(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
@@ -2724,7 +2727,10 @@ describe('DirectStripeRoutes', () => {
           {},
           createdEvent
         );
-        assert.called(getCustomerStub);
+        assert.called(
+          directStripeRoutesInstance.stripeHelper
+            .getCustomerUidEmailFromSubscription
+        );
         assert.called(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
@@ -2738,7 +2744,10 @@ describe('DirectStripeRoutes', () => {
           {},
           createdEvent
         );
-        assert.notCalled(getCustomerStub);
+        assert.notCalled(
+          directStripeRoutesInstance.stripeHelper
+            .getCustomerUidEmailFromSubscription
+        );
         assert.notCalled(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
@@ -2747,8 +2756,6 @@ describe('DirectStripeRoutes', () => {
       });
     });
   });
-
-  describe('getCustomerUidEmailFromSubscription', () => {});
 
   describe('getSubscriptions', () => {});
 
