@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ApolloServer } from 'apollo-server';
+import { Logger } from 'mozlog';
 import * as TypeGraphQL from 'type-graphql';
 import { Container } from 'typedi';
 
@@ -11,10 +12,20 @@ import { AccountResolver } from './resolvers/account-resolver';
 import { EmailBounceResolver } from './resolvers/email-bounce-resolver';
 
 type ServerConfig = {
+  authHeader: string;
   database: DatabaseConfig;
 };
 
-export async function createServer(config: ServerConfig): Promise<ApolloServer> {
+/**
+ * Context available to resolvers
+ */
+export type Context = {
+  authUser: string | undefined;
+  logger: Logger;
+  logAction: (action: string, options?: object) => {};
+};
+
+export async function createServer(config: ServerConfig, logger: Logger): Promise<ApolloServer> {
   setupDatabase(config.database);
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
@@ -22,8 +33,15 @@ export async function createServer(config: ServerConfig): Promise<ApolloServer> 
   });
 
   return new ApolloServer({
-    context: () => {
-      return {};
+    context: ({ req }) => {
+      const authUser = req.headers[config.authHeader.toLowerCase()];
+      return {
+        authUser,
+        logAction: (action: string, options?: object) => {
+          logger.info(action, { authUser, ...options });
+        },
+        logger
+      };
     },
     schema
   });

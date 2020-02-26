@@ -16,6 +16,7 @@ import {
   randomEmailBounce,
   testDatabaseSetup
 } from '../db/models/helpers';
+import { mockContext } from '../mocks';
 
 import { Account, EmailBounces } from '../../../lib/db/models';
 import { AccountResolver } from '../../../lib/resolvers/account-resolver';
@@ -31,13 +32,20 @@ const USER_2 = randomAccount();
 describe('accountResolver', () => {
   let knex: Knex;
   let schema: GraphQLSchema;
+  let context: ReturnType<typeof mockContext>;
 
   before(async () => {
     knex = await testDatabaseSetup();
     // Load the users in
     await (Account as any).query().insertGraph({ ...USER_1, emails: [EMAIL_1] });
     await EmailBounces.query().insert(EMAIL_BOUNCE_1);
-    schema = await buildSchema({ resolvers: [AccountResolver, EmailBounceResolver] });
+    schema = await buildSchema({
+      resolvers: [AccountResolver, EmailBounceResolver]
+    });
+  });
+
+  beforeEach(async () => {
+    context = mockContext();
   });
 
   after(async () => {
@@ -51,10 +59,14 @@ describe('accountResolver', () => {
         email
       }
     }`;
-    const result = (await graphql(schema, query)) as any;
+    const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isDefined(result.data.accountByUid);
-    assert.deepEqual(result.data.accountByUid, { uid: USER_1.uid, email: USER_1.email });
+    assert.deepEqual(result.data.accountByUid, {
+      email: USER_1.email,
+      uid: USER_1.uid
+    });
+    assert.isTrue(context.logAction.calledOnce);
   });
 
   it('does not locate non-existent users by uid', async () => {
@@ -64,9 +76,10 @@ describe('accountResolver', () => {
         email
       }
     }`;
-    const result = (await graphql(schema, query)) as any;
+    const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isNull(result.data.accountByUid);
+    assert.isTrue(context.logAction.calledOnce);
   });
 
   it('locates the user by email', async () => {
@@ -76,10 +89,14 @@ describe('accountResolver', () => {
         email
       }
     }`;
-    const result = (await graphql(schema, query)) as any;
+    const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isDefined(result.data.accountByEmail);
-    assert.deepEqual(result.data.accountByEmail, { uid: USER_1.uid, email: USER_1.email });
+    assert.deepEqual(result.data.accountByEmail, {
+      email: USER_1.email,
+      uid: USER_1.uid
+    });
+    assert.isTrue(context.logAction.calledOnce);
   });
 
   it('does not locate non-existent users by email', async () => {
@@ -89,9 +106,10 @@ describe('accountResolver', () => {
         email
       }
     }`;
-    const result = (await graphql(schema, query)) as any;
+    const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isNull(result.data.accountByEmail);
+    assert.isTrue(context.logAction.calledOnce);
   });
 
   it('loads emailBounces with field resolver', async () => {
@@ -107,7 +125,7 @@ describe('accountResolver', () => {
         }
       }
     }`;
-    const result = (await graphql(schema, query)) as any;
+    const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isDefined(result.data.accountByEmail);
     assert.deepEqual(result.data.accountByEmail, {
@@ -122,5 +140,6 @@ describe('accountResolver', () => {
       ],
       uid: USER_1.uid
     });
+    assert.isTrue(context.logAction.calledOnce);
   });
 });

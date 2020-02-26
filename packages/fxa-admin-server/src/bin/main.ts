@@ -4,17 +4,18 @@
 
 import 'reflect-metadata';
 
+import mozlog from 'mozlog';
 import Config from '../config';
 import { createServer } from '../lib/server';
 
+const logger = mozlog(Config.get('logging'))('supportPanel');
+
 async function run() {
-  const server = await createServer(Config.getProperties());
+  const server = await createServer(Config.getProperties(), logger);
   const { url } = await server.listen(8090);
-  // tslint:disable-next-line
-  console.log(`Server is running, GraphQL Playground available at ${url}`);
+  logger.info('startup', { message: `Server is running, GraphQL Playground available at ${url}` });
 }
 
 run().catch(err => {
-  // tslint:disable-next-line
-  console.error(err);
+  logger.error('startup', { err });
 });
