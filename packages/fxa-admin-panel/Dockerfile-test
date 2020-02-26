@@ -1,0 +1,8 @@
+FROM node:12
+WORKDIR /app
+COPY . /app
+
+# Jest test runner needs this to disable interactive mode
+ENV CI=yes
+
+RUN npm ci
