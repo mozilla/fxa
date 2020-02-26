@@ -1395,8 +1395,6 @@ module.exports = (
                   metadata: { delete: 'true' },
                 });
               }
-            } else {
-              await subhub.deleteCustomer(uid);
             }
           } catch (err) {
             if (err.message === 'Customer not available') {
@@ -1477,16 +1475,6 @@ module.exports = (
               subscriptions = await stripeHelper.subscriptionsToResponse(
                 customer.subscriptions
               );
-            } else {
-              // TODO: issue #3846 - remove this conditional branch
-              // issue #3109: check for existence of subscriptions in
-              // local DB before making a request to external subhub
-              const activeSubscriptions = await db.fetchAccountSubscriptions(
-                uid
-              );
-              if (activeSubscriptions && activeSubscriptions.length > 0) {
-                ({ subscriptions } = await subhub.listSubscriptions(uid));
-              }
             }
           } catch (err) {
             if (err.errno !== error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER) {

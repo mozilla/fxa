@@ -4,7 +4,6 @@
 
 const Sentry = require('@sentry/node');
 const error = require('../error');
-const subhub = require('../subhub/client');
 
 const stripe = require('stripe').Stripe;
 
@@ -38,6 +37,36 @@ const stripe = require('stripe').Stripe;
  * @property {Plan['amount']} amount
  * @property {Plan['currency']} currency
  */
+
+/**
+ * Determine for two product metadata object's whether the new one
+ * is a valid upgrade for the old one.
+ *
+ * Throws errors if necessary metadata is not present to determine
+ * if its an upgrade.
+ *
+ * @param {AbbrevProduct['product_metadata']} oldMetadata Old product metadata
+ * @param {AbbrevProduct['product_metadata']} newMetadata New product metadata
+ * @returns {boolean} Whether the new product is an upgrade.
+ */
+function validateProductUpgrade(oldMetadata, newMetadata) {
+  if (!oldMetadata || !newMetadata) {
+    throw error.unknownSubscriptionPlan();
+  }
+
+  const oldId = oldMetadata.productSet;
+  const newId = newMetadata.productSet;
+  if (!oldId || oldId !== newId) {
+    // Incompatible product sets
+    return false;
+  }
+  const oldOrder = Number.parseInt(oldMetadata.productSetOrder);
+  const newOrder = Number.parseInt(newMetadata.productSetOrder);
+  if (isNaN(oldOrder) || isNaN(newOrder)) {
+    throw error.unknownSubscriptionPlan();
+  }
+  return oldOrder < newOrder;
+}
 
 /**
  * Get a cached result at a cache key and regenerated it with `refreshFunction`
@@ -486,7 +515,7 @@ class StripeHelper {
     }
 
     if (
-      !subhub.validateProductUpgrade(
+      !validateProductUpgrade(
         currentPlan.product_metadata,
         newPlan.product_metadata
       )
