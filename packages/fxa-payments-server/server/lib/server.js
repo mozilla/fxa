@@ -9,8 +9,8 @@ module.exports = () => {
   const fs = require('fs');
 
   // setup version first for the rest of the modules
-  const logger = require('./logging/log')('server.main');
-  const routes = require('./routes');
+  const log = require('./logging/log');
+  const logger = log('server.main');
   const version = require('./version');
   const config = require('../config');
 
@@ -28,6 +28,35 @@ module.exports = () => {
   const cspRulesBlocking = require('../lib/csp/blocking')(config);
   const cspRulesReportOnly = require('../lib/csp/report-only')(config);
   const { cors, routing } = require('../../../fxa-shared/express')();
+
+  const NOOP = () => {};
+  const UAParser = require('ua-parser-js');
+  const StatsD = require('hot-shots');
+  const geodbConfig = config.get('geodb');
+  let geolocate = NOOP;
+  if (geodbConfig.enabled) {
+    const geodb = require('../../../fxa-geodb/lib/fxa-geodb.js')(geodbConfig);
+    const remoteAddress = require('../../../fxa-shared/express/remote-address')(
+      config.get('clientAddressDepth')
+    );
+    geolocate = require('../../../fxa-shared/express/geo-locate.js')(geodb)(
+      remoteAddress
+    )(log('geolocate'));
+  }
+  const statsdConfig = config.get('statsd');
+  const statsd = statsdConfig.enabled
+    ? new StatsD({
+        ...statsdConfig,
+        errorHandler: err => {
+          // eslint-disable-next-line no-use-before-define
+          logger.error('statsd.error', err);
+        },
+      })
+    : {
+        timing: NOOP,
+      };
+
+  const routes = require('./routes')(geolocate, UAParser, statsd);
 
   const app = express();
 
