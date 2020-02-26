@@ -250,7 +250,6 @@ body.settings #stage .settings {
   .card-subheader {
     overflow: hidden;
     text-overflow: ellipsis;
-    text-wrap: nowrap;
     white-space: nowrap;
   }
 
@@ -258,6 +257,7 @@ body.settings #stage .settings {
     font-size: 20px;
     line-height: 24px;
     margin-bottom: 0;
+    padding-bottom: 1px;
 
     @include respond-to('small') {
       font-size: 14px;
