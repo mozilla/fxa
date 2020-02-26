@@ -890,6 +890,9 @@ const conf = convict({
       },
     },
     clientIdToServiceNames: {
+      // This is used by oauth/db/index.js to identify pocket client ids so that it
+      // can store them separately in mysql.
+      // It's also used for amplitude stats
       doc:
         'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
       default: {},

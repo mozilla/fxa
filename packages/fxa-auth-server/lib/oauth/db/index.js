@@ -93,9 +93,8 @@ class OauthDB {
   async getActiveClientsByUid(uid) {
     const tokens = await this.redis.getAccessTokens(uid);
     const activeClientTokens = [];
-    const now = new Date();
     for (const token of tokens) {
-      if (token.expiresAt > now && !token.canGrant) {
+      if (!token.canGrant) {
         activeClientTokens.push(token);
       }
     }

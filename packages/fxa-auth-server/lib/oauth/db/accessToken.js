@@ -39,7 +39,7 @@ class AccessToken {
     this.scope = scope;
     /** @type {Buffer} */
     this.token = token || unique.token();
-    /** @type {Date} */
+    /** @type {Date} truncated to the second to match mysql */
     this.createdAt = createdAt || new Date(new Date().setMilliseconds(0));
     /** @type {number} */
     this.profileChangedAt = profileChangedAt || 0;

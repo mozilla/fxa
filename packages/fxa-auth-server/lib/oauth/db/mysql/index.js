@@ -557,7 +557,7 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise}
    */
-  _deleteClientAuthorization: function deleteClientAuthorization(
+  _deleteClientAuthorization: function _deleteClientAuthorization(
     clientId,
     uid
   ) {
@@ -597,7 +597,7 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
    */
-  _deleteClientRefreshToken: async function deleteClientRefreshToken(
+  _deleteClientRefreshToken: async function _deleteClientRefreshToken(
     refreshTokenId,
     clientId,
     uid
@@ -910,7 +910,7 @@ MysqlStore.prototype = {
       });
   },
 
-  _removeUser: function removeUser(userId) {
+  _removeUser: function _removeUser(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])

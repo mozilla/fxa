@@ -112,7 +112,8 @@ class FxaRedis {
    */
   setAccessToken(token) {
     if (token.ttl < 1) {
-      return 0;
+      this.log.error('redis', new Error('invalid ttl on access token'));
+      return;
     }
     return this.redis.setAccessToken(
       token.userId.toString('hex'),
