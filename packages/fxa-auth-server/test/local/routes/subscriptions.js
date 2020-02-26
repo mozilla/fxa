@@ -2559,7 +2559,7 @@ describe('DirectStripeRoutes', () => {
           assert.equal(err.message, 'Requested scopes are not allowed');
         }
       );
-    })
+    });
   });
 
   describe('getProductCapabilties', () => {
@@ -2582,14 +2582,101 @@ describe('DirectStripeRoutes', () => {
 
   describe('listActive', () => {});
 
-  describe('getCustomer', () => {});
+  describe('getCustomer', () => {
+    describe('customer is found', () => {
+      let customer;
+
+      beforeEach(() => {
+        customer = Object.create(emptyCustomer);
+        directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
+          []
+        );
+      });
+
+      describe('customer has payment sources', () => {
+        describe('payment source is a card object', () => {
+          it('adds source data to the response', async () => {
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customer
+            );
+
+            const expected = {
+              subscriptions: [],
+              payment_type: customer.sources.data[0].funding,
+              last4: customer.sources.data[0].last4,
+              exp_month: customer.sources.data[0].exp_month,
+              exp_year: customer.sources.data[0].exp_year,
+            };
+            const actual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+
+            assert.deepEqual(actual, expected);
+          });
+        });
+        describe('payment source is a source object', () => {
+          it('does not add the source data to the response', async () => {
+            customer.sources.data[0].object = 'source';
+            customer.subscriptions.data = [];
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customer
+            );
+
+            const expected = { subscriptions: [] };
+            const actual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+
+            assert.deepEqual(actual, expected);
+          });
+        });
+      });
+      describe('customer has no payment sources', () => {
+        it('does not add source information to the response', async () => {
+          customer.sources.data = [];
+          customer.subscriptions.data = [];
+          directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+            customer
+          );
+
+          const expected = { subscriptions: [] };
+          const actual = await directStripeRoutesInstance.getCustomer(
+            VALID_REQUEST
+          );
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+    });
+    describe('customer is not found', () => {
+      it('throws an error', async () => {
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+
+        try {
+          await directStripeRoutesInstance.getCustomer(VALID_REQUEST);
+          assert.fail(
+            'getCustomer should throw an error when a customer is not returned.'
+          );
+        } catch (err) {
+          assert.strictEqual(
+            err.errno,
+            error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
+          );
+          assert.strictEqual(err.message, 'Unknown customer');
+          assert.strictEqual(err.output.payload['uid'], UID);
+        }
+      });
+    });
+  });
 
   describe('sendSubscriptionStatusToSqs', () => {
     it('notifies attached services', async () => {
       const event = Object.create(subscriptionUpdatedFromIncomplete);
       const subscription = Object.create(subscription2);
       const sub = { id: subscription.id, productId: subscription.plan.product };
-      console.log(sub);
+
+      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+
       await directStripeRoutesInstance.sendSubscriptionStatusToSqs(
         VALID_REQUEST,
         UID,
