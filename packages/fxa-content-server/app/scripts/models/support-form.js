@@ -15,6 +15,8 @@ const TOPICS = [
   'Connection issues',
   'Getting started',
   'Account issues',
+  'Firefox Private Network Android App',
+  'Firefox Private Network Windows App',
 ];
 
 // Translated strings for the drop down options.
@@ -24,6 +26,8 @@ const TRANSLATED_TOPICS = [
   t('Connection issues'),
   t('Getting started'),
   t('Account issues'),
+  t('Firefox Private Network Android App'),
+  t('Firefox Private Network Windows App'),
 ];
 
 // Lowercase translated strings used in the successful submission modal.
