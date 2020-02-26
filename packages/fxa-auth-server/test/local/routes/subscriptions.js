@@ -22,6 +22,9 @@ const {
 } = require('../../../lib/routes/subscriptions');
 
 const subscription2 = require('../payments/fixtures/subscription2.json');
+const cancelledSubscription = require('../payments/fixtures/subscription_cancelled.json');
+const trialSubscription = require('../payments/fixtures/subscription_trialing.json');
+const pastDueSubscription = require('../payments/fixtures/subscription_past_due.json');
 const customerFixture = require('../payments/fixtures/customer1.json');
 const multiPlanSubscription = require('../payments/fixtures/subscription_multiplan.json');
 const emptyCustomer = require('../payments/fixtures/customer_new.json');
@@ -141,6 +144,16 @@ function runTest(routePath, requestOptions, payments = null) {
   request.emitMetricsEvent = sinon.spy(() => P.resolve({}));
 
   return route.handler(request);
+}
+
+/**
+ * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
+ * a deep copy of the object can be created which uses the test object as a template
+ *
+ * @param {Object} object
+ */
+function deepCopy(object) {
+  return JSON.parse(JSON.stringify(object));
 }
 
 describe('sanitizePlans', () => {
@@ -1921,7 +1934,7 @@ describe('DirectStripeRoutes', () => {
     };
 
     beforeEach(() => {
-      const subscription = Object.create(subscription2);
+      const subscription = deepCopy(subscription2);
       expected = { subscriptionId: subscription.id };
 
       createForNewStub = sandbox
@@ -1969,7 +1982,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('when called for an existing customer', () => {
       it('creates a new subscription', async () => {
-        const customer = Object.create(customerFixture);
+        const customer = deepCopy(customerFixture);
         directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
           customer
         );
@@ -1999,9 +2012,8 @@ describe('DirectStripeRoutes', () => {
   describe('createSubscriptionNewCustomer', () => {
     it('creates a stripe customer and a new subscription', async () => {
       const expected = subscription2;
-      directStripeRoutesInstance.stripeHelper.createCustomer.returns(
-        emptyCustomer
-      );
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.createCustomer.returns(customer);
       directStripeRoutesInstance.stripeHelper.createSubscription.returns(
         subscription2
       );
@@ -2036,7 +2048,7 @@ describe('DirectStripeRoutes', () => {
     const paymentToken = 'tok_visa';
 
     beforeEach(() => {
-      customer = Object.create(emptyCustomer);
+      customer = deepCopy(emptyCustomer);
     });
 
     describe('the optional paymentToken parameter', () => {
@@ -2046,7 +2058,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('when a payment token is provided', () => {
         it('calls updateCustomerPaymentMethod', async () => {
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           directStripeRoutesInstance.stripeHelper.createSubscription.returns(
             expected
           );
@@ -2067,7 +2079,7 @@ describe('DirectStripeRoutes', () => {
       });
       describe('when a payment token is not provided', () => {
         it('does not call updateCustomerPaymentMethod', async () => {
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           directStripeRoutesInstance.stripeHelper.createSubscription.returns(
             expected
           );
@@ -2087,7 +2099,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('user with no subscriptions', () => {
       it('calls createSubscription', async () => {
-        const expected = Object.create(subscription2);
+        const expected = deepCopy(subscription2);
         directStripeRoutesInstance.stripeHelper.createSubscription.returns(
           expected
         );
@@ -2111,7 +2123,7 @@ describe('DirectStripeRoutes', () => {
       let invoice;
       let handleStub;
       beforeEach(() => {
-        existingSubscription = Object.create(subscription2);
+        existingSubscription = deepCopy(subscription2);
         handleStub = sandbox
           .stub(directStripeRoutesInstance, 'handleOpenInvoice')
           .resolves();
@@ -2122,7 +2134,7 @@ describe('DirectStripeRoutes', () => {
           existingSubscription.latest_invoice = null;
           customer.subscriptions.data = [existingSubscription];
 
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           directStripeRoutesInstance.stripeHelper.createSubscription.returns(
             expected
           );
@@ -2143,7 +2155,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('the latest invoice status is open', () => {
         it('calls handleOpenInvoice', async () => {
-          invoice = Object.create(openInvoice);
+          invoice = deepCopy(openInvoice);
           existingSubscription.latest_invoice = invoice;
           customer.subscriptions.data = [existingSubscription];
 
@@ -2166,7 +2178,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('the latest invoice status is paid', () => {
         it('throws an error', async () => {
-          invoice = Object.create(openInvoice);
+          invoice = deepCopy(openInvoice);
           invoice.status = 'paid';
           existingSubscription.latest_invoice = invoice;
           customer.subscriptions.data = [existingSubscription];
@@ -2193,12 +2205,12 @@ describe('DirectStripeRoutes', () => {
 
       describe('the latest invoice status is something else', () => {
         it('calls createSubscription', async () => {
-          invoice = Object.create(openInvoice);
+          invoice = deepCopy(openInvoice);
           invoice.status = 'draft';
           existingSubscription.latest_invoice = invoice;
           customer.subscriptions.data = [existingSubscription];
 
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           directStripeRoutesInstance.stripeHelper.createSubscription.returns(
             expected
           );
@@ -2222,8 +2234,8 @@ describe('DirectStripeRoutes', () => {
   describe('handleOpenInvoice', () => {
     describe('when the payment_intent status requires payment method', () => {
       it('calls payInvoice', async () => {
-        const invoice = Object.create(openInvoice);
-        invoice.payment_intent = Object.create(openPaymentIntent);
+        const invoice = deepCopy(openInvoice);
+        invoice.payment_intent = deepCopy(openPaymentIntent);
 
         directStripeRoutesInstance.stripeHelper.payInvoice.resolves();
 
@@ -2240,8 +2252,8 @@ describe('DirectStripeRoutes', () => {
 
     describe('when the payment_intent status is in any other state', () => {
       it('thows a backendServiceFailure error', async () => {
-        const invoice = Object.create(openInvoice);
-        invoice.payment_intent = Object.create(closedPaymementIntent);
+        const invoice = deepCopy(openInvoice);
+        invoice.payment_intent = deepCopy(closedPaymementIntent);
 
         return directStripeRoutesInstance.handleOpenInvoice(invoice).then(
           () => Promise.reject(new Error('Method expected to reject')),
@@ -2257,7 +2269,8 @@ describe('DirectStripeRoutes', () => {
 
   describe('findCustomerSubscriptionByPlanId', () => {
     describe('Customer has Single One-Plan Subscription', () => {
-      const customer = Object.create(customerFixture);
+      const customer = deepCopy(customerFixture);
+      customer.subscriptions.data = [subscription2];
       it('returns the Subscription when the plan id is found', () => {
         const expected = customer.subscriptions.data[0];
         const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
@@ -2279,13 +2292,13 @@ describe('DirectStripeRoutes', () => {
     });
 
     describe('Customer has Single Multi-Plan Subscription', () => {
-      const customer = Object.create(customerFixture);
+      const customer = deepCopy(customerFixture);
       customer.subscriptions.data = [multiPlanSubscription];
 
       it('returns the Subscription when the plan id is found - first in array', () => {
-        const expected = customerFixture.subscriptions.data[0];
+        const expected = customer.subscriptions.data[0];
         const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
-          customerFixture,
+          customer,
           'plan_1'
         );
 
@@ -2293,9 +2306,9 @@ describe('DirectStripeRoutes', () => {
       });
 
       it('returns the Subscription when the plan id is found - not first in array', () => {
-        const expected = customerFixture.subscriptions.data[0];
+        const expected = customer.subscriptions.data[0];
         const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
-          customerFixture,
+          customer,
           'plan_2'
         );
 
@@ -2305,7 +2318,7 @@ describe('DirectStripeRoutes', () => {
       it('returns `undefined` when the plan id is not found', () => {
         assert.isUndefined(
           directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
-            customerFixture,
+            customer,
             'plan_3'
           )
         );
@@ -2313,13 +2326,13 @@ describe('DirectStripeRoutes', () => {
     });
 
     describe('Customer has Multiple Subscriptions', () => {
-      const customer = Object.create(customerFixture);
+      const customer = deepCopy(customerFixture);
       customer.subscriptions.data = [multiPlanSubscription, subscription2];
 
       it('returns the Subscription when the plan id is found in the first subscription', () => {
-        const expected = customerFixture.subscriptions.data[0];
+        const expected = customer.subscriptions.data[0];
         const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
-          customerFixture,
+          customer,
           'plan_2'
         );
 
@@ -2327,9 +2340,9 @@ describe('DirectStripeRoutes', () => {
       });
 
       it('returns the Subscription when the plan id is found in not the first subscription', () => {
-        const expected = customerFixture.subscriptions.data[1];
+        const expected = customer.subscriptions.data[1];
         const actual = directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
-          customerFixture,
+          customer,
           'plan_G93mMKnIFCjZek'
         );
 
@@ -2339,7 +2352,7 @@ describe('DirectStripeRoutes', () => {
       it('returns `undefined` when the plan id is not found', () => {
         assert.isUndefined(
           directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
-            customerFixture,
+            customer,
             'plan_test2'
           )
         );
@@ -2580,14 +2593,86 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('listActive', () => {});
+  describe('listActive', () => {
+    describe('customer is found', () => {
+      describe('customer has no subscriptions', () => {
+        it('returns an empty array', async () => {
+          directStripeRoutesInstance.stripeHelper.customer.resolves(
+            emptyCustomer
+          );
+          const expected = [];
+          const actual = await directStripeRoutesInstance.listActive(
+            VALID_REQUEST
+          );
+          assert.deepEqual(actual, expected);
+        });
+      });
+      describe('customer has subscriptions', () => {
+        it('returns only subscriptions that are trialing, active, or past_due', async () => {
+          const customer = deepCopy(emptyCustomer);
+          const setToCancelSubscription = deepCopy(cancelledSubscription);
+          setToCancelSubscription.status = 'active';
+          setToCancelSubscription.id = 'sub_123456';
+          customer.subscriptions.data = [
+            subscription2,
+            trialSubscription,
+            pastDueSubscription,
+            cancelledSubscription,
+            setToCancelSubscription,
+          ];
+
+          directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+
+          const activeSubscriptions = await directStripeRoutesInstance.listActive(
+            VALID_REQUEST
+          );
+
+          assert.lengthOf(activeSubscriptions, 4);
+          assert.isDefined(
+            activeSubscriptions.find(x => x.subscriptionId === subscription2.id)
+          );
+          assert.isDefined(
+            activeSubscriptions.find(
+              x => x.subscriptionId === trialSubscription.id
+            )
+          );
+          assert.isDefined(
+            activeSubscriptions.find(
+              x => x.subscriptionId === pastDueSubscription.id
+            )
+          );
+          assert.isDefined(
+            activeSubscriptions.find(
+              x => x.subscriptionId === setToCancelSubscription.id
+            )
+          );
+          assert.isUndefined(
+            activeSubscriptions.find(
+              x => x.subscriptionId === cancelledSubscription.id
+            )
+          );
+        });
+      });
+    });
+
+    describe('customer is not found', () => {
+      it('returns an empty array', async () => {
+        directStripeRoutesInstance.stripeHelper.customer.resolves();
+        const expected = [];
+        const actual = await directStripeRoutesInstance.listActive(
+          VALID_REQUEST
+        );
+        assert.deepEqual(actual, expected);
+      });
+    });
+  });
 
   describe('getCustomer', () => {
     describe('customer is found', () => {
       let customer;
 
       beforeEach(() => {
-        customer = Object.create(emptyCustomer);
+        customer = deepCopy(emptyCustomer);
         directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
           []
         );
@@ -2671,8 +2756,8 @@ describe('DirectStripeRoutes', () => {
 
   describe('sendSubscriptionStatusToSqs', () => {
     it('notifies attached services', async () => {
-      const event = Object.create(subscriptionUpdatedFromIncomplete);
-      const subscription = Object.create(subscription2);
+      const event = deepCopy(subscriptionUpdatedFromIncomplete);
+      const subscription = deepCopy(subscription2);
       const sub = { id: subscription.id, productId: subscription.plan.product };
 
       directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
@@ -2707,7 +2792,7 @@ describe('DirectStripeRoutes', () => {
     let event;
 
     beforeEach(() => {
-      event = Object.create(subscriptionUpdatedFromIncomplete);
+      event = deepCopy(subscriptionUpdatedFromIncomplete);
       sinon
         .stub(directStripeRoutesInstance, 'sendSubscriptionStatusToSqs')
         .resolves();
@@ -2801,7 +2886,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('when the event.type is customer.subscription.created', () => {
         it('only calls handleSubscriptionCreatedEvent', async () => {
-          const createdEvent = Object.create(subscriptionCreated);
+          const createdEvent = deepCopy(subscriptionCreated);
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
             createdEvent
           );
@@ -2828,7 +2913,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('when the event.type is customer.subscription.updated', () => {
         it('only calls handleSubscriptionUpdatedEvent', async () => {
-          const event = Object.create(subscriptionUpdated);
+          const event = deepCopy(subscriptionUpdated);
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
             event
           );
@@ -2856,7 +2941,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('when the event.type is customer.subscription.deleted', () => {
         it('only calls handleSubscriptionDeletedEvent', async () => {
-          const event = Object.create(subscriptionDeleted);
+          const event = deepCopy(subscriptionDeleted);
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
             event
           );
@@ -2884,7 +2969,7 @@ describe('DirectStripeRoutes', () => {
 
       describe('when the event.type is something else', () => {
         it('only calls sentry', async () => {
-          const event = Object.create(subscriptionCreated);
+          const event = deepCopy(subscriptionCreated);
           event.type = 'customer.updated';
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
             event
@@ -2911,7 +2996,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('handleSubscriptionUpdatedEvent', () => {
       it('emits a notification when transitioning from "incomplete" to "active/trialing"', async () => {
-        const updatedEvent = Object.create(subscriptionUpdatedFromIncomplete);
+        const updatedEvent = deepCopy(subscriptionUpdatedFromIncomplete);
         await directStripeRoutesInstance.handleSubscriptionUpdatedEvent(
           {},
           updatedEvent
@@ -2928,7 +3013,7 @@ describe('DirectStripeRoutes', () => {
       });
 
       it('does not emit a notification for any other subscription state change', async () => {
-        const updatedEvent = Object.create(subscriptionUpdated);
+        const updatedEvent = deepCopy(subscriptionUpdated);
         await directStripeRoutesInstance.handleSubscriptionUpdatedEvent(
           {},
           updatedEvent
@@ -2947,7 +3032,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('handleSubscriptionDeletedEvent', () => {
       it('emits a notification when a subscription is deleted', async () => {
-        const deletedEvent = Object.create(subscriptionDeleted);
+        const deletedEvent = deepCopy(subscriptionDeleted);
         await directStripeRoutesInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
@@ -2966,7 +3051,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('handleSubscriptionCreatedEvent', () => {
       it('emits a notification when a new subscription is "active" or "trialing"', async () => {
-        const createdEvent = Object.create(subscriptionCreated);
+        const createdEvent = deepCopy(subscriptionCreated);
         await directStripeRoutesInstance.handleSubscriptionCreatedEvent(
           {},
           createdEvent
@@ -2983,7 +3068,7 @@ describe('DirectStripeRoutes', () => {
       });
 
       it('does not emit a notification for incomplete new subscriptions', async () => {
-        const createdEvent = Object.create(subscriptionCreatedIncomplete);
+        const createdEvent = deepCopy(subscriptionCreatedIncomplete);
         await directStripeRoutesInstance.handleSubscriptionCreatedEvent(
           {},
           createdEvent
