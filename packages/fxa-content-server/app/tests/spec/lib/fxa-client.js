@@ -1814,7 +1814,7 @@ describe('lib/fxa-client', function() {
         .callsFake(() => Promise.resolve(bundle));
 
       return client
-        .createRecoveryBundle('email', 'password', 'sessionToken', uid)
+        .createRecoveryBundle('email', 'password', 'sessionToken', uid, true)
         .then(resp => {
           assert.isTrue(
             realClient.sessionReauth.calledOnceWith(
@@ -1831,7 +1831,8 @@ describe('lib/fxa-client', function() {
             realClient.createRecoveryKey.calledOnceWith(
               'sessionToken',
               recoveryJwk.kid,
-              bundle
+              bundle,
+              true
             )
           );
           assert.isTrue(RecoveryKey.generateRecoveryKey.calledOnce);
@@ -1841,7 +1842,10 @@ describe('lib/fxa-client', function() {
           assert.isTrue(
             RecoveryKey.bundleRecoveryData.calledOnceWith(recoveryJwk, keys)
           );
-          assert.deepEqual(resp, { recoveryKey });
+          assert.deepEqual(resp, {
+            recoveryKey,
+            recoveryKeyId: recoveryJwk.kid,
+          });
         });
     });
   });

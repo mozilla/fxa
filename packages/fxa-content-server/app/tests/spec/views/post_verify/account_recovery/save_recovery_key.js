@@ -9,6 +9,7 @@ import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
+import SentryMetrics from 'lib/sentry';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/post_verify/account_recovery/save_recovery_key';
@@ -22,6 +23,7 @@ describe('views/post_verify/account_recovery/save_recovery_key', () => {
   let model;
   let notifier;
   let relier;
+  let sentryMetrics;
   let user;
   let view;
   let windowMock;
@@ -41,9 +43,12 @@ describe('views/post_verify/account_recovery/save_recovery_key', () => {
     });
     model = new Backbone.Model({
       account,
+      recoveryKey: 'somekey',
+      recoveryKeyId: 'somekeyid',
     });
     notifier = _.extend({}, Backbone.Events);
-    metrics = new Metrics({ notifier });
+    sentryMetrics = new SentryMetrics();
+    metrics = new Metrics({ notifier, sentryMetrics });
     user = new User();
     view = new View({
       broker,
@@ -94,10 +99,14 @@ describe('views/post_verify/account_recovery/save_recovery_key', () => {
         return view.done();
       });
 
-      it('navigates to verified page', () => {
+      it('navigates to confirm page', () => {
         assert.isTrue(
           view.navigate.calledWith(
-            '/post_verify/account_recovery/verified_recovery_key'
+            '/post_verify/account_recovery/confirm_recovery_key',
+            {
+              recoveryKey: 'somekey',
+              recoveryKeyId: 'somekeyid',
+            }
           )
         );
       });

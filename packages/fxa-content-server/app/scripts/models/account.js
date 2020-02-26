@@ -1521,14 +1521,16 @@ const Account = Backbone.Model.extend(
      * Creates a new recovery key bundle for the current user.
      *
      * @param {String} password The current password for the user
+     * @param {String} enable Enable to recovery key
      * @returns {Promise}
      */
-    createRecoveryBundle(password) {
+    createRecoveryBundle(password, enabled) {
       return this._fxaClient.createRecoveryBundle(
         this.get('email'),
         password,
         this.get('sessionToken'),
-        this.get('uid')
+        this.get('uid'),
+        enabled
       );
     },
 
@@ -1539,6 +1541,18 @@ const Account = Backbone.Model.extend(
      */
     deleteRecoveryKey() {
       return this._fxaClient.deleteRecoveryKey(this.get('sessionToken'));
+    },
+
+    /**
+     * Verify the recovery key associated with this user.
+     *
+     * @returns {Promise} resolves when complete.
+     */
+    verifyRecoveryKey(recoveryKeyId) {
+      return this._fxaClient.verifyRecoveryKey(
+        this.get('sessionToken'),
+        recoveryKeyId
+      );
     },
 
     /**

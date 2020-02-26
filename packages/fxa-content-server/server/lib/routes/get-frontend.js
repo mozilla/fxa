@@ -34,6 +34,7 @@ module.exports = function() {
     'pair/unsupported',
     'post_verify/account_recovery/add_recovery_key',
     'post_verify/account_recovery/confirm_password',
+    'post_verify/account_recovery/confirm_recovery_key',
     'post_verify/account_recovery/save_recovery_key',
     'post_verify/account_recovery/verified_recovery_key',
     'post_verify/secondary_email/add_secondary_email',

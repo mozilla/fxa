@@ -1135,7 +1135,7 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   createRecoveryBundle: withClient(
-    (client, email, password, sessionToken, uid) => {
+    (client, email, password, sessionToken, uid, enabled = true) => {
       let recoveryKey, keys, recoveryJwk;
 
       return client
@@ -1158,10 +1158,15 @@ FxaClientWrapper.prototype = {
           return RecoveryKey.bundleRecoveryData(recoveryJwk, keys);
         })
         .then(bundle =>
-          client.createRecoveryKey(sessionToken, recoveryJwk.kid, bundle)
+          client.createRecoveryKey(
+            sessionToken,
+            recoveryJwk.kid,
+            bundle,
+            enabled
+          )
         )
         .then(() => {
-          return { recoveryKey };
+          return { recoveryKey, recoveryKeyId: recoveryJwk.kid };
         });
     }
   ),
@@ -1172,6 +1177,14 @@ FxaClientWrapper.prototype = {
    * @param sessionToken
    */
   deleteRecoveryKey: createClientDelegate('deleteRecoveryKey'),
+
+  /**
+   * Verify the recovery key associated with this user.
+   *
+   * @param sessionToken
+   * @param recoveryKeyId
+   */
+  verifyRecoveryKey: createClientDelegate('verifyRecoveryKey'),
 
   /**
    * This checks to see if a recovery key exists for a user.
