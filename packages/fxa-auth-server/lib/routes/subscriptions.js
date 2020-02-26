@@ -523,7 +523,10 @@ class DirectStripeRoutes {
    * @param {boolean} isActive
    */
   async updateCustomerAndSendStatus(request, event, sub, isActive) {
-    const { uid, email } = await this.getCustomerUidEmailFromSubscription(sub);
+    const {
+      uid,
+      email,
+    } = await this.stripeHelper.getCustomerUidEmailFromSubscription(sub);
     if (!uid) {
       return;
     }
@@ -587,38 +590,6 @@ class DirectStripeRoutes {
   async handleSubscriptionDeletedEvent(request, event) {
     const sub = /** @type {Subscription} */ (event.data.object);
     return this.updateCustomerAndSendStatus(request, event, sub, false);
-  }
-
-  /**
-   * Fetch a customer record from Stripe by id and return its userid metadata
-   * and the email.
-   *
-   * @param {Subscription} sub
-   * @returns {Promise<{uid: string, email: string} | {uid: undefined, email: undefined}>}
-   */
-  async getCustomerUidEmailFromSubscription(sub) {
-    const customer = await this.stripeHelper.stripe.customers.retrieve(
-      /** @type {string} */ (sub.customer)
-    );
-    if (customer.deleted) {
-      // Deleted customers lost their metadata so we can't send events for them
-      return { uid: undefined, email: undefined };
-    }
-    if (!(/** @type {Customer} */ (customer.metadata.userid))) {
-      Sentry.withScope(scope => {
-        scope.setContext('stripeEvent', {
-          customer: { id: customer.id },
-        });
-        Sentry.captureMessage(
-          'FxA UID does not exist on customer metadata.',
-          Sentry.Severity.Error
-        );
-      });
-    }
-    return {
-      uid: /** @type {Customer} */ (customer).metadata.userid,
-      email: /** @type {Customer} */ (customer).email,
-    };
   }
 
   async handleWebhookEvent(request) {

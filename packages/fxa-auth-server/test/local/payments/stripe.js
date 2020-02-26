@@ -5,6 +5,7 @@
 'use strict';
 
 const sinon = require('sinon');
+const Sentry = require('@sentry/node');
 const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
@@ -18,6 +19,7 @@ const StripeHelper = proxyquire('../../../lib/payments/stripe', {
 
 const customer1 = require('./fixtures/customer1.json');
 const newCustomer = require('./fixtures/customer_new.json');
+const deletedCustomer = require('./fixtures/customer_deleted.json');
 const plan1 = require('./fixtures/plan1.json');
 const plan2 = require('./fixtures/plan2.json');
 const plan3 = require('./fixtures/plan3.json');
@@ -463,6 +465,76 @@ describe('StripeHelper', () => {
             assert.equal(err, apiError);
           }
         );
+    });
+  });
+
+  describe('getCustomerUidEmailFromSubscription', () => {
+    let customer, subscription;
+    let scopeContextSpy, scopeSpy;
+
+    beforeEach(() => {
+      subscription = Object.create(subscription2);
+
+      scopeContextSpy = sinon.fake();
+      scopeSpy = {
+        setContext: scopeContextSpy,
+      };
+      sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
+    });
+
+    describe('customer exists and has FxA UID on metadata', () => {
+      it('returns the uid and email information found on the customer object', async () => {
+        customer = Object.create(newCustomer);
+        sandbox
+          .stub(stripeHelper.stripe.customers, 'retrieve')
+          .resolves(customer);
+
+        const expected = {
+          uid: customer.metadata.userid,
+          email: customer.email,
+        };
+        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
+          subscription
+        );
+
+        assert.deepEqual(actual, expected);
+        assert.isTrue(scopeContextSpy.notCalled, 'Expected to not call Sentry');
+      });
+    });
+
+    describe('customer deleted', () => {
+      it('returns undefined for uid and email', async () => {
+        customer = Object.create(deletedCustomer);
+        sandbox
+          .stub(stripeHelper.stripe.customers, 'retrieve')
+          .resolves(customer);
+
+        const expected = { uid: undefined, email: undefined };
+        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
+          subscription
+        );
+
+        assert.deepEqual(actual, expected);
+        assert.isTrue(scopeContextSpy.notCalled, 'Expected to not call Sentry');
+      });
+    });
+
+    describe('customer exists but is missing FxA UID on metadata', () => {
+      it('notifies Sentry and returns undefined for uid', async () => {
+        customer = Object.create(newCustomer);
+        customer.metadata = {};
+        sandbox
+          .stub(stripeHelper.stripe.customers, 'retrieve')
+          .resolves(customer);
+
+        const expected = { uid: undefined, email: customer.email };
+        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
+          subscription
+        );
+
+        assert.deepEqual(actual, expected);
+        assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
+      });
     });
   });
 

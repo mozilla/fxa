@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const Sentry = require('@sentry/node');
 const error = require('../error');
 const subhub = require('../subhub/client');
 
@@ -188,6 +189,38 @@ class StripeHelper {
       }
       throw err;
     }
+  }
+
+  /**
+   * Fetch a customer record from Stripe by id and return its userid metadata
+   * and the email.
+   *
+   * @param {Subscription} sub
+   * @returns {Promise<{uid: string, email: string} | {uid: undefined, email: undefined} | {uid: undefined, email: string}>}
+   */
+  async getCustomerUidEmailFromSubscription(sub) {
+    const customer = await this.stripe.customers.retrieve(
+      /** @type {string} */ (sub.customer)
+    );
+    if (customer.deleted) {
+      // Deleted customers lost their metadata so we can't send events for them
+      return { uid: undefined, email: undefined };
+    }
+    if (!(/** @type {Customer} */ (customer.metadata.userid))) {
+      Sentry.withScope(scope => {
+        scope.setContext('stripeEvent', {
+          customer: { id: customer.id },
+        });
+        Sentry.captureMessage(
+          'FxA UID does not exist on customer metadata.',
+          Sentry.Severity.Error
+        );
+      });
+    }
+    return {
+      uid: /** @type {Customer} */ (customer).metadata.userid,
+      email: /** @type {Customer} */ (customer).email,
+    };
   }
 
   /**
