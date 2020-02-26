@@ -26,7 +26,7 @@ describe('views/settings/delete_account', function() {
   const UID = '123';
   const password = 'password';
   let account;
-  let activeSubscriptions;
+  let subscriptions;
   let attachedClients;
   let broker;
   let email;
@@ -41,7 +41,7 @@ describe('views/settings/delete_account', function() {
 
   function initView() {
     view = new View({
-      activeSubscriptions,
+      subscriptions,
       attachedClients,
       broker,
       metrics,
@@ -112,7 +112,7 @@ describe('views/settings/delete_account', function() {
       .stub(attachedClients, 'fetchClients')
       .callsFake(() => Promise.resolve());
 
-    activeSubscriptions = [
+    subscriptions = [
       {
         plan_id: '321doneProMonthly',
         plan_name: '321done Pro Monthly',
@@ -121,15 +121,23 @@ describe('views/settings/delete_account', function() {
       {
         plan_id: '321doneProYearly',
         plan_name: '321done Pro Yearly',
-        status: 'inactive',
+        status: 'cancelled',
+      },
+      {
+        plan_id: '321doneProHourly',
+        plan_name: '321done Pro Hourly',
+        status: 'trialing',
+      },
+      {
+        plan_id: '321doneProDaily',
+        plan_name: '321done Pro Daily',
+        status: 'past_due',
       },
     ];
 
-    sinon.stub(account, 'settingsData').callsFake(() =>
-      Promise.resolve({
-        subscriptions: activeSubscriptions,
-      })
-    );
+    sinon
+      .stub(account, 'settingsData')
+      .callsFake(() => Promise.resolve({ subscriptions }));
 
     return initView();
   });
@@ -300,7 +308,20 @@ describe('views/settings/delete_account', function() {
     });
 
     describe('link to subscriptions', () => {
-      it('renders if user has at least one subscription', () => {
+      it('renders if user has at least one active subscription', () => {
+        subscriptions = [
+          {
+            plan_id: '321doneProMonthly',
+            plan_name: '321done Pro Monthly',
+            status: 'active',
+          },
+          {
+            plan_id: '321doneProYearly',
+            plan_name: '321done Pro Yearly',
+            status: 'cancelled',
+          },
+        ];
+
         return view
           .render()
           .then(() => view.openPanel())
@@ -311,30 +332,17 @@ describe('views/settings/delete_account', function() {
       });
 
       it('renders only one link if the user has more than one subscription', () => {
-        activeSubscriptions = [
-          {
-            plan_id: '321doneProMonthly',
-            plan_name: '321done Pro Monthly',
-            status: 'active',
-          },
-          {
-            plan_id: '321doneProYearly',
-            plan_name: '321done Pro Yearly',
-            status: 'active',
-          },
-        ];
-
         return view
           .render()
           .then(() => view.openPanel())
           .then(() => {
-            assert.lengthOf(view.$('.delete-account-product-subscription'), 2);
+            assert.lengthOf(view.$('.delete-account-product-subscription'), 3);
             assert.lengthOf(view.$('.subscription-link'), 1);
           });
       });
 
-      it('does not render if user does not have any subscriptions', () => {
-        activeSubscriptions = [];
+      it('does not render if user does not have any active subscriptions', () => {
+        subscriptions = [];
 
         return view
           .render()
@@ -362,8 +370,8 @@ describe('views/settings/delete_account', function() {
         assert.isTrue(view._fetchActiveSubscriptions.calledOnce);
       });
 
-      it('renders only `status: "active"` subscriptions', () => {
-        assert.lengthOf(view.$('.delete-account-product-subscription'), 1);
+      it('renders only subscriptions with a status of "active", "trialing", or "past_due"', () => {
+        assert.lengthOf(view.$('.delete-account-product-subscription'), 3);
       });
 
       it('renders subscription title attributes', () => {
@@ -398,20 +406,8 @@ describe('views/settings/delete_account', function() {
         );
       });
 
-      it('renders only `active: true` subscriptions', () => {
-        assert.lengthOf(view.$('.delete-account-product-subscription'), 1);
-      });
-
-      it('renders subscription title attributes', () => {
-        assert.equal(
-          view.$('.delete-account-product-subscription').attr('title'),
-          '321done Pro Monthly'
-        );
-      });
-
       describe('_uniqueBrowserNames', () => {
         beforeEach(() => {
-          activeSubscriptions.splice(0);
           sinon.stub(attachedClients, 'toJSON').returns([
             {
               name: 'alpha',
@@ -450,7 +446,7 @@ describe('views/settings/delete_account', function() {
 
       describe('_getNumberOfProducts', () => {
         it('adds `hide` class to `delete-account-product-container` if number of rendered products is 0', () => {
-          activeSubscriptions.splice(0);
+          subscriptions = [];
           sinon.stub(attachedClients, 'toJSON').returns([]);
 
           return view
@@ -485,6 +481,13 @@ describe('views/settings/delete_account', function() {
               name: 'omega',
             },
           ]);
+          subscriptions = [
+            {
+              plan_id: '321doneProHourly',
+              plan_name: '321done Pro Hourly',
+              status: 'trialing',
+            },
+          ];
 
           return view
             .render()
@@ -501,17 +504,26 @@ describe('views/settings/delete_account', function() {
         });
 
         it('adds `two-col` class to `delete-account-product-list` if number of rendered products 4', () => {
-          activeSubscriptions.push({
-            plan_id: 'wibble',
-            plan_name: 'Wibble Pro',
-            status: 'active',
-          });
-          assert.lengthOf(view.$('.delete-account-product-list li'), 4);
-          assert.include(
-            Array.from(
-              view.$('.delete-account-product-list').prop('classList')
-            ),
-            'two-col'
+          sinon.stub(attachedClients, 'toJSON').returns([
+            {
+              clientType: 'webSession',
+              isCurrentSession: true,
+              isWebSession: true,
+              name: 'alpha',
+              userAgent: 'Firefox 69',
+            },
+          ]);
+
+          return view.render().then(() =>
+            view.openPanel().then(() => {
+              assert.lengthOf(view.$('.delete-account-product-list li'), 4);
+              assert.include(
+                Array.from(
+                  view.$('.delete-account-product-list').prop('classList')
+                ),
+                'two-col'
+              );
+            })
           );
         });
       });

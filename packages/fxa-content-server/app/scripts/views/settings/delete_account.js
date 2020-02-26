@@ -86,8 +86,8 @@ var View = FormView.extend({
     const start = Date.now();
     return account.settingsData().then(({ subscriptions = [] } = {}) => {
       this.logFlowEvent(`timing.settings.fetch.${Date.now() - start}`);
-      this._activeSubscriptions = subscriptions.filter(
-        subscription => subscription.status === 'active'
+      this._activeSubscriptions = subscriptions.filter(subscription =>
+        ['trialing', 'active', 'past_due'].includes(subscription.status)
       );
     });
   },
@@ -121,16 +121,11 @@ var View = FormView.extend({
   },
 
   _getNumberOfProducts() {
-    let numberOfProducts = this._uniqueBrowserNames.length;
+    let numberOfProducts =
+      this._uniqueBrowserNames.length + this._activeSubscriptions.length;
     // eslint-disable-next-line no-unused-vars
     for (const client of this._attachedClients.toJSON()) {
       if (client.isOAuthApp === true) {
-        numberOfProducts++;
-      }
-    }
-    // eslint-disable-next-line no-unused-vars
-    for (const sub of this._activeSubscriptions) {
-      if (sub.plan_id && sub.status === 'active') {
         numberOfProducts++;
       }
     }
