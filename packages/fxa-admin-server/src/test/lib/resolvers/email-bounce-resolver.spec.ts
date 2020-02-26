@@ -16,6 +16,7 @@ import {
   randomEmailBounce,
   testDatabaseSetup
 } from '../db/models/helpers';
+import { mockContext } from '../mocks';
 
 import { Account, EmailBounces } from '../../../lib/db/models';
 import { AccountResolver } from '../../../lib/resolvers/account-resolver';
@@ -30,6 +31,7 @@ const USER_2 = randomAccount();
 describe('emailBounceResolver', () => {
   let knex: Knex;
   let schema: GraphQLSchema;
+  let context: ReturnType<typeof mockContext>;
 
   before(async () => {
     knex = await testDatabaseSetup();
@@ -37,6 +39,10 @@ describe('emailBounceResolver', () => {
     await (Account as any).query().insertGraph({ ...USER_1, emails: [EMAIL_1] });
     await EmailBounces.query().insert(EMAIL_BOUNCE_1);
     schema = await buildSchema({ resolvers: [AccountResolver, EmailBounceResolver] });
+  });
+
+  beforeEach(async () => {
+    context = mockContext();
   });
 
   after(async () => {
@@ -56,30 +62,34 @@ describe('emailBounceResolver', () => {
         }
       }
     }`;
-    let result = (await graphql(schema, query)) as any;
+    let result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isDefined(result.data.accountByEmail);
     assert.lengthOf(result.data.accountByEmail.emailBounces, 1);
+    assert.isTrue(context.logAction.calledOnce);
 
     const mutation = `mutation {
       clearEmailBounce(email: "${USER_1.email}")
     }`;
-    result = (await graphql(schema, mutation)) as any;
+    result = (await graphql(schema, mutation, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isTrue(result.data.clearEmailBounce);
+    assert.isTrue(context.logAction.calledTwice);
 
-    result = (await graphql(schema, query)) as any;
+    result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isDefined(result.data.accountByEmail);
     assert.lengthOf(result.data.accountByEmail.emailBounces, 0);
+    assert.isTrue(context.logAction.calledThrice);
   });
 
   it('fails to clear a non-existent bounce', async () => {
     const mutation = `mutation {
       clearEmailBounce(email: "${USER_2.email}")
     }`;
-    const result = (await graphql(schema, mutation)) as any;
+    const result = (await graphql(schema, mutation, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isFalse(result.data.clearEmailBounce);
+    assert.isTrue(context.logAction.calledOnce);
   });
 });

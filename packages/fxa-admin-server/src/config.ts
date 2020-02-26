@@ -7,6 +7,12 @@ import fs from 'fs';
 import path from 'path';
 
 const conf = convict({
+  authHeader: {
+    default: 'oidc-claim-id-token-email',
+    doc: 'Authentication header that should be logged for the user',
+    env: 'AUTH_HEADER',
+    format: String
+  },
   database: {
     database: {
       default: 'fxa',
@@ -44,6 +50,29 @@ const conf = convict({
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
     format: ['development', 'test', 'stage', 'production']
+  },
+  logging: {
+    app: { default: 'fxa-user-admin-server' },
+    fmt: {
+      default: 'heka',
+      env: 'LOGGING_FORMAT',
+      format: ['heka', 'pretty']
+    },
+    level: {
+      default: 'info',
+      env: 'LOG_LEVEL'
+    },
+    routes: {
+      enabled: {
+        default: true,
+        doc: 'Enable route logging. Set to false to trimming CI logs.',
+        env: 'ENABLE_ROUTE_LOGGING'
+      },
+      format: {
+        default: 'default_fxa',
+        format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny']
+      }
+    }
   }
 });
 
