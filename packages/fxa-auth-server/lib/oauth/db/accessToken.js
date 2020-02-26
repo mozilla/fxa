@@ -39,8 +39,8 @@ class AccessToken {
     this.scope = scope;
     /** @type {Buffer} */
     this.token = token || unique.token();
-    /** @type {Date} */
-    this.createdAt = createdAt || new Date();
+    /** @type {Date} truncated to the second to match mysql */
+    this.createdAt = createdAt || new Date(new Date().setMilliseconds(0));
     /** @type {number} */
     this.profileChangedAt = profileChangedAt || 0;
     /** @type {Date} */
@@ -61,6 +61,14 @@ class AccessToken {
 
   get ttl() {
     return this.expiresAt.getTime() - Date.now();
+  }
+
+  get lastAccessTime() {
+    return this.createdAt;
+  }
+
+  get id() {
+    return this.clientId;
   }
 
   /**

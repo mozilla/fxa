@@ -16,7 +16,8 @@
       "imageUri": "https://example.domain/logo",
       "redirectUri": "https://example.domain/return?foo=bar",
       "trusted": true,
-      "canGrant": false
+      "canGrant": false,
+      "allowedScopes": "https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox"
     },
     {
       "id": "98e6508e88680e1a",

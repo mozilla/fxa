@@ -83,7 +83,7 @@ class FxaRedis {
    */
   async getAccessToken(tokenId) {
     try {
-      const value = await this.redis.getAccessToken(hex(tokenId));
+      const value = await this.redis.get(hex(tokenId));
       return AccessToken.parse(value);
     } catch (e) {
       this.log.error('redis', e);
@@ -111,6 +111,10 @@ class FxaRedis {
    * @param {AccessToken} token
    */
   setAccessToken(token) {
+    if (token.ttl < 1) {
+      this.log.error('redis', new Error('invalid ttl on access token'));
+      return;
+    }
     return this.redis.setAccessToken(
       token.userId.toString('hex'),
       token.tokenId.toString('hex'),
@@ -122,9 +126,13 @@ class FxaRedis {
   /**
    *
    * @param {Buffer | string} id
+   * @returns {Promise<boolean>} done
    */
-  removeAccessToken(id) {
-    return this.redis.removeAccessToken(hex(id));
+  async removeAccessToken(id) {
+    // This does not remove the id from the user's index
+    // because getAccessTokens cleans up expired/missing tokens
+    const done = await this.redis.removeAccessToken(hex(id));
+    return !!done;
   }
 
   /**

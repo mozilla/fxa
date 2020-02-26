@@ -10,15 +10,12 @@ const moment = require('moment');
 const mysql = require('mysql');
 const MysqlPatcher = require('mysql-patcher');
 
-const config = require('../../../../config');
 const encrypt = require('../../encrypt');
-const helpers = require('../helpers');
 const P = require('../../../promise');
 const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
 const unique = require('../../unique');
 const patch = require('./patch');
 
-const MAX_TTL = config.get('oauthServer.expiration.accessToken');
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 const REQUIRED_CHARSET = 'UTF8MB4_UNICODE_CI';
 
@@ -469,30 +466,18 @@ MysqlStore.prototype = {
     var hash = encrypt.hash(code);
     return this._write(QUERY_CODE_DELETE, [hash]);
   },
-  generateAccessToken: function generateAccessToken(vals) {
-    var t = {
-      clientId: buf(vals.clientId),
-      userId: buf(vals.userId),
-      email: vals.email,
-      scope: vals.scope,
-      token: unique.token(),
-      type: 'bearer',
-      expiresAt:
-        vals.expiresAt || new Date(Date.now() + (vals.ttl * 1000 || MAX_TTL)),
-      profileChangedAt: vals.profileChangedAt || 0,
-    };
+
+  _generateAccessToken: function _generateAccessToken(accessToken) {
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
-      t.clientId,
-      t.userId,
-      t.email,
-      t.scope.toString(),
-      t.type,
-      t.expiresAt,
-      encrypt.hash(t.token),
-      t.profileChangedAt,
-    ]).then(function() {
-      return t;
-    });
+      accessToken.clientId,
+      accessToken.userId,
+      accessToken.email,
+      accessToken.scope.toString(),
+      accessToken.type,
+      accessToken.expiresAt,
+      accessToken.tokenId,
+      accessToken.profileChangedAt,
+    ]);
   },
 
   /**
@@ -500,7 +485,7 @@ MysqlStore.prototype = {
    * @param id Token Id
    * @returns {*}
    */
-  getAccessToken: function getAccessToken(id) {
+  _getAccessToken: function _getAccessToken(id) {
     return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function(t) {
       if (t) {
         t.scope = ScopeSet.fromString(t.scope);
@@ -514,7 +499,7 @@ MysqlStore.prototype = {
    * @param id
    * @returns {*}
    */
-  removeAccessToken: function removeAccessToken(id) {
+  _removeAccessToken: function _removeAccessToken(id) {
     return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
   },
 
@@ -523,7 +508,7 @@ MysqlStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getActiveClientsByUid: function getActiveClientsByUid(uid) {
+  _getActiveClientsByUid: function _getActiveClientsByUid(uid) {
     return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
       buf(uid),
       buf(uid),
@@ -531,7 +516,7 @@ MysqlStore.prototype = {
       activeClientTokens.forEach(t => {
         t.scope = ScopeSet.fromString(t.scope);
       });
-      return helpers.aggregateActiveClients(activeClientTokens);
+      return activeClientTokens;
     });
   },
 
@@ -540,7 +525,7 @@ MysqlStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getAccessTokensByUid: async function getAccessTokensByUid(uid) {
+  _getAccessTokensByUid: async function _getAccessTokensByUid(uid) {
     const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
       buf(uid),
     ]);
@@ -572,7 +557,10 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise}
    */
-  deleteClientAuthorization: function deleteClientAuthorization(clientId, uid) {
+  _deleteClientAuthorization: function _deleteClientAuthorization(
+    clientId,
+    uid
+  ) {
     const deleteCodes = this._write(DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID, [
       buf(clientId),
       buf(uid),
@@ -609,7 +597,7 @@ MysqlStore.prototype = {
    * @param {String} uid User Id as Hex
    * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
    */
-  deleteClientRefreshToken: async function deleteClientRefreshToken(
+  _deleteClientRefreshToken: async function _deleteClientRefreshToken(
     refreshTokenId,
     clientId,
     uid
@@ -922,7 +910,7 @@ MysqlStore.prototype = {
       });
   },
 
-  removeUser: function removeUser(userId) {
+  _removeUser: function _removeUser(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])
@@ -933,10 +921,10 @@ MysqlStore.prototype = {
   /**
    * Removes user's tokens and refreshTokens for canGrant and publicClient clients
    *
-   * @param userId
+   * @param {Buffer | string} userId
    * @returns {Promise}
    */
-  removePublicAndCanGrantTokens: function removePublicAndCanGrantTokens(
+  _removePublicAndCanGrantTokens: function _removePublicAndCanGrantTokens(
     userId
   ) {
     const uid = buf(userId);

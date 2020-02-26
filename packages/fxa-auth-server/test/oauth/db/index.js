@@ -11,7 +11,6 @@ const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
 const encrypt = require('../../../lib/oauth/encrypt');
 const db = require('../../../lib/oauth/db');
-const config = require('../../../config');
 const Promise = require('../../../lib/promise');
 const mock = require('../../lib/mocks');
 
@@ -20,31 +19,6 @@ function randomString(len) {
 }
 
 describe('db', function() {
-  describe('#_initialClients', function() {
-    it('should not insert already existing clients', function() {
-      return db.ping().then(function() {
-        return db._initialClients();
-      });
-    });
-
-    it('should update existing clients', function() {
-      var clients = config.get('oauthServer.clients');
-      return db
-        .ping()
-        .then(function() {
-          clients[0].imageUri = 'http://other.domain/foo/bar.png';
-          config.set('oauthServer.clients', clients);
-          return db._initialClients();
-        })
-        .then(function() {
-          return db.getClient(clients[0].id);
-        })
-        .then(function(c) {
-          assert.equal(c.imageUri, clients[0].imageUri);
-        });
-    });
-  });
-
   describe('utf-8', function() {
     function makeTest(clientId, clientName) {
       return function() {
@@ -222,6 +196,8 @@ describe('db', function() {
         .then(function() {
           return db.generateAccessToken({
             clientId: clientId,
+            canGrant: clientOptions.canGrant,
+            publicClient: clientOptions.publicClient,
             userId: userId,
             email: email,
             scope: scope,
@@ -455,7 +431,6 @@ describe('db', function() {
 
       it('should delete developers', function() {
         var email = 'email' + randomString(10) + '@mozilla.com';
-
         return db
           .activateDeveloper(email)
           .then(function(developer) {
@@ -466,7 +441,7 @@ describe('db', function() {
           .then(function() {
             return db.getDeveloper(email);
           })
-          .done(function(developer) {
+          .then(function(developer) {
             assert.equal(developer, null);
           });
       });
@@ -485,7 +460,7 @@ describe('db', function() {
         mock.log('db', rec => {
           return rec.levelname === 'ERROR' && rec.args[0] === 'getDeveloper';
         });
-        return db.getDeveloper().done(assert.fail, function(err) {
+        return db.getDeveloper().then(assert.fail, function(err) {
           assert.equal(err.message, 'Email is required');
         });
       });
@@ -495,7 +470,7 @@ describe('db', function() {
       it('should create developers', function() {
         var email = 'email' + randomString(10) + '@mozilla.com';
 
-        return db.activateDeveloper(email).done(function(developer) {
+        return db.activateDeveloper(email).then(function(developer) {
           assert.equal(developer.email, email);
         });
       });
@@ -513,7 +488,7 @@ describe('db', function() {
           .then(function() {
             return db.activateDeveloper(email);
           })
-          .done(
+          .then(
             function() {
               assert.fail();
             },
@@ -529,7 +504,7 @@ describe('db', function() {
             rec.levelname === 'ERROR' && rec.args[0] === 'activateDeveloper'
           );
         });
-        return db.activateDeveloper().done(assert.fail, function(err) {
+        return db.activateDeveloper().then(assert.fail, function(err) {
           assert.equal(err.message, 'Email is required');
         });
       });
@@ -579,7 +554,7 @@ describe('db', function() {
           });
       });
 
-      it('should attach a developer to a client', function(done) {
+      it('should attach a developer to a client', function() {
         var email = 'email' + randomString(10) + '@mozilla.com';
 
         return db
@@ -593,7 +568,7 @@ describe('db', function() {
           .then(function() {
             return db.getClientDevelopers(hex(clientId));
           })
-          .done(function(developers) {
+          .then(function(developers) {
             if (developers) {
               var found = false;
 
@@ -604,9 +579,8 @@ describe('db', function() {
               });
 
               assert.equal(found, true);
-              return done();
             }
-          }, done);
+          });
       });
     });
   });
@@ -674,6 +648,94 @@ describe('db', function() {
       //  - https://github.com/mozilla/fxa/issues/3017
       const tokenIdHash = hex(encrypt.hash(accessToken.token.toString('hex')));
       assert.notOk(await db.getAccessToken(tokenIdHash));
+    });
+  });
+
+  describe('Access Token storage', () => {
+    describe('Pocket tokens', () => {
+      const pocketId = buf('749818d3f2e7857f');
+      const userId = buf(randomString(16));
+      const tokenData = {
+        clientId: pocketId,
+        name: 'pocket',
+        canGrant: false,
+        publicClient: true,
+        userId: userId,
+        email: 'foo@bar.local',
+        scope: ScopeSet.fromArray(['no_scope']),
+      };
+
+      before(function() {
+        return db.registerClient({
+          id: pocketId,
+          name: 'pocket',
+          hashedSecret: randomString(32),
+          imageUri: 'https://example.domain/logo',
+          redirectUri: 'https://example.domain/return?foo=bar',
+          trusted: true,
+        });
+      });
+      after(function() {
+        return db.removeClient(pocketId);
+      });
+
+      it('stores them in mysql', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const mysql = await db.mysql;
+        const tt = await mysql._getAccessToken(t.tokenId);
+        await db.removeAccessToken(t.tokenId);
+        assert.equal(hex(tt.token), hex(t.tokenId));
+      });
+
+      it('retrieves them with getAccessToken', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const tt = await db.getAccessToken(t.tokenId);
+        await db.removeAccessToken(t.tokenId);
+        assert.equal(hex(tt.token), hex(t.tokenId));
+      });
+
+      it('retrieves them with getActiveClientsByUid', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const clients = await db.getActiveClientsByUid(userId);
+        await db.removeAccessToken(t.tokenId);
+        assert.isArray(clients);
+        assert.lengthOf(clients, 1);
+        assert.deepEqual(clients[0].id, pocketId);
+        assert.equal(clients[0].name, 'pocket');
+      });
+
+      it('retrieves them with getAccessTokensByUid', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const tokens = await db.getAccessTokensByUid(userId);
+        await db.removeAccessToken(t.tokenId);
+        assert.isArray(tokens);
+        assert.lengthOf(tokens, 1);
+        assert.deepEqual(tokens[0].accessTokenId, t.tokenId);
+        assert.deepEqual(tokens[0].clientId, t.clientId);
+      });
+
+      it('deletes them with removeAccessToken', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        const tt = await db.getAccessToken(t.tokenId);
+        await db.removeAccessToken(t.tokenId);
+        assert.isNotNull(tt);
+        const ttt = await db.getAccessToken(t.tokenId);
+        assert.isUndefined(ttt);
+      });
+
+      it('deletes them with deleteClientAuthorization', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        await db.deleteClientAuthorization(t.clientId, t.userId);
+        const tt = await db.getAccessToken(t.tokenId);
+        assert.isUndefined(tt);
+      });
+
+      it('deletes them with removeUser', async () => {
+        const t = await db.generateAccessToken(tokenData);
+        await db.removeUser(t.userId);
+        const tt = await db.getAccessToken(t.tokenId);
+        assert.isUndefined(tt);
+      });
     });
   });
 });

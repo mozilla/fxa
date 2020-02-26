@@ -337,6 +337,24 @@ const conf = convict({
       format: 'port',
       doc: 'Port for Redis server',
     },
+    accessTokens: {
+      host: {
+        default: '127.0.0.1',
+        env: 'ACCESS_TOKEN_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'ACCESS_TOKEN_REDIS_PORT',
+        format: 'port',
+      },
+      prefix: {
+        default: 'at:',
+        env: 'ACCESS_TOKEN_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for access tokens in Redis',
+      },
+    },
     sessionTokens: {
       enabled: {
         default: true,
@@ -857,6 +875,9 @@ const conf = convict({
       },
     },
     clientIdToServiceNames: {
+      // This is used by oauth/db/index.js to identify pocket client ids so that it
+      // can store them separately in mysql.
+      // It's also used for amplitude stats
       doc:
         'Mappings from client id to service name: { "id1": "name-1", "id2": "name-2" }',
       default: {},

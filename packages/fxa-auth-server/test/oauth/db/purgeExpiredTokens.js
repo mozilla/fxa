@@ -39,13 +39,15 @@ function makeTests(name, purgeMethod) {
       });
     }
 
-    // Inserts 2000 access tokens with the following breakdown
-    // ClientIdA - 500 expired, 500 valid
-    // ClientIdB - 500 expired, 500 valid
+    // Inserts 200 access tokens with the following breakdown
+    // ClientIdA - 50 expired, 50 valid
+    // ClientIdB - 50 expired, 50 valid
     before('setup clients', function() {
       email = 'asdf@asdf.com';
-      clientIdA = randomString(8);
-      clientIdB = randomString(8);
+      // These are Pocket client ids.
+      // Only Pocket clients are stored in mysql.
+      clientIdA = '7377719276ad44ee';
+      clientIdB = '749818d3f2e7857f';
       userId = buf(randomString(16));
 
       return db
@@ -69,22 +71,26 @@ function makeTests(name, purgeMethod) {
         });
     });
 
+    after('remove clients', function() {
+      return db.removeClient(clientIdA).then(() => db.removeClient(clientIdB));
+    });
+
     beforeEach('seed with tokens', function() {
       this.timeout(30000);
       return db
         ._write('DELETE FROM tokens;')
         .then(function() {
-          return seedTokens(clientIdA, userId, email, 500);
+          return seedTokens(clientIdA, userId, email, 50);
         })
         .then(function() {
-          return seedTokens(clientIdB, userId, email, 500);
+          return seedTokens(clientIdB, userId, email, 50);
         })
         .then(function() {
           return seedTokens(
             clientIdA,
             userId,
             email,
-            500,
+            50,
             new Date(Date.now() - 1000 * 600)
           );
         })
@@ -93,14 +99,14 @@ function makeTests(name, purgeMethod) {
             clientIdB,
             userId,
             email,
-            500,
+            50,
             new Date(Date.now() - 1000 * 600)
           );
         });
     });
 
     it('should fail purgeExpiredTokens without ignoreClientId', function() {
-      return purgeMethod(1000, 5)
+      return purgeMethod(100, 5)
         .then(function() {
           assert.fail(
             'purgeExpiredTokens() should fail with an empty ignoreClientId'
@@ -113,7 +119,7 @@ function makeTests(name, purgeMethod) {
 
     it('should fail purgeExpiredTokens with an unknown ignoreClientId', function() {
       var unknownClientId = 'deadbeefdeadbeef';
-      return purgeMethod(1000, 5, unknownClientId)
+      return purgeMethod(100, 5, unknownClientId)
         .then(function() {
           assert.fail(
             'purgeExpiredTokens() should fail with an unknown ignoreClientId'
@@ -128,7 +134,7 @@ function makeTests(name, purgeMethod) {
     });
 
     it('should call purgeExpiredTokens and ignore client', function() {
-      return purgeMethod(1000, 0, clientIdA, 1000)
+      return purgeMethod(100, 0, clientIdA, 100)
         .then(function() {
           // Check clientA tokens not deleted
           return db._read(
@@ -137,7 +143,7 @@ function makeTests(name, purgeMethod) {
           );
         })
         .then(function(result) {
-          assert.equal(result[0].count, 1000);
+          assert.equal(result[0].count, 100);
         })
         .then(function() {
           // Check clientB expired tokens are deleted
@@ -157,22 +163,22 @@ function makeTests(name, purgeMethod) {
           );
         })
         .then(function(result) {
-          assert.equal(result[0].count, 500);
+          assert.equal(result[0].count, 50);
         })
         .then(function() {
           // Check the total tokens
           return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens;');
         })
         .then(function(result) {
-          assert.equal(result[0].count, 1500);
+          assert.equal(result[0].count, 150);
         });
     });
 
     if (purgeMethod === db.purgeExpiredTokens) {
       // purgeExpiredTokensById cannot meet the expectations of this
       // test. Not less correct, just different.
-      it('should call purgeExpiredTokens and only purge 100 items', function() {
-        return purgeMethod(100, 0, clientIdA, 1000)
+      it('should call purgeExpiredTokens and only purge 10 items', function() {
+        return purgeMethod(10, 0, clientIdA, 100)
           .then(function() {
             // Check clientA tokens not deleted
             return db._read(
@@ -181,7 +187,7 @@ function makeTests(name, purgeMethod) {
             );
           })
           .then(function(result) {
-            assert.equal(result[0].count, 1000);
+            assert.equal(result[0].count, 100);
           })
           .then(function() {
             // Check clientB only 100 expired tokens are deleted
@@ -191,7 +197,7 @@ function makeTests(name, purgeMethod) {
             );
           })
           .then(function(result) {
-            assert.equal(result[0].count, 400);
+            assert.equal(result[0].count, 40);
           })
           .then(function() {
             // Check clientB unexpired tokens are not deleted
@@ -201,20 +207,20 @@ function makeTests(name, purgeMethod) {
             );
           })
           .then(function(result) {
-            assert.equal(result[0].count, 500);
+            assert.equal(result[0].count, 50);
           })
           .then(function() {
             // Check the total tokens
             return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens;');
           })
           .then(function(result) {
-            assert.equal(result[0].count, 1900);
+            assert.equal(result[0].count, 190);
           });
       });
     }
 
     it('should call purgeExpiredTokens and ignore both clients as requested', function() {
-      return purgeMethod(1000, 0, [clientIdA, clientIdB])
+      return purgeMethod(100, 0, [clientIdA, clientIdB])
         .then(function() {
           // Check clientA tokens not deleted
           return db._read(
@@ -223,7 +229,7 @@ function makeTests(name, purgeMethod) {
           );
         })
         .then(function(result) {
-          assert.equal(result[0].count, 1000);
+          assert.equal(result[0].count, 100);
         })
         .then(function() {
           // Check clientB expired tokens are not deleted
@@ -233,14 +239,14 @@ function makeTests(name, purgeMethod) {
           );
         })
         .then(function(result) {
-          assert.equal(result[0].count, 1000);
+          assert.equal(result[0].count, 100);
         })
         .then(function() {
           // Check the total tokens
           return db._read('SELECT COUNT(*) AS count FROM fxa_oauth.tokens');
         })
         .then(function(result) {
-          assert.equal(result[0].count, 2000);
+          assert.equal(result[0].count, 200);
         });
     });
   });

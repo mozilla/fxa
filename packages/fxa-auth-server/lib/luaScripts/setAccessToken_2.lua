@@ -8,4 +8,4 @@ if ttl then
   table.insert(args, ttl)
 end
 redis.call('set', tokenId, unpack(args))
-return redis.call('sadd', userId, tokenId)
+redis.call('sadd', userId, tokenId)
