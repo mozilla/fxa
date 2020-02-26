@@ -2374,7 +2374,92 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('updatePayment', () => {});
+  describe('updatePayment', () => {
+    let request;
+    const paymentToken = 'tok_visa';
+
+    beforeEach(() => {
+      request = { ...VALID_REQUEST, payload: { paymentToken } };
+
+      directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.returns();
+    });
+
+    describe('when the customer exists', () => {
+      it('updates the payment method', async () => {
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.returns(
+          customerFixture
+        );
+
+        await directStripeRoutesInstance.updatePayment(request);
+
+        assert.isTrue(
+          directStripeRoutesInstance.log.begin.calledOnceWith(
+            'subscriptions.updatePayment',
+            request
+          )
+        );
+
+        assert.isTrue(
+          directStripeRoutesInstance.customs.check.calledOnceWith(
+            request,
+            TEST_EMAIL,
+            'updatePayment'
+          )
+        );
+
+        assert.isTrue(
+          directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.calledOnceWith(
+            customerFixture.id,
+            paymentToken
+          )
+        );
+
+        assert.isTrue(
+          directStripeRoutesInstance.log.info.calledOnceWith(
+            'subscriptions.updatePayment.success',
+            { uid: UID }
+          )
+        );
+      });
+    });
+
+    describe('when the customer does not exist', () => {
+      it('throws an error', async () => {
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.returns();
+
+        try {
+          await directStripeRoutesInstance.updatePayment(request);
+          assert.fail('Method epected to reject');
+        } catch (err) {
+          assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
+          assert.equal(err.message, 'A backend service request failed.');
+          assert.equal(err.output.payload['service'], 'stripe');
+          assert.equal(err.output.payload['operation'], 'updatePayment');
+
+          assert.isTrue(
+            directStripeRoutesInstance.log.begin.calledOnceWith(
+              'subscriptions.updatePayment',
+              request
+            )
+          );
+
+          assert.isTrue(
+            directStripeRoutesInstance.customs.check.calledOnceWith(
+              request,
+              TEST_EMAIL,
+              'updatePayment'
+            )
+          );
+          assert.isTrue(
+            directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod
+              .notCalled
+          );
+
+          assert.isTrue(directStripeRoutesInstance.log.info.notCalled);
+        }
+      });
+    });
+  });
 
   describe('reactivateSubscription', () => {
     const reactivateRequest = {
