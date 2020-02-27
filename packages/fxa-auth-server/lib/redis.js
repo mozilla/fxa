@@ -8,6 +8,7 @@ const Redis = require('ioredis');
 const { readdirSync, readFileSync } = require('fs');
 const { basename, extname, resolve } = require('path');
 const AccessToken = require('./oauth/db/accessToken');
+const RefreshTokenMetadata = require('./oauth/db/refreshTokenMetadata');
 const hex = require('buf').to.hex;
 
 const scriptNames = readdirSync(resolve(__dirname, 'luaScripts'), {
@@ -168,6 +169,86 @@ class FxaRedis {
    */
   removeAccessTokensForUser(uid) {
     return this.redis.removeAccessTokensForUser(hex(uid));
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} tokenId
+   * @return {Promise<RefreshTokenMetadata>}
+   */
+  async getRefreshToken(uid, tokenId) {
+    try {
+      const data = await this.redis.getRefreshToken(hex(uid), hex(tokenId));
+      return RefreshTokenMetadata.parse(data);
+    } catch (e) {
+      this.log.error('redis', e);
+      return null;
+    }
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @return {Promise<{[key: string]: RefreshTokenMetadata}>}
+   */
+  async getRefreshTokens(uid) {
+    try {
+      const entries = await this.redis.getRefreshTokens(hex(uid));
+      const tokens = {};
+      // The returned items are [key1, value1, ..., keyN, valueN], so iterate in pairs.
+      for (let i = 0; i < entries.length; i += 2) {
+        tokens[entries[i]] = RefreshTokenMetadata.parse(entries[i + 1]);
+      }
+      return tokens;
+    } catch (e) {
+      this.log.error('redis', e);
+      return {};
+    }
+  }
+
+  /**
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} tokenId
+   * @param {RefreshTokenMetadata} token
+   */
+  setRefreshToken(uid, tokenId, token) {
+    return this.redis.setRefreshToken(
+      hex(uid),
+      hex(tokenId),
+      JSON.stringify(token)
+    );
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} tokenId
+   * @returns {Promise<boolean>} done
+   */
+  async removeRefreshToken(uid, tokenId) {
+    const done = await this.redis.removeRefreshToken(hex(uid), hex(tokenId));
+    return !!done;
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   */
+  removeRefreshTokensForUser(uid) {
+    return this.redis.removeRefreshTokensForUser(hex(uid));
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {(Buffer | string)[]} tokenIdsToPrune
+   */
+  pruneRefreshTokens(uid, tokenIdsToPrune) {
+    return this.redis.pruneRefreshTokens(
+      hex(uid),
+      JSON.stringify(tokenIdsToPrune.map(v => hex(v)))
+    );
   }
 
   close() {
