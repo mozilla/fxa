@@ -89,9 +89,9 @@ async function init() {
         }
       }
       // Verify the email matches
-      if (record.normalizedEmail !== email) {
+      if (record.primaryEmail.email !== email) {
         console.log(
-          `${count}: EMAIL MISMATCH ${id} / ${userid} is in database with email of ${record.normalizedEmail}`
+          `${count}: EMAIL MISMATCH ${id} / ${userid} is in database with email of ${record.primaryEmail.email}`
         );
       }
       // Verify the uid matches
