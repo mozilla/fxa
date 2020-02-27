@@ -847,7 +847,7 @@ module.exports = (
             Sentry.withScope(scope => {
               scope.setContext('primaryEmailChange', {
                 originalEmail: primaryEmail,
-                newEmail: secondaryEmail.normalizedEmail,
+                newEmail: secondaryEmail.email,
                 system: source,
               });
               Sentry.captureException(err);
@@ -861,7 +861,7 @@ module.exports = (
             zendeskClient,
             uid,
             primaryEmail,
-            secondaryEmail.normalizedEmail
+            secondaryEmail.email
           ).catch(err => handleCriticalError(err, 'zendesk'));
 
           if (stripeHelper) {
@@ -872,11 +872,11 @@ module.exports = (
                 stripeHelper,
                 uid,
                 primaryEmail,
-                secondaryEmail.normalizedEmail
+                secondaryEmail.email
               );
               await stripeHelper.refreshCachedCustomer(
                 uid,
-                secondaryEmail.normalizedEmail
+                secondaryEmail.email
               );
             } catch (err) {
               // Due to the work involved by this point, we cannot abort the
