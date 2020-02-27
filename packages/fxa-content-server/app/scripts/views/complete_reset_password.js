@@ -203,6 +203,8 @@ const View = FormView.extend({
         if (!accountRecoveryVerificationInfo) {
           this.navigate('reset_password_verified');
         } else {
+          this.metrics.logUserPreferences('account-recovery', false);
+          this.logFlowEventOnce('recovery-key-consume.success', this.viewName);
           this.navigate('reset_password_with_recovery_key_verified');
         }
       })

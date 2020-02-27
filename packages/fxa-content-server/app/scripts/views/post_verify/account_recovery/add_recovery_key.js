@@ -15,7 +15,7 @@ import preventDefaultThen from '../../decorators/prevent_default_then';
 
 class AddAccountRecovery extends FormView {
   template = Template;
-  viewName = 'add-recovery-email';
+  viewName = 'add-recovery-key';
 
   events = assign(this.events, {
     'click #maybe-later-btn': preventDefaultThen('clickMaybeLater'),
@@ -24,6 +24,7 @@ class AddAccountRecovery extends FormView {
   beforeRender() {
     const account = this.getSignedInAccount();
     if (account.isDefault()) {
+      this.relier.set('redirectTo', this.window.location.href);
       return this.replaceCurrentPage('/');
     }
 

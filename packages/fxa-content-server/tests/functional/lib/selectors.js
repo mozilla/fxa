@@ -260,7 +260,7 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-save-recovery-key-header',
     RECOVERY_KEY: '.recovery-key',
-    DONE: '.done-link',
+    DONE: '.primary-button',
   },
   POST_VERIFY_CONFIRM_RECOVERY_KEY: {
     ERROR: '.error',

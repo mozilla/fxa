@@ -63,6 +63,7 @@ describe('views/post_verify/secondary_email/add_secondary_email', () => {
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    sinon.stub(account, 'recoveryEmails').callsFake(() => Promise.resolve({}));
 
     return view.render().then(() => $('#container').html(view.$el));
   });

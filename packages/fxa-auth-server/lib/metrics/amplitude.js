@@ -34,7 +34,6 @@ const EMAIL_TYPES = {
   postRemoveAccountRecovery: 'account_recovery',
   postConsumeRecoveryCode: '2fa',
   postNewRecoveryCodes: '2fa',
-  postVerifyAddBoth: 'registration',
   postVerifyAddRecoveryKey: 'registration',
   postVerifyAddSecondary: 'registration',
   recovery: 'reset_password',
