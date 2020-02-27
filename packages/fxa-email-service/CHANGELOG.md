@@ -1,3 +1,7 @@
+## 1.160.0
+
+No changes.
+
 ## 1.159.0
 
 No changes.

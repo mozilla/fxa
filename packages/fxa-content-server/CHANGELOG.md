@@ -1,3 +1,20 @@
+## 1.160.0
+
+### New features
+
+* recovery: Add confirm recovery key UX ([78cbb8cd5](https://github.com/mozilla/fxa/commit/78cbb8cd5))
+
+### Bug fixes
+
+* experiments: Audit and enable emails and recovery key experiments ([924048afd](https://github.com/mozilla/fxa/commit/924048afd))
+* content-server: address letter dangles being cut off ([80c8444a2](https://github.com/mozilla/fxa/commit/80c8444a2))
+* delete-account: Include subscription status filtering for 'trialing' and 'past_due' ([c1d239a13](https://github.com/mozilla/fxa/commit/c1d239a13))
+
+### Other changes
+
+* support form: add two FPN specific topics ([824c45a72](https://github.com/mozilla/fxa/commit/824c45a72))
+* 684aeeb70 Fix typo in RECOVERY_KEY text ([684aeeb70](https://github.com/mozilla/fxa/commit/684aeeb70))
+
 ## 1.159.0
 
 ### New features
