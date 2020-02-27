@@ -35,7 +35,6 @@ function makeRoutes(options = {}, requireMocks) {
     },
     flag() {},
   };
-  const subhub = options.subhub || mocks.mockSubHub();
   const signinUtils = require('../../lib/routes/utils/signin')(
     log,
     config,
@@ -51,7 +50,6 @@ function makeRoutes(options = {}, requireMocks) {
     require('../../lib/crypto/password')(log, config),
     config,
     customs,
-    subhub,
     signinUtils,
     mocks.mockPush(),
     mocks.mockVerificationReminders()

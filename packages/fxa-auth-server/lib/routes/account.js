@@ -34,7 +34,6 @@ module.exports = (
   Password,
   config,
   customs,
-  subhub,
   signinUtils,
   push,
   verificationReminders,
@@ -1398,7 +1397,7 @@ module.exports = (
             }
           } catch (err) {
             if (err.message === 'Customer not available') {
-              // if subhub didn't know about the customer, no problem.
+              // if Stripe didn't know about the customer, no problem.
               // This should not stop the user from deleting their account.
               // See https://github.com/mozilla/fxa/issues/2900
               // https://github.com/mozilla/fxa/issues/2896

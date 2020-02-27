@@ -17,8 +17,6 @@ const validClients = config.oauthServer.clients.filter(
 );
 const CLIENT_ID = validClients.pop().id;
 const CLIENT_ID_FOR_DEFAULT = validClients.pop().id;
-const DISPLAY_NAME = 'Example User';
-const PAYMENT_TOKEN = 'pay8675309';
 const PLAN_ID = 'allDoneProMonthly';
 const PLAN_NAME = 'All Done Pro Monthly';
 const PRODUCT_ID = 'megaProductHooray';
@@ -29,20 +27,6 @@ describe('remote subscriptions:', function() {
 
   before(async () => {
     config.subscriptions.stripeApiKey = null;
-    config.subhub.useStubs = true;
-    config.subhub.stubs = {
-      plans: [
-        {
-          plan_id: PLAN_ID,
-          plan_name: PLAN_NAME,
-          product_id: PRODUCT_ID,
-          product_name: PRODUCT_NAME,
-          interval: 'month',
-          amount: 50,
-          currency: 'usd',
-        },
-      ],
-    };
     config.subscriptions = {
       sharedSecret: 'wibble',
     };
@@ -68,7 +52,7 @@ describe('remote subscriptions:', function() {
           currency: 'usd',
           product_metadata: {
             [`capabilities:${CLIENT_ID}`]: '123donePro, ILikePie',
-          }
+          },
         },
         {
           plan_id: 'plan_1a',
@@ -89,7 +73,7 @@ describe('remote subscriptions:', function() {
           currency: 'usd',
           plan_metadata: {
             [`capabilities:${CLIENT_ID}`]: 'MechaMozilla,FooBar',
-          }
+          },
         },
       ];
       mockStripeHelper.customer = async (uid, email) => ({});
@@ -229,7 +213,7 @@ describe('remote subscriptions:', function() {
 
       it('should not return any subscription capabilities by default with session token', async () => {
         const response = await client.accountProfile();
-        assert.deepEqual(response.subscriptions, [ '123donePro', 'ILikePie' ]);
+        assert.deepEqual(response.subscriptions, ['123donePro', 'ILikePie']);
       });
 
       it('should not return any subscription capabilities for client without capabilities', async () => {
@@ -239,7 +223,7 @@ describe('remote subscriptions:', function() {
 
       it('should return subscription capabilities for client with capabilities', async () => {
         const response = await client.accountProfile(tokens[1]);
-        assert.deepEqual(response.subscriptions, [ '123donePro', 'ILikePie' ]);
+        assert.deepEqual(response.subscriptions, ['123donePro', 'ILikePie']);
       });
 
       it('should return active subscriptions', async () => {
@@ -257,164 +241,6 @@ describe('remote subscriptions:', function() {
         assert.lengthOf(result.subscriptions, 1);
         assert.equal(result.subscriptions[0].subscription_id, subscriptionId);
         assert.equal(result.subscriptions[0].plan_id, PLAN_ID);
-      });
-    });
-  });
-
-  describe('config.subscriptions.enabled = true:', () => {
-    let client, server, tokens;
-
-    before(async () => {
-      config.subscriptions.enabled = true;
-      config.subscriptions.stripeApiKey = null;
-      config.subscriptions.stripeApiUrl = null;
-      server = await testServerFactory.start(config);
-    });
-
-    after(async () => {
-      await testServerFactory.stop(server);
-    });
-
-    beforeEach(async () => {
-      client = await clientFactory.createAndVerify(
-        config.publicUrl,
-        server.uniqueEmail(),
-        'wibble',
-        server.mailbox
-      );
-
-      const tokenResponse1 = await client.grantOAuthTokensFromSessionToken({
-        grant_type: 'fxa-credentials',
-        client_id: CLIENT_ID_FOR_DEFAULT,
-        scope: 'profile:subscriptions',
-      });
-
-      const tokenResponse2 = await client.grantOAuthTokensFromSessionToken({
-        grant_type: 'fxa-credentials',
-        client_id: CLIENT_ID,
-        scope: 'profile:subscriptions',
-      });
-
-      const tokenResponse3 = await client.grantOAuthTokensFromSessionToken({
-        grant_type: 'fxa-credentials',
-        client_id: CLIENT_ID,
-        scope: 'profile https://identity.mozilla.com/account/subscriptions',
-      });
-
-      tokens = [
-        tokenResponse1.access_token,
-        tokenResponse2.access_token,
-        tokenResponse3.access_token,
-      ];
-    });
-
-    it('should not return client capabilities with invalid shared secret', async () => {
-      let succeeded = false;
-
-      try {
-        await client.getSubscriptionClients('blee');
-        succeeded = true;
-      } catch (err) {
-        assert.equal(err.code, 401);
-        assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
-      }
-
-      assert.isFalse(succeeded);
-    });
-
-    it('should not return any subscription capabilities', async () => {
-      const response = await client.accountProfile(tokens[1]);
-      assert.isUndefined(response.subscriptions);
-    });
-
-    it('should return subscription plans', async () => {
-      const result = await client.getSubscriptionPlans(tokens[2]);
-      assert.deepEqual(result, [
-        {
-          plan_id: PLAN_ID,
-          plan_name: PLAN_NAME,
-          product_id: PRODUCT_ID,
-          product_name: PRODUCT_NAME,
-          interval: 'month',
-          amount: 50,
-          currency: 'usd',
-        },
-      ]);
-    });
-
-    it('should return no active subscriptions', async () => {
-      let result = await client.getActiveSubscriptions(tokens[2]);
-      assert.deepEqual(result, []);
-
-      result = await client.account();
-      assert.deepEqual(result.subscriptions, []);
-    });
-
-    describe('createSubscription:', () => {
-      let subscriptionId;
-
-      beforeEach(async () => {
-        ({ subscriptionId } = await client.createSubscription(
-          tokens[2],
-          PLAN_ID,
-          PAYMENT_TOKEN,
-          DISPLAY_NAME
-        ));
-      });
-
-      it('returned the subscription id', () => {
-        assert.isString(subscriptionId);
-        assert.notEqual(subscriptionId, '');
-      });
-
-      it('should return active subscriptions', async () => {
-        let result = await client.getActiveSubscriptions(tokens[2]);
-        assert.isArray(result);
-        assert.lengthOf(result, 1);
-        assert.isAbove(result[0].createdAt, Date.now() - 1000);
-        assert.isAtMost(result[0].createdAt, Date.now());
-        assert.equal(result[0].productId, PRODUCT_ID);
-        assert.equal(result[0].uid, client.uid);
-        assert.isNull(result[0].cancelledAt);
-
-        result = await client.account();
-        assert.isArray(result.subscriptions);
-        assert.lengthOf(result.subscriptions, 1);
-        assert.equal(result.subscriptions[0].subscription_id, subscriptionId);
-        assert.equal(result.subscriptions[0].plan_id, PLAN_ID);
-      });
-
-      describe('cancelSubscription:', () => {
-        beforeEach(async () => {
-          await client.cancelSubscription(tokens[2], subscriptionId);
-        });
-
-        it('should return cancelled subscriptions', async () => {
-          const result = await client.getActiveSubscriptions(tokens[2]);
-          assert.isArray(result);
-          assert.lengthOf(result, 1);
-          assert.isAbove(result[0].createdAt, Date.now() - 1000);
-          assert.isAtLeast(result[0].cancelledAt, result[0].createdAt);
-          assert.isAtMost(result[0].cancelledAt, Date.now());
-          assert.equal(result[0].productId, PRODUCT_ID);
-          assert.equal(result[0].uid, client.uid);
-        });
-
-        describe('reactivateSubscription:', () => {
-          beforeEach(async () => {
-            await client.reactivateSubscription(tokens[2], subscriptionId);
-          });
-
-          it('should return reactivated subscriptions', async () => {
-            const result = await client.getActiveSubscriptions(tokens[2]);
-            assert.isArray(result);
-            assert.lengthOf(result, 1);
-            assert.isAbove(result[0].createdAt, Date.now() - 1000);
-            assert.isNull(result[0].cancelledAt);
-            assert.equal(result[0].productId, PRODUCT_ID);
-            assert.equal(result[0].uid, client.uid);
-          });
-        });
       });
     });
   });
