@@ -73,8 +73,7 @@ module.exports = {
         client_id: hex(tokObj.clientId),
       });
     }
-
-    await db[removeToken](token);
+    await db[removeToken](tokObj);
     return {};
   },
 };

@@ -55,9 +55,6 @@ const GRANT_FXA_ASSERTION = 'fxa-credentials';
 const ACCESS_TYPE_ONLINE = 'online';
 const ACCESS_TYPE_OFFLINE = 'offline';
 
-const REFRESH_LAST_USED_AT_UPDATE_AFTER_MS = config.get(
-  'oauthServer.refreshToken.updateAfter'
-);
 const DISABLED_CLIENTS = new Set(config.get('oauthServer.disabledClients'));
 
 // These scopes are used to request a one-off exchange of claims or credentials,
@@ -184,7 +181,6 @@ module.exports = {
     ) {
       throw AppError.disabledClient(hex(client.id));
     }
-
     const requestedGrant = await validateGrantParameters(client, params);
     return await generateTokens(requestedGrant);
   },
@@ -324,16 +320,6 @@ async function validateRefreshTokenGrant(client, params) {
   // from other refresh tokens.  There should be no way to trigger this in practice.
   if (tokObj.offline) {
     throw AppError.invalidRequestParameter();
-  }
-  // Periodically update last-used-at timestamp in the db.
-  // We don't do this every time because of the write load.
-  var now = new Date();
-  var lastUsedAt = tokObj.lastUsedAt;
-  if (now - lastUsedAt > REFRESH_LAST_USED_AT_UPDATE_AFTER_MS) {
-    await db.usedRefreshToken(encrypt.hash(params.refresh_token));
-    logger.debug('usedRefreshToken.updated', { now });
-  } else {
-    logger.debug('usedRefreshToken.not_updated');
   }
   return tokObj;
 }

@@ -16,9 +16,7 @@ function serialize(clientIdHex, token, acceptLanguage) {
   const lastAccessTime = token.lastUsedAt.getTime();
   return {
     client_id: clientIdHex,
-    refresh_token_id: token.refreshTokenId
-      ? hex(token.refreshTokenId)
-      : undefined,
+    refresh_token_id: token.tokenId ? hex(token.tokenId) : undefined,
     client_name: token.clientName,
     created_time: createdTime,
     last_access_time: lastAccessTime,

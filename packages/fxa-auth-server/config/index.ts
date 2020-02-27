@@ -419,11 +419,47 @@ const conf = convict({
         format: String,
         doc: 'Key prefix for access tokens in Redis',
       },
-      accessTokenLimit: {
+      recordLimit: {
         default: 100,
         env: 'ACCESS_TOKEN_REDIS_LIMIT',
         format: Number,
         doc: 'Maximum number of access tokens per account at any one time',
+      },
+    },
+    refreshTokens: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for refresh token metadata',
+        format: Boolean,
+        env: 'REFRESH_TOKEN_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'REFRESH_TOKEN_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'REFRESH_TOKEN_REDIS_PORT',
+        format: 'port',
+      },
+      prefix: {
+        default: 'rt:',
+        env: 'REFRESH_TOKEN_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for refresh tokens in Redis',
+      },
+      maxttl: {
+        default: 86400000,
+        env: 'REFRESH_TOKEN_REDIS_MAX_TTL',
+        format: Number,
+        doc: 'ttl for redis data',
+      },
+      recordLimit: {
+        default: 20,
+        env: 'REFRESH_TOKEN_REDIS_LIMIT',
+        format: Number,
+        doc: 'Maximum number of refresh tokens per account stored in redis',
       },
     },
     sessionTokens: {
@@ -1046,7 +1082,7 @@ const conf = convict({
     },
     refreshToken: {
       updateAfter: {
-        doc: 'lastUsedAt only gets updated after this delay',
+        doc: 'lastUsedAt only gets updated in MySQL after this delay',
         format: 'duration',
         default: '24 hours',
         env: 'FXA_REFRESH_TOKEN_UPDATE_AFTER',

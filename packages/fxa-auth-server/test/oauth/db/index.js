@@ -149,7 +149,7 @@ describe('db', function () {
     it('should get the right refreshToken', function () {
       var hash = encrypt.hash(refreshToken);
       return db.getRefreshToken(hash).then(function (t) {
-        assert.equal(hex(t.token), hex(hash), 'got the right refresh_token');
+        assert.equal(hex(t.tokenId), hex(hash), 'got the right refresh_token');
       });
     });
 
@@ -179,8 +179,8 @@ describe('db', function () {
       const userId = buf(randomString(16));
       const email = 'a@b' + randomString(16) + ' + .c';
       const scope = ['no_scope'];
-      let tokenIdHash;
-      let refreshTokenIdHash;
+      let accessTokenId;
+      let refreshTokenId;
 
       return db
         .registerClient({
@@ -204,7 +204,7 @@ describe('db', function () {
           });
         })
         .then(function (t) {
-          tokenIdHash = encrypt.hash(t.token.toString('hex'));
+          accessTokenId = encrypt.hash(t.token.toString('hex'));
           return db.generateRefreshToken({
             clientId: clientId,
             userId: userId,
@@ -213,22 +213,22 @@ describe('db', function () {
           });
         })
         .then(function (t) {
-          refreshTokenIdHash = encrypt.hash(t.token.toString('hex'));
+          refreshTokenId = encrypt.hash(t.token.toString('hex'));
 
           return Promise.all([
-            db.getRefreshToken(refreshTokenIdHash),
-            db.getAccessToken(tokenIdHash),
+            db.getRefreshToken(refreshTokenId),
+            db.getAccessToken(accessTokenId),
           ]);
         })
         .then((tokens) => {
-          assert.ok(tokens[0].token);
+          assert.ok(tokens[0].tokenId);
           assert.ok(tokens[1].tokenId);
           return db.removePublicAndCanGrantTokens(hex(userId));
         })
         .then((t) => {
           return Promise.all([
-            db.getRefreshToken(refreshTokenIdHash),
-            db.getAccessToken(tokenIdHash),
+            db.getRefreshToken(refreshTokenId),
+            db.getAccessToken(accessTokenId),
           ]);
         })
         .catch((err) => {
@@ -259,7 +259,7 @@ describe('db', function () {
         canGrant: false,
         publicClient: false,
       }).then((tokens) => {
-        assert.ok(tokens[0].token);
+        assert.ok(tokens[0].tokenId);
         assert.ok(tokens[1].tokenId);
       });
     });
@@ -276,94 +276,113 @@ describe('db', function () {
   });
 
   describe('refresh token lastUsedAt', function () {
-    var clientId = buf(randomString(8));
-    var userId = buf(randomString(16));
-    var email = 'a@b.c';
-    var scope = ['no_scope'];
-    var code = null;
-    var refreshToken = null;
+    const clientId = buf(randomString(8));
+    const userId = buf(randomString(16));
+    const email = 'a@b.c';
+    const scope = ['no_scope'];
+    let refreshToken = null;
+    let tokenId;
 
-    beforeEach(function () {
-      return db
-        .registerClient({
-          id: clientId,
-          name: 'lastUsedAtTest',
-          hashedSecret: randomString(32),
-          imageUri: 'https://example.domain/logo',
-          redirectUri: 'https://example.domain/return?foo=bar',
-          trusted: true,
-        })
-        .then(function () {
-          return db.generateCode({
-            clientId: clientId,
-            userId: userId,
-            email: email,
-            scope: scope,
-            authAt: 0,
-          });
-        })
-        .then(function (c) {
-          code = c;
-          return db.getCode(code);
-        })
-        .then(function (code) {
-          assert.equal(hex(code.userId), hex(userId));
-          return db.generateAccessToken({
-            clientId: clientId,
-            userId: userId,
-            email: email,
-            scope: scope,
-          });
-        })
-        .then(function (t) {
-          assert.equal(hex(t.userId), hex(userId), 'token userId');
-          return db.generateRefreshToken({
-            clientId: clientId,
-            userId: userId,
-            email: email,
-            scope: scope,
-          });
-        })
-        .then(function (t) {
-          refreshToken = t;
-        });
+    beforeEach(async () => {
+      await db.registerClient({
+        id: clientId,
+        name: 'lastUsedAtTest',
+        hashedSecret: randomString(32),
+        imageUri: 'https://example.domain/logo',
+        redirectUri: 'https://example.domain/return?foo=bar',
+        trusted: true,
+      });
+      refreshToken = await db.generateRefreshToken({
+        clientId: clientId,
+        userId: userId,
+        email: email,
+        scope: scope,
+      });
+      tokenId = refreshToken.tokenId;
     });
 
-    it('should refresh token lastUsedAt', function () {
-      var tokenFirstUsage = {};
-      var hash = encrypt.hash(refreshToken.token);
+    afterEach(async () => {
+      await db.removeClient(clientId);
+    });
 
-      return db
-        .getRefreshToken(hash)
-        .then(function (t) {
-          assert.equal(hex(t.token), hex(hash), 'same token');
+    describe('after touching a refresh token', () => {
+      let tokenFirstUsage;
 
-          tokenFirstUsage.createdAt = new Date(t.createdAt);
-          tokenFirstUsage.lastUsedAt = t.lastUsedAt;
+      beforeEach(async () => {
+        tokenFirstUsage = {};
+        const t = await db.getRefreshToken(tokenId);
+        assert.equal(hex(t.tokenId), hex(tokenId), 'same token');
+        tokenFirstUsage.createdAt = new Date(t.createdAt);
+        tokenFirstUsage.lastUsedAt = t.lastUsedAt;
 
-          return Promise.delay(1000); //ensures that creation and subsequent usage are at least 1s apart
-        })
-        .then(function () {
-          return db.usedRefreshToken(encrypt.hash(refreshToken.token));
-        })
-        .then(function () {
-          return db.getRefreshToken(hash);
-        })
-        .then(function (t) {
-          assert.equal(hex(t.token), hex(hash), 'same token');
-          var updatedLastUsedAt = new Date(t.lastUsedAt);
+        // ensures that creation and subsequent usage are at least 1s apart
+        await Promise.delay(1000);
 
-          assert.equal(
-            updatedLastUsedAt > tokenFirstUsage.lastUsedAt,
-            true,
-            'lastUsedAt was updated'
-          );
-          assert.equal(
-            t.createdAt.toString(),
-            tokenFirstUsage.createdAt.toString(),
-            'creation date not changed'
-          );
+        await db.getRefreshToken(tokenId);
+      });
+
+      it('should report updated lastUsedAt when getting the token', async () => {
+        const t = await db.getRefreshToken(tokenId);
+        assert.equal(hex(t.tokenId), hex(tokenId), 'same token');
+
+        const updatedLastUsedAt = new Date(t.lastUsedAt);
+        assert.equal(
+          updatedLastUsedAt > tokenFirstUsage.lastUsedAt,
+          true,
+          'lastUsedAt was updated'
+        );
+        assert.equal(
+          t.createdAt.toString(),
+          tokenFirstUsage.createdAt.toString(),
+          'creation date not changed'
+        );
+      });
+
+      it('should report updated lastUsedAt when listing all tokens for a user', async () => {
+        const ts = await db.getRefreshTokensByUid(userId);
+        assert.equal(ts.length, 1, 'only one token');
+        const t = ts[0];
+        assert.equal(hex(t.tokenId), hex(tokenId), 'same token');
+
+        const updatedLastUsedAt = new Date(t.lastUsedAt);
+        assert.equal(
+          updatedLastUsedAt > tokenFirstUsage.lastUsedAt,
+          true,
+          'lastUsedAt was updated'
+        );
+        assert.equal(
+          t.createdAt.toString(),
+          tokenFirstUsage.createdAt.toString(),
+          'creation date not changed'
+        );
+      });
+
+      it('should not record updated lastUsedAt in mysql', async () => {
+        const mysql = await db.mysql;
+        const t = await mysql._getRefreshToken(tokenId);
+        assert.equal(hex(t.tokenId), hex(tokenId), 'same token');
+        assert.equal(
+          t.lastUsedAt.toString(),
+          tokenFirstUsage.lastUsedAt.toString(),
+          'lastUsedAt not changed'
+        );
+      });
+
+      describe('after removing the refresh token', () => {
+        beforeEach(async () => {
+          await db.removeRefreshToken(refreshToken);
         });
+
+        it('should not report that the token still exists', async () => {
+          const t = await db.getRefreshToken(tokenId);
+          assert.equal(t, null, 'no token');
+        });
+
+        it('should not include the token when listing tokens for a user', async () => {
+          const ts = await db.getRefreshTokensByUid(userId);
+          assert.equal(ts.length, 0, 'no tokens');
+        });
+      });
     });
   });
 
@@ -668,21 +687,21 @@ describe('db', function () {
         const t = await db.generateAccessToken(tokenData);
         const mysql = await db.mysql;
         const tt = await mysql._getAccessToken(t.tokenId);
-        await db.removeAccessToken(t.tokenId);
+        await db.removeAccessToken(t);
         assert.equal(hex(tt.tokenId), hex(t.tokenId));
       });
 
       it('retrieves them with getAccessToken', async () => {
         const t = await db.generateAccessToken(tokenData);
         const tt = await db.getAccessToken(t.tokenId);
-        await db.removeAccessToken(t.tokenId);
+        await db.removeAccessToken(t);
         assert.equal(hex(tt.tokenId), hex(t.tokenId));
       });
 
       it('retrieves them with getAccessTokensByUid', async () => {
         const t = await db.generateAccessToken(tokenData);
         const tokens = await db.getAccessTokensByUid(userId);
-        await db.removeAccessToken(t.tokenId);
+        await db.removeAccessToken(t);
         assert.isArray(tokens);
         assert.lengthOf(tokens, 1);
         assert.deepEqual(tokens[0].tokenId, t.tokenId);
@@ -692,7 +711,7 @@ describe('db', function () {
       it('deletes them with removeAccessToken', async () => {
         const t = await db.generateAccessToken(tokenData);
         const tt = await db.getAccessToken(t.tokenId);
-        await db.removeAccessToken(t.tokenId);
+        await db.removeAccessToken(t);
         assert.isNotNull(tt);
         const ttt = await db.getAccessToken(t.tokenId);
         assert.isUndefined(ttt);

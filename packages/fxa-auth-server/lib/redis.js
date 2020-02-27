@@ -8,6 +8,7 @@ const Redis = require('ioredis');
 const { readdirSync, readFileSync } = require('fs');
 const { basename, extname, resolve } = require('path');
 const AccessToken = require('./oauth/db/accessToken');
+const RefreshTokenMetadata = require('./oauth/db/refreshTokenMetadata');
 const hex = require('buf').to.hex;
 
 const scriptNames = readdirSync(resolve(__dirname, 'luaScripts'), {
@@ -33,7 +34,7 @@ function rejectInMs(ms, err = new Error('redis timeout')) {
 class FxaRedis {
   constructor(config, log) {
     config.keyPrefix = config.prefix;
-    this.accessTokenLimit = config.accessTokenLimit;
+    this.recordLimit = config.recordLimit;
     this.maxttl = config.maxttl;
     this.log = log;
     this.redis = new Redis(config);
@@ -124,7 +125,7 @@ class FxaRedis {
       token.userId.toString('hex'),
       token.tokenId.toString('hex'),
       JSON.stringify(token),
-      this.accessTokenLimit,
+      this.recordLimit,
       token.ttl,
       this.maxttl
     );
@@ -168,6 +169,99 @@ class FxaRedis {
    */
   removeAccessTokensForUser(uid) {
     return this.redis.removeAccessTokensForUser(hex(uid));
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} tokenId
+   * @return {Promise<RefreshTokenMetadata>}
+   */
+  async getRefreshToken(uid, tokenId) {
+    try {
+      const data = await Promise.race([
+        this.redis.hget(hex(uid), hex(tokenId)),
+        resolveInMs(this.timeoutMs),
+      ]);
+      return data ? RefreshTokenMetadata.parse(data) : null;
+    } catch (e) {
+      this.log.error('redis', e);
+      return null;
+    }
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @return {Promise<{[key: string]: RefreshTokenMetadata}>}
+   */
+  async getRefreshTokens(uid) {
+    try {
+      const tokens = await Promise.race([
+        this.redis.hgetall(hex(uid)),
+        resolveInMs(this.timeoutMs, {}),
+      ]);
+      for (const id of Object.keys(tokens)) {
+        tokens[id] = RefreshTokenMetadata.parse(tokens[id]);
+      }
+      return tokens;
+    } catch (e) {
+      this.log.error('redis', e);
+      return {};
+    }
+  }
+
+  /**
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} tokenId
+   * @param {RefreshTokenMetadata} token
+   */
+  setRefreshToken(uid, tokenId, token) {
+    return Promise.race([
+      this.redis.setRefreshToken(
+        hex(uid),
+        hex(tokenId),
+        JSON.stringify(token),
+        this.recordLimit,
+        this.maxttl
+      ),
+      resolveInMs(this.timeoutMs),
+    ]);
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {Buffer | string} tokenId
+   */
+  async removeRefreshToken(uid, tokenId) {
+    return Promise.race([
+      this.redis.hdel(hex(uid), hex(tokenId)),
+      resolveInMs(this.timeoutMs),
+    ]);
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   */
+  removeRefreshTokensForUser(uid) {
+    return Promise.race([
+      this.redis.unlink(hex(uid)),
+      resolveInMs(this.timeoutMs),
+    ]);
+  }
+
+  /**
+   *
+   * @param {Buffer | string} uid
+   * @param {(Buffer | string)[]} tokenIdsToPrune
+   */
+  pruneRefreshTokens(uid, tokenIdsToPrune) {
+    return Promise.race([
+      this.redis.hdel(hex(uid), ...tokenIdsToPrune.map((v) => hex(v))),
+      resolveInMs(this.timeoutMs),
+    ]);
   }
 
   close() {
