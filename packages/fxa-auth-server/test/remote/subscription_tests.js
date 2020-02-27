@@ -68,7 +68,7 @@ describe('remote subscriptions:', function() {
           currency: 'usd',
           product_metadata: {
             [`capabilities:${CLIENT_ID}`]: '123donePro, ILikePie',
-          }
+          },
         },
         {
           plan_id: 'plan_1a',
@@ -89,7 +89,7 @@ describe('remote subscriptions:', function() {
           currency: 'usd',
           plan_metadata: {
             [`capabilities:${CLIENT_ID}`]: 'MechaMozilla,FooBar',
-          }
+          },
         },
       ];
       mockStripeHelper.customer = async (uid, email) => ({});
@@ -219,6 +219,7 @@ describe('remote subscriptions:', function() {
             current_period_start: Date.now() / 1000,
             cancel_at_period_end: false,
             end_at: null,
+            latest_invoice: '628031D-0002',
             plan_name: 'foo',
             status: 'active',
             failure_code: undefined,
@@ -229,7 +230,7 @@ describe('remote subscriptions:', function() {
 
       it('should not return any subscription capabilities by default with session token', async () => {
         const response = await client.accountProfile();
-        assert.deepEqual(response.subscriptions, [ '123donePro', 'ILikePie' ]);
+        assert.deepEqual(response.subscriptions, ['123donePro', 'ILikePie']);
       });
 
       it('should not return any subscription capabilities for client without capabilities', async () => {
@@ -239,7 +240,7 @@ describe('remote subscriptions:', function() {
 
       it('should return subscription capabilities for client with capabilities', async () => {
         const response = await client.accountProfile(tokens[1]);
-        assert.deepEqual(response.subscriptions, [ '123donePro', 'ILikePie' ]);
+        assert.deepEqual(response.subscriptions, ['123donePro', 'ILikePie']);
       });
 
       it('should return active subscriptions', async () => {

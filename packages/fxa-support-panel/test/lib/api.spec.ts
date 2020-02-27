@@ -78,6 +78,7 @@ function createDefaults(): MockCallsResponse {
         {
           current_period_end: 1579716673,
           current_period_start: 1579630273,
+          latest_invoice: '628031D-0002',
           plan_name: 'Learn to Code (Monthly)',
           status: 'active',
           subscription_id: 'sub_GZ7WKEJp1YGZ86',

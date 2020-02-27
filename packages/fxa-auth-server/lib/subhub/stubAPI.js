@@ -21,6 +21,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
     last4: '8675',
     exp_month: 8,
     exp_year: 2020,
+    brand: 'Visa',
   };
 
   const _storeSubscription = uid => subscription => {
@@ -54,6 +55,7 @@ module.exports.buildStubAPI = function buildStubAPI(log, config) {
       plan_name,
       status: 'active',
       cancel_at_period_end: false,
+      latest_invoice: '628031D-0002',
       current_period_start: now,
       current_period_end: now + ONE_MONTH,
     };
