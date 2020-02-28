@@ -49,7 +49,9 @@
     }
 
     html[dir='rtl'] & {
-      direction: ltr;
+      &:not([type='number']) {
+        direction: ltr;
+      }
       padding: 0 $input-left-right-padding 0 11px;
       text-align: right;
     }
