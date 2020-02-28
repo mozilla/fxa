@@ -10,10 +10,12 @@ import { Container } from 'typedi';
 import { DatabaseConfig, setupDatabase } from './db';
 import { AccountResolver } from './resolvers/account-resolver';
 import { EmailBounceResolver } from './resolvers/email-bounce-resolver';
+import { reportGraphQLError } from './sentry';
 
 type ServerConfig = {
   authHeader: string;
   database: DatabaseConfig;
+  env: string;
 };
 
 /**
@@ -25,24 +27,31 @@ export type Context = {
   logAction: (action: string, options?: object) => {};
 };
 
-export async function createServer(config: ServerConfig, logger: Logger): Promise<ApolloServer> {
+export async function createServer(
+  config: ServerConfig,
+  logger: Logger,
+  context: (() => object) | undefined
+): Promise<ApolloServer> {
   setupDatabase(config.database);
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
     resolvers: [AccountResolver, EmailBounceResolver]
   });
+  const debugMode = config.env !== 'production';
+  const defaultContext = ({ req }: any) => {
+    const authUser = req.headers[config.authHeader.toLowerCase()];
+    return {
+      authUser,
+      logAction: (action: string, options?: object) => {
+        logger.info(action, { authUser, ...options });
+      },
+      logger
+    };
+  };
 
   return new ApolloServer({
-    context: ({ req }) => {
-      const authUser = req.headers[config.authHeader.toLowerCase()];
-      return {
-        authUser,
-        logAction: (action: string, options?: object) => {
-          logger.info(action, { authUser, ...options });
-        },
-        logger
-      };
-    },
+    context: context ?? defaultContext,
+    formatError: err => reportGraphQLError(debugMode, logger, err),
     schema
   });
 }
