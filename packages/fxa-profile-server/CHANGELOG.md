@@ -1,3 +1,9 @@
+## 1.160.0
+
+### Bug fixes
+
+* coverage: Remove the temporary coverage directory before running tests ([19302cb45](https://github.com/mozilla/fxa/commit/19302cb45))
+
 ## 1.159.0
 
 ### Bug fixes

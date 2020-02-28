@@ -1,5 +1,11 @@
 # Change history
 
+## 1.160.0
+
+### New features
+
+* metrics: collect navigation timing on Payments with StatsD ([28db0cfef](https://github.com/mozilla/fxa/commit/28db0cfef))
+
 ## 1.159.0
 
 No changes.
