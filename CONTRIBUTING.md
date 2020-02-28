@@ -35,8 +35,8 @@ The goal of estimation is for us to assess the issue in terms of its relative co
 | Points  | Relative Size | Description                                                                |
 | ------- | ------------- | -------------------------------------------------------------------------- |
 | 1       | xs            | This is a trivial change with clearly defined parameters.                  |
-| 3       | m             | This is a small change, but there's some uncertainty.                      |
 | 2       | s             | This is a small change with clearly defined parameters.                    |
+| 3       | m             | This is a small change, but there's some uncertainty.                      |
 | 5       | l             | Moderately complex, will require some effort but clearly defined.          |
 | 8       | xl            | Moderately complex, medium effort, some uncertainty.                       |
 | 13      | xxl           | Complex, large effort, well defined (these should be broken down further)  |
