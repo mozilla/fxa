@@ -27,7 +27,7 @@ export default {
       // session is expired or user does not exist. Force the user
       // to sign in.
       Session.clear();
-      this.user.clearSignedInAccount();
+      this.user.clearSignedInAccountUid();
       this.logViewEvent('signout.forced');
     }
   },
