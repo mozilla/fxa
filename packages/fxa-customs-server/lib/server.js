@@ -188,7 +188,7 @@ module.exports = function createServer(config, log) {
       // attacker@gmail.com
       // attacker+20190507@gmail.com
       // a.ttack.e.r+is+a+goon@gmail.com
-      let [local, domain] = lowercaseEmail.split('@');
+      const [local, domain] = lowercaseEmail.split('@');
       return `${local.replace(/\+.*$/, '').replace(/\./g, '')}@${domain}`;
     }
 
@@ -277,9 +277,11 @@ module.exports = function createServer(config, log) {
           // Unless they're legacy user-agents that we know will not include it.
           var isExemptUA = false;
           var userAgent = headers['user-agent'];
-          isExemptUA = requestChecks.flowIdExemptUserAgentCompiledREs.some(function (re) {
-            return re.test(userAgent);
-          });
+          isExemptUA = requestChecks.flowIdExemptUserAgentCompiledREs.some(
+            function(re) {
+              return re.test(userAgent);
+            }
+          );
           // Or unless it's for non-signin-related reasons, e.g. changing password.
           // We know these requests will not include it.
           var isExemptRequest = false;

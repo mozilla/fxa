@@ -7,6 +7,7 @@
     }
   },
   "rules": {
-    "strict": "off"
+    "strict": "off",
+    "handle-callback-err": "off"
   }
 }
