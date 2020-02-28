@@ -11,7 +11,7 @@ CALL assertPatchLevel('107');
 -- DROP PROCEDURE `getAccountSubscription_1`;
 -- DROP PROCEDURE `fetchAccountSubscriptions_1`;
 -- DROP PROCEDURE `deleteAccount_17`;
--- DROP TABLE accountSubscriptions;
+DROP TABLE accountSubscriptions;
 
 CREATE PROCEDURE `deleteAccount_18` (
   IN `uidArg` BINARY(16)
