@@ -1,11 +1,13 @@
 # Contribution Guidelines for the Firefox Accounts Content Server
 
-Anyone is welcome to help with Firefox Accounts. Feel free to get in touch with other community members on IRC, the
+Anyone is welcome to help with Firefox Accounts. Feel free to get in touch with other community members on Matrix, the
 mailing list or through issues here on GitHub.
 
-- IRC: `#fxa` on `irc.mozilla.org`
+- Matrix: [#fxa:mozilla.org](https://chat.mozilla.org/#/room/#fxa:mozilla.org)
 - Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
 - and of course, [the issues list](https://github.com/mozilla/fxa/issues)
+
+UPDATE: On March 2020, Mozilla moved from IRC to Matrix. For more information on Matrix, check out the following wiki article: <https://wiki.mozilla.org/Matrix>.
 
 ## Code of Conduct
 

@@ -28,15 +28,15 @@ The content server is a combination of two components, a server component and a 
 
 ### Server side Goals/Desired Quality Attributes
 
--   The server should contain very little "business" logic, the content server should only be responsible for serving UI.
--   Most content server work should be deferred to the web client.
--   The server should be able to deliver content in the user's preferred language.
+- The server should contain very little "business" logic, the content server should only be responsible for serving UI.
+- Most content server work should be deferred to the web client.
+- The server should be able to deliver content in the user's preferred language.
 
 ### Web Client Goals/Desired Quality Attributes
 
--   Can be integrated into any Web capable system.
--   Can be extended to provide an interface to Web capable native applications, e.g., a native panel within a browser.
--   Can be opened by any modern browser or rendering engine that supports HTML5.
+- Can be integrated into any Web capable system.
+- Can be extended to provide an interface to Web capable native applications, e.g., a native panel within a browser.
+- Can be opened by any modern browser or rendering engine that supports HTML5.
 
 ### Relier/Relying Party
 
@@ -246,17 +246,19 @@ Mozilla's L10n community has done an incredible job of translating Firefox Accou
 
 ## Contact
 
--   Developer mailing list: dev-fxacct@mozilla.org
--   IRC: #fxa in irc.mozilla.org
+- Developer mailing list: dev-fxacct@mozilla.org
+- Matrix: [#fxa:mozilla.org](https://chat.mozilla.org/#/room/#fxa:mozilla.org)
+
+UPDATE: On March 2020, Mozilla moved from IRC to Matrix. For more information on Matrix, check out the following wiki article: <https://wiki.mozilla.org/Matrix>.
 
 ## Additional Resources
 
--   [APIs attached to Firefox Accounts](https://developer.mozilla.org/docs/Mozilla/APIs_attached_to_Firefox_Accounts)
--   [Firefox Accounts Auth Server API](https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md)
--   [Firefox Acocunts Auth Server Codebase](https://github.com/mozilla/fxa-auth-server/)
--   [Firefox Accounts OAuth Server API](https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md)
--   [Firefox Accounts OAuth Server Codebase](https://github.com/mozilla/fxa-oauth-server/)
--   [Firefox Accounts Profile Server API](https://github.com/mozilla/fxa-profile-server/blob/master/docs/API.md)
--   [Firefox Accounts Profile Server Codebase](https://github.com/mozilla/fxa-profile-server/)
--   [OAuth 2.0 RFC 6749](http://tools.ietf.org/html/rfc6749)
--   [Firefox Accounts Pairing Flow](pairing-architecture.md)
+- [APIs attached to Firefox Accounts](https://developer.mozilla.org/docs/Mozilla/APIs_attached_to_Firefox_Accounts)
+- [Firefox Accounts Auth Server API](https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md)
+- [Firefox Acocunts Auth Server Codebase](https://github.com/mozilla/fxa-auth-server/)
+- [Firefox Accounts OAuth Server API](https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md)
+- [Firefox Accounts OAuth Server Codebase](https://github.com/mozilla/fxa-oauth-server/)
+- [Firefox Accounts Profile Server API](https://github.com/mozilla/fxa-profile-server/blob/master/docs/API.md)
+- [Firefox Accounts Profile Server Codebase](https://github.com/mozilla/fxa-profile-server/)
+- [OAuth 2.0 RFC 6749](http://tools.ietf.org/html/rfc6749)
+- [Firefox Accounts Pairing Flow](pairing-architecture.md)
