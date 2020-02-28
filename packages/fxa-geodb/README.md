@@ -105,9 +105,11 @@ By default, the cron job runs every week on Wednesday at 01:30:30 (UTC -7) and u
 
 ### Getting involved
 
-Interested in contributing to the development of Firefox Accounts GeoDB repo? Great! Head over to the #fxa channel on irc.mozilla.org with questions, or jump ahead and fix any of the issues we have.
+Interested in contributing to the development of Firefox Accounts GeoDB repo? Great! Head over to the [#fxa:mozilla.org](https://chat.mozilla.org/#/room/#fxa:mozilla.org) room on Matrix with questions, or jump ahead and fix any of the issues we have.
 
 Please review and understand the [Mozilla Community Participation Guidelines](https://www.mozilla.org/en-US/about/governance/policies/participation/) before contributing to this project. Also, following the [commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines) is greatly appreciated.
+
+UPDATE: On March 2020, Mozilla moved from IRC to Matrix. For more information on Matrix, check out the following wiki article: <https://wiki.mozilla.org/Matrix>.
 
 --
 
