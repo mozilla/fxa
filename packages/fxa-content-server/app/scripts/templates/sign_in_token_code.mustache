@@ -15,8 +15,8 @@
 
     <form novalidate>
       <div class="input-row otp-code-row">
-          <!-- Using `type="text" inputmode="numeric"` shows the numericpad on mobile and strips out whitespace on desktop. -->
-          <input type="text" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
+          <!-- Not using `type="text" inputmode="numeric"` because of https://bugzilla.mozilla.org/show_bug.cgi?id=1205133 -->
+          <input type="number" inputmode="numeric" pattern="\d[ ]*" class="tooltip-below otp-code" placeholder="{{#t}}Enter 6-digit code{{/t}}" required autofocus />
       </div>
 
       <div class="button-row">
