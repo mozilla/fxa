@@ -50,7 +50,7 @@ const DB = require('../../lib/db')(
   UnblockCode
 );
 
-const redis = require('redis').createClient({
+const redis = require('ioredis').createClient({
   host: config.redis.host,
   port: config.redis.port,
   prefix: config.redis.sessionTokens.prefix,

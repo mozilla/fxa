@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const EndpointError = require('poolee/lib/error')(require('util').inherits);
 const sinon = require('sinon');
 const verror = require('verror');
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
 
 const config = require('../../config').getProperties();

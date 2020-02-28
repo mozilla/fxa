@@ -5,7 +5,7 @@
 'use strict';
 
 const config = require('../config').getProperties();
-const hapi = require('hapi');
+const hapi = require('@hapi/hapi');
 const url = require('url');
 const P = require('../lib/promise');
 

@@ -162,8 +162,11 @@ describe('lib/server', () => {
             response = 'ok';
             return instance
               .inject({
-                credentials: {
-                  uid: 'fake uid',
+                auth: {
+                  credentials: {
+                    uid: 'fake uid',
+                  },
+                  strategy: 'default',
                 },
                 headers: {
                   'accept-language': 'fr-CH, fr;q=0.9, en-GB, en;q=0.5',
