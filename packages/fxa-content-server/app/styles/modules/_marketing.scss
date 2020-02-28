@@ -36,12 +36,6 @@
     font-size: 18px;
     margin-top: 0;
 
-    @include respond-to('big') {
-      html[dir='rtl'] & {
-        padding-right: 10px;
-      }
-    }
-
     @include respond-to('small') {
       font-size: 16px;
 
@@ -50,6 +44,7 @@
       }
 
       html[dir='rtl'] & {
+        padding-right: 10px;
         text-align: right;
       }
     }
@@ -72,6 +67,10 @@
 
       @include respond-to('big') {
         padding: 0 10px 20px 0;
+
+        html[dir='rtl'] & {
+          padding: 0 0 20px 10px;
+        }
       }
 
       html[dir='ltr'] & {
@@ -99,17 +98,29 @@
         &.logo-lockwise {
           background-image: image-url('graphic-logo-lockwise.svg');
           background-position-x: -5px;
+
+          html[dir='rtl'] & {
+            background-position-x: 5px;
+          }
         }
 
         &.logo-monitor {
           background-image: image-url('graphic-logo-monitor.svg');
           background-position-x: -12px;
+
+          html[dir='rtl'] & {
+            background-position-x: 12px;
+          }
         }
 
         &.logo-send {
           background-image: image-url('graphic-logo-send.svg');
           background-position-x: -8px;
           width: 153px;
+
+          html[dir='rtl'] & {
+            background-position-x: 8px;
+          }
         }
       }
     }
@@ -127,6 +138,10 @@
 
     @media screen and (max-width: 720px) {
       display: none;
+    }
+
+    html[dir='rtl'] & {
+      margin: 90px 36px 0 0;
     }
 
     > ul {
