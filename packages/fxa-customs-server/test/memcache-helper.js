@@ -38,6 +38,7 @@ var config = {
   },
   requestChecks: {
     treatEveryoneWithSuspicion: false,
+    flowIdRequiredOnLogin: false,
   },
 };
 

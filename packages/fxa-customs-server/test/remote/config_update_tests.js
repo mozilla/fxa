@@ -234,14 +234,52 @@ test('change requestChecks.treatEveryoneWithSuspicion', function(t) {
     })
     .then(function() {
       t.end();
+    });
+});
+
+test('change requestChecks.flowIdRequiredOnLogin', function (t) {
+  return client.postAsync('/check', {
+    ip: IP,
+    email: EMAIL,
+    action: 'accountLogin'
+  })
+    .spread(function (req, res, obj) {
+      t.deepEqual(obj, {
+        block: false,
+        retryAfter: 0,
+        suspect: true,
+        unblock: true
+      }, 'request was not blocked');
+      return mcHelper.setRequestChecks({
+        flowIdRequiredOnLogin: true
+      });
     })
-    .catch(function(err) {
+    .then(function (ips) {
+      return Promise.delay(1010);
+    })
+    .then(function() {
+      return client.postAsync('/check', {
+        ip: IP,
+        email: EMAIL,
+        action: 'accountLogin'
+      });
+    })
+    .spread(function (req, res, obj) {
+      t.deepEqual(obj, {
+        block: true,
+        retryAfter: 0,
+        suspect: true,
+        unblock: true
+      }, 'request was blocked after the change');
+      t.end();
+    })
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', function(t) {
+test('teardown', function (t) {
   testServer.stop();
   t.equal(testServer.server.killed, true, 'test server has been killed');
   t.end();
