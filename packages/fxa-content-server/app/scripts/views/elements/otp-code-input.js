@@ -9,7 +9,7 @@ import Vat from '../../lib/vat';
 const element = Object.create(textInput);
 
 element.match = function($el) {
-  return $el.attr('type') === 'text' && $el.hasClass('otp-code');
+  return $el.attr('type') === 'number' && $el.hasClass('otp-code');
 };
 
 element.val = function(val) {

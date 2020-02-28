@@ -8,8 +8,8 @@ import AuthErrors from 'lib/auth-errors';
 import TotpEl from 'views/elements/otp-code-input';
 
 const TEMPLATE =
-  '<input type="text" pattern="d*" class="otp-code"></input>' +
-  '<input type="text" pattern="d*" class="not-code"></input>';
+  '<input type="number" pattern="d*" class="otp-code"></input>' +
+  '<input type="number" pattern="d*" class="not-code"></input>';
 
 describe('views/elements/otp-code-input', function() {
   let $element;
