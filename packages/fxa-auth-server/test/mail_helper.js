@@ -110,7 +110,7 @@ module.exports = printLogs => {
 
     // HTTP half
 
-    const hapi = require('hapi');
+    const hapi = require('@hapi/hapi');
     const api = new hapi.Server({
       host: config.smtp.api.host,
       port: config.smtp.api.port,
