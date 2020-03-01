@@ -5,7 +5,7 @@
 'use strict';
 
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const PhoneNumberUtil = require('google-libphonenumber').PhoneNumberUtil;
 const validators = require('./validators');
 

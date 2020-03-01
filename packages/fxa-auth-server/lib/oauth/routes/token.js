@@ -29,7 +29,7 @@ const crypto = require('crypto');
 const AppError = require('../error');
 const buf = require('buf').hex;
 const hex = require('buf').to.hex;
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const config = require('../../../config');
 const db = require('../db');

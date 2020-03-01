@@ -5,7 +5,7 @@
 'use strict';
 
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const pRetry = require('p-retry');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 

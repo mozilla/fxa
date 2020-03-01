@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
 

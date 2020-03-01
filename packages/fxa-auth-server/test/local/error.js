@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 const verror = require('verror');
-const messages = require('joi/lib/language');
+const messages = require('@hapi/joi/lib/language');
 const AppError = require('../../lib/error');
 const P = require('../../lib/promise');
 

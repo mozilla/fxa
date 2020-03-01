@@ -6,7 +6,7 @@
 
 const Sentry = require('@sentry/node');
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const validators = require('./validators');
 const {

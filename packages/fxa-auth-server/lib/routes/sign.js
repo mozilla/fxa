@@ -5,7 +5,7 @@
 'use strict';
 
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const validators = require('./validators');
 
 module.exports = (log, signer, db, domain, devices) => {

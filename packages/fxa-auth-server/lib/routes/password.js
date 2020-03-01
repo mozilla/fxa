@@ -9,7 +9,7 @@ const HEX_STRING = validators.HEX_STRING;
 
 const butil = require('../crypto/butil');
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');

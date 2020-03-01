@@ -71,7 +71,7 @@
 
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const Pool = require('./pool');
 const error = require('./error');

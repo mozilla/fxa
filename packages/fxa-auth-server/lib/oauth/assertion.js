@@ -23,7 +23,7 @@
 
 const P = require('../promise');
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const validators = require('./validators');
 
 const AppError = require('./error');

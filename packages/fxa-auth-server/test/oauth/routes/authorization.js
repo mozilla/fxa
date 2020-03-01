@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const routeModulePath = '../../../lib/oauth/routes/authorization';
 

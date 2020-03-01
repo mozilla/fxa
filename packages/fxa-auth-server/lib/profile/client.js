@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const createBackendServiceAPI = require('../backendService');
 
 const PATH_PREFIX = '/v1';

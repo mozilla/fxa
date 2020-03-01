@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const hex = require('buf').to.hex;
 
 const auth = require('../../auth_client_management');

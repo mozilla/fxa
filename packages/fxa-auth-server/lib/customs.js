@@ -4,7 +4,7 @@
 
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const createBackendServiceAPI = require('./backendService');
 const config = require('../config');
 const localizeTimestamp = require('../../fxa-shared').l10n.localizeTimestamp({
@@ -23,7 +23,9 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string().email().required(),
+            email: Joi.string()
+              .email()
+              .required(),
             ip: Joi.string().required(),
             action: Joi.string().required(),
             headers: Joi.object().optional(),
@@ -80,7 +82,9 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string().email().required(),
+            email: Joi.string()
+              .email()
+              .required(),
             ip: Joi.string().required(),
             errno: Joi.number().required(),
           },
@@ -93,7 +97,9 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string().email().required(),
+            email: Joi.string()
+              .email()
+              .required(),
           },
           response: {},
         },

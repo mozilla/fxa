@@ -40,6 +40,7 @@
   "dependencies": {
     "@hapi/hapi": "^19.1.1",
     "@hapi/hoek": "^8.5.1",
+    "@hapi/joi": "^15.1.1",
     "@sentry/node": "^5.7.1",
     "ajv": "4.1.7",
     "aws-sdk": "2.77.0",
@@ -65,7 +66,6 @@
     "i18n-abide": "0.0.26",
     "ioredis": "^4.14.1",
     "jed": "0.5.4",
-    "joi": "14.0.0",
     "jsonwebtoken": "^8.4.0",
     "keypair": "1.0.1",
     "keyv": "3.0.0",

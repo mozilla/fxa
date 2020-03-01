@@ -7,7 +7,7 @@
 const bufferEqualConstantTime = require('buffer-equal-constant-time');
 const crypto = require('crypto');
 const HEX_STRING = require('../routes/validators').HEX_STRING;
-const isA = require('joi');
+const isA = require('@hapi/joi');
 
 const FLOW_ID_LENGTH = 64;
 

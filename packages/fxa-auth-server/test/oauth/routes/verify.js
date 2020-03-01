@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const ScopeSet = require('../../../../fxa-shared').oauth.scopes;

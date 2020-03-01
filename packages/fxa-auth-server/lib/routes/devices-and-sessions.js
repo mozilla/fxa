@@ -9,7 +9,7 @@ const Ajv = require('ajv');
 const ajv = new Ajv();
 const error = require('../error');
 const fs = require('fs');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const path = require('path');
 const validators = require('./validators');
 

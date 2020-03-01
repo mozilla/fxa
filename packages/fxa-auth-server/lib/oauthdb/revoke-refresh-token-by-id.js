@@ -4,7 +4,7 @@
 
 'use strict';
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const validators = require('../routes/validators');
 
 module.exports = config => {
