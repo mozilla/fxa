@@ -57,6 +57,7 @@ interface Subscription {
   created: number;
   current_period_end: number;
   current_period_start: number;
+  latest_invoice: string;
   plan_name: string;
   status: string;
   subscription_id: string;
