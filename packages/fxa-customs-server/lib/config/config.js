@@ -221,13 +221,14 @@ module.exports = function(fs, path, url, convict) {
         doc: 'Whether to require a flowId in payload on account login.',
         format: Boolean,
         default: false,
-        env: 'FLOW_ID_REQUIRED_ON_LOGIN'
+        env: 'FLOW_ID_REQUIRED_ON_LOGIN',
       },
       flowIdExemptUserAgentREs: {
         doc: 'An array of STRING regexes for UAs that dont require a flowId.',
-        default: [ ],
-        env: 'FLOW_ID_EXEMPT_UA_REGEXES'
-      }
+        format: Array,
+        default: [],
+        env: 'FLOW_ID_EXEMPT_UA_REGEXES',
+      },
     },
     ipBlocklist: {
       enable: {
