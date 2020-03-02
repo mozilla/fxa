@@ -203,6 +203,7 @@ describe('remote subscriptions:', function() {
             current_period_start: Date.now() / 1000,
             cancel_at_period_end: false,
             end_at: null,
+            latest_invoice: '628031D-0002',
             plan_name: 'foo',
             status: 'active',
             failure_code: undefined,

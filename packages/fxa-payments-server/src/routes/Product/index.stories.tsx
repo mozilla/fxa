@@ -33,6 +33,7 @@ function init() {
               current_period_start: Date.now() / 1000 - 86400,
               cancel_at_period_end: false,
               end_at: null,
+              latest_invoice: '628031D-0002',
               nickname: 'Example Plan',
               plan_id: 'plan_123',
               status: 'active',
@@ -230,11 +231,13 @@ const CUSTOMER: Customer = {
   last4: '5309',
   exp_month: '02',
   exp_year: '2099',
+  brand: 'Visa',
   subscriptions: [
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       nickname: '123done Pro Monthly',
+      latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,
