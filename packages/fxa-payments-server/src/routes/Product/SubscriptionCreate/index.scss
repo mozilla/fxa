@@ -1,0 +1,12 @@
+@import '../../../../../fxa-content-server/app/styles/variables';
+
+.product-payment {
+  hr {
+    margin: 24px 0 !important; // need to override default styles in `#main-content hr`
+  }
+
+  .subheading {
+    color: $grey-40;
+    font-size: 15px;
+  }
+}
