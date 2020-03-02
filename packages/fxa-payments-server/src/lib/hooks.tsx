@@ -76,3 +76,21 @@ export function useNonce(generateNonce = uuidv4): [string, () => void] {
   const refreshNonce = () => setNonce(generateNonce());
   return [nonce, refreshNonce];
 }
+
+export function useMatchMedia(mediaQuery: string, matchMedia: Function) {
+  const [matches, setMatches] = useState(matchMedia(mediaQuery).matches);
+
+  useEffect(() => {
+    const updateMatches = (event: { matches: Array<string> }) => {
+      setMatches(event.matches);
+    };
+
+    const mediaQueryList = matchMedia(mediaQuery);
+    setMatches(mediaQueryList.matches);
+    mediaQueryList.addListener(updateMatches);
+
+    return () => mediaQueryList.removeListener(updateMatches);
+  }, [mediaQuery, matchMedia]);
+
+  return matches;
+}

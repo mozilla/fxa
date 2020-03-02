@@ -35,7 +35,8 @@
         "last4": "1234",
         "exp_month": 12,
         "exp_year": 2020,
-        "country": "US"
+        "country": "US",
+        "brand": "Visa"
       }
     ],
     "has_more": false,
@@ -54,6 +55,7 @@
         "current_period_end": 1568573770,
         "cancel_at_period_end": false,
         "ended_at": null,
+        "latest_invoice": "628031D-0002",
         "plan": {
           "id": "plan_test1",
           "object": "plan",

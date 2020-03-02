@@ -60,6 +60,7 @@ interface Subscription {
   plan_id: string;
   product_id: string;
   product_name: string;
+  latest_invoice: string;
   status: string;
   subscription_id: string;
 }

@@ -82,6 +82,7 @@ function createDefaults(): MockCallsResponse {
           plan_id: 'plan_123',
           product_id: 'prod_123',
           product_name: 'Example Product',
+          latest_invoice: '628031D-0002',
           status: 'active',
           subscription_id: 'sub_GZ7WKEJp1YGZ86',
         },

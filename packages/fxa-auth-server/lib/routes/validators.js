@@ -309,6 +309,7 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   end_at: isA.alternatives(isA.number(), isA.any().allow(null)),
   failure_code: isA.string().optional(),
   failure_message: isA.string().optional(),
+  latest_invoice: isA.string().required(),
   plan_id: module.exports.subscriptionsPlanId.required(),
   product_id: module.exports.subscriptionsProductId.required(),
   product_name: isA.string().required(),
@@ -335,6 +336,8 @@ module.exports.subscriptionProductMetadataValidator = isA
     iconURL: isA.string().optional(),
     upgradeCTA: isA.string().optional(),
     downloadURL: isA.string().optional(),
+    appStoreLink: isA.string().optional(),
+    playStoreLink: isA.string().optional(),
   })
   .unknown(true);
 
@@ -351,10 +354,12 @@ module.exports.subscriptionsPlanValidator = isA.object({
 });
 
 module.exports.subscriptionsCustomerValidator = isA.object({
+  billing_name: isA.alternatives(isA.string(), isA.any().allow(null)),
   exp_month: isA.number().required(),
   exp_year: isA.number().required(),
   last4: isA.string().required(),
   payment_type: isA.string().required(),
+  brand: isA.string().required(),
   subscriptions: isA
     .array()
     .items(module.exports.subscriptionsSubscriptionValidator)

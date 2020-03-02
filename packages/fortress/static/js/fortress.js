@@ -1,3 +1,5 @@
+/* global q$, document, window, $ */
+
 q$(document).ready(function() {
   let paymentURL;
   switch (window.location.host) {

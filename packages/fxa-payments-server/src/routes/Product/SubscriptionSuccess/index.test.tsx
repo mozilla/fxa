@@ -1,14 +1,16 @@
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { config as defaultConfig } from '../../../lib/config';
-import {
-  AppContext,
-  AppContextType,
-  defaultAppContext,
-} from '../../../lib/AppContext';
+import { AppContext, defaultAppContext } from '../../../lib/AppContext';
 
-import { SubscriptionRedirect } from './index';
+import {
+  MOCK_PLANS,
+  MOCK_PROFILE,
+  MOCK_CUSTOMER,
+} from '../../../lib/test-utils';
+
+import { SubscriptionSuccess } from './index';
 
 afterEach(cleanup);
 
@@ -38,26 +40,20 @@ function assertRedirectForProduct(
   };
   const navigateToUrl = jest.fn();
   const appContextValue = { ...defaultAppContext, navigateToUrl, config };
-  const plan = { ...MOCK_PLAN, product_id, product_name };
+  const selectedPlan = { ...MOCK_PLANS[0], product_id, product_name };
   const { getByTestId } = render(
     <AppContext.Provider value={appContextValue}>
-      <SubscriptionRedirect {...{ navigateToUrl, plan }} />
+      <SubscriptionSuccess
+        {...{
+          plan: selectedPlan,
+          profile: MOCK_PROFILE,
+          customer: MOCK_CUSTOMER,
+          isMobile: false,
+        }}
+      />
     </AppContext.Provider>
-  );
-
-  expect(getByTestId('survey-iframe').getAttribute('src')).toContain(
-    `env=testing`
   );
   expect(getByTestId('download-link').getAttribute('href')).toEqual(
     expectedUrl
   );
 }
-
-const MOCK_PLAN = {
-  plan_id: 'plan_123',
-  product_id: '123doneProProduct',
-  product_name: 'Example Product',
-  currency: 'USD',
-  amount: 1050,
-  interval: 'month',
-};
