@@ -39,7 +39,8 @@ terms = Terms of Service
 privacy = Privacy Notice
 
 ## plan details
-product-plan-details-heading = Let's set up your subscription
+product-plan-details-heading = Set up your subscription
+product-plan-details-amount = { $productName } for ${ $amount } per { $interval }
 
 # Variables:
     #  $intervalCount (Number) - The interval between payments, in days.
@@ -98,7 +99,7 @@ payment-name =
 payment-ccn =
   .label = Card number
 payment-exp =
-  .label = Exp. date
+  .label = Expiration
 payment-cvc =
   .label = CVC
 payment-zip =
@@ -136,8 +137,10 @@ payment-confirm-year = { $intervalCount ->
   *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
 }
 
+payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
 payment-cancel-btn = Cancel
 payment-update-btn = Update
+payment-pay-btn = Pay now
 
 payment-validate-name-error = Please enter your name
 payment-validate-zip-required = Zip code is required
@@ -321,6 +324,7 @@ sub-billing-update-success = Your billing information has been updated successfu
 
 ## subscription create
 sub-failed = Subscription failed
+sub-guarantee = 30-day money-back guarantee
 
 ## plan-details
 plan-details-header = Product details

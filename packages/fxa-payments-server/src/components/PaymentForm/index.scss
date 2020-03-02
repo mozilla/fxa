@@ -46,6 +46,26 @@ form.payment {
       line-height: 45px;
     }
   }
+
+  button {
+    margin-top: 24px;
+  }
+
+  .terms {
+    font-size: 15px;
+    padding-top: 56px;
+  }
+
+  .lock::before {
+    background-image: url('./images/lock.svg');
+    background-position: 0 4px;
+    background-repeat: no-repeat;
+    content: '\00a0';
+    display: inline-block;
+    height: 18px;
+    margin: 0 8px;
+    width: 14px;
+  }
 }
 
 @include respond-to('simpleSmall') {

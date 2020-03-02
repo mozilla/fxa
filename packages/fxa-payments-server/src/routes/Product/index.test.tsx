@@ -164,15 +164,17 @@ describe('routes/Product', () => {
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
-    await findByText("Let's set up your subscription");
+    await findByText("Set up your subscription");
     expect(
+<<<<<<< HEAD
       queryByText(`${PRODUCT_NAME} billed $5.00 monthly`)
+=======
+      queryByText('30-day money-back guarantee')
     ).toBeInTheDocument();
-    expect(queryByTestId('account-activated')).not.toBeInTheDocument();
-    expect(queryByTestId('profile-email')).toBeInTheDocument();
-    if (displayName) {
-      expect(queryByTestId('profile-display-name')).toBeInTheDocument();
-    }
+    expect(
+      queryByText('Billing Information')
+>>>>>>> task(payments-server): update payment form for new mobile flow
+    ).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   };
 
@@ -180,6 +182,7 @@ describe('routes/Product', () => {
 
   it('renders with product ID and display name', withExistingAccount(true));
 
+<<<<<<< HEAD
   const withActivationBanner = (useDisplayName?: boolean) => async () => {
     const displayName = useDisplayName ? 'Foo Barson' : undefined;
     const apiMocks = initApiMocks(displayName);
@@ -210,6 +213,8 @@ describe('routes/Product', () => {
     withActivationBanner(true)
   );
 
+=======
+>>>>>>> task(payments-server): update payment form for new mobile flow
   it('displays an error with invalid product ID', async () => {
     const apiMocks = initApiMocks();
     const { findByTestId, queryByTestId } = render(
