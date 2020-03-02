@@ -30,6 +30,7 @@ import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
 import { Plan } from '../../store/types';
+import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 // Define a minimal type for what we use from the Stripe API, which makes
 // things easier to mock.
@@ -157,18 +158,18 @@ export const PaymentForm = ({
         />
       </Localized>
 
-      <FieldGroup>
-        <Localized id="payment-ccn" attrs={{ label: true }}>
-          <StripeElement
-            component={CardNumberElement}
-            name="creditCardNumber"
-            label="Card number"
-            style={stripeElementStyles}
-            className="input-row input-row--xl"
-            required
-          />
-        </Localized>
+      <Localized id="payment-ccn" attrs={{ label: true }}>
+        <StripeElement
+          component={CardNumberElement}
+          name="creditCardNumber"
+          label="Card number"
+          style={stripeElementStyles}
+          className="input-row input-row--xl"
+          required
+        />
+      </Localized>
 
+      <FieldGroup>
         <Localized id="payment-exp" attrs={{ label: true }}>
           <StripeElement
             component={CardExpiryElement}
@@ -206,6 +207,8 @@ export const PaymentForm = ({
         </Localized>
       </FieldGroup>
 
+      <hr />
+
       {confirm && plan && (
         <Localized
           id="payment-confirm"
@@ -223,6 +226,8 @@ export const PaymentForm = ({
           </Checkbox>
         </Localized>
       )}
+
+      <hr />
 
       {onCancel ? (
         <div className="button-row">
@@ -266,7 +271,9 @@ export const PaymentForm = ({
                   &nbsp;
                 </span>
               ) : (
-                <span>Submit</span>
+                <Localized id="payment-pay-btn">
+                  <span className="lock">Pay now</span>
+                </Localized>
               )}
             </SubmitButton>
           </Localized>
@@ -274,6 +281,7 @@ export const PaymentForm = ({
       )}
 
       <PaymentLegalBlurb />
+      <TermsAndPrivacy />
     </Form>
   );
 };

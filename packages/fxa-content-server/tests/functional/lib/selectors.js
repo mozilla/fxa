@@ -223,7 +223,7 @@ module.exports = {
     SUPP_SUBMIT: '#supp-approve-btn',
   },
   PAYMENTS: {
-    HEADER: '.plan-details',
+    HEADER: '.accepted-cards',
   },
   POST_VERIFY_ADD_SECONDARY_EMAIL: {
     EMAIL: 'input[type=email]',

@@ -37,8 +37,7 @@ terms = Terms of Service
 privacy = Privacy Notice
 
 ## plan details
-product-plan-details-heading = Let's set up your subscription
-product-plan-details-amount = { $productName } for ${ $amount } per { $interval }
+product-plan-details-heading = Set up your subscription
 
 ## Product route
 product-plan-error =
@@ -61,14 +60,48 @@ payment-name =
 payment-ccn =
   .label = Card number
 payment-exp =
-  .label = Exp. date
+  .label = Expiration
 payment-cvc =
   .label = CVC
 payment-zip =
   .label = ZIP code
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+payment-confirm-day = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } days</strong>, according to payment terms, until I cancel my subscription.
+}
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+payment-confirm-week = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } weeks</strong>, according to payment terms, until I cancel my subscription.
+}
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+payment-confirm-month = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } months</strong>, according to payment terms, until I cancel my subscription.
+}
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+payment-confirm-year = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
+}
+
 payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
 payment-cancel-btn = Cancel
 payment-update-btn = Update
+payment-pay-btn = Pay now
 
 payment-validate-name-error = Please enter your name
 payment-validate-zip-required = Zip code is required
@@ -91,10 +124,40 @@ sub-update-copy =
     Your plan will change immediately, and you’ll be charged an adjusted
     amount for the rest of your billing cycle. Starting { $startingDate }
     you’ll be charged the full amount.
-sub-update-confirm =
-    I authorize Mozilla, maker of Firefox products, to charge my payment
-    <strong>${ $amount }/{ $interval }</strong>
-    , according to payment terms, until I cancel my subscription.
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+sub-update-confirm-day = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } days</strong>, according to payment terms, until I cancel my subscription.
+}
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+sub-update-confirm-week = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } weeks</strong>, according to payment terms, until I cancel my subscription.
+}
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+sub-update-confirm-month = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } months</strong>, according to payment terms, until I cancel my subscription.
+}
+
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+sub-update-confirm-year = { $intervalCount ->
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
+}
+
+
 sub-update-submit = Change Plans
 sub-update-indicator =
   .aria-label = upgrade indicator
@@ -153,3 +216,29 @@ sub-billing-update-success = Your billing information has been updated successfu
 
 ## subscription create
 sub-failed = Subscription failed
+sub-guarantee = 30-day money-back guarantee
+
+## plan-details
+plan-details-header = Product details
+plan-details-show-button = Show details
+plan-details-hide-button = Hide details
+plan-details-total-label = Total
+
+fpn-details-1 = Device-level encryption
+fpn-details-2 = Servers in 30+ countries
+fpn-details-3 = Connect 5 devices with one subscription
+fpn-details-4 = Available for Windows, iOS and Android
+
+## payment confirmation
+payment-confirmation-alert = Click here to download
+payment-confirmation-mobile-alert = Didn't open app? <a>Click Here</a>
+payment-confirmation-heading = Thank You { $displayName }!
+payment-confirmation-heading-bak = Thank You!
+payment-confirmation-subheading = A confirmation email has been sent to
+payment-confirmation-order-heading = Order details
+payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
+payment-confirmation-billing-heading = Billed to
+payment-confirmation-details-heading = Payment details
+payment-confirmation-amount = { $amount } per { $interval }
+payment-confirmation-cc-preview = ending in { $last4 }
+payment-confirmation-download-button = Continue to download

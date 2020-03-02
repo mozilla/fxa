@@ -4,14 +4,14 @@
 // project, so let's use local copies from fxa-content-server for now
 
 #main-content:not(.hide-logo)::before {
-  background-image: url('./images/firefox-logo.svg');
+  background-image: url('../../images/firefox-logo.svg');
 }
 
 #fxa-settings-header-wrapper {
   flex-direction: column;
 
   #fxa-manage-account {
-    background-image: url('./images/firefox-logo.svg');
+    background-image: url('../../images/firefox-logo.svg');
   }
 }
 
@@ -62,28 +62,5 @@
       content: '';
       padding: 0;
     }
-  }
-}
-
-footer {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-
-  @include respond-to('simpleSmall') {
-    justify-content: center;
-  }
-
-  #about-moz-footer {
-    align-self: flex-start;
-    padding-left: 32px;
-
-    @include respond-to('simpleSmall') {
-      display: none;
-    }
-  }
-
-  #legal-footer {
-    align-self: flex-end;
   }
 }
