@@ -10,8 +10,6 @@ export type AppLayoutProps = {
 };
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const { config } = useContext(AppContext);
-
   return (
     <>
       <div
@@ -22,40 +20,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       >
         {children}
       </div>
-      <footer data-testid="footer">
-        <div id="about-moz-footer" data-testid="about-moz-footer">
-          <a
-            id="about-mozilla"
-            rel="author noopener noreferrer"
-            target="_blank"
-            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-          >
-            &nbsp;
-          </a>
-        </div>
-        <div id="legal-footer" data-testid="legal-footer">
-          <Localized id="terms">
-            <a
-              className="terms"
-              rel="noopener noreferrer"
-              target="_blank"
-              href={config.legalDocLinks.termsOfService}
-            >
-              Terms of Service
-            </a>
-          </Localized>
-          <Localized id="privacy">
-            <a
-              className="privacy"
-              rel="noopener noreferrer"
-              target="_blank"
-              href={config.legalDocLinks.privacyNotice}
-            >
-              Privacy Notice
-            </a>
-          </Localized>
-        </div>
-      </footer>
     </>
   );
 };
@@ -77,9 +41,7 @@ export const SignInLayout = ({ children }: SignInLayout) => {
     <AppLayout>
       <SignInLayoutContext.Provider value={{ setHideLogo }}>
         <div className="sign-in">
-          <div id="main-content" className={mainContentClassNames}>
-            {children}
-          </div>
+          <div className={mainContentClassNames}>{children}</div>
         </div>
       </SignInLayoutContext.Provider>
     </AppLayout>

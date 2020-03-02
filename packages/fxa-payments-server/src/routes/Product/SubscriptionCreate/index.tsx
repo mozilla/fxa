@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
-import { Plan, Profile } from '../../../store/types';
+import { Plan } from '../../../store/types';
 
 import { State as ValidatorState } from '../../../lib/validator';
 
@@ -10,16 +10,15 @@ import { SignInLayoutContext } from '../../../components/AppLayout';
 import PaymentForm from '../../../components/PaymentForm';
 import DialogMessage from '../../../components/DialogMessage';
 import ErrorMessage from '../../../components/ErrorMessage';
-import PlanDetails from '../PlanDetails';
-import ProfileBanner from '../ProfileBanner';
-import AccountActivatedBanner from './AccountActivatedBanner';
+import AcceptedCards from '../AcceptedCards';
 
 import { ProductProps } from '../index';
 import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from 'fluent-react';
 
+import './index.scss';
+
 export type SubscriptionCreateProps = {
-  profile: Profile;
   accountActivated: boolean;
   selectedPlan: Plan;
   createSubscriptionAndRefresh: ProductProps['createSubscriptionAndRefresh'];
@@ -29,7 +28,6 @@ export type SubscriptionCreateProps = {
 };
 
 export const SubscriptionCreate = ({
-  profile,
   accountActivated,
   selectedPlan,
   createSubscriptionAndRefresh: createSubscriptionAndRefreshBase,
@@ -135,22 +133,23 @@ export const SubscriptionCreate = ({
 
   return (
     <div className="product-payment" data-testid="subscription-create">
-      {accountActivated ? (
-        <AccountActivatedBanner profile={profile} />
-      ) : (
-        <ProfileBanner profile={profile} />
-      )}
-      <hr />
-
-      <PlanDetails plan={selectedPlan} />
-
-      <hr />
+      <div className="subscription-create-heading"
+           data-testid="subscription-create-heading">
+        <Localized id="product-plan-details-heading">
+          <h2>Set up your subscription</h2>
+        </Localized>
+        <Localized id="sub-guarantee">
+          <p className="subheading">30-day money-back guarantee</p>
+        </Localized>
+      </div>
 
       <h3 className="billing-title">
         <Localized id="sub-update-title">
           <span className="title">Billing Information</span>
         </Localized>
       </h3>
+
+      <AcceptedCards />
 
       <ErrorMessage isVisible={!!createTokenError.error}>
         {createTokenError.error && (

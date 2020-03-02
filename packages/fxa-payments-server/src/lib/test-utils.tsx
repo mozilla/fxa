@@ -30,6 +30,7 @@ export const wait = (delay: number) =>
 
 export function expectNockScopesDone(scopes: nock.Scope[]) {
   for (const scope of scopes) {
+    if (!scope.isDone()) console.log('SCOPE NOT DONE::::::::', scope);
     expect(scope.isDone()).toBeTruthy();
   }
 }
@@ -204,6 +205,16 @@ export const defaultAppContextValue = (): AppContextType => ({
     flow_id: 'thisisanid',
   },
   matchMedia: jest.fn().mockImplementation(query => false),
+  matchMediaDefault: jest.fn().mockImplementation(query => {
+    return {
+      matches: query.includes(': 0em'),
+      media: query,
+      addListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeListener: jest.fn(),
+      removeEventListener: jest.fn()
+    }
+  }),
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
   locationReload: jest.fn(),
@@ -462,7 +473,9 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
 ];
 
 export const MOCK_CUSTOMER = {
-  payment_type: 'tok_1F7TltEOSeHhIAfQo9u6eqTc',
+  billing_name: 'Jane Doe',
+  payment_type: 'card',
+  brand: 'Visa',
   last4: '8675',
   exp_month: 8,
   exp_year: 2020,
@@ -471,6 +484,7 @@ export const MOCK_CUSTOMER = {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       plan_name: '123done Pro Monthly',
+      latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
@@ -487,6 +501,7 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
       plan_name: 'Plan 12345',
+      latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,

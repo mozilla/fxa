@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from 'react';
 import {
   render,
@@ -5,6 +8,7 @@ import {
   act,
   fireEvent,
   RenderResult,
+  queryByTestId,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
@@ -160,55 +164,20 @@ describe('routes/Product', () => {
   const withExistingAccount = (useDisplayName?: boolean) => async () => {
     const displayName = useDisplayName ? 'Foo Barson' : undefined;
     const apiMocks = initApiMocks(displayName);
-    const { findByText, queryByText, queryByTestId } = render(<Subject />);
+    const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
-    await findByText("Let's set up your subscription");
-    expect(
-      queryByText(`${PRODUCT_NAME} billed $5.00 monthly`)
-    ).toBeInTheDocument();
-    expect(queryByTestId('account-activated')).not.toBeInTheDocument();
-    expect(queryByTestId('profile-email')).toBeInTheDocument();
-    if (displayName) {
-      expect(queryByTestId('profile-display-name')).toBeInTheDocument();
-    }
+
+    await findAllByText('Set up your subscription');
+    expect(queryAllByText('30-day money-back guarantee')[0]).toBeInTheDocument();
+    expect(queryByText('Billing Information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   };
 
   it('renders with valid product ID', withExistingAccount(false));
 
   it('renders with product ID and display name', withExistingAccount(true));
-
-  const withActivationBanner = (useDisplayName?: boolean) => async () => {
-    const displayName = useDisplayName ? 'Foo Barson' : undefined;
-    const apiMocks = initApiMocks(displayName);
-    const { findByText, queryByText, queryByTestId } = render(
-      <Subject planId={PLAN_ID} accountActivated="true" />
-    );
-    await findByText("Let's set up your subscription");
-    expect(
-      queryByText(`${PRODUCT_NAME} billed $5.00 monthly`)
-    ).toBeInTheDocument();
-    expect(queryByTestId('account-activated')).toBeInTheDocument();
-    if (displayName) {
-      expect(queryByTestId('activated-display-name')).toBeInTheDocument();
-      expect(queryByTestId('activated-email')).not.toBeInTheDocument();
-    } else {
-      expect(queryByTestId('activated-display-name')).not.toBeInTheDocument();
-      expect(queryByTestId('activated-email')).toBeInTheDocument();
-    }
-    expectNockScopesDone(apiMocks);
-  };
-
-  it(
-    'renders with ?plan={PLAN_ID}&accountActivated given in query string',
-    withActivationBanner(false)
-  );
-  it(
-    'renders with display name and ?plan={PLAN_ID}&accountActivated given in query string',
-    withActivationBanner(true)
-  );
 
   it('displays an error with invalid product ID', async () => {
     const apiMocks = initApiMocks();
@@ -299,9 +268,9 @@ describe('routes/Product', () => {
     const renderResult = render(
       <Subject {...{ matchMedia, navigateToUrl, createToken }} />
     );
-    const { getByTestId, findByText } = renderResult;
+    const { getByTestId, findAllByText } = renderResult;
 
-    await findByText("Let's set up your subscription");
+    await findAllByText('Set up your subscription');
 
     act(() => {
       for (const testid of STRIPE_FIELDS) {
@@ -338,37 +307,15 @@ describe('routes/Product', () => {
         getByAltText,
         getByTestId,
         findByText,
-        queryByText,
-        matchMedia,
-        navigateToUrl,
+        findByTestId,
         apiMocks,
       } = await commonSubmitSetup(createToken, useDefaultIcon);
 
       fireEvent.click(getByTestId('submit'));
 
-      await findByText('Your subscription is ready');
+      await findByTestId('download-link');
       expectProductImage({ getByAltText, useDefaultIcon });
-      expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
       expect(createToken).toBeCalled();
-      expectNockScopesDone(apiMocks);
-    });
-
-    it('redirects to product page if user is already subscribed', async () => {
-      const apiMocks = initSubscribedApiMocks(useDefaultIcon);
-
-      const navigateToUrl = jest.fn();
-      const matchMedia = jest.fn(() => false);
-      const createToken = jest
-        .fn()
-        .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
-
-      const { findByText, queryByText, getByAltText } = render(
-        <Subject {...{ matchMedia, navigateToUrl, createToken }} />
-      );
-
-      await findByText('Your subscription is ready');
-      expectProductImage({ getByAltText, useDefaultIcon });
-      expect(createToken).not.toBeCalled();
       expectNockScopesDone(apiMocks);
     });
   };
@@ -414,9 +361,10 @@ describe('routes/Product', () => {
         }),
     ];
     const renderResult = render(<Subject />);
-    const { getByTestId, findByText } = renderResult;
+    const { getByTestId, findAllByText } = renderResult;
 
-    await findByText("Let's set up your subscription");
+    await findAllByText('Set up your subscription');
+
     act(() => {
       for (const testid of STRIPE_FIELDS) {
         mockStripeElementOnChangeFns[testid](

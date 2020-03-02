@@ -1,9 +1,15 @@
 @import '../../fxa-content-server/app/styles/main';
+@import './styles/variables';
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
 // its impact on layout & styles
 #root {
   display: contents;
+}
+
+body {
+  min-height: unset;
+  padding: 0;
 }
 
 // NOTE: Override an animation style from the content server to minimize
@@ -25,17 +31,6 @@ h3.billing-title {
   margin: 13px 0;
   text-align: left;
 
-  .title::after {
-    background-image: url('./images/lock.svg');
-    background-position: 0 2px;
-    background-repeat: no-repeat;
-    content: '\00a0';
-    display: inline-block;
-    height: 18px;
-    margin: 0 8px;
-    width: 14px;
-  }
-
   .card-details {
     font-size: 14px;
 
@@ -45,7 +40,16 @@ h3.billing-title {
   }
 }
 
-#main-content {
+.main-content {
+  display: flex;
+  flex-direction: column-reverse;
+  padding-top: $header-height;
+
+  @include min-width('tablet') {
+    flex-direction: row;
+    padding-top: $header-height-tablet;
+  }
+
   hr {
     border: 0;
     border-top: 1px solid #e0e0e6;
@@ -53,50 +57,40 @@ h3.billing-title {
     margin: 0 -40px;
 
     @include respond-to('small') {
-      margin: 0 -20px; // match padding of #main-content
+      margin: 0 -20px; // match padding of .main-content
     }
   }
-}
-
-#fxa-settings-content .subscription-management,
-#main-content.payments-card,
-#main-content.card {
-  max-width: 640px;
-  width: 100%;
-
-  @include respond-to('simpleSmall') {
-    background-color: none;
-    border-radius: 0;
-    box-shadow: none;
-  }
-
 
   .input-row {
     // Stripe element class names
     // https://stripe.com/docs/stripe-js/reference#the-element-container
+    margin: 24px 0;
 
     .StripeElement {
       @include input-element();
-      display: flex;
-      align-items: center;
-      cursor: text;
+      padding-top: 14px;
 
       html[dir='ltr'] & {
-        padding: 0 0 0 $input-left-right-padding;
+        padding: 14px 0 0 $input-left-right-padding;
+
+        @include respond-to('simpleSmall') {
+          padding-top: 11px;
+        }
       }
 
       html[dir='rtl'] & {
         direction: ltr;
-        padding: 0 $input-left-right-padding 0 0;
+        padding: 14px $input-left-right-padding 0 0;
         text-align: right;
+
+
+        @include respond-to('simpleSmall') {
+          padding-top: 11px;
+        }
       }
 
       &:last-child {
         margin-bottom: 0;
-      }
-
-      > div {
-        width: 100%;
       }
     }
 
@@ -128,10 +122,10 @@ h3.billing-title {
 
     .label-text.checkbox {
       color: #0c0c0d;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: normal;
       letter-spacing: normal;
-      line-height: 1.5;
+      line-height: 21px;
     }
 
     // HACK: stop the checkbox from changing width on focus
@@ -149,6 +143,7 @@ h3.billing-title {
 
       input[type='checkbox'] {
         flex: 0 0 18px;
+        margin-right: 16px;
         position: relative;
         top: 2px;
 
@@ -159,7 +154,7 @@ h3.billing-title {
 
       .label-text {
         display: block;
-        margin-left: 2px;
+        margin: 0 0 0 2px;
       }
     }
   }
@@ -192,5 +187,17 @@ h3.billing-title {
     .input-row:last-of-type {
       padding-right: 0;
     }
+  }
+}
+
+#fxa-settings-content .subscription-management,
+#main-content.card {
+  max-width: 640px;
+  width: 100%;
+
+  @include respond-to('simpleSmall') {
+    background-color: none;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
