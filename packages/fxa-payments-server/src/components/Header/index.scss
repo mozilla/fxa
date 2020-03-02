@@ -1,0 +1,41 @@
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../styles/variables';
+
+.fxa-settings-header {
+  align-items: center;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(12, 12, 13, 0.1);
+  display: flex;
+  height: $header-height;
+  justify-content: space-between;
+  left: 0;
+  margin: 0 auto;
+  padding: 0 16px;
+  position: fixed;
+  top: 0;
+  white-space: nowrap;
+  width: 100%;
+  z-index: 6;
+
+  @include min-width('tablet') {
+    height: $header-height-tablet;
+    padding: 0 16px;
+  }
+
+  .fxa-logo {
+    background-image: url('../../images/firefox-logo-combined.svg');
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 100%;
+    margin: 0;
+    padding-left: 48px;
+    width: 120px;
+  }
+
+  .avatar {
+    border-radius: 50%;
+    height: 24px;
+    width: 24px;
+  }
+}

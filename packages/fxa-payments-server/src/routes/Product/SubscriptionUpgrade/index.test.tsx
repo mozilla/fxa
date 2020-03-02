@@ -22,7 +22,7 @@ import {
   getLocalizedMessage,
 } from '../../../lib/test-utils';
 
-import { PROFILE, CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
+import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
@@ -132,7 +132,6 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     describe('rendering the legal checkbox Localized component', () => {
       const baseProps = {
         customer: CUSTOMER,
-        profile: PROFILE,
         upgradeFromPlan: UPGRADE_FROM_PLAN,
         upgradeFromSubscription: CUSTOMER.subscriptions[0],
         updateSubscriptionPlanStatus: {
@@ -578,7 +577,6 @@ const Subject = ({ props = {} }: { props?: object }) => {
 };
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
-  profile: PROFILE,
   customer: CUSTOMER,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,

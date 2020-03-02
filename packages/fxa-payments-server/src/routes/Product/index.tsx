@@ -5,6 +5,7 @@ import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
+import { useMatchMedia } from '../../lib/hooks';
 
 import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
@@ -18,9 +19,11 @@ import './index.scss';
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 
-import SubscriptionRedirect from './SubscriptionRedirect';
+import SubscriptionSuccess from './SubscriptionSuccess';
 import SubscriptionCreate from './SubscriptionCreate';
 import SubscriptionUpgrade from './SubscriptionUpgrade';
+import PlanDetails from '../../components/PlanDetails';
+import Header from '../../components/Header';
 
 export type ProductProps = {
   match: {
@@ -61,8 +64,11 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams } = useContext(AppContext);
+  const { locationReload, queryParams, matchMediaDefault } = useContext(
+    AppContext
+  );
 
+  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
 
@@ -167,22 +173,58 @@ export const Product = ({
 
     // Do we already have a subscription to the product in the selected plan?
     if (customerIsSubscribedToProduct(customerSubscriptions, productPlans)) {
-      return <SubscriptionRedirect {...{ plan: selectedPlan }} />;
+      return (
+        <SubscriptionSuccess
+          {...{
+            plan: selectedPlan,
+            customer: customer.result,
+            profile: profile.result,
+            isMobile,
+          }}
+        />
+      );
     }
   }
 
+  const mobileCreateHeading = isMobile ? (
+    <div className="mobile-subscription-create-heading">
+      <div className="subscription-create-heading">
+        <Localized id="product-plan-details-heading">
+          <h2>Set up your subscription</h2>
+        </Localized>
+        <Localized id="sub-guarantee">
+          <p className="subheading">30-day money-back guarantee</p>
+        </Localized>
+      </div>
+    </div>
+  ) : null;
+
   return (
-    <SubscriptionCreate
-      {...{
-        profile: profile.result,
-        accountActivated,
-        selectedPlan,
-        createSubscriptionAndRefresh,
-        createSubscriptionStatus,
-        resetCreateSubscription,
-        validatorInitialState,
-      }}
-    />
+    <>
+      <Header {...{ profile: profile.result }} />
+      <div className="main-content">
+        <SubscriptionCreate
+          {...{
+            profile: profile.result,
+            accountActivated,
+            selectedPlan,
+            createSubscriptionAndRefresh,
+            createSubscriptionStatus,
+            resetCreateSubscription,
+            validatorInitialState,
+          }}
+        />
+        <PlanDetails
+          {...{
+            profile: profile.result,
+            selectedPlan,
+            isMobile,
+            showExpandButton: isMobile,
+          }}
+        />
+        {mobileCreateHeading}
+      </div>
+    </>
   );
 };
 

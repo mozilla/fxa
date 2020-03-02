@@ -709,6 +709,7 @@ describe('DirectStripeRoutes', () => {
       product_id: 'firefox_pro_basic',
       product_name: 'Firefox Pro Basic',
       interval: 'week',
+      interval_count: 1,
       amount: '123',
       currency: 'usd',
       product_metadata: {
@@ -1373,6 +1374,8 @@ describe('DirectStripeRoutes', () => {
 
             const expected = {
               subscriptions: [],
+              billing_name: customer.sources.data[0].name,
+              brand: customer.sources.data[0].brand,
               payment_type: customer.sources.data[0].funding,
               last4: customer.sources.data[0].last4,
               exp_month: customer.sources.data[0].exp_month,

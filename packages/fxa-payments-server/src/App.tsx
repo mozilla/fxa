@@ -31,6 +31,7 @@ type AppProps = {
   store: Store;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
+  matchMediaDefault: (query: string) => MediaQueryList;
   navigateToUrl: (url: string) => void;
   getScreenInfo: () => ScreenInfo;
   locationReload: () => void;
@@ -41,6 +42,7 @@ export const App = ({
   store,
   queryParams,
   matchMedia,
+  matchMediaDefault,
   navigateToUrl,
   getScreenInfo,
   locationReload,
@@ -49,6 +51,7 @@ export const App = ({
     config,
     queryParams,
     matchMedia,
+    matchMediaDefault,
     navigateToUrl,
     getScreenInfo,
     locationReload,
