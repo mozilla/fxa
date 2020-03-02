@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { assert } = require('chai');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const routeModulePath = '../../../lib/oauth/routes/token';
 

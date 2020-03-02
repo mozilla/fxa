@@ -5,7 +5,7 @@
 'use strict';
 
 const errors = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const BASE_36 = require('./validators').BASE_36;
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 

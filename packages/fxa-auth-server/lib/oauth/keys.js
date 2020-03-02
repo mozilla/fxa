@@ -6,7 +6,7 @@ const assert = require('assert');
 const config = require('../../config');
 const { jwk2pem, pem2jwk } = require('pem-jwk');
 const crypto = require('crypto');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const BASE64URL = /^[A-Za-z0-9-_]+$/;
 

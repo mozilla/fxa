@@ -5,7 +5,7 @@
 'use strict';
 
 const emailUtils = require('./email');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const validators = require('../validators');
 const P = require('../../promise');
 const butil = require('../../crypto/butil');

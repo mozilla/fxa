@@ -6,7 +6,7 @@
 
 const emailUtils = require('./utils/email');
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const P = require('../promise');
 const random = require('../crypto/random');

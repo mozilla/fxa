@@ -5,7 +5,7 @@
 'use strict';
 
 const error = require('../error');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const requestHelper = require('../routes/utils/request_helper');
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 

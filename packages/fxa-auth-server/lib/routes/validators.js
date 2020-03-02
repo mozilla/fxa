@@ -7,7 +7,7 @@
 
 const { URL } = require('url');
 const punycode = require('punycode.js');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;

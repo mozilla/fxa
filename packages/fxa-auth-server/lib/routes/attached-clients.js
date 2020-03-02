@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const validators = require('./validators');
 const error = require('../error');
 

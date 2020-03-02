@@ -5,7 +5,7 @@
 'use strict';
 
 const AppError = require('../../error');
-const joi = require('joi');
+const joi = require('@hapi/joi');
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');

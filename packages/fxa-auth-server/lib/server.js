@@ -6,7 +6,7 @@
 
 const fs = require('fs');
 const Hapi = require('@hapi/hapi');
-const joi = require('joi');
+const joi = require('@hapi/joi');
 const path = require('path');
 const url = require('url');
 const userAgent = require('./userAgent');
@@ -174,7 +174,7 @@ async function create(
   }
 
   const server = new Hapi.Server(serverOptions);
-  server.validator(require('joi'));
+  server.validator(require('@hapi/joi'));
 
   server.ext('onRequest', (request, h) => {
     log.begin('server.onRequest', request);

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;

@@ -6,7 +6,7 @@
 
 const errors = require('../error');
 const validators = require('./validators');
-const isA = require('joi');
+const isA = require('@hapi/joi');
 const otplib = require('otplib');
 const qrcode = require('qrcode');
 const { promisify } = require('util');

@@ -7,7 +7,7 @@
 const ROOT_DIR = '../../..';
 
 const sinon = require('sinon');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
