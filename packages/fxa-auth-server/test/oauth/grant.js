@@ -358,7 +358,7 @@ describe('generateTokens', () => {
       ]),
     });
 
-    requestedGrant.clientId = clientId;
+    requestedGrant.clientId = Buffer.from(clientId, 'hex');
     const result = await generateTokens(requestedGrant);
     assert.isTrue(mockDB.generateAccessToken.calledOnceWith(requestedGrant));
     assert.strictEqual(result.access_token, 'signed jwt access token');
