@@ -321,3 +321,13 @@ sub-billing-update-success = Your billing information has been updated successfu
 
 ## subscription create
 sub-failed = Subscription failed
+
+## plan-details
+plan-details-header = Product details
+plan-details-show-button = Show details
+plan-details-hide-button = Hide details
+
+fpn-details-1 = Device-level encryption
+fpn-details-2 = Servers in 30+ countries
+fpn-details-3 = Connect 5 devices with one subscription
+fpn-details-4 = Available for Windows, iOS and Android
