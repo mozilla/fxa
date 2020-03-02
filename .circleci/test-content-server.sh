@@ -28,7 +28,7 @@ function check() {
 
 function test_suite() {
   local suite=$1
-  local numGroups=4
+  local numGroups=6
 
   for i in $(seq $numGroups)
   do
