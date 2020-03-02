@@ -30,7 +30,7 @@ card-error = Your transaction could not be processed. Please verify your credit 
 
 ## settings
 settings-home = Account Home
-settings-subscriptions = Subscriptions
+settings-subscriptions = Subscriptions & Payments
 
 ## legal footer
 terms = Terms of Service
