@@ -15,6 +15,7 @@ commands:
 
 jobs:
   install:
+    resource_class: small
     executor: nodejs
     environment:
       SKIP_PACKAGES: true
@@ -114,6 +115,7 @@ jobs:
                 fi
 
   deploy-module:
+    resource_class: small
     executor: nodejs
     parameters:
       module:
@@ -156,6 +158,7 @@ jobs:
           destination: screenshots
 
   build-and-deploy-content-server:
+    resource_class: small
     executor: nodejs
     working_directory: ~/project/packages/fxa-content-server
     steps:
@@ -167,6 +170,7 @@ jobs:
       - run: ../../.circleci/deploy.sh fxa-content-server
 
   fxa-shared:
+    resource_class: small
     docker:
       - image: circleci/node:12
       - image: redis
@@ -182,6 +186,7 @@ jobs:
       - run: npm test
 
   js-client:
+    resource_class: small
     docker:
       - image: circleci/node:12
     working_directory: ~/project/packages/fxa-js-client
@@ -191,6 +196,7 @@ jobs:
       - run: ../../.circleci/test-js-client.sh
 
   fxa-email-event-proxy:
+    resource_class: small
     docker:
       - image: circleci/node:12
     working_directory: ~/project/packages/fxa-email-event-proxy
@@ -202,6 +208,7 @@ jobs:
       - run: npm t
 
   fxa-email-event-proxy-tag:
+    resource_class: small
     docker:
       - image: circleci/node:12
     working_directory: ~/project/packages/fxa-email-event-proxy
@@ -271,6 +278,7 @@ jobs:
           ../../.circleci/tag.sh fxa-email-service
 
   docs:
+    resource_class: small
     docker:
       - image: circleci/node:12
     working_directory: ~/project
