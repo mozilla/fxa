@@ -490,6 +490,7 @@ class DirectStripeRoutes {
           last4: src.last4,
           exp_month: src.exp_month,
           exp_year: src.exp_year,
+          brand: src.brand,
         };
       }
     }

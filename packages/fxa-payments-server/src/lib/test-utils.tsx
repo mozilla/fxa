@@ -463,6 +463,7 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
 
 export const MOCK_CUSTOMER = {
   payment_type: 'tok_1F7TltEOSeHhIAfQo9u6eqTc',
+  brand: 'Visa',
   last4: '8675',
   exp_month: 8,
   exp_year: 2020,
@@ -471,6 +472,7 @@ export const MOCK_CUSTOMER = {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       plan_name: '123done Pro Monthly',
+      latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
@@ -487,6 +489,7 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
       plan_name: 'Plan 12345',
+      latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
