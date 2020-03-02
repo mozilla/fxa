@@ -163,3 +163,16 @@ fpn-details-1 = Device-level encryption
 fpn-details-2 = Servers in 30+ countries
 fpn-details-3 = Connect 5 devices with one subscription
 fpn-details-4 = Available for Windows, iOS and Android
+
+## payment confirmation
+payment-confirmation-alert = Click here to download
+payment-confirmation-mobile-alert = Didn't open app? <a>Click Here</a>
+payment-confirmation-heading = Thank You { $displayName }!
+payment-confirmation-subheading = A confirmation email has been sent to { $email }
+payment-confirmation-order-heading = Order details
+payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
+payment-confirmation-billing-heading = Billed to
+payment-confirmation-details-heading = Payment details
+payment-confirmation-amount = ${ $amount } per { $interval }
+payment-confirmation-cc-preview = ending in { $last4 }
+payment-confirmation-download-button = Continue to download
