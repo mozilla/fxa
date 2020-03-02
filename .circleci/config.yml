@@ -240,16 +240,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/
-      - run: |
-          ./scripts/test_with_authdb.sh
-          cargo audit --ignore RUSTSEC-2019-0033 --ignore RUSTSEC-2018-0015 --ignore RUSTSEC-2019-0034
-          mkdir -m 755 bin
-          mkdir -m 755 bin/config
-          cargo build --release
-          cp config/* bin/config
-          cp target/release/fxa_email_send bin
-          cp target/release/fxa_email_queues bin
-          cargo clean
+      - run: ../../.circleci/test-email-service.sh
       - store_artifacts:
           path: fxa-auth-db-mysql.log
       - setup_remote_docker
