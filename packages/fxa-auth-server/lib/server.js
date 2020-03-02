@@ -315,7 +315,7 @@ async function create(
     };
   };
 
-  await server.register(require('hapi-auth-hawk'));
+  await server.register(require('@hapi/hawk'));
 
   server.auth.strategy('sessionToken', 'hawk', {
     getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),

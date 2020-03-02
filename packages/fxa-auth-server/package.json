@@ -39,6 +39,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@hapi/hapi": "^19.1.1",
+    "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^8.5.1",
     "@hapi/joi": "^15.1.1",
     "@sentry/node": "^5.7.1",
@@ -59,7 +60,6 @@
     "generic-pool": "3.2.0",
     "google-libphonenumber": "2.0.10",
     "handlebars": "^4.5.3",
-    "hapi-auth-hawk": "4.0.0",
     "hapi-error": "1.8.0",
     "hkdf": "0.0.2",
     "hot-shots": "^6.4.1",
