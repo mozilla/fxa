@@ -3,7 +3,13 @@
 MODULE=$1
 DIR=$(dirname "$0")
 
-if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
+if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list > /dev/null; then
+  if [[ "$(docker images -q $MODULE)" == "" ]]; then
+    # not all packages create docker images
+    echo "skipping" $MODULE
+    exit 0
+  fi
+
   if [ "${CIRCLE_BRANCH}" == "master" ]; then
     DOCKER_TAG="latest"
   fi

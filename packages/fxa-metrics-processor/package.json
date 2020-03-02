@@ -9,7 +9,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
     "start": "echo \"Error: no start script specified\" && exit 1",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "watch": "tsc -w"
   },
   "author": "Mozilla (https://mozilla.org/)",

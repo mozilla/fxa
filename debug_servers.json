@@ -33,14 +33,14 @@
       "kill_timeout": 20000
     },
     {
-      "name": "google-pubsub-emulator PORT 8005",
+      "name": "google-pubsub-emulator PORT 8085",
       "script": "_scripts/pubsub.sh",
       "max_restarts": "1",
       "min_uptime": "2m",
       "kill_timeout": 20000
     },
     {
-      "name": "google-firestore-emulator PORT 8006",
+      "name": "google-firestore-emulator PORT 9090",
       "script": "_scripts/firestore.sh",
       "max_restarts": "1",
       "min_uptime": "2m",

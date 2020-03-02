@@ -6,8 +6,6 @@ var request = require('request');
 var querystring = require('querystring');
 var JWTool = require('fxa-jwtool');
 
-var DIFFERENT_BROWSER_ERROR = 3005;
-
 // oauth flows are stored in memory
 var oauthFlows = {};
 
@@ -81,6 +79,7 @@ function setupOAuthFlow(req, action, options = {}, cb) {
         return cb(err);
       }
 
+      // eslint-disable-next-line fxa/async-crypto-random
       params.state = crypto.randomBytes(32).toString('hex');
       req.session.state = params.state;
       oauthFlows[params.state] = { params: params, config: config };

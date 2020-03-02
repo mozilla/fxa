@@ -1,10 +1,8 @@
-#!/bin/bash -lex
+#!/bin/bash -ex
 
-MODULE=$(basename $(pwd))
-PAIRING=$1
 DIR=$(dirname "$0")
 
-# copied from ../test/curl.sh
+# copied from /test/curl.sh
 function check() {
   # Real startup of the servers takes longer than `pm start`.
   # In order to check their urls, we have to wait for them (2 minutes) and periodically
@@ -37,27 +35,29 @@ function test_suite() {
   done
 }
 
-if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list; then
-  npm run lint
+cd $DIR/..
 
-  cd ../../
-  npx pm2 start circleci_servers.json
+mkdir -p config
+cp ../version.json ./
+cp ../version.json config
 
-  cd packages/fxa-content-server
-  mozinstall /firefox.tar.bz2
+npm run lint
 
-  # ensure email-service is ready
-  check 127.0.0.1:8001/__heartbeat__
-  check 127.0.0.1:3031/__lbheartbeat__
-  test_suite circle
+cd ../../
+npx pm2 start circleci_servers.json
 
-  # node 5 currently has the least work to do in the above tests
-  if [[ "${CIRCLE_NODE_INDEX}" == "5" ]]; then
-    test_suite server
+cd packages/fxa-content-server
+mozinstall /firefox.tar.bz2
 
-    mozinstall /7f10c7614e9fa46-target.tar.bz2
-    test_suite pairing
-  fi
-else
-  exit 0;
+# ensure email-service is ready
+check 127.0.0.1:8001/__heartbeat__
+check 127.0.0.1:3031/__lbheartbeat__
+test_suite circle
+
+# node 5 currently has the least work to do in the above tests
+if [[ "${CIRCLE_NODE_INDEX}" == "5" ]]; then
+  test_suite server
+
+  mozinstall /7f10c7614e9fa46-target.tar.bz2
+  test_suite pairing
 fi

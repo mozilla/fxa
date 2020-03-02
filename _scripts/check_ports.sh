@@ -5,8 +5,8 @@ PORTS=(
   6379 # redis
   11211 # memcached
   4100 # Fake SQS/SNS
-  8005 # google-pubsub-emulator
-  8006 # google-firestore-emulator
+  8085 # google-pubsub-emulator
+  9090 # google-firestore-emulator
   5000 # sync server
   8001 # email-service
   8000 # auth-server db mysql

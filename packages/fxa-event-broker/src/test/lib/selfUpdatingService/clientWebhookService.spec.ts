@@ -69,7 +69,7 @@ describe('Client Webhook Service', () => {
         customHeaders: {
           Authorization: 'Bearer owner'
         },
-        port: 8006,
+        port: 9090,
         projectId: 'fx-event-broker',
         servicePath: 'localhost',
         sslCreds: grpc.credentials.createInsecure()
