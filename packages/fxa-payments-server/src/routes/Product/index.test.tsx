@@ -164,51 +164,19 @@ describe('routes/Product', () => {
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
-    await findByText("Let's set up your subscription");
+    await findByText("Set up your subscription");
     expect(
-      queryByText(`${PRODUCT_NAME} for $5.00 per month`)
+      queryByText('30-day money-back guarantee')
     ).toBeInTheDocument();
-    expect(queryByTestId('account-activated')).not.toBeInTheDocument();
-    expect(queryByTestId('profile-email')).toBeInTheDocument();
-    if (displayName) {
-      expect(queryByTestId('profile-display-name')).toBeInTheDocument();
-    }
+    expect(
+      queryByText('Billing Information')
+    ).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   };
 
   it('renders with valid product ID', withExistingAccount(false));
 
   it('renders with product ID and display name', withExistingAccount(true));
-
-  const withActivationBanner = (useDisplayName?: boolean) => async () => {
-    const displayName = useDisplayName ? 'Foo Barson' : undefined;
-    const apiMocks = initApiMocks(displayName);
-    const { findByText, queryByText, queryByTestId } = render(
-      <Subject planId={PLAN_ID} accountActivated="true" />
-    );
-    await findByText("Let's set up your subscription");
-    expect(
-      queryByText(`${PRODUCT_NAME} for $5.00 per month`)
-    ).toBeInTheDocument();
-    expect(queryByTestId('account-activated')).toBeInTheDocument();
-    if (displayName) {
-      expect(queryByTestId('activated-display-name')).toBeInTheDocument();
-      expect(queryByTestId('activated-email')).not.toBeInTheDocument();
-    } else {
-      expect(queryByTestId('activated-display-name')).not.toBeInTheDocument();
-      expect(queryByTestId('activated-email')).toBeInTheDocument();
-    }
-    expectNockScopesDone(apiMocks);
-  };
-
-  it(
-    'renders with ?plan={PLAN_ID}&accountActivated given in query string',
-    withActivationBanner(false)
-  );
-  it(
-    'renders with display name and ?plan={PLAN_ID}&accountActivated given in query string',
-    withActivationBanner(true)
-  );
 
   it('displays an error with invalid product ID', async () => {
     const apiMocks = initApiMocks();

@@ -25,17 +25,6 @@ h3.billing-title {
   margin: 13px 0;
   text-align: left;
 
-  .title::after {
-    background-image: url('./images/lock.svg');
-    background-position: 0 2px;
-    background-repeat: no-repeat;
-    content: '\00a0';
-    display: inline-block;
-    height: 18px;
-    margin: 0 8px;
-    width: 14px;
-  }
-
   .card-details {
     font-size: 14px;
 
@@ -55,6 +44,10 @@ h3.billing-title {
     @include respond-to('small') {
       margin: 0 -20px; // match padding of #main-content
     }
+  }
+
+  @include respond-to('big') {
+    padding: 48px;
   }
 }
 
@@ -121,10 +114,10 @@ h3.billing-title {
 
     .label-text.checkbox {
       color: #0c0c0d;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: normal;
       letter-spacing: normal;
-      line-height: 1.5;
+      line-height: 21px;
     }
 
     // HACK: stop the checkbox from changing width on focus

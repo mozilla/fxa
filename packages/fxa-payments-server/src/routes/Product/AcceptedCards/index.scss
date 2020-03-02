@@ -1,0 +1,11 @@
+.accepted-cards {
+  display: flex;
+
+  img {
+    padding: 4px;
+
+    &:first-child {
+      padding-left: 0;
+    }
+  }
+}
