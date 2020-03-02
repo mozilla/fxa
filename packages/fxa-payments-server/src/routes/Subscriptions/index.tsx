@@ -273,7 +273,9 @@ export const Subscriptions = ({
             <div className="settings-unit-stub">
               <header className="settings-unit-summary">
                 <Localized id="settings-subscriptions">
-                  <h2 className="settings-unit-title">Subscriptions</h2>
+                  <h2 className="settings-unit-title">
+                    Subscriptions & Payments
+                  </h2>
                 </Localized>
               </header>
               <button

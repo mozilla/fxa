@@ -107,7 +107,7 @@ export const SettingsLayout = ({ children }: SettingsLayout) => {
       </li>
       <li>
         <Localized id="settings-subscriptions">
-          <a href="/subscriptions">Subscriptions</a>
+          <a href="/subscriptions">Subscriptions & Payments</a>
         </Localized>
       </li>
     </ol>
