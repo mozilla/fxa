@@ -1,13 +1,18 @@
 @import '../../../../fxa-content-server/app/styles/variables';
+@import '../../../../fxa-content-server/app/styles/breakpoints';
 
 .plan-details-component {
-  background: $color-white;
-  border-radius: 8px;
-  box-shadow: $card-box-high;
   font-size: 15px;
-  margin: 0 auto;
-  padding: 20px 20px 0;
+  margin: 80px 24px;
   width: 342px;
+
+  .plan-details-component-card {
+    background: $color-white;
+    border-radius: 8px;
+    box-shadow: $card-box-high;
+    padding: 20px 20px 0;
+    width: 342px;
+  }
 
   .plan-details-logo-wrap {
     align-items: center;
@@ -85,6 +90,11 @@
         font-size: 12px;
       }
     }
+
+    @include min-width('tablet') {
+      border-bottom: 0;
+      padding-bottom: 20px;
+    }
   }
 
   .footer {
@@ -98,11 +108,17 @@
     font-weight: normal;
     height: initial;
     line-height: 22px;
-    margin: 15px 0;
+    margin: 9px 0;
     outline: none;
-    padding: 0;
+    padding: 7px 6px 7px 25px;
     position: relative;
     width: initial;
+
+    &:focus {
+      border: 1px solid #0a84ff;
+      box-shadow: unset;
+      padding: 6px 6px 6px 25px;
+    }
   }
 
   .arrow::before {
@@ -110,13 +126,34 @@
     content: '';
     display: inline-block;
     height: 16px;
-    left: -24px;
+    left: 0px;
     position: absolute;
-    top: 3px;
+    top: 10px;
     width: 24px;
   }
 
   .up-arrow::before {
     transform: rotate(180deg);
+  }
+
+  .plan-details-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+
+    p {
+      margin: 0;
+      padding: unset;
+    }
+
+    .label {
+      color: #6D6D6E;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    .total-price {
+      font-size: 22px;
+    }
   }
 }

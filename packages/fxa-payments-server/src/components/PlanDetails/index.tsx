@@ -27,67 +27,85 @@ export const PlanDetails = ({
   const { webIconURL } = metadataFromPlan(selectedPlan);
 
   return (
-    <section className={`container card plan-details-component ${className}`}>
-      <div className="plan-details-header">
-        <div className="plan-details-header-wrap">
-          <div className="plan-details-logo-wrap">
-            <img src={webIconURL || ffLogo} alt={product_name} data-testid="product-logo" />
+    <section className={`plan-details-component ${className}`}>
+      <div
+        className={`container card plan-details-component-card ${className}`}
+      >
+        <div className="plan-details-header">
+          <div className="plan-details-header-wrap">
+            <div className="plan-details-logo-wrap">
+              <img
+                src={webIconURL || ffLogo}
+                alt={product_name}
+                data-testid="product-logo"
+              />
+            </div>
+            <div className="plan-details-heading-wrap">
+              <h3 className="plan-details-product">{product_name}</h3>
+              <p className="plan-details-description">Full-device VPN</p>
+            </div>
           </div>
-          <div className="plan-details-heading-wrap">
-            <h3 className="plan-details-product">{product_name}</h3>
-            <p className="plan-details-description">Full-device VPN</p>
-          </div>
+          <p>
+            ${formatCurrencyInCents(amount)}/{interval}
+          </p>
         </div>
-        <p>
-          ${formatCurrencyInCents(amount)}/{interval}
-        </p>
+        {!detailsHidden ? (
+          <div className="plan-details-list" data-testid="list">
+            <Localized id="plan-details-header">
+              <h4>Product details</h4>
+            </Localized>
+            <ul>
+              <Localized id="fpn-details-1">
+                <li></li>
+              </Localized>
+              <Localized id="fpn-details-2">
+                <li></li>
+              </Localized>
+              <Localized id="fpn-details-3">
+                <li></li>
+              </Localized>
+              <Localized id="fpn-details-4">
+                <li></li>
+              </Localized>
+            </ul>
+          </div>
+        ) : null}
+        {showExpandButton ? (
+          <div className="footer" data-testid="footer">
+            {detailsHidden ? (
+              <Localized id="plan-details-show-button">
+                <button
+                  data-testid="button"
+                  className="btn arrow"
+                  aria-expanded={!detailsHidden}
+                  onClick={() => setDetailsState(false)}
+                >
+                  Show details
+                </button>
+              </Localized>
+            ) : (
+              <Localized id="plan-details-hide-button">
+                <button
+                  data-testid="button"
+                  className="btn arrow up-arrow"
+                  aria-expanded={!detailsHidden}
+                  onClick={() => setDetailsState(true)}
+                >
+                  Hide details
+                </button>
+              </Localized>
+            )}
+          </div>
+        ) : null}
       </div>
-      {!detailsHidden ? (
-        <div className="plan-details-list" data-testid="list">
-          <Localized id="plan-details-header">
-            <h4>Product details</h4>
+      {!showExpandButton ? (
+        <div className="plan-details-total">
+          <Localized id="plan-details-total-label">
+            <p className="label">Total:</p>
           </Localized>
-          <ul>
-            <Localized id="fpn-details-1">
-              <li></li>
-            </Localized>
-            <Localized id="fpn-details-2">
-              <li></li>
-            </Localized>
-            <Localized id="fpn-details-3">
-              <li></li>
-            </Localized>
-            <Localized id="fpn-details-4">
-              <li></li>
-            </Localized>
-          </ul>
-        </div>
-      ) : null}
-      {showExpandButton ? (
-        <div className="footer" data-testid="footer">
-          {detailsHidden ? (
-            <Localized id="plan-details-show-button">
-              <button
-                data-testid="button"
-                className="btn arrow"
-                aria-expanded={!detailsHidden}
-                onClick={() => setDetailsState(false)}
-              >
-                Show details
-              </button>
-            </Localized>
-          ) : (
-            <Localized id="plan-details-hide-button">
-              <button
-                data-testid="button"
-                className="btn arrow up-arrow"
-                aria-expanded={!detailsHidden}
-                onClick={() => setDetailsState(true)}
-              >
-                Hide details
-              </button>
-            </Localized>
-          )}
+          <p className="total-price">
+            ${formatCurrencyInCents(amount)}/{interval}
+          </p>
         </div>
       ) : null}
     </section>
