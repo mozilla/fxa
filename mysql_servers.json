@@ -73,7 +73,7 @@
     },
     {
       "name": "auth-server db mysql PORT 8000",
-      "script": "../../_scripts/auth_mysql.sh",
+      "script": "../../_scripts/start_after_mysql.sh",
       "cwd": "packages/fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
@@ -83,8 +83,7 @@
     },
     {
       "name": "auth-server key server PORT 9000",
-      "script": "npm",
-      "args": ["start"],
+      "script": "../../_scripts/start_after_mysql.sh",
       "cwd": "packages/fxa-auth-server",
       "env": {
         "DB": "mysql",
@@ -110,34 +109,13 @@
     },
     {
       "name": "profile-server PORT 1111",
-      "script": "../../_scripts/profile_mysql.sh",
+      "script": "../../_scripts/start_after_mysql.sh",
       "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
         "NODE_ENV": "development",
         "HOST": "0.0.0.0",
         "DB": "mysql"
-      },
-      "min_uptime": "2m"
-    },
-    {
-      "name": "profile-server static dev PORT 1112",
-      "script": "bin/_static.js",
-      "cwd": "packages/fxa-profile-server",
-      "max_restarts": "1",
-      "env": {
-        "NODE_ENV": "development"
-      },
-      "min_uptime": "2m"
-    },
-    {
-      "name": "profile-server worker PORT 1113",
-      "script": "bin/worker.js",
-      "cwd": "packages/fxa-profile-server",
-      "max_restarts": "1",
-      "env": {
-        "NODE_ENV": "development",
-        "WORKER_HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
     },
@@ -212,8 +190,7 @@
     },
     {
       "name": "event-broker",
-      "script": "npm",
-      "args": ["run", "start-dev"],
+      "script": "../../_scripts/start_after_mysql.sh",
       "cwd": "packages/fxa-event-broker",
       "max_restarts": "1",
       "env": {
