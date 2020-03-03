@@ -93,7 +93,7 @@ describe('routes/utils/subscriptions', () => {
           mockStripeHelper,
           UID,
           // null client represents sessionToken auth from content-server, unfiltered by client
-          clientId === 'null' ? null : clientId,
+          clientId === 'null' ? null : Buffer.from(clientId, 'hex'),
           EMAIL
         ),
         expectedCapabilities

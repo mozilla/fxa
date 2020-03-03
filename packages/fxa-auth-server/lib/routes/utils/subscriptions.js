@@ -4,6 +4,8 @@
 
 'use strict';
 
+const hex = require('buf').to.hex;
+
 const SubscriptionUtils = (module.exports = {
   // Support some default null values for product / plan metadata and
   // allow plan metadata to override product metadata
@@ -29,9 +31,11 @@ const SubscriptionUtils = (module.exports = {
   determineClientVisibleSubscriptionCapabilities: async function(
     stripeHelper,
     uid,
-    client_id,
+    clientIdRaw,
     email
   ) {
+    const clientId =
+      clientIdRaw === null ? null : hex(clientIdRaw).toLowerCase();
     if (!stripeHelper) {
       return undefined;
     }
@@ -42,7 +46,7 @@ const SubscriptionUtils = (module.exports = {
     );
     const capabilitiesToReveal = await checkCapabilitiesFromStripe(
       subscribedProducts,
-      client_id,
+      clientId,
       stripeHelper
     );
     return capabilitiesToReveal.size > 0
@@ -63,7 +67,6 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   if (!customer || !customer.subscriptions.data) {
     return [];
   }
-
   const subscribedProducts = customer.subscriptions.data
     // TODO: Centralize subscription filtering logic for active subs
     .filter(sub => ['active', 'trialing', 'past_due'].includes(sub.status))
