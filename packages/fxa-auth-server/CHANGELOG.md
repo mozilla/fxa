@@ -1,3 +1,10 @@
+## 1.160.1
+
+### Bug fixes
+
+* lookup clientids in eventbroker ([35d83f9d2](https://github.com/mozilla/fxa/commit/35d83f9d2))
+* payments: support clientId as buffer in subscription capability lookup ([2757a06e1](https://github.com/mozilla/fxa/commit/2757a06e1))
+
 ## 1.160.0
 
 ### New features
