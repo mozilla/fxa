@@ -52,7 +52,9 @@ form.payment {
   }
 
   .terms {
+    display: flex;
     font-size: 15px;
+    justify-content: center;
     padding-top: 56px;
   }
 
@@ -88,7 +90,7 @@ form.payment {
     }
   }
 
-  #main-content.payments-card {
+  .main-content .payments-card {
     width: 100%;
 
     .input-row input,
