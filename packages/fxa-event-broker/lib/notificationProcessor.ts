@@ -191,18 +191,17 @@ class ServiceNotificationProcessor {
   private async handleSubscriptionEvent(message: subscriptionUpdateSchema) {
     this.metrics.increment('message.type.subscription');
     const clientIds = await this.db.fetchClientIds(message.uid);
+    const clientCapabilities = this.capabilityService.serviceData();
 
     // Split the product capabilities by clientId each capability goes to
     const notifyClientIds: { [clientId: string]: string[] } = {};
-    message.productCapabilities
-      .map(item => item.split(':'))
-      .forEach(([clientId, capability]) => {
-        if (notifyClientIds[clientId]) {
-          notifyClientIds[clientId].push(capability);
-        } else {
-          notifyClientIds[clientId] = [capability];
-        }
-      });
+    message.productCapabilities.forEach(capability =>
+      Object.entries(clientCapabilities)
+        .filter(([, capabilities]) => capabilities.includes(capability))
+        .forEach(([clientId]) => {
+          notifyClientIds[clientId] = (notifyClientIds[clientId] || []).concat([capability]);
+        })
+    );
 
     const baseMessage = {
       capabilities: [],

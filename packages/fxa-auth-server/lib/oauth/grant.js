@@ -232,10 +232,11 @@ async function generateIdToken(grant, accessToken) {
 }
 
 exports.generateAccessToken = async function generateAccessToken(grant) {
+  const clientId = hex(grant.clientId).toLowerCase();
   const accessToken = await db.generateAccessToken(grant);
   if (
     !JWT_ACCESS_TOKENS_ENABLED ||
-    !JWT_ACCESS_TOKENS_CLIENT_IDS.has(hex(grant.clientId).toLowerCase())
+    !JWT_ACCESS_TOKENS_CLIENT_IDS.has(clientId)
   ) {
     // return the old style access token if JWT access tokens are
     // not globally enabled or if not enabled for the given clientId.
@@ -246,7 +247,7 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
     const capabilities = await determineClientVisibleSubscriptionCapabilities(
       stripeHelper,
       hex(grant.userId),
-      grant.clientId,
+      clientId,
       grant.email
     );
     // To avoid mutating the input grant, create a

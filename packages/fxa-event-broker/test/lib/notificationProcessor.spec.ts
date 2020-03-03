@@ -46,7 +46,7 @@ const baseSubscriptionUpdateLegacyMessage = {
   event: 'subscription:update',
   eventCreatedAt: Math.trunc(Date.now() / 1000),
   isActive: true,
-  productCapabilities: ['send:pro', 'vpn:basic'],
+  productCapabilities: ['guardian_vpn', 'secure_proxy'],
   productName: 'firefox-sub',
   subscriptionId: 'sub_123456'
 };
@@ -133,7 +133,7 @@ describe('ServiceNotificationProcessor', () => {
     });
     logger = stubInterface<Logger>();
     capabilityService = stubInterface<ClientCapabilityService>({
-      serviceData: {},
+      serviceData: { '123client': ['secure_proxy'] },
       start: Promise.resolve()
     });
     webhookService = stubInterface<ClientWebhookService>({
@@ -243,7 +243,7 @@ describe('ServiceNotificationProcessor', () => {
       start: Promise.resolve()
     });
     db = stubInterface<Datastore>({
-      fetchClientIds: ['send', 'vpn']
+      fetchClientIds: ['123client']
     });
     const topicPub = stubObject<Topic>(new Topic(pubsub, 'default'));
     pubsub = stubObject<PubSub>(new PubSub(), { topic: topicPub });
@@ -252,7 +252,7 @@ describe('ServiceNotificationProcessor', () => {
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
-    assert.calledThrice(logger.debug as SinonSpy);
+    assert.calledTwice(logger.debug as SinonSpy);
 
     // Note that we aren't resetting the sandbox here, so we have 2 log calls thus far
     db = stubInterface<Datastore>({
@@ -262,7 +262,7 @@ describe('ServiceNotificationProcessor', () => {
     consumer.start();
     await pEvent(consumer.app, 'message_processed');
     consumer.stop();
-    (logger.debug as SinonSpy).getCalls()[3].calledWith({
+    (logger.debug as SinonSpy).getCalls()[2].calledWith({
       messageId: undefined,
       topicName: 'rpQueue-send'
     });

@@ -129,10 +129,14 @@ class DirectStripeRoutes {
     }
 
     return Object.entries(capabilitiesByClientId).map(
-      ([clientId, capabilities]) => ({
-        clientId,
-        capabilities: [...capabilitiesForAll, ...capabilities],
-      })
+      ([clientId, capabilities]) => {
+        // Merge dupes with Set
+        const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
+        return {
+          clientId,
+          capabilities: [...capabilitySet],
+        };
+      }
     );
   }
 
@@ -492,7 +496,9 @@ class DirectStripeRoutes {
         capabilitiesForProduct.push(...splitCapabilities(metadata[key]));
       }
     }
-    return capabilitiesForProduct;
+    // Remove duplicates with Set
+    const capabilitySet = new Set(capabilitiesForProduct);
+    return [...capabilitySet];
   }
 
   /**
