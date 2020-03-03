@@ -77,9 +77,7 @@ export const SignInLayout = ({ children }: SignInLayout) => {
     <AppLayout>
       <SignInLayoutContext.Provider value={{ setHideLogo }}>
         <div className="sign-in">
-          <div id="main-content" className={mainContentClassNames}>
-            {children}
-          </div>
+          <div className={mainContentClassNames}>{children}</div>
         </div>
       </SignInLayoutContext.Provider>
     </AppLayout>
