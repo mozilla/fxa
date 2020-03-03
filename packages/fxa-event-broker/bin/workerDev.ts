@@ -128,11 +128,13 @@ async function main() {
     logger,
     Config.get('clientCapabilityFetch')
   );
+
   const webhookService = new ClientWebhookService(
     logger,
     Config.get('clientCapabilityFetch.refreshInterval'),
     db
   );
+
   const pubsub = new PubSub({ projectId: 'fxa-event-broker' });
   await verifyTopicConfig(pubsub, Config.get('proxy').port, webhookService);
 

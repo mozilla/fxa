@@ -7,7 +7,6 @@
     "inlineSources": true,
     "inlineSourceMap": true,
     "esModuleInterop": true,
-    "sourceRoot": "/",
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,
