@@ -658,6 +658,10 @@ section.modal-panel {
     font-weight: normal;
     margin-bottom: 15px;
     text-align: left;
+
+    html[dir='rtl'] & {
+      text-align: right;
+    }
   }
 }
 
