@@ -21,6 +21,12 @@ import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import SubscriptionRedirect from './SubscriptionRedirect';
 import SubscriptionCreate from './SubscriptionCreate';
 import SubscriptionUpgrade from './SubscriptionUpgrade';
+import PlanDetails from '../../components/PlanDetails';
+import Header from '../../components/Header';
+
+const isMobile = window.matchMedia(
+  '(max-width: 520px), (orientation: landscape) and (max-width: 640px)'
+).matches;
 
 export type ProductProps = {
   match: {
@@ -172,17 +178,29 @@ export const Product = ({
   }
 
   return (
-    <SubscriptionCreate
-      {...{
-        profile: profile.result,
-        accountActivated,
-        selectedPlan,
-        createSubscriptionAndRefresh,
-        createSubscriptionStatus,
-        resetCreateSubscription,
-        validatorInitialState,
-      }}
-    />
+    <>
+      <Header {...{ profile: profile.result }} />
+      <div className="main-content">
+        <SubscriptionCreate
+          {...{
+            profile: profile.result,
+            accountActivated,
+            selectedPlan,
+            createSubscriptionAndRefresh,
+            createSubscriptionStatus,
+            resetCreateSubscription,
+            validatorInitialState,
+          }}
+        />
+        <PlanDetails
+          {...{
+            profile: profile.result,
+            selectedPlan,
+            showExpandButton: isMobile,
+          }}
+        />
+      </div>
+    </>
   );
 };
 
