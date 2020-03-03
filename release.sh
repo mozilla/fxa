@@ -45,11 +45,7 @@ IFS=$'\n'
 #   9. Update the AUTHORS file
 #   10. Commit changes.
 #   11. Create a tag.
-#   12. Create or checkout the private train branch.
-#   13. Merge train branch into the private train branch.
-#   14. Create a private tag.
-#   15. Return to the original branch.
-#   16. Tell the user what we did.
+#   12. Tell the user what we did.
 
 SCRIPT_DIR=`dirname "$0"`/_scripts
 CURRENT_BRANCH=`git branch --no-color | grep '^\*' | cut -d ' ' -f 2`
@@ -325,109 +321,44 @@ git commit -a -m "Release $NEW_VERSION"
 # 11. Create a tag.
 git tag -a "$NEW_TAG" -m "$BUILD_TYPE release $NEW_VERSION"
 
-PRIVATE_REMOTE=`git remote -v | grep "mozilla/fxa-private.git" | cut -f 1 | head -n 1`
-
-if [ "$PRIVATE_REMOTE" = "" ]; then
-  echo "Warning: No private remote detected, creating one."
-  git remote add private git@github.com:mozilla/fxa-private.git
-  PRIVATE_REMOTE=private
-fi
-
-PRIVATE_BRANCH="$TRAIN_BRANCH-private"
-PRIVATE_REMOTE_BRANCH="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
-
-# 12. Create or checkout the private train branch.
-PRIVATE_BRANCH_EXISTS=`git branch --no-color | awk '{$1=$1};1' | grep "^$PRIVATE_BRANCH\$"` || true
-if [ "$PRIVATE_BRANCH_EXISTS" = "" ]; then
-  git fetch "$PRIVATE_REMOTE" "$PRIVATE_BRANCH" > /dev/null 2>&1 || true
-
-  PRIVATE_REMOTE_BRANCH_EXISTS=`git branch --no-color -r | awk '{$1=$1};1' | grep "^$PRIVATE_REMOTE_BRANCH\$"` || true
-  if [ "$PRIVATE_REMOTE_BRANCH_EXISTS" = "" ]; then
-    echo "Warning: $PRIVATE_BRANCH branch not found on local or remote, creating one from $PRIVATE_REMOTE/master."
-    git fetch "$PRIVATE_REMOTE" "master" > /dev/null 2>&1 || true
-    git checkout --no-track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE/master" > /dev/null 2>&1
-    git pull "$PRIVATE_REMOTE" master > /dev/null 2>&1
-    PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/master"
-  else
-    git checkout --track -b "$PRIVATE_BRANCH" "$PRIVATE_REMOTE_BRANCH" > /dev/null 2>&1
-    PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
-  fi
-else
-  git checkout "$PRIVATE_BRANCH" > /dev/null 2>&1
-  git pull "$PRIVATE_REMOTE" "$PRIVATE_BRANCH" > /dev/null 2>&1 || true
-  PRIVATE_DIFF_FROM="$PRIVATE_REMOTE/$PRIVATE_BRANCH"
-fi
 
 if [ -f "$SCRIPT_DIR/create-deploy-bug.url" ]; then
   DEPLOY_BUG_URL=`cat "$SCRIPT_DIR/create-deploy-bug.url" | sed "s/TRAIN_NUMBER/$TRAIN/"`
 fi
 
-# 13. Merge train branch into the private train branch.
-git merge "$TRAIN_BRANCH" -m "Merge $TRAIN_BRANCH into $PRIVATE_BRANCH" || true
 
-read -n1 -r -p "Press space to continue..." key
-
-# 14. Create a private tag.
-PRIVATE_TAG="$NEW_TAG-private"
-PRIVATE_VERSION="$NEW_VERSION-private"
-git tag -a "$PRIVATE_TAG" -m "$BUILD_TYPE release $PRIVATE_VERSION"
-
-# 15. Return to the original branch.
-git checkout "$CURRENT_BRANCH" > /dev/null 2>&1
-
-# 16. Tell the user what we did.
+# 12. Tell the user what we did.
 echo
 echo "Success! The release has been tagged locally but it hasn't been pushed."
 echo "Before pushing, you should check that the changes appear to be sane."
 echo "At the very least, eyeball the diffs and git log."
 echo "If you're feeling particularly vigilant, you may want to run some of the tests and linters too."
 echo
-echo "Branches:"
+echo "Branch:"
 echo
 echo "  $TRAIN_BRANCH"
-echo "  $PRIVATE_BRANCH"
 echo
-echo "Tags:"
+echo "Tag:"
 echo
 echo "  $NEW_TAG"
-echo "  $PRIVATE_TAG"
 echo
 echo "When you're ready to push, paste the following lines into your terminal:"
 echo
 echo "git push origin $TRAIN_BRANCH"
 echo "git push origin $NEW_TAG"
-echo "git push $PRIVATE_REMOTE $PRIVATE_BRANCH"
-echo "git push $PRIVATE_REMOTE $PRIVATE_TAG"
 echo
-echo "After that, you must open pull requests in both the public and private repos to merge the changes back to master:"
+echo "After that, you must open pull a request to merge the changes back to master:"
 echo
 echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
-echo "  https://github.com/mozilla/fxa-private/compare/$PRIVATE_BRANCH?expand=1"
 echo
 echo "Ask for review on the pull requests from @fxa-devs and @fxa-admins respectively."
 echo
 
 if [ "$BUILD_TYPE" = "Train" ]; then
-  PRIVATE_DIFF_SIZE=`git diff "$PRIVATE_BRANCH..$PRIVATE_DIFF_FROM" | wc -l | awk '{$1=$1};1'`
-  IS_BIG_RELEASE=`expr "$PRIVATE_DIFF_SIZE" \> 400`
-  if [ "$IS_BIG_RELEASE" = "1" ]; then
-    echo "The diff for the private release is pretty big. You may want to add the following comment to that PR:"
-    echo
-    echo "> There's no need to review every line of this diff, since it includes every commit from the release. Instead you can do the following:"
-    echo ">"
-    echo '> ```'
-    echo "> git fetch origin $TRAIN_BRANCH"
-    echo "> git fetch $PRIVATE_REMOTE $PRIVATE_BRANCH"
-    echo "> git diff origin/$TRAIN_BRANCH..$PRIVATE_REMOTE/$PRIVATE_BRANCH"
-    echo '> ```'
-    echo ">"
-    echo "> That diff should show only the changes from the private repo, proving that the $TRAIN_BRANCH branches are equal in other respects."
-    echo
-  fi
-
-  echo "If there's no deploy bug for $TRAIN_BRANCH yet, you should create one using this URL:"
+  A_WEEK_AGO=$(date +%Y-%m-%d -d "7 days ago")
+  echo "If there's no deploy bug for $TRAIN_BRANCH yet, you should create one using this URL (you'll need to update the title of the bug in Bugzilla):"
   echo
-  echo "  $DEPLOY_BUG_URL"
+  echo "  https://github.com/mozilla/fxa-private/blob/master/_scripts/create-deploy-bug.url"
   echo
   echo "Make sure you copy notes from the deploy doc:"
   echo
@@ -435,10 +366,9 @@ if [ "$BUILD_TYPE" = "Train" ]; then
   echo
   echo "And copy and paste the rest of this output into the bug:"
   echo
-  echo "### Marked QA+"
+  echo "### Marked needs:qa"
   echo
-  echo "* https://github.com/mozilla/fxa/issues?q=label%3Aqa%2B+is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+FxA%22"
-  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aqa%2B+is%3Aclosed+milestone%3A%22Train+$TRAIN%3A+Subscription+Platform%22"
+  echo "* https://github.com/mozilla/fxa/issues?utf8=%E2%9C%93&q=label%3Aneeds%3Aqa+is%3Aclosed+updated%3A%3E$A_WEEK_AGO"
   echo
 else
   echo "Don't forget to leave a comment in the deploy bug."
@@ -448,7 +378,6 @@ fi
 echo "### Tags"
 echo
 echo "* https://github.com/mozilla/fxa/releases/tag/$NEW_TAG"
-echo "* https://github.com/mozilla/fxa-private/releases/tag/$PRIVATE_TAG"
 echo
 
 if [ "$PERTINENT_CHANGELOGS" != "" ]; then
