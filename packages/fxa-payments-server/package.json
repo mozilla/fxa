@@ -133,8 +133,7 @@
     "ua-parser-js": "^0.7.21"
   },
   "engines": {
-    "node": ">=10",
-    "npm": ">=6.4.1"
+    "node": ">=12"
   },
   "readmeFilename": "README.md",
   "jest": {

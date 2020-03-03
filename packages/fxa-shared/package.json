@@ -26,7 +26,7 @@
     "url": "https://github.com/mozilla/fxa/issues"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=12"
   },
   "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-shared#readme",
   "devDependencies": {

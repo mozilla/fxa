@@ -161,7 +161,7 @@
     "yargs": "^15.0.2"
   },
   "engines": {
-    "node": ">=10",
+    "node": ">=12",
     "npm": ">=6.4.1"
   },
   "readmeFilename": "README.md"
