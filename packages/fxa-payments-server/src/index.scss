@@ -34,7 +34,129 @@ h3.billing-title {
   }
 }
 
-#main-content {
+// starting to replace the main-content id with this class
+.main-content {
+  display: flex;
+  padding-top: 0;
+
+  .input-row {
+    // Stripe element class names
+    // https://stripe.com/docs/stripe-js/reference#the-element-container
+
+    .StripeElement {
+      @include input-element();
+
+      html[dir='ltr'] & {
+        padding: 0 0 0 $input-left-right-padding;
+      }
+
+      html[dir='rtl'] & {
+        direction: ltr;
+        padding: 0 $input-left-right-padding 0 0;
+        text-align: right;
+      }
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+
+    .StripeElement--focus,
+    .StripeElement--focus:hover {
+      border-color: $input-border-color-focus;
+      box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
+    }
+
+    .tooltip + .StripeElement--empty,
+    .StripeElement--invalid,
+    .StripeElement--invalid:hover {
+      border-color: $error-background-color;
+
+      &.StripeElement--focus {
+        box-shadow: 0 0 0 3px rgba($error-background-color, 0.3);
+      }
+    }
+
+    .label-text {
+      color: #686869;
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 7px;
+      text-align: left;
+    }
+
+    .label-text.checkbox {
+      color: #0c0c0d;
+      font-size: 13px;
+      font-weight: normal;
+      letter-spacing: normal;
+      line-height: 21px;
+    }
+
+    // HACK: stop the checkbox from changing width on focus
+    input[type='checkbox']:focus,
+    input[type='checkbox']:not(:checked):focus,
+    input[type='checkbox']:checked:focus {
+      border: 1px solid transparent;
+    }
+  }
+
+  .input-row--checkbox {
+    label {
+      display: flex;
+      flex-direction: row;
+
+      input[type='checkbox'] {
+        flex: 0 0 18px;
+        position: relative;
+        top: 2px;
+
+        &:checked {
+          background-image: url('images/check.svg');
+        }
+      }
+
+      .label-text {
+        display: block;
+        margin-left: 2px;
+      }
+    }
+  }
+
+  .input-row-group {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: row;
+
+    @include respond-to('simpleSmall') {
+      flex-wrap: wrap;
+    }
+
+    .input-row {
+      flex: 1 0;
+      padding-right: 18px;
+      width: inherit;
+
+      &.input-row--xl {
+        flex: 2 0;
+
+        @include respond-to('simpleSmall') {
+          flex: unset;
+          padding-right: 0;
+          width: 100%;
+        }
+      }
+    }
+
+    .input-row:last-of-type {
+      padding-right: 0;
+    }
+  }
+}
+
+.main-content {
   hr {
     border: 0;
     border-top: 1px solid #e0e0e6;
@@ -48,6 +170,7 @@ h3.billing-title {
 
   @include respond-to('big') {
     padding: 48px;
+    padding-top: 0;
   }
 }
 
