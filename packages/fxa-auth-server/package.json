@@ -95,6 +95,7 @@
     "@types/chai": "^4.2.4",
     "@types/convict": "^4.2.1",
     "@types/hapi": "^18.0.2",
+    "@types/ioredis": "^4.14.8",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/jws": "^3.2.0",
