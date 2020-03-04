@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
-import { Plan, Profile } from '../../../store/types';
+import { Plan } from '../../../store/types';
 
 import { State as ValidatorState } from '../../../lib/validator';
 
@@ -20,7 +20,6 @@ import { VirtualConsole } from 'jsdom';
 import './index.scss';
 
 export type SubscriptionCreateProps = {
-  profile: Profile;
   accountActivated: boolean;
   selectedPlan: Plan;
   createSubscriptionAndRefresh: ProductProps['createSubscriptionAndRefresh'];
@@ -30,7 +29,6 @@ export type SubscriptionCreateProps = {
 };
 
 export const SubscriptionCreate = ({
-  profile,
   accountActivated,
   selectedPlan,
   createSubscriptionAndRefresh: createSubscriptionAndRefreshBase,
