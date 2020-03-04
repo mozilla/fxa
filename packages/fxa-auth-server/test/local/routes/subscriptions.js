@@ -3086,7 +3086,48 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
-  describe('getSubscriptions', () => {});
+  describe('getSubscriptions', () => {
+    const formatter = subs => subs.data.map(s => ({ subscription_id: s.id }));
+
+    describe('when a customer is found', () => {
+      it('returns a formatted version of the customer subscriptions', async () => {
+        const customer = deepCopy(emptyCustomer);
+        const subscription = deepCopy(subscription2);
+        customer.subscriptions.data = [subscription];
+
+        directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+        directStripeRoutesInstance.stripeHelper.subscriptionsToResponse.resolves(
+          formatter(customer.subscriptions)
+        );
+
+        const expected = formatter(customer.subscriptions);
+        const actual = await directStripeRoutesInstance.getSubscriptions(
+          VALID_REQUEST
+        );
+
+        assert.deepEqual(expected, actual);
+        assert.calledOnce(
+          directStripeRoutesInstance.stripeHelper.subscriptionsToResponse
+        );
+      });
+    });
+
+    describe('when a customer is not found', () => {
+      it('returns an empty array', async () => {
+        directStripeRoutesInstance.stripeHelper.customer.resolves(null);
+
+        const expected = [];
+        const actual = await directStripeRoutesInstance.getSubscriptions(
+          VALID_REQUEST
+        );
+
+        assert.deepEqual(expected, actual);
+        assert.notCalled(
+          directStripeRoutesInstance.stripeHelper.subscriptionsToResponse
+        );
+      });
+    });
+  });
 
   describe('getUidEmail', () => {
     describe('when the auth strategy is supportPanelSecret', () => {
