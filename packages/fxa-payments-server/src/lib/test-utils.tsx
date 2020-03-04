@@ -30,6 +30,7 @@ export const wait = (delay: number) =>
 
 export function expectNockScopesDone(scopes: nock.Scope[]) {
   for (const scope of scopes) {
+    if (!scope.isDone()) console.log("SCOPE NOT DONE::::::::", scope);
     expect(scope.isDone()).toBeTruthy();
   }
 }

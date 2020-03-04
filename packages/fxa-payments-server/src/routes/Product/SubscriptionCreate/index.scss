@@ -5,11 +5,16 @@
   background: white;
   border: 1px solid #E7E7E7;
   max-width: 600px;
-  margin: 30px 24px;
+  margin: 30px 0px;
+  min-width: 375px;
   padding: 28px 16px 60px;
 
   @include min-width('tablet') {
     padding: 28px 48px 48px;
+  }
+
+  @include min-width('desktop') {
+    margin: 30px 24px;
   }
 
   hr {
