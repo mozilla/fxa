@@ -175,8 +175,8 @@ class FxaRedis {
     return this.redis.get(key);
   }
 
-  set(key, val) {
-    return this.redis.set(key, val);
+  set(key, val, ...args) {
+    return this.redis.set(key, val, ...args);
   }
   zadd(key, ...args) {
     return this.redis.zadd(key, ...args);
