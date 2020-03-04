@@ -81,6 +81,7 @@ describe('views/pair/auth_totp', () => {
       user,
       viewName: 'pairAuthTotp',
       window: windowMock,
+      relier,
     });
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   }
@@ -95,7 +96,9 @@ describe('views/pair/auth_totp', () => {
       return view.render().then(() => {
         $('#container').html(view.el);
         view.$('.totp-code').val(TOTP_CODE);
-
+        const serviceElText = view.$('.service').text();
+        assert.include(serviceElText, 'Continue to');
+        assert.notInclude(serviceElText, '%(serviceName)');
         return view.submit().then(() => {
           assert.isTrue(
             account.verifyTotpCode.calledWith(TOTP_CODE),
