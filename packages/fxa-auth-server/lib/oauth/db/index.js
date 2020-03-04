@@ -46,7 +46,7 @@ class OauthDB {
   disconnect() {}
 
   async generateAccessToken(vals) {
-    const token = new AccessToken(
+    const token = AccessToken.generate(
       vals.clientId,
       vals.name,
       vals.canGrant,
@@ -54,8 +54,6 @@ class OauthDB {
       vals.userId,
       vals.email,
       vals.scope,
-      null,
-      null,
       vals.profileChangedAt,
       vals.expiresAt,
       vals.ttl
@@ -92,6 +90,9 @@ class OauthDB {
 
   async getActiveClientsByUid(uid) {
     const tokens = await this.redis.getAccessTokens(uid);
+    // Any client with an active access token needs to appear in the list
+    // *unless* they're a canGrant client, in which case they will be
+    // represented by their sessionToken held elsewhere in the system.
     const activeClientTokens = [];
     for (const token of tokens) {
       if (!token.canGrant) {
