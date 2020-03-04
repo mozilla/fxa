@@ -1,125 +1,357 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{language}}" xml:lang="{{language}}">
+<!DOCTYPE html>
+<html>
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
     <title>{{t subject}}</title>
     {{> metadata}}
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        -webkit-text-size-adjust: none;
+        -ms-text-size-adjust: none;
+      }
+      img {
+        line-height: 100%;
+        outline: none;
+        text-decoration: none;
+        -ms-interpolation-mode: bicubic;
+      }
+      a img {
+        border: none;
+      }
+      #backgroundTable {
+        margin: auto;
+        padding: 0;
+        width: 100% !important;
+        max-width: 640;
+      }
+      a,
+      a:link {
+        color: #2a5db0;
+        text-decoration: underline;
+      }
+      table td {
+        border-collapse: collapse;
+      }
+      span {
+        color: inherit;
+        border-bottom: none;
+      }
+      span:hover {
+        background-color: transparent;
+      }
+    </style>
+
+    <style>
+      .scalable-image img {
+        max-width: 640 !important;
+        height: auto !important;
+      }
+      .button a {
+        transition: background-color 0.25s, border-color 0.25s;
+      }
+      .button a:hover {
+        background-color: #0060df !important;
+        border-color: #0060df !important;
+      }
+      @media only screen and (max-width: 400px) {
+        .preheader {
+          font-size: 12px !important;
+          text-align: center !important;
+        }
+        .header--white {
+          text-align: center;
+        }
+        .header--white .header__logo {
+          display: block;
+          margin: 0 auto;
+          width: 118px !important;
+          height: auto !important;
+        }
+        .header--center .header__logo {
+          display: block;
+          width: 118px !important;
+          height: auto !important;
+        }
+      }
+      @media screen and (-webkit-device-pixel-ratio),
+        screen and (-moz-device-pixel-ratio) {
+        .sub-story__image,
+        .sub-story__content {
+          display: block !important;
+        }
+        .sub-story__image {
+          float: center !important;
+          width: 200px;
+        }
+        .sub-story__content {
+          margin-top: 30px !important;
+          margin-left: 200px !important;
+        }
+      }
+      @media only screen and (max-width: 550px) {
+        .sub-story__inner {
+          padding-left: 30px !important;
+        }
+        .sub-story__image,
+        .sub-story__content {
+          margin: 0 auto !important;
+          float: none !important;
+          text-align: center;
+        }
+        .sub-story .button {
+          padding-left: 0 !important;
+        }
+      }
+      @media only screen and (max-width: 400px) {
+        .featured-story--top table,
+        .featured-story--top td {
+          text-align: center;
+        }
+        .featured-story--top__heading td,
+        .sub-story__heading td {
+          font-size: 18px !important;
+        }
+        .featured-story--bottom:nth-child(2) .featured-story--bottom__inner {
+          padding-top: 10px !important;
+        }
+        .featured-story--bottom__inner {
+          padding-top: 20px !important;
+        }
+        .featured-story--bottom__heading td {
+          font-size: 28px !important;
+          line-height: 32px !important;
+        }
+        .featured-story__copy td,
+        .sub-story__copy td {
+          font-size: 14px !important;
+          line-height: 20px !important;
+        }
+        .sub-story table,
+        .sub-story td {
+          text-align: center;
+        }
+        .sub-story__hero img {
+          width: 100px !important;
+          margin: 0 auto;
+        }
+      }
+      @media only screen and (max-width: 400px) {
+        .footer td {
+          font-size: 12px !important;
+          line-height: 16px !important;
+        }
+      }
+    </style>
   </head>
 
   <body
-   style="-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; margin: 0; padding: 0; background: #fbfcfe; font-family: Helvetica, Geneva, Tahoma, Verdana, Arial, sans-serif; font-size: 1em; line-height: 1.2;"
+    style="background: #ffffff; font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size:16pt;"
   >
     <table
-     align="center"
-     width="550"
-     border="0"
-     cellpadding="0"
-     cellspacing="0"
-     style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;"
+      id="backgroundTable"
+      width="100%"
+      cellspacing="0"
+      cellpadding="0"
+      border="0"
+      style="background:#ffffff;"
     >
-      <tr style="page-break-before: always">
-        <td align="left" style="padding: 30px 0 20px;">
-          <a href="https://www.mozilla.org/firefox/new">
-            <img
-             src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo-email.png"
-             width="130"
-             height="43"
-             alt="Firefox"
-             style="-ms-interpolation-mode: bicubic;"
-            />
-          </a>
-        </td>
-      </tr>
-    </table>
+      <tr>
+        <td
+          class="body"
+          align="center"
+          valign="top"
+          style="background:#ffffff;"
+          width="100%"
+        >
+          <table cellpadding="0" cellspacing="0">
+            <tr>
+              <td width="640">
+                <table
+                  style="min-width: 100%; "
+                  class="stylingblock-content-wrapper"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                >
+                  <tr>
+                    <td class="stylingblock-content-wrapper camarker-inner">
+                      <table cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td width="640" align="left">
+                            <table width="100%" cellspacing="0" cellpadding="0">
+                              <tr>
+                                <td
+                                  class="header header--left"
+                                  style="padding: 20px 10px;"
+                                  align="left"
+                                >
+                                  <a
+                                    href="https://www.mozilla.org/firefox/new"
+                                    alias="header_logo_img"
+                                    ><img
+                                      class="header__logo"
+                                      src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo-email.png"
+                                      alt="Firefox"
+                                      style="display: block; border: 0;"
+                                      width="171"
+                                      height="56"
+                                  /></a>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td
+                class="main"
+                width="640"
+                align="center"
+                style="padding: 0 10px;"
+              >
+                <table
+                  style="min-width: 100%; "
+                  class="stylingblock-content-wrapper"
+                  width="100%"
+                  cellspacing="0"
+                  cellpadding="0"
+                >
+                  <tr>
+                    <td class="stylingblock-content-wrapper camarker-inner">
+                      {{{body}}}
+                    </td>
+                  </tr>
+                </table>
 
-    <table
-     align="center"
-     width="550"
-     border="0"
-     cellpadding="0"
-     cellspacing="0"
-     style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto; background: #fff; border-radius: 9px; box-shadow: 0 0 30px #c7cbd6; page-break-before: always;"
-    >
-      {{{body}}}
-    </table>
+                <table
+                  class="featured-story featured-story--bottom"
+                  cellpadding="0"
+                  cellspacing="0"
+                >
+                  <tr>
+                    <td>
+                      <table cellpadding="0" cellspacing="0">
+                        <tr>
+                          <td
+                            class="featured-story--bottom__inner"
+                            style="background: #000000;"
+                          >
+                            <table cellspacing="0" cellpadding="0">
+                              <tr>
+                                <td
+                                  class="featured-story__copy"
+                                  width="640"
+                                  align="center"
+                                  style="padding-top: 10px;background-color:  #000000;"
+                                >
+                                  <table cellspacing="0" cellpadding="0">
+                                    <tr>
+                                      <td
+                                        align="center"
+                                        style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 14px; line-height: 18px; color: #ffffff; padding: 0 20px 30px;"
+                                      >
+                                        <br /><br />You're receiving this email
+                                        because {{{ email }}} has a Firefox
+                                        account and you signed up for
+                                        {{{product}}}.<br /><br />
+                                        Manage your Firefox account settings by
+                                        visiting your
+                                        <a
+                                          href="{{{accountSettingsUrl}}}"
+                                          target="_blank"
+                                          style="color:#ffffff;font-weight:500;"
+                                          alias="AccountPage"
+                                          >account page</a
+                                        >.<br /><br />
+                                        <a
+                                          href="{{{subscriptionTermsUrl}}}"
+                                          target="_blank"
+                                          style="color:#ffffff;font-weight:500;"
+                                          alias="TermsofService"
+                                          >Terms and cancellation policy</a
+                                        >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
+                                          href="{{{cancelSubscriptionUrl}}}"
+                                          target="_blank"
+                                          style="color:#ffffff;font-weight:normal;"
+                                          alias="CancelSubscription"
+                                          >Cancel subscription </a
+                                        >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+                                        <a
+                                          href="{{{updateBillingUrl}}}"
+                                          target="_blank"
+                                          style="color:#ffffff;font-weight:500;"
+                                          alias="UpdateBillingInformation"
+                                          >Update billing information</a
+                                        >
+                                        <br />
+                                      </td>
+                                    </tr>
+                                  </table>
 
-    <table
-     align="center"
-     width="550"
-     border="0"
-     cellpadding="0"
-     cellspacing="0"
-     style="border-collapse: collapse; mso-table-lspace: 0pt; mso-table-rspace: 0pt; margin: 0 auto;"
-    >
-      <tr style="page-break-before: always">
-        <td align="center" valign="top" style="padding: 30px 0 0;">
-          <p style="font-weight: normal; margin: 0; color: #888; font-size: 0.75em; word-wrap: break-word;">
-            {{t "This is an automated email; if you received it in error, no action is required."}}
-          </p>
-        </td>
-      </tr>
+                                  <table cellspacing="0" cellpadding="0">
+                                    <tr>
+                                      <td
+                                        align="center"
+                                        style="font-family: Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 14px; line-height: 18px; color: #ffffff; padding: 0 20px 40px;"
+                                      >
+                                        <a
+                                          href="https://www.mozilla.org"
+                                          alias="footer_newwater"
+                                          target="_blank"
+                                          ><img
+                                            src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/5/75347105-3854-4a13-902c-4b45cd80bf54.png"
+                                            alt="Mozilla"
+                                            style="display: block; border: 0;"
+                                            width="120"
+                                        /></a>
+                                        <br />
 
-      <tr style="page-break-before: always">
-        <td align="center" valign="top" style="padding: 12px 0 0;">
-          <p style="font-weight: normal; margin: 0; color: #888; font-size: 0.75em; word-wrap: break-word;">
-            <a
-             href="{{{subscriptionTermsUrl}}}"
-             style="color: #888;"
-            >
-              {{t "Terms and cancellation policy"}}
-            </a>
-            &bull;
-            <a
-             href="{{{privacyUrl}}}"
-             style="color: #888;"
-            >
-              {{t "Privacy notice"}}
-            </a>
-            &bull;
-            <a
-             href="{{{cancelSubscriptionUrl}}}"
-             style="color: #888;"
-            >
-              {{t "Cancel subscription"}}
-            </a>
-            &bull;
-            <a
-             href="{{{updateBillingUrl}}}"
-             style="color: #888;"
-            >
-              {{t "Update billing information"}}
-            </a>
-          </p>
-        </td>
-      </tr>
-
-      <tr style="page-break-before: always">
-        <td align="center" valign="top" style="padding: 15px 0 0;">
-          <img
-           src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/3/moz-social-bw-rgb.png"
-           height="30"
-           width="30"
-           alt=""
-           style="-ms-interpolation-mode: bicubic;"
-          />
-        </td>
-      </tr>
-
-      <tr style="page-break-before: always">
-        <td align="center" valign="top" style="padding: 8px 0 0;">
-          <p style="font-weight: normal; margin: 0; color: #888; font-size: 0.75em; word-wrap: break-word;">
-            Mozilla
-          </p>
-        </td>
-      </tr>
-
-      <tr style="page-break-before: always">
-        <td align="center" valign="top" style="padding: 6px 0 0;">
-          <p style="font-weight: normal; margin: 0; color: #888; font-size: 0.75em; word-wrap: break-word;">
-            331 E Evelyn Ave, Mountain View, CA 94041
-          </p>
+                                        <br />
+                                        331 E. Evelyn Ave. Mountain View,
+                                        California, USA 94041
+                                        <br />
+                                        <a
+                                          href="https://www.mozilla.org/about/legal/terms/services/"
+                                          target="_blank"
+                                          style="color:#ffffff;font-weight:500;"
+                                          alias="textlink1"
+                                          >Legal</a
+                                        >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
+                                          href="{{{privacyUrl}}}"
+                                          target="_blank"
+                                          style="color:#ffffff;font-weight:normal;"
+                                          alias="textlink2"
+                                          >Privacy</a
+                                        >
+                                      </td>
+                                    </tr>
+                                  </table>
+                                </td>
+                              </tr>
+                            </table>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
         </td>
       </tr>
     </table>
   </body>
+
+  <!-- Exact Target tracking code -->
+  <custom name="opencounter" type="tracking"> </custom>
 </html>

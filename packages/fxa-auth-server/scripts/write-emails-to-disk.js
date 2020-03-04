@@ -85,7 +85,7 @@ function sendMail(mailer, messageToSend) {
   const message = {
     acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
     code: '123123',
-    email: 'testuser@testuser.com',
+    email: 'testuser+testbox@testuser.com',
     ip: '10.246.67.38',
     location: {
       city: 'Madrid',

@@ -702,6 +702,16 @@ const conf = convict({
       default: 3 * 31 * 24 * 60 * 60, // ~3 months
       env: 'STRIPE_CUSTOMER_CACHE_TTL_SECONDS',
     },
+    transactionalEmails: {
+      // See also: https://jira.mozilla.com/browse/FXA-1148
+      enabled: {
+        doc:
+          'Indicates whether FxA sends transactional lifecycle emails for subscriptions (i.e. versus Marketing Cloud)',
+        format: Boolean,
+        env: 'SUBSCRIPTIONS_TRANSACTIONAL_EMAILS_ENABLED',
+        default: false,
+      },
+    },
   },
   oauth: {
     url: {
