@@ -104,6 +104,16 @@ function createMockRedis() {
 
 mockConfig.redis = mockRedisConfig;
 
+/**
+ * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
+ * a deep copy of the object can be created which uses the test object as a template
+ *
+ * @param {Object} object
+ */
+function deepCopy(object) {
+  return JSON.parse(JSON.stringify(object));
+}
+
 describe('StripeHelper', () => {
   /** @type StripeHelper */
   let stripeHelper;
@@ -328,7 +338,7 @@ describe('StripeHelper', () => {
     describe('customer owns subscription', () => {
       describe('the intial subscription has a active status', () => {
         it('returns the updated subscription', async () => {
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           sandbox
             .stub(stripeHelper, 'subscriptionForCustomer')
             .resolves(subscription2);
@@ -352,7 +362,7 @@ describe('StripeHelper', () => {
 
       describe('the initial subscription has a trialing status', () => {
         it('returns the updated subscription', async () => {
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           expected.status = 'trialing';
 
           sandbox
@@ -377,7 +387,7 @@ describe('StripeHelper', () => {
       });
       describe('the updated subscription is not in a active||trialing state', () => {
         it('throws an error', () => {
-          const expected = Object.create(subscription2);
+          const expected = deepCopy(subscription2);
           expected.status = 'unpaid';
 
           sandbox
@@ -423,7 +433,7 @@ describe('StripeHelper', () => {
 
   describe('createCustomer', () => {
     it('creates a customer using stripe api', async () => {
-      const expected = Object.create(newCustomer);
+      const expected = deepCopy(newCustomer);
       sandbox.stub(stripeHelper.stripe.customers, 'create').returns(expected);
 
       const actual = await stripeHelper.createCustomer(
@@ -473,7 +483,7 @@ describe('StripeHelper', () => {
     let scopeContextSpy, scopeSpy;
 
     beforeEach(() => {
-      subscription = Object.create(subscription2);
+      subscription = deepCopy(subscription2);
 
       scopeContextSpy = sinon.fake();
       scopeSpy = {
@@ -484,7 +494,7 @@ describe('StripeHelper', () => {
 
     describe('customer exists and has FxA UID on metadata', () => {
       it('returns the uid and email information found on the customer object', async () => {
-        customer = Object.create(newCustomer);
+        customer = deepCopy(newCustomer);
         sandbox
           .stub(stripeHelper.stripe.customers, 'retrieve')
           .resolves(customer);
@@ -504,7 +514,7 @@ describe('StripeHelper', () => {
 
     describe('customer deleted', () => {
       it('returns undefined for uid and email', async () => {
-        customer = Object.create(deletedCustomer);
+        customer = deepCopy(deletedCustomer);
         sandbox
           .stub(stripeHelper.stripe.customers, 'retrieve')
           .resolves(customer);
@@ -521,7 +531,7 @@ describe('StripeHelper', () => {
 
     describe('customer exists but is missing FxA UID on metadata', () => {
       it('notifies Sentry and returns undefined for uid', async () => {
-        customer = Object.create(newCustomer);
+        customer = deepCopy(newCustomer);
         customer.metadata = {};
         sandbox
           .stub(stripeHelper.stripe.customers, 'retrieve')
@@ -540,7 +550,7 @@ describe('StripeHelper', () => {
 
   describe('updateCustomerPaymentMethod', () => {
     it('updates a customer using stripe api', async () => {
-      const expected = Object.create(customer1);
+      const expected = deepCopy(customer1);
       sandbox.stub(stripeHelper.stripe.customers, 'update').returns(expected);
 
       const actual = await stripeHelper.updateCustomerPaymentMethod(
@@ -627,9 +637,9 @@ describe('StripeHelper', () => {
 
     describe('when a customer has subscriptions and they are more than one page', () => {
       it('loads all of the subscriptions for the user', async () => {
-        const customer = Object.create(newCustomer);
-        const custSubscription1 = Object.create(subscription1);
-        const custSubscription2 = Object.create(subscription2);
+        const customer = deepCopy(newCustomer);
+        const custSubscription1 = deepCopy(subscription1);
+        const custSubscription2 = deepCopy(subscription2);
 
         customer.subscriptions.data = [custSubscription1];
         customer.subscriptions.has_more = true;
@@ -926,8 +936,8 @@ describe('StripeHelper', () => {
 
     describe('subscription created', () => {
       describe('invoice paid', () => {
-        const subscription = Object.create(subscription1);
-        subscription.latest_invoice = Object.create(paidInvoice);
+        const subscription = deepCopy(subscription1);
+        subscription.latest_invoice = deepCopy(paidInvoice);
         subscription.latest_invoice.payment_intent = successfulPaymentIntent;
 
         it('returns the subscription', async () => {
@@ -946,8 +956,8 @@ describe('StripeHelper', () => {
       });
 
       describe('invoice not paid', () => {
-        const subscription = Object.create(subscription1);
-        subscription.latest_invoice = Object.create(unpaidInvoice);
+        const subscription = deepCopy(subscription1);
+        subscription.latest_invoice = deepCopy(unpaidInvoice);
         subscription.latest_invoice.payment_intent = unsuccessfulPaymentIntent;
 
         it('throws a payment failed error', async () => {
@@ -974,7 +984,7 @@ describe('StripeHelper', () => {
   describe('paidInvoice', () => {
     describe("when Invoice status is 'paid'", () => {
       describe("Payment Intent Status is 'succeeded'", () => {
-        const invoice = Object.create(paidInvoice);
+        const invoice = deepCopy(paidInvoice);
         invoice.payment_intent = successfulPaymentIntent;
         it('should return true', () => {
           assert.isTrue(stripeHelper.paidInvoice(invoice));
@@ -982,7 +992,7 @@ describe('StripeHelper', () => {
       });
 
       describe("Payment Intent Status is NOT 'succeeded'", () => {
-        const invoice = Object.create(paidInvoice);
+        const invoice = deepCopy(paidInvoice);
         invoice.payment_intent = unsuccessfulPaymentIntent;
         it('should return false', () => {
           assert.isFalse(stripeHelper.paidInvoice(invoice));
@@ -992,7 +1002,7 @@ describe('StripeHelper', () => {
 
     describe("when Invoice status is NOT 'paid'", () => {
       describe("Payment Intent Status is 'succeeded'", () => {
-        const invoice = Object.create(unpaidInvoice);
+        const invoice = deepCopy(unpaidInvoice);
         invoice.payment_intent = successfulPaymentIntent;
         it('should return false', () => {
           assert.isFalse(stripeHelper.paidInvoice(invoice));
@@ -1000,7 +1010,7 @@ describe('StripeHelper', () => {
       });
 
       describe("Payment Intent Status is NOT 'succeeded'", () => {
-        const invoice = Object.create(unpaidInvoice);
+        const invoice = deepCopy(unpaidInvoice);
         invoice.payment_intent = unsuccessfulPaymentIntent;
         it('should return false', () => {
           assert.isFalse(stripeHelper.paidInvoice(invoice));
@@ -1012,7 +1022,7 @@ describe('StripeHelper', () => {
   describe('payInvoice', () => {
     describe('invoice is created', () => {
       it('returns the invoice if marked as paid', async () => {
-        const expected = Object.create(paidInvoice);
+        const expected = deepCopy(paidInvoice);
         expected.payment_intent = successfulPaymentIntent;
         sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves(expected);
 
@@ -1022,7 +1032,7 @@ describe('StripeHelper', () => {
       });
 
       it('throws an error if invoice is not marked as paid', async () => {
-        const expected = Object.create(paidInvoice);
+        const expected = deepCopy(paidInvoice);
         expected.payment_intent = unsuccessfulPaymentIntent;
         sandbox.stub(stripeHelper.stripe.invoices, 'pay').resolves(expected);
 
