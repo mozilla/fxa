@@ -175,6 +175,7 @@ describe('ServiceNotificationProcessor', () => {
       await pEvent(consumer.app, 'message_processed');
       consumer.stop();
       assert.calledWith(db.fetchClientIds as SinonSpy);
+      assert.calledOnce(logger.debug as SinonSpy);
     });
   }
 
