@@ -18,15 +18,11 @@ import './index.scss';
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 
-import SubscriptionRedirect from './SubscriptionRedirect';
+import SubscriptionSuccess from './SubscriptionSuccess';
 import SubscriptionCreate from './SubscriptionCreate';
 import SubscriptionUpgrade from './SubscriptionUpgrade';
 import PlanDetails from '../../components/PlanDetails';
 import Header from '../../components/Header';
-
-const isMobile = window.matchMedia(
-  '(max-width: 520px), (orientation: landscape) and (max-width: 640px)'
-).matches;
 
 export type ProductProps = {
   match: {
@@ -67,8 +63,9 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams } = useContext(AppContext);
+  const { locationReload, queryParams, matchMedia } = useContext(AppContext);
 
+  const isMobile = matchMedia('(min-width: 768px)');
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
 
@@ -173,7 +170,9 @@ export const Product = ({
 
     // Do we already have a subscription to the product in the selected plan?
     if (customerIsSubscribedToProduct(customerSubscriptions, productPlans)) {
-      return <SubscriptionRedirect {...{ plan: selectedPlan }} />;
+      return (
+        <SubscriptionSuccess {...{ plan: selectedPlan, customer: customer.result, profile: profile.result }} />
+      );
     }
   }
 
