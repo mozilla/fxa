@@ -49,6 +49,7 @@
         "id": "sub_test1",
         "object": "subscription",
         "application_fee_percent": null,
+        "created": 1582765012,
         "current_period_start": 1565895370,
         "current_period_end": 1568573770,
         "cancel_at_period_end": false,

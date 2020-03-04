@@ -28,10 +28,13 @@ const product2 = require('./fixtures/product2.json');
 const product3 = require('./fixtures/product3.json');
 const subscription1 = require('./fixtures/subscription1.json');
 const subscription2 = require('./fixtures/subscription2.json');
-const paidInvoice = require('../payments/fixtures/invoice_paid.json');
-const unpaidInvoice = require('../payments/fixtures/invoice_open.json');
-const successfulPaymentIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
-const unsuccessfulPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
+const cancelledSubscription = require('./fixtures/subscription_cancelled.json');
+const pastDueSubscription = require('./fixtures/subscription_past_due.json');
+const paidInvoice = require('./fixtures/invoice_paid.json');
+const unpaidInvoice = require('./fixtures/invoice_open.json');
+const successfulPaymentIntent = require('./fixtures/paymentIntent_succeeded.json');
+const unsuccessfulPaymentIntent = require('./fixtures/paymentIntent_requires_payment_method.json');
+const failedCharge = require('./fixtures/charge_failed.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -1114,6 +1117,248 @@ describe('StripeHelper', () => {
 
       const actual = stripeHelper.constructWebhookEvent([], 'signature');
       assert.equal(actual, expected);
+    });
+  });
+
+  describe('subscriptionsToResponse', () => {
+    const planName = 'FPN Tier 1 Monthly';
+
+    beforeEach(() => {
+      sandbox.stub(stripeHelper, 'formatPlanDisplayName').returns(planName);
+    });
+
+    describe('when is one subscription', () => {
+      describe('when there is a subscription with an incomplete status', () => {
+        it('should not include the subscription', async () => {
+          const subscription = deepCopy(subscription1);
+          subscription.status = 'incomplete';
+
+          const input = {
+            data: [subscription],
+          };
+
+          const expected = [];
+          const actual = await stripeHelper.subscriptionsToResponse(input);
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+
+      describe('when there is a subscription with an incomplete_expired status', () => {
+        it('should not include the subscription', async () => {
+          const subscription = deepCopy(subscription1);
+          subscription.status = 'incomplete_expired';
+
+          const input = {
+            data: [subscription],
+          };
+
+          const expected = [];
+          const actual = await stripeHelper.subscriptionsToResponse(input);
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+
+      describe('when there is a charge-automatically payment that is past due', () => {
+        const expected = [
+          {
+            current_period_end: pastDueSubscription.current_period_end,
+            current_period_start: pastDueSubscription.current_period_start,
+            cancel_at_period_end: false,
+            end_at: null,
+            plan_name: planName,
+            plan_id: pastDueSubscription.plan.id,
+            status: 'past_due',
+            subscription_id: pastDueSubscription.id,
+            failure_code: failedCharge.failure_code,
+            failure_message: failedCharge.failure_message,
+          },
+        ];
+
+        beforeEach(() => {
+          sandbox
+            .stub(stripeHelper.stripe.charges, 'retrieve')
+            .returns(failedCharge);
+        });
+
+        describe('when the charge is already expanded', () => {
+          it('includes charge failure information with the subscription data', async () => {
+            const subscription = deepCopy(pastDueSubscription);
+            const invoice = deepCopy(unpaidInvoice);
+            invoice.charge = failedCharge;
+            subscription.latest_invoice = invoice;
+
+            const input = { data: [subscription] };
+
+            const actual = await stripeHelper.subscriptionsToResponse(input);
+
+            assert.deepEqual(actual, expected);
+            assert.isTrue(stripeHelper.stripe.charges.retrieve.notCalled);
+            assert.isDefined(actual[0].failure_code);
+            assert.isDefined(actual[0].failure_message);
+          });
+        });
+
+        describe('when the charge is not expanded', () => {
+          it('expands the charge and includes charge failure information with the subscription data', async () => {
+            const subscription = deepCopy(pastDueSubscription);
+            const invoice = deepCopy(unpaidInvoice);
+            subscription.latest_invoice = invoice;
+
+            const input = { data: [subscription] };
+
+            const actual = await stripeHelper.subscriptionsToResponse(input);
+
+            assert.deepEqual(actual, expected);
+            assert.isTrue(stripeHelper.stripe.charges.retrieve.calledOnce);
+            assert.isDefined(actual[0].failure_code);
+            assert.isDefined(actual[0].failure_message);
+          });
+        });
+      });
+
+      describe('when the subscription is not past_due, incomplete, or incomplete_expired', () => {
+        describe('when the subscription is active', () => {
+          it('formats the subscription', async () => {
+            const input = { data: [subscription1] };
+            const expected = [
+              {
+                current_period_end: subscription1.current_period_end,
+                current_period_start: subscription1.current_period_start,
+                cancel_at_period_end: false,
+                end_at: null,
+                plan_name: planName,
+                plan_id: subscription1.plan.id,
+                status: 'active',
+                subscription_id: subscription1.id,
+                failure_code: undefined,
+                failure_message: undefined,
+              },
+            ];
+
+            const actual = await stripeHelper.subscriptionsToResponse(input);
+            assert.deepEqual(actual, expected);
+          });
+        });
+
+        describe('when the subscription is set to cancel', () => {
+          it('sets cancel_at_period_end to `true` and end_at to `null`', async () => {
+            const subscription = deepCopy(subscription1);
+            subscription.cancel_at_period_end = true;
+            const input = { data: [subscription] };
+            const expected = [
+              {
+                current_period_end: subscription.current_period_end,
+                current_period_start: subscription.current_period_start,
+                cancel_at_period_end: true,
+                end_at: null,
+                plan_name: planName,
+                plan_id: subscription.plan.id,
+                status: 'active',
+                subscription_id: subscription.id,
+                failure_code: undefined,
+                failure_message: undefined,
+              },
+            ];
+
+            const actual = await stripeHelper.subscriptionsToResponse(input);
+            assert.deepEqual(actual, expected);
+          });
+        });
+
+        describe('when the subscription has already ended', () => {
+          it('set end_at to the last active day of the subscription', async () => {
+            const input = { data: [cancelledSubscription] };
+            const expected = [
+              {
+                current_period_end: cancelledSubscription.current_period_end,
+                current_period_start:
+                  cancelledSubscription.current_period_start,
+                cancel_at_period_end: false,
+                end_at: cancelledSubscription.ended_at,
+                plan_name: planName,
+                plan_id: cancelledSubscription.plan.id,
+                status: 'canceled',
+                subscription_id: cancelledSubscription.id,
+                failure_code: undefined,
+                failure_message: undefined,
+              },
+            ];
+
+            const actual = await stripeHelper.subscriptionsToResponse(input);
+            assert.deepEqual(actual, expected);
+            assert.isNotNull(actual[0].end_at);
+          });
+        });
+      });
+    });
+
+    describe('when there are no subscriptions', () => {
+      it('returns an empty array', async () => {
+        const expected = [];
+        const actual = await stripeHelper.subscriptionsToResponse({ data: [] });
+
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    describe('when there are multiple subscriptions', () => {
+      it('returns a formatted version of all not incomplete or incomplete_expired subscriptions', async () => {
+        const incompleteSubscription = deepCopy(subscription1);
+        incompleteSubscription.status = 'incomplete';
+        incompleteSubscription.id = 'sub_incomplete';
+
+        const input = {
+          data: [subscription1, incompleteSubscription, subscription2],
+        };
+
+        const response = await stripeHelper.subscriptionsToResponse(input);
+
+        assert.lengthOf(response, 2);
+        assert.isDefined(
+          response.find(x => x.subscription_id === subscription1.id),
+          'should contain subscription1'
+        );
+        assert.isDefined(
+          response.find(x => x.subscription_id === subscription2.id),
+          'should contain subscription2'
+        );
+        assert.isUndefined(
+          response.find(x => x.subscription_id === incompleteSubscription.id),
+          'should not contain incompleteSubscription'
+        );
+      });
+    });
+  });
+
+  describe('formatPlanDisplayName', () => {
+    it('return a display name based off the plan interval and product name', async () => {
+      let actual, expected;
+      const plan = deepCopy(plan1);
+      const productName = plan.product.name;
+
+      sandbox.stub(stripeHelper, 'getProductName').returns(productName);
+
+      plan.interval = 'day';
+      expected = `${productName} Daily`;
+      actual = await stripeHelper.formatPlanDisplayName(plan);
+      assert.equal(actual, expected, 'it should format daily');
+
+      plan.interval = 'week';
+      expected = `${productName} Weekly`;
+      actual = await stripeHelper.formatPlanDisplayName(plan);
+      assert.equal(actual, expected, 'it should format weekly');
+
+      plan.interval = 'month';
+      expected = `${productName} Monthly`;
+      actual = await stripeHelper.formatPlanDisplayName(plan);
+      assert.equal(actual, expected, 'it should format monthly');
+
+      plan.interval = 'year';
+      expected = `${productName} Yearly`;
+      actual = await stripeHelper.formatPlanDisplayName(plan);
+      assert.equal(actual, expected, 'it should format yearly');
     });
   });
 });
