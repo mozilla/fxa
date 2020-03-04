@@ -137,7 +137,10 @@ describe('views/post_verify/account_recovery/add_recovery_key', () => {
 
       it('calls correct broker methods', () => {
         assert.isTrue(
-          view.invokeBrokerMethod.calledWith('afterCompleteSignIn', account)
+          view.invokeBrokerMethod.calledWith(
+            'afterAbortAddPostVerifyRecovery',
+            account
+          )
         );
       });
     });

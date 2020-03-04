@@ -308,6 +308,30 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
   },
 
   /**
+   * Called after the post-verify recovery setup is complete.
+   *
+   * @param {Object} account
+   * @return {Promise}
+   */
+  afterCompleteAddPostVerifyRecovery(account) {
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterCompleteAddPostVerifyRecovery')
+    );
+  },
+
+  /**
+   * Called after the post-verify recovery setup is aborted, via "Maybe later" links.
+   *
+   * @param {Object} account
+   * @return {Promise}
+   */
+  afterAbortAddPostVerifyRecovery(account) {
+    return this.unpersistVerificationData(account).then(() =>
+      this.getBehavior('afterAbortAddPostVerifyRecovery')
+    );
+  },
+
+  /**
    * Called after primary email verification, in the verification tab.
    *
    * @param {Object} account

@@ -246,7 +246,7 @@ module.exports = {
   POST_VERIFY_ADD_RECOVERY_KEY: {
     ERROR: '.error',
     HEADER: '#fxa-add-account-recovery-header',
-    MAYBE_LATER: '.maybe-later-btn',
+    MAYBE_LATER: '#maybe-later-btn',
     SUBMIT: 'button[type="submit"]',
   },
   POST_VERIFY_CONFIRM_PASSWORD: {
@@ -255,6 +255,7 @@ module.exports = {
     PASSWORD: 'input[type=password]',
     SUBMIT: 'button[type="submit"]',
     TOOLTIP: 'input[type=password] ~ .tooltip',
+    MAYBE_LATER: '#maybe-later-btn',
   },
   POST_VERIFY_SAVE_RECOVERY_KEY: {
     ERROR: '.error',

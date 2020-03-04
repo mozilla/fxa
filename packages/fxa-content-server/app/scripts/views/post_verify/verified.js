@@ -54,7 +54,10 @@ class Verified extends FormView {
 
   submit() {
     const account = this.getSignedInAccount();
-    return this.invokeBrokerMethod('afterCompleteSignIn', account);
+    return this.invokeBrokerMethod(
+      'afterCompleteAddPostVerifyRecovery',
+      account
+    );
   }
 
   _getHeaderId() {

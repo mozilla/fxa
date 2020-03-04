@@ -26,7 +26,9 @@ export default function(defaultBehavior, options = {}) {
         let success = t('Account verified successfully');
         let endpoint = 'settings';
 
-        if (options.success) {
+        // Strict comparison because undefined == null, but undefined !== null, and
+        // we want to be able to intentionally unset this value via options.success.
+        if (options.success !== null) {
           success = options.success;
         }
 

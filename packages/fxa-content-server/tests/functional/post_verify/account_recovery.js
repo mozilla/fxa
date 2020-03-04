@@ -26,6 +26,8 @@ const {
   testElementExists,
   testElementTextInclude,
   testElementTextNotEmpty,
+  testSuccessWasShown,
+  testSuccessWasNotShown,
   thenify,
   type,
 } = FunctionalHelpers;
@@ -120,8 +122,39 @@ registerSuite('post_verify_account_recovery', {
               testElementExists(
                 selectors.POST_VERIFY_RECOVERY_KEY_VERIFIED.HEADER
               )
-            );
+            )
+            .then(click(selectors.POST_VERIFY_RECOVERY_KEY_VERIFIED.SUBMIT))
+            .then(testSuccessWasShown('Account recovery enabled'));
         });
+    },
+    'abort account recovery at add_recovery_key': function() {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(
+          openPage(
+            ACCOUNT_RECOVERY_URL,
+            selectors.POST_VERIFY_ADD_RECOVERY_KEY.HEADER
+          )
+        )
+        .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.MAYBE_LATER))
+        .then(testSuccessWasNotShown());
+    },
+    'abort account recovery at confirm_password': function() {
+      return this.remote
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+        .then(
+          openPage(
+            ACCOUNT_RECOVERY_URL,
+            selectors.POST_VERIFY_ADD_RECOVERY_KEY.HEADER
+          )
+        )
+        .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.SUBMIT))
+        .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.MAYBE_LATER))
+        .then(testSuccessWasNotShown());
     },
   },
 });

@@ -75,7 +75,7 @@ class ConfirmPassword extends FormView {
 
   clickMaybeLater() {
     const account = this.getSignedInAccount();
-    this.invokeBrokerMethod('afterCompleteSignIn', account);
+    this.invokeBrokerMethod('afterAbortAddPostVerifyRecovery', account);
   }
 }
 
