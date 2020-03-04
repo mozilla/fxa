@@ -93,7 +93,12 @@ const View = BaseView.extend({
       ccExpired: !!this._ccExpired,
       escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),
-      showSignOut: !account.isFromSync(),
+      showSignOut:
+        // Note: For sync clients and oauth based sync clients, they have their
+        // own UX for signing a user out, typically within their own app.
+        // In these scenarios we don't show the sign out button.
+        !account.isFromSync() &&
+        !(this.relier.isOAuth() && this.relier.containsOldSyncScope()),
       unsafeHeaderHTML: this._getHeaderHTML(account),
     });
   },

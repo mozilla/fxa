@@ -177,6 +177,14 @@ var OAuthRelier = Relier.extend({
     return true;
   },
 
+  containsOldSyncScope() {
+    const permissions = this.scopeStrToArray(this.get('scope'));
+    if (permissions.includes(Constants.OAUTH_OLDSYNC_SCOPE)) {
+      return true;
+    }
+    return false;
+  },
+
   _isVerificationFlow() {
     return !!this.getSearchParam('code');
   },

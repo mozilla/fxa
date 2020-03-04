@@ -262,6 +262,22 @@ describe('views/settings', function() {
         assert.equal(error.message, 'WIBBLE');
       });
     });
+
+    describe('beforeRender with oauth client and oldsync scope', () => {
+      beforeEach(() => {
+        relier.containsOldSyncScope = () => {
+          return true;
+        };
+        sinon.stub(relier, 'isOAuth').callsFake(() => true);
+        return view.beforeRender();
+      });
+
+      it('set showSignOut to false', () => {
+        view.setInitialContext(context);
+        assert.equal(context.set.callCount, 1);
+        assert.isFalse(context.set.args[0][0].showSignOut);
+      });
+    });
   });
 
   describe('with uid', function() {
