@@ -69,6 +69,7 @@ class ConfirmRecoveryKey extends FormView {
       })
       .then(() => {
         this.metrics.logUserPreferences('account-recovery', true);
+        this.logFlowEvent('success', this.viewName);
         return this.navigate(
           '/post_verify/account_recovery/verified_recovery_key'
         );

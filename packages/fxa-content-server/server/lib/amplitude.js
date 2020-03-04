@@ -101,6 +101,115 @@ const EVENTS = {
     event: 'signup_code_submit',
   },
 
+  // Add recovery key metrics
+  'screen.add-recovery-key': {
+    group: GROUPS.settings,
+    event: 'add_recovery_key_view',
+  },
+  'flow.add-recovery-key.submit': {
+    group: GROUPS.settings,
+    event: 'add_recovery_key_submit',
+  },
+
+  // Recovery key confirm password
+  'screen.confirm-password': {
+    group: GROUPS.settings,
+    event: 'recovery_key_confirm_password_view',
+  },
+  'flow.confirm-password.engage': {
+    group: GROUPS.settings,
+    event: 'recovery_key_confirm_password_engage',
+  },
+  'flow.confirm-password.submit': {
+    group: GROUPS.settings,
+    event: 'recovery_key_confirm_password_submit',
+  },
+  'flow.confirm-password.success': {
+    group: GROUPS.settings,
+    event: 'recovery_key_confirm_password_success',
+  },
+
+  // Save recovery key
+  'screen.save-recovery-key': {
+    group: GROUPS.settings,
+    event: 'save_recovery_key_view',
+  },
+  'flow.save-recovery-key.submit': {
+    group: GROUPS.settings,
+    event: 'save_recovery_key_submit',
+  },
+  'flow.save-recovery-key.copy': {
+    group: GROUPS.settings,
+    event: 'save_recovery_key_copy',
+  },
+  'flow.save-recovery-key.download': {
+    group: GROUPS.settings,
+    event: 'save_recovery_key_download',
+  },
+  'flow.save-recovery-key.print': {
+    group: GROUPS.settings,
+    event: 'save_recovery_key_print',
+  },
+
+  // Confirm recovery key
+  'screen.confirm-recovery-key': {
+    group: GROUPS.settings,
+    event: 'confirm_recovery_key_view',
+  },
+  'flow.confirm-recovery-key.engage': {
+    group: GROUPS.settings,
+    event: 'confirm_recovery_key_engage',
+  },
+  'flow.confirm-recovery-key.submit': {
+    group: GROUPS.settings,
+    event: 'confirm_recovery_key_submit',
+  },
+  'flow.confirm-recovery-key.success': {
+    group: GROUPS.settings,
+    event: 'confirm_recovery_key_success',
+  },
+
+  // Verified recovery key
+  'screen.post-verify.account-recovery.verified-recovery-key': {
+    group: GROUPS.settings,
+    event: 'verified_recovery_key_view',
+  },
+  'flow.post-verify.account-recovery.verified-recovery-key.submit': {
+    group: GROUPS.settings,
+    event: 'verified_recovery_key_submit',
+  },
+
+  'screen.account-recovery-confirm-key': {
+    group: GROUPS.login,
+    event: 'forgot_password_confirm_recovery_key_view',
+  },
+  'flow.account-recovery-confirm-key.engage': {
+    group: GROUPS.login,
+    event: 'forgot_password_confirm_recovery_key_engage',
+  },
+  'flow.account-recovery-confirm-key.submit': {
+    group: GROUPS.login,
+    event: 'forgot_password_confirm_recovery_key_submit',
+  },
+
+  // Password reset with recovery key metrics
+  'screen.account-recovery-reset-password': {
+    group: GROUPS.login,
+    event: 'forgot_password_recovery_key_view',
+  },
+  'flow.account-recovery-reset-password.engage': {
+    group: GROUPS.login,
+    event: 'forgot_password_recovery_key_engage',
+  },
+  'flow.account-recovery-reset-password.submit': {
+    group: GROUPS.login,
+    event: 'forgot_password_recovery_key_submit',
+  },
+  'flow.account-recovery-reset-password.recovery-key-consume.success': {
+    group: GROUPS.login,
+    event: 'forgot_password_recovery_key_success',
+  },
+
   'screen.connect-another-device': {
     group: GROUPS.connectDevice,
     event: 'view',
