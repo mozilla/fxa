@@ -138,3 +138,16 @@ fn verify_code() {
     assert_eq!(header.to_string(), "wibble");
     assert_eq!(VerifyCode::header_name(), "X-Verify-Code");
 }
+
+#[test]
+fn any_header_length() {
+    // No header value should be longer than 998 characters, minus the length of the header name
+    let header = Link::new(std::iter::repeat("X").take(999).collect::<String>().to_owned());
+    assert!(header.to_string().chars().count() <= HEADER_MAX_LENGTH - Link::header_name().len());
+
+    let header = DeviceId::new(std::iter::repeat("X").take(999).collect::<String>().to_owned());
+    assert!(header.to_string().chars().count() <= HEADER_MAX_LENGTH - DeviceId::header_name().len());
+
+    let header = ReportSigninLink::new(std::iter::repeat("X").take(999).collect::<String>().to_owned());
+    assert!(header.to_string().chars().count() <= HEADER_MAX_LENGTH - ReportSigninLink::header_name().len());
+}

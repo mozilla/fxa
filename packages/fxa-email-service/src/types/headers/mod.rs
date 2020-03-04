@@ -28,6 +28,10 @@ use hyperx::{
     header::{parsing::from_one_raw_str, Formatter, Raw as RawHeader},
 };
 
+// No header's total length should be greater than 998 characters
+// See: https://tools.ietf.org/html/rfc5322#section-2.1.1
+const HEADER_MAX_LENGTH: usize = 998;
+
 macro_rules! custom_header {
     ($struct_name:ident, $header_name:expr) => {
         #[derive(Clone, Debug)]
@@ -36,7 +40,8 @@ macro_rules! custom_header {
         }
 
         impl $struct_name {
-            pub fn new(value: String) -> Self {
+            pub fn new(mut value: String) -> Self {
+                value.truncate(HEADER_MAX_LENGTH - $header_name.len());
                 Self { value }
             }
         }
