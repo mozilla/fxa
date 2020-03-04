@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import Cocktail from 'cocktail';
 import AuthErrors from 'lib/auth-errors';
+import ServiceMixin from '../mixins/service-mixin';
 import FormView from '../form';
 import Template from '../../templates/sign_in_totp_code.mustache';
 
@@ -39,5 +41,7 @@ const View = FormView.extend({
       .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
   },
 });
+
+Cocktail.mixin(View, ServiceMixin);
 
 export default View;
