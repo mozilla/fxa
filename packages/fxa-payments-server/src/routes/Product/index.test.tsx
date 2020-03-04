@@ -164,13 +164,9 @@ describe('routes/Product', () => {
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
-    await findByText("Set up your subscription");
-    expect(
-      queryByText('30-day money-back guarantee')
-    ).toBeInTheDocument();
-    expect(
-      queryByText('Billing Information')
-    ).toBeInTheDocument();
+    await findByText('Set up your subscription');
+    expect(queryByText('30-day money-back guarantee')).toBeInTheDocument();
+    expect(queryByText('Billing Information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   };
 
@@ -269,7 +265,7 @@ describe('routes/Product', () => {
     );
     const { getByTestId, findByText } = renderResult;
 
-    await findByText("Let's set up your subscription");
+    await findByText('Set up your subscription');
 
     act(() => {
       for (const testid of STRIPE_FIELDS) {
@@ -306,17 +302,13 @@ describe('routes/Product', () => {
         getByAltText,
         getByTestId,
         findByText,
-        queryByText,
-        matchMedia,
-        navigateToUrl,
         apiMocks,
       } = await commonSubmitSetup(createToken, useDefaultIcon);
 
       fireEvent.click(getByTestId('submit'));
 
-      await findByText('Your subscription is ready');
+      await findByText('Product details');
       expectProductImage({ getByAltText, useDefaultIcon });
-      expect(matchMedia).toBeCalledWith(SMALL_DEVICE_RULE);
       expect(createToken).toBeCalled();
       expectNockScopesDone(apiMocks);
     });
@@ -330,11 +322,11 @@ describe('routes/Product', () => {
         .fn()
         .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
 
-      const { findByText, queryByText, getByAltText } = render(
+      const { findByText, getByAltText } = render(
         <Subject {...{ matchMedia, navigateToUrl, createToken }} />
       );
 
-      await findByText('Your subscription is ready');
+      await findByText('Product details');
       expectProductImage({ getByAltText, useDefaultIcon });
       expect(createToken).not.toBeCalled();
       expectNockScopesDone(apiMocks);
@@ -384,7 +376,7 @@ describe('routes/Product', () => {
     const renderResult = render(<Subject />);
     const { getByTestId, findByText } = renderResult;
 
-    await findByText("Let's set up your subscription");
+    await findByText('Set up your subscription');
     act(() => {
       for (const testid of STRIPE_FIELDS) {
         mockStripeElementOnChangeFns[testid](
