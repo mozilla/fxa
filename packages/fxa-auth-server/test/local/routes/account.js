@@ -51,11 +51,6 @@ const makeRoutes = function(options = {}, requireMocks) {
       return P.resolve(true);
     },
   };
-  const subhub =
-    options.subhub ||
-    mocks.mockSubHub({
-      cancelSubscription: sinon.spy(async (uid, subscriptionId) => true),
-    });
   const signinUtils =
     options.signinUtils ||
     require('../../../lib/routes/utils/signin')(
@@ -78,7 +73,6 @@ const makeRoutes = function(options = {}, requireMocks) {
     Password,
     config,
     customs,
-    subhub,
     signinUtils,
     push,
     verificationReminders,
@@ -2647,16 +2641,13 @@ describe('/account/destroy', () => {
     { uid, subscriptionId: '789' },
   ];
 
-  let mockDB, mockSubhub, mockLog, mockRequest, mockPush, mockStripeHelper;
+  let mockDB, mockLog, mockRequest, mockPush, mockStripeHelper;
 
   beforeEach(async () => {
     mockDB = {
       ...mocks.mockDB({ email: email, uid: uid }),
       fetchAccountSubscriptions: sinon.spy(async uid => expectedSubscriptions),
     };
-    mockSubhub = mocks.mockSubHub({
-      cancelSubscription: sinon.spy(async (uid, subscriptionId) => true),
-    });
     mockLog = mocks.mockLog();
     mockRequest = mocks.mockRequest({
       log: mockLog,
@@ -2689,7 +2680,6 @@ describe('/account/destroy', () => {
         domain: 'wibble',
       },
       db: mockDB,
-      subhub: mockSubhub,
       log: mockLog,
       push: mockPush,
       stripeHelper: mockStripeHelper,
@@ -2733,10 +2723,6 @@ describe('/account/destroy', () => {
       args = mockStripeHelper.stripe.customers.update.args[0];
       assert.lengthOf(args, 2);
       assert.equal(args[0], 1234);
-
-      assert.equal(mockDB.fetchAccountSubscriptions.callCount, 0);
-      assert.equal(mockSubhub.cancelSubscription.callCount, 0);
-      assert.equal(mockDB.deleteAccountSubscription.callCount, 0);
 
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1);
       assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid);
@@ -2782,34 +2768,6 @@ describe('/account/destroy', () => {
     });
   });
 
-  it.skip('should not fail if subhub.deleteCustomer fails with `Customer not available`', async () => {
-    mockSubhub.deleteCustomer = sinon.spy(async function() {
-      throw new Error('Customer not available');
-    });
-    let failed = false;
-    try {
-      await runTest(buildRoute(), mockRequest);
-    } catch (err) {
-      failed = true;
-    }
-    assert.isFalse(failed);
-
-    assert.isTrue(mockDB.deleteAccount.calledOnce);
-  });
-
-  it.skip('should fail if subhub.deleteCustomer fails', async () => {
-    mockSubhub.deleteCustomer = sinon.spy(async function() {
-      throw new Error('wibble');
-    });
-    let failed = false;
-    try {
-      await runTest(buildRoute(), mockRequest);
-    } catch (err) {
-      failed = true;
-    }
-    assert.isTrue(failed);
-  });
-
   it('should not fail if stripeHelper cannot locate the customer', async () => {
     mockStripeHelper.fetchCustomer = sinon.spy(async (uid, email) => {});
     try {
@@ -2832,21 +2790,12 @@ describe('/account/destroy', () => {
       assert.isObject(err);
     }
   });
-
-  it('should not attempt to cancel subscriptions with config.subscriptions.enabled = false', async () => {
-    const route = buildRoute(false);
-    return runTest(route, mockRequest, () => {
-      assert.equal(mockSubhub.deleteCustomer.callCount, 0);
-      assert.equal(mockDB.fetchAccountSubscriptions.callCount, 0);
-      assert.equal(mockSubhub.cancelSubscription.callCount, 0);
-      assert.equal(mockDB.deleteAccountSubscription.args, 0);
-    });
-  });
 });
 
 describe('/account', () => {
   const email = 'foo@example.com';
   const uid = uuid.v4('binary').toString('hex');
+
   const subscription = {
     current_period_end: Date.now() + 60000,
     current_period_start: Date.now() - 60000,
@@ -2859,91 +2808,63 @@ describe('/account', () => {
     status: 'ok',
     subscription_id: 'mngh',
   };
-  const mockActiveSubscriptions = [
-    {
-      uid,
-      subscriptionsId: subscription.subscription_id,
-      productId: 'foo',
-      createdAt: subscription.current_period_start,
-      cancelledAt: null,
-    },
-  ];
 
-  let db, log, subhub, request;
+  let log, request, mockCustomer, mockSubscriptionsResponse, mockStripeHelper;
 
   beforeEach(async () => {
     log = mocks.mockLog();
-    subhub = mocks.mockSubHub({
-      listSubscriptions: sinon.spy(async () => ({
-        subscriptions: [subscription],
-      })),
-    });
     request = mocks.mockRequest({
-      credentials: { uid },
+      credentials: { uid, email },
       log,
     });
+    mockCustomer = {
+      id: 1234,
+      subscriptions: ['fake'],
+    };
+    mockSubscriptionsResponse = [subscription];
+    mockStripeHelper = mocks.mockStripeHelper([
+      'customer',
+      'subscriptionsToResponse',
+    ]);
+    mockStripeHelper.customer = sinon.spy(async (uid, email) => mockCustomer);
+    mockStripeHelper.subscriptionsToResponse = sinon.spy(
+      async subscriptions => mockSubscriptionsResponse
+    );
   });
 
-  function buildRoute(
-    subscriptionsEnabled = true,
-    activeSubscriptions = mockActiveSubscriptions
-  ) {
-    db = {
-      ...mocks.mockDB({ email: email, uid: uid }),
-      fetchAccountSubscriptions: sinon.spy(async uid => activeSubscriptions),
-    };
+  function buildRoute(subscriptionsEnabled = true) {
     const accountRoutes = makeRoutes({
       config: {
         subscriptions: {
           enabled: subscriptionsEnabled,
         },
       },
-      subhub,
       log,
-      db,
+      stripeHelper: mockStripeHelper,
     });
     return getRoute(accountRoutes, '/account');
   }
 
-  it('should return subhub.listSubscriptions result when subscriptions are enabled', () => {
+  it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
     return runTest(buildRoute(), request, result => {
+      assert.deepEqual(mockStripeHelper.customer.args[0], [
+        uid,
+        email,
+        false,
+        true,
+      ]);
+      assert.deepEqual(mockStripeHelper.subscriptionsToResponse.args[0], [
+        mockCustomer.subscriptions,
+      ]);
       assert.deepEqual(result, {
-        subscriptions: [subscription],
+        subscriptions: mockSubscriptionsResponse,
       });
-
-      assert.equal(log.begin.callCount, 1);
-      let args = log.begin.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'Account.get');
-      assert.equal(args[1], request);
-
-      assert.equal(db.fetchAccountSubscriptions.callCount, 1);
-      assert.equal(subhub.listSubscriptions.callCount, 1);
-      args = subhub.listSubscriptions.args[0];
-      assert.lengthOf(args, 1);
-      assert.equal(args[0], uid);
+      assert.deepEqual(log.begin.args[0], ['Account.get', request]);
     });
   });
 
-  it('should not call subhub if local DB reports no subscriptions (issue #3109)', () => {
-    return runTest(buildRoute(true, []), request, result => {
-      assert.deepEqual(result, {
-        subscriptions: [],
-      });
-
-      assert.equal(log.begin.callCount, 1);
-      const args = log.begin.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 'Account.get');
-      assert.equal(args[1], request);
-
-      assert.equal(db.fetchAccountSubscriptions.callCount, 1);
-      assert.equal(subhub.listSubscriptions.callCount, 0);
-    });
-  });
-
-  it('should swallow unknownCustomer errors from subhub.listSubscriptions', () => {
-    subhub.listSubscriptions = sinon.spy(() => {
+  it('should swallow unknownCustomer errors from stripe.customer', () => {
+    mockStripeHelper.customer = sinon.spy(() => {
       throw error.unknownCustomer();
     });
 
@@ -2951,14 +2872,14 @@ describe('/account', () => {
       assert.deepEqual(result, {
         subscriptions: [],
       });
-
       assert.equal(log.begin.callCount, 1);
-      assert.equal(subhub.listSubscriptions.callCount, 1);
+      assert.equal(mockStripeHelper.customer.callCount, 1);
+      assert.equal(mockStripeHelper.subscriptionsToResponse.callCount, 0);
     });
   });
 
-  it('should propagate other errors from subhub.listSubscriptions', async () => {
-    subhub.listSubscriptions = sinon.spy(() => {
+  it('should propagate other errors from stripe.customer', async () => {
+    mockStripeHelper.customer = sinon.spy(() => {
       throw error.unexpectedError();
     });
 
@@ -2973,14 +2894,14 @@ describe('/account', () => {
     assert.isTrue(failed);
   });
 
-  it('should not return subhub.listSubscriptions result when subscriptions are disabled', () => {
+  it('should not return stripe.customer result when subscriptions are disabled', () => {
     return runTest(buildRoute(false), request, result => {
       assert.deepEqual(result, {
         subscriptions: [],
       });
 
       assert.equal(log.begin.callCount, 1);
-      assert.equal(subhub.listSubscriptions.callCount, 0);
+      assert.equal(mockStripeHelper.customer.callCount, 0);
     });
   });
 });

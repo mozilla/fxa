@@ -18,7 +18,6 @@ module.exports = function(
   config,
   customs,
   zendeskClient,
-  subhub,
   statsd,
   profile,
   stripeHelper,
@@ -60,7 +59,6 @@ module.exports = function(
     Password,
     config,
     customs,
-    subhub,
     signinUtils,
     push,
     verificationReminders,
@@ -162,7 +160,6 @@ module.exports = function(
     customs,
     push,
     mailer,
-    subhub,
     profile,
     stripeHelper
   );

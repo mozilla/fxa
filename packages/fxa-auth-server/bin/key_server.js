@@ -56,7 +56,6 @@ async function run(config) {
     config.i18n.defaultLanguage
   );
   const oauthdb = require('../lib/oauthdb')(log, config, statsd);
-  const subhub = require('../lib/subhub/client').client(log, config, statsd);
   const profile = require('../lib/profile/client')(log, config, statsd);
   const senders = await require('../lib/senders')(
     log,
@@ -98,7 +97,6 @@ async function run(config) {
     config,
     customs,
     zendeskClient,
-    subhub,
     statsd,
     profile,
     stripeHelper,
@@ -137,7 +135,6 @@ async function run(config) {
       await server.stop();
       await customs.close();
       oauthdb.close();
-      await subhub.close();
       statsd.close();
       try {
         senders.email.stop();

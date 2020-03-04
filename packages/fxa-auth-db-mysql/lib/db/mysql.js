@@ -662,7 +662,7 @@ module.exports = function(log, error) {
   //          passwordForgotTokens, accounts, devices, deviceCommands, unverifiedTokens,
   //          emails, signinCodes, totp
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_17(?)';
+  var DELETE_ACCOUNT = 'CALL deleteAccount_18(?)';
 
   MySql.prototype.deleteAccount = function(uid) {
     return this.write(DELETE_ACCOUNT, [uid]);
@@ -1688,97 +1688,6 @@ module.exports = function(log, error) {
     }
 
     return {};
-  };
-
-  const CREATE_ACCOUNT_SUBSCRIPTION =
-    'CALL createAccountSubscription_3(?,?,?,?)';
-  MySql.prototype.createAccountSubscription = function(
-    uid,
-    subscriptionId,
-    productId,
-    createdAt
-  ) {
-    return this.write(CREATE_ACCOUNT_SUBSCRIPTION, [
-      uid,
-      subscriptionId,
-      productId,
-      createdAt,
-    ]).then(
-      result => ({}),
-      err => {
-        if (err.errno === ER_SIGNAL_NOT_FOUND) {
-          throw error.notFound();
-        }
-        throw err;
-      }
-    );
-  };
-
-  const GET_ACCOUNT_SUBSCRIPTION = 'CALL getAccountSubscription_2(?,?)';
-  MySql.prototype.getAccountSubscription = function(uid, subscriptionId) {
-    return this.readFirstResult(GET_ACCOUNT_SUBSCRIPTION, [
-      uid,
-      subscriptionId,
-    ]);
-  };
-
-  // Note: `fxa-support-panel` has grants to allow execute for this
-  // specific stored procedure name. If this procedure name changes in the
-  // future, you must note this change in the deployment notes so the new
-  // versioned name is granted the execute privilege, or
-  // `fxa-support-panel` will break.
-  const FETCH_ACCOUNT_SUBSCRIPTIONS = 'CALL fetchAccountSubscriptions_3(?)';
-  MySql.prototype.fetchAccountSubscriptions = function(uid) {
-    return this.readAllResults(FETCH_ACCOUNT_SUBSCRIPTIONS, [uid]);
-  };
-
-  const DELETE_ACCOUNT_SUBSCRIPTION = 'CALL deleteAccountSubscription_2(?,?)';
-  MySql.prototype.deleteAccountSubscription = function(uid, subscriptionId) {
-    return this.write(DELETE_ACCOUNT_SUBSCRIPTION, [
-      uid,
-      subscriptionId,
-    ]).then(result => ({}));
-  };
-
-  const CANCEL_ACCOUNT_SUBSCRIPTION = 'CALL cancelAccountSubscription_2(?,?,?)';
-  MySql.prototype.cancelAccountSubscription = async function(
-    uid,
-    subscriptionId,
-    cancelledAt
-  ) {
-    return this.write(CANCEL_ACCOUNT_SUBSCRIPTION, [
-      uid,
-      subscriptionId,
-      cancelledAt,
-    ]).then(
-      result => ({}),
-      err => {
-        if (err.errno === ER_SIGNAL_NOT_FOUND) {
-          throw error.notFound();
-        }
-        throw err;
-      }
-    );
-  };
-
-  const REACTIVATE_ACCOUNT_SUBSCRIPTION =
-    'CALL reactivateAccountSubscription_2(?,?)';
-  MySql.prototype.reactivateAccountSubscription = async function(
-    uid,
-    subscriptionId
-  ) {
-    return this.write(REACTIVATE_ACCOUNT_SUBSCRIPTION, [
-      uid,
-      subscriptionId,
-    ]).then(
-      result => ({}),
-      err => {
-        if (err.errno === ER_SIGNAL_NOT_FOUND) {
-          throw error.notFound();
-        }
-        throw err;
-      }
-    );
   };
 
   return MySql;
