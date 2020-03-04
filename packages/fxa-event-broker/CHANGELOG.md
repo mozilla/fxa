@@ -1,5 +1,11 @@
 # Change history
 
+## 1.160.1
+
+### Bug fixes
+
+* lookup clientids in eventbroker ([35d83f9d2](https://github.com/mozilla/fxa/commit/35d83f9d2))
+
 ## 1.160.0
 
 No changes.
