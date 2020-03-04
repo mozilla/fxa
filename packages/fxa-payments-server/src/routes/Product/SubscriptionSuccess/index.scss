@@ -1,0 +1,16 @@
+@import '../../../../../fxa-content-server/app/styles/breakpoints';
+
+.product-confirmation {
+  flex-direction: column-reverse;
+
+  @include min-width('tablet') {
+    flex-direction: row;
+  }
+
+  .plan-details-component {
+    display: none;
+    @include min-width('tablet') {
+      display: block;
+    }
+  }
+}

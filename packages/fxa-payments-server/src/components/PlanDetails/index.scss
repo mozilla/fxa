@@ -3,8 +3,12 @@
 
 .plan-details-component {
   font-size: 15px;
-  margin: 80px 24px;
+  margin: 65px auto 0;
   width: 342px;
+
+  @include min-width("tablet") {
+    margin: 80px 24px;
+  }
 
   .plan-details-component-card {
     background: $color-white;
@@ -126,7 +130,7 @@
     content: '';
     display: inline-block;
     height: 16px;
-    left: 0px;
+    left: 0;
     position: absolute;
     top: 10px;
     width: 24px;

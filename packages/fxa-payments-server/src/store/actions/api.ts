@@ -18,8 +18,9 @@ export default {
     ({ type: 'fetchProfile', payload: apiFetchProfile() } as const),
   fetchToken: () => ({ type: 'fetchToken', payload: apiFetchToken() } as const),
   fetchPlans: () => ({ type: 'fetchPlans', payload: apiFetchPlans() } as const),
-  fetchSubscriptions: () =>
-    ({ type: 'fetchSubscriptions', payload: apiFetchSubscriptions() } as const),
+  fetchSubscriptions: () => {
+    console.log("fetchSubscriptions::::::: called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    return ({ type: 'fetchSubscriptions', payload: apiFetchSubscriptions() } as const)},
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
   createSubscription: (paymentToken: string, plan: Plan, displayName: string) =>

@@ -39,6 +39,12 @@ h3.billing-title {
   display: flex;
   padding-top: 0;
 
+  flex-direction: column-reverse;
+
+  @include min-width('tablet') {
+    flex-direction: row;
+  }
+
   .input-row {
     // Stripe element class names
     // https://stripe.com/docs/stripe-js/reference#the-element-container
