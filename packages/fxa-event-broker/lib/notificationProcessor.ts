@@ -106,46 +106,16 @@ class ServiceNotificationProcessor {
   }
 
   /**
-   * Fan out delete messages.
+   * Generic fan-out of the message to the pubsub clientId queues.
    *
-   * @param message Incoming SQS Message
+   * @param message Incoming SQS message type supported for generic fanout.
+   * @param eventType Event type to use for metrics
    */
-  private async handleDeleteEvent(message: deleteSchema) {
-    this.metrics.increment('message.type.delete');
-    const clientIds = await this.db.fetchClientIds(message.uid);
-    for (const clientId of clientIds) {
-      const topicName = this.topicPrefix + clientId;
-      const messageId = await this.pubsub
-        .topic(topicName)
-        .publishJSON({ event: message.event, uid: message.uid, timestamp: Date.now() });
-      this.logger.debug('publishedMessage', { topicName, messageId });
-    }
-  }
-
-  /**
-   * Fan out profile change messages.
-   *
-   * @param message Incoming SQS Message
-   */
-  private async handleProfileEvent(message: profileSchema) {
-    this.metrics.increment('message.type.profile');
-    const clientIds = await this.db.fetchClientIds(message.uid);
-    for (const clientId of clientIds) {
-      const topicName = this.topicPrefix + clientId;
-      const messageId = await this.pubsub
-        .topic(topicName)
-        .publishJSON({ event: message.event, uid: message.uid, timestamp: Date.now() });
-      this.logger.debug('publishedMessage', { topicName, messageId });
-    }
-  }
-
-  /**
-   * Fan out password messages.
-   *
-   * @param message Incoming SQS Message
-   */
-  private async handlePasswordEvent(message: passwordSchema) {
-    this.metrics.increment('message.type.password');
+  private async handleMessageFanout(
+    message: deleteSchema | profileSchema | passwordSchema,
+    eventType: string
+  ) {
+    this.metrics.increment('message.type', { eventType });
     const clientIds = await this.db.fetchClientIds(message.uid);
     for (const clientId of clientIds) {
       const topicName = this.topicPrefix + clientId;
@@ -176,7 +146,7 @@ class ServiceNotificationProcessor {
       });
       return;
     }
-    this.metrics.increment('message.type.login');
+    this.metrics.increment('message.type', { eventType: 'login' });
     await this.db.storeLogin(message.uid, message.clientId);
   }
 
@@ -189,7 +159,7 @@ class ServiceNotificationProcessor {
    * @param message Incoming SQS Message
    */
   private async handleSubscriptionEvent(message: subscriptionUpdateSchema) {
-    this.metrics.increment('message.type.subscription');
+    this.metrics.increment('message.type', { eventType: 'subscription' });
     const clientIds = await this.db.fetchClientIds(message.uid);
     const clientCapabilities = this.capabilityService.serviceData();
 
@@ -205,7 +175,8 @@ class ServiceNotificationProcessor {
 
     const baseMessage = {
       capabilities: [],
-      changeTime: message.eventCreatedAt,
+      // Stripe eventCreatedAt is stored as seconds, and changeTime should be in milliseconds
+      changeTime: message.eventCreatedAt * 1000,
       event: message.event,
       isActive: message.isActive,
       uid: message.uid
@@ -260,17 +231,17 @@ class ServiceNotificationProcessor {
         break;
       }
       case DELETE_EVENT: {
-        await this.handleDeleteEvent(message);
+        await this.handleMessageFanout(message, 'delete');
         break;
       }
       case PRIMARY_EMAIL_EVENT:
       case PROFILE_CHANGE_EVENT: {
-        await this.handleProfileEvent(message);
+        await this.handleMessageFanout(message, 'profile');
         break;
       }
       case PASSWORD_CHANGE_EVENT:
       case PASSWORD_RESET_EVENT: {
-        await this.handlePasswordEvent(message);
+        await this.handleMessageFanout(message, 'password');
         break;
       }
       default:

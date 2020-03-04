@@ -105,14 +105,22 @@ export default class ProxyController {
     let response: requests.FullResponse;
     try {
       response = await requests.post(options);
-      this.metrics.increment(`proxy.success.${clientId}.${response.statusCode}`);
+      const now = Date.now();
+      this.metrics.timing('proxy.success', now - message.changeTime, {
+        clientId,
+        statusCode: response.statusCode.toString(),
+        type: message.event
+      });
       if (message.event === SUBSCRIPTION_UPDATE_EVENT) {
-        this.metrics.timing(`proxy.sub.eventDelay`, Date.now() - message.changeTime * 1000);
+        this.metrics.timing(`proxy.sub.eventDelay`, now - message.changeTime);
       }
     } catch (err) {
       if (err.response) {
         // Proxy normal HTTP responses that aren't 200.
-        this.metrics.increment(`proxy.fail.${clientId}.${err.response.statusCode}`);
+        this.metrics.increment(`proxy.fail`, {
+          clientId,
+          statusCode: err.response.statusCode.toString()
+        });
         response = err.response;
       } else {
         throw err;
