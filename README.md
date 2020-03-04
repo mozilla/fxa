@@ -22,6 +22,8 @@ The Firefox Accounts (fxa) monorepo
    npm start
    ```
 
+Note this starts up all required services, including Redis, MySQL, and Memcached. It is recommended that you don't run these services yourself, or occupy any of the [server ports](https://github.com/mozilla/fxa/blob/master/mysql_servers.json). Doing so may result in errors.
+
 4. Visit [127.0.0.1:3030](http://127.0.0.1:3030/).
 
 Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
