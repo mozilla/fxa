@@ -73,6 +73,12 @@ const conf = convict({
         format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny']
       }
     }
+  },
+  sentryDsn: {
+    default: '',
+    doc: 'Sentry DSN for error and log reporting',
+    env: 'SENTRY_DSN',
+    format: 'String'
   }
 });
 
