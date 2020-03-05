@@ -276,8 +276,9 @@ class DirectStripeRoutes {
    * @param {Invoice} invoice
    */
   async handleOpenInvoice(invoice) {
-    const payment_intent =
-      /** @type {PaymentIntent} */ (invoice.payment_intent);
+    const payment_intent = await this.stripeHelper.fetchPaymentIntentFromInvoice(
+      invoice
+    );
 
     if (payment_intent.status !== 'requires_payment_method') {
       throw error.backendServiceFailure('stripe', 'invoice status', {
