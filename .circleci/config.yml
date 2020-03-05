@@ -313,6 +313,11 @@ workflows:
           requires:
             - install
       - build-module:
+          name: fxa-admin-panel
+          module: fxa-admin-panel
+          requires:
+            - install
+      - build-module:
           name: fxa-auth-db-mysql
           module: fxa-auth-db-mysql
           db: true
@@ -436,6 +441,16 @@ workflows:
               ignore: /.*/
           name: fxa-admin-server
           module: fxa-admin-server
+          requires:
+            - install
+      - deploy-module:
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              ignore: /.*/
+          name: fxa-admin-panel
+          module: fxa-admin-panel
           requires:
             - install
       - deploy-module:

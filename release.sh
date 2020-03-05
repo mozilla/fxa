@@ -297,6 +297,7 @@ $1"
 TARGETS="packages/fxa-auth-db-mysql
 packages/fxa-auth-server
 packages/fxa-admin-server
+packages/fxa-admin-panel
 packages/fxa-content-server
 packages/fxa-customs-server
 packages/fxa-email-event-proxy
