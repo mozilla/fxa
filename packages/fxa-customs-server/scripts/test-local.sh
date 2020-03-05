@@ -18,7 +18,10 @@ if ! echo stats | nc localhost 11211 | grep -q 'STAT'; then
 fi
 
 tap test/local test/remote $cov
+status=$?
 
 if [ -n "$MC" ]; then
   kill $MC
 fi
+
+exit $status
