@@ -895,7 +895,9 @@ describe('DirectStripeRoutes', () => {
     describe('when the payment_intent status requires payment method', () => {
       it('calls payInvoice', async () => {
         const invoice = deepCopy(openInvoice);
-        invoice.payment_intent = deepCopy(openPaymentIntent);
+        directStripeRoutesInstance.stripeHelper.fetchPaymentIntentFromInvoice.resolves(
+          openPaymentIntent
+        );
 
         directStripeRoutesInstance.stripeHelper.payInvoice.resolves();
 
@@ -913,7 +915,9 @@ describe('DirectStripeRoutes', () => {
     describe('when the payment_intent status is in any other state', () => {
       it('thows a backendServiceFailure error', async () => {
         const invoice = deepCopy(openInvoice);
-        invoice.payment_intent = deepCopy(closedPaymementIntent);
+        directStripeRoutesInstance.stripeHelper.fetchPaymentIntentFromInvoice.resolves(
+          closedPaymementIntent
+        );
 
         return directStripeRoutesInstance.handleOpenInvoice(invoice).then(
           () => Promise.reject(new Error('Method expected to reject')),

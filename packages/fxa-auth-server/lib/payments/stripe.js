@@ -721,6 +721,19 @@ class StripeHelper {
   }
 
   /**
+   * Retrieve a PaymentIntent from an invoice
+   *
+   * @param {Invoice} invoice
+   * @returns {Promise<PaymentIntent>}
+   */
+  async fetchPaymentIntentFromInvoice(invoice) {
+    if (typeof invoice.payment_intent !== 'string') {
+      return invoice.payment_intent;
+    }
+    return this.stripe.paymentIntents.retrieve(invoice.payment_intent);
+  }
+
+  /**
    * Formats Stripe subscriptions for a customer into an appropriate response.
    *
    * @param {Subscriptions} subscriptions Subscriptions to finesse

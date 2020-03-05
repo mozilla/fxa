@@ -1081,6 +1081,42 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('fetchPaymentIntentFromInvoice', () => {
+    beforeEach(() => {
+      sandbox
+        .stub(stripeHelper.stripe.paymentIntents, 'retrieve')
+        .returns(unsuccessfulPaymentIntent);
+    });
+
+    describe('when the payment_intent is loaded', () => {
+      it('returns the payment_intent from the Invoice object', async () => {
+        const invoice = deepCopy(unpaidInvoice);
+        invoice.payment_intent = unsuccessfulPaymentIntent;
+
+        const expected = invoice.payment_intent;
+        const actual = await stripeHelper.fetchPaymentIntentFromInvoice(
+          invoice
+        );
+
+        assert.deepEqual(actual, expected);
+        assert.isTrue(stripeHelper.stripe.paymentIntents.retrieve.notCalled);
+      });
+    });
+
+    describe('when the payment_intnet is not loaded', () => {
+      it('fetches the payment_intent from Stripe', async () => {
+        const invoice = deepCopy(unpaidInvoice);
+        const expected = unsuccessfulPaymentIntent;
+        const actual = await stripeHelper.fetchPaymentIntentFromInvoice(
+          invoice
+        );
+
+        assert.deepEqual(actual, expected);
+        assert.isTrue(stripeHelper.stripe.paymentIntents.retrieve.calledOnce);
+      });
+    });
+  });
+
   describe('getProductName', () => {
     describe('when provided a Product object', () => {
       it('returns the name of the product', async () => {
