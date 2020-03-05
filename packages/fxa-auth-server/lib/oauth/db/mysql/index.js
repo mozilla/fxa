@@ -14,6 +14,7 @@ const encrypt = require('../../encrypt');
 const P = require('../../../promise');
 const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
 const unique = require('../../unique');
+const AccessToken = require('../accessToken');
 const patch = require('./patch');
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
@@ -181,7 +182,18 @@ const QUERY_ACCESS_TOKEN_INSERT =
 const QUERY_REFRESH_TOKEN_INSERT =
   'INSERT INTO refreshTokens (clientId, userId, email, scope, token, profileChangedAt) VALUES ' +
   '(?, ?, ?, ?, ?, ?)';
-const QUERY_ACCESS_TOKEN_FIND = 'SELECT * FROM tokens WHERE token=?';
+// Access token storage in redis annotates each token with client metadata,
+// so we do the same when reading from MySQL, for consistency.
+// Note that the `token` field stores the hash of the token rather than the raw token,
+// and hence would more properly be called `tokenId`.
+const QUERY_ACCESS_TOKEN_FIND =
+  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
+  '  tokens.userId, tokens.email, tokens.scope, ' +
+  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
+  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
+  '  clients.publicClient ' +
+  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
+  'WHERE tokens.token=?';
 const QUERY_REFRESH_TOKEN_FIND = 'SELECT * FROM refreshTokens where token=?';
 const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE =
   'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
@@ -224,7 +236,7 @@ const QUERY_REPLACE_LAST_PURGE_TIME =
   'REPLACE INTO dbMetadata (name, value) VALUES ("last-purge-time", ?)';
 // Token management by uid.
 // Returns all active tokens with client name and client id, both access tokens and refresh tokens.
-// Does not include access tokens from clients that canGrant, because such clients alreayd hold a
+// Does not include access tokens from clients that canGrant, because such clients already hold a
 // sessionToken and thus already appear in the "devices and apps" view. Listing them here would
 // give duplicate entries in that list.
 const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
@@ -241,8 +253,11 @@ const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
 // There's minimal downside to showing tokens in the brief period between when they expire and when
 // they get deleted from the db.
 const QUERY_LIST_ACCESS_TOKENS_BY_UID =
-  'SELECT tokens.token AS accessTokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
+  'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
+  '  tokens.userId, tokens.email, tokens.scope, ' +
+  '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
+  '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
+  '  clients.publicClient ' +
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
   'WHERE tokens.userId=?';
 const QUERY_LIST_REFRESH_TOKENS_BY_UID =
@@ -488,7 +503,7 @@ MysqlStore.prototype = {
   _getAccessToken: function _getAccessToken(id) {
     return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function(t) {
       if (t) {
-        t.scope = ScopeSet.fromString(t.scope);
+        t = AccessToken.fromMySQL(t);
       }
       return t;
     });
@@ -529,10 +544,9 @@ MysqlStore.prototype = {
     const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
       buf(uid),
     ]);
-    accessTokens.forEach(t => {
-      t.scope = ScopeSet.fromString(t.scope);
+    return accessTokens.map(t => {
+      return AccessToken.fromMySQL(t);
     });
-    return accessTokens;
   },
 
   /**

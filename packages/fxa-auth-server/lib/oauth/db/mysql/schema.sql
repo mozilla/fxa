@@ -35,6 +35,10 @@ CREATE TABLE IF NOT EXISTS codes (
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS tokens (
+  -- Note that this column holds the *hashed* token, which in code
+  -- we refer to as the "tokenId". We do not store the unhashed token
+  -- value in the db; this is a defensive measure to prevent a database leak
+  -- on the OAuth server from leaking access to all OAuth-protected data.
   token BINARY(32) PRIMARY KEY,
   clientId BINARY(8) NOT NULL,
   INDEX tokens_client_id(clientId),
@@ -66,6 +70,10 @@ CREATE TABLE IF NOT EXISTS clientDevelopers (
 ) ENGINE=InnoDB CHARACTER SET utf8 COLLATE utf8_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS refreshTokens (
+  -- Note that this column holds the *hashed* token, which in code
+  -- we refer to as the "tokenId". We do not store the unhashed token
+  -- value in the db; this is a defensive measure to prevent a database leak
+  -- on the OAuth server from leaking access to all OAuth-protected data.
   token BINARY(32) PRIMARY KEY,
   clientId BINARY(8) NOT NULL,
   INDEX tokens_client_id(clientId),

@@ -222,7 +222,7 @@ describe('db', function() {
         })
         .then(tokens => {
           assert.ok(tokens[0].token);
-          assert.ok(tokens[1].token);
+          assert.ok(tokens[1].tokenId);
           return db.removePublicAndCanGrantTokens(hex(userId));
         })
         .then(t => {
@@ -260,7 +260,7 @@ describe('db', function() {
         publicClient: false,
       }).then(tokens => {
         assert.ok(tokens[0].token);
-        assert.ok(tokens[1].token);
+        assert.ok(tokens[1].tokenId);
       });
     });
 
@@ -356,7 +356,7 @@ describe('db', function() {
           assert.equal(
             updatedLastUsedAt > tokenFirstUsage.lastUsedAt,
             true,
-            'createdAt was updated'
+            'lastUsedAt was updated'
           );
           assert.equal(
             t.createdAt.toString(),
@@ -684,14 +684,14 @@ describe('db', function() {
         const mysql = await db.mysql;
         const tt = await mysql._getAccessToken(t.tokenId);
         await db.removeAccessToken(t.tokenId);
-        assert.equal(hex(tt.token), hex(t.tokenId));
+        assert.equal(hex(tt.tokenId), hex(t.tokenId));
       });
 
       it('retrieves them with getAccessToken', async () => {
         const t = await db.generateAccessToken(tokenData);
         const tt = await db.getAccessToken(t.tokenId);
         await db.removeAccessToken(t.tokenId);
-        assert.equal(hex(tt.token), hex(t.tokenId));
+        assert.equal(hex(tt.tokenId), hex(t.tokenId));
       });
 
       it('retrieves them with getActiveClientsByUid', async () => {
@@ -710,7 +710,7 @@ describe('db', function() {
         await db.removeAccessToken(t.tokenId);
         assert.isArray(tokens);
         assert.lengthOf(tokens, 1);
-        assert.deepEqual(tokens[0].accessTokenId, t.tokenId);
+        assert.deepEqual(tokens[0].tokenId, t.tokenId);
         assert.deepEqual(tokens[0].clientId, t.clientId);
       });
 
