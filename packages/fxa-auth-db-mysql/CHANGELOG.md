@@ -1,3 +1,15 @@
+## 1.161.0
+
+### Bug fixes
+
+- mysql: Force MySQL connections to always use UTC timezone. ([c97f9e5b8](https://github.com/mozilla/fxa/commit/c97f9e5b8))
+
+### Other changes
+
+- skip some subscription-related tests on content-server for now ([e573b52f5](https://github.com/mozilla/fxa/commit/e573b52f5))
+- subscriptions: remove accountSubscriptions table and procedures ([cd0521557](https://github.com/mozilla/fxa/commit/cd0521557))
+- contributing: update contact information to reflect move to Matrix ([4e7082856](https://github.com/mozilla/fxa/commit/4e7082856))
+
 ## 1.160.1
 
 No changes.

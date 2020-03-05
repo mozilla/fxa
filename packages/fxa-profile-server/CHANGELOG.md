@@ -1,3 +1,13 @@
+## 1.161.0
+
+### Bug fixes
+
+- mysql: Force MySQL connections to always use UTC timezone. ([c97f9e5b8](https://github.com/mozilla/fxa/commit/c97f9e5b8))
+
+### Other changes
+
+- contributing: update contact information to reflect move to Matrix ([4e7082856](https://github.com/mozilla/fxa/commit/4e7082856))
+
 ## 1.160.1
 
 No changes.
@@ -6,7 +16,7 @@ No changes.
 
 ### Bug fixes
 
-* coverage: Remove the temporary coverage directory before running tests ([19302cb45](https://github.com/mozilla/fxa/commit/19302cb45))
+- coverage: Remove the temporary coverage directory before running tests ([19302cb45](https://github.com/mozilla/fxa/commit/19302cb45))
 
 ## 1.159.0
 

@@ -1,10 +1,21 @@
 # Change history
 
+## 1.161.0
+
+### New features
+
+- event-broker: use tags for unique metrics ([382451260](https://github.com/mozilla/fxa/commit/382451260))
+
+### Bug fixes
+
+- dev: some processes need to wait for mysql to startup ([147994051](https://github.com/mozilla/fxa/commit/147994051))
+- lookup clientids in eventbroker ([bb1b25585](https://github.com/mozilla/fxa/commit/bb1b25585))
+
 ## 1.160.1
 
 ### Bug fixes
 
-* lookup clientids in eventbroker ([35d83f9d2](https://github.com/mozilla/fxa/commit/35d83f9d2))
+- lookup clientids in eventbroker ([35d83f9d2](https://github.com/mozilla/fxa/commit/35d83f9d2))
 
 ## 1.160.0
 

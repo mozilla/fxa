@@ -1,3 +1,15 @@
+## 1.161.0
+
+### Bug fixes
+
+- customs: set config for flowIdExemptUserAgentREs to `format: Array` ([0e8961c2a](https://github.com/mozilla/fxa/commit/0e8961c2a))
+- lint: Fix customs server lint issues ([e5137b793](https://github.com/mozilla/fxa/commit/e5137b793))
+
+### Other changes
+
+- contributing: update contact information to reflect move to Matrix ([4e7082856](https://github.com/mozilla/fxa/commit/4e7082856))
+- 356a1bf27 Sync fxa-customs-server ([356a1bf27](https://github.com/mozilla/fxa/commit/356a1bf27))
+
 ## 1.160.1
 
 No changes.

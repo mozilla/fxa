@@ -1,45 +1,75 @@
+## 1.161.0
+
+### New features
+
+- payments: subscription email updates for template ## 1.160.1 config ([fa1d31440](https://github.com/mozilla/fxa/commit/fa1d31440))
+
+### Bug fixes
+
+- oauth: Do not store raw access tokens in Redis. ([a1c159e0d](https://github.com/mozilla/fxa/commit/a1c159e0d))
+- mysql: Force MySQL connections to always use UTC timezone. ([c97f9e5b8](https://github.com/mozilla/fxa/commit/c97f9e5b8))
+- auth-server: pass all redis set args ([2802e71a8](https://github.com/mozilla/fxa/commit/2802e71a8))
+- lookup clientids in eventbroker ([bb1b25585](https://github.com/mozilla/fxa/commit/bb1b25585))
+- payments: support clientId as buffer in subscription capability lookup ([e8ba4652c](https://github.com/mozilla/fxa/commit/e8ba4652c))
+
+### Other changes
+
+- auth-server: add payment_intent check in handling open invoices ([e02b8fabe](https://github.com/mozilla/fxa/commit/e02b8fabe))
+- auth-server: add coverage for subscriptionsToResponse ([2abad7cb0](https://github.com/mozilla/fxa/commit/2abad7cb0))
+- auth-server: add coverage for getSubscriptions ([f59a004a7](https://github.com/mozilla/fxa/commit/f59a004a7))
+- subscriptions: remove code ## 1.160.1 tests using subhub and accountsSubscriptions table ([d09125b8c](https://github.com/mozilla/fxa/commit/d09125b8c))
+- subscriptions: remove subscription routes that used accountSubscriptions table ([514c8b837](https://github.com/mozilla/fxa/commit/514c8b837))
+- auth-server: add coverage for listActive ([d791574c9](https://github.com/mozilla/fxa/commit/d791574c9))
+- tests: Remove leftover references to ./fxa-oauth-server in tests/linters. ([7a50ecbe0](https://github.com/mozilla/fxa/commit/7a50ecbe0))
+- deps: updated auth-server to latest hapi-error. (re)moved some others ([d3584492e](https://github.com/mozilla/fxa/commit/d3584492e))
+- deps: update auth-server to @hapi/hawk ([c3bc6c453](https://github.com/mozilla/fxa/commit/c3bc6c453))
+- deps: update auth-server to @hapi/joi 15 ([03c438651](https://github.com/mozilla/fxa/commit/03c438651))
+- auth: updated auth-server to latest hapi ([714ad19a0](https://github.com/mozilla/fxa/commit/714ad19a0))
+- contributing: update contact information to reflect move to Matrix ([4e7082856](https://github.com/mozilla/fxa/commit/4e7082856))
+- 356a1bf27 Sync fxa-customs-server ([356a1bf27](https://github.com/mozilla/fxa/commit/356a1bf27))
+
 ## 1.160.1
 
 ### Bug fixes
 
-* lookup clientids in eventbroker ([35d83f9d2](https://github.com/mozilla/fxa/commit/35d83f9d2))
-* payments: support clientId as buffer in subscription capability lookup ([2757a06e1](https://github.com/mozilla/fxa/commit/2757a06e1))
+- lookup clientids in eventbroker ([35d83f9d2](https://github.com/mozilla/fxa/commit/35d83f9d2))
+- payments: support clientId as buffer in subscription capability lookup ([2757a06e1](https://github.com/mozilla/fxa/commit/2757a06e1))
 
 ## 1.160.0
 
 ### New features
 
-* stripe mismatch checker ([5f5928dfd](https://github.com/mozilla/fxa/commit/5f5928dfd))
-* oauth: store access tokens in redis ([6ccebc1de](https://github.com/mozilla/fxa/commit/6ccebc1de))
-* recovery: Add confirm recovery key js client calls ([672e8c4e6](https://github.com/mozilla/fxa/commit/672e8c4e6))
+- stripe mismatch checker ([5f5928dfd](https://github.com/mozilla/fxa/commit/5f5928dfd))
+- oauth: store access tokens in redis ([6ccebc1de](https://github.com/mozilla/fxa/commit/6ccebc1de))
+- recovery: Add confirm recovery key js client calls ([672e8c4e6](https://github.com/mozilla/fxa/commit/672e8c4e6))
 
 ### Bug fixes
 
-* auth-server: use raw email for primary updates ([35292349c](https://github.com/mozilla/fxa/commit/35292349c))
-* use proper email in mismatch script ([97201384c](https://github.com/mozilla/fxa/commit/97201384c))
-* experiments: Audit and enable emails and recovery key experiments ([924048afd](https://github.com/mozilla/fxa/commit/924048afd))
-* nits: fixed nits in redis access token PR ([c06f56fa1](https://github.com/mozilla/fxa/commit/c06f56fa1))
-* coverage: Remove the temporary coverage directory before running tests ([19302cb45](https://github.com/mozilla/fxa/commit/19302cb45))
-* auth-server: stripe refresh on primary change ([182fec804](https://github.com/mozilla/fxa/commit/182fec804))
+- auth-server: use raw email for primary updates ([35292349c](https://github.com/mozilla/fxa/commit/35292349c))
+- use proper email in mismatch script ([97201384c](https://github.com/mozilla/fxa/commit/97201384c))
+- experiments: Audit and enable emails and recovery key experiments ([924048afd](https://github.com/mozilla/fxa/commit/924048afd))
+- nits: fixed nits in redis access token PR ([c06f56fa1](https://github.com/mozilla/fxa/commit/c06f56fa1))
+- coverage: Remove the temporary coverage directory before running tests ([19302cb45](https://github.com/mozilla/fxa/commit/19302cb45))
+- auth-server: stripe refresh on primary change ([182fec804](https://github.com/mozilla/fxa/commit/182fec804))
 
 ### Other changes
 
-* auth-server: add coverage for getCustomer ([cac9411e1](https://github.com/mozilla/fxa/commit/cac9411e1))
-* auth-server: add coverage for updatePayment ([19fdbd6dc](https://github.com/mozilla/fxa/commit/19fdbd6dc))
-* auth-server: remove subscription capabilities in server config ([a663d7b8a](https://github.com/mozilla/fxa/commit/a663d7b8a))
-* auth-server: coverage for getCustomerUidEmailFromSubscription ([6c2ade774](https://github.com/mozilla/fxa/commit/6c2ade774))
-* oauth: added tests for Pocket access tokens ([909480b91](https://github.com/mozilla/fxa/commit/909480b91))
-* auth-server: Coverage for sendSubscriptionStatusToSqs ([9cd6cb0ee](https://github.com/mozilla/fxa/commit/9cd6cb0ee))
-* auth-server: Coverage for handleWebhookEvent ([6932cc034](https://github.com/mozilla/fxa/commit/6932cc034))
-* config: add redis config for access tokens redis ([e022b1f59](https://github.com/mozilla/fxa/commit/e022b1f59))
-* auth-server: Coverage for reactivateSubscription ([fd5c201a1](https://github.com/mozilla/fxa/commit/fd5c201a1))
-* auth-server: Coverage for createSubscription ([64705df7b](https://github.com/mozilla/fxa/commit/64705df7b))
-* auth-server: Coverage for createSubscriptionExistingCustomer ([3a855e9ce](https://github.com/mozilla/fxa/commit/3a855e9ce))
-* auth-server: Coverage for Delete Subscription ([98efe9f0b](https://github.com/mozilla/fxa/commit/98efe9f0b))
-* auth-server: Coverage for DirectStripeRoutes updateSubscription ([3bac06e2e](https://github.com/mozilla/fxa/commit/3bac06e2e))
-* auth-server: Coverage for getUidEmail ([33ed34ca3](https://github.com/mozilla/fxa/commit/33ed34ca3))
-* auth-server: Coverage for handleOpenInvoice ([1be8c3cb2](https://github.com/mozilla/fxa/commit/1be8c3cb2))
-* routes/subscriptions.js: Coverage for updateCustomerAndSendStatus ([bdb413747](https://github.com/mozilla/fxa/commit/bdb413747))
+- auth-server: add coverage for getCustomer ([cac9411e1](https://github.com/mozilla/fxa/commit/cac9411e1))
+- auth-server: add coverage for updatePayment ([19fdbd6dc](https://github.com/mozilla/fxa/commit/19fdbd6dc))
+- auth-server: remove subscription capabilities in server config ([a663d7b8a](https://github.com/mozilla/fxa/commit/a663d7b8a))
+- auth-server: coverage for getCustomerUidEmailFromSubscription ([6c2ade774](https://github.com/mozilla/fxa/commit/6c2ade774))
+- oauth: added tests for Pocket access tokens ([909480b91](https://github.com/mozilla/fxa/commit/909480b91))
+- auth-server: Coverage for sendSubscriptionStatusToSqs ([9cd6cb0ee](https://github.com/mozilla/fxa/commit/9cd6cb0ee))
+- auth-server: Coverage for handleWebhookEvent ([6932cc034](https://github.com/mozilla/fxa/commit/6932cc034))
+- config: add redis config for access tokens redis ([e022b1f59](https://github.com/mozilla/fxa/commit/e022b1f59))
+- auth-server: Coverage for reactivateSubscription ([fd5c201a1](https://github.com/mozilla/fxa/commit/fd5c201a1))
+- auth-server: Coverage for createSubscription ([64705df7b](https://github.com/mozilla/fxa/commit/64705df7b))
+- auth-server: Coverage for createSubscriptionExistingCustomer ([3a855e9ce](https://github.com/mozilla/fxa/commit/3a855e9ce))
+- auth-server: Coverage for Delete Subscription ([98efe9f0b](https://github.com/mozilla/fxa/commit/98efe9f0b))
+- auth-server: Coverage for DirectStripeRoutes updateSubscription ([3bac06e2e](https://github.com/mozilla/fxa/commit/3bac06e2e))
+- auth-server: Coverage for getUidEmail ([33ed34ca3](https://github.com/mozilla/fxa/commit/33ed34ca3))
+- auth-server: Coverage for handleOpenInvoice ([1be8c3cb2](https://github.com/mozilla/fxa/commit/1be8c3cb2))
+- routes/subscriptions.js: Coverage for updateCustomerAndSendStatus ([bdb413747](https://github.com/mozilla/fxa/commit/bdb413747))
 
 ## 1.159.0
 
