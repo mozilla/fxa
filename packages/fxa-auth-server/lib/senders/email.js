@@ -457,7 +457,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.verificationUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -507,7 +507,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.verificationUrl,
-      message.email,
+      message,
       {},
       templateName
     );
@@ -560,7 +560,7 @@ module.exports = function(log, config, oauthdb) {
       const query = { code, reminder: key, uid };
       const links = this._generateLinks(
         this.verificationUrl,
-        email,
+        message,
         query,
         template
       );
@@ -603,7 +603,7 @@ module.exports = function(log, config, oauthdb) {
     };
     const subject = gettext('Account authorization code');
 
-    const links = this._generateLinks(null, message.email, query, templateName);
+    const links = this._generateLinks(null, message, query, templateName);
 
     const headers = {
       'X-Unblock-Code': message.unblockCode,
@@ -658,7 +658,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.verifyLoginUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -729,7 +729,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.verifyLoginUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -795,7 +795,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.verifyPrimaryEmailUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -860,7 +860,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.verifySecondaryEmailUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -910,12 +910,7 @@ module.exports = function(log, config, oauthdb) {
     const subject = gettext('Confirm secondary email');
     const action = gettext('Verify email');
 
-    const links = this._generateLinks(
-      undefined,
-      message.email,
-      {},
-      templateName
-    );
+    const links = this._generateLinks(undefined, message, {}, templateName);
 
     const headers = {
       'X-Verify-Code': message.code,
@@ -973,7 +968,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.passwordResetUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -1014,7 +1009,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
-      message.email,
+      message,
       {},
       templateName
     );
@@ -1051,7 +1046,7 @@ module.exports = function(log, config, oauthdb) {
     const subject = gettext('Password updated');
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
-      message.email,
+      message,
       {},
       templateName
     );
@@ -1081,7 +1076,7 @@ module.exports = function(log, config, oauthdb) {
     const subject = gettext('Suspicious activity detected');
     const links = this._generateLinks(
       this.initiatePasswordResetUrl,
-      message.email,
+      message,
       {},
       templateName
     );
@@ -1178,7 +1173,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.syncUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -1302,7 +1297,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(
       this.postVerifyAddRecoveryKeyUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -1775,7 +1770,12 @@ module.exports = function(log, config, oauthdb) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'downloadSubscription';
-    const links = this._generateLinks(planDownloadURL, email, query, template);
+    const links = this._generateLinks(
+      planDownloadURL,
+      message,
+      query,
+      template
+    );
     const headers = {
       'X-Link': links.link,
     };
@@ -1793,6 +1793,7 @@ module.exports = function(log, config, oauthdb) {
       templateValues: {
         ...links,
         action,
+        uid,
         email,
         icon: planEmailIconURL,
         product: productName,
@@ -1839,7 +1840,7 @@ module.exports = function(log, config, oauthdb) {
 
   Mailer.prototype._generateLinks = function(
     primaryLink,
-    email,
+    { email, uid },
     query,
     templateName
   ) {
@@ -1929,6 +1930,12 @@ module.exports = function(log, config, oauthdb) {
       templateName
     );
 
+    links.accountSettingsUrl = this._generateUTMLink(
+      this.accountSettingsUrl,
+      { ...query, email, uid },
+      templateName,
+      'account-settings'
+    );
     links.subscriptionTermsUrl = this._generateUTMLink(
       this.subscriptionTermsUrl,
       {},
@@ -1937,13 +1944,13 @@ module.exports = function(log, config, oauthdb) {
     );
     links.cancelSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,
-      query,
+      { ...query, email, uid },
       templateName,
       'cancel-subscription'
     );
     links.updateBillingUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,
-      query,
+      { ...query, email, uid },
       templateName,
       'update-billing'
     );
@@ -1975,7 +1982,7 @@ module.exports = function(log, config, oauthdb) {
       query.uid = message.uid;
     }
 
-    return this._generateLinks(link, message.email, query, templateName);
+    return this._generateLinks(link, message, query, templateName);
   };
 
   Mailer.prototype._generateLowRecoveryCodesLinks = function(
@@ -1993,7 +2000,7 @@ module.exports = function(log, config, oauthdb) {
 
     return this._generateLinks(
       this.accountRecoveryCodesUrl,
-      message.email,
+      message,
       query,
       templateName
     );
@@ -2014,7 +2021,7 @@ module.exports = function(log, config, oauthdb) {
 
     return this._generateLinks(
       this.createAccountRecoveryUrl,
-      message.email,
+      message,
       query,
       templateName
     );

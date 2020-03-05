@@ -1,27 +1,114 @@
-{{> icon}}
+<table
+  style="background-color: #FFFFFF; min-width: 100%; "
+  class="stylingblock-content-wrapper"
+  width="100%"
+  cellspacing="0"
+  cellpadding="0"
+>
+  <tr>
+    <td
+      style="padding: 0px; "
+      class="stylingblock-content-wrapper camarker-inner"
+    >
+      <table max-width="640" width="100%" cellspacing="0" cellpadding="0">
+        <tr>
+          <td align="center">
+            {{> icon}}
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
 
-<tr style="page-break-before: always">
-  <td align="center" valign="top" style="padding: 0 30px">
-    <h1 style="font-size: 22px; color: #464646;text-align:center !important;">
-      {{subject}}
-    </h1>
-  </td>
-</tr>
-
-<tr style="page-break-before: always">
-  <td align="left" valign="top" style="padding: 0 30px 30px;">
-    <p style="font-size: 16px; line-height: 22px; color: #555555; text-align:center !important;">
-      If you haven&#x27;t already downloaded {{product}}, let&#x27;s get started using all the features included in your subscription.
-    </p>
-  </td>
-</tr>
-
-{{> button}}
-
-<tr style="page-break-before: always">
-  <td align="left" valign="top" style="padding: 0 80px 15px;">
-    <p style="max-width: 500px !important; font-size: 16px; line-height: 22px; color: #555555; padding-top: 16px;text-align:center !important;">
-      Questions about your subscription? Our <a href="{{{subscriptionSupportUrl}}}">support team</a> is here to help you.
-    </p>
-  </td>
-</tr>
+<table
+  style="min-width: 100%; "
+  class="stylingblock-content-wrapper"
+  width="100%"
+  cellspacing="0"
+  cellpadding="0"
+>
+  <tr>
+    <td class="stylingblock-content-wrapper camarker-inner">
+      <table
+        class="featured-story featured-story--top"
+        cellspacing="0"
+        cellpadding="0"
+      >
+        <tr>
+          <td style="padding-bottom: 20px;">
+            <table cellspacing="0" cellpadding="0">
+              <tr>
+                <td class="featured-story__inner" style="background: #fff;">
+                  <table cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td
+                        class="featured-story__content-inner"
+                        style="padding: 32px 30px 45px;"
+                      >
+                        <table cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td
+                              class="featured-story__heading featured-story--top__heading"
+                              style="background: #fff;"
+                              max-width="640"
+                              width="100%"
+                              align="left"
+                            >
+                              <table cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td
+                                    style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 22px; color: #464646;text-align:center !important;"
+                                    width="640"
+                                    align="center"
+                                  >
+                                    <b>{{subject}}</b>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td
+                              class="featured-story__copy"
+                              style="background: #fff;"
+                              width="640"
+                              align="center"
+                            >
+                              <table cellspacing="0" cellpadding="0">
+                                <tr>
+                                  <td
+                                    style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 16px; line-height: 22px; color: #555555; padding-top: 16px;text-align:left !important;"
+                                    align="left"
+                                  >
+                                    If you haven&#x27;t already downloaded
+                                    {{product}}, let&#x27;s get started using
+                                    all the features included in your
+                                    subscription.
+                                    <br />
+                                    <br />
+                                    {{> button}}
+                                    <br />
+                                    Questions about your subscription? Our
+                                    <a href="{{{subscriptionSupportUrl}}}"
+                                      >support team</a
+                                    >
+                                    is here to help you.
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
