@@ -59,6 +59,7 @@ class ConfirmPassword extends FormView {
       .then(recoveryKey => {
         this.model.set('recoveryKey', recoveryKey);
         this.model.set('recoveryKeyId', recoveryKey.recoveryKeyId);
+        this.logFlowEvent('success', this.viewName);
         this.navigate(
           '/post_verify/account_recovery/save_recovery_key',
           recoveryKey
