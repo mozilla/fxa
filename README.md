@@ -237,9 +237,10 @@ In the case of Firefox Accounts, the `pm2` process manager complicates setup a b
 3. Restart the server manually, passing the `--inspect` argument:
    - For fxa-content-server or fxa-payments-server, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
    - For other servers, we just haven't added a `start-dev-debug` run script yet; feel free to add one by tracing through the existing run scripts to find the actual script that runs the server (not one that forks another script).
+   - You can also `launch` and `attach` to a server using VSCode: check out `.vscode/launch.json.example` to get you started (and feel free to contribute to it!). See the [VSCode docs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) for more details.
 4. Connect to the process to debug it:
    - Using Google Chrome, go to `chrome://inspect`, then click the process to connect to devtools.
-   - VSCode requires setting up a `.vscode/launch.json` file; see the [VSCode docs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) for details.
+   - (You can skip this if you are using a `launch` target as described in the previous section) VSCode can be set up with an `attach` target in the `.vscode/launch.json` file if you launched in the server yourself.
 
 #### Debugging tests
 

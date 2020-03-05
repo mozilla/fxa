@@ -47,6 +47,7 @@ Thumbs.db
 # Linux
 .*
 !.circleci/
+!.vscode/
 !.gitignore
 !.git*
 !.eslintrc

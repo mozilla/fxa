@@ -1,0 +1,22 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "auth-server key server",
+            "cwd": "${workspaceFolder}/packages/fxa-auth-server",
+            // Copied from package.json. Make sure it's up-to-date!
+            "program": "${workspaceFolder}/packages/fxa-auth-server/bin/key_server.js",
+            "env": {
+                // Copied from mysql_servers.json. Make sure it's up-to-date!
+                "DB": "mysql",
+                "NODE_ENV": "dev",
+                "IP_ADDRESS": "0.0.0.0",
+                "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$",
+                "SIGNIN_CONFIRMATION_ENABLED": "true",
+                "SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX": "^sync.*@restmail\\.net$"
+            }
+        }
+    ]
+}
