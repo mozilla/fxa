@@ -992,34 +992,39 @@ MysqlStore.prototype = {
         if (conn._fxa_initialized) {
           return resolve(conn);
         }
+
         // Enforce sane defaults on every new connection.
         // These *should* be set by the database by default, but it's nice
         // to have an additional layer of protection here.
-        conn.query('SELECT @@sql_mode AS mode', function(err, rows) {
-          if (err) {
-            return reject(err);
-          }
-          var modes = rows[0]['mode'].split(',');
-          var needToSetMode = false;
-          REQUIRED_SQL_MODES.forEach(function(requiredMode) {
-            if (modes.indexOf(requiredMode) === -1) {
-              modes.push(requiredMode);
-              needToSetMode = true;
+        const query = P.promisify(conn.query, { context: conn });
+        return resolve(
+          (async () => {
+            // Always communicate timestamps in UTC.
+            await query("SET time_zone = '+00:00'");
+            // Always use full 4-byte UTF-8 for communicating unicode.
+            await query('SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;');
+            // Always have certain modes active. The complexity here is to
+            // preserve any extra modes active by default on the server.
+            // We also try to preserve the order of the existing mode flags,
+            // just in case the order has some obscure effect we don't know about.
+            const rows = await query('SELECT @@sql_mode AS mode');
+            const modes = rows[0]['mode'].split(',');
+            let needToSetMode = false;
+            for (const requiredMode of REQUIRED_SQL_MODES) {
+              if (modes.indexOf(requiredMode) === -1) {
+                modes.push(requiredMode);
+                needToSetMode = true;
+              }
             }
-          });
-          if (!needToSetMode) {
-            conn._fxa_initialized = true;
-            return resolve(conn);
-          }
-          var mode = modes.join(',');
-          conn.query("SET SESSION sql_mode = '" + mode + "'", function(err) {
-            if (err) {
-              return reject(err);
+            if (needToSetMode) {
+              const mode = modes.join(',');
+              await query("SET SESSION sql_mode = '" + mode + "'");
             }
+            // Avoid repeating all that work for existing connections.
             conn._fxa_initialized = true;
-            return resolve(conn);
-          });
-        });
+            return conn;
+          })()
+        );
       });
     }).disposer(releaseConn);
   },

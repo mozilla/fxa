@@ -1192,34 +1192,31 @@ module.exports = function(log, error) {
         // Enforce sane defaults on every new connection.
         // These *should* be set by the database by default, but it's nice
         // to have an additional layer of protection here.
-        connection.query('SELECT @@sql_mode AS mode;', (err, rows) => {
-          if (err) {
-            return reject(err);
-          }
-
-          const currentModes = rows[0]['mode'].split(',');
-          this.requiredModes.forEach(requiredMode => {
-            if (currentModes.indexOf(requiredMode) === -1) {
-              currentModes.push(requiredMode);
-            }
-          });
-
-          const newMode = currentModes.join(',');
-          connection.query(`SET SESSION sql_mode = '${newMode}';`, err => {
-            if (err) {
-              return reject(err);
-            }
-
-            connection.query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;', err => {
-              if (err) {
-                return reject(err);
+        const query = P.promisify(connection.query, { context: connection });
+        return resolve(
+          (async () => {
+            // Always communicate timestamps in UTC.
+            await query("SET time_zone = '+00:00'");
+            // Always use full 4-byte UTF-8 for communicating unicode.
+            await query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
+            // Always have certain modes active. The complexity here is to
+            // preserve any extra modes active by default on the server.
+            // We also try to preserve the order of the existing mode flags,
+            // just in case the order has some obscure effect we don't know about.
+            const rows = await query('SELECT @@sql_mode AS mode;');
+            const currentModes = rows[0]['mode'].split(',');
+            for (const requiredMode of this.requiredModes) {
+              if (currentModes.indexOf(requiredMode) === -1) {
+                currentModes.push(requiredMode);
               }
-
-              connection._fxa_initialized = true;
-              resolve(connection);
-            });
-          });
-        });
+            }
+            const newMode = currentModes.join(',');
+            await query(`SET SESSION sql_mode = '${newMode}';`);
+            // Avoid repeating all that work for existing connections.
+            connection._fxa_initialized = true;
+            return connection;
+          })()
+        );
       });
     });
   };
