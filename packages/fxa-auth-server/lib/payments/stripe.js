@@ -17,6 +17,7 @@ const stripe = require('stripe').Stripe;
 /** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
+/** @typedef {import('stripe').Stripe.Charge} Charge */
 
 /**
  * @typedef AbbrevProduct
@@ -745,28 +746,20 @@ class StripeHelper {
         sub.latest_invoice &&
         sub.status === 'past_due' &&
         typeof sub.latest_invoice !== 'string' &&
-        sub.collection_method === 'charge_automatically' &&
-        typeof sub.latest_invoice.charge === 'string'
+        sub.collection_method === 'charge_automatically'
       ) {
-        const charge = await this.stripe.charges.retrieve(
-          sub.latest_invoice.charge
-        );
-        failure_code = charge.failure_code;
-        failure_message = charge.failure_message;
+        let charge = sub.latest_invoice.charge;
+        if (typeof sub.latest_invoice.charge === 'string') {
+          charge = await this.stripe.charges.retrieve(
+            sub.latest_invoice.charge
+          );
+        }
+
+        failure_code = /** @type {Charge} */ (charge).failure_code;
+        failure_message = /** @type {Charge} */ (charge).failure_message;
       }
 
-      // enforce type because it _could_ be a DeletedProduct (but shouldn't be)
-      const productName = await this.getProductName(
-        /** @type {String | Product} */ (sub.plan.product)
-      );
-      const intervalDict = {
-        day: 'Daily',
-        week: 'Weekly',
-        month: 'Monthly',
-        year: 'Yearly',
-      };
-
-      const planName = `${productName} ${intervalDict[sub.plan.interval]}`;
+      const planName = this.formatPlanDisplayName(sub.plan);
 
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
@@ -785,6 +778,27 @@ class StripeHelper {
       });
     }
     return subs;
+  }
+
+  /**
+   * Format the plan name for display
+   *
+   * @param {Plan} plan
+   */
+  async formatPlanDisplayName(plan) {
+    // enforce type because it _could_ be a DeletedProduct (but shouldn't be)
+    const productName = await this.getProductName(
+      /** @type {String | Product} */ (plan.product)
+    );
+
+    const intervalDict = {
+      day: 'Daily',
+      week: 'Weekly',
+      month: 'Monthly',
+      year: 'Yearly',
+    };
+
+    return `${productName} ${intervalDict[plan.interval]}`;
   }
 
   /**

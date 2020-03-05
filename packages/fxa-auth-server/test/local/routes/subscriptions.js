@@ -57,12 +57,6 @@ const ACCOUNT_LOCALE = 'en-US';
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4('binary').toString('hex');
 const NOW = Date.now();
-const CUSTOMER = {
-  payment_type: 'card',
-  last4: 8675,
-  exp_month: 8,
-  exp_year: 2020,
-};
 const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const PLANS = [
   {
@@ -282,12 +276,12 @@ describe('subscriptions directRoutes', () => {
     });
   });
 
-  describe.skip('listActive', () => {
+  describe('listActive', () => {
     it('should list active subscriptions', async () => {
       const stripeHelper = mocks.mockStripeHelper(['customer']);
 
       stripeHelper.customer = sinon.spy(async (uid, customer) => {
-        return CUSTOMER;
+        return customerFixture;
       });
 
       directStripeRoutes = new DirectStripeRoutes(
@@ -301,10 +295,17 @@ describe('subscriptions directRoutes', () => {
         stripeHelper
       );
 
+      const expected = [
+        {
+          cancelledAt: null,
+          createdAt: 1582765012000,
+          productId: 'prod_test1',
+          subscriptionId: 'sub_test1',
+          uid: UID,
+        },
+      ];
       const res = await directStripeRoutes.listActive(VALID_REQUEST);
-      assert.equal(db.fetchAccountSubscriptions.callCount, 1);
-      assert.equal(db.fetchAccountSubscriptions.args[0][0], UID);
-      assert.deepEqual(res, ACTIVE_SUBSCRIPTIONS);
+      assert.deepEqual(res, expected);
     });
   });
 
@@ -1423,11 +1424,11 @@ describe('DirectStripeRoutes', () => {
         ...PLANS,
         {
           plan_id: subscription2.plan.id,
-          product_id:  subscription2.plan.product,
+          product_id: subscription2.plan.product,
           product_metadata: {
-            capabilities: "foo, bar, baz",
+            capabilities: 'foo, bar, baz',
           },
-        }
+        },
       ]);
 
       await directStripeRoutesInstance.sendSubscriptionStatusToSqs(
