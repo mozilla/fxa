@@ -356,7 +356,13 @@ echo "Ask for review on the pull requests from @fxa-devs and @fxa-admins respect
 echo
 
 if [ "$BUILD_TYPE" = "Train" ]; then
-  A_WEEK_AGO=$(date +%Y-%m-%d -d "7 days ago")
+
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    A_WEEK_AGO=$(date -v -7d +%Y-%m-%d)
+  else
+    A_WEEK_AGO=$(date +%Y-%m-%d -d "7 days ago")
+  fi
+
   echo "If there's no deploy bug for $TRAIN_BRANCH yet, you should create one using this URL (you'll need to update the title of the bug in Bugzilla):"
   echo
   echo "  https://github.com/mozilla/fxa-private/blob/master/_scripts/create-deploy-bug.url"
