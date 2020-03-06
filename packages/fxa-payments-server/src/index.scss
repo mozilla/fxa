@@ -37,9 +37,8 @@ h3.billing-title {
 // starting to replace the main-content id with this class
 .main-content {
   display: flex;
-  padding-top: 0;
-
   flex-direction: column-reverse;
+  padding-top: 0;
 
   @include min-width('tablet') {
     flex-direction: row;

@@ -349,6 +349,7 @@ describe('routes/Product', () => {
         getByAltText,
         getByTestId,
         findByText,
+        findByTestId,
         apiMocks,
       } = await commonSubmitSetup(createToken, useDefaultIcon);
 
@@ -357,6 +358,7 @@ describe('routes/Product', () => {
       await findByText('Product details');
       expectProductImage({ getByAltText, useDefaultIcon });
       expect(createToken).toBeCalled();
+      await findByTestId('download-link');
       expectNockScopesDone(apiMocks);
     });
 

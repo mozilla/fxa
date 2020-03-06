@@ -6,7 +6,7 @@
   margin: 65px auto 0;
   width: 342px;
 
-  @include min-width("tablet") {
+  @include min-width('tablet') {
     margin: 80px 24px;
   }
 
@@ -151,7 +151,7 @@
     }
 
     .label {
-      color: #6D6D6E;
+      color: #6d6d6e;
       font-weight: 600;
       margin-top: 5px;
     }
