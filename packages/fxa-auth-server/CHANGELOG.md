@@ -1,3 +1,9 @@
+## 1.161.1
+
+### Other changes
+
+- auth-server: Add missing `await` to var assignment ([f46aced31](https://github.com/mozilla/fxa/commit/f46aced31))
+
 ## 1.161.0
 
 ### New features
