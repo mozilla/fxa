@@ -805,11 +805,6 @@ class StripeHelper {
         latestInvoice = latestInvoice.number;
       }
 
-      let latestInvoice = sub.latest_invoice;
-      if (latestInvoice && typeof latestInvoice !== 'string') {
-        latestInvoice = latestInvoice.number;
-      }
-
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
       // plans for this subscription.

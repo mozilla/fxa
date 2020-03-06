@@ -19,8 +19,11 @@ export default {
   fetchToken: () => ({ type: 'fetchToken', payload: apiFetchToken() } as const),
   fetchPlans: () => ({ type: 'fetchPlans', payload: apiFetchPlans() } as const),
   fetchSubscriptions: () => {
-    console.log("fetchSubscriptions::::::: called!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-    return ({ type: 'fetchSubscriptions', payload: apiFetchSubscriptions() } as const)},
+    return {
+      type: 'fetchSubscriptions',
+      payload: apiFetchSubscriptions(),
+    } as const;
+  },
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
   createSubscription: (
