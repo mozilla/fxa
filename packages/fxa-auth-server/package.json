@@ -15,6 +15,7 @@
     "lint:eslint": "eslint .",
     "postinstall": "scripts/download_l10n.sh",
     "start": "npm run gen-keys && node ./bin/key_server.js",
+    "start-dev-debug": "NODE_ENV=dev nodemon --inspect=0.0.0.0:9160 ./bin/key_server.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-ci": "npm run gen-keys && scripts/test-local.sh && npm run test-e2e && npm run test-scripts",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
