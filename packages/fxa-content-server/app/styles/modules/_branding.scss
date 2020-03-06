@@ -36,6 +36,10 @@
   }
 }
 
+#main-content.send-sms::before {
+  content: initial;
+}
+
 #about-mozilla {
   @include respond-to('big') {
     background: image-url('mozilla.svg') no-repeat center center;
@@ -175,7 +179,7 @@
 .sms-disclaimer {
   font-size: 12px;
   line-height: 1.5;
-  margin: 20px 0;
+  margin: 20px 0 22px;
   padding: 0 20px;
 }
 
