@@ -772,7 +772,7 @@ class StripeHelper {
         failure_message = /** @type {Charge} */ (charge).failure_message;
       }
 
-      const planName = this.formatPlanDisplayName(sub.plan);
+      const planName = await this.formatPlanDisplayName(sub.plan);
 
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
@@ -797,6 +797,7 @@ class StripeHelper {
    * Format the plan name for display
    *
    * @param {Plan} plan
+   * @returns {Promise<string>}
    */
   async formatPlanDisplayName(plan) {
     // enforce type because it _could_ be a DeletedProduct (but shouldn't be)
