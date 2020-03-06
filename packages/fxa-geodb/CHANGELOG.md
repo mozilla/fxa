@@ -1,5 +1,15 @@
 # Change history
 
+## 1.161.1
+
+No changes.
+
+## 1.161.0
+
+### Other changes
+
+- contributing: update contact information to reflect move to Matrix ([4e7082856](https://github.com/mozilla/fxa/commit/4e7082856))
+
 ## 1.160.1
 
 No changes.

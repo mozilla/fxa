@@ -1,3 +1,24 @@
+## 1.161.1
+
+No changes.
+
+## 1.161.0
+
+### Bug fixes
+
+- content-server: Add serviceMixin to auth_totp ([e0d0684a8](https://github.com/mozilla/fxa/commit/e0d0684a8))
+- settings: Don't show signout when oauth clients that request oldsync scope ([812774460](https://github.com/mozilla/fxa/commit/812774460))
+- metrics: Add account recovery key flowEvents -> amplitudeEvents mapping ([d39a71fdd](https://github.com/mozilla/fxa/commit/d39a71fdd))
+- style: fix rtl styles on Firefox Family Servcies ([97da9aec5](https://github.com/mozilla/fxa/commit/97da9aec5))
+- style: fix rtl style for disconnect client header ([7aef3bcc6](https://github.com/mozilla/fxa/commit/7aef3bcc6))
+
+### Other changes
+
+- skip some subscription-related tests on content-server for now ([e573b52f5](https://github.com/mozilla/fxa/commit/e573b52f5))
+- content/payments: update subscription label to include payment ([bfd66ba3e](https://github.com/mozilla/fxa/commit/bfd66ba3e))
+- contributing: update contact information to reflect move to Matrix ([4e7082856](https://github.com/mozilla/fxa/commit/4e7082856))
+- nsp: add exception for advisory 1217 ([28ba8bb34](https://github.com/mozilla/fxa/commit/28ba8bb34))
+
 ## 1.160.1
 
 No changes.
@@ -6,18 +27,18 @@ No changes.
 
 ### New features
 
-* recovery: Add confirm recovery key UX ([78cbb8cd5](https://github.com/mozilla/fxa/commit/78cbb8cd5))
+- recovery: Add confirm recovery key UX ([78cbb8cd5](https://github.com/mozilla/fxa/commit/78cbb8cd5))
 
 ### Bug fixes
 
-* experiments: Audit and enable emails and recovery key experiments ([924048afd](https://github.com/mozilla/fxa/commit/924048afd))
-* content-server: address letter dangles being cut off ([80c8444a2](https://github.com/mozilla/fxa/commit/80c8444a2))
-* delete-account: Include subscription status filtering for 'trialing' and 'past_due' ([c1d239a13](https://github.com/mozilla/fxa/commit/c1d239a13))
+- experiments: Audit and enable emails and recovery key experiments ([924048afd](https://github.com/mozilla/fxa/commit/924048afd))
+- content-server: address letter dangles being cut off ([80c8444a2](https://github.com/mozilla/fxa/commit/80c8444a2))
+- delete-account: Include subscription status filtering for 'trialing' and 'past_due' ([c1d239a13](https://github.com/mozilla/fxa/commit/c1d239a13))
 
 ### Other changes
 
-* support form: add two FPN specific topics ([824c45a72](https://github.com/mozilla/fxa/commit/824c45a72))
-* 684aeeb70 Fix typo in RECOVERY_KEY text ([684aeeb70](https://github.com/mozilla/fxa/commit/684aeeb70))
+- support form: add two FPN specific topics ([824c45a72](https://github.com/mozilla/fxa/commit/824c45a72))
+- 684aeeb70 Fix typo in RECOVERY_KEY text ([684aeeb70](https://github.com/mozilla/fxa/commit/684aeeb70))
 
 ## 1.159.0
 

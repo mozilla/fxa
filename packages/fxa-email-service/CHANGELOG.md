@@ -1,3 +1,13 @@
+## 1.161.1
+
+No changes.
+
+## 1.161.0
+
+### Bug fixes
+
+- emails: Enforce a max header size of 998 characters, per RFC 5322 recommendation ([08cb9de70](https://github.com/mozilla/fxa/commit/08cb9de70))
+
 ## 1.160.1
 
 No changes.

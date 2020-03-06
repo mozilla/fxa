@@ -1,5 +1,19 @@
 # Change history
 
+## 1.161.1
+
+No changes.
+
+## 1.161.0
+
+### Bug fixes
+
+- metrics: handle race condition in Payments nav timing metrics ([09e06be3e](https://github.com/mozilla/fxa/commit/09e06be3e))
+
+### Other changes
+
+- content/payments: update subscription label to include payment ([bfd66ba3e](https://github.com/mozilla/fxa/commit/bfd66ba3e))
+
 ## 1.160.1
 
 No changes.
@@ -8,7 +22,7 @@ No changes.
 
 ### New features
 
-* metrics: collect navigation timing on Payments with StatsD ([28db0cfef](https://github.com/mozilla/fxa/commit/28db0cfef))
+- metrics: collect navigation timing on Payments with StatsD ([28db0cfef](https://github.com/mozilla/fxa/commit/28db0cfef))
 
 ## 1.159.0
 
