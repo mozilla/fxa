@@ -1,11 +1,7 @@
 import React from 'react';
 import { Localized } from 'fluent-react';
 import { formatCurrencyInCents } from '../../lib/formats';
-import {
-  Plan,
-  Profile,
-  Customer,
-} from '../../store/types';
+import { Plan, Profile, Customer } from '../../store/types';
 
 import circledCheckbox from './images/circled-confirm.svg';
 
@@ -29,8 +25,6 @@ export const PaymentConfirmation = ({
   const { amount, interval } = selectedPlan;
   const { displayName, email } = profile;
   const { brand, last4, subscriptions } = customer;
-  console.log('selectedPlan', selectedPlan);
-  console.log('subscriptions', subscriptions);
   const invoiceNumber = subscriptions[0].latest_invoice;
   const date = new Date().toLocaleDateString(navigator.language, {
     weekday: 'long',
@@ -95,7 +89,9 @@ export const PaymentConfirmation = ({
 
       <div className="footer" data-testid="footer">
         <Localized id="payment-confirmation-download-button">
-          <a data-testid="download-link" href={productUrl}>click to download</a>
+          <a data-testid="download-link" href={productUrl}>
+            click to download
+          </a>
         </Localized>
       </div>
     </section>

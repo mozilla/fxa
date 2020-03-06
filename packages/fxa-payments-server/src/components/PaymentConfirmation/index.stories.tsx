@@ -47,12 +47,12 @@ const customer: Customer = {
   ],
 };
 
-const redirectUrl = 'https://mozilla.org';
+const productUrl = 'https://mozilla.org';
 
 storiesOf('components/PaymentConfirmation', module).add('default', () => (
   <MockApp>
     <PaymentConfirmation
-      {...{ profile: userProfile, selectedPlan, customer, redirectUrl }}
+      {...{ profile: userProfile, selectedPlan, customer, productUrl }}
     />
   </MockApp>
 ));
