@@ -7,6 +7,7 @@
  * to a mobile device via SMS.
  */
 
+import { assign } from 'underscore';
 import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import CountryTelephoneInfo from '../lib/country-telephone-info';
@@ -32,12 +33,11 @@ class SmsSendView extends FormView {
   mustAuth = true;
   template = Template;
 
-  getAccount() {
-    // TODO - remove the `|| ...` when done with development
-    return this.model.get('account') || this.user.getSignedInAccount();
-  }
-
   initialize(options) {
+    this.events = assign(this.events, {
+      'input .phone-number': '_validatePhoneNumber',
+    });
+
     this._attachedClients = options.attachedClients;
     if (!this._attachedClients) {
       this._attachedClients = new AttachedClients([], {
@@ -45,6 +45,45 @@ class SmsSendView extends FormView {
       });
     }
     this._userHasAttachedMobileDevice = false;
+  }
+
+  afterRender() {
+    // Make this a jQuery object so we can use the validation helpers
+    this.phoneField = this.el.querySelector('.phone-number');
+    this.$phoneField = this.$(this.phoneField);
+    this.submitButton = this.el.querySelector('.sms-send');
+
+    // It is possible to land on this page with the phone number field
+    // pre-filled, so let's validate on page load as well if that's the case.
+    if (this.formPrefill.get('phoneNumber')) {
+      this._validatePhoneNumber();
+    }
+  }
+
+  getAccount() {
+    // TODO - remove the `|| ...` when done with development
+    return this.model.get('account') || this.user.getSignedInAccount();
+  }
+
+  _validatePhoneNumber() {
+    try {
+      // `disableValidation` is an arbitrary property so we
+      // can disable this validation for testing purposes.
+      // See: tests/functional/send_sms.js
+      if (!this.phoneField.disableValidation) {
+        this.$phoneField.validate();
+      }
+
+      // We want the disabled style of secondary-button (grey),
+      // but the active state of primary-button (blue).
+      this.submitButton.classList.add('primary-button');
+      this.submitButton.classList.remove('secondary-button');
+      this.submitButton.disabled = false;
+    } catch (e) {
+      this.submitButton.classList.add('secondary-button');
+      this.submitButton.classList.remove('primary-button');
+      this.submitButton.disabled = true;
+    }
   }
 
   setInitialContext(context) {
