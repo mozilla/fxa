@@ -10,7 +10,6 @@ const config = require('../../../config');
 const encrypt = require('../encrypt');
 const logger = require('../logging')('db');
 const mysql = require('./mysql');
-const aggregateActiveClients = require('./helpers').aggregateActiveClients;
 const redis = require('../../redis');
 const AccessToken = require('./accessToken');
 
@@ -86,22 +85,6 @@ class OauthDB {
       const db = await this.mysql;
       return db._removeAccessToken(id);
     }
-  }
-
-  async getActiveClientsByUid(uid) {
-    const tokens = await this.redis.getAccessTokens(uid);
-    // Any client with an active access token needs to appear in the list
-    // *unless* they're a canGrant client, in which case they will be
-    // represented by their sessionToken held elsewhere in the system.
-    const activeClientTokens = [];
-    for (const token of tokens) {
-      if (!token.canGrant) {
-        activeClientTokens.push(token);
-      }
-    }
-    const db = await this.mysql;
-    const otherTokens = await db._getActiveClientsByUid(uid);
-    return aggregateActiveClients(activeClientTokens.concat(otherTokens));
   }
 
   async getAccessTokensByUid(uid) {
