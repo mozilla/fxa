@@ -226,6 +226,8 @@ node tests/intern.js --suites=all --grep="Test string to search for"
 
 It's possible to debug a running node process using a variety of debuggers (see the [node debugging docs](https://nodejs.org/en/docs/guides/debugging-getting-started/) for details).
 
+We have also extensively documented working with the [FxA code-base using VS Code](https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/vscode-development).
+
 #### Debugging a server
 
 In the case of Firefox Accounts, the `pm2` process manager complicates setup a bit. Here's one approach that works:
@@ -235,11 +237,30 @@ In the case of Firefox Accounts, the `pm2` process manager complicates setup a b
    - Get the pm2 `id` for the server from `./pm2 ls`
    - Stop the process by doing `./pm2 stop NN` where NN is the pm2 `id`
 3. Restart the server manually, passing the `--inspect` argument:
-   - For fxa-content-server or fxa-payments-server, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
+   - For fxa-content-server, fxa-payments-server, fxa-auth-server, or fxa-event-broker, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
    - For other servers, we just haven't added a `start-dev-debug` run script yet; feel free to add one by tracing through the existing run scripts to find the actual script that runs the server (not one that forks another script).
 4. Connect to the process to debug it:
    - Using Google Chrome, go to `chrome://inspect`, then click the process to connect to devtools.
    - VSCode requires setting up a `.vscode/launch.json` file; see the [VSCode docs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) for details.
+
+Alternatively if you want to be able to debug any of several servers that is configured with a `start-dev-debug` script you can start `pm2` using the `debug_servers.json` file:
+
+```bash
+pm2 kill
+pm2 start debug_servers.json
+```
+
+##### Default Debug Ports
+
+If you're using `npm run start-dev-debug` or `pm2` with the `debug_server.json`, the following ports are used for `--inspect`:
+
+| Port | Service         |
+| ---- | --------------- |
+| 9140 | content-server  |
+| 9150 | admin-server    |
+| 9160 | auth-server     |
+| 9170 | payments-server |
+| 9180 | event-broker    |
 
 #### Debugging tests
 
