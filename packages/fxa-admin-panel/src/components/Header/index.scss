@@ -1,0 +1,22 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.header-page {
+  background: left 15% / cover no-repeat url('../../images/ff-branding-bg.svg') var(--color-primary);
+  padding: var(--app-padding-x-min);
+
+  h1 {
+    align-self: center;
+    color: var(--color-white);
+    font-size: var(--header-font-size-lg);
+    font-weight: var(--font-weight-semi-bold);
+    margin: 0 0 0 20px;
+    text-shadow: 1px 1px 3px var(--color-black);
+  }
+
+  .logo {
+    height: auto;
+    width: 50px;
+  }
+}

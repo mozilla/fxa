@@ -1,0 +1,25 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.content-wrapper {
+  display: flex;
+  padding: 0 var(--app-padding-x-min);
+}
+
+nav {
+  flex: 1;
+}
+
+main {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-black-10);
+  border-top: 0;
+  flex: 4;
+  padding: var(--app-padding-top-min) 30px;
+
+  h2 {
+    color: var(--color-black-80);
+    margin-top: 0;
+  }
+}

@@ -1,0 +1,60 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+@import './styles/main';
+
+.icon {
+  height: auto;
+  width: 18px;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 1440px;
+}
+
+.delete {
+  background-color: var(--delete-background-color);
+  border: 0;
+  border-radius: 5px;
+  color: var(--color-white);
+  font-size: 16px;
+  margin-top: 20px;
+  padding: 10px 15px;
+  transition: var(--transition-duration) background-color;
+
+  &:hover {
+    background-color: var(--delete-hover-background-color);
+    cursor: pointer;
+    transition: var(--transition-duration) background-color;
+  }
+
+  &:active {
+    background-color: var(--delete-active-background-color);
+    transition: var(--transition-duration) background-color;
+  }
+}
+
+// flexbox-related classes
+.flex {
+  display: flex;
+}
+
+.inline-flex {
+  display: inline-flex;
+}
+
+.align-self {
+  &-center {
+    align-self: center;
+  }
+}
+
+.justify-space-between {
+  justify-content: space-between;
+}
+
+.justify-flex-end {
+  justify-content: flex-end;
+}

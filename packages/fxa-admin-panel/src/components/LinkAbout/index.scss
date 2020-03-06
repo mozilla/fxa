@@ -1,0 +1,29 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.about-link {
+  color: var(--color-white);
+  transition: var(--transition-duration) color;
+
+  &:hover {
+    color: var(--color-black-10);
+    transition: var(--transition-duration) color;
+  }
+
+  &:active {
+    color: var(--color-black-20);
+    transition: var(--transition-duration) color;
+  }
+
+  span {
+    font-weight: var(--font-weight-semi-bold);
+    padding-right: 8px;
+    text-shadow: 1px 1px 1px var(--color-black-80);
+  }
+
+  .icon {
+    position: relative;
+    top: 1px;
+  }
+}
