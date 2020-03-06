@@ -1,10 +1,8 @@
-import React, { useContext, useEffect } from 'react';
-import { Localized } from 'fluent-react';
-import { Plan, Customer } from '../../../store/types';
+import React, { useContext } from 'react';
+import { Plan, Customer, Profile } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
 import { metadataFromPlan } from '../../../store/utils';
-import { SelectorReturns } from '../../../store/selectors';
 
 import './index.scss';
 import PlanDetails from '../../../components/PlanDetails';
@@ -16,7 +14,7 @@ const defaultProductRedirectURL = 'https://mozilla.org';
 export type SubscriptionSuccessProps = {
   customer: Customer;
   plan: Plan;
-  profile: SelectorReturns['profile'];
+  profile: Profile;
 };
 
 export const SubscriptionSuccess = ({
