@@ -1,10 +1,12 @@
 {
   "comment": "532, 534, 545 are various ReDoS that don't affect us.",
   "comment_566": "Hoek merge vuln, which we don't use.",
+  "comment_1488": "Acorn DoS vuln (dep of browserify), only applies if passed untrusted user input.",
   "exceptions": [
     "https://nodesecurity.io/advisories/532",
     "https://nodesecurity.io/advisories/534",
     "https://nodesecurity.io/advisories/535",
-    "https://nodesecurity.io/advisories/566"
+    "https://nodesecurity.io/advisories/566",
+    "https://npmjs.com/advisories/1488"
   ]
 }
