@@ -105,40 +105,4 @@ describe('lib/oauth-client', function() {
       });
     });
   });
-
-  describe('fetchOAuthApps', function() {
-    it('fetches OAuth Apps', function() {
-      sinon.stub(client._xhr, 'oauthAjax').callsFake(function() {
-        return Promise.resolve({});
-      });
-
-      return client.fetchOAuthApps('token').then(function() {
-        assert.isTrue(
-          xhr.oauthAjax.calledWith({
-            accessToken: 'token',
-            type: 'get',
-            url: OAUTH_URL + '/v1/client-tokens',
-          })
-        );
-      });
-    });
-  });
-
-  describe('destroyOAuthApp', function() {
-    it('deletes OAuth Apps', function() {
-      sinon.stub(client._xhr, 'oauthAjax').callsFake(function() {
-        return Promise.resolve({});
-      });
-
-      return client.destroyOAuthApp('token', 'id').then(function() {
-        assert.isTrue(
-          xhr.oauthAjax.calledWith({
-            accessToken: 'token',
-            type: 'delete',
-            url: OAUTH_URL + '/v1/client-tokens/id',
-          })
-        );
-      });
-    });
-  });
 });

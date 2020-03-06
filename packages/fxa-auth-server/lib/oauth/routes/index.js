@@ -72,16 +72,6 @@ const routes = [
     path: v('/authorized-clients/destroy'),
     config: require('./authorized-clients/destroy'),
   },
-  {
-    method: 'GET',
-    path: v('/client-tokens'),
-    config: require('./client-tokens/list'),
-  },
-  {
-    method: 'DELETE',
-    path: v('/client-tokens/{client_id}'),
-    config: require('./client-tokens/delete'),
-  },
 ];
 
 exports.clients = [

@@ -66,12 +66,6 @@ class AccessToken {
     return this.createdAt;
   }
 
-  // This is not the tokenId, it's the clientId, and it's only here
-  // for compatbility with the data format expected by `aggregateActiveClients`.
-  get id() {
-    return this.clientId;
-  }
-
   /**
    *
    * @returns {object}
