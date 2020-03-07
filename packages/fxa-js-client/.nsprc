@@ -1,3 +1,6 @@
 {
-  "exceptions": []
+  "exception_1488": "1488 is a DoS against acorn (via webpack), which only applies if untrusted user content is passed in.",
+  "exceptions": [
+    "https://npmjs.com/advisories/1488"
+  ]
 }
