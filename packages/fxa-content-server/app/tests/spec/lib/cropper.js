@@ -108,8 +108,9 @@ describe('lib/cropper', function() {
           verticalGutter: 0,
         });
 
-        cropper._wrapperHeight = 240;
-        cropper._wrapperWidth = 320;
+        cropper.wrapper.width(240);
+        cropper.wrapper.height(320);
+        cropper.updateMeasurements();
 
         cropper.canvas = new CanvasMock();
       });
@@ -121,16 +122,17 @@ describe('lib/cropper', function() {
 
     it('sets image src after', function() {
       cropper.setImageSrc(pngSrc, 100, 100);
+      cropper.img.css(cropper.updatePosition());
 
-      assert.equal(cropper.yCenter, 120);
-      assert.equal(cropper.xCenter, 160);
+      assert.equal(cropper.yCenter, 160);
+      assert.equal(cropper.xCenter, 120);
       assert.equal(cropper.isLandscape, false);
       assert.equal(cropper._originalWidth, 100);
       assert.equal(cropper._originalHeight, 100);
       assert.equal(cropper._height, 240);
       assert.equal(cropper._width, 240);
-      assert.equal(cropper.verticalGutter, 0);
-      assert.equal(cropper.horizontalGutter, 40);
+      assert.equal(cropper.verticalGutter, 40);
+      assert.equal(cropper.horizontalGutter, 0);
     });
 
     it('rotates and sets landscape mode', function() {
@@ -181,25 +183,25 @@ describe('lib/cropper', function() {
 
       assert.equal(
         cropper.getBoundedPosition(0, 50).left,
-        40,
+        0,
         'left edge does not exceed gutter length'
       );
 
       assert.equal(
         cropper.getBoundedPosition(10, 0).top,
-        0,
+        40,
         'top edge does not exceed gutter length'
       );
 
       assert.equal(
         cropper.getBoundedPosition(0, -220).left,
-        -200,
+        -220,
         'right edge does not exceed gutter length'
       );
 
       assert.equal(
         cropper.getBoundedPosition(-10, 0).top,
-        0,
+        40,
         'bottom edge does not exceed gutter length'
       );
     });
