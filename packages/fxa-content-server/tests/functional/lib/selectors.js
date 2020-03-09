@@ -238,6 +238,7 @@ module.exports = {
     RESEND: '#resend',
     SUBMIT: 'button[type="submit"]',
     TOOLTIP: 'input[type=text] ~ .tooltip',
+    USE_DIFFERENT_EMAIL: '#use-different-email',
   },
   POST_VERIFY_VERIFIED: {
     READY: '.account-ready-service',
