@@ -3207,59 +3207,6 @@ describe('/v1', function() {
     });
   });
 
-  describe('/client-tokens', function() {
-    var user1;
-    var client1Id;
-    var client2Id;
-    var client1;
-
-    beforeEach(function() {
-      user1 = {
-        uid: unique(16).toString('hex'),
-        email: unique(10).toString('hex') + '@token.city',
-      };
-
-      user2 = {
-        uid: unique(16).toString('hex'),
-        email: unique(10).toString('hex') + '@token.city',
-      };
-
-      client1Id = unique.id();
-      client1 = {
-        name: 'test/api/client-tokens/list-b',
-        id: client1Id,
-        hashedSecret: encrypt.hash(unique.secret()),
-        redirectUri: 'https://example.domain',
-        imageUri: 'https://example.com/logo.png',
-        trusted: true,
-      };
-
-      client2Id = unique.id();
-      client2 = {
-        name: 'test/api/client-tokens/list-a',
-        id: client2Id,
-        hashedSecret: encrypt.hash(unique.secret()),
-        redirectUri: 'https://example.domain',
-        imageUri: 'https://example.com/logo.png',
-        trusted: false,
-      };
-
-      // create a new client
-      return db
-        .registerClient(client1)
-        .then(function() {
-          // user1 gets a client write token
-          return getUniqueUserAndToken(client1, {
-            uid: user1.uid,
-            email: user1.email,
-            scopes: ['profile', 'clients:write'],
-          });
-        })
-        .then(function(result) {
-          tokenWithClientWrite = result.token;
-        });
-    });
-
   describe('/authorized-clients', () => {
     let user1, user2, client1Id, client2Id, client1, client2;
 
