@@ -3,7 +3,15 @@
       <div class="error"></div>
     </header>
     <section class="send-sms">
-      <div class="graphic {{graphicId}}">{{#t}}Success{{/t}}</div>
+      <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Connect another device{{/t}}"></div>
+      <h1>
+        {{^userHasAttachedMobileDevice}}
+          {{#t}}Would you like to sync your phone?{{/t}}
+        {{/userHasAttachedMobileDevice}}
+        {{#userHasAttachedMobileDevice}}
+          {{#t}}Still adding devices?{{/t}}
+        {{/userHasAttachedMobileDevice}}
+      </h1>
       <p>
         {{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}
       </p>
