@@ -1,3 +1,5 @@
+/* global q$, document, window, $ */
+
 q$(document).ready(function() {
   let paymentURL;
   switch (window.location.host) {
@@ -6,7 +8,7 @@ q$(document).ready(function() {
         'https://latest.dev.lcip.org/subscriptions/products/plan_FUUOYlhpIhWtoo';
       break;
     default:
-      paymentURL = '//127.0.0.1:3030/subscriptions/products/fortressProProduct';
+      paymentURL = '//127.0.0.1:3030/subscriptions/products/z';
       break;
   }
   $('.btn-subscribe').each(function(index) {
