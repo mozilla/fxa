@@ -5,6 +5,9 @@
  * the UI to reflect sign-in state.
  */
 
+/* eslint no-unused-vars:off */
+/* global loggedInState:writable, loggedInEmail:writable, loggedInSubscriptions:writable, alert, navigator, State, document, window, $ */
+
 const PRO_PRODUCT = '123donePro';
 
 $(document).ready(function() {
@@ -26,7 +29,8 @@ $(document).ready(function() {
         'https://accounts.firefox.com/subscriptions/products/prod_FfiuDs9u11ESbD';
       break;
     default:
-      paymentURL = '//127.0.0.1:3030/subscriptions/products/123doneProProduct';
+      paymentURL =
+        '//127.0.0.1:3030/subscriptions/products/prod_GqM9ToKK62qjkK';
       break;
   }
   $('.btn-subscribe').each(function(index) {
