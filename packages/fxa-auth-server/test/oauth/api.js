@@ -3208,16 +3208,10 @@ describe('/v1', function() {
   });
 
   describe('/client-tokens', function() {
-    var BAD_TOKEN =
-      '0000000000000000000000000000000000000000000000000000000000000000';
-    var tokenWithClientWrite;
-    var tokenWithoutClientWrite;
     var user1;
-    var user2;
     var client1Id;
     var client2Id;
     var client1;
-    var client2;
 
     beforeEach(function() {
       user1 = {
