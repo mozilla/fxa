@@ -4234,6 +4234,7 @@ describe('/v1', function() {
 
       assert.equal(destroyWithAnAssertion.statusCode, 400);
       assert.equal(destroyWithAnAssertion.result.errno, 109);
+      });
     });
   });
 });
