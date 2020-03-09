@@ -56,7 +56,7 @@
     "email-addresses": "2.0.2",
     "fxa-jwtool": "0.7.2",
     "fxa-notifier-aws": "1.0.0",
-    "google-libphonenumber": "2.0.10",
+    "google-libphonenumber": "^3.2.7",
     "handlebars": "^4.5.3",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
