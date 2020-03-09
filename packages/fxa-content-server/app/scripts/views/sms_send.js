@@ -19,6 +19,7 @@ import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
 import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
+import AttachedClients from '../models/attached-clients';
 import SmsMixin from './mixins/sms-mixin';
 import Template from 'templates/sms_send.mustache';
 import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
@@ -34,6 +35,16 @@ class SmsSendView extends FormView {
   getAccount() {
     // TODO - remove the `|| ...` when done with development
     return this.model.get('account') || this.user.getSignedInAccount();
+  }
+
+  initialize(options) {
+    this._attachedClients = options.attachedClients;
+    if (!this._attachedClients) {
+      this._attachedClients = new AttachedClients([], {
+        notifier: options.notifier,
+      });
+    }
+    this._userHasAttachedMobileDevice = false;
   }
 
   setInitialContext(context) {
@@ -62,6 +73,7 @@ class SmsSendView extends FormView {
     const graphicId = this.getGraphicsId();
 
     context.set({
+      userHasAttachedMobileDevice: this._userHasAttachedMobileDevice,
       country,
       escapedLearnMoreAttributes,
       graphicId,
@@ -71,11 +83,31 @@ class SmsSendView extends FormView {
     });
   }
 
+  beforeRender() {
+    return this._fetchAttachedClients()
+      .then(() => {
+        this._userHasAttachedMobileDevice = this._attachedClients
+          .toJSON()
+          .some(client => client.deviceType === 'mobile');
+      })
+      .catch(err => {
+        this.model.set('error', err);
+        this.logError(err);
+      });
+  }
+
   submit() {
     return this._sendSms(
       this._getNormalizedPhoneNumber(),
       FIREFOX_MOBILE_INSTALL
     );
+  }
+
+  _fetchAttachedClients() {
+    const start = Date.now();
+    return this._attachedClients.fetchClients(this.user).then(() => {
+      this.logFlowEvent(`timing.clients.fetch.${Date.now() - start}`);
+    });
   }
 
   /**
