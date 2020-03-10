@@ -7,7 +7,7 @@
     "postinstall": "_scripts/install_all.sh",
     "npm-ci-all": "lerna exec --parallel --ignore fxa-amplitude-send -- npm ci",
     "audit": "lerna run audit --parallel",
-    "start": "sh _scripts/check_ports.sh && pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
+    "start": "_scripts/check_ports.sh && pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
     "stop": "pm2 kill",
     "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher",
     "start-firefox": "npm run firefox",
