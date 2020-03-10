@@ -32,7 +32,6 @@ jobs:
       - run: ./.circleci/test-package.sh << parameters.package >>
 
   test-many:
-    resource_class: small
     docker:
       - image: circleci/node:12
       - image: circleci/mysql:5.7.27
@@ -59,6 +58,7 @@ jobs:
             'fxa-event-broker' \
             'fxa-geodb' \
             'fxa-js-client' \
+            'fxa-payments-server' \
             'fxa-profile-server' \
             'fxa-shared' \
             'fxa-support-panel' \
@@ -163,14 +163,6 @@ workflows:
               ignore: master
             tags:
               ignore: /.*/
-      - test-package:
-          name: test-payments-server
-          package: fxa-payments-server
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
       - test-email-service:
           # since email-service is expensive
           # to build and rarely changes
@@ -222,14 +214,6 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-      - test-package:
-          name: test-payments-server
-          package: fxa-payments-server
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
       - deploy-packages:
           filters:
             branches:
@@ -240,4 +224,3 @@ workflows:
             - test-many
             - test-auth-server
             - test-content-server
-            - test-payments-server
