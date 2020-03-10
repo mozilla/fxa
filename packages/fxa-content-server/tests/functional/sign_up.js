@@ -38,7 +38,7 @@ const {
   testUrlInclude,
   type,
   visibleByQSA,
-  //waitForUrl,
+  waitForUrl,
 } = FunctionalHelpers;
 
 const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
@@ -47,8 +47,7 @@ const ENTER_EMAIL_ENTRYPOINT = `entrypoint=${encodeURIComponent(
 var SYNC_CONTEXT_ANDROID = 'context=fx_fennec_v1';
 var SYNC_CONTEXT_DESKTOP = 'context=fx_desktop_v3';
 var SYNC_SERVICE = 'service=sync';
-//const PRODUCT_URL =
-//  config.fxaContentRoot + 'subscriptions/products/123doneProProduct';
+const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
 
 function testAtConfirmScreen(email) {
   return function() {
@@ -272,7 +271,12 @@ registerSuite('signup here', {
     },
 
     'signup via product page and redirect after confirm': async function() {
-      /*
+      if (
+        process.env.CIRCLECI === 'true' &&
+        !process.env.SUBHUB_STRIPE_APIKEY
+      ) {
+        this.skip('missing Stripe API key in CircleCI run');
+      }
       // Depending on timing the final page might be the redirect page (PRODUCT_URL),
       // or might be the product page (which is a URL that ends the same, but has a
       // different domain), so we test for the path only:
@@ -284,7 +288,6 @@ registerSuite('signup here', {
         .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.PAYMENTS.HEADER))
         .then(waitForUrl(url => url.includes(productUrlPath)));
-        */
     },
 
     'signup non matching passwords': function() {
