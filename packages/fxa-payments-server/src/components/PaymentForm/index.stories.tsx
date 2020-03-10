@@ -81,7 +81,9 @@ const Subject = ({
   };
   return (
     <MockPage>
-      <PaymentForm {...paymentFormProps} />
+      <div className="product-payment">
+        <PaymentForm {...paymentFormProps} />
+      </div>
     </MockPage>
   );
 };

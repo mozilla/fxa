@@ -202,6 +202,7 @@ export const defaultAppContextValue = (): AppContextType => ({
     flow_id: 'thisisanid',
   },
   matchMedia: jest.fn().mockImplementation(query => false),
+  matchMediaDefault: jest.fn().mockImplementation(query => false),
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
   locationReload: jest.fn(),

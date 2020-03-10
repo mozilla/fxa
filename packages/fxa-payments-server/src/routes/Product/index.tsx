@@ -68,7 +68,7 @@ export const Product = ({
     AppContext
   );
 
-  const isMobile = useMatchMedia('(min-width: 768px)', matchMediaDefault);
+  const isMobile = !useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
 

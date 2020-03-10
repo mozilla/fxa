@@ -160,6 +160,7 @@ sub-guarantee = 30-day money-back guarantee
 plan-details-header = Product details
 plan-details-show-button = Show details
 plan-details-hide-button = Hide details
+plan-details-total-label = Total
 
 fpn-details-1 = Device-level encryption
 fpn-details-2 = Servers in 30+ countries

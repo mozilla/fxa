@@ -41,7 +41,7 @@ export const PlanDetails = ({
               />
             </div>
             <div className="plan-details-heading-wrap">
-              <h3 className="plan-details-product">{product_name}</h3>
+              <h3 id="plan-details-product" className="plan-details-product">{product_name}</h3>
               <p className="plan-details-description">Full-device VPN</p>
             </div>
           </div>
@@ -99,9 +99,9 @@ export const PlanDetails = ({
         ) : null}
       </div>
       {!showExpandButton ? (
-        <div className="plan-details-total">
+        <div className="plan-details-total" aria-labelledby="plan-details-product">
           <Localized id="plan-details-total-label">
-            <p className="label">Total:</p>
+            <p className="label">Total</p>
           </Localized>
           <p className="total-price">
             ${formatCurrencyInCents(amount)}/{interval}
