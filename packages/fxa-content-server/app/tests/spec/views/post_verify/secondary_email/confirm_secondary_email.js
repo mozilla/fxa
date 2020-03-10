@@ -161,6 +161,22 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
     });
   });
 
+  describe('resend', () => {
+    beforeEach(() => {
+      sinon
+        .stub(account, 'recoveryEmailSecondaryResendCode')
+        .callsFake(() => Promise.resolve());
+      return view.resend();
+    });
+
+    it('calls correct methods', () => {
+      assert.isTrue(
+        account.recoveryEmailSecondaryResendCode.calledWith(SECONDARY_EMAIL),
+        'verify correct email'
+      );
+    });
+  });
+
   describe('submit', () => {
     describe('success', () => {
       beforeEach(() => {
