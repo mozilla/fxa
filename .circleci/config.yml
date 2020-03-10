@@ -163,6 +163,14 @@ workflows:
               ignore: master
             tags:
               ignore: /.*/
+      - test-package:
+          name: test-payments-server
+          package: fxa-payments-server
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
       - test-email-service:
           # since email-service is expensive
           # to build and rarely changes
@@ -214,6 +222,14 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+      - test-package:
+          name: test-payments-server
+          package: fxa-payments-server
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
       - deploy-packages:
           filters:
             branches:
@@ -224,3 +240,4 @@ workflows:
             - test-many
             - test-auth-server
             - test-content-server
+            - test-payments-server
