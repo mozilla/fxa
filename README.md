@@ -4,6 +4,24 @@
 
 The Firefox Accounts (fxa) monorepo
 
+### Table of Contents
+
+[Getting Started](#getting-started)\
+[Contributing](#contributing)\
+[Dependencies](#dependencies)\
+[Firefox Custom Profile](#firefox-custom-profile)\
+[Functional Tests](#functional-tests)\
+[Node debugging](#node-debugging)\
+[Android debugging](#android-debugging)\
+[FxA Email Service](#fxa-email-service)\
+[Firefox for Android](#firefox-for-android)\
+[Firefox for iOS](#firefox-for-ios)\
+[Running with MailDev](#running-with-maildev)\
+[Other tasks](#other-tasks)\
+[Documentation](#documentation)
+
+---
+
 ### Getting Started
 
 1. **Manually install the system [dependencies](#dependencies) for OS X or Ubuntu.** Note that [WSL](https://docs.microsoft.com/windows/wsl/) is required for development work on Windows.
@@ -73,7 +91,7 @@ When you signup for an account using the form on `127.0.0.1:3030/signup` the "au
 
 ![](https://i.imgur.com/cdh9Xrl.png)
 
-If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.
+If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository or [connect with the team on Firefox Accounts Riot](https://chat.mozilla.org/#/room/#fxa:mozilla.org).
 
 ---
 
@@ -226,6 +244,8 @@ node tests/intern.js --suites=all --grep="Test string to search for"
 
 It's possible to debug a running node process using a variety of debuggers (see the [node debugging docs](https://nodejs.org/en/docs/guides/debugging-getting-started/) for details).
 
+We have also extensively documented working with the [FxA code-base using VS Code](https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/vscode-development).
+
 #### Debugging a server
 
 In the case of Firefox Accounts, the `pm2` process manager complicates setup a bit. Here's one approach that works:
@@ -235,11 +255,30 @@ In the case of Firefox Accounts, the `pm2` process manager complicates setup a b
    - Get the pm2 `id` for the server from `./pm2 ls`
    - Stop the process by doing `./pm2 stop NN` where NN is the pm2 `id`
 3. Restart the server manually, passing the `--inspect` argument:
-   - For fxa-content-server or fxa-payments-server, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
+   - For fxa-content-server, fxa-payments-server, fxa-auth-server, or fxa-event-broker, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
    - For other servers, we just haven't added a `start-dev-debug` run script yet; feel free to add one by tracing through the existing run scripts to find the actual script that runs the server (not one that forks another script).
 4. Connect to the process to debug it:
    - Using Google Chrome, go to `chrome://inspect`, then click the process to connect to devtools.
    - VSCode requires setting up a `.vscode/launch.json` file; see the [VSCode docs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) for details.
+
+Alternatively if you want to be able to debug any of several servers that is configured with a `start-dev-debug` script you can start `pm2` using the `debug_servers.json` file:
+
+```bash
+pm2 kill
+pm2 start debug_servers.json
+```
+
+##### Default Debug Ports
+
+If you're using `npm run start-dev-debug` or `pm2` with the `debug_server.json`, the following ports are used for `--inspect`:
+
+| Port | Service         |
+| ---- | --------------- |
+| 9140 | content-server  |
+| 9150 | admin-server    |
+| 9160 | auth-server     |
+| 9170 | payments-server |
+| 9180 | event-broker    |
 
 #### Debugging tests
 
@@ -354,9 +393,11 @@ All emails sent can be viewed from [http://localhost:1080](http://localhost:1080
 
 - [Updating dependencies and `npm-shrinkwrap.json` files](https://mozilla.github.io/application-services/docs/accounts/local-development.html#updating-npm-shrinkwrap).
 
-### Package docs
+### Documentation
 
-Each package has it's own README.md and `docs/` directory with info specific to that project.
+The [Firefox Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/) serves as a documentation hub for Firefox Accounts, Services, Synced Client Integrations, and Subscription Platform.
+
+In addition to the ecosystem docs, each package has it's own README.md and `docs/` directory with info specific to that project.
 
 - 123done [README](./packages/123done/README.md)
 - browserid-verifier [README](./packages/browserid-verifier/README.md)

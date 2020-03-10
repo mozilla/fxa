@@ -1,11 +1,14 @@
-#!/bin/sh
+#!/bin/bash -e
 
-set -e
+DIR=$(dirname "$0")
+
+cd $DIR/..
+mkdir -p ../../artifacts
 
 cd ../fxa-auth-db-mysql
 npm ci
 node ./bin/db_patcher
-node ./bin/server > fxa-auth-db-mysql.log 2>&1 &
+node ./bin/server > ../../artifacts/fxa-auth-db-mysql.log 2>&1 &
 DB_PID="$!"
 cd ../fxa-email-service
 

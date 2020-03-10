@@ -55,6 +55,9 @@
     "restify-clients": "^2.6.7",
     "sinon": "^7.5.0"
   },
+  "engines": {
+    "node": ">=12"
+  },
   "keywords": [
     "fxa",
     "firefox",

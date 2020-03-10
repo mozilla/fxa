@@ -5,18 +5,23 @@
 /**
  * Post verify view that start the process of creating a secondary email via a code.
  */
-import _ from 'underscore';
+import _, { assign } from 'underscore';
 import Cocktail from 'cocktail';
 import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import ServiceMixin from '../..//mixins/service-mixin';
 import Template from 'templates/post_verify/secondary_email/confirm_secondary_email.mustache';
+import preventDefaultThen from '../../decorators/prevent_default_then';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
 class ConfirmSecondaryEmail extends FormView {
   template = Template;
   viewName = 'confirm-secondary-email';
+
+  events = assign(this.events, {
+    'click #use-different-email': preventDefaultThen('useDifferentEmail'),
+  });
 
   beforeRender() {
     const account = this.getSignedInAccount();
@@ -55,6 +60,15 @@ class ConfirmSecondaryEmail extends FormView {
         );
       })
       .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+  }
+
+  useDifferentEmail() {
+    // To use a different email, we first must delete the old unverified email
+    const account = this.getSignedInAccount();
+    const secondaryEmail = this.model.get('secondaryEmail');
+    return account.recoveryEmailDestroy(secondaryEmail).then(() => {
+      this.navigate('/post_verify/secondary_email/add_secondary_email');
+    });
   }
 }
 

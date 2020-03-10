@@ -15,6 +15,7 @@
     "lint:eslint": "eslint .",
     "postinstall": "scripts/download_l10n.sh",
     "start": "npm run gen-keys && node ./bin/key_server.js",
+    "start-dev-debug": "NODE_ENV=dev nodemon --inspect=0.0.0.0:9160 ./bin/key_server.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-ci": "npm run gen-keys && scripts/test-local.sh && npm run test-e2e && npm run test-scripts",
     "test-e2e": "NODE_ENV=dev mocha test/e2e",
@@ -29,7 +30,7 @@
     "url": "https://github.com/mozilla/fxa.git"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "bugs": "https://github.com/mozilla/fxa/issues/",
   "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-server",
@@ -55,7 +56,7 @@
     "email-addresses": "2.0.2",
     "fxa-jwtool": "0.7.2",
     "fxa-notifier-aws": "1.0.0",
-    "google-libphonenumber": "2.0.10",
+    "google-libphonenumber": "^3.2.7",
     "handlebars": "^4.5.3",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",

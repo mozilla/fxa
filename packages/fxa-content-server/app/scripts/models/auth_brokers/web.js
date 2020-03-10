@@ -27,6 +27,17 @@ const redirectToSettingsAfterResetBehavior = new NavigateBehavior('settings', {
 export default BaseBroker.extend({
   defaultBehaviors: _.extend({}, proto.defaultBehaviors, {
     afterCompleteResetPassword: redirectToSettingsAfterResetBehavior,
+    afterCompleteAddPostVerifyRecovery: new SettingsIfSignedInBehavior(
+      proto.defaultBehaviors.afterCompleteSignIn,
+      { success: t('Account recovery enabled') }
+    ),
+    afterAbortAddPostVerifyRecovery: new SettingsIfSignedInBehavior(
+      proto.defaultBehaviors.afterCompleteSignIn,
+      // Because the default is to display the verification message
+      // we need to override it with an undefined value to prevent
+      // the message from being displayed at all
+      { success: undefined }
+    ),
     afterCompleteSignIn: new SettingsIfSignedInBehavior(
       proto.defaultBehaviors.afterCompleteSignIn
     ),

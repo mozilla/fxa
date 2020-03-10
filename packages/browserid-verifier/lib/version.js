@@ -31,7 +31,7 @@ module.exports = {
       });
     }
     // ignore errors and default to 'unknown' if not found
-    var gitDir = path.resolve(__dirname, '..', '.git');
+    var gitDir = path.resolve(__dirname, '..', '..', '..', '.git');
     cp.exec('git rev-parse HEAD', { cwd: gitDir }, function(err, stdout1) {
       var configPath = path.join(gitDir, 'config');
       var cmd = 'git config --get remote.origin.url';

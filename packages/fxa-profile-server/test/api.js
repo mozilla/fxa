@@ -875,8 +875,8 @@ describe('/avatar', function() {
 
   describe('upload', function() {
     it('should upload a new avatar', function() {
-      this.slow(2000);
-      this.timeout(3000);
+      this.slow(5000);
+      this.timeout(10000);
       mock.token({
         user: USERID,
         scope: ['profile:avatar:write'],
@@ -913,8 +913,8 @@ describe('/avatar', function() {
     });
 
     it('should fail with an error if image cannot be identified', function() {
-      this.slow(2000);
-      this.timeout(3000);
+      this.slow(5000);
+      this.timeout(10000);
 
       var dataLength = 2;
       mock.token({

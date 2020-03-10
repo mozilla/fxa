@@ -47,4 +47,6 @@ describe('models/auth_brokers/web', function() {
 
   testRedirectsToSettingsIfSignedIn('afterCompleteSignIn');
   testRedirectsToSettingsIfSignedIn('afterCompleteSignUp');
+  testRedirectsToSettingsIfSignedIn('afterCompleteAddPostVerifyRecovery');
+  testRedirectsToSettingsIfSignedIn('afterAbortAddPostVerifyRecovery');
 });

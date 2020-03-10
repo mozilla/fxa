@@ -19,6 +19,8 @@
     display: inline-block;
     height: 45px;
     width: 152px;
+    margin-left: 10px;
+    margin-right: 10px;
   }
 }
 
@@ -44,7 +46,6 @@
       }
 
       html[dir='rtl'] & {
-        padding-right: 10px;
         text-align: right;
       }
     }
@@ -78,6 +79,7 @@
       }
 
       html[dir='rtl'] & {
+        padding: 0 0 10px 10px;
         text-align: right;
       }
 

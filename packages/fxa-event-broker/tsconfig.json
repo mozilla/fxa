@@ -13,6 +13,6 @@
     "typeRoots": ["./types", "node_modules/@types"],
     "skipLibCheck": true
   },
-  "include": ["./bin/**/*", "./config/**/*", "./lib/**/*", "./test/**/*", "./types/**/*"],
+  "include": ["src"],
   "exclude": ["node_modules"]
 }

@@ -1,134 +1,73 @@
 version: 2.1
 
-executors:
-  nodejs:
-    docker:
-      - image: mozilla/fxa-circleci
 commands:
-  npm-install:
-    parameters:
-      module:
-        type: string
-        default: "dependencies"
+  base-install:
     steps:
+      - checkout
       - run: npm ci
+      - run:
+          name: Create version.json
+          command: .circleci/create-version-json.sh
+      - run:
+          name: Figure out what to test
+          command: node .circleci/modules-to-test.js | tee packages/test.list
+      - run: ./.circleci/assert-branch.sh
 
 jobs:
-  install:
-    resource_class: small
-    executor: nodejs
+  test-package:
+    docker:
+      - image: mozilla/fxa-circleci
+      - image: redis
+      - image: memcached
+      - image: pafortin/goaws
+      - image: circleci/mysql:5.7.27
+    parameters:
+      package:
+        type: string
     environment:
       SKIP_PACKAGES: true
       SKIP_DOCKER: true
     steps:
-      - checkout
-      - npm-install
-      - run:
-          name: Create version.json
-          command: >
-            printf '{"version":{"hash":"%s","version":"%s","source":"https://github.com/%s/%s","build":"%s"}}\n'
-            "$CIRCLE_SHA1"
-            "$CIRCLE_TAG"
-            "$CIRCLE_PROJECT_USERNAME"
-            "$CIRCLE_PROJECT_REPONAME"
-            "$CIRCLE_BUILD_URL"
-            | tee packages/version.json
-      - run: node .circleci/modules-to-test.js | tee packages/test.list
+      - base-install
+      - run: ./packages/<< parameters.package >>/scripts/test-ci.sh
 
-      - store_artifacts:
-          path: packages/version.json
-
-      - persist_to_workspace:
-          root: ~/.
-          paths:
-            - project/*
-
-  build-module:
-    executor: nodejs
-    parameters:
-      module:
-        type: string
-      test:
-        type: string
-        default: test
-      db:
-        type: boolean
-        default: false
-      upload_coverage:
-        type: boolean
-        default: false
-    working_directory: ~/project/packages/<< parameters.module >>
-    steps:
-      - attach_workspace:
-          at: ~/.
-
-      - setup_remote_docker
-
-      - when:
-          condition: << parameters.db >>
-          steps:
-            - run:
-                name: Start mysql
-                command: docker pull mysql/mysql-server:5.6 && docker run -d --name=mydb -e MYSQL_ALLOW_EMPTY_PASSWORD=true -e MYSQL_ROOT_HOST=% -p 3306:3306 mysql/mysql-server:5.6
-            - run:
-                name: Start memcached
-                command: docker pull memcached && docker run -d --name memcached -p 11211:11211 memcached
-
-            - run:
-                name: Start redis
-                command: docker pull redis && docker run -d --name redis-server -p 6379:6379 redis
-            - run:
-                name: Start gcloud firestore
-                command: docker pull jdlk7/firestore-emulator && docker run -d --name gcloud-firestore -p 8006:9090 jdlk7/firestore-emulator
-
-      - run: ../../.circleci/build-test-deploy.sh << parameters.test >>
-
-      - when:
-          condition: << parameters.upload_coverage >>
-          steps:
-            - run:
-                name: Update coverage files
-                command: sed 's,SF:/app,SF:/home/circleci/project/packages/<< parameters.module >>,' ./coverage/lcov.info > ./coverage/lcov-updated.info
-            - store_artifacts:
-                path: ./coverage
-            - run: |
-                sudo npm install -g coveralls
-                if [ ! $COVERALLS_REPO_TOKEN ]; then
-                  export COVERALLS_REPO_TOKEN=COVERALLS_REPO_TOKEN
-                fi
-                export COVERALLS_ENDPOINT=https://coveralls.io
-                export COVERALLS_FLAG_NAME="<< parameters.module >>"
-                export COVERALLS_PARALLEL=true
-
-                # check for lcov file presence:
-                if [ ! -r ./coverage/lcov-updated.info ]; then
-                  echo "Please specify a valid 'path_to_lcov' parameter."
-                  exit 1
-                fi
-                cd ../..
-                cat ./packages/<< parameters.module >>/coverage/lcov-updated.info | coveralls --verbose
-
-                if << parameters.module >> = "fxa-auth-server"; then
-                  curl "https://coveralls.io/webhook?repo_token=COVERALLS_REPO_TOKEN" \
-                    -d "payload[build_num]=$CIRCLE_BUILD_NUM&payload[status]=done"
-                  exit 0
-                fi
-
-  deploy-module:
+  test-many:
     resource_class: small
-    executor: nodejs
-    parameters:
-      module:
-        type: string
-    working_directory: ~/project/packages/<< parameters.module >>
+    docker:
+      - image: circleci/node:12
+      - image: circleci/mysql:5.7.27
+      - image: jdlk7/firestore-emulator
+      - image: memcached
+      - image: redis
+    environment:
+      SKIP_PACKAGES: true
+      SKIP_DOCKER: true
     steps:
-      - attach_workspace:
-          at: ~/.
-      - setup_remote_docker
-      - run: ../../.circleci/build.sh << parameters.module >>
-      - run: ../../.circleci/deploy.sh << parameters.module >>
+      - base-install
+      - run:
+          name: Testing...
+          command: |
+            PACKAGES=(\
+            '123done' \
+            'browserid-verifier' \
+            'fortress' \
+            'fxa-admin-panel' \
+            'fxa-admin-server' \
+            'fxa-auth-db-mysql' \
+            'fxa-customs-server' \
+            'fxa-email-event-proxy' \
+            'fxa-event-broker' \
+            'fxa-geodb' \
+            'fxa-js-client' \
+            'fxa-profile-server' \
+            'fxa-shared' \
+            'fxa-support-panel' \
+            )
+            for p in "${PACKAGES[@]}"; do
+              ./.circleci/test-package.sh $p
+            done
 
-  fxa-content-server:
+  test-content-server:
     parallelism: 6
     docker:
       - image: mozilla/fxa-circleci
@@ -142,13 +81,12 @@ jobs:
           FXA_EMAIL_ENV: dev
           FXA_EMAIL_LOG_LEVEL: debug
           RUST_BACKTRACE: 1
-
-    working_directory: ~/project/packages/fxa-content-server
+    environment:
+      SKIP_PACKAGES: false
+      SKIP_DOCKER: true
     steps:
-      - attach_workspace:
-          at: ~/
-      - run: ../../.circleci/install-content-server.sh
-      - run: ../../.circleci/test-content-server.sh
+      - base-install
+      - run: ./packages/fxa-content-server/scripts/test-ci.sh
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
@@ -156,76 +94,7 @@ jobs:
           path: ~/screenshots
           destination: screenshots
 
-  build-and-deploy-content-server:
-    resource_class: small
-    executor: nodejs
-    working_directory: ~/project/packages/fxa-content-server
-    steps:
-      - attach_workspace:
-          at: ~/
-      - setup_remote_docker
-      - run: ../../.circleci/install-content-server.sh
-      - run: ../../.circleci/build.sh fxa-content-server
-      - run: ../../.circleci/deploy.sh fxa-content-server
-
-  fxa-shared:
-    resource_class: small
-    docker:
-      - image: circleci/node:12
-      - image: redis
-    working_directory: ~/project/packages/fxa-shared
-    steps:
-      - attach_workspace:
-          at: ~/
-
-      - npm-install:
-          module: fxa-shared
-      - run: rm ~/project/package.json
-      - run: npm run lint
-      - run: npm test
-
-  js-client:
-    resource_class: small
-    docker:
-      - image: circleci/node:12
-    working_directory: ~/project/packages/fxa-js-client
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: ../../.circleci/test-js-client.sh
-
-  fxa-email-event-proxy:
-    resource_class: small
-    docker:
-      - image: circleci/node:12
-    working_directory: ~/project/packages/fxa-email-event-proxy
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: npm ci
-      - run: npm run lint
-      - run: npm t
-
-  fxa-email-event-proxy-tag:
-    resource_class: small
-    docker:
-      - image: circleci/node:12
-    working_directory: ~/project/packages/fxa-email-event-proxy
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: npm ci
-      - run: |
-          if [ -n "${CIRCLE_TAG}" ]; then
-            exit 0
-          fi
-          npm run build
-          mkdir artifacts
-          mv fxa-email-event-proxy.zip "artifacts/fxa-email-event-proxy.$CIRCLE_TAG.zip"
-      - store_artifacts:
-          path: artifacts
-
-  fxa-email-service:
+  test-email-service:
     resource_class: xlarge
     docker:
       - image: mozilla/fxa-circleci
@@ -235,317 +104,123 @@ jobs:
           - MYSQL_ALLOW_EMPTY_PASSWORD: yes
           - MYSQL_ROOT_PASSWORD: ""
       - image: redis
-    working_directory: ~/project/packages/fxa-email-service
+    environment:
+      SKIP_PACKAGES: true
+      SKIP_DOCKER: true
     steps:
-      - attach_workspace:
-          at: ~/
-      - run: ../../.circleci/test-email-service.sh
+      - base-install
+      - run: ./packages/fxa-email-service/scripts/test-ci.sh
       - store_artifacts:
-          path: fxa-auth-db-mysql.log
-      - setup_remote_docker
-      - run: |
-          ../../.circleci/tag.sh fxa-email-service
+          path: artifacts
 
-  fxa-email-service-tag:
-    resource_class: xlarge
-    executor: nodejs
-    working_directory: ~/project/packages/fxa-email-service
-    steps:
-      - attach_workspace:
-          at: ~/
-      - run: |
-          cargo --version
-          rustc --version
-          mkdir -m 755 bin
-          mkdir -m 755 bin/config
-          cargo build --release
-          cp config/* bin/config
-          cp target/release/fxa_email_send bin
-          cp target/release/fxa_email_queues bin
-          cargo clean
-      - setup_remote_docker
-      - run: |
-          ../../.circleci/tag.sh fxa-email-service
-
-  docs:
+  test-fxa-circleci:
     resource_class: small
     docker:
       - image: circleci/node:12
-    working_directory: ~/project
+    environment:
+      SKIP_PACKAGES: true
+      SKIP_DOCKER: true
     steps:
-      - attach_workspace:
-          at: ~/
-      - add_ssh_keys:
-          fingerprints:
-            - "08:fc:2b:fb:06:0e:8f:0f:01:1f:28:86:83:89:11:28"
-      - run: |
-          # Docs won't build on forks or the private repo because they don't have the deploy key.
-          if [ "$CIRCLE_PR_REPONAME" = "" ] && [ "$CIRCLE_REPOSITORY_URL" = "git@github.com:mozilla/fxa.git" ]; then
-            ssh-keyscan github.com >> ~/.ssh/known_hosts
-            . .circleci/install-rust.sh
-            ./_scripts/gh-pages.sh
-          fi
+      - base-install
+      - setup_remote_docker
+      - run: ./.circleci/build.sh fxa-circleci
+
+  deploy-packages:
+    resource_class: small
+    docker:
+      - image: circleci/node:12
+    environment:
+      SKIP_PACKAGES: true
+      SKIP_DOCKER: true
+    steps:
+      - base-install
+      - setup_remote_docker
+      - run: ./.circleci/build-all.sh
+      - run: ./.circleci/deploy-all.sh
+      - store_artifacts:
+          path: artifacts
 
 workflows:
-  test:
+  test_pull_request:
     jobs:
-      - install
-      - build-module:
-          name: 123done
-          module: 123done
-          requires:
-            - install
-      - build-module:
-          name: fortress
-          module: fortress
-          requires:
-            - install
-      - build-module:
-          name: browserid-verifier
-          module: browserid-verifier
-          requires:
-            - install
-      - build-module:
-          name: fxa-admin-server
-          module: fxa-admin-server
-          db: true
-          upload_coverage: false
-          requires:
-            - install
-      - build-module:
-          name: fxa-admin-panel
-          module: fxa-admin-panel
-          requires:
-            - install
-      - build-module:
-          name: fxa-auth-db-mysql
-          module: fxa-auth-db-mysql
-          db: true
-          upload_coverage: false
-          requires:
-            - install
-      - build-module:
-          name: fxa-auth-server
-          module: fxa-auth-server
-          db: true
-          test: test-ci
-          upload_coverage: false
-          requires:
-            - install
-      - build-module:
-          name: fxa-customs-server
-          module: fxa-customs-server
-          db: true
-          requires:
-            - install
-      - build-module:
-          name: fxa-event-broker
-          module: fxa-event-broker
-          db: true
-          requires:
-            - install
-      - build-module:
-          name: fxa-payments-server
-          module: fxa-payments-server
-          requires:
-            - install
-      - build-module:
-          name: fxa-profile-server
-          module: fxa-profile-server
-          upload_coverage: false
-          requires:
-            - install
-      - build-module:
-          name: fxa-support-panel
-          module: fxa-support-panel
-          requires:
-            - install
-      - build-module:
-          name: fxa-circleci
-          module: fxa-circleci
-          requires:
-            - install
-      - fxa-content-server:
-          requires:
-            - install
-      - build-and-deploy-content-server:
-          requires:
-            - fxa-content-server
+      - test-many:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-package:
+          name: test-auth-server
+          package: fxa-auth-server
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-content-server:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-email-service:
+          # since email-service is expensive
+          # to build and rarely changes
+          # we only run it on branches
+          # starting with "email-service-"
           filters:
             branches:
               only:
-                - master
-                - /feature.*/
-                - /dockerpush.*/
+                - /^email-service-.*/
             tags:
-              only: /.*/
-      - fxa-shared:
-          requires:
-            - install
-      - js-client:
-          requires:
-            - install
-      - fxa-email-event-proxy:
-          requires:
-            - install
-      - fxa-email-service:
-          requires:
-            - install
-      - docs:
-          requires:
-            - js-client
-            - fxa-email-service
-  deploy-tag:
+              ignore: /.*/
+      - test-fxa-circleci:
+          # since fxa-circleci rarely changes
+          # we only run it on branches
+          # starting with "fxa-circleci-"
+          filters:
+            branches:
+              only:
+                - /^fxa-circleci-.*/
+            tags:
+              ignore: /.*/
+  deploy_master:
     jobs:
-      - install:
+      - deploy-packages:
           filters:
+            branches:
+              only: master
             tags:
-              only: /.*/
+              ignore: /.*/
+  test_and_deploy_tag:
+    jobs:
+      - test-many:
+          filters:
             branches:
               ignore: /.*/
-      - deploy-module:
-          filters:
             tags:
               only: /.*/
+      - test-package:
+          name: test-auth-server
+          package: fxa-auth-server
+          filters:
             branches:
               ignore: /.*/
-          name: 123done
-          module: 123done
+            tags:
+              only: /.*/
+      - test-content-server:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - deploy-packages:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fortress
-          module: fortress
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: browserid-verifier
-          module: browserid-verifier
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-admin-server
-          module: fxa-admin-server
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-admin-panel
-          module: fxa-admin-panel
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-auth-db-mysql
-          module: fxa-auth-db-mysql
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-auth-server
-          module: fxa-auth-server
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-customs-server
-          module: fxa-customs-server
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-event-broker
-          module: fxa-event-broker
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-payments-server
-          module: fxa-payments-server
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-profile-server
-          module: fxa-profile-server
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-support-panel
-          module: fxa-support-panel
-          requires:
-            - install
-      - deploy-module:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          name: fxa-content-server
-          module: fxa-content-server
-          requires:
-            - install
-      - fxa-email-event-proxy-tag:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - install
-      - fxa-email-service-tag:
-          filters:
-            tags:
-              only: /.*/
-            branches:
-              ignore: /.*/
-          requires:
-            - install
+            - test-many
+            - test-auth-server
+            - test-content-server

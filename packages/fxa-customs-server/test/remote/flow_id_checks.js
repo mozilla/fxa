@@ -2,15 +2,17 @@
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 /*eslint camelcase: ["error", {properties: "never"}]*/
 var test = require('tap').test;
-var restify = require('restify');
+var clients = require('restify-clients');
 var Promise = require('bluebird');
 var TestServer = require('../test_server');
 var mcHelper = require('../memcache-helper');
 
 var TEST_EMAIL = 'test@example.com';
 var TEST_IP = '192.0.2.1';
+var EXEMPT_USER_AGENT = 'Testo 2K1/12 (Windows; rv:12.12) Gecko/10';
 
 process.env.FLOW_ID_REQUIRED_ON_LOGIN = 'true';
+process.env.FLOW_ID_EXEMPT_UA_REGEXES = 'Testo\\s+.?';
 var config = {
   listen: {
     port: 7000,
@@ -33,7 +35,7 @@ test('clear everything', function(t) {
   });
 });
 
-var client = restify.createJsonClient({
+var client = clients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port,
 });
 Promise.promisifyAll(client, { multiArgs: true });
@@ -123,37 +125,23 @@ test('request without flowId for @restmail.net address is not blocked', function
 });
 
 test('requests without flowId from certain user-agents are not blocked', function(t) {
-  var EXEMPT_USER_AGENTS = [
-    'Mozilla/5.0 (TV; rv:44.0) Gecko/44.0 Firefox/44.0',
-    'Mozilla/5.0 (FreeBSD; Viera; rv:44.0) Gecko/20100101 Firefox/44.0',
-    'Mozilla/5.0 (Linux; Android 5.0.1; SAMSUNG SM-N910F Build/LRX22C) AppleWebKit/537.36(KHTML, like Gecko) SamsungBrowser/3.0 Chrome/38.0.2125.102 Mobile Safari/537.36',
-    'Firefox AndroidSync 1.40.0 (SBrowser)',
-    'Mozilla/5.0 (iOS; OS 9_3_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13D15 iCab Mobile/9.4',
-  ];
-  return Promise.each(EXEMPT_USER_AGENTS, function(userAgent) {
-    return client
-      .postAsync('/check', {
-        ip: TEST_IP,
-        email: TEST_EMAIL,
-        action: 'accountLogin',
-        payload: {
-          something: 'irrelevant',
-        },
-        headers: {
-          'user-agent': userAgent,
-        },
-      })
-      .spread(function(req, res, obj) {
-        t.equal(res.statusCode, 200, 'check worked');
-        t.equal(obj.block, false, 'request was not blocked');
-        t.notOk(obj.retryAfter, 'there was no retry-after');
-      });
-  }).then(
-    function() {
-      t.end();
+  return client.post(
+    '/check',
+    {
+      ip: TEST_IP,
+      email: TEST_EMAIL,
+      action: 'accountLogin',
+      payload: {
+        something: 'irrelevant',
+      },
+      headers: {
+        'user-agent': EXEMPT_USER_AGENT,
+      },
     },
-    function(err) {
-      t.fail(err);
+    function(err, req, res, obj) {
+      t.equal(res.statusCode, 200, 'check worked');
+      t.equal(obj.block, false, 'request was not blocked');
+      t.notOk(obj.retryAfter, 'there was no retry-after');
       t.end();
     }
   );

@@ -19,6 +19,9 @@
     "eslint": "6.6.0",
     "eslint-plugin-fxa": "2.0.1"
   },
+  "engines": {
+    "node": ">=12"
+  },
   "scripts": {
     "build-node-docker-image": "docker build -f Dockerfile-nodejs -t mozilla/fxa-amplitude-send:`git describe`-node .",
     "lint": "eslint *.js bin/*.js",

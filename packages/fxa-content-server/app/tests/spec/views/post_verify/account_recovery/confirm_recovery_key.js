@@ -82,6 +82,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
   describe('render', () => {
     it('renders the view', () => {
       assert.lengthOf(view.$('#fxa-confirm-recovery-key-header'), 1);
+      assert.lengthOf(view.$('.graphic-recovery-codes'), 1);
       assert.lengthOf(view.$('#recovery-key'), 1);
       assert.lengthOf(view.$('#submit-btn'), 1);
       assert.lengthOf(view.$('#back-btn'), 1);

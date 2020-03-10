@@ -7,6 +7,7 @@
  * to a mobile device via SMS.
  */
 
+import { assign } from 'underscore';
 import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import CountryTelephoneInfo from '../lib/country-telephone-info';
@@ -19,6 +20,7 @@ import PairingGraphicsMixin from './mixins/pairing-graphics-mixin';
 import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../lib/constants';
 import MarketingMixin from './mixins/marketing-mixin';
 import PulseGraphicMixin from './mixins/pulse-graphic-mixin';
+import AttachedClients from '../models/attached-clients';
 import SmsMixin from './mixins/sms-mixin';
 import Template from 'templates/sms_send.mustache';
 import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
@@ -31,9 +33,57 @@ class SmsSendView extends FormView {
   mustAuth = true;
   template = Template;
 
+  initialize(options) {
+    this.events = assign(this.events, {
+      'input .phone-number': '_validatePhoneNumber',
+    });
+
+    this._attachedClients = options.attachedClients;
+    if (!this._attachedClients) {
+      this._attachedClients = new AttachedClients([], {
+        notifier: options.notifier,
+      });
+    }
+    this._userHasAttachedMobileDevice = false;
+  }
+
+  afterRender() {
+    // Make this a jQuery object so we can use the validation helpers
+    this.phoneField = this.el.querySelector('.phone-number');
+    this.$phoneField = this.$(this.phoneField);
+    this.submitButton = this.el.querySelector('.sms-send');
+
+    // It is possible to land on this page with the phone number field
+    // pre-filled, so let's validate on page load as well if that's the case.
+    if (this.formPrefill.get('phoneNumber')) {
+      this._validatePhoneNumber();
+    }
+  }
+
   getAccount() {
     // TODO - remove the `|| ...` when done with development
     return this.model.get('account') || this.user.getSignedInAccount();
+  }
+
+  _validatePhoneNumber() {
+    try {
+      // `disableValidation` is an arbitrary property so we
+      // can disable this validation for testing purposes.
+      // See: tests/functional/send_sms.js
+      if (!this.phoneField.disableValidation) {
+        this.$phoneField.validate();
+      }
+
+      // We want the disabled style of secondary-button (grey),
+      // but the active state of primary-button (blue).
+      this.submitButton.classList.add('primary-button');
+      this.submitButton.classList.remove('secondary-button');
+      this.submitButton.disabled = false;
+    } catch (e) {
+      this.submitButton.classList.add('secondary-button');
+      this.submitButton.classList.remove('primary-button');
+      this.submitButton.disabled = true;
+    }
   }
 
   setInitialContext(context) {
@@ -62,6 +112,7 @@ class SmsSendView extends FormView {
     const graphicId = this.getGraphicsId();
 
     context.set({
+      userHasAttachedMobileDevice: this._userHasAttachedMobileDevice,
       country,
       escapedLearnMoreAttributes,
       graphicId,
@@ -71,11 +122,31 @@ class SmsSendView extends FormView {
     });
   }
 
+  beforeRender() {
+    return this._fetchAttachedClients()
+      .then(() => {
+        this._userHasAttachedMobileDevice = this._attachedClients
+          .toJSON()
+          .some(client => client.deviceType === 'mobile');
+      })
+      .catch(err => {
+        this.model.set('error', err);
+        this.logError(err);
+      });
+  }
+
   submit() {
     return this._sendSms(
       this._getNormalizedPhoneNumber(),
       FIREFOX_MOBILE_INSTALL
     );
+  }
+
+  _fetchAttachedClients() {
+    const start = Date.now();
+    return this._attachedClients.fetchClients(this.user).then(() => {
+      this.logFlowEvent(`timing.clients.fetch.${Date.now() - start}`);
+    });
   }
 
   /**

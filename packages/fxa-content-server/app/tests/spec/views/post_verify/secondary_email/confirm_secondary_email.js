@@ -83,6 +83,7 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
       );
       assert.lengthOf(view.$('#submit-btn'), 1);
       assert.lengthOf(view.$('#resend'), 1);
+      assert.lengthOf(view.$('#use-different-email'), 1);
       assert.lengthOf(view.$(CODE_INPUT_SELECTOR), 1);
     });
 
@@ -135,6 +136,28 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
           assert.equal(view.submit.callCount, 1);
         });
       });
+    });
+  });
+
+  describe('useDifferentEmail', () => {
+    beforeEach(() => {
+      sinon
+        .stub(account, 'recoveryEmailDestroy')
+        .callsFake(() => Promise.resolve());
+      sinon.spy(view, 'navigate');
+      return view.useDifferentEmail();
+    });
+
+    it('deletes secondary email and then redirects', () => {
+      assert.isTrue(
+        account.recoveryEmailDestroy.calledWith(SECONDARY_EMAIL),
+        'verify correct email'
+      );
+      assert.isTrue(
+        view.navigate.calledWith(
+          '/post_verify/secondary_email/add_secondary_email'
+        )
+      );
     });
   });
 

@@ -42,6 +42,7 @@ const {
   fillOutEmailFirstSignUp,
   getSms,
   getSmsSigninCode,
+  testElementDisabled,
   noSuchElement,
   openPage,
   switchToWindow,
@@ -73,6 +74,19 @@ function testSmsSupportedCountryForm(country, expectedPrefix) {
       )
       .then(noSuchElement(selectors.SMS_SEND.SUCCESS));
   };
+}
+
+function disableSmsTypeValidation() {
+  const phoneNumber = document.querySelector('.phone-number');
+  phoneNumber.disableValidation = true;
+  phoneNumber.dispatchEvent(
+    new Event('input', {
+      bubbles: true,
+      cancelable: true,
+    })
+  );
+
+  return true;
 }
 
 const suite = {
@@ -202,6 +216,34 @@ const suite = {
     'empty phone number': function() {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+        .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
+    },
+
+    'invalid phone number (too short)': function() {
+      return this.remote
+        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '2134567'))
+        .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
+    },
+
+    'invalid phone number (too long)': function() {
+      return this.remote
+        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '21345678901'))
+        .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
+    },
+
+    'invalid phone number (contains letters)': function() {
+      return this.remote
+        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '2134567a890'))
+        .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
+    },
+
+    'empty phone number with input-change validation disabled': function() {
+      return this.remote
+        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
+        .execute(disableSmsTypeValidation)
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP))
         .then(
@@ -212,10 +254,11 @@ const suite = {
         );
     },
 
-    'invalid phone number (too short)': function() {
+    'invalid phone number with input-change validation disabled': function() {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '2134567'))
+        .execute(disableSmsTypeValidation)
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '298sdv1k9'))
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP))
         .then(
@@ -226,24 +269,10 @@ const suite = {
         );
     },
 
-    'invalid phone number (too long)': function() {
+    'invalid phone number (that looks correct, but fails server validation)': function() {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '21345678901'))
-        .then(click(selectors.SMS_SEND.SUBMIT))
-        .then(testElementExists(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP))
-        .then(
-          testElementTextInclude(
-            selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP,
-            'invalid'
-          )
-        );
-    },
-
-    'invalid phone number (contains letters)': function() {
-      return this.remote
-        .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
-        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '2134567a890'))
+        .then(type(selectors.SMS_SEND.PHONE_NUMBER, '1 223 123 1234'))
         .then(click(selectors.SMS_SEND.SUBMIT))
         .then(testElementExists(selectors.SMS_SEND.PHONE_NUMBER_TOOLTIP))
         .then(

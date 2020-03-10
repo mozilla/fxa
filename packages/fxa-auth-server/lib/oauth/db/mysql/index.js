@@ -234,19 +234,6 @@ const QUERY_LAST_PURGE_TIME =
   'SELECT value FROM dbMetadata WHERE name = "last-purge-time"';
 const QUERY_REPLACE_LAST_PURGE_TIME =
   'REPLACE INTO dbMetadata (name, value) VALUES ("last-purge-time", ?)';
-// Token management by uid.
-// Returns all active tokens with client name and client id, both access tokens and refresh tokens.
-// Does not include access tokens from clients that canGrant, because such clients already hold a
-// sessionToken and thus already appear in the "devices and apps" view. Listing them here would
-// give duplicate entries in that list.
-const QUERY_ACTIVE_CLIENT_TOKENS_BY_UID =
-  'SELECT tokens.clientId AS id, tokens.createdAt, NULL AS lastUsedAt, tokens.scope, clients.name ' +
-  'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
-  'WHERE tokens.userId=? AND tokens.expiresAt > NOW() AND clients.canGrant = 0 ' +
-  'UNION ALL ' +
-  'SELECT refreshTokens.clientId AS id, refreshTokens.createdAt, refreshTokens.lastUsedAt, refreshTokens.scope, clients.name ' +
-  'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
-  'WHERE refreshTokens.userId=?;';
 // When listing access tokens, we deliberately do not exclude tokens that have expired.
 // Such tokens will be cleaned up by a background job, except for those belonging to Pocket, which might
 // one day come back to life as refresh tokens. (ref https://bugzilla.mozilla.org/show_bug.cgi?id=1547902).
@@ -516,23 +503,6 @@ MysqlStore.prototype = {
    */
   _removeAccessToken: function _removeAccessToken(id) {
     return this._write(QUERY_ACCESS_TOKEN_DELETE, [buf(id)]);
-  },
-
-  /**
-   * Get all services that have have non-expired tokens
-   * @param {String} uid User ID as hex
-   * @returns {Promise}
-   */
-  _getActiveClientsByUid: function _getActiveClientsByUid(uid) {
-    return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
-      buf(uid),
-      buf(uid),
-    ]).then(function(activeClientTokens) {
-      activeClientTokens.forEach(t => {
-        t.scope = ScopeSet.fromString(t.scope);
-      });
-      return activeClientTokens;
-    });
   },
 
   /**

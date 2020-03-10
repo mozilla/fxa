@@ -2049,17 +2049,27 @@ const testAreEventsLogged = thenify(function(eventsNames) {
  * @param {string} selector
  * @returns {promise} rejects if fails
  */
-const testElementWasShown = thenify(function(selector) {
-  return this.parent.then(testElementExists(selector)).executeAsync(
-    function(selector, done) {
-      // remove the attribute so subsequent checks can be made
-      // against the same element. displaySuccess and displayError
-      // will re-add the 'data-shown' attribute.
-      $(selector).removeAttr('data-shown');
-      done();
-    },
-    [selector]
-  );
+const testElementWasShown = thenify(function(selector, message) {
+  function messageCheck() {
+    return message
+      ? // eslint-disable-next-line no-use-before-define
+        testElementTextEquals(selector, message)
+      : Promise.resolve();
+  }
+
+  return this.parent
+    .then(testElementExists(selector))
+    .then(messageCheck)
+    .executeAsync(
+      function(selector, done) {
+        // remove the attribute so subsequent checks can be made
+        // against the same element. displaySuccess and displayError
+        // will re-add the 'data-shown' attribute.
+        $(selector).removeAttr('data-shown');
+        done();
+      },
+      [selector]
+    );
 });
 
 /**
@@ -2068,9 +2078,20 @@ const testElementWasShown = thenify(function(selector) {
  * @param {string} [selector] defaults to `.success[data-shown]`
  * @returns {promise} rejects if error element was not shown.
  */
-function testSuccessWasShown(selector) {
+function testSuccessWasShown(message, selector) {
   selector = selector || '.success[data-shown]';
-  return testElementWasShown(selector);
+  return testElementWasShown(selector, message);
+}
+
+/**
+ * Test whether the success message was not shown.
+ *
+ * @param {string} [selector] defaults to `.success[data-shown]`
+ * @returns {promise} rejects if error element was shown.
+ */
+function testSuccessWasNotShown(selector) {
+  selector = selector || '.success[data-shown]';
+  return noSuchElement(selector);
 }
 
 /**
@@ -2079,9 +2100,20 @@ function testSuccessWasShown(selector) {
  * @param {string} [selector] defaults to `.error[data-shown]`
  * @returns {promise} rejects if error element was not shown.
  */
-function testErrorWasShown(selector) {
+function testErrorWasShown(message, selector) {
   selector = selector || '.error[data-shown]';
   return testElementWasShown(selector);
+}
+
+/**
+ * Test whether the error message was not shown.
+ *
+ * @param {string} [selector] defaults to `.error[data-shown]`
+ * @returns {promise} rejects if error element was shown.
+ */
+function testErrorWasNotShown(selector) {
+  selector = selector || '.error[data-shown]';
+  return noSuchElement(selector);
 }
 
 /**
@@ -2719,10 +2751,12 @@ module.exports = {
   testEmailExpected,
   testErrorTextInclude,
   testErrorWasShown,
+  testErrorWasNotShown,
   testHrefEquals,
   testIsBrowserNotified,
   testSmsFormat,
   testSuccessWasShown,
+  testSuccessWasNotShown,
   testUrlEquals,
   testUrlInclude,
   testUrlPathnameEquals,

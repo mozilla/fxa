@@ -15,6 +15,8 @@ import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import SmsMessageIds from 'lib/sms-message-ids';
 import View from 'views/sms_send';
+import AttachedClients from 'models/attached-clients';
+import User from 'models/user';
 
 describe('views/sms_send', () => {
   let account;
@@ -25,15 +27,19 @@ describe('views/sms_send', () => {
   let notifier;
   let relier;
   let view;
+  let attachedClients;
+  let user;
 
   function createView() {
     view = new View({
       broker,
       formPrefill,
+      attachedClients,
       metrics,
       model,
       notifier,
       relier,
+      user,
       viewName: 'sms-send',
     });
     sinon
@@ -46,12 +52,31 @@ describe('views/sms_send', () => {
     broker = new Broker();
     formPrefill = new Backbone.Model({});
     metrics = new Metrics();
+    user = new User();
     model = new Backbone.Model({ account, showSuccessMessage: true });
     notifier = new Notifier();
     relier = new Relier({ service: 'sync' });
 
-    createView();
+    const clientList = [
+      {
+        deviceId: 'device-1',
+        os: 'Windows',
+        isCurrentSession: true,
+        isWebSession: true,
+        name: 'alpha',
+        deviceType: null,
+      },
+    ];
 
+    attachedClients = new AttachedClients(clientList, {
+      notifier,
+    });
+
+    sinon
+      .stub(attachedClients, 'fetchClients')
+      .callsFake(() => Promise.resolve());
+
+    createView();
     return view.render();
   });
 
@@ -156,6 +181,77 @@ describe('views/sms_send', () => {
 
       return view.render().then(() => {
         assert.lengthOf(view.$('.success'), 0);
+      });
+    });
+
+    describe('with expected heading text', () => {
+      it('with expected text when no mobile devices are attached to the account', () => {
+        assert.include(
+          view.$('h1').text(),
+          'Would you like to sync your phone?'
+        );
+      });
+
+      it('with expected text when a mobile device is attached to the account', () => {
+        view.destroy();
+        attachedClients.fetchClients.restore();
+
+        const clientList = [
+          {
+            deviceId: 'device-1',
+            os: 'Windows',
+            isCurrentSession: true,
+            isWebSession: true,
+            name: 'alpha',
+            deviceType: null,
+          },
+          {
+            clientId: 'app-1',
+            os: null,
+            isCurrentSession: true,
+            isOAuthApp: true,
+            name: 'beta',
+            deviceType: 'mobile',
+          },
+        ];
+
+        attachedClients = new AttachedClients(clientList, {
+          notifier,
+        });
+
+        sinon
+          .stub(attachedClients, 'fetchClients')
+          .callsFake(() => Promise.resolve());
+
+        createView();
+        return view.render().then(() => {
+          assert.include(view.$('h1').text(), 'Still adding devices?');
+        });
+      });
+
+      describe('with default text on attachedClients fetch fail', () => {
+        beforeEach(() => {
+          sinon.stub(view, 'logError');
+          sinon
+            .stub(view, '_fetchAttachedClients')
+            .callsFake(() =>
+              Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'))
+            );
+          return view.render();
+        });
+
+        it('logs the error', () => {
+          assert.isTrue(view.logError.calledOnce);
+          const err = view.logError.args[0][0];
+          assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
+        });
+
+        it('falls back to `userHasAttachedMobileDevice: false`', () => {
+          assert.include(
+            view.$('h1').text(),
+            'Would you like to sync your phone?'
+          );
+        });
       });
     });
   });
