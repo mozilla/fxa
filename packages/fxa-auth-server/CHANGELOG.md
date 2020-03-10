@@ -1,3 +1,9 @@
+## 1.161.2
+
+### Bug fixes
+
+- customs: remove email() validation restriction ([f6d05c464](https://github.com/mozilla/fxa/commit/f6d05c464))
+
 ## 1.161.1
 
 ### Other changes
