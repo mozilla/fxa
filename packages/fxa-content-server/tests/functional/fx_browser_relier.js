@@ -43,38 +43,6 @@ registerSuite('Firefox Desktop non-sync', {
   },
 
   tests: {
-    'signup with no service - do not sync': function() {
-      return (
-        this.remote
-          .then(
-            openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
-              query: {
-                forceUA: uaStrings['desktop_firefox_71'],
-              },
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  signedInUser: null,
-                  clientId: FIREFOX_CLIENT_ID,
-                  capabilities: CAPABILITIES,
-                },
-              },
-            })
-          )
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(
-            click(
-              selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC,
-              selectors.CONFIRM_SIGNUP_CODE.HEADER
-            )
-          )
-          // verify the account
-          .then(fillOutSignUpCode(email, 0))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-          .then(testIsBrowserNotified('fxaccounts:login'))
-      );
-    },
     'signup with no service - sync': function() {
       return (
         this.remote
@@ -185,7 +153,7 @@ registerSuite('Firefox Desktop non-sync', {
 
 registerSuite('Firefox Desktop non-sync - CWTS on signup', {
   beforeEach: function() {
-    email = createEmail('signupPasswordCWTS.treatment{id}');
+    email = createEmail('signupPasswordCWTS.{id}');
     return this.remote.then(clearBrowserState());
   },
 
@@ -196,8 +164,6 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
           .then(
             openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
               query: {
-                forceExperiment: 'signupPasswordCWTS',
-                forceExperimentGroup: 'treatment',
                 forceUA: uaStrings['desktop_firefox_71'],
               },
               webChannelResponses: {
@@ -245,8 +211,6 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
         .then(
           openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
             query: {
-              forceExperiment: 'signupPasswordCWTS',
-              forceExperimentGroup: 'treatment',
               forceUA: uaStrings['desktop_firefox_71'],
             },
             webChannelResponses: {

@@ -3,10 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /**
- * Adds CWTS functionality to the signup_password page if the user is
- * part of the treatment group for the `signupPasswordCWTS` experiment.
- *
- * Much of this is extracted from views/choose_what_to_sync.js.
+ * Adds CWTS functionality to the signup_password page. Much
+ * of this is extracted from views/choose_what_to_sync.js.
  *
  * This was created as a mixin rather than added directly to the
  * view so that if the experiment is unsuccessful, it can easily
@@ -14,13 +12,10 @@
  * mixin can be converted to general functionality to share
  * with choose_what_to_sync.js which won't go away.
  */
-import ExperimentMixin from './experiment-mixin';
 import SyncOptionalMixin from './sync-optional-mixin';
 
-const EXPERIMENT_NAME = 'signupPasswordCWTS';
-
 export default {
-  dependsOn: [ExperimentMixin, SyncOptionalMixin],
+  dependsOn: [SyncOptionalMixin],
 
   setInitialContext(context) {
     if (this.isCWTSOnSignupPasswordEnabled()) {
@@ -32,15 +27,12 @@ export default {
   },
 
   isCWTSOnSignupPasswordEnabled() {
-    return this.chooseCWTSOnSignupPasswordExperimentGroup() === 'treatment';
-  },
-
-  chooseCWTSOnSignupPasswordExperimentGroup() {
-    return this.getAndReportExperimentGroup(EXPERIMENT_NAME, {
-      email: this.getAccount().get('email'),
-      multiService: this.relier.get('multiService'),
-      service: this.relier.get('service'),
-    });
+    if (!this.relier.get('multiService')) {
+      // if not multi service, no possibility of enabling
+      // Sync, get outta here.
+      return false;
+    }
+    return true;
   },
 
   /**
@@ -101,29 +93,31 @@ export default {
   },
 
   beforeSubmit() {
-    if (this.isCWTSOnSignupPasswordEnabled()) {
-      const offeredSyncEngines = this._getOfferedEngineIds();
-      const declinedSyncEngines = this._getDeclinedEngineIds();
-      const enabledSyncEngines = offeredSyncEngines.filter(
-        e => declinedSyncEngines.indexOf(e) === -1
-      );
-
-      // Tell multi-service browser integrations whether to send
-      // the offered and declined sync engines.
-      if (declinedSyncEngines.length === offeredSyncEngines.length) {
-        this.disableSync();
-      } else {
-        this.enableSync();
-      }
-
-      this.getAccount().set({
-        declinedSyncEngines,
-        offeredSyncEngines,
-      });
-
-      this._trackDeclinedEngineIds(declinedSyncEngines);
-
-      this.notifier.trigger('set-sync-engines', enabledSyncEngines);
+    if (!this.isCWTSOnSignupPasswordEnabled()) {
+      return;
     }
+
+    const offeredSyncEngines = this._getOfferedEngineIds();
+    const declinedSyncEngines = this._getDeclinedEngineIds();
+    const enabledSyncEngines = offeredSyncEngines.filter(
+      e => declinedSyncEngines.indexOf(e) === -1
+    );
+
+    // Tell multi-service browser integrations whether to send
+    // the offered and declined sync engines.
+    if (declinedSyncEngines.length === offeredSyncEngines.length) {
+      this.disableSync();
+    } else {
+      this.enableSync();
+    }
+
+    this.getAccount().set({
+      declinedSyncEngines,
+      offeredSyncEngines,
+    });
+
+    this._trackDeclinedEngineIds(declinedSyncEngines);
+
+    this.notifier.trigger('set-sync-engines', enabledSyncEngines);
   },
 };
