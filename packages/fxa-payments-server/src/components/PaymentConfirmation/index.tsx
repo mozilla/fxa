@@ -36,7 +36,10 @@ export const PaymentConfirmation = ({
     <section className={`container card payment-confirmation ${className}`}>
       <header>
         <img src={circledCheckbox} alt="circled checkbox" />
-        <Localized id="payment-confirmation-heading" $displayName={displayName}>
+        <Localized
+          id="payment-confirmation-heading"
+          $displayName={displayName || email}
+        >
           <h2></h2>
         </Localized>
         <Localized id="payment-confirmation-subheading" $email={email}>
@@ -64,7 +67,7 @@ export const PaymentConfirmation = ({
           <h3></h3>
         </Localized>
         <div className="bottom-row">
-          <p>{displayName}</p>
+          {displayName ? <p>{displayName}</p> : null}
           <p>{email}</p>
         </div>
       </div>

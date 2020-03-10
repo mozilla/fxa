@@ -2,7 +2,7 @@
 @import '../../../../../fxa-content-server/app/styles/breakpoints';
 
 .product-payment {
-  background: #fff;
+  background: $color-white;
   border: 1px solid #e7e7e7;
   margin: 30px 0;
   max-width: 600px;
@@ -26,7 +26,7 @@
   }
 
   .subheading {
-    color: $grey-40;
+    color: $grey-50;
     font-size: 15px;
   }
 }

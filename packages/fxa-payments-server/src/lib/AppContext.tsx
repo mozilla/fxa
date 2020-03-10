@@ -21,6 +21,7 @@ export const defaultAppContext = {
   getScreenInfo: () => new ScreenInfo(),
   locationReload: noopFunction,
   matchMedia: () => false,
+  matchMediaDefault: (query: string) => MediaQueryList,
   navigateToUrl: noopFunction,
   queryParams: {},
 };

@@ -307,14 +307,15 @@ export const PaymentForm = ({
 
       <PaymentLegalBlurb />
 
-      <Localized id="terms">
-        <a
-          className="terms"
-          rel="noopener noreferrer"
-          target="_blank"
-          href={config.legalDocLinks.termsOfService}
-        >Terms of Service</a>
-      </Localized>
+      <div className="terms">
+        <Localized id="terms">
+          <a
+            rel="noopener noreferrer"
+            target="_blank"
+            href={config.legalDocLinks.termsOfService}
+          >Terms of Service</a>
+        </Localized>
+      </div>
     </Form>
   );
 };
