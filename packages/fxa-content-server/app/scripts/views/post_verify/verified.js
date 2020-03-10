@@ -54,10 +54,18 @@ class Verified extends FormView {
 
   submit() {
     const account = this.getSignedInAccount();
-    return this.invokeBrokerMethod(
-      'afterCompleteAddPostVerifyRecovery',
-      account
-    );
+
+    // TODO: We should be able to make this a little more cleaner. Ideally, we should
+    // be able to pass options we need into the broker and have it transistion to correct
+    // view.
+    if (this.type === 'recovery_key') {
+      return this.invokeBrokerMethod(
+        'afterCompleteAddPostVerifyRecovery',
+        account
+      );
+    }
+
+    return this.invokeBrokerMethod('afterCompleteSignIn', account);
   }
 
   _getHeaderId() {
