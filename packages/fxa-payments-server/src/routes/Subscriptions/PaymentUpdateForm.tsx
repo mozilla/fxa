@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { Localized } from 'fluent-react';
 import dayjs from 'dayjs';
 import { formatCurrencyInCents } from '../../lib/formats';
-import { useBooleanState } from '../../lib/hooks';
+import { useBooleanState, useNonce } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import { SelectorReturns } from '../../store/selectors';
 import { Customer, CustomerSubscription, Plan } from '../../store/types';
@@ -22,18 +22,33 @@ type PaymentUpdateFormProps = {
 };
 
 export const PaymentUpdateForm = ({
-  updatePayment,
+  updatePayment: updatePaymentBase,
   updatePaymentStatus,
-  resetUpdatePayment,
+  resetUpdatePayment: resetUpdatePaymentBase,
   customer,
   customerSubscription,
   plan,
 }: PaymentUpdateFormProps) => {
+  const [submitNonce, refreshSubmitNonce] = useNonce();
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
   const [createTokenError, setCreateTokenError] = useState({
     type: '',
     error: false,
   });
+
+  const resetUpdatePayment = useCallback(async () => {
+    resetUpdatePaymentBase();
+    refreshSubmitNonce();
+  }, [resetUpdatePaymentBase, refreshSubmitNonce]);
+
+  const updatePayment = useCallback(
+    async (...args: Parameters<typeof updatePaymentBase>) => {
+      await updatePaymentBase(...args);
+      refreshSubmitNonce();
+    },
+    [updatePaymentBase, refreshSubmitNonce]
+  );
+
   const onRevealUpdateClick = useCallback(() => {
     resetUpdatePayment();
     revealUpdate();
@@ -169,6 +184,7 @@ export const PaymentUpdateForm = ({
 
           <PaymentForm
             {...{
+              submitNonce,
               plan,
               onPayment,
               onPaymentError,

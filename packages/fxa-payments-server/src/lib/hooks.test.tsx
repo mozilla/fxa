@@ -2,13 +2,18 @@ import React from 'react';
 import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { useClickOutsideEffect, useCheckboxState, useBooleanState } from './hooks';
+import {
+  useClickOutsideEffect,
+  useCheckboxState,
+  useBooleanState,
+  useNonce,
+} from './hooks';
 
 afterEach(cleanup);
 
 describe('useBooleanStateResult', () => {
-  const Subject = ({ initialState = false } : { initialState?: boolean }) => {
-    const [ state, setTrue, setFalse ] = useBooleanState(initialState);
+  const Subject = ({ initialState = false }: { initialState?: boolean }) => {
+    const [state, setTrue, setFalse] = useBooleanState(initialState);
     return (
       <div>
         <div data-testid="result">{state ? 'true' : 'false'}</div>
@@ -34,8 +39,8 @@ describe('useBooleanStateResult', () => {
 });
 
 describe('useCheckboxStateResult', () => {
-  const Subject = ({ initialState = false } : { initialState?: boolean }) => {
-    const [ state, onChange ] = useCheckboxState(initialState);
+  const Subject = ({ initialState = false }: { initialState?: boolean }) => {
+    const [state, onChange] = useCheckboxState(initialState);
     return (
       <div>
         <div data-testid="result">{state ? 'true' : 'false'}</div>
@@ -69,7 +74,9 @@ describe('useClickOutsideEffect', () => {
     return (
       <div>
         <div data-testid="outside">Outside</div>
-        <div data-testid="inside" ref={dialogInsideRef}>Inside</div>
+        <div data-testid="inside" ref={dialogInsideRef}>
+          Inside
+        </div>
       </div>
     );
   };
@@ -88,5 +95,38 @@ describe('useClickOutsideEffect', () => {
     const inside = getByTestId('inside');
     fireEvent.click(inside);
     expect(onDismiss).not.toBeCalled();
+  });
+});
+
+describe('useNonce', () => {
+  const Subject = ({}) => {
+    const [nonce, refresh] = useNonce();
+    return (
+      <div>
+        <span data-testid="nonce">{nonce}</span>
+        <button data-testid="refresh" onClick={refresh} />
+      </div>
+    );
+  };
+
+  it('should render with an initial nonce', () => {
+    const { getByTestId } = render(<Subject />);
+    const initialNonce = getByTestId('nonce').textContent;
+    expect(initialNonce).toBeDefined();
+    expect(initialNonce).not.toBe('');
+  });
+
+  it('should change nonce on refresh', () => {
+    const { getByTestId } = render(<Subject />);
+    const refreshButton = getByTestId('refresh');
+
+    // Click the button a few times for good measure;
+    const knownNonces = [getByTestId('nonce').textContent as string];
+    for (let idx = 0; idx < 3; idx++) {
+      fireEvent.click(refreshButton);
+      const afterRefreshNonce = getByTestId('nonce').textContent as string;
+      expect(knownNonces).not.toContain(afterRefreshNonce);
+      knownNonces.push(afterRefreshNonce);
+    }
   });
 });

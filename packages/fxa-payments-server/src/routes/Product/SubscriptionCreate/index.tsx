@@ -3,6 +3,7 @@ import { Plan, Profile } from '../../../store/types';
 
 import { State as ValidatorState } from '../../../lib/validator';
 
+import { useNonce } from '../../../lib/hooks';
 import { getErrorMessage } from '../../../lib/errors';
 
 import { SignInLayoutContext } from '../../../components/AppLayout';
@@ -31,11 +32,26 @@ export const SubscriptionCreate = ({
   profile,
   accountActivated,
   selectedPlan,
-  createSubscriptionAndRefresh,
+  createSubscriptionAndRefresh: createSubscriptionAndRefreshBase,
   createSubscriptionStatus,
-  resetCreateSubscription,
+  resetCreateSubscription: resetCreateSubscriptionBase,
   validatorInitialState,
 }: SubscriptionCreateProps) => {
+  const [submitNonce, refreshSubmitNonce] = useNonce();
+
+  const resetCreateSubscription = useCallback(async () => {
+    resetCreateSubscriptionBase();
+    refreshSubmitNonce();
+  }, [resetCreateSubscriptionBase, refreshSubmitNonce]);
+
+  const createSubscriptionAndRefresh = useCallback(
+    async (...args: Parameters<typeof createSubscriptionAndRefreshBase>) => {
+      await createSubscriptionAndRefreshBase(...args);
+      refreshSubmitNonce();
+    },
+    [createSubscriptionAndRefreshBase, refreshSubmitNonce]
+  );
+
   // Hide the Firefox logo in layout if we want to display the avatar
   const { setHideLogo } = useContext(SignInLayoutContext);
   useEffect(() => {
@@ -53,9 +69,12 @@ export const SubscriptionCreate = ({
   );
 
   // Reset subscription creation status on initial render.
-  useEffect(() => {
-    resetCreateSubscription();
-  }, [resetCreateSubscription]);
+  useEffect(
+    () => void resetCreateSubscription(),
+    // Prevent an infinite loop, here
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   const [createTokenError, setCreateTokenError] = useState({
     type: '',
@@ -160,6 +179,7 @@ export const SubscriptionCreate = ({
 
       <PaymentForm
         {...{
+          submitNonce,
           onPayment,
           onPaymentError,
           onChange,

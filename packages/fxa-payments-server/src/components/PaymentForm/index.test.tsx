@@ -49,12 +49,19 @@ afterEach(cleanup);
 // functions by default in Subject.
 type SubjectProps = Omit<
   PaymentFormProps,
-  'onPayment' | 'onPaymentError' | 'onMounted' | 'onEngaged'
+  | 'onPayment'
+  | 'onPaymentError'
+  | 'onMounted'
+  | 'onEngaged'
+  | 'onChange'
+  | 'submitNonce'
 > & {
   onPayment?: (tokenResponse: stripe.TokenResponse, name: string) => void;
   onPaymentError?: (error: any) => void;
   onMounted?: () => void;
   onEngaged?: () => void;
+  onChange?: () => void;
+  submitNonce?: string;
 };
 const Subject = ({
   onPayment = jest.fn(),
@@ -62,6 +69,7 @@ const Subject = ({
   onMounted = jest.fn(),
   onEngaged = jest.fn(),
   onChange = jest.fn(),
+  submitNonce = 'test-nonce',
   ...props
 }: SubjectProps) => {
   return (
@@ -72,6 +80,7 @@ const Subject = ({
         onMounted,
         onEngaged,
         onChange,
+        submitNonce,
         ...props,
       }}
     />
@@ -186,6 +195,38 @@ it('includes the confirmation checkbox when confirm = true and plan supplied', (
     <Subject {...{ confirm: true, plan: MOCK_PLAN }} />
   );
   expect(queryByTestId('confirm')).toBeInTheDocument();
+});
+
+it('renders a progress spinner when submitted, disables further submission (issue #4386 / FXA-1275)', async () => {
+  const stripe: PaymentFormStripeProps = {
+    createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
+  };
+  const onPayment = jest.fn();
+
+  const { queryByTestId, getByTestId } = renderWithValidFields({
+    stripe,
+    onPayment,
+    submitNonce: 'unique-nonce-1',
+  });
+
+  const submitButton = getByTestId('submit');
+  fireEvent.click(submitButton);
+
+  expect(stripe.createToken).toHaveBeenCalledTimes(1);
+  await waitForExpect(() =>
+    expect(onPayment).toHaveBeenCalledWith(
+      VALID_CREATE_TOKEN_RESPONSE,
+      'Foo Barson'
+    )
+  );
+
+  expect(queryByTestId('spinner-submit')).toBeInTheDocument();
+  expect(getByTestId('submit')).toHaveAttribute('disabled');
+
+  fireEvent.submit(getByTestId('paymentForm'));
+  fireEvent.click(submitButton);
+
+  expect(stripe.createToken).toHaveBeenCalledTimes(1);
 });
 
 it('renders a progress spinner when inProgress = true', () => {
