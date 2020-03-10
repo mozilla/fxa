@@ -15,12 +15,14 @@ export type SubscriptionSuccessProps = {
   customer: Customer;
   plan: Plan;
   profile: Profile;
+  isMobile: boolean;
 };
 
 export const SubscriptionSuccess = ({
   customer,
   plan,
   profile,
+  isMobile,
 }: SubscriptionSuccessProps) => {
   const { product_id } = plan;
   const { downloadURL } = metadataFromPlan(plan);
@@ -28,8 +30,6 @@ export const SubscriptionSuccess = ({
     config: { productRedirectURLs },
     matchMedia,
   } = useContext(AppContext);
-
-  const isMobile = matchMedia('(min-width: 768px)');
 
   const productUrl =
     downloadURL || productRedirectURLs[product_id] || defaultProductRedirectURL;

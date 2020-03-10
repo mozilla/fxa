@@ -5,6 +5,7 @@ import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { State as ValidatorState } from '../../lib/validator';
+import { useMatchMedia } from '../../lib/hooks';
 
 import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
@@ -63,9 +64,11 @@ export const Product = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: ProductProps) => {
-  const { locationReload, queryParams, matchMedia } = useContext(AppContext);
+  const { locationReload, queryParams, matchMediaDefault } = useContext(
+    AppContext
+  );
 
-  const isMobile = matchMedia('(min-width: 768px)');
+  const isMobile = useMatchMedia('(min-width: 768px)', matchMediaDefault);
   const planId = queryParams.plan;
   const accountActivated = !!queryParams.activated;
 
@@ -171,7 +174,14 @@ export const Product = ({
     // Do we already have a subscription to the product in the selected plan?
     if (customerIsSubscribedToProduct(customerSubscriptions, productPlans)) {
       return (
-        <SubscriptionSuccess {...{ plan: selectedPlan, customer: customer.result, profile: profile.result }} />
+        <SubscriptionSuccess
+          {...{
+            plan: selectedPlan,
+            customer: customer.result,
+            profile: profile.result,
+            isMobile,
+          }}
+        />
       );
     }
   }
