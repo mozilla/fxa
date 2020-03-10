@@ -1,6 +1,0 @@
-# the build image does a full `npm ci` and `npm run build`.
-# It is ready to test, but needs one evironment setting.
-FROM fxa-payments-server:build
-
-# Jest test runner needs this to disable interactive mode
-ENV CI=yes

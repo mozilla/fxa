@@ -1,9 +1,0 @@
-FROM fxa-auth-server:build
-
-COPY --chown=app:app ["fxa-auth-db-mysql", "../fxa-auth-db-mysql/"]
-WORKDIR /fxa-auth-db-mysql
-RUN npm ci
-
-# install dev dependencies
-WORKDIR /app
-RUN npm ci
