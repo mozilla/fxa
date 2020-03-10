@@ -391,21 +391,6 @@ describe('db', function() {
   });
 
   describe('client-tokens', function() {
-    describe('getActiveClientsByUid', function() {
-      var userId = buf(randomString(16));
-
-      it('should return the active clients', function() {
-        return db.getActiveClientsByUid(userId).then(
-          function(result) {
-            assert.equal(result.length, 0);
-          },
-          function(err) {
-            assert.fail(err);
-          }
-        );
-      });
-    });
-
     describe('deleteClientAuthorization', function() {
       var clientId = buf(randomString(8));
       var userId = buf(randomString(16));
@@ -692,16 +677,6 @@ describe('db', function() {
         const tt = await db.getAccessToken(t.tokenId);
         await db.removeAccessToken(t.tokenId);
         assert.equal(hex(tt.tokenId), hex(t.tokenId));
-      });
-
-      it('retrieves them with getActiveClientsByUid', async () => {
-        const t = await db.generateAccessToken(tokenData);
-        const clients = await db.getActiveClientsByUid(userId);
-        await db.removeAccessToken(t.tokenId);
-        assert.isArray(clients);
-        assert.lengthOf(clients, 1);
-        assert.deepEqual(clients[0].id, pocketId);
-        assert.equal(clients[0].name, 'pocket');
       });
 
       it('retrieves them with getAccessTokensByUid', async () => {
