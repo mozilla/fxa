@@ -42,7 +42,7 @@
     "replace-in-file": "0.2.1"
   },
   "engines": {
-    "node": ">=10",
+    "node": ">=12",
     "npm": ">=6.4.1"
   },
   "fxa": {

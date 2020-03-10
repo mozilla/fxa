@@ -18,7 +18,7 @@
     "url": "git+https://github.com/mozilla/fxa.git"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",

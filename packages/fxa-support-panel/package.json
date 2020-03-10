@@ -23,7 +23,7 @@
     "url": "git://github.com/mozilla/fxa.git"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "bugs": "https://github.com/mozilla/fxa/issues/",
   "homepage": "https://github.com/mozilla/fxa/",

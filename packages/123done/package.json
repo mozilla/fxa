@@ -30,7 +30,7 @@
     "request": "2.88.0"
   },
   "engines": {
-    "node": ">=10",
+    "node": ">=12",
     "npm": ">=6.4.1"
   },
   "devDependencies": {

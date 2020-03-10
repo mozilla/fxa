@@ -49,5 +49,8 @@
     "prettier": "^1.18.2",
     "rimraf": "2.6.2",
     "sinon": "5.0.7"
+  },
+  "engines": {
+    "node": ">=12"
   }
 }
