@@ -519,23 +519,6 @@ MysqlStore.prototype = {
   },
 
   /**
-   * Get all services that have have non-expired tokens
-   * @param {String} uid User ID as hex
-   * @returns {Promise}
-   */
-  _getActiveClientsByUid: function _getActiveClientsByUid(uid) {
-    return this._read(QUERY_ACTIVE_CLIENT_TOKENS_BY_UID, [
-      buf(uid),
-      buf(uid),
-    ]).then(function(activeClientTokens) {
-      activeClientTokens.forEach(t => {
-        t.scope = ScopeSet.fromString(t.scope);
-      });
-      return activeClientTokens;
-    });
-  },
-
-  /**
    * Get all access tokens for a given user.
    * @param {String} uid User ID as hex
    * @returns {Promise}
