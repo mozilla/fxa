@@ -16,7 +16,7 @@ trap on_sigint INT
 
 # Create pushbox db on start (because pushbox doesn't create it)
 docker run --rm --name=firestore \
-  -p 8006:9090 \
+  -p 9090:9090 \
   jdlk7/firestore-emulator &
 
 while :; do read; done

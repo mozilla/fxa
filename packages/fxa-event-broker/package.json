@@ -8,10 +8,10 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
     "watch": "tsc -w",
-    "test": "FIRESTORE_EMULATOR_HOST=localhost:8006 FIRESTORE_PROJECT_ID=fx-event-broker ./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
+    "test": "mocha -r ts-node/register src/test/**/*.spec.ts src/test/**/**/*.spec.ts",
     "start-prod": "npm run build && node ./dist/bin/worker.js",
-    "start": "npm run build && NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8005 FIRESTORE_EMULATOR_HOST=localhost:8006 node ./dist/bin/workerDev.js",
-    "start-dev-debug": "NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8005 FIRESTORE_EMULATOR_HOST=localhost:8006 ts-node-dev --inspect=0.0.0.0:9180 ./src/bin/workerDev.ts"
+    "start": "npm run build && NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8085 FIRESTORE_EMULATOR_HOST=localhost:9090 node ./dist/bin/workerDev.js",
+    "start-dev-debug": "NODE_ENV=development PUBSUB_EMULATOR_HOST=localhost:8085 FIRESTORE_EMULATOR_HOST=localhost:9090 ts-node-dev --inspect=0.0.0.0:9180 ./src/bin/workerDev.ts"
   },
   "repository": {
     "type": "git",

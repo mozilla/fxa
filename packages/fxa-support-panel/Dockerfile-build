@@ -11,15 +11,8 @@ WORKDIR /app
 
 USER app
 
-COPY package.json package.json
-COPY package-lock.json package-lock.json
+COPY --chown=app:app . /app
 
 RUN npm ci && rm -rf ~app/.npm
 
-COPY . /app
 RUN npm run build
-
-USER root
-RUN chown app:app /app/config
-
-USER app

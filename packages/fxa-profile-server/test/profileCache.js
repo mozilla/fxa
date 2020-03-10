@@ -76,7 +76,7 @@ describe('profile cache', function() {
 
   it('should cache profile info initially, and invalidate cache after 2 seconds', function(done) {
     const userid = uid();
-    this.timeout(5000);
+    this.timeout(10000);
     Server.server.initialize(() => {
       let lastModified;
       // first req, store last modified header
@@ -110,7 +110,7 @@ describe('profile cache', function() {
   });
 
   it('should invalidate cache when display name is updated', function(done) {
-    this.timeout(5000);
+    this.timeout(10000);
     const userid = uid();
     Server.server.initialize(() => {
       let lastModified;
@@ -160,7 +160,7 @@ describe('profile cache', function() {
 
   it('should invalidate cache when avatar is updated', function(done) {
     const userid = uid();
-    this.timeout(5000);
+    this.timeout(10000);
     Server.server.initialize(() => {
       let lastModified;
       // first req, store last modified header
@@ -210,7 +210,7 @@ describe('profile cache', function() {
 
   it('should invalidate cache when auth-server profileChangedAt is greater than cached version', function(done) {
     const userid = uid();
-    this.timeout(5000);
+    this.timeout(10000);
     Server.server.initialize(() => {
       let lastModified;
       // first req, store last modified header
@@ -252,7 +252,7 @@ describe('profile cache', function() {
   });
 
   it('should not cache reads with unusual sets of scopes', function(done) {
-    this.timeout(5000);
+    this.timeout(10000);
     const userid = uid();
     const PARTIAL_SCOPES = ['profile:display_name', 'profile:uid'];
     Server.server.initialize(() => {
@@ -275,7 +275,7 @@ describe('profile cache', function() {
   });
 
   it('should separately cache full and partial profile reads', function(done) {
-    this.timeout(5000);
+    this.timeout(10000);
     const userid = uid();
     const PARTIAL_SCOPES = [
       'profile:email',
@@ -350,7 +350,7 @@ describe('profile cache', function() {
   });
 
   it('should not leak unauthorized data from cached profile', function(done) {
-    this.timeout(5000);
+    this.timeout(10000);
     const userid = uid();
     Server.server.initialize(() => {
       mock.coreProfile({

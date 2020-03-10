@@ -18,10 +18,13 @@ secret*
 **/build
 **/dist
 **/temp
+**/version.json
 *.sass-cache
 *.map
 .es5
 .es5cache
+/artifacts
+/packages/test.list
 
 # Dependencies
 **/node_modules
@@ -47,6 +50,7 @@ Thumbs.db
 # Linux
 .*
 !.circleci/
+!.dockerignore
 !.gitignore
 !.git*
 !.eslintrc
