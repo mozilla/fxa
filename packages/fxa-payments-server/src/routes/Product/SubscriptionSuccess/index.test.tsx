@@ -2,10 +2,7 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { config as defaultConfig } from '../../../lib/config';
-import {
-  AppContext,
-  defaultAppContext,
-} from '../../../lib/AppContext';
+import { AppContext, defaultAppContext } from '../../../lib/AppContext';
 
 import {
   MOCK_PLANS,
@@ -46,7 +43,14 @@ function assertRedirectForProduct(
   const selectedPlan = { ...MOCK_PLANS[0], product_id, product_name };
   const { getByTestId } = render(
     <AppContext.Provider value={appContextValue}>
-      <SubscriptionSuccess {...{ plan: selectedPlan, profile: MOCK_PROFILE, customer: MOCK_CUSTOMER }} />
+      <SubscriptionSuccess
+        {...{
+          plan: selectedPlan,
+          profile: MOCK_PROFILE,
+          customer: MOCK_CUSTOMER,
+          isMobile: false,
+        }}
+      />
     </AppContext.Provider>
   );
   expect(getByTestId('download-link').getAttribute('href')).toEqual(
