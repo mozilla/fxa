@@ -1,6 +1,11 @@
 <div id="main-content" class="card send-sms">
     <header id="fxa-send-sms-header">
       <div class="error"></div>
+      {{#showSuccessMessage}}
+        {{#isSignedIn}}
+          <div class="success success-authenticated visible">{{#t}}This Firefox is connected{{/t}}</div>
+        {{/isSignedIn}}
+      {{/showSuccessMessage}}
     </header>
     <section class="send-sms">
       <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Connect another device{{/t}}"></div>

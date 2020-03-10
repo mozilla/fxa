@@ -310,6 +310,54 @@ describe('views/sms_send', () => {
     });
   });
 
+  describe('_isSignedIn', () => {
+    it('returns `true` if the account is signed', () => {
+      sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
+      broker.set('isVerificationSameBrowser', false);
+
+      assert.isTrue(view._isSignedIn());
+      assert.isTrue(user.isSignedInAccount.calledOnce);
+      assert.isTrue(user.isSignedInAccount.calledWith(account));
+    });
+
+    it('returns `true` if verifying in the same browser', () => {
+      sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+      broker.set('isVerificationSameBrowser', true);
+
+      assert.isTrue(view._isSignedIn());
+    });
+
+    it('returns `false` otherwise', () => {
+      sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
+      broker.set('isVerificationSameBrowser', false);
+
+      assert.isFalse(view._isSignedIn());
+    });
+
+    describe('displaying the "This Firefox is connected" banner', () => {
+      function shouldShowConnectedBanner() {
+        return view._isSignedIn() && view.model.get('showSuccessMessage');
+      }
+
+      it('should not when `showSuccessMessage` returns `false`', () => {
+        sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
+        view.model.set('showSuccessMessage', false);
+        assert.isFalse(shouldShowConnectedBanner());
+      });
+
+      it('should not when `_isSignedIn` returns `false`', () => {
+        sinon.stub(view, '_isSignedIn').callsFake(() => false);
+        assert.isFalse(shouldShowConnectedBanner());
+      });
+
+      it('should when both `_isSignedIn` and `showSuccessMessage` return `true`', () => {
+        view.model.set('showSuccessMessage', true);
+        sinon.stub(view, '_isSignedIn').callsFake(() => true);
+        assert.isTrue(shouldShowConnectedBanner());
+      });
+    });
+  });
+
   describe('_onSendSmsSuccess', () => {
     it('navigates to `sms/sent`', () => {
       sinon.spy(view, 'navigate');

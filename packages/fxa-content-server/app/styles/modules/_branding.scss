@@ -36,8 +36,20 @@
   }
 }
 
-#main-content.send-sms::before {
-  content: initial;
+// Note this is non-standard styling for #main-content. It would
+// generally have a greater top padding value and the Firefox logo
+// across the top. But here we are intentionally making these
+// changes to a simpler look.
+#main-content.send-sms {
+  padding-top: 40px;
+
+  @include respond-to('small') {
+    padding-top: 52px;
+  }
+
+  &::before {
+    content: initial;
+  }
 }
 
 #about-mozilla {
