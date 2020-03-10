@@ -85,9 +85,11 @@ const Subject = ({
   };
   return (
     <MockPage>
-      <button onClick={refreshSubmitNonce}>Refresh submit nonce</button>
-      <p>Current nonce: {submitNonce}</p>
-      <PaymentForm {...paymentFormProps} />
+      <div className="product-payment">
+        <button onClick={refreshSubmitNonce}>Refresh submit nonce</button>
+        <p>Current nonce: {submitNonce}</p>
+        <PaymentForm {...paymentFormProps} />
+      </div>
     </MockPage>
   );
 };
