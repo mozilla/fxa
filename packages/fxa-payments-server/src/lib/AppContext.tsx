@@ -7,6 +7,7 @@ export type AppContextType = {
   config: Config;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
+  matchMediaDefault: (query: string) => MediaQueryList;
   navigateToUrl: (url: string) => void;
   getScreenInfo: () => ScreenInfo;
   locationReload: (url: string) => void;
