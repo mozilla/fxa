@@ -24,7 +24,6 @@ module.exports = function(log, error, statsd) {
         validate: {
           payload: {
             email: Joi.string()
-              .email()
               .required(),
             ip: Joi.string().required(),
             action: Joi.string().required(),
@@ -83,7 +82,6 @@ module.exports = function(log, error, statsd) {
         validate: {
           payload: {
             email: Joi.string()
-              .email()
               .required(),
             ip: Joi.string().required(),
             errno: Joi.number().required(),
@@ -98,7 +96,6 @@ module.exports = function(log, error, statsd) {
         validate: {
           payload: {
             email: Joi.string()
-              .email()
               .required(),
           },
           response: {},
