@@ -8,7 +8,7 @@
  * @module
  */
 import jwtool from 'fxa-jwtool';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 // SET Event identifiers
 export const DELETE_EVENT_ID = 'https://schemas.accounts.firefox.com/event/delete-user';
@@ -74,7 +74,7 @@ export class JWT {
       aud: event.clientId,
       events: event.events,
       iat: Date.now() / 1000,
-      jti: uuid.v4(),
+      jti: uuidv4(),
       sub: event.uid
     };
     return this.tokenKey.sign(claims);

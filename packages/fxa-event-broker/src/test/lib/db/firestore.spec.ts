@@ -6,7 +6,7 @@ import { Firestore } from '@google-cloud/firestore';
 import * as grpc from '@grpc/grpc-js';
 import { assert as cassert } from 'chai';
 import 'mocha';
-import uuid4 from 'uuid/v4';
+import { v4 as uuid4 } from 'uuid';
 
 import { FirestoreDatastore } from '../../../lib/db';
 import { ClientWebhooks } from '../../../lib/selfUpdatingService/clientWebhookService';

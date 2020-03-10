@@ -122,7 +122,9 @@ class FirestoreDatastore implements Datastore {
     ) => void,
     error: (error: Error) => void
   ): () => void {
-    const webhookCollection = this.db.collection(`${this.prefix}clients`);
+    const webhookCollection = this.db.collection(
+      `${this.prefix}clients`
+    ) as TypedCollectionReference<WebhookUrl>;
     return webhookCollection.onSnapshot(snapshot => {
       const changedClientWebhooks: ClientWebhooks = {};
       const removedClientWebhooks: ClientWebhooks = {};
