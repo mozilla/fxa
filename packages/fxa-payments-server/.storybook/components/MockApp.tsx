@@ -37,6 +37,7 @@ export const defaultAppContextValue: AppContextType = {
   navigateToUrl: action('navigateToUrl'),
   getScreenInfo: () => new ScreenInfo(window),
   matchMedia: (query: string) => window.matchMedia(query).matches,
+  matchMediaDefault: (query: string) => window.matchMedia(query),
   locationReload: action('locationReload'),
 };
 

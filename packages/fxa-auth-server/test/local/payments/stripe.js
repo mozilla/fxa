@@ -1304,6 +1304,7 @@ describe('StripeHelper', () => {
             subscription_id: pastDueSubscription.id,
             failure_code: failedCharge.failure_code,
             failure_message: failedCharge.failure_message,
+            latest_invoice: failedCharge.latest_invoice,
           },
         ];
 
@@ -1366,6 +1367,7 @@ describe('StripeHelper', () => {
                 subscription_id: subscription1.id,
                 failure_code: undefined,
                 failure_message: undefined,
+                latest_invoice: subscription1.latest_invoice,
               },
             ];
 
@@ -1392,6 +1394,7 @@ describe('StripeHelper', () => {
                 subscription_id: subscription.id,
                 failure_code: undefined,
                 failure_message: undefined,
+                latest_invoice: subscription.latest_invoice,
               },
             ];
 
@@ -1417,6 +1420,7 @@ describe('StripeHelper', () => {
                 subscription_id: cancelledSubscription.id,
                 failure_code: undefined,
                 failure_message: undefined,
+                latest_invoice: cancelledSubscription.latest_invoice,
               },
             ];
 
