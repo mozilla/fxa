@@ -30,7 +30,7 @@ services:
     image: fxa-customs-server:test
     build:
       context: ../../..
-      dockerfile: Dockerfile-test
+      dockerfile: Dockerfile
     environment:
       MEMCACHE_ADDRESS: memcached:11211
     links:

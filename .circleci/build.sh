@@ -18,28 +18,19 @@ if grep -e "$MODULE" -e 'all' $DIR/../packages/test.list > /dev/null; then
   mkdir -p config
   cp ../version.json config
 
+  ODDBALLS=("fxa-auth-server" "fxa-content-server" "fxa-profile-server" "fxa-payments-server")
+
   if [[ -e scripts/build-ci.sh ]]; then
     ./scripts/build-ci.sh
-  elif [ "${MODULE}" == 'fxa-auth-server' ]; then
+  elif [[ " ${ODDBALLS[@]} " =~ " ${MODULE} " ]]; then
     cd ..
-    docker build -f fxa-auth-server/Dockerfile-build -t ${MODULE}:build .
-  elif [ "${MODULE}" == 'fxa-content-server' ]; then
-    cd ..
-    docker build -f fxa-content-server/Dockerfile-build -t ${MODULE}:build .
-  elif [ "${MODULE}" == 'fxa-profile-server' ]; then
-    cd ..
-    docker build -f fxa-profile-server/Dockerfile-build -t ${MODULE}:build .
-  elif [ "${MODULE}" == 'fxa-payments-server' ]; then
-    cd ..
-    docker build -f fxa-payments-server/Dockerfile -t ${MODULE}:build .
+    docker build -f ${MODULE}/Dockerfile -t ${MODULE}:build .
   elif [[ -e Dockerfile ]]; then
     docker build -f Dockerfile -t ${MODULE}:build .
-    # docker run --rm -it ${MODULE}:build npm ls --production
-  elif [[ -e Dockerfile-build ]]; then
-    docker build -f Dockerfile-build -t ${MODULE}:build .
-    # docker run --rm -it ${MODULE}:build npm ls --production
   fi
 
+  # for debugging:
+  # docker run --rm -it ${MODULE}:build npm ls --production
   # docker save -o "../${MODULE}.tar" ${MODULE}:build
 else
   exit 0;
