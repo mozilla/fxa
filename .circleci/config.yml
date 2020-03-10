@@ -86,7 +86,7 @@ jobs:
       SKIP_DOCKER: true
     steps:
       - base-install
-      - run: ./packages/fxa-content-server/scripts/test-ci.sh
+      - run: ./.circleci/test-package.sh fxa-content-server
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
