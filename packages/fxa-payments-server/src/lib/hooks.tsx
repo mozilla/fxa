@@ -2,13 +2,15 @@ import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
-  return useCallback(() => {
-    if (!called.current) {
-      cb();
-      called.current = true;
-    }
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps
-  [called, cb, ...deps]);
+  return useCallback(
+    () => {
+      if (!called.current) {
+        cb();
+        called.current = true;
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [called, cb, ...deps]
+  );
 }
 
 type useBooleanStateResult = [boolean, () => void, () => void];
@@ -66,4 +68,22 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
   }, [onClickOutside]);
 
   return insideEl;
+}
+
+export function useMatchMedia(mediaQuery: string, matchMedia: Function) {
+  const [matches, setMatches] = useState(matchMedia(mediaQuery).matches);
+
+  useEffect(() => {
+    const updateMatches = (event: { matches: Array<string> }) => {
+      setMatches(event.matches);
+    };
+
+    const mediaQueryList = matchMedia(mediaQuery);
+    setMatches(mediaQueryList.matches);
+    mediaQueryList.addListener(updateMatches);
+
+    return () => mediaQueryList.removeListener(updateMatches);
+  }, [mediaQuery]);
+
+  return matches;
 }

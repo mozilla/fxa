@@ -34,6 +34,7 @@ async function init() {
           store,
           queryParams,
           matchMedia,
+          matchMediaDefault,
           navigateToUrl,
           getScreenInfo,
           locationReload,
@@ -59,6 +60,10 @@ function locationReload() {
 
 function matchMedia(query: string) {
   return window.matchMedia(query).matches;
+}
+
+function matchMediaDefault(query: string) {
+  return window.matchMedia(query);
 }
 
 function navigateToUrl(url: string) {
