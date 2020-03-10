@@ -66,20 +66,24 @@ describe('Firestore database', () => {
 
   it('gets updated when the database changes', async () => {
     const data: ClientWebhooks = {};
-    const stop = db.listenForClientIdWebhooks(
-      (changed, removed) => {
-        Object.assign(data, changed);
-        for (const key of Object.keys(removed)) {
-          delete data[key];
+    const change = new Promise<() => void>((resolve, reject) => {
+      const done = db.listenForClientIdWebhooks(
+        (changed, removed) => {
+          Object.assign(data, changed);
+          for (const key of Object.keys(removed)) {
+            delete data[key];
+          }
+          resolve(done);
+        },
+        err => {
+          reject(err);
         }
-      },
-      err => {
-        cassert.fail();
-      }
-    );
+      );
+    });
     // Manually insert into the db
     const document = (db as any).db.doc('fxatest-clients/test');
     await document.set({ webhookUrl: 'testUrl' });
+    const stop = await change;
     cassert.deepEqual(data, { test: 'testUrl' });
 
     // Manually delete from the db
