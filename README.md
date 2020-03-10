@@ -4,6 +4,24 @@
 
 The Firefox Accounts (fxa) monorepo
 
+### Table of Contents
+
+[Getting Started](#getting-started)\
+[Contributing](#contributing)\
+[Dependencies](#dependencies)\
+[Firefox Custom Profile](#firefox-custom-profile)\
+[Functional Tests](#functional-tests)\
+[Node debugging](#node-debugging)\
+[Android debugging](#android-debugging)\
+[FxA Email Service](#fxa-email-service)\
+[Firefox for Android](#firefox-for-android)\
+[Firefox for iOS](#firefox-for-ios)\
+[Running with MailDev](#running-with-maildev)\
+[Other tasks](#other-tasks)\
+[Documentation](#documentation)
+
+---
+
 ### Getting Started
 
 1. **Manually install the system [dependencies](#dependencies) for OS X or Ubuntu.** Note that [WSL](https://docs.microsoft.com/windows/wsl/) is required for development work on Windows.
@@ -73,7 +91,7 @@ When you signup for an account using the form on `127.0.0.1:3030/signup` the "au
 
 ![](https://i.imgur.com/cdh9Xrl.png)
 
-If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository.
+If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository or [connect with the team on Firefox Accounts Riot](https://chat.mozilla.org/#/room/#fxa:mozilla.org).
 
 ---
 
@@ -375,9 +393,11 @@ All emails sent can be viewed from [http://localhost:1080](http://localhost:1080
 
 - [Updating dependencies and `npm-shrinkwrap.json` files](https://mozilla.github.io/application-services/docs/accounts/local-development.html#updating-npm-shrinkwrap).
 
-### Package docs
+### Documentation
 
-Each package has it's own README.md and `docs/` directory with info specific to that project.
+The [Firefox Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/) serves as a documentation hub for Firefox Accounts, Services, Synced Client Integrations, and Subscription Platform.
+
+In addition to the ecosystem docs, each package has it's own README.md and `docs/` directory with info specific to that project.
 
 - 123done [README](./packages/123done/README.md)
 - browserid-verifier [README](./packages/browserid-verifier/README.md)
