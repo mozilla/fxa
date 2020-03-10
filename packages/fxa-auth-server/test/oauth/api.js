@@ -12,7 +12,6 @@ const testServer = require('../lib/server');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 const { decodeJWT } = require('../lib/util');
 
-const auth = require('../../lib/oauth/auth_client_management');
 const db = require('../../lib/oauth/db');
 const encrypt = require('../../lib/oauth/encrypt');
 const P = require('../../lib/promise');
@@ -174,35 +173,6 @@ function assertInvalidRequestParam(result, param) {
  * @param {Object} [options.email] - custom email
  * @param {Object} [options.scopes] - custom scopes
  */
-function getUniqueUserAndToken(client, options) {
-  options = options || {};
-  if (!client) {
-    throw new Error('No client id set');
-  }
-
-  var uid = options.uid || unique(16).toString('hex');
-  var email = options.email || unique(4).toString('hex') + '@mozilla.com';
-
-  return db
-    .generateAccessToken({
-      clientId: client.id,
-      name: client.name,
-      canGrant: client.canGrant,
-      publicClient: client.publicClient,
-      userId: buf(uid),
-      email: email,
-      scope: options.scopes
-        ? ScopeSet.fromArray(options.scopes)
-        : auth.SCOPE_CLIENT_MANAGEMENT,
-    })
-    .then(function(token) {
-      return {
-        uid: uid,
-        email: email,
-        token: token.token.toString('hex'),
-      };
-    });
-}
 
 function clientByName(name) {
   return config.get('oauthServer.clients').reduce(function(client, lastClient) {
@@ -4175,6 +4145,6 @@ describe('/v1', function() {
 
       assert.equal(destroyWithAnAssertion.statusCode, 400);
       assert.equal(destroyWithAnAssertion.result.errno, 109);
-      });
     });
   });
+});
