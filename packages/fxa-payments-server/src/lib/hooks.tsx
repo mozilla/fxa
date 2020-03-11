@@ -2,13 +2,15 @@ import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
-  return useCallback(() => {
-    if (!called.current) {
-      cb();
-      called.current = true;
-    }
-  }, // eslint-disable-next-line react-hooks/exhaustive-deps
-  [called, cb, ...deps]);
+  return useCallback(
+    () => {
+      if (!called.current) {
+        cb();
+        called.current = true;
+      }
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps
+    [called, cb, ...deps]
+  );
 }
 
 type useBooleanStateResult = [boolean, () => void, () => void];
@@ -66,4 +68,12 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
   }, [onClickOutside]);
 
   return insideEl;
+}
+
+export function useNonce(
+  generateNonce = () => `${Date.now()}-${Math.random()}`
+): [string, () => void] {
+  const [nonce, setNonce] = useState(generateNonce());
+  const refreshNonce = () => setNonce(generateNonce());
+  return [nonce, refreshNonce];
 }

@@ -9,6 +9,7 @@ import {
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
 import { Plan } from '../../store/types';
+import { useNonce } from '../../lib/hooks';
 
 function init() {
   storiesOf('components/PaymentForm', module)
@@ -66,7 +67,10 @@ const Subject = ({
   validatorMiddlewareReducer,
   onChange = () => {},
 }: SubjectProps) => {
+  const [submitNonce, refreshSubmitNonce] = useNonce();
+
   const paymentFormProps: PaymentFormProps = {
+    submitNonce,
     inProgress,
     confirm,
     plan,
@@ -81,6 +85,8 @@ const Subject = ({
   };
   return (
     <MockPage>
+      <button onClick={refreshSubmitNonce}>Refresh submit nonce</button>
+      <p>Current nonce: {submitNonce}</p>
       <PaymentForm {...paymentFormProps} />
     </MockPage>
   );

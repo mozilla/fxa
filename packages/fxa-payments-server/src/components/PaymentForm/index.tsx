@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Localized, withLocalization } from 'fluent-react';
 
 import {
@@ -53,6 +53,7 @@ export type PaymentFormProps = {
   onMounted: Function;
   onEngaged: Function;
   onChange: Function;
+  submitNonce: string;
 };
 
 export const PaymentForm = ({
@@ -69,6 +70,7 @@ export const PaymentForm = ({
   onMounted,
   onEngaged,
   onChange: onChangeProp,
+  submitNonce,
 }: PaymentFormProps) => {
   const validator = useValidatorState({
     initialState: validatorInitialState,
@@ -88,12 +90,18 @@ export const PaymentForm = ({
     onChangeProp();
   }, [engageOnce, onChangeProp]);
 
+  const [lastSubmitNonce, setLastSubmitNonce] = useState('');
+  const nonceMatch = submitNonce === lastSubmitNonce;
+  const shouldAllowSubmit = !nonceMatch && !inProgress && validator.allValid();
+  const showProgressSpinner = nonceMatch || inProgress;
+
   const onSubmit = useCallback(
     ev => {
       ev.preventDefault();
-      if (inProgress || !validator.allValid()) {
+      if (!shouldAllowSubmit) {
         return;
       }
+      setLastSubmitNonce(submitNonce);
       const { name, zip } = validator.getValues();
       if (stripe) {
         stripe
@@ -106,7 +114,14 @@ export const PaymentForm = ({
           });
       }
     },
-    [validator, onPayment, onPaymentError, stripe]
+    [
+      validator,
+      onPayment,
+      onPaymentError,
+      stripe,
+      submitNonce,
+      shouldAllowSubmit,
+    ]
   );
 
   const { matchMedia } = useContext(AppContext);
@@ -240,9 +255,9 @@ export const PaymentForm = ({
             <SubmitButton
               data-testid="submit"
               name="submit"
-              disabled={inProgress}
+              disabled={!shouldAllowSubmit}
             >
-              {inProgress ? (
+              {showProgressSpinner ? (
                 <span data-testid="spinner-submit" className="spinner">
                   &nbsp;
                 </span>
