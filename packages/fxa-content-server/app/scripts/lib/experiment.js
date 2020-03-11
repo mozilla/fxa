@@ -24,6 +24,7 @@ const MANUAL_EXPERIMENTS = {
   // For now, the send SMS experiment only needs to log "enrolled", so
   // no special experiment is created.
   sendSms: BaseExperiment,
+  sendSmsHeader: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);

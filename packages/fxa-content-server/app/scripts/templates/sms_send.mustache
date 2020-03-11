@@ -9,9 +9,14 @@
     </header>
     <section class="send-sms">
       <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Connect another device{{/t}}"></div>
-      <h1>
+      <h1 data-id="prompt-header">
         {{^userHasAttachedMobileDevice}}
-          {{#t}}Would you like to sync your phone?{{/t}}
+          {{#isInExperimentGroupSyncBrowser}}
+            {{#t}}Sync this browser with your phone{{/t}}
+          {{/isInExperimentGroupSyncBrowser}}
+          {{^isInExperimentGroupSyncBrowser}}
+            {{#t}}Would you like to sync your phone?{{/t}}
+          {{/isInExperimentGroupSyncBrowser}}
         {{/userHasAttachedMobileDevice}}
         {{#userHasAttachedMobileDevice}}
           {{#t}}Still adding devices?{{/t}}

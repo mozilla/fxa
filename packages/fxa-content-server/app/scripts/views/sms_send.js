@@ -24,6 +24,7 @@ import AttachedClients from '../models/attached-clients';
 import SmsMixin from './mixins/sms-mixin';
 import Template from 'templates/sms_send.mustache';
 import VerificationReasonMixin from 'views/mixins/verification-reason-mixin';
+import ExperimentMixin from './mixins/experiment-mixin';
 
 const { FIREFOX_MOBILE_INSTALL } = SmsMessageIds;
 
@@ -111,6 +112,12 @@ class SmsSendView extends FormView {
     const isSignIn = this.isSignIn();
     const graphicId = this.getGraphicsId();
 
+    let isInExperimentGroupSyncBrowser = false;
+    if (!this._userHasAttachedMobileDevice) {
+      const experimentGroup = this.getAndReportExperimentGroup('sendSmsHeader');
+      isInExperimentGroupSyncBrowser = experimentGroup === 'syncBrowser';
+    }
+
     context.set({
       userHasAttachedMobileDevice: this._userHasAttachedMobileDevice,
       isSignedIn: this._isSignedIn(),
@@ -119,6 +126,7 @@ class SmsSendView extends FormView {
       graphicId,
       isSignIn,
       phoneNumber,
+      isInExperimentGroupSyncBrowser,
       showSuccessMessage: this.model.get('showSuccessMessage'),
     });
   }
@@ -284,7 +292,8 @@ Cocktail.mixin(
   }),
   PulseGraphicMixin,
   SmsMixin,
-  VerificationReasonMixin
+  VerificationReasonMixin,
+  ExperimentMixin
 );
 
 export default SmsSendView;

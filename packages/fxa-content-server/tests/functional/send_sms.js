@@ -23,6 +23,7 @@ const ADJUST_LINK_IOS =
 const ENTER_EMAIL_URL = config.fxaContentRoot;
 const SEND_SMS_URL = `${config.fxaContentRoot}sms?service=sync&country=US`;
 const SEND_SMS_SIGNIN_CODE_URL = `${SEND_SMS_URL}&forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
+const SEND_SMS_HEADER_URL = `${SEND_SMS_URL}&forceExperiment=sendSmsHeader`;
 const SEND_SMS_NO_QUERY_URL = `${config.fxaContentRoot}sms`;
 
 let email;
@@ -112,6 +113,38 @@ const suite = {
     );
   },
   tests: {
+    'displays expected header with `syncPhone` experiment group': function() {
+      return this.remote
+        .then(
+          openPage(SEND_SMS_HEADER_URL, selectors.SMS_SEND.HEADER, {
+            query: {
+              forceExperimentGroup: 'syncPhone',
+            },
+          })
+        )
+        .then(
+          testElementTextInclude(
+            selectors.SMS_SEND.PROMPT_HEADER,
+            'Would you like to sync your phone?'
+          )
+        );
+    },
+    'displays expected header with `syncBrowser` experiment group': function() {
+      return this.remote
+        .then(
+          openPage(SEND_SMS_HEADER_URL, selectors.SMS_SEND.HEADER, {
+            query: {
+              forceExperimentGroup: 'syncBrowser',
+            },
+          })
+        )
+        .then(
+          testElementTextInclude(
+            selectors.SMS_SEND.PROMPT_HEADER,
+            'Sync this browser with your phone'
+          )
+        );
+    },
     'with no query parameters': function() {
       return this.remote
         .then(openPage(SEND_SMS_NO_QUERY_URL, selectors.SMS_SEND.HEADER))
