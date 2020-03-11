@@ -292,27 +292,6 @@ describe('models/reliers/oauth', () => {
       });
     });
 
-    it('containsOldSyncScope returns true when requesting access to Sync', () => {
-      windowMock.location.search = toSearchString({
-        action: ACTION,
-        client_id: CLIENT_ID,
-        redirect_uri: QUERY_REDIRECT_URI,
-        scope: SCOPE_OLDSYNC,
-        state: STATE,
-      });
-
-      sinon.stub(relier, 'isTrusted').callsFake(() => {
-        return true;
-      });
-      sinon.stub(relier, '_validateKeyScopeRequest').callsFake(() => {
-        return true;
-      });
-
-      return relier.fetch().then(() => {
-        assert.isTrue(relier.containsOldSyncScope());
-      });
-    });
-
     describe('query parameter validation', () => {
       describe('access_type', () => {
         var validValues = [undefined, 'offline', 'online'];

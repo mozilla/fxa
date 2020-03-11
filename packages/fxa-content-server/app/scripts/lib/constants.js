@@ -160,4 +160,6 @@ module.exports = {
   CC_EXPIRED: 'expired_card',
 
   SIGNUP_CODE_LENGTH: 6,
+
+  FIREFOX_IOS_OAUTH_ENTRYPOINT: 'ios_settings_manage',
 };
