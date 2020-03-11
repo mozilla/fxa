@@ -167,11 +167,8 @@ describe('views/sms_send', () => {
       sinon.stub(view, 'isSignIn').callsFake(() => true);
       return view.render().then(() => {
         assert.include(
-          view
-            .$('.send-sms > p')
-            .text()
-            .toLowerCase(),
-          'send firefox directly to your smartphone'
+          view.$('.send-sms > p').text(),
+          'Send a link by SMS to install Firefox on your phone.'
         );
       });
     });
