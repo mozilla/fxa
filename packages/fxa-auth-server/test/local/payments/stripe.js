@@ -1199,6 +1199,7 @@ describe('StripeHelper', () => {
       describe('when there is a charge-automatically payment that is past due', () => {
         const expected = [
           {
+            created: pastDueSubscription.created,
             current_period_end: pastDueSubscription.current_period_end,
             current_period_start: pastDueSubscription.current_period_start,
             cancel_at_period_end: false,
@@ -1260,6 +1261,7 @@ describe('StripeHelper', () => {
             const input = { data: [subscription1] };
             const expected = [
               {
+                created: subscription1.created,
                 current_period_end: subscription1.current_period_end,
                 current_period_start: subscription1.current_period_start,
                 cancel_at_period_end: false,
@@ -1285,6 +1287,7 @@ describe('StripeHelper', () => {
             const input = { data: [subscription] };
             const expected = [
               {
+                created: subscription.created,
                 current_period_end: subscription.current_period_end,
                 current_period_start: subscription.current_period_start,
                 cancel_at_period_end: true,
@@ -1308,6 +1311,7 @@ describe('StripeHelper', () => {
             const input = { data: [cancelledSubscription] };
             const expected = [
               {
+                created: cancelledSubscription.created,
                 current_period_end: cancelledSubscription.current_period_end,
                 current_period_start:
                   cancelledSubscription.current_period_start,

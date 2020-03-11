@@ -179,13 +179,14 @@ describe('remote subscriptions:', function() {
 
     describe('with a subscription', () => {
       const subscriptionId = 'sub_12345';
+      const date = Date.now();
       beforeEach(() => {
         mockStripeHelper.customer = async (uid, email) => ({
           subscriptions: {
             data: [
               {
                 id: subscriptionId,
-                created: Date.now() / 1000,
+                created: date,
                 cancelled_at: null,
                 plan: {
                   product: PRODUCT_ID,
@@ -199,8 +200,9 @@ describe('remote subscriptions:', function() {
           {
             subscription_id: subscriptionId,
             plan_id: PLAN_ID,
-            current_period_end: Date.now() / 1000,
-            current_period_start: Date.now() / 1000,
+            created: date,
+            current_period_end: date,
+            current_period_start: date,
             cancel_at_period_end: false,
             end_at: null,
             plan_name: 'foo',
@@ -230,8 +232,7 @@ describe('remote subscriptions:', function() {
         let result = await client.getActiveSubscriptions(tokens[2]);
         assert.isArray(result);
         assert.lengthOf(result, 1);
-        assert.isAbove(result[0].createdAt, Date.now() - 1000);
-        assert.isAtMost(result[0].createdAt, Date.now());
+        assert.equal(result[0].createdAt, date * 1000);
         assert.equal(result[0].productId, PRODUCT_ID);
         assert.equal(result[0].uid, client.uid);
         assert.isNull(result[0].cancelledAt);

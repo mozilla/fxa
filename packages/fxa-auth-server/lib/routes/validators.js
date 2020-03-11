@@ -302,6 +302,7 @@ module.exports.activeSubscriptionValidator = isA.object({
 
 // This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({
+  created: isA.number().required(),
   current_period_end: isA.number().required(),
   current_period_start: isA.number().required(),
   cancel_at_period_end: isA.boolean().required(),
