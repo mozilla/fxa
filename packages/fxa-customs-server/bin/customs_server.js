@@ -8,6 +8,8 @@ var server = require('../lib/server');
 var config = require('../lib/config').getProperties();
 var log = require('../lib/log')(config.log.level, 'customs-server');
 
+log.info({ op: 'config', config: config });
+
 function shutdown(code) {
   process.nextTick(process.exit.bind(null, code));
 }
