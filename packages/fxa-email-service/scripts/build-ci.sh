@@ -5,13 +5,15 @@
 
 DIR=$(dirname "$0")
 
-docker pull mozilla/fxa-email-service:latest
-DOCKER_HASH="$( docker run --rm -it mozilla/fxa-email-service:latest cat /app/bin/SOURCEHASH || echo "none")"
-LOCAL_HASH="$( $DIR/hash-source.sh )"
+cd $DIR/..
 
-if [[ "${DOCKER_HASH::64}" == "${LOCAL_HASH::64}" ]]; then
+docker pull mozilla/fxa-email-service:latest
+
+./scripts/hash-source.sh > .sourcehash
+
+if docker run --rm -it mozilla/fxa-email-service:latest cat /app/.sourcehash | diff -b -q .sourcehash - ; then
   echo "The source is unchanged. Tagging latest as build"
   docker tag mozilla/fxa-email-service:latest fxa-email-service:build
 else
-  docker build -f $DIR/../Dockerfile -t fxa-email-service:build $DIR/..
+  docker build -t fxa-email-service:build .
 fi
