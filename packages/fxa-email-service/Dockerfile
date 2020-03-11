@@ -13,7 +13,8 @@ RUN \
     cargo build --release && \
     cp -R /app/config/* /app/bin/config && \
     cp /app/target/release/fxa_email_send /app/bin && \
-    cp /app/target/release/fxa_email_queues /app/bin
+    cp /app/target/release/fxa_email_queues /app/bin && \
+    ./scripts/hash-source.sh > /app/bin/SOURCEHASH
 COPY version.json /app
 
 
