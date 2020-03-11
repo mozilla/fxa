@@ -21,9 +21,17 @@ module.exports = (config, Settings, log) => {
       if (!this.flowIdExemptUserAgentREs) {
         this.flowIdExemptUserAgentCompiledREs = [];
       } else {
-        this.flowIdExemptUserAgentCompiledREs = this.flowIdExemptUserAgentREs.map(function(re) {
-          return new RegExp(re);
-        });
+        this.flowIdExemptUserAgentCompiledREs = this.flowIdExemptUserAgentREs.map(
+          function(re) {
+            // Log the regex at startup to check that we have correct values.
+            const regex = new RegExp(re);
+            log.info({
+              op: 'requestChecks.setAll.regex',
+              regex: String(regex),
+            });
+            return regex;
+          }
+        );
       }
       return this;
     }
