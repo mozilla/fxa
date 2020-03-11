@@ -2,16 +2,13 @@ version: 2.1
 
 commands:
   base-install:
+    parameters:
+      package:
+        type: string
+        default: all
     steps:
       - checkout
-      - run: npm ci
-      - run:
-          name: Create version.json
-          command: .circleci/create-version-json.sh
-      - run:
-          name: Figure out what to test
-          command: node .circleci/modules-to-test.js | tee packages/test.list
-      - run: ./.circleci/assert-branch.sh
+      - run: ./.circleci/base-install.sh << parameters.package >>
 
 jobs:
   test-package:
@@ -28,7 +25,8 @@ jobs:
       SKIP_PACKAGES: true
       SKIP_DOCKER: true
     steps:
-      - base-install
+      - base-install:
+          package: << parameters.package >>
       - run: ./.circleci/test-package.sh << parameters.package >>
 
   test-many:
@@ -85,7 +83,8 @@ jobs:
       SKIP_PACKAGES: false
       SKIP_DOCKER: true
     steps:
-      - base-install
+      - base-install:
+          package: fxa-content-server
       - run: ./.circleci/test-package.sh fxa-content-server
       - store_artifacts:
           path: ~/.pm2/logs
@@ -95,7 +94,7 @@ jobs:
           destination: screenshots
 
   test-email-service:
-    resource_class: xlarge
+    resource_class: large
     docker:
       - image: mozilla/fxa-circleci
       - image: mysql:5.7.27
@@ -108,7 +107,8 @@ jobs:
       SKIP_PACKAGES: true
       SKIP_DOCKER: true
     steps:
-      - base-install
+      - base-install:
+          package: fxa-email-service
       - run: ./packages/fxa-email-service/scripts/test-ci.sh
       - store_artifacts:
           path: artifacts
@@ -121,7 +121,8 @@ jobs:
       SKIP_PACKAGES: true
       SKIP_DOCKER: true
     steps:
-      - base-install
+      - base-install:
+          package: fxa-circleci
       - setup_remote_docker
       - run: ./.circleci/build.sh fxa-circleci
 
