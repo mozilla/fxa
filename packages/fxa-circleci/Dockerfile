@@ -26,4 +26,7 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH=/home/circleci/.cargo/bin:$PATH
 RUN cargo install cargo-audit
 
+# copy this Dockerfile into the image so we can compare it later
+COPY --chown=circleci:circleci Dockerfile /
+
 CMD ["/bin/sh"]
