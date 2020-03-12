@@ -1,3 +1,41 @@
+## 1.162.0
+
+### New features
+
+- sms: Add A/B test for sms header copy ([6e2c50ea1](https://github.com/mozilla/fxa/commit/6e2c50ea1))
+- experiments: Remove CWTS experiment ([83541d834](https://github.com/mozilla/fxa/commit/83541d834))
+- sms: Conditionally render heading text based on mobile deviceType presence ([d104d7ea6](https://github.com/mozilla/fxa/commit/d104d7ea6))
+- add pm2 debug servers and add'l debug scripts ([5d3747e38](https://github.com/mozilla/fxa/commit/5d3747e38))
+
+### Bug fixes
+
+- post verify: add selector to post verify recovery key screen so downloaded/copied/printed messaging can appear ([3332874bc](https://github.com/mozilla/fxa/commit/3332874bc))
+- settings avatar: update avatar image cropper to resize and work effectively at all window sizes, including small ([135c7a8ae](https://github.com/mozilla/fxa/commit/135c7a8ae))
+- tests: change port that selenium tests run on from 9090 to 9091 because it currently conflicts with our firestore port ([ac97b9814](https://github.com/mozilla/fxa/commit/ac97b9814))
+- ios: Don't show signout button with Firefox iOS client ([737dff6fd](https://github.com/mozilla/fxa/commit/737dff6fd))
+- sms page: display "This Firefox is connected" after sign in or registration via sync occurs ([e8ac868ab](https://github.com/mozilla/fxa/commit/e8ac868ab))
+- emails: Fix the resend secondary email code button ([2bd7676c5](https://github.com/mozilla/fxa/commit/2bd7676c5))
+- payments: re-enable functional tests with direct Stripe access ([245e53a0e](https://github.com/mozilla/fxa/commit/245e53a0e))
+- style: update rtl padding for Firefox services list ([274272a2c](https://github.com/mozilla/fxa/commit/274272a2c))
+- recovery: Add recovery key graphic on confirmation screen ([6a6d72b10](https://github.com/mozilla/fxa/commit/6a6d72b10))
+- emails: Add `use different email` button to add secondary email page ([87b6d9de1](https://github.com/mozilla/fxa/commit/87b6d9de1))
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+- account-recovery: Only display account recovery confirmation if you're coming form the recovery confirmation page ([98fbd915f](https://github.com/mozilla/fxa/commit/98fbd915f))
+
+### Refactorings
+
+- sms: SMS Clarity - replace subheader text ([c79155272](https://github.com/mozilla/fxa/commit/c79155272))
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+- oauth: Delete unused /client-tokens routes ([6718a0663](https://github.com/mozilla/fxa/commit/6718a0663))
+- sms page: validate SMS phone number as you type, ensuring valid number before enabling submit button ([92a945789](https://github.com/mozilla/fxa/commit/92a945789))
+- sms page: various small cosmetic and copy changes on SMS page ([a45d866b8](https://github.com/mozilla/fxa/commit/a45d866b8))
+
+### Other changes
+
+- cleanup: remove obsolete docker files ([863e56163](https://github.com/mozilla/fxa/commit/863e56163))
+- deps: Updates to address nsp advisory 1488 ([e47bc55ba](https://github.com/mozilla/fxa/commit/e47bc55ba))
+- messages: Add helpers to assert and refute the visibility and text content of success/error messages ([19a6cdfc2](https://github.com/mozilla/fxa/commit/19a6cdfc2))
+
 ## 1.161.2
 
 No changes.

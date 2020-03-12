@@ -1,3 +1,18 @@
+## 1.162.0
+
+### Bug fixes
+
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+
+### Refactorings
+
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+
+### Other changes
+
+- cleanup: remove obsolete docker files ([863e56163](https://github.com/mozilla/fxa/commit/863e56163))
+- deps: Updates to address nsp advisory 1488 ([e47bc55ba](https://github.com/mozilla/fxa/commit/e47bc55ba))
+
 ## 1.161.2
 
 No changes.

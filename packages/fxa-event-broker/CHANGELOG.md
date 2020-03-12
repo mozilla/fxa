@@ -1,5 +1,21 @@
 # Change history
 
+## 1.162.0
+
+### New features
+
+- add pm2 debug servers and add'l debug scripts ([5d3747e38](https://github.com/mozilla/fxa/commit/5d3747e38))
+
+### Bug fixes
+
+- test: fixed race in event-broker test ([bc97bb5e0](https://github.com/mozilla/fxa/commit/bc97bb5e0))
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+
+### Refactorings
+
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+- event-broker: update deps and move to src ([d7da2deaf](https://github.com/mozilla/fxa/commit/d7da2deaf))
+
 ## 1.161.2
 
 No changes.

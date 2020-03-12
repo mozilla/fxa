@@ -1,5 +1,23 @@
 # Change history
 
+## 1.162.0
+
+### New features
+
+- support-panel: add subscription created date ([56fcda621](https://github.com/mozilla/fxa/commit/56fcda621))
+
+### Bug fixes
+
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+
+### Refactorings
+
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+
+### Other changes
+
+- cleanup: remove obsolete docker files ([863e56163](https://github.com/mozilla/fxa/commit/863e56163))
+
 ## 1.161.2
 
 No changes.

@@ -1,3 +1,26 @@
+## 1.162.0
+
+### New features
+
+- auth-server: add created to subscription response ([ff8b8bb64](https://github.com/mozilla/fxa/commit/ff8b8bb64))
+- add pm2 debug servers and add'l debug scripts ([5d3747e38](https://github.com/mozilla/fxa/commit/5d3747e38))
+
+### Bug fixes
+
+- payments: re-enable functional tests with direct Stripe access ([245e53a0e](https://github.com/mozilla/fxa/commit/245e53a0e))
+- sms: Update google-libphonenumber to include newer area codes ([14069788a](https://github.com/mozilla/fxa/commit/14069788a))
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+
+### Refactorings
+
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+- oauth: Delete unused /client-tokens routes ([6718a0663](https://github.com/mozilla/fxa/commit/6718a0663))
+
+### Other changes
+
+- cleanup: remove obsolete docker files ([863e56163](https://github.com/mozilla/fxa/commit/863e56163))
+- deps: Updates to address nsp advisory 1488 ([e47bc55ba](https://github.com/mozilla/fxa/commit/e47bc55ba))
+
 ## 1.161.2
 
 ### Bug fixes

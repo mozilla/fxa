@@ -1,5 +1,15 @@
 # Change history
 
+## 1.162.0
+
+### Bug fixes
+
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1488 ([e47bc55ba](https://github.com/mozilla/fxa/commit/e47bc55ba))
+
 ## 1.161.2
 
 No changes.
