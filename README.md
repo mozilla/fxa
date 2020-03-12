@@ -304,9 +304,15 @@ where `filematcher` is a regex that matches against test file paths. If you omit
 
 ### Android debugging
 
-The following technique works with any Android application and can also be used for Firefox for Android (making the [Firefox for Android](#firefox-for-android) section optional).
+The following technique works with any Android application and can also be used for Firefox for Android.
 
 Simply forward the following ports from the host machine to the Android device:
+
+```
+npm run adb-reverse
+```
+
+or
 
 ```
 adb reverse tcp:3030 tcp:3030 # Content server
@@ -330,19 +336,6 @@ start making changes to the email service then do the following:
 1. Stop the email-service using `./pm2 stop <email_service_id>`
 1. Build the service: `cd packages/fxa-email-service; cargo build --bin fxa_email_send`
 1. Run the service: `cd packages/fxa-email-service; ./scripts/run_send.sh`
-
-### Firefox for Android
-
-> Skip this if you are not working on Firefox for Android and FxA.
-
-You can test sync locally in Firefox for Android using an emulator or a device on the same network. These docs were tested with the [Genymotion](https://www.genymotion.com/download) simulator.
-
-- Install Firefox on the device or emulator.
-- Run `npm run start-android` this will: stop all local FxA servers, create a local PM2 configuration and rerun the servers.
-
-The script will tell you which IP to use to work with FxA.
-
-Follow the instructions of the script to update values in `about:config`.
 
 ---
 
