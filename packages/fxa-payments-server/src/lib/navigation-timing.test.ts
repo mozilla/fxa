@@ -36,12 +36,10 @@ describe('lib/navigation-timing', () => {
       cb({ getEntries }, mockObs);
       expect(observeFn).toHaveBeenCalledWith({ entryTypes: ['navigation'] });
       expect(window.navigator.sendBeacon).toHaveBeenCalledTimes(1);
-      const expectedBlob = new Blob([JSON.stringify({ foo: 'bar' })], {
-        type: 'application/json',
-      });
+      const expectedJson = JSON.stringify({ foo: 'bar' });
       expect(window.navigator.sendBeacon).toHaveBeenCalledWith(
         '/x/y/z',
-        expectedBlob
+        expectedJson
       );
       expect(disconnectFn).toBeCalledTimes(1);
     });
@@ -52,12 +50,10 @@ describe('lib/navigation-timing', () => {
       mockGetEntriesByType([navTiming as PerformanceEntry]);
       observeNavigationTiming('/x/y/z');
       expect(window.navigator.sendBeacon).toHaveBeenCalledTimes(1);
-      const expectedBlob = new Blob([JSON.stringify(navTiming)], {
-        type: 'application/json',
-      });
+      const expectedJson = JSON.stringify(navTiming);
       expect(window.navigator.sendBeacon).toHaveBeenCalledWith(
         '/x/y/z',
-        expectedBlob
+        expectedJson
       );
     });
   });
