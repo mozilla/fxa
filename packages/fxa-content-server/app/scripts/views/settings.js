@@ -94,11 +94,13 @@ const View = BaseView.extend({
       escapedCcExpiredLinkAttrs: 'href="/subscriptions" class="alert-link"',
       securityEventsVisible: this.displaySecurityEvents(),
       showSignOut:
-        // Note: For sync clients and oauth based sync clients, they have their
-        // own UX for signing a user out, typically within their own app.
-        // In these scenarios we don't show the sign out button.
         !account.isFromSync() &&
-        !(this.relier.isOAuth() && this.relier.containsOldSyncScope()),
+        // Firefox iOS using the Rust client doesn't not seem to load
+        // FxA settings page correctly. The relier reports that it is not
+        // an Oauth client and doesn't use keys (which it does). This is less than ideal,
+        // but a simple workaround until #4509 can get resolved.
+        this.relier.get('entrypoint') !==
+          Constants.FIREFOX_IOS_OAUTH_ENTRYPOINT,
       unsafeHeaderHTML: this._getHeaderHTML(account),
     });
   },

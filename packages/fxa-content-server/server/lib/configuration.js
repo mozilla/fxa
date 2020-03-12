@@ -517,6 +517,7 @@ const conf = (module.exports = convict({
             'https://accounts.firefox.com/oauth/success/85da77264642d6a1', // Firefox for FireTV
             'https://accounts.firefox.com/oauth/success/1b1a3e44c54fbb58', // Firefox for iOS
             'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
+            'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel', // Firefox for iOS Rust client
           ],
         },
         'https://identity.mozilla.com/apps/send': {

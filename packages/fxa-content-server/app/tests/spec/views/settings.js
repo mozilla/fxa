@@ -263,12 +263,9 @@ describe('views/settings', function() {
       });
     });
 
-    describe('beforeRender with oauth client and oldsync scope', () => {
+    describe('beforeRender with Firefox iOS entrypoint', () => {
       beforeEach(() => {
-        relier.containsOldSyncScope = () => {
-          return true;
-        };
-        sinon.stub(relier, 'isOAuth').callsFake(() => true);
+        relier.set('entrypoint', 'ios_settings_manage');
         return view.beforeRender();
       });
 
