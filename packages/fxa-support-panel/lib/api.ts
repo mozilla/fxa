@@ -54,6 +54,7 @@ interface Device {
 export interface DevicesResponse extends Array<Device> {}
 
 interface Subscription {
+  created: number;
   current_period_end: number;
   current_period_start: number;
   plan_name: string;
@@ -156,6 +157,7 @@ class SupportController {
 
     const formattedSubscriptions = subscriptions.map(s => ({
       ...s,
+      created: String(new Date(s.created * MS_IN_SEC)),
       current_period_end: String(new Date(s.current_period_end * MS_IN_SEC)),
       current_period_start: String(
         new Date(s.current_period_start * MS_IN_SEC)

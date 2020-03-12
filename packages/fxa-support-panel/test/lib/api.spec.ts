@@ -76,6 +76,7 @@ function createDefaults(): MockCallsResponse {
     subscriptions: {
       response: [
         {
+          created: 1555354567,
           current_period_end: 1579716673,
           current_period_start: 1579630273,
           plan_name: 'Learn to Code (Monthly)',
@@ -283,6 +284,22 @@ describe('Support Controller', () => {
       /<th>Subscription:<\/th>\s*<td>Learn to Code \(Monthly\)<\/td>/g
     );
     cassert.isTrue(headingMatch?.length === 1 && nameMatch?.length === 1);
+  });
+
+  it('renders the created element', async () => {
+    mockCalls(createDefaults());
+    const result = await server.inject({
+      headers: {
+        testing: 'example@example.com',
+      },
+      method: 'GET',
+      url: `/?uid=${uid}`,
+    });
+    cassert.equal(result.statusCode, 200);
+    const createdInfo = result.payload.match(
+      /<th>Created:<\/th>\s+<td>\w{3} \w{3} \d{1,2} \d{4} \d{1,2}:\d{2}:\d{2} GMT(-|\+)\d{4} \((\w\s?)+\)<\/td>/g
+    );
+    cassert.isTrue(createdInfo?.length === 1);
   });
 
   it('gracefully handles 404s/500', async () => {
