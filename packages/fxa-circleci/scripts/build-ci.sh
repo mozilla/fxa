@@ -9,7 +9,7 @@ cd $DIR/..
 
 docker pull mozilla/fxa-circleci:latest
 
-if docker run --rm -it mozilla/fxa-circleci:latest cat /Dockerfile | diff -b -q Dockerfile - ; then
+if docker run --rm -it mozilla/fxa-circleci:latest cat /Dockerfile | diff -w Dockerfile - ; then
   echo "The source is unchanged. Tagging latest as build"
   docker tag mozilla/fxa-circleci:latest fxa-circleci:build
 else
