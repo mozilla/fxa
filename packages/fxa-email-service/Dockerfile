@@ -1,6 +1,6 @@
 # Docker 17.05 or higher required for multi-stage builds
 FROM rust:1.26.0-stretch as builder
-ADD . /app
+COPY . /app
 WORKDIR /app
 RUN \
     apt-get -qq update && \
@@ -13,10 +13,7 @@ RUN \
     cargo build --release && \
     cp -R /app/config/* /app/bin/config && \
     cp /app/target/release/fxa_email_send /app/bin && \
-    cp /app/target/release/fxa_email_queues /app/bin && \
-    ./scripts/hash-source.sh > /app/bin/SOURCEHASH
-COPY version.json /app
-
+    cp /app/target/release/fxa_email_queues /app/bin
 
 FROM debian:stretch-slim
 # FROM debian:stretch  # for debugging docker build
@@ -29,8 +26,9 @@ RUN \
     update-ca-certificates && \
     rm -rf /var/lib/apt/lists
 
-COPY --from=builder /app/version.json /app/version.json
-COPY --from=builder /app/bin /app/bin
+COPY --chown=app:app --from=builder /app/version.json /app/version.json
+COPY --chown=app:app --from=builder /app/.sourcehash /app/.sourcehash
+COPY --chown=app:app --from=builder /app/bin /app/bin
 
 WORKDIR /app/bin
 USER app
