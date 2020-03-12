@@ -1,3 +1,17 @@
+## 1.162.0
+
+### New features
+
+- ci: added fxa-email-service build-ci script ([8351b7be1](https://github.com/mozilla/fxa/commit/8351b7be1))
+
+### Bug fixes
+
+- ci: updated fxa-email-service build-ci ([10afe7cd9](https://github.com/mozilla/fxa/commit/10afe7cd9))
+
+### Refactorings
+
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+
 ## 1.161.2
 
 No changes.

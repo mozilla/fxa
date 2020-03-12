@@ -1,3 +1,20 @@
+## 1.162.0
+
+### Bug fixes
+
+- customs: dump out config at startup ([2fff586d5](https://github.com/mozilla/fxa/commit/2fff586d5))
+- tests: fix customs server test runner script and tests ([f88ac8098](https://github.com/mozilla/fxa/commit/f88ac8098))
+- monorepo: update default node version across packages ([0f2d54071](https://github.com/mozilla/fxa/commit/0f2d54071))
+
+### Refactorings
+
+- ci: major refactor of CircleCI workflow ([7e77b0a29](https://github.com/mozilla/fxa/commit/7e77b0a29))
+
+### Other changes
+
+- cleanup: remove obsolete docker files ([863e56163](https://github.com/mozilla/fxa/commit/863e56163))
+- deps: Updates to address nsp advisory 1488 ([e47bc55ba](https://github.com/mozilla/fxa/commit/e47bc55ba))
+
 ## 1.161.2
 
 No changes.
