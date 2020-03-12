@@ -2,16 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const sendNavTiming = (
-  url: string,
-  performanceNavTiming: PerformanceNavigationTiming
-) => {
-  const timings = JSON.stringify(performanceNavTiming);
-  const headers = { type: 'application/json' };
-  const reqBlob = new Blob([timings], headers);
-  navigator.sendBeacon(url, reqBlob);
-};
-
 export const observeNavigationTiming = (beaconUrl: string) => {
   if (
     performance.getEntriesByType &&
@@ -27,12 +17,12 @@ export const observeNavigationTiming = (beaconUrl: string) => {
 
     // Once duration is recorded the event is over
     if (navTiming.duration > 0) {
-      sendNavTiming(beaconUrl, navTiming);
+      navigator.sendBeacon(beaconUrl, JSON.stringify(navTiming));
     } else {
       const navTimingObs = new PerformanceObserver((entries, obs) => {
-        sendNavTiming(
+        navigator.sendBeacon(
           beaconUrl,
-          entries.getEntries()[0] as PerformanceNavigationTiming
+          JSON.stringify(entries.getEntries()[0])
         );
         obs.disconnect();
       });

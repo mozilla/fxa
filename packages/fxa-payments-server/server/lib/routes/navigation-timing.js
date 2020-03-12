@@ -7,10 +7,7 @@
 const joi = require('joi');
 const URL = require('url').URL;
 
-const TIMESTAMP_MS = joi
-  .number()
-  .integer()
-  .required();
+const TIMESTAMP_MS = joi.number().required();
 // Validate the subset of PerformanceNavgationTiming properties used here.
 // (Ref: https://www.w3.org/TR/navigation-timing-2/#dom-performancenavigationtiming)
 const navigationTimingSchema = joi.object().keys({
@@ -33,6 +30,18 @@ module.exports = (geolocate, UAParser, statsd) => ({
   method: 'post',
   path: '/navigation-timing',
   validate: { body: navigationTimingSchema },
+  preProcess: function(req, res, next) {
+    // convert text/plain to JSON
+    if (req.get('content-type').startsWith('text/plain')) {
+      try {
+        req.body = JSON.parse(req.body);
+      } catch (error) {
+        req.body = {};
+      }
+    }
+
+    next();
+  },
   process(request, response) {
     try {
       const location = geolocate(request);
