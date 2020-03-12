@@ -2,8 +2,7 @@
 
 MODULE=$1
 DIR=$(dirname "$0")
-
-cd $DIR/..
+cd "$DIR/.."
 
 # npm install just enough to run these scripts
 npm ci --ignore-scripts --no-optional --only=prod

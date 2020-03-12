@@ -1,9 +1,10 @@
 #!/bin/bash -e
 
 DIR=$(dirname "$0")
+cd "$DIR"
 
-$DIR/create-version-json.sh
+./create-version-json.sh
 
-for d in $DIR/../packages/*/ ; do
-  $DIR/build.sh $(basename $d)
+for d in ../packages/*/ ; do
+  ./build.sh "$(basename "$d")"
 done

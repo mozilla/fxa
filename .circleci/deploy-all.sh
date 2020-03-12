@@ -1,7 +1,8 @@
 #!/bin/bash -e
 
 DIR=$(dirname "$0")
+cd "$DIR"
 
-for d in $DIR/../packages/*/ ; do
-  $DIR/deploy.sh $(basename $d)
+for d in ../packages/*/ ; do
+  ./deploy.sh "$(basename "$d")"
 done
