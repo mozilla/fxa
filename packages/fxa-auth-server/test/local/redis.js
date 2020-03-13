@@ -9,8 +9,14 @@ const AccessToken = require('../../lib/oauth/db/accessToken');
 const sinon = require('sinon');
 const config = require('../../config').getProperties();
 const prefix = 'test:';
+const maxttl = 1337;
 const redis = require('../../lib/redis')(
-  { ...config.redis, ...config.redis.sessionTokens, prefix },
+  {
+    ...config.redis.accessTokens,
+    ...config.redis.sessionTokens,
+    prefix,
+    maxttl,
+  },
   { error: sinon.spy() }
 );
 
@@ -242,6 +248,28 @@ describe('Redis', () => {
         );
         assert.isAtLeast(ttl, 1);
         assert.isAtMost(ttl, 1000);
+      });
+
+      it('prunes the index by 10% when over the limit', async () => {
+        const tokenIds = new Array(101).fill(1).map((_, i) => `token-${i}`);
+        await redis.redis.sadd(
+          accessToken1.userId.toString('hex'),
+          ...tokenIds
+        );
+        await redis.setAccessToken(accessToken1);
+        const count = await redis.redis.scard(
+          accessToken1.userId.toString('hex')
+        );
+        assert.equal(count, 91);
+        const token = await redis.getAccessToken(accessToken1.tokenId);
+        assert.deepEqual(token, accessToken1);
+      });
+
+      it('sets expiry on the index', async () => {
+        await redis.setAccessToken(accessToken1);
+        const ttl = await redis.redis.ttl(accessToken1.userId.toString('hex'));
+        assert.isAtMost(ttl, maxttl);
+        assert.isAtLeast(ttl, maxttl - 10);
       });
     });
 

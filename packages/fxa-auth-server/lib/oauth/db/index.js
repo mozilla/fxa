@@ -31,7 +31,11 @@ class OauthDB {
       await scopes();
     });
     this.redis = redis(
-      { ...config.get('redis.accessTokens'), enabled: true },
+      {
+        ...config.get('redis.accessTokens'),
+        enabled: true,
+        maxttl: config.get('oauthServer.expiration.accessToken'),
+      },
       logger
     );
     Object.keys(mysql.prototype).forEach(key => {
