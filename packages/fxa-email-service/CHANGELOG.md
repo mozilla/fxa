@@ -1,3 +1,9 @@
+## 1.162.1
+
+### Bug fixes
+
+- ci: use the same diff method as fxa-circleci in email-service build-ci ([ba1f0603e](https://github.com/mozilla/fxa/commit/ba1f0603e))
+
 ## 1.162.0
 
 ### New features
