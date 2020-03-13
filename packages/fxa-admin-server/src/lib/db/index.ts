@@ -5,6 +5,9 @@
 import Knex from 'knex';
 import { Model } from 'objection';
 
+import { HealthExtras } from '../middleware';
+import { Account } from './models/account';
+
 export type DatabaseConfig = {
   host: string;
   port: number;
@@ -12,6 +15,18 @@ export type DatabaseConfig = {
   password: string;
   database: string;
 };
+
+export async function dbHealthCheck(): Promise<HealthExtras> {
+  let status = 'ok';
+  try {
+    await Account.query().limit(1);
+  } catch (err) {
+    status = 'error';
+  }
+  return {
+    db: { status }
+  };
+}
 
 export function setupDatabase(opts: DatabaseConfig): Knex {
   const knex = Knex({ connection: opts, client: 'mysql' });

@@ -11,7 +11,7 @@
     "stop": "pm2 kill",
     "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher",
     "start-firefox": "npm run firefox",
-    "start-android": "node _scripts/start-android.js",
+    "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "lerna run test",
     "config-fxios": "node _scripts/config-fxios.js",
     "format": "lerna run format"
@@ -27,19 +27,14 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
-    "adr-log": "^2.1.1",
-    "chalk": "1.1.1",
     "diffparser": "^2.0.1",
-    "hot-shots": "^6.4.1",
-    "husky": "^2.5.0",
-    "internal-ip": "1.2.0",
-    "lerna": "^3.16.4",
-    "lint-staged": "^8.2.1",
-    "madr": "^2.1.2",
-    "node-fetch": "^2.3.0",
-    "pm2": "^3.5.1",
+    "husky": "^4.2.3",
+    "lerna": "^3.20.2",
+    "lint-staged": "^10.0.8",
+    "node-fetch": "^2.6.0",
+    "pm2": "^4.2.3",
     "prettier": "^1.19.1",
-    "replace-in-file": "0.2.1"
+    "replace-in-file": "^5.0.2"
   },
   "engines": {
     "node": ">=12",
@@ -79,26 +74,21 @@
   "lint-staged": {
     "*.js": [
       "eslint -c .eslintrc",
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.{ts,tsx}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.css": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.md": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "devDependencies": {
-    "concurrently": "5.1.0",
-    "eslint": "6.6.0",
-    "eslint-plugin-fxa": "2.0.1",
-    "eslint-plugin-jest": "^23.0.3"
+    "eslint": "^6.8.0",
+    "eslint-plugin-fxa": "^2.0.2",
+    "eslint-plugin-jest": "^23.8.2"
   }
 }
