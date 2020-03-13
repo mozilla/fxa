@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloServer } from 'apollo-server';
+import { ApolloServer } from 'apollo-server-express';
 import { Logger } from 'mozlog';
 import * as TypeGraphQL from 'type-graphql';
 import { Container } from 'typedi';
@@ -30,7 +30,7 @@ export type Context = {
 export async function createServer(
   config: ServerConfig,
   logger: Logger,
-  context: (() => object) | undefined
+  context?: () => object
 ): Promise<ApolloServer> {
   setupDatabase(config.database);
   const schema = await TypeGraphQL.buildSchema({
