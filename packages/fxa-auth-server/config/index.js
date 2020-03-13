@@ -354,6 +354,12 @@ const conf = convict({
         format: String,
         doc: 'Key prefix for access tokens in Redis',
       },
+      accessTokenLimit: {
+        default: 100,
+        env: 'ACCESS_TOKEN_REDIS_LIMIT',
+        format: Number,
+        doc: 'Maximum number of access tokens per account at any one time',
+      },
     },
     sessionTokens: {
       enabled: {
