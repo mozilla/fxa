@@ -43,7 +43,7 @@
     "eslint": "6.6.0",
     "eslint-plugin-fxa": "2.0.1",
     "grunt": "1.0.4",
-    "grunt-cli": "1.2.0",
+    "grunt-cli": "1.3.2",
     "grunt-copyright": "0.3.0",
     "grunt-eslint": "^22.0.0",
     "load-grunt-tasks": "3.5.0",
