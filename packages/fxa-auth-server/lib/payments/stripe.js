@@ -35,6 +35,7 @@ const stripe = require('stripe').Stripe;
  * @property {string} product_name
  * @property {Product['metadata']} product_metadata
  * @property {Plan['interval']} interval
+ * @property {Plan['interval_count']} interval_count
  * @property {Plan['amount']} amount
  * @property {Plan['currency']} currency
  */
@@ -430,28 +431,41 @@ class StripeHelper {
       active: true,
       expand: ['data.product'],
     })) {
-      // FIXME: Should probably error here if we can't set a product id/name.
-      let product_id, product_name, product_metadata;
-
-      // We don't list plans for deleted products
-      if (
-        item.product &&
-        typeof item.product !== 'string' &&
-        item.product.deleted !== true
-      ) {
-        product_id = item.product.id;
-        product_name = item.product.name;
-        product_metadata = item.product.metadata;
+      if (!item.product) {
+        this.log.error(
+          `fetchAllPlans - Plan "${item.id}" missing Product`,
+          item
+        );
+        continue;
       }
+
+      if (typeof item.product === 'string') {
+        this.log.error(
+          `fetchAllPlans - Plan "${item.id}" failed to load Product`,
+          item
+        );
+        continue;
+      }
+
+      if (item.product.deleted === true) {
+        this.log.error(
+          `fetchAllPlans - Plan "${item.id}" associated with Deleted Product`,
+          item
+        );
+        continue;
+      }
+
+      const plan_name = await this.formatPlanDisplayName(item);
 
       plans.push({
         plan_id: item.id,
-        plan_name: item.nickname,
+        plan_name,
         plan_metadata: item.metadata,
-        product_id,
-        product_name,
-        product_metadata,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        product_metadata: item.product.metadata,
         interval: item.interval,
+        interval_count: item.interval_count,
         amount: item.amount,
         currency: item.currency,
       });
