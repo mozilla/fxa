@@ -5,6 +5,7 @@ import { createAppStore } from './store';
 import { config, readConfigFromMeta } from './lib/config';
 import { updateAPIClientToken, updateAPIClientConfig } from './lib/apiClient';
 import './index.scss';
+import * as Amplitude from './lib/amplitude';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 
@@ -18,6 +19,7 @@ async function init() {
   const queryParams = parseParams(window.location.search);
   const hashParams = await getHashParams();
   const accessToken = await getVerifiedAccessToken(hashParams);
+  Amplitude.subscribeToReduxStore(store);
 
   // We should have gotten an accessToken or else redirected, but guard here
   // anyway because App component requires a token.
