@@ -1,5 +1,11 @@
 # Change history
 
+## 1.162.1
+
+### Bug fixes
+
+- event-broker: make uuid a full dependency ([0d989878c](https://github.com/mozilla/fxa/commit/0d989878c))
+
 ## 1.162.0
 
 ### New features
