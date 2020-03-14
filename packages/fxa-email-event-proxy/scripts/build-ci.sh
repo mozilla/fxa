@@ -1,8 +1,8 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 DIR=$(dirname "$0")
 
-cd $DIR/..
+cd "$DIR/.."
 npm ci
 npm run build
 

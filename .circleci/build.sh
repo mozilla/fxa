@@ -18,15 +18,17 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
   mkdir -p config
   cp ../version.json config
 
+  mkdir -p ../../artifacts
+
   ODDBALLS=("fxa-auth-server" "fxa-content-server" "fxa-profile-server" "fxa-payments-server")
 
   if [[ -x scripts/build-ci.sh ]]; then
-    ./scripts/build-ci.sh
+    time ./scripts/build-ci.sh
   elif [[ "${ODDBALLS[*]}" =~ ${MODULE} ]]; then
     cd ..
-    docker build -f "${MODULE}/Dockerfile" -t "${MODULE}:build" .
+    time docker build --progress=plain -f "${MODULE}/Dockerfile" -t "${MODULE}:build" . > "../artifacts/${MODULE}.log"
   elif [[ -r Dockerfile ]]; then
-    docker build -f Dockerfile -t "${MODULE}:build" .
+    time docker build --progress=plain -t "${MODULE}:build" . > "../../artifacts/${MODULE}.log"
   fi
 
   # for debugging:

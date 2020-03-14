@@ -7,7 +7,7 @@ DIR=$(dirname "$0")
 
 cd "$DIR/.."
 
-docker pull mozilla/fxa-email-service:latest
+docker pull -q mozilla/fxa-email-service:latest
 
 ./scripts/hash-source.sh > .sourcehash
 ID=$(docker create mozilla/fxa-email-service:latest)
@@ -17,6 +17,6 @@ if diff .sourcehash /tmp/.sourcehash ; then
   echo "The source is unchanged. Tagging latest as build"
   docker tag mozilla/fxa-email-service:latest fxa-email-service:build
 else
-  docker build -t fxa-email-service:build .
+  docker build --progress=plain -t fxa-email-service:build . > ../../artifacts/fxa-email-service.log
 fi
 docker rm -v "$ID"
