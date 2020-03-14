@@ -136,8 +136,13 @@ jobs:
     steps:
       - base-install
       - setup_remote_docker
-      - run: ./.circleci/build-all.sh
-      - run: ./.circleci/deploy-all.sh
+      - run:
+          name: Build docker images
+          command: ./.circleci/build-all.sh
+          no_output_timeout: 1h
+      - run:
+          name: Push to docker hub
+          command: ./.circleci/deploy-all.sh
       - store_artifacts:
           path: artifacts
 
