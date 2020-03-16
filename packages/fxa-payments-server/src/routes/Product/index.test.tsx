@@ -188,7 +188,7 @@ describe('routes/Product', () => {
     );
     await findByText("Let's set up your subscription");
     expect(
-      queryByText(`${PRODUCT_NAME} for $5.00 per month`)
+      queryByText(`${PRODUCT_NAME} billed $5.00 monthly`)
     ).toBeInTheDocument();
     expect(queryByTestId('account-activated')).toBeInTheDocument();
     if (displayName) {

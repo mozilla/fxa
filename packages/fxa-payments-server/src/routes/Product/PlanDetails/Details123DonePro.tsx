@@ -4,21 +4,23 @@ import { PlanDetailsProps } from './index';
 import { formatCurrencyInCents } from '../../../lib/formats';
 
 export const DefaultDetails = ({
-  plan: { amount, interval, product_name },
+  plan: { amount, interval, interval_count, product_name },
 }: PlanDetailsProps) => {
+  const planDetailsId = `${interval}-based-plan-details-amount`;
   return (
     <div className="plan-details" data-testid="plan-123donepro">
       <Localized id="product-plan-details-heading">
         <h2>Let's set up your subscription</h2>
       </Localized>
       <Localized
-        id="product-plan-details-amount"
+        id={planDetailsId}
         $productName={product_name}
         $amount={formatCurrencyInCents(amount)}
-        $interval={interval}
+        $intervalCount={interval_count}
       >
         <p>
-          {product_name} for ${formatCurrencyInCents(amount)} per {interval}
+          {product_name} billed ${amount} every {formatCurrencyInCents(amount)}{' '}
+          {interval}s.
         </p>
       </Localized>
     </div>
