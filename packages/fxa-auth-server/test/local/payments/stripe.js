@@ -122,6 +122,7 @@ describe('StripeHelper', () => {
   let stripeHelper;
   /** @type sinon.SinonSandbox */
   let sandbox;
+  let listStripePlans;
 
   let log;
 
@@ -130,7 +131,7 @@ describe('StripeHelper', () => {
     mockRedis = createMockRedis();
     log = mockLog();
     stripeHelper = new StripeHelper(log, mockConfig);
-    sandbox
+    listStripePlans = sandbox
       .stub(stripeHelper.stripe.plans, 'list')
       .returns(asyncIterable([plan1, plan2, plan3]));
     sandbox
@@ -155,6 +156,82 @@ describe('StripeHelper', () => {
       assert.deepEqual(
         await stripeHelper.allPlans(),
         JSON.parse(await mockRedis.get('listPlans'))
+      );
+    });
+  });
+
+  describe('fetchAllPlans', () => {
+    it('only returns valid plans', async () => {
+      const planMissingProduct = {
+        id: 'plan_noprod',
+        object: 'plan',
+        product: null,
+      };
+
+      const planUnloadedProduct = {
+        id: 'plan_stringprod',
+        object: 'plan',
+        product: 'prod_123',
+      };
+
+      const planDeletedProduct = {
+        id: 'plan_deletedprod',
+        object: 'plan',
+        product: { deleted: true },
+      };
+
+      const goodPlan = deepCopy(plan1);
+      goodPlan.product = deepCopy(product1);
+
+      const planList = [
+        planMissingProduct,
+        planUnloadedProduct,
+        planDeletedProduct,
+        goodPlan,
+      ];
+
+      listStripePlans.restore();
+      sandbox.stub(stripeHelper.stripe.plans, 'list').returns(planList);
+
+      const expected = [
+        {
+          plan_id: goodPlan.id,
+          plan_name: 'FPN Tier 1 Monthly',
+          plan_metadata: goodPlan.metadata,
+          product_id: goodPlan.product.id,
+          product_name: goodPlan.product.name,
+          product_metadata: goodPlan.product.metadata,
+          interval: goodPlan.interval,
+          interval_count: goodPlan.interval_count,
+          amount: goodPlan.amount,
+          currency: goodPlan.currency,
+        },
+      ];
+
+      const actual = await stripeHelper.fetchAllPlans();
+
+      /** Assert that only the "good" plan was returned */
+      assert.deepEqual(actual, expected);
+
+      /** Verify the error cases were handled properly */
+      assert.equal(stripeHelper.log.error.callCount, 3);
+
+      /** Plan.product is null */
+      assert.equal(
+        `fetchAllPlans - Plan "${planMissingProduct.id}" missing Product`,
+        stripeHelper.log.error.getCall(0).args[0]
+      );
+
+      /** Plan.product is string */
+      assert.equal(
+        `fetchAllPlans - Plan "${planUnloadedProduct.id}" failed to load Product`,
+        stripeHelper.log.error.getCall(1).args[0]
+      );
+
+      /** Plan.product is DeletedProduct */
+      assert.equal(
+        `fetchAllPlans - Plan "${planDeletedProduct.id}" associated with Deleted Product`,
+        stripeHelper.log.error.getCall(2).args[0]
       );
     });
   });
