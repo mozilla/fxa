@@ -126,6 +126,7 @@ export async function apiCreateSubscription(params: {
   planId: string;
   productId: string;
   displayName: string;
+  idempotencyKey: string;
 }) {
   const metricsOptions = {
     planId: params.planId,

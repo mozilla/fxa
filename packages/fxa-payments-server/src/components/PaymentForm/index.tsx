@@ -45,7 +45,11 @@ export type PaymentFormProps = {
   plan?: Plan;
   getString?: Function;
   onCancel?: () => void;
-  onPayment: (tokenResponse: stripe.TokenResponse, name: string) => void;
+  onPayment: (
+    tokenResponse: stripe.TokenResponse,
+    name: string,
+    idempotencyKey: string
+  ) => void;
   onPaymentError: (error: any) => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
@@ -107,7 +111,7 @@ export const PaymentForm = ({
         stripe
           .createToken({ name, address_zip: zip })
           .then((tokenResponse: stripe.TokenResponse) => {
-            onPayment(tokenResponse, name);
+            onPayment(tokenResponse, name, submitNonce);
           })
           .catch(err => {
             onPaymentError(err);

@@ -834,13 +834,15 @@ module.exports = config => {
     refreshToken,
     planId,
     paymentToken,
-    displayName
+    displayName,
+    idempotencyKey
   ) {
     return this.api.createSubscription(
       refreshToken,
       planId,
       paymentToken,
-      displayName
+      displayName,
+      idempotencyKey
     );
   };
 

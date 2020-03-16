@@ -202,18 +202,24 @@ class StripeHelper {
    * @param {string} email
    * @param {string} displayName
    * @param {string} paymentToken
+   * @param {string} idempotencyKey
    *
    * @returns {Promise<Customer>}
    */
-  async createCustomer(uid, email, displayName, paymentToken) {
+  async createCustomer(uid, email, displayName, paymentToken, idempotencyKey) {
     try {
-      return await this.stripe.customers.create({
-        source: paymentToken,
-        email,
-        name: displayName,
-        description: uid,
-        metadata: { userid: uid },
-      });
+      return await this.stripe.customers.create(
+        {
+          source: paymentToken,
+          email,
+          name: displayName,
+          description: uid,
+          metadata: { userid: uid },
+        },
+        {
+          idempotency_key: idempotencyKey,
+        }
+      );
     } catch (err) {
       if (err.type === 'StripeCardError') {
         throw error.rejectedSubscriptionPaymentToken(err.message, err);
@@ -689,19 +695,25 @@ class StripeHelper {
    *
    * @param {Customer} customer
    * @param {AbbrevPlan} selectedPlan
+   * @param {string} idempotencyKey
    *
    * @returns {Promise<Subscription>}
    * @throws {error.paymentFailed}
    */
-  async createSubscription(customer, selectedPlan) {
+  async createSubscription(customer, selectedPlan, idempotencyKey) {
     let subscription;
 
     try {
-      subscription = await this.stripe.subscriptions.create({
-        customer: customer.id,
-        items: [{ plan: selectedPlan.plan_id }],
-        expand: ['latest_invoice.payment_intent'],
-      });
+      subscription = await this.stripe.subscriptions.create(
+        {
+          customer: customer.id,
+          items: [{ plan: selectedPlan.plan_id }],
+          expand: ['latest_invoice.payment_intent'],
+        },
+        {
+          idempotency_key: idempotencyKey,
+        }
+      );
     } catch (err) {
       if (err.type === 'StripeCardError') {
         throw error.rejectedSubscriptionPaymentToken(err.message, err);

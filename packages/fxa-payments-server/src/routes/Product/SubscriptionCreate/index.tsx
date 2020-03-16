@@ -103,12 +103,17 @@ export const SubscriptionCreate = ({
   ]);
 
   const onPayment = useCallback(
-    (tokenResponse: stripe.TokenResponse, name: string) => {
+    (
+      tokenResponse: stripe.TokenResponse,
+      name: string,
+      idempotencyKey: string
+    ) => {
       if (tokenResponse && tokenResponse.token) {
         createSubscriptionAndRefresh(
           tokenResponse.token.id,
           selectedPlan,
-          name
+          name,
+          idempotencyKey
         );
       } else {
         // This shouldn't happen with a successful createToken() call, but let's

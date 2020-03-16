@@ -56,7 +56,11 @@ type SubjectProps = Omit<
   | 'onChange'
   | 'submitNonce'
 > & {
-  onPayment?: (tokenResponse: stripe.TokenResponse, name: string) => void;
+  onPayment?: (
+    tokenResponse: stripe.TokenResponse,
+    name: string,
+    idempotencyKey: string
+  ) => void;
   onPaymentError?: (error: any) => void;
   onMounted?: () => void;
   onEngaged?: () => void;
@@ -216,7 +220,8 @@ it('renders a progress spinner when submitted, disables further submission (issu
   await waitForExpect(() =>
     expect(onPayment).toHaveBeenCalledWith(
       VALID_CREATE_TOKEN_RESPONSE,
-      'Foo Barson'
+      'Foo Barson',
+      'unique-nonce-1'
     )
   );
 
@@ -339,7 +344,8 @@ it('calls onPayment when payment processing succeeds', async () => {
   await waitForExpect(() =>
     expect(onPayment).toHaveBeenCalledWith(
       VALID_CREATE_TOKEN_RESPONSE,
-      'Foo Barson'
+      'Foo Barson',
+      'test-nonce'
     )
   );
 });

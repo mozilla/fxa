@@ -60,6 +60,7 @@
     "@types/storybook__addon-actions": "^3.4.2",
     "@types/storybook__addon-links": "^3.3.5",
     "@types/storybook__react": "^4.0.1",
+    "@types/uuid": "^7.0.0",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "async-wait-until": "^1.2.4",
@@ -130,7 +131,8 @@
     "redux-thunk": "^2.3.0",
     "serve-static": "^1.13.2",
     "type-to-reducer": "^1.2.0",
-    "ua-parser-js": "^0.7.21"
+    "ua-parser-js": "^0.7.21",
+    "uuid": "^7.0.2"
   },
   "engines": {
     "node": ">=12"

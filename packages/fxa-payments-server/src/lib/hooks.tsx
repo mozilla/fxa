@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useRef, ChangeEvent } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
@@ -70,9 +71,7 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
   return insideEl;
 }
 
-export function useNonce(
-  generateNonce = () => `${Date.now()}-${Math.random()}`
-): [string, () => void] {
+export function useNonce(generateNonce = uuidv4): [string, () => void] {
   const [nonce, setNonce] = useState(generateNonce());
   const refreshNonce = () => setNonce(generateNonce());
   return [nonce, refreshNonce];

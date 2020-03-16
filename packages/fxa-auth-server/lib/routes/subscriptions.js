@@ -147,7 +147,12 @@ class DirectStripeRoutes {
 
     await this.customs.check(request, email, 'createSubscription');
 
-    const { planId, paymentToken, displayName } = request.payload;
+    const {
+      planId,
+      paymentToken,
+      displayName,
+      idempotencyKey,
+    } = request.payload;
 
     // Find the selected plan and get its product ID
     const selectedPlan = await this.stripeHelper.findPlanById(planId);
@@ -166,13 +171,15 @@ class DirectStripeRoutes {
         email,
         displayName,
         paymentToken,
-        selectedPlan
+        selectedPlan,
+        idempotencyKey
       );
     } else {
       subscription = await this.createSubscriptionExistingCustomer(
         customer,
         paymentToken,
-        selectedPlan
+        selectedPlan,
+        idempotencyKey
       );
     }
 
@@ -212,16 +219,28 @@ class DirectStripeRoutes {
     email,
     displayName,
     paymentToken,
-    selectedPlan
+    selectedPlan,
+    idempotencyKey
   ) {
+    // This method invokes *two* create methods, both of which accept an
+    // idempotency key. Since that key can only be used once we're just adding
+    // an additional piece to the customer request. If this method is invoked
+    // multiple times it would still be idempotent in both cases because it
+    // uses the base key value.
+    const customerIdempotencyKey = `${idempotencyKey}-customer`;
     const customer = await this.stripeHelper.createCustomer(
       uid,
       email,
       displayName,
-      paymentToken
+      paymentToken,
+      customerIdempotencyKey
     );
 
-    return this.stripeHelper.createSubscription(customer, selectedPlan);
+    return this.stripeHelper.createSubscription(
+      customer,
+      selectedPlan,
+      idempotencyKey
+    );
   }
 
   /**
@@ -236,7 +255,8 @@ class DirectStripeRoutes {
   async createSubscriptionExistingCustomer(
     customer,
     paymentToken,
-    selectedPlan
+    selectedPlan,
+    idempotencyKey
   ) {
     if (paymentToken) {
       // Always update the source if we are given a paymentToken
@@ -269,7 +289,11 @@ class DirectStripeRoutes {
       }
     }
 
-    return this.stripeHelper.createSubscription(customer, selectedPlan);
+    return this.stripeHelper.createSubscription(
+      customer,
+      selectedPlan,
+      idempotencyKey
+    );
   }
 
   /**
@@ -754,6 +778,7 @@ const directRoutes = (
             planId: validators.subscriptionsPlanId.required(),
             paymentToken: validators.subscriptionsPaymentToken.required(),
             displayName: isA.string().required(),
+            idempotencyKey: isA.string().required(),
           },
         },
         response: {

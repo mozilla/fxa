@@ -1187,7 +1187,8 @@ module.exports = config => {
     refreshToken,
     planId,
     paymentToken,
-    displayName
+    displayName,
+    idempotencyKey
   ) {
     return this.doRequestWithBearerToken(
       'POST',
@@ -1197,6 +1198,7 @@ module.exports = config => {
         planId,
         paymentToken,
         displayName,
+        idempotencyKey,
       }
     );
   };

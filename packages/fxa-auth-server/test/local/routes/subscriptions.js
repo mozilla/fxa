@@ -14,6 +14,7 @@ const P = require('../../../lib/promise');
 const Sentry = require('@sentry/node');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const WError = require('verror').WError;
+const uuidv4 = require('uuid').v4;
 
 const {
   sanitizePlans,
@@ -575,6 +576,7 @@ describe('DirectStripeRoutes', () => {
     const plan = PLANS[2];
     const paymentToken = 'tok_visa';
     const displayName = DISPLAY_NAME;
+    const idempotencyKey = uuidv4();
     const request = {
       auth: {
         credentials: {
@@ -590,6 +592,7 @@ describe('DirectStripeRoutes', () => {
         planId: planId,
         paymentToken: paymentToken,
         displayName: displayName,
+        idempotencyKey: idempotencyKey,
       },
     };
 
@@ -622,7 +625,8 @@ describe('DirectStripeRoutes', () => {
             TEST_EMAIL,
             displayName,
             paymentToken,
-            plan
+            plan,
+            idempotencyKey
           )
         );
         assert.isTrue(createForExistingStub.notCalled);
@@ -652,7 +656,12 @@ describe('DirectStripeRoutes', () => {
         assert.isTrue(customs.check.calledOnce);
         assert.isTrue(createForNewStub.notCalled);
         assert.isTrue(
-          createForExistingStub.calledOnceWith(customer, paymentToken, plan)
+          createForExistingStub.calledOnceWith(
+            customer,
+            paymentToken,
+            plan,
+            idempotencyKey
+          )
         );
         assert.isTrue(
           directStripeRoutesInstance.customerChanged.calledOnceWith(
@@ -683,7 +692,8 @@ describe('DirectStripeRoutes', () => {
         TEST_EMAIL,
         DISPLAY_NAME,
         PAYMENT_TOKEN_NEW,
-        PLANS[0]
+        PLANS[0],
+        uuidv4()
       );
 
       assert.deepEqual(expected, actual);
@@ -691,6 +701,7 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('createSubscriptionExistingCustomer', () => {
+    const idempotencyKey = uuidv4();
     let customer;
     const selectedPlan = {
       plan_id: 'plan_G93mMKnIFCjZek',
@@ -725,7 +736,8 @@ describe('DirectStripeRoutes', () => {
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
             customer,
             paymentToken,
-            selectedPlan
+            selectedPlan,
+            idempotencyKey
           );
           assert.isTrue(
             directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.calledOnceWith(
@@ -746,7 +758,8 @@ describe('DirectStripeRoutes', () => {
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
             customer,
             null,
-            selectedPlan
+            selectedPlan,
+            idempotencyKey
           );
           assert.isTrue(
             directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod
@@ -766,7 +779,8 @@ describe('DirectStripeRoutes', () => {
         const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
           customer,
           null,
-          selectedPlan
+          selectedPlan,
+          idempotencyKey
         );
         assert.isTrue(
           directStripeRoutesInstance.stripeHelper.createSubscription.calledOnceWith(
@@ -801,7 +815,8 @@ describe('DirectStripeRoutes', () => {
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
             customer,
             null,
-            selectedPlan
+            selectedPlan,
+            idempotencyKey
           );
           assert.isTrue(
             directStripeRoutesInstance.stripeHelper.createSubscription.calledOnceWith(
@@ -822,7 +837,8 @@ describe('DirectStripeRoutes', () => {
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
             customer,
             null,
-            selectedPlan
+            selectedPlan,
+            idempotencyKey
           );
 
           assert.isTrue(
@@ -844,7 +860,12 @@ describe('DirectStripeRoutes', () => {
           customer.subscriptions.data = [existingSubscription];
 
           return directStripeRoutesInstance
-            .createSubscriptionExistingCustomer(customer, null, selectedPlan)
+            .createSubscriptionExistingCustomer(
+              customer,
+              null,
+              selectedPlan,
+              idempotencyKey
+            )
             .then(
               () => Promise.reject(new Error('Method expected to reject')),
               err => {
@@ -877,7 +898,8 @@ describe('DirectStripeRoutes', () => {
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
             customer,
             null,
-            selectedPlan
+            selectedPlan,
+            idempotencyKey
           );
           assert.isTrue(
             directStripeRoutesInstance.stripeHelper.createSubscription.calledOnceWith(

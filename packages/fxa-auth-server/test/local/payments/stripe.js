@@ -10,6 +10,7 @@ const { assert } = require('chai');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
+const uuidv4 = require('uuid').v4;
 
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -520,7 +521,8 @@ describe('StripeHelper', () => {
         'uid',
         'joe@example.com',
         'Joe Cool',
-        'tok_visa'
+        'tok_visa',
+        uuidv4()
       );
 
       assert.deepEqual(actual, expected);
@@ -531,7 +533,13 @@ describe('StripeHelper', () => {
       sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
 
       return stripeHelper
-        .createCustomer('uid', 'joe@example.com', 'Joe Cool', 'tok_visa')
+        .createCustomer(
+          'uid',
+          'joe@example.com',
+          'Joe Cool',
+          'tok_visa',
+          uuidv4()
+        )
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
           err => {
@@ -548,7 +556,13 @@ describe('StripeHelper', () => {
       sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
 
       return stripeHelper
-        .createCustomer('uid', 'joe@example.com', 'Joe Cool', 'tok_visa')
+        .createCustomer(
+          'uid',
+          'joe@example.com',
+          'Joe Cool',
+          'tok_visa',
+          uuidv4()
+        )
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
           err => {
@@ -988,7 +1002,7 @@ describe('StripeHelper', () => {
           .stub(stripeHelper.stripe.subscriptions, 'create')
           .rejects(apiError);
 
-        return stripeHelper.createSubscription(customer1, plan1).then(
+        return stripeHelper.createSubscription(customer1, plan1, uuidv4()).then(
           () => Promise.reject(new Error('Method expected to reject')),
           err => {
             assert.equal(
@@ -1005,7 +1019,7 @@ describe('StripeHelper', () => {
           .stub(stripeHelper.stripe.subscriptions, 'create')
           .rejects(apiError);
 
-        return stripeHelper.createSubscription(customer1, plan1).then(
+        return stripeHelper.createSubscription(customer1, plan1, uuidv4()).then(
           () => Promise.reject(new Error('Method expected to reject')),
           err => {
             assert.equal(err, apiError);
@@ -1028,7 +1042,8 @@ describe('StripeHelper', () => {
 
           const actual = await stripeHelper.createSubscription(
             customer1,
-            plan1
+            plan1,
+            uuidv4()
           );
 
           assert.deepEqual(actual, expected);
@@ -1046,14 +1061,16 @@ describe('StripeHelper', () => {
             .stub(stripeHelper.stripe.subscriptions, 'create')
             .resolves(subscription);
 
-          await stripeHelper.createSubscription(customer1, plan1).then(
-            () => Promise.reject(new Error('Method expected to reject')),
-            err => {
-              failed = true;
-              assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
-              assert.equal(err.message, 'Payment method failed');
-            }
-          );
+          await stripeHelper
+            .createSubscription(customer1, plan1, uuidv4())
+            .then(
+              () => Promise.reject(new Error('Method expected to reject')),
+              err => {
+                failed = true;
+                assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
+                assert.equal(err.message, 'Payment method failed');
+              }
+            );
 
           assert.isTrue(failed);
         });

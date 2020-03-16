@@ -22,7 +22,12 @@ export default {
     ({ type: 'fetchSubscriptions', payload: apiFetchSubscriptions() } as const),
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
-  createSubscription: (paymentToken: string, plan: Plan, displayName: string) =>
+  createSubscription: (
+    paymentToken: string,
+    plan: Plan,
+    displayName: string,
+    idempotencyKey: string
+  ) =>
     ({
       type: 'createSubscription',
       meta: { plan },
@@ -31,6 +36,7 @@ export default {
         displayName,
         planId: plan.plan_id,
         productId: plan.product_id,
+        idempotencyKey,
       }),
     } as const),
   updateSubscriptionPlan: (subscriptionId: string, plan: Plan) =>
