@@ -14,8 +14,7 @@ ID=$(docker create mozilla/fxa-email-service:latest)
 docker cp "$ID":/app/.sourcehash /tmp
 
 if diff .sourcehash /tmp/.sourcehash ; then
-  echo "The source is unchanged. Tagging latest as build"
-  docker tag mozilla/fxa-email-service:latest fxa-email-service:build
+  echo "The source is unchanged. Skipping build"
 else
   docker build --progress=plain -t fxa-email-service:build . > ../../artifacts/fxa-email-service.log
 fi
