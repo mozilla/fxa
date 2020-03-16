@@ -296,7 +296,7 @@ const conf = convict({
   },
   stripe: {
     apiKey: {
-      default: 'pk_test_UrTy6gLWGrc0aOHtbZZz0UBs005mSI4AS2',
+      default: 'pk_test_VNpCidC0a2TJJB3wqXq7drhN00sF8r9mhs',
       doc: 'API key for Stripe',
       env: 'STRIPE_API_KEY',
       format: String,
