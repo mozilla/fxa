@@ -345,6 +345,7 @@ module.exports.subscriptionsPlanValidator = isA.object({
   product_name: isA.string().required(),
   product_metadata: module.exports.subscriptionProductMetadataValidator.optional(),
   interval: isA.string().required(),
+  interval_count: isA.number().required(),
   amount: isA.number().required(),
   currency: isA.string().required(),
 });
