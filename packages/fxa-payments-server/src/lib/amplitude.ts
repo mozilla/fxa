@@ -1,6 +1,8 @@
 import SentryMetrics from './sentry';
 import { logAmplitudeEvent } from './flow-event';
 import { config } from './config';
+import { selectors } from '../store/selectors';
+import { Store } from '../store';
 
 const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
@@ -21,7 +23,11 @@ const eventTypeNames = {
   complete: 'complete',
 } as const;
 
-type EventProperties = {
+type GlobalEventProperties = {
+  uid?: string;
+};
+
+type EventProperties = GlobalEventProperties & {
   planId?: string;
   plan_id?: string;
   productId?: string;
@@ -30,6 +36,25 @@ type EventProperties = {
 };
 
 type Error = { message?: string } | null;
+
+// These can still be overwritten in the event logging function.
+let globalEventProperties = {};
+
+function addGlobalEventProperties(props: GlobalEventProperties) {
+  globalEventProperties = { ...globalEventProperties, ...props };
+}
+
+export function subscribeToReduxStore(store: Store) {
+  let unsubscribe: ReturnType<typeof store.subscribe>;
+  const uidObs = () => {
+    const profile = selectors.profile(store.getState());
+    if (profile && profile.result && profile.result.uid) {
+      addGlobalEventProperties({ uid: profile.result.uid });
+      unsubscribe?.();
+    }
+  };
+  unsubscribe = store.subscribe(uidObs);
+}
 
 // This should help ensure failure to log an Amplitude event doesn't
 // derail what we're instrumenting.
@@ -42,7 +67,7 @@ const safeLogAmplitudeEvent = (
     logAmplitudeEvent(
       groupName,
       eventName,
-      normalizeEventProperties(eventProperties)
+      normalizeEventProperties({ ...globalEventProperties, ...eventProperties })
     );
   } catch (e) {
     console.error('AppError', e);

@@ -4,6 +4,7 @@ jest.mock('../lib/flow-event');
 jest.mock('./sentry');
 
 import * as Amplitude from './amplitude';
+import { Store } from '../store';
 
 beforeEach(() => {
   (<jest.Mock>FlowEvent.logAmplitudeEvent).mockClear();
@@ -94,5 +95,47 @@ it('should call logAmplitudeEvent with reason for failure on fail event', () => 
     planId: plan.plan_id,
     productId: plan.product_id,
     reason: payload.message,
+  });
+});
+
+describe('subscribes to the redux store for the uid', () => {
+  const uid = 'abc123xyz';
+  const plan = { plan_id: '123xyz_hourly', product_id: '123xyz' };
+  const payload = { message: 'oopsie daisies' };
+  const unsubscribe = jest.fn();
+  let callbackFromAmplitudeLib: Function;
+  let storeMock = {
+    subscribe: (cb: Function) => {
+      callbackFromAmplitudeLib = cb;
+      return unsubscribe;
+    },
+    getState: jest
+      .fn()
+      .mockReturnValueOnce({})
+      .mockReturnValueOnce({ profile: { result: { uid } } }),
+  };
+
+  it('should set the uid on the event properties then unsubscribe', () => {
+    Amplitude.subscribeToReduxStore((storeMock as unknown) as Store);
+    callbackFromAmplitudeLib();
+    expect(unsubscribe).not.toHaveBeenCalled();
+    callbackFromAmplitudeLib();
+    expect(unsubscribe).toHaveBeenCalled();
+
+    Amplitude.createSubscription_REJECTED({
+      ...plan,
+      error: payload,
+    });
+
+    const eventProps = (<jest.Mock>(
+      FlowEvent.logAmplitudeEvent
+    )).mock.calls[0].pop();
+
+    expect(eventProps).toMatchObject({
+      planId: plan.plan_id,
+      productId: plan.product_id,
+      reason: payload.message,
+      uid: uid, // this was added
+    });
   });
 });
