@@ -224,7 +224,7 @@ module.exports = (log, config) => {
     return log.flowEvent(
       Object.assign({}, data, {
         event: `route.performance.${path}`,
-        flow_time: Date.now() - request.info.received,
+        flow_time: request.info.completed - request.info.received,
       })
     );
   }
