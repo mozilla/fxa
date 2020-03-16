@@ -410,6 +410,7 @@ describe('lib/routes/validators:', () => {
       product_id: 'prod_8675309',
       product_name: 'example product',
       interval: 'month',
+      interval_count: 1,
       amount: '867',
       currency: 'usd',
     };
