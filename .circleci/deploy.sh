@@ -39,5 +39,5 @@ if [ -n "${DOCKER_TAG}" ] && [ -n "${!DOCKER_PASS}" ] && [ -n "${!DOCKER_USER}" 
   echo -e "##################################################\n"
   echo "${!DOCKER_PASS}" | docker login -u "${!DOCKER_USER}" --password-stdin
   docker tag "${MODULE}:build" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
-  docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+  time docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
 fi

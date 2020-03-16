@@ -12,8 +12,7 @@ ID=$(docker create mozilla/fxa-circleci:latest)
 docker cp "$ID":Dockerfile /tmp
 
 if diff Dockerfile /tmp/Dockerfile; then
-  echo "The source is unchanged. Tagging latest as build"
-  docker tag mozilla/fxa-circleci:latest fxa-circleci:build
+  echo "The source is unchanged. Skipping build"
 else
   docker build --progress=plain -t fxa-circleci:build . > ../../artifacts/fxa-circleci.log
 fi
