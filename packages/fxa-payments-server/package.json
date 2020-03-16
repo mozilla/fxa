@@ -69,7 +69,7 @@
     "browserslist": "^4.7.2",
     "caniuse-lite": "^1.0.30001010",
     "eslint": "^6.6.0",
-    "eslint-plugin-fxa": "2.0.1",
+    "eslint-plugin-fxa": "2.0.2",
     "eslint-plugin-jest": "22.21.0",
     "eslint-plugin-react": "^7.17.0",
     "express-http-proxy": "^1.6.0",
