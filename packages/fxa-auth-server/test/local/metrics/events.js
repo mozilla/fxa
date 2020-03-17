@@ -1177,6 +1177,7 @@ describe('metrics/events', () => {
         },
       },
       received: time - 42,
+      completed: time,
     });
     return events.emitRouteFlowEvent
       .call(request, { statusCode: 200 })

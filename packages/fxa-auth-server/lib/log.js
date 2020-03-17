@@ -90,7 +90,7 @@ Lug.prototype.summary = function(request, response) {
 
   const line = {
     status: response.isBoom ? response.output.statusCode : response.statusCode,
-    errno: response.errno || 0,
+    errno: response.errno || (response.source && response.source.errno) || 0,
     rid: request.id,
     path: request.path,
     lang: request.app.acceptLanguage,
@@ -122,7 +122,7 @@ Lug.prototype.summary = function(request, response) {
   if (line.status >= 500) {
     line.trace = request.app.traced;
     line.stack = response.stack;
-    this.error('request.summary', line, response.message);
+    this.error('request.summary', line);
   } else {
     this.info('request.summary', line);
   }

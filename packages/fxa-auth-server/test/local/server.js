@@ -440,7 +440,16 @@ describe('lib/server', () => {
         });
 
         describe('unsuccessful request:', () => {
+          const expectedResp = {
+            code: 400,
+            errno: 125,
+            error: 'Request blocked',
+            info:
+              'https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format',
+            message: 'The request was blocked for security reasons',
+          };
           beforeEach(() => {
+            sinon.stub(Date, 'now').returns(1584397692000);
             response = error.requestBlocked();
             return instance
               .inject({
@@ -450,6 +459,7 @@ describe('lib/server', () => {
               })
               .catch(() => {});
           });
+          afterEach(() => Date.now.restore());
 
           it('called log.begin', () => {
             assert.equal(log.begin.callCount, 1);
@@ -461,14 +471,9 @@ describe('lib/server', () => {
             assert.equal(args.length, 2);
             assert.equal(args[0], log.begin.args[0][1]);
             assert.ok(args[1]);
-            assert.equal(args[1].statusCode, undefined);
-            assert.equal(args[1].source, undefined);
-            assert.equal(args[1].isBoom, true);
-            assert.equal(
-              args[1].message,
-              'The request was blocked for security reasons'
-            );
-            assert.equal(args[1].errno, 125);
+            assert.equal(args[1].statusCode, 400);
+            assert.equal(args[1].headers.Timestamp, 1584397692);
+            assert.deepEqual(args[1].source, expectedResp);
           });
 
           it('did not call log.error', () => {

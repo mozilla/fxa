@@ -265,8 +265,6 @@ async function create(
     return h.continue;
   });
 
-  const metricReporter = metricFactory(statsd);
-
   server.ext('onPreResponse', (request, h) => {
     let response = request.response;
     if (response.isBoom) {
@@ -277,9 +275,13 @@ async function create(
       }
     }
     response.header('Timestamp', `${Math.floor(Date.now() / 1000)}`);
-    log.summary(request, response);
-    metricReporter(request, h);
     return response;
+  });
+
+  const metricReporter = metricFactory(statsd);
+  server.events.on('response', request => {
+    log.summary(request, request.response);
+    metricReporter(request);
   });
 
   // configure Sentry
@@ -419,14 +421,13 @@ function metricFactory(statsdClient) {
     return path.replace(/\//g, pathSeparator);
   }
 
-  function reportMetrics(request, h) {
-    var startDate = new Date(request.info.received);
-    var statusCode = request.response.isBoom
+  function reportMetrics(request) {
+    const statusCode = request.response.isBoom
       ? request.response.output.statusCode
       : request.response.statusCode;
 
-    var path = request._route.path;
-    var specials = request._core.router.specials;
+    let path = request._route.path;
+    const specials = request._core.router.specials;
 
     if (request._route === specials.notFound.route) {
       path = '/{notFound*}';
@@ -439,11 +440,16 @@ function metricFactory(statsdClient) {
       path = '/{cors*}';
     }
 
-    statsdClient.timing('url_request', Date.now() - startDate.getTime(), 1, {
-      path: normalizePath(path),
-      method: request.method.toUpperCase(),
-      statusCode,
-    });
+    statsdClient.timing(
+      'url_request',
+      request.info.completed - request.info.received,
+      1,
+      {
+        path: normalizePath(path),
+        method: request.method.toUpperCase(),
+        statusCode,
+      }
+    );
   }
   return reportMetrics;
 }

@@ -758,6 +758,7 @@ function mockRequest(data, errors) {
     },
     info: {
       received: data.received || Date.now() - 1,
+      completed: data.completed || 0,
     },
     method: data.method || undefined,
     params: data.params || {},
