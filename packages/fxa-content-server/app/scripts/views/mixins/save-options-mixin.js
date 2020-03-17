@@ -84,16 +84,40 @@ const Mixin = {
 
   _displaySuccess(msg) {
     this.$('.error').addClass('hidden');
-    this.$('.modal-success').removeClass('hidden');
-    this.$('.modal-success').addClass('success');
-    this.$('.modal-success').text(this.translate(msg));
+
+    const modalSuccess = this.$('.modal-success');
+    const regularSuccess = this.$('.success');
+    let successBanner;
+
+    if (modalSuccess.length) {
+      successBanner = modalSuccess;
+      successBanner.addClass('success');
+    } else if (regularSuccess.length) {
+      successBanner = regularSuccess;
+      successBanner.addClass('visible');
+    }
+
+    successBanner.removeClass('hidden').text(this.translate(msg));
   },
 
   _displayError(msg) {
-    this.$('.error').removeClass('hidden');
-    this.$('.modal-success').addClass('hidden');
-    this.$('.modal-success').removeClass('success');
-    this.$('.error').text(this.translate(msg));
+    const modalSuccess = this.$('.modal-success');
+    const regularSuccess = this.$('.success');
+    let successBanner;
+
+    if (modalSuccess.length) {
+      successBanner = modalSuccess;
+      successBanner.removeClass('success');
+    } else if (regularSuccess.length) {
+      successBanner = regularSuccess;
+      successBanner.removeClass('visible');
+    }
+
+    successBanner.addClass('hidden');
+
+    this.$('.error')
+      .removeClass('hidden')
+      .text(this.translate(msg));
   },
 };
 
