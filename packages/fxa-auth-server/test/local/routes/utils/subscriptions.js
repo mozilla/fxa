@@ -9,6 +9,7 @@ const assert = require('chai').assert;
 const mocks = require('../../../mocks');
 
 const {
+  determineSubscriptionCapabilities,
   determineClientVisibleSubscriptionCapabilities,
   metadataFromPlan,
 } = require('../../../../lib/routes/utils/subscriptions');
@@ -88,16 +89,17 @@ describe('routes/utils/subscriptions', () => {
     });
 
     async function assertExpectedCapabilities(clientId, expectedCapabilities) {
-      assert.deepEqual(
-        await determineClientVisibleSubscriptionCapabilities(
-          mockStripeHelper,
-          UID,
-          // null client represents sessionToken auth from content-server, unfiltered by client
-          clientId === 'null' ? null : Buffer.from(clientId, 'hex'),
-          EMAIL
-        ),
-        expectedCapabilities
+      const allCapabilities = await determineSubscriptionCapabilities(
+        mockStripeHelper,
+        UID,
+        EMAIL
       );
+      const resultCapabilities = await determineClientVisibleSubscriptionCapabilities(
+        // null client represents sessionToken auth from content-server, unfiltered by client
+        clientId === 'null' ? null : Buffer.from(clientId, 'hex'),
+        allCapabilities
+      );
+      assert.deepEqual(resultCapabilities.sort(), expectedCapabilities.sort());
     }
 
     it('only reveals capabilities relevant to the client', async () => {

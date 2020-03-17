@@ -67,6 +67,7 @@ module.exports = [
   'tests/functional/sign_in_recovery_code.js',
   'tests/functional/sign_in_totp.js',
   'tests/functional/sign_up.js',
+  'tests/functional/subscriptions.js',
   'tests/functional/support.js',
   'tests/functional/sync_v1.js',
   'tests/functional/sync_v2.js',

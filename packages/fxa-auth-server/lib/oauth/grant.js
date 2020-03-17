@@ -18,6 +18,7 @@ const amplitude = require('./metrics/amplitude')(
 );
 const sub = require('./jwt_sub');
 const {
+  determineSubscriptionCapabilities,
   determineClientVisibleSubscriptionCapabilities,
 } = require('../routes/utils/subscriptions');
 
@@ -245,10 +246,12 @@ exports.generateAccessToken = async function generateAccessToken(grant) {
 
   if (grant.scope.contains('profile:subscriptions')) {
     const capabilities = await determineClientVisibleSubscriptionCapabilities(
-      stripeHelper,
-      hex(grant.userId),
-      clientId,
-      grant.email
+      hex(clientId),
+      await determineSubscriptionCapabilities(
+        stripeHelper,
+        hex(grant.userId),
+        grant.email
+      )
     );
     // To avoid mutating the input grant, create a
     // copy and add the new property there.

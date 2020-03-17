@@ -28,14 +28,7 @@ const SubscriptionUtils = (module.exports = {
       .map(c => c.trim())
       .filter(c => !!c),
 
-  determineClientVisibleSubscriptionCapabilities: async function(
-    stripeHelper,
-    uid,
-    clientIdRaw,
-    email
-  ) {
-    const clientId =
-      clientIdRaw === null ? null : hex(clientIdRaw).toLowerCase();
+  determineSubscriptionCapabilities: async function(stripeHelper, uid, email) {
     if (!stripeHelper) {
       return undefined;
     }
@@ -44,13 +37,34 @@ const SubscriptionUtils = (module.exports = {
       stripeHelper,
       email
     );
-    const capabilitiesToReveal = await checkCapabilitiesFromStripe(
-      subscribedProducts,
-      clientId,
-      stripeHelper
-    );
+    return gatherCapabilitiesFromStripe(subscribedProducts, stripeHelper);
+  },
+
+  determineClientVisibleSubscriptionCapabilities: function(
+    clientIdRaw,
+    allCapabilities
+  ) {
+    if (!allCapabilities) {
+      return undefined;
+    }
+    const clientId =
+      clientIdRaw === null ? null : hex(clientIdRaw).toLowerCase();
+    let capabilitiesToReveal;
+    if (clientId === null) {
+      capabilitiesToReveal = new Set(
+        Object.values(allCapabilities).reduce(
+          (acc, curr) => [...curr, ...acc],
+          []
+        )
+      );
+    } else {
+      capabilitiesToReveal = new Set([
+        ...(allCapabilities['*'] || []),
+        ...(allCapabilities[clientId] || []),
+      ]);
+    }
     return capabilitiesToReveal.size > 0
-      ? Array.from(capabilitiesToReveal)
+      ? Array.from(capabilitiesToReveal).sort()
       : undefined;
   },
 });
@@ -74,12 +88,8 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   return subscribedProducts;
 }
 
-async function checkCapabilitiesFromStripe(
-  subscribedProducts,
-  client_id,
-  stripeHelper
-) {
-  const capabilitiesToReveal = new Set();
+async function gatherCapabilitiesFromStripe(subscribedProducts, stripeHelper) {
+  const allCapabilities = {};
 
   // Run through all plans and collect capabilitiies for subscribed products
   const plans = await stripeHelper.allPlans();
@@ -88,21 +98,24 @@ async function checkCapabilitiesFromStripe(
       continue;
     }
     const metadata = SubscriptionUtils.metadataFromPlan(plan);
-    const capabilityKeys = [
-      'capabilities',
-      ...Object.keys(metadata).filter(key =>
-        client_id === null
-          ? key.startsWith('capabilities:')
-          : key === `capabilities:${client_id}`
-      ),
-    ].filter(key => key in metadata);
+    const capabilityKeys = Object.keys(metadata).filter(key =>
+      key.startsWith('capabilities')
+    );
     for (const key of capabilityKeys) {
       const capabilities = SubscriptionUtils.splitCapabilities(metadata[key]);
+      const clientId = key === 'capabilities' ? '*' : key.split(':')[1];
+      if (!allCapabilities[clientId]) {
+        allCapabilities[clientId] = new Set();
+      }
       for (const capability of capabilities) {
-        capabilitiesToReveal.add(capability);
+        allCapabilities[clientId].add(capability);
       }
     }
   }
 
-  return capabilitiesToReveal;
+  for (const key of Object.keys(allCapabilities)) {
+    allCapabilities[key] = Array.from(allCapabilities[key]);
+  }
+
+  return allCapabilities;
 }

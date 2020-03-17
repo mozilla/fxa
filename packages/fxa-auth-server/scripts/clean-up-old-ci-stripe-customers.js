@@ -47,15 +47,15 @@ async function init() {
     process.env.SUBHUB_STRIPE_APIKEY = program.stripeKey;
   }
 
-  if (!/.*_test_.*/.test(process.env.SUBHUB_STRIPE_APIKEY)) {
+  const config = require('../config').getProperties();
+  const log = require('../lib/log')(config.log.level);
+
+  if (!/.*_test_.*/.test(config.subscriptions.stripeApiKey)) {
     console.error(
       'Stripe API key appears not to be a test mode key! Bailing out!'
     );
     process.exit(1);
   }
-
-  const config = require('../config').getProperties();
-  const log = require('../lib/log')(config.log.level);
 
   const createStripeHelper = require('../lib/payments/stripe');
   const stripeHelper = createStripeHelper(log, config, null);

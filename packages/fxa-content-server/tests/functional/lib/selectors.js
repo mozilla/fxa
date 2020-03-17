@@ -41,6 +41,8 @@ module.exports = {
     BUTTON_PROMPT_NONE: '.ready .prompt-none',
     BUTTON_SIGNUP: '.sign-in-button.signup',
     LINK_LOGOUT: '#logout',
+    BUTTON_SUBSCRIBE: '#subscriptionCTA .btn-subscribe',
+    SUBSCRIBED: '.pro-status',
   },
   '400': {
     ERROR: '.error',
