@@ -1,3 +1,9 @@
+## 1.162.2
+
+### Bug fixes
+
+- access-tokens: prune the access token index on set ([71291622d](https://github.com/mozilla/fxa/commit/71291622d))
+
 ## 1.162.1
 
 No changes.

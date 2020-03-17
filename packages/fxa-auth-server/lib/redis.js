@@ -33,6 +33,8 @@ function rejectInMs(ms, err = new Error('redis timeout')) {
 class FxaRedis {
   constructor(config, log) {
     config.keyPrefix = config.prefix;
+    this.accessTokenLimit = config.accessTokenLimit;
+    this.maxttl = config.maxttl;
     this.log = log;
     this.redis = new Redis(config);
     this.timeoutMs = config.timeoutMs || 1000;
@@ -119,7 +121,9 @@ class FxaRedis {
       token.userId.toString('hex'),
       token.tokenId.toString('hex'),
       JSON.stringify(token),
-      token.ttl
+      this.accessTokenLimit,
+      token.ttl,
+      this.maxttl
     );
   }
 
