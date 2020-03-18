@@ -267,7 +267,7 @@ describe('Redis', () => {
 
       it('sets expiry on the index', async () => {
         await redis.setAccessToken(accessToken1);
-        const ttl = await redis.redis.ttl(accessToken1.userId.toString('hex'));
+        const ttl = await redis.redis.pttl(accessToken1.userId.toString('hex'));
         assert.isAtMost(ttl, maxttl);
         assert.isAtLeast(ttl, maxttl - 10);
       });
