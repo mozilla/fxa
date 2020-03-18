@@ -56,14 +56,14 @@ describe('views/mixins/account-by-uid-mixin', function() {
   describe('getUidAndSetSignedInAccount', function() {
     it('gets the uid from the relier', function() {
       sinon.spy(notifier, 'trigger');
-      sinon.stub(user, 'clearSignedInAccount');
+      sinon.stub(user, 'clearSignedInAccountUid');
 
       view.getUidAndSetSignedInAccount();
       assert.isTrue(relier.get.calledWith('uid'));
       assert.isTrue(notifier.trigger.calledWith('set-uid', UID));
 
       notifier.trigger.restore();
-      user.clearSignedInAccount.restore();
+      user.clearSignedInAccountUid.restore();
     });
 
     it('sets signed in account with uid when account exists', function() {
@@ -80,18 +80,18 @@ describe('views/mixins/account-by-uid-mixin', function() {
 
     it('forces the user to sign in when account does not exist', function() {
       sinon.stub(user, 'getAccountByUid').returns({ isDefault: () => true });
-      sinon.stub(user, 'clearSignedInAccount');
+      sinon.stub(user, 'clearSignedInAccountUid');
       sinon.stub(Session, 'clear');
       sinon.stub(view, 'logViewEvent');
 
       view.getUidAndSetSignedInAccount();
       assert.isTrue(Session.clear.calledOnce);
-      assert.isTrue(user.clearSignedInAccount.calledOnce);
+      assert.isTrue(user.clearSignedInAccountUid.calledOnce);
       assert.isTrue(view.logViewEvent.calledWith('signout.forced'));
 
       view.logViewEvent.restore();
       Session.clear.restore();
-      user.clearSignedInAccount.restore();
+      user.clearSignedInAccountUid.restore();
       user.getAccountByUid.restore();
     });
   });

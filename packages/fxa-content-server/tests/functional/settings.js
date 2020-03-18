@@ -26,7 +26,6 @@ const {
   fillOutEmailFirstSignIn,
   focus,
   noSuchElement,
-  noSuchStoredAccountByEmail,
   openPage,
   openSettingsInNewTab,
   switchToWindow,
@@ -239,8 +238,7 @@ registerSuite('settings', {
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(closeCurrentWindow())
 
-          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
-          .then(noSuchStoredAccountByEmail(email))
+          .then(testElementExists(selectors.FORCE_AUTH.HEADER))
       );
     },
   },
