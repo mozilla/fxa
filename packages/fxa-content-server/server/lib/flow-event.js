@@ -17,6 +17,7 @@ const geolocate = require('../../../fxa-shared/express/geo-locate')(geodb)(
   remoteAddress
 )(log);
 const os = require('os');
+const statsd = require('./statsd');
 const {
   VERSION,
   PERFORMANCE_TIMINGS,
@@ -202,6 +203,17 @@ function logFlowEvent(event, data, request) {
 
   // The data pipeline listens on stderr.
   process.stderr.write(JSON.stringify(eventData) + '\n');
+  logStatsdPerfEvent(eventData);
+}
+
+function logStatsdPerfEvent(eventData) {
+  if (eventData.event.startsWith('flow.performance.')) {
+    const perfMetricNameParts = eventData.event.split('.');
+    const view = perfMetricNameParts[2];
+    const metricName =
+      perfMetricNameParts.length === 3 ? 'total' : perfMetricNameParts[3];
+    statsd.timing(`nt.${metricName}`, eventData.flow_time, { view });
+  }
 }
 
 function pickFlowData(data, request) {
