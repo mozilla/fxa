@@ -8,6 +8,7 @@ import {
 } from '../../lib/AppContext';
 
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
+import TermsAndPrivacy from '../TermsAndPrivacy';
 
 afterEach(cleanup);
 
@@ -28,7 +29,7 @@ describe('AppLayout', () => {
     return render(
       <AppContext.Provider value={appContextValue}>
         <AppLayout>
-          <div data-testid="children">Testing</div>
+          <div data-testid="children"><TermsAndPrivacy/></div>
         </AppLayout>
       </AppContext.Provider>
     )
@@ -37,7 +38,7 @@ describe('AppLayout', () => {
   const { queryByTestId, getByText } = subject();
 
   it ('renders as expected', () => {
-    for (const id of ['legal-footer', 'about-moz-footer']) {
+    for (const id of ['terms', 'privacy']) {
       expect(queryByTestId(id)).toBeInTheDocument();
     }
 

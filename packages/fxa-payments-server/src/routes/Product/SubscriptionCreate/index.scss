@@ -4,29 +4,49 @@
 .product-payment {
   background: $color-white;
   border: 1px solid #e7e7e7;
+  border-bottom: 0;
+  flex: 1;
   margin: 30px 0;
   max-width: 600px;
   min-width: 375px;
-  padding: 28px 16px 60px;
+  padding: 16px 16px 60px;
 
-  @include min-width('tablet') {
-    padding: 28px 48px 48px;
-  }
+  .billing-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 20px;
 
-  @include min-width('desktop') {
-    margin: 30px 24px;
-  }
-
-  hr {
-    margin: 24px 0 !important; // need to override default styles in `#main-content hr`
+    @include min-width('tablet') {
+      border-top: 1px solid #e0e0e6;
+      padding-top: 16px;
+    }
   }
 
   .subscription-create-heading {
+    display: none;
     text-align: center;
+
+    h2 {
+      font-weight: normal;
+    }
+
+    @include min-width('tablet') {
+      display: block;
+    }
   }
 
   .subheading {
     color: $grey-50;
     font-size: 15px;
+    margin-bottom: 32px;
+  }
+
+  // @include min-width('tablet') {
+  //   padding: 28px 48px 48px;
+  // }
+
+  @include min-width('desktop') {
+    margin: 30px 24px 0;
+    padding: 28px 48px 48px;
   }
 }

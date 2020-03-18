@@ -3,16 +3,18 @@
 
 .payment-confirmation {
   background: $color-white;
+  border: 1px solid  #e7e7e7;
+  border-bottom: 0;
   border-radius: 8px;
-  box-shadow: $card-box-high;
   display: flex;
+  flex: 1;
   flex-direction: column;
   font-size: 15px;
   height: 100%;
-  margin: 0 auto;
+  margin: 0;
   max-width: 600px;
   min-width: 375px;
-  padding: 20px 48px 0;
+  padding: 20px 16px 0;
 
   p {
     margin: unset;
@@ -51,7 +53,7 @@
     justify-content: center;
     margin-bottom: initial;
     margin-top: 60px;
-    padding-bottom: 48px;
+    padding-bottom: 32px;
     text-align: center;
 
     p {
@@ -100,12 +102,14 @@
   }
 
   .footer {
+    border: 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
 
-    a {
+    .button {
       align-items: center;
-      background: $blue-50;
+      background: #0060df;
       color: $color-white;
       display: flex;
       font-size: 15px;
@@ -117,12 +121,17 @@
       width: 100%;
     }
 
-    a:hover {
-      background: $blue-70;
+    .button:hover {
+      background: #003eaa;
     }
 
-    a:active {
-      background: $blue-80;
+    .button:active {
+      background: #002275;
     }
+  }
+
+  @include min-width('desktop') {
+    min-width: 60%;
+    padding: 20px 48px 0;
   }
 }
