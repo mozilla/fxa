@@ -48,6 +48,22 @@ To start the server in dev MySQL store mode (ie. `NODE_ENV=dev`), run:
 
     npm run start-mysql
 
+## Secrets
+
+Create the following file: `config/secrets.json`. It will not be tracked in Git.
+
+Use the following as a template, and fill in your own values:
+
+```json
+{
+  "subscriptions": {
+    "stripeApiKey": "sk_test_123"
+  }
+}
+```
+
+- `stripeApiKey` should be a test Stripe Secret Key
+
 ## Testing
 
 Run tests with:

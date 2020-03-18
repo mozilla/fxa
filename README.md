@@ -9,6 +9,7 @@ The Firefox Accounts (fxa) monorepo
 [Getting Started](#getting-started)\
 [Contributing](#contributing)\
 [Dependencies](#dependencies)\
+[Secrets](#secrets)\
 [Firefox Custom Profile](#firefox-custom-profile)\
 [Functional Tests](#functional-tests)\
 [Node debugging](#node-debugging)\
@@ -204,6 +205,17 @@ npm install -g grunt-cli
 ---
 
 ---
+
+---
+
+### Secrets
+
+When developing locally you may need to set up some secrets in order to effectively work with certain servers. These secrets are managed at the package level.
+
+Check out the Secrets section in the following READMEs:
+
+- [fxa-auth-server](https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-server#secrets)
+- [fxa-payments-server](https://github.com/mozilla/fxa/tree/master/packages/fxa-payments-server#secrets)
 
 ---
 

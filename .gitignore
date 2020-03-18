@@ -13,6 +13,7 @@ public-key.json
 secret-key.json
 secret*
 *.gpg
+secrets.json
 
 # Build and temp files
 **/build
