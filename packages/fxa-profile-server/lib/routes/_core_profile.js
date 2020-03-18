@@ -39,6 +39,9 @@ module.exports = {
       subscriptions: Joi.array()
         .items(Joi.string().required())
         .optional(),
+      subscriptionsByClientId: Joi.object()
+        .unknown(true)
+        .optional(),
       profileChangedAt: Joi.number().optional(),
     },
   },
@@ -102,6 +105,9 @@ module.exports = {
         }
         if (typeof body.subscriptions !== 'undefined') {
           result.subscriptions = body.subscriptions;
+        }
+        if (typeof body.subscriptionsByClientId !== 'undefined') {
+          result.subscriptionsByClientId = body.subscriptionsByClientId;
         }
         if (typeof body.profileChangedAt !== 'undefined') {
           result.profileChangedAt = body.profileChangedAt;

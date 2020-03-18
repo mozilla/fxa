@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('joi');
+const {
+  determineClientVisibleSubscriptionCapabilities,
+} = require('../subscriptions');
 
 module.exports = {
   auth: {
@@ -29,9 +32,18 @@ module.exports = {
         if (res.statusCode !== 200) {
           return reply(res);
         }
+        let subscriptions = [];
+        if (res.result.subscriptionsByClientId) {
+          subscriptions = determineClientVisibleSubscriptionCapabilities(
+            req.auth.credentials.client_id,
+            res.result.subscriptionsByClientId
+          );
+        } else if (res.result.subscriptions) {
+          subscriptions = res.result.subscriptions;
+        }
         return reply({
           // If auth server omits subscriptions, just use an empty list
-          subscriptions: res.result.subscriptions || [],
+          subscriptions,
         });
       }
     );

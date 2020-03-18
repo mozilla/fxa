@@ -16,9 +16,7 @@ const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
-const {
-  determineClientVisibleSubscriptionCapabilities,
-} = require('./utils/subscriptions');
+const { determineSubscriptionCapabilities } = require('./utils/subscriptions');
 
 const HEX_STRING = validators.HEX_STRING;
 
@@ -948,9 +946,9 @@ module.exports = (
               .items(isA.string().required())
               .optional(),
             authenticatorAssuranceLevel: isA.number().min(0),
-            subscriptions: isA
-              .array()
-              .items(isA.string().required())
+            subscriptionsByClientId: isA
+              .object()
+              .unknown(true)
               .optional(),
             profileChangedAt: isA.number().min(0),
           },
@@ -958,15 +956,13 @@ module.exports = (
       },
       handler: async function(request) {
         const auth = request.auth;
-        let uid, scope, client_id;
+        let uid, scope;
         if (auth.strategy === 'sessionToken') {
           uid = auth.credentials.uid;
           scope = { contains: () => true };
-          client_id = null;
         } else {
           uid = auth.credentials.user;
           scope = ScopeSet.fromArray(auth.credentials.scope);
-          client_id = auth.credentials.client_id;
         }
 
         const res = {};
@@ -994,14 +990,13 @@ module.exports = (
           config.subscriptions.enabled &&
           scope.contains('profile:subscriptions')
         ) {
-          const capabilities = await determineClientVisibleSubscriptionCapabilities(
+          const capabilities = await determineSubscriptionCapabilities(
             stripeHelper,
             uid,
-            client_id,
             account.primaryEmail.email
           );
           if (capabilities) {
-            res.subscriptions = capabilities;
+            res.subscriptionsByClientId = capabilities;
           }
         }
 

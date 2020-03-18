@@ -5,6 +5,9 @@
 const Joi = require('joi');
 const checksum = require('checksum');
 const P = require('../promise');
+const {
+  determineClientVisibleSubscriptionCapabilities,
+} = require('../subscriptions');
 
 const logger = require('../logging')('routes.profile');
 
@@ -55,6 +58,16 @@ module.exports = {
 
       if (creds.scope.indexOf('openid') !== -1) {
         result.sub = creds.user;
+      }
+
+      // Need to filter subscriptions by client ID for the request, since ALL
+      // capabilities for all clients is what we cache on user ID.
+      if (result.subscriptionsByClientId) {
+        result.subscriptions = determineClientVisibleSubscriptionCapabilities(
+          req.auth.credentials.client_id,
+          result.subscriptionsByClientId
+        );
+        delete result.subscriptionsByClientId;
       }
 
       let rep = reply(result);

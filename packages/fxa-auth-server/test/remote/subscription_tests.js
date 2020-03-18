@@ -213,19 +213,25 @@ describe('remote subscriptions:', function() {
         ];
       });
 
-      it('should not return any subscription capabilities by default with session token', async () => {
+      it('should return all subscription capabilities with session token', async () => {
         const response = await client.accountProfile();
-        assert.deepEqual(response.subscriptions, ['123donePro', 'ILikePie']);
+        assert.deepEqual(response.subscriptionsByClientId, {
+          [CLIENT_ID]: ['123donePro', 'ILikePie'],
+        });
       });
 
-      it('should not return any subscription capabilities for client without capabilities', async () => {
+      it('should return all subscription capabilities for client without capabilities', async () => {
         const response = await client.accountProfile(tokens[0]);
-        assert.isUndefined(response.subscriptions);
+        assert.deepEqual(response.subscriptionsByClientId, {
+          [CLIENT_ID]: ['123donePro', 'ILikePie'],
+        });
       });
 
-      it('should return subscription capabilities for client with capabilities', async () => {
+      it('should return all subscription capabilities for client with capabilities', async () => {
         const response = await client.accountProfile(tokens[1]);
-        assert.deepEqual(response.subscriptions, ['123donePro', 'ILikePie']);
+        assert.deepEqual(response.subscriptionsByClientId, {
+          [CLIENT_ID]: ['123donePro', 'ILikePie'],
+        });
       });
 
       it('should return active subscriptions', async () => {
