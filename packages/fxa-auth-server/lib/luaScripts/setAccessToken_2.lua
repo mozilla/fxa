@@ -29,4 +29,4 @@ if count > limit then
 end
 redis.call('set', tokenId, unpack(args))
 redis.call('sadd', userId, unpack(toAdd))
-redis.call('expire', userId, maxttl)
+redis.call('pexpire', userId, maxttl)
