@@ -46,10 +46,6 @@ const QUERY_PARAMETER_SCHEMA = {
   entrypoint: Vat.string(),
   entrypoint_experiment: Vat.string().renameTo('entrypointExperiment'),
   entrypoint_variation: Vat.string().renameTo('entrypointVariation'),
-  migration: Vat.string().valid(
-    Constants.AMO_MIGRATION,
-    Constants.SYNC11_MIGRATION
-  ),
   reset_password_confirm: Vat.boolean().renameTo('resetPasswordConfirm'),
   setting: Vat.string(),
   style: Vat.string().valid(Constants.STYLE_TRAILHEAD), // deprecated but still valid
@@ -92,7 +88,6 @@ var Relier = BaseRelier.extend({
     entrypoint: null,
     entrypointExperiment: null,
     entrypointVariation: null,
-    migration: null,
     resetPasswordConfirm: true,
     setting: null,
     serviceName: t(Constants.RELIER_DEFAULT_SERVICE_NAME),
@@ -162,14 +157,6 @@ var Relier = BaseRelier.extend({
       // `entrypoint` (lowcase p). Normalize to `entrypoint`.
       if (this.has('entryPoint') && !this.has('entrypoint')) {
         this.set('entrypoint', this.get('entryPoint'));
-      }
-
-      if (this.has('migration')) {
-        // Support for the sync1.1 migration message was
-        // removed in #6130, support for AMO in #6131.
-        // Accept the value so no errors are caused but
-        // drop the value on the ground.
-        this.unset('migration');
       }
     });
   },

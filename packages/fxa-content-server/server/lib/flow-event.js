@@ -25,7 +25,7 @@ const {
 } = require('../../../fxa-shared/metrics/flow-performance');
 
 const VALIDATION_PATTERNS = require('./validation').PATTERNS;
-const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'migration', 'service'];
+const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'service'];
 const NO_DNT_ALLOWED_DATA = DNT_ALLOWED_DATA.concat([
   'utm_campaign',
   'utm_content',
@@ -46,7 +46,6 @@ const VALID_FLOW_EVENT_PROPERTIES = [
   { key: 'entryPoint', pattern: ENTRYPOINT_PATTERN },
   { key: 'entrypoint', pattern: ENTRYPOINT_PATTERN },
   { key: 'flowId', pattern: /^[0-9a-f]{64}$/ },
-  { key: 'migration', pattern: VALIDATION_PATTERNS.MIGRATION },
   { key: 'service', pattern: VALIDATION_PATTERNS.SERVICE },
 ];
 

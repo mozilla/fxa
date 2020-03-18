@@ -58,7 +58,6 @@ const ALLOWED_FIELDS = [
   'isSampledUser',
   'lang',
   'marketing',
-  'migration',
   'navigationTiming',
   'numStoredAccounts',
   'planId',
@@ -160,7 +159,6 @@ function Metrics(options = {}) {
   this._isSampledUser = options.isSampledUser || false;
   this._lang = options.lang || 'unknown';
   this._marketingImpressions = {};
-  this._migration = options.migration || NOT_REPORTED_VALUE;
   this._numStoredAccounts = options.numStoredAccounts || '';
   this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
   this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
@@ -409,7 +407,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
       isSampledUser: this._isSampledUser,
       lang: this._lang,
       marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
-      migration: this._migration,
       numStoredAccounts: this._numStoredAccounts,
       // planId and productId are optional so we can physically remove
       // them from the payload instead of sending NOT_REPORTED_VALUE

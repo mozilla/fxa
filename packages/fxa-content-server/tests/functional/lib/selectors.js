@@ -373,7 +373,6 @@ module.exports = {
     ERROR: '.error',
     HEADER: '#fxa-signin-header',
     LINK_USE_DIFFERENT: '.use-different',
-    MIGRATION_NUDGE: '#suggest-sync',
     PASSWORD: 'input[type=password]',
     RESET_PASSWORD: 'a[href^="/reset_password"]',
     SUB_HEADER: '#fxa-signin-header .service',

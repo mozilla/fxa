@@ -12,18 +12,6 @@ Specify the OAuth client_id of the relier being signed in to.
 
 When authenticating a user for OAuth.
 
-### `migration`
-
-If the user is migrating their account, specify which service they are migrating from.
-
-#### When to specify
-
-When signing up a user.
-
-#### Options
-
-- `amo`
-
 ### `prompt`
 
 Specifies whether the content server prompts for permissions consent. Only applicable for `trusted` relying parties.

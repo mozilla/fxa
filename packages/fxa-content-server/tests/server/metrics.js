@@ -165,10 +165,6 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid marketing url (notaurl)': testInvalidMetricsField('marketing', [
     { campaignId: 'marketing123', clicked: true, url: 'notaurl' },
   ]),
-  'invalid migration (not-valid)': testInvalidMetricsField(
-    'migration',
-    'not-valid'
-  ),
   'invalid navigationTiming ([])': testInvalidMetricsField(
     'navigationTiming',
     []

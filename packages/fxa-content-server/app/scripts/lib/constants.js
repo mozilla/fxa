@@ -39,9 +39,6 @@ module.exports = {
   CONTENT_SERVER_SERVICE: 'content-server',
   SYNC_SERVICE: 'sync',
 
-  SYNC11_MIGRATION: 'sync11', // Note, with #6130 this is no longer supported, we accept and ignore the value.
-  AMO_MIGRATION: 'amo',
-
   VERIFICATION_POLL_IN_MS: 4000,
 
   EMAIL_RESEND_MAX_TRIES: 4,
@@ -89,8 +86,6 @@ module.exports = {
   ONERROR_MESSAGE_LIMIT: 100,
 
   ACCOUNT_UPDATES_WEBCHANNEL_ID: 'account_updates',
-
-  MARKETING_EMAIL_NEWSLETTER_ID: 'firefox-accounts-journey',
 
   ACCESS_TYPE_ONLINE: 'online',
   ACCESS_TYPE_OFFLINE: 'offline',
