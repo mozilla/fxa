@@ -188,7 +188,6 @@ Start.prototype = {
       entrypoint: relier.get('entrypoint'),
       isSampledUser: isSampledUser,
       lang: this._config.lang,
-      migration: relier.get('migration'),
       notifier: this._notifier,
       screenHeight: screenInfo.screenHeight,
       screenWidth: screenInfo.screenWidth,

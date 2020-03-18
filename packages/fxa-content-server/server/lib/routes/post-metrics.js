@@ -24,7 +24,6 @@ const {
   ENTRYPOINT: ENTRYPOINT_PATTERN,
   EVENT_TYPE: EVENT_TYPE_PATTERN,
   EXPERIMENT: EXPERIMENT_PATTERN,
-  MIGRATION: MIGRATION_PATTERN,
   SERVICE: SERVICE_PATTERN,
   UNIQUE_USER_ID: UNIQUE_USER_ID_PATTERN,
 } = validation.PATTERNS;
@@ -97,7 +96,6 @@ const BODY_SCHEMA = {
       })
     )
     .required(),
-  migration: STRING_TYPE.regex(MIGRATION_PATTERN).required(),
   navigationTiming: joi
     .object()
     .keys({

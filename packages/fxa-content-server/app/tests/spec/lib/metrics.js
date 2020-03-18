@@ -288,7 +288,7 @@ describe('lib/metrics', () => {
 
     it('gets non-optional fields', () => {
       const filteredData = metrics.getFilteredData();
-      assert.lengthOf(Object.keys(filteredData), 36);
+      assert.lengthOf(Object.keys(filteredData), 35);
 
       assert.isTrue(filteredData.hasOwnProperty('events'));
       assert.isTrue(filteredData.hasOwnProperty('timers'));
@@ -310,7 +310,6 @@ describe('lib/metrics', () => {
       assert.isTrue(filteredData.isSampledUser);
       assert.equal(filteredData.lang, 'db_LB');
       assert.deepEqual(filteredData.marketing, []);
-      assert.equal(filteredData.migration, 'none');
       assert.equal(filteredData.numStoredAccounts, 1);
 
       assert.equal(filteredData.planId, 'plid');

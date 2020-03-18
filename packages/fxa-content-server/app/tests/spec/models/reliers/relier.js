@@ -110,28 +110,8 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  ['', ' ', 'invalid migration'].forEach(function(token) {
-    testInvalidQueryParam('migration', token);
-  });
-
-  [undefined].forEach(function(value) {
-    testValidQueryParam('migration', value, 'migration', value);
-  });
-
   ['trailhead-1', 'chromeless'].forEach(value => {
     testInvalidQueryParam('style', value);
-  });
-
-  [Constants.SYNC11_MIGRATION, Constants.AMO_MIGRATION].forEach(migration => {
-    describe(`${migration} migration`, () => {
-      it('accepts the value, but drops it on the ground', () => {
-        windowMock.location.search = TestHelpers.toSearchString({ migration });
-
-        return relier.fetch().then(() => {
-          assert.isFalse(relier.has('migration'));
-        });
-      });
-    });
   });
 
   [undefined, 'email', 'signin', 'signup', 'force_auth', 'pairing'].forEach(

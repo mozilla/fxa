@@ -100,16 +100,7 @@ function toLoggableEvent(event) {
 
   // fields that rely on client data.
   copyFields(
-    [
-      'lang',
-      'agent',
-      'duration',
-      'context',
-      'broker',
-      'entrypoint',
-      'service',
-      'migration',
-    ],
+    ['lang', 'agent', 'duration', 'context', 'broker', 'entrypoint', 'service'],
     loggableEvent,
     event
   );
@@ -144,7 +135,7 @@ function processMarketingImpressions(event) {
     addVersion(impression);
 
     copyFields(
-      ['lang', 'agent', 'context', 'entrypoint', 'service', 'migration'],
+      ['lang', 'agent', 'context', 'entrypoint', 'service'],
       impression,
       event
     );

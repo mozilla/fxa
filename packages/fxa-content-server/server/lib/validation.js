@@ -14,6 +14,7 @@ const {
 const PATTERNS = {
   ACTION: /^(email|signin|signup)$/,
   ADJUST_CHANNEL_APP_ID: /^(beta|nightly|release)$/,
+  // eslint-disable-next-line no-useless-escape
   BASE64: /^[A-Za-z0-9\/+]+={0,2}$/,
   BASE64_URL_SAFE: /^[A-Za-z0-9_-]+$/,
   BROKER: /^[0-9a-z-]+$/,
@@ -24,7 +25,6 @@ const PATTERNS = {
   EVENT_TYPE: /^[\w\s.:-]+$/, // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
   EXPERIMENT: /^[\w.-]+$/,
   FORM_TYPE: /^(email|other|button|subscribe)$/,
-  MIGRATION: /^(sync11|amo|none)$/,
   PRODUCT_ID: /^prod_[0-9A-Za-z]+$/,
   SERVICE: /^(sync|content-server|none|[0-9a-f]{16})$/,
   SYNC_ENGINE: /^[a-z]+$/,
@@ -82,6 +82,7 @@ const TYPES = {
   UTM: joi
     .string()
     .max(128)
+    // eslint-disable-next-line no-useless-escape
     .regex(/^[\w\/.%-]+$/), // values here can be 'firefox/sync'
 };
 

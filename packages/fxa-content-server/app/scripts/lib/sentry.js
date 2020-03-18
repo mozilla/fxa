@@ -13,7 +13,6 @@ var ALLOWED_QUERY_PARAMETERS = [
   'context',
   'entrypoint',
   'keys',
-  'migration',
   'redirect_uri',
   'scope',
   'service',

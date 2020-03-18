@@ -28,7 +28,6 @@
     "isSampledUser": true,
     "lang": "en",
     "marketing": [],
-    "migration": "none",
     "navigationTiming": {
         "navigationStart": 0,
         "unloadEventStart": null,
