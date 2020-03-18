@@ -1,3 +1,9 @@
+## 1.162.3
+
+### Bug fixes
+
+- redis: access token index ttl is in milliseconds, so use pexpire ([2f787e94c](https://github.com/mozilla/fxa/commit/2f787e94c))
+
 ## 1.162.2
 
 ### Bug fixes
