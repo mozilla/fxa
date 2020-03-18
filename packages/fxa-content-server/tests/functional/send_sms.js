@@ -113,6 +113,23 @@ const suite = {
     );
   },
   tests: {
+    'displays expected subheader with `control` experiment group': function() {
+      return this.remote
+        .then(
+          openPage(SEND_SMS_HEADER_URL, selectors.SMS_SEND.HEADER, {
+            query: {
+              forceExperimentGroup: 'control',
+            },
+          })
+        )
+        .then(noSuchElement(selectors.SMS_SEND.PROMPT_HEADER))
+        .then(
+          testElementTextInclude(
+            selectors.SMS_SEND.PROMPT_SUBHEADER,
+            'Send Firefox directly to your smartphone and sign in to complete set-up'
+          )
+        );
+    },
     'displays expected header with `syncPhone` experiment group': function() {
       return this.remote
         .then(
@@ -126,6 +143,12 @@ const suite = {
           testElementTextInclude(
             selectors.SMS_SEND.PROMPT_HEADER,
             'Would you like to sync your phone?'
+          )
+        )
+        .then(
+          testElementTextInclude(
+            selectors.SMS_SEND.PROMPT_SUBHEADER,
+            'Send a link by SMS to install Firefox on your phone.'
           )
         );
     },
@@ -142,6 +165,12 @@ const suite = {
           testElementTextInclude(
             selectors.SMS_SEND.PROMPT_HEADER,
             'Sync this browser with your phone'
+          )
+        )
+        .then(
+          testElementTextInclude(
+            selectors.SMS_SEND.PROMPT_SUBHEADER,
+            'Send a link by SMS to install Firefox on your phone.'
           )
         );
     },

@@ -112,10 +112,14 @@ class SmsSendView extends FormView {
     const isSignIn = this.isSignIn();
     const graphicId = this.getGraphicsId();
 
-    let isInExperimentGroupSyncBrowser = false;
+    let isSmsHeaderGroupControl,
+      isSmsHeaderGroupSyncPhone,
+      isSmsHeaderGroupSyncBrowser;
     if (!this._userHasAttachedMobileDevice) {
-      const experimentGroup = this.getAndReportExperimentGroup('sendSmsHeader');
-      isInExperimentGroupSyncBrowser = experimentGroup === 'syncBrowser';
+      const group = this.getAndReportExperimentGroup('sendSmsHeader');
+      isSmsHeaderGroupControl = group === 'control';
+      isSmsHeaderGroupSyncPhone = group === 'syncPhone';
+      isSmsHeaderGroupSyncBrowser = group === 'syncBrowser';
     }
 
     context.set({
@@ -126,7 +130,9 @@ class SmsSendView extends FormView {
       graphicId,
       isSignIn,
       phoneNumber,
-      isInExperimentGroupSyncBrowser,
+      isSmsHeaderGroupControl,
+      isSmsHeaderGroupSyncPhone,
+      isSmsHeaderGroupSyncBrowser,
       showSuccessMessage: this.model.get('showSuccessMessage'),
     });
   }

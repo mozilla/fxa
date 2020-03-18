@@ -492,6 +492,7 @@ module.exports = {
   SMS_SEND: {
     HEADER: '#fxa-send-sms-header',
     PROMPT_HEADER: '[data-id="prompt-header"]',
+    PROMPT_SUBHEADER: '[data-id="prompt-subheader"]',
     LINK_LEARN_MORE: 'a#learn-more',
     LINK_MARKETING: '.marketing-link',
     LINK_MARKETING_ANDROID: '.marketing-link-android',

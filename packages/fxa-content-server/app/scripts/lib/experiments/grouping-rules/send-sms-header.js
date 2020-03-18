@@ -25,7 +25,7 @@ module.exports = class SendSmsHeaderGroupingRule extends BaseGroupingRule {
    * @returns {Any}
    */
   choose(subject = {}) {
-    const GROUPS = ['syncPhone', 'syncBrowser'];
+    const GROUPS = ['control', 'syncPhone', 'syncBrowser'];
     return this.uniformChoice(GROUPS, subject.uniqueUserId);
   }
 };
