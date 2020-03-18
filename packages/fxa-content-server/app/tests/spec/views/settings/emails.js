@@ -364,6 +364,8 @@ describe('views/settings/emails', function() {
           },
         ];
 
+        sinon.spy(windowMock.history, 'replaceState');
+
         return initView().then(function() {
           // click events require the view to be in the DOM
           $('#container').html(view.el);
@@ -405,7 +407,7 @@ describe('views/settings/emails', function() {
         );
       });
 
-      it('can change email', done => {
+      it('can set primary email', done => {
         $(
           '.email-address .settings-button.secondary-button.set-primary'
         ).click();
@@ -415,6 +417,19 @@ describe('views/settings/emails', function() {
               account.get('email'),
               newEmail,
               'account email updated'
+            );
+            assert.equal(
+              account.get('originalLoginEmail'),
+              undefined,
+              'originalLoginEmail is unset'
+            );
+
+            assert.isTrue(
+              windowMock.history.replaceState.calledOnceWith(
+                {},
+                '',
+                '/?email=secondary%40email.com'
+              )
             );
           }, done);
         }, 150);

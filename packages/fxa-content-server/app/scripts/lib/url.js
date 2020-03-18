@@ -209,4 +209,23 @@ export default {
     const cleanedQueryParams = this.searchParams(search, allowedFields);
     return base + this.objToSearchString(cleanedQueryParams);
   },
+
+  /**
+   * Set a new value for the query search string in place. This does
+   * not reload the page but rather updates the window state history.
+   *
+   * @param {String} param - param to update
+   * @param {String} value - value to set
+   */
+  setSearchString(param, value) {
+    const params = new URLSearchParams(this.window.location.search);
+    params.set(param, value);
+
+    // This will update the url with new params inplace
+    this.window.history.replaceState(
+      {},
+      '',
+      `${this.window.location.pathname}?${params}`
+    );
+  },
 };

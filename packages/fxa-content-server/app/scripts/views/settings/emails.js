@@ -14,6 +14,7 @@ import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
 import Strings from '../../lib/strings';
 import showProgressIndicator from '../decorators/progress_indicator';
 import Template from 'templates/settings/emails.mustache';
+import Url from '../../lib/url';
 
 const t = msg => msg;
 
@@ -148,6 +149,8 @@ var View = FormView.extend({
     const account = this.getSignedInAccount();
     return account.setPrimaryEmail(email).then(() => {
       this.updateDisplayEmail(email);
+      account.unset('originalLoginEmail');
+      this.setSearchString('email', email);
       this.displaySuccess(
         Strings.interpolate(t('Primary email set to %(email)s'), { email }),
         {
@@ -167,7 +170,8 @@ Cocktail.mixin(
   }),
   AvatarMixin,
   LastCheckedTimeMixin,
-  SettingsPanelMixin
+  SettingsPanelMixin,
+  Url
 );
 
 export default View;
