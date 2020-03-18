@@ -28,7 +28,6 @@ export const SubscriptionSuccess = ({
   const { downloadURL } = metadataFromPlan(plan);
   const {
     config: { productRedirectURLs },
-    matchMedia,
   } = useContext(AppContext);
 
   const productUrl =
@@ -37,7 +36,7 @@ export const SubscriptionSuccess = ({
   return (
     <>
       <Header {...{ profile: profile }} />
-      <div className="main-content product-confirmation">
+      <div className="main-content product-confirmation-wrap">
         <PaymentConfirmation
           {...{
             profile: profile,
@@ -49,6 +48,7 @@ export const SubscriptionSuccess = ({
         <PlanDetails
           {...{
             selectedPlan: plan,
+            isMobile,
             showExpandButton: isMobile,
           }}
         />

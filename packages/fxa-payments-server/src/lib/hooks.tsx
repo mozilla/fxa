@@ -90,7 +90,7 @@ export function useMatchMedia(mediaQuery: string, matchMedia: Function) {
     mediaQueryList.addListener(updateMatches);
 
     return () => mediaQueryList.removeListener(updateMatches);
-  }, [mediaQuery]);
+  }, [mediaQuery, matchMedia]);
 
   return matches;
 }

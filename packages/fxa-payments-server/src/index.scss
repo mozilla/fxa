@@ -6,6 +6,10 @@
   display: contents;
 }
 
+body {
+  min-height: unset;
+}
+
 // NOTE: Override an animation style from the content server to minimize
 // the feeling of loading jank on redirects
 #stage {
@@ -114,6 +118,7 @@ h3.billing-title {
 
       input[type='checkbox'] {
         flex: 0 0 18px;
+        margin-right: 16px;
         position: relative;
         top: 2px;
 
@@ -170,11 +175,6 @@ h3.billing-title {
     @include respond-to('small') {
       margin: 0 -20px; // match padding of #main-content
     }
-  }
-
-  @include respond-to('big') {
-    padding: 48px;
-    padding-top: 0;
   }
 }
 

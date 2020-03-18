@@ -19,7 +19,13 @@ form.payment {
     }
   }
 
+  hr {
+    margin: 16px 0 0;
+  }
+
   .input-row {
+    margin: 16px 0 0;
+
     input {
       font-size: 14px;
 
@@ -48,14 +54,11 @@ form.payment {
   }
 
   button {
-    margin-top: 24px;
+    margin-top: 32px;
   }
 
   .terms {
-    display: flex;
-    font-size: 15px;
-    justify-content: center;
-    margin-top: 56px;
+    margin-top: 32px;
   }
 
   .lock::before {
@@ -86,6 +89,10 @@ form.payment {
     .input-row input,
     .input-row .StripeElement {
       padding-left: 5px !important;
+    }
+
+    .input-row-group {
+      padding-bottom: 8px;
     }
   }
 }

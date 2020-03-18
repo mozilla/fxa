@@ -24,10 +24,10 @@ describe('Header', () => {
       return render(<Header {...{ profile: userProfile }} />);
     };
 
-    const { queryByTestId, getByText } = subject();
+    const { queryByTestId } = subject();
 
-    const branding = getByText('Firefox');
-    expect(branding).toHaveClass('fxa-account-title');
+    const branding = queryByTestId('branding');
+    expect(branding).toHaveAttribute('title', 'firefox');
 
     const avatar = queryByTestId('avatar');
     expect(avatar).toHaveAttribute('alt', userProfile.displayName);

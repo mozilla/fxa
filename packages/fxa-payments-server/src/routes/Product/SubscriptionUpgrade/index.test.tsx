@@ -14,7 +14,7 @@ jest.mock('../../../lib/amplitude');
 
 import { MockApp } from '../../../lib/test-utils';
 
-import { PROFILE, CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
+import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
@@ -124,7 +124,6 @@ const Subject = ({ props = {} }: { props?: object }) => {
 };
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
-  profile: PROFILE,
   customer: CUSTOMER,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,
