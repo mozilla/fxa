@@ -1,0 +1,61 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+
+:root {
+  --color-black: #000;
+  --color-black-05: #f2f2f2;
+  --color-black-10: #e5e5e5;
+  --color-black-20: #ccc;
+  --color-black-50: #666;
+  --color-black-80: #333;
+  --color-white: #fff;
+
+  --color-primary: #2B1141;
+
+  --font-weight-normal: 400;
+  --font-weight-regular: 500;
+  --font-weight-semi-bold: 600;
+
+  --transition-duration: 200ms;
+
+  --app-padding-x-min: 15px;
+
+  --body-font-size: 16px;
+  --ff-brand-gradient: #0060E0, #9059FF, #B933E1, #FF2A8A, #FF505F, #FF7139, #FFA537;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  --header-font-size-lg: 24px;
+  --header-font-size-xs: 14px;
+}
+
+nav {
+  --nav-font-size: 12px;
+}
+
+input,
+input + button {
+  --input-border-width: 1px;
+  --input-height: 30px;
+  --input-padding-y: 5px;
+}
+
+.content-wrapper {
+  --app-padding-top-min: 30px;
+  --nav-main-margin: 40px;
+}
+
+.delete {
+  --delete-active-background-color: #a4001a;
+  --delete-background-color: #d70022;
+  --delete-hover-background-color: #be001e;
+}
+
+.verify {
+  --verify-color: #008513;
+}

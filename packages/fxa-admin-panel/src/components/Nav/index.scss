@@ -1,0 +1,62 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+nav {
+  margin-right: var(--nav-main-margin);
+
+  .nav-container {
+    background-color: var(--color-white);
+    border: 1px solid var(--color-black-10);
+    border-radius: 0 0 10px 10px;
+    border-top: 0;
+    padding: var(--app-padding-top-min) 15px 15px;
+  }
+
+  h2 {
+    color: var(--color-black-50);
+    font-size: var(--header-font-size-xs);
+    font-weight: var(--font-weight-normal);
+    letter-spacing: 1px;
+    margin: 0 0 5px;
+    text-transform: uppercase;
+  }
+
+  ul {
+    display: inline-block;
+    font-size: var(--nav-font-size);
+    padding-left: 0;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  a {
+    border-radius: 5px;
+    color: var(--color-black-80);
+    display: flex;
+    padding: 8px 20px 8px 10px;
+    text-decoration: none;
+    transition: var(--transition-duration) background-color;
+
+    &.active {
+      background-color: var(--color-black-05);
+    }
+
+    &:hover {
+      background-color: var(--color-black-10);
+      transition: var(--transition-duration) background-color;
+    }
+
+    &:active {
+      background-color: var(--color-black-20);
+      transition: var(--transition-duration) background-color;
+    }
+  }
+
+  .icon {
+    margin-right: 6px;
+    width: 14px;
+  }
+}
