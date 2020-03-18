@@ -1770,6 +1770,7 @@ module.exports = function(log, config, oauthdb) {
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'downloadSubscription';
+    const translator = this.translator(message.acceptLanguage);
     const links = this._generateLinks(
       planDownloadURL,
       message,
@@ -1780,9 +1781,9 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.link,
     };
 
-    // TODO: re-enable translations when subscriptions are more widely available
-    const subject = `Welcome to ${productName}!`;
-    const action = `Download ${productName}`;
+    const translatorParams = { productName, uid, email };
+    const subject = translator.gettext('Welcome to %(productName)s!');
+    const action = translator.gettext('Download %(productName)s');
 
     return this.send({
       ...message,
@@ -1792,12 +1793,10 @@ module.exports = function(log, config, oauthdb) {
       template,
       templateValues: {
         ...links,
-        action,
-        uid,
-        email,
+        ...translatorParams,
+        action: translator.format(action, translatorParams),
+        subject: translator.format(subject, translatorParams),
         icon: planEmailIconURL,
-        product: productName,
-        subject,
       },
     });
   };
@@ -1936,6 +1935,7 @@ module.exports = function(log, config, oauthdb) {
       templateName,
       'account-settings'
     );
+    links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" style="color:#ffffff;font-weight:500;"`;
     links.subscriptionTermsUrl = this._generateUTMLink(
       this.subscriptionTermsUrl,
       {},

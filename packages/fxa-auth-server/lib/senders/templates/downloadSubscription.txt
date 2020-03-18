@@ -1,9 +1,9 @@
 {{{subject}}}
 
-If you haven't already downloaded {{{product}}}, let's get started using all the features included in your subscription:
+{{{t "If you haven't already downloaded %(productName)s, let's get started using all the features included in your subscription:" }}}
 
 {{{link}}}
 
-Questions about your subscription? Our support team is here to help you:
+{{{t "Questions about your subscription? Our support team is here to help you:" }}}
 
 {{{subscriptionSupportUrl}}}

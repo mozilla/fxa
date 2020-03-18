@@ -259,38 +259,30 @@
                                         align="center"
                                         style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 14px; line-height: 18px; color: #ffffff; padding: 0 20px 30px;"
                                       >
-                                        <br /><br />You're receiving this email
-                                        because {{{ email }}} has a Firefox
-                                        account and you signed up for
-                                        {{{product}}}.<br /><br />
-                                        Manage your Firefox account settings by
-                                        visiting your
-                                        <a
-                                          href="{{{accountSettingsUrl}}}"
-                                          target="_blank"
-                                          style="color:#ffffff;font-weight:500;"
-                                          alias="AccountPage"
-                                          >account page</a
-                                        >.<br /><br />
+                                        <br /><br />
+                                        {{t "You're receiving this email because %(email)s has a Firefox account and you signed up for %(productName)s." }}
+                                        <br /><br />
+                                        {{{t "Manage your Firefox account settings by visiting your <a %(accountSettingsLinkAttributes)s>account page</a>." }}}
+                                        <br /><br />
                                         <a
                                           href="{{{subscriptionTermsUrl}}}"
                                           target="_blank"
                                           style="color:#ffffff;font-weight:500;"
                                           alias="TermsofService"
-                                          >Terms and cancellation policy</a
-                                        >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
+                                          >{{t "Terms and cancellation policy" }}</a>
+                                          &nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
                                           href="{{{cancelSubscriptionUrl}}}"
                                           target="_blank"
                                           style="color:#ffffff;font-weight:normal;"
                                           alias="CancelSubscription"
-                                          >Cancel subscription </a
+                                          >{{t "Cancel subscription" }}</a
                                         >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
                                         <a
                                           href="{{{updateBillingUrl}}}"
                                           target="_blank"
                                           style="color:#ffffff;font-weight:500;"
                                           alias="UpdateBillingInformation"
-                                          >Update billing information</a
+                                          >{{t "Update billing information" }}</a
                                         >
                                         <br />
                                       </td>
@@ -324,13 +316,13 @@
                                           target="_blank"
                                           style="color:#ffffff;font-weight:500;"
                                           alias="textlink1"
-                                          >Legal</a
+                                          >{{t "Legal" }}</a
                                         >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
                                           href="{{{privacyUrl}}}"
                                           target="_blank"
                                           style="color:#ffffff;font-weight:normal;"
                                           alias="textlink2"
-                                          >Privacy</a
+                                          >{{t "Privacy" }}</a
                                         >
                                       </td>
                                     </tr>
@@ -351,7 +343,4 @@
       </tr>
     </table>
   </body>
-
-  <!-- Exact Target tracking code -->
-  <custom name="opencounter" type="tracking"> </custom>
 </html>
