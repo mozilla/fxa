@@ -1,6 +1,8 @@
 {
   "comment_1468": "1468 is a hoek vulnerability that only applies if the library is used outside hapi",
+  "comment_1179": "1179 is a prototype pollution vulnerability in minimist. It's only used by eslint in this module.",
   "exceptions": [
-    "https://npmjs.com/advisories/1468"
+    "https://npmjs.com/advisories/1468",
+    "https://npmjs.com/advisories/1179"
   ]
 }
