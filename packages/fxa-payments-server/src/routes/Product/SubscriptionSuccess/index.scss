@@ -1,6 +1,6 @@
 @import '../../../../../fxa-content-server/app/styles/breakpoints';
 
-.product-confirmation {
+.product-confirmation-wrap {
   flex-direction: column-reverse;
 
   @include min-width('tablet') {

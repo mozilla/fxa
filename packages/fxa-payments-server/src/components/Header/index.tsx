@@ -12,10 +12,8 @@ export const Header = ({ profile, className = 'default' }: HeaderProps) => {
   const { avatar, displayName, email } = profile;
 
   return (
-    <header className={`${className} fxa-settings-header`}>
-      <h1 className="fxa-manage-account">
-        <span className="fxa-account-title">Firefox</span>
-      </h1>
+    <header className={`${className} fxa-settings-header`} role="banner">
+      <div className="fxa-logo" data-testid="branding" title="firefox"></div>
       <img
         className="avatar hoisted"
         src={avatar}

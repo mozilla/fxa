@@ -64,26 +64,3 @@
     }
   }
 }
-
-footer {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-
-  @include respond-to('simpleSmall') {
-    justify-content: center;
-  }
-
-  #about-moz-footer {
-    align-self: flex-start;
-    padding-left: 32px;
-
-    @include respond-to('simpleSmall') {
-      display: none;
-    }
-  }
-
-  #legal-footer {
-    align-self: flex-end;
-  }
-}
