@@ -1,3 +1,6 @@
 {
-  "exceptions": []
+  "comment_1179": "1179 is prototype pollution in minimist, used by tslint, mocha, handlebars. Doesn't affect us, as this library is only used by support agents, so untrusted external inputs aren't passed to handlebars.",
+  "exceptions": [
+    "https://npmjs.com/advisories/1179"
+  ]
 }

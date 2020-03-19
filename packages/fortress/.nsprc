@@ -1,3 +1,6 @@
 {
-  "exceptions": []
+  "comment_1179": "1179 is prototype pollution in minimist, used by eslint. Doesn't affect us, as we don't pass untrusted external inputs to eslint.",
+  "exceptions": [
+    "https://npmjs.com/advisories/1179"
+  ]
 }

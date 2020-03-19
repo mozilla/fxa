@@ -1,5 +1,6 @@
 {
   "comment_1168": "Exception added for 'subtext' vulnerability in hapi 17, fixed in hapi 18 branch. See https://github.com/mozilla/fxa/issues/2601",
+  "comment_1179": "1179 is prototype pollution in minimist, used by eslint, mocha, and grunt tools. Doesn't affect us, as we don't pass untrusted external inputs to those libraries.",
   "comment_1464": "Exception added for insufficient entropy error in 'cryptiles' in hapi 17 (cryptiles 3.x), fixed in hapi 18 (@hapi/cryptiles 4.1.2). See https://github.com/mozilla/fxa/issues/4035",
   "comment_1472": "Denial of Service vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
   "comment_1478": "Denial of Service vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
@@ -7,6 +8,7 @@
   "comment_1481": "Denial of Service vulnerability.  Need to upgrade to @hapi/@hapi.  See https://github.com/mozilla/fxa/issues/2601",
   "exceptions": [
     "https://npmjs.com/advisories/1168",
+    "https://npmjs.com/advisories/1179",
     "https://npmjs.com/advisories/1464",
     "https://npmjs.com/advisories/1472",
     "https://npmjs.com/advisories/1478",
