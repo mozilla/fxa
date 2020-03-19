@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup, findByText } from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { PlanDetails } from './index';
 import { MOCK_PLANS } from '../../../lib/test-utils';
@@ -18,81 +18,86 @@ it('renders specific details for known product ID', async () => {
 });
 
 const findMockPlan = (planId: string) => {
-  return MOCK_PLANS.find(x => x.plan_id === planId);
+  const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+  if (plan) {
+    return plan;
+  }
+  throw new Error('unable to find suitable Plan object for test execution.');
 };
 
 it('renders billing details correctly for daily plan', async () => {
   const plan_id = 'plan_daily';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText, queryByTestId } = render(
-    <Subject plan={plan} />
-  );
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
+
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 daily`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 daily`)).toBeInTheDocument();
 });
 
 it('renders billing details correctly for 6 days plan', async () => {
   const plan_id = 'plan_6days';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 every 6 days`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 every 6 days`)).toBeInTheDocument();
 });
 
 it('renders billing details correctly for weekly plan', async () => {
   const plan_id = 'plan_weekly';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 weekly`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 weekly`)).toBeInTheDocument();
 });
 
 it('renders billing details correctly for 6 weeks plan', async () => {
   const plan_id = 'plan_6days';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 every 6 weeks`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 every 6 weeks`)).toBeInTheDocument();
 });
 
 it('renders billing details correctly for monthly plan', async () => {
   const plan_id = 'plan_monthly';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 monthly`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 monthly`)).toBeInTheDocument();
 });
 
 it('renders billing details correctly for 6 month plan', async () => {
   const plan_id = 'plan_6months';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 every 6 months`)).toBeInTheDocument();
+  expect(
+    await getByText(`FPN billed $5.00 every 6 months`)
+  ).toBeInTheDocument();
 });
 
 it('renders billing details correctly for year plan', async () => {
   const plan_id = 'plan_yearly';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 yearly`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 yearly`)).toBeInTheDocument();
 });
 
 it('renders billing details correctly for 6 years plan', async () => {
   const plan_id = 'plan_6years';
   const plan = findMockPlan(plan_id);
 
-  const { findByText, queryByText } = render(<Subject plan={plan} />);
+  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
   await findByText("Let's set up your subscription");
-  expect(queryByText(`FPN billed $5.00 every 6 years`)).toBeInTheDocument();
+  expect(await getByText(`FPN billed $5.00 every 6 years`)).toBeInTheDocument();
 });
 
 const Loading = () => <div>Loading</div>;

@@ -18,10 +18,7 @@ export const DefaultDetails = ({
         $amount={formatCurrencyInCents(amount)}
         $intervalCount={interval_count}
       >
-        <p>
-          {product_name} billed ${amount} every {formatCurrencyInCents(amount)}{' '}
-          {interval}s.
-        </p>
+        <p />
       </Localized>
     </div>
   );
