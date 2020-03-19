@@ -1,3 +1,28 @@
+## 1.163.0
+
+### New features
+
+- metrics: send nav timing metrics to statsd/influxdb ([14aa96982](https://github.com/mozilla/fxa/commit/14aa96982))
+
+### Bug fixes
+
+- experiment: update sendSmsHeader frontend experiment to include previous control option ([0d16015a1](https://github.com/mozilla/fxa/commit/0d16015a1))
+- emails: Update cached email after changing primary email ([a09e53302](https://github.com/mozilla/fxa/commit/a09e53302))
+- payments: end-to-end subscription functional test with profile caching bugfix ([bdef8df9f](https://github.com/mozilla/fxa/commit/bdef8df9f))
+- recovery key: update post-verify recovery key styling to not look like a modal on mobile ([3da97ab39](https://github.com/mozilla/fxa/commit/3da97ab39))
+- content-server: only log out of Sync when disconnecting current device ([d2e6d3fdb](https://github.com/mozilla/fxa/commit/d2e6d3fdb))
+- fxa-content-server: add role and aria-label on div containing graphicId ([81a51754e](https://github.com/mozilla/fxa/commit/81a51754e))
+- deps: fixed kind-of advisory and added .nsprc to metrics-processor ([bba32995c](https://github.com/mozilla/fxa/commit/bba32995c))
+
+### Refactorings
+
+- relier: remove 'migration' param support ([34b98ab95](https://github.com/mozilla/fxa/commit/34b98ab95))
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1179 ([a5649db18](https://github.com/mozilla/fxa/commit/a5649db18))
+- todo: remove ancient TODO from the script ([6a2ec89c1](https://github.com/mozilla/fxa/commit/6a2ec89c1))
+
 ## 1.162.3
 
 No changes.

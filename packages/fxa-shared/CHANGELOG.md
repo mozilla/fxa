@@ -1,5 +1,11 @@
 # Change history
 
+## 1.163.0
+
+### Other changes
+
+- deps: updated fxa-shared deps and added vuln exception for minimist ([595d424f3](https://github.com/mozilla/fxa/commit/595d424f3))
+
 ## 1.162.3
 
 No changes.

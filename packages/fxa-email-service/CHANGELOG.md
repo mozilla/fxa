@@ -1,3 +1,10 @@
+## 1.163.0
+
+### Other changes
+
+- ci: no need to tag/push unchanged docker images ([96e38f1ec](https://github.com/mozilla/fxa/commit/96e38f1ec))
+- ci: improved ci build step output ([8784dc21e](https://github.com/mozilla/fxa/commit/8784dc21e))
+
 ## 1.162.3
 
 No changes.

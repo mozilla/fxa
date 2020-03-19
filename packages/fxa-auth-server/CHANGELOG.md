@@ -1,3 +1,24 @@
+## 1.163.0
+
+### New features
+
+- payments: enable l10n for subscription download email ([ca1a55122](https://github.com/mozilla/fxa/commit/ca1a55122))
+- secrets: pass in secrets.json file as env CONFIG_FILES where you can supply your own stripe keys ([dce8268b3](https://github.com/mozilla/fxa/commit/dce8268b3))
+- subscriptions: implement idempotency when creating a subscriptions ([b1c387e12](https://github.com/mozilla/fxa/commit/b1c387e12))
+- auth-server: update plan response format ([cf85ec068](https://github.com/mozilla/fxa/commit/cf85ec068))
+
+### Bug fixes
+
+- emails: update usage of button partial in emails to fix broken HTML structure ([2e57c3a91](https://github.com/mozilla/fxa/commit/2e57c3a91))
+- payments: end-to-end subscription functional test with profile caching bugfix ([bdef8df9f](https://github.com/mozilla/fxa/commit/bdef8df9f))
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1179 ([a5649db18](https://github.com/mozilla/fxa/commit/a5649db18))
+- mysql: removed purge_expired_tokens script ([a176b56b4](https://github.com/mozilla/fxa/commit/a176b56b4))
+- metrics: update calculation of auth server route perf metrics ([03a59a5e6](https://github.com/mozilla/fxa/commit/03a59a5e6))
+- auth-server: fix validator ([82e7819d6](https://github.com/mozilla/fxa/commit/82e7819d6))
+
 ## 1.162.3
 
 ### Bug fixes
