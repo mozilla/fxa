@@ -62,7 +62,6 @@ class SmsSendView extends FormView {
   }
 
   getAccount() {
-    // TODO - remove the `|| ...` when done with development
     return this.model.get('account') || this.user.getSignedInAccount();
   }
 
