@@ -588,6 +588,44 @@ const conf = (module.exports = convict({
     env: 'SOURCE_MAP_TYPE',
     format: String,
   },
+  statsd: {
+    enabled: {
+      doc: 'Enable StatsD',
+      format: Boolean,
+      default: false,
+      env: 'METRIC_ENABLED',
+    },
+    sampleRate: {
+      doc: 'Sampling rate for StatsD',
+      format: Number,
+      default: 1,
+      env: 'METRIC_SAMPLE_RATE',
+    },
+    maxBufferSize: {
+      doc: 'StatsD message buffer size in number of characters',
+      format: Number,
+      default: 500,
+      env: 'METRIC_BUFFER_SIZE',
+    },
+    host: {
+      doc: 'StatsD host to report to',
+      format: String,
+      default: 'localhost',
+      env: 'METRIC_HOST',
+    },
+    port: {
+      doc: 'Port number of StatsD server',
+      format: Number,
+      default: 8125,
+      env: 'METRIC_PORT',
+    },
+    prefix: {
+      doc: 'StatsD metrics name prefix',
+      format: String,
+      default: 'fxa-content.',
+      env: 'METRIC_PREFIX',
+    },
+  },
   static_directory: {
     default: 'app',
     doc: 'Directory that static files are served from.',

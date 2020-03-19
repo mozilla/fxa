@@ -43,6 +43,7 @@ registerSuite('flow-event', {
         },
         locale: 'en',
       },
+      statsd: { timing: sinon.stub() },
       time: 1479127399349,
     };
     flowEvent = proxyquire(path.resolve('server/lib/flow-event'), {
@@ -50,6 +51,7 @@ registerSuite('flow-event', {
       './configuration': mocks.config,
       './flow-metrics': mocks.flowMetrics,
       '../../../fxa-shared/express/geo-locate': mocks.geolocate,
+      './statsd': mocks.statsd,
     }).metricsRequest;
   },
 
@@ -344,6 +346,33 @@ registerSuite('flow-event', {
 
         'amplitude was called once': () => {
           assert.equal(mocks.amplitude.callCount, 1);
+        },
+
+        'statsd timing was called four times': () => {
+          assert.equal(mocks.statsd.timing.callCount, 4);
+        },
+
+        'statsd timing was called with the correct arguments': () => {
+          assert.deepEqual(mocks.statsd.timing.firstCall.args, [
+            'nt.total',
+            2000,
+            { view: 'signup' },
+          ]);
+          assert.deepEqual(mocks.statsd.timing.secondCall.args, [
+            'nt.network',
+            300,
+            { view: 'signup' },
+          ]);
+          assert.deepEqual(mocks.statsd.timing.thirdCall.args, [
+            'nt.server',
+            100,
+            { view: 'signup' },
+          ]);
+          assert.deepEqual(mocks.statsd.timing.lastCall.args, [
+            'nt.client',
+            200,
+            { view: 'signup' },
+          ]);
         },
       },
     },
