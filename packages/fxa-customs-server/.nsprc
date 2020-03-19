@@ -1,6 +1,8 @@
 {
+  "comment_1179": "1179 is prototype pollution in minimist, used by eslint, restify, bunyan. Doesn't affect us, as we don't pass untrusted external inputs to the customs server.",
   "comment_1464": "Exception added for insufficient entropy error in 'cryptiles' in hapi 17 (cryptiles 3.x), fixed in hapi 18 (@hapi/cryptiles 4.1.2). See https://github.com/mozilla/fxa/issues/4035",
   "exceptions": [
+    "https://npmjs.com/advisories/1179",
     "https://npmjs.com/advisories/1464"
   ]
 }

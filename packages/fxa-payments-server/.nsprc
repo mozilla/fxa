@@ -1,10 +1,12 @@
 {
   "comment_961": "961 is a DOS against node-sass",
+  "comment_1179": "1179 is prototype pollution in minimist, used by react-scripts, other libraries. See https://github.com/mozilla/fxa/issues/4592 to investigate whether handlebars might have a vulnerability.",
   "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by dev dep @storybook/react",
   "comment_1468": "1468 is a hoek vulnerability that only applies if the library is used outside hapi",
   "comment_1488": "1488 is a DoS against acorn (via webpack), which only applies if untrusted user content is passed in.",
   "exceptions": [
     "https://npmjs.com/advisories/961",
+    "https://npmjs.com/advisories/1179",
     "https://npmjs.com/advisories/1426",
     "https://npmjs.com/advisories/1468",
     "https://npmjs.com/advisories/1488"

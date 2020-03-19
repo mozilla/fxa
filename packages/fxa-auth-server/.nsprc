@@ -1,8 +1,10 @@
 {
   "comment_766": "766 is sandbox breakout in sandbox.",
+  "comment_1179": "1179 is prototype pollution in minimist, used by eslint, mocha, handlebars. Shouldn't affect us, as we don't pass untrusted external inputs to those libraries, but see https://github.com/mozilla/fxa/issues/4592 to investigate whether handlebars might have a vulnerability.",
   "comment_1488": "Denial of Service vulnerability in acorn. Doesn't affect us, as it's only used by i18n libraries.",
   "exceptions": [
     "https://npmjs.com/advisories/766",
+    "https://npmjs.com/advisories/1179",
     "https://npmjs.com/advisories/1488"
   ]
 }

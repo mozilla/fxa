@@ -7,6 +7,7 @@
   "comment_961": "961 is a DOS against node-sass",
   "comment_1065": "1065  is prototype pollution in lodash, used by convict, grunt-usemin, grunt-z-schema.",
   "comment_1084": "1084 is Mem denial of service is caused by cache not being removed even with maxage prop",
+  "comment_1179": "1179 is prototype pollution in minimist, used by eslint, grunt, webpack, i18n-abide, and handlebars. See https://github.com/mozilla/fxa/issues/4592 to investigate whether handlebars might have a vulnerability.",
   "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by uglifyjs-webpack-plugin",
   "comment_1217": "1217 is an arbitrary file write issue in decompress, used by @theintern/digdug",
   "comment_1488": "1488 is DoS against acorn, used in i18n libraries, grunt-sass-lint, and webpack. It only applies if untrusted user content is passed in.",
@@ -19,6 +20,7 @@
     "https://npmjs.com/advisories/961",
     "https://npmjs.com/advisories/1065",
     "https://npmjs.com/advisories/1084",
+    "https://npmjs.com/advisories/1179",
     "https://npmjs.com/advisories/1217",
     "https://npmjs.com/advisories/1426",
     "https://npmjs.com/advisories/1488"
