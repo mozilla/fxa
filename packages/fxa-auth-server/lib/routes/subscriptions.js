@@ -23,6 +23,7 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
+/** @typedef {import('stripe').Stripe.Charge} Charge */
 /** @typedef {import('../payments/stripe.js').AbbrevPlan} AbbrevPlan*/
 
 async function handleAuth(db, auth, fetchEmail = false) {
@@ -186,20 +187,94 @@ class DirectStripeRoutes {
     await this.customerChanged(request, uid, email);
 
     const account = await this.db.account(uid);
-    await this.mailer.sendDownloadSubscriptionEmail(account.emails, account, {
+
+    const mailParams = {
       acceptLanguage: account.locale,
       productId,
       planId,
+      planName: selectedPlan.plan_name,
       productName: selectedPlan.product_name,
       planEmailIconURL: planMetadata.emailIconURL,
       planDownloadURL: planMetadata.downloadURL,
-    });
+      ...(await this.extractInvoiceDetailsFromSubscription(subscription)),
+    };
+
+    await Promise.all([
+      this.mailer.sendDownloadSubscriptionEmail(
+        account.emails,
+        account,
+        mailParams
+      ),
+      this.mailer.sendSubscriptionFirstInvoiceEmail(
+        account.emails,
+        account,
+        mailParams
+      ),
+    ]);
+
     this.log.info('subscriptions.createSubscription.success', {
       uid,
       subscriptionId: subscription.id,
     });
     return {
       subscriptionId: subscription.id,
+    };
+  }
+
+  /**
+   * Extract invoice details from a subscription, mainly for emails
+   *
+   * @param {Subscription} subscription
+   */
+  async extractInvoiceDetailsFromSubscription(subscription) {
+    let invoiceNumber = '',
+      invoiceDate,
+      invoiceTotal = 0,
+      cardType = '',
+      lastFour = '',
+      nextInvoiceDate;
+
+    // Some defensive coding here, but we don't really have reason to think
+    // that the expected data structure from Stripe will vary. It makes type
+    // checking happy, at least.
+    try {
+      if (
+        subscription.latest_invoice &&
+        typeof subscription.latest_invoice === 'object'
+      ) {
+        let paymentIntent;
+        ({ current_period_end: nextInvoiceDate } = subscription);
+        ({
+          number: invoiceNumber,
+          created: invoiceDate,
+          total: invoiceTotal,
+          payment_intent: paymentIntent,
+        } = subscription.latest_invoice);
+        if (
+          paymentIntent &&
+          typeof paymentIntent === 'object' &&
+          paymentIntent.charges.data.length > 0
+        ) {
+          const charge = paymentIntent.charges.data[0];
+          ({
+            brand: cardType,
+            last4: lastFour,
+          } = charge.payment_method_details.card);
+        }
+      }
+    } catch (err) {
+      this.log.error('subscriptions.extractInvoiceDetailsFromSubscription', {
+        err,
+      });
+    }
+
+    return {
+      cardType,
+      lastFour,
+      invoiceNumber,
+      invoiceTotal: invoiceTotal / 100.0,
+      invoiceDate: new Date(invoiceDate * 1000),
+      nextInvoiceDate: new Date(nextInvoiceDate * 1000),
     };
   }
 

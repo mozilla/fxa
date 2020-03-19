@@ -1,4 +1,5 @@
 {
+  "subscriptionFirstInvoice": 1,
   "downloadSubscription": 1,
   "lowRecoveryCodes": 5,
   "newDeviceLogin": 5,

@@ -913,6 +913,70 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('extractInvoiceDetailsFromSubscription', () => {
+    it('extracts expected details from a subscription', async () => {
+      const result = await directStripeRoutesInstance.extractInvoiceDetailsFromSubscription(
+        {
+          current_period_end: 1587342112,
+          latest_invoice: {
+            created: 1584749783,
+            number: '8675309-jenny',
+            total: 1995,
+            payment_intent: {
+              charges: {
+                data: [
+                  {
+                    payment_method_details: {
+                      card: {
+                        brand: 'visa',
+                        last4: '5309',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        }
+      );
+      assert.deepEqual(result, {
+        cardType: 'visa',
+        invoiceDate: new Date(1584749783 * 1000),
+        invoiceNumber: '8675309-jenny',
+        invoiceTotal: 19.95,
+        lastFour: '5309',
+        nextInvoiceDate: new Date(1587342112 * 1000),
+      });
+    });
+
+    it('logs an error with unexpected data', async () => {
+      const result = await directStripeRoutesInstance.extractInvoiceDetailsFromSubscription(
+        {
+          current_period_end: 1587342112,
+          latest_invoice: {
+            created: 1584749783,
+            number: '8675309-jenny',
+            total: 1995,
+            payment_intent: {
+              charges: {
+                data: [{}],
+              },
+            },
+          },
+        }
+      );
+      assert.isTrue(log.error.called);
+      assert.deepEqual(result, {
+        cardType: '',
+        invoiceDate: new Date(1584749783 * 1000),
+        invoiceNumber: '8675309-jenny',
+        invoiceTotal: 19.95,
+        lastFour: '',
+        nextInvoiceDate: new Date(1587342112 * 1000),
+      });
+    });
+  });
+
   describe('handleOpenInvoice', () => {
     describe('when the payment_intent status requires payment method', () => {
       it('calls payInvoice', async () => {

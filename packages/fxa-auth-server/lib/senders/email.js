@@ -35,6 +35,7 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionFirstInvoice: 'subscription-first-invoice', // TODO: is this correct?
     downloadSubscription: 'new-subscription',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
@@ -69,6 +70,7 @@ module.exports = function(log, config, oauthdb) {
   // in template.
   const templateNameToContentMap = {
     downloadSubscription: 'download-subscription',
+    subscriptionFirstInvoice: 'subscription-first-invoice', // TODO: is this correct?
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
     passwordChanged: 'password-change',
@@ -129,6 +131,20 @@ module.exports = function(log, config, oauthdb) {
     }
     // return a locale-specific time
     return time.format('LTS (z) dddd, ll');
+  }
+
+  function constructLocalDateString(timeZone, locale, date) {
+    // if no timeZone is passed, use DEFAULT_TIMEZONE
+    moment.tz.setDefault(DEFAULT_TIMEZONE);
+    // if no locale is passed, use DEFAULT_LOCALE
+    locale = locale || DEFAULT_LOCALE;
+    moment.locale(locale);
+    let time = moment(date);
+    if (timeZone) {
+      time = time.tz(timeZone);
+    }
+    // return a locale-specific time
+    return time.format('dddd, ll');
   }
 
   function sesMessageTagsHeaderValue(templateName, serviceName) {
@@ -289,6 +305,15 @@ module.exports = function(log, config, oauthdb) {
   ) {
     const translator = this.translator(acceptLanguage);
     return constructLocalTimeString(timeZone, translator.language);
+  };
+
+  Mailer.prototype._constructLocalDateString = function(
+    timeZone,
+    acceptLanguage,
+    date
+  ) {
+    const translator = this.translator(acceptLanguage);
+    return constructLocalDateString(timeZone, translator.language, date);
   };
 
   Mailer.prototype.localize = function(message) {
@@ -1751,6 +1776,99 @@ module.exports = function(log, config, oauthdb) {
           message.timeZone,
           message.acceptLanguage
         ),
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionFirstInvoiceEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planName,
+      planEmailIconURL,
+      productName,
+      invoiceNumber,
+      invoiceDate,
+      invoiceTotal,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionFirstInvoice', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionFirstInvoice', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionFirstInvoice';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      planName,
+      uid,
+      email,
+      invoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        invoiceDate
+      ),
+      nextInvoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        nextInvoiceDate
+      ),
+    };
+    const subject = translator.gettext('%(planName)s payment confirmed');
+
+    // These are brand names, so they probably don't need l10n.
+    const cardTypeToText = {
+      amex: 'American Express',
+      diners: 'Diners Club',
+      discover: 'Discover',
+      jcb: 'JCB',
+      mastercard: 'MasterCard',
+      unionpay: 'UnionPay',
+      visa: 'Visa',
+      unknown: 'Unknown',
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceNumber,
+        invoiceDate,
+        invoiceTotal,
+        cardType: cardTypeToText[cardType] || cardTypeToText.unknown,
+        lastFour,
+        nextInvoiceDate,
       },
     });
   };

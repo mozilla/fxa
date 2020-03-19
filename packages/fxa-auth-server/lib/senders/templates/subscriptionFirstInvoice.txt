@@ -1,0 +1,19 @@
+{{{subject}}}
+
+{{{t "Your payment is currently processing and may take up to four business days to complete." }}}
+
+{{{t "You will receive a separate email with download instructions on how to start using %(planName)s." }}}
+
+{{{t "Your subscription will automatically renew each billing period unless you choose to cancel." }}}
+
+{{{t "Invoice Number: %(invoiceNumber)s" }}}
+
+{{{t "Charged $%(invoiceTotal)s on %(invoiceDateOnly)s" }}}
+
+{{{t "%(cardType)s card ending in %(lastFour)s" }}}
+
+{{{t "Next Invoice: %(nextInvoiceDateOnly)s" }}}
+
+Questions about your subscription? Our support team is here to help you:
+
+{{{subscriptionSupportUrl}}}
