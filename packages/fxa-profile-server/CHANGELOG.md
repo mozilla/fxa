@@ -1,3 +1,13 @@
+## 1.163.0
+
+### Bug fixes
+
+- payments: end-to-end subscription functional test with profile caching bugfix ([bdef8df9f](https://github.com/mozilla/fxa/commit/bdef8df9f))
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1179 ([a5649db18](https://github.com/mozilla/fxa/commit/a5649db18))
+
 ## 1.162.3
 
 No changes.

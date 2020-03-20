@@ -1,5 +1,11 @@
 # Change history
 
+## 1.163.0
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1179 ([a5649db18](https://github.com/mozilla/fxa/commit/a5649db18))
+
 ## 1.162.3
 
 No changes.

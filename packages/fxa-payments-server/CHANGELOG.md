@@ -1,5 +1,20 @@
 # Change history
 
+## 1.163.0
+
+### New features
+
+- secrets: pass in secrets.json file as env CONFIG_FILES where you can supply your own stripe keys ([dce8268b3](https://github.com/mozilla/fxa/commit/dce8268b3))
+- subscriptions: implement idempotency when creating a subscriptions ([b1c387e12](https://github.com/mozilla/fxa/commit/b1c387e12))
+
+### Bug fixes
+
+- metrics: add uid to Payments Amplitude events ([02fdad7f5](https://github.com/mozilla/fxa/commit/02fdad7f5))
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1179 ([a5649db18](https://github.com/mozilla/fxa/commit/a5649db18))
+
 ## 1.162.3
 
 No changes.

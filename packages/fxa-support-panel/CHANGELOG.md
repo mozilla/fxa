@@ -1,5 +1,15 @@
 # Change history
 
+## 1.163.0
+
+### Bug fixes
+
+- deps: fixed kind-of advisory and added .nsprc to metrics-processor ([bba32995c](https://github.com/mozilla/fxa/commit/bba32995c))
+
+### Other changes
+
+- deps: Updates to address nsp advisory 1179 ([a5649db18](https://github.com/mozilla/fxa/commit/a5649db18))
+
 ## 1.162.3
 
 No changes.
