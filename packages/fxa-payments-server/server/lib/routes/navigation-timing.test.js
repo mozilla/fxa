@@ -4,18 +4,10 @@
 
 'use strict';
 
-const mockGeolocate = () => ({ country: 'GD' });
 const mockStatsd = { timing: jest.fn() };
-const mockUAParser = function() {
-  return { getOS: () => ({ name: 'FxOS' }) };
-};
 const mockResponse = { status: jest.fn().mockReturnValue({ end: () => {} }) };
 const navTimingRoute = require('./navigation-timing');
-const buildRoute = (
-  geolocate = mockGeolocate,
-  UAParser = mockUAParser,
-  statsd = mockStatsd
-) => navTimingRoute(geolocate, UAParser, statsd);
+const buildRoute = (statsd = mockStatsd) => navTimingRoute(statsd);
 const route = buildRoute();
 const validRequestBody = {
   domainLookupStart: 0,
@@ -66,7 +58,7 @@ describe('navigation-timing route', () => {
         },
       };
       route.process(request, mockResponse);
-      const expectedTags = { country: 'GD', os: 'FxOS', path: 'a_b_c' };
+      const expectedTags = { path: 'a_b_c' };
       expect(mockStatsd.timing).toHaveBeenCalledTimes(6);
       expect(mockStatsd.timing).toHaveBeenNthCalledWith(
         1,
@@ -105,34 +97,6 @@ describe('navigation-timing route', () => {
         expectedTags
       );
       expect(mockResponse.status).toHaveBeenLastCalledWith(200);
-    });
-    test('should exclude country from tags when unavailable', () => {
-      const request = {
-        body: validRequestBody,
-        headers: {
-          'user-agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-        },
-      };
-      buildRoute(() => ({})).process(request, mockResponse);
-      const expectedTags = { os: 'FxOS', path: 'a_b_c' };
-      expect(mockStatsd.timing.mock.calls[0][2]).toStrictEqual(expectedTags);
-    });
-    test('should exclude OS from tags when unavailable', () => {
-      const request = {
-        body: validRequestBody,
-        headers: {
-          'user-agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
-        },
-      };
-
-      const noOsUAParser = function() {
-        return { getOS: () => {} };
-      };
-      buildRoute(mockGeolocate, noOsUAParser).process(request, mockResponse);
-      const expectedTags = { country: 'GD', path: 'a_b_c' };
-      expect(mockStatsd.timing.mock.calls[0][2]).toStrictEqual(expectedTags);
     });
     test('should not log timings on error', () => {
       const request = {

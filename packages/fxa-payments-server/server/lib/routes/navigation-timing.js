@@ -26,7 +26,7 @@ const navigationTimingSchema = joi.object().keys({
   responseStart: TIMESTAMP_MS.min(joi.ref('requestStart')),
 });
 
-module.exports = (geolocate, UAParser, statsd) => ({
+module.exports = statsd => ({
   method: 'post',
   path: '/navigation-timing',
   validate: { body: navigationTimingSchema },
@@ -44,27 +44,13 @@ module.exports = (geolocate, UAParser, statsd) => ({
   },
   process(request, response) {
     try {
-      const location = geolocate(request);
-      const tags = {};
       const nt = request.body;
-
-      if (location && location.country) {
-        tags.country = location.country;
-      }
-
-      if (request.headers['user-agent']) {
-        const uap = new UAParser(request.headers['user-agent']);
-        const os = uap.getOS();
-        if (os) {
-          tags.os = os.name;
-        }
-      }
-
       const url = new URL(nt.name);
-      tags.path = url.pathname
+      const path = url.pathname
         .split('/')
         .filter(x => !!x)
         .join('_');
+      const tags = { path };
 
       statsd.timing(
         'nt.network',

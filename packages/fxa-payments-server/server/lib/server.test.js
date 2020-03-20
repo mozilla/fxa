@@ -58,8 +58,6 @@ describe('Test simple server routes', () => {
 
 describe('Test route dependencies', () => {
   test('server.js should pass the correct dependencies to routes', () => {
-    const mockUAParser = () => {};
-    const mockGeolocate = jest.fn();
     const mockStatsdInstance = {};
     const mockStatsd = function() {
       return mockStatsdInstance;
@@ -81,20 +79,11 @@ describe('Test route dependencies', () => {
         }
       },
     }));
-    jest.mock('ua-parser-js', () => mockUAParser);
-    jest.mock(
-      '../../../fxa-shared/express/geo-locate.js',
-      () => () => () => () => mockGeolocate
-    );
     jest.mock('hot-shots', () => mockStatsd);
     jest.mock('./routes', () => mockRoutes);
     require('./server')();
 
     expect(mockRoutes).toHaveBeenCalledTimes(1);
-    expect(mockRoutes).toHaveBeenLastCalledWith(
-      mockGeolocate,
-      mockUAParser,
-      mockStatsdInstance
-    );
+    expect(mockRoutes).toHaveBeenLastCalledWith(mockStatsdInstance);
   });
 });
