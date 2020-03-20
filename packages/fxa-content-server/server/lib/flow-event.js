@@ -206,12 +206,18 @@ function logFlowEvent(event, data, request) {
 }
 
 function logStatsdPerfEvent(eventData) {
+  // See https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/metrics-events.md#success-event-names
   if (eventData.event.startsWith('flow.performance.')) {
+    const navTimingMetricNames = PERFORMANCE_TIMINGS.map(x => x.event);
     const perfMetricNameParts = eventData.event.split('.');
     const view = perfMetricNameParts[2];
-    const metricName =
-      perfMetricNameParts.length === 3 ? 'total' : perfMetricNameParts[3];
-    statsd.timing(`nt.${metricName}`, eventData.flow_time, { view });
+    if (perfMetricNameParts.length === 3) {
+      statsd.timing('nt.total', eventData.flow_time, { view });
+    } else if (navTimingMetricNames.includes(perfMetricNameParts[3])) {
+      statsd.timing(`nt.${perfMetricNameParts[3]}`, eventData.flow_time, {
+        view,
+      });
+    }
   }
 }
 
