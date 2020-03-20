@@ -373,7 +373,7 @@ export const MOCK_PLANS: Plan[] = [
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'month',
-    interval_count: 6,
+    interval_count: 1,
     amount: 500,
     currency: 'usd',
     product_metadata: {
