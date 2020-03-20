@@ -7,9 +7,9 @@ module.exports = {
     strategy: 'oauth',
     scope: ['profile:uid'],
   },
-  handler: function email(req, reply) {
-    reply({
+  handler: async function email(req) {
+    return {
       uid: req.auth.credentials.user,
-    });
+    };
   },
 };

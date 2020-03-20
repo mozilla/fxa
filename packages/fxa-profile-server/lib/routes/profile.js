@@ -4,7 +4,6 @@
 
 const Joi = require('joi');
 const checksum = require('checksum');
-const P = require('../promise');
 const {
   determineClientVisibleSubscriptionCapabilities,
 } = require('../subscriptions');
@@ -42,15 +41,13 @@ module.exports = {
       sub: Joi.string().allow(null),
     },
   },
-  handler: function profile(req, reply) {
+  handler: async function profile(req, h) {
     const server = req.server;
     const creds = req.auth.credentials;
 
-    function createResponse(err, result, cached, report) {
-      if (err) {
-        return reply(err);
-      }
-
+    function createResponse(response) {
+      const { value, cached, report } = response;
+      const result = value.result;
       // `profileChangedAt` is an internal implementation detail that we don't
       // return to reliers. As of now, we don't expect them to have any
       // use for this.
@@ -70,10 +67,10 @@ module.exports = {
         delete result.subscriptionsByClientId;
       }
 
-      let rep = reply(result);
+      let rep = h.response(result);
       const etag = computeEtag(result);
       if (etag) {
-        rep = rep.etag(etag);
+        rep = h.response(result).etag(etag);
       }
       const lastModified = cached ? new Date(cached.stored) : new Date();
       if (cached) {
@@ -89,24 +86,21 @@ module.exports = {
       return rep.header('last-modified', lastModified.toUTCString());
     }
 
-    server.methods.profileCache.get(req, (err, result, cached, report) => {
-      if (err) {
-        return reply(err);
-      }
-
+    return server.methods.profileCache.get(req).then(response => {
+      const result = response.value.result;
       // Check to see if the oauth-server is reporting a newer `profileChangedAt`
       // timestamp from validating the token, if so, lets invalidate the cache
       // and set new value.
       if (result.profileChangedAt < creds.profile_changed_at) {
-        return P.fromCallback(cb =>
-          server.methods.profileCache.drop(creds.user, cb)
-        ).then(() => {
+        return server.methods.profileCache.drop(creds.user).then(() => {
           logger.info('profileChangedAt:cacheCleared', { uid: creds.user });
-          server.methods.profileCache.get(req, createResponse);
+          return server.methods.profileCache.get(req).then(response => {
+            return createResponse(response);
+          });
         });
       }
 
-      return createResponse(err, result, cached, report);
+      return createResponse(response);
     });
   },
 };

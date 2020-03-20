@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = {
-  handler: function lbheartbeat(req, reply) {
-    reply({ http: 'okay' });
+  handler: async function lbheartbeat() {
+    return { http: 'okay' };
   },
 };

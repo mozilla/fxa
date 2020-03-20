@@ -48,22 +48,22 @@ module.exports = {
       url: Joi.string().required(),
     },
   },
-  handler: function upload(req, reply) {
+  handler: async function upload(req, h) {
     const uid = req.auth.credentials.user;
-    req.server.methods.profileCache.drop(uid, () => {
+    return req.server.methods.profileCache.drop(uid).then(() => {
       const id = img.id();
       // precaution to avoid the default id from being overwritten
       assert(id !== DEFAULT_AVATAR_ID);
       const url = avatarShared.fxaUrl(id);
-      workers
+      return workers
         .upload(id, req.payload, req.headers)
         .then(function save() {
           return db.addAvatar(id, uid, url, FXA_PROVIDER);
         })
-        .done(function uploadDone() {
+        .then(function uploadDone() {
           notifyProfileUpdated(uid); // Don't wait on promise
-          reply({ url: url, id: hex(id) }).code(201);
-        }, reply);
+          return h.response({ url: url, id: hex(id) }).code(201);
+        });
     });
   },
 };

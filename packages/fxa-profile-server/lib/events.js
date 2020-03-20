@@ -46,7 +46,7 @@ module.exports = function(server) {
     var userId = getUserId(message);
     return P.resolve()
       .then(() => {
-        server.methods.profileCache.drop(userId, () => {
+        server.methods.profileCache.drop(userId).then(() => {
           logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
         });
       })
@@ -59,7 +59,7 @@ module.exports = function(server) {
     var userId = getUserId(message);
     return P.resolve()
       .then(function() {
-        server.methods.profileCache.drop(userId, () => {
+        server.methods.profileCache.drop(userId).then(() => {
           logger.info('profileDataChanged:cacheCleared', { uid: userId });
         });
       })

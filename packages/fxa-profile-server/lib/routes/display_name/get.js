@@ -17,15 +17,15 @@ module.exports = {
       displayName: Joi.string().max(256),
     },
   },
-  handler: function avatar(req, reply) {
-    db.getDisplayName(req.auth.credentials.user).done(function(result) {
+  handler: async function displayNameGet(req, h) {
+    return db.getDisplayName(req.auth.credentials.user).then(function(result) {
       if (result && result.displayName) {
-        reply({ displayName: result.displayName }).etag(
+        return h.response({ displayName: result.displayName }).etag(
           checksum(result.displayName)
         );
       } else {
-        reply({}).code(204);
+        return h.response({}).code(204);
       }
-    }, reply);
+    });
   },
 };

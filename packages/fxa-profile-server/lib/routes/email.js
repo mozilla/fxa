@@ -17,33 +17,31 @@ module.exports = {
       email: Joi.string().required(),
     },
   },
-  handler: function email(req, reply) {
-    req.server.inject(
+  handler: async function email(req) {
+    return req.server.inject(
       {
         allowInternals: true,
         method: 'get',
         url: '/v1/_core_profile',
         headers: req.headers,
         credentials: req.auth.credentials,
-      },
-      res => {
+      })
+      .then(res => {
         if (res.statusCode !== 200) {
-          return reply(res);
+          return res;
         }
         // Since this route requires 'email' scope,
         // we should always get an email field back.
         if (!res.result.email) {
           logger.error('request.auth_server.fail', res.result);
-          return reply(
-            new AppError({
-              code: 500,
-              message: 'auth server did not return email',
-            })
-          );
+          throw new AppError({
+            code: 500,
+            message: 'auth server did not return email',
+          });
         }
-        return reply({
+        return {
           email: res.result.email,
-        });
+        };
       }
     );
   },

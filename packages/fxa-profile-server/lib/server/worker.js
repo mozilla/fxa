@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
 const P = require('../promise');
 
@@ -14,12 +14,9 @@ const logger = require('../logging')('server.worker');
 
 const SIZES = img.SIZES;
 
-exports.create = function() {
+exports.create = async function() {
   var server = new Hapi.Server({
     debug: false,
-  });
-
-  server.connection({
     host: config.worker.host,
     port: config.worker.port,
   });
@@ -28,8 +25,8 @@ exports.create = function() {
     method: 'GET',
     path: '/__heartbeat__',
     config: {
-      handler: function upload(req, reply) {
-        reply({});
+      handler: async function heartbeat() {
+        return {};
       },
     },
   });
@@ -49,11 +46,11 @@ exports.create = function() {
         allow: ['image/png', 'image/jpeg'],
         maxBytes: config.img.uploads.maxSize,
       },
-      handler: function upload(req, reply) {
+      handler: async function upload(req) {
         logger.debug('worker.receive', {
           contentLength: req.headers['content-length'],
         });
-        compute.image(req.params.id, req.payload).done(reply, reply);
+        return compute.image(req.params.id, req.payload);
       },
     },
   });
@@ -62,27 +59,25 @@ exports.create = function() {
     method: 'DELETE',
     path: '/a/{id}',
     config: {
-      handler: function delete_(req, reply) {
-        P.all(
+      handler: async function delete_(req) {
+        return P.all(
           Object.keys(SIZES).map(function(name) {
             if (name === 'default') {
               return req.params.id;
             }
             return req.params.id + '_' + name;
           })
-        )
-          .map(img.delete)
-          .done(reply, reply);
+        ).map(img.delete);
       },
     },
   });
 
-  server.ext('onPreResponse', function(request, next) {
+  server.ext('onPreResponse', function(request) {
     var response = request.response;
     if (response.isBoom) {
       response = AppError.translate(response);
     }
-    next(response);
+    return response;
   });
 
   return server;

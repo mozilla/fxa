@@ -45,75 +45,83 @@ module.exports = {
       profileChangedAt: Joi.number().optional(),
     },
   },
-  handler: function _core_profile(req, reply) {
-    request.get(
-      AUTH_SERVER_URL,
-      {
-        headers: {
-          Authorization: 'Bearer ' + req.auth.credentials.token,
-        },
-        json: true,
-      },
-      (err, res, body) => {
-        if (err) {
-          logger.error('request.auth_server.network', err);
-          return reply(new AppError.authError('network error'));
-        }
-        if (res.statusCode >= 400) {
-          body = body && body.code ? body : { code: res.statusCode };
-          if (res.statusCode >= 500) {
-            logger.error('request.auth_server.fail', body);
-            return reply(new AppError.authError('auth-server server error'));
-          }
-          // Return Unauthorized if the token turned out to be invalid,
-          // or if the account has been deleted on the auth-server.
-          // (we can still have valid oauth tokens for deleted accounts,
-          // because distributed state).
-          if (body.code === 401 || body.errno === 102) {
-            logger.info('request.auth_server.fail', body);
-            return reply(new AppError.unauthorized(body.message));
-          }
-          // There should be no other 400-level errors, unless we're
-          // sending a badly-formed request of our own.  That warrants
-          // an "Internal Server Error" on our part.
-          logger.error('request.auth_server.fail', body);
-          return reply(
-            new AppError({
-              code: 500,
-              message: 'error communicating with auth server',
-            })
-          );
-        }
+  handler: async function _core_profile(req) {
+    function makeReq() {
+      return new Promise((resolve, reject) => {
+        request.get(
+          AUTH_SERVER_URL,
+          {
+            headers: {
+              Authorization: 'Bearer ' + req.auth.credentials.token,
+            },
+            json: true,
+          },
+          (err, res, body) => {
+            if (err) {
+              logger.error('request.auth_server.network', err);
+              return reject(new AppError.authError('network error'));
+            }
+            if (res.statusCode >= 400) {
+              body = body && body.code ? body : { code: res.statusCode };
+              if (res.statusCode >= 500) {
+                logger.error('request.auth_server.fail', body);
+                return reject(
+                  new AppError.authError('auth-server server error')
+                );
+              }
+              // Return Unauthorized if the token turned out to be invalid,
+              // or if the account has been deleted on the auth-server.
+              // (we can still have valid oauth tokens for deleted accounts,
+              // because distributed state).
+              if (body.code === 401 || body.errno === 102) {
+                logger.info('request.auth_server.fail', body);
+                return reject(new AppError.unauthorized(body.message));
+              }
+              // There should be no other 400-level errors, unless we're
+              // sending a badly-formed request of our own.  That warrants
+              // an "Internal Server Error" on our part.
+              logger.error('request.auth_server.fail', body);
+              return reject(
+                new AppError({
+                  code: 500,
+                  message: 'error communicating with auth server',
+                })
+              );
+            }
 
-        if (!body) {
-          return reply(new AppError('empty body from auth response'));
-        }
-        const result = {};
-        if (typeof body.email !== 'undefined') {
-          result.email = body.email;
-        }
-        if (typeof body.locale !== 'undefined') {
-          result.locale = body.locale;
-        }
-        // Translate from internal terminology into OAuth-style terminology.
-        if (typeof body.authenticationMethods !== 'undefined') {
-          result.amrValues = body.authenticationMethods;
-        }
-        if (typeof body.authenticatorAssuranceLevel !== 'undefined') {
-          result.twoFactorAuthentication =
-            body.authenticatorAssuranceLevel >= 2;
-        }
-        if (typeof body.subscriptions !== 'undefined') {
-          result.subscriptions = body.subscriptions;
-        }
-        if (typeof body.subscriptionsByClientId !== 'undefined') {
-          result.subscriptionsByClientId = body.subscriptionsByClientId;
-        }
-        if (typeof body.profileChangedAt !== 'undefined') {
-          result.profileChangedAt = body.profileChangedAt;
-        }
-        reply(result);
-      }
-    );
+            if (!body) {
+              return reject(new AppError('empty body from auth response'));
+            }
+            const result = {};
+            if (typeof body.email !== 'undefined') {
+              result.email = body.email;
+            }
+            if (typeof body.locale !== 'undefined') {
+              result.locale = body.locale;
+            }
+            // Translate from internal terminology into OAuth-style terminology.
+            if (typeof body.authenticationMethods !== 'undefined') {
+              result.amrValues = body.authenticationMethods;
+            }
+            if (typeof body.authenticatorAssuranceLevel !== 'undefined') {
+              result.twoFactorAuthentication =
+                body.authenticatorAssuranceLevel >= 2;
+            }
+            if (typeof body.subscriptions !== 'undefined') {
+              result.subscriptions = body.subscriptions;
+            }
+            if (typeof body.subscriptionsByClientId !== 'undefined') {
+              result.subscriptionsByClientId = body.subscriptionsByClientId;
+            }
+            if (typeof body.profileChangedAt !== 'undefined') {
+              result.profileChangedAt = body.profileChangedAt;
+            }
+            return resolve(result);
+          }
+        );
+      });
+    }
+
+    return makeReq();
   },
 };

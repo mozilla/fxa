@@ -15,13 +15,14 @@ mkdirp.sync(config.get('img.uploads.dest.public'));
 // eslint-disable-next-line space-unary-ops
 const local = new (require('../../lib/img/local'))();
 const inject = require('./inject');
-const WORKER = require('../../lib/server/worker').create();
 
 const IS_AWS = config.get('img.driver') === 'aws';
 
 const SIZES = require('../../lib/img').SIZES;
 
-module.exports = function mock(options) {
+module.exports = async function mock(options) {
+  const WORKER = await require('../../lib/server/worker').create();
+
   assert(options.userid);
   const TOKEN_GOOD = JSON.stringify({
     user: options.userid,

@@ -42,21 +42,21 @@ module.exports = {
       avatar: Joi.string().max(256),
     },
   },
-  handler: function avatar(req, reply) {
+  handler: async function avatar(req, h) {
     var uid = req.auth.credentials.user;
-    db.getSelectedAvatar(uid)
+    return db.getSelectedAvatar(uid)
       .then(avatarOrDefault)
-      .done(function(result) {
-        var rep = reply(result);
+      .then(function(result) {
+        var rep = result;
         if (result.id) {
           var info = {
             event: 'avatar.get',
             uid: uid,
           };
           logger.info('activityEvent', info);
-          rep = rep.etag(result.id);
+          rep = h.response(result).etag(result.id);
         }
         return rep;
-      }, reply);
+      });
   },
 };
