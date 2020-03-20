@@ -3,10 +3,40 @@ import { Localized } from 'fluent-react';
 import { PlanDetailsProps } from './index';
 import { formatCurrencyInCents } from '../../../lib/formats';
 
+function createDefaultPlanDetails(
+  productName: string,
+  amount: number,
+  interval: string,
+  intervalCount: number
+) {
+  const baseString = `${productName} billed \$${formatCurrencyInCents(amount)}`;
+
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${baseString} daily`;
+      return `${baseString} every ${intervalCount} days`;
+    case 'week':
+      if (intervalCount === 1) return `${baseString} weekly`;
+      return `${baseString} every ${intervalCount} weeks`;
+    case 'month':
+      if (intervalCount === 1) return `${baseString} monthly`;
+      return `${baseString} every ${intervalCount} months`;
+    case 'year':
+      if (intervalCount === 1) return `${baseString} yearly`;
+      return `${baseString} every ${intervalCount} years`;
+  }
+}
+
 export const DefaultDetails = ({
   plan: { amount, interval, interval_count, product_name },
 }: PlanDetailsProps) => {
   const planDetailsId = `${interval}-based-plan-details-amount`;
+  const defaultString = createDefaultPlanDetails(
+    product_name,
+    amount,
+    interval,
+    interval_count
+  );
   return (
     <div className="plan-details" data-testid="plan-123donepro">
       <Localized id="product-plan-details-heading">
@@ -18,7 +48,7 @@ export const DefaultDetails = ({
         $amount={formatCurrencyInCents(amount)}
         $intervalCount={interval_count}
       >
-        <p />
+        <p>{defaultString}</p>
       </Localized>
     </div>
   );
