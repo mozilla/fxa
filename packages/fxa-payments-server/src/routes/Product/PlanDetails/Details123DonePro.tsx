@@ -9,7 +9,7 @@ function createDefaultPlanDetails(
   interval: string,
   intervalCount: number
 ) {
-  const baseString = `${productName} billed \$${formatCurrencyInCents(amount)}`;
+  const baseString = `${productName} billed $${formatCurrencyInCents(amount)}`;
 
   switch (interval) {
     case 'day':
