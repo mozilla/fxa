@@ -131,7 +131,6 @@
     "redux-thunk": "^2.3.0",
     "serve-static": "^1.13.2",
     "type-to-reducer": "^1.2.0",
-    "ua-parser-js": "^0.7.21",
     "uuid": "^7.0.2"
   },
   "engines": {

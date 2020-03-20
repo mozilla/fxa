@@ -70,20 +70,6 @@ const conf = convict({
     env: 'FLOW_ID_EXPIRY',
     format: 'duration',
   },
-  geodb: {
-    dbPath: {
-      default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
-      doc: 'Path to maxmind database file',
-      env: 'GEODB_DBPATH',
-      format: String,
-    },
-    enabled: {
-      default: true,
-      doc: 'Feature flag for geolocation',
-      env: 'GEODB_ENABLED',
-      format: Boolean,
-    },
-  },
   hstsEnabled: {
     default: true,
     doc: 'Send a Strict-Transport-Security header',

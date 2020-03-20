@@ -7,14 +7,12 @@ const mockNavTiming = jest.fn();
 jest.mock('./post-metrics', () => ({}));
 jest.mock('./navigation-timing', () => mockNavTiming);
 
-const geolocate = {};
-const UAParser = {};
 const statsd = {};
 
 describe('Route dependencies', () => {
   test('navigation-timing should receive the correct dependencies', () => {
-    routes(geolocate, UAParser, statsd);
+    routes(statsd);
     expect(mockNavTiming).toHaveBeenCalledTimes(1);
-    expect(mockNavTiming).toHaveBeenCalledWith(geolocate, UAParser, statsd);
+    expect(mockNavTiming).toHaveBeenCalledWith(statsd);
   });
 });

@@ -30,19 +30,7 @@ module.exports = () => {
   const { cors, routing } = require('../../../fxa-shared/express')();
 
   const NOOP = () => {};
-  const UAParser = require('ua-parser-js');
   const StatsD = require('hot-shots');
-  const geodbConfig = config.get('geodb');
-  let geolocate = NOOP;
-  if (geodbConfig.enabled) {
-    const geodb = require('../../../fxa-geodb/lib/fxa-geodb.js')(geodbConfig);
-    const remoteAddress = require('../../../fxa-shared/express/remote-address')(
-      config.get('clientAddressDepth')
-    );
-    geolocate = require('../../../fxa-shared/express/geo-locate.js')(geodb)(
-      remoteAddress
-    )(log('geolocate'));
-  }
   const statsdConfig = config.get('statsd');
   const statsd = statsdConfig.enabled
     ? new StatsD({
@@ -56,7 +44,7 @@ module.exports = () => {
         timing: NOOP,
       };
 
-  const routes = require('./routes')(geolocate, UAParser, statsd);
+  const routes = require('./routes')(statsd);
 
   const app = express();
 
