@@ -1,6 +1,10 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, cleanup, wait } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import fs from 'fs';
+import path from 'path';
+import { FluentBundle } from 'fluent';
+import { LocalizationProvider } from 'fluent-react';
 import { PlanDetails } from './index';
 import { MOCK_PLANS } from '../../../lib/test-utils';
 
@@ -32,16 +36,57 @@ it('renders billing details correctly for daily plan', async () => {
   const { findByText, getByText } = render(<PlanDetails plan={plan} />);
 
   await findByText("Let's set up your subscription");
-  expect(await getByText(`FPN billed $5.00 daily`)).toBeInTheDocument();
+  await wait(() =>
+    expect(getByText(`FPN billed $5.00 daily`)).toBeInTheDocument()
+  );
 });
+
+async function createMessagesGenerator() {
+  console.log('find me');
+  console.log(__dirname);
+  const filepath = path.join(
+    __dirname,
+    '..',
+    '..',
+    '..',
+    '..',
+    'public',
+    'locales',
+    'en-US',
+    'main.ftl'
+  );
+  console.log(filepath);
+  const enUS = (await fs.readFileSync(filepath)).toString();
+
+  return function* generateBundles() {
+    const bundle = new FluentBundle('en-US');
+    bundle.addMessages(enUS);
+    yield bundle;
+  };
+}
 
 it('renders billing details correctly for 6 days plan', async () => {
   const plan_id = 'plan_6days';
   const plan = findMockPlan(plan_id);
+  const generateBundles = await createMessagesGenerator();
+  const bundles = generateBundles();
 
-  const { findByText, getByText } = render(<PlanDetails plan={plan} />);
-  await findByText("Let's set up your subscription");
-  expect(await getByText(`FPN billed $5.00 every 6 days`)).toBeInTheDocument();
+  const { getByText } = render(
+    <LocalizationProvider bundles={bundles}>
+      <PlanDetails plan={plan} />
+    </LocalizationProvider>
+  );
+
+  expect(getByText("Let's set up your subscription")).toBeInTheDocument();
+  await wait(
+    () =>
+      expect(
+        getByText('FPN⁩ billed $⁨5.00⁩ ⁨every ⁨6⁩ days⁩')
+      ).toBeInTheDocument(),
+    {
+      timeout: 4000,
+    }
+  );
 });
 
 it('renders billing details correctly for weekly plan', async () => {
