@@ -2,20 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// TO DO: CORS, other security-related tasks (#4312)
+
 import express from 'express';
+import bodyParser from 'body-parser';
 import path from 'path';
 import serveStatic from 'serve-static';
 import helmet from 'helmet';
+import version from './version';
 import config from '../config';
 import { noRobots } from './no-robots';
 import log from './logging';
-
-const logger = log('server.main');
-const proxyUrl = config.get('proxyStaticResourcesFrom');
+import csp from '../lib/csp';
+import cspBlocking from '../lib/csp/blocking';
+import cspReportOnly from '../lib/csp/report-only';
 
 const app = express();
+const logger = log('server.main');
+const proxyUrl = config.get('proxyStaticResourcesFrom');
+const cspRulesBlocking = cspBlocking(config);
+const cspRulesReportOnly = cspReportOnly(config);
 
-// TO DO: CSP, CORS, other security-related tasks (#4312)
+logger.info('version', { version: version });
 
 app.use(
   helmet.frameguard({
@@ -23,8 +31,26 @@ app.use(
   }),
   helmet.xssFilter(),
   helmet.noSniff(),
-  noRobots as express.RequestHandler
+  noRobots as express.RequestHandler,
+  bodyParser.text({
+    type: 'text/plain',
+  }),
+  bodyParser.json({
+    type: ['json', '*/json', 'application/csp-report'],
+  })
 );
+
+if (config.get('csp.enabled')) {
+  app.use(csp({ rules: cspRulesBlocking }) as express.RequestHandler);
+}
+
+if (config.get('csp.reportOnlyEnabled')) {
+  // There has to be more than a `reportUri`
+  // to enable reportOnly CSP.
+  if (Object.keys(cspRulesReportOnly.directives).length > 1) {
+    app.use(csp({ rules: cspRulesReportOnly }) as express.RequestHandler);
+  }
+}
 
 app.disable('x-powered-by');
 
@@ -38,6 +64,12 @@ if (hstsEnabled) {
     })
   );
 }
+
+app.get('/__lbheartbeat__', (_, res) => res.type('txt').send('Ok'));
+
+app.get('/__version__', (_, res) =>
+  res.type('application/json').send(JSON.stringify(version))
+);
 
 // Note - the static route handlers must come last
 // because the proxyUrl handler's app.use('/') captures
@@ -61,6 +93,8 @@ if (proxyUrl) {
     })
   );
 }
+
+export default app;
 
 export async function createServer() {
   const port = config.get('listen.port');

@@ -11,7 +11,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["../types", "node_modules/@types"]
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "typeRoots": ["../types", "../node_modules/@types"]
   },
   "include": ["."]
 }

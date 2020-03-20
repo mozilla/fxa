@@ -32,6 +32,28 @@ const conf = convict({
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
   },
+  csp: {
+    enabled: {
+      default: true,
+      doc: 'Send "Content-Security-Policy" header',
+      env: 'CSP_ENABLED',
+    },
+    reportUri: {
+      default: '/_/csp-violation',
+      doc: 'Location of "report-uri" for full, blocking CSP rules',
+      env: 'CSP_REPORT_URI',
+    },
+    reportOnlyEnabled: {
+      default: false,
+      doc: 'Send "Content-Security-Policy-Report-Only" header',
+      env: 'CSP_REPORT_ONLY_ENABLED',
+    },
+    reportOnlyUri: {
+      default: '/_/csp-violation-report-only',
+      doc: 'Location of "report-uri" for report-only CSP rules',
+      env: 'CSP_REPORT_ONLY_URI',
+    },
+  },
   listen: {
     host: {
       default: '127.0.0.1',
