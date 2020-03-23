@@ -44,6 +44,7 @@ export interface Plan {
   currency: string;
   amount: number;
   interval: string;
+  interval_count: number;
 }
 
 // https://mana.mozilla.org/wiki/pages/viewpage.action?spaceKey=COPS&title=SP+Tiered+Product+Support#SPTieredProductSupport-MetadataAgreements

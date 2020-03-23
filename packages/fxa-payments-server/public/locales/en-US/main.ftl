@@ -38,7 +38,26 @@ privacy = Privacy Notice
 
 ## plan details
 product-plan-details-heading = Let's set up your subscription
-product-plan-details-amount = { $productName } for ${ $amount } per { $interval }
+
+day-based-plan-details-amount = { $intervalCount ->
+  [one] { $productName } billed ${ $amount } daily
+  *[other] { $productName } billed ${ $amount } every {$intervalCount} days
+}
+
+week-based-plan-details-amount = { $intervalCount ->
+  [one] { $productName } billed ${ $amount } weekly
+  *[other] { $productName } billed ${ $amount } every {$intervalCount} weeks
+}
+
+month-based-plan-details-amount = { $intervalCount ->
+  [one] { $productName } billed ${ $amount } monthly
+  *[other] { $productName } billed ${ $amount } every {$intervalCount} months
+}
+
+year-based-plan-details-amount = { $intervalCount ->
+  [one] { $productName } billed ${ $amount } yearly
+  *[other] { $productName } billed ${ $amount } every {$intervalCount} years
+}
 
 ## Product route
 product-plan-error =
