@@ -7,7 +7,17 @@ import path from 'path';
 import { FluentBundle } from 'fluent';
 import { Localized } from 'fluent-react';
 import { PlanDetails } from './index';
+import { DefaultDetails as DoneProDetails } from './Details123DonePro';
 import { MOCK_PLANS } from '../../../lib/test-utils';
+import { Plan } from '../../../store/types';
+
+const findMockPlan = (planId: string): Plan => {
+  const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+  if (plan) {
+    return plan;
+  }
+  throw new Error('unable to find suitable Plan object for test execution.');
+};
 
 describe('PlanDetails Component', () => {
   afterEach(cleanup);
@@ -24,14 +34,6 @@ describe('PlanDetails Component', () => {
     );
     await findByTestId('plan-123donepro');
   });
-
-  const findMockPlan = (planId: string) => {
-    const plan = MOCK_PLANS.find(x => x.plan_id === planId);
-    if (plan) {
-      return plan;
-    }
-    throw new Error('unable to find suitable Plan object for test execution.');
-  };
 
   const Loading = () => <div>Loading</div>;
 
@@ -376,6 +378,194 @@ describe('PlanDetails Component', () => {
 
         expect(actual == expected);
       });
+    });
+  });
+});
+
+describe('123Done PlanDetails Component', () => {
+  describe('rendering the plan billing Localized component', () => {
+    it('renders Localized for daily plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_daily';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'day-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 daily';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(1);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for 6 days plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6days';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'day-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 every 6 days';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(6);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for weekly plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_weekly';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'week-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 weekly';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(1);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for 6 weeks plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6weeks';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'week-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 every 6 weeks';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(6);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for monthly plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_monthly';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'month-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 monthly';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(1);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for 6 months plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6months';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'month-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 every 6 months';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(6);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for yearly plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_yearly';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'year-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 yearly';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(1);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
+    });
+
+    it('renders Localized for years plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6years';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'year-based-plan-details-amount';
+      const expectedMsg = 'FPN billed $5.00 every 6 years';
+
+      const testRenderer = TestRenderer.create(<DoneProDetails plan={plan} />);
+      const testInstance = testRenderer.root;
+
+      const localizedComponents = testInstance.findAllByType(Localized);
+
+      expect(localizedComponents).toHaveLength(2);
+      const planDetailsLocalized = localizedComponents[1];
+      expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
+      expect(planDetailsLocalized.props.$productName).toBe('FPN');
+      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$intervalCount).toBe(6);
+
+      expect(planDetailsLocalized.props.children.props.children).toBe(
+        expectedMsg
+      );
     });
   });
 });
