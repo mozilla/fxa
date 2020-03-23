@@ -1291,6 +1291,10 @@ describe('StripeHelper', () => {
       });
 
       describe('when there is a charge-automatically payment that is past due', () => {
+        const failedChargeCopy = deepCopy(failedCharge);
+        const subscription = deepCopy(pastDueSubscription);
+        const invoice = deepCopy(unpaidInvoice);
+
         const expected = [
           {
             created: pastDueSubscription.created,
@@ -1302,23 +1306,21 @@ describe('StripeHelper', () => {
             plan_id: pastDueSubscription.plan.id,
             status: 'past_due',
             subscription_id: pastDueSubscription.id,
-            failure_code: failedCharge.failure_code,
-            failure_message: failedCharge.failure_message,
-            latest_invoice: failedCharge.latest_invoice,
+            failure_code: failedChargeCopy.failure_code,
+            failure_message: failedChargeCopy.failure_message,
+            latest_invoice: invoice.number,
           },
         ];
 
         beforeEach(() => {
           sandbox
             .stub(stripeHelper.stripe.charges, 'retrieve')
-            .returns(failedCharge);
+            .returns(failedChargeCopy);
         });
 
         describe('when the charge is already expanded', () => {
           it('includes charge failure information with the subscription data', async () => {
-            const subscription = deepCopy(pastDueSubscription);
-            const invoice = deepCopy(unpaidInvoice);
-            invoice.charge = failedCharge;
+            invoice.charge = failedChargeCopy;
             subscription.latest_invoice = invoice;
 
             const input = { data: [subscription] };
@@ -1334,8 +1336,7 @@ describe('StripeHelper', () => {
 
         describe('when the charge is not expanded', () => {
           it('expands the charge and includes charge failure information with the subscription data', async () => {
-            const subscription = deepCopy(pastDueSubscription);
-            const invoice = deepCopy(unpaidInvoice);
+            invoice.charge = 'ch_123';
             subscription.latest_invoice = invoice;
 
             const input = { data: [subscription] };
