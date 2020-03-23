@@ -30,7 +30,7 @@ export const wait = (delay: number) =>
 
 export function expectNockScopesDone(scopes: nock.Scope[]) {
   for (const scope of scopes) {
-    if (!scope.isDone()) console.log("SCOPE NOT DONE::::::::", scope);
+    if (!scope.isDone()) console.log('SCOPE NOT DONE::::::::', scope);
     expect(scope.isDone()).toBeTruthy();
   }
 }
@@ -464,7 +464,8 @@ export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
 ];
 
 export const MOCK_CUSTOMER = {
-  payment_type: 'tok_1F7TltEOSeHhIAfQo9u6eqTc',
+  billing_name: 'Jane Doe',
+  payment_type: 'card',
   brand: 'Visa',
   last4: '8675',
   exp_month: 8,
