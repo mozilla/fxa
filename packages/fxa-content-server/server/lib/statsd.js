@@ -15,6 +15,7 @@ const noopStatsd = () => {
       mock[x] = NOOP;
     }
   });
+  return mock;
 };
 
 const statsd = config.enabled
