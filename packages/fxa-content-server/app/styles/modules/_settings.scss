@@ -417,13 +417,24 @@ section.modal-panel {
   &-product-list {
     line-height: 24px;
     margin: 0 0 24px;
-    padding-left: 14px;
+    html[dir='ltr'] & {
+      padding-left: 14px;
+    }
+    html[dir='rtl'] & {
+      padding-right: 14px;
+    }
   }
 
   &-checkbox-list {
     list-style: none;
     margin: 0 0 32px;
-    padding-left: 0;
+
+    html[dir='ltr'] & {
+      padding-left: 0;
+    }
+    html[dir='rtl'] & {
+      padding-right: 0;
+    }
 
     &-item {
       display: grid;
