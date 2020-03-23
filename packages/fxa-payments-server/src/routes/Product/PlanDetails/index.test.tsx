@@ -280,7 +280,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 1,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
@@ -292,7 +292,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 6,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
     });
 
@@ -308,7 +308,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 1,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
@@ -320,7 +320,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 6,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
     });
 
@@ -336,7 +336,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 1,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
@@ -348,12 +348,12 @@ describe('PlanDetails Component', () => {
           intervalCount: 6,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
     });
 
     describe('when the localized id is year-based-plan-details-amount', () => {
-      const msgID = 'month-based-plan-details-amount';
+      const msgID = 'year-based-plan-details-amount';
 
       it('returns the correct string for an interval count of 1', () => {
         const expected = 'FPN billed $5.00 yearly';
@@ -364,7 +364,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 1,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
@@ -376,7 +376,7 @@ describe('PlanDetails Component', () => {
           intervalCount: 6,
         });
 
-        expect(actual == expected);
+        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
       });
     });
   });

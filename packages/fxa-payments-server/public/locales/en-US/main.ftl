@@ -139,9 +139,26 @@ sub-update-indicator =
   .aria-label = upgrade indicator
 
 ## payment update
-pay-update-billing-description =
-  You are billed ${ $amount } per { $interval }
-  for { $name }. Your next payment occurs on { $date }.
+pay-update-billing-description-day = { $intervalCount ->
+  [one] You are billed ${ $amount } daily for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed ${ $amount } every {$intervalCount} days for { $name }. Your next payment occurs on { $date }.
+}
+
+pay-update-billing-description-week = { $intervalCount ->
+  [one] You are billed ${ $amount } weekly for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed ${ $amount } every {$intervalCount} weeks for { $name }. Your next payment occurs on { $date }.
+}
+
+pay-update-billing-description-month = { $intervalCount ->
+  [one] You are billed ${ $amount } monthly for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed ${ $amount } every {$intervalCount} months for { $name }. Your next payment occurs on { $date }.
+}
+
+pay-update-billing-description-year = { $intervalCount ->
+  [one] You are billed ${ $amount } yearly for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed ${ $amount } every {$intervalCount} years for { $name }. Your next payment occurs on { $date }.
+}
+
 pay-update-card-exp = Expires { $expirationDate }
 pay-update-change-btn = Change
 
