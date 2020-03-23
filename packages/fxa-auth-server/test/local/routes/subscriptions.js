@@ -1373,6 +1373,7 @@ describe('DirectStripeRoutes', () => {
 
             const expected = {
               subscriptions: [],
+              billing_name: customer.sources.data[0].name,
               brand: customer.sources.data[0].brand,
               payment_type: customer.sources.data[0].funding,
               last4: customer.sources.data[0].last4,

@@ -486,6 +486,7 @@ class DirectStripeRoutes {
       if (src.object === 'card') {
         response = {
           ...response,
+          billing_name: src.name,
           payment_type: src.funding,
           last4: src.last4,
           exp_month: src.exp_month,

@@ -27,6 +27,7 @@ const selectedPlan = {
 };
 
 const customer: Customer = {
+  billing_name: 'Jane Doe',
   payment_type: 'credit',
   last4: '5309',
   exp_month: '02',

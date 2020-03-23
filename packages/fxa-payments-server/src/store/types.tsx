@@ -82,6 +82,7 @@ export interface CustomerSubscription {
 }
 
 export interface Customer {
+  billing_name: string | null;
   payment_type: string;
   last4: string;
   exp_month: string;
