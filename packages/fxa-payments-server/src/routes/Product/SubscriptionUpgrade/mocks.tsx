@@ -12,6 +12,7 @@ export const PROFILE: Profile = {
 };
 
 export const CUSTOMER: Customer = {
+  billing_name: 'Foo Barson',
   payment_type: 'credit',
   last4: '5309',
   exp_month: '02',
