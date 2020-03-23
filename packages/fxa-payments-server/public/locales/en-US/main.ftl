@@ -85,7 +85,27 @@ payment-cvc =
   .label = CVC
 payment-zip =
   .label = ZIP code
-payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
+  
+payment-confirm-day = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
+}
+
+payment-confirm-week = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
+}
+
+payment-confirm-month = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
+}
+
+payment-confirm-year = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
+}
+
 payment-cancel-btn = Cancel
 payment-update-btn = Update
 
