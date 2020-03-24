@@ -18,7 +18,17 @@
     "level": "debug"
   },
   "scopedKeys": {
-    "enabled": true
+    "enabled": true,
+    "validation": {
+      "https://identity.mozilla.com/apps/oldsync": {
+        "redirectUris": [
+         "http://127.0.0.1:3030/oauth/success/a2270f727f45f648",
+         "http://127.0.0.1:3030/oauth/success/1b1a3e44c54fbb58",
+         "urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel",
+         "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel"
+        ]
+      }
+    }
   },
   "static_directory": "app",
   "subscriptions": {
