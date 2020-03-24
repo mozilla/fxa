@@ -1935,7 +1935,7 @@ module.exports = function(log, config, oauthdb) {
       templateName,
       'account-settings'
     );
-    links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" style="color:#ffffff;font-weight:500;"`;
+    links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff;font-weight:500;"`;
     links.subscriptionTermsUrl = this._generateUTMLink(
       this.subscriptionTermsUrl,
       {},
