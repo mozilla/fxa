@@ -14,6 +14,7 @@ const noopStatsd = () => {
     if (typeof StatsD.prototype[x] === 'function') {
       mock[x] = NOOP;
     }
+    return mock;
   });
 };
 
