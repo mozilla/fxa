@@ -1,5 +1,11 @@
 # Change history
 
+## 1.163.2
+
+### Bug fixes
+
+- metrics: fix undefined nav timing perf entry bug on Safari for Payments ([a68e129d1](https://github.com/mozilla/fxa/commit/a68e129d1))
+
 ## 1.163.1
 
 No changes.
