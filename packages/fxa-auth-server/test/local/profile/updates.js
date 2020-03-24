@@ -4,10 +4,10 @@
 
 'use strict';
 
-const { assert } = require('chai');
+const sinon = require('sinon');
+const assert = { ...sinon.assert, ...require('chai').assert };
 
 const EventEmitter = require('events').EventEmitter;
-const sinon = require('sinon');
 const { mockDB, mockLog } = require('../../mocks');
 const profileUpdates = require('../../../lib/profile/updates');
 const P = require('../../../lib/promise');
@@ -52,7 +52,7 @@ describe('profile updates', () => {
       });
   });
 
-  it('should send push notifications', () => {
+  it('should send notifications', () => {
     const log = mockLog();
     const uid = '1e2122ba';
 
@@ -67,6 +67,14 @@ describe('profile updates', () => {
         assert.equal(mockPush.notifyProfileUpdated.callCount, 2);
         const args = mockPush.notifyProfileUpdated.getCall(1).args;
         assert.equal(args[0], uid);
+
+        assert.ok(
+          log.notifyAttachedServices.calledWithExactly(
+            'profileDataChanged',
+            {},
+            { uid }
+          )
+        );
       });
   });
 });

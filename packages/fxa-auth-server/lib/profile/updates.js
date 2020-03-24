@@ -14,6 +14,18 @@ module.exports = function(log) {
       try {
         const devices = await db.devices(uid);
         await push.notifyProfileUpdated(uid, devices);
+
+        // Notify our RP/Event broker of profile-server based
+        // updates (display name/avatar changes). The profile
+        // server is also listening for these events but will only
+        // clear its cache when received.
+        await log.notifyAttachedServices(
+          'profileDataChanged',
+          {},
+          {
+            uid,
+          }
+        );
       } catch (err) {
         log.error('handleProfileUpdated', {
           uid,
