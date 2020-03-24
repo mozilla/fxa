@@ -2,7 +2,7 @@
 
 DOCKER_OS="`docker info --format '{{.OperatingSystem}}'`"
 
-if [ "$DOCKER_OS" = 'Docker for Windows' -o "$DOCKER_OS" = 'Docker for Mac' ]; then
+if [ "$DOCKER_OS" = 'Docker for Windows' -o "$DOCKER_OS" = 'Docker for Mac' -o "$DOCKER_OS" = 'Docker Desktop' ]; then
   HOST_ADDR='host.docker.internal'
 else
   HOST_ADDR='127.0.0.1'
