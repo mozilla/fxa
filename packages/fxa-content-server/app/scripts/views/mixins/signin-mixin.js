@@ -90,17 +90,14 @@ export default {
           });
         }
 
-        if (this.relier.shouldOfferToSync(this.viewName)) {
-          // flows that are a part of the 'browser' relier which
-          // do not pass a service get asked of they want to Sync
-
+        // Show CWTS screen on signins. For science. Very hacky.
+        if (
+          this.relier.isSync() ||
+          this.relier.get('serviceName') === 'Firefox Sync'
+        ) {
           // force_auth attempts do not a choice for Sync
-          return this.navigate('would_you_like_to_sync', {
+          return this.navigate('choose_what_to_sync', {
             account: account,
-            // ask the user if they want to sync, but don't ask to specify data choices via CWTS
-            // see https://github.com/mozilla/fxa/issues/3083 for details
-            skipCWTS: true,
-            // propagate the onSubmitComplete to choose_what_to_sync screen if needed
             onSubmitComplete: this.onSignInSuccess.bind(this),
           });
         }
