@@ -155,6 +155,27 @@ sub-update-submit = Change Plans
 sub-update-indicator =
   .aria-label = upgrade indicator
 
+## subscription upgrade plan details
+plan-price-day = { $intervalCount ->
+  [one] ${ $amount } daily
+  *[other] ${ $amount } every {$intervalCount} days
+}
+
+plan-price-week = { $intervalCount ->
+  [one] ${ $amount } weekly
+  *[other] ${ $amount } every {$intervalCount} weeks
+}
+
+plan-price-month = { $intervalCount ->
+  [one] ${ $amount } monthly
+  *[other] ${ $amount } every {$intervalCount} months
+}
+
+plan-price-year = { $intervalCount ->
+  [one] ${ $amount } yearly
+  *[other] ${ $amount } every {$intervalCount} years
+}
+
 ## payment update
 pay-update-billing-description-day = { $intervalCount ->
   [one] You are billed ${ $amount } daily for { $name }. Your next payment occurs on { $date }.
