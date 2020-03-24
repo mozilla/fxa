@@ -1,3 +1,10 @@
+## 1.163.1
+
+### Bug fixes
+
+- metrics: return the mocked statsd instance ([26f44e590](https://github.com/mozilla/fxa/commit/26f44e590))
+- metrics: restrict content-server nav timing metric names ([989118ab3](https://github.com/mozilla/fxa/commit/989118ab3))
+
 ## 1.163.0
 
 ### New features
