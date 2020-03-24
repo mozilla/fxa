@@ -1,7 +1,6 @@
 import FlowEvent from './flow-event';
 
-import SentryMetrics from './sentry';
-jest.mock('./sentry');
+import sentryMetrics from './sentry';
 
 const eventGroup = 'testo';
 const eventType = 'quuz';
@@ -36,6 +35,9 @@ it('remains uninitialized when any flow param is empty', () => {
 });
 
 it('logs and captures an exception from postMetrics', () => {
+  const mockCapture = jest
+    .spyOn(sentryMetrics, 'captureException')
+    .mockImplementation();
   const error = 'oops';
   (window.navigator.sendBeacon as jest.Mock).mockImplementation(() => {
     throw error;
@@ -46,9 +48,7 @@ it('logs and captures an exception from postMetrics', () => {
     flow_id: 'ipsoandfacto',
   });
   FlowEvent.logAmplitudeEvent(eventGroup, eventType, {});
-  expect(
-    (SentryMetrics as jest.Mock).mock.instances[0].captureException
-  ).toBeCalledWith(error);
+  expect(mockCapture).toBeCalledWith(error);
   expect(global.console.error).toBeCalledWith('AppError', error);
 });
 

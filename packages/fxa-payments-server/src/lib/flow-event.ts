@@ -1,7 +1,5 @@
-import SentryMetrics from './sentry';
+import sentryMetrics from './sentry';
 import { config } from './config';
-
-const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 interface FlowEventParams {
   device_id?: string;

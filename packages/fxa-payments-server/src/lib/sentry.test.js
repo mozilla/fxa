@@ -4,7 +4,7 @@
 
 import chai from 'chai';
 import * as Sentry from '@sentry/browser';
-import SentryMetrics from './sentry';
+import sentryMetrics from './sentry';
 
 var assert = chai.assert;
 const dsn = 'https://public:private@host:port/1';
@@ -20,17 +20,9 @@ describe('lib/sentry', function() {
   });
 
   describe('init', function() {
-    it('properly inits', function() {
+    it('properly configures with dsn', function() {
       try {
-        void new SentryMetrics();
-      } catch (e) {
-        assert.isNull(e);
-      }
-    });
-
-    it('properly inits with dsn', function() {
-      try {
-        void new SentryMetrics(dsn);
+        sentryMetrics.configure(dsn);
       } catch (e) {
         assert.isNull(e);
       }
@@ -38,12 +30,13 @@ describe('lib/sentry', function() {
   });
 
   describe('beforeSend', function() {
+    sentryMetrics.configure(dsn);
+
     it('works without request url', function() {
       var data = {
         key: 'value',
       };
-      var sentry = new SentryMetrics(dsn);
-      var resultData = sentry.__beforeSend(data);
+      var resultData = sentryMetrics.__beforeSend(data);
 
       assert.equal(data, resultData);
     });
@@ -58,8 +51,7 @@ describe('lib/sentry', function() {
           errno: 100,
         },
       };
-      var sentry = new SentryMetrics(dsn);
-      var resultData = sentry.__beforeSend(data);
+      var resultData = sentryMetrics.__beforeSend(data);
 
       assert.equal(
         resultData.fingerprint[0],
@@ -86,8 +78,7 @@ describe('lib/sentry', function() {
         },
       };
 
-      var sentry = new SentryMetrics(dsn);
-      var resultData = sentry.__beforeSend(badData);
+      var resultData = sentryMetrics.__beforeSend(badData);
 
       assert.equal(resultData.key, goodData.key);
       assert.equal(resultData.url, goodData.url);
@@ -114,8 +105,7 @@ describe('lib/sentry', function() {
         },
       };
 
-      var sentry = new SentryMetrics(dsn);
-      var resultData = sentry.__beforeSend(badData);
+      var resultData = sentryMetrics.__beforeSend(badData);
       assert.equal(
         resultData.request.headers.Referer,
         goodData.request.headers.Referer
@@ -152,8 +142,7 @@ describe('lib/sentry', function() {
         },
       };
 
-      var sentry = new SentryMetrics(dsn);
-      var resultData = sentry.__beforeSend(data);
+      var resultData = sentryMetrics.__beforeSend(data);
 
       assert.equal(
         resultData.exception.values[0].stacktrace.frames[0].abs_path,
@@ -172,8 +161,7 @@ describe('lib/sentry', function() {
         'https://accounts.firefox.com/complete_reset_password?token=foo&code=bar&email=some%40restmail.net';
       var expectedUrl1 =
         'https://accounts.firefox.com/complete_reset_password?token=VALUE&code=VALUE&email=VALUE';
-      var sentry = new SentryMetrics(dsn);
-      var resultUrl1 = sentry.__cleanUpQueryParam(fixtureUrl1);
+      var resultUrl1 = sentryMetrics.__cleanUpQueryParam(fixtureUrl1);
 
       assert.equal(resultUrl1, expectedUrl1);
     });
@@ -183,16 +171,14 @@ describe('lib/sentry', function() {
         'https://accounts.firefox.com/signup?client_id=foo&service=sync';
       var expectedUrl2 =
         'https://accounts.firefox.com/signup?client_id=foo&service=sync';
-      var sentry = new SentryMetrics(dsn);
-      var resultUrl2 = sentry.__cleanUpQueryParam(fixtureUrl2);
+      var resultUrl2 = sentryMetrics.__cleanUpQueryParam(fixtureUrl2);
 
       assert.equal(resultUrl2, expectedUrl2);
     });
 
     it('properly returns the url when there is no query', function() {
       var expectedUrl = 'https://accounts.firefox.com/signup';
-      var sentry = new SentryMetrics(dsn);
-      var resultUrl = sentry.__cleanUpQueryParam(expectedUrl);
+      var resultUrl = sentryMetrics.__cleanUpQueryParam(expectedUrl);
 
       assert.equal(resultUrl, expectedUrl);
     });
@@ -201,8 +187,7 @@ describe('lib/sentry', function() {
   describe('captureException', () => {
     it('calls Sentry.captureException', () => {
       jest.spyOn(Sentry, 'captureException');
-      const sentry = new SentryMetrics(dsn);
-      sentry.captureException(new Error('testo'));
+      sentryMetrics.captureException(new Error('testo'));
       expect(Sentry.captureException).toHaveBeenCalled();
       Sentry.captureException.mockRestore();
     });

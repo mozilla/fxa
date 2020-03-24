@@ -35,6 +35,7 @@ export interface Config {
   stripe: {
     apiKey: string;
   };
+  version: string | undefined;
 }
 
 export const config: Config = defaultConfig();
@@ -73,6 +74,7 @@ export function defaultConfig(): Config {
     stripe: {
       apiKey: '',
     },
+    version: undefined,
   };
 }
 

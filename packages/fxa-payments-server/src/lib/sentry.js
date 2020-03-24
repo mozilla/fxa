@@ -45,9 +45,9 @@ function beforeSend(data) {
     }
 
     if (data.exception && data.exception.values) {
-      data.exception.values.forEach((value) => {
-        if(value.stacktrace && value.stacktrace.frames) {
-          value.stacktrace.frames.forEach((frame) => {
+      data.exception.values.forEach(value => {
+        if (value.stacktrace && value.stacktrace.frames) {
+          value.stacktrace.frames.forEach(frame => {
             if (frame.abs_path) {
               frame.abs_path = cleanUpQueryParam(frame.abs_path); // eslint-disable-line camelcase
             }
@@ -85,7 +85,7 @@ function cleanUpQueryParam(url = '') {
     const key = p[0];
     if (!ALLOWED_QUERY_PARAMETERS.includes(key)) {
       // if the param is a PII (not allowed) then reset the value.
-      urlObj.searchParams.set(key, "VALUE");
+      urlObj.searchParams.set(key, 'VALUE');
     }
   }
 
@@ -98,35 +98,43 @@ function cleanUpQueryParam(url = '') {
 const exceptionTags = ['code', 'context', 'errno', 'namespace', 'status'];
 
 /**
- * Creates a SentryMetrics object that starts up Sentry/browser
+ * Creates a SentryMetrics singleton object that starts up Sentry/browser.
+ *
+ * This must be configured with the `configure` method before use.
  *
  * Read more at https://docs.sentry.io/platforms/javascript
  *
- * @param {String} dsn
- * @param {String} [release] - content server release version
  * @constructor
  */
-function SentryMetrics(dsn, release) {
+function SentryMetrics() {
   this._logger = new Logger();
-  this._release = release;
-
-  if (!dsn) {
-    this._logger.error('No Sentry dsn provided');
-    return;
-  }
-
-  try {
-    Sentry.init({
-      release,
-      dsn,
-      beforeSend,
-    });
-  } catch (e) {
-    this._logger.error(e);
-  }
 }
 
 SentryMetrics.prototype = {
+  /**
+   * Configure the SentryMetrics instance for this singleton.
+   *
+   * @param {String} dsn
+   * @param {String} [release] - content server release version
+   */
+  configure(dsn, release) {
+    this._logger.info('release: ' + release);
+    this._release = release;
+    if (!dsn) {
+      this._logger.error('No Sentry dsn provided');
+      return;
+    }
+
+    try {
+      Sentry.init({
+        release,
+        dsn,
+        beforeSend,
+      });
+    } catch (e) {
+      this._logger.error(e);
+    }
+  },
   /**
    * Capture an exception. Error fields listed in exceptionTags
    * will be added as tags to the sentry data.
@@ -149,4 +157,6 @@ SentryMetrics.prototype = {
   __cleanUpQueryParam: cleanUpQueryParam,
 };
 
-export default SentryMetrics;
+const sentryMetrics = new SentryMetrics();
+
+export default sentryMetrics;

@@ -8,11 +8,13 @@ import './index.scss';
 import * as Amplitude from './lib/amplitude';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
+import sentryMetrics from './lib/sentry';
 
 import { actions } from './store/actions';
 
 async function init() {
   readConfigFromMeta(headQuerySelector);
+  sentryMetrics.configure(config.sentry.dsn, config.version);
 
   const store = createAppStore();
 
