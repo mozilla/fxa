@@ -82,9 +82,12 @@ button {
 
   &:disabled,
   &.disabled {
-    background: $button-background-color-default;
     cursor: not-allowed;
     opacity: 0.4;
+
+    &:not(.primary-button) {
+      background: $button-background-color-default;
+    }
   }
 }
 
