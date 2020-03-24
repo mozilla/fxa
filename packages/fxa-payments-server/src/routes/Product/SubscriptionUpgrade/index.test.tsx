@@ -8,6 +8,7 @@ import { FluentBundle } from 'fluent';
 
 import { APIError } from '../../../lib/apiClient';
 import { Plan } from '../../../store/types';
+import { PlanDetail } from './index';
 
 jest.mock('../../../lib/sentry');
 
@@ -459,6 +460,215 @@ describe('routes/Product/SubscriptionUpgrade', () => {
 
           expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
         });
+      });
+    });
+  });
+});
+
+describe('PlanDetail', () => {
+  const dayBasedId = 'plan-price-day';
+  const weekBasedId = 'plan-price-week';
+  const monthBasedId = 'plan-price-month';
+  const yearBasedId = 'plan-price-year';
+
+  const findMockPlan = (planId: string): Plan => {
+    const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+    if (plan) {
+      return plan;
+    }
+    throw new Error('unable to find suitable Plan object for test execution.');
+  };
+
+  describe('Localized Plan Billing Description Component', () => {
+    function runTests(
+      plan: Plan,
+      expectedMsgId: string,
+      expectedAmount: string,
+      expectedMsg: string
+    ) {
+      const props = { plan: plan };
+
+      const testRenderer = TestRenderer.create(<PlanDetail {...props} />);
+      const testInstance = testRenderer.root;
+      const planPriceComponent = testInstance.findByProps({
+        id: expectedMsgId,
+      });
+
+      expect(planPriceComponent.props.$amount).toBe(expectedAmount);
+      expect(planPriceComponent.props.$intervalCount).toBe(plan.interval_count);
+      expect(planPriceComponent.props.children.props.children).toBe(
+        expectedMsg
+      );
+    }
+
+    describe('When plan has day interval', () => {
+      const expectedMsgId = dayBasedId;
+
+      it('Handles an interval count of 1', () => {
+        const plan_id = 'plan_daily';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = `$5.00 daily`;
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const plan_id = 'plan_6days';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = `$5.00 every 6 days`;
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+    });
+
+    describe('When plan has week interval', () => {
+      const expectedMsgId = weekBasedId;
+
+      it('Handles an interval count of 1', () => {
+        const plan_id = 'plan_weekly';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = `$5.00 weekly`;
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const plan_id = 'plan_6weeks';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = `$5.00 every 6 weeks`;
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+    });
+
+    describe('When plan has month interval', () => {
+      const expectedMsgId = monthBasedId;
+
+      it('Handles an interval count of 1', () => {
+        const plan_id = 'plan_monthly';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = `$5.00 monthly`;
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const plan_id = 'plan_6months';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = `$5.00 every 6 months`;
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+    });
+
+    describe('When plan has year interval', () => {
+      const expectedMsgId = yearBasedId;
+
+      it('Handles an interval count of 1', () => {
+        const plan_id = 'plan_yearly';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = '$5.00 yearly';
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const plan_id = 'plan_6years';
+        const plan = findMockPlan(plan_id);
+        const expectedMsg = '$5.00 every 6 years';
+
+        runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      });
+    });
+  });
+
+  describe('Fluent Translations for Plan Billing Description', () => {
+    let bundle: FluentBundle;
+    const args = {
+      amount: '5.00',
+    };
+
+    beforeEach(async () => {
+      const filepath = path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        '..',
+        'public',
+        'locales',
+        'en-US',
+        'main.ftl'
+      );
+      const enUS = (await fs.readFileSync(filepath)).toString();
+      bundle = new FluentBundle('en-US');
+      bundle.addMessages(enUS);
+    });
+
+    function runTests(
+      bundle: FluentBundle,
+      msgId: string,
+      intervalCount: number,
+      expectedMsg: string
+    ) {
+      const msg = bundle.getMessage(msgId);
+      const actual = bundle.format(msg, {
+        ...args,
+        intervalCount,
+      });
+
+      expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expectedMsg);
+    }
+
+    describe('When message id is plan-price-day', () => {
+      const msgId = dayBasedId;
+      it('Handles an interval count of 1', () => {
+        const expected = '$5.00 daily';
+        runTests(bundle, msgId, 1, expected);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const expected = '$5.00 every 6 days';
+        runTests(bundle, msgId, 6, expected);
+      });
+    });
+
+    describe('When message id is plan-price-week', () => {
+      const msgId = weekBasedId;
+      it('Handles an interval count of 1', () => {
+        const expected = '$5.00 weekly';
+        runTests(bundle, msgId, 1, expected);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const expected = '$5.00 every 6 weeks';
+        runTests(bundle, msgId, 6, expected);
+      });
+    });
+
+    describe('When message id is plan-price-month', () => {
+      const msgId = monthBasedId;
+      it('Handles an interval count of 1', () => {
+        const expected = '$5.00 monthly';
+        runTests(bundle, msgId, 1, expected);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const expected = '$5.00 every 6 months';
+        runTests(bundle, msgId, 6, expected);
+      });
+    });
+
+    describe('When message id is plan-price-year', () => {
+      const msgId = yearBasedId;
+      it('Handles an interval count of 1', () => {
+        const expected = '$5.00 yearly';
+        runTests(bundle, msgId, 1, expected);
+      });
+
+      it('Handles an interval count that is not 1', () => {
+        const expected = '$5.00 every 6 years';
+        runTests(bundle, msgId, 6, expected);
       });
     });
   });
