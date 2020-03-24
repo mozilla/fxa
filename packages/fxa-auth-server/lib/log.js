@@ -130,32 +130,36 @@ Lug.prototype.summary = function(request, response) {
 
 // Broadcast an event to attached services, such as sync.
 // In production, these events are broadcast to relying services over SNS/SQS.
-Lug.prototype.notifyAttachedServices = function(name, request, data) {
-  return request.gatherMetricsContext({}).then(metricsContextData => {
-    // Add a timestamp that this event occurred to help attached services resolve any
-    // potential timing issues
-    const now = Date.now();
-    data.timestamp = data.timestamp || now; // Leave as milliseconds
-    data.ts = data.ts || now / 1000; // Convert to float seconds
+Lug.prototype.notifyAttachedServices = async function(name, request, data) {
+  let metricsContextData = {};
+  if (request.gatherMetricsContext) {
+    metricsContextData = await request.gatherMetricsContext({});
+  }
 
-    // Tag all events with the issuing service.
-    data.iss = ISSUER;
+  // Add a timestamp that this event occurred to help attached services resolve any
+  // potential timing issues
+  const now = Date.now();
+  data.timestamp = data.timestamp || now; // Leave as milliseconds
+  data.ts = data.ts || now / 1000; // Convert to float seconds
 
-    // convert an oauth client-id to a human readable format, if a name is available.
-    // If no name is available, continue to use the client_id.
-    if (data.service && data.service !== 'sync') {
-      data.clientId = data.service;
-      data.service = CLIENT_ID_TO_SERVICE_NAMES[data.service] || data.service;
-    }
+  // Tag all events with the issuing service.
+  data.iss = ISSUER;
 
-    const e = {
-      event: name,
-      data,
-    };
-    e.data.metricsContext = metricsContextData;
-    this.info('notify.attached', e);
-    this.notifier.send(e);
-  });
+  // convert an oauth client-id to a human readable format, if a name is available.
+  // If no name is available, continue to use the client_id.
+  if (data.service && data.service !== 'sync') {
+    data.clientId = data.service;
+    data.service = CLIENT_ID_TO_SERVICE_NAMES[data.service] || data.service;
+  }
+
+  const e = {
+    event: name,
+    data,
+  };
+  e.data.metricsContext = metricsContextData;
+
+  this.info('notify.attached', e);
+  this.notifier.send(e);
 };
 
 // Log an activity metrics event.
