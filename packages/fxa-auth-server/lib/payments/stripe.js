@@ -62,8 +62,8 @@ function validateProductUpgrade(oldMetadata, newMetadata) {
     // Incompatible product sets
     return false;
   }
-  const oldOrder = Number.parseInt(oldMetadata.productSetOrder);
-  const newOrder = Number.parseInt(newMetadata.productSetOrder);
+  const oldOrder = Number.parseInt(oldMetadata.productOrder);
+  const newOrder = Number.parseInt(newMetadata.productOrder);
   if (isNaN(oldOrder) || isNaN(newOrder)) {
     throw error.unknownSubscriptionPlan();
   }

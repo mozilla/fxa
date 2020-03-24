@@ -11,7 +11,7 @@
   "livemode": false,
   "metadata": {
     "productSet": "fpn_product",
-    "productSetOrder": "2"
+    "productOrder": "2"
   },
   "name": "FPN Tier 2",
   "package_dimensions": null,
