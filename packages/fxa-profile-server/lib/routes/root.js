@@ -43,7 +43,7 @@ module.exports = {
     }
 
     // figure it out from .git
-    const gitDir = path.resolve(__dirname, '..', '..', '.git');
+    const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
     exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout) => {
       // eslint-disable-line handle-callback-err
       commitHash = stdout.replace(/\s+/, '');
