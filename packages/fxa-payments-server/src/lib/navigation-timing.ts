@@ -16,7 +16,7 @@ export const observeNavigationTiming = (beaconUrl: string) => {
     )[0] as PerformanceNavigationTiming;
 
     // Once duration is recorded the event is over
-    if (navTiming.duration > 0) {
+    if (navTiming && navTiming.duration > 0) {
       navigator.sendBeacon(beaconUrl, JSON.stringify(navTiming));
     } else {
       const navTimingObs = new PerformanceObserver((entries, obs) => {
