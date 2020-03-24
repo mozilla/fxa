@@ -6,7 +6,7 @@ import { Localized } from 'fluent-react';
 import DocumentTitle from 'react-document-title';
 
 import AppLocalizationProvider from './lib/AppLocalizationProvider';
-import SentryMetrics from './lib/sentry';
+import sentryMetrics from './lib/sentry';
 import { QueryParams } from './lib/types';
 import { Config, config } from './lib/config';
 import { getErrorMessage } from './lib/errors';
@@ -25,8 +25,6 @@ const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
 // TODO: Come up with a better fallback component for lazy-loaded routes
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
-
-const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 type AppProps = {
   config: Config;

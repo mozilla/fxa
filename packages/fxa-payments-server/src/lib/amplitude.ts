@@ -1,10 +1,8 @@
-import SentryMetrics from './sentry';
+import sentryMetrics from './sentry';
 import { logAmplitudeEvent } from './flow-event';
 import { config } from './config';
 import { selectors } from '../store/selectors';
 import { Store } from '../store';
-
-const sentryMetrics = new SentryMetrics(config.sentry.dsn);
 
 const eventGroupNames = {
   createSubscription: 'subPaySetup',

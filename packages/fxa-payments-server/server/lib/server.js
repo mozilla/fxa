@@ -81,6 +81,7 @@ module.exports = () => {
     stripe: {
       apiKey: config.get('stripe.apiKey'),
     },
+    version: version.version,
   };
 
   // This is a list of all the paths that should resolve to index.html:
