@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Localized } from 'fluent-react';
-import { AppContext } from '../../lib/AppContext';
 import { formatCurrencyInCents } from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
@@ -28,7 +27,6 @@ export const PaymentConfirmation = ({
   const { displayName, email } = profile;
   const { brand, last4, subscriptions } = customer;
   const invoiceNumber = subscriptions[0].latest_invoice;
-  const { config } = useContext(AppContext);
   const date = new Date().toLocaleDateString(navigator.language, {
     year: 'numeric',
     month: 'long',
@@ -36,11 +34,14 @@ export const PaymentConfirmation = ({
   });
 
   const heading = displayName ? (
-  <Localized id="payment-confirmation-heading" $displayName={displayName}>
-    <h2></h2>
-  </Localized>) : (<Localized id="payment-confirmation-heading-bak">
-    <h2></h2>
-  </Localized>);
+    <Localized id="payment-confirmation-heading" $displayName={displayName}>
+      <h2></h2>
+    </Localized>
+  ) : (
+    <Localized id="payment-confirmation-heading-bak">
+      <h2></h2>
+    </Localized>
+  );
 
   return (
     <section className={`container card payment-confirmation ${className}`}>
@@ -106,7 +107,7 @@ export const PaymentConfirmation = ({
             click to download
           </a>
         </Localized>
-        <TermsAndPrivacy/>
+        <TermsAndPrivacy />
       </div>
     </section>
   );
