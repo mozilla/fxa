@@ -34,6 +34,7 @@ const subscriptionCreatedIncomplete = require('../payments/fixtures/subscription
 const subscriptionDeleted = require('../payments/fixtures/subscription_deleted.json');
 const subscriptionUpdated = require('../payments/fixtures/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscription_updated_from_incomplete.json');
+const eventInvoicePaymentSucceeded = require('../payments/fixtures/event_invoice_payment_succeeded.json');
 const openInvoice = require('../payments/fixtures/invoice_open.json');
 const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
@@ -1553,7 +1554,6 @@ describe('DirectStripeRoutes', () => {
     });
 
     describe('handleWebhookEvent', () => {
-      let subCreatedStub, subUpdatedStub, subDeletedStub;
       let scopeContextSpy, scopeSpy;
       const request = {
         payload: {},
@@ -1561,17 +1561,20 @@ describe('DirectStripeRoutes', () => {
           'stripe-signature': 'stripe_123',
         },
       };
-      beforeEach(() => {
-        subCreatedStub = sandbox
-          .stub(directStripeRoutesInstance, 'handleSubscriptionCreatedEvent')
-          .resolves();
-        subUpdatedStub = sandbox
-          .stub(directStripeRoutesInstance, 'handleSubscriptionUpdatedEvent')
-          .resolves();
-        subDeletedStub = sandbox
-          .stub(directStripeRoutesInstance, 'handleSubscriptionDeletedEvent')
-          .resolves();
+      const handlerNames = [
+        'handleSubscriptionCreatedEvent',
+        'handleSubscriptionUpdatedEvent',
+        'handleSubscriptionDeletedEvent',
+        'handleInvoicePaymentSucceededEvent',
+      ];
+      const handlerStubs = {};
 
+      beforeEach(() => {
+        for (const handlerName of handlerNames) {
+          handlerStubs[handlerName] = sandbox
+            .stub(directStripeRoutesInstance, handlerName)
+            .resolves();
+        }
         scopeContextSpy = sinon.fake();
         scopeSpy = {
           setContext: scopeContextSpy,
@@ -1579,87 +1582,57 @@ describe('DirectStripeRoutes', () => {
         sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
       });
 
-      describe('when the event.type is customer.subscription.created', () => {
-        it('only calls handleSubscriptionCreatedEvent', async () => {
-          const createdEvent = deepCopy(subscriptionCreated);
+      const assertNamedHandlerCalled = (expectedHandlerName = null) => {
+        for (const handlerName of handlerNames) {
+          const shouldCall =
+            expectedHandlerName && handlerName === expectedHandlerName;
+          assert.isTrue(
+            handlerStubs[handlerName][shouldCall ? 'called' : 'notCalled'],
+            `Expected to ${shouldCall ? '' : 'not '}call ${handlerName}`
+          );
+        }
+      };
+
+      const itOnlyCallsThisHandler = (expectedHandlerName, event) =>
+        it(`only calls ${expectedHandlerName}`, async () => {
+          const createdEvent = deepCopy(event);
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
             createdEvent
           );
           await directStripeRoutesInstance.handleWebhookEvent(request);
-
-          assert.isTrue(
-            subCreatedStub.called,
-            'Expected to call handleSubscriptionCreatedEvent'
-          );
-          assert.isTrue(
-            subUpdatedStub.notCalled,
-            'Expected to not call handleSubscriptionUpdatedEvent'
-          );
-          assert.isTrue(
-            subDeletedStub.notCalled,
-            'Expected to not call handleSubscriptionDeletedEvent'
-          );
+          assertNamedHandlerCalled(expectedHandlerName);
           assert.isTrue(
             scopeContextSpy.notCalled,
             'Expected to not call Sentry'
           );
         });
+
+      describe('when the event.type is customer.subscription.created', () => {
+        itOnlyCallsThisHandler(
+          'handleSubscriptionCreatedEvent',
+          subscriptionCreated
+        );
       });
 
       describe('when the event.type is customer.subscription.updated', () => {
-        it('only calls handleSubscriptionUpdatedEvent', async () => {
-          const event = deepCopy(subscriptionUpdated);
-          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
-            event
-          );
-
-          await directStripeRoutesInstance.handleWebhookEvent(request);
-
-          assert.isTrue(
-            subCreatedStub.notCalled,
-            'Expected to not call handleSubscriptionCreatedEvent'
-          );
-          assert.isTrue(
-            subUpdatedStub.called,
-            'Expected to call handleSubscriptionUpdatedEvent'
-          );
-          assert.isTrue(
-            subDeletedStub.notCalled,
-            'Expected to not call handleSubscriptionDeletedEvent'
-          );
-          assert.isTrue(
-            scopeContextSpy.notCalled,
-            'Expected to not call Sentry'
-          );
-        });
+        itOnlyCallsThisHandler(
+          'handleSubscriptionUpdatedEvent',
+          subscriptionUpdated
+        );
       });
 
       describe('when the event.type is customer.subscription.deleted', () => {
-        it('only calls handleSubscriptionDeletedEvent', async () => {
-          const event = deepCopy(subscriptionDeleted);
-          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
-            event
-          );
+        itOnlyCallsThisHandler(
+          'handleSubscriptionDeletedEvent',
+          subscriptionDeleted
+        );
+      });
 
-          await directStripeRoutesInstance.handleWebhookEvent(request);
-
-          assert.isTrue(
-            subCreatedStub.notCalled,
-            'Expected to not call handleSubscriptionCreatedEvent'
-          );
-          assert.isTrue(
-            subUpdatedStub.notCalled,
-            'Expected to not call handleSubscriptionUpdatedEvent'
-          );
-          assert.isTrue(
-            subDeletedStub.called,
-            'Expected to call handleSubscriptionDeletedEvent'
-          );
-          assert.isTrue(
-            scopeContextSpy.notCalled,
-            'Expected to not call Sentry'
-          );
-        });
+      describe('when the event.type is invoice.payment_succeeded', () => {
+        itOnlyCallsThisHandler(
+          'handleInvoicePaymentSucceededEvent',
+          eventInvoicePaymentSucceeded
+        );
       });
 
       describe('when the event.type is something else', () => {
@@ -1669,21 +1642,8 @@ describe('DirectStripeRoutes', () => {
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
             event
           );
-
           await directStripeRoutesInstance.handleWebhookEvent(request);
-
-          assert.isTrue(
-            subCreatedStub.notCalled,
-            'Expected to not call handleSubscriptionCreatedEvent'
-          );
-          assert.isTrue(
-            subUpdatedStub.notCalled,
-            'Expected to not call handleSubscriptionUpdatedEvent'
-          );
-          assert.isTrue(
-            subDeletedStub.notCalled,
-            'Expected to not call handleSubscriptionDeletedEvent'
-          );
+          assertNamedHandlerCalled();
           assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
         });
       });
@@ -1725,22 +1685,61 @@ describe('DirectStripeRoutes', () => {
       });
     });
 
+    const assertCustomerUpdated = (shouldCall = true) => {
+      const assertion = assert[shouldCall ? 'called' : 'notCalled'];
+      assertion(
+        directStripeRoutesInstance.stripeHelper
+          .getCustomerUidEmailFromSubscription
+      );
+      assertion(directStripeRoutesInstance.stripeHelper.refreshCachedCustomer);
+      assertion(profile.deleteCache);
+      assertion(sendStub);
+    };
+
     describe('handleSubscriptionDeletedEvent', () => {
-      it('emits a notification when a subscription is deleted', async () => {
+      it('sends email and emits a notification when a subscription is deleted', async () => {
         const deletedEvent = deepCopy(subscriptionDeleted);
+        const sendSubscriptionDeletedEmailStub = sandbox
+          .stub(directStripeRoutesInstance, 'sendSubscriptionDeletedEmail')
+          .resolves(true);
         await directStripeRoutesInstance.handleSubscriptionDeletedEvent(
           {},
           deletedEvent
         );
-        assert.called(
-          directStripeRoutesInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription
+        assert.calledWith(
+          sendSubscriptionDeletedEmailStub,
+          deletedEvent.data.object
         );
-        assert.called(
-          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
+        assertCustomerUpdated();
+      });
+    });
+
+    describe('handleInvoicePaymentSucceededEvent', () => {
+      it('sends email and emits a notification when an invoice payment succeeds', async () => {
+        const paymentSucceededEvent = deepCopy(eventInvoicePaymentSucceeded);
+        const sendSubscriptionInvoiceEmailStub = sandbox
+          .stub(directStripeRoutesInstance, 'sendSubscriptionInvoiceEmail')
+          .resolves(true);
+        const mockSubscription = {
+          id: 'test1',
+          plan: { product: 'test2' },
+        };
+        directStripeRoutesInstance.stripeHelper.expandResource.resolves(
+          mockSubscription
         );
-        assert.called(profile.deleteCache);
-        assert.called(sendStub);
+        await directStripeRoutesInstance.handleInvoicePaymentSucceededEvent(
+          {},
+          paymentSucceededEvent
+        );
+        assert.calledWith(
+          sendSubscriptionInvoiceEmailStub,
+          paymentSucceededEvent.data.object
+        );
+        assert.calledWith(
+          directStripeRoutesInstance.stripeHelper.expandResource,
+          paymentSucceededEvent.data.object.subscription
+        );
+        assertCustomerUpdated();
       });
     });
 
@@ -1751,15 +1750,7 @@ describe('DirectStripeRoutes', () => {
           {},
           createdEvent
         );
-        assert.called(
-          directStripeRoutesInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription
-        );
-        assert.called(
-          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
-        );
-        assert.called(profile.deleteCache);
-        assert.called(sendStub);
+        assertCustomerUpdated();
       });
 
       it('does not emit a notification for incomplete new subscriptions', async () => {
@@ -1768,17 +1759,140 @@ describe('DirectStripeRoutes', () => {
           {},
           createdEvent
         );
-        assert.notCalled(
-          directStripeRoutesInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription
-        );
-        assert.notCalled(
-          directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
-        );
-        assert.notCalled(profile.deleteCache);
-        assert.notCalled(sendStub);
+        assertCustomerUpdated(false);
       });
     });
+  });
+
+  describe('sendSubscriptionInvoiceEmail', () => {
+    const commonSendSubscriptionInvoiceEmailTest = (
+      expectedMethodName,
+      billingReason
+    ) => async () => {
+      const invoice = deepCopy(eventInvoicePaymentSucceeded.data.object);
+      invoice.billing_reason = billingReason;
+
+      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+      directStripeRoutesInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+        mockInvoiceDetails
+      );
+
+      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+      directStripeRoutesInstance.db.account = sinon.spy(
+        async data => mockAccount
+      );
+
+      await directStripeRoutesInstance.sendSubscriptionInvoiceEmail(invoice);
+
+      assert.calledWith(
+        directStripeRoutesInstance.mailer[expectedMethodName],
+        mockAccount.emails,
+        mockAccount,
+        {
+          acceptLanguage: mockAccount.locale,
+          ...mockInvoiceDetails,
+        }
+      );
+    };
+
+    it(
+      'sends the initial invoice email for a newly created subscription',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionFirstInvoiceEmail',
+        'subscription_create'
+      )
+    );
+
+    it(
+      'sends the subsequent invoice email for billing reasons besides creation',
+      commonSendSubscriptionInvoiceEmailTest(
+        'sendSubscriptionSubsequentInvoiceEmail',
+        'subscription_cycle'
+      )
+    );
+  });
+
+  describe('sendSubscriptionDeletedEmail', () => {
+    const commonSendSubscriptionDeletedEmailTest = (
+      accountFound = true
+    ) => async () => {
+      const deletedEvent = deepCopy(subscriptionDeleted);
+      const subscription = deletedEvent.data.object;
+
+      const mockInvoice = { test: 'fake' };
+      directStripeRoutesInstance.stripeHelper.expandResource.resolves(
+        mockInvoice
+      );
+
+      const mockInvoiceDetails = {
+        uid: '1234',
+        test: 'fake',
+        email: 'test@example.com',
+      };
+      directStripeRoutesInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+        mockInvoiceDetails
+      );
+
+      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+      directStripeRoutesInstance.db.account = sinon.spy(async data => {
+        if (accountFound) {
+          return mockAccount;
+        }
+        throw error.unknownAccount();
+      });
+
+      await directStripeRoutesInstance.sendSubscriptionDeletedEmail(
+        subscription
+      );
+
+      assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.expandResource,
+        subscription.latest_invoice,
+        'invoices'
+      );
+      assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.extractInvoiceDetailsForEmail,
+        mockInvoice
+      );
+
+      if (accountFound) {
+        assert.calledWith(
+          directStripeRoutesInstance.mailer.sendSubscriptionCancellationEmail,
+          mockAccount.emails,
+          mockAccount,
+          {
+            acceptLanguage: mockAccount.locale,
+            serviceLastActiveDate: new Date(
+              subscription.current_period_end * 1000
+            ),
+            ...mockInvoiceDetails,
+          }
+        );
+      } else {
+        const fakeAccount = {
+          email: mockInvoiceDetails.email,
+          uid: mockInvoiceDetails.uid,
+          emails: [{ email: mockInvoiceDetails.email, isPrimary: true }],
+        };
+        assert.calledWith(
+          directStripeRoutesInstance.mailer
+            .sendSubscriptionAccountDeletionEmail,
+          fakeAccount.emails,
+          fakeAccount,
+          mockInvoiceDetails
+        );
+      }
+    };
+
+    it(
+      'sends a plain cancellation email on subscription deletion',
+      commonSendSubscriptionDeletedEmailTest(true)
+    );
+
+    it(
+      'sends an account deletion specific email on subscription deletion when account is gone',
+      commonSendSubscriptionDeletedEmailTest(false)
+    );
   });
 
   describe('getSubscriptions', () => {

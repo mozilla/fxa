@@ -856,6 +856,99 @@ class StripeHelper {
       this.webhookSecret
     );
   }
+
+  /**
+   * Accept a string ID or resource object, return a resource object after
+   * retrieving (if necessary)
+   *
+   * @param {string | object} resource
+   * @param {string} resourceType
+   *
+   * @returns {Promise<object>}
+   */
+  async expandResource(resource, resourceType) {
+    return typeof resource === 'string'
+      ? this.stripe[resourceType].retrieve(resource)
+      : resource;
+  }
+
+  /**
+   * Extract invoice details for billing emails
+   *
+   * @param {Invoice} invoice
+   */
+  async extractInvoiceDetailsForEmail(invoice) {
+    let uid = '',
+      email = '',
+      invoiceNumber = '',
+      invoiceDate,
+      invoiceTotal = 0,
+      cardType = '',
+      lastFour = '',
+      nextInvoiceDate,
+      productId = '',
+      planId = '',
+      planName = '',
+      planEmailIconURL = '',
+      planDownloadURL = '';
+
+    try {
+      if (invoice && typeof invoice === 'object') {
+        // Dig up & expand objects in the invoice that usually come as just IDs
+        const { plan } = invoice.lines.data[0];
+        const [
+          product,
+          customer,
+          charge,
+        ] = /** @type {[ Product, Customer, Charge ]} */ (await Promise.all([
+          this.expandResource(plan.product, 'products'),
+          this.expandResource(invoice.customer, 'customers'),
+          this.expandResource(invoice.charge, 'charges'),
+        ]));
+        const metadata = { ...product.metadata, ...plan.metadata };
+
+        // Destructure various things into the output variables we want.
+        uid = customer.metadata.userid;
+        productId = product.id;
+        ({
+          number: invoiceNumber,
+          created: invoiceDate,
+          total: invoiceTotal,
+          period_end: nextInvoiceDate,
+          customer_email: email,
+        } = invoice);
+        ({ id: planId, nickname: planName } = plan);
+        ({
+          emailIconURL: planEmailIconURL,
+          downloadURL: planDownloadURL,
+        } = metadata);
+        ({
+          brand: cardType,
+          last4: lastFour,
+        } = charge.payment_method_details.card);
+      }
+    } catch (err) {
+      this.log.error('subscriptions.extractInvoiceDetailsFromSubscription', {
+        err,
+      });
+    }
+
+    return {
+      uid,
+      email,
+      cardType,
+      lastFour,
+      invoiceNumber,
+      invoiceTotal: invoiceTotal / 100.0,
+      invoiceDate: new Date(invoiceDate * 1000),
+      nextInvoiceDate: new Date(nextInvoiceDate * 1000),
+      productId,
+      planId,
+      planName,
+      planEmailIconURL,
+      planDownloadURL,
+    };
+  }
 }
 
 /**
