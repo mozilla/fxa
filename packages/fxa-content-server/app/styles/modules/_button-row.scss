@@ -85,7 +85,7 @@ button {
     cursor: not-allowed;
     opacity: 0.4;
 
-    &:not(.primary-button) {
+    &:not(.primary-button):not([type="submit"]) {
       background: $button-background-color-default;
     }
   }
