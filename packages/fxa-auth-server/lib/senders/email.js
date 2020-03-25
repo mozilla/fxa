@@ -1812,7 +1812,6 @@ module.exports = function(log, config, oauthdb) {
       productName,
       invoiceDate,
       invoiceTotal,
-      serviceLastActiveDate,
     } = message;
 
     if (!config.subscriptions.transactionalEmails.enabled) {
@@ -1846,11 +1845,6 @@ module.exports = function(log, config, oauthdb) {
         message.timeZone,
         message.acceptLanguage,
         invoiceDate
-      ),
-      serviceLastActiveDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        serviceLastActiveDate
       ),
     };
     const subject = translator.gettext(

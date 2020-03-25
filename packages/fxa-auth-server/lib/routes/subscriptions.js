@@ -21,8 +21,12 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 /** @typedef {import('stripe').Stripe.Customer} Customer */
 /** @typedef {import('stripe').Stripe.Event} Event */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
+/** @typedef {import('stripe').Stripe.Plan} Plan */
+/** @typedef {import('stripe').Stripe.Product} Product */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
+/** @typedef {import('stripe').Stripe.InvoiceLineItem} InvoiceLineItem */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
+/** @typedef {import('stripe').Stripe.Charge} Charge */
 /** @typedef {import('../payments/stripe.js').AbbrevPlan} AbbrevPlan*/
 
 async function handleAuth(db, auth, fetchEmail = false) {
@@ -190,6 +194,7 @@ class DirectStripeRoutes {
       acceptLanguage: account.locale,
       productId,
       planId,
+      planName: selectedPlan.plan_name,
       productName: selectedPlan.product_name,
       planEmailIconURL: planMetadata.emailIconURL,
       planDownloadURL: planMetadata.downloadURL,
@@ -547,22 +552,40 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Update the customer and send subscription status update.
    *
    * @param {*} request
    * @param {Event} event
    * @param {Subscription} sub
    * @param {boolean} isActive
+   * @param {string} uidIn?
+   * @param {string} emailIn?
    */
-  async updateCustomerAndSendStatus(request, event, sub, isActive) {
-    const {
-      uid,
-      email,
-    } = await this.stripeHelper.getCustomerUidEmailFromSubscription(sub);
+  async updateCustomerAndSendStatus(
+    request,
+    event,
+    sub,
+    isActive,
+    uidIn = null,
+    emailIn = null
+  ) {
+    let uid, email;
+    if (uidIn && emailIn) {
+      // If we already have uid & email for the customer from a previous
+      // API call, we can re-use it.
+      uid = uidIn;
+      email = emailIn;
+    } else {
+      // Otherwise, we'll need to fetch it based on the subscription.
+      ({
+        uid,
+        email,
+      } = await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
+    }
     if (!uid) {
       return;
     }
-    await this.stripeHelper.refreshCachedCustomer(uid, email);
-    await this.profile.deleteCache(uid);
+    await this.updateCustomer(uid, email);
     await this.sendSubscriptionStatusToSqs(
       request,
       uid,
@@ -570,6 +593,17 @@ class DirectStripeRoutes {
       { id: sub.id, productId: /** @type {string} */ (sub.plan.product) },
       isActive
     );
+  }
+
+  /**
+   * Refresh the cached customer and invalidate profile cache.
+   *
+   * @param {*} uid
+   * @param {*} email
+   */
+  async updateCustomer(uid, email) {
+    await this.stripeHelper.refreshCachedCustomer(uid, email);
+    await this.profile.deleteCache(uid);
   }
 
   /**
@@ -620,7 +654,27 @@ class DirectStripeRoutes {
    */
   async handleSubscriptionDeletedEvent(request, event) {
     const sub = /** @type {Subscription} */ (event.data.object);
-    return this.updateCustomerAndSendStatus(request, event, sub, false);
+    const { uid, email } = await this.sendSubscriptionDeletedEmail(sub);
+    return this.updateCustomerAndSendStatus(
+      request,
+      event,
+      sub,
+      false,
+      uid,
+      email
+    );
+  }
+
+  /**
+   * Handle `invoice.payment_succeeded` Stripe wehbook events.
+   *
+   * @param {*} request
+   * @param {Event} event
+   */
+  async handleInvoicePaymentSucceededEvent(request, event) {
+    const invoice = /** @type {Invoice} */ (event.data.object);
+    const { uid, email } = await this.sendSubscriptionInvoiceEmail(invoice);
+    await this.updateCustomer(uid, email);
   }
 
   async handleWebhookEvent(request) {
@@ -639,6 +693,9 @@ class DirectStripeRoutes {
       case 'customer.subscription.deleted':
         await this.handleSubscriptionDeletedEvent(request, event);
         break;
+      case 'invoice.payment_succeeded':
+        await this.handleInvoicePaymentSucceededEvent(request, event);
+        break;
       default:
         Sentry.withScope(scope => {
           scope.setContext('stripeEvent', {
@@ -653,6 +710,90 @@ class DirectStripeRoutes {
     }
 
     return {};
+  }
+
+  /**
+   * Send out the appropriate invoice email, depending on whether it's the
+   * initial or a subsequent invoice.
+   *
+   * @param {Invoice} invoice
+   */
+  async sendSubscriptionInvoiceEmail(invoice) {
+    const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
+      invoice
+    );
+    const { uid } = invoiceDetails;
+    const account = await this.db.account(uid);
+    const mailParams = [
+      account.emails,
+      account,
+      {
+        acceptLanguage: account.locale,
+        ...invoiceDetails,
+      },
+    ];
+    switch (invoice.billing_reason) {
+      case 'subscription_create':
+        await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        break;
+      default:
+        // Other billing reasons should be covered in subsequent invoice email
+        // https://stripe.com/docs/api/invoices/object#invoice_object-billing_reason
+        await this.mailer.sendSubscriptionSubsequentInvoiceEmail(...mailParams);
+        break;
+    }
+    return invoiceDetails;
+  }
+
+  /**
+   * Send out the appropriate email on subscription deletion, depending on
+   * whether the user still has an account.
+   *
+   * @param {Subscription} subscription
+   */
+  async sendSubscriptionDeletedEmail(subscription) {
+    const invoice = await this.stripeHelper.expandResource(
+      subscription.latest_invoice,
+      'invoices'
+    );
+    const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
+      invoice
+    );
+    const { uid, email } = invoiceDetails;
+
+    let account;
+    try {
+      account = await this.db.account(uid);
+      await this.mailer.sendSubscriptionCancellationEmail(
+        account.emails,
+        account,
+        {
+          acceptLanguage: account.locale,
+          serviceLastActiveDate: new Date(
+            subscription.current_period_end * 1000
+          ),
+          ...invoiceDetails,
+        }
+      );
+    } catch (err) {
+      // Has the user's account been deleted?
+      if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+        // HACK: Minimal account-like object that mailer should accept.
+        // see also: lib/senders/index.js senders.email wrappedMailer
+        account = { email, uid, emails: [{ email, isPrimary: true }] };
+
+        await this.mailer.sendSubscriptionAccountDeletionEmail(
+          account.emails,
+          account,
+          {
+            // TODO: How do we retain account.locale on deletion? Save in customer metadata?
+            // acceptLanguage: account.locale,
+            ...invoiceDetails,
+          }
+        );
+      }
+    }
+    return invoiceDetails;
   }
 
   /**
