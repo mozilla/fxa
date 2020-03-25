@@ -282,13 +282,13 @@ body.settings #stage .settings {
 .settings-unit-stub {
   align-items: center;
   display: flex;
-  height: 72px;
+  min-height: 72px;
 
   @include respond-to('big') {
-    padding: 0 32px;
+    padding: 16px 32px;
   }
   @include respond-to('small') {
-    padding: 0 16px;
+    padding: 18px 16px;
   }
 
   .settings-unit-summary {
@@ -331,15 +331,8 @@ body.settings #stage .settings {
     margin: 5px 0 0 0;
   }
 
-  .settings-unit-title,
-  .settings-unit-subtitle {
-    text-overflow: ellipsis;
-    text-wrap: nowrap;
-    white-space: nowrap;
-  }
-
   .settings-unit-title:only-child {
-    line-height: 35px;
+    line-height: 26px;
   }
 }
 
