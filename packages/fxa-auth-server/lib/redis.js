@@ -86,6 +86,9 @@ class FxaRedis {
   async getAccessToken(tokenId) {
     try {
       const value = await this.redis.get(hex(tokenId));
+      if (!value) {
+        return null;
+      }
       return AccessToken.parse(value);
     } catch (e) {
       this.log.error('redis', e);
