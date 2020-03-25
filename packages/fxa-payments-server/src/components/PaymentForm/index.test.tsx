@@ -3,9 +3,7 @@ import TestRenderer from 'react-test-renderer';
 import { render, cleanup, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
-import fs from 'fs';
-import path from 'path';
-import { FluentBundle } from 'fluent';
+
 import { Omit } from '../../lib/types';
 import { Plan } from '../../store/types';
 
@@ -16,6 +14,8 @@ import {
   mockStripeElementOnBlurFns,
   elementChangeResponse,
   MOCK_PLANS,
+  setupFluentLocalizationTest,
+  getLocalizedMessage,
 } from '../../lib/test-utils';
 
 import {
@@ -218,6 +218,23 @@ it('includes the confirmation checkbox when confirm = true and plan supplied', (
 
 describe('Legal', () => {
   describe('rendering the legal checkbox Localized component', () => {
+    function runTests(
+      plan: Plan,
+      expectedMsgId: string,
+      expectedAmount: string,
+      expectedMsg: string
+    ) {
+      const testRenderer = TestRenderer.create(
+        <Subject {...{ confirm: true, plan: plan }} />
+      );
+      const testInstance = testRenderer.root;
+      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
+
+      expect(legalCheckbox.props.$amount).toBe(expectedAmount);
+      expect(legalCheckbox.props.$intervalCount).toBe(plan.interval_count);
+      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+    }
+
     it('renders Localized for daily plan with correct props and displays correct default string', async () => {
       const plan_id = 'plan_daily';
       const plan = findMockPlan(plan_id);
@@ -225,15 +242,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(1);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for 6 days plan with correct props and displays correct default string', async () => {
@@ -243,15 +252,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 days</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(6);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for weekly plan with correct props and displays correct default string', async () => {
@@ -261,15 +262,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 weekly</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(1);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for 6 weeks plan with correct props and displays correct default string', async () => {
@@ -279,15 +272,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 weeks</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(6);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for monthly plan with correct props and displays correct default string', async () => {
@@ -297,15 +282,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 monthly</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(1);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for 6 months plan with correct props and displays correct default string', async () => {
@@ -315,15 +292,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 months</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(6);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for yearly plan with correct props and displays correct default string', async () => {
@@ -333,15 +302,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 yearly</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(1);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
 
     it('renders Localized for years plan with correct props and displays correct default string', async () => {
@@ -351,158 +312,117 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 years</strong>, according to payment terms, until I cancel my subscription.';
 
-      const testRenderer = TestRenderer.create(
-        <Subject {...{ confirm: true, plan: plan }} />
-      );
-      const testInstance = testRenderer.root;
-      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
-
-      expect(legalCheckbox.props.$amount).toBe('5.00');
-      expect(legalCheckbox.props.$intervalCount).toBe(6);
-      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+      runTests(plan, expectedMsgId, '5.00', expectedMsg);
     });
   });
 
   describe('Fluent Localized Text', () => {
-    let bundle: FluentBundle;
+    const bundle = setupFluentLocalizationTest('en-US');
     const args = {
       amount: '5.00',
     };
 
-    beforeEach(async () => {
-      const filepath = path.join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        'public',
-        'locales',
-        'en-US',
-        'main.ftl'
-      );
-
-      const enUS = (await fs.readFileSync(filepath)).toString();
-      bundle = new FluentBundle('en-US');
-      bundle.addMessages(enUS);
-    });
-
     describe('when the localized id is payment-confirm-day', () => {
-      const msgID = 'payment-confirm-day';
+      const msgId = 'payment-confirm-day';
 
       it('returns the correct string for an interval count of 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 1,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 days</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 6,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
     });
 
     describe('when the localized id is payment-confirm-week', () => {
-      const msgID = 'payment-confirm-week';
+      const msgId = 'payment-confirm-week';
 
       it('returns the correct string for an interval count of 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 weekly</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 1,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 weeks</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 6,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
     });
 
     describe('when the localized id is payment-confirm-month', () => {
-      const msgID = 'payment-confirm-month';
+      const msgId = 'payment-confirm-month';
 
       it('returns the correct string for an interval count of 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 monthly</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 1,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', async () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 months</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 6,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
     });
 
     describe('when the localized id is payment-confirm-year', () => {
-      const msgID = 'payment-confirm-year';
+      const msgId = 'payment-confirm-year';
 
       it('returns the correct string for an interval count of 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 yearly</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 1,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
 
       it('returns the correct string for an interval count greater than 1', () => {
         const expected =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 years</strong>, according to payment terms, until I cancel my subscription.';
 
-        const msg = bundle.getMessage(msgID);
-        const actual = bundle.format(msg, {
+        const actual = getLocalizedMessage(bundle, msgId, {
           ...args,
           intervalCount: 6,
         });
-
-        expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expected);
+        expect(actual).toEqual(expected);
       });
     });
   });

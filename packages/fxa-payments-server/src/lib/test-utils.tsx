@@ -9,6 +9,9 @@ import {
 import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
+import fs from 'fs';
+import path from 'path';
+import { FluentBundle } from 'fluent';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
@@ -491,5 +494,35 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     },
   ],
 };
+
+export function setupFluentLocalizationTest(locale: string): FluentBundle {
+  const filepath = path.join(
+    __dirname,
+    '..',
+    '..',
+    'public',
+    'locales',
+    locale,
+    'main.ftl'
+  );
+  const messages = fs.readFileSync(filepath).toString();
+  const bundle = new FluentBundle(locale, { useIsolating: false });
+  bundle.addMessages(messages);
+
+  return bundle;
+}
+
+export function getLocalizedMessage(
+  bundle: FluentBundle,
+  msgId: string,
+  args: any
+): string {
+  const msg = bundle.getMessage(msgId);
+  if (msg === undefined) {
+    throw Error(`unable to locate fluent message with id: '${msgId}'`);
+  }
+
+  return bundle.format(msg, { ...args });
+}
 
 export default MockApp;
