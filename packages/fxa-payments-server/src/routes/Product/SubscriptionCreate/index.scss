@@ -1,15 +1,26 @@
 @import '../../../../../fxa-content-server/app/styles/variables';
 @import '../../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../../styles/variables';
 
 .product-payment {
   background: $color-white;
   border: 1px solid #e7e7e7;
   border-bottom: 0;
+  color: rgba(12, 12, 13, 0.8);
   flex: 1;
-  margin: 30px 0;
   max-width: 600px;
+  min-height: calc(100vh - #{$header-height});
   min-width: 375px;
   padding: 16px 16px 60px;
+
+  @include min-width('tablet') {
+    min-height: calc(100vh - #{$header-height-tablet});
+  }
+
+  @include min-width('desktop') {
+    margin: -1px 24px 0;
+    padding: 28px 48px 48px;
+  }
 
   .billing-title {
     font-size: 15px;
@@ -24,14 +35,14 @@
 
   .subscription-create-heading {
     display: none;
-    text-align: center;
-
-    h2 {
-      font-weight: normal;
-    }
 
     @include min-width('tablet') {
       display: block;
+      text-align: center;
+
+      h2 {
+        font-weight: normal;
+      }
     }
   }
 
@@ -39,14 +50,5 @@
     color: $grey-50;
     font-size: 15px;
     margin-bottom: 32px;
-  }
-
-  // @include min-width('tablet') {
-  //   padding: 28px 48px 48px;
-  // }
-
-  @include min-width('desktop') {
-    margin: 30px 24px 0;
-    padding: 28px 48px 48px;
   }
 }
