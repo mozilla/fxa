@@ -14,6 +14,7 @@ const logger = {
 const amplitudeConfig = {
   disabled: false,
   rawEvents: false,
+  schemaValidation: false,
 };
 
 const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
@@ -73,7 +74,7 @@ registerSuite('amplitude', {
             },
           },
           {
-            flowBeginTime: 'b',
+            flowBeginTime: '1585261624219',
             flowId: 'c',
             uid: 'd',
           }
@@ -100,7 +101,7 @@ registerSuite('amplitude', {
 
       const context = {
         eventSource: 'content',
-        version: '1.164.0',
+        version: pkg.version,
         emailTypes: {
           'complete-reset-password': 'reset_password',
           'complete-signin': 'login',
@@ -188,7 +189,7 @@ registerSuite('amplitude', {
     'flow.reset-password.submit': () => {
       amplitude(
         {
-          time: 'foo',
+          time: '1585321743',
           type: 'flow.reset-password.submit',
         },
         {
@@ -200,7 +201,7 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'bar',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
           entrypoint: 'baz',
           entrypoint_experiment: 'exp',
           entrypoint_variation: 'var',
@@ -210,15 +211,16 @@ registerSuite('amplitude', {
             { choice: 'THIRD_EXPERIMENT', group: 'group_three' },
             { choice: 'fourth.experiment', group: 'Group.FOUR' },
           ],
-          flowBeginTime: 'qux',
-          flowId: 'wibble',
-          lang: 'blee',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'en',
           location: {
             country: 'United States',
             state: 'California',
           },
           service: '1',
-          uid: 'soop',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           utm_campaign: 'melm',
           utm_content: 'florg',
           utm_medium: 'derp',
@@ -235,25 +237,26 @@ registerSuite('amplitude', {
       assert.deepEqual(args[1], {
         app_version: APP_VERSION,
         country: 'United States',
-        device_id: 'bar',
+        device_id: 'a5fa745ba71b416cba3eb35acea47233',
         event_properties: {
           oauth_client_id: '1',
           service: 'pocket',
         },
         event_type: 'fxa_login - forgot_submit',
-        language: 'blee',
+        language: 'en',
         op: 'amplitudeEvent',
         os_name: 'Mac OS X',
         os_version: '10.11',
         region: 'California',
-        session_id: 'qux',
-        time: 'foo',
-        user_id: 'soop',
+        session_id: '1585261624219',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
         user_properties: {
           entrypoint: 'baz',
           entrypoint_experiment: 'exp',
           entrypoint_variation: 'var',
-          flow_id: 'wibble',
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           ua_browser: 'Firefox',
           ua_version: '65.0',
           utm_campaign: 'melm',
@@ -277,7 +280,7 @@ registerSuite('amplitude', {
     'settings.change-password.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.change-password.success',
         },
         {
@@ -289,18 +292,19 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'b',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
           entrypoint: 'c',
           experiments: [],
-          flowBeginTime: 'd',
-          flowId: 'e',
-          lang: 'f',
+          flowBeginTime: '1585321696',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
           location: {
             country: 'United Kingdom',
             state: 'Dorset',
           },
           service: 'g',
-          uid: 'h',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -313,27 +317,28 @@ registerSuite('amplitude', {
       assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United Kingdom',
-        device_id: 'b',
+        device_id: 'a5fa745ba71b416cba3eb35acea47233',
         device_model: 'iPad',
         event_properties: {
           oauth_client_id: 'g',
           service: 'undefined_oauth',
         },
         event_type: 'fxa_pref - password',
-        language: 'f',
+        language: 'gd',
         op: 'amplitudeEvent',
         os_name: 'iOS',
         os_version: '6.0',
         region: 'Dorset',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
+        session_id: '1585321696',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
         user_properties: {
           $append: {
             fxa_services_used: 'undefined_oauth',
           },
           entrypoint: 'c',
-          flow_id: 'e',
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           ua_browser: 'Mobile Safari',
           ua_version: '6.0',
           utm_campaign: 'i',
@@ -348,7 +353,7 @@ registerSuite('amplitude', {
     'settings.clients.disconnect.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.clients.disconnect.submit',
         },
         {
@@ -361,7 +366,7 @@ registerSuite('amplitude', {
           deviceId: 'b',
           flowBeginTime: 'c',
           flowId: 'd',
-          lang: 'e',
+          lang: 'gd',
           uid: 'f',
         }
       );
@@ -371,7 +376,7 @@ registerSuite('amplitude', {
     'settings.clients.disconnect.submit.suspicious': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.clients.disconnect.submit.suspicious',
         },
         {
@@ -381,10 +386,11 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'none',
-          flowBeginTime: 'b',
-          flowId: 'c',
-          lang: 'd',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
           uid: 'none',
         }
       );
@@ -393,14 +399,13 @@ registerSuite('amplitude', {
       const arg = logger.info.args[0][1];
       assert.equal(arg.event_type, 'fxa_pref - disconnect_device');
       assert.equal(arg.event_properties.reason, 'suspicious');
-      assert.isUndefined(arg.device_id);
       assert.isUndefined(arg.user_id);
     },
 
     'settings.clients.disconnect.submit.duplicate': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.clients.disconnect.submit.duplicate',
         },
         {
@@ -410,11 +415,12 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'b',
-          flowBeginTime: 'c',
-          flowId: 'd',
-          lang: 'e',
-          uid: 'f',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -427,7 +433,7 @@ registerSuite('amplitude', {
     'settings.signout.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.signout.success',
         },
         {
@@ -437,9 +443,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -450,7 +457,7 @@ registerSuite('amplitude', {
     'flow.update-firefox.view': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.update-firefox.view',
         },
         {
@@ -460,9 +467,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -476,7 +484,7 @@ registerSuite('amplitude', {
     'flow.support.view': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.support.view',
         },
         {
@@ -486,9 +494,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           product_id: 'pid',
           plan_id: 'plid',
         }
@@ -504,7 +513,7 @@ registerSuite('amplitude', {
     'flow.update-firefox.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.update-firefox.engage',
         },
         {
@@ -514,9 +523,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -530,7 +540,7 @@ registerSuite('amplitude', {
     'experiment.designF.passwordStrength.blocked': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'experiment.designF.passwordStrength.blocked',
         },
         {
@@ -540,9 +550,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -556,7 +567,7 @@ registerSuite('amplitude', {
     'flow.choose-what-to-sync.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.choose-what-to-sync.engage',
         },
         {
@@ -566,9 +577,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -580,7 +592,7 @@ registerSuite('amplitude', {
     'flow.enter-email.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.enter-email.engage',
         },
         {
@@ -590,9 +602,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -606,7 +619,7 @@ registerSuite('amplitude', {
     'flow.force-auth.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.force-auth.engage',
         },
         {
@@ -616,9 +629,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -629,7 +643,7 @@ registerSuite('amplitude', {
     'flow.signin.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin.engage',
         },
         {
@@ -639,9 +653,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -652,7 +667,7 @@ registerSuite('amplitude', {
     'flow.signup.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signup.engage',
         },
         {
@@ -662,17 +677,18 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'b',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
           entrypoint: 'c',
-          flowBeginTime: 'd',
-          flowId: 'e',
-          lang: 'f',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
           location: {
             country: 'United States',
             state: 'California',
           },
           service: '1234',
-          uid: 'h',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -685,24 +701,25 @@ registerSuite('amplitude', {
       assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United States',
-        device_id: 'b',
+        device_id: 'a5fa745ba71b416cba3eb35acea47233',
         event_properties: {
           oauth_client_id: '1234',
           service: 'undefined_oauth',
         },
         event_type: 'fxa_reg - engage',
-        language: 'f',
+        language: 'gd',
         op: 'amplitudeEvent',
         region: 'California',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
+        session_id: '1585261624219',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
         user_properties: {
           $append: {
             fxa_services_used: 'undefined_oauth',
           },
           entrypoint: 'c',
-          flow_id: 'e',
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -715,7 +732,7 @@ registerSuite('amplitude', {
     'flow.sms.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.sms.engage',
         },
         {
@@ -725,9 +742,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -741,7 +759,7 @@ registerSuite('amplitude', {
     'flow.reset-password.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.reset-password.engage',
         },
         {
@@ -751,9 +769,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 0);
@@ -762,7 +781,7 @@ registerSuite('amplitude', {
     'flow.signin-totp-code.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin-totp-code.engage',
         },
         {
@@ -772,9 +791,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -788,7 +808,7 @@ registerSuite('amplitude', {
     'flow.support.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.support.engage',
         },
         {
@@ -798,9 +818,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           product_id: 'pid',
           plan_id: 'plid',
         }
@@ -816,7 +837,7 @@ registerSuite('amplitude', {
     'flow.install_from.foo': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.install_from.foo',
         },
         {
@@ -826,9 +847,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -842,7 +864,7 @@ registerSuite('amplitude', {
     'flow.signin_from.bar': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin_from.bar',
         },
         {
@@ -852,9 +874,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -868,7 +891,7 @@ registerSuite('amplitude', {
     'flow.connect-another-device.link.app-store.foo': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.connect-another-device.link.app-store.foo',
         },
         {
@@ -878,9 +901,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -894,7 +918,7 @@ registerSuite('amplitude', {
     'flow.choose-what-to-sync.back': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.choose-what-to-sync.back',
         },
         {
@@ -904,9 +928,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -919,7 +944,7 @@ registerSuite('amplitude', {
     'flow.signin.forgot-password': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin.forgot-password',
         },
         {
@@ -929,9 +954,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -942,7 +968,7 @@ registerSuite('amplitude', {
     'flow.signin.have-account': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin.have-account',
         },
         {
@@ -952,9 +978,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -965,7 +992,7 @@ registerSuite('amplitude', {
     'flow.choose-what-to-sync.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.choose-what-to-sync.submit',
         },
         {
@@ -975,10 +1002,11 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           syncEngines: ['wibble', 'blee'],
-          uid: 'd',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -993,7 +1021,7 @@ registerSuite('amplitude', {
     'flow.enter-email.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.enter-email.submit',
         },
         {
@@ -1003,9 +1031,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1019,7 +1048,7 @@ registerSuite('amplitude', {
     'flow.force-auth.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin.submit',
         },
         {
@@ -1029,9 +1058,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1042,7 +1072,7 @@ registerSuite('amplitude', {
     'flow.signin.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin.submit',
         },
         {
@@ -1052,9 +1082,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1065,7 +1096,7 @@ registerSuite('amplitude', {
     'flow.signup.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signup.submit',
         },
         {
@@ -1075,9 +1106,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1088,7 +1120,7 @@ registerSuite('amplitude', {
     'flow.sms.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.sms.submit',
         },
         {
@@ -1098,9 +1130,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1114,7 +1147,7 @@ registerSuite('amplitude', {
     'flow.signin-totp-code.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin-totp-code.submit',
         },
         {
@@ -1124,9 +1157,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1140,7 +1174,7 @@ registerSuite('amplitude', {
     'flow.support.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.support.submit',
         },
         {
@@ -1150,9 +1184,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           product_id: 'pid',
           plan_id: 'plid',
         }
@@ -1168,7 +1203,7 @@ registerSuite('amplitude', {
     'flow.wibble.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.wibble.submit',
         },
         {
@@ -1178,9 +1213,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 0);
@@ -1189,7 +1225,7 @@ registerSuite('amplitude', {
     'screen.choose-what-to-sync': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.choose-what-to-sync',
         },
         {
@@ -1199,9 +1235,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1213,7 +1250,7 @@ registerSuite('amplitude', {
     'screen.enter-email': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.enter-email',
         },
         {
@@ -1223,9 +1260,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1236,7 +1274,7 @@ registerSuite('amplitude', {
     'screen.rp-button': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.rp-button',
         },
         {
@@ -1246,9 +1284,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1259,7 +1298,7 @@ registerSuite('amplitude', {
     'screen.subscribe': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.subscribe',
         },
         {
@@ -1269,9 +1308,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1282,7 +1322,7 @@ registerSuite('amplitude', {
     'screen.force-auth': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.force-auth',
         },
         {
@@ -1292,9 +1332,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1305,7 +1346,7 @@ registerSuite('amplitude', {
     'screen.signin': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.signin',
         },
         {
@@ -1315,9 +1356,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1328,7 +1370,7 @@ registerSuite('amplitude', {
     'screen.signup': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.signup',
         },
         {
@@ -1338,9 +1380,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1351,7 +1394,7 @@ registerSuite('amplitude', {
     'screen.oauth.signin': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.oauth.signin',
         },
         {
@@ -1361,9 +1404,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           service: 'g',
         }
       );
@@ -1377,7 +1421,7 @@ registerSuite('amplitude', {
     'screen.signin.other_events': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.signin.other_events',
         },
         {
@@ -1387,9 +1431,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1399,7 +1444,7 @@ registerSuite('amplitude', {
     'screen.settings': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.settings',
         },
         {
@@ -1409,9 +1454,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1422,7 +1468,7 @@ registerSuite('amplitude', {
     'screen.sms': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.sms',
         },
         {
@@ -1432,17 +1478,18 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'b',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
           entrypoint: 'c',
-          flowBeginTime: 'd',
-          flowId: 'e',
-          lang: 'f',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
           location: {
             country: 'United States',
             state: 'California',
           },
           service: 'g',
-          uid: 'h',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -1455,25 +1502,26 @@ registerSuite('amplitude', {
       assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United States',
-        device_id: 'b',
+        device_id: 'a5fa745ba71b416cba3eb35acea47233',
         event_properties: {
           connect_device_flow: 'sms',
           oauth_client_id: 'g',
           service: 'undefined_oauth',
         },
         event_type: 'fxa_connect_device - view',
-        language: 'f',
+        language: 'gd',
         op: 'amplitudeEvent',
         region: 'California',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
+        session_id: '1585261624219',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
         user_properties: {
           $append: {
             fxa_services_used: 'undefined_oauth',
           },
           entrypoint: 'c',
-          flow_id: 'e',
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -1486,7 +1534,7 @@ registerSuite('amplitude', {
     'screen.reset-password': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.reset-password',
         },
         {
@@ -1496,9 +1544,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 0);
@@ -1507,7 +1556,7 @@ registerSuite('amplitude', {
     'screen.signin-totp-code': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.signin-totp-code',
         },
         {
@@ -1517,9 +1566,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 1);
@@ -1532,7 +1582,7 @@ registerSuite('amplitude', {
     'screen.settings.two-step-authentication': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.settings.two-step-authentication',
         },
         {
@@ -1542,9 +1592,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 1);
@@ -1557,7 +1608,7 @@ registerSuite('amplitude', {
     'settings.communication-preferences.optIn.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.communication-preferences.optIn.success',
         },
         {
@@ -1567,9 +1618,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1582,7 +1634,7 @@ registerSuite('amplitude', {
     'settings.communication-preferences.optOut.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.communication-preferences.optOut.success',
         },
         {
@@ -1592,9 +1644,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1607,7 +1660,7 @@ registerSuite('amplitude', {
     'flow.signin-totp-code.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.signin-totp-code.success',
         },
         {
@@ -1617,9 +1670,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1633,7 +1687,7 @@ registerSuite('amplitude', {
     'flow.support.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.support.success',
         },
         {
@@ -1643,9 +1697,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           product_id: 'pid',
           plan_id: 'plid',
         }
@@ -1661,7 +1716,7 @@ registerSuite('amplitude', {
     'flow.support.fail': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.support.fail',
         },
         {
@@ -1671,9 +1726,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           product_id: 'pid',
           plan_id: 'plid',
         }
@@ -1689,7 +1745,7 @@ registerSuite('amplitude', {
     'settings.communication-preferences.wibble.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'settings.communication-preferences.wibble.success',
         },
         {
@@ -1699,9 +1755,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 0);
@@ -1710,7 +1767,7 @@ registerSuite('amplitude', {
     'complete-reset-password.verification.clicked': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'complete-reset-password.verification.clicked',
         },
         {
@@ -1720,18 +1777,19 @@ registerSuite('amplitude', {
           },
         },
         {
-          deviceId: 'b',
+          deviceId: 'a5fa745ba71b416cba3eb35acea47233',
           emailDomain: 'other',
           entrypoint: 'c',
-          flowBeginTime: 'd',
-          flowId: 'e',
-          lang: 'f',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
           location: {
             country: 'United States',
             state: 'California',
           },
           service: 'sync',
-          uid: 'h',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -1744,7 +1802,7 @@ registerSuite('amplitude', {
       assert.deepEqual(logger.info.args[0][1], {
         app_version: APP_VERSION,
         country: 'United States',
-        device_id: 'b',
+        device_id: 'a5fa745ba71b416cba3eb35acea47233',
         event_properties: {
           email_provider: 'other',
           email_sender: undefined,
@@ -1753,18 +1811,19 @@ registerSuite('amplitude', {
           service: 'sync',
         },
         event_type: 'fxa_email - click',
-        language: 'f',
+        language: 'gd',
         op: 'amplitudeEvent',
         region: 'California',
-        session_id: 'd',
-        time: 'a',
-        user_id: 'h',
+        session_id: '1585261624219',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
         user_properties: {
           $append: {
             fxa_services_used: 'sync',
           },
           entrypoint: 'c',
-          flow_id: 'e',
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           utm_campaign: 'i',
           utm_content: 'j',
           utm_medium: 'k',
@@ -1777,7 +1836,7 @@ registerSuite('amplitude', {
     'complete-signin.verification.clicked': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'complete-signin.verification.clicked',
         },
         {
@@ -1788,9 +1847,10 @@ registerSuite('amplitude', {
         },
         {
           emailDomain: 'none',
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1804,7 +1864,7 @@ registerSuite('amplitude', {
     'verify-email.verification.clicked': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'verify-email.verification.clicked',
         },
         {
@@ -1814,9 +1874,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1830,7 +1891,7 @@ registerSuite('amplitude', {
     'wibble.verification.success': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'wibble.verification.success',
         },
         {
@@ -1840,9 +1901,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
       assert.equal(logger.info.callCount, 0);
@@ -1851,7 +1913,7 @@ registerSuite('amplitude', {
     'cached.signin.success': () => {
       amplitude(
         {
-          time: 'foo',
+          time: '1585321743',
           type: 'cached.signin.success',
         },
         {
@@ -1863,11 +1925,12 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'qux',
-          flowId: 'wibble',
-          lang: 'blee',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
           service: '1',
-          uid: 'soop',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1883,15 +1946,16 @@ registerSuite('amplitude', {
           service: 'pocket',
         },
         event_type: 'fxa_login - complete',
-        language: 'blee',
+        language: 'gd',
         op: 'amplitudeEvent',
         os_name: 'Mac OS X',
         os_version: '10.11',
-        session_id: 'qux',
-        time: 'foo',
-        user_id: 'soop',
+        session_id: '1585261624219',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
         user_properties: {
-          flow_id: 'wibble',
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           ua_browser: 'Firefox',
           ua_version: '65.0',
           $append: {
@@ -1904,7 +1968,7 @@ registerSuite('amplitude', {
     'screen.confirm-signup-code': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.confirm-signup-code',
         },
         {
@@ -1914,9 +1978,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1931,7 +1996,7 @@ registerSuite('amplitude', {
     'flow.confirm-signup-code.engage': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.confirm-signup-code.engage',
         },
         {
@@ -1941,9 +2006,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1958,7 +2024,7 @@ registerSuite('amplitude', {
     'flow.confirm-signup-code.submit': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'flow.confirm-signup-code.submit',
         },
         {
@@ -1968,9 +2034,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -1985,7 +2052,7 @@ registerSuite('amplitude', {
     'screen.connect-another-device': () => {
       amplitude(
         {
-          time: 'a',
+          time: '1585321743',
           type: 'screen.connect-another-device',
         },
         {
@@ -1995,9 +2062,10 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
-          uid: 'd',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -2010,7 +2078,7 @@ registerSuite('amplitude', {
       amplitude(
         {
           flowTime: 'b',
-          time: 'a',
+          time: '1585321743',
           type: 'flow.rp.engage',
         },
         {
@@ -2020,10 +2088,11 @@ registerSuite('amplitude', {
           },
         },
         {
-          flowBeginTime: 'b',
-          flowId: 'c',
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
           service: '2',
-          uid: 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -2032,8 +2101,8 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_rp - engage');
       assert.equal(arg.event_properties.oauth_client_id, '2');
       assert.equal(arg.event_properties.service, 'fx-monitor');
-      assert.equal(arg.time, 'a');
-      assert.equal(arg.user_id, 'ca11ab1efo1dab1e5a1eab1e5ca1ab1e');
+      assert.equal(arg.time, '1585321743');
+      assert.equal(arg.user_id, '44794bdf0be84d4e8c7a8026b8580fa3');
     },
 
     'screen.pair': () => {
@@ -2051,8 +2120,8 @@ registerSuite('amplitude', {
         {
           flowBeginTime: '1582051366041',
           flowId:
-            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0ac',
-          uid: 'none',
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 
@@ -2077,8 +2146,8 @@ registerSuite('amplitude', {
         {
           flowBeginTime: '1582051366041',
           flowId:
-            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0ac',
-          uid: 'none',
+            '5447c7149042981c04bb47e8c3b717d12cfc9f2e21222b9d2b1837e193eb0d0a',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
         }
       );
 

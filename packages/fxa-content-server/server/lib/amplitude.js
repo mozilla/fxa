@@ -22,6 +22,7 @@ const {
   mapFormFactor,
   mapLocation,
   mapOs,
+  validate,
 } = require('../../../fxa-shared/metrics/amplitude');
 const logger = require('./logging/log')();
 const ua = require('../../../fxa-shared/metrics/user-agent');
@@ -30,6 +31,7 @@ const { version: VERSION } = require('../../package.json');
 
 const SERVICES = config.get('oauth_client_id_map');
 const amplitude = config.get('amplitude');
+const Sentry = require('@sentry/node');
 
 // Maps view name to email type
 const EMAIL_TYPES = {
@@ -458,6 +460,31 @@ function receiveEvent(event, request, data) {
   );
 
   if (amplitudeEvent) {
+    if (amplitude.schemaValidation) {
+      try {
+        validate(amplitudeEvent);
+      } catch (err) {
+        logger.error('amplitude.validationError', { err, amplitudeEvent });
+
+        // Since we are adding a schema retroactively, let's be conservative:
+        // temporarily capture any validation "errors" with Sentry to ensure
+        // that the schema is not too strict against existing events.  We'll
+        // update the schema accordingly.  And allow the events in the
+        // meantime.
+        Sentry.withScope(scope => {
+          scope.setContext('amplitude.validationError', {
+            event_type: amplitudeEvent.event_type,
+            flow_id: amplitudeEvent.user_properties.flow_id,
+            err,
+          });
+          Sentry.captureMessage(
+            'Amplitude event failed validation.',
+            Sentry.Severity.Error
+          );
+        });
+      }
+    }
+
     logger.info('amplitudeEvent', amplitudeEvent);
   }
 }

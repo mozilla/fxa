@@ -39,6 +39,7 @@ RUN npm ci
 # Except, to avoid installing redis, we're just copying over the files
 # that are explicitly needed.
 COPY --chown=app:app ["fxa-shared/metrics/user-agent.js", "../fxa-shared/metrics/user-agent.js"]
+COPY --chown=app:app ["fxa-shared/metrics/amplitude-event.1.schema.json", "../fxa-shared/amplitude-event.1.schema.json"]
 COPY --chown=app:app ["fxa-shared/metrics/amplitude.js", "../fxa-shared/metrics/amplitude.js"]
 COPY --chown=app:app ["fxa-shared/metrics/flow-performance.js", "../fxa-shared/metrics/flow-performance.js"]
 COPY --chown=app:app ["fxa-shared/express/index.js", "../fxa-shared/express/index.js"]

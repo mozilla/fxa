@@ -11,9 +11,12 @@
 
 'use strict';
 
+const Sentry = require('@sentry/node');
+
 const {
   GROUPS,
   initialize,
+  validate,
 } = require('../../../../fxa-shared/metrics/amplitude');
 const { version: VERSION } = require('../../../package.json');
 
@@ -65,6 +68,35 @@ module.exports = (log, config) => {
     );
 
     if (amplitudeEvent) {
+      if (config.amplitude.schemaValidation) {
+        try {
+          validate(amplitudeEvent);
+        } catch (err) {
+          log.error('amplitude.validationError', { err, amplitudeEvent });
+
+          // Since we are adding a schema retroactively, let's be conservative:
+          // temporarily capture any validation "errors" with Sentry to ensure
+          // that the schema is not too strict against existing events.  We'll
+          // update the schema accordingly.  And allow the events in the
+          // meantime.
+          Sentry.withScope(scope => {
+            scope.setContext('amplitude.validationError', {
+              event_type: amplitudeEvent.event_type,
+              flow_id: amplitudeEvent.user_properties.flow_id,
+              err,
+            });
+            Sentry.captureMessage(
+              'Amplitude event failed validation.',
+              Sentry.Severity.Error
+            );
+          });
+
+          // @TODO Uncomment to stop emitting invalid events once we are
+          // satisfied with the schema.
+          // return;
+        }
+      }
+
       log.info('amplitudeEvent', amplitudeEvent);
     }
   };

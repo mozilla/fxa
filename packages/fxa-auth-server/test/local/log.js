@@ -9,6 +9,40 @@ const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 
 const { mockRequest, mockMetricsContext } = require('../mocks');
+const mockAmplitudeConfig = { schemaValidation: true };
+
+let sentryScope;
+const mockSentry = {
+  withScope: sinon.stub().callsFake(cb => {
+    sentryScope = { setContext: sinon.stub() };
+    cb(sentryScope);
+  }),
+  captureMessage: sinon.stub(),
+};
+const Sentry = require('@sentry/node');
+
+const validEvent = {
+  op: 'amplitudeEvent',
+  event_type: 'fxa_activity - access_token_checked',
+  time: 1585240759486,
+  device_id: '49e7b88cb0e04dc584952e3c500daa53',
+  user_id: 'a3333daf1de440b3bcb46745db613bbc',
+  app_version: '163.1',
+  event_properties: {
+    service: 'fxa-settings',
+    oauth_client_id: '98e6508e88680e1a',
+  },
+  user_properties: {
+    flow_id: '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6',
+    ua_browser: 'Firefox',
+    ua_version: '76.0',
+    $append: {
+      account_recovery: false,
+      two_step_authentication: false,
+      emails: false,
+    },
+  },
+};
 
 describe('log', () => {
   let logger, mocks, log;
@@ -21,6 +55,7 @@ describe('log', () => {
       warn: sinon.spy(),
       info: sinon.spy(),
     };
+    mockAmplitudeConfig.schemaValidation = true;
     mocks = {
       '../config': {
         get(name) {
@@ -29,6 +64,8 @@ describe('log', () => {
               return {
                 fmt: 'mozlog',
               };
+            case 'amplitude':
+              return mockAmplitudeConfig;
             case 'domain':
               return 'example.com';
             case 'oauth.clientIds':
@@ -50,6 +87,7 @@ describe('log', () => {
       './notifier': function() {
         return { send: sinon.spy() };
       },
+      '@sentry/node': mockSentry,
     };
     log = proxyquire(
       '../../lib/log',
@@ -452,21 +490,13 @@ describe('log', () => {
   });
 
   it('.amplitudeEvent', () => {
-    log.amplitudeEvent({ event_type: 'foo', device_id: 'bar', user_id: 'baz' });
+    log.amplitudeEvent(validEvent);
 
     assert.equal(logger.info.callCount, 1, 'logger.info was called once');
     const args = logger.info.args[0];
     assert.equal(args.length, 2, 'logger.info was passed two arguments');
     assert.equal(args[0], 'amplitudeEvent', 'first argument was correct');
-    assert.deepEqual(
-      args[1],
-      {
-        event_type: 'foo',
-        device_id: 'bar',
-        user_id: 'baz',
-      },
-      'second argument was event data'
-    );
+    assert.deepEqual(args[1], validEvent, 'second argument was event data');
 
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
@@ -566,20 +596,14 @@ describe('log', () => {
   });
 
   it('.amplitudeEvent with missing device_id', () => {
-    log.amplitudeEvent({ event_type: 'wibble', user_id: 'blee' });
+    const event = { ...validEvent, device_id: undefined };
+    log.amplitudeEvent(event);
 
     assert.equal(logger.info.callCount, 1, 'logger.info was called once');
     const args = logger.info.args[0];
     assert.equal(args.length, 2, 'logger.info was passed two arguments');
     assert.equal(args[0], 'amplitudeEvent', 'first argument was correct');
-    assert.deepEqual(
-      args[1],
-      {
-        event_type: 'wibble',
-        user_id: 'blee',
-      },
-      'second argument was event data'
-    );
+    assert.deepEqual(args[1], event, 'second argument was event data');
 
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
@@ -592,20 +616,14 @@ describe('log', () => {
   });
 
   it('.amplitudeEvent with missing user_id', () => {
-    log.amplitudeEvent({ event_type: 'foo', device_id: 'bar' });
+    const event = { ...validEvent, user_id: undefined };
+    log.amplitudeEvent(event);
 
     assert.equal(logger.info.callCount, 1, 'logger.info was called once');
     const args = logger.info.args[0];
     assert.equal(args.length, 2, 'logger.info was passed two arguments');
     assert.equal(args[0], 'amplitudeEvent', 'first argument was correct');
-    assert.deepEqual(
-      args[1],
-      {
-        event_type: 'foo',
-        device_id: 'bar',
-      },
-      'second argument was event data'
-    );
+    assert.deepEqual(args[1], event, 'second argument was event data');
 
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
@@ -615,6 +633,60 @@ describe('log', () => {
       'logger.critical was not called'
     );
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
+  });
+
+  it('.amplitudeEvent does not perform schema validation per configuration', () => {
+    mockAmplitudeConfig.schemaValidation = false;
+    const event = { ...validEvent, event_type: 'INVALID EVENT TYPE' };
+    log.amplitudeEvent(event);
+
+    assert.isFalse(logger.error.calledOnce);
+    assert.isFalse(mockSentry.withScope.calledOnce);
+    assert.isTrue(logger.info.calledOnce, 'logger.info was called once');
+    assert.equal(logger.info.args[0][0], 'amplitudeEvent');
+    assert.deepEqual(logger.info.args[0][1], event);
+  });
+
+  it('.amplitudeEvent with invalid data is logged', () => {
+    const event = { ...validEvent, event_type: 'INVALID EVENT TYPE' };
+    log.amplitudeEvent(event);
+
+    assert.isTrue(logger.error.calledOnce, 'logger.error was called once');
+    assert.equal(logger.error.args[0][0], 'amplitude.validationError');
+    assert.equal(
+      logger.error.args[0][1]['err']['message'],
+      'Invalid data: event.event_type should match pattern "^\\w+ - \\w+$"'
+    );
+    assert.deepEqual(logger.error.args[0][1]['amplitudeEvent'], event);
+
+    assert.isTrue(mockSentry.withScope.calledOnce);
+    assert.isTrue(sentryScope.setContext.calledOnce);
+    assert.equal(
+      sentryScope.setContext.args[0][0],
+      'amplitude.validationError'
+    );
+    assert.equal(
+      sentryScope.setContext.args[0][1]['event_type'],
+      'INVALID EVENT TYPE'
+    );
+    assert.equal(
+      sentryScope.setContext.args[0][1]['flow_id'],
+      '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6'
+    );
+    assert.equal(
+      sentryScope.setContext.args[0][1]['err']['message'],
+      'Invalid data: event.event_type should match pattern "^\\w+ - \\w+$"'
+    );
+    assert.isTrue(
+      mockSentry.captureMessage.calledOnceWith(
+        'Amplitude event failed validation.',
+        Sentry.Severity.Error
+      )
+    );
+
+    assert.isTrue(logger.info.calledOnce, 'logger.info was called once');
+    assert.equal(logger.info.args[0][0], 'amplitudeEvent');
+    assert.deepEqual(logger.info.args[0][1], event);
   });
 
   it('.error removes PII from error objects', () => {

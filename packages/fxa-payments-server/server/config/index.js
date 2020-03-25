@@ -16,6 +16,12 @@ const conf = convict({
       env: 'AMPLITUDE_ENABLED',
       format: Boolean,
     },
+    schemaValidation: {
+      default: true,
+      doc: 'Validate events against a JSON schema',
+      env: 'AMPLITUDE_SCHEMA_VALIDATION',
+      format: Boolean,
+    },
   },
   clientAddressDepth: {
     default: 3,

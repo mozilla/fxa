@@ -5,8 +5,21 @@
 'use strict';
 
 const { assert } = require('chai');
-const amplitudeModule = require('../../../lib/oauth/metrics/amplitude');
+const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const mockAmplitudeConfig = { schemaValidation: true };
+let sentryScope;
+const mockSentry = {
+  withScope: sinon.stub().callsFake(cb => {
+    sentryScope = { setContext: sinon.stub() };
+    cb(sentryScope);
+  }),
+  captureMessage: sinon.stub(),
+};
+const amplitudeModule = proxyquire('../../../lib/oauth/metrics/amplitude', {
+  '@sentry/node': mockSentry,
+});
+const Sentry = require('@sentry/node');
 
 describe('metrics/amplitude', () => {
   it('interface is correct', () => {
@@ -15,11 +28,21 @@ describe('metrics/amplitude', () => {
   });
 
   it('throws if log argument is missing', () => {
-    assert.throws(() => amplitudeModule(null, { clientIdToServiceNames: {} }));
+    assert.throws(() =>
+      amplitudeModule(null, {
+        clientIdToServiceNames: {},
+        amplitude: mockAmplitudeConfig,
+      })
+    );
   });
 
   it('throws if config argument is missing', () => {
-    assert.throws(() => amplitudeModule({}, { clientIdToServiceNames: null }));
+    assert.throws(() =>
+      amplitudeModule(
+        {},
+        { clientIdToServiceNames: null, amplitude: mockAmplitudeConfig }
+      )
+    );
   });
 
   describe('instantiate', () => {
@@ -38,7 +61,11 @@ describe('metrics/amplitude', () => {
             1: 'pocket',
           },
         },
+        amplitude: mockAmplitudeConfig,
       });
+
+      mockSentry.withScope.resetHistory();
+      mockSentry.captureMessage.resetHistory();
     });
 
     it('interface is correct', () => {
@@ -86,16 +113,54 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('token.created', () => {
+    describe('invalid event data', () => {
       beforeEach(() => {
         return amplitude('token.created', {
           service: '0',
-          uid: 'blee',
+          uid: 'quuz',
         });
       });
 
-      it('did not call log.error', () => {
-        assert.strictEqual(log.error.callCount, 0);
+      it('called log.error correctly', () => {
+        assert.strictEqual(log.error.callCount, 1);
+        assert.equal(log.error.args[0][0], 'amplitude.validationError');
+        assert.equal(
+          log.error.args[0][1]['err']['message'],
+          'Invalid data: event.user_id should match pattern "^[a-fA-F0-9]{32}$"'
+        );
+        assert.equal(
+          log.error.args[0][1]['amplitudeEvent']['op'],
+          'amplitudeEvent'
+        );
+        assert.equal(
+          log.error.args[0][1]['amplitudeEvent']['event_type'],
+          'fxa_activity - access_token_created'
+        );
+        assert.equal(log.error.args[0][1]['amplitudeEvent']['user_id'], 'quuz');
+      });
+
+      it('called Sentry correctly', () => {
+        assert.isTrue(mockSentry.withScope.calledOnce);
+        assert.isTrue(sentryScope.setContext.calledOnce);
+        assert.equal(
+          sentryScope.setContext.args[0][0],
+          'amplitude.validationError'
+        );
+        assert.equal(
+          sentryScope.setContext.args[0][1]['event_type'],
+          'fxa_activity - access_token_created'
+        );
+        assert.equal(sentryScope.setContext.args[0][1]['flow_id'], undefined);
+        assert.equal(
+          sentryScope.setContext.args[0][1]['err']['message'],
+          'Invalid data: event.user_id should match pattern "^[a-fA-F0-9]{32}$"'
+        );
+        assert.isTrue(
+          mockSentry.captureMessage.calledOnceWith(
+            'Amplitude event failed validation.',
+            Sentry.Severity.Error
+          )
+        );
       });
 
       it('called log.info correctly', () => {
@@ -104,7 +169,7 @@ describe('metrics/amplitude', () => {
         const args = log.info.args[0];
         assert.strictEqual(args.length, 2);
         assert.strictEqual(args[0], 'amplitudeEvent');
-        assert.strictEqual(args[1].user_id, 'blee');
+        assert.strictEqual(args[1].user_id, 'quuz');
         assert.strictEqual(
           args[1].event_type,
           'fxa_activity - access_token_created'
@@ -122,41 +187,15 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('verify.success', () => {
-      beforeEach(() => {
-        const now = Date.now();
-        return amplitude('verify.success', {
-          service: '1',
-          time: now,
-          uid: 'biz',
+    describe('responds to configuration', () => {
+      it('does not perform schema validation per config', () => {
+        mockAmplitudeConfig.schemaValidation = false;
+        amplitude('token.created', {
+          service: '0',
+          uid: 'quuz',
         });
-      });
-
-      it('did not call log.error', () => {
         assert.strictEqual(log.error.callCount, 0);
-      });
-
-      it('called log.info correctly', () => {
-        assert.strictEqual(log.info.callCount, 1);
-
-        const args = log.info.args[0];
-        assert.strictEqual(args.length, 2);
-        assert.strictEqual(args[0], 'amplitudeEvent');
-        assert.strictEqual(args[1].user_id, 'biz');
-        assert.strictEqual(
-          args[1].event_type,
-          'fxa_activity - access_token_checked'
-        );
-        assert.deepEqual(args[1].event_properties, {
-          service: 'pocket',
-          oauth_client_id: '1',
-        });
-        assert.deepEqual(args[1].user_properties, {
-          $append: {
-            fxa_services_used: 'pocket',
-          },
-        });
-        assert.isAbove(args[1].time, Date.now() - 1000);
+        assert.isFalse(mockSentry.withScope.calledOnce);
       });
     });
   });
