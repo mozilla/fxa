@@ -133,6 +133,8 @@ export const Product = ({
     );
   }
 
+  console.log("bello", profile, plans, selectedPlan);
+
   if (!selectedPlan) {
     return (
       <DialogMessage className="dialog-error">

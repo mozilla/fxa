@@ -30,7 +30,7 @@ $(document).ready(function() {
       break;
     default:
       paymentURL =
-        '//127.0.0.1:3030/subscriptions/products/prod_GqM9ToKK62qjkK';
+        '//127.0.0.1:3030/subscriptions/products/prod_GjeDrVtBRfiWjm';
       break;
   }
   $('.btn-subscribe').each(function(index) {
