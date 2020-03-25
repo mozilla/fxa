@@ -293,9 +293,6 @@ export const SMALL_DEVICE_LINE_HEIGHT = '40px';
 export const DEFAULT_LINE_HEIGHT = '48px';
 
 export function mkStripeElementStyles(useSmallDeviceStyles: boolean) {
-  let lh = useSmallDeviceStyles
-    ? SMALL_DEVICE_LINE_HEIGHT
-    : DEFAULT_LINE_HEIGHT;
   // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
   return {
     base: {
@@ -304,7 +301,6 @@ export function mkStripeElementStyles(useSmallDeviceStyles: boolean) {
         'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
       fontSize: '14px',
       fontWeight: '500',
-      lineHeight: lh,
     },
     invalid: {
       color: '#0c0c0d',

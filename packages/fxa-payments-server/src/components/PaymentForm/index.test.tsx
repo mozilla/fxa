@@ -369,15 +369,3 @@ it('calls onPaymentError when payment processing fails', async () => {
     expect(onPaymentError).toHaveBeenCalledWith('BAD THINGS')
   );
 });
-
-it('shows adjusts form styles on smaller devices', async () => {
-  const updatedElementStylesObjectSmallDev = mkStripeElementStyles(true);
-  expect(updatedElementStylesObjectSmallDev.base.lineHeight).toEqual(
-    SMALL_DEVICE_LINE_HEIGHT
-  );
-
-  const updatedElementStylesObject = mkStripeElementStyles(false);
-  expect(updatedElementStylesObject.base.lineHeight).toEqual(
-    DEFAULT_LINE_HEIGHT
-  );
-});
