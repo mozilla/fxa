@@ -2,13 +2,15 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import TestRenderer from 'react-test-renderer';
 import dayjs from 'dayjs';
-import fs from 'fs';
-import path from 'path';
-import { FluentBundle } from 'fluent';
 
 import { PaymentUpdateForm } from './PaymentUpdateForm';
 import { Plan } from '../../store/types';
-import { MOCK_PLANS, MOCK_CUSTOMER } from '../../lib/test-utils';
+import {
+  MOCK_PLANS,
+  MOCK_CUSTOMER,
+  setupFluentLocalizationTest,
+  getLocalizedMessage,
+} from '../../lib/test-utils';
 
 describe('PaymentUpdateForm', () => {
   const dayBasedId = 'pay-update-billing-description-day';
@@ -198,56 +200,35 @@ describe('PaymentUpdateForm', () => {
   });
 
   describe('Fluent Translations for Plan Billing Description', () => {
-    let bundle: FluentBundle;
+    const bundle = setupFluentLocalizationTest('en-US');
     const args = {
       amount: '5.00',
       name: 'FPN',
       date: '11/22/2020',
     };
 
-    beforeEach(async () => {
-      const filepath = path.join(
-        __dirname,
-        '..',
-        '..',
-        '..',
-        'public',
-        'locales',
-        'en-US',
-        'main.ftl'
-      );
-      const enUS = (await fs.readFileSync(filepath)).toString();
-      bundle = new FluentBundle('en-US');
-      bundle.addMessages(enUS);
-    });
-
-    function runTests(
-      bundle: FluentBundle,
-      msgId: string,
-      intervalCount: number,
-      expectedMsg: string
-    ) {
-      const msg = bundle.getMessage(msgId);
-      const actual = bundle.format(msg, {
-        ...args,
-        intervalCount,
-      });
-
-      expect(actual.replace(/(\u2068|\u2069)/gu, '')).toEqual(expectedMsg);
-    }
-
     describe('When message id is pay-update-billing-description-day', () => {
       const msgId = dayBasedId;
       it('Handles an interval count of 1', () => {
         const expected =
           'You are billed $5.00 daily for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 1, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
       });
 
       it('Handles an interval count that is not 1', () => {
         const expected =
           'You are billed $5.00 every 6 days for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 6, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
       });
     });
 
@@ -256,13 +237,23 @@ describe('PaymentUpdateForm', () => {
       it('Handles an interval count of 1', () => {
         const expected =
           'You are billed $5.00 weekly for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 1, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
       });
 
       it('Handles an interval count that is not 1', () => {
         const expected =
           'You are billed $5.00 every 6 weeks for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 6, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
       });
     });
 
@@ -271,13 +262,23 @@ describe('PaymentUpdateForm', () => {
       it('Handles an interval count of 1', () => {
         const expected =
           'You are billed $5.00 monthly for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 1, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
       });
 
       it('Handles an interval count that is not 1', () => {
         const expected =
           'You are billed $5.00 every 6 months for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 6, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
       });
     });
 
@@ -286,13 +287,23 @@ describe('PaymentUpdateForm', () => {
       it('Handles an interval count of 1', () => {
         const expected =
           'You are billed $5.00 yearly for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 1, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
       });
 
       it('Handles an interval count that is not 1', () => {
         const expected =
           'You are billed $5.00 every 6 years for FPN. Your next payment occurs on 11/22/2020.';
-        runTests(bundle, msgId, 6, expected);
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
       });
     });
   });
