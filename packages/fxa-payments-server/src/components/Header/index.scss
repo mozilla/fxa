@@ -1,11 +1,12 @@
 @import '../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../styles/variables';
 
 .fxa-settings-header {
   align-items: center;
   background: #fff;
   box-shadow: 0 2px 8px rgba(12, 12, 13, 0.1);
   display: flex;
-  height: 64px;
+  height: $header-height;
   justify-content: space-between;
   left: 0;
   margin: 0 auto;
@@ -17,7 +18,7 @@
   z-index: 6;
 
   @include min-width('tablet') {
-    height: 81px;
+    height: $header-height-tablet;
     padding: 0 16px;
   }
 

@@ -30,7 +30,6 @@ import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
 import { Plan } from '../../store/types';
-import { config } from '../../lib/config';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 // Define a minimal type for what we use from the Stripe API, which makes

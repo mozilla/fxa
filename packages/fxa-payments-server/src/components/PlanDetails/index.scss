@@ -3,11 +3,15 @@
 
 .plan-details-component {
   font-size: 15px;
-  margin: 32px auto 0;
+  margin: 32px auto;
   width: 342px;
 
   @include min-width('tablet') {
-    margin: 80px 24px;
+    margin: 40px 24px;
+  }
+
+  @include min-width('desktop') {
+    margin: 48px 24px;
   }
 
   .plan-details-component-inner {
@@ -179,6 +183,7 @@
     }
 
     .total-price {
+      color: rgba(12, 12, 13, 0.8);
       font-size: 22px;
       font-weight: 600;
     }
