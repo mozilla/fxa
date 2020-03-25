@@ -58,7 +58,7 @@
           "product_metadata": {
             "capabilities:dcdb5ae7add825d2": "123donePro",
             "productSet": "123done_product",
-            "productSetOrder": "1",
+            "productOrder": "1",
             "upgradeCTA": "Interested in an upgrade? <a href=\"http://127.0.0.1:3030/subscriptions/products/123doneProPlusProduct \">Get Pro+!</a>",
             "webIconURL": "http://placekitten.com/512/512?image=6",
             "emailIconURL": "http://placekitten.com/512/512?image=0",
@@ -77,7 +77,7 @@
             "capabilities:dcdb5ae7add825d2": "123donePro",
             "downloadURL": "http://127.0.0.1:8080/",
             "productSet": "123done_product",
-            "productSetOrder": "2"
+            "productOrder": "2"
           },
           "interval": "month",
           "amount": 75,
