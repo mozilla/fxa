@@ -130,10 +130,27 @@ sub-update-copy =
     Your plan will change immediately, and you’ll be charged an adjusted
     amount for the rest of your billing cycle. Starting { $startingDate }
     you’ll be charged the full amount.
-sub-update-confirm =
-    I authorize Mozilla, maker of Firefox products, to charge my payment
-    <strong>${ $amount }/{ $interval }</strong>
-    , according to payment terms, until I cancel my subscription.
+
+sub-update-confirm-day = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
+}
+
+sub-update-confirm-week = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
+}
+
+sub-update-confirm-month = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
+}
+
+sub-update-confirm-year = { $intervalCount -> 
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
+}
+
 sub-update-submit = Change Plans
 sub-update-indicator =
   .aria-label = upgrade indicator
