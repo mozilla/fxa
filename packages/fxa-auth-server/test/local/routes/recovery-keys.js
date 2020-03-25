@@ -149,6 +149,32 @@ describe('POST /recoveryKey', () => {
       assert.equal(args[1], recoveryKeyId);
       assert.equal(args[2], true);
     });
+
+    it('called request.emitMetricsEvent correctly', () => {
+      assert.equal(
+        request.emitMetricsEvent.callCount,
+        1,
+        'called emitMetricsEvent'
+      );
+      const args = request.emitMetricsEvent.args[0];
+      assert.equal(
+        args[0],
+        'recoveryKey.created',
+        'called emitMetricsEvent with correct event'
+      );
+      assert.equal(
+        args[1]['uid'],
+        uid,
+        'called emitMetricsEvent with correct event'
+      );
+    });
+
+    it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
+      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 1);
+      const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
+      assert.equal(args.length, 3);
+      assert.equal(args[0][0].email, email);
+    });
   });
 
   describe('should fail for unverified session', () => {
