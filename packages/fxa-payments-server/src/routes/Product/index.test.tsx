@@ -168,28 +168,10 @@ describe('routes/Product', () => {
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-    await findByText("Set up your subscription");
-    expect(
-<<<<<<< HEAD
-      queryByText(`${PRODUCT_NAME} billed $5.00 monthly`)
-=======
-      queryByText('30-day money-back guarantee')
-    ).toBeInTheDocument();
-    expect(
-      queryByText('Billing Information')
->>>>>>> task(payments-server): update payment form for new mobile flow
-    ).toBeInTheDocument();
-=======
-    await findByText('Set up your subscription');
-    expect(queryByText('30-day money-back guarantee')).toBeInTheDocument();
-=======
+
     await findAllByText('Set up your subscription');
     expect(queryAllByText('30-day money-back guarantee')[0]).toBeInTheDocument();
->>>>>>> task(payments-server): payment and confirmation view follow ups
     expect(queryByText('Billing Information')).toBeInTheDocument();
->>>>>>> task(payment-server): adding payment confirmation page
     expectNockScopesDone(apiMocks);
   };
 
@@ -197,39 +179,6 @@ describe('routes/Product', () => {
 
   it('renders with product ID and display name', withExistingAccount(true));
 
-<<<<<<< HEAD
-  const withActivationBanner = (useDisplayName?: boolean) => async () => {
-    const displayName = useDisplayName ? 'Foo Barson' : undefined;
-    const apiMocks = initApiMocks(displayName);
-    const { findByText, queryByText, queryByTestId } = render(
-      <Subject planId={PLAN_ID} accountActivated="true" />
-    );
-    await findByText("Let's set up your subscription");
-    expect(
-      queryByText(`${PRODUCT_NAME} billed $5.00 monthly`)
-    ).toBeInTheDocument();
-    expect(queryByTestId('account-activated')).toBeInTheDocument();
-    if (displayName) {
-      expect(queryByTestId('activated-display-name')).toBeInTheDocument();
-      expect(queryByTestId('activated-email')).not.toBeInTheDocument();
-    } else {
-      expect(queryByTestId('activated-display-name')).not.toBeInTheDocument();
-      expect(queryByTestId('activated-email')).toBeInTheDocument();
-    }
-    expectNockScopesDone(apiMocks);
-  };
-
-  it(
-    'renders with ?plan={PLAN_ID}&accountActivated given in query string',
-    withActivationBanner(false)
-  );
-  it(
-    'renders with display name and ?plan={PLAN_ID}&accountActivated given in query string',
-    withActivationBanner(true)
-  );
-
-=======
->>>>>>> task(payments-server): update payment form for new mobile flow
   it('displays an error with invalid product ID', async () => {
     const apiMocks = initApiMocks();
     const { findByTestId, queryByTestId } = render(

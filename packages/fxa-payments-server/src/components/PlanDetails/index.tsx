@@ -57,7 +57,7 @@ export const PlanDetails = ({
               </div>
             </div>
             <p>
-              ${formatCurrencyInCents(amount)}/{interval}
+              {formatCurrencyInCents(amount)}/{interval}
             </p>
           </div>
           {!detailsHidden ? (
@@ -119,7 +119,7 @@ export const PlanDetails = ({
                 <p className="label">Total</p>
               </Localized>
               <p className="total-price">
-                ${formatCurrencyInCents(amount)}/{interval}
+                {formatCurrencyInCents(amount)}/{interval}
               </p>
             </div>
           </div>

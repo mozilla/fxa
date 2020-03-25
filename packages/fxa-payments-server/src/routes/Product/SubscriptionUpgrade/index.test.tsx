@@ -132,7 +132,6 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     describe('rendering the legal checkbox Localized component', () => {
       const baseProps = {
         customer: CUSTOMER,
-        profile: PROFILE,
         upgradeFromPlan: UPGRADE_FROM_PLAN,
         upgradeFromSubscription: CUSTOMER.subscriptions[0],
         updateSubscriptionPlanStatus: {

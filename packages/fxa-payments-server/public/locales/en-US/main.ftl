@@ -40,43 +40,6 @@ privacy = Privacy Notice
 
 ## plan details
 product-plan-details-heading = Set up your subscription
-product-plan-details-amount = { $productName } for ${ $amount } per { $interval }
-
-# Variables:
-    #  $intervalCount (Number) - The interval between payments, in days.
-    #  $productName (String) - The name of the subscribed product.
-    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
-day-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed { $amount } daily
-  *[other] { $productName } billed { $amount } every { $intervalCount } days
-}
-
-# Variables:
-    #  $intervalCount (Number) - The interval between payments, in weeks.
-    #  $productName (String) - The name of the subscribed product.
-    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
-week-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed { $amount } weekly
-  *[other] { $productName } billed { $amount } every { $intervalCount } weeks
-}
-
-# Variables:
-    #  $intervalCount (Number) - The interval between payments, in months.
-    #  $productName (String) - The name of the subscribed product.
-    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
-month-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed { $amount } monthly
-  *[other] { $productName } billed { $amount } every { $intervalCount } months
-}
-
-# Variables:
-    #  $intervalCount (Number) - The interval between payments, in years.
-    #  $productName (String) - The name of the subscribed product.
-    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
-year-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed { $amount } yearly
-  *[other] { $productName } billed { $amount } every { $intervalCount } years
-}
 
 ## Product route
 product-plan-error =
@@ -347,6 +310,6 @@ payment-confirmation-order-heading = Order details
 payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
 payment-confirmation-billing-heading = Billed to
 payment-confirmation-details-heading = Payment details
-payment-confirmation-amount = ${ $amount } per { $interval }
+payment-confirmation-amount = { $amount } per { $interval }
 payment-confirmation-cc-preview = ending in { $last4 }
 payment-confirmation-download-button = Continue to download
