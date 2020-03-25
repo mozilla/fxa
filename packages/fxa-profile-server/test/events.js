@@ -12,11 +12,9 @@ const P = require('../lib/promise');
 const assertSecurityHeaders = require('./lib/util').assertSecurityHeaders;
 
 const UID = crypto.randomBytes(16).toString('hex');
-const mock = require('./lib/mock')({ userid: UID });
-const Server = require('./lib/server');
-const Static = require('./lib/static');
 
-const events = require('../lib/events')(Server.server);
+const testServer = require('./lib/server');
+const Static = require('./lib/static');
 
 const imagePath = path.join(__dirname, 'lib', 'firefox.png');
 const imageData = fs.readFileSync(imagePath);
@@ -31,11 +29,32 @@ const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
   return '_' + val;
 });
 
-afterEach(function() {
-  mock.done();
-});
-
 describe('events', function() {
+  let Server;
+  let mock;
+  let events;
+
+  before(async function() {
+    Server = await testServer.create();
+    events = require('../lib/events')(Server.server);
+
+    return Server;
+  });
+
+  after(async function() {
+    await db._teardown();
+    return Server.server.stop();
+  });
+
+  beforeEach(async function() {
+    await Server.server.initialize();
+    mock = await require('./lib/mock')({ userid: UID });
+  });
+
+  afterEach(function() {
+    mock.done();
+  });
+
   describe('onDeleteMessage', function() {
     var tok = crypto.randomBytes(32).toString('hex');
     function Message(type, onDel) {
@@ -150,8 +169,8 @@ describe('events', function() {
         };
       }
       beforeEach(function() {
-        Server.server.methods.profileCache.drop = sinon.spy(function(uid, cb) {
-          cb();
+        Server.server.methods.profileCache.drop = sinon.spy(function(uid) {
+          return P.resolve([]);
         });
       });
 
@@ -161,9 +180,8 @@ describe('events', function() {
             var args = Server.server.methods.profileCache.drop.getCall(0).args;
             var callCount = Server.server.methods.profileCache.drop.callCount;
             assert.equal(callCount, 1);
-            assert.equal(args.length, 2);
+            assert.equal(args.length, 1);
             assert.equal(args[0], UID);
-            assert.equal(typeof args[1] === 'function', true);
             done();
           })
         );
@@ -218,8 +236,8 @@ describe('events', function() {
         };
       }
       beforeEach(function() {
-        Server.server.methods.profileCache.drop = sinon.spy(function(uid, cb) {
-          cb();
+        Server.server.methods.profileCache.drop = sinon.spy(function(uid) {
+          return P.resolve([]);
         });
       });
 
@@ -229,9 +247,8 @@ describe('events', function() {
             var args = Server.server.methods.profileCache.drop.getCall(0).args;
             var callCount = Server.server.methods.profileCache.drop.callCount;
             assert.equal(callCount, 1);
-            assert.equal(args.length, 2);
+            assert.equal(args.length, 1);
             assert.equal(args[0], UID);
-            assert.equal(typeof args[1] === 'function', true);
             done();
           })
         );
@@ -271,8 +288,4 @@ describe('events', function() {
       });
     });
   });
-});
-
-after(() => {
-  return db._teardown();
 });

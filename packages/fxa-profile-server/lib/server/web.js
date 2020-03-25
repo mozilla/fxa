@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Raven = require('raven');
 const cloneDeep = require('lodash.clonedeep');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
@@ -33,10 +33,12 @@ function trimLocale(header) {
 
 // This is the webserver. It's what the outside always talks to. It
 // handles the whole Profile API.
-exports.create = function createServer() {
+exports.create = async function createServer() {
   var useRedis = config.serverCache.useRedis;
   var cache = {
-    engine: useRedis ? require('catbox-redis') : require('catbox-memory'),
+    engine: useRedis
+      ? require('@hapi/catbox-redis')
+      : require('@hapi/catbox-memory'),
   };
   if (useRedis) {
     cache.host = config.serverCache.redis.host;
@@ -47,85 +49,105 @@ exports.create = function createServer() {
   var server = new Hapi.Server({
     cache: cache,
     debug: false,
-    connections: {
-      routes: {
-        cors: true,
-        security: {
-          hsts: {
-            maxAge: 31536000,
-            includeSubdomains: true,
-          },
-          xframe: true,
-          xss: true,
-          noOpen: false,
-          noSniff: true,
+    host: config.server.host,
+    port: config.server.port,
+    routes: {
+      cors: true,
+      security: {
+        hsts: {
+          maxAge: 31536000,
+          includeSubdomains: true,
+        },
+        xframe: true,
+        xss: true,
+        noOpen: false,
+        noSniff: true,
+      },
+      validate: {
+        options: {
+          stripUnknown: true,
+        },
+        failAction: async (request, h, err) => {
+          // Starting with Hapi 17, the framework hides the validation info
+          // We want the full validation information and use it in `onPreResponse` below
+
+          // See: https://github.com/hapijs/hapi/issues/3706#issuecomment-349765943
+          throw err;
         },
       },
     },
-  });
-
-  server.connection({
-    host: config.server.host,
-    port: config.server.port,
   });
 
   // configure Sentry
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
     Raven.config(sentryDsn, {});
-    server.on('request-error', function(request, err) {
-      let exception = '';
-      if (err && err.stack) {
-        try {
-          exception = err.stack.split('\n')[0];
-        } catch (e) {
-          // ignore bad stack frames
+    server.events.on(
+      { name: 'request', channels: 'error' },
+      (request, event) => {
+        const err = (event && event.error) || null;
+        let exception = '';
+        if (err && err.stack) {
+          try {
+            exception = err.stack.split('\n')[0];
+          } catch (e) {
+            // ignore bad stack frames
+          }
         }
-      }
 
-      Raven.captureException(err, {
-        extra: {
-          exception: exception,
-        },
-      });
-    });
+        Raven.captureException(err, {
+          extra: {
+            exception: exception,
+          },
+        });
+      }
+    );
   }
 
   server.auth.scheme('oauth', function() {
     return {
-      authenticate: function(req, reply) {
+      authenticate: async function(req, h) {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
         logger.debug('auth', auth);
         if (!auth || auth.indexOf('Bearer') !== 0) {
-          return reply(AppError.unauthorized('Bearer token not provided'));
+          throw AppError.unauthorized('Bearer token not provided');
         }
         var token = auth.split(' ')[1];
-        request.post(
-          {
-            url: url,
-            json: {
-              token: token,
-              email: false, // disables email fetching of oauth server
-            },
-          },
-          function(err, resp, body) {
-            if (err || resp.statusCode >= 500) {
-              err = err || resp.statusMessage || 'unknown';
-              logger.error('oauth.error', err);
-              return reply(AppError.oauthError(err));
-            }
-            if (body.code >= 400) {
-              logger.debug('unauthorized', body);
-              return reply(AppError.unauthorized(body.message));
-            }
-            logger.debug('auth.valid', body);
-            body.token = token;
-            reply.continue({
-              credentials: body,
-            });
-          }
-        );
+
+        function makeReq() {
+          return new Promise((resolve, reject) => {
+            request.post(
+              {
+                url: url,
+                json: {
+                  token: token,
+                  email: false, // disables email fetching of oauth server
+                },
+              },
+              function(err, resp, body) {
+                if (err || resp.statusCode >= 500) {
+                  err = err || resp.statusMessage || 'unknown';
+                  logger.error('oauth.error', err);
+                  return reject(AppError.oauthError(err));
+                }
+                if (body.code >= 400) {
+                  logger.debug('unauthorized', body);
+                  return reject(AppError.unauthorized(body.message));
+                }
+                logger.debug('auth.valid', body);
+                body.token = token;
+                return resolve(body);
+              }
+            );
+          });
+        }
+
+        return makeReq().then(body => {
+          return h.authenticated({
+            credentials: body,
+          });
+        });
       },
     };
   });
@@ -134,18 +156,20 @@ exports.create = function createServer() {
 
   server.auth.scheme('secretBearerToken', function() {
     return {
-      authenticate: function(req, reply) {
+      authenticate: async function(req, h) {
         // HACK: get fresh copy of secretBearerToken from config because tests change it.
         var expectedToken = require('../config').get('secretBearerToken');
         var auth = req.headers.authorization;
         logger.debug('auth', auth);
         if (!auth || auth.indexOf('Bearer') !== 0) {
-          return reply(AppError.unauthorized('Bearer token not provided'));
+          throw new AppError.unauthorized('Bearer token not provided');
         }
         var token = auth.split(' ')[1];
-        return token === expectedToken
-          ? reply.continue({ credentials: token })
-          : reply(AppError.unauthorized());
+        if (token === expectedToken) {
+          return h.authenticated({ credentials: token });
+        } else {
+          throw new AppError.unauthorized();
+        }
       },
     };
   });
@@ -153,17 +177,14 @@ exports.create = function createServer() {
   server.auth.strategy('secretBearerToken', 'secretBearerToken');
 
   // server method for caching profile
-  server.register(
-    {
+  await server.register({
+    plugin: {
+      name: 'profileCache',
+      version: '1.0.0',
       register: require('../profileCache'),
-      options: config.serverCache,
     },
-    function(err) {
-      if (err) {
-        throw err;
-      }
-    }
-  );
+    options: config.serverCache,
+  });
 
   var routes = require('../routing');
   if (isProd) {
@@ -197,9 +218,9 @@ exports.create = function createServer() {
       return route;
     });
 
-  server.route(routes);
+  await server.route(routes);
 
-  server.ext('onPreAuth', function(request, reply) {
+  server.ext('onPreAuth', function(request, h) {
     // Construct source-ip-address chain for logging.
     var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(request.info.remoteAddress);
@@ -225,17 +246,17 @@ exports.create = function createServer() {
       logger.debug('auth', request.headers.authorization);
       logger.debug('type', request.headers['content-type'] || '');
     }
-    reply.continue();
+    return h.continue;
   });
 
-  server.ext('onPreResponse', function(request, next) {
+  server.ext('onPreResponse', request => {
     var response = request.response;
     if (response.isBoom) {
       response = AppError.translate(response);
     }
     summary(request, response);
 
-    next(response);
+    return response;
   });
 
   return server;

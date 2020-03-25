@@ -37,16 +37,15 @@ module.exports = {
         .regex(ALLOWED_DISPLAY_NAME_CHARS),
     },
   },
-  handler: function avatarPost(req, reply) {
+  handler: async function displayNamePost(req) {
     const uid = req.auth.credentials.user;
-    req.server.methods.profileCache.drop(uid, () => {
+    return req.server.methods.profileCache.drop(uid).then(() => {
       const payload = req.payload;
-      db.setDisplayName(uid, payload.displayName)
+      return db.setDisplayName(uid, payload.displayName)
         .then(() => {
           notifyProfileUpdated(uid); // Don't wait on promise
           return EMPTY;
-        })
-        .done(reply, reply);
+        });
     });
   },
 };

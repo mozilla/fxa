@@ -7,12 +7,6 @@ const Boom = require('boom');
 const logger = require('./logging')('batch');
 const P = require('./promise');
 
-function inject(server, options) {
-  return new P(function(resolve) {
-    server.inject(options, resolve);
-  });
-}
-
 // Make multiple internal requests to routes, and merge their responses
 // into a single object.
 //
@@ -45,40 +39,43 @@ function batch(request, routeFieldsMap) {
   const result = {};
   let numForbidden = 0;
   const routeFieldsKeys = Object.keys(routeFieldsMap);
+
   return P.each(routeFieldsKeys, url => {
-    return inject(request.server, {
-      allowInternals: true,
-      method: 'get',
-      url: url,
-      headers: request.headers,
-      credentials: request.auth.credentials,
-    }).then(res => {
-      let fields;
-      switch (res.statusCode) {
-        case 200:
-          fields = routeFieldsMap[url];
-          if (fields === true) {
-            fields = Object.keys(res.result);
-          }
-          fields.forEach(field => {
-            result[field] = res.result[field];
-          });
-          break;
-        case 403:
-          numForbidden++;
-        // This deliberately falls through to the following case.
-        case 204:
-        case 404:
-          logger.debug(url + ':' + res.statusCode, {
-            scope: request.auth.credentials.scope,
-            response: res.result,
-          });
-          break;
-        default:
-          logger.error(url + ':' + res.statusCode, res.result);
-          throw AppError.from(res.result);
-      }
-    });
+    return request.server
+      .inject({
+        allowInternals: true,
+        method: 'get',
+        url: url,
+        headers: request.headers,
+        credentials: request.auth.credentials,
+      })
+      .then(res => {
+        let fields;
+        switch (res.statusCode) {
+          case 200:
+            fields = routeFieldsMap[url];
+            if (fields === true) {
+              fields = Object.keys(res.result);
+            }
+            fields.forEach(field => {
+              result[field] = res.result[field];
+            });
+            break;
+          case 403:
+            numForbidden++;
+          // This deliberately falls through to the following case.
+          case 204:
+          case 404:
+            logger.debug(url + ':' + res.statusCode, {
+              scope: request.auth.credentials.scope,
+              response: res.result,
+            });
+            break;
+          default:
+            logger.error(url + ':' + res.statusCode, res.result);
+            throw AppError.from(res.result);
+        }
+      });
   }).then(() => {
     // If *all* of the batch requests failed, fail out.
     if (numForbidden === routeFieldsKeys.length) {

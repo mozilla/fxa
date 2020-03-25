@@ -31,16 +31,16 @@ module.exports = {
         .optional(),
     },
   },
-  handler: function deleteAvatar(req, reply) {
+  handler: async function deleteAvatar(req) {
     if (req.params.id === DEFAULT_AVATAR_ID) {
       // if we are clearing the default avatar then do nothing
-      return reply({});
+      return {};
     }
 
     const uid = req.auth.credentials.user;
     let avatar, lookup;
 
-    req.server.methods.profileCache.drop(uid, () => {
+    return req.server.methods.profileCache.drop(uid).then(() => {
       if (req.params.id) {
         lookup = getAvatar(req.params.id, uid);
       } else {
@@ -65,7 +65,6 @@ module.exports = {
           notifyProfileUpdated(uid); // Don't wait on promise
           return EMPTY;
         })
-        .done(reply, reply);
     });
   },
 };

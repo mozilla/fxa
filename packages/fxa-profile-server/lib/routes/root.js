@@ -27,13 +27,14 @@ module.exports = {
       source: Joi.string().required(),
     },
   },
-  handler: function index(req, reply) {
+  handler: async function index(req, h) {
     function sendReply() {
-      reply({
-        version: version,
-        commit: commitHash,
-        source: source,
-      })
+      return h
+        .response({
+          version: version,
+          commit: commitHash,
+          source: source,
+        })
         .spaces(2)
         .suffix('\n');
     }
@@ -42,19 +43,28 @@ module.exports = {
       return sendReply();
     }
 
-    // figure it out from .git
-    const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
-    exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout) => {
-      // eslint-disable-line handle-callback-err
-      commitHash = stdout.replace(/\s+/, '');
-      const configPath = path.join(gitDir, 'config');
-      const cmd = 'git config --get remote.origin.url';
-      const env = Object.assign({}, process.env, { GIT_CONFIG: configPath });
-      exec(cmd, { env }, (err, stdout) => {
-        // eslint-disable-line handle-callback-err
-        source = stdout.replace(/\s+/, '');
-        return sendReply();
+    function getVersion() {
+      return new Promise(resolve => {
+        // figure it out from .git
+        const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
+        // eslint-disable-next-line handle-callback-err
+        exec('git rev-parse HEAD', { cwd: gitDir }, (err, stdout) => {
+          commitHash = stdout.replace(/\s+/, '') || 'N/A';
+          const configPath = path.join(gitDir, 'config');
+          const cmd = 'git config --get remote.origin.url';
+          const env = Object.assign({}, process.env, {
+            GIT_CONFIG: configPath,
+          });
+          // eslint-disable-next-line handle-callback-err
+          exec(cmd, { env }, (err, stdout) => {
+            source = stdout.replace(/\s+/, '') || 'N/A';
+            resolve();
+          });
+        });
       });
-    });
+    }
+
+    await getVersion();
+    return sendReply();
   },
 };

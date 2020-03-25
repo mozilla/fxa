@@ -2,14 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const P = require('../../lib/promise');
 const Static = require('../../lib/server/_static');
 
 function request(options) {
-  var server = Static.create();
-  var deferred = P.defer();
-  server.inject(options, deferred.resolve.bind(deferred));
-  return deferred.promise;
+  return Static.create().then((server) => {
+    return server.inject(options);
+  })
 }
 
 function opts(options) {

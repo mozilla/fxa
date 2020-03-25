@@ -7,8 +7,17 @@
 require('../lib/newrelic')();
 
 const logger = require('../lib/logging')('bin.worker');
-const server = require('../lib/server/worker').create();
+const Server = require('../lib/server/worker');
 
-server.start(function() {
-  logger.info('listening', server.info.uri);
-});
+async function start() {
+  const server = await Server.create();
+
+  try {
+    await server.start();
+    logger.info('listening', server.info.uri);
+  } catch (err) {
+    logger.error('failed to start', err);
+  }
+}
+
+start();

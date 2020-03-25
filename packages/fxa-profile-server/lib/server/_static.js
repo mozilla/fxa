@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Hapi = require('hapi');
+const Hapi = require('@hapi/hapi');
 const Boom = require('boom');
 const path = require('path');
 const Inert = require('inert');
@@ -22,34 +22,28 @@ const DEFAULT_AVATAR_SMALL = path.resolve(
   'default-profile_small.png'
 );
 
-exports.create = function() {
+exports.create = async function() {
   var server = new Hapi.Server({
     debug: false,
-  });
-
-  server.register(Inert, function() {});
-
-  server.connection({
     host: config.server.host,
     port: config.server.port + 1,
   });
 
+  await server.register(Inert);
+
   server.route({
     method: 'GET',
     path: '/a/' + DEFAULT_AVATAR_ID + '{type?}',
-    handler: function(request, reply) {
+    handler: async function(request, h) {
       switch (request.params.type) {
         case '':
-          reply.file(DEFAULT_AVATAR);
-          break;
+          return h.file(DEFAULT_AVATAR);
         case '_small':
-          reply.file(DEFAULT_AVATAR_SMALL);
-          break;
+          return h.file(DEFAULT_AVATAR_SMALL);
         case '_large':
-          reply.file(DEFAULT_AVATAR_LARGE);
-          break;
+          return h.file(DEFAULT_AVATAR_LARGE);
         default:
-          reply(Boom.notFound());
+          throw Boom.notFound();
       }
     },
   });
@@ -64,11 +58,11 @@ exports.create = function() {
     },
   });
 
-  server.on('log', function onLog(evt) {
+  server.events.on('log', function onLog(evt) {
     logger.verbose('hapi.server', evt);
   });
 
-  server.on('request', function onRequest(req, evt) {
+  server.events.on('request', function onRequest(req, evt) {
     logger.verbose('hapi.request', evt);
   });
 

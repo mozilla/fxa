@@ -4,12 +4,21 @@
 
 const config = require('../lib/config').getProperties();
 const logger = require('../lib/logging')('bin._static');
-const server = require('../lib/server/_static').create();
+const Server = require('../lib/server/_static');
 
 if (config.env !== 'development') {
   logger.warn('sanity-check', 'static bin should only be used for local dev!');
 }
 
-server.start(function() {
-  logger.info('listening', server.info.uri);
-});
+async function start() {
+  const server = await Server.create();
+
+  try {
+    await server.start();
+    logger.info('listening', server.info.uri);
+  } catch (err) {
+    logger.error('failed to start', err);
+  }
+}
+
+start();

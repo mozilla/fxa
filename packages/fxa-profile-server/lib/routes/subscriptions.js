@@ -19,20 +19,19 @@ module.exports = {
         .required(),
     },
   },
-  handler: function subscriptions(req, reply) {
-    req.server.inject(
-      {
-        allowInternals: true,
-        method: 'get',
-        url: '/v1/_core_profile',
-        headers: req.headers,
-        credentials: req.auth.credentials,
-      },
-      res => {
-        if (res.statusCode !== 200) {
-          return reply(res);
-        }
-        let subscriptions = [];
+  handler: async function subscriptions(req) {
+    const res = await req.server.inject({
+      allowInternals: true,
+      method: 'get',
+      url: '/v1/_core_profile',
+      headers: req.headers,
+      credentials: req.auth.credentials,
+    });
+
+    if (res.statusCode !== 200) {
+      return res;
+    }
+    let subscriptions = [];
         if (res.result.subscriptionsByClientId) {
           subscriptions = determineClientVisibleSubscriptionCapabilities(
             req.auth.credentials.client_id,
@@ -41,11 +40,9 @@ module.exports = {
         } else if (res.result.subscriptions) {
           subscriptions = res.result.subscriptions;
         }
-        return reply({
-          // If auth server omits subscriptions, just use an empty list
-          subscriptions,
-        });
-      }
-    );
+        return {
+      // If auth server omits subscriptions, just use an empty list
+      subscriptions,
+    };
   },
 };
