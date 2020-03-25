@@ -1,0 +1,17 @@
+{{{subject}}}
+
+{{{t "We recieved your latest payment for %(productName)s." }}}
+
+{{{t "Invoice Number: %(invoiceNumber)s" }}}
+
+{{#showProratedAmount}}{{{t "Plan change: $%(proratedAmount)s" }}}{{/showProratedAmount}}
+
+{{{t "Charged $%(invoiceTotal)s on %(invoiceDateOnly)s" }}}
+
+{{{t "%(cardType)s card ending in %(lastFour)s" }}}
+
+{{{t "Next Invoice: %(nextInvoiceDateOnly)s" }}}
+
+Questions about your subscription? Our support team is here to help you:
+
+{{{subscriptionSupportUrl}}}

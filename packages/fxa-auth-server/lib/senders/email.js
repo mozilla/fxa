@@ -35,6 +35,9 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionCancellation: 'subscription-cancellation',
+    subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
+    subscriptionFirstInvoice: 'subscription-first-invoice',
     downloadSubscription: 'new-subscription',
     lowRecoveryCodes: 'low-recovery-codes',
     newDeviceLogin: 'new-device-signin',
@@ -68,6 +71,9 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    subscriptionCancellation: 'subscription-cancellation',
+    subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
+    subscriptionFirstInvoice: 'subscription-first-invoice',
     downloadSubscription: 'download-subscription',
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
@@ -131,8 +137,38 @@ module.exports = function(log, config, oauthdb) {
     return time.format('LTS (z) dddd, ll');
   }
 
+  function constructLocalDateString(timeZone, locale, date) {
+    // if no timeZone is passed, use DEFAULT_TIMEZONE
+    moment.tz.setDefault(DEFAULT_TIMEZONE);
+    // if no locale is passed, use DEFAULT_LOCALE
+    locale = locale || DEFAULT_LOCALE;
+    moment.locale(locale);
+    let time = moment(date);
+    if (timeZone) {
+      time = time.tz(timeZone);
+    }
+    // return a locale-specific date
+    return time.format('L');
+  }
+
   function sesMessageTagsHeaderValue(templateName, serviceName) {
     return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
+  }
+
+  // These are brand names, so they probably don't need l10n.
+  const CARD_TYPE_TO_TEXT = {
+    amex: 'American Express',
+    diners: 'Diners Club',
+    discover: 'Discover',
+    jcb: 'JCB',
+    mastercard: 'MasterCard',
+    unionpay: 'UnionPay',
+    visa: 'Visa',
+    unknown: 'Unknown',
+  };
+
+  function cardTypeToText(cardType) {
+    return CARD_TYPE_TO_TEXT[cardType] || CARD_TYPE_TO_TEXT.unknown;
   }
 
   function Mailer(translator, templates, mailerConfig, sender) {
@@ -289,6 +325,15 @@ module.exports = function(log, config, oauthdb) {
   ) {
     const translator = this.translator(acceptLanguage);
     return constructLocalTimeString(timeZone, translator.language);
+  };
+
+  Mailer.prototype._constructLocalDateString = function(
+    timeZone,
+    acceptLanguage,
+    date
+  ) {
+    const translator = this.translator(acceptLanguage);
+    return constructLocalDateString(timeZone, translator.language, date);
   };
 
   Mailer.prototype.localize = function(message) {
@@ -1755,6 +1800,243 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
+  Mailer.prototype.subscriptionCancellationEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceDate,
+      invoiceTotal,
+      serviceLastActiveDate,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionCancellation', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionCancellation', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionCancellation';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+      invoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        invoiceDate
+      ),
+      serviceLastActiveDateOnly:  this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        serviceLastActiveDate
+      ),
+    };
+    const subject = translator.gettext('Your %(productName)s subscription has been cancelled');
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceTotal,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionSubsequentInvoiceEmail = async function(
+    message
+  ) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceNumber,
+      invoiceDate,
+      invoiceTotal,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+      proratedAmount,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionSubsequentInvoice', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionSubsequentInvoice', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionSubsequentInvoice';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+      invoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        invoiceDate
+      ),
+      nextInvoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        nextInvoiceDate
+      ),
+    };
+    const subject = translator.gettext('%(productName)s payment received');
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceNumber,
+        invoiceDate,
+        invoiceTotal,
+        cardType: cardTypeToText(cardType),
+        lastFour,
+        nextInvoiceDate,
+        proratedAmount,
+        showProratedAmount: !!proratedAmount,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionFirstInvoiceEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceNumber,
+      invoiceDate,
+      invoiceTotal,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionFirstInvoice', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionFirstInvoice', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionFirstInvoice';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+      invoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        invoiceDate
+      ),
+      nextInvoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        nextInvoiceDate
+      ),
+    };
+    const subject = translator.gettext('%(productName)s payment confirmed');
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceNumber,
+        invoiceDate,
+        invoiceTotal,
+        cardType: cardTypeToText(cardType),
+        lastFour,
+        nextInvoiceDate,
+      },
+    });
+  };
+
   Mailer.prototype.downloadSubscriptionEmail = async function(message) {
     const {
       email,
@@ -1936,6 +2218,12 @@ module.exports = function(log, config, oauthdb) {
       'account-settings'
     );
     links.accountSettingsLinkAttributes = `href="${links.accountSettingsUrl}" target="_blank" rel="noopener noreferrer" style="color:#ffffff;font-weight:500;"`;
+
+    links.cancellationSurveyUrl =
+      'https://qsurvey.mozilla.com/s3/fpn-cancellation';
+
+    links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
+
     links.subscriptionTermsUrl = this._generateUTMLink(
       this.subscriptionTermsUrl,
       {},
