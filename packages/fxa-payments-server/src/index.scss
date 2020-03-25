@@ -1,4 +1,5 @@
 @import '../../fxa-content-server/app/styles/main';
+@import './styles/variables';
 
 // HACK: We render into <div id="root"> rather than <body>, so try to minimize
 // its impact on layout & styles
@@ -8,6 +9,7 @@
 
 body {
   min-height: unset;
+  padding: 0;
 }
 
 // NOTE: Override an animation style from the content server to minimize
@@ -41,10 +43,11 @@ h3.billing-title {
 .main-content {
   display: flex;
   flex-direction: column-reverse;
-  padding-top: 0;
+  padding-top: $header-height;
 
   @include min-width('tablet') {
     flex-direction: row;
+    padding-top: $header-height-tablet;
   }
 
   .input-row {
