@@ -4,7 +4,7 @@
 
 const assert = require('assert');
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 
 const config = require('../../config');
 const db = require('../../db');

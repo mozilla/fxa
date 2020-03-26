@@ -35,19 +35,22 @@ function trimLocale(header) {
 // handles the whole Profile API.
 exports.create = async function createServer() {
   var useRedis = config.serverCache.useRedis;
-  var cache = {
-    engine: useRedis
+  var cacheProvider = {
+    constructor: useRedis
       ? require('@hapi/catbox-redis')
       : require('@hapi/catbox-memory'),
+    options: {},
   };
   if (useRedis) {
-    cache.host = config.serverCache.redis.host;
-    cache.port = config.serverCache.redis.port;
-    cache.partition = config.serverCache.redis.keyPrefix;
+    cacheProvider.options.host = config.serverCache.redis.host;
+    cacheProvider.options.port = config.serverCache.redis.port;
+    cacheProvider.options.partition = config.serverCache.redis.keyPrefix;
   }
   var isProd = config.env === 'production';
   var server = new Hapi.Server({
-    cache: cache,
+    cache: {
+      provider: cacheProvider,
+    },
     debug: false,
     host: config.server.host,
     port: config.server.port,
@@ -77,6 +80,7 @@ exports.create = async function createServer() {
       },
     },
   });
+  server.validator(require('@hapi/joi'));
 
   // configure Sentry
   const sentryDsn = config.sentryDsn;

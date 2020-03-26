@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('@hapi/hapi');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const path = require('path');
-const Inert = require('inert');
+const Inert = require('@hapi/inert');
 
 const config = require('../config').getProperties();
 const logger = require('../logging')('server.static');
@@ -28,6 +28,7 @@ exports.create = async function() {
     host: config.server.host,
     port: config.server.port + 1,
   });
+  server.validator(require('@hapi/joi'));
 
   await server.register(Inert);
 

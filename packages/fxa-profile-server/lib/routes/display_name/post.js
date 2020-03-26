@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const db = require('../../db');
 const notifyProfileUpdated = require('../../updates-queue');
 
@@ -41,11 +41,10 @@ module.exports = {
     const uid = req.auth.credentials.user;
     return req.server.methods.profileCache.drop(uid).then(() => {
       const payload = req.payload;
-      return db.setDisplayName(uid, payload.displayName)
-        .then(() => {
-          notifyProfileUpdated(uid); // Don't wait on promise
-          return EMPTY;
-        });
+      return db.setDisplayName(uid, payload.displayName).then(() => {
+        notifyProfileUpdated(uid); // Don't wait on promise
+        return EMPTY;
+      });
     });
   },
 };
