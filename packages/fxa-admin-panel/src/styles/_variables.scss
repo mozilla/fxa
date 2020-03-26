@@ -23,6 +23,7 @@
   --app-padding-x-min: 15px;
 
   --body-font-size: 16px;
+  --body-font-size-xs: 12px;
   --ff-brand-gradient: #0060E0, #9059FF, #B933E1, #FF2A8A, #FF505F, #FF7139, #FFA537;
 }
 
@@ -30,7 +31,8 @@ h1,
 h2,
 h3,
 h4 {
-  --header-font-size-lg: 24px;
+  --header-font-size-lg: 22px;
+  --header-font-size-sm: 18px;
   --header-font-size-xs: 14px;
 }
 
@@ -56,6 +58,10 @@ input + button {
   --delete-hover-background-color: #be001e;
 }
 
-.verify {
-  --verify-color: #008513;
+.verified {
+  --verified-color: #008513;
+}
+
+.not-verified {
+  --verified-color: #d70022;
 }

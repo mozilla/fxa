@@ -24,11 +24,13 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   );
 
   return (
-    <div data-testid="app">
+    <div data-testid="app" className="app">
       <Header left={logoLockup} right={<LinkAbout />} />
       <div className="container content-wrapper">
         <Nav />
-        <main>{children}</main>
+        <main>
+          <div className="main-container">{children}</div>
+        </main>
       </div>
       <Footer />
     </div>

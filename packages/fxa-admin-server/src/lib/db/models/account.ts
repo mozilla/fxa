@@ -24,6 +24,7 @@ export class Account extends Model {
 
   public uid!: string;
   public email!: string;
+  public emails?: {};
   public emailVerified!: boolean;
   public normalizedEmail!: string;
   public createdAt!: number;

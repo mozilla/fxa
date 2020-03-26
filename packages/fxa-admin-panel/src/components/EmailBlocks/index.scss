@@ -3,12 +3,30 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 .email-blocks {
+  form {
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+
+  label {
+    color: var(--color-black-80);
+    flex-basis: 100%;
+    font-size: var(--body-font-size-xs);
+    font-weight: var(--font-weight-normal);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
   input {
     border: var(--input-border-width) solid var(--color-black-20);
     font-size: 16px;
     height: var(--input-height);
     padding: var(--input-padding-y) 10px;
     width: 240px;
+
+    &:focus {
+      border-color: var(--color-black-50);
+    }
   }
 
   &-search-button {

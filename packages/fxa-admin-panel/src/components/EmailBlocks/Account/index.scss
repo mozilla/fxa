@@ -2,7 +2,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-.email-block {
+.account {
   ul,
   ul li {
     list-style-type: none;
@@ -10,6 +10,7 @@
   }
 
   h3 {
+    font-size: var(--header-font-size-sm);
     margin: 0 0 5px;
   }
 
@@ -17,16 +18,20 @@
     margin-bottom: 10px;
   }
 
-  .email-bounces {
-    border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 1 100%;
-    border-right: 0;
-    border-style: solid;
-    border-width: 1px;
+  .email-bounce {
+    border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 0 100%;
+    border-left: 1px solid;
     padding-left: 15px;
+    margin-bottom: 15px;
   }
 
-  .verify {
-    color: var(--verify-color);
+  .created-at {
+    text-align: right;
+  }
+
+  .verified,
+  .not-verified {
+    color: var(--verified-color);
     font-weight: var(--font-weight-semi-bold);
   }
 

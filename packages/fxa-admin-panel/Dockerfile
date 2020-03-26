@@ -3,6 +3,8 @@ FROM node:12 as builder
 WORKDIR /app
 COPY . /app
 RUN npm ci
+ENV PUBLIC_URL /
+ENV INLINE_RUNTIME_CHUNK false
 RUN npm run build
 RUN npm ci --production
 

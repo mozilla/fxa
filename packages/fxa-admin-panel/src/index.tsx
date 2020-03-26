@@ -4,7 +4,25 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { ApolloProvider } from 'react-apollo';
+import ApolloClient from 'apollo-boost';
+import { config, readConfigFromMeta } from './lib/config';
 import App from './App';
 import './index.scss';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+readConfigFromMeta(headQuerySelector);
+
+const client = new ApolloClient({
+  uri: `${config.servers.admin.url}/graphql`,
+});
+
+ReactDOM.render(
+  <ApolloProvider {...{ client }}>
+    <App />
+  </ApolloProvider>,
+  document.getElementById('root')
+);
+
+function headQuerySelector(name: string) {
+  return document.head.querySelector(name);
+}

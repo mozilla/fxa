@@ -2,24 +2,31 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
 .content-wrapper {
   display: flex;
+  flex: 1;
   padding: 0 var(--app-padding-x-min);
 }
 
-nav {
-  flex: 1;
-}
-
-main {
+.main-container {
   background-color: var(--color-white);
   border: 1px solid var(--color-black-10);
   border-top: 0;
-  flex: 4;
   padding: var(--app-padding-top-min) 30px;
 
   h2 {
     color: var(--color-black-80);
+    font-size: var(--header-font-size-lg);
     margin-top: 0;
   }
+}
+
+main {
+  flex: 4;
 }

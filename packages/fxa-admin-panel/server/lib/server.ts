@@ -4,13 +4,14 @@
 
 // TO DO: CORS, other security-related tasks (#4312)
 
-import express from 'express';
+import express, { Request, Response } from 'express';
 import bodyParser from 'body-parser';
 import path from 'path';
 import serveStatic from 'serve-static';
 import helmet from 'helmet';
 import version from './version';
 import config from '../config';
+import fs from 'fs';
 import { noRobots } from './no-robots';
 import log from './logging';
 import csp from '../lib/csp';
@@ -24,6 +25,15 @@ const cspRulesBlocking = cspBlocking(config);
 const cspRulesReportOnly = cspReportOnly(config);
 
 logger.info('version', { version: version });
+
+const CLIENT_CONFIG = {
+  env: config.get('env'),
+  servers: {
+    admin: {
+      url: config.get('servers.admin.url'),
+    },
+  },
+};
 
 app.use(
   helmet.frameguard({
@@ -71,13 +81,55 @@ app.get('/__version__', (_, res) =>
   res.type('application/json').send(JSON.stringify(version))
 );
 
+function injectMetaContent(html: string, metaContent: { [x: string]: any }) {
+  let result = html;
+
+  Object.keys(metaContent).forEach(k => {
+    result = result.replace(
+      k,
+      encodeURIComponent(JSON.stringify(metaContent[k]))
+    );
+  });
+
+  return result;
+}
+
+function injectHtmlConfig(
+  html: string,
+  config: { env: string; servers: { admin: { url: any } } }
+) {
+  return injectMetaContent(html, {
+    __SERVER_CONFIG__: config,
+  });
+}
+
 // Note - the static route handlers must come last
 // because the proxyUrl handler's app.use('/') captures
 // all requests that match no others.
 if (proxyUrl) {
   logger.info('static.proxying', { url: proxyUrl });
   const proxy = require('express-http-proxy');
-  app.use('/', proxy(proxyUrl));
+  app.use(
+    '/',
+    proxy(proxyUrl, {
+      userResDecorator: function(
+        proxyRes: Request,
+        proxyResData: Response,
+        userReq: Request
+      ) {
+        const contentType = proxyRes.headers['content-type'];
+        if (!contentType || !contentType.startsWith('text/html')) {
+          return proxyResData;
+        }
+        if (userReq.url.startsWith('/sockjs-node/')) {
+          // This is a development WebPack channel that we don't want to modify
+          return proxyResData;
+        }
+        const body = proxyResData.toString();
+        return injectHtmlConfig(body, CLIENT_CONFIG);
+      },
+    })
+  );
 } else {
   const STATIC_DIRECTORY = path.join(
     __dirname,
@@ -85,6 +137,18 @@ if (proxyUrl) {
     '..',
     config.get('staticResources.directory')
   );
+
+  const STATIC_INDEX_HTML = fs.readFileSync(
+    path.join(STATIC_DIRECTORY, 'index.html'),
+    { encoding: 'UTF-8' }
+  );
+
+  ['/', '/email-blocks'].forEach(route => {
+    // FIXME: should set ETag, Not-Modified:
+    app.get(route, (req, res) => {
+      res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG));
+    });
+  });
 
   logger.info('static.directory', { directory: STATIC_DIRECTORY });
   app.use(

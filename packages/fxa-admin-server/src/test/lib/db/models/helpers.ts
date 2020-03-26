@@ -10,6 +10,10 @@ import Knex from 'knex';
 
 import { setupDatabase } from '../../../../lib/db';
 import { Account } from '../../../../lib/db/models/account';
+import { EmailBounces } from '../../../../lib/db/models/email-bounces';
+
+export type AccountIsh = Pick<Account, 'uid' | 'email' | 'emails' | 'normalizedEmail'>;
+export type BounceIsh = Pick<EmailBounces, 'bounceSubType' | 'bounceType' | 'createdAt' | 'email'>;
 
 export const chance = new Chance();
 
@@ -36,19 +40,13 @@ export function randomAccount() {
   };
 }
 
-export function randomEmailBounce(email: string) {
+export function randomEmailBounce(email: string): BounceIsh {
   return {
     bounceSubType: chance.integer({ min: 0, max: 14 }),
     bounceType: chance.integer({ min: 0, max: 3 }),
     createdAt: chance.timestamp(),
     email
   };
-}
-
-interface AccountIsh {
-  uid: string;
-  email: string;
-  normalizedEmail: string;
 }
 
 export function randomEmail(account: AccountIsh, primary = true) {
