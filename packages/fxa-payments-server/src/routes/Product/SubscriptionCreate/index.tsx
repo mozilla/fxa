@@ -133,7 +133,8 @@ export const SubscriptionCreate = ({
 
   return (
     <div className="product-payment" data-testid="subscription-create">
-      <div className="subscription-create-heading">
+      <div className="subscription-create-heading"
+           data-testid="subscription-create-heading">
         <Localized id="product-plan-details-heading">
           <h2>Set up your subscription</h2>
         </Localized>
@@ -149,8 +150,6 @@ export const SubscriptionCreate = ({
       </h3>
 
       <AcceptedCards />
-
-      <hr />
 
       <ErrorMessage isVisible={!!createTokenError.error}>
         {createTokenError.error && (

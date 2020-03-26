@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import React from 'react';
 import {
   render,
@@ -5,6 +8,7 @@ import {
   act,
   fireEvent,
   RenderResult,
+  queryByTestId,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
@@ -160,12 +164,12 @@ describe('routes/Product', () => {
   const withExistingAccount = (useDisplayName?: boolean) => async () => {
     const displayName = useDisplayName ? 'Foo Barson' : undefined;
     const apiMocks = initApiMocks(displayName);
-    const { findByText, queryByText, queryByTestId } = render(<Subject />);
+    const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
-    await findByText('Set up your subscription');
-    expect(queryByText('30-day money-back guarantee')).toBeInTheDocument();
+    await findAllByText('Set up your subscription');
+    expect(queryAllByText('30-day money-back guarantee')[0]).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   };
@@ -263,9 +267,9 @@ describe('routes/Product', () => {
     const renderResult = render(
       <Subject {...{ matchMedia, navigateToUrl, createToken }} />
     );
-    const { getByTestId, findByText } = renderResult;
+    const { getByTestId, findAllByText } = renderResult;
 
-    await findByText('Set up your subscription');
+    await findAllByText('Set up your subscription');
 
     act(() => {
       for (const testid of STRIPE_FIELDS) {
@@ -308,29 +312,9 @@ describe('routes/Product', () => {
 
       fireEvent.click(getByTestId('submit'));
 
-      await findByText('Product details');
+      await findByTestId('download-link');
       expectProductImage({ getByAltText, useDefaultIcon });
       expect(createToken).toBeCalled();
-      await findByTestId('download-link');
-      expectNockScopesDone(apiMocks);
-    });
-
-    it('redirects to product page if user is already subscribed', async () => {
-      const apiMocks = initSubscribedApiMocks(useDefaultIcon);
-
-      const navigateToUrl = jest.fn();
-      const matchMedia = jest.fn(() => false);
-      const createToken = jest
-        .fn()
-        .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
-
-      const { findByText, getByAltText } = render(
-        <Subject {...{ matchMedia, navigateToUrl, createToken }} />
-      );
-
-      await findByText('Product details');
-      expectProductImage({ getByAltText, useDefaultIcon });
-      expect(createToken).not.toBeCalled();
       expectNockScopesDone(apiMocks);
     });
   };
@@ -376,9 +360,10 @@ describe('routes/Product', () => {
         }),
     ];
     const renderResult = render(<Subject />);
-    const { getByTestId, findByText } = renderResult;
+    const { getByTestId, findAllByText } = renderResult;
 
-    await findByText('Set up your subscription');
+    await findAllByText('Set up your subscription');
+
     act(() => {
       for (const testid of STRIPE_FIELDS) {
         mockStripeElementOnChangeFns[testid](

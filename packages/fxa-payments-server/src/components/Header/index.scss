@@ -1,56 +1,41 @@
 @import '../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../styles/variables';
 
 .fxa-settings-header {
   align-items: center;
   background: #fff;
   box-shadow: 0 2px 8px rgba(12, 12, 13, 0.1);
   display: flex;
-  height: 64px;
+  height: $header-height;
   justify-content: space-between;
   left: 0;
   margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 16px;
   position: fixed;
   top: 0;
   white-space: nowrap;
   width: 100%;
   z-index: 6;
 
-  @include min-width('mobileLandscape') {
-    height: 81px;
+  @include min-width('tablet') {
+    height: $header-height-tablet;
+    padding: 0 16px;
   }
 
-  .fxa-manage-account {
-    background-image: url('../../images/firefox-logo.svg');
+  .fxa-logo {
+    background-image: url('../../images/firefox-logo-combined.svg');
+    background-position: 50%;
     background-repeat: no-repeat;
-    font-size: 22px;
-    font-weight: 600;
+    background-size: contain;
+    height: 100%;
     margin: 0;
-
-    html[dir='ltr'] & {
-      background-position: left center;
-      padding-left: 48px;
-    }
-
-    html[dir='rtl'] & {
-      background-position: right center;
-      padding-right: 48px;
-    }
-
-    @include min-width('tablet') {
-      background-size: 36px auto;
-      line-height: 63px;
-    }
-
-    @include min-width('mobileLandscape') {
-      background-size: 32px auto;
-      height: 48px;
-      line-height: 50px;
-    }
+    padding-left: 48px;
+    width: 120px;
   }
 
   .avatar {
-     height: 24px;
-     width: 24px;
+    border-radius: 50%;
+    height: 24px;
+    width: 24px;
   }
 }

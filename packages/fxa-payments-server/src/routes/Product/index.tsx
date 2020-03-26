@@ -133,6 +133,8 @@ export const Product = ({
     );
   }
 
+  console.log("bello", profile, plans, selectedPlan);
+
   if (!selectedPlan) {
     return (
       <DialogMessage className="dialog-error">
@@ -186,6 +188,19 @@ export const Product = ({
     }
   }
 
+  const mobileCreateHeading = isMobile ? (
+    <div className="mobile-subscription-create-heading">
+      <div className="subscription-create-heading">
+        <Localized id="product-plan-details-heading">
+          <h2>Set up your subscription</h2>
+        </Localized>
+        <Localized id="sub-guarantee">
+          <p className="subheading">30-day money-back guarantee</p>
+        </Localized>
+      </div>
+    </div>
+  ) : null;
+
   return (
     <>
       <Header {...{ profile: profile.result }} />
@@ -205,9 +220,11 @@ export const Product = ({
           {...{
             profile: profile.result,
             selectedPlan,
+            isMobile,
             showExpandButton: isMobile,
           }}
         />
+        {mobileCreateHeading}
       </div>
     </>
   );

@@ -3,18 +3,28 @@
 
 .plan-details-component {
   font-size: 15px;
-  margin: 65px auto 0;
+  margin: 32px auto;
   width: 342px;
 
   @include min-width('tablet') {
-    margin: 80px 24px;
+    margin: 40px 24px;
+  }
+
+  @include min-width('desktop') {
+    margin: 48px 24px;
+  }
+
+  .plan-details-component-inner {
+
+    @include min-width('tablet') {
+      position: fixed;
+    }
   }
 
   .plan-details-component-card {
     background: $color-white;
     border-radius: 8px;
-    box-shadow: 0px 1px 4px rgba(12, 12, 13, 0.1);
-    padding: 20px 20px 0;
+    box-shadow: 0 1px 4px rgba(12, 12, 13, 0.1);
     width: 342px;
   }
 
@@ -41,7 +51,7 @@
   .plan-details-heading-wrap {
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
+    padding-left: 16px;
     text-align: left;
 
     .plan-details-product {
@@ -63,18 +73,22 @@
     border-bottom: 1px solid $grey-30;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0;
-    padding-bottom: 20px;
-  }
+    margin: 0 16px;
+    padding: 16px 0;
 
-  .plan-details-header p {
-    margin: 0;
+    p {
+      margin: 0;
+    }
   }
 
   .plan-details-list {
     border-bottom: 1px solid $grey-30;
     color: rgba(12, 12, 13, 0.8);
+    list-style-position: inside;
     margin-top: 10px;
+    // 1px bottom is a hack to get the padding from the last li
+    // to show up on tablet and higher that have position: fixed;
+    padding: 0 16px 1px;
     text-align: left;
 
     h4 {
@@ -84,11 +98,15 @@
     ul {
       color: $grey-50;
       margin: 0;
-      padding-left: 15px;
+      padding-left: 0;
     }
 
     li {
       margin-bottom: 16px;
+
+      span {
+        padding-left: 8px;
+      }
 
       &::marker {
         font-size: 12px;
@@ -97,7 +115,6 @@
 
     @include min-width('tablet') {
       border-bottom: 0;
-      padding-bottom: 20px;
     }
   }
 
@@ -107,6 +124,7 @@
 
   .btn {
     background: none;
+    border: 1px solid transparent;
     color: $blue-60;
     font-size: 15px;
     font-weight: normal;
@@ -121,7 +139,7 @@
     &:focus {
       border: 1px solid #0a84ff;
       box-shadow: unset;
-      padding: 6px 6px 6px 25px;
+      padding: 6px 16px 6px 40px;
     }
   }
 
@@ -136,14 +154,22 @@
     width: 24px;
   }
 
+  .arrow:focus::before {
+    left: 14px;
+  }
+
   .up-arrow::before {
     transform: rotate(180deg);
   }
 
   .plan-details-total {
-    display: flex;
-    justify-content: space-between;
-    padding: 24px 0px;
+    padding: 24px 0;
+    width: 342px;
+
+    .plan-details-total-inner {
+      display: flex;
+      justify-content: space-between;
+    }
 
     p {
       margin: 0;
@@ -157,6 +183,7 @@
     }
 
     .total-price {
+      color: rgba(12, 12, 13, 0.8);
       font-size: 22px;
       font-weight: 600;
     }

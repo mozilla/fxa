@@ -1,7 +1,17 @@
 @import '../../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../../styles/variables';
 
-.product-confirmation {
+.product-confirmation-wrap {
   flex-direction: column-reverse;
+
+  .payment-confirmation {
+    margin-top: -5px;
+    min-height: calc(100vh - #{$header-height});
+
+    @include min-width('tablet') {
+      min-height: calc(100vh - #{$header-height-tablet});
+    }
+  }
 
   @include min-width('tablet') {
     flex-direction: row;

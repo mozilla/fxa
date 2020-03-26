@@ -28,14 +28,14 @@ storiesOf('components/PlanDetail', module)
   .add('default', () => (
     <MockApp>
       <PlanDetails
-        {...{ profile: userProfile, showExpandButton: false, selectedPlan }}
+        {...{ profile: userProfile, showExpandButton: false, selectedPlan, isMobile: false }}
       />
     </MockApp>
   ))
   .add('with expand button', () => (
     <MockApp>
       <PlanDetails
-        {...{ profile: userProfile, showExpandButton: true, selectedPlan }}
+        {...{ profile: userProfile, showExpandButton: true, selectedPlan, isMobile: false }}
       />
     </MockApp>
   ));

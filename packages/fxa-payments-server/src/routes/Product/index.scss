@@ -1,81 +1,13 @@
-@import '../../../../fxa-content-server/app/styles/breakpoints';
-@import '../../../../fxa-content-server/app/styles/variables';
+.mobile-subscription-create-heading {
+  margin: 0 auto;
+  text-align: center;
 
-.product-payment {
-  .account-activated {
-    margin-bottom: 25px;
-
-    h2 {
-      color: #20123b;
-      font-size: 24px;
-      font-weight: 500;
-      margin: 10px 0;
-    }
+  h2 {
+    color: rgba(12, 12, 13, 0.8);
   }
 
-  h3.billing-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 20px;
-    margin-top: 48px;
-  }
-
-  .profile-banner {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 25px;
-    text-align: center;
-
-    img.avatar {
-      background-color: #c3cfd8;
-      border-radius: 42px;
-      display: block;
-      height: 84px;
-      width: 84px;
-    }
-
-    img.avatar.hoisted {
-      // TO DO: clean this up, see issue #3336
-      margin-top: -$main-content-padding-top-desktop - 42px; // half of avatar height
-
-      @include respond-to('small') {
-        border-radius: 30px;
-        height: 60px;
-        margin: -$main-content-padding-top - 30px 0 32px;
-        position: relative;
-        top: 24px;
-        width: 60px;
-      }
-    }
-
-    h2.displayName {
-      font-weight: 500;
-      margin: 0;
-    }
-
-    img + h2.displayName {
-      margin-bottom: 4px;
-      padding-top: 8px;
-
-      @include respond-to('simpleSmall') {
-        padding-top: 0;
-      }
-    }
-
-    h3.email {
-      font-weight: normal;
-      line-height: 14px;
-      margin: 0;
-      padding: 12px 0 0;
-
-      @include respond-to('simpleSmall') {
-        padding: 0;
-      }
-    }
-
-    .displayName + .email {
-      padding: 0;
-    }
+  p {
+    color: rgba(12, 12, 13, 0.6);
+    margin-bottom: 0;
   }
 }
