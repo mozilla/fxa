@@ -1,3 +1,24 @@
+## 1.164.0
+
+### Bug fixes
+
+* ui: don't target submit buttons with gray disabled background state ([92b42876b](https://github.com/mozilla/fxa/commit/92b42876b))
+* settings: update Secondary email refresh button style to primary instead of secondary ([2bd3f706f](https://github.com/mozilla/fxa/commit/2bd3f706f))
+* settings: don't apply grey background to primary button when disabled ([3a8b72e22](https://github.com/mozilla/fxa/commit/3a8b72e22))
+* settings: wrap overflowing settings group headers so they don't break layout ([cea77eb5d](https://github.com/mozilla/fxa/commit/cea77eb5d))
+* metrics: return the mocked statsd instance ([d9761f07d](https://github.com/mozilla/fxa/commit/d9761f07d))
+* style: fix rtl style of delete account panel ([1eab962d4](https://github.com/mozilla/fxa/commit/1eab962d4))
+* metrics: restrict content-server nav timing metric names ([9d3511f5c](https://github.com/mozilla/fxa/commit/9d3511f5c))
+
+### Refactorings
+
+* assets: remove content server unused images and svgs ([0e728388a](https://github.com/mozilla/fxa/commit/0e728388a))
+
+### Other changes
+
+* config: Default to a useable Fenix OAuth config in local dev ([4f2622284](https://github.com/mozilla/fxa/commit/4f2622284))
+* styles: update sub cancel warning UI in settings ([09be98757](https://github.com/mozilla/fxa/commit/09be98757))
+
 ## 1.163.2
 
 No changes.
