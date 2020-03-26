@@ -4,6 +4,8 @@
 
 ## branding
 project-brand = Firefox Accounts
+-brand-name-mozilla = Mozilla
+-brand-name-firefox = Firefox
 
 document =
   .title = Firefox Accounts
@@ -39,24 +41,40 @@ privacy = Privacy Notice
 ## plan details
 product-plan-details-heading = Let's set up your subscription
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 day-based-plan-details-amount = { $intervalCount ->
   [one] { $productName } billed { $amount } daily
-  *[other] { $productName } billed { $amount } every {$intervalCount} days
+  *[other] { $productName } billed { $amount } every { $intervalCount } days
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 week-based-plan-details-amount = { $intervalCount ->
   [one] { $productName } billed { $amount } weekly
-  *[other] { $productName } billed { $amount } every {$intervalCount} weeks
+  *[other] { $productName } billed { $amount } every { $intervalCount } weeks
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 month-based-plan-details-amount = { $intervalCount ->
   [one] { $productName } billed { $amount } monthly
-  *[other] { $productName } billed { $amount } every {$intervalCount} months
+  *[other] { $productName } billed { $amount } every { $intervalCount } months
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 year-based-plan-details-amount = { $intervalCount ->
   [one] { $productName } billed { $amount } yearly
-  *[other] { $productName } billed { $amount } every {$intervalCount} years
+  *[other] { $productName } billed { $amount } every { $intervalCount } years
 }
 
 ## Product route
@@ -70,7 +88,7 @@ product-plan-not-found = Plan not found
 product-no-such-plan = No such plan for this product.
 
 ## payment legal blurb
-payment-legal-copy = Mozilla uses Stripe for secure payment processing.
+payment-legal-copy = { -brand-name-mozilla } uses Stripe for secure payment processing.
 payment-legal-link = View the <a>Stripe privacy policy</a>.
 
 ## payment form
@@ -86,24 +104,36 @@ payment-cvc =
 payment-zip =
   .label = ZIP code
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 payment-confirm-day = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} daily</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } days</strong>, according to payment terms, until I cancel my subscription.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 payment-confirm-week = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} weekly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } weeks</strong>, according to payment terms, until I cancel my subscription.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 payment-confirm-month = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} monthly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } months</strong>, according to payment terms, until I cancel my subscription.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 payment-confirm-year = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} yearly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
 }
 
 payment-cancel-btn = Cancel
@@ -131,24 +161,36 @@ sub-update-copy =
     amount for the rest of your billing cycle. Starting { $startingDate }
     you’ll be charged the full amount.
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 sub-update-confirm-day = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } days</strong>, according to payment terms, until I cancel my subscription.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 sub-update-confirm-week = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } weeks</strong>, according to payment terms, until I cancel my subscription.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 sub-update-confirm-month = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } months</strong>, according to payment terms, until I cancel my subscription.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 sub-update-confirm-year = { $intervalCount ->
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
+  [one] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
 }
 
 sub-update-submit = Change Plans
@@ -156,45 +198,77 @@ sub-update-indicator =
   .aria-label = upgrade indicator
 
 ## subscription upgrade plan details
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 plan-price-day = { $intervalCount ->
   [one] { $amount } daily
-  *[other] { $amount } every {$intervalCount} days
+  *[other] { $amount } every { $intervalCount } days
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 plan-price-week = { $intervalCount ->
   [one] { $amount } weekly
-  *[other] { $amount } every {$intervalCount} weeks
+  *[other] { $amount } every { $intervalCount } weeks
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 plan-price-month = { $intervalCount ->
   [one] { $amount } monthly
-  *[other] { $amount } every {$intervalCount} months
+  *[other] { $amount } every { $intervalCount } months
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
 plan-price-year = { $intervalCount ->
   [one] { $amount } yearly
-  *[other] { $amount } every {$intervalCount} years
+  *[other] { $amount } every { $intervalCount } years
 }
 
 ## payment update
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in days.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+    #  $date (String) - The formatted date for the next time a charge will occur.
 pay-update-billing-description-day = { $intervalCount ->
   [one] You are billed { $amount } daily for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every {$intervalCount} days for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every { $intervalCount } days for { $name }. Your next payment occurs on { $date }.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in weeks.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+    #  $date (String) - The formatted date for the next time a charge will occur.
 pay-update-billing-description-week = { $intervalCount ->
   [one] You are billed { $amount } weekly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every {$intervalCount} weeks for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every { $intervalCount } weeks for { $name }. Your next payment occurs on { $date }.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in months.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+    #  $date (String) - The formatted date for the next time a charge will occur.
 pay-update-billing-description-month = { $intervalCount ->
   [one] You are billed { $amount } monthly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every {$intervalCount} months for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every { $intervalCount } months for { $name }. Your next payment occurs on { $date }.
 }
 
+# Variables:
+    #  $intervalCount (Number) - The interval between payments, in years.
+    #  $productName (String) - The name of the subscribed product.
+    #  $amount (String) - The amount billed, in USD. It will be formatted as currency.
+    #  $date (String) - The formatted date for the next time a charge will occur.
 pay-update-billing-description-year = { $intervalCount ->
   [one] You are billed { $amount } yearly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every {$intervalCount} years for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every { $intervalCount } years for { $name }. Your next payment occurs on { $date }.
 }
 
 pay-update-card-exp = Expires { $expirationDate }
@@ -238,7 +312,7 @@ sub-route-idx-cancel-msg =
           <br />
           You will still have access to { $name } until { $date }.
 sub-route-idx-cancel-aside =
-    Have questions? Visit <a>Mozilla Support</a>.
+    Have questions? Visit <a>{ -brand-name-mozilla } Support</a>.
 sub-subscription-error =
   .title = Problem loading subscriptions
 sub-customer-error =
