@@ -40,23 +40,23 @@ privacy = Privacy Notice
 product-plan-details-heading = Let's set up your subscription
 
 day-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed ${ $amount } daily
-  *[other] { $productName } billed ${ $amount } every {$intervalCount} days
+  [one] { $productName } billed { $amount } daily
+  *[other] { $productName } billed { $amount } every {$intervalCount} days
 }
 
 week-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed ${ $amount } weekly
-  *[other] { $productName } billed ${ $amount } every {$intervalCount} weeks
+  [one] { $productName } billed { $amount } weekly
+  *[other] { $productName } billed { $amount } every {$intervalCount} weeks
 }
 
 month-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed ${ $amount } monthly
-  *[other] { $productName } billed ${ $amount } every {$intervalCount} months
+  [one] { $productName } billed { $amount } monthly
+  *[other] { $productName } billed { $amount } every {$intervalCount} months
 }
 
 year-based-plan-details-amount = { $intervalCount ->
-  [one] { $productName } billed ${ $amount } yearly
-  *[other] { $productName } billed ${ $amount } every {$intervalCount} years
+  [one] { $productName } billed { $amount } yearly
+  *[other] { $productName } billed { $amount } every {$intervalCount} years
 }
 
 ## Product route
@@ -85,25 +85,25 @@ payment-cvc =
   .label = CVC
 payment-zip =
   .label = ZIP code
-  
-payment-confirm-day = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} daily</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
+
+payment-confirm-day = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
 }
 
-payment-confirm-week = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} weekly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
+payment-confirm-week = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
 }
 
-payment-confirm-month = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} monthly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
+payment-confirm-month = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
 }
 
-payment-confirm-year = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} yearly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${$amount} every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
+payment-confirm-year = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{$amount} every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
 }
 
 payment-cancel-btn = Cancel
@@ -131,24 +131,24 @@ sub-update-copy =
     amount for the rest of your billing cycle. Starting { $startingDate }
     you’ll be charged the full amount.
 
-sub-update-confirm-day = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
+sub-update-confirm-day = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } daily</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} days</strong>, according to payment terms, until I cancel my subscription.
 }
 
-sub-update-confirm-week = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
+sub-update-confirm-week = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } weekly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} weeks</strong>, according to payment terms, until I cancel my subscription.
 }
 
-sub-update-confirm-month = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
+sub-update-confirm-month = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } monthly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} months</strong>, according to payment terms, until I cancel my subscription.
 }
 
-sub-update-confirm-year = { $intervalCount -> 
-  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
-  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
+sub-update-confirm-year = { $intervalCount ->
+  [one] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } yearly</strong>, according to payment terms, until I cancel my subscription.
+  *[other] I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>{ $amount } every {$intervalCount} years</strong>, according to payment terms, until I cancel my subscription.
 }
 
 sub-update-submit = Change Plans
@@ -157,44 +157,44 @@ sub-update-indicator =
 
 ## subscription upgrade plan details
 plan-price-day = { $intervalCount ->
-  [one] ${ $amount } daily
-  *[other] ${ $amount } every {$intervalCount} days
+  [one] { $amount } daily
+  *[other] { $amount } every {$intervalCount} days
 }
 
 plan-price-week = { $intervalCount ->
-  [one] ${ $amount } weekly
-  *[other] ${ $amount } every {$intervalCount} weeks
+  [one] { $amount } weekly
+  *[other] { $amount } every {$intervalCount} weeks
 }
 
 plan-price-month = { $intervalCount ->
-  [one] ${ $amount } monthly
-  *[other] ${ $amount } every {$intervalCount} months
+  [one] { $amount } monthly
+  *[other] { $amount } every {$intervalCount} months
 }
 
 plan-price-year = { $intervalCount ->
-  [one] ${ $amount } yearly
-  *[other] ${ $amount } every {$intervalCount} years
+  [one] { $amount } yearly
+  *[other] { $amount } every {$intervalCount} years
 }
 
 ## payment update
 pay-update-billing-description-day = { $intervalCount ->
-  [one] You are billed ${ $amount } daily for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed ${ $amount } every {$intervalCount} days for { $name }. Your next payment occurs on { $date }.
+  [one] You are billed { $amount } daily for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every {$intervalCount} days for { $name }. Your next payment occurs on { $date }.
 }
 
 pay-update-billing-description-week = { $intervalCount ->
-  [one] You are billed ${ $amount } weekly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed ${ $amount } every {$intervalCount} weeks for { $name }. Your next payment occurs on { $date }.
+  [one] You are billed { $amount } weekly for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every {$intervalCount} weeks for { $name }. Your next payment occurs on { $date }.
 }
 
 pay-update-billing-description-month = { $intervalCount ->
-  [one] You are billed ${ $amount } monthly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed ${ $amount } every {$intervalCount} months for { $name }. Your next payment occurs on { $date }.
+  [one] You are billed { $amount } monthly for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every {$intervalCount} months for { $name }. Your next payment occurs on { $date }.
 }
 
 pay-update-billing-description-year = { $intervalCount ->
-  [one] You are billed ${ $amount } yearly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed ${ $amount } every {$intervalCount} years for { $name }. Your next payment occurs on { $date }.
+  [one] You are billed { $amount } yearly for { $name }. Your next payment occurs on { $date }.
+  *[other] You are billed { $amount } every {$intervalCount} years for { $name }. Your next payment occurs on { $date }.
 }
 
 pay-update-card-exp = Expires { $expirationDate }
@@ -205,7 +205,7 @@ reactivate-confirm-dialog-header = Want to keep using { $name }?
 reactivate-confirm-copy =
     Your access to { $name } will continue, and your billing cycle
     and payment will stay the same. Your next charge will be
-    ${ $amount } to the card ending in { $last } on { $endDate }.
+    { $amount } to the card ending in { $last } on { $endDate }.
 reactivate-confirm-button = Resubscribe
 reactivate-panel-date = You cancelled your subscription on { $date }.
 reactivate-panel-copy = You will lose access to { $name } on <strong>{ $date }</strong>.

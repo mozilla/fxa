@@ -65,7 +65,7 @@ function getDefaultPaymentConfirmText(
   interval: string,
   intervalCount: number
 ) {
-  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$${formatCurrencyInCents(
+  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
     amount
   )}`;
   const post =
