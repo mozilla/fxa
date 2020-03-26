@@ -22,6 +22,9 @@ if (!config.smtp.sesConfigurationSet) {
 }
 config.smtp.subscriptionTermsUrl = 'http://example.com/terms';
 
+// Force enable the subscription transactional emails
+config.subscriptions.transactionalEmails.enabled = true;
+
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
 
 const MESSAGE = {
@@ -42,9 +45,17 @@ const MESSAGE = {
   primaryEmail: 'c@d.com',
   productId: 'wibble',
   planId: 'plan-example',
-  productName: 'example product',
+  productName: 'Firefox Fortress',
   planEmailIconURL: 'http://example.com/icon.jpg',
   planDownloadURL: 'http://getfirefox.com/',
+  invoiceNumber: '8675309',
+  invoiceTotal: 99.99,
+  proratedAmount: 5.23,
+  cardType: 'mastercard',
+  lastFour: '5309',
+  invoiceDate: new Date(1584747098816),
+  nextInvoiceDate: new Date(1587339098816),
+  serviceLastActiveDate: new Date(1587339098816),
   service: 'sync',
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
@@ -161,6 +172,91 @@ const TESTS = new Map([
       { test: 'include', expected: `already downloaded ${MESSAGE.productName}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
+  ])],
+  ['subscriptionFirstInvoiceEmail', new Map([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment confirmed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionFirstInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionFirstInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-first-invoice', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
+      { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support') },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}!` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment confirmed` },
+      { test: 'include', expected: `start using ${MESSAGE.productName}` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionSubsequentInvoiceEmail', new Map([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment received` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionSubsequentInvoice') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionSubsequentInvoice' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-subsequent-invoice', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
+      { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support') },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
+      { test: 'include', expected: `Plan change: $${MESSAGE.proratedAmount}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `${MESSAGE.productName} payment received` },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
+      { test: 'include', expected: `Plan change: $${MESSAGE.proratedAmount}` },
+      { test: 'include', expected: `MasterCard card ending in 5309` },
+      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Next Invoice: 04/19/2020` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionCancellationEmail', new Map([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionCancellation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionCancellation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-cancellation', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms') },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `billing period, which is 04/19/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
   ])],
   ['lowRecoveryCodesEmail', new Map([
     ['subject', { test: 'equal', expected: '2 recovery codes remaining' }],
