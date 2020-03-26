@@ -47,7 +47,7 @@ export default ({
       >
         <p>
           Your access to {plan.product_name} will continue, and your billing
-          cycle and payment will stay the same. Your next charge will be $
+          cycle and payment will stay the same. Your next charge will be
           {formatCurrencyInCents(plan.amount)} to the card ending in {last4} on{' '}
           {periodEndDate}.
         </p>

@@ -21,6 +21,31 @@ type PaymentUpdateFormProps = {
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
 };
 
+function getBillingDescriptionText(
+  name: string,
+  amount: number,
+  interval: string,
+  intervalCount: number,
+  date: string
+) {
+  const pre = `You are billed ${formatCurrencyInCents(amount)}`;
+  const post = `for ${name}. Your next payment occurs on ${date}.`;
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${pre} daily ${post}`;
+      return `${pre} every ${intervalCount} days ${post}`;
+    case 'week':
+      if (intervalCount === 1) return `${pre} weekly ${post}`;
+      return `${pre} every ${intervalCount} weeks ${post}`;
+    case 'month':
+      if (intervalCount === 1) return `${pre} monthly ${post}`;
+      return `${pre} every ${intervalCount} months ${post}`;
+    case 'year':
+      if (intervalCount === 1) return `${pre} yearly ${post}`;
+      return `${pre} every ${intervalCount} years ${post}`;
+  }
+}
+
 export const PaymentUpdateForm = ({
   updatePayment: updatePaymentBase,
   updatePaymentStatus,
@@ -109,6 +134,14 @@ export const PaymentUpdateForm = ({
     .set('year', Number(exp_year))
     .format('MMMM YYYY');
 
+  const billingDescriptionText = getBillingDescriptionText(
+    plan.product_name,
+    plan.amount,
+    plan.interval,
+    plan.interval_count,
+    periodEndDate
+  );
+
   return (
     <div className="payment-update">
       <h3 className="billing-title">
@@ -117,17 +150,13 @@ export const PaymentUpdateForm = ({
         </Localized>
       </h3>
       <Localized
-        id="pay-update-billing-description"
+        id={`pay-update-billing-description-${plan.interval}`}
         $amount={formatCurrencyInCents(plan.amount)}
-        $interval={plan.interval}
+        $intervalCount={plan.interval_count}
         $name={plan.product_name}
         $date={periodEndDate}
       >
-        <p className="billing-description">
-          You are billed ${formatCurrencyInCents(plan.amount)} per{' '}
-          {plan.interval} for {plan.product_name}. Your next payment occurs on{' '}
-          {periodEndDate}.
-        </p>
+        <p className="billing-description">{billingDescriptionText}</p>
       </Localized>
       {upgradeCTA && (
         <p
