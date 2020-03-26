@@ -1,3 +1,17 @@
+## 1.164.0
+
+### New features
+
+* payments: emails for subscription invoices ## 1.163.2 cancellation ([92233d368](https://github.com/mozilla/fxa/commit/92233d368))
+* email: add rel="noopener noreferrer" to any email links that have target="_blank" ([15e8db604](https://github.com/mozilla/fxa/commit/15e8db604))
+
+### Bug fixes
+
+* recovery: Send `postAddAccountRecoveryEmail` when recovery key verified ([8e39d783f](https://github.com/mozilla/fxa/commit/8e39d783f))
+* redis: Don't log an error if an access token is `null` in redis. ([6a61b33c0](https://github.com/mozilla/fxa/commit/6a61b33c0))
+* payments: bugfix to subscription upgrade verification ([44dfcb377](https://github.com/mozilla/fxa/commit/44dfcb377))
+* profile: Call `notifyAttachedServices` when profile-server data changes. ([8169dbe40](https://github.com/mozilla/fxa/commit/8169dbe40))
+
 ## 1.163.2
 
 No changes.

@@ -1,3 +1,13 @@
+## 1.164.0
+
+### Bug fixes
+
+* profile: Fix 500 error in the root of the profile server ([e618a28fc](https://github.com/mozilla/fxa/commit/e618a28fc))
+
+### Refactorings
+
+* hapi: Update to Hapi 17 ([56f723b6f](https://github.com/mozilla/fxa/commit/56f723b6f))
+
 ## 1.163.2
 
 No changes.

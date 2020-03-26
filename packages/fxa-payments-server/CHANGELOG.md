@@ -1,5 +1,20 @@
 # Change history
 
+## 1.164.0
+
+### Bug fixes
+
+* metrics: fix undefined nav timing perf entry bug on Safari for Payments ([98e099399](https://github.com/mozilla/fxa/commit/98e099399))
+* payment-server: configure DSN later ([a90ee9efe](https://github.com/mozilla/fxa/commit/a90ee9efe))
+
+### Refactorings
+
+* stripe: remove usage of lineHeight property when styling Stripe input fields ([7e929c980](https://github.com/mozilla/fxa/commit/7e929c980))
+
+### Other changes
+
+* metrics: reduce nav timing metric tags in Payments ([81a47c7db](https://github.com/mozilla/fxa/commit/81a47c7db))
+
 ## 1.163.2
 
 ### Bug fixes
