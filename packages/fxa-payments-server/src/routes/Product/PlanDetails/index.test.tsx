@@ -75,7 +75,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(1);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -98,7 +98,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(6);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -121,7 +121,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(1);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -144,7 +144,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(6);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -167,7 +167,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(1);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -190,7 +190,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(6);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -213,7 +213,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(1);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -236,7 +236,7 @@ describe('PlanDetails Component', () => {
       const planDetailsLocalized = localizedComponents[1];
       expect(planDetailsLocalized.props.id).toBe(expectedMsgId);
       expect(planDetailsLocalized.props.$productName).toBe('FPN');
-      expect(planDetailsLocalized.props.$amount).toBe('5.00');
+      expect(planDetailsLocalized.props.$amount).toBe('$5.00');
       expect(planDetailsLocalized.props.$intervalCount).toBe(6);
 
       expect(planDetailsLocalized.props.children.props.children).toBe(
@@ -249,7 +249,7 @@ describe('PlanDetails Component', () => {
     const bundle = setupFluentLocalizationTest('en-US');
     const args = {
       productName: 'FPN',
-      amount: '5.00',
+      amount: '$5.00',
     };
 
     describe('when the localized id is day-based-plan-details-amount', () => {

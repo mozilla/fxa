@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 
-export function formatCurrencyInCents(amount: number) {
-  return (amount / 100.0).toFixed(2);
+export function formatCurrencyInCents(amount: number): string {
+  const decimal = (amount / 100.0).toFixed(2);
+  return `$${decimal}`;
 }
 
 // TODO: date formats will need i18n someday

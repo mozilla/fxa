@@ -242,7 +242,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for 6 days plan with correct props and displays correct default string', async () => {
@@ -252,7 +252,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 days</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for weekly plan with correct props and displays correct default string', async () => {
@@ -262,7 +262,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 weekly</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for 6 weeks plan with correct props and displays correct default string', async () => {
@@ -272,7 +272,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 weeks</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for monthly plan with correct props and displays correct default string', async () => {
@@ -282,7 +282,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 monthly</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for 6 months plan with correct props and displays correct default string', async () => {
@@ -292,7 +292,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 months</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for yearly plan with correct props and displays correct default string', async () => {
@@ -302,7 +302,7 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 yearly</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
 
     it('renders Localized for years plan with correct props and displays correct default string', async () => {
@@ -312,14 +312,14 @@ describe('Legal', () => {
       const expectedMsg =
         'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 years</strong>, according to payment terms, until I cancel my subscription.';
 
-      runTests(plan, expectedMsgId, '5.00', expectedMsg);
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
     });
   });
 
   describe('Fluent Localized Text', () => {
     const bundle = setupFluentLocalizationTest('en-US');
     const args = {
-      amount: '5.00',
+      amount: '$5.00',
     };
 
     describe('when the localized id is payment-confirm-day', () => {

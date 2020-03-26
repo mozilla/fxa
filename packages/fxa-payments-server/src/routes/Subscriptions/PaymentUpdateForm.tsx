@@ -28,7 +28,7 @@ function getBillingDescriptionText(
   intervalCount: number,
   date: string
 ) {
-  const pre = `You are billed $${formatCurrencyInCents(amount)}`;
+  const pre = `You are billed ${formatCurrencyInCents(amount)}`;
   const post = `for ${name}. Your next payment occurs on ${date}.`;
   switch (interval) {
     case 'day':

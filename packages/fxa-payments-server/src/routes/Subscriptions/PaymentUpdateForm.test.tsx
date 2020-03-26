@@ -77,7 +77,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
@@ -92,7 +92,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
     });
 
@@ -111,7 +111,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
@@ -126,7 +126,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
     });
 
@@ -145,7 +145,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
@@ -160,7 +160,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
     });
 
@@ -179,7 +179,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
@@ -194,7 +194,7 @@ describe('PaymentUpdateForm', () => {
           ...baseProps,
           plan: plan,
         };
-        runTests(props, expectedMsgId, '5.00', periodEndDate, expectedMsg);
+        runTests(props, expectedMsgId, '$5.00', periodEndDate, expectedMsg);
       });
     });
   });
@@ -202,7 +202,7 @@ describe('PaymentUpdateForm', () => {
   describe('Fluent Translations for Plan Billing Description', () => {
     const bundle = setupFluentLocalizationTest('en-US');
     const args = {
-      amount: '5.00',
+      amount: '$5.00',
       name: 'FPN',
       date: '11/22/2020',
     };

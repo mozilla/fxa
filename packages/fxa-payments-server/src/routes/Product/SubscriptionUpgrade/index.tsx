@@ -34,7 +34,7 @@ function getDefaultConfirmText(
   interval: string,
   intervalCount: number
 ) {
-  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$${formatCurrencyInCents(
+  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
     amount
   )}`;
   const post =
@@ -251,17 +251,17 @@ export const SubscriptionUpgrade = ({
 function getPlanPrice(interval: string, intervalCount: number, amount: string) {
   switch (interval) {
     case 'day':
-      if (intervalCount === 1) return `$${amount} daily`;
-      return `$${amount} every ${intervalCount} days`;
+      if (intervalCount === 1) return `${amount} daily`;
+      return `${amount} every ${intervalCount} days`;
     case 'week':
-      if (intervalCount === 1) return `$${amount} weekly`;
-      return `$${amount} every ${intervalCount} weeks`;
+      if (intervalCount === 1) return `${amount} weekly`;
+      return `${amount} every ${intervalCount} weeks`;
     case 'month':
-      if (intervalCount === 1) return `$${amount} monthly`;
-      return `$${amount} every ${intervalCount} months`;
+      if (intervalCount === 1) return `${amount} monthly`;
+      return `${amount} every ${intervalCount} months`;
     case 'year':
-      if (intervalCount === 1) return `$${amount} yearly`;
-      return `$${amount} every ${intervalCount} years`;
+      if (intervalCount === 1) return `${amount} yearly`;
+      return `${amount} every ${intervalCount} years`;
   }
 }
 
