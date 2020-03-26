@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const AppError = require('./error');
-const Boom = require('boom');
+const Boom = require('@hapi/boom');
 const logger = require('./logging')('batch');
 const P = require('./promise');
 
@@ -47,7 +47,14 @@ function batch(request, routeFieldsMap) {
         method: 'get',
         url: url,
         headers: request.headers,
-        credentials: request.auth.credentials,
+        auth: {
+          credentials: request.auth.credentials,
+          // As of Hapi 18: "To use the new format simply wrap the credentials and optional
+          // artifacts with an auth object and add a new strategy key with a name matching
+          // a configured authentication strategy."
+          // Ref: https://github.com/hapijs/hapi/issues/3871
+          strategy: 'oauth',
+        },
       })
       .then(res => {
         let fields;

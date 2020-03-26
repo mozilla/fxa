@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const hex = require('buf').to.hex;
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const P = require('../../promise');
 
 const AppError = require('../../error');
@@ -64,7 +64,7 @@ module.exports = {
         .then(() => {
           notifyProfileUpdated(uid); // Don't wait on promise
           return EMPTY;
-        })
+        });
     });
   },
 };
