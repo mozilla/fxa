@@ -6,7 +6,7 @@ import React, {
   DetailedHTMLProps,
   FormHTMLAttributes,
 } from 'react';
-import { withLocalization } from 'fluent-react';
+import { withLocalization } from '@fluent/react';
 import { ReactStripeElements } from 'react-stripe-elements';
 import classNames from 'classnames';
 import { Validator, FieldType } from '../../lib/validator';
@@ -128,7 +128,9 @@ export const defaultInputValidator: OnValidateFunction = (
   getString
 ) => {
   if (props.required && value !== null && !value) {
-    const errorMsg = getString ? getString('default-input-error') : 'This field is required';
+    const errorMsg = getString
+      ? getString('default-input-error')
+      : 'This field is required';
     return {
       value,
       valid: false,

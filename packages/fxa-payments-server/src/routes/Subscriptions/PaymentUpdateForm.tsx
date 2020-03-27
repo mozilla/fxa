@@ -1,7 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import dayjs from 'dayjs';
-import { formatCurrencyInCents } from '../../lib/formats';
+import {
+  getLocalizedDateString,
+  getLocalizedDate,
+  getLocalizedCurrencyString,
+  getLocalizedCurrency,
+} from '../../lib/formats';
 import { useBooleanState, useNonce } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import { SelectorReturns } from '../../store/selectors';
@@ -24,11 +29,12 @@ type PaymentUpdateFormProps = {
 function getBillingDescriptionText(
   name: string,
   amount: number,
+  currency: string,
   interval: string,
   intervalCount: number,
   date: string
 ) {
-  const pre = `You are billed ${formatCurrencyInCents(amount)}`;
+  const pre = `You are billed ${getLocalizedCurrencyString(amount, currency)}`;
   const post = `for ${name}. Your next payment occurs on ${date}.`;
   switch (interval) {
     case 'day':
@@ -123,11 +129,6 @@ export const PaymentUpdateForm = ({
 
   const { last4, exp_month, exp_year } = customer;
 
-  // TODO: date formats will need i18n someday
-  const periodEndDate = dayjs
-    .unix(customerSubscription.current_period_end)
-    .format('MM/DD/YYYY');
-
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate = dayjs()
     .set('month', Number(exp_month) - 1)
@@ -137,9 +138,10 @@ export const PaymentUpdateForm = ({
   const billingDescriptionText = getBillingDescriptionText(
     plan.product_name,
     plan.amount,
+    plan.currency,
     plan.interval,
     plan.interval_count,
-    periodEndDate
+    getLocalizedDateString(customerSubscription.current_period_end, true)
   );
 
   return (
@@ -151,10 +153,10 @@ export const PaymentUpdateForm = ({
       </h3>
       <Localized
         id={`pay-update-billing-description-${plan.interval}`}
-        $amount={formatCurrencyInCents(plan.amount)}
+        $amount={getLocalizedCurrency(plan.amount, plan.currency)}
         $intervalCount={plan.interval_count}
         $name={plan.product_name}
-        $date={periodEndDate}
+        $date={getLocalizedDate(customerSubscription.current_period_end, true)}
       >
         <p className="billing-description">{billingDescriptionText}</p>
       </Localized>

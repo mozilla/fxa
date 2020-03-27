@@ -1,6 +1,9 @@
 import React from 'react';
-import { Localized } from 'fluent-react';
-import { formatCurrencyInCents } from '../../lib/formats';
+import { Localized } from '@fluent/react';
+import {
+  getLocalizedCurrency,
+  getLocalizedCurrencyString,
+} from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
@@ -16,6 +19,23 @@ type PaymentConfirmationProps = {
   className?: string;
 };
 
+function getPlanPrice(interval: string, intervalCount: number, amount: string) {
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${amount} daily`;
+      return `${amount} every ${intervalCount} days`;
+    case 'week':
+      if (intervalCount === 1) return `${amount} weekly`;
+      return `${amount} every ${intervalCount} weeks`;
+    case 'month':
+      if (intervalCount === 1) return `${amount} monthly`;
+      return `${amount} every ${intervalCount} months`;
+    case 'year':
+      if (intervalCount === 1) return `${amount} yearly`;
+      return `${amount} every ${intervalCount} years`;
+  }
+}
+
 export const PaymentConfirmation = ({
   customer,
   profile,
@@ -23,7 +43,7 @@ export const PaymentConfirmation = ({
   productUrl,
   className = 'default',
 }: PaymentConfirmationProps) => {
-  const { amount, interval } = selectedPlan;
+  const { amount, currency, interval, interval_count } = selectedPlan;
   const { displayName, email } = profile;
   const { brand, last4, subscriptions } = customer;
   const invoiceNumber = subscriptions[0].latest_invoice;
@@ -41,6 +61,12 @@ export const PaymentConfirmation = ({
     <Localized id="payment-confirmation-heading-bak">
       <h2></h2>
     </Localized>
+  );
+
+  const planPrice = getPlanPrice(
+    interval,
+    interval_count,
+    getLocalizedCurrencyString(amount, currency)
   );
 
   return (
@@ -85,11 +111,11 @@ export const PaymentConfirmation = ({
         </Localized>
         <div className="bottom-row">
           <Localized
-            id="payment-confirmation-amount"
-            $amount={formatCurrencyInCents(amount)}
-            $interval={interval}
+            id={`payment-confirmation-amount-${interval}`}
+            $amount={getLocalizedCurrency(amount, currency)}
+            $intervalCount={interval_count}
           >
-            <p></p>
+            <p>{planPrice}</p>
           </Localized>
           <Localized id="payment-confirmation-cc-preview" $last4={last4}>
             <p className={`c-card ${brand.toLowerCase()}`}></p>

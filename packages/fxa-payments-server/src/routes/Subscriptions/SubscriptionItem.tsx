@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
-import { Localized } from 'fluent-react';
-import { formatPeriodEndDate } from '../../lib/formats';
+import { Localized } from '@fluent/react';
+import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 import { useBooleanState, useCheckboxState } from '../../lib/hooks';
 import {
   CustomerSubscription,
@@ -203,13 +203,15 @@ const CancelSubscriptionPanel = ({
             <Localized id="sub-item-cancel-sub">
               <h3>Cancel Subscription</h3>
             </Localized>
-            <Localized id="sub-item-cancel-msg"
-                       $name={plan.product_name}
-                       $period={formatPeriodEndDate(current_period_end)}>
+            <Localized
+              id="sub-item-cancel-msg"
+              $name={plan.product_name}
+              $period={getLocalizedDate(current_period_end)}
+            >
               <p>
                 You will no longer be able to use {plan.product_name} after{' '}
-                {formatPeriodEndDate(current_period_end)}, the last day of your
-                billing cycle.
+                {getLocalizedDateString(current_period_end)}, the last day of
+                your billing cycle.
               </p>
             </Localized>
             <p>
@@ -220,13 +222,15 @@ const CancelSubscriptionPanel = ({
                   defaultChecked={confirmationChecked}
                   onChange={engagedOnConfirmationChanged}
                 />
-                <Localized id="sub-item-cancel-confirm"
-                           $name={plan.product_name}
-                           $period={formatPeriodEndDate(current_period_end)}>
+                <Localized
+                  id="sub-item-cancel-confirm"
+                  $name={plan.product_name}
+                  $period={getLocalizedDate(current_period_end)}
+                >
                   <span>
                     Cancel my access and my saved information within{' '}
                     {plan.product_name} on{' '}
-                    {formatPeriodEndDate(current_period_end)}
+                    {getLocalizedDateString(current_period_end, false)}
                   </span>
                 </Localized>
               </label>

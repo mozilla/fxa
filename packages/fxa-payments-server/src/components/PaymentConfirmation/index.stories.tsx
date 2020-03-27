@@ -21,7 +21,7 @@ const selectedPlan: Plan = {
   product_name: 'Firefox Private Network Pro',
   currency: 'usd',
   amount: 935,
-  interval: 'mos',
+  interval: 'month',
   interval_count: 1,
 };
 
@@ -34,11 +34,11 @@ const customer: Customer = {
   brand: 'Visa',
   subscriptions: [
     {
-      // @ts-ignore
-      invoice_number: '628031D-0002',
+      latest_invoice: '628031D-0002',
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
-      nickname: '123done Pro Monthly',
+      product_id: 'prod_123',
+      product_name: '123 Done Pro',
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,

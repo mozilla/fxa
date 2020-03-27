@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 
 import { Plan, Customer, CustomerSubscription } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
@@ -8,8 +8,10 @@ import { metadataFromPlan } from '../../../store/utils';
 import * as Amplitude from '../../../lib/amplitude';
 
 import {
-  formatCurrencyInCents,
-  formatPeriodEndDate,
+  getLocalizedDate,
+  getLocalizedDateString,
+  getLocalizedCurrencyString,
+  getLocalizedCurrency,
 } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
 
@@ -25,11 +27,13 @@ import { ProductProps } from '../index';
 
 function getDefaultConfirmText(
   amount: number,
+  currency: string,
   interval: string,
   intervalCount: number
 ) {
-  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
-    amount
+  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${getLocalizedCurrencyString(
+    amount,
+    currency
   )}`;
   const post =
     '</strong>, according to payment terms, until I cancel my subscription.';
@@ -180,14 +184,14 @@ export const SubscriptionUpgrade = ({
 
         <Localized
           id="sub-update-copy"
-          $startingDate={formatPeriodEndDate(
+          $startingDate={getLocalizedDate(
             upgradeFromSubscription.current_period_end
           )}
         >
           <p>
             Your plan will change immediately, and you’ll be charged an adjusted
             amount for the rest of your billing cycle. Starting{' '}
-            {formatPeriodEndDate(upgradeFromSubscription.current_period_end)}{' '}
+            {getLocalizedDateString(upgradeFromSubscription.current_period_end)}{' '}
             you’ll be charged the full amount.
           </p>
         </Localized>
@@ -201,12 +205,16 @@ export const SubscriptionUpgrade = ({
           <Localized
             id={`sub-update-confirm-${selectedPlan.interval}`}
             strong={<strong></strong>}
-            $amount={formatCurrencyInCents(selectedPlan.amount)}
+            $amount={getLocalizedCurrency(
+              selectedPlan.amount,
+              selectedPlan.currency
+            )}
             $intervalCount={selectedPlan.interval_count}
           >
             <p>
               {getDefaultConfirmText(
                 selectedPlan.amount,
+                selectedPlan.currency,
                 selectedPlan.interval,
                 selectedPlan.interval_count
               )}
@@ -256,12 +264,18 @@ function getPlanPrice(interval: string, intervalCount: number, amount: string) {
 }
 
 export const PlanDetail = ({ plan }: { plan: Plan }) => {
-  const { product_name: productName, amount, interval, interval_count } = plan;
+  const {
+    product_name: productName,
+    amount,
+    currency,
+    interval,
+    interval_count,
+  } = plan;
   const { webIconURL } = metadataFromPlan(plan);
   const planPrice = getPlanPrice(
     interval,
     interval_count,
-    formatCurrencyInCents(amount)
+    getLocalizedCurrencyString(amount, currency)
   );
 
   return (
@@ -272,7 +286,7 @@ export const PlanDetail = ({ plan }: { plan: Plan }) => {
       <span className="product-name">{productName}</span>
       <Localized
         id={`plan-price-${interval}`}
-        $amount={formatCurrencyInCents(amount)}
+        $amount={getLocalizedCurrency(amount, currency)}
         $intervalCount={interval_count}
       >
         <span className="plan-price">{planPrice}</span>

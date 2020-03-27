@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Localized } from 'fluent-react';
-import { formatCurrencyInCents } from '../../lib/formats';
+import { Localized } from '@fluent/react';
+import {
+  getLocalizedCurrency,
+  getLocalizedCurrencyString,
+} from '../../lib/formats';
 import { metadataFromPlan } from '../../store/utils';
 
 // this is a fallback incase webIconURL is undefined,
@@ -18,6 +21,23 @@ type PlanDetailsProps = {
   className?: string;
 };
 
+function getPlanPrice(interval: string, intervalCount: number, amount: string) {
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${amount} daily`;
+      return `${amount} every ${intervalCount} days`;
+    case 'week':
+      if (intervalCount === 1) return `${amount} weekly`;
+      return `${amount} every ${intervalCount} weeks`;
+    case 'month':
+      if (intervalCount === 1) return `${amount} monthly`;
+      return `${amount} every ${intervalCount} months`;
+    case 'year':
+      if (intervalCount === 1) return `${amount} yearly`;
+      return `${amount} every ${intervalCount} years`;
+  }
+}
+
 export const PlanDetails = ({
   selectedPlan,
   isMobile,
@@ -25,10 +45,22 @@ export const PlanDetails = ({
   className = 'default',
 }: PlanDetailsProps) => {
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
-  const { product_name, amount, interval } = selectedPlan;
+  const {
+    product_name,
+    amount,
+    currency,
+    interval,
+    interval_count,
+  } = selectedPlan;
   const { webIconURL } = metadataFromPlan(selectedPlan);
 
   const role = isMobile ? undefined : 'complementary';
+
+  const planPrice = getPlanPrice(
+    interval,
+    interval_count,
+    getLocalizedCurrencyString(amount, currency)
+  );
 
   return (
     <section
@@ -56,9 +88,13 @@ export const PlanDetails = ({
                 <p className="plan-details-description">Full-device VPN</p>
               </div>
             </div>
-            <p>
-              {formatCurrencyInCents(amount)}/{interval}
-            </p>
+            <Localized
+              id={`plan-price-${interval}`}
+              $amount={getLocalizedCurrency(amount, currency)}
+              $intervalCount={interval_count}
+            >
+              <p>{planPrice}</p>
+            </Localized>
           </div>
           {!detailsHidden ? (
             <div className="plan-details-list" data-testid="list">
@@ -126,9 +162,13 @@ export const PlanDetails = ({
               <Localized id="plan-details-total-label">
                 <p className="label">Total</p>
               </Localized>
-              <p className="total-price">
-                {formatCurrencyInCents(amount)}/{interval}
-              </p>
+              <Localized
+                id={`plan-price-${interval}`}
+                $amount={getLocalizedCurrency(amount, currency)}
+                $intervalCount={interval_count}
+              >
+                <p className="total-price">{planPrice}</p>
+              </Localized>
             </div>
           </div>
         ) : null}

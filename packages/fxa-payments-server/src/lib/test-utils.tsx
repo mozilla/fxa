@@ -11,7 +11,7 @@ import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
 import fs from 'fs';
 import path from 'path';
-import { FluentBundle } from 'fluent';
+import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
@@ -508,8 +508,9 @@ export function setupFluentLocalizationTest(locale: string): FluentBundle {
     'main.ftl'
   );
   const messages = fs.readFileSync(filepath).toString();
+  const resource = new FluentResource(messages);
   const bundle = new FluentBundle(locale, { useIsolating: false });
-  bundle.addMessages(messages);
+  bundle.addResource(resource);
 
   return bundle;
 }
@@ -519,12 +520,12 @@ export function getLocalizedMessage(
   msgId: string,
   args: any
 ): string {
-  const msg = bundle.getMessage(msgId);
-  if (msg === undefined) {
+  let localizedMessage = bundle.getMessage(msgId);
+  if (localizedMessage == null || localizedMessage.value === null) {
     throw Error(`unable to locate fluent message with id: '${msgId}'`);
   }
 
-  return bundle.format(msg, { ...args });
+  return bundle.formatPattern(localizedMessage.value, { ...args });
 }
 
 export default MockApp;
