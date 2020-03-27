@@ -17,9 +17,9 @@ npm test
 
 ## Prerequisites
 
-- node.js 6
+- node.js 12
 - npm
-- MySQL (we use version 5.6.34 in production)
+- MySQL (we use version 5.6.42 in production)
 
 ## API Server
 

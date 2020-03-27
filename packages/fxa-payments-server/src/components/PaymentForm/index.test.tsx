@@ -1,8 +1,11 @@
 import React from 'react';
+import TestRenderer from 'react-test-renderer';
 import { render, cleanup, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
+
 import { Omit } from '../../lib/types';
+import { Plan } from '../../store/types';
 
 jest.mock('../../lib/sentry');
 
@@ -10,6 +13,9 @@ import {
   mockStripeElementOnChangeFns,
   mockStripeElementOnBlurFns,
   elementChangeResponse,
+  MOCK_PLANS,
+  setupFluentLocalizationTest,
+  getLocalizedMessage,
 } from '../../lib/test-utils';
 
 import {
@@ -21,6 +27,14 @@ import {
   DEFAULT_LINE_HEIGHT,
 } from './index';
 
+const findMockPlan = (planId: string): Plan => {
+  const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+  if (plan) {
+    return plan;
+  }
+  throw new Error('unable to find suitable Plan object for test execution.');
+};
+
 const MOCK_PLAN = {
   plan_id: 'plan_123',
   plan_name: 'Example Plan',
@@ -29,6 +43,7 @@ const MOCK_PLAN = {
   currency: 'USD',
   amount: 1050,
   interval: 'month',
+  interval_count: 1,
 };
 
 const VALID_CREATE_TOKEN_RESPONSE: stripe.TokenResponse = {
@@ -199,6 +214,218 @@ it('includes the confirmation checkbox when confirm = true and plan supplied', (
     <Subject {...{ confirm: true, plan: MOCK_PLAN }} />
   );
   expect(queryByTestId('confirm')).toBeInTheDocument();
+});
+
+describe('Legal', () => {
+  describe('rendering the legal checkbox Localized component', () => {
+    function runTests(
+      plan: Plan,
+      expectedMsgId: string,
+      expectedAmount: string,
+      expectedMsg: string
+    ) {
+      const testRenderer = TestRenderer.create(
+        <Subject {...{ confirm: true, plan: plan }} />
+      );
+      const testInstance = testRenderer.root;
+      const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
+
+      expect(legalCheckbox.props.$amount).toBe(expectedAmount);
+      expect(legalCheckbox.props.$intervalCount).toBe(plan.interval_count);
+      expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
+    }
+
+    it('renders Localized for daily plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_daily';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-day';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for 6 days plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6days';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-day';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 days</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for weekly plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_weekly';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-week';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 weekly</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for 6 weeks plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6weeks';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-week';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 weeks</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for monthly plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_monthly';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-month';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 monthly</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for 6 months plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6months';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-month';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 months</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for yearly plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_yearly';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-year';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 yearly</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+
+    it('renders Localized for years plan with correct props and displays correct default string', async () => {
+      const plan_id = 'plan_6years';
+      const plan = findMockPlan(plan_id);
+      const expectedMsgId = 'payment-confirm-year';
+      const expectedMsg =
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 years</strong>, according to payment terms, until I cancel my subscription.';
+
+      runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+    });
+  });
+
+  describe('Fluent Localized Text', () => {
+    const bundle = setupFluentLocalizationTest('en-US');
+    const args = {
+      amount: '$5.00',
+    };
+
+    describe('when the localized id is payment-confirm-day', () => {
+      const msgId = 'payment-confirm-day';
+
+      it('returns the correct string for an interval count of 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns the correct string for an interval count greater than 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 days</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    describe('when the localized id is payment-confirm-week', () => {
+      const msgId = 'payment-confirm-week';
+
+      it('returns the correct string for an interval count of 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 weekly</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns the correct string for an interval count greater than 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 weeks</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    describe('when the localized id is payment-confirm-month', () => {
+      const msgId = 'payment-confirm-month';
+
+      it('returns the correct string for an interval count of 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 monthly</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns the correct string for an interval count greater than 1', async () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 months</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
+      });
+    });
+
+    describe('when the localized id is payment-confirm-year', () => {
+      const msgId = 'payment-confirm-year';
+
+      it('returns the correct string for an interval count of 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 yearly</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 1,
+        });
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns the correct string for an interval count greater than 1', () => {
+        const expected =
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 years</strong>, according to payment terms, until I cancel my subscription.';
+
+        const actual = getLocalizedMessage(bundle, msgId, {
+          ...args,
+          intervalCount: 6,
+        });
+        expect(actual).toEqual(expected);
+      });
+    });
+  });
 });
 
 it('renders a progress spinner when submitted, disables further submission (issue #4386 / FXA-1275)', async () => {

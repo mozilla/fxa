@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('@hapi/hapi');
-const Joi = require('joi');
+const Joi = require('@hapi/joi');
 const P = require('../promise');
 
 const AppError = require('../error');
@@ -20,6 +20,7 @@ exports.create = async function() {
     host: config.worker.host,
     port: config.worker.port,
   });
+  server.validator(require('@hapi/joi'));
 
   server.route({
     method: 'GET',

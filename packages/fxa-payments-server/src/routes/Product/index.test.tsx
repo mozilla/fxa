@@ -168,6 +168,7 @@ describe('routes/Product', () => {
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
+
     await findAllByText('Set up your subscription');
     expect(queryAllByText('30-day money-back guarantee')[0]).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();

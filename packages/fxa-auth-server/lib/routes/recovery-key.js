@@ -124,6 +124,29 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         if (!recoveryKeyData.enabled) {
           await db.updateRecoveryKey(uid, recoveryKeyId, true);
+
+          await request.emitMetricsEvent('recoveryKey.created', { uid });
+
+          const account = await db.account(uid);
+          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+          const emailOptions = {
+            acceptLanguage,
+            ip,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          };
+
+          await mailer.sendPostAddAccountRecoveryEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
         }
 
         return {};

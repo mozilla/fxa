@@ -9,6 +9,9 @@ import {
 import ScreenInfo from '../../src/lib/screen-info';
 import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
+import fs from 'fs';
+import path from 'path';
+import { FluentBundle } from 'fluent';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
@@ -291,6 +294,7 @@ export const MOCK_PLANS: Plan[] = [
     product_id: PRODUCT_ID,
     product_name: PRODUCT_NAME,
     interval: 'month',
+    interval_count: 1,
     amount: 500,
     currency: 'usd',
     product_metadata: {
@@ -304,6 +308,7 @@ export const MOCK_PLANS: Plan[] = [
     product_id: '123donepro',
     product_name: '123doneProProduct',
     interval: 'month',
+    interval_count: 1,
     amount: 2500,
     currency: 'usd',
     product_metadata: {
@@ -317,10 +322,115 @@ export const MOCK_PLANS: Plan[] = [
     product_id: 'prod_upgrade',
     product_name: 'Upgrade Product',
     interval: 'month',
+    interval_count: 1,
     amount: 5900,
     currency: 'usd',
     product_metadata: {
       productSet: 'example_upgrade',
+    },
+  },
+  {
+    plan_id: 'plan_daily',
+    plan_name: 'FPN Daily',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'day',
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_6days',
+    plan_name: 'FPN 6 days',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'day',
+    interval_count: 6,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_weekly',
+    plan_name: 'FPN Weekly',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'week',
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_6weeks',
+    plan_name: 'FPN 6 Weeks',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'week',
+    interval_count: 6,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_monthly',
+    plan_name: 'FPN monthly',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'month',
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_6months',
+    plan_name: 'FPN 6 months',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'month',
+    interval_count: 6,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_yearly',
+    plan_name: 'FPN Yearly',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'year',
+    interval_count: 1,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
+    },
+  },
+  {
+    plan_id: 'plan_6years',
+    plan_name: 'FPN 6 years',
+    product_id: 'prod_fpn',
+    product_name: 'FPN',
+    interval: 'year',
+    interval_count: 6,
+    amount: 500,
+    currency: 'usd',
+    product_metadata: {
+      productSet: 'fpn',
     },
   },
 ];
@@ -399,5 +509,35 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     },
   ],
 };
+
+export function setupFluentLocalizationTest(locale: string): FluentBundle {
+  const filepath = path.join(
+    __dirname,
+    '..',
+    '..',
+    'public',
+    'locales',
+    locale,
+    'main.ftl'
+  );
+  const messages = fs.readFileSync(filepath).toString();
+  const bundle = new FluentBundle(locale, { useIsolating: false });
+  bundle.addMessages(messages);
+
+  return bundle;
+}
+
+export function getLocalizedMessage(
+  bundle: FluentBundle,
+  msgId: string,
+  args: any
+): string {
+  const msg = bundle.getMessage(msgId);
+  if (msg === undefined) {
+    throw Error(`unable to locate fluent message with id: '${msgId}'`);
+  }
+
+  return bundle.format(msg, { ...args });
+}
 
 export default MockApp;

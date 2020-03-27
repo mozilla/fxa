@@ -61,6 +61,32 @@ export type PaymentFormProps = {
   submitNonce: string;
 };
 
+function getDefaultPaymentConfirmText(
+  amount: number,
+  interval: string,
+  intervalCount: number
+) {
+  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
+    amount
+  )}`;
+  const post =
+    '</strong>, according to payment terms, until I cancel my subscription.';
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${pre} daily${post}`;
+      return `${pre} every ${intervalCount} days${post}`;
+    case 'week':
+      if (intervalCount === 1) return `${pre} weekly${post}`;
+      return `${pre} every ${intervalCount} weeks${post}`;
+    case 'month':
+      if (intervalCount === 1) return `${pre} monthly${post}`;
+      return `${pre} every ${intervalCount} months${post}`;
+    case 'year':
+      if (intervalCount === 1) return `${pre} yearly${post}`;
+      return `${pre} every ${intervalCount} years${post}`;
+  }
+}
+
 export const PaymentForm = ({
   inProgress = false,
   confirm = true,
@@ -211,18 +237,17 @@ export const PaymentForm = ({
 
       {confirm && plan && (
         <Localized
-          id="payment-confirm"
-          $interval={plan.interval}
+          id={`payment-confirm-${plan.interval}`}
+          $intervalCount={plan.interval_count}
           $amount={formatCurrencyInCents(plan.amount)}
           strong={<strong></strong>}
         >
           <Checkbox data-testid="confirm" name="confirm" required>
-            I authorize Mozilla, maker of Firefox products, to charge my payment
-            method{' '}
-            <strong>
-              ${`${formatCurrencyInCents(plan.amount)} per ${plan.interval}`}
-            </strong>
-            , according to payment terms, until I cancel my subscription.
+            {getDefaultPaymentConfirmText(
+              plan.amount,
+              plan.interval,
+              plan.interval_count
+            )}
           </Checkbox>
         </Localized>
       )}

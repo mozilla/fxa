@@ -220,6 +220,7 @@ const PLANS: Plan[] = [
     currency: 'USD',
     amount: 1050,
     interval: 'month',
+    interval_count: 1,
     product_metadata: {
       webIconURL: 'http://placekitten.com/512/512',
     },

@@ -23,6 +23,32 @@ import './index.scss';
 
 import { ProductProps } from '../index';
 
+function getDefaultConfirmText(
+  amount: number,
+  interval: string,
+  intervalCount: number
+) {
+  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
+    amount
+  )}`;
+  const post =
+    '</strong>, according to payment terms, until I cancel my subscription.';
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${pre} daily${post}`;
+      return `${pre} every ${intervalCount} days${post}`;
+    case 'week':
+      if (intervalCount === 1) return `${pre} weekly${post}`;
+      return `${pre} every ${intervalCount} weeks${post}`;
+    case 'month':
+      if (intervalCount === 1) return `${pre} monthly${post}`;
+      return `${pre} every ${intervalCount} months${post}`;
+    case 'year':
+      if (intervalCount === 1) return `${pre} yearly${post}`;
+      return `${pre} every ${intervalCount} years${post}`;
+  }
+}
+
 export type SubscriptionUpgradeProps = {
   customer: Customer;
   selectedPlan: Plan;
@@ -173,21 +199,17 @@ export const SubscriptionUpgrade = ({
           required
         >
           <Localized
-            id="sub-update-confirm"
+            id={`sub-update-confirm-${selectedPlan.interval}`}
             strong={<strong></strong>}
             $amount={formatCurrencyInCents(selectedPlan.amount)}
-            $interval={selectedPlan.interval}
+            $intervalCount={selectedPlan.interval_count}
           >
             <p>
-              I authorize Mozilla, maker of Firefox products, to charge my
-              payment method{' '}
-              <strong>
-                $
-                {`${formatCurrencyInCents(selectedPlan.amount)}/${
-                  selectedPlan.interval
-                }`}
-              </strong>
-              , according to payment terms, until I cancel my subscription.
+              {getDefaultConfirmText(
+                selectedPlan.amount,
+                selectedPlan.interval,
+                selectedPlan.interval_count
+              )}
             </p>
           </Localized>
         </Checkbox>
@@ -216,18 +238,45 @@ export const SubscriptionUpgrade = ({
   );
 };
 
-const PlanDetail = ({ plan }: { plan: Plan }) => {
-  const { product_name: productName, amount, interval } = plan;
+function getPlanPrice(interval: string, intervalCount: number, amount: string) {
+  switch (interval) {
+    case 'day':
+      if (intervalCount === 1) return `${amount} daily`;
+      return `${amount} every ${intervalCount} days`;
+    case 'week':
+      if (intervalCount === 1) return `${amount} weekly`;
+      return `${amount} every ${intervalCount} weeks`;
+    case 'month':
+      if (intervalCount === 1) return `${amount} monthly`;
+      return `${amount} every ${intervalCount} months`;
+    case 'year':
+      if (intervalCount === 1) return `${amount} yearly`;
+      return `${amount} every ${intervalCount} years`;
+  }
+}
+
+export const PlanDetail = ({ plan }: { plan: Plan }) => {
+  const { product_name: productName, amount, interval, interval_count } = plan;
   const { webIconURL } = metadataFromPlan(plan);
+  const planPrice = getPlanPrice(
+    interval,
+    interval_count,
+    formatCurrencyInCents(amount)
+  );
+
   return (
     <div className="upgrade-plan-detail">
       {webIconURL && (
         <img src={webIconURL} alt={productName} height="49" width="49" />
       )}
       <span className="product-name">{productName}</span>
-      <span className="plan-price">
-        ${formatCurrencyInCents(amount)}/{interval}
-      </span>
+      <Localized
+        id={`plan-price-${interval}`}
+        $amount={formatCurrencyInCents(amount)}
+        $intervalCount={interval_count}
+      >
+        <span className="plan-price">{planPrice}</span>
+      </Localized>
     </div>
   );
 };

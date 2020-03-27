@@ -398,6 +398,7 @@ section.modal-panel {
   }
 
   .subscription-link {
+    @include message-box($warning-background-color, $warning-text-color);
     margin: 0 0 24px;
   }
 
