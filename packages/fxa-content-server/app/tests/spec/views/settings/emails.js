@@ -133,7 +133,8 @@ describe('views/settings/emails', function() {
         return Promise.resolve({ sessionVerified: true });
       });
 
-      sinon.stub(account, 'recoveryEmailDestroy').callsFake(() => {
+      sinon.stub(account, 'recoveryEmailDestroy').callsFake(destroyedEmail => {
+        emails = emails.filter(email => email.email !== destroyedEmail);
         return Promise.resolve();
       });
 
@@ -205,28 +206,25 @@ describe('views/settings/emails', function() {
         assert.equal(view.$('.email-address .details.not-verified').length, 1);
         assert.equal(
           view.$(
-            '.email-address .settings-button.warning-button.email-disconnect'
+            '.email-address .email-address-row .settings-button.warning-button.email-disconnect'
           ).length,
           1
         );
         assert.equal(
-          view
-            .$(
-              '.email-address .settings-button.warning-button.email-disconnect'
-            )
-            .attr('data-id'),
+          view.$('.email-address').attr('data-id'),
           'another@one.com'
         );
         assert.equal(
-          view.$('.email-address .settings-button.secondary-button.set-primary')
-            .length,
+          view.$(
+            '.email-address .email-address-row .settings-button.secondary-button.set-primary'
+          ).length,
           0
         );
       });
 
       it('can disconnect email and navigate to /emails', done => {
         $(
-          '.email-address .settings-button.warning-button.email-disconnect'
+          '.email-address .email-address-row .settings-button.warning-button.email-disconnect'
         ).click();
         setTimeout(function() {
           TestHelpers.wrapAssertion(() => {
@@ -307,33 +305,14 @@ describe('views/settings/emails', function() {
         assert.equal(view.$('.email-address .details.verified').length, 1);
         assert.equal(
           view.$(
-            '.email-address .settings-button.warning-button.email-disconnect'
+            '.email-address .email-address-row .settings-button.warning-button.email-disconnect'
           ).length,
           1
         );
         assert.equal(
-          view
-            .$(
-              '.email-address .settings-button.warning-button.email-disconnect'
-            )
-            .attr('data-id'),
+          view.$('.email-address').attr('data-id'),
           'another@one.com'
         );
-      });
-
-      it('can disconnect email and navigate to /emails', done => {
-        $(
-          '.email-address .settings-button.warning-button.email-disconnect'
-        ).click();
-        setTimeout(() => {
-          TestHelpers.wrapAssertion(() => {
-            assert.isTrue(view.navigate.calledOnce);
-            const args = view.navigate.args[0];
-            assert.equal(args.length, 1);
-            assert.equal(args[0], '/settings');
-            assert.equal(view.displaySuccess.callCount, 1);
-          }, done);
-        }, 150);
       });
 
       it('panel closed when verified secondary email', () => {
@@ -348,6 +327,84 @@ describe('views/settings/emails', function() {
       });
     });
 
+    describe('with multiple secondary emails', () => {
+      beforeEach(() => {
+        emails = [
+          {
+            email: 'primary@email.com',
+            isPrimary: true,
+            verified: true,
+          },
+          {
+            email: 'another@one.com',
+            isPrimary: false,
+            verified: false,
+          },
+          {
+            email: 'athird@one.com',
+            isPrimary: false,
+            verified: true,
+          },
+          {
+            email: 'afourth@one.com',
+            isPrimary: false,
+            verified: false,
+          },
+        ];
+
+        return initView().then(function() {
+          // click events require the view to be in the DOM
+          $('#container').html(view.el);
+          sinon.spy(view, 'navigate');
+          sinon.spy(view, 'displaySuccess');
+        });
+      });
+
+      it('can render', () => {
+        const emailGroups = view.$('.email-address');
+        assert.equal(emailGroups.length, emails.length - 1);
+        emailGroups.each((index, el) => {
+          const emailGroup = $(el);
+          const emailItem = emails[index + 1];
+          assert.lengthOf(emailGroup.find('.address'), 1);
+          assert.equal(emailGroup.find('.address').html(), emailItem.email);
+          assert.equal(
+            emailGroup.find(
+              '.email-address-row .settings-button.warning-button.email-disconnect'
+            ).length,
+            1
+          );
+          assert.equal(emailGroup.attr('data-id'), emailItem.email);
+          if (emailItem.verified) {
+            assert.equal(emailGroup.find('.details.verified').length, 1);
+            assert.equal(
+              emailGroup.find(
+                '.email-address-row .settings-button.secondary-button.set-primary'
+              ).length,
+              1
+            );
+          } else {
+            assert.equal(emailGroup.find('.details.not-verified').length, 1);
+          }
+        });
+      });
+
+      it('can disconnect email and navigate to /emails', done => {
+        $(
+          '.email-address .email-address-row .settings-button.warning-button.email-disconnect'
+        )
+          .eq(0)
+          .click();
+        setTimeout(function() {
+          TestHelpers.wrapAssertion(() => {
+            // panel should not close after destroy when
+            // you have multiple secondary emails
+            assert.isTrue(view.navigate.notCalled);
+          }, done);
+        }, 150);
+      });
+    });
+
     describe('can change email', () => {
       const newEmail = 'secondary@email.com';
       beforeEach(() => {
@@ -355,6 +412,16 @@ describe('views/settings/emails', function() {
           {
             email: 'primary@email.com',
             isPrimary: true,
+            verified: true,
+          },
+          {
+            email: 'anunverified@email.com',
+            isPrimary: false,
+            verified: false,
+          },
+          {
+            email: 'anotherverified@email.com',
+            isPrimary: false,
             verified: true,
           },
           {
@@ -373,44 +440,42 @@ describe('views/settings/emails', function() {
       });
 
       it('can render', () => {
-        assert.equal(view.$('.email-address').length, 1);
-        assert.lengthOf(view.$('.email-address .address'), 1);
-        assert.equal(
-          view.$('.email-address .address').html(),
-          'secondary@email.com'
-        );
-        assert.equal(view.$('.email-address .details.verified').length, 1);
-        assert.equal(
-          view.$(
-            '.email-address .settings-button.warning-button.email-disconnect'
-          ).length,
-          1
-        );
-        assert.equal(
-          view
-            .$(
-              '.email-address .settings-button.warning-button.email-disconnect'
-            )
-            .attr('data-id'),
-          'secondary@email.com'
-        );
-        assert.equal(
-          view.$('.email-address .settings-button.secondary-button.set-primary')
-            .length,
-          1
-        );
-        assert.equal(
-          view
-            .$('.email-address .settings-button.secondary-button.set-primary')
-            .attr('data-id'),
-          'secondary@email.com'
-        );
+        const emailGroups = view.$('.email-address');
+        assert.equal(emailGroups.length, emails.length - 1);
+        emailGroups.each((index, el) => {
+          const emailGroup = $(el);
+          const emailItem = emails[index + 1];
+          assert.lengthOf(emailGroup.find('.address'), 1);
+          assert.equal(emailGroup.find('.address').html(), emailItem.email);
+          assert.equal(
+            emailGroup.find(
+              '.email-address-row .settings-button.warning-button.email-disconnect'
+            ).length,
+            1
+          );
+          assert.equal(emailGroup.attr('data-id'), emailItem.email);
+          if (emailItem.verified) {
+            assert.equal(emailGroup.find('.details.verified').length, 1);
+            assert.equal(
+              emailGroup.find(
+                '.email-address-row .settings-button.secondary-button.set-primary'
+              ).length,
+              1
+            );
+          } else {
+            assert.equal(emailGroup.find('.details.not-verified').length, 1);
+          }
+        });
       });
 
       it('can set primary email', done => {
-        $(
-          '.email-address .settings-button.secondary-button.set-primary'
-        ).click();
+        // Find the third email
+        $('.email-address')
+          .eq(2)
+          .find(
+            '.email-address-row .settings-button.secondary-button.set-primary'
+          )
+          .click();
         setTimeout(() => {
           TestHelpers.wrapAssertion(() => {
             assert.equal(

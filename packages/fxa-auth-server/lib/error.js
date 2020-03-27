@@ -48,6 +48,7 @@ const ERRNO = {
   SESSION_UNVERIFIED: 138,
   USER_PRIMARY_EMAIL_EXISTS: 139,
   VERIFIED_PRIMARY_EMAIL_EXISTS: 140,
+  MAX_SECONDARY_EMAILS_REACHED: 188,
   // If there exists an account that was created under 24hrs and
   // has not verified their email address, this error is thrown
   // if another user attempts to add that email to their account
@@ -782,6 +783,15 @@ AppError.unverifiedPrimaryEmailNewlyCreated = () => {
     error: 'Bad Request',
     errno: ERRNO.UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED,
     message: 'Email already exists',
+  });
+};
+
+AppError.maxSecondaryEmailsReached = () => {
+  return new AppError({
+    code: 400,
+    error: 'Bad Request',
+    errno: ERRNO.MAX_SECONDARY_EMAILS_REACHED,
+    message: 'You have reached the maximum allowed secondary emails',
   });
 };
 

@@ -157,4 +157,8 @@ module.exports = {
   SIGNUP_CODE_LENGTH: 6,
 
   FIREFOX_IOS_OAUTH_ENTRYPOINT: 'ios_settings_manage',
+
+  // This is compared against all secondary email
+  // records, both verified and unverified
+  MAX_SECONDARY_EMAILS: 3,
 };

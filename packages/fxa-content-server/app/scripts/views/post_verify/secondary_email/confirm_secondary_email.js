@@ -13,6 +13,7 @@ import ResendMixin from '../../mixins/resend-mixin';
 import ServiceMixin from '../../mixins/service-mixin';
 import Template from 'templates/post_verify/secondary_email/confirm_secondary_email.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
+import { MAX_SECONDARY_EMAILS } from '../../../lib/constants';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
 
@@ -29,6 +30,15 @@ class ConfirmSecondaryEmail extends FormView {
     if (account.isDefault()) {
       return this.replaceCurrentPage('/');
     }
+
+    // You shouldn't be landing on this page if you already have
+    // a secondary email anyway, per the check in the previous page,
+    // but just to be safe we'll make sure you're not maxed out.
+    return account.recoveryEmails().then(emails => {
+      if (emails && emails.length >= MAX_SECONDARY_EMAILS) {
+        return this.navigate('/settings');
+      }
+    });
   }
 
   setInitialContext(context) {

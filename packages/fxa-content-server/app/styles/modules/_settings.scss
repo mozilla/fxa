@@ -215,6 +215,23 @@ body.settings #stage .settings {
     }
   }
 
+  .button-flex-row & {
+    margin-left: 8px;
+    margin-right: 8px;
+
+    @include respond-to('big') {
+      height: 48px;
+    }
+
+    @include respond-to('small') {
+      height: 40px;
+    }
+
+    &.email-refresh .spinner {
+      margin: 0 auto;
+    }
+  }
+
   &.settings-unit-toggle,
   &.settings-unit-loading {
     flex: 1 1 128px;
@@ -223,6 +240,11 @@ body.settings #stage .settings {
   &.unpaired {
     width: 100%;
   }
+}
+
+.button-flex-row {
+  margin-left: -8px;
+  margin-right: -8px;
 }
 
 // area above white box with avatar content
@@ -686,13 +708,38 @@ section.modal-panel {
 
 .email-list {
   padding: 0;
+  margin-bottom: 30px;
 
   .email-address {
-    display: flex;
-    height: 40px;
     list-style: none;
-    margin: 10px 0;
+    margin: 20px 0;
     position: relative;
+
+    .email-address-row {
+      display: flex;
+      height: 40px;
+
+      .settings-button-group {
+        display: flex;
+
+        .settings-button {
+          display: inline-block;
+          height: 40px;
+          margin-left: 10px;
+          /*minimum width required for the button to look good without occupying too much space*/
+          /*is also the default computed width on desktop screen*/
+          min-width: 120px;
+          overflow: hidden;
+          text-align: center;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        @media screen and (max-width: 400px) {
+          display: none;
+        }
+      }
+    }
 
     .email-address-details {
       flex: 1;
@@ -712,33 +759,12 @@ section.modal-panel {
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-
-    .settings-button-group {
-      display: flex;
-
-      .settings-button {
-        display: inline-block;
-        height: 40px;
-        margin-left: 10px;
-        /*minimum width required for the button to look good without occupying too much space*/
-        /*is also the default computed width on desktop screen*/
-        min-width: 120px;
-        overflow: hidden;
-        text-align: center;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      @media screen and (max-width: 400px) {
-        display: none;
-      }
-    }
   }
 
   .email-options {
     height: 40px;
     list-style: none;
-    margin: 10px 0;
+    margin: 0 0 10px;
     position: relative;
 
     html[dir='ltr'] & {

@@ -15,11 +15,13 @@ import Strings from '../../lib/strings';
 import showProgressIndicator from '../decorators/progress_indicator';
 import Template from 'templates/settings/emails.mustache';
 import Url from '../../lib/url';
+import { MAX_SECONDARY_EMAILS } from '../../lib/constants';
 
 const t = msg => msg;
 
 const EMAIL_INPUT_SELECTOR = 'input.new-email';
 const EMAIL_REFRESH_SELECTOR = 'button.settings-button.email-refresh';
+const EMAIL_GROUP_SELECTOR = 'li.email-address';
 const EMAIL_REFRESH_DELAYMS = 350;
 
 var View = FormView.extend({
@@ -32,6 +34,8 @@ var View = FormView.extend({
     'click .email-refresh.enabled': preventDefaultThen('refresh'),
     'click .resend': preventDefaultThen('resend'),
     'click .set-primary': preventDefaultThen('setPrimary'),
+    'click .email-add-another': 'addAnotherEmail',
+    'click .return-to-emails': 'returnToEmails',
   },
 
   beforeRender() {
@@ -56,6 +60,9 @@ var View = FormView.extend({
         ? 'secondary-button'
         : 'primary-button',
       emails: this._emails,
+      showingSecondaryEmails: this._showingSecondaryEmails(),
+      canAddAnotherEmail: this._canAddAnotherEmail(),
+      addingAnotherEmail: this._addingAnotherEmail(),
       hasSecondaryEmail: this._hasSecondaryEmail(),
       hasSecondaryVerifiedEmail: this._hasSecondaryVerifiedEmail(),
       isPanelOpen: this.isPanelOpen(),
@@ -70,10 +77,28 @@ var View = FormView.extend({
   },
 
   afterRender() {
-    // Panel should remain open if there are any unverified secondary emails
-    if (this._hasSecondaryEmail() && !this._hasSecondaryVerifiedEmail()) {
-      this.openPanel();
+    if (this._hasSecondaryEmail()) {
+      // Panel should remain open if there are any unverified secondary emails
+      if (!this._hasSecondaryVerifiedEmail()) {
+        this.openPanel();
+      }
+
+      if (this._addingAnotherEmail()) {
+        this.el.querySelector(EMAIL_INPUT_SELECTOR).focus();
+      }
     }
+  },
+
+  _showingSecondaryEmails() {
+    return this._hasSecondaryEmail() && !this._addingAnotherEmail();
+  },
+
+  _addingAnotherEmail() {
+    return this._canAddAnotherEmail() && this.model.get('addAnotherEmail');
+  },
+
+  _canAddAnotherEmail() {
+    return this._emails.length <= MAX_SECONDARY_EMAILS;
   },
 
   _hasSecondaryEmail() {
@@ -85,14 +110,19 @@ var View = FormView.extend({
   },
 
   _onDisconnectEmail(event) {
-    const email = $(event.currentTarget).data('id');
+    const email = $(event.currentTarget)
+      .closest(EMAIL_GROUP_SELECTOR)
+      .data('id');
     const account = this.getSignedInAccount();
     return account.recoveryEmailDestroy(email).then(() => {
       return this.render().then(() => {
         this.displaySuccess(t('Secondary email removed'), {
-          closePanel: true,
+          closePanel: !this._hasSecondaryEmail(),
         });
-        this.navigate('/settings');
+
+        if (!this._hasSecondaryEmail()) {
+          this.navigate('/settings');
+        }
       });
     });
   },
@@ -116,7 +146,9 @@ var View = FormView.extend({
   ),
 
   resend(event) {
-    const email = $(event.currentTarget).data('id');
+    const email = $(event.currentTarget)
+      .closest(EMAIL_GROUP_SELECTOR)
+      .data('id');
     const account = this.getSignedInAccount();
     return account.resendEmailCode({ email }).then(() => {
       this.displaySuccess(t('Verification email sent'), {
@@ -127,12 +159,13 @@ var View = FormView.extend({
   },
 
   submit() {
-    const newEmail = this.getElementValue('input.new-email');
+    const newEmail = this.getElementValue(EMAIL_INPUT_SELECTOR);
     if (this.isPanelOpen() && newEmail) {
       const account = this.getSignedInAccount();
       return account
         .recoveryEmailCreate(newEmail)
         .then(() => {
+          this.model.set('addAnotherEmail', false);
           this.displaySuccess(t('Verification email sent'), {
             closePanel: false,
           });
@@ -145,7 +178,9 @@ var View = FormView.extend({
   },
 
   setPrimary(event) {
-    const email = $(event.currentTarget).data('id');
+    const email = $(event.currentTarget)
+      .closest(EMAIL_GROUP_SELECTOR)
+      .data('id');
     const account = this.getSignedInAccount();
     return account.setPrimaryEmail(email).then(() => {
       this.updateDisplayEmail(email);
@@ -159,6 +194,16 @@ var View = FormView.extend({
       );
       this.render();
     });
+  },
+
+  addAnotherEmail() {
+    this.model.set('addAnotherEmail', true);
+    this.render();
+  },
+
+  returnToEmails() {
+    this.model.set('addAnotherEmail', false);
+    this.render();
   },
 });
 

@@ -1325,6 +1325,30 @@ describe('/recovery_email', () => {
       );
     });
 
+    it('should fail when adding secondary email when the account is at its max', () => {
+      route = getRoute(accountRoutes, '/recovery_email');
+      mockDB.account = sinon.spy(() => {
+        return P.resolve({
+          emails: Array(3).fill({
+            isPrimary: false,
+          }),
+        });
+      });
+
+      return runTest(route, mockRequest).then(
+        () =>
+          assert.fail(
+            'Should have failed when adding secondary email when the account is at its max'
+          ),
+        err =>
+          assert.equal(
+            err.errno,
+            188,
+            'reached the maximum allowed secondary emails'
+          )
+      );
+    });
+
     it('creates secondary email if another user unverified primary more than day old, deletes unverified account', () => {
       mockDB.getSecondaryEmail = sinon.spy(() => {
         return P.resolve({

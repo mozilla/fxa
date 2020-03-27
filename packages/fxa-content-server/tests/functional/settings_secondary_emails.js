@@ -43,6 +43,20 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
+/**
+ * Generate selector for secondary email group
+ *
+ * @param   {string} email - email address to create selector from
+ * @param   {string} selector - child selector to append to group selector
+ * @returns {string} generated selector
+ */
+const secondaryEmailSelector = function(email, selectorKey) {
+  return [
+    `${selectors.EMAIL.EMAIL_GROUP}[data-id="${email}"]`,
+    selectorKey ? selectors.EMAIL[selectorKey] : '',
+  ].join(' ');
+};
+
 registerSuite('settings secondary emails', {
   beforeEach: function() {
     email = createEmail('sync{id}');
@@ -132,6 +146,11 @@ registerSuite('settings secondary emails', {
     },
 
     'add and verify secondary email': function() {
+      const removedSecondaryEmail = createEmail('sync{id}');
+      const verifiedSecondaryEmail = secondaryEmail;
+      const removedTertieryEmail = createEmail('sync{id}');
+      const verifiedTertieryEmail = createEmail('sync{id}');
+
       return (
         this.remote
           // sign up via the UI, we need a verified session to use secondary email
@@ -148,27 +167,101 @@ registerSuite('settings secondary emails', {
           .then(visibleByQSA(selectors.EMAIL.TOOLTIP))
 
           // add secondary email, resend and remove
-          .then(type(selectors.EMAIL.INPUT, createEmail()))
+          .then(type(selectors.EMAIL.INPUT, removedSecondaryEmail))
           .then(click(selectors.EMAIL.ADD_BUTTON))
-          .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-
-          .then(click(selectors.EMAIL.REMOVE_BUTTON))
-          .waitForDeletedByCssSelector(selectors.EMAIL.REMOVE_BUTTON)
+          .then(
+            testElementExists(secondaryEmailSelector(removedSecondaryEmail))
+          )
+          .then(
+            testElementExists(
+              secondaryEmailSelector(
+                removedSecondaryEmail,
+                'NOT_VERIFIED_LABEL'
+              )
+            )
+          )
+          .then(
+            click(
+              secondaryEmailSelector(removedSecondaryEmail, 'REMOVE_BUTTON')
+            )
+          )
+          .waitForDeletedByCssSelector(
+            secondaryEmailSelector(removedSecondaryEmail, 'REMOVE_BUTTON')
+          )
 
           .then(click(selectors.EMAIL.MENU_BUTTON))
 
           // add secondary email, verify
-          .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+          .then(type(selectors.EMAIL.INPUT, verifiedSecondaryEmail))
           .then(click(selectors.EMAIL.ADD_BUTTON))
-          .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
-          .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+          .then(
+            testElementExists(
+              secondaryEmailSelector(
+                verifiedSecondaryEmail,
+                'NOT_VERIFIED_LABEL'
+              )
+            )
+          )
+          .then(openVerificationLinkInSameTab(verifiedSecondaryEmail, 0))
 
           .then(click(selectors.EMAIL.MENU_BUTTON))
 
           .then(
-            testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail)
+            testElementTextEquals(
+              secondaryEmailSelector(verifiedSecondaryEmail, 'ADDRESS_LABEL'),
+              verifiedSecondaryEmail
+            )
           )
-          .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+          .then(
+            testElementExists(
+              secondaryEmailSelector(verifiedSecondaryEmail, 'VERIFIED_LABEL')
+            )
+          )
+
+          // add tertiery email, resend and remove
+          .then(click(selectors.EMAIL.ADD_ADDITIONAL_BUTTON))
+          .then(type(selectors.EMAIL.INPUT, removedTertieryEmail))
+          .then(click(selectors.EMAIL.ADD_BUTTON))
+          .then(testElementExists(secondaryEmailSelector(removedTertieryEmail)))
+          .then(
+            testElementExists(
+              secondaryEmailSelector(removedTertieryEmail, 'NOT_VERIFIED_LABEL')
+            )
+          )
+          .then(
+            click(secondaryEmailSelector(removedTertieryEmail, 'REMOVE_BUTTON'))
+          )
+          .waitForDeletedByCssSelector(
+            secondaryEmailSelector(removedTertieryEmail, 'REMOVE_BUTTON')
+          )
+
+          // add tertiery email, verify
+          .then(click(selectors.EMAIL.ADD_ADDITIONAL_BUTTON))
+          .then(type(selectors.EMAIL.INPUT, verifiedTertieryEmail))
+          .then(click(selectors.EMAIL.ADD_BUTTON))
+          .then(
+            testElementExists(
+              secondaryEmailSelector(
+                verifiedTertieryEmail,
+                'NOT_VERIFIED_LABEL'
+              )
+            )
+          )
+          .then(openVerificationLinkInSameTab(verifiedTertieryEmail, 0))
+
+          .then(click(selectors.EMAIL.MENU_BUTTON))
+
+          .then(
+            testElementTextEquals(
+              secondaryEmailSelector(verifiedTertieryEmail, 'ADDRESS_LABEL'),
+              verifiedTertieryEmail
+            )
+          )
+          .then(
+            testElementExists(
+              secondaryEmailSelector(verifiedTertieryEmail, 'VERIFIED_LABEL')
+            )
+          )
 
           // sign out, try to sign in with secondary
           .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))

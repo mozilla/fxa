@@ -14,77 +14,88 @@
             <p>
                 {{#t}}A secondary email is an additional address for receiving security notices and confirming new devices.{{/t}}
             </p>
-            {{#hasSecondaryEmail}}
+            {{#showingSecondaryEmails}}
                 <ul class="email-list button-row">
                     {{#emails}}
                         {{^isPrimary}}
-                            <li class="email-address">
-                                <div class="email-address-details">
-                                    <div class="address {{#verified}}verified{{/verified}}">{{email}}</div>
-                                    <div class="details {{#verified}}verified{{/verified}}{{^verified}}not-verified{{/verified}}">
+                            <li class="email-address" data-id="{{email}}">
+                                <div class="email-address-row">
+                                    <div class="email-address-details">
+                                        <div class="address {{#verified}}verified{{/verified}}">{{email}}</div>
+                                        <div class="details {{#verified}}verified{{/verified}}{{^verified}}not-verified{{/verified}}">
+                                            {{#verified}}
+                                                <div>{{#t}}Verified{{/t}}</div>
+                                            {{/verified}}
+                                            {{^verified}}
+                                                <div>{{#t}}Verification required{{/t}}</div>
+                                            {{/verified}}
+                                        </div>
+                                    </div>
+                                    <div class="settings-button-group">
                                         {{#verified}}
-                                            <div>{{#t}}Verified{{/t}}</div>
+                                            <button class="settings-button secondary-button set-primary" title="{{#t}}Make primary{{/t}}">
+                                                {{#t}}Make primary{{/t}}
+                                            </button>
                                         {{/verified}}
-                                        {{^verified}}
-                                            <div>{{#t}}Verification required{{/t}}</div>
-                                        {{/verified}}
+                                        <button class="settings-button warning-button email-disconnect">
+                                            {{#t}}Remove{{/t}}
+                                        </button>
                                     </div>
                                 </div>
-                                <div class="settings-button-group">
-                                    {{#verified}}
-                                        <button class="settings-button secondary-button set-primary" data-id="{{email}}" title="{{#t}}Make primary{{/t}}">
-                                            {{#t}}Make primary{{/t}}
-                                        </button>
-                                    {{/verified}}
-                                    <button class="settings-button warning-button email-disconnect" data-id="{{email}}">
-                                        {{#t}}Remove{{/t}}
-                                    </button>
-                                </div>
-                            </li>
-                            <li class="email-options">
-                                <div class="settings-button-group">
-                                    {{#verified}}
-                                        <button class="settings-button secondary-button set-primary" data-id="{{email}}" title="{{#t}}Make primary{{/t}}">
-                                            {{#t}}Make primary{{/t}}
-                                        </button>
-                                    {{/verified}}
-                                    <button class="settings-button warning-button email-disconnect" data-id="{{email}}">
-                                        {{#t}}Remove{{/t}}
-                                    </button>
-                                </div>
-                            </li>
 
-                            {{^verified}}
-                                <a class="resend" data-id="{{email}}">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
-                            {{/verified}}
+                                <div class="email-options">
+                                    <div class="settings-button-group">
+                                        {{#verified}}
+                                            <button class="settings-button secondary-button set-primary" title="{{#t}}Make primary{{/t}}">
+                                                {{#t}}Make primary{{/t}}
+                                            </button>
+                                        {{/verified}}
+                                        <button class="settings-button warning-button email-disconnect">
+                                            {{#t}}Remove{{/t}}
+                                        </button>
+                                    </div>
+                                </div>
 
+                                {{^verified}}
+                                    <a class="resend" href="#">{{#t}}Not in inbox or spam folder? Resend{{/t}}</a>
+                                {{/verified}}
+                            </li>
                         {{/isPrimary}}
                     {{/emails}}
                 </ul>
-            {{/hasSecondaryEmail}}
+            {{/showingSecondaryEmails}}
 
-            {{^hasSecondaryEmail}}
+            {{^showingSecondaryEmails}}
                 <div class="input-row">
                     <input type="email" class="new-email tooltip-below" placeholder="{{#t}}Secondary email{{/t}}"
                            value="{{newEmail}}" autofocus autocomplete="off"/>
                 </div>
-            {{/hasSecondaryEmail}}
+            {{/showingSecondaryEmails}}
 
-            <div class="button-row">
-                {{#hasSecondaryEmail}}
-                    <button type="submit" class="settings-button email-refresh primary-button enabled" title="{{ lastCheckedTime }}">{{#t}}Refresh status{{/t}}</button>
+            <div class="button-flex-row">
+                {{#showingSecondaryEmails}}
+                    <button type="submit" class="settings-button email-refresh primary-button enabled" title="{{ lastCheckedTime }}">{{#t}}Refresh{{/t}}</button>
+
+                    {{#canAddAnotherEmail}}
+                        <button class="settings-button email-add-another secondary-button">
+                            {{#t}}Add email{{/t}}
+                        </button>
+                    {{/canAddAnotherEmail}}
 
                     <button
                         class="settings-button {{#hasSecondaryVerifiedEmail}}cancel secondary-button enabled{{/hasSecondaryVerifiedEmail}}
                             {{^hasSecondaryVerifiedEmail}} disabled {{/hasSecondaryVerifiedEmail}}">
                         {{#t}}Done{{/t}}
                     </button>
-                {{/hasSecondaryEmail}}
+                {{/showingSecondaryEmails}}
 
-                {{^hasSecondaryEmail}}
+                {{^showingSecondaryEmails}}
                     <button type="submit" class="settings-button email-add primary-button">{{#t}}Add{{/t}}</button>
-                    <button class="settings-button cancel secondary-button enabled">{{#t}}Cancel{{/t}}</button>
-                {{/hasSecondaryEmail}}
+                    <button type="button"
+                        class="settings-button secondary-button enabled {{#addingAnotherEmail}}return-to-emails{{/addingAnotherEmail}}
+                            {{^addingAnotherEmail}}cancel{{/addingAnotherEmail}}">
+                        {{#t}}Cancel{{/t}}</button>
+                {{/showingSecondaryEmails}}
             </div>
         </form>
     </div>

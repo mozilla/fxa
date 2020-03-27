@@ -64,6 +64,7 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    sinon.stub(account, 'recoveryEmails').callsFake(() => Promise.resolve({}));
 
     return view.render().then(() => $('#container').html(view.$el));
   });
@@ -85,6 +86,21 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
       assert.lengthOf(view.$('#resend'), 1);
       assert.lengthOf(view.$('#use-different-email'), 1);
       assert.lengthOf(view.$(CODE_INPUT_SELECTOR), 1);
+    });
+
+    describe('with maxed out emails', () => {
+      beforeEach(() => {
+        account.recoveryEmails.restore();
+        sinon
+          .stub(account, 'recoveryEmails')
+          .callsFake(() => Promise.resolve(new Array(3)));
+        sinon.spy(view, 'navigate');
+        return view.render();
+      });
+
+      it('redirects to the settings page', () => {
+        assert.isTrue(view.navigate.calledWith('/settings'));
+      });
     });
 
     describe('without an account', () => {
