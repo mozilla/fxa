@@ -28,6 +28,9 @@ if [ -z "$GLOB" ]; then
   echo "Remote tests"
   ./scripts/mocha-coverage.js $DEFAULT_ARGS test/remote
 
+  echo "Script tests"
+  ./scripts/mocha-coverage.js $DEFAULT_ARGS test/scripts
+
 else
   ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
 fi
