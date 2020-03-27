@@ -709,6 +709,7 @@ describe('DirectStripeRoutes', () => {
       product_id: 'firefox_pro_basic',
       product_name: 'Firefox Pro Basic',
       interval: 'week',
+      interval_count: 1,
       amount: '123',
       currency: 'usd',
       product_metadata: {
