@@ -137,7 +137,6 @@
     "rimraf": "2.6.2",
     "simplesmtp": "0.3.35",
     "sinon": "7.0.0",
-    "sjcl": "1.0.6",
     "through": "2.3.8",
     "typescript": "^3.6.4",
     "ws": "5.2.2"

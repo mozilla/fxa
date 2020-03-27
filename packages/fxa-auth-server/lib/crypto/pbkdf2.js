@@ -4,27 +4,25 @@
 
 'use strict';
 
-const sjcl = require('sjcl');
-const P = require('../promise');
+const { pbkdf2 } = require('crypto');
 
 /** pbkdf2 string creator
  *
  * @param  {Buffer}  input The password hex buffer.
  * @param  {Buffer}  salt The salt string buffer.
- * @return {Buffer}  the derived key hex buffer.
+ * @param  {number}  iterations number of rounds of kdf
+ * @param  {number}  len byte length of the derived key
+ * @return {Promise<Buffer>}  the derived key hex buffer.
  */
 function derive(input, salt, iterations, len) {
-  const password = sjcl.codec.hex.toBits(input.toString('hex'));
-  const saltBits = sjcl.codec.hex.toBits(salt.toString('hex'));
-  const result = sjcl.misc.pbkdf2(
-    password,
-    saltBits,
-    iterations,
-    len * 8,
-    sjcl.misc.hmac
-  );
-
-  return P.resolve(Buffer.from(sjcl.codec.hex.fromBits(result), 'hex'));
+  return new Promise((resolve, reject) => {
+    pbkdf2(input, salt, iterations, len, 'sha256', (err, key) => {
+      if (err) {
+        return reject(err);
+      }
+      resolve(key);
+    });
+  });
 }
 
 module.exports.derive = derive;
