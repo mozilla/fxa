@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useContext, useState } from 'react';
 import { AppContext } from '../../lib/AppContext';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 
 import './index.scss';

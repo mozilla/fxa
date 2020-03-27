@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Localized, withLocalization } from 'fluent-react';
+import { Localized, withLocalization } from '@fluent/react';
 
 import {
   injectStripe,
@@ -25,11 +25,11 @@ import {
   useValidatorState,
 } from '../../lib/validator';
 import { useCallbackOnce } from '../../lib/hooks';
-import { formatCurrencyInCents } from '../../lib/formats';
+import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
-import { Plan } from '../../store/types';
+import { Plan, PlanInterval } from '../../store/types';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 // Define a minimal type for what we use from the Stripe API, which makes
@@ -63,28 +63,18 @@ export type PaymentFormProps = {
 
 function getDefaultPaymentConfirmText(
   amount: number,
-  interval: string,
+  currency: string,
+  interval: PlanInterval,
   intervalCount: number
-) {
-  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
-    amount
-  )}`;
-  const post =
-    '</strong>, according to payment terms, until I cancel my subscription.';
-  switch (interval) {
-    case 'day':
-      if (intervalCount === 1) return `${pre} daily${post}`;
-      return `${pre} every ${intervalCount} days${post}`;
-    case 'week':
-      if (intervalCount === 1) return `${pre} weekly${post}`;
-      return `${pre} every ${intervalCount} weeks${post}`;
-    case 'month':
-      if (intervalCount === 1) return `${pre} monthly${post}`;
-      return `${pre} every ${intervalCount} months${post}`;
-    case 'year':
-      if (intervalCount === 1) return `${pre} yearly${post}`;
-      return `${pre} every ${intervalCount} years${post}`;
-  }
+): string {
+  const planPricing = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    intervalCount
+  );
+
+  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to payment terms, until I cancel my subscription.`;
 }
 
 export const PaymentForm = ({
@@ -239,12 +229,13 @@ export const PaymentForm = ({
         <Localized
           id={`payment-confirm-${plan.interval}`}
           $intervalCount={plan.interval_count}
-          $amount={formatCurrencyInCents(plan.amount)}
+          $amount={getLocalizedCurrency(plan.amount, plan.currency)}
           strong={<strong></strong>}
         >
           <Checkbox data-testid="confirm" name="confirm" required>
             {getDefaultPaymentConfirmText(
               plan.amount,
+              plan.currency,
               plan.interval,
               plan.interval_count
             )}

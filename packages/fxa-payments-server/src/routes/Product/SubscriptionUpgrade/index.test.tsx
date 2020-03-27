@@ -27,6 +27,7 @@ import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
 import { SignInLayout } from '../../../components/AppLayout';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
+import { getLocalizedCurrency } from '../../../lib/formats';
 
 const findMockPlan = (planId: string): Plan => {
   const plan = MOCK_PLANS.find(x => x.plan_id === planId);
@@ -146,7 +147,6 @@ describe('routes/Product/SubscriptionUpgrade', () => {
       function runTests(
         plan: Plan,
         expectedMsgId: string,
-        expectedAmount: string,
         expectedMsg: string
       ) {
         const props = {
@@ -158,8 +158,9 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         );
         const testInstance = testRenderer.root;
         const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
+        const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-        expect(legalCheckbox.props.$amount).toBe(expectedAmount);
+        expect(legalCheckbox.props.$amount).toStrictEqual(expectedAmount);
         expect(legalCheckbox.props.$intervalCount).toBe(plan.interval_count);
         expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
       }
@@ -171,7 +172,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 daily</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for 6 days plan with correct props and displays correct default string', async () => {
@@ -181,7 +182,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 days</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for weekly plan with correct props and displays correct default string', async () => {
@@ -191,7 +192,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 weekly</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for 6 weeks plan with correct props and displays correct default string', async () => {
@@ -201,7 +202,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 weeks</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for monthly plan with correct props and displays correct default string', async () => {
@@ -211,7 +212,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 monthly</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for 6 months plan with correct props and displays correct default string', async () => {
@@ -221,7 +222,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 months</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for yearly plan with correct props and displays correct default string', async () => {
@@ -231,7 +232,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 yearly</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('renders Localized for years plan with correct props and displays correct default string', async () => {
@@ -241,14 +242,15 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const expectedMsg =
           'I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>$5.00 every 6 years</strong>, according to payment terms, until I cancel my subscription.';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
     });
 
     describe('Fluent Localized Text', () => {
       const bundle = setupFluentLocalizationTest('en-US');
+      const amount = getLocalizedCurrency(500, 'USD');
       const args = {
-        amount: '$5.00',
+        amount,
       };
 
       describe('when the localized id is sub-update-confirm-day', () => {
@@ -372,12 +374,7 @@ describe('PlanDetail', () => {
   };
 
   describe('Localized Plan Billing Description Component', () => {
-    function runTests(
-      plan: Plan,
-      expectedMsgId: string,
-      expectedAmount: string,
-      expectedMsg: string
-    ) {
+    function runTests(plan: Plan, expectedMsgId: string, expectedMsg: string) {
       const props = { plan: plan };
 
       const testRenderer = TestRenderer.create(<PlanDetail {...props} />);
@@ -385,8 +382,9 @@ describe('PlanDetail', () => {
       const planPriceComponent = testInstance.findByProps({
         id: expectedMsgId,
       });
+      const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-      expect(planPriceComponent.props.$amount).toBe(expectedAmount);
+      expect(planPriceComponent.props.$amount).toStrictEqual(expectedAmount);
       expect(planPriceComponent.props.$intervalCount).toBe(plan.interval_count);
       expect(planPriceComponent.props.children.props.children).toBe(
         expectedMsg
@@ -399,17 +397,17 @@ describe('PlanDetail', () => {
       it('Handles an interval count of 1', () => {
         const plan_id = 'plan_daily';
         const plan = findMockPlan(plan_id);
-        const expectedMsg = `$5.00 daily`;
+        const expectedMsg = '$5.00 daily';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
         const plan_id = 'plan_6days';
         const plan = findMockPlan(plan_id);
-        const expectedMsg = `$5.00 every 6 days`;
+        const expectedMsg = '$5.00 every 6 days';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
     });
 
@@ -419,17 +417,17 @@ describe('PlanDetail', () => {
       it('Handles an interval count of 1', () => {
         const plan_id = 'plan_weekly';
         const plan = findMockPlan(plan_id);
-        const expectedMsg = `$5.00 weekly`;
+        const expectedMsg = '$5.00 weekly';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
         const plan_id = 'plan_6weeks';
         const plan = findMockPlan(plan_id);
-        const expectedMsg = `$5.00 every 6 weeks`;
+        const expectedMsg = '$5.00 every 6 weeks';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
     });
 
@@ -439,17 +437,17 @@ describe('PlanDetail', () => {
       it('Handles an interval count of 1', () => {
         const plan_id = 'plan_monthly';
         const plan = findMockPlan(plan_id);
-        const expectedMsg = `$5.00 monthly`;
+        const expectedMsg = '$5.00 monthly';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
         const plan_id = 'plan_6months';
         const plan = findMockPlan(plan_id);
-        const expectedMsg = `$5.00 every 6 months`;
+        const expectedMsg = '$5.00 every 6 months';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
     });
 
@@ -461,7 +459,7 @@ describe('PlanDetail', () => {
         const plan = findMockPlan(plan_id);
         const expectedMsg = '$5.00 yearly';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
 
       it('Handles an interval count that is not 1', () => {
@@ -469,15 +467,16 @@ describe('PlanDetail', () => {
         const plan = findMockPlan(plan_id);
         const expectedMsg = '$5.00 every 6 years';
 
-        runTests(plan, expectedMsgId, '$5.00', expectedMsg);
+        runTests(plan, expectedMsgId, expectedMsg);
       });
     });
   });
 
   describe('Fluent Translations for Plan Billing Description', () => {
     const bundle = setupFluentLocalizationTest('en-US');
+    const amount = getLocalizedCurrency(500, 'USD');
     const args = {
-      amount: '$5.00',
+      amount,
     };
 
     describe('When message id is plan-price-day', () => {

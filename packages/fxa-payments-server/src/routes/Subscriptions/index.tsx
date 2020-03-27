@@ -6,8 +6,7 @@ import React, {
   useRef,
 } from 'react';
 import { connect } from 'react-redux';
-import { Localized } from 'fluent-react';
-import dayjs from 'dayjs';
+import { Localized } from '@fluent/react';
 
 import * as Amplitude from '../../lib/amplitude';
 
@@ -34,6 +33,7 @@ import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import CloseIcon from '../../components/CloseIcon';
+import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -358,11 +358,6 @@ const CancellationDialogMessage = ({
   ) as CustomerSubscription;
   const plan = planForId(customerSubscription.plan_id, plans) as Plan;
 
-  // TODO: date formats will need i18n someday
-  const periodEndDate = dayjs
-    .unix(customerSubscription.current_period_end)
-    .format('MMMM DD, YYYY');
-
   return (
     <DialogMessage onDismiss={resetCancelSubscription}>
       <Localized id="sub-route-idx-cancel-msg-title">
@@ -373,13 +368,17 @@ const CancellationDialogMessage = ({
       <Localized
         id="sub-route-idx-cancel-msg"
         $name={plan.product_name}
-        $date={periodEndDate}
+        $date={getLocalizedDate(customerSubscription.current_period_end)}
       >
         <p>
           Your {plan.product_name} subscription has been cancelled.
           <br />
           You will still have access to {plan.product_name} until{' '}
-          {periodEndDate}.
+          {getLocalizedDateString(
+            customerSubscription.current_period_end,
+            false
+          )}
+          .
         </p>
       </Localized>
       <Localized

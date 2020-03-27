@@ -34,6 +34,8 @@ export interface Token {
   jti: string;
 }
 
+export type PlanInterval = 'day' | 'week' | 'month' | 'year';
+
 export interface Plan {
   plan_id: string;
   plan_metadata?: PlanMetadata;
@@ -42,7 +44,7 @@ export interface Plan {
   product_metadata?: ProductMetadata;
   currency: string;
   amount: number;
-  interval: string;
+  interval: PlanInterval;
   interval_count: number;
 }
 

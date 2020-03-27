@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
@@ -16,7 +16,9 @@ export const TermsAndPrivacy = () => {
             target="_blank"
             data-testid="terms"
             href={config.legalDocLinks.termsOfService}
-          >Terms of Service</a>
+          >
+            Terms of Service
+          </a>
         </Localized>
       </div>
       <div className="privacy">
@@ -26,7 +28,9 @@ export const TermsAndPrivacy = () => {
             target="_blank"
             data-testid="privacy"
             href={config.legalDocLinks.privacyNotice}
-          >Privacy Notice</a>
+          >
+            Privacy Notice
+          </a>
         </Localized>
       </div>
     </div>
