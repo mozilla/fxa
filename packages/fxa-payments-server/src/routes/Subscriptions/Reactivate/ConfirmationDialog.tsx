@@ -1,6 +1,11 @@
 import React from 'react';
-import { Localized } from 'fluent-react';
-import { formatCurrencyInCents } from '../../../lib/formats';
+import { Localized } from '@fluent/react';
+import {
+  getLocalizedDate,
+  getLocalizedDateString,
+  getLocalizedCurrency,
+  getLocalizedCurrencyString,
+} from '../../../lib/formats';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
@@ -17,7 +22,7 @@ export default ({
   onConfirm: () => void;
   plan: Plan;
   customer: Customer;
-  periodEndDate: string;
+  periodEndDate: number;
 }) => {
   const { webIconURL } = metadataFromPlan(plan);
   const { last4 } = customer;
@@ -41,15 +46,15 @@ export default ({
       <Localized
         id="reactivate-confirm-copy"
         $name={plan.product_name}
-        $amount={formatCurrencyInCents(plan.amount)}
+        $amount={getLocalizedCurrency(plan.amount, plan.currency)}
         $last={last4}
-        $endDate={periodEndDate}
+        $endDate={getLocalizedDate(periodEndDate)}
       >
         <p>
           Your access to {plan.product_name} will continue, and your billing
           cycle and payment will stay the same. Your next charge will be
-          {formatCurrencyInCents(plan.amount)} to the card ending in {last4} on{' '}
-          {periodEndDate}.
+          {getLocalizedCurrencyString(plan.amount, plan.currency)} to the card
+          ending in {last4} on {getLocalizedDateString(periodEndDate)}.
         </p>
       </Localized>
       <div className="action">

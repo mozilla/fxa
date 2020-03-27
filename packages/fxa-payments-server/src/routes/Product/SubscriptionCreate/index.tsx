@@ -13,7 +13,7 @@ import AcceptedCards from '../AcceptedCards';
 
 import { ProductProps } from '../index';
 import * as Amplitude from '../../../lib/amplitude';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 
 import './index.scss';
 

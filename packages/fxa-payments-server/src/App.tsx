@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { StripeProvider } from 'react-stripe-elements';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import DocumentTitle from 'react-document-title';
 
 import AppLocalizationProvider from './lib/AppLocalizationProvider';

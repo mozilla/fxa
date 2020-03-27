@@ -1485,6 +1485,9 @@ describe('StripeHelper', () => {
         describe('when the subscription is active', () => {
           it('formats the subscription', async () => {
             const input = { data: [subscription1] };
+            sandbox
+              .stub(stripeHelper.stripe.invoices, 'retrieve')
+              .returns(paidInvoice);
             const expected = [
               {
                 created: subscription1.created,
@@ -1499,7 +1502,7 @@ describe('StripeHelper', () => {
                 subscription_id: subscription1.id,
                 failure_code: undefined,
                 failure_message: undefined,
-                latest_invoice: subscription1.latest_invoice,
+                latest_invoice: paidInvoice.number,
               },
             ];
 
@@ -1513,6 +1516,9 @@ describe('StripeHelper', () => {
             const subscription = deepCopy(subscription1);
             subscription.cancel_at_period_end = true;
             const input = { data: [subscription] };
+            sandbox
+              .stub(stripeHelper.stripe.invoices, 'retrieve')
+              .returns(paidInvoice);
             const expected = [
               {
                 created: subscription.created,
@@ -1527,7 +1533,7 @@ describe('StripeHelper', () => {
                 subscription_id: subscription.id,
                 failure_code: undefined,
                 failure_message: undefined,
-                latest_invoice: subscription.latest_invoice,
+                latest_invoice: paidInvoice.number,
               },
             ];
 
@@ -1539,6 +1545,9 @@ describe('StripeHelper', () => {
         describe('when the subscription has already ended', () => {
           it('set end_at to the last active day of the subscription', async () => {
             const input = { data: [cancelledSubscription] };
+            sandbox
+              .stub(stripeHelper.stripe.invoices, 'retrieve')
+              .returns(paidInvoice);
             const expected = [
               {
                 created: cancelledSubscription.created,
@@ -1554,7 +1563,7 @@ describe('StripeHelper', () => {
                 subscription_id: cancelledSubscription.id,
                 failure_code: undefined,
                 failure_message: undefined,
-                latest_invoice: cancelledSubscription.latest_invoice,
+                latest_invoice: paidInvoice.number,
               },
             ];
 
@@ -1580,6 +1589,10 @@ describe('StripeHelper', () => {
         const incompleteSubscription = deepCopy(subscription1);
         incompleteSubscription.status = 'incomplete';
         incompleteSubscription.id = 'sub_incomplete';
+
+        sandbox
+          .stub(stripeHelper.stripe.invoices, 'retrieve')
+          .returns(paidInvoice);
 
         const input = {
           data: [subscription1, incompleteSubscription, subscription2],
