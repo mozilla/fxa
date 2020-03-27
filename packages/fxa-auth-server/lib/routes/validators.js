@@ -335,6 +335,8 @@ module.exports.subscriptionProductMetadataValidator = isA
     iconURL: isA.string().optional(),
     upgradeCTA: isA.string().optional(),
     downloadURL: isA.string().optional(),
+    appStoreLink: isA.string().optional(),
+    playStoreLink: isA.string().optional(),
   })
   .unknown(true);
 

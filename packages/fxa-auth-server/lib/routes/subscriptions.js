@@ -193,6 +193,8 @@ class DirectStripeRoutes {
       productName: selectedPlan.product_name,
       planEmailIconURL: planMetadata.emailIconURL,
       planDownloadURL: planMetadata.downloadURL,
+      appStoreLink: planMetadata.appStoreLink,
+      playStoreLink: planMetadata.playStoreLink,
     });
     this.log.info('subscriptions.createSubscription.success', {
       uid,
