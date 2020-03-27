@@ -35,6 +35,7 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionAccountDeletion: 'subscription-account-deletion',
     subscriptionCancellation: 'subscription-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
     subscriptionFirstInvoice: 'subscription-first-invoice',
@@ -71,10 +72,11 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
-    subscriptionCancellation: 'subscription-cancellation',
-    subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
-    subscriptionFirstInvoice: 'subscription-first-invoice',
-    downloadSubscription: 'download-subscription',
+    subscriptionAccountDeletion: 'subscriptions',
+    subscriptionCancellation: 'subscriptions',
+    subscriptionSubsequentInvoice: 'subscriptions',
+    subscriptionFirstInvoice: 'subscriptions',
+    downloadSubscription: 'subscriptions',
     lowRecoveryCodes: 'recovery-codes',
     newDeviceLogin: 'manage-account',
     passwordChanged: 'password-change',
@@ -1800,6 +1802,80 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
+  Mailer.prototype.subscriptionAccountDeletionEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceDate,
+      invoiceTotal,
+      serviceLastActiveDate,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionAccountDeletion', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionAccountDeletion', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionAccountDeletion';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+      invoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        invoiceDate
+      ),
+      serviceLastActiveDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        serviceLastActiveDate
+      ),
+    };
+    const subject = translator.gettext(
+      'Your %(productName)s subscription has been cancelled'
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceTotal,
+      },
+    });
+  };
+
   Mailer.prototype.subscriptionCancellationEmail = async function(message) {
     const {
       email,
@@ -1845,13 +1921,15 @@ module.exports = function(log, config, oauthdb) {
         message.acceptLanguage,
         invoiceDate
       ),
-      serviceLastActiveDateOnly:  this._constructLocalDateString(
+      serviceLastActiveDateOnly: this._constructLocalDateString(
         message.timeZone,
         message.acceptLanguage,
         serviceLastActiveDate
       ),
     };
-    const subject = translator.gettext('Your %(productName)s subscription has been cancelled');
+    const subject = translator.gettext(
+      'Your %(productName)s subscription has been cancelled'
+    );
 
     return this.send({
       ...message,

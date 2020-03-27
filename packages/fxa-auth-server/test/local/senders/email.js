@@ -258,6 +258,28 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
+  ['subscriptionAccountDeletionEmail', new Map([
+    ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionAccountDeletion') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionAccountDeletion' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-account-deletion', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
+      { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
   ['lowRecoveryCodesEmail', new Map([
     ['subject', { test: 'equal', expected: '2 recovery codes remaining' }],
     ['headers', new Map([
