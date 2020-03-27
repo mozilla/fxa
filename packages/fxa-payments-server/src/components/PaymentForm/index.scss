@@ -20,11 +20,19 @@ form.payment {
   }
 
   hr {
-    margin: 16px 0 0;
+    margin: 24px 0 0;
+
+    @include respond-to('simpleSmall') {
+      margin-top: 16px;
+    }
   }
 
   .input-row {
-    margin: 16px 0 0;
+    margin: 24px 0 0;
+
+    @include respond-to('simpleSmall') {
+      margin-top: 16px;
+    }
 
     input {
       font-size: 14px;
@@ -77,10 +85,6 @@ form.payment {
   .StripeElement .InputContainer .InputElement::placeholder,
   form.payment .input-row input::placeholder {
     line-height: 38px !important;
-  }
-
-  .sign-in {
-    margin-top: 25px;
   }
 
   .main-content .payments-card {

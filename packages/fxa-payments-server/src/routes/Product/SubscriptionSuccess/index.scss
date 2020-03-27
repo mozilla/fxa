@@ -5,7 +5,6 @@
   flex-direction: column-reverse;
 
   .payment-confirmation {
-    margin-top: -5px;
     min-height: calc(100vh - #{$header-height});
 
     @include min-width('tablet') {

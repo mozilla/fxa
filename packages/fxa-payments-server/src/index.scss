@@ -64,6 +64,7 @@ h3.billing-title {
   .input-row {
     // Stripe element class names
     // https://stripe.com/docs/stripe-js/reference#the-element-container
+    margin: 24px 0;
 
     .StripeElement {
       @include input-element();
@@ -71,12 +72,21 @@ h3.billing-title {
 
       html[dir='ltr'] & {
         padding: 14px 0 0 $input-left-right-padding;
+
+        @include respond-to('simpleSmall') {
+          padding-top: 11px;
+        }
       }
 
       html[dir='rtl'] & {
         direction: ltr;
         padding: 14px $input-left-right-padding 0 0;
         text-align: right;
+
+
+        @include respond-to('simpleSmall') {
+          padding-top: 11px;
+        }
       }
 
       &:last-child {
@@ -144,7 +154,7 @@ h3.billing-title {
 
       .label-text {
         display: block;
-        margin-left: 2px;
+        margin: 0 0 0 2px;
       }
     }
   }
