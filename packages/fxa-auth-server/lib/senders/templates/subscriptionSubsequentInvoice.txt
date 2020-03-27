@@ -1,6 +1,6 @@
 {{{subject}}}
 
-{{{t "We recieved your latest payment for %(productName)s." }}}
+{{{t "We received your latest payment for %(productName)s." }}}
 
 {{{t "Invoice Number: %(invoiceNumber)s" }}}
 
