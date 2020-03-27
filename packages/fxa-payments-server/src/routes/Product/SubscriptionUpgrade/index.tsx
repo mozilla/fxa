@@ -1,15 +1,22 @@
 import React, { useCallback, useEffect } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 
-import { Plan, Customer, CustomerSubscription } from '../../../store/types';
+import {
+  Plan,
+  Customer,
+  CustomerSubscription,
+  PlanInterval,
+} from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { metadataFromPlan } from '../../../store/utils';
 
 import * as Amplitude from '../../../lib/amplitude';
 
 import {
-  formatCurrencyInCents,
-  formatPeriodEndDate,
+  getLocalizedDate,
+  getLocalizedDateString,
+  getLocalizedCurrency,
+  formatPlanPricing,
 } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
 
@@ -25,28 +32,17 @@ import { ProductProps } from '../index';
 
 function getDefaultConfirmText(
   amount: number,
-  interval: string,
+  currency: string,
+  interval: PlanInterval,
   intervalCount: number
 ) {
-  const pre = `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${formatCurrencyInCents(
-    amount
-  )}`;
-  const post =
-    '</strong>, according to payment terms, until I cancel my subscription.';
-  switch (interval) {
-    case 'day':
-      if (intervalCount === 1) return `${pre} daily${post}`;
-      return `${pre} every ${intervalCount} days${post}`;
-    case 'week':
-      if (intervalCount === 1) return `${pre} weekly${post}`;
-      return `${pre} every ${intervalCount} weeks${post}`;
-    case 'month':
-      if (intervalCount === 1) return `${pre} monthly${post}`;
-      return `${pre} every ${intervalCount} months${post}`;
-    case 'year':
-      if (intervalCount === 1) return `${pre} yearly${post}`;
-      return `${pre} every ${intervalCount} years${post}`;
-  }
+  const planPricing = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    intervalCount
+  );
+  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to payment terms, until I cancel my subscription.`;
 }
 
 export type SubscriptionUpgradeProps = {
@@ -180,14 +176,14 @@ export const SubscriptionUpgrade = ({
 
         <Localized
           id="sub-update-copy"
-          $startingDate={formatPeriodEndDate(
+          $startingDate={getLocalizedDate(
             upgradeFromSubscription.current_period_end
           )}
         >
           <p>
             Your plan will change immediately, and you’ll be charged an adjusted
             amount for the rest of your billing cycle. Starting{' '}
-            {formatPeriodEndDate(upgradeFromSubscription.current_period_end)}{' '}
+            {getLocalizedDateString(upgradeFromSubscription.current_period_end)}{' '}
             you’ll be charged the full amount.
           </p>
         </Localized>
@@ -201,12 +197,16 @@ export const SubscriptionUpgrade = ({
           <Localized
             id={`sub-update-confirm-${selectedPlan.interval}`}
             strong={<strong></strong>}
-            $amount={formatCurrencyInCents(selectedPlan.amount)}
+            $amount={getLocalizedCurrency(
+              selectedPlan.amount,
+              selectedPlan.currency
+            )}
             $intervalCount={selectedPlan.interval_count}
           >
             <p>
               {getDefaultConfirmText(
                 selectedPlan.amount,
+                selectedPlan.currency,
                 selectedPlan.interval,
                 selectedPlan.interval_count
               )}
@@ -238,30 +238,20 @@ export const SubscriptionUpgrade = ({
   );
 };
 
-function getPlanPrice(interval: string, intervalCount: number, amount: string) {
-  switch (interval) {
-    case 'day':
-      if (intervalCount === 1) return `${amount} daily`;
-      return `${amount} every ${intervalCount} days`;
-    case 'week':
-      if (intervalCount === 1) return `${amount} weekly`;
-      return `${amount} every ${intervalCount} weeks`;
-    case 'month':
-      if (intervalCount === 1) return `${amount} monthly`;
-      return `${amount} every ${intervalCount} months`;
-    case 'year':
-      if (intervalCount === 1) return `${amount} yearly`;
-      return `${amount} every ${intervalCount} years`;
-  }
-}
-
 export const PlanDetail = ({ plan }: { plan: Plan }) => {
-  const { product_name: productName, amount, interval, interval_count } = plan;
-  const { webIconURL } = metadataFromPlan(plan);
-  const planPrice = getPlanPrice(
+  const {
+    product_name: productName,
+    amount,
+    currency,
     interval,
     interval_count,
-    formatCurrencyInCents(amount)
+  } = plan;
+  const { webIconURL } = metadataFromPlan(plan);
+  const planPrice = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    interval_count
   );
 
   return (
@@ -272,7 +262,7 @@ export const PlanDetail = ({ plan }: { plan: Plan }) => {
       <span className="product-name">{productName}</span>
       <Localized
         id={`plan-price-${interval}`}
-        $amount={formatCurrencyInCents(amount)}
+        $amount={getLocalizedCurrency(amount, currency)}
         $intervalCount={interval_count}
       >
         <span className="plan-price">{planPrice}</span>

@@ -62,5 +62,6 @@ const PLAN: Plan = {
   product_name: 'Example product',
   currency: 'usd',
   amount: 599,
-  interval: 'monthly',
+  interval: 'month' as const,
+  interval_count: 1,
 };

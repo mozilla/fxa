@@ -1,11 +1,21 @@
 import React, { useCallback, useState } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import dayjs from 'dayjs';
-import { formatCurrencyInCents } from '../../lib/formats';
+import {
+  getLocalizedDateString,
+  getLocalizedDate,
+  getLocalizedCurrency,
+  formatPlanPricing,
+} from '../../lib/formats';
 import { useBooleanState, useNonce } from '../../lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import { SelectorReturns } from '../../store/selectors';
-import { Customer, CustomerSubscription, Plan } from '../../store/types';
+import {
+  Customer,
+  CustomerSubscription,
+  Plan,
+  PlanInterval,
+} from '../../store/types';
 import { metadataFromPlan } from '../../store/utils';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
@@ -24,26 +34,20 @@ type PaymentUpdateFormProps = {
 function getBillingDescriptionText(
   name: string,
   amount: number,
-  interval: string,
+  currency: string,
+  interval: PlanInterval,
   intervalCount: number,
-  date: string
-) {
-  const pre = `You are billed ${formatCurrencyInCents(amount)}`;
-  const post = `for ${name}. Your next payment occurs on ${date}.`;
-  switch (interval) {
-    case 'day':
-      if (intervalCount === 1) return `${pre} daily ${post}`;
-      return `${pre} every ${intervalCount} days ${post}`;
-    case 'week':
-      if (intervalCount === 1) return `${pre} weekly ${post}`;
-      return `${pre} every ${intervalCount} weeks ${post}`;
-    case 'month':
-      if (intervalCount === 1) return `${pre} monthly ${post}`;
-      return `${pre} every ${intervalCount} months ${post}`;
-    case 'year':
-      if (intervalCount === 1) return `${pre} yearly ${post}`;
-      return `${pre} every ${intervalCount} years ${post}`;
-  }
+  date: number
+): string {
+  const formattedDateString = getLocalizedDateString(date, true);
+  const planPricing = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    intervalCount
+  );
+
+  return `You are billed ${planPricing} for ${name}. Your next payment occurs on ${formattedDateString}.`;
 }
 
 export const PaymentUpdateForm = ({
@@ -123,11 +127,6 @@ export const PaymentUpdateForm = ({
 
   const { last4, exp_month, exp_year } = customer;
 
-  // TODO: date formats will need i18n someday
-  const periodEndDate = dayjs
-    .unix(customerSubscription.current_period_end)
-    .format('MM/DD/YYYY');
-
   // https://github.com/iamkun/dayjs/issues/639
   const expirationDate = dayjs()
     .set('month', Number(exp_month) - 1)
@@ -137,9 +136,10 @@ export const PaymentUpdateForm = ({
   const billingDescriptionText = getBillingDescriptionText(
     plan.product_name,
     plan.amount,
+    plan.currency,
     plan.interval,
     plan.interval_count,
-    periodEndDate
+    customerSubscription.current_period_end
   );
 
   return (
@@ -151,10 +151,10 @@ export const PaymentUpdateForm = ({
       </h3>
       <Localized
         id={`pay-update-billing-description-${plan.interval}`}
-        $amount={formatCurrencyInCents(plan.amount)}
+        $amount={getLocalizedCurrency(plan.amount, plan.currency)}
         $intervalCount={plan.interval_count}
         $name={plan.product_name}
-        $date={periodEndDate}
+        $date={getLocalizedDate(customerSubscription.current_period_end, true)}
       >
         <p className="billing-description">{billingDescriptionText}</p>
       </Localized>

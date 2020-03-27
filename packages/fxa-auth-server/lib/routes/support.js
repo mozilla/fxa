@@ -45,7 +45,6 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         },
         validate: {
           payload: isA.object().keys({
-            plan: isA.string().required(),
             productName: isA.string().required(),
             topic: isA.string().required(),
             subject: isA
@@ -68,7 +67,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
         const { uid, email } = await handleAuth(request.auth, true);
         const { location } = request.app.geo;
         await customs.check(request, email, 'supportRequest');
-        let subject = `${request.payload.plan}`;
+        let subject = `${request.payload.productName}`;
         if (request.payload.subject) {
           subject = subject.concat(': ', request.payload.subject);
         }
