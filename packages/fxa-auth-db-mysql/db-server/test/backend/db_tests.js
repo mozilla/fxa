@@ -4126,7 +4126,7 @@ module.exports = function(config, DB) {
           .then(() => {
             data = createRecoveryData();
             // Create a valid recovery key
-            return db.createRecoveryKey(account.uid, data);
+            return db.upsertRecoveryKey(account.uid, data);
           })
           .then(res => {
             assert.ok(res, 'empty response');
@@ -4135,7 +4135,7 @@ module.exports = function(config, DB) {
 
       it('should fail to create for unknown user', () => {
         return db
-          .createRecoveryKey('12312312312', data)
+          .upsertRecoveryKey('12312312312', data)
           .then(assert.fail, err => {
             assert.equal(err.errno, 116, 'not found');
           });
@@ -4264,7 +4264,7 @@ module.exports = function(config, DB) {
         await db.createAccount(account.uid, account);
         data = createRecoveryData();
         data.enabled = false;
-        await db.createRecoveryKey(account.uid, data);
+        await db.upsertRecoveryKey(account.uid, data);
 
         let res = await db.getRecoveryKey({
           id: account.uid,

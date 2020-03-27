@@ -329,7 +329,7 @@ function createServer(db) {
   );
   api.get('/account/:id/recoveryKey', withIdAndBody(db.recoveryKeyExists));
   api.del('/account/:id/recoveryKey', withParams(db.deleteRecoveryKey));
-  api.post('/account/:id/recoveryKey', withIdAndBody(db.createRecoveryKey));
+  api.post('/account/:id/recoveryKey', withIdAndBody(db.upsertRecoveryKey));
   api.post(
     '/account/:id/recoveryKey/update',
     withIdAndBody(db.updateRecoveryKey)
