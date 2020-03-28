@@ -29,6 +29,9 @@ const path = require('path');
 
 const OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
 
+// Subscription emails are behind a feature flag, enable it
+config.subscriptions.transactionalEmails.enabled = true;
+
 const mailSender = {
   sendMail: function(emailConfig, done) {
     const templateName = emailConfig.headers['X-Template-Name'];
