@@ -33,7 +33,12 @@ describe('PlanDetails', () => {
     const subject = () => {
       return render(
         <PlanDetails
-          {...{ profile: userProfile, showExpandButton: true, isMobile: false, selectedPlan }}
+          {...{
+            profile: userProfile,
+            showExpandButton: true,
+            isMobile: false,
+            selectedPlan,
+          }}
         />
       );
     };
@@ -52,7 +57,12 @@ describe('PlanDetails', () => {
     const subject = () => {
       return render(
         <PlanDetails
-          {...{ profile: userProfile, showExpandButton: false, isMobile: false, selectedPlan }}
+          {...{
+            profile: userProfile,
+            showExpandButton: false,
+            isMobile: false,
+            selectedPlan,
+          }}
         />
       );
     };
@@ -69,7 +79,12 @@ describe('PlanDetails', () => {
     const subject = () => {
       return render(
         <PlanDetails
-          {...{ profile: userProfile, isMobile: true, showExpandButton: true, selectedPlan }}
+          {...{
+            profile: userProfile,
+            isMobile: true,
+            showExpandButton: true,
+            selectedPlan,
+          }}
         />
       );
     };
@@ -83,34 +98,46 @@ describe('PlanDetails', () => {
     fireEvent.click(getByTestId('button'));
 
     expect(queryByTestId('list')).not.toBeTruthy();
-
   });
 
   it('sets role to "complementary" when isMobile is false', () => {
     const subject = () => {
       return render(
         <PlanDetails
-          {...{ profile: userProfile, showExpandButton: false, selectedPlan, isMobile: false }}
+          {...{
+            profile: userProfile,
+            showExpandButton: false,
+            selectedPlan,
+            isMobile: false,
+          }}
         />
       );
     };
 
     const { queryByTestId } = subject();
 
-    expect(queryByTestId('plan-details-component')).toHaveAttribute('role', 'complementary');
+    expect(queryByTestId('plan-details-component')).toHaveAttribute(
+      'role',
+      'complementary'
+    );
   });
 
   it('does not set role to "complementary" when isMobile is true', () => {
     const subject = () => {
       return render(
         <PlanDetails
-          {...{ profile: userProfile, showExpandButton: true, selectedPlan, isMobile: true }}
+          {...{
+            profile: userProfile,
+            showExpandButton: true,
+            selectedPlan,
+            isMobile: true,
+          }}
         />
       );
     };
 
     const { queryByTestId } = subject();
 
-    expect(queryByTestId('plan-details-component')).toHaveAttribute('role', '');
+    expect(queryByTestId('plan-details-component')).not.toHaveAttribute('role');
   });
 });

@@ -28,12 +28,12 @@ export const PlanDetails = ({
   const { product_name, amount, interval } = selectedPlan;
   const { webIconURL } = metadataFromPlan(selectedPlan);
 
-  const role = isMobile ? '' : 'complementary';
+  const role = isMobile ? undefined : 'complementary';
 
   return (
     <section
       className={`plan-details-component ${className}`}
-      role={role}
+      {...{ role }}
       data-testid="plan-details-component"
     >
       <div className="plan-details-component-inner">
@@ -67,16 +67,24 @@ export const PlanDetails = ({
               </Localized>
               <ul>
                 <li>
-                  <Localized id="fpn-details-1"><span></span></Localized>
+                  <Localized id="fpn-details-1">
+                    <span></span>
+                  </Localized>
                 </li>
                 <li>
-                  <Localized id="fpn-details-2"><span></span></Localized>
+                  <Localized id="fpn-details-2">
+                    <span></span>
+                  </Localized>
                 </li>
                 <li>
-                  <Localized id="fpn-details-3"><span></span></Localized>
+                  <Localized id="fpn-details-3">
+                    <span></span>
+                  </Localized>
                 </li>
                 <li>
-                  <Localized id="fpn-details-4"><span></span></Localized>
+                  <Localized id="fpn-details-4">
+                    <span></span>
+                  </Localized>
                 </li>
               </ul>
             </div>
