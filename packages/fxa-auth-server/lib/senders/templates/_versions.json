@@ -1,4 +1,5 @@
 {
+  "subscriptionAccountDeletion": 1,
   "subscriptionCancellation": 1,
   "subscriptionSubsequentInvoice": 1,
   "subscriptionFirstInvoice": 1,
