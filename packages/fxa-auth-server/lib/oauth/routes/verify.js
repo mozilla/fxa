@@ -18,7 +18,6 @@ module.exports = {
   validate: {
     payload: {
       token: validators.accessToken.required(),
-      email: Joi.boolean().optional(),
     },
   },
   response: {
@@ -33,13 +32,6 @@ module.exports = {
   handler: async function verify(req) {
     const info = await token.verify(req.payload.token);
     info.scope = info.scope.getScopeValues();
-    if (req.payload.email !== undefined) {
-      logger.warn('email.requested', {
-        user: info.user,
-        client_id: info.client_id,
-        scope: info.scope,
-      });
-    }
     delete info.email;
     logger.info('verify.success', {
       client_id: info.client_id,

@@ -126,7 +126,6 @@ exports.create = async function createServer() {
                 url: url,
                 json: {
                   token: token,
-                  email: false, // disables email fetching of oauth server
                 },
               },
               function(err, resp, body) {
