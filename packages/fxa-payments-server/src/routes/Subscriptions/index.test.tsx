@@ -400,7 +400,8 @@ describe('routes/Subscriptions', () => {
           {
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
-            plan_name: '123done Pro Monthly',
+            product_id: 'prod_123',
+            product_name: '123done Pro',
             status: 'active',
             cancel_at_period_end: true,
             current_period_start: 1565816388.815,
@@ -482,7 +483,8 @@ describe('routes/Subscriptions', () => {
           {
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
-            plan_name: '123done Pro Monthly',
+            product_id: 'prod_123',
+            product_name: '123done Pro',
             status: 'active',
             cancel_at_period_end: true,
             current_period_start: 1565816388.815,
@@ -509,7 +511,8 @@ describe('routes/Subscriptions', () => {
           {
             subscription_id: 'sub0.28964929339372136',
             plan_id: '123doneProMonthly',
-            plan_name: '123done Pro Monthly',
+            product_id: 'prod_123',
+            product_name: '123done Pro',
             status: 'active',
             cancel_at_period_end: false,
             current_period_start: 1565816388.815,

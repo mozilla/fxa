@@ -2803,7 +2803,6 @@ describe('/account', () => {
     end_at: null,
     failure_code: 'expired_card',
     failure_message: 'The card is expired',
-    plan_name: 'wibble',
     plan_id: 'blee',
     status: 'ok',
     subscription_id: 'mngh',

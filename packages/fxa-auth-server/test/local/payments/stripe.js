@@ -198,7 +198,6 @@ describe('StripeHelper', () => {
       const expected = [
         {
           plan_id: goodPlan.id,
-          plan_name: 'FPN Tier 1 Monthly',
           plan_metadata: goodPlan.metadata,
           product_id: goodPlan.product.id,
           product_name: goodPlan.product.name,
@@ -1212,33 +1211,6 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('getProductName', () => {
-    describe('when provided a Product object', () => {
-      it('returns the name of the product', async () => {
-        const expected = product1.name;
-        const actual = await stripeHelper.getProductName(product1);
-
-        assert.equal(expected, actual);
-      });
-    });
-
-    describe('when provided a Product ID', () => {
-      it('returns the product name if found', async () => {
-        const expected = product1.name;
-        const actual = await stripeHelper.getProductName(product1.id);
-
-        assert.equal(expected, actual);
-      });
-
-      it('returns an empty string if not found', async () => {
-        const expected = '';
-        const actual = await stripeHelper.getProductName('bad_planid');
-
-        assert.equal(expected, actual);
-      });
-    });
-  });
-
   describe('constructWebhookEvent', () => {
     it('calls stripe.webhooks.construct event', () => {
       const expected = 'the expected result';
@@ -1252,10 +1224,13 @@ describe('StripeHelper', () => {
   });
 
   describe('subscriptionsToResponse', () => {
-    const planName = 'FPN Tier 1 Monthly';
+    const productName = 'FPN Tier 1';
+    const productId = 'prod_123';
 
     beforeEach(() => {
-      sandbox.stub(stripeHelper, 'formatPlanDisplayName').returns(planName);
+      sandbox
+        .stub(stripeHelper, 'expandResource')
+        .returns({ id: productId, name: productName });
     });
 
     describe('when is one subscription', () => {
@@ -1299,8 +1274,9 @@ describe('StripeHelper', () => {
             current_period_start: pastDueSubscription.current_period_start,
             cancel_at_period_end: false,
             end_at: null,
-            plan_name: planName,
             plan_id: pastDueSubscription.plan.id,
+            product_id: productId,
+            product_name: productName,
             status: 'past_due',
             subscription_id: pastDueSubscription.id,
             failure_code: failedCharge.failure_code,
@@ -1361,8 +1337,9 @@ describe('StripeHelper', () => {
                 current_period_start: subscription1.current_period_start,
                 cancel_at_period_end: false,
                 end_at: null,
-                plan_name: planName,
                 plan_id: subscription1.plan.id,
+                product_id: productId,
+                product_name: productName,
                 status: 'active',
                 subscription_id: subscription1.id,
                 failure_code: undefined,
@@ -1387,8 +1364,9 @@ describe('StripeHelper', () => {
                 current_period_start: subscription.current_period_start,
                 cancel_at_period_end: true,
                 end_at: null,
-                plan_name: planName,
                 plan_id: subscription.plan.id,
+                product_id: productId,
+                product_name: productName,
                 status: 'active',
                 subscription_id: subscription.id,
                 failure_code: undefined,
@@ -1412,8 +1390,9 @@ describe('StripeHelper', () => {
                   cancelledSubscription.current_period_start,
                 cancel_at_period_end: false,
                 end_at: cancelledSubscription.ended_at,
-                plan_name: planName,
                 plan_id: cancelledSubscription.plan.id,
+                product_id: productId,
+                product_name: productName,
                 status: 'canceled',
                 subscription_id: cancelledSubscription.id,
                 failure_code: undefined,
@@ -1464,36 +1443,6 @@ describe('StripeHelper', () => {
           'should not contain incompleteSubscription'
         );
       });
-    });
-  });
-
-  describe('formatPlanDisplayName', () => {
-    it('return a display name based off the plan interval and product name', async () => {
-      let actual, expected;
-      const plan = deepCopy(plan1);
-      const productName = plan.product.name;
-
-      sandbox.stub(stripeHelper, 'getProductName').returns(productName);
-
-      plan.interval = 'day';
-      expected = `${productName} Daily`;
-      actual = await stripeHelper.formatPlanDisplayName(plan);
-      assert.equal(actual, expected, 'it should format daily');
-
-      plan.interval = 'week';
-      expected = `${productName} Weekly`;
-      actual = await stripeHelper.formatPlanDisplayName(plan);
-      assert.equal(actual, expected, 'it should format weekly');
-
-      plan.interval = 'month';
-      expected = `${productName} Monthly`;
-      actual = await stripeHelper.formatPlanDisplayName(plan);
-      assert.equal(actual, expected, 'it should format monthly');
-
-      plan.interval = 'year';
-      expected = `${productName} Yearly`;
-      actual = await stripeHelper.formatPlanDisplayName(plan);
-      assert.equal(actual, expected, 'it should format yearly');
     });
   });
 

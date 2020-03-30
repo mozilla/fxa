@@ -23,11 +23,11 @@
 
       <ul class="delete-account-product-list {{#hasTwoColumnProductList}}two-col{{/hasTwoColumnProductList}}">
         {{#subscriptions}}
-          {{#plan_name}}
-            <li class="delete-account-product-subscription" title="{{plan_name}}">
-              {{plan_name}}
+          {{#product_name}}
+            <li class="delete-account-product-subscription" title="{{product_name}}">
+              {{product_name}}
             </li>
-          {{/plan_name}}
+          {{/product_name}}
         {{/subscriptions}}
 
         {{#uniqueBrowserNames}}

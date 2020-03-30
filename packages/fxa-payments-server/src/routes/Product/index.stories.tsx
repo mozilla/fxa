@@ -33,7 +33,8 @@ function init() {
               current_period_start: Date.now() / 1000 - 86400,
               cancel_at_period_end: false,
               end_at: null,
-              nickname: 'Example Plan',
+              product_name: 'Example Product',
+              product_id: 'prod_123',
               plan_id: 'plan_123',
               status: 'active',
               subscription_id: 'sk_78987',
@@ -213,7 +214,6 @@ const PROFILE: Profile = {
 const PLANS: Plan[] = [
   {
     plan_id: 'plan_123',
-    plan_name: 'Example Plan',
     product_id: PRODUCT_ID,
     product_name: 'Example Product',
     currency: 'USD',
@@ -235,7 +235,8 @@ const CUSTOMER: Customer = {
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
-      nickname: '123done Pro Monthly',
+      product_id: 'prod_123',
+      product_name: '123done Pro',
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,

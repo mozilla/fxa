@@ -31,7 +31,6 @@ const assertActionPayload = (
 
 const PLAN: Plan = {
   plan_id: 'plan_8675309',
-  plan_name: 'Example plan',
   product_id: 'prod_8675309',
   product_name: 'Example product',
   currency: 'usd',

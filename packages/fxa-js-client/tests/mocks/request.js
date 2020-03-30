@@ -565,7 +565,7 @@ module.exports = {
   getSubscriptionPlans: {
     status: 200,
     body:
-      '[{ "plan_id": "123doneProMonthly", "plan_name": "123done Pro Monthly", "product_id": "123doneProProduct", "product_name": "123done Pro", "interval": "month", "amount": 50, "currency": "usd" }]',
+      '[{ "plan_id": "123doneProMonthly", "product_id": "123doneProProduct", "product_name": "123done Pro", "interval": "month", "amount": 50, "currency": "usd" }]',
   },
   getActiveSubscriptions: {
     status: 200,

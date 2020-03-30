@@ -31,7 +31,6 @@ describe('views/support', function() {
   const UID = TestHelpers.createUid();
   const subscriptionsConfig = { managementClientId: 'OVER9000' };
   const supportTicket = {
-    plan: '123done',
     productName: 'FxA - 123Done Pro',
     topic: 'General inquiries',
     subject: '',
@@ -82,13 +81,16 @@ describe('views/support', function() {
       verified: true,
     });
     sinon.stub(account, 'fetchProfile').returns(Promise.resolve());
-    sinon
-      .stub(account, 'getSubscriptions')
-      .resolves([{ plan_id: '123done_9001', plan_name: '123done' }]);
+    sinon.stub(account, 'getSubscriptions').resolves([
+      {
+        plan_id: '123done_9001',
+        product_id: '123done_xyz',
+        product_name: '123Done Pro',
+      },
+    ]);
     sinon.stub(account, 'fetchSubscriptionPlans').resolves([
       {
         plan_id: '123done_9001',
-        plan_name: '123done',
         product_id: '123done_xyz',
         product_name: '123Done Pro',
       },
@@ -134,7 +136,7 @@ describe('views/support', function() {
         })
         .then(function() {
           view
-            .$('#plan option:eq(1)')
+            .$('#product option:eq(1)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(
@@ -153,12 +155,13 @@ describe('views/support', function() {
         })
         .then(function() {
           view
-            .$('#plan option:eq(1)')
+            .$('#product option:eq(1)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(notifier.trigger.callCount, 5);
           const args = notifier.trigger.args[4];
           assert.lengthOf(args, 3);
+          console.log(args);
           assert.equal(args[0], 'subscription.initialize');
           assert.instanceOf(args[1], SubscriptionModel);
           assert.equal(args[1].get('planId'), '123done_9001');
@@ -175,7 +178,7 @@ describe('views/support', function() {
         })
         .then(function() {
           view
-            .$('#plan option:eq(2)')
+            .$('#product option:eq(2)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(view.supportForm.get('productName'), 'FxA - Other');
@@ -196,7 +199,7 @@ describe('views/support', function() {
             TestHelpers.isEventLogged(metrics, 'flow.support.engage')
           );
           view
-            .$('#plan option:eq(1)')
+            .$('#product option:eq(1)')
             .prop('selected', true)
             .trigger('change');
           assert.isTrue(
@@ -218,7 +221,7 @@ describe('views/support', function() {
         });
     });
 
-    it('should be enabled once a plan, a topic, and a message is entered', function() {
+    it('should be enabled once a product, a topic, and a message is entered', function() {
       return view
         .render()
         .then(function() {
@@ -227,7 +230,7 @@ describe('views/support', function() {
         })
         .then(function() {
           view
-            .$('#plan option:eq(1)')
+            .$('#product option:eq(1)')
             .prop('selected', true)
             .trigger('change');
           assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
@@ -254,7 +257,7 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
-          view.$('#plan option:eq(1)').prop('selected', true);
+          view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
           view
             .$('#message')
@@ -284,7 +287,7 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
-          view.$('#plan option:eq(1)').prop('selected', true);
+          view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
           view
             .$('#message')
@@ -321,7 +324,7 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
-          view.$('#plan option:eq(1)').prop('selected', true);
+          view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
           view
             .$('#message')

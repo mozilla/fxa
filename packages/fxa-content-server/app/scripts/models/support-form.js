@@ -42,12 +42,7 @@ const topicOptions = _.zipWith(
 
 const SupportForm = Backbone.Model.extend({
   validate: function(attrs) {
-    if (
-      attrs.message !== '' &&
-      attrs.plan !== '' &&
-      attrs.productName &&
-      attrs.topic !== ''
-    ) {
+    if (attrs.message !== '' && attrs.productName && attrs.topic !== '') {
       return;
     }
 

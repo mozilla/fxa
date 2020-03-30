@@ -55,7 +55,6 @@ function assertRedirectForProduct(
 
 const MOCK_PLAN = {
   plan_id: 'plan_123',
-  plan_name: 'Example Plan',
   product_id: '123doneProProduct',
   product_name: 'Example Product',
   currency: 'USD',

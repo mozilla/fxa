@@ -266,8 +266,6 @@ export const STRIPE_FIELDS = [
 
 export const PLAN_ID = 'plan_12345';
 
-export const PLAN_NAME = 'Plan 12345 monthly';
-
 export const PRODUCT_ID = 'product_8675309';
 
 export const PRODUCT_NAME = 'Firefox Tanooki Suit';
@@ -279,7 +277,6 @@ export const PRODUCT_REDIRECT_URLS = {
 export const MOCK_PLANS: Plan[] = [
   {
     plan_id: PLAN_ID,
-    plan_name: PLAN_NAME,
     product_id: PRODUCT_ID,
     product_name: PRODUCT_NAME,
     interval: 'month',
@@ -293,7 +290,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: '123doneProMonthly',
-    plan_name: '123done Pro Monthly',
     product_id: '123donepro',
     product_name: '123doneProProduct',
     interval: 'month',
@@ -307,7 +303,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_upgrade',
-    plan_name: 'Upgrade Plan',
     product_id: 'prod_upgrade',
     product_name: 'Upgrade Product',
     interval: 'month',
@@ -320,7 +315,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_daily',
-    plan_name: 'FPN Daily',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'day',
@@ -333,7 +327,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_6days',
-    plan_name: 'FPN 6 days',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'day',
@@ -346,7 +339,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_weekly',
-    plan_name: 'FPN Weekly',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'week',
@@ -359,7 +351,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_6weeks',
-    plan_name: 'FPN 6 Weeks',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'week',
@@ -372,7 +363,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_monthly',
-    plan_name: 'FPN monthly',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'month',
@@ -385,7 +375,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_6months',
-    plan_name: 'FPN 6 months',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'month',
@@ -398,7 +387,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_yearly',
-    plan_name: 'FPN Yearly',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'year',
@@ -411,7 +399,6 @@ export const MOCK_PLANS: Plan[] = [
   },
   {
     plan_id: 'plan_6years',
-    plan_name: 'FPN 6 years',
     product_id: 'prod_fpn',
     product_name: 'FPN',
     interval: 'year',
@@ -470,7 +457,8 @@ export const MOCK_CUSTOMER = {
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
-      plan_name: '123done Pro Monthly',
+      product_id: 'prod_123',
+      product_name: '123done Pro',
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
@@ -486,7 +474,6 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
-      plan_name: 'Plan 12345',
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,

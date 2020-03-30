@@ -52,7 +52,6 @@
       "plans": [
         {
           "plan_id": "123doneProMonthly",
-          "plan_name": "123done Pro Monthly",
           "product_id": "123doneProProduct",
           "product_name": "123done Pro",
           "product_metadata": {
@@ -70,7 +69,6 @@
         },
         {
           "plan_id": "123doneProPlusMonthly",
-          "plan_name": "123done Pro Plus Monthly",
           "product_id": "123doneProPlusProduct",
           "product_name": "123done Pro+",
           "product_metadata": {
@@ -85,7 +83,6 @@
         },
         {
           "plan_id": "321doneProMonthly",
-          "plan_name": "321done Pro Monthly",
           "product_id": "321doneProProduct",
           "product_name": "321done Pro",
           "product_metadata": {
@@ -100,7 +97,6 @@
         },
         {
           "plan_id": "allDoneProMonthly",
-          "plan_name": "123done Pro and 321done Pro Monthly",
           "product_id": "allDoneProProduct",
           "product_name": "123done Pro and 321done Pro",
           "product_metadata": {
@@ -116,7 +112,6 @@
         },
         {
           "plan_id": "fortressProMonthly",
-          "plan_name": "Fortress Pro Monthly",
           "product_id": "fortressProProduct",
           "product_name": "Fortress Pro",
           "product_metadata": {
@@ -131,7 +126,6 @@
         },
         {
           "plan_id": "321doneProWeekly",
-          "plan_name": "321done Pro Weekly",
           "product_id": "321doneProProduct",
           "product_name": "321done Pro",
           "product_metadata": {
@@ -146,7 +140,6 @@
         },
         {
           "plan_id": "allDoneProWeekly",
-          "plan_name": "123done Pro and 321done Pro Weekly",
           "product_id": "allDoneProProduct",
           "product_name": "123done Pro and 321done Pro",
           "product_metadata": {

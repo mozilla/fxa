@@ -36,7 +36,6 @@ export interface Token {
 
 export interface Plan {
   plan_id: string;
-  plan_name: string;
   plan_metadata?: PlanMetadata;
   product_id: string;
   product_name: string;
@@ -75,8 +74,9 @@ export interface CustomerSubscription {
   current_period_end: number;
   current_period_start: number;
   end_at: number | null;
-  nickname: string;
   plan_id: string;
+  product_id: string;
+  product_name: string;
   status: string;
   subscription_id: string;
 }

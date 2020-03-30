@@ -33,13 +33,13 @@
             <form id="fxa-support" novalidate>
               <div class="support-field">
                 <div class="form-label">
-                  <label for="plan" id="plan-label">{{#t}}What are you contacting us about?{{/t}}</label>
+                  <label for="product" id="product-label">{{#t}}What are you contacting us about?{{/t}}</label>
                 </div>
                 <div class="input-row">
-                  <select id="plan" name="plan" data-placeholder="{{optionPlaceholder}}">
+                  <select id="product" name="product" data-placeholder="{{optionPlaceholder}}">
                     <option value=""></option>
                     {{#subscriptions}}
-                    <option value="{{plan_name}}">{{plan_name}}</option>
+                    <option value="{{product_name}}">{{product_name}}</option>
                     {{/subscriptions}}
                     <option value="Other">{{#t}}Other{{/t}}</option>
                   </select>
