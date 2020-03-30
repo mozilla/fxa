@@ -79,7 +79,6 @@ describe('/verify POST', () => {
     it('fails with no token', () => {
       const err = validate({
         token: undefined,
-        email: true,
       });
       joiRequired(err, 'token');
     });
@@ -87,7 +86,6 @@ describe('/verify POST', () => {
     it('no validation errors', () => {
       const err = validate({
         token: TOKEN,
-        email: true,
       });
       assert.strictEqual(err, null);
     });

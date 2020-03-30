@@ -119,18 +119,14 @@ module.exports = async function mock(options) {
     tokenGood: function tokenGood() {
       var parts = url.parse(config.get('oauth.url'));
       return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify', function(body) {
-          return body.email === false;
-        })
+        .post(parts.path + '/verify')
         .reply(200, TOKEN_GOOD);
     },
 
     token: function token(tok) {
       var parts = url.parse(config.get('oauth.url'));
       return nock(parts.protocol + '//' + parts.host)
-        .post(parts.path + '/verify', function(body) {
-          return body.email === false;
-        })
+        .post(parts.path + '/verify')
         .reply(200, JSON.stringify(tok));
     },
 
