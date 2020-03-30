@@ -4,8 +4,8 @@ import { formatCurrencyInCents } from '../../lib/formats';
 import { metadataFromPlan } from '../../store/utils';
 
 // this is a fallback incase webIconURL is undefined,
-// will check with jgruen on whether we have a different
-// image for this case.
+// this is a rare case, but it also keeps typescript
+// happy
 import ffLogo from '../../images/firefox-logo.svg';
 
 import './index.scss';

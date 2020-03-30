@@ -104,7 +104,7 @@ export const PaymentConfirmation = ({
             className="button download-link"
             href={productUrl}
           >
-            click to download
+            Continue to download
           </a>
         </Localized>
         <TermsAndPrivacy />
