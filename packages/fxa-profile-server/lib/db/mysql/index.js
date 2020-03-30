@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const path = require('path');
+const util = require('util');
 const mysql = require('mysql');
 const buf = require('buf').hex;
 const MysqlPatcher = require('mysql-patcher');
@@ -78,30 +79,24 @@ function checkDbPatchLevel(patcher) {
   return d.promise;
 }
 
-MysqlStore.connect = function mysqlConnect(options) {
+MysqlStore.connect = async function mysqlConnect(options) {
   options.createDatabase = options.createSchema;
   options.dir = path.join(__dirname, 'patches');
   options.metaTable = 'dbMetadata';
   options.patchKey = 'schema-patch-level';
   options.patchLevel = patch.level;
   options.mysql = mysql;
-  var patcher = new MysqlPatcher(options);
+  const patcher = new MysqlPatcher(options);
+  patcher.connectAsync = util.promisify(patcher.connect);
+  patcher.endAsync = util.promisify(patcher.end);
 
-  return P.promisify(patcher.connect, { context: patcher })()
-    .then(function() {
-      if (options.createSchema) {
-        return updateDbSchema(patcher);
-      }
-    })
-    .then(function() {
-      return checkDbPatchLevel(patcher);
-    })
-    .then(function() {
-      return P.promisify(patcher.end, { context: patcher })();
-    })
-    .then(function() {
-      return new MysqlStore(options);
-    });
+  await patcher.connectAsync();
+  if (options.createSchema) {
+    await updateDbSchema(patcher);
+  }
+  await checkDbPatchLevel(patcher);
+  await patcher.endAsync();
+  return new MysqlStore(options);
 };
 
 const Q_AVATAR_INSERT =
@@ -155,22 +150,18 @@ MysqlStore.prototype = {
     });
   },
 
-  addAvatar: function addAvatar(id, uid, url, provider) {
+  addAvatar: async function addAvatar(id, uid, url, provider) {
     id = buf(id);
     uid = buf(uid);
     var store = this;
-    return this.getProviderByName(provider).then(function(prov) {
-      if (!prov) {
-        throw AppError.unsupportedProvider(url);
-      }
+    const prov = await this.getProviderByName(provider);
+    if (!prov) {
+      throw AppError.unsupportedProvider(url);
+    }
 
-      return store
-        ._write(Q_AVATAR_INSERT, [id, url, uid, prov.id])
-        .then(function() {
-          // always select the newly uploaded avatar
-          return store._write(Q_AVATAR_UPDATE, [uid, id]);
-        });
-    });
+    await store._write(Q_AVATAR_INSERT, [id, url, uid, prov.id]);
+    // always select the newly uploaded avatar
+    return await store._write(Q_AVATAR_UPDATE, [uid, id]);
   },
 
   getAvatar: function getAvatar(id) {
@@ -217,8 +208,9 @@ MysqlStore.prototype = {
     return this._query(sql, params);
   },
 
-  _readOne: function _readOne(sql, params) {
-    return this._read(sql, params).then(firstRow);
+  _readOne: async function _readOne(sql, params) {
+    const result = await this._read(sql, params);
+    return firstRow(result);
   },
 
   _getConnection: function _getConnection() {
@@ -300,15 +292,10 @@ MysqlStore.prototype = {
 };
 
 if (config.get('env') === 'test') {
-  MysqlStore.prototype._clear = function clear() {
-    var store = this;
-    return this._write('DELETE FROM avatar_selected;')
-      .then(function() {
-        return store._write('DELETE FROM avatars;');
-      })
-      .then(function() {
-        return store._write('DELETE FROM avatar_providers;');
-      });
+  MysqlStore.prototype._clear = async function clear() {
+    await this._write('DELETE FROM avatar_selected;');
+    await this._write('DELETE FROM avatars;');
+    await this._write('DELETE FROM avatar_providers;');
   };
 }
 

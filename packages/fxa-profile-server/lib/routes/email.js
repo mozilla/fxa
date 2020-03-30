@@ -18,37 +18,35 @@ module.exports = {
     },
   },
   handler: async function email(req) {
-    return req.server
-      .inject({
-        allowInternals: true,
-        method: 'get',
-        url: '/v1/_core_profile',
-        headers: req.headers,
-        auth: {
-          credentials: req.auth.credentials,
-          // As of Hapi 18: "To use the new format simply wrap the credentials and optional
-          // artifacts with an auth object and add a new strategy key with a name matching
-          // a configured authentication strategy."
-          // Ref: https://github.com/hapijs/hapi/issues/3871
-          strategy: 'oauth',
-        },
-      })
-      .then(res => {
-        if (res.statusCode !== 200) {
-          return res;
-        }
-        // Since this route requires 'email' scope,
-        // we should always get an email field back.
-        if (!res.result.email) {
-          logger.error('request.auth_server.fail', res.result);
-          throw new AppError({
-            code: 500,
-            message: 'auth server did not return email',
-          });
-        }
-        return {
-          email: res.result.email,
-        };
+    const res = await req.server.inject({
+      allowInternals: true,
+      method: 'get',
+      url: '/v1/_core_profile',
+      headers: req.headers,
+      auth: {
+        credentials: req.auth.credentials,
+        // As of Hapi 18: "To use the new format simply wrap the credentials and optional
+        // artifacts with an auth object and add a new strategy key with a name matching
+        // a configured authentication strategy."
+        // Ref: https://github.com/hapijs/hapi/issues/3871
+        strategy: 'oauth',
+      },
+    });
+
+    if (res.statusCode !== 200) {
+      return res;
+    }
+    // Since this route requires 'email' scope,
+    // we should always get an email field back.
+    if (!res.result.email) {
+      logger.error('request.auth_server.fail', res.result);
+      throw new AppError({
+        code: 500,
+        message: 'auth server did not return email',
       });
+    }
+    return {
+      email: res.result.email,
+    };
   },
 };

@@ -57,33 +57,28 @@ function limit(gm) {
   return gm;
 }
 
-function compute(msg, callback) {
-  var id = msg.id;
-  var variant = msg.suffix || 'default';
-  var suffix = msg.suffix ? '_' + msg.suffix : '';
-  var src = Buffer.from(msg.payload);
-  var start = Date.now();
-  var s3Start = start;
+async function compute(msg, callback) {
+  const id = msg.id;
+  const variant = msg.suffix || 'default';
+  const suffix = msg.suffix ? '_' + msg.suffix : '';
+  const src = Buffer.from(msg.payload);
+  const start = Date.now();
+  let s3Start = start;
   logger.debug('process.start', { bytes: src.length, variant: variant });
-  processImage(src, msg.width, msg.height)
-    .then(function(out) {
-      s3Start = Date.now();
-      logger.info('time.ms.gm.' + variant, { duration: s3Start - start });
-      logger.debug('process.end', { bytes: out.length, variant: variant });
-      return img.upload(id + suffix, out, CONTENT_TYPE_PNG);
-    })
-    .done(
-      function() {
-        logger.info('time.ms.s3.' + variant, {
-          duration: Date.now() - s3Start,
-        });
-        callback({ id: id });
-      },
-      function(err) {
-        logger.error('compute', err);
-        callback({ id: id, error: err.message });
-      }
-    );
+  try {
+    const out = await processImage(src, msg.width, msg.height);
+    s3Start = Date.now();
+    logger.info('time.ms.gm.' + variant, { duration: s3Start - start });
+    logger.debug('process.end', { bytes: out.length, variant: variant });
+    await img.upload(id + suffix, out, CONTENT_TYPE_PNG);
+    logger.info('time.ms.s3.' + variant, {
+      duration: Date.now() - s3Start,
+    });
+    callback({ id: id });
+  } catch (err) {
+    logger.error('compute', err);
+    callback({ id: id, error: err.message });
+  }
 }
 exports.compute = compute;
 

@@ -4,7 +4,6 @@
 
 const crypto = require('crypto');
 
-const P = require('../promise');
 const config = require('../config');
 const logger = require('../logging')('img');
 
@@ -21,36 +20,30 @@ function unique() {
   return crypto.randomBytes(16).toString('hex'); // eslint-disable-line fxa/async-crypto-random
 }
 
-var driver;
-function withDriver() {
+let driver;
+async function withDriver() {
   if (driver) {
-    return P.resolve(driver);
+    return Promise.resolve(driver);
   }
-  var p;
-  if (config.get('img.driver') === 'aws') {
-    p = klass.connect();
-  } else {
-    p = klass.connect();
-  }
-  return p.then(function(store) {
-    store.id = unique;
-    logger.debug('connected', config.get('img.driver'));
-    return (driver = store); // eslint-disable-line no-return-assign
-  });
+
+  const store = await klass.connect();
+  store.id = unique;
+  logger.debug('connected', config.get('img.driver'));
+  // eslint-disable-next-line require-atomic-updates
+  return (driver = store); // eslint-disable-line no-return-assign
 }
 
 function proxy(method) {
-  return function proxied() {
-    var args = arguments;
-    return withDriver()
-      .then(function withDriverProxiedThen(driver) {
-        logger.verbose('proxied', { method: method, args: args.length });
-        return driver[method].apply(driver, args);
-      })
-      .catch(function(err) {
-        logger.error('proxied.error.' + method, err);
-        throw err;
-      });
+  return async function proxied() {
+    const args = arguments;
+    try {
+      const driver = await withDriver();
+      logger.verbose('proxied', { method: method, args: args.length });
+      return driver[method].apply(driver, args);
+    } catch (err) {
+      logger.error('proxied.error.' + method, err);
+      throw err;
+    }
   };
 }
 Object.keys(klass.prototype).forEach(function(key) {

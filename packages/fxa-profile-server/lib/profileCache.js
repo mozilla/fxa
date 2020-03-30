@@ -62,20 +62,19 @@ module.exports = function profileCache(server, options) {
 
   server.method(
     'profileCache.get',
-    (req, flags) => {
-      return batch(req, {
+    async (req, flags) => {
+      const result = await batch(req, {
         '/v1/_core_profile': true,
         '/v1/uid': true,
         '/v1/avatar': ['avatar', 'avatarDefault'],
         '/v1/display_name': true,
-      }).then(result => {
-        // Only cache the result if we can produce a suitable cache key.
-        const key = getProfileCacheKey(req);
-        // Since Hapi 17+ "When a server method is cached, the result no longer changes to an envelope with the result and ttl value."
-        // This feature seems poorly documented. Best source for info is the following https://github.com/outmoded/discuss/issues/751
-        flags.ttl = key ? undefined : 0;
-        return { result };
       });
+      // Only cache the result if we can produce a suitable cache key.
+      const key = getProfileCacheKey(req);
+      // Since Hapi 17+ "When a server method is cached, the result no longer changes to an envelope with the result and ttl value."
+      // This feature seems poorly documented. Best source for info is the following https://github.com/outmoded/discuss/issues/751
+      flags.ttl = key ? undefined : 0;
+      return { result };
     },
     {
       cache: {

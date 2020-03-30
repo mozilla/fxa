@@ -116,7 +116,7 @@ describe('events', function() {
               .then(function(avatar) {
                 assert.equal(avatar, undefined);
               })
-              .done(done, done);
+              .then(done, done);
           })
         );
       });
@@ -148,7 +148,7 @@ describe('events', function() {
               .then(function(profile) {
                 assert.equal(profile.displayName, 'foo bar');
               })
-              .done(done, done);
+              .then(done, done);
           })
         );
       });

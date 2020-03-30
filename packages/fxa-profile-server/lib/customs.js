@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var P = require('./promise');
-var Pool = require('./pool');
+const Pool = require('./pool');
 const AppError = require('./error');
 const logger = require('./logging')('customs');
 const config = require('./config').getProperties();
@@ -15,7 +14,7 @@ function Customs(options) {
   if (url === 'none') {
     this.pool = {
       post: function() {
-        return P.resolve({ block: false });
+        return Promise.resolve({ block: false });
       },
       close: function() {},
     };
@@ -24,42 +23,40 @@ function Customs(options) {
   }
 }
 
-Customs.prototype.checkAuthenticated = function(action, ip, uid) {
+Customs.prototype.checkAuthenticated = async function(action, ip, uid) {
   logger.info('customs.checkAuthenticated', {
     action: action,
     ip: ip,
     uid: uid,
   });
 
-  return this.pool
-    .post('/checkAuthenticated', {
+  let result;
+  try {
+    result = await this.pool.post('/checkAuthenticated', {
       action: action,
       ip: ip,
       uid: uid,
-    })
-    .then(
-      function(result) {
-        if (result.block) {
-          if (result.retryAfter) {
-            throw AppError.tooManyRequests(result.retryAfter);
-          }
+    });
+  } catch (err) {
+    logger.error('customs.checkAuthenticated', {
+      ip: ip,
+      uid: uid,
+      err: err,
+    });
 
-          throw AppError.requestBlocked();
-        }
-      },
-      function(err) {
-        logger.error('customs.checkAuthenticated', {
-          ip: ip,
-          uid: uid,
-          err: err,
-        });
+    // If this happens, either:
+    // - (1) the url in config doesn't point to a real customs server
+    // - (2) the customs server returned an internal server error
+    // Either way, allow the request through so we fail open.
+  }
 
-        // If this happens, either:
-        // - (1) the url in config doesn't point to a real customs server
-        // - (2) the customs server returned an internal server error
-        // Either way, allow the request through so we fail open.
-      }
-    );
+  if (result.block) {
+    if (result.retryAfter) {
+      throw AppError.tooManyRequests(result.retryAfter);
+    }
+
+    throw AppError.requestBlocked();
+  }
 };
 
 Customs.prototype.close = function() {

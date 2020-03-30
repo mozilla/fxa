@@ -18,14 +18,13 @@ module.exports = {
     },
   },
   handler: async function displayNameGet(req, h) {
-    return db.getDisplayName(req.auth.credentials.user).then(function(result) {
-      if (result && result.displayName) {
-        return h
-          .response({ displayName: result.displayName })
-          .etag(checksum(result.displayName));
-      } else {
-        return h.response({}).code(204);
-      }
-    });
+    const result = await db.getDisplayName(req.auth.credentials.user);
+    if (result && result.displayName) {
+      return h
+        .response({ displayName: result.displayName })
+        .etag(checksum(result.displayName));
+    } else {
+      return h.response({}).code(204);
+    }
   },
 };

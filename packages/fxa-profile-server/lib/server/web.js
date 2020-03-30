@@ -147,10 +147,9 @@ exports.create = async function createServer() {
           });
         }
 
-        return makeReq().then(body => {
-          return h.authenticated({
-            credentials: body,
-          });
+        const body = await makeReq();
+        return h.authenticated({
+          credentials: body,
         });
       },
     };

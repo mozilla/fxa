@@ -39,12 +39,10 @@ module.exports = {
   },
   handler: async function displayNamePost(req) {
     const uid = req.auth.credentials.user;
-    return req.server.methods.profileCache.drop(uid).then(() => {
-      const payload = req.payload;
-      return db.setDisplayName(uid, payload.displayName).then(() => {
-        notifyProfileUpdated(uid); // Don't wait on promise
-        return EMPTY;
-      });
-    });
+    await req.server.methods.profileCache.drop(uid);
+    const payload = req.payload;
+    await db.setDisplayName(uid, payload.displayName);
+    notifyProfileUpdated(uid); // Don't wait on promise
+    return EMPTY;
   },
 };

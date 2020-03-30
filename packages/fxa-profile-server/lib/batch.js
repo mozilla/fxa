@@ -5,7 +5,6 @@
 const AppError = require('./error');
 const Boom = require('@hapi/boom');
 const logger = require('./logging')('batch');
-const P = require('./promise');
 
 // Make multiple internal requests to routes, and merge their responses
 // into a single object.
@@ -35,14 +34,16 @@ const P = require('./promise');
 // for partial reads.  If *all* requests fail with a permission error
 // then this function will throw a permission error in return.
 //
-function batch(request, routeFieldsMap) {
+async function batch(request, routeFieldsMap) {
   const result = {};
   let numForbidden = 0;
   const routeFieldsKeys = Object.keys(routeFieldsMap);
 
-  return P.each(routeFieldsKeys, url => {
-    return request.server
-      .inject({
+  const requests = [];
+
+  routeFieldsKeys.forEach(url => {
+    requests.push(
+      request.server.inject({
         allowInternals: true,
         method: 'get',
         url: url,
@@ -56,40 +57,46 @@ function batch(request, routeFieldsMap) {
           strategy: 'oauth',
         },
       })
-      .then(res => {
-        let fields;
-        switch (res.statusCode) {
-          case 200:
-            fields = routeFieldsMap[url];
-            if (fields === true) {
-              fields = Object.keys(res.result);
-            }
-            fields.forEach(field => {
-              result[field] = res.result[field];
-            });
-            break;
-          case 403:
-            numForbidden++;
-          // This deliberately falls through to the following case.
-          case 204:
-          case 404:
-            logger.debug(url + ':' + res.statusCode, {
-              scope: request.auth.credentials.scope,
-              response: res.result,
-            });
-            break;
-          default:
-            logger.error(url + ':' + res.statusCode, res.result);
-            throw AppError.from(res.result);
-        }
-      });
-  }).then(() => {
-    // If *all* of the batch requests failed, fail out.
-    if (numForbidden === routeFieldsKeys.length) {
-      throw Boom.forbidden();
-    }
-    return result;
+    );
   });
+
+  const responses = await Promise.all(requests);
+
+  responses.forEach(res => {
+    const url = res.raw.req.url;
+    let fields;
+
+    switch (res.statusCode) {
+      case 200:
+        fields = routeFieldsMap[url];
+        if (fields === true) {
+          fields = Object.keys(res.result);
+        }
+        fields.forEach(field => {
+          result[field] = res.result[field];
+        });
+        break;
+      case 403:
+        numForbidden++;
+      // This deliberately falls through to the following case.
+      case 204:
+      case 404:
+        logger.debug(url + ':' + res.statusCode, {
+          scope: request.auth.credentials.scope,
+          response: res.result,
+        });
+        break;
+      default:
+        logger.error(url + ':' + res.statusCode, res.result);
+        throw AppError.from(res.result);
+    }
+  });
+
+  // If *all* of the batch requests failed, fail out.
+  if (numForbidden === routeFieldsKeys.length) {
+    throw Boom.forbidden();
+  }
+  return result;
 }
 
 module.exports = batch;

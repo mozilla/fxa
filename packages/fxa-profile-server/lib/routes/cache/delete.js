@@ -7,6 +7,6 @@ module.exports = {
     strategy: 'secretBearerToken',
   },
   handler: async function cacheDelete(req) {
-    return req.server.methods.profileCache.drop(req.params.uid);
+    return await req.server.methods.profileCache.drop(req.params.uid);
   },
 };

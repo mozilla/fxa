@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sink = require('fxa-notifier-aws').Sink;
-const P = require('./promise');
 
 const config = require('./config').getProperties();
 const db = require('./db');
@@ -25,9 +24,10 @@ module.exports = function(server) {
     return userId;
   }
 
-  function deleteUser(message) {
-    var userId = getUserId(message);
-    return P.all([
+  async function deleteUser(message) {
+    const userId = getUserId(message);
+
+    await Promise.all([
       db.getSelectedAvatar(userId).then(function(avatar) {
         if (avatar) {
           // if there is an avatar set then also delete it
@@ -37,41 +37,29 @@ module.exports = function(server) {
         }
       }),
       db.removeProfile(userId),
-    ]).then(function() {
-      logger.info(message.event, { uid: userId });
-    });
+    ]);
+
+    logger.info(message.event, { uid: userId });
   }
 
-  function primaryEmailChanged(message) {
-    var userId = getUserId(message);
-    return P.resolve()
-      .then(() => {
-        server.methods.profileCache.drop(userId).then(() => {
-          logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
-        });
-      })
-      .then(function() {
-        logger.info(message.event, { uid: userId });
-      });
+  async function primaryEmailChanged(message) {
+    const userId = getUserId(message);
+    logger.info(message.event, { uid: userId });
+    await server.methods.profileCache.drop(userId);
+    logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
   }
 
-  function profileDataChanged(message) {
-    var userId = getUserId(message);
-    return P.resolve()
-      .then(function() {
-        server.methods.profileCache.drop(userId).then(() => {
-          logger.info('profileDataChanged:cacheCleared', { uid: userId });
-        });
-      })
-      .then(function() {
-        logger.info(message.event, { uid: userId });
-      });
+  async function profileDataChanged(message) {
+    const userId = getUserId(message);
+    logger.info(message.event, { uid: userId });
+    await server.methods.profileCache.drop(userId);
+    logger.info('profileDataChanged:cacheCleared', { uid: userId });
   }
 
   function onData(message) {
     logger.verbose('data', message);
     var messageEvent = message.event;
-    return P.resolve()
+    return Promise.resolve()
       .then(function() {
         switch (messageEvent) {
           case 'delete':
@@ -84,7 +72,7 @@ module.exports = function(server) {
             return;
         }
       })
-      .done(
+      .then(
         function() {
           message.del();
         },

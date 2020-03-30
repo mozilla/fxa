@@ -86,21 +86,17 @@ module.exports = {
       return rep.header('last-modified', lastModified.toUTCString());
     }
 
-    return server.methods.profileCache.get(req).then(response => {
-      const result = response.value.result;
-      // Check to see if the oauth-server is reporting a newer `profileChangedAt`
-      // timestamp from validating the token, if so, lets invalidate the cache
-      // and set new value.
-      if (result.profileChangedAt < creds.profile_changed_at) {
-        return server.methods.profileCache.drop(creds.user).then(() => {
-          logger.info('profileChangedAt:cacheCleared', { uid: creds.user });
-          return server.methods.profileCache.get(req).then(response => {
-            return createResponse(response);
-          });
-        });
-      }
+    let response = await server.methods.profileCache.get(req);
+    const result = response.value.result;
+    // Check to see if the oauth-server is reporting a newer `profileChangedAt`
+    // timestamp from validating the token, if so, lets invalidate the cache
+    // and set new value.
+    if (result.profileChangedAt < creds.profile_changed_at) {
+      await server.methods.profileCache.drop(creds.user);
+      logger.info('profileChangedAt:cacheCleared', { uid: creds.user });
+      response = await server.methods.profileCache.get(req);
+    }
 
-      return createResponse(response);
-    });
+    return createResponse(response);
   },
 };
