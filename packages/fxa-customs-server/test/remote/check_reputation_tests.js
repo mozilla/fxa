@@ -227,7 +227,11 @@ ENDPOINTS.forEach(endpoint => {
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200');
         t.equal(obj.block, true, 'action blocked');
-        t.equal(obj.blockReason, undefined, 'block reason not returned');
+        t.equal(
+          obj.blockReason,
+          'ip_reputation_too_low',
+          'block reason returned'
+        );
         return Promise.delay(TEST_DELAY_MS);
       })
       .then(function() {

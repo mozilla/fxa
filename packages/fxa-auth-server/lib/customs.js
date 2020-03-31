@@ -11,20 +11,20 @@ const localizeTimestamp = require('../../fxa-shared').l10n.localizeTimestamp({
   supportedLanguages: config.get('i18n').supportedLanguages,
   defaultLanguage: config.get('i18n').defaultLanguage,
 });
+const serviceName = 'customs';
 
 module.exports = function(log, error, statsd) {
   const CustomsAPI = createBackendServiceAPI(
     log,
     config,
-    'customs',
+    serviceName,
     {
       check: {
         path: '/check',
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string()
-              .required(),
+            email: Joi.string().required(),
             ip: Joi.string().required(),
             action: Joi.string().required(),
             headers: Joi.object().optional(),
@@ -81,8 +81,7 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string()
-              .required(),
+            email: Joi.string().required(),
             ip: Joi.string().required(),
             errno: Joi.number().required(),
           },
@@ -95,8 +94,7 @@ module.exports = function(log, error, statsd) {
         method: 'POST',
         validate: {
           payload: {
-            email: Joi.string()
-              .required(),
+            email: Joi.string().required(),
           },
           response: {},
         },
@@ -151,8 +149,34 @@ module.exports = function(log, error, statsd) {
       query: request.query,
       payload: sanitizePayload(request.payload),
     });
+
+    optionallyReportStatsD('request.check', action, result);
+
     return handleCustomsResult(request, result);
   };
+
+  function optionallyReportStatsD(name, action, options = {}) {
+    if (statsd) {
+      const { block, unblock, suspect, blockReason } = options;
+
+      // The action and block values will always be reported, all others are optional
+      const tags = { action, block };
+
+      if (options.unblock !== undefined) {
+        tags['unblock'] = unblock;
+      }
+
+      if (options.suspect !== undefined) {
+        tags['suspect'] = suspect;
+      }
+
+      if (options.blockReason !== undefined) {
+        tags['blockReason'] = blockReason;
+      }
+
+      statsd.increment(`${serviceName}.${name}`, tags);
+    }
+  }
 
   // Annotate the request and/or throw an error
   // based on the check result returned by customs-server.
@@ -192,6 +216,9 @@ module.exports = function(log, error, statsd) {
       ip: request.app.clientAddress,
       uid: uid,
     });
+
+    optionallyReportStatsD('request.checkAuthenticated', action, result);
+
     return handleCustomsResult(request, result);
   };
 
@@ -200,6 +227,9 @@ module.exports = function(log, error, statsd) {
       ip: request.app.clientAddress,
       action: action,
     });
+
+    optionallyReportStatsD('request.checkIpOnly', action, result);
+
     return handleCustomsResult(request, result);
   };
 

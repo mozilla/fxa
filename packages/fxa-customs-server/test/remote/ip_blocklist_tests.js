@@ -68,6 +68,7 @@ ENDPOINTS.forEach(endpoint => {
       { ip: BLOCK_IP_INRANGE, email: TEST_EMAIL, action: ACTION },
       function(err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked');
+        t.equal(obj.blockReason, 'ip_in_blocklist', 'blockReason set');
         t.end();
       }
     );
