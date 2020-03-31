@@ -4,6 +4,26 @@
 
 No changes.
 
+## 1.164.1-fpn-mobile-payments
+
+### New features
+
+* payment-server: mobile payments flow for fpn ([216a30578](https://github.com/mozilla/fxa/commit/216a30578))
+* payment-server: update plan billing text on tiers page ([994d3c078](https://github.com/mozilla/fxa/commit/994d3c078))
+* payment-server: update settings page billing description ([4196eadc2](https://github.com/mozilla/fxa/commit/4196eadc2))
+* payment-server: update legal checkbox text on tiers page ([b9a29c061](https://github.com/mozilla/fxa/commit/b9a29c061))
+* payment-server: update legal checkbox text on payments page ([3930b9b35](https://github.com/mozilla/fxa/commit/3930b9b35))
+* payments: update messaging used for payments page main pricing header ([bbb170699](https://github.com/mozilla/fxa/commit/bbb170699))
+
+### Refactorings
+
+* payments: extract fluent l10n testing logic ([f7cdee15a](https://github.com/mozilla/fxa/commit/f7cdee15a))
+
+### Other changes
+
+* payments: clean up .ftl file ([f09b2e8e3](https://github.com/mozilla/fxa/commit/f09b2e8e3))
+* payments: move currency symbol to formatCurrencyInCents function ([139547445](https://github.com/mozilla/fxa/commit/139547445))
+
 ## 1.164.0
 
 ### Bug fixes

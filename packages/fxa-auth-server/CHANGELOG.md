@@ -2,6 +2,12 @@
 
 No changes.
 
+## 1.164.1-fpn-mobile-payments
+
+### New features
+
+* payment-server: mobile payments flow for fpn ([216a30578](https://github.com/mozilla/fxa/commit/216a30578))
+
 ## 1.164.0
 
 ### New features
