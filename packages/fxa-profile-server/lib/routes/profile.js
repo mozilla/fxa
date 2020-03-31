@@ -47,7 +47,7 @@ module.exports = {
 
     function createResponse(response) {
       const { value, cached, report } = response;
-      const result = value.result;
+      const result = value;
       // `profileChangedAt` is an internal implementation detail that we don't
       // return to reliers. As of now, we don't expect them to have any
       // use for this.
@@ -87,7 +87,12 @@ module.exports = {
     }
 
     return server.methods.profileCache.get(req).then(response => {
-      const result = response.value.result;
+      let result = response.value;
+      if (response.value.result) {
+        // safety check for several entries that were wrapped in an extra result.
+        // this can be safely removed after train-165 is deployed.
+        result = response.value.result;
+      }
       // Check to see if the oauth-server is reporting a newer `profileChangedAt`
       // timestamp from validating the token, if so, lets invalidate the cache
       // and set new value.

@@ -74,7 +74,7 @@ module.exports = function profileCache(server, options) {
         // Since Hapi 17+ "When a server method is cached, the result no longer changes to an envelope with the result and ttl value."
         // This feature seems poorly documented. Best source for info is the following https://github.com/outmoded/discuss/issues/751
         flags.ttl = key ? undefined : 0;
-        return { result };
+        return result;
       });
     },
     {
