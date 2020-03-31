@@ -4,6 +4,12 @@
 
 * settings: replace Subscriptions ## 1.164.0 Payments section title encoded "## 1.164.0amp;" with "## 1.164.0" ([61e2c97f1](https://github.com/mozilla/fxa/commit/61e2c97f1))
 
+## 1.164.1-fpn-mobile-updates
+
+### Other changes
+
+* 4f526df0f Pull in e973eb28 and fix conflicts ([4f526df0f](https://github.com/mozilla/fxa/commit/4f526df0f))
+
 ## 1.164.0
 
 ### Bug fixes

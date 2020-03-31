@@ -4,6 +4,10 @@
 
 * profile: do not wrap the cached entries into an extra 'result' ([a806cadf4](https://github.com/mozilla/fxa/commit/a806cadf4))
 
+## 1.164.1-fpn-mobile-updates
+
+No changes.
+
 ## 1.164.0
 
 ### Bug fixes

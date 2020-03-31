@@ -4,6 +4,12 @@
 
 No changes.
 
+## 1.164.1-fpn-mobile-updates
+
+### Other changes
+
+* 4f526df0f Pull in e973eb28 and fix conflicts ([4f526df0f](https://github.com/mozilla/fxa/commit/4f526df0f))
+
 ## 1.164.0
 
 ### Bug fixes
