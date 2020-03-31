@@ -706,7 +706,7 @@ describe('DirectStripeRoutes', () => {
     const selectedPlan = {
       plan_id: 'plan_G93mMKnIFCjZek',
       plan_name: 'Firefox Pro Basic Weekly',
-      product_id: 'firefox_pro_basic',
+      product_id: 'prod_G93mdk6bGPJ7wy',
       product_name: 'Firefox Pro Basic',
       interval: 'week',
       amount: '123',
@@ -911,6 +911,37 @@ describe('DirectStripeRoutes', () => {
         });
       });
     });
+
+    describe('user with existing subscription for product', () => {
+      it('throws an error', async () => {
+        const existingSubscription = deepCopy(subscription2);
+        existingSubscription.plan.id = 'plan_123456';
+        customer.subscriptions.data = [existingSubscription];
+
+        return directStripeRoutesInstance
+          .createSubscriptionExistingCustomer(
+            customer,
+            null,
+            selectedPlan,
+            idempotencyKey
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            err => {
+              assert.instanceOf(err, WError);
+              assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_EXISTS);
+              assert.equal(
+                err.message,
+                'User already subscribed to product with different plan.'
+              );
+              assert.isTrue(
+                directStripeRoutesInstance.stripeHelper.createSubscription
+                  .notCalled
+              );
+            }
+          );
+      });
+    });
   });
 
   describe('handleOpenInvoice', () => {
@@ -1040,6 +1071,99 @@ describe('DirectStripeRoutes', () => {
           directStripeRoutesInstance.findCustomerSubscriptionByPlanId(
             customer,
             'plan_test2'
+          )
+        );
+      });
+    });
+  });
+
+  describe('findCustomerSubscriptionByProductId', () => {
+    describe('Customer has Single One-Plan Subscription', () => {
+      const customer = deepCopy(customerFixture);
+      customer.subscriptions.data = [subscription2];
+      it('returns the Subscription when the plan id is found', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+          customer,
+          customer.subscriptions.data[0].items.data[0].plan.product
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'prod_test2'
+          )
+        );
+      });
+    });
+
+    describe('Customer has Single Multi-Plan Subscription', () => {
+      const customer = deepCopy(customerFixture);
+      customer.subscriptions.data = [multiPlanSubscription];
+
+      it('returns the Subscription when the product id is found - first in array', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+          customer,
+          'prod_GgIk7jEVeDK06M'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns the Subscription when the product id is found - not first in array', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+          customer,
+          'prod_GgIlYvvmpprKAy'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the plan id is not found', () => {
+        assert.isUndefined(
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'prod_3'
+          )
+        );
+      });
+    });
+
+    describe('Customer has Multiple Subscriptions', () => {
+      const customer = deepCopy(customerFixture);
+      customer.subscriptions.data = [multiPlanSubscription, subscription2];
+
+      it('returns the Subscription when the product id is found in the first subscription', () => {
+        const expected = customer.subscriptions.data[0];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+          customer,
+          'prod_GgIk7jEVeDK06M'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns the Subscription when the product id is found in not the first subscription', () => {
+        const expected = customer.subscriptions.data[1];
+        const actual = directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+          customer,
+          'prod_G93mdk6bGPJ7wy'
+        );
+
+        assert.deepEqual(actual, expected);
+      });
+
+      it('returns `undefined` when the product id is not found', () => {
+        assert.isUndefined(
+          directStripeRoutesInstance.findCustomerSubscriptionByProductId(
+            customer,
+            'product_test2'
           )
         );
       });

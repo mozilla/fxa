@@ -269,11 +269,32 @@ class DirectStripeRoutes {
       );
     }
 
-    // Check if the customer already has subscribed to this plan.
-    const subscription = this.findCustomerSubscriptionByPlanId(
+    const subscription = this.findCustomerSubscriptionByProductId(
       customer,
-      selectedPlan.plan_id
+      selectedPlan.product_id
     );
+
+    // If the user has a subscription to the product
+    if (subscription) {
+      // AND the plan is differetn
+      if (subscription.plan.id !== selectedPlan.plan_id) {
+        throw error.userAlreadySubscribedToProduct();
+      }
+
+      // If we have a prior subscription to the plan, we have 3 options:
+      //   1) Open subscription that needs a payment method, try to pay it
+      //   2) Paid subscription, stop and return as they already have the sub
+      //   3) Old subscription will have no open invoices, ignore it
+      if (subscription.latest_invoice) {
+        const invoice = /** @type {Invoice} */ (subscription.latest_invoice);
+        if (invoice.status === 'open') {
+          await this.handleOpenInvoice(invoice);
+          return subscription;
+        } else if (invoice.status === 'paid') {
+          throw error.subscriptionAlreadyExists();
+        }
+      }
+    }
 
     // If we have a prior subscription, we have 3 options:
     //   1) Open subscription that needs a payment method, try to pay it
@@ -319,6 +340,19 @@ class DirectStripeRoutes {
   findCustomerSubscriptionByPlanId(customer, planId) {
     const subscription = customer.subscriptions.data.find(
       sub => sub.items.data.find(item => item.plan.id === planId) != null
+    );
+
+    return subscription;
+  }
+
+  findCustomerSubscriptionByProductId(customer, productId) {
+    const subscription = customer.subscriptions.data.find(
+      sub =>
+        sub.items.data.find(
+          item =>
+            item.plan.product === productId ||
+            item.plan.product.id === productId
+        ) != null
     );
 
     return subscription;
