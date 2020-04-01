@@ -29,9 +29,5 @@ COPY --chown=app:app ["fxa-shared", "../fxa-shared/"]
 WORKDIR /fxa-shared
 RUN npm ci
 
-COPY --chown=app:app ["fxa-js-client", "../fxa-js-client/"]
-WORKDIR /fxa-js-client
-RUN npm ci
-
 WORKDIR /app
 RUN npm run build-production

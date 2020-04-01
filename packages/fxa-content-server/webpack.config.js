@@ -70,10 +70,7 @@ const webpackConfig = {
         __dirname,
         'node_modules/es6-promise/dist/es6-promise'
       ),
-      fxaClient: path.resolve(
-        __dirname,
-        '../fxa-js-client/client/FxAccountClient'
-      ),
+      // fxaClient: path.resolve(__dirname, '../fxa-auth-client/dist/fxa-client'), //path.resolve(__dirname, '../fxa-js-client/build/fxa-client'), //
       fxaCryptoDeriver: path.resolve(
         __dirname,
         'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'

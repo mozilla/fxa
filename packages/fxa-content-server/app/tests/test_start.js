@@ -14,6 +14,8 @@ import Session from 'lib/session';
 require('./spec/head/startup-styles');
 require('./spec/lib/app-start');
 require('./spec/lib/auth-errors');
+require('./spec/lib/auth/crypto');
+require('./spec/lib/auth/hawk');
 require('./spec/lib/channels/duplex');
 require('./spec/lib/channels/fx-desktop-v1');
 require('./spec/lib/channels/inter-tab');
