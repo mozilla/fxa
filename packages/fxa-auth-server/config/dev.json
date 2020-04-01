@@ -329,6 +329,17 @@
         "publicClient": true
       },
       {
+        "id": "1b1a3e44c54fbb58",
+        "name": "Firefox for iOS",
+        "hashedSecret": "4a892c55feaceb4ef2dbfffaaaa3d8eea94b5c205c815dddfc90170741cd4c19",
+        "imageUri": "",
+        "redirectUri": "http://127.0.0.1:3030/oauth/success/1b1a3e44c54fbb58",
+        "canGrant": true,
+        "trusted": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
+        "publicClient": true
+      },
+      {
         "id": "59cceb6f8c32317c",
         "name": "Firefox Accounts Subscriptions",
         "hashedSecret": "220e560d48cf91dbba0219b986ca242a0b278eab8467bb07442fdfed1b245788",

@@ -17,6 +17,6 @@ docker run --rm --name syncserver \
   -e SYNCSERVER_SECRET=5up3rS3kr1t \
   -e SYNCSERVER_SQLURI=sqlite:////tmp/syncserver.db \
   -e SYNCSERVER_BATCH_UPLOAD_ENABLED=true \
-  -e SYNCSERVER_FORCE_WSGI_ENVIRON=false \
+  -e SYNCSERVER_FORCE_WSGI_ENVIRON=true \
   -e PORT=5000 \
   mozilla/syncserver:latest
