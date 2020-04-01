@@ -18,6 +18,7 @@ function getOrigin(link: string) {
  */
 export default function cspBlocking(config: { [key: string]: any }) {
   const ADMIN_SERVER = getOrigin(config.get('servers.admin.url'));
+  const HMR_WS_SERVER = getOrigin(config.get('servers.hmr_websocket.url'));
   const CDN_URL = config.get('staticResources.url');
   const PUBLIC_URL = config.get('listen.publicUrl');
   const HOT_RELOAD_WEBSOCKET = PUBLIC_URL.replace(/^http/, 'ws');
@@ -27,6 +28,7 @@ export default function cspBlocking(config: { [key: string]: any }) {
   //
   const NONE = "'none'";
   const SELF = "'self'";
+  const UNSAFE_INLINE = "'unsafe-inline'";
 
   function addCdnRuleIfRequired(target: Array<string>) {
     if (CDN_URL !== PUBLIC_URL) {
@@ -35,16 +37,25 @@ export default function cspBlocking(config: { [key: string]: any }) {
     return target;
   }
 
+  let connectSrc = [SELF, ADMIN_SERVER];
+  let styleSrc = [SELF];
+  // Permit unsafe-inline styles and connecting to the React WebSocket
+  // at a different port in development so you can access 8091 with HMR
+  if (process.env.NODE_ENV === 'development') {
+    connectSrc.push(HMR_WS_SERVER);
+    styleSrc.push(UNSAFE_INLINE);
+  }
+
   const rules = {
     directives: {
-      connectSrc: [SELF, ADMIN_SERVER],
+      connectSrc: connectSrc,
       defaultSrc: [NONE],
       baseUri: [NONE],
       frameAncestors: [NONE],
       fontSrc: addCdnRuleIfRequired([SELF]),
       imgSrc: addCdnRuleIfRequired([SELF]),
       scriptSrc: addCdnRuleIfRequired([SELF]),
-      styleSrc: addCdnRuleIfRequired([SELF]),
+      styleSrc: addCdnRuleIfRequired(styleSrc),
       reportUri: config.get('csp.reportUri'),
     },
     reportOnly: false,

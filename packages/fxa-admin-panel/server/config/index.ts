@@ -110,6 +110,14 @@ const conf = convict({
         format: 'url',
       },
     },
+    hmr_websocket: {
+      url: {
+        default: 'ws://127.0.0.1:8092',
+        doc: 'The url of the fxa-admin-panel HMR WebSocket',
+        env: 'HMR_WS_SERVER_URL',
+        format: String, // convict does not recognize ws:// as a valid URL
+      },
+    },
   },
   staticResources: {
     directory: {
