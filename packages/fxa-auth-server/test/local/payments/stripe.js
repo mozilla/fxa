@@ -36,6 +36,7 @@ const unpaidInvoice = require('./fixtures/invoice_open.json');
 const successfulPaymentIntent = require('./fixtures/paymentIntent_succeeded.json');
 const unsuccessfulPaymentIntent = require('./fixtures/paymentIntent_requires_payment_method.json');
 const failedCharge = require('./fixtures/charge_failed.json');
+const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -1493,6 +1494,190 @@ describe('StripeHelper', () => {
       expected = `${productName} Yearly`;
       actual = await stripeHelper.formatPlanDisplayName(plan);
       assert.equal(actual, expected, 'it should format yearly');
+    });
+  });
+
+  describe('extractInvoiceDetailsForEmail', () => {
+    const fixture = { ...invoicePaymentSucceededSubscriptionCreate };
+    const firstLine = fixture.lines.data[0];
+    const planId = firstLine.plan.id;
+    const planName = firstLine.plan.nickname;
+    const productId = firstLine.plan.product;
+    const productName = 'Example Product';
+
+    const mockProduct = {
+      id: productId,
+      name: productName,
+      metadata: {
+        emailIconURL: 'http://example.com/icon',
+        downloadURL: 'http://example.com/download',
+      },
+    };
+    const mockCustomer = {
+      metadata: {
+        userid: '1234abcd',
+      },
+    };
+    const mockCharge = {
+      payment_method_details: {
+        card: {
+          brand: 'visa',
+          last4: '5309',
+        },
+      },
+    };
+
+    let sandbox, mockStripe, mockAllProducts;
+    beforeEach(() => {
+      sandbox = sinon.createSandbox();
+
+      mockAllProducts = [
+        {
+          product_id: mockProduct.id,
+          product_name: mockProduct.name,
+          product_metadata: mockProduct.metadata,
+        },
+        {
+          product_id: 'wrongProduct',
+          product_name: 'Wrong Product',
+          product_metadata: {},
+        },
+      ];
+      sandbox.stub(stripeHelper, 'allProducts').resolves(mockAllProducts);
+
+      mockStripe = {
+        products: {
+          retrieve: sinon.stub().resolves(mockProduct),
+        },
+        customers: {
+          retrieve: sinon.stub().resolves(mockCustomer),
+        },
+        charges: {
+          retrieve: sinon.stub().resolves(mockCharge),
+        },
+      };
+      stripeHelper.stripe = mockStripe;
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    const expected = {
+      uid: '1234abcd',
+      email: 'test+20200324@example.com',
+      cardType: 'visa',
+      lastFour: '5309',
+      invoiceNumber: 'AAF2CECC-0001',
+      invoiceTotal: 5,
+      invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
+      nextInvoiceDate: new Date('2020-03-24T22:23:40.000Z'),
+      productId: mockProduct.id,
+      productName: mockProduct.name,
+      planId: 'plan_GqM9N6qyhvxaVk',
+      planName: '123Done Pro Monthly',
+      planEmailIconURL: 'http://example.com/icon',
+      planDownloadURL: 'http://example.com/download',
+    };
+
+    const expectedFailure = {
+      uid: '',
+      email: '',
+      cardType: '',
+      lastFour: '',
+      invoiceNumber: '',
+      invoiceTotal: 0,
+      invoiceDate: new Date(NaN),
+      nextInvoiceDate: new Date(NaN),
+      productId: '',
+      productName: '',
+      planId: '',
+      planName: '',
+      planEmailIconURL: '',
+      planDownloadURL: '',
+    };
+
+    it('extracts expected details from an invoice that requires requests to expand', async () => {
+      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+      assert.isTrue(stripeHelper.allProducts.called);
+      assert.isFalse(mockStripe.products.retrieve.called);
+      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
+      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+      assert.deepEqual(result, expected);
+    });
+
+    it('extracts expected details from an invoice when product is missing from cache', async () => {
+      mockAllProducts[0].product_id = 'nope';
+      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+      assert.isTrue(stripeHelper.allProducts.called);
+      assert.isTrue(mockStripe.products.retrieve.called);
+      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
+      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+      assert.deepEqual(result, expected);
+    });
+
+    it('extracts expected details from an expanded invoice', async () => {
+      const fixture = {
+        ...invoicePaymentSucceededSubscriptionCreate,
+        lines: {
+          data: [
+            {
+              plan: {
+                id: planId,
+                nickname: planName,
+                metadata: {
+                  emailIconURL: 'http://example.com/icon',
+                },
+                product: mockProduct,
+              },
+            },
+          ],
+        },
+        customer: mockCustomer,
+        charge: mockCharge,
+      };
+      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+      assert.isFalse(stripeHelper.allProducts.called);
+      assert.isFalse(mockStripe.products.retrieve.called);
+      assert.isFalse(mockStripe.customers.retrieve.called);
+      assert.isFalse(mockStripe.charges.retrieve.called);
+      assert.deepEqual(result, expected);
+    });
+
+    it('logs an error for deleted customer', async () => {
+      mockStripe.customers.retrieve = sinon
+        .stub()
+        .resolves({ ...mockCustomer, deleted: true });
+      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+      assert.isTrue(stripeHelper.allProducts.called);
+      assert.isFalse(mockStripe.products.retrieve.called);
+      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
+      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+      assert.deepEqual(result, expectedFailure);
+      assert.isTrue(log.error.called, 'log.error was called');
+    });
+
+    it('logs an error for deleted product', async () => {
+      mockAllProducts[0].product_id = 'nope';
+      mockStripe.products.retrieve = sinon
+        .stub()
+        .resolves({ ...mockProduct, deleted: true });
+      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+      assert.isTrue(mockStripe.products.retrieve.calledWith(productId));
+      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
+      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+      assert.deepEqual(result, expectedFailure);
+      assert.isTrue(log.error.called, 'log.error was called');
+    });
+
+    it('logs an error with unexpected data', async () => {
+      const fixture = {
+        ...invoicePaymentSucceededSubscriptionCreate,
+        lines: null,
+      };
+      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+      assert.deepEqual(result, expectedFailure);
+      assert.isTrue(log.error.called, 'log.error was called');
     });
   });
 });

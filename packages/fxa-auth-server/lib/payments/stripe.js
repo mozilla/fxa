@@ -13,6 +13,7 @@ const stripe = require('stripe').Stripe;
 /** @typedef {import('stripe').Stripe.Event} StripeEvent */
 /** @typedef {import('stripe').Stripe.Plan} Plan */
 /** @typedef {import('stripe').Stripe.Product} Product */
+/** @typedef {import('stripe').Stripe.DeletedProduct} DeletedProduct */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
@@ -169,13 +170,23 @@ class StripeHelper {
   async fetchAllProducts() {
     const products = [];
     for await (const product of this.stripe.products.list()) {
-      products.push({
-        product_id: product.id,
-        product_name: product.name,
-        product_metadata: product.metadata,
-      });
+      products.push(this.abbrevProductFromStripeProduct(product));
     }
     return products;
+  }
+
+  /**
+   * Extract an AbbrevProduct from Stripe Product
+   *
+   * @param {Product} product
+   * @returns {AbbrevProduct}
+   */
+  abbrevProductFromStripeProduct(product) {
+    return {
+      product_id: product.id,
+      product_name: product.name,
+      product_metadata: product.metadata,
+    };
   }
 
   /**
@@ -854,6 +865,137 @@ class StripeHelper {
       payload,
       signature,
       this.webhookSecret
+    );
+  }
+
+  /**
+   * Extract invoice details for billing emails
+   *
+   * @param {Invoice} invoice
+   */
+  async extractInvoiceDetailsForEmail(invoice) {
+    let uid = '',
+      email = '',
+      invoiceNumber = '',
+      invoiceDate,
+      invoiceTotal = 0,
+      cardType = '',
+      lastFour = '',
+      nextInvoiceDate,
+      productId = '',
+      productName = '',
+      planId = '',
+      planName = '',
+      planEmailIconURL = '',
+      planDownloadURL = '';
+
+    try {
+      if (invoice && typeof invoice === 'object') {
+        // Dig up & expand objects in the invoice that usually come as just IDs
+        const { plan } = invoice.lines.data[0];
+        const [abbrevProduct, customer, charge] = await Promise.all([
+          this.expandAbbrevProductForPlan(plan),
+          this.expandResource(invoice.customer, 'customers'),
+          this.expandResource(invoice.charge, 'charges'),
+        ]);
+
+        if (customer.deleted === true) {
+          throw error.unknownCustomer(invoice.customer);
+        }
+
+        const metadata = {
+          ...abbrevProduct.product_metadata,
+          ...plan.metadata,
+        };
+        uid = customer.metadata.userid;
+        ({ product_id: productId, product_name: productName } = abbrevProduct);
+        ({
+          number: invoiceNumber,
+          created: invoiceDate,
+          total: invoiceTotal,
+          period_end: nextInvoiceDate,
+          customer_email: email,
+        } = invoice);
+        ({ id: planId, nickname: planName } = plan);
+        ({
+          emailIconURL: planEmailIconURL,
+          downloadURL: planDownloadURL,
+        } = metadata);
+        ({
+          brand: cardType,
+          last4: lastFour,
+        } = charge.payment_method_details.card);
+      }
+    } catch (err) {
+      this.log.error('subscriptions.extractInvoiceDetailsFromSubscription', {
+        err,
+      });
+    }
+
+    return {
+      uid,
+      email,
+      cardType,
+      lastFour,
+      invoiceNumber,
+      invoiceTotal: invoiceTotal / 100.0,
+      invoiceDate: new Date(invoiceDate * 1000),
+      nextInvoiceDate: new Date(nextInvoiceDate * 1000),
+      productId,
+      productName,
+      planId,
+      planName,
+      planEmailIconURL,
+      planDownloadURL,
+    };
+  }
+
+  /**
+   * Accept a string ID or resource object, return a resource object after
+   * retrieving (if necessary)
+   *
+   * @template T
+   * @param {string | T} resource
+   * @param {string} resourceType
+   *
+   * @returns {Promise<T>}
+   */
+  async expandResource(resource, resourceType) {
+    return typeof resource === 'string'
+      ? this.stripe[resourceType].retrieve(resource)
+      : resource;
+  }
+
+  /**
+   * Accept a Stripe Plan, attempt to expand an AbbrevProduct from cache
+   * or Stripe fetch
+   *
+   * @param {Plan} plan
+   * @returns { Promise<AbbrevProduct> }
+   */
+  async expandAbbrevProductForPlan(plan) {
+    const checkDeletedProduct = product => {
+      if (product.deleted === true) {
+        throw error.unknownSubscriptionPlan(plan.id);
+      }
+      return this.abbrevProductFromStripeProduct(product);
+    };
+
+    // If we already have an expanded Product, just extract from that.
+    if (typeof plan.product === 'object') {
+      return checkDeletedProduct(plan.product);
+    }
+
+    // Next, look for product details in cache
+    const products = await this.allProducts();
+    const productCached = products.find(p => p.product_id === plan.product);
+    if (productCached) {
+      return productCached;
+    }
+
+    // Finally, do a direct Stripe fetch if none of the above works.
+    return checkDeletedProduct(
+      await this.stripe.products.retrieve(plan.product)
     );
   }
 }
