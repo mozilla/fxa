@@ -504,7 +504,7 @@ describe('/account/create', () => {
         authPW: hexString(32),
         service: 'sync',
         metricsContext: {
-          deviceId: 'wibble',
+          deviceId: '20a11921ee094629aafdea72cc973c27',
           entrypoint: 'blee',
           entrypointExperiment: 'exp',
           entrypointVariation: 'var',
@@ -1070,7 +1070,7 @@ describe('/account/login', () => {
       service: 'sync',
       reason: 'signin',
       metricsContext: {
-        deviceId: 'blee',
+        deviceId: '20a11921ee094629aafdea72cc973c27',
         entrypoint: 'flub',
         entrypointExperiment: 'exp',
         entrypointVariation: 'var',
@@ -1120,7 +1120,7 @@ describe('/account/login', () => {
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
-        deviceId: 'blee',
+        deviceId: 'ble20a11921ee094629aafdea72cc973c27e',
         flowBeginTime: Date.now(),
         flowId:
           'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',

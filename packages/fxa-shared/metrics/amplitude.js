@@ -4,6 +4,10 @@
 
 'use strict';
 
+const ajv = require('ajv')();
+const amplitudeSchema = require('./amplitude-event.1.schema.json');
+const validateAmplitudeEvent = ajv.compile(amplitudeSchema);
+
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
@@ -119,6 +123,17 @@ function mapDomainValidationResult(
   }
 }
 
+function validate(event) {
+  if (!validateAmplitudeEvent(event)) {
+    throw new Error(
+      `Invalid data: ${ajv.errorsText(validateAmplitudeEvent.errors, {
+        dataVar: 'event',
+      })}`
+    );
+  }
+  return true;
+}
+
 module.exports = {
   EVENT_PROPERTIES,
   GROUPS,
@@ -128,6 +143,7 @@ module.exports = {
   mapOs,
   mapUserAgentProperties,
   toSnakeCase,
+  validate,
 
   /**
    * Initialize an amplitude event mapper. You can read more about the amplitude

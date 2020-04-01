@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "amplitude-event",
+  "definitions": {
+    "hex32": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{32}$"
+    },
+    "integerLike": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "string",
+          "pattern": "^\\d+$"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "op": {
+      "description": "Pre-existing Firefox Accounts metrics field used to identify Amplitude metrics events.",
+      "type": "string",
+      "enum": ["amplitudeEvent"]
+    },
+    "event_type": {
+      "description": "Event type in the format of 'GROUP - TYPE'.",
+      "type": "string",
+      "pattern": "^\\w+ - \\w+$"
+    },
+    "time": {
+      "description": "Event timestamp",
+      "$ref": "#/definitions/integerLike"
+    },
+    "user_id": {
+      "$ref": "#/definitions/hex32"
+    },
+    "device_id": {
+      "$ref": "#/definitions/hex32"
+    },
+    "session_id": {
+      "description": "Timestamp of flow begin time.",
+      "$ref": "#/definitions/integerLike"
+    },
+    "app_version": {
+      "type": "string"
+    },
+    "language": {
+      "description": "BCP 47 language tags with 2alpha for the language.",
+      "type": "string",
+      "pattern": "^[a-z]{2}(-[a-zA-Z0-9]{1,})*$"
+    },
+    "country": {
+      "type": "string"
+    },
+    "region": {
+      "type": "string"
+    },
+    "os_name": {
+      "type": "string"
+    },
+    "os_version": {
+      "type": "string"
+    },
+    "device_model": {
+      "type": "string"
+    },
+    "event_properties": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "description": "The name of the service.",
+          "type": "string"
+        },
+        "oauth_client_id": {
+          "type": "string"
+        },
+        "plan_id": {
+          "description": "Plan ID of a subscription.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "product_id": {
+          "description": "Product ID of a subscription.",
+          "type": "string",
+          "maxLength": 128
+        }
+      }
+    },
+    "user_properties": {
+      "type": "object",
+      "definitions": {
+        "entrypointPattern": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[\\w.:-]+$"
+        },
+        "utmPattern": {
+          "type": "string",
+          "maxLength": 128,
+          "pattern": "^[\\w\\/.%-]+$"
+        }
+      },
+      "properties": {
+        "entrypoint": {
+          "$ref": "#/properties/user_properties/definitions/entrypointPattern"
+        },
+        "entrypoint_experiment": {
+          "$ref": "#/properties/user_properties/definitions/entrypointPattern"
+        },
+        "entrypoint_variation": {
+          "$ref": "#/properties/user_properties/definitions/entrypointPattern"
+        },
+        "flow_id": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "ua_browser": {
+          "type": "string"
+        },
+        "ua_version": {
+          "type": "string"
+        },
+        "utm_campaign": {
+          "anyOf": [
+            {
+              "$ref": "#/properties/user_properties/definitions/utmPattern"
+            },
+            {
+              "enum": ["page+referral+-+not+part+of+a+campaign"]
+            }
+          ]
+        },
+        "utm_content": {
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        },
+        "utm_medium": {
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        },
+        "utm_source": {
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        },
+        "utm_term": {
+          "$ref": "#/properties/user_properties/definitions/utmPattern"
+        }
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": ["op", "event_type", "event_properties", "user_properties"],
+  "anyOf": [
+    {"required": ["user_id"]},
+    {"required": ["device_id"]}
+  ]
+}

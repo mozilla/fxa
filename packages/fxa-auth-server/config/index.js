@@ -46,6 +46,14 @@ const conf = convict({
       env: 'LOG_FORMAT',
     },
   },
+  amplitude: {
+    schemaValidation: {
+      default: true,
+      doc: 'Validate events against a JSON schema',
+      env: 'AMPLITUDE_SCHEMA_VALIDATION',
+      format: Boolean,
+    },
+  },
   memcached: {
     address: {
       doc:

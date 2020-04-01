@@ -39,6 +39,12 @@ const conf = (module.exports = convict({
       env: 'AMPLITUDE_DISABLED',
       format: Boolean,
     },
+    schemaValidation: {
+      default: true,
+      doc: 'Validate events against a JSON schema',
+      env: 'AMPLITUDE_SCHEMA_VALIDATION',
+      format: Boolean,
+    },
     rawEvents: {
       default: false,
       doc: 'Log raw Amplitude events',
