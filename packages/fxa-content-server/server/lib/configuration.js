@@ -39,6 +39,12 @@ const conf = (module.exports = convict({
       env: 'AMPLITUDE_DISABLED',
       format: Boolean,
     },
+    rawEvents: {
+      default: false,
+      doc: 'Log raw Amplitude events',
+      env: 'AMPLITUDE_RAW_EVENTS',
+      format: Boolean,
+    },
   },
   are_dist_resources: {
     default: false,

@@ -14,6 +14,7 @@
 
 'use strict';
 
+const _ = require('lodash');
 const {
   GROUPS,
   initialize,
@@ -398,6 +399,48 @@ module.exports = receiveEvent;
 function receiveEvent(event, request, data) {
   if (amplitude.disabled || !event || !request || !data) {
     return;
+  }
+
+  if (amplitude.rawEvents) {
+    const rawEvent = {
+      event,
+      context: {
+        eventSource: 'content',
+        version: VERSION,
+        emailTypes: EMAIL_TYPES,
+        userAgent: request.headers['user-agent'],
+        ..._.pick(data, [
+          'deviceId',
+          'devices',
+          'emailDomain',
+          'emailSender',
+          'emailService',
+          'entrypoint_experiment',
+          'entrypoint_variation',
+          'entrypoint',
+          'experiments',
+          'flowBeginTime',
+          'flowId',
+          'lang',
+          'location',
+          'marketingOptIn',
+          'newsletters',
+          'planId',
+          'productId',
+          'service',
+          'syncEngines',
+          'templateVersion',
+          'uid',
+          'userPreferences',
+          'utm_campaign',
+          'utm_content',
+          'utm_medium',
+          'utm_source',
+          'utm_term',
+        ]),
+      },
+    };
+    logger.info('rawAmplitudeData', rawEvent);
   }
 
   const userAgent = ua.parse(request.headers['user-agent']);
