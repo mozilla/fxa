@@ -15,6 +15,7 @@ import Session from './session';
 import SignInReasons from './sign-in-reasons';
 import VerificationReasons from './verification-reasons';
 import VerificationMethods from './verification-methods';
+import AuthClient from './auth/client';
 
 function trim(str) {
   return $.trim(str);
@@ -47,12 +48,12 @@ function wantsKeys(relier, sessionTokenContext) {
 // errors from the FxaJSClient must be normalized so that they
 // are translated and reported to metrics correctly.
 function wrapClientToNormalizeErrors(client) {
-  var wrappedClient = Object.create(client);
-
-  for (var key in client) {
+  const proto = Object.getPrototypeOf(client);
+  const wrappedClient = Object.create(proto);
+  for (var key of Object.getOwnPropertyNames(proto)) {
     if (typeof client[key] === 'function') {
       wrappedClient[key] = function(key, ...args) {
-        var retval = this[key].apply(this, args);
+        const retval = this[key].apply(this, args);
 
         // make no assumptions about the client returning a promise.
         // If the return value is not a promise, just return the value.
@@ -122,10 +123,6 @@ function getUpdatedSessionData(email, relier, accountData, options = {}) {
   return updatedSessionData;
 }
 
-function importFxaClient() {
-  return import(/* webpackChunkName: "fxaClient" */ 'fxaClient');
-}
-
 function FxaClientWrapper(options = {}) {
   if (options.client) {
     this._client = wrapClientToNormalizeErrors(options.client);
@@ -140,8 +137,7 @@ FxaClientWrapper.prototype = {
       return Promise.resolve(this._client);
     }
 
-    return importFxaClient().then(FxaClient => {
-      const client = new FxaClient.default(this._authServerUrl);
+    return AuthClient.create(this._authServerUrl).then(client => {
       this._client = wrapClientToNormalizeErrors(client);
       return this._client;
     });

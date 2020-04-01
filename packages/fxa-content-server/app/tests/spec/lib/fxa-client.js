@@ -5,7 +5,7 @@
 import $ from 'jquery';
 import AuthErrors from 'lib/auth-errors';
 import chai from 'chai';
-import FxaClient from 'fxaClient';
+import AuthClient from 'lib/auth/client';
 import FxaClientWrapper from 'lib/fxa-client';
 import OAuthRelier from 'models/reliers/oauth';
 import RecoveryKey from 'lib/crypto/recovery-keys';
@@ -48,7 +48,7 @@ describe('lib/fxa-client', function() {
       state: STATE,
     });
 
-    realClient = new FxaClient(AUTH_SERVER_URL);
+    realClient = new AuthClient(AUTH_SERVER_URL);
 
     client = new FxaClientWrapper({
       client: realClient,
