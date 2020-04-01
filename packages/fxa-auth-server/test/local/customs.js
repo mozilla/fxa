@@ -6,41 +6,59 @@
 
 const ROOT_DIR = '../..';
 
-const { assert } = require('chai');
-const log = {
-  trace: () => {},
-  activityEvent: () => {},
-  flowEvent: () => {},
-  error() {},
-};
+const sinon = require('sinon');
+const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../mocks');
 const error = require(`${ROOT_DIR}/lib/error.js`);
 const P = require(`${ROOT_DIR}/lib/promise.js`);
 const nock = require('nock');
 
-const Customs = require(`${ROOT_DIR}/lib/customs.js`)(log, error);
-
 const CUSTOMS_URL_REAL = 'http://localhost:7000';
 const CUSTOMS_URL_MISSING = 'http://localhost:7001';
-
-let customsNoUrl;
-let customsWithUrl;
-let customsInvalidUrl;
 
 const customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
 
 describe('Customs', () => {
+  let customsNoUrl;
+  let customsWithUrl;
+  let customsInvalidUrl;
+  let customsModule;
+  const sandbox = sinon.createSandbox();
+  const statsd = {
+    increment: () => {},
+    timing: () => {},
+  };
+  const log = {
+    trace: () => {},
+    activityEvent: () => {},
+    flowEvent: () => {},
+    error() {},
+  };
+
+  let request;
+  let ip;
+  let email;
+  let action;
+
+  beforeEach(() => {
+    sandbox.stub(statsd, 'increment');
+    customsModule = require(`${ROOT_DIR}/lib/customs.js`)(log, error, statsd);
+    request = newRequest();
+    ip = request.app.clientAddress;
+    email = newEmail();
+    action = newAction();
+  });
+
+  afterEach(() => {
+    sandbox.restore();
+  });
+
   it("can create a customs object with url as 'none'", () => {
-    customsNoUrl = new Customs('none');
+    customsNoUrl = new customsModule('none');
 
     assert.ok(customsNoUrl, 'got a customs object with a none url');
-
-    const request = newRequest();
-    const ip = request.app.clientAddress;
-    const email = newEmail();
-    const action = newAction();
 
     return customsNoUrl
       .check(request, email, action)
@@ -84,14 +102,9 @@ describe('Customs', () => {
   });
 
   it('can create a customs object with a url', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'got a customs object with a valid url');
-
-    const request = newRequest();
-    const ip = request.app.clientAddress;
-    const email = newEmail();
-    const action = newAction();
 
     // Mock a check that does not get blocked.
     customsServer
@@ -114,6 +127,7 @@ describe('Customs', () => {
         block: false,
         retryAfter: 0,
       });
+
     return customsWithUrl
       .check(request, email, action)
       .then(result => {
@@ -300,12 +314,14 @@ describe('Customs', () => {
           );
           assert.ok(err.isBoom, 'The error causes a boom');
           assert.equal(err.output.statusCode, 400, 'Status Code is correct');
-          assert(
-            !err.output.payload.retryAfter,
+          assert.equal(
+            err.output.payload.retryAfter,
+            undefined,
             'retryAfter field is not present'
           );
-          assert(
-            !err.output.headers['retry-after'],
+          assert.equal(
+            err.output.headers['retry-after'],
+            undefined,
             'retryAfter header is not present'
           );
         }
@@ -339,17 +355,12 @@ describe('Customs', () => {
   });
 
   it('failed closed when creating a customs object with non-existant customs service', () => {
-    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING);
+    customsInvalidUrl = new customsModule(CUSTOMS_URL_MISSING);
 
     assert.ok(
       customsInvalidUrl,
       'got a customs object with a non-existant service url'
     );
-
-    const request = newRequest();
-    const ip = request.app.clientAddress;
-    const email = newEmail();
-    const action = newAction();
 
     return P.all([
       customsInvalidUrl.check(request, email, action).then(assert.fail, err => {
@@ -381,14 +392,11 @@ describe('Customs', () => {
   });
 
   it('can rate limit checkAccountStatus /check', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'can rate limit checkAccountStatus /check');
 
-    const request = newRequest();
-    const ip = request.app.clientAddress;
-    const email = newEmail();
-    const action = 'accountStatusCheck';
+    action = 'accountStatusCheck';
 
     function checkRequestBody(body) {
       assert.deepEqual(
@@ -494,13 +502,11 @@ describe('Customs', () => {
   });
 
   it('can rate limit devicesNotify /checkAuthenticated', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'can rate limit /checkAuthenticated');
 
-    const request = newRequest();
-    const action = 'devicesNotify';
-    const ip = request.app.clientAddress;
+    action = 'devicesNotify';
     const uid = 'foo';
 
     function checkRequestBody(body) {
@@ -599,12 +605,10 @@ describe('Customs', () => {
   });
 
   it('can rate limit verifyTotpCode /check', () => {
-    const request = newRequest();
-    const action = 'verifyTotpCode';
-    const email = 'test@email.com';
-    const ip = request.app.clientAddress;
+    action = 'verifyTotpCode';
+    email = 'test@email.com';
 
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
     assert.ok(customsWithUrl, 'can rate limit ');
 
     function checkRequestBody(body) {
@@ -672,17 +676,13 @@ describe('Customs', () => {
   });
 
   it('can scrub customs request object', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'got a customs object with a valid url');
 
-    const request = newRequest();
     request.payload.authPW = 'asdfasdfadsf';
     request.payload.oldAuthPW = '012301230123';
     request.payload.notThePW = 'plaintext';
-    const ip = request.app.clientAddress;
-    const email = newEmail();
-    const action = newAction();
 
     customsServer
       .post('/check', body => {
@@ -713,6 +713,74 @@ describe('Customs', () => {
         undefined,
         'nothing is returned when /check succeeds - 1'
       );
+    });
+  });
+
+  describe('statsd metrics', () => {
+    const tags = {
+      block: true,
+      suspect: true,
+      unblock: true,
+      blockReason: 'other',
+    };
+
+    beforeEach(() => {
+      customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
+    });
+
+    it('reports for /check', async () => {
+      customsServer.post('/check').reply(200, tags);
+
+      try {
+        await customsWithUrl.check(request, email, action);
+        assert.fail('should have failed');
+      } catch (err) {
+        assert.isTrue(
+          statsd.increment.calledWithExactly('customs.request.check', {
+            action,
+            ...tags,
+          })
+        );
+      }
+    });
+
+    it('reports for /checkIpOnly', async () => {
+      customsServer.post('/checkIpOnly').reply(200, tags);
+
+      try {
+        await customsWithUrl.checkIpOnly(request, action);
+        assert.fail('should have failed');
+      } catch (err) {
+        assert.isTrue(
+          statsd.increment.calledWithExactly('customs.request.checkIpOnly', {
+            action,
+            ...tags,
+          })
+        );
+      }
+    });
+
+    it('reports for /checkAuthenticated', async () => {
+      customsServer.post('/checkAuthenticated').reply(200, {
+        block: true,
+        blockReason: 'other',
+      });
+
+      try {
+        await customsWithUrl.checkAuthenticated(request, 'uid', action);
+        assert.fail('should have failed');
+      } catch (err) {
+        assert.isTrue(
+          statsd.increment.calledWithExactly(
+            'customs.request.checkAuthenticated',
+            {
+              action,
+              block: true,
+              blockReason: 'other',
+            }
+          )
+        );
+      }
     });
   });
 });

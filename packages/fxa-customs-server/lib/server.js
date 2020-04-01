@@ -334,7 +334,7 @@ module.exports = function createServer(config, log) {
     }
 
     function createResponse(result) {
-      const { block, unblock, suspect } = result;
+      const { block, unblock, suspect, blockReason } = result;
 
       allowWhitelisted(result, ip, email, phoneNumber);
 
@@ -347,12 +347,19 @@ module.exports = function createServer(config, log) {
         unblock,
         suspect,
       });
-      res.send({
+
+      const response = {
         block: result.block,
         retryAfter: result.retryAfter,
         unblock: result.unblock,
         suspect: result.suspect,
-      });
+      };
+
+      if (blockReason) {
+        response['blockReason'] = blockReason;
+      }
+
+      res.send(response);
 
       optionallyReportIp(result, ip, action);
     }
@@ -509,11 +516,17 @@ module.exports = function createServer(config, log) {
             suspect: result.suspect,
           });
 
-          res.send({
+          const response = {
             block: result.block,
             retryAfter: result.retryAfter,
             suspect: result.suspect,
-          });
+          };
+
+          if (result.blockReason) {
+            response['blockReason'] = result.blockReason;
+          }
+
+          res.send(response);
 
           optionallyReportIp(result, ip, action);
         },
