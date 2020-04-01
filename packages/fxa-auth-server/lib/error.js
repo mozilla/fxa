@@ -1258,6 +1258,15 @@ AppError.subscriptionAlreadyExists = () => {
   });
 };
 
+AppError.userAlreadySubscribedToProduct = () => {
+  return new AppError({
+    code: 409,
+    error: 'Already subscribed to product with different plan',
+    errno: ERRNO.SUBSCRIPTION_ALREADY_EXISTS,
+    message: 'User already subscribed to product with different plan.',
+  });
+};
+
 AppError.insufficientACRValues = foundValue => {
   return new AppError(
     {
