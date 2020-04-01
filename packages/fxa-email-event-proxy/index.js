@@ -6,7 +6,6 @@
 
 const crypto = require('crypto');
 const qs = require('qs');
-const Promise = require('bluebird');
 const AWS = require('aws-sdk');
 const P = require('bluebird');
 
@@ -125,7 +124,7 @@ function createHash(value) {
 }
 
 async function processEvents(events) {
-  return Promise.all(
+  return P.all(
     events
       .map(provider.marshallEvent)
       .filter(event => !!event)
