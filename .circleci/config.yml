@@ -50,6 +50,7 @@ jobs:
             'fortress' \
             'fxa-admin-panel' \
             'fxa-admin-server' \
+            'fxa-auth-client' \
             'fxa-auth-db-mysql' \
             'fxa-customs-server' \
             'fxa-email-event-proxy' \

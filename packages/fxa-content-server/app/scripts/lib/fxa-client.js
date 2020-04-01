@@ -47,12 +47,12 @@ function wantsKeys(relier, sessionTokenContext) {
 // errors from the FxaJSClient must be normalized so that they
 // are translated and reported to metrics correctly.
 function wrapClientToNormalizeErrors(client) {
-  var wrappedClient = Object.create(client);
-
-  for (var key in client) {
+  const proto = Object.getPrototypeOf(client);
+  const wrappedClient = Object.create(proto);
+  for (var key of Object.getOwnPropertyNames(proto)) {
     if (typeof client[key] === 'function') {
       wrappedClient[key] = function(key, ...args) {
-        var retval = this[key].apply(this, args);
+        const retval = this[key].apply(this, args);
 
         // make no assumptions about the client returning a promise.
         // If the return value is not a promise, just return the value.

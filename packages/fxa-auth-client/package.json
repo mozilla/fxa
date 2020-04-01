@@ -1,0 +1,27 @@
+{
+  "name": "fxa-auth-client",
+  "version": "1.164.0",
+  "description": "FxA js client for content-server",
+  "main": "dist/fxa-client.js",
+  "scripts": {
+    "test": "node test/runner.js",
+    "build": "webpack -p"
+  },
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "devDependencies": {
+    "@types/base64-js": "^1.2.5",
+    "@types/chai": "^4.2.11",
+    "@types/mocha": "^7.0.2",
+    "chai": "^4.2.0",
+    "memfs": "^3.1.2",
+    "mocha": "^7.1.1",
+    "playwright-firefox": "^0.12.1",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "val-loader": "^2.1.0",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {}
+}

@@ -43,6 +43,9 @@ cp ../version.json config
 
 npm run lint
 
+cd ../fxa-auth-client
+npm run build
+
 cd ../../
 npx pm2 start circleci_servers.json
 

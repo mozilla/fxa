@@ -19,17 +19,15 @@ RUN npm ci && rm -rf ~/.cache ~/.npm
 
 COPY --chown=app:app ["fxa-geodb", "../fxa-geodb/"]
 WORKDIR /fxa-geodb
-USER root
-RUN chown -R app:app /fxa-geodb
-USER app
 RUN npm ci
 
 COPY --chown=app:app ["fxa-shared", "../fxa-shared/"]
 WORKDIR /fxa-shared
-USER root
-RUN chown -R app:app /fxa-shared
-USER app
 RUN npm ci
+
+COPY --chown=app:app ["fxa-auth-client", "../fxa-auth-client/"]
+WORKDIR /fxa-auth-client
+RUN npm ci && npm run build
 
 WORKDIR /app
 RUN npm run build-production
