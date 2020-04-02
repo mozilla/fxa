@@ -1,3 +1,15 @@
+## 1.165.0
+
+### Bug fixes
+
+* profile-server: updated graphicsmagick version in Dockerfile ([0e860f163](https://github.com/mozilla/fxa/commit/0e860f163))
+* profile: add missing await in cache delete ([c8188a733](https://github.com/mozilla/fxa/commit/c8188a733))
+
+### Refactorings
+
+* oauth: finish removing the "email" field in oauth /v1/verify response ([617eddc4f](https://github.com/mozilla/fxa/commit/617eddc4f))
+* profile: Update to Hapi 19.1.1 ([f5bca4446](https://github.com/mozilla/fxa/commit/f5bca4446))
+
 ## 1.164.1
 
 ### Bug fixes
