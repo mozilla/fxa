@@ -4,7 +4,7 @@
   "description": "FxA Admin Panel",
   "scripts": {
     "start": "ts-node -P server/tsconfig.json server/bin/fxa-admin-panel.ts",
-    "start-dev": "npm-run-all --parallel server:proxy server:react-scripts",
+    "start-dev": "NODE_ENV=development npm-run-all --parallel server:proxy server:react-scripts",
     "server:proxy": "PROXY_STATIC_RESOURCES_FROM='http://127.0.0.1:8092' ts-node -P server/tsconfig.json server/bin/fxa-admin-panel.ts",
     "server:react-scripts": "react-scripts start",
     "lint:eslint": "eslint .",

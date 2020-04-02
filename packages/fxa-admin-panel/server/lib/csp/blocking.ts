@@ -27,12 +27,20 @@ export default function cspBlocking(config: { [key: string]: any }) {
   //
   const NONE = "'none'";
   const SELF = "'self'";
+  const UNSAFE_INLINE = "'unsafe-inline'";
 
   function addCdnRuleIfRequired(target: Array<string>) {
     if (CDN_URL !== PUBLIC_URL) {
       target.push(CDN_URL);
     }
     return target;
+  }
+
+  let styleSrc: ("'self'" | "'unsafe-inline'")[] = [SELF];
+  if (process.env.NODE_ENV === 'development') {
+    // Permit unsafe-inline styles in development so you can
+    // access the React app on 8091 with Express running
+    styleSrc.push(UNSAFE_INLINE);
   }
 
   const rules = {
@@ -44,7 +52,7 @@ export default function cspBlocking(config: { [key: string]: any }) {
       fontSrc: addCdnRuleIfRequired([SELF]),
       imgSrc: addCdnRuleIfRequired([SELF]),
       scriptSrc: addCdnRuleIfRequired([SELF]),
-      styleSrc: addCdnRuleIfRequired([SELF]),
+      styleSrc: addCdnRuleIfRequired(styleSrc),
       reportUri: config.get('csp.reportUri'),
     },
     reportOnly: false,
