@@ -47,14 +47,9 @@ Note this starts up all required services, including Redis, MySQL, and Memcached
 
 Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
 
-To install pm2:
-- `npm install pm2 -g`
-
 To start all servers:
 
 - `npm start`
-- `./pm2 start mysql_servers.json`
-
 
 The most common commands are:
 
@@ -260,13 +255,14 @@ To run a single test:
 ```
 npm run test-functional -- "--grep=Test name"
 ```
+
 --where 'Test name' is not the file name but the description/name of the test.
 
 ```
 node tests/intern.js --grep="Test name"
 ```
-run the above command from the fxa-content-server directory
----
+
+## run the above command from the fxa-content-server directory
 
 ### Node debugging
 
