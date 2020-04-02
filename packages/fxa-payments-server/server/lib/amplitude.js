@@ -34,12 +34,58 @@ const FUZZY_EVENTS = new Map([
 
 const transform = initialize({}, {}, FUZZY_EVENTS);
 
-module.exports = (event, request, data, requestReceivedTime) => {
+module.exports = (event, request, data) => {
   if (!amplitude.enabled || !event || !request || !data) {
     return;
   }
 
-  requestReceivedTime = requestReceivedTime || Date.now();
+  if (amplitude.rawEvents) {
+    const wanted = [
+      'deviceId',
+      'devices',
+      'emailDomain',
+      'emailSender',
+      'emailService',
+      'entrypoint_experiment',
+      'entrypoint_variation',
+      'entrypoint',
+      'experiments',
+      'flowBeginTime',
+      'flowId',
+      'lang',
+      'location',
+      'marketingOptIn',
+      'newsletters',
+      'planId',
+      'productId',
+      'service',
+      'syncEngines',
+      'templateVersion',
+      'uid',
+      'userPreferences',
+      'utm_campaign',
+      'utm_content',
+      'utm_medium',
+      'utm_source',
+      'utm_term',
+    ];
+    const picked = wanted.reduce((acc, v) => {
+      if (data[v] !== undefined) {
+        acc[v] = data[v];
+      }
+      return acc;
+    }, {});
+    const rawEvent = {
+      event,
+      context: {
+        eventSource: 'payments',
+        version: VERSION,
+        userAgent: request.headers['user-agent'],
+        ...picked,
+      },
+    };
+    log.info('rawAmplitudeData', rawEvent);
+  }
 
   const userAgent = ua.parse(request.headers['user-agent']);
 
