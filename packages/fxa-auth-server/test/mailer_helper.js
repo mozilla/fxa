@@ -7,6 +7,7 @@
 'use strict';
 
 const uuid = require('uuid');
+const { normalizeEmail } = require('../../fxa-shared/email/helpers');
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -33,7 +34,7 @@ function createTestAccount() {
     locale: 'da, en-gb;q=0.8, en;q=0.7',
   };
 
-  account.normalizedEmail = account.email.toLowerCase();
+  account.normalizedEmail = normalizeEmail(account.email);
 
   return account;
 }

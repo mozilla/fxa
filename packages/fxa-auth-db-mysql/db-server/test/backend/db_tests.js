@@ -8,6 +8,7 @@ const { assert } = require('chai');
 const crypto = require('crypto');
 const P = require('bluebird');
 const util = require('../../../lib/db/util');
+const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex');
 const zeroBuffer32 = Buffer.from(
@@ -39,7 +40,7 @@ function createAccount() {
     createdAt: now,
     locale: 'en_US',
   };
-  account.normalizedEmail = account.email.toLowerCase();
+  account.normalizedEmail = normalizeEmail(account.email);
   account.emailBuffer = Buffer.from(account.email);
   return account;
 }
@@ -54,7 +55,7 @@ function createEmail(data) {
     createdAt: Date.now(),
   };
   email.email = data.email || email.email;
-  email.normalizedEmail = email.email.toLowerCase();
+  email.normalizedEmail = normalizeEmail(email.email);
 
   return email;
 }

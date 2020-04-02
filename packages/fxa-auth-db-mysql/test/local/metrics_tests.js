@@ -14,6 +14,7 @@ const P = require('../../lib/promise');
 const crypto = require('crypto');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const { normalizeEmail } = require('../../../fxa-shared/email/helpers');
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex');
 const zeroBuffer32 = Buffer.from(
@@ -571,7 +572,7 @@ describe('DB metrics', () => {
     var email = ('' + Math.random()).substr(2) + '@foo.com';
     return db.createAccount(uid, {
       email: email,
-      normalizedEmail: email.toLowerCase(),
+      normalizedEmail: normalizeEmail(email),
       emailCode: zeroBuffer16,
       emailVerified: emailVerified,
       verifierVersion: 1,

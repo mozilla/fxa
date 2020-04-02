@@ -13,6 +13,7 @@ import { assign, find } from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import { Model } from 'backbone';
 import { PASSWORD_MIN_LENGTH } from '../../lib/constants';
+import { normalizeEmail } from '../../../../../fxa-shared/email/helpers';
 
 const BANNED_SERVICE_NAMES = [
   'addons',
@@ -67,7 +68,7 @@ export default class PasswordStrengthBalloonModel extends Model {
   }
 
   isSameAsEmail(lowercasePassword) {
-    const email = this.get('email').toLowerCase();
+    const email = normalizeEmail(this.get('email'));
     return (
       this.doesPasswordContainFullEmail(lowercasePassword, email) ||
       this.isPasswordSubstringOfEmail(lowercasePassword, email) ||

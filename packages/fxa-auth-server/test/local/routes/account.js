@@ -17,6 +17,7 @@ const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
+const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -1481,7 +1482,7 @@ describe('/account/login', () => {
           emailVerified: false,
           emailCode: emailCode,
           primaryEmail: {
-            normalizedEmail: TEST_EMAIL.toLowerCase(),
+            normalizedEmail: normalizeEmail(TEST_EMAIL),
             email: TEST_EMAIL,
             isVerified: false,
             isPrimary: true,
@@ -1560,7 +1561,7 @@ describe('/account/login', () => {
           email: TEST_EMAIL,
           emailVerified: true,
           primaryEmail: {
-            normalizedEmail: TEST_EMAIL.toLowerCase(),
+            normalizedEmail: normalizeEmail(TEST_EMAIL),
             email: TEST_EMAIL,
             isVerified: true,
             isPrimary: true,
@@ -1641,7 +1642,7 @@ describe('/account/login', () => {
           email: 'test@mozilla.com',
           emailVerified: true,
           primaryEmail: {
-            normalizedEmail: email.toLowerCase(),
+            normalizedEmail: normalizeEmail(email),
             email: email,
             isVerified: true,
             isPrimary: true,
@@ -1712,7 +1713,7 @@ describe('/account/login', () => {
           email: mockRequest.payload.email,
           emailVerified: false,
           primaryEmail: {
-            normalizedEmail: email.toLowerCase(),
+            normalizedEmail: normalizeEmail(email),
             email: email,
             isVerified: false,
             isPrimary: true,
@@ -1797,7 +1798,7 @@ describe('/account/login', () => {
             email: email,
             emailVerified: true,
             primaryEmail: {
-              normalizedEmail: email.toLowerCase(),
+              normalizedEmail: normalizeEmail(email),
               email: email,
               isVerified: true,
               isPrimary: true,
@@ -2008,7 +2009,7 @@ describe('/account/login', () => {
             email,
             emailVerified: true,
             primaryEmail: {
-              normalizedEmail: email.toLowerCase(),
+              normalizedEmail: normalizeEmail(email),
               email,
               isVerified: true,
               isPrimary: true,
@@ -2470,7 +2471,7 @@ describe('/account/login', () => {
     mockDB.accountRecord = sinon.spy(() => {
       return P.resolve({
         primaryEmail: {
-          normalizedEmail: email.toLowerCase(),
+          normalizedEmail: normalizeEmail(email),
           email: email,
           isVerified: true,
           isPrimary: false,

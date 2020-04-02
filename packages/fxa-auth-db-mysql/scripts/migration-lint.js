@@ -40,6 +40,7 @@ const cp = require('child_process');
 const fs = require('fs');
 const Mysql = require('../lib/db/mysql');
 const Promise = require('../lib/promise');
+const { normalizeEmail } = require('../../fxa-shared/email/helpers');
 
 const log = {
   error: () => {},
@@ -137,7 +138,7 @@ function populateDatabase(db, iteration) {
 function createAccount(db) {
   const email = (Math.random() + '').substr(2) + '@example.com';
   const emailCode = crypto.randomBytes(16);
-  const normalizedEmail = email.toLowerCase();
+  const normalizedEmail = normalizeEmail(email);
   const time = Date.now();
   const uid = crypto.randomBytes(16);
 
@@ -178,7 +179,7 @@ function createAccount(db) {
       return db.createEmail(uid, {
         email: secondaryEmail,
         emailCode: crypto.randomBytes(16),
-        normalizedEmail: secondaryEmail.toLowerCase(),
+        normalizedEmail: normalizeEmail(secondaryEmail),
         isVerified: true,
         uid,
         verifiedAt: time,

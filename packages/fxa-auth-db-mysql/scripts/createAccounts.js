@@ -12,6 +12,7 @@ const log = require('../test/lib/log');
 const DB = require('../lib/db/mysql')(log, dbServer.errors);
 const config = require('../config');
 const crypto = require('crypto');
+const { normalizeEmail } = require('../../fxa-shared/email/helpers');
 
 function randomBuffer16() {
   return crypto.randomBytes(16);
@@ -44,7 +45,7 @@ function create() {
     createdAt: now(),
     locale: 'en_US',
   };
-  account.normalizedEmail = account.email.toLowerCase();
+  account.normalizedEmail = normalizeEmail(account.email);
 
   return db
     .createAccount(uid, account)

@@ -16,6 +16,7 @@ const nock = require('nock');
 const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
+const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
 
 const CUSTOMER_1 = require('../payments/fixtures/customer1.json');
 const CUSTOMER_1_UPDATED = require('../payments/fixtures/customer1_new_email.json');
@@ -1220,7 +1221,7 @@ describe('/recovery_email', () => {
         deviceId: uuid.v4('binary').toString('hex'),
         email: TEST_EMAIL,
         emailVerified: true,
-        normalizedEmail: TEST_EMAIL.toLowerCase(),
+        normalizedEmail: normalizeEmail(TEST_EMAIL),
       },
       log: mockLog,
       payload: {
@@ -1501,7 +1502,7 @@ describe('/recovery_email', () => {
               isPrimary: true,
             },
             {
-              normalizedEmail: tempEmail.toLowerCase(),
+              normalizedEmail: normalizeEmail(tempEmail),
               email: tempEmail,
               isVerified: true,
               isPrimary: false,

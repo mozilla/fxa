@@ -15,6 +15,7 @@ const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
 const uuid = require('uuid');
+const { normalizeEmail } = require('../../../fxa-shared/email/helpers');
 
 const log = { trace() {}, info() {}, error() {} };
 
@@ -111,7 +112,7 @@ describe('remote db', function() {
           const emailData = {
             email: secondEmail,
             emailCode: crypto.randomBytes(16).toString('hex'),
-            normalizedEmail: secondEmail.toLowerCase(),
+            normalizedEmail: normalizeEmail(secondEmail),
             isVerified: true,
             isPrimary: false,
             uid: account.uid,

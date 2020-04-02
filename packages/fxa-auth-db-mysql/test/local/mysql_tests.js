@@ -10,6 +10,7 @@ const DB = require('../../lib/db/mysql')(log, dbServer.errors);
 const config = require('../../config');
 const P = require('../../lib/promise');
 const crypto = require('crypto');
+const { normalizeEmail } = require('../../../fxa-shared/email/helpers');
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex');
 const zeroBuffer32 = Buffer.from(
@@ -359,7 +360,7 @@ describe('MySQL', () => {
       createdAt: now,
       locale: 'en_US',
     };
-    account.normalizedEmail = account.email.toLowerCase();
+    account.normalizedEmail = normalizeEmail(account.email);
 
     return db
       .createAccount(uid, account)

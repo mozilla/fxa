@@ -7,6 +7,7 @@
 const error = require('./error');
 const Pool = require('./pool');
 const random = require('./crypto/random');
+const { normalizeEmail } = require('../../fxa-shared/email/helpers');
 
 module.exports = (config, log, Token, UnblockCode = null) => {
   const features = require('./features')(config);
@@ -82,7 +83,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     const { uid, email } = data;
     log.trace('DB.createAccount', { uid, email });
     data.createdAt = data.verifierSetAt = Date.now();
-    data.normalizedEmail = data.email.toLowerCase();
+    data.normalizedEmail = normalizeEmail(data.email);
     try {
       await this.pool.put(SAFE_URLS.createAccount, { uid }, data);
       return data;

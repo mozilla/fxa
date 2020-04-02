@@ -15,6 +15,7 @@ const error = require('../lib/error');
 const knownIpLocation = require('./known-ip-location');
 const P = require('../lib/promise');
 const sinon = require('sinon');
+const { normalizeEmail } = require('../../fxa-shared/email/helpers');
 
 const CUSTOMS_METHOD_NAMES = [
   'check',
@@ -243,7 +244,7 @@ function mockDB(data, errors) {
         emailVerified: data.emailVerified || false,
         locale: data.locale,
         primaryEmail: {
-          normalizedEmail: data.email.toLowerCase(),
+          normalizedEmail: normalizeEmail(data.email),
           email: data.email,
           isVerified: data.emailVerified || false,
           isPrimary: true,
@@ -251,7 +252,7 @@ function mockDB(data, errors) {
         },
         emails: [
           {
-            normalizedEmail: data.email.toLowerCase(),
+            normalizedEmail: normalizeEmail(data.email),
             email: data.email,
             isVerified: data.emailVerified || false,
             isPrimary: true,
@@ -267,16 +268,16 @@ function mockDB(data, errors) {
       return P.resolve([
         {
           email: data.email || 'primary@email.com',
-          normalizedEmail: (data.email || 'primary@email.com').toLowerCase(),
+          normalizedEmail: normalizeEmail(data.email || 'primary@email.com'),
           emailCode: data.emailCode,
           isPrimary: true,
           isVerified: data.emailVerified,
         },
         {
           email: data.secondEmail || 'secondEmail@email.com',
-          normalizedEmail: (
+          normalizedEmail: normalizeEmail(
             data.secondEmail || 'secondEmail@email.com'
-          ).toLowerCase(),
+          ),
           emailCode:
             data.secondEmailCode || crypto.randomBytes(16).toString('hex'),
           isVerified: data.secondEmailisVerified || false,
@@ -295,14 +296,14 @@ function mockDB(data, errors) {
         email: data.email,
         emailVerified: data.emailVerified,
         primaryEmail: {
-          normalizedEmail: data.email.toLowerCase(),
+          normalizedEmail: normalizeEmail(data.email),
           email: data.email,
           isVerified: data.emailVerified,
           isPrimary: true,
         },
         emails: [
           {
-            normalizedEmail: data.email.toLowerCase(),
+            normalizedEmail: normalizeEmail(data.email),
             email: data.email,
             isVerified: data.emailVerified,
             isPrimary: true,
@@ -431,14 +432,14 @@ function mockDB(data, errors) {
         email: data.email,
         emailVerified: data.emailVerified,
         primaryEmail: {
-          normalizedEmail: data.email.toLowerCase(),
+          normalizedEmail: normalizeEmail(data.email),
           email: data.email,
           isVerified: data.emailVerified,
           isPrimary: true,
         },
         emails: [
           {
-            normalizedEmail: data.email.toLowerCase(),
+            normalizedEmail: normalizeEmail(data.email),
             email: data.email,
             isVerified: data.emailVerified,
             isPrimary: true,

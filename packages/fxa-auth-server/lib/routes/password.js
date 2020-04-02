@@ -13,6 +13,7 @@ const isA = require('@hapi/joi');
 const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
+const { emailsMatch } = require('../../../fxa-shared/email/helpers');
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -454,7 +455,7 @@ module.exports = function(
           .then(db.accountRecord.bind(db, email))
           .then(accountRecord => {
             if (
-              accountRecord.primaryEmail.normalizedEmail !== email.toLowerCase()
+              !emailsMatch(accountRecord.primaryEmail.normalizedEmail, email)
             ) {
               throw error.cannotResetPasswordWithSecondaryEmail();
             }

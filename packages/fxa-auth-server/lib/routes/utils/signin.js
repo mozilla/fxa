@@ -10,6 +10,7 @@ const validators = require('../validators');
 const P = require('../../promise');
 const butil = require('../../crypto/butil');
 const error = require('../../error');
+const { emailsMatch } = require('../../../../fxa-shared/email/helpers');
 
 const BASE_36 = validators.BASE_36;
 
@@ -82,8 +83,10 @@ module.exports = (log, config, customs, db, mailer) => {
       }
       // Logging in with a secondary email address is not currently supported.
       if (
-        originalLoginEmail.toLowerCase() !==
-        accountRecord.primaryEmail.normalizedEmail
+        !emailsMatch(
+          originalLoginEmail,
+          accountRecord.primaryEmail.normalizedEmail
+        )
       ) {
         throw error.cannotLoginWithSecondaryEmail();
       }

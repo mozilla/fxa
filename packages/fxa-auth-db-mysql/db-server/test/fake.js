@@ -3,6 +3,7 @@
 
 var crypto = require('crypto');
 var base64url = require('base64url');
+const { normalizeEmail } = require('../../../fxa-shared/email/helpers');
 
 function hex(len) {
   return crypto.randomBytes(len).toString('hex');
@@ -60,7 +61,7 @@ module.exports.newUserDataHex = function() {
     verifierSetAt: Date.now(),
     createdAt: Date.now(),
   };
-  data.account.normalizedEmail = data.account.email.toLowerCase();
+  data.account.normalizedEmail = normalizeEmail(data.account.email);
 
   // sessionToken
   data.sessionTokenId = hex32();
@@ -157,7 +158,7 @@ module.exports.newUserDataHex = function() {
     verifiedAt: undefined,
     createdAt: Date.now(),
   };
-  data.email.normalizedEmail = data.email.email.toLowerCase();
+  data.email.normalizedEmail = normalizeEmail(data.email.email);
 
   data.totp = {
     sharedSecret: hex(10),
@@ -186,7 +187,7 @@ module.exports.newUserDataBuffer = function() {
     verifierSetAt: Date.now(),
     createdAt: Date.now(),
   };
-  data.account.normalizedEmail = data.account.email.toLowerCase();
+  data.account.normalizedEmail = normalizeEmail(data.account.email);
 
   // sessionToken
   data.sessionTokenId = buf32();

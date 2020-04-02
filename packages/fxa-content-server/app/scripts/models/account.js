@@ -17,6 +17,7 @@ import ResumeTokenMixin from './mixins/resume-token';
 import SignInReasons from '../lib/sign-in-reasons';
 import VerificationMethods from '../lib/verification-methods';
 import vat from '../lib/vat';
+import { emailsMatch } from '../../../../fxa-shared/email/helpers';
 
 // Account attributes that can be persisted
 const PERSISTENT = {
@@ -644,7 +645,7 @@ const Account = Backbone.Model.extend(
           // originally used for login.
           if (
             options.originalLoginEmail &&
-            email.toLowerCase() !== options.originalLoginEmail.toLowerCase()
+            !emailsMatch(email, options.originalLoginEmail)
           ) {
             updatedSessionData.email = options.originalLoginEmail;
           }

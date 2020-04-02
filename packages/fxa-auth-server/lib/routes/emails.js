@@ -11,6 +11,10 @@ const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
+const {
+  emailsMatch,
+  normalizeEmail,
+} = require('../../../fxa-shared/email/helpers');
 
 const HEX_STRING = validators.HEX_STRING;
 const MAX_SECONDARY_EMAILS = 3;
@@ -308,8 +312,8 @@ module.exports = (
           if (email) {
             // If an email address is specified in payload, this is a request to verify
             // a secondary email. This should return the corresponding email code for verification.
-            const foundEmail = emailData.find(
-              userEmail => userEmail.normalizedEmail === email.toLowerCase()
+            const foundEmail = emailData.find(userEmail =>
+              emailsMatch(userEmail.normalizedEmail, email)
             );
 
             // This user is attempting to verify a secondary email that doesn't belong to the account.
@@ -615,7 +619,7 @@ module.exports = (
         const { email, verificationMethod } = request.payload;
         const emailData = {
           email: email,
-          normalizedEmail: email.toLowerCase(),
+          normalizedEmail: normalizeEmail(email),
           isVerified: false,
           isPrimary: false,
           uid: uid,
@@ -641,7 +645,7 @@ module.exports = (
           throw error.unverifiedSession();
         }
 
-        if (sessionToken.email.toLowerCase() === email.toLowerCase()) {
+        if (emailsMatch(sessionToken.email, email)) {
           throw error.yourPrimaryEmailExists();
         }
 
@@ -773,14 +777,12 @@ module.exports = (
           throw error.unverifiedSession();
         }
 
-        await db.deleteEmail(uid, email.toLowerCase());
+        await db.deleteEmail(uid, normalizeEmail(email));
         await db.resetAccountTokens(uid);
 
         // Find the email object that corresponds to the email being deleted
         const emailIsVerified = account.emails.find(item => {
-          return (
-            item.normalizedEmail === email.toLowerCase() && item.isVerified
-          );
+          return emailsMatch(item.normalizedEmail, email) && item.isVerified;
         });
 
         // Don't bother sending a notification if removing an email that was never verified
@@ -790,7 +792,7 @@ module.exports = (
 
         // Notify any verified email address associated with the account of the deletion.
         const emails = account.emails.filter(item => {
-          if (item.normalizedEmail !== email.toLowerCase()) {
+          if (!emailsMatch(item.normalizedEmail, email)) {
             return item;
           }
         });
@@ -950,8 +952,8 @@ module.exports = (
         const emails = await db.accountEmails(uid);
 
         // Get the secondary email code
-        const foundEmail = emails.find(
-          userEmail => userEmail.normalizedEmail === email.toLowerCase()
+        const foundEmail = emails.find(userEmail =>
+          emailsMatch(userEmail.normalizedEmail, email)
         );
 
         // This user is attempting to verify a secondary email that doesn't belong to the account.
@@ -1023,8 +1025,8 @@ module.exports = (
         const emails = await db.accountEmails(uid);
 
         // Get the secondary email code
-        const matchedEmail = emails.find(
-          userEmail => userEmail.normalizedEmail === email.toLowerCase()
+        const matchedEmail = emails.find(userEmail =>
+          emailsMatch(userEmail.normalizedEmail, email)
         );
 
         if (!matchedEmail) {
