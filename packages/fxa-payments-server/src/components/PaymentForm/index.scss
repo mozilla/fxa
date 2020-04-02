@@ -57,6 +57,10 @@ form.payment {
       font-size: 14px;
       font-weight: 400;
       height: 45px;
+      line-height: normal;
+    }
+
+    input::-moz-placeholder {
       line-height: 45px;
     }
   }
@@ -82,8 +86,8 @@ form.payment {
 }
 
 @include respond-to('simpleSmall') {
-  .StripeElement .InputContainer .InputElement::placeholder,
-  form.payment .input-row input::placeholder {
+  .StripeElement .InputContainer .InputElement::-moz-placeholder,
+  form.payment .input-row input::-moz-placeholder {
     line-height: 38px !important;
   }
 
