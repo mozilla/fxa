@@ -352,7 +352,7 @@ echo "After that, you must open pull a request to merge the changes back to mast
 echo
 echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo
-echo "Ask for review on the pull requests from @fxa-devs and @fxa-admins respectively."
+echo "Ask for review on the pull requests from @fxa-devs"
 echo
 
 if [ "$BUILD_TYPE" = "Train" ]; then
