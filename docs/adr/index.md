@@ -14,6 +14,9 @@ This log lists the architectural decisions for FxA.
 - [ADR-0007](../adr0007-subscription-claim-jwt-access-token.md) - Placing subscription info in the `fxa-subscriptions` claim of JWT access tokens
 - [ADR-0008](../adr0008-redis-lua-scripts.md) - Redis Lua Scripts
 - [ADR-0009](../adr0009-testing-stacks.md) - Consistency in testing tools
+- [ADR-0010](../adr0010-transition-fxa-from-backbone-to-react.md) - Transition FxA from Backbone to React
+- [ADR-0011](../adr0011-create-new-react-app-for-settings-redesign.md) - Create new React app for settings redesign
+- [ADR-0012](../adr0012-next-two-factor-authentication.md) - Next two factor authentication for FxA
 
 <!-- adrlogstop -->
 
