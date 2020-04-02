@@ -59,6 +59,7 @@ DB.connect(config[config.db.backend]).then(db => {
   const push = require('../lib/push')(log, db, config);
   const oauthdb = require('../lib/oauth/db');
   const statsd = {
+    increment: () => {},
     timing: () => {},
     close: () => {},
   };

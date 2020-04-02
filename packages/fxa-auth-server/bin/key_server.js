@@ -18,6 +18,7 @@ async function run(config) {
         },
       })
     : {
+        increment: () => {},
         timing: () => {},
         close: () => {},
       };
