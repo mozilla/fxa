@@ -1,10 +1,14 @@
 # Change history
 
+## 1.165.1
+
+No changes.
+
 ## 1.165.0
 
 ### New features
 
-* metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
+- metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
 
 ## 1.164.1
 

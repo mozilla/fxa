@@ -1,28 +1,34 @@
 # Change history
 
+## 1.165.1
+
+### Bug fixes
+
+- Docker: fix path to a JSON schema in fxa-shared for Payments ([ebfc116ab](https://github.com/mozilla/fxa/commit/ebfc116ab))
+
 ## 1.165.0
 
 ### New features
 
-* metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
-* payment-server: update plan billing text on tiers page ([dbbe8a26e](https://github.com/mozilla/fxa/commit/dbbe8a26e))
-* payment-server: update settings page billing description ([bab6e5a49](https://github.com/mozilla/fxa/commit/bab6e5a49))
-* payment-server: update legal checkbox text on tiers page ([786c3f8b5](https://github.com/mozilla/fxa/commit/786c3f8b5))
-* payment-server: update legal checkbox text on payments page ([98f066b21](https://github.com/mozilla/fxa/commit/98f066b21))
-* payments: update messaging used for payments page main pricing header ([1b71b8a71](https://github.com/mozilla/fxa/commit/1b71b8a71))
+- metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
+- payment-server: update plan billing text on tiers page ([dbbe8a26e](https://github.com/mozilla/fxa/commit/dbbe8a26e))
+- payment-server: update settings page billing description ([bab6e5a49](https://github.com/mozilla/fxa/commit/bab6e5a49))
+- payment-server: update legal checkbox text on tiers page ([786c3f8b5](https://github.com/mozilla/fxa/commit/786c3f8b5))
+- payment-server: update legal checkbox text on payments page ([98f066b21](https://github.com/mozilla/fxa/commit/98f066b21))
+- payments: update messaging used for payments page main pricing header ([1b71b8a71](https://github.com/mozilla/fxa/commit/1b71b8a71))
 
 ### Bug fixes
 
-* payments: add missing white checkmark images ([b5609715c](https://github.com/mozilla/fxa/commit/b5609715c))
+- payments: add missing white checkmark images ([b5609715c](https://github.com/mozilla/fxa/commit/b5609715c))
 
 ### Refactorings
 
-* payments: extract fluent l10n testing logic ([0b0c9e445](https://github.com/mozilla/fxa/commit/0b0c9e445))
+- payments: extract fluent l10n testing logic ([0b0c9e445](https://github.com/mozilla/fxa/commit/0b0c9e445))
 
 ### Other changes
 
-* payments: clean up .ftl file ([1cee777a5](https://github.com/mozilla/fxa/commit/1cee777a5))
-* payments: move currency symbol to formatCurrencyInCents function ([a67c89104](https://github.com/mozilla/fxa/commit/a67c89104))
+- payments: clean up .ftl file ([1cee777a5](https://github.com/mozilla/fxa/commit/1cee777a5))
+- payments: move currency symbol to formatCurrencyInCents function ([a67c89104](https://github.com/mozilla/fxa/commit/a67c89104))
 
 ## 1.164.1
 
@@ -32,16 +38,16 @@ No changes.
 
 ### Bug fixes
 
-* metrics: fix undefined nav timing perf entry bug on Safari for Payments ([98e099399](https://github.com/mozilla/fxa/commit/98e099399))
-* payment-server: configure DSN later ([a90ee9efe](https://github.com/mozilla/fxa/commit/a90ee9efe))
+- metrics: fix undefined nav timing perf entry bug on Safari for Payments ([98e099399](https://github.com/mozilla/fxa/commit/98e099399))
+- payment-server: configure DSN later ([a90ee9efe](https://github.com/mozilla/fxa/commit/a90ee9efe))
 
 ### Refactorings
 
-* stripe: remove usage of lineHeight property when styling Stripe input fields ([7e929c980](https://github.com/mozilla/fxa/commit/7e929c980))
+- stripe: remove usage of lineHeight property when styling Stripe input fields ([7e929c980](https://github.com/mozilla/fxa/commit/7e929c980))
 
 ### Other changes
 
-* metrics: reduce nav timing metric tags in Payments ([81a47c7db](https://github.com/mozilla/fxa/commit/81a47c7db))
+- metrics: reduce nav timing metric tags in Payments ([81a47c7db](https://github.com/mozilla/fxa/commit/81a47c7db))
 
 ## 1.163.2
 

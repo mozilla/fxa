@@ -1,30 +1,34 @@
+## 1.165.1
+
+No changes.
+
 ## 1.165.0
 
 ### Bug fixes
 
-* profile-server: updated graphicsmagick version in Dockerfile ([0e860f163](https://github.com/mozilla/fxa/commit/0e860f163))
-* profile: add missing await in cache delete ([c8188a733](https://github.com/mozilla/fxa/commit/c8188a733))
+- profile-server: updated graphicsmagick version in Dockerfile ([0e860f163](https://github.com/mozilla/fxa/commit/0e860f163))
+- profile: add missing await in cache delete ([c8188a733](https://github.com/mozilla/fxa/commit/c8188a733))
 
 ### Refactorings
 
-* oauth: finish removing the "email" field in oauth /v1/verify response ([617eddc4f](https://github.com/mozilla/fxa/commit/617eddc4f))
-* profile: Update to Hapi 19.1.1 ([f5bca4446](https://github.com/mozilla/fxa/commit/f5bca4446))
+- oauth: finish removing the "email" field in oauth /v1/verify response ([617eddc4f](https://github.com/mozilla/fxa/commit/617eddc4f))
+- profile: Update to Hapi 19.1.1 ([f5bca4446](https://github.com/mozilla/fxa/commit/f5bca4446))
 
 ## 1.164.1
 
 ### Bug fixes
 
-* profile: do not wrap the cached entries into an extra 'result' ([a806cadf4](https://github.com/mozilla/fxa/commit/a806cadf4))
+- profile: do not wrap the cached entries into an extra 'result' ([a806cadf4](https://github.com/mozilla/fxa/commit/a806cadf4))
 
 ## 1.164.0
 
 ### Bug fixes
 
-* profile: Fix 500 error in the root of the profile server ([e618a28fc](https://github.com/mozilla/fxa/commit/e618a28fc))
+- profile: Fix 500 error in the root of the profile server ([e618a28fc](https://github.com/mozilla/fxa/commit/e618a28fc))
 
 ### Refactorings
 
-* hapi: Update to Hapi 17 ([56f723b6f](https://github.com/mozilla/fxa/commit/56f723b6f))
+- hapi: Update to Hapi 17 ([56f723b6f](https://github.com/mozilla/fxa/commit/56f723b6f))
 
 ## 1.163.2
 

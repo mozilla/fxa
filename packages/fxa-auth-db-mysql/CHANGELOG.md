@@ -1,3 +1,7 @@
+## 1.165.1
+
+No changes.
+
 ## 1.165.0
 
 No changes.
@@ -10,7 +14,7 @@ No changes.
 
 ### Bug fixes
 
-* docs: update MySQL version and node version ([dd56076df](https://github.com/mozilla/fxa/commit/dd56076df))
+- docs: update MySQL version and node version ([dd56076df](https://github.com/mozilla/fxa/commit/dd56076df))
 
 ## 1.163.2
 
