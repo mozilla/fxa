@@ -27,8 +27,8 @@ export default {
   },
 
   isCWTSOnSignupPasswordEnabled() {
-    if (!this.relier.get('multiService')) {
-      // if not multi service, no possibility of enabling
+    if (!this.relier.isSync() || !this.relier.get('multiService')) {
+      // if not sync or not multi service, no possibility of enabling
       // Sync, get outta here.
       return false;
     }
