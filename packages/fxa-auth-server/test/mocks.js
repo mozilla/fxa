@@ -699,6 +699,7 @@ function mockRequest(data, errors) {
   const events = require('../lib/metrics/events')(
     data.log || module.exports.mockLog(),
     {
+      amplitude: { rawEvents: false },
       oauth: {
         clientIds: data.clientIds || {},
       },

@@ -144,11 +144,16 @@ module.exports = (log, config) => {
 
   return receiveEvent;
 
-  async function receiveEvent(event, request, data = {}, metricsContext = {}) {
-    if (!event || !request) {
+  async function receiveEvent(
+    eventType,
+    request,
+    data = {},
+    metricsContext = {}
+  ) {
+    if (!eventType || !request) {
       log.error('amplitude.badArgument', {
         err: 'Bad argument',
-        event,
+        event: eventType,
         hasRequest: !!request,
       });
       return;
@@ -164,64 +169,122 @@ module.exports = (log, config) => {
     }
 
     const { formFactor } = request.app.ua;
+    const service = getService(request, data, metricsContext);
+    const uid = data.uid || getFromToken(request, 'uid');
+    const deviceId = getFromMetricsContext(
+      metricsContext,
+      'device_id',
+      request,
+      'deviceId'
+    );
+    const flowId = getFromMetricsContext(
+      metricsContext,
+      'flow_id',
+      request,
+      'flowId'
+    );
+    const flowBeginTime = getFromMetricsContext(
+      metricsContext,
+      'flowBeginTime',
+      request,
+      'flowBeginTime'
+    );
+    const productId = getFromMetricsContext(
+      metricsContext,
+      'product_id',
+      request,
+      'productId'
+    );
+    const planId = getFromMetricsContext(
+      metricsContext,
+      'plan_id',
+      request,
+      'planId'
+    );
 
-    if (event === 'flow.complete') {
+    if (eventType === 'flow.complete') {
       // HACK: Push flowType into the event so it can be parsed as eventCategory
-      event += `.${metricsContext.flowType}`;
+      eventType += `.${metricsContext.flowType}`;
     }
 
-    const amplitudeEvent = transformEvent(
-      {
-        type: event,
-        time: metricsContext.time || Date.now(),
-      },
-      {
-        ...data,
-        devices,
-        formFactor,
-        uid: data.uid || getFromToken(request, 'uid'),
-        deviceId: getFromMetricsContext(
-          metricsContext,
-          'device_id',
-          request,
-          'deviceId'
-        ),
-        flowId: getFromMetricsContext(
-          metricsContext,
-          'flow_id',
-          request,
-          'flowId'
-        ),
-        flowBeginTime: getFromMetricsContext(
-          metricsContext,
-          'flowBeginTime',
-          request,
-          'flowBeginTime'
-        ),
-        productId: getFromMetricsContext(
-          metricsContext,
-          'product_id',
-          request,
-          'productId'
-        ),
-        planId: getFromMetricsContext(
-          metricsContext,
-          'plan_id',
-          request,
-          'planId'
-        ),
-        lang: request.app.locale,
-        emailDomain: data.email_domain,
-        emailSender: data.email_sender,
-        emailService: data.email_service,
-        emailTypes: EMAIL_TYPES,
-        service: getService(request, data, metricsContext),
-        version: VERSION,
-        ...getOs(request),
-        ...getBrowser(request),
-        ...getLocation(request),
-      }
-    );
+    const event = {
+      type: eventType,
+      time: metricsContext.time || Date.now(),
+    };
+
+    if (config.amplitude.rawEvents) {
+      const wanted = [
+        'entrypoint_experiment',
+        'entrypoint_variation',
+        'entrypoint',
+        'experiments',
+        'location',
+        'marketingOptIn',
+        'newsletters',
+        'syncEngines',
+        'templateVersion',
+        'userPreferences',
+        'utm_campaign',
+        'utm_content',
+        'utm_medium',
+        'utm_source',
+        'utm_term',
+      ];
+      const picked = wanted.reduce((acc, v) => {
+        if (data[v] !== undefined) {
+          acc[v] = data[v];
+        }
+        return acc;
+      }, {});
+      const { location } = request.app.geo;
+      const rawEvent = {
+        event,
+        context: {
+          ...picked,
+          eventSource: 'auth',
+          version: VERSION,
+          deviceId,
+          devices,
+          emailDomain: data.email_domain,
+          emailSender: data.email_sender,
+          emailService: data.email_service,
+          emailTypes: EMAIL_TYPES,
+          flowBeginTime,
+          flowId,
+          formFactor,
+          lang: request.app.locale,
+          location,
+          planId,
+          productId,
+          service,
+          uid,
+          userAgent: request.headers['user-agent'],
+        },
+      };
+      log.info('rawAmplitudeData', rawEvent);
+    }
+
+    const amplitudeEvent = transformEvent(event, {
+      ...data,
+      devices,
+      formFactor,
+      uid,
+      deviceId,
+      flowId,
+      flowBeginTime,
+      productId,
+      planId,
+      lang: request.app.locale,
+      emailDomain: data.email_domain,
+      emailSender: data.email_sender,
+      emailService: data.email_service,
+      emailTypes: EMAIL_TYPES,
+      service,
+      version: VERSION,
+      ...getOs(request),
+      ...getBrowser(request),
+      ...getLocation(request),
+    });
 
     if (amplitudeEvent) {
       log.amplitudeEvent(amplitudeEvent);

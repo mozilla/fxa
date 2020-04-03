@@ -4,10 +4,11 @@
 
 'use strict';
 
+const { version } = require('../../../package.json');
 const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
-const mockAmplitudeConfig = { schemaValidation: true };
+const mockAmplitudeConfig = { schemaValidation: true, rawEvents: false };
 let sentryScope;
 const mockSentry = {
   withScope: sinon.stub().callsFake(cb => {
@@ -54,6 +55,7 @@ describe('metrics/amplitude', () => {
         info: sinon.spy(),
       };
 
+      mockAmplitudeConfig.rawEvents = false;
       amplitude = amplitudeModule(log, {
         oauthServer: {
           clientIdToServiceNames: {
@@ -184,6 +186,29 @@ describe('metrics/amplitude', () => {
           },
         });
         assert.isAbove(args[1].time, Date.now() - 1000);
+      });
+    });
+
+    describe('invalid event data', () => {
+      beforeEach(() => {
+        mockAmplitudeConfig.rawEvents = true;
+        return amplitude('token.created', {
+          service: '0',
+          uid: 'quuz',
+        });
+      });
+
+      it('logged a raw event', () => {
+        assert.isTrue(log.info.calledTwice);
+        assert.equal(log.info.args[0][0], 'rawAmplitudeData');
+        assert.equal(log.info.args[0][1].event.type, 'token.created');
+        assert.isAbove(log.info.args[0][1].event.time, Date.now() - 1000);
+        assert.deepEqual(log.info.args[0][1].context, {
+          eventSource: 'oauth',
+          service: '0',
+          uid: 'quuz',
+          version,
+        });
       });
     });
 

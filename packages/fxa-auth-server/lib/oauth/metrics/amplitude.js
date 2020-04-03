@@ -44,12 +44,19 @@ module.exports = (log, config) => {
     FUZZY_EVENTS
   );
 
-  return function receiveEvent(event, data) {
-    if (!event || !data) {
-      log.error('amplitude.badArgument', { err: 'Bad argument', event });
+  return function receiveEvent(eventType, data) {
+    if (!eventType || !data) {
+      log.error('amplitude.badArgument', {
+        err: 'Bad argument',
+        event: eventType,
+      });
       return;
     }
 
+    const event = {
+      type: eventType,
+      time: data.time || Date.now(),
+    };
     const eventData = Object.assign(
       {},
       {
@@ -59,13 +66,18 @@ module.exports = (log, config) => {
       }
     );
 
-    const amplitudeEvent = transformEvent(
-      {
-        type: event,
-        time: data.time || Date.now(),
-      },
-      eventData
-    );
+    if (config.amplitude.rawEvents) {
+      const rawEvent = {
+        event,
+        context: {
+          eventSource: 'oauth',
+          ...eventData,
+        },
+      };
+      log.info('rawAmplitudeData', rawEvent);
+    }
+
+    const amplitudeEvent = transformEvent(event, eventData);
 
     if (amplitudeEvent) {
       if (config.amplitude.schemaValidation) {

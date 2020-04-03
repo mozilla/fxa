@@ -14,6 +14,7 @@ const log = {
   info: sinon.spy(),
 };
 const events = require('../../../lib/metrics/events')(log, {
+  amplitude: { rawEvents: false },
   oauth: {
     clientIds: {},
   },
