@@ -55,11 +55,10 @@ module.exports = {
     next();
   },
   process(request, response) {
-    const requestReceivedTime = Date.now();
     const { data, events } = request.body;
     events.forEach(event => {
       event.time = data.flushTime;
-      amplitude(event, request, data, requestReceivedTime);
+      amplitude(event, request, data);
     });
     response.status(200).end();
   },
