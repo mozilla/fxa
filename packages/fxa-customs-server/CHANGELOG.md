@@ -1,8 +1,12 @@
+## 1.165.1
+
+No changes.
+
 ## 1.165.0
 
 ### New features
 
-* stats: Add statsd block rate reporting ([b0cc46132](https://github.com/mozilla/fxa/commit/b0cc46132))
+- stats: Add statsd block rate reporting ([b0cc46132](https://github.com/mozilla/fxa/commit/b0cc46132))
 
 ## 1.164.1
 

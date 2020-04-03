@@ -1,41 +1,45 @@
+## 1.165.1
+
+No changes.
+
 ## 1.165.0
 
 ### New features
 
-* metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
-* metrics: log raw Amplitude events in content server ([d8877a4aa](https://github.com/mozilla/fxa/commit/d8877a4aa))
-* settings: update settings UI to permit adding multiple secondary emails ([9ad167e5e](https://github.com/mozilla/fxa/commit/9ad167e5e))
+- metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
+- metrics: log raw Amplitude events in content server ([d8877a4aa](https://github.com/mozilla/fxa/commit/d8877a4aa))
+- settings: update settings UI to permit adding multiple secondary emails ([9ad167e5e](https://github.com/mozilla/fxa/commit/9ad167e5e))
 
 ### Bug fixes
 
-* settings: replace Subscriptions ## 1.164.1 Payments section title encoded "## 1.164.1amp;" with "## 1.164.1" ([2534bc28b](https://github.com/mozilla/fxa/commit/2534bc28b))
+- settings: replace Subscriptions ## 1.164.1 Payments section title encoded "## 1.164.1amp;" with "## 1.164.1" ([2534bc28b](https://github.com/mozilla/fxa/commit/2534bc28b))
 
 ## 1.164.1
 
 ### Bug fixes
 
-* settings: replace Subscriptions ## 1.164.0 Payments section title encoded "## 1.164.0amp;" with "## 1.164.0" ([61e2c97f1](https://github.com/mozilla/fxa/commit/61e2c97f1))
+- settings: replace Subscriptions ## 1.164.0 Payments section title encoded "## 1.164.0amp;" with "## 1.164.0" ([61e2c97f1](https://github.com/mozilla/fxa/commit/61e2c97f1))
 
 ## 1.164.0
 
 ### Bug fixes
 
-* ui: don't target submit buttons with gray disabled background state ([92b42876b](https://github.com/mozilla/fxa/commit/92b42876b))
-* settings: update Secondary email refresh button style to primary instead of secondary ([2bd3f706f](https://github.com/mozilla/fxa/commit/2bd3f706f))
-* settings: don't apply grey background to primary button when disabled ([3a8b72e22](https://github.com/mozilla/fxa/commit/3a8b72e22))
-* settings: wrap overflowing settings group headers so they don't break layout ([cea77eb5d](https://github.com/mozilla/fxa/commit/cea77eb5d))
-* metrics: return the mocked statsd instance ([d9761f07d](https://github.com/mozilla/fxa/commit/d9761f07d))
-* style: fix rtl style of delete account panel ([1eab962d4](https://github.com/mozilla/fxa/commit/1eab962d4))
-* metrics: restrict content-server nav timing metric names ([9d3511f5c](https://github.com/mozilla/fxa/commit/9d3511f5c))
+- ui: don't target submit buttons with gray disabled background state ([92b42876b](https://github.com/mozilla/fxa/commit/92b42876b))
+- settings: update Secondary email refresh button style to primary instead of secondary ([2bd3f706f](https://github.com/mozilla/fxa/commit/2bd3f706f))
+- settings: don't apply grey background to primary button when disabled ([3a8b72e22](https://github.com/mozilla/fxa/commit/3a8b72e22))
+- settings: wrap overflowing settings group headers so they don't break layout ([cea77eb5d](https://github.com/mozilla/fxa/commit/cea77eb5d))
+- metrics: return the mocked statsd instance ([d9761f07d](https://github.com/mozilla/fxa/commit/d9761f07d))
+- style: fix rtl style of delete account panel ([1eab962d4](https://github.com/mozilla/fxa/commit/1eab962d4))
+- metrics: restrict content-server nav timing metric names ([9d3511f5c](https://github.com/mozilla/fxa/commit/9d3511f5c))
 
 ### Refactorings
 
-* assets: remove content server unused images and svgs ([0e728388a](https://github.com/mozilla/fxa/commit/0e728388a))
+- assets: remove content server unused images and svgs ([0e728388a](https://github.com/mozilla/fxa/commit/0e728388a))
 
 ### Other changes
 
-* config: Default to a useable Fenix OAuth config in local dev ([4f2622284](https://github.com/mozilla/fxa/commit/4f2622284))
-* styles: update sub cancel warning UI in settings ([09be98757](https://github.com/mozilla/fxa/commit/09be98757))
+- config: Default to a useable Fenix OAuth config in local dev ([4f2622284](https://github.com/mozilla/fxa/commit/4f2622284))
+- styles: update sub cancel warning UI in settings ([09be98757](https://github.com/mozilla/fxa/commit/09be98757))
 
 ## 1.163.2
 

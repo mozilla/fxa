@@ -1,28 +1,32 @@
+## 1.165.1
+
+No changes.
+
 ## 1.165.0
 
 ### New features
 
-* metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
-* stats: Add statsd block rate reporting ([b0cc46132](https://github.com/mozilla/fxa/commit/b0cc46132))
-* payments: logic for sending emails subscription invoices ## 1.164.1 cancellation ([7010bcbe9](https://github.com/mozilla/fxa/commit/7010bcbe9))
-* auth-server: prevent users from purchasing the same product with different plans ([3b068ae8d](https://github.com/mozilla/fxa/commit/3b068ae8d))
-* settings: update settings UI to permit adding multiple secondary emails ([9ad167e5e](https://github.com/mozilla/fxa/commit/9ad167e5e))
-* payments: email method for subscription cancellation on account deletion ([264adcc9d](https://github.com/mozilla/fxa/commit/264adcc9d))
+- metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
+- stats: Add statsd block rate reporting ([b0cc46132](https://github.com/mozilla/fxa/commit/b0cc46132))
+- payments: logic for sending emails subscription invoices ## 1.164.1 cancellation ([7010bcbe9](https://github.com/mozilla/fxa/commit/7010bcbe9))
+- auth-server: prevent users from purchasing the same product with different plans ([3b068ae8d](https://github.com/mozilla/fxa/commit/3b068ae8d))
+- settings: update settings UI to permit adding multiple secondary emails ([9ad167e5e](https://github.com/mozilla/fxa/commit/9ad167e5e))
+- payments: email method for subscription cancellation on account deletion ([264adcc9d](https://github.com/mozilla/fxa/commit/264adcc9d))
 
 ### Bug fixes
 
-* sentry: Add missing sentry mocks when disabled ([6913ab42d](https://github.com/mozilla/fxa/commit/6913ab42d))
-* localdev: Help local dev environment work with mobile browsers. ([0bc155af3](https://github.com/mozilla/fxa/commit/0bc155af3))
-* tests: Run script tests in CI ([2eb182098](https://github.com/mozilla/fxa/commit/2eb182098))
-* payments: email template typo for "received" ([d9cb55500](https://github.com/mozilla/fxa/commit/d9cb55500))
+- sentry: Add missing sentry mocks when disabled ([6913ab42d](https://github.com/mozilla/fxa/commit/6913ab42d))
+- localdev: Help local dev environment work with mobile browsers. ([0bc155af3](https://github.com/mozilla/fxa/commit/0bc155af3))
+- tests: Run script tests in CI ([2eb182098](https://github.com/mozilla/fxa/commit/2eb182098))
+- payments: email template typo for "received" ([d9cb55500](https://github.com/mozilla/fxa/commit/d9cb55500))
 
 ### Refactorings
 
-* oauth: finish removing the "email" field in oauth /v1/verify response ([617eddc4f](https://github.com/mozilla/fxa/commit/617eddc4f))
+- oauth: finish removing the "email" field in oauth /v1/verify response ([617eddc4f](https://github.com/mozilla/fxa/commit/617eddc4f))
 
 ### Other changes
 
-* deps: removed sjcl from auth-server ([60d2aa3fc](https://github.com/mozilla/fxa/commit/60d2aa3fc))
+- deps: removed sjcl from auth-server ([60d2aa3fc](https://github.com/mozilla/fxa/commit/60d2aa3fc))
 
 ## 1.164.1
 
@@ -32,15 +36,15 @@ No changes.
 
 ### New features
 
-* payments: emails for subscription invoices ## 1.163.2 cancellation ([92233d368](https://github.com/mozilla/fxa/commit/92233d368))
-* email: add rel="noopener noreferrer" to any email links that have target="_blank" ([15e8db604](https://github.com/mozilla/fxa/commit/15e8db604))
+- payments: emails for subscription invoices ## 1.163.2 cancellation ([92233d368](https://github.com/mozilla/fxa/commit/92233d368))
+- email: add rel="noopener noreferrer" to any email links that have target="\_blank" ([15e8db604](https://github.com/mozilla/fxa/commit/15e8db604))
 
 ### Bug fixes
 
-* recovery: Send `postAddAccountRecoveryEmail` when recovery key verified ([8e39d783f](https://github.com/mozilla/fxa/commit/8e39d783f))
-* redis: Don't log an error if an access token is `null` in redis. ([6a61b33c0](https://github.com/mozilla/fxa/commit/6a61b33c0))
-* payments: bugfix to subscription upgrade verification ([44dfcb377](https://github.com/mozilla/fxa/commit/44dfcb377))
-* profile: Call `notifyAttachedServices` when profile-server data changes. ([8169dbe40](https://github.com/mozilla/fxa/commit/8169dbe40))
+- recovery: Send `postAddAccountRecoveryEmail` when recovery key verified ([8e39d783f](https://github.com/mozilla/fxa/commit/8e39d783f))
+- redis: Don't log an error if an access token is `null` in redis. ([6a61b33c0](https://github.com/mozilla/fxa/commit/6a61b33c0))
+- payments: bugfix to subscription upgrade verification ([44dfcb377](https://github.com/mozilla/fxa/commit/44dfcb377))
+- profile: Call `notifyAttachedServices` when profile-server data changes. ([8169dbe40](https://github.com/mozilla/fxa/commit/8169dbe40))
 
 ## 1.163.2
 
