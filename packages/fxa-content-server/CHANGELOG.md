@@ -1,3 +1,15 @@
+## 1.165.0
+
+### New features
+
+* metrics: validate Amplitude events with a JSON schema ([63dadbc2c](https://github.com/mozilla/fxa/commit/63dadbc2c))
+* metrics: log raw Amplitude events in content server ([d8877a4aa](https://github.com/mozilla/fxa/commit/d8877a4aa))
+* settings: update settings UI to permit adding multiple secondary emails ([9ad167e5e](https://github.com/mozilla/fxa/commit/9ad167e5e))
+
+### Bug fixes
+
+* settings: replace Subscriptions ## 1.164.1 Payments section title encoded "## 1.164.1amp;" with "## 1.164.1" ([2534bc28b](https://github.com/mozilla/fxa/commit/2534bc28b))
+
 ## 1.164.1
 
 ### Bug fixes
