@@ -1,11 +1,6 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-// Override limit values for testing
-process.env.UID_RATE_LIMIT = 3;
-process.env.UID_RATE_LIMIT_INTERVAL_SECONDS = 2;
-process.env.UID_RATE_LIMIT_BAN_DURATION_SECONDS = 2;
-
 var test = require('tap').test;
 var TestServer = require('../test_server');
 var Promise = require('bluebird');
@@ -18,11 +13,11 @@ var ACTION_ONE = 'action1';
 var ACTION_A = 'actionA';
 var ACTION_B = 'actionB';
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+// Override limit values for testing
+const config = require('../../lib/config').getProperties();
+config.limits.uidRateLimit.maxChecks = 3;
+config.limits.uidRateLimit.limitIntervalSeconds = 2;
+config.limits.uidRateLimit.banDurationSeconds = 2;
 
 var testServer = new TestServer(config);
 
@@ -32,12 +27,10 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -231,8 +224,7 @@ test('/checkAuthenticated with different actions', function(t) {
   );
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

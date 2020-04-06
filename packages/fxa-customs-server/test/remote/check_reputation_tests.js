@@ -3,7 +3,7 @@
 
 var test = require('tap').test;
 var TestServer = require('../test_server');
-var ReputationServerStub = require('../test_reputation_server');
+var ReputationServer = require('../test_reputation_server');
 var Promise = require('bluebird');
 var restifyClients = require('restify-clients');
 var mcHelper = require('../memcache-helper');
@@ -19,21 +19,18 @@ const ENDPOINTS = ['/check', '/checkIpOnly'];
 // before sending violation
 var TEST_DELAY_MS = 500;
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-  limits: {
-    rateLimitIntervalSeconds: 1,
-  },
-  reputationService: {
-    enable: true,
-    enableCheck: true,
-    blockBelow: 50,
-    suspectBelow: 60,
-    baseUrl: 'http://127.0.0.1:9009',
-    timeout: 25,
-  },
+const config = require('../../lib/config').getProperties();
+config.limits.rateLimitIntervalSeconds = 1;
+config.allowedIPs = [ALLOWED_IP];
+config.reputationService = {
+  enable: true,
+  enableCheck: true,
+  blockBelow: 50,
+  suspectBelow: 60,
+  hawkId: 'root',
+  hawkKey: 'toor',
+  baseUrl: 'http://127.0.0.1:9009',
+  timeout: 25,
 };
 
 // We use a restify based test reputation client to query the reputation server stub
@@ -48,20 +45,6 @@ var repJSClientConfig = {
 var ipr = require('ip-reputation-js-client');
 var repJSClient = new ipr(repJSClientConfig);
 
-// Override limit values for testing
-process.env.ALLOWED_IPS = ALLOWED_IP;
-
-// Enable reputation test server
-process.env.REPUTATION_SERVICE_ENABLE = config.reputationService.enable;
-process.env.REPUTATION_SERVICE_BASE_URL = config.reputationService.baseUrl;
-process.env.REPUTATION_SERVICE_TIMEOUT = config.reputationService.timeout;
-process.env.REPUTATION_SERVICE_ENABLE_CHECK =
-  config.reputationService.enableCheck;
-process.env.REPUTATION_SERVICE_BLOCK_BELOW =
-  config.reputationService.blockBelow;
-process.env.REPUTATION_SERVICE_SUSPECT_BELOW =
-  config.reputationService.suspectBelow;
-
 var testServer = new TestServer(config);
 
 var client = restifyClients.createJsonClient({
@@ -70,27 +53,22 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup test server', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 ENDPOINTS.forEach(endpoint => {
-  const reputationServer = new ReputationServerStub(config);
+  const reputationServer = new ReputationServer(config);
   const reputationClient = restifyClients.createJsonClient({
     url: config.reputationService.baseUrl,
   });
   Promise.promisifyAll(reputationClient, { multiArgs: true });
 
-  test('startup reputation service', t => {
-    reputationServer.start(function(err) {
-      t.type(reputationServer.server, 'object', 'test server was started');
-      t.notOk(err, 'no errors were returned');
-      t.end();
-    });
+  test('startup reputation service', async t => {
+    await reputationServer.start();
+    t.end();
   });
 
   test('clear everything', t => {
@@ -102,9 +80,12 @@ ENDPOINTS.forEach(endpoint => {
 
   test('query reputation stub directly using ip-reputation-js-client', t => {
     return reputationClient
-      .delAsync('/' + TEST_IP)
+      .getAsync('/heartbeat')
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP');
+        return repJSClient.remove(TEST_IP);
+      })
+      .then(() => {
         return repJSClient.get(TEST_IP);
       })
       .then(function(response) {
@@ -214,7 +195,10 @@ ENDPOINTS.forEach(endpoint => {
       .delAsync('/' + TEST_IP)
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP');
-        return reputationClient.putAsync('/', { ip: TEST_IP, reputation: 10 });
+        return reputationClient.putAsync('/' + TEST_IP, {
+          ip: TEST_IP,
+          reputation: 10,
+        });
       })
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'sets reputation for TEST_IP');
@@ -295,13 +279,8 @@ ENDPOINTS.forEach(endpoint => {
       });
   });
 
-  test('teardown test reputation server', t => {
-    reputationServer.stop();
-    t.equal(
-      reputationServer.server.killed,
-      true,
-      'test reputation server killed'
-    );
+  test('teardown test reputation server', async t => {
+    await reputationServer.stop();
     t.end();
   });
 
@@ -324,8 +303,7 @@ ENDPOINTS.forEach(endpoint => {
   });
 });
 
-test('teardown test server', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

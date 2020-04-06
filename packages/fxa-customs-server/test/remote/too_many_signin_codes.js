@@ -12,15 +12,10 @@ const TestServer = require('../test_server');
 const IP = '192.168.1.2';
 const ACTION = 'consumeSigninCode';
 
-const config = {
-  listen: {
-    port: 7000,
-  },
-};
-
-process.env.MAX_ACCOUNT_ACCESS = 2;
-process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 1;
-process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 1;
+const config = require('../../lib/config').getProperties();
+config.limits.maxAccountAccess = 2;
+config.limits.ipRateLimitIntervalSeconds = 1;
+config.limits.ipRateLimitBanDurationSeconds = 1;
 
 const testServer = new TestServer(config);
 
@@ -30,16 +25,10 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', t => {
-  testServer.start(err => {
-    t.type(
-      testServer.server,
-      'object',
-      'testServer.server should be an object'
-    );
-    t.notOk(err, 'testServer.start should not return an error');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', t => {
@@ -97,12 +86,7 @@ test(`/checkIpOnly ${ACTION}`, t => {
     });
 });
 
-test('teardown', t => {
-  testServer.stop();
-  t.equal(
-    testServer.server.killed,
-    true,
-    'testServer.server.killed should be true'
-  );
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

@@ -12,13 +12,8 @@ var TEST_EMAIL = 'test@example.com';
 var ALLOWED_IP = '192.0.3.1';
 const ENDPOINTS = ['/check', '/checkIpOnly'];
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
-
-process.env.ALLOWED_IPS = ALLOWED_IP;
+const config = require('../../lib/config').getProperties();
+config.allowedIPs = [ALLOWED_IP];
 
 var testServer = new TestServer(config);
 
@@ -28,12 +23,10 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -132,8 +125,7 @@ test('allowed ip is not blocked, even by this explicit blocking action', functio
     });
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

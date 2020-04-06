@@ -6,21 +6,16 @@
 
 'use strict';
 
-var Memcached = require('memcached');
-var restify = require('restify');
-const errors = require('restify-errors');
-var safeJsonFormatter = require('restify-safe-json-formatter');
-var packageJson = require('../package.json');
-var blockReasons = require('./block_reasons');
-var P = require('bluebird');
+const Hapi = require('@hapi/hapi');
+const Memcached = require('memcached');
+const packageJson = require('../package.json');
+const blockReasons = require('./block_reasons');
+const P = require('bluebird');
 P.promisifyAll(Memcached.prototype);
-var Raven = require('raven');
+const Raven = require('raven');
 const dataflow = require('./dataflow');
 
-// Create and return a restify server instance
-// from the given config.
-
-module.exports = function createServer(config, log) {
+module.exports = async function createServer(config, log) {
   var startupDefers = [];
 
   // Setup blocklist manager
@@ -105,33 +100,9 @@ module.exports = function createServer(config, log) {
 
   const handleBan = require('./bans/handler')(fetchRecords, setRecords, log);
 
-  var api = restify.createServer({
-    formatters: {
-      'application/json': safeJsonFormatter,
-    },
-  });
-
-  // Allow Keep-Alive connections from the auth-server to be idle up to two
-  // minutes before closing the connection. If this is not set, the default
-  // idle-time is 5 seconds.  This can cause a lot of unneeded churn in server
-  // connections. Setting this to 120s makes node8 behave more like node6. -
-  // https://nodejs.org/docs/latest-v8.x/api/http.html#http_server_keepalivetimeout
-  api.server.keepAliveTimeout = 120000;
-
-  api.use(restify.plugins.bodyParser());
-
-  api.on('uncaughtException', function(req, res, route, err) {
-    if (sentryDsn) {
-      Raven.captureException(err);
-    }
-    res.send(new errors.InternalServerError('Server Error'));
-  });
-
-  api.on('error', function(err) {
-    if (sentryDsn) {
-      Raven.captureException(err);
-    }
-    log.error({ op: 'error', message: err.message });
+  const api = Hapi.server({
+    port: config.listen.port,
+    host: config.listen.host,
   });
 
   function logError(err) {
@@ -195,295 +166,116 @@ module.exports = function createServer(config, log) {
     return lowercaseEmail;
   }
 
-  api.post('/check', (req, res, next) => {
-    let email = req.body.email;
-    const ip = req.body.ip;
-    const action = req.body.action;
-    const headers = req.body.headers || {};
-    const payload = req.body.payload || {};
+  api.route({
+    method: 'POST',
+    path: '/check',
+    handler: async (req, h) => {
+      let email = req.payload.email;
+      const { ip, action } = req.payload;
+      const headers = req.headers || {};
+      const payload = req.payload.payload || {};
 
-    if (!email || !ip || !action) {
-      const err = {
-        code: 'MissingParameters',
-        message: 'email, ip and action are all required',
-      };
-      log.error({ op: 'request.check', email, ip, action, err });
-      res.send(400, err);
-      return next();
-    }
-    email = normalizedEmail(email);
-
-    // Phone number is optional
-    let phoneNumber;
-    if (payload.phoneNumber) {
-      phoneNumber = payload.phoneNumber;
-    }
-
-    async function checkRecords({
-      ipRecord,
-      reputation,
-      emailRecord,
-      ipEmailRecord,
-      smsRecord,
-    }) {
-      if (ipRecord.isBlocked() || ipRecord.isDisabled()) {
-        // a blocked ip should just be ignored completely
-        // it's malicious, it shouldn't penalize emails or allow
-        // (most) escape hatches. just abort!
-        return {
-          block: true,
-          retryAfter: ipRecord.retryAfter(),
+      if (!email || !ip || !action) {
+        const err = {
+          code: 'MissingParameters',
+          message: 'email, ip and action are all required',
         };
+        log.error({ op: 'request.check', email, ip, action, err });
+        return h.response(err).code(400);
+      }
+      email = normalizedEmail(email);
+
+      // Phone number is optional
+      let phoneNumber;
+      if (payload.phoneNumber) {
+        phoneNumber = payload.phoneNumber;
       }
 
-      // Check each record type to see if a retryAfter has been set
-      const wantsUnblock = payload.unblockCode;
-      const blockEmail = emailRecord.update(action, !!wantsUnblock);
-      let blockIpEmail = ipEmailRecord.update(action);
-      const blockIp = ipRecord.update(action, email);
-
-      let blockSMS = 0;
-      if (smsRecord) {
-        blockSMS = smsRecord.update(action);
-      }
-
-      if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
-        blockIpEmail = 0;
-      }
-
-      let retryAfter = [blockEmail, blockIpEmail, blockIp, blockSMS].reduce(
-        max
-      );
-      let block = retryAfter > 0;
-      let suspect = false;
-      let blockReason = null;
-
-      if (block) {
-        blockReason = blockReasons.OTHER;
-      }
-
-      if (
-        requestChecks.treatEveryoneWithSuspicion ||
-        reputationService.isSuspectBelow(reputation) ||
-        ipRecord.isSuspected() ||
-        emailRecord.isSuspected()
-      ) {
-        suspect = true;
-      }
-
-      if (!block && action === 'accountLogin') {
-        // All login requests should include a valid flowId.
-        if (!payload.metricsContext || !payload.metricsContext.flowId) {
-          // Unless they're legacy user-agents that we know will not include it.
-          var isExemptUA = false;
-          var userAgent = headers['user-agent'];
-          isExemptUA = requestChecks.flowIdExemptUserAgentCompiledREs.some(
-            function(re) {
-              return re.test(userAgent);
-            }
-          );
-          // Or unless it's for non-signin-related reasons, e.g. changing password.
-          // We know these requests will not include it.
-          var isExemptRequest = false;
-          if (payload.reason && payload.reason !== 'signin') {
-            isExemptRequest = true;
-          }
-          if (!isExemptUA && !isExemptRequest) {
-            // By default we just treat a missing flowId as suspicious,
-            // but config can change this to a hard block.
-            suspect = true;
-            if (requestChecks.flowIdRequiredOnLogin) {
-              block = true;
-            }
-          }
-        }
-      }
-
-      const canUnblock = emailRecord.canUnblock();
-
-      // IP's that are in blocklist should be blocked
-      // and not return a retryAfter because it is not known
-      // when they would be removed from blocklist
-      if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
-        block = true;
-        blockReason = blockReasons.IP_IN_BLOCKLIST;
-        retryAfter = 0;
-      }
-
-      if (reputationService.isBlockBelow(reputation)) {
-        block = true;
-        retryAfter = ipRecord.retryAfter();
-        blockReason = blockReasons.IP_BAD_REPUTATION;
-      }
-
-      // smsRecord is optional, trying to save an undefined record results in an error
-      const recordsToSave = [
+      async function checkRecords({
         ipRecord,
+        reputation,
         emailRecord,
         ipEmailRecord,
         smsRecord,
-      ].filter(record => !!record);
-      await setRecords(...recordsToSave);
-      return {
-        block,
-        blockReason,
-        retryAfter,
-        unblock: canUnblock,
-        suspect,
-      };
-    }
-
-    function createResponse(result) {
-      const { block, unblock, suspect, blockReason } = result;
-
-      allowWhitelisted(result, ip, email, phoneNumber);
-
-      log.info({
-        op: 'request.check',
-        email,
-        ip,
-        action,
-        block,
-        unblock,
-        suspect,
-      });
-
-      const response = {
-        block: result.block,
-        retryAfter: result.retryAfter,
-        unblock: result.unblock,
-        suspect: result.suspect,
-      };
-
-      if (blockReason) {
-        response['blockReason'] = blockReason;
-      }
-
-      res.send(response);
-
-      optionallyReportIp(result, ip, action);
-    }
-
-    function handleError(err) {
-      log.error({
-        op: 'request.check',
-        email: email,
-        ip: ip,
-        action: action,
-        err: err,
-      });
-
-      // Default is to block request on any server based error
-      res.send({
-        block: true,
-        retryAfter: limits.rateLimitIntervalSeconds,
-        unblock: false,
-      });
-    }
-
-    fetchRecords({ ip, email, phoneNumber })
-      .then(checkRecords)
-      .then(result => checkUserDefinedRateLimitRules(result, action, email, ip))
-      .then(createResponse, handleError)
-      .then(next, next);
-  });
-
-  api.post('/checkAuthenticated', function(req, res, next) {
-    var action = req.body.action;
-    var ip = req.body.ip;
-    var uid = req.body.uid;
-
-    if (!action || !ip || !uid) {
-      var err = {
-        code: 'MissingParameters',
-        message: 'action, ip and uid are all required',
-      };
-      log.error({
-        op: 'request.checkAuthenticated',
-        action: action,
-        ip: ip,
-        uid: uid,
-        err: err,
-      });
-      res.send(400, err);
-      return next();
-    }
-
-    fetchRecords({ uid })
-      .then(({ uidRecord }) => {
-        var retryAfter = uidRecord.addCount(action, uid);
-        return setRecords(uidRecord).then(function() {
-          return {
-            block: retryAfter > 0,
-            retryAfter: retryAfter,
-          };
-        });
-      })
-      .then(
-        function(result) {
-          log.info({ op: 'request.checkAuthenticated', block: result.block });
-          res.send(result);
-
-          if (result.block) {
-            reputationService.report(
-              ip,
-              'fxa:request.checkAuthenticated.block.' + action
-            );
-          }
-        },
-        function(err) {
-          log.error({ op: 'request.checkAuthenticated', err: err });
-          // Default is to block request on any server based error
-          res.send({
-            block: true,
-            retryAfter: limits.blockIntervalSeconds,
-          });
-
-          reputationService.report(
-            ip,
-            'fxa:request.checkAuthenticated.block.' + action
-          );
-        }
-      )
-      .then(next, next);
-  });
-
-  api.post('/checkIpOnly', (req, res, next) => {
-    const action = req.body.action;
-    const ip = req.body.ip;
-
-    if (!action || !ip) {
-      const err = {
-        code: 'MissingParameters',
-        message: 'action and ip are both required',
-      };
-      log.error({
-        op: 'request.checkIpOnly',
-        action: action,
-        ip: ip,
-        err: err,
-      });
-      res.send(400, err);
-      return next();
-    }
-
-    fetchRecords({ ip })
-      .then(({ ipRecord, reputation }) => {
+      }) {
         if (ipRecord.isBlocked() || ipRecord.isDisabled()) {
-          return { block: true, retryAfter: ipRecord.retryAfter() };
+          // a blocked ip should just be ignored completely
+          // it's malicious, it shouldn't penalize emails or allow
+          // (most) escape hatches. just abort!
+          return {
+            block: true,
+            retryAfter: ipRecord.retryAfter(),
+          };
         }
 
-        const suspect =
-          requestChecks.treatEveryoneWithSuspicion ||
-          reputationService.isSuspectBelow(reputation);
-        let retryAfter = ipRecord.update(action);
+        // Check each record type to see if a retryAfter has been set
+        const wantsUnblock = payload.unblockCode;
+        const blockEmail = emailRecord.update(action, !!wantsUnblock);
+        let blockIpEmail = ipEmailRecord.update(action);
+        const blockIp = ipRecord.update(action, email);
+
+        let blockSMS = 0;
+        if (smsRecord) {
+          blockSMS = smsRecord.update(action);
+        }
+
+        if (blockIpEmail && ipEmailRecord.unblockIfReset(emailRecord.pr)) {
+          blockIpEmail = 0;
+        }
+
+        let retryAfter = [blockEmail, blockIpEmail, blockIp, blockSMS].reduce(
+          max
+        );
         let block = retryAfter > 0;
-        let blockReason;
+        let suspect = false;
+        let blockReason = null;
 
         if (block) {
           blockReason = blockReasons.OTHER;
         }
 
+        if (
+          requestChecks.treatEveryoneWithSuspicion ||
+          reputationService.isSuspectBelow(reputation) ||
+          ipRecord.isSuspected() ||
+          emailRecord.isSuspected()
+        ) {
+          suspect = true;
+        }
+
+        if (!block && action === 'accountLogin') {
+          // All login requests should include a valid flowId.
+          if (!payload.metricsContext || !payload.metricsContext.flowId) {
+            // Unless they're legacy user-agents that we know will not include it.
+            var isExemptUA = false;
+            var userAgent = headers['user-agent'];
+            isExemptUA = requestChecks.flowIdExemptUserAgentCompiledREs.some(
+              function(re) {
+                return re.test(userAgent);
+              }
+            );
+            // Or unless it's for non-signin-related reasons, e.g. changing password.
+            // We know these requests will not include it.
+            var isExemptRequest = false;
+            if (payload.reason && payload.reason !== 'signin') {
+              isExemptRequest = true;
+            }
+            if (!isExemptUA && !isExemptRequest) {
+              // By default we just treat a missing flowId as suspicious,
+              // but config can change this to a hard block.
+              suspect = true;
+              if (requestChecks.flowIdRequiredOnLogin) {
+                block = true;
+              }
+            }
+          }
+        }
+
+        const canUnblock = emailRecord.canUnblock();
+
+        // IP's that are in blocklist should be blocked
+        // and not return a retryAfter because it is not known
+        // when they would be removed from blocklist
         if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
           block = true;
           blockReason = blockReasons.IP_IN_BLOCKLIST;
@@ -496,214 +288,417 @@ module.exports = function createServer(config, log) {
           blockReason = blockReasons.IP_BAD_REPUTATION;
         }
 
-        return setRecords(ipRecord).then(() => ({
+        // smsRecord is optional, trying to save an undefined record results in an error
+        const recordsToSave = [
+          ipRecord,
+          emailRecord,
+          ipEmailRecord,
+          smsRecord,
+        ].filter(record => !!record);
+        await setRecords(...recordsToSave);
+        return {
           block,
           blockReason,
           retryAfter,
+          unblock: canUnblock,
           suspect,
-        }));
-      })
-      .then(
-        result => {
-          allowWhitelisted(result, ip);
+        };
+      }
 
-          log.info({
-            op: 'request.checkIpOnly',
-            ip,
-            action,
-            block: result.block,
-            blockReason: result.blockReason,
-            suspect: result.suspect,
-          });
+      function createResponse(result) {
+        const { block, unblock, suspect, blockReason } = result;
 
-          const response = {
-            block: result.block,
-            retryAfter: result.retryAfter,
-            suspect: result.suspect,
-          };
+        allowWhitelisted(result, ip, email, phoneNumber);
 
-          if (result.blockReason) {
-            response['blockReason'] = result.blockReason;
-          }
+        log.info({
+          op: 'request.check',
+          email,
+          ip,
+          action,
+          block,
+          unblock,
+          suspect,
+        });
 
-          res.send(response);
+        const response = {
+          block: result.block,
+          retryAfter: result.retryAfter,
+          unblock: result.unblock,
+          suspect: result.suspect,
+        };
 
-          optionallyReportIp(result, ip, action);
-        },
-        err => {
-          log.error({
-            op: 'request.checkIpOnly',
-            ip: ip,
-            action: action,
-            err: err,
-          });
-          res.send({
-            block: true,
-            retryAfter: limits.ipRateLimitIntervalSeconds,
-          });
+        if (blockReason) {
+          response['blockReason'] = blockReason;
         }
-      )
-      .then(next, next);
+
+        optionallyReportIp(result, ip, action);
+
+        return response;
+      }
+
+      function handleError(err) {
+        log.error({
+          op: 'request.check',
+          email: email,
+          ip: ip,
+          action: action,
+          err: err,
+        });
+
+        // Default is to block request on any server based error
+        return {
+          block: true,
+          retryAfter: limits.rateLimitIntervalSeconds,
+          unblock: false,
+        };
+      }
+
+      return fetchRecords({ ip, email, phoneNumber })
+        .then(checkRecords)
+        .then(result =>
+          checkUserDefinedRateLimitRules(result, action, email, ip)
+        )
+        .then(createResponse, handleError);
+    },
   });
 
-  api.post('/failedLoginAttempt', function(req, res, next) {
-    var email = req.body.email;
-    var ip = req.body.ip;
-    var errno = Number(req.body.errno) || 999;
-    if (!email || !ip) {
-      var err = {
-        code: 'MissingParameters',
-        message: 'email and ip are both required',
-      };
-      log.error({
-        op: 'request.failedLoginAttempt',
-        email: email,
-        ip: ip,
-        err: err,
-      });
-      res.send(400, err);
-      return next();
-    }
-    email = normalizedEmail(email);
+  api.route({
+    method: 'POST',
+    path: '/checkAuthenticated',
+    handler: async (req, h) => {
+      var action = req.payload.action;
+      var ip = req.payload.ip;
+      var uid = req.payload.uid;
 
-    fetchRecords({ ip, email })
-      .then(function({ ipRecord, emailRecord, ipEmailRecord }) {
-        ipRecord.addBadLogin({ email: email, errno: errno });
-        ipEmailRecord.addBadLogin();
+      if (!action || !ip || !uid) {
+        var err = {
+          code: 'MissingParameters',
+          message: 'action, ip and uid are all required',
+        };
+        log.error({
+          op: 'request.checkAuthenticated',
+          action: action,
+          ip: ip,
+          uid: uid,
+          err: err,
+        });
+        return h.response(err).code(400);
+      }
 
-        if (ipRecord.isOverBadLogins()) {
-          reputationService.report(
-            ip,
-            'fxa:request.failedLoginAttempt.isOverBadLogins'
-          );
-        }
+      return fetchRecords({ uid })
+        .then(({ uidRecord }) => {
+          var retryAfter = uidRecord.addCount(action, uid);
+          return setRecords(uidRecord).then(function() {
+            return {
+              block: retryAfter > 0,
+              retryAfter: retryAfter,
+            };
+          });
+        })
+        .then(
+          function(result) {
+            log.info({ op: 'request.checkAuthenticated', block: result.block });
 
-        return setRecords(ipRecord, emailRecord, ipEmailRecord).then(
-          function() {
-            return {};
+            if (result.block) {
+              reputationService.report(
+                ip,
+                'fxa:request.checkAuthenticated.block.' + action
+              );
+            }
+
+            return result;
+          },
+          function(err) {
+            log.error({ op: 'request.checkAuthenticated', err: err });
+            // Default is to block request on any server based error
+
+            reputationService.report(
+              ip,
+              'fxa:request.checkAuthenticated.block.' + action
+            );
+
+            return {
+              block: true,
+              retryAfter: limits.blockIntervalSeconds,
+            };
           }
         );
-      })
-      .then(
-        function(result) {
-          log.info({
-            op: 'request.failedLoginAttempt',
-            email: email,
-            ip: ip,
-            errno: errno,
-          });
-          res.send(result);
-        },
-        function(err) {
-          log.error({
-            op: 'request.failedLoginAttempt',
-            email: email,
-            ip: ip,
-            err: err,
-          });
-          res.send(500, err);
-        }
-      )
-      .then(next, next);
+    },
   });
 
-  api.post('/passwordReset', function(req, res, next) {
-    var email = req.body.email;
-    if (!email) {
-      var err = { code: 'MissingParameters', message: 'email is required' };
-      log.error({ op: 'request.passwordReset', email: email, err: err });
-      res.send(400, err);
-      return next();
-    }
-    email = normalizedEmail(email);
+  api.route({
+    method: 'POST',
+    path: '/checkIpOnly',
+    handler: async (req, h) => {
+      const action = req.payload.action;
+      const ip = req.payload.ip;
 
-    fetchRecords({ email })
-      .then(({ emailRecord }) => {
-        emailRecord.passwordReset();
-        return setRecords(emailRecord).catch(logError);
-      })
-      .then(
-        function() {
-          log.info({ op: 'request.passwordReset', email: email });
-          res.send({});
-        },
-        function(err) {
-          log.error({ op: 'request.passwordReset', email: email, err: err });
-          res.send(500, err);
-        }
-      )
-      .then(next, next);
+      if (!action || !ip) {
+        const err = {
+          code: 'MissingParameters',
+          message: 'action and ip are both required',
+        };
+        log.error({
+          op: 'request.checkIpOnly',
+          action: action,
+          ip: ip,
+          err: err,
+        });
+        return h.response(err).code(400);
+      }
+
+      return fetchRecords({ ip })
+        .then(({ ipRecord, reputation }) => {
+          if (ipRecord.isBlocked() || ipRecord.isDisabled()) {
+            return { block: true, retryAfter: ipRecord.retryAfter() };
+          }
+
+          const suspect =
+            requestChecks.treatEveryoneWithSuspicion ||
+            reputationService.isSuspectBelow(reputation);
+          let retryAfter = ipRecord.update(action);
+          let block = retryAfter > 0;
+          let blockReason;
+
+          if (block) {
+            blockReason = blockReasons.OTHER;
+          }
+
+          if (config.ipBlocklist.enable && blockListManager.contains(ip)) {
+            block = true;
+            blockReason = blockReasons.IP_IN_BLOCKLIST;
+            retryAfter = 0;
+          }
+
+          if (reputationService.isBlockBelow(reputation)) {
+            block = true;
+            retryAfter = ipRecord.retryAfter();
+            blockReason = blockReasons.IP_BAD_REPUTATION;
+          }
+
+          return setRecords(ipRecord).then(() => ({
+            block,
+            blockReason,
+            retryAfter,
+            suspect,
+          }));
+        })
+        .then(
+          result => {
+            allowWhitelisted(result, ip);
+
+            log.info({
+              op: 'request.checkIpOnly',
+              ip,
+              action,
+              block: result.block,
+              blockReason: result.blockReason,
+              suspect: result.suspect,
+            });
+
+            const response = {
+              block: result.block,
+              retryAfter: result.retryAfter,
+              suspect: result.suspect,
+            };
+
+            if (result.blockReason) {
+              response['blockReason'] = result.blockReason;
+            }
+
+            optionallyReportIp(result, ip, action);
+
+            return response;
+          },
+          err => {
+            log.error({
+              op: 'request.checkIpOnly',
+              ip: ip,
+              action: action,
+              err: err,
+            });
+            return {
+              block: true,
+              retryAfter: limits.ipRateLimitIntervalSeconds,
+            };
+          }
+        );
+    },
   });
 
-  api.post('/blockEmail', function(req, res, next) {
-    var email = req.body.email;
-    if (!email) {
-      var err = { code: 'MissingParameters', message: 'email is required' };
-      log.error({ op: 'request.blockEmail', email: email, err: err });
-      res.send(400, err);
-      return next();
-    }
-    email = normalizedEmail(email);
+  api.route({
+    method: 'POST',
+    path: '/failedLoginAttempt',
+    handler: async (req, h) => {
+      let email = req.payload.email;
+      const ip = req.payload.ip;
+      const errno = Number(req.payload.errno) || 999;
+      if (!email || !ip) {
+        const err = {
+          code: 'MissingParameters',
+          message: 'email and ip are both required',
+        };
+        log.error({
+          op: 'request.failedLoginAttempt',
+          email: email,
+          ip: ip,
+          err: err,
+        });
+        return h.response(err).code(400);
+      }
+      email = normalizedEmail(email);
 
-    handleBan({ ban: { email: email } })
-      .then(function() {
-        log.info({ op: 'request.blockEmail', email: email });
-        res.send({});
-      })
-      .catch(function(err) {
+      return fetchRecords({ ip, email })
+        .then(function({ ipRecord, emailRecord, ipEmailRecord }) {
+          ipRecord.addBadLogin({ email: email, errno: errno });
+          ipEmailRecord.addBadLogin();
+
+          if (ipRecord.isOverBadLogins()) {
+            reputationService.report(
+              ip,
+              'fxa:request.failedLoginAttempt.isOverBadLogins'
+            );
+          }
+
+          return setRecords(ipRecord, emailRecord, ipEmailRecord).then(
+            function() {
+              return {};
+            }
+          );
+        })
+        .then(
+          function(result) {
+            log.info({
+              op: 'request.failedLoginAttempt',
+              email: email,
+              ip: ip,
+              errno: errno,
+            });
+            return result;
+          },
+          function(err) {
+            log.error({
+              op: 'request.failedLoginAttempt',
+              email: email,
+              ip: ip,
+              err: err,
+            });
+            return h.response(err).code(500);
+          }
+        );
+    },
+  });
+
+  api.route({
+    method: 'POST',
+    path: '/passwordReset',
+    handler: async (req, h) => {
+      var email = req.payload.email;
+      if (!email) {
+        const err = { code: 'MissingParameters', message: 'email is required' };
+        log.error({ op: 'request.passwordReset', email: email, err: err });
+        return h.response(err).code(400);
+      }
+      email = normalizedEmail(email);
+
+      const { emailRecord } = await fetchRecords({ email });
+      emailRecord.passwordReset();
+
+      try {
+        await setRecords(emailRecord);
+        return {};
+      } catch (err) {
+        logError(err);
+        return h.response(err).code(500);
+      }
+    },
+  });
+
+  api.route({
+    method: 'POST',
+    path: '/blockEmail',
+    handler: async (req, h) => {
+      var email = req.payload.email;
+      if (!email) {
+        const err = { code: 'MissingParameters', message: 'email is required' };
         log.error({ op: 'request.blockEmail', email: email, err: err });
-        res.send(500, err);
-      })
-      .then(next, next);
+        return h.response(err).code(400);
+      }
+      email = normalizedEmail(email);
+
+      return handleBan({ ban: { email: email } })
+        .then(function() {
+          log.info({ op: 'request.blockEmail', email: email });
+          return {};
+        })
+        .catch(function(err) {
+          log.error({ op: 'request.blockEmail', email: email, err: err });
+          return h.response(err).code(500);
+        });
+    },
   });
 
-  api.post('/blockIp', function(req, res, next) {
-    var ip = req.body.ip;
-    if (!ip) {
-      var err = { code: 'MissingParameters', message: 'ip is required' };
-      log.error({ op: 'request.blockIp', ip: ip, err: err });
-      res.send(400, err);
-      return next();
-    }
-
-    handleBan({ ban: { ip: ip } })
-      .then(function() {
-        log.info({ op: 'request.blockIp', ip: ip });
-        res.send({});
-      })
-      .catch(function(err) {
+  api.route({
+    method: 'POST',
+    path: '/blockIp',
+    handler: async (req, h) => {
+      var ip = req.payload.ip;
+      if (!ip) {
+        const err = { code: 'MissingParameters', message: 'ip is required' };
         log.error({ op: 'request.blockIp', ip: ip, err: err });
-        res.send(500, err);
-      })
-      .then(function() {
+        return h.response(err).code(400);
+      }
+
+      try {
+        await handleBan({ ban: { ip: ip } });
         reputationService.report(ip, 'fxa:request.blockIp');
-      })
-      .then(next, next);
+        log.info({ op: 'request.blockIp', ip: ip });
+        return {};
+      } catch (err) {
+        log.error({ op: 'request.blockIp', ip: ip, err: err });
+        return h.response(err).code(500);
+      }
+    },
   });
 
-  api.get('/', function(req, res, next) {
-    res.send({ version: packageJson.version });
-    next();
+  api.route({
+    method: 'GET',
+    path: '/',
+    handler: async () => {
+      return { version: packageJson.version };
+    },
   });
 
-  api.get('/limits', function(req, res, next) {
-    res.send(limits);
-    next();
+  api.route({
+    method: 'GET',
+    path: '/limits',
+    handler: async () => {
+      return limits;
+    },
   });
 
-  api.get('/allowedIPs', function(req, res, next) {
-    res.send(Object.keys(allowedIPs.ips));
-    next();
+  api.route({
+    method: 'GET',
+    path: '/allowedIPs',
+    handler: async () => {
+      return Object.keys(allowedIPs.ips);
+    },
   });
 
-  api.get('/allowedEmailDomains', function(req, res, next) {
-    res.send(Object.keys(allowedEmailDomains.domains));
-    next();
+  api.route({
+    method: 'GET',
+    path: '/allowedEmailDomains',
+    handler: async () => {
+      return Object.keys(allowedEmailDomains.domains);
+    },
   });
 
-  api.get('/allowedPhoneNumbers', function(req, res, next) {
-    res.send(allowedPhoneNumbers.toJSON());
-    next();
+  api.route({
+    method: 'GET',
+    path: '/allowedPhoneNumbers',
+    handler: async () => {
+      return allowedPhoneNumbers.toJSON();
+    },
   });
 
   return P.all(startupDefers).then(function() {

@@ -23,16 +23,10 @@ const client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port,
 });
 
-test('startup', t => {
-  testServer.start(err => {
-    t.type(
-      testServer.server,
-      'object',
-      'testServer.server should be an object'
-    );
-    t.notOk(err, 'testServer.start should not return an error');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', t => {
@@ -69,12 +63,7 @@ test('missing ip', t => {
   });
 });
 
-test('teardown', t => {
-  testServer.stop();
-  t.equal(
-    testServer.server.killed,
-    true,
-    'testServer.server.killed should be true'
-  );
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

@@ -10,17 +10,11 @@ const testUtils = require('../utils');
 
 const TEST_IP = '192.0.2.1';
 
-const config = {
-  listen: {
-    port: 7000,
-  },
-};
-
-// Override limit values for testing
-process.env.MAX_VERIFY_CODES = 2;
-process.env.RATE_LIMIT_INTERVAL_SECONDS = 1;
-process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 1;
-process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 1;
+const config = require('../../lib/config').getProperties();
+config.limits.maxVerifyCodes = 2;
+config.limits.rateLimitIntervalSeconds = 1;
+config.limits.ipRateLimitIntervalSeconds = 1;
+config.limits.ipRateLimitBanDurationSeconds = 1;
 
 const testServer = new TestServer(config);
 
@@ -30,12 +24,10 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', t => {
-  testServer.start(err => {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 const VERIFY_CODE_ACTIONS = [
@@ -168,8 +160,7 @@ VERIFY_CODE_ACTIONS.forEach(action => {
   });
 });
 
-test('teardown', t => {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

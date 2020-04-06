@@ -10,14 +10,11 @@ var mcHelper = require('../memcache-helper');
 var TEST_EMAIL = 'test@example.com';
 var TEST_IP = '192.0.2.1';
 
-const TEST_ACTION = 'recoveryEmailVerifyCode'
-process.env.MAX_VERIFY_CODES = '3'
+const TEST_ACTION = 'recoveryEmailVerifyCode';
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+const config = require('../../lib/config').getProperties();
+
+config.limits.maxVerifyCodes = 3;
 
 var testServer = new TestServer(config);
 
@@ -27,12 +24,10 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -142,41 +137,61 @@ test('blocking an email using weird caps', function(t) {
     });
 });
 
-test('treat gmail email alias containing `+` and `.` as the same email', (t) => {
-  return client.postAsync('/check', {email: 'test@gmail.com', ip: TEST_IP, action: TEST_ACTION})
+test('treat gmail email alias containing `+` and `.` as the same email', t => {
+  return client
+    .postAsync('/check', {
+      email: 'test@gmail.com',
+      ip: TEST_IP,
+      action: TEST_ACTION,
+    })
     .spread((req, res, obj) => {
       t.equal(res.statusCode, 200, 'first login attempt noted');
       t.equal(obj.block, false, 'login not blocked');
-      return client.postAsync('/check', {email: 'tes.t@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+      return client.postAsync('/check', {
+        email: 'tes.t@gmail.com',
+        ip: TEST_IP,
+        action: TEST_ACTION,
+      });
     })
     .spread((req, res, obj) => {
       t.equal(res.statusCode, 200, 'second login attempt noted');
       t.equal(obj.block, false, 'login not blocked');
-      return client.postAsync('/check', {email: 'test+1@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+      return client.postAsync('/check', {
+        email: 'test+1@gmail.com',
+        ip: TEST_IP,
+        action: TEST_ACTION,
+      });
     })
     .spread((req, res, obj) => {
       t.equal(res.statusCode, 200, 'third login attempt noted');
       t.equal(obj.block, false, 'login not blocked');
-      return client.postAsync('/check', {email: 't.e.s.t+1234@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+      return client.postAsync('/check', {
+        email: 't.e.s.t+1234@gmail.com',
+        ip: TEST_IP,
+        action: TEST_ACTION,
+      });
     })
     .spread((req, res, obj) => {
       t.equal(res.statusCode, 200, '4th login attempt blocked');
       t.equal(obj.block, true, 'login blocked');
-      return client.postAsync('/check', {email: 'someotheremail@gmail.com', ip: TEST_IP, action: TEST_ACTION});
+      return client.postAsync('/check', {
+        email: 'someotheremail@gmail.com',
+        ip: TEST_IP,
+        action: TEST_ACTION,
+      });
     })
     .spread((req, res, obj) => {
       t.equal(res.statusCode, 200, 'login check succeeds');
       t.equal(obj.block, false, 'login not blocked on different email');
       t.end();
     })
-    .catch((err) => {
+    .catch(err => {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

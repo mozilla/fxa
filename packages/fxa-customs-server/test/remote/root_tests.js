@@ -13,12 +13,10 @@ var config = {
 };
 var testServer = new TestServer(config);
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 var client = restifyClients.createJsonClient({
@@ -38,8 +36,7 @@ test('version check', function(t) {
   });
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });
