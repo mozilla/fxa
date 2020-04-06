@@ -21,7 +21,7 @@ const Url = require('url');
 const otplib = require('otplib');
 otplib.authenticator.options = { encoding: 'hex' };
 
-const FxaClient = require('fxa-js-client');
+const FxaClient = require('../../../../fxa-js-client/client/FxAccountClient');
 const got = require('got');
 const config = intern._config;
 
