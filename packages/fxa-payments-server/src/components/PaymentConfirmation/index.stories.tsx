@@ -17,7 +17,6 @@ const userProfile: Profile = {
 
 const selectedPlan: Plan = {
   plan_id: 'planId',
-  plan_name: 'Pro level',
   product_id: 'fpnID',
   product_name: 'Firefox Private Network Pro',
   currency: 'usd',

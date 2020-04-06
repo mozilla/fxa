@@ -488,11 +488,7 @@ export const MOCK_CUSTOMER_AFTER_SUBSCRIPTION = {
     {
       subscription_id: 'sub0.21234123424',
       plan_id: PLAN_ID,
-<<<<<<< HEAD
-=======
-      plan_name: 'Plan 12345',
       latest_invoice: '628031D-0002',
->>>>>>> feat(payment-server): mobile payments flow for fpn
       status: 'active',
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,

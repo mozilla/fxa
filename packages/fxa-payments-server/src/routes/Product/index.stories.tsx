@@ -238,13 +238,9 @@ const CUSTOMER: Customer = {
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
-<<<<<<< HEAD
       product_id: 'prod_123',
       product_name: '123done Pro',
-=======
-      nickname: '123done Pro Monthly',
       latest_invoice: '628031D-0002',
->>>>>>> feat(payment-server): mobile payments flow for fpn
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,
