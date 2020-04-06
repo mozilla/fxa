@@ -71,54 +71,6 @@ function validateProductUpgrade(oldMetadata, newMetadata) {
   return oldOrder < newOrder;
 }
 
-/**
- * Get a cached result at a cache key and regenerated it with `refreshFunction`
- * if its expired.
- *
- * TODO fix logging messages: as it stands there is no name for the async functions
- * being passed in, and type safety prevents accessing the caller, so right now it
- * has been removed from the log messages
- *
- * @template T
- * @param {*} redis
- * @param {string} cacheKey
- * @param {number} cacheTtl
- * @param {() => Promise<T> | undefined} refreshFunction
- * @param {boolean} forceRefresh
- * @returns {Promise<T | undefined>} possibly cached result
- */
-async function cachedResult(
-  log,
-  redis,
-  cacheKey,
-  cacheTtl,
-  refreshFunction,
-  forceRefresh = false
-) {
-  if (cacheTtl && !forceRefresh) {
-    try {
-      const json = await redis.get(cacheKey);
-      if (json) {
-        return JSON.parse(json);
-      }
-    } catch (err) {
-      log.error(`subhub.cachedResult.getCachedResponse.failed`, { err });
-    }
-  }
-
-  if (!refreshFunction) {
-    return;
-  }
-
-  const result = await refreshFunction();
-  if (cacheTtl) {
-    redis.set(cacheKey, JSON.stringify(result), 'EX', cacheTtl).catch(err => {
-      log.error(`subhub.cachedResult.setCacheResponse.failed`, { err });
-    });
-  }
-  return result;
-}
-
 class StripeHelper {
   /**
    * Create a Stripe Helper with built-in caching.
@@ -132,8 +84,6 @@ class StripeHelper {
     this.cacheTtlSeconds =
       config.subhub.plansCacheTtlSeconds ||
       config.subscriptions.cacheTtlSeconds;
-    this.customerCacheTtlSeconds =
-      config.subscriptions.stripeCustomerCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     const redis =
       this.cacheTtlSeconds &&
@@ -158,6 +108,39 @@ class StripeHelper {
         statsd.timing('stripe_request', response.elapsed);
       });
     }
+  }
+
+  /**
+   * Get a cached result at a cache key and regenerated it with `refreshFunction`
+   * if its expired.
+   *
+   * @param {string} cacheKey
+   * @param {() => Promise<T>} refreshFunction
+   * @returns {Promise<T | undefined>} possibly cached result
+   */
+  async getCachedResult(cacheKey, refreshFunction) {
+    try {
+      const json = await this.redis.get(cacheKey);
+      if (json) {
+        return JSON.parse(json);
+      }
+    } catch (err) {
+      this.log.error(`stripeHelper.getCachedResult.redis.get.failed`, { err });
+    }
+
+    const result = await refreshFunction();
+    try {
+      await this.redis.set(
+        cacheKey,
+        JSON.stringify(result),
+        'EX',
+        this.cacheTtlSeconds
+      );
+    } catch (err) {
+      this.log.error(`stripeHelper.getCachedResult.redis.set.failed`, { err });
+    }
+
+    return result;
   }
 
   /**
@@ -197,13 +180,7 @@ class StripeHelper {
    * @returns {Promise<AbbrevProduct[]>} All the products.
    */
   async allProducts() {
-    return cachedResult(
-      this.log,
-      this.redis,
-      'listProducts',
-      this.cacheTtlSeconds,
-      () => this.fetchAllProducts()
-    );
+    return this.getCachedResult('listProducts', () => this.fetchAllProducts());
   }
 
   /**
@@ -344,21 +321,50 @@ class StripeHelper {
    */
   async customer(uid, email, forceRefresh = false, cacheOnly = false) {
     const cacheKey = this.customerCacheKey(uid, email);
+    let result = undefined;
 
-    return cachedResult(
-      this.log,
-      this.redis,
-      cacheKey,
-      this.customerCacheTtlSeconds,
-      cacheOnly
-        ? undefined
-        : async () =>
-            this.fetchCustomer(uid, email, [
-              'data.sources',
-              'data.subscriptions',
-            ]),
-      forceRefresh
-    );
+    if (!forceRefresh) {
+      try {
+        const json = await this.redis.get(cacheKey);
+        if (json) {
+          result = JSON.parse(json);
+        }
+      } catch (err) {
+        this.log.error(`stripeHelper.customer.redis.get.failed`, { err });
+      }
+    }
+
+    if (!result && !cacheOnly) {
+      result = await this.fetchCustomer(uid, email, [
+        'data.sources',
+        'data.subscriptions',
+      ]);
+      try {
+        await this.redis.set(cacheKey, JSON.stringify(result));
+      } catch (err) {
+        this.log.error(`stripeHelper.customer.redis.set.failed`, { err });
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * On FxA deletion, if the user is a Stripe Customer:
+   * - flag the stripe customer to delete
+   * - remove the cache entry
+   *
+   * @param {string} uid
+   * @param {string} email
+   */
+  async removeCustomer(uid, email) {
+    const customer = await this.fetchCustomer(uid, email);
+    if (customer) {
+      await this.stripe.customers.update(customer.id, {
+        metadata: { delete: 'true' },
+      });
+      await this.removeCustomerFromCache(uid, email);
+    }
   }
 
   /**
@@ -436,6 +442,25 @@ class StripeHelper {
   }
 
   /**
+   * Remove the cache entry for a customer account
+   * This is to be used on account deletion
+   *
+   * @param {string} uid
+   * @param {string} email
+   */
+  async removeCustomerFromCache(uid, email) {
+    const customerKey = this.customerCacheKey(uid, email);
+    try {
+      await this.redis.del(customerKey);
+    } catch (err) {
+      this.log.error(
+        `stripeHelper.removeCustomerFromCache failed to remove cache key: ${customerKey}`,
+        { err }
+      );
+    }
+  }
+
+  /**
    * Fetches all plans from stripe and returns them.
    *
    * Use `allPlans` below to use the cached-enhanced version.
@@ -498,13 +523,7 @@ class StripeHelper {
    * @returns {Promise<AbbrevPlan[]>} All the plans.
    */
   async allPlans() {
-    return cachedResult(
-      this.log,
-      this.redis,
-      'listPlans',
-      this.cacheTtlSeconds,
-      () => this.fetchAllPlans()
-    );
+    return this.getCachedResult('listPlans', () => this.fetchAllPlans());
   }
 
   /**
