@@ -60,7 +60,7 @@
     "@types/storybook__addon-actions": "^3.4.2",
     "@types/storybook__addon-links": "^3.3.5",
     "@types/storybook__react": "^4.0.1",
-    "@types/uuid": "^7.0.0",
+    "@types/uuid": "^7.0.2",
     "@typescript-eslint/eslint-plugin": "^1.9.0",
     "@typescript-eslint/parser": "^1.9.0",
     "async-wait-until": "^1.2.4",

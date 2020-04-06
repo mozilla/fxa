@@ -75,6 +75,7 @@ export interface CustomerSubscription {
   current_period_end: number;
   current_period_start: number;
   end_at: number | null;
+  latest_invoice: string;
   nickname: string;
   plan_id: string;
   status: string;
@@ -82,10 +83,12 @@ export interface CustomerSubscription {
 }
 
 export interface Customer {
+  billing_name: string | null;
   payment_type: string;
   last4: string;
   exp_month: string;
   exp_year: string;
+  brand: string;
   subscriptions: Array<CustomerSubscription>;
 }
 

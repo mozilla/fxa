@@ -1,0 +1,137 @@
+@import '../../../../fxa-content-server/app/styles/variables';
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
+.payment-confirmation {
+  background: $color-white;
+  border: 1px solid  #e7e7e7;
+  border-bottom: 0;
+  border-radius: 8px;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-size: 15px;
+  height: 100%;
+  margin: 0;
+  max-width: 600px;
+  min-width: 375px;
+  padding: 20px 16px 0;
+
+  p {
+    margin: unset;
+  }
+
+  > img {
+    margin: 12px;
+  }
+
+  > p {
+    color: $grey-40;
+    margin: 12px 0;
+  }
+
+  > div {
+    border-bottom: 1px solid $grey-30;
+    padding-bottom: 24px;
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: normal;
+    margin: 24px 0 12px;
+  }
+
+  h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-top: 24px;
+  }
+
+  header {
+    border-bottom: 1px solid $grey-30;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: initial;
+    margin-top: 20px;
+    padding-bottom: 32px;
+    text-align: center;
+
+    p {
+      color: #6d6d6e;
+    }
+  }
+
+  .c-card {
+    position: relative;
+  }
+
+  .c-card::before {
+    content: '';
+    display: block;
+    height: 27px;
+    left: -45px;
+    position: absolute;
+    top: 0;
+    width: 40px;
+  }
+
+  .visa::before {
+    background: url('./images/visa.svg') no-repeat;
+  }
+
+  .mastercard::before {
+    background: url('./images/mastercard.svg') no-repeat;
+  }
+
+  .american::before {
+    background: url('./images/amex.svg') no-repeat;
+  }
+
+  .discover::before {
+    background: url('./images/discover.svg') no-repeat;
+  }
+
+  .bottom-row {
+    color: $grey-50;
+    display: flex;
+    justify-content: space-between;
+
+    p:last-child {
+      color: $grey-50;
+    }
+  }
+
+  .footer {
+    border: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .button {
+      align-items: center;
+      background: #0060df;
+      color: $color-white;
+      display: flex;
+      font-size: 15px;
+      font-weight: 600;
+      height: 48px;
+      justify-content: center;
+      margin: 32px 0;
+      text-decoration: none;
+      width: 100%;
+    }
+
+    .button:hover {
+      background: #003eaa;
+    }
+
+    .button:active {
+      background: #002275;
+    }
+  }
+
+  @include min-width('desktop') {
+    min-width: 60%;
+    padding: 20px 48px 0;
+  }
+}

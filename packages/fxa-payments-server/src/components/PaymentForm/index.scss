@@ -19,7 +19,21 @@ form.payment {
     }
   }
 
+  hr {
+    margin: 24px 0 0;
+
+    @include respond-to('simpleSmall') {
+      margin-top: 16px;
+    }
+  }
+
   .input-row {
+    margin: 24px 0 0;
+
+    @include respond-to('simpleSmall') {
+      margin-top: 16px;
+    }
+
     input {
       font-size: 14px;
 
@@ -43,37 +57,50 @@ form.payment {
       font-size: 14px;
       font-weight: 400;
       height: 45px;
+      line-height: normal;
+    }
+
+    input::-moz-placeholder {
       line-height: 45px;
     }
+  }
+
+  button {
+    margin-top: 32px;
+  }
+
+  .terms {
+    margin-top: 32px;
+  }
+
+  .lock::before {
+    background-image: url('./images/lock.svg');
+    background-position: 0 4px;
+    background-repeat: no-repeat;
+    content: '\00a0';
+    display: inline-block;
+    height: 18px;
+    margin: 0 8px;
+    width: 14px;
   }
 }
 
 @include respond-to('simpleSmall') {
-  .StripeElement .InputContainer .InputElement::placeholder,
-  form.payment .input-row input::placeholder {
+  .StripeElement .InputContainer .InputElement::-moz-placeholder,
+  form.payment .input-row input::-moz-placeholder {
     line-height: 38px !important;
   }
 
-  .sign-in {
-    margin-top: 25px;
-  }
-
-  .product-payment {
-    h3.billing-title {
-      padding-top: 0;
-    }
-
-    .profile-banner h3.email {
-      margin-top: 15px;
-    }
-  }
-
-  #main-content.payments-card {
+  .main-content .payments-card {
     width: 100%;
 
     .input-row input,
     .input-row .StripeElement {
       padding-left: 5px !important;
+    }
+
+    .input-row-group {
+      padding-bottom: 8px;
     }
   }
 }

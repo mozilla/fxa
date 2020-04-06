@@ -198,6 +198,8 @@ class DirectStripeRoutes {
       productName: selectedPlan.product_name,
       planEmailIconURL: planMetadata.emailIconURL,
       planDownloadURL: planMetadata.downloadURL,
+      appStoreLink: planMetadata.appStoreLink,
+      playStoreLink: planMetadata.playStoreLink,
     });
     this.log.info('subscriptions.createSubscription.success', {
       uid,
@@ -525,10 +527,12 @@ class DirectStripeRoutes {
       if (src.object === 'card') {
         response = {
           ...response,
+          billing_name: src.name,
           payment_type: src.funding,
           last4: src.last4,
           exp_month: src.exp_month,
           exp_year: src.exp_year,
+          brand: src.brand,
         };
       }
     }

@@ -2118,6 +2118,8 @@ module.exports = function(log, config, oauthdb) {
       planEmailIconURL,
       planDownloadURL,
       uid,
+      appStoreLink,
+      playStoreLink,
     } = message;
 
     log.trace('mailer.downloadSubscription', { email, productId, uid });
@@ -2129,14 +2131,17 @@ module.exports = function(log, config, oauthdb) {
       planDownloadURL,
       message,
       query,
-      template
+      template,
+      appStoreLink,
+      playStoreLink
     );
+
     const headers = {
       'X-Link': links.link,
     };
 
     const translatorParams = { productName, uid, email };
-    const subject = translator.gettext('Welcome to %(productName)s!');
+    const subject = translator.gettext('Welcome to %(productName)s');
     const action = translator.gettext('Download %(productName)s');
 
     return this.send({
@@ -2195,7 +2200,9 @@ module.exports = function(log, config, oauthdb) {
     primaryLink,
     { email, uid },
     query,
-    templateName
+    templateName,
+    appStoreLink,
+    playStoreLink
   ) {
     // Generate all possible links. The option to use a specific link
     // is left up to the template.
@@ -2211,6 +2218,25 @@ module.exports = function(log, config, oauthdb) {
         utmContent
       );
     }
+
+    if (appStoreLink && utmContent) {
+      links['appStoreLink'] = this._generateUTMLink(
+        appStoreLink,
+        query,
+        templateName,
+        utmContent
+      );
+    }
+
+    if (playStoreLink && utmContent) {
+      links['playStoreLink'] = this._generateUTMLink(
+        playStoreLink,
+        query,
+        templateName,
+        utmContent
+      );
+    }
+
     links['privacyUrl'] = this.createPrivacyLink(templateName);
 
     links['supportLinkAttributes'] = this._supportLinkAttributes(templateName);

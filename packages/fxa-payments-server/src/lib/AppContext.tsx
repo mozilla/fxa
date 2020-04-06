@@ -7,6 +7,7 @@ export type AppContextType = {
   config: Config;
   queryParams: QueryParams;
   matchMedia: (query: string) => boolean;
+  matchMediaDefault: (query: string) => MediaQueryList;
   navigateToUrl: (url: string) => void;
   getScreenInfo: () => ScreenInfo;
   locationReload: (url: string) => void;
@@ -20,6 +21,7 @@ export const defaultAppContext = {
   getScreenInfo: () => new ScreenInfo(),
   locationReload: noopFunction,
   matchMedia: () => false,
+  matchMediaDefault: (query: string) => matchMedia(query),
   navigateToUrl: noopFunction,
   queryParams: {},
 };

@@ -29,6 +29,7 @@ const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.j
 
 const MESSAGE = {
   acceptLanguage: 'en',
+  appStoreLink: 'https://example.com/app-store',
   code: 'abc123',
   deviceId: 'foo',
   location: {
@@ -48,6 +49,7 @@ const MESSAGE = {
   productName: 'Firefox Fortress',
   planEmailIconURL: 'http://example.com/icon.jpg',
   planDownloadURL: 'http://getfirefox.com/',
+  playStoreLink: 'https://example.com/play-store',
   invoiceNumber: '8675309',
   invoiceTotal: 99.99,
   proratedAmount: 5.23,
@@ -145,7 +147,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['downloadSubscriptionEmail', new Map([
-    ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}!` }],
+    ['subject', { test: 'equal', expected: `Welcome to ${MESSAGE.productName}` }],
     ['headers', new Map([
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('downloadSubscription') }],
       ['X-Template-Name', { test: 'equal', expected: 'downloadSubscription' }],
@@ -154,10 +156,12 @@ const TESTS = new Map([
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'new-subscription', 'privacy') },
       { test: 'include', expected: MESSAGE.planDownloadURL },
+      { test: 'include', expected: MESSAGE.appStoreLink },
+      { test: 'include', expected: MESSAGE.playStoreLink },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
-      { test: 'include', expected: `Welcome to ${MESSAGE.productName}!` },
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `already downloaded ${MESSAGE.productName}` },
       { test: 'include', expected: `>Download ${MESSAGE.productName}</a>` },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -168,7 +172,7 @@ const TESTS = new Map([
       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
       { test: 'include', expected: configUrl('subscriptionSupportUrl', 'new-subscription', 'subscription-support') },
-      { test: 'include', expected: `Welcome to ${MESSAGE.productName}!` },
+      { test: 'include', expected: `Welcome to ${MESSAGE.productName}` },
       { test: 'include', expected: `already downloaded ${MESSAGE.productName}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
