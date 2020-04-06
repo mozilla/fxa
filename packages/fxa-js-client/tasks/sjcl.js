@@ -9,8 +9,8 @@ module.exports = function(grunt) {
   grunt.registerTask('sjcl', 'Build the SJCL library', function() {
     var done = this.async();
     var configSJCL =
-      './configure --without-random --without-ocb2 --without-gcm --without-ccm && make';
-    var src = 'core_closure.js';
+      './configure --without-random --without-ocb2 --without-gcm --without-ccm --compress=none && make';
+    var src = 'core.js';
     var dist = 'sjcl.js';
 
     process.chdir('node_modules/sjcl/');
