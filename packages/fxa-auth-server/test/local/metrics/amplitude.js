@@ -5,8 +5,13 @@
 'use strict';
 
 const { assert } = require('chai');
+const { version } = require('../../../package.json');
 const amplitudeModule = require('../../../lib/metrics/amplitude');
 const mocks = require('../../mocks');
+const mockAmplitudeConfig = {
+  schemaValidation: true,
+  rawEvents: false,
+};
 
 const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
@@ -21,6 +26,7 @@ describe('metrics/amplitude', () => {
   it('throws if log argument is missing', () => {
     assert.throws(() =>
       amplitudeModule(null, {
+        amplitude: mockAmplitudeConfig,
         oauth: { clientIds: {} },
         verificationReminders: {},
       })
@@ -31,7 +37,11 @@ describe('metrics/amplitude', () => {
     assert.throws(() =>
       amplitudeModule(
         {},
-        { oauth: { clientIds: null }, verificationReminders: {} }
+        {
+          amplitude: mockAmplitudeConfig,
+          oauth: { clientIds: null },
+          verificationReminders: {},
+        }
       )
     );
   });
@@ -41,7 +51,9 @@ describe('metrics/amplitude', () => {
 
     beforeEach(() => {
       log = mocks.mockLog();
+      mockAmplitudeConfig.rawEvents = false;
       amplitude = amplitudeModule(log, {
+        amplitude: mockAmplitudeConfig,
         oauth: {
           clientIds: {
             0: 'amo',
@@ -100,6 +112,119 @@ describe('metrics/amplitude', () => {
 
       it('did not call log.amplitudeEvent', () => {
         assert.equal(log.amplitudeEvent.callCount, 0);
+      });
+    });
+
+    describe('raw events enabled', () => {
+      it('logged a raw event', async () => {
+        mockAmplitudeConfig.rawEvents = true;
+        const now = Date.now();
+        await amplitude(
+          'account.confirmed',
+          mocks.mockRequest({
+            uaBrowser: 'foo',
+            uaBrowserVersion: 'bar',
+            uaOS: 'baz',
+            uaOSVersion: 'qux',
+            uaDeviceType: 'pawk',
+            uaFormFactor: 'melm',
+            locale: 'wibble',
+            credentials: {
+              uid: 'blee',
+            },
+            devices: [],
+            geo: {
+              location: {
+                country: 'United Kingdom',
+                state: 'England',
+              },
+            },
+            query: {
+              service: '0',
+            },
+            payload: {
+              metricsContext: {
+                deviceId: 'juff',
+                flowId: 'udge',
+                flowBeginTime: 'kwop',
+              },
+            },
+          }),
+          { useless: 'junk', utm_source: 'quuz' },
+          { time: now }
+        );
+        const expectedEvent = {
+          time: now,
+          type: 'account.confirmed',
+        };
+        const expectedContext = {
+          deviceId: 'juff',
+          devices: [],
+          emailDomain: undefined,
+          emailSender: undefined,
+          emailService: undefined,
+          emailTypes: {
+            downloadSubscription: 'subscription_download',
+            lowRecoveryCodes: '2fa',
+            newDeviceLogin: 'login',
+            passwordChanged: 'change_password',
+            passwordReset: 'reset_password',
+            passwordResetAccountRecovery: 'account_recovery',
+            passwordResetRequired: 'reset_password',
+            postAddAccountRecovery: 'account_recovery',
+            postAddTwoStepAuthentication: '2fa',
+            postChangePrimary: 'change_email',
+            postConsumeRecoveryCode: '2fa',
+            postNewRecoveryCodes: '2fa',
+            postRemoveAccountRecovery: 'account_recovery',
+            postRemoveSecondary: 'secondary_email',
+            postRemoveTwoStepAuthentication: '2fa',
+            postVerify: 'registration',
+            postVerifyAddRecoveryKey: 'registration',
+            postVerifyAddSecondary: 'registration',
+            postVerifySecondary: 'secondary_email',
+            recovery: 'reset_password',
+            subscriptionAccountDeletion: 'subscription_account_deletion',
+            subscriptionCancellation: 'subscription_cancellation',
+            subscriptionFirstInvoice: 'subscription_first_invoice',
+            subscriptionSubsequentInvoice: 'subscription_subsequent_invoice',
+            unblockCode: 'unblock',
+            verificationReminderFirst: 'registration',
+            verificationReminderFirstEmail: 'registration',
+            verificationReminderSecond: 'registration',
+            verificationReminderSecondEmail: 'registration',
+            verificationReminderThirdEmail: 'registration',
+            verify: 'registration',
+            verifyLogin: 'login',
+            verifyLoginCode: 'login',
+            verifyPrimary: 'verify',
+            verifySecondary: 'secondary_email',
+            verifySecondaryCode: 'secondary_email',
+            verifyShortCode: 'registration',
+          },
+          eventSource: 'auth',
+          flowBeginTime: 'kwop',
+          flowId: 'udge',
+          formFactor: 'melm',
+          lang: 'wibble',
+          location: {
+            country: 'United Kingdom',
+            state: 'England',
+          },
+          planId: undefined,
+          productId: undefined,
+          service: '0',
+          uid: 'blee',
+          userAgent: 'test user-agent',
+          utm_source: 'quuz',
+          version,
+        };
+        assert.deepEqual(log.info.args[0][1]['event'], expectedEvent);
+        assert.deepEqual(log.info.args[0][1]['context'], expectedContext);
+        assert.isTrue(log.info.calledOnceWith('rawAmplitudeData'), {
+          event: expectedEvent,
+          context: expectedContext,
+        });
       });
     });
 
