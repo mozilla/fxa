@@ -49,144 +49,142 @@ h3.billing-title {
     flex-direction: row;
     padding-top: $header-height-tablet;
   }
+}
 
-  hr {
-    border: 0;
-    border-top: 1px solid #e0e0e6;
-    height: 0;
-    margin: 0 -40px;
+hr {
+  border: 0;
+  border-top: 1px solid #e0e0e6;
+  height: 0;
+  margin: 0 -40px;
 
-    @include respond-to('small') {
-      margin: 0 -20px; // match padding of .main-content
+  @include respond-to('small') {
+    margin: 0 -20px; // match padding of .main-content
+  }
+}
+
+.input-row {
+  // Stripe element class names
+  // https://stripe.com/docs/stripe-js/reference#the-element-container
+  margin: 24px 0;
+
+  .StripeElement {
+    @include input-element();
+    padding-top: 14px;
+
+    html[dir='ltr'] & {
+      padding: 14px 0 0 $input-left-right-padding;
+
+      @include respond-to('simpleSmall') {
+        padding-top: 11px;
+      }
+    }
+
+    html[dir='rtl'] & {
+      direction: ltr;
+      padding: 14px $input-left-right-padding 0 0;
+      text-align: right;
+
+      @include respond-to('simpleSmall') {
+        padding-top: 11px;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 
-  .input-row {
-    // Stripe element class names
-    // https://stripe.com/docs/stripe-js/reference#the-element-container
-    margin: 24px 0;
+  .StripeElement--focus,
+  .StripeElement--focus:hover {
+    border-color: $input-border-color-focus;
+    box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
+  }
 
-    .StripeElement {
-      @include input-element();
-      padding-top: 14px;
+  .tooltip + .StripeElement--empty,
+  .StripeElement--invalid,
+  .StripeElement--invalid:hover {
+    border-color: $error-background-color;
 
-      html[dir='ltr'] & {
-        padding: 14px 0 0 $input-left-right-padding;
-
-        @include respond-to('simpleSmall') {
-          padding-top: 11px;
-        }
-      }
-
-      html[dir='rtl'] & {
-        direction: ltr;
-        padding: 14px $input-left-right-padding 0 0;
-        text-align: right;
-
-
-        @include respond-to('simpleSmall') {
-          padding-top: 11px;
-        }
-      }
-
-      &:last-child {
-        margin-bottom: 0;
-      }
+    &.StripeElement--focus {
+      box-shadow: 0 0 0 3px rgba($error-background-color, 0.3);
     }
+  }
 
+  .label-text {
+    color: #686869;
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 7px;
+    text-align: left;
+  }
 
-    .StripeElement--focus,
-    .StripeElement--focus:hover {
-      border-color: $input-border-color-focus;
-      box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
-    }
+  .label-text.checkbox {
+    color: #0c0c0d;
+    font-size: 13px;
+    font-weight: normal;
+    letter-spacing: normal;
+    line-height: 21px;
+  }
 
-    .tooltip + .StripeElement--empty,
-    .StripeElement--invalid,
-    .StripeElement--invalid:hover {
-      border-color: $error-background-color;
+  // HACK: stop the checkbox from changing width on focus
+  input[type='checkbox']:focus,
+  input[type='checkbox']:not(:checked):focus,
+  input[type='checkbox']:checked:focus {
+    border: 1px solid transparent;
+  }
+}
 
-      &.StripeElement--focus {
-        box-shadow: 0 0 0 3px rgba($error-background-color, 0.3);
+.input-row--checkbox {
+  label {
+    display: flex;
+    flex-direction: row;
+
+    input[type='checkbox'] {
+      flex: 0 0 18px;
+      margin-right: 16px;
+      position: relative;
+      top: 2px;
+
+      &:checked {
+        background-image: url('images/check.svg');
       }
     }
 
     .label-text {
-      color: #686869;
       display: block;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 7px;
-      text-align: left;
-    }
-
-    .label-text.checkbox {
-      color: #0c0c0d;
-      font-size: 13px;
-      font-weight: normal;
-      letter-spacing: normal;
-      line-height: 21px;
-    }
-
-    // HACK: stop the checkbox from changing width on focus
-    input[type='checkbox']:focus,
-    input[type='checkbox']:not(:checked):focus,
-    input[type='checkbox']:checked:focus {
-      border: 1px solid transparent;
+      margin: 0 0 0 2px;
     }
   }
+}
 
-  .input-row--checkbox {
-    label {
-      display: flex;
-      flex-direction: row;
+.input-row-group {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: row;
 
-      input[type='checkbox'] {
-        flex: 0 0 18px;
-        margin-right: 16px;
-        position: relative;
-        top: 2px;
+  @include respond-to('simpleSmall') {
+    flex-wrap: wrap;
+  }
 
-        &:checked {
-          background-image: url('images/check.svg');
-        }
-      }
+  .input-row {
+    flex: 1 0;
+    padding-right: 18px;
+    width: inherit;
 
-      .label-text {
-        display: block;
-        margin: 0 0 0 2px;
+    &.input-row--xl {
+      flex: 2 0;
+
+      @include respond-to('simpleSmall') {
+        flex: unset;
+        padding-right: 0;
+        width: 100%;
       }
     }
   }
 
-  .input-row-group {
-    align-items: flex-end;
-    display: flex;
-    flex-direction: row;
-
-    @include respond-to('simpleSmall') {
-      flex-wrap: wrap;
-    }
-
-    .input-row {
-      flex: 1 0;
-      padding-right: 18px;
-      width: inherit;
-
-      &.input-row--xl {
-        flex: 2 0;
-
-        @include respond-to('simpleSmall') {
-          flex: unset;
-          padding-right: 0;
-          width: 100%;
-        }
-      }
-    }
-
-    .input-row:last-of-type {
-      padding-right: 0;
-    }
+  .input-row:last-of-type {
+    padding-right: 0;
   }
 }
 
