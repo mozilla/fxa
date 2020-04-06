@@ -2,6 +2,21 @@
 
 ## 1.165.1
 
+### New features
+
+* payment-server: mobile payments flow for fpn ([e973eb281](https://github.com/mozilla/fxa/commit/e973eb281))
+
+### Bug fixes
+
+* payments: update line-height styles on payment inputs to address a buggy offset ([2472978b1](https://github.com/mozilla/fxa/commit/2472978b1))
+
+### Other changes
+
+* payments-server: fix inconsistent input style in payment form ([20f33fd44](https://github.com/mozilla/fxa/commit/20f33fd44))
+* payments-server: diplay amex logo in confirmation billing details ([fb65624fa](https://github.com/mozilla/fxa/commit/fb65624fa))
+
+## 1.165.1
+
 ### Bug fixes
 
 - Docker: fix path to a JSON schema in fxa-shared for Payments ([ebfc116ab](https://github.com/mozilla/fxa/commit/ebfc116ab))
