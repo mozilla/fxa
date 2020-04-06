@@ -53,6 +53,8 @@ const config = {
   defaultTimeout: 45000, // 30 seconds just isn't long enough for some tests.
   environments: {
     browserName: 'firefox',
+    fixSessionCapabilities: 'no-detect',
+    usesHandleParameter: true,
   },
   filterErrorStack: true,
   functionalSuites: testsMain,
