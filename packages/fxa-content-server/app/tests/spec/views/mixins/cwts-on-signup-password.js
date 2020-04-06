@@ -48,6 +48,34 @@ describe('views/mixins/cwts-on-signup-password', () => {
     });
   });
 
+  describe('isCWTSOnSignupPasswordEnabled', () => {
+    it('return true when relier is sync', () => {
+      view.relier = new Model({
+        service: 'sync',
+      });
+
+      assert.isTrue(view.isCWTSOnSignupPasswordEnabled());
+    });
+
+    it('return true when relier is multiservice', () => {
+      view.relier = new Model({
+        service: 'notsync',
+        multiService: true,
+      });
+
+      assert.isTrue(view.isCWTSOnSignupPasswordEnabled());
+    });
+
+    it('return false otherwise', () => {
+      view.relier = new Model({
+        service: 'notsync',
+        multiService: false,
+      });
+
+      assert.isFalse(view.isCWTSOnSignupPasswordEnabled());
+    });
+  });
+
   describe('beforeSubmit', () => {
     beforeEach(() => {
       sinon.stub(view, '_trackDeclinedEngineIds');
