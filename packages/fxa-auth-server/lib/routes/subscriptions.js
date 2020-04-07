@@ -711,6 +711,20 @@ class DirectStripeRoutes {
     await this.updateCustomer(uid, email);
   }
 
+  /**
+   * Handle `invoice.payment_succeeded` Stripe wehbook events.
+   *
+   * @param {*} request
+   * @param {Event} event
+   */
+  async handleInvoicePaymentFailedEvent(request, event) {
+    const invoice = /** @type {Invoice} */ (event.data.object);
+    const { uid, email } = await this.sendSubscriptionPaymentFailedEmail(
+      invoice
+    );
+    await this.updateCustomer(uid, email);
+  }
+
   async handleWebhookEvent(request) {
     const event = this.stripeHelper.constructWebhookEvent(
       request.payload,
@@ -730,6 +744,9 @@ class DirectStripeRoutes {
       case 'invoice.payment_succeeded':
         await this.handleInvoicePaymentSucceededEvent(request, event);
         break;
+      case 'invoice.payment_failed':
+        await this.handleInvoicePaymentFailedEvent(request, event);
+        break;
       default:
         Sentry.withScope(scope => {
           scope.setContext('stripeEvent', {
@@ -744,6 +761,28 @@ class DirectStripeRoutes {
     }
 
     return {};
+  }
+
+  /**
+   * Send out an email on payment failure.
+   *
+   * @param {Invoice} invoice
+   */
+  async sendSubscriptionPaymentFailedEmail(invoice) {
+    const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
+      invoice
+    );
+    const { uid } = invoiceDetails;
+    const account = await this.db.account(uid);
+    await this.mailer.sendSubscriptionPaymentFailedEmail(
+      account.emails,
+      account,
+      {
+        acceptLanguage: account.locale,
+        ...invoiceDetails,
+      }
+    );
+    return invoiceDetails;
   }
 
   /**

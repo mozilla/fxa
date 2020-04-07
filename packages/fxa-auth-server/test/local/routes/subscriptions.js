@@ -35,6 +35,7 @@ const subscriptionDeleted = require('../payments/fixtures/subscription_deleted.j
 const subscriptionUpdated = require('../payments/fixtures/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscription_updated_from_incomplete.json');
 const eventInvoicePaymentSucceeded = require('../payments/fixtures/event_invoice_payment_succeeded.json');
+const eventInvoicePaymentFailed = require('../payments/fixtures/event_invoice_payment_failed.json');
 const openInvoice = require('../payments/fixtures/invoice_open.json');
 const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
@@ -1684,6 +1685,7 @@ describe('DirectStripeRoutes', () => {
         'handleSubscriptionUpdatedEvent',
         'handleSubscriptionDeletedEvent',
         'handleInvoicePaymentSucceededEvent',
+        'handleInvoicePaymentFailedEvent',
       ];
       const handlerStubs = {};
 
@@ -1750,6 +1752,13 @@ describe('DirectStripeRoutes', () => {
         itOnlyCallsThisHandler(
           'handleInvoicePaymentSucceededEvent',
           eventInvoicePaymentSucceeded
+        );
+      });
+
+      describe('when the event.type is invoice.payment_failed', () => {
+        itOnlyCallsThisHandler(
+          'handleInvoicePaymentFailedEvent',
+          eventInvoicePaymentFailed
         );
       });
 
@@ -1869,6 +1878,34 @@ describe('DirectStripeRoutes', () => {
       });
     });
 
+    describe('handleInvoicePaymentFailedEvent', () => {
+      it('sends email and emits a notification when an invoice payment fails', async () => {
+        const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
+        const sendSubscriptionPaymentFailedEmailStub = sandbox
+          .stub(
+            directStripeRoutesInstance,
+            'sendSubscriptionPaymentFailedEmail'
+          )
+          .resolves(true);
+        const mockSubscription = {
+          id: 'test1',
+          plan: { product: 'test2' },
+        };
+        directStripeRoutesInstance.stripeHelper.expandResource.resolves(
+          mockSubscription
+        );
+        await directStripeRoutesInstance.handleInvoicePaymentFailedEvent(
+          {},
+          paymentFailedEvent
+        );
+        assert.calledWith(
+          sendSubscriptionPaymentFailedEmailStub,
+          paymentFailedEvent.data.object
+        );
+        assert.notCalled(stubSendSubscriptionStatusToSqs);
+      });
+    });
+
     describe('handleSubscriptionCreatedEvent', () => {
       it('emits a notification when a new subscription is "active" or "trialing"', async () => {
         const createdEvent = deepCopy(subscriptionCreated);
@@ -1906,6 +1943,35 @@ describe('DirectStripeRoutes', () => {
         assert.notCalled(profile.deleteCache);
         assert.notCalled(stubSendSubscriptionStatusToSqs);
       });
+    });
+  });
+
+  describe('sendSubscriptionPaymentFailedEmail', () => {
+    it('sends the payment failed email', async () => {
+      const invoice = deepCopy(eventInvoicePaymentFailed.data.object);
+
+      const mockInvoiceDetails = { uid: '1234', test: 'fake' };
+      directStripeRoutesInstance.stripeHelper.extractInvoiceDetailsForEmail.resolves(
+        mockInvoiceDetails
+      );
+
+      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+      directStripeRoutesInstance.db.account = sinon.spy(
+        async data => mockAccount
+      );
+
+      await directStripeRoutesInstance.sendSubscriptionPaymentFailedEmail(
+        invoice
+      );
+      assert.calledWith(
+        directStripeRoutesInstance.mailer.sendSubscriptionPaymentFailedEmail,
+        mockAccount.emails,
+        mockAccount,
+        {
+          acceptLanguage: mockAccount.locale,
+          ...mockInvoiceDetails,
+        }
+      );
     });
   });
 

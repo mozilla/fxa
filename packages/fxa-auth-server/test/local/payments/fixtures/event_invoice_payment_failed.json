@@ -1,0 +1,135 @@
+{
+  "created": 1326853478,
+  "livemode": false,
+  "id": "evt_00000000000000",
+  "type": "invoice.payment_failed",
+  "object": "event",
+  "request": null,
+  "pending_webhooks": 1,
+  "api_version": "2019-12-03",
+  "data": {
+    "object": {
+      "id": "in_00000000000000",
+      "object": "invoice",
+      "account_country": "US",
+      "account_name": "SUB_PLAT_DEV",
+      "amount_due": 500,
+      "amount_paid": 500,
+      "amount_remaining": 0,
+      "application_fee_amount": null,
+      "attempt_count": 1,
+      "attempted": true,
+      "auto_advance": false,
+      "billing_reason": "subscription_create",
+      "charge": "ch_00000000000000",
+      "collection_method": "charge_automatically",
+      "created": 1583260500,
+      "currency": "usd",
+      "custom_fields": null,
+      "customer": "cus_00000000000000",
+      "customer_address": null,
+      "customer_email": "foo+201903031029@example.com",
+      "customer_name": "oijoijo",
+      "customer_phone": null,
+      "customer_shipping": null,
+      "customer_tax_exempt": "none",
+      "customer_tax_ids": [
+      ],
+      "default_payment_method": null,
+      "default_source": null,
+      "default_tax_rates": [
+      ],
+      "description": null,
+      "discount": null,
+      "due_date": null,
+      "ending_balance": 0,
+      "footer": null,
+      "hosted_invoice_url": "https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GqMIENv7jxXPewFj65G8eVIAvxnr1J5",
+      "invoice_pdf": "https://pay.stripe.com/invoice/acct_1GCAr3BVqmGyQTMa/invst_GqMIENv7jxXPewFj65G8eVIAvxnr1J5/pdf",
+      "lines": {
+        "data": [
+          {
+            "id": "il_00000000000000",
+            "object": "line_item",
+            "amount": 500,
+            "currency": "usd",
+            "description": "1 × 123Done Pro (at $5.00 / month)",
+            "discountable": true,
+            "livemode": false,
+            "metadata": {
+            },
+            "period": {
+              "end": 1591209300,
+              "start": 1588530900
+            },
+            "plan": {
+              "id": "plan_00000000000000",
+              "object": "plan",
+              "active": true,
+              "aggregate_usage": null,
+              "amount": 500,
+              "amount_decimal": "500",
+              "billing_scheme": "per_unit",
+              "created": 1583259953,
+              "currency": "usd",
+              "interval": "month",
+              "interval_count": 1,
+              "livemode": false,
+              "metadata": {
+              },
+              "nickname": "123Done Pro Monthly",
+              "product": "prod_00000000000000",
+              "tiers": null,
+              "tiers_mode": null,
+              "transform_usage": null,
+              "trial_period_days": null,
+              "usage_type": "licensed"
+            },
+            "proration": false,
+            "quantity": 1,
+            "subscription": "sub_00000000000000",
+            "subscription_item": "si_00000000000000",
+            "tax_amounts": [
+            ],
+            "tax_rates": [
+            ],
+            "type": "subscription"
+          }
+        ],
+        "has_more": false,
+        "object": "list",
+        "url": "/v1/invoices/in_1GIfa4BVqmGyQTMaoSURXJFK/lines"
+      },
+      "livemode": false,
+      "metadata": {
+      },
+      "next_payment_attempt": null,
+      "number": "825C8B90-0001",
+      "paid": false,
+      "payment_intent": "pi_00000000000000",
+      "period_end": 1583260500,
+      "period_start": 1583260500,
+      "post_payment_credit_notes_amount": 0,
+      "pre_payment_credit_notes_amount": 0,
+      "receipt_number": null,
+      "starting_balance": 0,
+      "statement_descriptor": null,
+      "status": "paid",
+      "status_transitions": {
+        "finalized_at": 1583260500,
+        "marked_uncollectible_at": null,
+        "paid_at": 1583260501,
+        "voided_at": null
+      },
+      "subscription": "sub_00000000000000",
+      "subtotal": 500,
+      "tax": null,
+      "tax_percent": null,
+      "total": 500,
+      "total_tax_amounts": [
+      ],
+      "webhooks_delivered_at": 1583260501,
+      "closed": false
+    }
+  }
+}
