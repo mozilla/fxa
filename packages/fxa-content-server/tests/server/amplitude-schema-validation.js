@@ -121,12 +121,12 @@ registerSuite('amplitude json schema validation', {
         '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484'
       );
       assert.equal(
-        scope.setContext.args[0][1]['err']['message'],
+        scope.setContext.args[0][1]['error'],
         'QUUX IS NOT A VALID DEVICE ID'
       );
       assert.isTrue(
         mockSentry.captureMessage.calledOnceWith(
-          'Amplitude event failed validation.',
+          'Amplitude event failed validation: QUUX IS NOT A VALID DEVICE ID.',
           Sentry.Severity.Error
         )
       );

@@ -214,10 +214,10 @@ Lug.prototype.amplitudeEvent = function(data) {
         scope.setContext('amplitude.validationError', {
           event_type: data.event_type,
           flow_id: data.user_properties.flow_id,
-          err,
+          error: err.message,
         });
         Sentry.captureMessage(
-          'Amplitude event failed validation.',
+          `Amplitude event failed validation: ${err.message}.`,
           Sentry.Severity.Error
         );
       });

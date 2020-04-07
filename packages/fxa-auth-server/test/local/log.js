@@ -674,12 +674,12 @@ describe('log', () => {
       '1ce137da67f8d5a2e5e55fafaca0a14088f015f1d6cdf25400f9fe22226ad5a6'
     );
     assert.equal(
-      sentryScope.setContext.args[0][1]['err']['message'],
+      sentryScope.setContext.args[0][1]['error'],
       'Invalid data: event.event_type should match pattern "^\\w+ - \\w+$"'
     );
     assert.isTrue(
       mockSentry.captureMessage.calledOnceWith(
-        'Amplitude event failed validation.',
+        'Amplitude event failed validation: Invalid data: event.event_type should match pattern "^\\w+ - \\w+$".',
         Sentry.Severity.Error
       )
     );

@@ -186,12 +186,12 @@ describe('lib/amplitude', () => {
       expect(scope.setContext.mock.calls[0][1]['flow_id']).toBe(
         '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
       );
-      expect(scope.setContext.mock.calls[0][1]['err']['message']).toBe(
+      expect(scope.setContext.mock.calls[0][1]['error']).toBe(
         'QUUX IS NOT A VALID DEVICE ID'
       );
       expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
       expect(mockSentry.captureMessage).toHaveBeenCalledWith(
-        'Amplitude event failed validation.',
+        'Amplitude event failed validation: QUUX IS NOT A VALID DEVICE ID.',
         Sentry.Severity.Error
       );
       expect(log.info).toHaveBeenCalledTimes(1);

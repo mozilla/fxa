@@ -32,7 +32,8 @@
     },
     "time": {
       "description": "Event timestamp",
-      "$ref": "#/definitions/integerLike"
+      "type": "integer",
+      "minimum": 1
     },
     "user_id": {
       "$ref": "#/definitions/hex32"
@@ -48,9 +49,9 @@
       "type": "string"
     },
     "language": {
-      "description": "BCP 47 language tags with 2alpha for the language.",
+      "description": "BCP 47 language tags, loosely.",
       "type": "string",
-      "pattern": "^[a-z]{2}(-[a-zA-Z0-9]{1,})*$"
+      "pattern": "^[a-z]{1,}(-[a-zA-Z0-9]{1,})*$"
     },
     "country": {
       "type": "string"
@@ -149,9 +150,12 @@
     }
   },
   "additionalProperties": false,
-  "required": ["op", "event_type", "event_properties", "user_properties"],
-  "anyOf": [
-    {"required": ["user_id"]},
-    {"required": ["device_id"]}
-  ]
+  "required": [
+    "op",
+    "event_type",
+    "time",
+    "event_properties",
+    "user_properties"
+  ],
+  "anyOf": [{ "required": ["user_id"] }, { "required": ["device_id"] }]
 }
