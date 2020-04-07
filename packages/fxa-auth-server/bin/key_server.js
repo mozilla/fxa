@@ -6,7 +6,8 @@
 
 const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');
-const StatsD = require('hot-shots');
+const { StatsD } = require('hot-shots');
+const { Container } = require('typedi');
 
 async function run(config) {
   const statsd = config.statsd.enabled
@@ -22,6 +23,7 @@ async function run(config) {
         timing: () => {},
         close: () => {},
       };
+  Container.set(StatsD, statsd);
 
   const log = require('../lib/log')({ ...config.log, statsd });
   require('../lib/oauth/logging')(log);

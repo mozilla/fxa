@@ -7,6 +7,7 @@
 module.exports = () => {
   const path = require('path');
   const fs = require('fs');
+  const { Container } = require('typedi');
 
   // setup version first for the rest of the modules
   const log = require('./logging/log');
@@ -42,7 +43,9 @@ module.exports = () => {
       })
     : {
         timing: NOOP,
+        increment: NOOP,
       };
+  Container.set(StatsD, statsd);
 
   const routes = require('./routes')(statsd);
 
