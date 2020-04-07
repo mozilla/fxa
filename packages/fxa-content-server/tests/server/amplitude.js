@@ -11,6 +11,9 @@ const pkg = require('../../package.json');
 const logger = {
   info: sinon.spy(),
 };
+const statsd = {
+  increment: sinon.spy(),
+};
 const amplitudeConfig = {
   disabled: false,
   rawEvents: false,
@@ -32,6 +35,7 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
     },
   },
   './logging/log': () => logger,
+  './statsd': statsd,
 });
 const APP_VERSION = /([0-9]+)\.([0-9])$/.exec(pkg.version)[0];
 
@@ -45,6 +49,7 @@ registerSuite('amplitude', {
   afterEach: function() {
     process.stderr.write.restore();
     logger.info.resetHistory();
+    statsd.increment.resetHistory();
   },
 
   tests: {
@@ -184,6 +189,16 @@ registerSuite('amplitude', {
       assert.isTrue(
         logger.info.calledOnceWith('rawAmplitudeData', { event, context })
       );
+      sinon.assert.calledThrice(statsd.increment);
+      sinon.assert.calledWith(
+        statsd.increment.firstCall,
+        'amplitude.event.raw'
+      );
+      sinon.assert.calledWith(statsd.increment.secondCall, 'amplitude.event');
+      sinon.assert.calledWith(
+        statsd.increment.thirdCall,
+        'amplitude.event.dropped'
+      );
     },
 
     'flow.reset-password.submit': () => {
@@ -234,6 +249,8 @@ registerSuite('amplitude', {
       const args = logger.info.args[0];
       assert.lengthOf(args, 2);
       assert.equal(args[0], 'amplitudeEvent');
+      sinon.assert.calledOnce(statsd.increment);
+      sinon.assert.calledWith(statsd.increment.firstCall, 'amplitude.event');
       assert.deepEqual(args[1], {
         app_version: APP_VERSION,
         country: 'United States',

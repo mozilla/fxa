@@ -32,6 +32,7 @@ const { version: VERSION } = require('../../package.json');
 const SERVICES = config.get('oauth_client_id_map');
 const amplitude = config.get('amplitude');
 const Sentry = require('@sentry/node');
+const statsd = require('./statsd');
 
 // Maps view name to email type
 const EMAIL_TYPES = {
@@ -443,6 +444,7 @@ function receiveEvent(event, request, data) {
       },
     };
     logger.info('rawAmplitudeData', rawEvent);
+    statsd.increment('amplitude.event.raw');
   }
 
   const userAgent = ua.parse(request.headers['user-agent']);
@@ -458,6 +460,7 @@ function receiveEvent(event, request, data) {
       mapLocation(data.location)
     )
   );
+  statsd.increment('amplitude.event');
 
   if (amplitudeEvent) {
     if (amplitude.schemaValidation) {
@@ -486,6 +489,8 @@ function receiveEvent(event, request, data) {
     }
 
     logger.info('amplitudeEvent', amplitudeEvent);
+  } else {
+    statsd.increment('amplitude.event.dropped');
   }
 }
 

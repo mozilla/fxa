@@ -12,6 +12,9 @@
 
 'use strict';
 
+const { Container } = require('typedi');
+const { StatsD } = require('hot-shots');
+
 const { GROUPS, initialize } = require('../../../fxa-shared/metrics/amplitude');
 const { version: VERSION } = require('../../package.json');
 
@@ -150,6 +153,7 @@ module.exports = (log, config) => {
     data = {},
     metricsContext = {}
   ) {
+    const statsd = Container.get(StatsD);
     if (!eventType || !request) {
       log.error('amplitude.badArgument', {
         err: 'Bad argument',
@@ -262,7 +266,10 @@ module.exports = (log, config) => {
         },
       };
       log.info('rawAmplitudeData', rawEvent);
+      statsd.increment('amplitude.event.raw');
     }
+
+    statsd.increment('amplitude.event');
 
     const amplitudeEvent = transformEvent(event, {
       ...data,
@@ -297,6 +304,8 @@ module.exports = (log, config) => {
           time: amplitudeEvent.time + 1,
         });
       }
+    } else {
+      statsd.increment('amplitude.event.dropped');
     }
   }
 };

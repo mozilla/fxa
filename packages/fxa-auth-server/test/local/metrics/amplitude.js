@@ -6,6 +6,10 @@
 
 const { assert } = require('chai');
 const { version } = require('../../../package.json');
+const { StatsD } = require('hot-shots');
+const { Container } = require('typedi');
+const sinon = require('sinon');
+
 const amplitudeModule = require('../../../lib/metrics/amplitude');
 const mocks = require('../../mocks');
 const mockAmplitudeConfig = {
@@ -117,6 +121,8 @@ describe('metrics/amplitude', () => {
 
     describe('raw events enabled', () => {
       it('logged a raw event', async () => {
+        const statsd = { increment: sinon.spy() };
+        Container.set(StatsD, statsd);
         mockAmplitudeConfig.rawEvents = true;
         const now = Date.now();
         await amplitude(
@@ -225,12 +231,19 @@ describe('metrics/amplitude', () => {
           event: expectedEvent,
           context: expectedContext,
         });
+        sinon.assert.calledTwice(statsd.increment);
+        sinon.assert.calledWith(
+          statsd.increment.firstCall,
+          'amplitude.event.raw'
+        );
+        sinon.assert.calledWith(statsd.increment.secondCall, 'amplitude.event');
       });
     });
 
     describe('account.confirmed', () => {
       beforeEach(() => {
         const now = Date.now();
+        Container.set(StatsD, { increment: sinon.spy() });
         return amplitude(
           'account.confirmed',
           mocks.mockRequest({
@@ -306,6 +319,8 @@ describe('metrics/amplitude', () => {
         });
         assert.ok(args[0].time > Date.now() - 1000);
         assert.ok(/^([0-9]+)\.([0-9])$/.test(args[0].app_version));
+        const statsd = Container.get(StatsD);
+        sinon.assert.calledWith(statsd.increment.firstCall, 'amplitude.event');
       });
     });
 
@@ -775,6 +790,7 @@ describe('metrics/amplitude', () => {
 
     describe('email.wibble.bounced', () => {
       beforeEach(() => {
+        Container.set(StatsD, { increment: sinon.spy() });
         return amplitude('email.wibble.bounced', mocks.mockRequest({}));
       });
 
@@ -784,6 +800,16 @@ describe('metrics/amplitude', () => {
 
       it('did not call log.amplitudeEvent', () => {
         assert.equal(log.amplitudeEvent.callCount, 0);
+      });
+
+      it('incremented amplitude dropped', () => {
+        const statsd = Container.get(StatsD);
+        sinon.assert.calledTwice(statsd.increment);
+        sinon.assert.calledWith(statsd.increment.firstCall, 'amplitude.event');
+        sinon.assert.calledWith(
+          statsd.increment.secondCall,
+          'amplitude.event.dropped'
+        );
       });
     });
 

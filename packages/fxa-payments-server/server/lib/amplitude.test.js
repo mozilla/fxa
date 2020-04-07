@@ -26,6 +26,8 @@ jest.mock('@sentry/node', () => ({
   ...mockSentry,
 }));
 const Sentry = require('@sentry/node');
+const { Container } = require('typedi');
+const { StatsD } = require('hot-shots');
 const amplitude = require('./amplitude');
 const log = require('./logging/log')();
 jest.spyOn(log, 'info').mockImplementation(() => {});
@@ -89,14 +91,18 @@ describe('lib/amplitude', () => {
     mockSchemaValidatorFn.mockReset();
     mockAmplitudeConfig.schemaValidation = true;
     mockAmplitudeConfig.rawEvents = false;
+    Container.set(StatsD, { increment: jest.fn() });
   });
   it('logs a correctly formatted message', () => {
+    const statsd = Container.get(StatsD);
     amplitude(mocks.event, mocks.request, mocks.data);
     expect(log.info).toHaveBeenCalledTimes(1);
     expect(log.info.mock.calls[0][0]).toMatch('amplitudeEvent');
     expect(log.info.mock.calls[0][1]).toMatchObject(expectedOutput);
+    expect(statsd.increment).toHaveBeenCalledTimes(1);
   });
   it('logs raw events', () => {
+    const statsd = Container.get(StatsD);
     const expectedContext = {
       eventSource: 'payments',
       version: pkg.version,
@@ -120,6 +126,9 @@ describe('lib/amplitude', () => {
       event: mocks.event,
       context: expectedContext,
     });
+    expect(statsd.increment).toHaveBeenCalledTimes(2);
+    expect(statsd.increment.mock.calls[0][0]).toBe('amplitude.event.raw');
+    expect(statsd.increment.mock.calls[1][0]).toBe('amplitude.event');
   });
   describe('validates inputs', () => {
     it('returns if `event` is missing', () => {
@@ -135,8 +144,12 @@ describe('lib/amplitude', () => {
       expect(log.info).not.toHaveBeenCalled();
     });
     it('returns if the message format does not match `amplitude.str.str`', () => {
+      const statsd = Container.get(StatsD);
       amplitude(mocks.invalidEventType, mocks.request, mocks.data);
       expect(log.info).not.toHaveBeenCalled();
+      expect(statsd.increment).toHaveBeenCalledTimes(2);
+      expect(statsd.increment.mock.calls[0][0]).toBe('amplitude.event');
+      expect(statsd.increment.mock.calls[1][0]).toBe('amplitude.event.dropped');
     });
     it('calls validate to perform schema validation', () => {
       amplitude(mocks.event, mocks.request, mocks.data);

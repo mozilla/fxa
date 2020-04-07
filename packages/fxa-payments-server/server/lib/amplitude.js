@@ -20,6 +20,8 @@ const log = require('./logging/log')();
 const ua = require('../../../fxa-shared/metrics/user-agent');
 const { version: VERSION } = require('../../package.json');
 const Sentry = require('@sentry/node');
+const { Container } = require('typedi');
+const { StatsD } = require('hot-shots');
 
 const FUZZY_EVENTS = new Map([
   [
@@ -35,6 +37,7 @@ const FUZZY_EVENTS = new Map([
 const transform = initialize({}, {}, FUZZY_EVENTS);
 
 module.exports = (event, request, data) => {
+  const statsd = Container.get(StatsD);
   if (!amplitude.enabled || !event || !request || !data) {
     return;
   }
@@ -85,9 +88,12 @@ module.exports = (event, request, data) => {
       },
     };
     log.info('rawAmplitudeData', rawEvent);
+    statsd.increment('amplitude.event.raw');
   }
 
   const userAgent = ua.parse(request.headers['user-agent']);
+
+  statsd.increment('amplitude.event');
 
   const amplitudeEvent = transform(event, {
     version: VERSION,
@@ -127,5 +133,7 @@ module.exports = (event, request, data) => {
     // Amplitude events are logged to stdout, where they are picked up by the
     // stackdriver logging agent.
     log.info('amplitudeEvent', amplitudeEvent);
+  } else {
+    statsd.increment('amplitude.event.dropped');
   }
 };
