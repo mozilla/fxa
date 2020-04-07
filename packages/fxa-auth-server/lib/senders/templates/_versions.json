@@ -1,4 +1,6 @@
 {
+  "subscriptionPaymentExpired": 1,
+  "subscriptionPaymentFailed": 1,
   "subscriptionAccountDeletion": 1,
   "subscriptionCancellation": 1,
   "subscriptionSubsequentInvoice": 1,

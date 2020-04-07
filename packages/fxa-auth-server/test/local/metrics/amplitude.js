@@ -184,6 +184,8 @@ describe('metrics/amplitude', () => {
             postVerifyAddSecondary: 'registration',
             postVerifySecondary: 'secondary_email',
             recovery: 'reset_password',
+            subscriptionPaymentExpired: 'subscription_payment_expired',
+            subscriptionPaymentFailed: 'subscription_payment_failed',
             subscriptionAccountDeletion: 'subscription_account_deletion',
             subscriptionCancellation: 'subscription_cancellation',
             subscriptionFirstInvoice: 'subscription_first_invoice',
