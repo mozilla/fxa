@@ -585,7 +585,7 @@ const conf = (module.exports = convict({
       },
       targetURITemplate: {
         default:
-          'https://app.adjust.com/${ channel }?campaign=fxa-conf-page&adgroup=sms&creative=link&deep_link=firefox%3A%2F%2Ffxa-signin%3Futm_source%3Dsms%26signin%3D${ signinCode }', //eslint-disable-line max-len
+          'https://app.adjust.com/jsr?url=https%3A%2F%2Fnn8g.adj.st%2Ffxa-signin%3Futm_source%3Dsms%26signin%3D${ signinCode }%26adj_t%3D${ channel }%26adj_campaign%3Dfxa-conf-page%26adj_adgroup%3Dsms%26adj_creative%3Dlink%26adjust_deeplink_js%3D1', //eslint-disable-line max-len
         doc:
           'Redirect URI - ES6 format template string. The variables `channel` and `signinCode` are interpolated',
         env: 'SMS_REDIRECT_TARGET_URI_TEMPLATE',
