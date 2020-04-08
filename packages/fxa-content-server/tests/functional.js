@@ -79,6 +79,8 @@ module.exports = [
   'tests/functional/sync_v3_settings.js',
   'tests/functional/tos.js',
   'tests/functional/verification_reminders.js',
+  'tests/functional/display_name_change.js',
+  'tests/functional/delete_existing_account.js',
 ];
 
 // Mocha tests are only exposed during local dev, not on prod-like
