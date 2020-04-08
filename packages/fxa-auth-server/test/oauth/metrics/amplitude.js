@@ -154,12 +154,12 @@ describe('metrics/amplitude', () => {
         );
         assert.equal(sentryScope.setContext.args[0][1]['flow_id'], undefined);
         assert.equal(
-          sentryScope.setContext.args[0][1]['err']['message'],
+          sentryScope.setContext.args[0][1]['error'],
           'Invalid data: event.user_id should match pattern "^[a-fA-F0-9]{32}$"'
         );
         assert.isTrue(
           mockSentry.captureMessage.calledOnceWith(
-            'Amplitude event failed validation.',
+            'Amplitude event failed validation: Invalid data: event.user_id should match pattern "^[a-fA-F0-9]{32}$".',
             Sentry.Severity.Error
           )
         );

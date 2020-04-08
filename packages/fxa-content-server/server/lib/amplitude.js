@@ -478,10 +478,10 @@ function receiveEvent(event, request, data) {
           scope.setContext('amplitude.validationError', {
             event_type: amplitudeEvent.event_type,
             flow_id: amplitudeEvent.user_properties.flow_id,
-            err,
+            error: err.message,
           });
           Sentry.captureMessage(
-            'Amplitude event failed validation.',
+            `Amplitude event failed validation: ${err.message}.`,
             Sentry.Severity.Error
           );
         });
