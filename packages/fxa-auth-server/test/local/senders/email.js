@@ -280,6 +280,46 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
+  ['subscriptionPaymentFailedEmail', new Map([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} payment failed` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentFailed') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentFailed' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentFailed }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-payment-failed', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `you’ll lose access to ${MESSAGE.productName}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
+      { test: 'include', expected: `you’ll lose access to ${MESSAGE.productName}.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionPaymentExpiredEmail', new Map([
+    ['subject', { test: 'equal', expected: `Credit card for ${MESSAGE.productName} expiring soon` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionPaymentExpired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionPaymentExpired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-payment-expired', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms') },
+      { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
   ['lowRecoveryCodesEmail', new Map([
     ['subject', { test: 'equal', expected: '2 recovery codes remaining' }],
     ['headers', new Map([

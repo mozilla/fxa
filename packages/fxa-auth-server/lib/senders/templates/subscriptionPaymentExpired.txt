@@ -1,0 +1,13 @@
+{{{subject}}}
+
+{{{t "Your credit card is about to expire" }}}
+
+{{{t "The credit card you're using to make payments for %(productName)s is about to expire." }}}
+
+{{{t "To prevent any interruption to your service, please update your payment information as soon as possible:" }}}
+
+{{{updateBillingUrl}}}
+
+{{{t "Questions about your subscription? Our support team is here to help you:" }}}
+
+{{{subscriptionSupportUrl}}}

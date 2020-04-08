@@ -1,0 +1,17 @@
+{{{subject}}}
+
+{{{t "Sorry, we're having trouble with your payment" }}}
+
+{{{t "We had a problem with your latest payment for %(productName)s." }}}
+
+{{{t "It may be that your credit card has expired, or your current payment method is out of date." }}}
+
+{{{t "Help us fix it by updating your payment information within three days:" }}}
+
+{{{updateBillingUrl}}}
+
+{{{t "Unfortunately, if we don’t hear from you within three days you’ll lose access to %(productName)s." }}}
+
+{{{t "Questions about your subscription? Our support team is here to help you:" }}}
+
+{{{subscriptionSupportUrl}}}

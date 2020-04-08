@@ -35,6 +35,8 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionPaymentExpired: 'subscription-payment-expired',
+    subscriptionPaymentFailed: 'subscription-payment-failed',
     subscriptionAccountDeletion: 'subscription-account-deletion',
     subscriptionCancellation: 'subscription-cancellation',
     subscriptionSubsequentInvoice: 'subscription-subsequent-invoice',
@@ -72,6 +74,8 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    subscriptionPaymentExpired: 'subscriptions',
+    subscriptionPaymentFailed: 'subscriptions',
     subscriptionAccountDeletion: 'subscriptions',
     subscriptionCancellation: 'subscriptions',
     subscriptionSubsequentInvoice: 'subscriptions',
@@ -1798,6 +1802,124 @@ module.exports = function(log, config, oauthdb) {
           message.timeZone,
           message.acceptLanguage
         ),
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionPaymentExpiredEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionPaymentExpired', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionPaymentExpired', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionPaymentExpired';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+    };
+    const subject = translator.gettext(
+      'Credit card for %(productName)s expiring soon'
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionPaymentFailedEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+    } = message;
+
+    if (!config.subscriptions.transactionalEmails.enabled) {
+      log.trace('mailer.subscriptionPaymentFailed', {
+        enabled: false,
+        email,
+        productId,
+        uid,
+      });
+      return;
+    }
+
+    log.trace('mailer.subscriptionPaymentFailed', {
+      enabled: true,
+      email,
+      productId,
+      uid,
+    });
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionPaymentFailed';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+    };
+    const subject = translator.gettext('%(productName)s payment failed');
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
       },
     });
   };
