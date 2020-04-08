@@ -1377,19 +1377,13 @@ module.exports = (
 
         const { uid } = emailRecord;
 
-        if (config.subscriptions && config.subscriptions.enabled) {
+        if (
+          config.subscriptions &&
+          config.subscriptions.enabled &&
+          stripeHelper
+        ) {
           try {
-            if (stripeHelper) {
-              const customer = await stripeHelper.fetchCustomer(
-                uid,
-                emailRecord.email
-              );
-              if (customer) {
-                await stripeHelper.stripe.customers.update(customer.id, {
-                  metadata: { delete: 'true' },
-                });
-              }
-            }
+            await stripeHelper.removeCustomer(uid, emailRecord.email);
           } catch (err) {
             if (err.message === 'Customer not available') {
               // if Stripe didn't know about the customer, no problem.

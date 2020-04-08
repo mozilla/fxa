@@ -2658,15 +2658,10 @@ describe('/account/destroy', () => {
       },
     });
     mockPush = mocks.mockPush();
-    mockStripeHelper = mocks.mockStripeHelper(['fetchCustomer', 'stripe']);
-    mockStripeHelper.fetchCustomer = sinon.spy(async (uid, email) => {
-      return { id: 1234 };
+    mockStripeHelper = mocks.mockStripeHelper(['removeCustomer']);
+    mockStripeHelper.removeCustomer = sinon.spy(async (uid, email) => {
+      return;
     });
-    mockStripeHelper.stripe = {
-      customers: {
-        update: sinon.spy(async (id, options) => {}),
-      },
-    };
   });
 
   function buildRoute(subscriptionsEnabled = true) {
@@ -2715,15 +2710,10 @@ describe('/account/destroy', () => {
       );
       assert.deepEqual(args[0].uid, uid, 'email record had correct uid');
 
-      assert.equal(mockStripeHelper.fetchCustomer.callCount, 1);
-      args = mockStripeHelper.fetchCustomer.args[0];
+      assert.equal(mockStripeHelper.removeCustomer.callCount, 1);
+      args = mockStripeHelper.removeCustomer.args[0];
       assert.lengthOf(args, 2);
       assert.equal(args[0], uid);
-
-      assert.equal(mockStripeHelper.stripe.customers.update.callCount, 1);
-      args = mockStripeHelper.stripe.customers.update.args[0];
-      assert.lengthOf(args, 2);
-      assert.equal(args[0], 1234);
 
       assert.equal(mockPush.notifyAccountDestroyed.callCount, 1);
       assert.equal(mockPush.notifyAccountDestroyed.firstCall.args[0], uid);
@@ -2769,19 +2759,8 @@ describe('/account/destroy', () => {
     });
   });
 
-  it('should not fail if stripeHelper cannot locate the customer', async () => {
-    mockStripeHelper.fetchCustomer = sinon.spy(async (uid, email) => {});
-    try {
-      await runTest(buildRoute(), mockRequest);
-    } catch (err) {
-      assert.fail('method should run successfully');
-    }
-
-    assert.isTrue(mockDB.deleteAccount.calledOnce);
-  });
-
   it('should fail if stripeHelper update customer fails', async () => {
-    mockStripeHelper.stripe.customers.update(async (id, metadata) => {
+    mockStripeHelper.removeCustomer(async (uid, email) => {
       throw new Error('wibble');
     });
     try {

@@ -716,12 +716,6 @@ const conf = convict({
       format: String,
       doc: 'A shared secret to authenticate Stripe webhook requests',
     },
-    stripeCustomerCacheTtlSeconds: {
-      doc: 'The number of seconds to cache a Stripe customer record',
-      format: 'int',
-      default: 3 * 31 * 24 * 60 * 60, // ~3 months
-      env: 'STRIPE_CUSTOMER_CACHE_TTL_SECONDS',
-    },
     transactionalEmails: {
       // See also: https://jira.mozilla.com/browse/FXA-1148
       enabled: {
