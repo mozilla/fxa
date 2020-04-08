@@ -12,7 +12,7 @@
     "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher",
     "start-firefox": "npm run firefox",
     "adb-reverse": "./_scripts/adb-reverse.sh",
-    "test": "lerna run test",
+    "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",
     "format": "lerna run format"
   },
