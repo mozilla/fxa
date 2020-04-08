@@ -19,6 +19,8 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 
 /** @typedef {import('hapi').Request} Request */
 /** @typedef {import('stripe').Stripe.Customer} Customer */
+/** @typedef {import('stripe').Stripe.Source} Source */
+/** @typedef {import('stripe').Stripe.Source.Card} Card */
 /** @typedef {import('stripe').Stripe.Event} Event */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.Plan} Plan */
@@ -641,6 +643,54 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Handle webhook events from Stripe by pre-processing the incoming
+   * event and dispatching to the appropriate sub-handler. Log an info
+   * message for events we don't yet handle.
+   *
+   * @param {*} request
+   */
+  async handleWebhookEvent(request) {
+    const event = this.stripeHelper.constructWebhookEvent(
+      request.payload,
+      request.headers['stripe-signature']
+    );
+
+    switch (event.type) {
+      case 'customer.subscription.created':
+        await this.handleSubscriptionCreatedEvent(request, event);
+        break;
+      case 'customer.subscription.updated':
+        await this.handleSubscriptionUpdatedEvent(request, event);
+        break;
+      case 'customer.subscription.deleted':
+        await this.handleSubscriptionDeletedEvent(request, event);
+        break;
+      case 'customer.source.expiring':
+        await this.handleCustomerSourceExpiringEvent(request, event);
+        break;
+      case 'invoice.payment_succeeded':
+        await this.handleInvoicePaymentSucceededEvent(request, event);
+        break;
+      case 'invoice.payment_failed':
+        await this.handleInvoicePaymentFailedEvent(request, event);
+        break;
+      default:
+        Sentry.withScope(scope => {
+          scope.setContext('stripeEvent', {
+            event: { id: event.id, type: event.type },
+          });
+          Sentry.captureMessage(
+            'Unhandled Stripe event received.',
+            Sentry.Severity.Info
+          );
+        });
+        break;
+    }
+
+    return {};
+  }
+
+  /**
    * Handle `subscription.created` Stripe webhook events.
    *
    * Only subscriptions that are active/trialing are valid. Emit an event for
@@ -725,42 +775,40 @@ class DirectStripeRoutes {
     await this.updateCustomer(uid, email);
   }
 
-  async handleWebhookEvent(request) {
-    const event = this.stripeHelper.constructWebhookEvent(
-      request.payload,
-      request.headers['stripe-signature']
+  /**
+   * Handle `customer.source.expiring` Stripe wehbook events.
+   *
+   * @param {*} request
+   * @param {Event} event
+   */
+  async handleCustomerSourceExpiringEvent(request, event) {
+    const source = /** @type {Source} */ (event.data.object);
+    const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
+      source
     );
+    await this.updateCustomer(uid, email);
+  }
 
-    switch (event.type) {
-      case 'customer.subscription.created':
-        await this.handleSubscriptionCreatedEvent(request, event);
-        break;
-      case 'customer.subscription.updated':
-        await this.handleSubscriptionUpdatedEvent(request, event);
-        break;
-      case 'customer.subscription.deleted':
-        await this.handleSubscriptionDeletedEvent(request, event);
-        break;
-      case 'invoice.payment_succeeded':
-        await this.handleInvoicePaymentSucceededEvent(request, event);
-        break;
-      case 'invoice.payment_failed':
-        await this.handleInvoicePaymentFailedEvent(request, event);
-        break;
-      default:
-        Sentry.withScope(scope => {
-          scope.setContext('stripeEvent', {
-            event: { id: event.id, type: event.type },
-          });
-          Sentry.captureMessage(
-            'Unhandled Stripe event received.',
-            Sentry.Severity.Info
-          );
-        });
-        break;
-    }
-
-    return {};
+  /**
+   * Send out an email on payment expiration.
+   *
+   * @param {Source} paymentSource
+   */
+  async sendSubscriptionPaymentExpiredEmail(paymentSource) {
+    const sourceDetails = await this.stripeHelper.extractSourceDetailsForEmail(
+      paymentSource
+    );
+    const { uid } = sourceDetails;
+    const account = await this.db.account(uid);
+    await this.mailer.sendSubscriptionPaymentExpiredEmail(
+      account.emails,
+      account,
+      {
+        acceptLanguage: account.locale,
+        ...sourceDetails,
+      }
+    );
+    return sourceDetails;
   }
 
   /**

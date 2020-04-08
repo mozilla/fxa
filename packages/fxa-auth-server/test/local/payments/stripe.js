@@ -37,6 +37,7 @@ const successfulPaymentIntent = require('./fixtures/paymentIntent_succeeded.json
 const unsuccessfulPaymentIntent = require('./fixtures/paymentIntent_requires_payment_method.json');
 const failedCharge = require('./fixtures/charge_failed.json');
 const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
+const eventCustomerSourceExpiring = require('./fixtures/event_customer_source_expiring.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -1598,28 +1599,46 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('extractInvoiceDetailsForEmail', () => {
-    const fixture = { ...invoicePaymentSucceededSubscriptionCreate };
-    const firstLine = fixture.lines.data[0];
-    const planId = firstLine.plan.id;
-    const planName = firstLine.plan.nickname;
-    const productId = firstLine.plan.product;
+  describe('extract details for billing emails', () => {
+    const uid = '1234abcd';
+    const email = 'test+20200324@example.com';
+    const planId = 'plan_0000000000';
+    const planName = 'Example Plan';
+    const productId = 'prod_0000000000';
     const productName = 'Example Product';
+    const planEmailIconURL = 'http://example.com/icon';
+    const planDownloadURL = 'http://example.com/download';
+    const sourceId = eventCustomerSourceExpiring.data.object.id;
+    const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
+
+    const mockPlan = {
+      id: planId,
+      nickname: planName,
+      product: productId,
+    };
 
     const mockProduct = {
       id: productId,
       name: productName,
       metadata: {
-        emailIconURL: 'http://example.com/icon',
-        downloadURL: 'http://example.com/download',
+        emailIconURL: planEmailIconURL,
+        downloadURL: planDownloadURL,
       },
     };
-    const mockCustomer = {
-      metadata: {
-        userid: '1234abcd',
-      },
+
+    const mockSource = {
+      id: sourceId,
     };
+
+    const mockInvoice = {
+      id: 'inv_0000000000',
+      charge: chargeId,
+      default_source: { id: sourceId },
+    };
+
     const mockCharge = {
+      id: chargeId,
+      source: mockSource,
       payment_method_details: {
         card: {
           brand: 'visa',
@@ -1628,9 +1647,26 @@ describe('StripeHelper', () => {
       },
     };
 
-    let sandbox, mockStripe, mockAllProducts;
+    let sandbox, mockCustomer, mockStripe, mockAllProducts;
     beforeEach(() => {
       sandbox = sinon.createSandbox();
+
+      mockCustomer = {
+        id: 'cus_00000000000000',
+        email,
+        metadata: {
+          userid: uid,
+        },
+        subscriptions: {
+          data: [
+            {
+              status: 'active',
+              latest_invoice: 'inv_0000000000',
+              plan: planId,
+            },
+          ],
+        },
+      };
 
       mockAllProducts = [
         {
@@ -1646,17 +1682,20 @@ describe('StripeHelper', () => {
       ];
       sandbox.stub(stripeHelper, 'allProducts').resolves(mockAllProducts);
 
-      mockStripe = {
-        products: {
-          retrieve: sinon.stub().resolves(mockProduct),
-        },
-        customers: {
-          retrieve: sinon.stub().resolves(mockCustomer),
-        },
-        charges: {
-          retrieve: sinon.stub().resolves(mockCharge),
-        },
-      };
+      mockStripe = Object.entries({
+        plans: mockPlan,
+        products: mockProduct,
+        customers: mockCustomer,
+        invoices: mockInvoice,
+        charges: mockCharge,
+        sources: mockSource,
+      }).reduce(
+        (acc, [resource, value]) => ({
+          ...acc,
+          [resource]: { retrieve: sinon.stub().resolves(value) },
+        }),
+        {}
+      );
       stripeHelper.stripe = mockStripe;
     });
 
@@ -1664,121 +1703,232 @@ describe('StripeHelper', () => {
       sandbox.restore();
     });
 
-    const expected = {
-      uid: '1234abcd',
-      email: 'test+20200324@example.com',
-      cardType: 'visa',
-      lastFour: '5309',
-      invoiceNumber: 'AAF2CECC-0001',
-      invoiceTotal: 5,
-      invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
-      nextInvoiceDate: new Date('2020-03-24T22:23:40.000Z'),
-      productId: mockProduct.id,
-      productName: mockProduct.name,
-      planId: 'plan_GqM9N6qyhvxaVk',
-      planName: '123Done Pro Monthly',
-      planEmailIconURL: 'http://example.com/icon',
-      planDownloadURL: 'http://example.com/download',
-    };
-
-    const expectedFailure = {
-      uid: '',
-      email: '',
-      cardType: '',
-      lastFour: '',
-      invoiceNumber: '',
-      invoiceTotal: 0,
-      invoiceDate: new Date(NaN),
-      nextInvoiceDate: new Date(NaN),
-      productId: '',
-      productName: '',
-      planId: '',
-      planName: '',
-      planEmailIconURL: '',
-      planDownloadURL: '',
-    };
-
-    it('extracts expected details from an invoice that requires requests to expand', async () => {
-      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-      assert.isTrue(stripeHelper.allProducts.called);
-      assert.isFalse(mockStripe.products.retrieve.called);
-      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
-      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
-      assert.deepEqual(result, expected);
-    });
-
-    it('extracts expected details from an invoice when product is missing from cache', async () => {
-      mockAllProducts[0].product_id = 'nope';
-      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-      assert.isTrue(stripeHelper.allProducts.called);
-      assert.isTrue(mockStripe.products.retrieve.called);
-      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
-      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
-      assert.deepEqual(result, expected);
-    });
-
-    it('extracts expected details from an expanded invoice', async () => {
-      const fixture = {
-        ...invoicePaymentSucceededSubscriptionCreate,
-        lines: {
-          data: [
-            {
-              plan: {
-                id: planId,
-                nickname: planName,
-                metadata: {
-                  emailIconURL: 'http://example.com/icon',
-                },
-                product: mockProduct,
-              },
-            },
-          ],
+    describe('extractInvoiceDetailsForEmail', () => {
+      const fixture = { ...invoicePaymentSucceededSubscriptionCreate };
+      fixture.lines.data[0] = {
+        ...fixture.lines.data[0],
+        plan: {
+          id: planId,
+          nickname: planName,
+          product: productId,
         },
-        customer: mockCustomer,
-        charge: mockCharge,
       };
-      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-      assert.isFalse(stripeHelper.allProducts.called);
-      assert.isFalse(mockStripe.products.retrieve.called);
-      assert.isFalse(mockStripe.customers.retrieve.called);
-      assert.isFalse(mockStripe.charges.retrieve.called);
-      assert.deepEqual(result, expected);
-    });
 
-    it('logs an error for deleted customer', async () => {
-      mockStripe.customers.retrieve = sinon
-        .stub()
-        .resolves({ ...mockCustomer, deleted: true });
-      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-      assert.isTrue(stripeHelper.allProducts.called);
-      assert.isFalse(mockStripe.products.retrieve.called);
-      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
-      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
-      assert.deepEqual(result, expectedFailure);
-      assert.isTrue(log.error.called, 'log.error was called');
-    });
-
-    it('logs an error for deleted product', async () => {
-      mockAllProducts[0].product_id = 'nope';
-      mockStripe.products.retrieve = sinon
-        .stub()
-        .resolves({ ...mockProduct, deleted: true });
-      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-      assert.isTrue(mockStripe.products.retrieve.calledWith(productId));
-      assert.isTrue(mockStripe.customers.retrieve.calledWith(fixture.customer));
-      assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
-      assert.deepEqual(result, expectedFailure);
-      assert.isTrue(log.error.called, 'log.error was called');
-    });
-
-    it('logs an error with unexpected data', async () => {
-      const fixture = {
-        ...invoicePaymentSucceededSubscriptionCreate,
-        lines: null,
+      const expected = {
+        uid,
+        email,
+        cardType: 'visa',
+        lastFour: '5309',
+        invoiceNumber: 'AAF2CECC-0001',
+        invoiceTotal: 5,
+        invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
+        nextInvoiceDate: new Date('2020-03-24T22:23:40.000Z'),
+        productId,
+        productName,
+        planId,
+        planName,
+        planEmailIconURL,
+        planDownloadURL,
       };
-      const result = await stripeHelper.extractInvoiceDetailsForEmail(fixture);
-      assert.deepEqual(result, expectedFailure);
-      assert.isTrue(log.error.called, 'log.error was called');
+
+      it('extracts expected details from an invoice that requires requests to expand', async () => {
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        assert.isTrue(
+          mockStripe.customers.retrieve.calledWith(fixture.customer)
+        );
+        assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+        assert.deepEqual(result, expected);
+      });
+
+      it('extracts expected details from an invoice when product is missing from cache', async () => {
+        mockAllProducts[0].product_id = 'nope';
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(mockStripe.products.retrieve.called);
+        assert.isTrue(
+          mockStripe.customers.retrieve.calledWith(fixture.customer)
+        );
+        assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+        assert.deepEqual(result, expected);
+      });
+
+      it('extracts expected details from an expanded invoice', async () => {
+        const fixture = {
+          ...invoicePaymentSucceededSubscriptionCreate,
+          lines: {
+            data: [
+              {
+                plan: {
+                  id: planId,
+                  nickname: planName,
+                  metadata: {
+                    emailIconURL: 'http://example.com/icon',
+                  },
+                  product: mockProduct,
+                },
+              },
+            ],
+          },
+          customer: mockCustomer,
+          charge: mockCharge,
+        };
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        assert.isFalse(mockStripe.customers.retrieve.called);
+        assert.isFalse(mockStripe.charges.retrieve.called);
+        assert.deepEqual(result, expected);
+      });
+
+      it('throws an exception for deleted customer', async () => {
+        mockStripe.customers.retrieve = sinon
+          .stub()
+          .resolves({ ...mockCustomer, deleted: true });
+
+        let thrownError = null;
+        try {
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(
+          thrownError.errno,
+          error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
+        );
+        assert.isTrue(
+          mockStripe.customers.retrieve.calledWith(fixture.customer)
+        );
+        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        assert.isFalse(mockStripe.charges.retrieve.calledWith(fixture.charge));
+      });
+
+      it('throws an exception for deleted product', async () => {
+        mockAllProducts[0].product_id = 'nope';
+        mockStripe.products.retrieve = sinon
+          .stub()
+          .resolves({ ...mockProduct, deleted: true });
+
+        let thrownError = null;
+        try {
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(thrownError.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+        assert.isTrue(mockStripe.products.retrieve.calledWith(productId));
+        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isTrue(
+          mockStripe.customers.retrieve.calledWith(fixture.customer)
+        );
+        assert.isTrue(mockStripe.charges.retrieve.calledWith(fixture.charge));
+      });
+
+      it('throws an exception with unexpected data', async () => {
+        const fixture = {
+          ...invoicePaymentSucceededSubscriptionCreate,
+          lines: null,
+        };
+        let thrownError = null;
+        try {
+          await stripeHelper.extractInvoiceDetailsForEmail(fixture);
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(thrownError.name, 'TypeError');
+      });
+    });
+
+    describe('extractSourceDetailsForEmail', () => {
+      const fixture = { ...eventCustomerSourceExpiring.data.object };
+
+      const expected = {
+        uid,
+        email,
+        productId,
+        productName,
+        planId,
+        planName,
+        planEmailIconURL,
+        planDownloadURL,
+      };
+
+      it('extracts expected details from a source that requires requests to expand', async () => {
+        const result = await stripeHelper.extractSourceDetailsForEmail(fixture);
+        assert.isTrue(
+          mockStripe.customers.retrieve.calledWith(fixture.customer)
+        );
+        assert.isTrue(
+          mockStripe.plans.retrieve.calledWith(
+            mockCustomer.subscriptions.data[0].plan
+          )
+        );
+        assert.isTrue(stripeHelper.allProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        assert.deepEqual(result, expected);
+      });
+
+      it('throws an exception for deleted customer', async () => {
+        mockStripe.customers.retrieve = sinon
+          .stub()
+          .resolves({ ...mockCustomer, deleted: true });
+
+        let thrownError = null;
+        try {
+          await stripeHelper.extractSourceDetailsForEmail(fixture);
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(
+          thrownError.errno,
+          error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER
+        );
+        assert.isTrue(
+          mockStripe.customers.retrieve.calledWith(fixture.customer)
+        );
+        assert.isFalse(mockStripe.plans.retrieve.called);
+        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+      });
+
+      it('throws an exception when unable to find plan or product', async () => {
+        mockCustomer.subscriptions.data = [];
+        let thrownError = null;
+        try {
+          await stripeHelper.extractSourceDetailsForEmail(fixture);
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(thrownError.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+      });
+
+      it('throws an exception with unexpected data', async () => {
+        const fixture = {
+          ...eventCustomerSourceExpiring.data.object,
+          object: 'transfer',
+        };
+        let thrownError = null;
+        try {
+          await stripeHelper.extractSourceDetailsForEmail(fixture);
+        } catch (err) {
+          thrownError = err;
+        }
+        assert.isNotNull(thrownError);
+        assert.equal(thrownError.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+      });
     });
   });
 });
