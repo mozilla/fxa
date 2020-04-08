@@ -57,7 +57,7 @@ const SupportView = BaseView.extend({
   },
 
   events: {
-    'change #plan': 'onFormChange',
+    'change #product': 'onFormChange',
     'change #topic': 'onFormChange',
     'keyup #message': 'onFormChange',
     'click button[type=submit]': 'submitSupportForm',
@@ -79,14 +79,7 @@ const SupportView = BaseView.extend({
       if (subscriptions.length) {
         this.model.set('subscriptions', subscriptions);
 
-        const getPlansPromise = account
-          .fetchSubscriptionPlans()
-          .then(plans => {
-            this.model.set('plans', plans);
-          })
-          .catch(err => console.log(err));
-
-        return Promise.all([account.fetchProfile(), getPlansPromise]);
+        return account.fetchProfile();
       } else {
         // Note that if a user landed here, it is because:
         // a) they accessed the page directly, as the button for this page is
@@ -105,7 +98,7 @@ const SupportView = BaseView.extend({
   },
 
   afterVisible() {
-    this.planEl = this.$('#plan');
+    this.productEl = this.$('#product');
     this.topicEl = this.$('#topic');
     this.submitBtn = this.$('button[type="submit"]');
     this.submitText = this.$('.submit-content');
@@ -113,7 +106,7 @@ const SupportView = BaseView.extend({
     this.cancelBtn = this.$('button.cancel');
     this.subjectEl = this.$('#subject');
     this.messageEl = this.$('#message');
-    this.planEl.chosen({ disable_search: true, width: '100%' });
+    this.productEl.chosen({ disable_search: true, width: '100%' });
     this.topicEl.chosen({ disable_search: true, width: '100%' });
 
     // Have screen readers use the form label for the drop down
@@ -138,17 +131,15 @@ const SupportView = BaseView.extend({
   onFormChange(e) {
     e.stopPropagation();
 
-    const plan = this.planEl.val();
-    const subhubPlan = this.findPlan(plan);
-    let productName = 'Other';
-    if (subhubPlan) {
-      productName = subhubPlan.product_name;
+    const productName = this.productEl.val();
+    const subscription = this.findSubscription(productName);
+    if (subscription) {
       this.notifier.trigger(
         'subscription.initialize',
         new SubscriptionModel(
           {
-            planId: subhubPlan.plan_id,
-            productId: subhubPlan.product_id,
+            planId: subscription.plan_id,
+            productId: subscription.product_id,
           },
           {
             window: this.window,
@@ -158,7 +149,6 @@ const SupportView = BaseView.extend({
     }
 
     this.supportForm.set({
-      plan,
       productName: this.formatProductName(productName),
       topic: this.topicEl.val(),
       subject: this.subjectEl.val().trim(),
@@ -172,9 +162,9 @@ const SupportView = BaseView.extend({
     }
   },
 
-  findPlan: function(planName) {
-    const plans = this.model.get('plans');
-    return plans.find(plan => plan.plan_name === planName);
+  findSubscription: function(productName) {
+    const subscriptions = this.model.get('subscriptions');
+    return subscriptions.find(sub => sub.product_name === productName);
   },
 
   formatProductName: function(name) {

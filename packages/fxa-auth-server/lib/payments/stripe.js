@@ -30,7 +30,6 @@ const stripe = require('stripe').Stripe;
 /**
  * @typedef AbbrevPlan
  * @property {string} plan_id
- * @property {string} plan_name
  * @property {Product['metadata']} plan_metadata
  * @property {string} product_id
  * @property {string} product_name
@@ -472,11 +471,8 @@ class StripeHelper {
         continue;
       }
 
-      const plan_name = await this.formatPlanDisplayName(item);
-
       plans.push({
         plan_id: item.id,
-        plan_name,
         plan_metadata: item.metadata,
         product_id: item.product.id,
         product_name: item.product.name,
@@ -648,24 +644,6 @@ class StripeHelper {
   }
 
   /**
-   *
-   * Returns the product name of a given product.
-   *
-   * @param {String | Product} product
-   * @returns {Promise<String>} product name
-   */
-  async getProductName(product) {
-    if (typeof product === 'string') {
-      const fetchedProducts = await this.allProducts();
-      const matchingProduct = fetchedProducts.find(
-        fetchedProduct => fetchedProduct.product_id === product
-      );
-      return matchingProduct ? matchingProduct.product_name : '';
-    }
-    return product.name;
-  }
-
-  /**
    * Attempt to pay invoice by invoice id
    * Throws payment failed error on failure
    *
@@ -809,7 +787,10 @@ class StripeHelper {
         failure_message = /** @type {Charge} */ (charge).failure_message;
       }
 
-      const planName = await this.formatPlanDisplayName(sub.plan);
+      const product = await this.expandResource(sub.plan.product, 'Product');
+
+      const product_id = product.id;
+      const product_name = product.name;
 
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
@@ -820,8 +801,9 @@ class StripeHelper {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
-        plan_name: planName,
         plan_id: sub.plan.id,
+        product_name,
+        product_id,
         status: sub.status,
         subscription_id: sub.id,
         failure_code,
@@ -829,28 +811,6 @@ class StripeHelper {
       });
     }
     return subs;
-  }
-
-  /**
-   * Format the plan name for display
-   *
-   * @param {Plan} plan
-   * @returns {Promise<string>}
-   */
-  async formatPlanDisplayName(plan) {
-    // enforce type because it _could_ be a DeletedProduct (but shouldn't be)
-    const productName = await this.getProductName(
-      /** @type {String | Product} */ (plan.product)
-    );
-
-    const intervalDict = {
-      day: 'Daily',
-      week: 'Weekly',
-      month: 'Monthly',
-      year: 'Yearly',
-    };
-
-    return `${productName} ${intervalDict[plan.interval]}`;
   }
 
   /**

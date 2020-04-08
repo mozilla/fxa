@@ -63,7 +63,6 @@ const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
 const PLANS = [
   {
     plan_id: 'firefox_pro_basic_823',
-    plan_name: 'Firefox Pro Basic Weekly',
     product_id: 'firefox_pro_basic',
     product_name: 'Firefox Pro Basic',
     interval: 'week',
@@ -78,7 +77,6 @@ const PLANS = [
   },
   {
     plan_id: 'firefox_pro_basic_999',
-    plan_name: 'Firefox Pro Pro Monthly',
     product_id: 'firefox_pro_pro',
     product_name: 'Firefox Pro Pro',
     interval: 'month',
@@ -90,7 +88,6 @@ const PLANS = [
   },
   {
     plan_id: PLAN_ID_1,
-    plan_name: 'Basic FN',
     product_id: 'prod_G93l8Yn7XJHYUs',
     product_name: 'FN Tier 1',
     interval: 'month',
@@ -155,7 +152,6 @@ describe('sanitizePlans', () => {
     const expected = [
       {
         plan_id: 'firefox_pro_basic_823',
-        plan_name: 'Firefox Pro Basic Weekly',
         product_id: 'firefox_pro_basic',
         product_name: 'Firefox Pro Basic',
         interval: 'week',
@@ -168,7 +164,6 @@ describe('sanitizePlans', () => {
       },
       {
         plan_id: 'firefox_pro_basic_999',
-        plan_name: 'Firefox Pro Pro Monthly',
         product_id: 'firefox_pro_pro',
         product_name: 'Firefox Pro Pro',
         interval: 'month',
@@ -178,7 +173,6 @@ describe('sanitizePlans', () => {
       },
       {
         plan_id: PLAN_ID_1,
-        plan_name: 'Basic FN',
         product_id: 'prod_G93l8Yn7XJHYUs',
         product_name: 'FN Tier 1',
         interval: 'month',

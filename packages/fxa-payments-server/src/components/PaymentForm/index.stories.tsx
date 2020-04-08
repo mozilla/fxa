@@ -38,7 +38,6 @@ const PRODUCT_ID = 'product_8675309';
 const PLAN_ID = 'plan_123';
 const PLAN = {
   plan_id: PLAN_ID,
-  plan_name: 'Example Plan',
   product_id: PRODUCT_ID,
   product_name: 'Example Product',
   currency: 'USD',

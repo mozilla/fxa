@@ -79,7 +79,9 @@ function createDefaults(): MockCallsResponse {
           created: 1555354567,
           current_period_end: 1579716673,
           current_period_start: 1579630273,
-          plan_name: 'Learn to Code (Monthly)',
+          plan_id: 'plan_123',
+          product_id: 'prod_123',
+          product_name: 'Example Product',
           status: 'active',
           subscription_id: 'sub_GZ7WKEJp1YGZ86',
         },
@@ -281,7 +283,7 @@ describe('Support Controller', () => {
     cassert.equal(result.statusCode, 200);
     const headingMatch = result.payload.match(/<h3>Subscriptions<\/h3>/g);
     const nameMatch = result.payload.match(
-      /<th>Subscription:<\/th>\s*<td>Learn to Code \(Monthly\)<\/td>/g
+      /<th>Subscription:<\/th>\s*<td>Example Product<\/td>/g
     );
     cassert.isTrue(headingMatch?.length === 1 && nameMatch?.length === 1);
   });

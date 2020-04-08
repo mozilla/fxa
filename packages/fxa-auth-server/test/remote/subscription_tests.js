@@ -18,7 +18,6 @@ const validClients = config.oauthServer.clients.filter(
 const CLIENT_ID = validClients.pop().id;
 const CLIENT_ID_FOR_DEFAULT = validClients.pop().id;
 const PLAN_ID = 'allDoneProMonthly';
-const PLAN_NAME = 'All Done Pro Monthly';
 const PRODUCT_ID = 'megaProductHooray';
 const PRODUCT_NAME = 'All Done Pro';
 
@@ -44,7 +43,6 @@ describe('remote subscriptions:', function() {
       mockStripeHelper.allPlans = async () => [
         {
           plan_id: PLAN_ID,
-          plan_name: PLAN_NAME,
           product_id: PRODUCT_ID,
           product_name: PRODUCT_NAME,
           interval: 'month',
@@ -56,7 +54,6 @@ describe('remote subscriptions:', function() {
         },
         {
           plan_id: 'plan_1a',
-          plan_name: 'plan 1a',
           product_id: 'prod_1a',
           product_name: 'product 1a',
           interval: 'month',
@@ -65,7 +62,6 @@ describe('remote subscriptions:', function() {
         },
         {
           plan_id: 'plan_1b',
-          plan_name: 'plan 1b',
           product_id: 'prod_1b',
           product_name: 'product 1b',
           interval: 'month',
@@ -200,12 +196,13 @@ describe('remote subscriptions:', function() {
           {
             subscription_id: subscriptionId,
             plan_id: PLAN_ID,
+            product_name: PRODUCT_NAME,
+            product_id: PRODUCT_ID,
             created: date,
             current_period_end: date,
             current_period_start: date,
             cancel_at_period_end: false,
             end_at: null,
-            plan_name: 'foo',
             status: 'active',
             failure_code: undefined,
             failure_message: undefined,

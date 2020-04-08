@@ -114,23 +114,27 @@ describe('views/settings/delete_account', function() {
 
     subscriptions = [
       {
-        plan_id: '321doneProMonthly',
-        plan_name: '321done Pro Monthly',
+        plan_id: 'plan_1',
+        product_id: 'prod_123',
+        product_name: '321Done Pro',
         status: 'active',
       },
       {
-        plan_id: '321doneProYearly',
-        plan_name: '321done Pro Yearly',
+        plan_id: 'plan_2',
+        product_id: 'prod_123',
+        product_name: '321Done Pro',
         status: 'cancelled',
       },
       {
-        plan_id: '321doneProHourly',
-        plan_name: '321done Pro Hourly',
+        plan_id: 'plan_3',
+        product_id: 'prod_123',
+        product_name: '321Done Pro',
         status: 'trialing',
       },
       {
-        plan_id: '321doneProDaily',
-        plan_name: '321done Pro Daily',
+        plan_id: 'plan_4',
+        product_id: 'prod_123',
+        product_name: '321Done Pro',
         status: 'past_due',
       },
     ];
@@ -312,12 +316,12 @@ describe('views/settings/delete_account', function() {
         subscriptions = [
           {
             plan_id: '321doneProMonthly',
-            plan_name: '321done Pro Monthly',
+            product_name: '321done Pro',
             status: 'active',
           },
           {
             plan_id: '321doneProYearly',
-            plan_name: '321done Pro Yearly',
+            product_name: '321done Pro',
             status: 'cancelled',
           },
         ];
@@ -377,7 +381,7 @@ describe('views/settings/delete_account', function() {
       it('renders subscription title attributes', () => {
         assert.equal(
           view.$('.delete-account-product-subscription').attr('title'),
-          '321done Pro Monthly'
+          '321Done Pro'
         );
       });
 
@@ -483,8 +487,9 @@ describe('views/settings/delete_account', function() {
           ]);
           subscriptions = [
             {
-              plan_id: '321doneProHourly',
-              plan_name: '321done Pro Hourly',
+              plan_id: 'plan_123',
+              product_id: 'prod_234',
+              product_name: 'Example Product',
               status: 'trialing',
             },
           ];

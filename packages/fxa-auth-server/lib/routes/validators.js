@@ -309,8 +309,9 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   end_at: isA.alternatives(isA.number(), isA.any().allow(null)),
   failure_code: isA.string().optional(),
   failure_message: isA.string().optional(),
-  plan_name: isA.string().required(),
   plan_id: module.exports.subscriptionsPlanId.required(),
+  product_id: module.exports.subscriptionsProductId.required(),
+  product_name: isA.string().required(),
   status: isA.string().required(),
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),
 });
@@ -339,7 +340,6 @@ module.exports.subscriptionProductMetadataValidator = isA
 
 module.exports.subscriptionsPlanValidator = isA.object({
   plan_id: module.exports.subscriptionsPlanId.required(),
-  plan_name: isA.string().required(),
   plan_metadata: module.exports.subscriptionPlanMetadataValidator.optional(),
   product_id: module.exports.subscriptionsProductId.required(),
   product_name: isA.string().required(),

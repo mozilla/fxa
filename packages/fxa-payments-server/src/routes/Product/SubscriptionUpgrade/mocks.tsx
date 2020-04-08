@@ -20,7 +20,8 @@ export const CUSTOMER: Customer = {
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
-      nickname: '123done Pro Monthly',
+      product_id: 'prod_123',
+      product_name: '123done Pro',
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,
@@ -34,7 +35,6 @@ export const PRODUCT_ID = 'product_8675309';
 
 export const SELECTED_PLAN: Plan = {
   plan_id: 'plan_123',
-  plan_name: 'Better Upgrade Plan',
   product_id: PRODUCT_ID,
   product_name: 'Better Upgrade Product',
   currency: 'USD',
@@ -48,7 +48,6 @@ export const SELECTED_PLAN: Plan = {
 
 export const UPGRADE_FROM_PLAN: Plan = {
   plan_id: 'plan_abc',
-  plan_name: 'Example Plan',
   product_id: PRODUCT_ID,
   product_name: 'Example Product',
   currency: 'USD',

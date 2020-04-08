@@ -18,11 +18,6 @@ describe('models/support-form', function() {
     });
   });
 
-  it('requires a plan', function() {
-    supportForm.set('plan', '');
-    assert.isFalse(supportForm.isValid());
-  });
-
   it('requires a product name', function() {
     supportForm.set('productName', '');
     assert.isFalse(supportForm.isValid());

@@ -227,7 +227,6 @@ const PROFILE = {
 const PLANS = [
   {
     plan_id: PLAN_ID,
-    plan_name: 'Example Plan',
     product_id: PRODUCT_ID,
     product_name: 'Example Product',
     currency: 'USD',
@@ -305,8 +304,9 @@ const subscribedProps: SubscriptionsProps = {
       current_period_start: (Date.now() - 86400) / 1000,
       cancel_at_period_end: false,
       end_at: null,
-      nickname: 'Example Plan',
       plan_id: PLAN_ID,
+      product_id: 'product_123',
+      product_name: 'Example Product',
       status: 'active',
       subscription_id: 'sub_5551212',
     },
