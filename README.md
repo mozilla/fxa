@@ -250,7 +250,19 @@ To run a specific test or tests whose name matches part of a search string:
 node tests/intern.js --suites=all --grep="Test string to search for"
 ```
 
----
+To run a single test:
+
+```
+npm run test-functional -- "--grep=Test name"
+```
+
+--where 'Test name' is not the file name but the description/name of the test.
+
+```
+node tests/intern.js --grep="Test name"
+```
+
+## run the above command from the fxa-content-server directory
 
 ### Node debugging
 
