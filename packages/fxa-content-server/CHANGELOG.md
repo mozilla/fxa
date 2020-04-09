@@ -1,3 +1,9 @@
+## 1.166.1
+
+### Bug fixes
+
+- favicon: Restore fxa-content-server favicon ([5e166246c](https://github.com/mozilla/fxa/commit/5e166246c))
+
 ## 1.166.0
 
 ### New features
