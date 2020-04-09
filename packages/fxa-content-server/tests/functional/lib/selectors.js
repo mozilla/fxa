@@ -365,6 +365,7 @@ module.exports = {
     CHECKBOXES: '#delete-account .delete-account-checkbox',
     INPUT_PASSWORD: '#delete-account form input.password',
     SUBMIT: '#delete-account button[type="submit"]',
+    TOOLTIP_INCORRECT_PASSWORD: 'input[type=password] ~ .tooltip',
   },
   SETTINGS_DISPLAY_NAME: {
     INPUT_DISPLAY_NAME: '#display-name input[type=text]',

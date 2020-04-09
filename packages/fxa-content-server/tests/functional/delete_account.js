@@ -19,10 +19,13 @@ const {
   click,
   createEmail,
   createUser,
+  type,
   fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
+  testElementTextInclude,
   openPage,
   pollUntilHiddenByQSA,
+  visibleByQSA,
   testElementExists,
   testSuccessWasShown,
 } = FunctionalHelpers;
@@ -37,7 +40,36 @@ registerSuite('delete_account', {
   },
 
   tests: {
-    'sign in, delete account': function() {
+    'sign in, delete account with incorrect password': function() {
+      return (
+        this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+
+          // Go to delete account screen
+          .then(
+            click(
+              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
+              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
+            )
+          )
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .end()
+          .then(
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, 'PASSWORD')
+          )
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
+          .then(
+            visibleByQSA(
+              selectors.SETTINGS_DELETE_ACCOUNT.TOOLTIP_INCORRECT_PASSWORD
+            )
+          )
+      );
+    },
+
+    'sign in, delete account with correct password': function() {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -52,9 +84,11 @@ registerSuite('delete_account', {
             )
           )
           .then(fillOutDeleteAccount(PASSWORD))
-
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(testSuccessWasShown())
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.HEADER))
       );
     },
 
@@ -72,8 +106,17 @@ registerSuite('delete_account', {
             )
           )
 
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .end()
+          .then(
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
+          )
           .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CANCEL))
           .then(pollUntilHiddenByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+          .then(
+            testElementTextInclude(selectors.SETTINGS.PROFILE_HEADER, email)
+          )
       );
     },
   },

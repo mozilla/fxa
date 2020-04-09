@@ -24,6 +24,7 @@ const {
   denormalizeStoredEmail,
   destroySessionForEmail,
   fillOutEmailFirstSignIn,
+  testElementTextInclude,
   focus,
   noSuchElement,
   openPage,
@@ -207,20 +208,45 @@ registerSuite('settings', {
 
     'sign in, open settings and add a display name': function() {
       var name = 'joe';
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
-        .then(
-          click(
-            selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON,
-            selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME
+      return (
+        this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD, true))
+          .then(
+            click(
+              selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON,
+              selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME
+            )
           )
-        )
-        .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, name))
-        .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
-        .then(visibleByQSA(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
-        .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, name));
+          .then(type(selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME, name))
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+          .then(visibleByQSA(selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON))
+          .then(testElementTextEquals(selectors.SETTINGS.PROFILE_HEADER, name))
+
+          //To change the Display name
+          .then(
+            click(
+              selectors.SETTINGS_DISPLAY_NAME.MENU_BUTTON,
+              selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME
+            )
+          )
+          .then(
+            type(
+              selectors.SETTINGS_DISPLAY_NAME.INPUT_DISPLAY_NAME,
+              'Test User'
+            )
+          )
+
+          .then(click(selectors.SETTINGS_DISPLAY_NAME.SUBMIT))
+          .then(
+            testElementTextInclude(
+              selectors.SETTINGS.PROFILE_HEADER,
+              'Test User'
+            )
+          )
+      );
     },
+
     'sign in, open settings in a second tab, sign out': function() {
       return (
         this.remote
