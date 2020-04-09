@@ -7,9 +7,4 @@
 npm run lint:eslint || exit 1
 node_modules/.bin/grunt copyright || exit 1
 
-cov=""
-if test "$NO_COVERAGE" = ""; then
-  cov="--coverage --cov"
-fi
-
-tap test/local test/remote $cov
+tap test/local test/remote --coverage-report=lcov

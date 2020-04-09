@@ -28,6 +28,9 @@ jobs:
       - base-install:
           package: << parameters.package >>
       - run: ./.circleci/test-package.sh << parameters.package >>
+      - run:
+          name: Reporting code coverage...
+          command: bash <(curl -s https://codecov.io/bash) -X gcov
 
   test-many:
     docker:
@@ -64,6 +67,9 @@ jobs:
             for p in "${PACKAGES[@]}"; do
               ./.circleci/test-package.sh $p
             done
+      - run:
+          name: Reporting code coverage...
+          command: bash <(curl -s https://codecov.io/bash) -X gcov
 
   test-content-server:
     parallelism: 6
