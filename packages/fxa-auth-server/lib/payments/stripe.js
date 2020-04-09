@@ -830,6 +830,11 @@ class StripeHelper {
       const product_id = product.id;
       const product_name = product.name;
 
+      let latestInvoice = sub.latest_invoice;
+      if (latestInvoice && typeof latestInvoice !== 'string') {
+        latestInvoice = latestInvoice.number;
+      }
+
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
       // plans for this subscription.
@@ -839,6 +844,7 @@ class StripeHelper {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
+        latest_invoice: latestInvoice,
         plan_id: sub.plan.id,
         product_name,
         product_id,

@@ -1,0 +1,191 @@
+@import '../../../../fxa-content-server/app/styles/variables';
+@import '../../../../fxa-content-server/app/styles/breakpoints';
+
+.plan-details-component {
+  font-size: 15px;
+  margin: 32px auto;
+  width: 342px;
+
+  @include min-width('tablet') {
+    margin: 40px 24px;
+  }
+
+  @include min-width('desktop') {
+    margin: 48px 24px;
+  }
+
+  .plan-details-component-inner {
+
+    @include min-width('tablet') {
+      position: fixed;
+    }
+  }
+
+  .plan-details-component-card {
+    background: $color-white;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(12, 12, 13, 0.1);
+    width: 342px;
+  }
+
+  .plan-details-logo-wrap {
+    align-items: center;
+    background: #20123a; // this will need to be pulled from a source per product in future
+    border-radius: 8px;
+    display: flex;
+    flex-shrink: 0;
+    height: 64px;
+    justify-content: center;
+    width: 64px;
+  }
+
+  .plan-details-logo-wrap img {
+    height: 32px;
+    width: 32px;
+  }
+
+  .plan-details-header-wrap {
+    display: flex;
+  }
+
+  .plan-details-heading-wrap {
+    display: flex;
+    flex-direction: column;
+    padding-left: 16px;
+    text-align: left;
+
+    .plan-details-product {
+      color: $grey-80;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 19px;
+      margin: 0;
+      word-wrap: break-word;
+    }
+
+    .plan-details-description {
+      color: $grey-50;
+      margin-top: 4px;
+    }
+  }
+
+  .plan-details-header {
+    border-bottom: 1px solid $grey-30;
+    display: flex;
+    justify-content: space-between;
+    margin: 0 16px;
+    padding: 16px 0;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .plan-details-list {
+    border-bottom: 1px solid $grey-30;
+    color: rgba(12, 12, 13, 0.8);
+    list-style-position: inside;
+    margin-top: 10px;
+    // 1px bottom is a hack to get the padding from the last li
+    // to show up on tablet and higher that have position: fixed;
+    padding: 0 16px 1px;
+    text-align: left;
+
+    h4 {
+      margin: 16px 0;
+    }
+
+    ul {
+      color: $grey-50;
+      margin: 0;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 16px;
+
+      span {
+        padding-left: 8px;
+      }
+
+      &::marker {
+        font-size: 12px;
+      }
+    }
+
+    @include min-width('tablet') {
+      border-bottom: 0;
+    }
+  }
+
+  .footer {
+    text-align: center;
+  }
+
+  .btn {
+    background: none;
+    border: 1px solid transparent;
+    color: $blue-60;
+    font-size: 15px;
+    font-weight: normal;
+    height: initial;
+    line-height: 22px;
+    margin: 9px 0;
+    outline: none;
+    padding: 7px 6px 7px 25px;
+    position: relative;
+    width: initial;
+
+    &:focus {
+      border: 1px solid #0a84ff;
+      box-shadow: unset;
+      padding: 6px 16px 6px 40px;
+    }
+  }
+
+  .arrow::before {
+    background: url('./images/chevron.svg');
+    content: '';
+    display: inline-block;
+    height: 16px;
+    left: 0;
+    position: absolute;
+    top: 10px;
+    width: 24px;
+  }
+
+  .arrow:focus::before {
+    left: 14px;
+  }
+
+  .up-arrow::before {
+    transform: rotate(180deg);
+  }
+
+  .plan-details-total {
+    padding: 24px 0;
+    width: 342px;
+
+    .plan-details-total-inner {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    p {
+      margin: 0;
+      padding: unset;
+    }
+
+    .label {
+      color: #6d6d6e;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    .total-price {
+      color: rgba(12, 12, 13, 0.8);
+      font-size: 22px;
+      font-weight: 600;
+    }
+  }
+}

@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { Localized } from 'fluent-react';
 
-import {
-  Plan,
-  Profile,
-  Customer,
-  CustomerSubscription,
-} from '../../../store/types';
+import { Plan, Customer, CustomerSubscription } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { metadataFromPlan } from '../../../store/utils';
 
@@ -23,7 +18,6 @@ import { useValidatorState } from '../../../lib/validator';
 
 import DialogMessage from '../../../components/DialogMessage';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
-import ProfileBanner from '../ProfileBanner';
 
 import './index.scss';
 
@@ -57,7 +51,6 @@ function getDefaultConfirmText(
 
 export type SubscriptionUpgradeProps = {
   customer: Customer;
-  profile: Profile;
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
   upgradeFromSubscription: CustomerSubscription;
@@ -68,7 +61,6 @@ export type SubscriptionUpgradeProps = {
 
 export const SubscriptionUpgrade = ({
   customer,
-  profile,
   selectedPlan,
   upgradeFromPlan,
   upgradeFromSubscription,
@@ -130,8 +122,6 @@ export const SubscriptionUpgrade = ({
           <p>{updateSubscriptionPlanStatus.error.message}</p>
         </DialogMessage>
       )}
-
-      <ProfileBanner profile={profile} />
 
       <hr />
 

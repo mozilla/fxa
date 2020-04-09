@@ -35,6 +35,7 @@ function init() {
               end_at: null,
               product_name: 'Example Product',
               product_id: 'prod_123',
+              latest_invoice: '628031D-0002',
               plan_id: 'plan_123',
               status: 'active',
               subscription_id: 'sk_78987',
@@ -227,16 +228,19 @@ const PLANS: Plan[] = [
 ];
 
 const CUSTOMER: Customer = {
+  billing_name: 'Jane Doe',
   payment_type: 'credit',
   last4: '5309',
   exp_month: '02',
   exp_year: '2099',
+  brand: 'Visa',
   subscriptions: [
     {
       subscription_id: 'sub0.28964929339372136',
       plan_id: '123doneProMonthly',
       product_id: 'prod_123',
       product_name: '123done Pro',
+      latest_invoice: '628031D-0002',
       status: 'active',
       cancel_at_period_end: false,
       current_period_end: Date.now() / 1000 + 86400 * 31,

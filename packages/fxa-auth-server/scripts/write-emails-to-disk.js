@@ -87,6 +87,7 @@ function sendMail(mailer, messageToSend) {
 
   const message = {
     acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
+    appStoreLink: 'https://example.com/app-store',
     code: '123123',
     email: 'testuser+testbox@testuser.com',
     ip: '10.246.67.38',
@@ -101,6 +102,7 @@ function sendMail(mailer, messageToSend) {
     productName: 'Firefox Fortress',
     planEmailIconURL: 'http://placekitten.com/512/512',
     planDownloadURL: 'http://getfirefox.com/',
+    playStoreLink: 'https://example.com/play-store',
     invoiceNumber: '8675309',
     invoiceTotal: 99.99,
     proratedAmount: 5.23,
