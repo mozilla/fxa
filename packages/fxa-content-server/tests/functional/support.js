@@ -76,10 +76,10 @@ registerSuite('support form with an active subscription', {
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(subscribeToTestProduct())
         .then(openPage(SUPPORT_URL, 'div.support'))
-        .then(click('#plan_chosen a.chosen-single'))
+        .then(click('#product_chosen a.chosen-single'))
         .then(
           click(
-            '#plan_chosen ul.chosen-results li[data-option-array-index="1"]'
+            '#product_chosen ul.chosen-results li[data-option-array-index="1"]'
           )
         )
         .then(click('#topic_chosen a.chosen-single'))
