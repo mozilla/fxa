@@ -1,5 +1,16 @@
 # Change history
 
+## 1.166.0
+
+### Bug fixes
+
+- coverage: Report coverage ([d42aef600](https://github.com/mozilla/fxa/commit/d42aef600))
+- metrics: update language property on Amplitude schema ([4f2c4493b](https://github.com/mozilla/fxa/commit/4f2c4493b))
+
+### Refactorings
+
+- emails: move all email normalization and equality checks to helper functions ([ce1930f4b](https://github.com/mozilla/fxa/commit/ce1930f4b))
+
 ## 1.165.1
 
 No changes.

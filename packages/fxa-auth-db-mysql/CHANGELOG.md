@@ -1,3 +1,9 @@
+## 1.166.0
+
+### Refactorings
+
+- emails: move all email normalization and equality checks to helper functions ([ce1930f4b](https://github.com/mozilla/fxa/commit/ce1930f4b))
+
 ## 1.165.1
 
 No changes.
