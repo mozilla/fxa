@@ -17,6 +17,8 @@ const stripe = require('stripe').Stripe;
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
 /** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
+/** @typedef {import('stripe').Stripe.Source} Source */
+/** @typedef {import('stripe').Stripe.Card} Card */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
 /** @typedef {import('stripe').Stripe.Charge} Charge */
 
@@ -853,63 +855,49 @@ class StripeHelper {
    * @param {Invoice} invoice
    */
   async extractInvoiceDetailsForEmail(invoice) {
-    let uid = '',
-      email = '',
-      invoiceNumber = '',
-      invoiceDate,
-      invoiceTotal = 0,
-      cardType = '',
-      lastFour = '',
-      nextInvoiceDate,
-      productId = '',
-      productName = '',
-      planId = '',
-      planName = '',
-      planEmailIconURL = '',
-      planDownloadURL = '';
-
-    try {
-      if (invoice && typeof invoice === 'object') {
-        // Dig up & expand objects in the invoice that usually come as just IDs
-        const { plan } = invoice.lines.data[0];
-        const [abbrevProduct, customer, charge] = await Promise.all([
-          this.expandAbbrevProductForPlan(plan),
-          this.expandResource(invoice.customer, 'customers'),
-          this.expandResource(invoice.charge, 'charges'),
-        ]);
-
-        if (customer.deleted === true) {
-          throw error.unknownCustomer(invoice.customer);
-        }
-
-        const metadata = {
-          ...abbrevProduct.product_metadata,
-          ...plan.metadata,
-        };
-        uid = customer.metadata.userid;
-        ({ product_id: productId, product_name: productName } = abbrevProduct);
-        ({
-          number: invoiceNumber,
-          created: invoiceDate,
-          total: invoiceTotal,
-          period_end: nextInvoiceDate,
-          customer_email: email,
-        } = invoice);
-        ({ id: planId, nickname: planName } = plan);
-        ({
-          emailIconURL: planEmailIconURL,
-          downloadURL: planDownloadURL,
-        } = metadata);
-        ({
-          brand: cardType,
-          last4: lastFour,
-        } = charge.payment_method_details.card);
-      }
-    } catch (err) {
-      this.log.error('subscriptions.extractInvoiceDetailsFromSubscription', {
-        err,
-      });
+    if (!invoice || typeof invoice !== 'object') {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error('Invoice undefined or not object')
+      );
     }
+
+    const customer = await this.expandResource(invoice.customer, 'customers');
+    if (customer.deleted === true) {
+      throw error.unknownCustomer(invoice.customer);
+    }
+
+    // Dig up & expand objects in the invoice that usually come as just IDs
+    const { plan } = invoice.lines.data[0];
+    const [abbrevProduct, charge] = await Promise.all([
+      this.expandAbbrevProductForPlan(plan),
+      this.expandResource(invoice.charge, 'charges'),
+    ]);
+
+    const {
+      email,
+      metadata: { userid: uid },
+    } = customer;
+    const { product_id: productId, product_name: productName } = abbrevProduct;
+    const {
+      number: invoiceNumber,
+      created: invoiceDate,
+      total: invoiceTotal,
+      period_end: nextInvoiceDate,
+    } = invoice;
+    const { id: planId, nickname: planName } = plan;
+    const {
+      emailIconURL: planEmailIconURL = '',
+      downloadURL: planDownloadURL = '',
+    } = {
+      ...abbrevProduct.product_metadata,
+      ...plan.metadata,
+    };
+    const {
+      brand: cardType,
+      last4: lastFour,
+    } = charge.payment_method_details.card;
 
     return {
       uid,
@@ -920,6 +908,81 @@ class StripeHelper {
       invoiceTotal: invoiceTotal / 100.0,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
+      productId,
+      productName,
+      planId,
+      planName,
+      planEmailIconURL,
+      planDownloadURL,
+    };
+  }
+
+  /**
+   * Extract source details for billing emails
+   *
+   * @param {Source | Card} source
+   */
+  async extractSourceDetailsForEmail(source) {
+    if (source.object !== 'card') {
+      // We shouldn't get here - all sources should currently be cards.
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        source,
+        new Error(`Payment source was not card: ${source.id}`)
+      );
+    }
+
+    const customer = await this.expandResource(source.customer, 'customers');
+    if (customer.deleted === true) {
+      throw error.unknownCustomer(source.customer);
+    }
+
+    // Follow subhub's lead and just use the customer's first active
+    // subscription as source of plan & product data.
+    //
+    // May need to refine this to search for the specific subscription paid
+    // for with a card if/when we allow multiple payment sources on multiple
+    // subscriptions.
+    //
+    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L204
+
+    /** @type {AbbrevProduct | undefined} */
+    let abbrevProduct;
+    /** @type {Plan | undefined} */
+    let plan;
+    for (const subscription of customer.subscriptions.data) {
+      if (['active', 'trialing'].includes(subscription.status)) {
+        plan = await this.expandResource(subscription.plan, 'plans');
+        abbrevProduct = await this.expandAbbrevProductForPlan(plan);
+        break;
+      }
+    }
+
+    if (!plan || !abbrevProduct) {
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        source,
+        new Error(`Subscription corresponding to source not found`)
+      );
+    }
+
+    const {
+      email,
+      metadata: { userid: uid },
+    } = customer;
+    const { product_id: productId, product_name: productName } = abbrevProduct;
+    const { id: planId, nickname: planName } = plan;
+    const {
+      emailIconURL: planEmailIconURL = '',
+      downloadURL: planDownloadURL = '',
+    } = {
+      ...abbrevProduct.product_metadata,
+      ...plan.metadata,
+    };
+
+    return {
+      uid,
+      email,
       productId,
       productName,
       planId,
