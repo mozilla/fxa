@@ -22,7 +22,6 @@ const otplib = require('otplib');
 otplib.authenticator.options = { encoding: 'hex' };
 
 const FxaClient = require('../../../../fxa-js-client/client/FxAccountClient');
-const got = require('got');
 const config = intern._config;
 
 const AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -102,26 +101,11 @@ const takeScreenshot = function() {
         const rando = crypto.randomBytes(4).toString('hex');
         mkdirp.sync('/home/circleci/screenshots');
         fs.writeFileSync(`/home/circleci/screenshots/${rando}.png`, buffer);
-        console.log(`Screenshot saved to screenshots/${rando}.png`);
-      }
-      const screenCaptureHost = 'https://screencap.co.uk';
-      return got
-        .post(`${screenCaptureHost}/png`, {
-          body: buffer,
-          followRedirect: false,
-        })
-        .then(
-          res => {
-            console.log(
-              `Screenshot saved at: ${screenCaptureHost}${res.headers.location}`
-            );
-          },
-          //eslint-disable-next-line handle-callback-err
-          err => {
-            console.error('Capturing base64 screenshot:');
-            console.error(`data:image/png;base64,${buffer.toString('base64')}`);
-          }
+        // 36831081 is the repo number I think, but it's not available as an env var.
+        console.log(
+          `Screenshot saved to https://${process.env.CIRCLE_BUILD_NUM}-36831081-gh.circle-artifacts.com/${process.env.CIRCLE_NODE_INDEX}/screenshots/${rando}.png`
         );
+      }
     });
   };
 };
