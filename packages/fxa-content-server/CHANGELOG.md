@@ -1,3 +1,27 @@
+## 1.166.0
+
+### New features
+
+- metrics: add metrics to amplitude events ([75fa856a8](https://github.com/mozilla/fxa/commit/75fa856a8))
+
+### Bug fixes
+
+- docs: Update legal docs hash. More detail in #4649 ([e0edbd8fd](https://github.com/mozilla/fxa/commit/e0edbd8fd))
+- metrics: update language property on Amplitude schema ([4f2c4493b](https://github.com/mozilla/fxa/commit/4f2c4493b))
+- deeplink: Update our deeplinking url based on updates from adjust support ([f005577ea](https://github.com/mozilla/fxa/commit/f005577ea))
+- docker: fix content-server build broken by last commit ([e36d805c6](https://github.com/mozilla/fxa/commit/e36d805c6))
+- build: change fxa-js-client resolution in content-server ([688702964](https://github.com/mozilla/fxa/commit/688702964))
+- sync: Always show CWTS on signup for sync users ([cc07610b0](https://github.com/mozilla/fxa/commit/cc07610b0))
+
+### Refactorings
+
+- emails: move all email normalization and equality checks to helper functions ([ce1930f4b](https://github.com/mozilla/fxa/commit/ce1930f4b))
+
+### Other changes
+
+- tests: set fixSessionCapabilities to no-detect ([ce3dc21c1](https://github.com/mozilla/fxa/commit/ce3dc21c1))
+- subscriptions: remove references to plan.name and plan.nickname ([4ffe01b37](https://github.com/mozilla/fxa/commit/4ffe01b37))
+
 ## 1.165.1
 
 No changes.

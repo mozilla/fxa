@@ -1,5 +1,21 @@
 # Change history
 
+## 1.166.0
+
+### New features
+
+- metrics: add metrics to amplitude events ([75fa856a8](https://github.com/mozilla/fxa/commit/75fa856a8))
+- metrics: log raw Amplitude events in payments server ([e34b82bb6](https://github.com/mozilla/fxa/commit/e34b82bb6))
+
+### Bug fixes
+
+- metrics: update language property on Amplitude schema ([4f2c4493b](https://github.com/mozilla/fxa/commit/4f2c4493b))
+- Docker: fix path to a JSON schema in fxa-shared for Payments ([374d95a76](https://github.com/mozilla/fxa/commit/374d95a76))
+
+### Other changes
+
+- subscriptions: remove references to plan.name and plan.nickname ([4ffe01b37](https://github.com/mozilla/fxa/commit/4ffe01b37))
+
 ## 1.165.1
 
 ### Bug fixes

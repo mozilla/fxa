@@ -1,3 +1,27 @@
+## 1.166.0
+
+### New features
+
+- payments: subplat email logic on payment expiring ([a5ea8f89c](https://github.com/mozilla/fxa/commit/a5ea8f89c))
+- payments: send email on subscription payment failure ([2d1195729](https://github.com/mozilla/fxa/commit/2d1195729))
+- payments: email methods for subplat payment failed and expired ([b4e97d45f](https://github.com/mozilla/fxa/commit/b4e97d45f))
+- metrics: add metrics to amplitude events ([75fa856a8](https://github.com/mozilla/fxa/commit/75fa856a8))
+- metrics: log raw Amplitude events in auth server ([f4a3fd354](https://github.com/mozilla/fxa/commit/f4a3fd354))
+
+### Bug fixes
+
+- metrics: update language property on Amplitude schema ([4f2c4493b](https://github.com/mozilla/fxa/commit/4f2c4493b))
+- payments: mark up some missed subplat email template strings ([faf728c41](https://github.com/mozilla/fxa/commit/faf728c41))
+
+### Refactorings
+
+- payments: remove ttl for customer caching ([69f3aba23](https://github.com/mozilla/fxa/commit/69f3aba23))
+- emails: move all email normalization and equality checks to helper functions ([ce1930f4b](https://github.com/mozilla/fxa/commit/ce1930f4b))
+
+### Other changes
+
+- subscriptions: remove references to plan.name and plan.nickname ([4ffe01b37](https://github.com/mozilla/fxa/commit/4ffe01b37))
+
 ## 1.165.1
 
 No changes.

@@ -1,5 +1,11 @@
 # Change history
 
+## 1.166.0
+
+### Other changes
+
+- subscriptions: remove references to plan.name and plan.nickname ([4ffe01b37](https://github.com/mozilla/fxa/commit/4ffe01b37))
+
 ## 1.165.1
 
 No changes.
