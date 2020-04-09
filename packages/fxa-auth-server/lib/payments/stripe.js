@@ -42,6 +42,20 @@ const stripe = require('stripe').Stripe;
  * @property {Plan['currency']} currency
  */
 
+const CUSTOMER_RESOURCE = 'customers';
+const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
+const PRODUCT_RESOURCE = 'products';
+const PLAN_RESOURCE = 'plans';
+const CHARGES_RESOURCE = 'charges';
+
+const VALID_RESOURCE_TYPES = [
+  CUSTOMER_RESOURCE,
+  SUBSCRIPTIONS_RESOURCE,
+  PRODUCT_RESOURCE,
+  PLAN_RESOURCE,
+  CHARGES_RESOURCE,
+];
+
 /**
  * Determine for two product metadata object's whether the new one
  * is a valid upgrade for the old one.
@@ -808,7 +822,10 @@ class StripeHelper {
         failure_message = /** @type {Charge} */ (charge).failure_message;
       }
 
-      const product = await this.expandResource(sub.plan.product, 'Product');
+      const product = await this.expandResource(
+        sub.plan.product,
+        PRODUCT_RESOURCE
+      );
 
       const product_id = product.id;
       const product_name = product.name;
@@ -1003,9 +1020,17 @@ class StripeHelper {
    * @returns {Promise<T>}
    */
   async expandResource(resource, resourceType) {
-    return typeof resource === 'string'
-      ? this.stripe[resourceType].retrieve(resource)
-      : resource;
+    if (typeof resource !== 'string') {
+      return resource;
+    }
+
+    if (!VALID_RESOURCE_TYPES.includes(resourceType)) {
+      const errorMsg = `stripeHelper.expandResource was provided an invalid resource type: ${resourceType}`;
+      this.log.error(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+    return this.stripe[resourceType].retrieve(resource);
   }
 
   /**
