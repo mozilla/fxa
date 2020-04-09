@@ -252,6 +252,7 @@ body.settings #stage .settings {
   align-items: center;
   display: flex;
   flex-direction: row;
+  max-width: 100vw;
 
   @include respond-to('big') {
     padding: 0 32px;
