@@ -78,8 +78,11 @@ fi
 
 # 3. Find the last tag.
 if [ "$BUILD_TYPE" = "Train" ]; then
-  LAST_TAG=`git tag -l --sort=version:refname | tail -1`
+  # Last tag is the last recently created tag when starting a train
+  # HACK: filter out any tags with hyphens - these are feature branch releases
+  LAST_TAG=`git tag -l --sort=version:refname | grep -v '-' | tail -1`
 else
+  # Current tag is last tag, when we're on a train branch for a patch
   LAST_TAG=`git describe --tags --first-parent --abbrev=0`
 fi
 
