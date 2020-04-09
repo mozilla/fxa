@@ -26,6 +26,7 @@ secrets.json
 .es5cache
 /artifacts
 /packages/test.list
+.last-audit
 
 # Dependencies
 **/node_modules
