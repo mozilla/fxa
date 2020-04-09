@@ -148,11 +148,11 @@ describe('remote emails', function() {
         .createEmail(email)
         .then(assert.fail)
         .catch(err => {
-          assert.equal(err.errno, 139, 'email already exists errno');
+          assert.equal(err.errno, 189, 'email already exists errno');
           assert.equal(err.code, 400, 'email already exists code');
           assert.equal(
             err.message,
-            'Can not add secondary email that is same as your primary',
+            'This email already exists on your account',
             'correct error message'
           );
         });
@@ -168,11 +168,11 @@ describe('remote emails', function() {
         })
         .then(assert.fail)
         .catch(err => {
-          assert.equal(err.errno, 136, 'email already exists errno');
+          assert.equal(err.errno, 189, 'email already exists errno');
           assert.equal(err.code, 400, 'email already exists code');
           assert.equal(
             err.message,
-            'Email already exists',
+            'This email already exists on your account',
             'correct error message'
           );
         });

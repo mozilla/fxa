@@ -1308,21 +1308,16 @@ describe('/recovery_email', () => {
       );
     });
 
-    it('should fail when adding secondary email that is same as primary', () => {
+    it('should fail when adding email that already belongs to the account', () => {
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.payload.email = TEST_EMAIL;
 
       return runTest(route, mockRequest).then(
         () =>
           assert.fail(
-            'Should have failed when adding secondary email that is same as primary'
+            'Should have failed when adding an email that already belongs to the account'
           ),
-        err =>
-          assert.equal(
-            err.errno,
-            139,
-            'cannot add secondary email, same as primary'
-          )
+        err => assert.equal(err.errno, 189, 'already exists on your account')
       );
     });
 

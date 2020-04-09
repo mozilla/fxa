@@ -161,6 +161,10 @@ var ERRORS = {
     errno: 188,
     message: t('You have reached the maximum allowed secondary emails'),
   },
+  ACCOUNT_OWNS_EMAIL: {
+    errno: 189,
+    message: t('This email already exists on your account'),
+  },
   UNVERIFIED_PRIMARY_EMAIL_NEWLY_CREATED: {
     errno: 141,
     message: t('Account already exists'),

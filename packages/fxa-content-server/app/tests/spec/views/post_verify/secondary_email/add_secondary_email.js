@@ -209,6 +209,24 @@ describe('views/post_verify/secondary_email/add_secondary_email', () => {
           assert.equal(args[1], error);
         });
       });
+
+      describe('adding existing owned email', () => {
+        const error = AuthErrors.toError('ACCOUNT_OWNS_EMAIL');
+
+        beforeEach(() => {
+          sinon
+            .stub(account, 'recoveryEmailCreate')
+            .callsFake(() => Promise.reject(error));
+          sinon.spy(view, 'showValidationError');
+          view.$(EMAIL_INPUT_SELECTOR).val(SECONDARY_EMAIL);
+          return view.submit();
+        });
+
+        it('rejects with the error for display', () => {
+          const args = view.showValidationError.args[0];
+          assert.equal(args[1], error);
+        });
+      });
     });
   });
 });

@@ -637,6 +637,12 @@ module.exports = (
           throw error.maxSecondaryEmailsReached();
         }
 
+        if (
+          account.emails.map(accountEmail => accountEmail.email).includes(email)
+        ) {
+          throw error.alreadyOwnsEmail();
+        }
+
         if (!sessionToken.emailVerified) {
           throw error.unverifiedAccount();
         }

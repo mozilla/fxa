@@ -49,6 +49,7 @@ const ERRNO = {
   USER_PRIMARY_EMAIL_EXISTS: 139,
   VERIFIED_PRIMARY_EMAIL_EXISTS: 140,
   MAX_SECONDARY_EMAILS_REACHED: 188,
+  ACCOUNT_OWNS_EMAIL: 189,
   // If there exists an account that was created under 24hrs and
   // has not verified their email address, this error is thrown
   // if another user attempts to add that email to their account
@@ -792,6 +793,15 @@ AppError.maxSecondaryEmailsReached = () => {
     error: 'Bad Request',
     errno: ERRNO.MAX_SECONDARY_EMAILS_REACHED,
     message: 'You have reached the maximum allowed secondary emails',
+  });
+};
+
+AppError.alreadyOwnsEmail = () => {
+  return new AppError({
+    code: 400,
+    error: 'Conflict',
+    errno: ERRNO.ACCOUNT_OWNS_EMAIL,
+    message: 'This email already exists on your account',
   });
 };
 

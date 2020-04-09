@@ -310,6 +310,35 @@ registerSuite('settings secondary emails', {
       );
     },
 
+    'add secondary email that alredy belongs to the account': function() {
+      const secondaryEmail = createEmail();
+
+      return (
+        this.remote
+          // Set up the account
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignUp(email, PASSWORD))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.EMAIL.MENU_BUTTON))
+
+          // Add secondary email first time
+          .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+          .then(click(selectors.EMAIL.ADD_BUTTON))
+          .then(openVerificationLinkInSameTab(secondaryEmail, 0))
+
+          // try to add it a second time
+          .then(click(selectors.EMAIL.MENU_BUTTON))
+          .then(click(selectors.EMAIL.ADD_ADDITIONAL_BUTTON))
+          .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+          .then(click(selectors.EMAIL.ADD_BUTTON))
+
+          // Assert the tooltip shows up and you are blocked
+          .then(visibleByQSA(selectors.EMAIL.TOOLTIP))
+      );
+    },
+
     'signin with existing secondary email': function() {
       return (
         this.remote
