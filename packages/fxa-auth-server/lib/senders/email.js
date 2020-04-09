@@ -1816,22 +1816,16 @@ module.exports = function(log, config, oauthdb) {
       productName,
     } = message;
 
-    if (!config.subscriptions.transactionalEmails.enabled) {
-      log.trace('mailer.subscriptionPaymentExpired', {
-        enabled: false,
-        email,
-        productId,
-        uid,
-      });
-      return;
-    }
-
+    const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentExpired', {
-      enabled: true,
+      enabled,
       email,
       productId,
       uid,
     });
+    if (!enabled) {
+      return;
+    }
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionPaymentExpired';
@@ -1876,22 +1870,16 @@ module.exports = function(log, config, oauthdb) {
       productName,
     } = message;
 
-    if (!config.subscriptions.transactionalEmails.enabled) {
-      log.trace('mailer.subscriptionPaymentFailed', {
-        enabled: false,
-        email,
-        productId,
-        uid,
-      });
-      return;
-    }
-
+    const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentFailed', {
-      enabled: true,
+      enabled,
       email,
       productId,
       uid,
     });
+    if (!enabled) {
+      return;
+    }
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionPaymentFailed';

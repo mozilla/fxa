@@ -126,6 +126,7 @@ const LOG_METHOD_NAMES = [
 ];
 
 const MAILER_METHOD_NAMES = [
+  'sendSubscriptionPaymentFailedEmail',
   'sendSubscriptionAccountDeletionEmail',
   'sendSubscriptionCancellationEmail',
   'sendSubscriptionSubsequentInvoiceEmail',
