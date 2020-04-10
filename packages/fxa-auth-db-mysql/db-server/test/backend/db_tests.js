@@ -51,6 +51,7 @@ function createEmail(data) {
     uid: data.uid,
     emailCode: data.emailCode || crypto.randomBytes(16),
     isVerified: data.isVerified || false,
+    verifiedAt: data.verifiedAt || null,
     isPrimary: false,
     createdAt: Date.now(),
   };
@@ -1364,6 +1365,14 @@ module.exports = function(config, DB) {
             {},
             'Returned an empty object email verification'
           );
+          return db.accountEmails(accountData.uid);
+        })
+        .then(function(emails) {
+          assert.lengthOf(emails, 1);
+          assert.equal(!!emails[0].isVerified, true, 'email is verified');
+          assert.notEqual(emails[0].verifiedAt, null);
+          assert.isAbove(emails[0].verifiedAt, emails[0].createdAt);
+          assert.equal(!!emails[0].isPrimary, true, 'email is primary');
           return db.account(accountData.uid);
         })
         .then(function(account) {
@@ -2368,6 +2377,8 @@ module.exports = function(config, DB) {
             // Account should be verified
             assert.lengthOf(emails, 1);
             assert.equal(!!emails[0].isVerified, true, 'email is verified');
+            assert.notEqual(emails[0].verifiedAt, null);
+            assert.isAbove(emails[0].verifiedAt, emails[0].createdAt);
             assert.equal(!!emails[0].isPrimary, true, 'email is primary');
           });
       });
@@ -2993,6 +3004,11 @@ module.exports = function(config, DB) {
               anotherAccountData.emailVerified,
               'matches account emailVerified'
             );
+            assert.equal(
+              result[0].verifiedAt,
+              anotherAccountData.verifiedAt,
+              'matches account verifiedAt'
+            );
           });
       });
 
@@ -3012,6 +3028,11 @@ module.exports = function(config, DB) {
             accountData.emailVerified,
             'matches account emailVerified'
           );
+          assert.equal(
+            result[0].verifiedAt,
+            accountData.verifiedAt,
+            'matches account verifiedAt'
+          );
 
           // Check second email is from emails table
           assert.equal(
@@ -3024,6 +3045,11 @@ module.exports = function(config, DB) {
             !!result[1].isVerified,
             secondEmail.isVerified,
             'matches secondEmail isVerified'
+          );
+          assert.equal(
+            result[1].verifiedAt,
+            secondEmail.verifiedAt,
+            'matches secondEmail verifiedAt'
           );
         });
       });
@@ -3066,7 +3092,8 @@ module.exports = function(config, DB) {
             );
             assert.isFalse(!!result[1].isPrimary);
             assert.isTrue(!!result[1].isVerified);
-
+            assert.notEqual(result[1].verifiedAt, null);
+            assert.isAbove(result[1].verifiedAt, result[1].createdAt);
             return db.account(accountData.uid).then(account => {
               assert.isAbove(account.profileChangedAt, account.createdAt);
             });
@@ -3101,6 +3128,11 @@ module.exports = function(config, DB) {
               !!result[0].isVerified,
               accountData.emailVerified,
               'matches account emailVerified'
+            );
+            assert.equal(
+              result[0].verifiedAt,
+              accountData.verifiedAt,
+              'matches account verifiedAt'
             );
 
             return db.account(accountData.uid).then(account => {
@@ -3326,6 +3358,11 @@ module.exports = function(config, DB) {
             !!account.emailVerified,
             'correct email verification'
           );
+          assert.equal(
+            emails[0].verifiedAt,
+            account.verifiedAt,
+            'correct email verifiedAt'
+          );
           assert.isTrue(!!emails[0].isPrimary);
 
           // Verify account email
@@ -3499,10 +3536,19 @@ module.exports = function(config, DB) {
         secondEmail = createEmail({
           uid: account.uid,
           isVerified: true,
+          verifiedAt: Date.now() + 1000,
         });
         return db
           .createAccount(account.uid, account)
           .then(function() {
+            return db.verifyEmail(account.uid, account.emailCode);
+          })
+          .then(function(result) {
+            assert.deepEqual(
+              result,
+              {},
+              'returned empty response on verify email'
+            );
             return db.createEmail(account.uid, secondEmail);
           })
           .then(function(result) {
@@ -3526,6 +3572,8 @@ module.exports = function(config, DB) {
               'correct emailCode'
             );
             assert.isTrue(!!res[0].isVerified);
+            assert.notEqual(res[0].verifiedAt, null);
+            assert.isAbove(res[0].verifiedAt, res[0].createdAt);
             assert.isTrue(!!res[0].isPrimary);
 
             assert.equal(
@@ -3539,6 +3587,8 @@ module.exports = function(config, DB) {
               'correct emailCode'
             );
             assert.isTrue(!!res[1].isVerified);
+            assert.notEqual(res[1].verifiedAt, null);
+            assert.isAbove(res[1].verifiedAt, res[1].createdAt);
             assert.isFalse(!!res[1].isPrimary);
           });
       });
@@ -3572,6 +3622,11 @@ module.exports = function(config, DB) {
               !!res[0].isVerified,
               secondEmail.isVerified,
               'correct verification set'
+            );
+            assert.equal(
+              res[0].verifiedAt,
+              secondEmail.verifiedAt,
+              'correct verifiedAt set'
             );
             assert.isTrue(!!res[0].isPrimary);
 
