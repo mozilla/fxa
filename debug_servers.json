@@ -91,7 +91,8 @@
         "IP_ADDRESS": "0.0.0.0",
         "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$",
         "SIGNIN_CONFIRMATION_ENABLED": "true",
-        "SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX": "^sync.*@restmail\\.net$"
+        "SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX": "^sync.*@restmail\\.net$",
+        "CONFIG_FILES": "config/secrets.json"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
@@ -173,7 +174,8 @@
       "min_uptime": "2m",
       "env": {
         "LOGGING_FORMAT": "pretty",
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "CONFIG_FILES": "server/config/secrets.json"
       }
     },
     {
