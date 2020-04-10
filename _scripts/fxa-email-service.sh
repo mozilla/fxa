@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash -ex
 
 # This docker image doesn't react to SIGINTs (Ctrl+C) which is used by
 # pm2 to kill processes.
@@ -21,4 +21,4 @@ docker run --rm --name fxa_email_service \
   -e RUST_BACKTRACE=1 \
   -p 8001:8001 mozilla/fxa-email-service &
 
-while :; do read; done
+while :; do read -r; done

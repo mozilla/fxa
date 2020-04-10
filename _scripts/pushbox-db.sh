@@ -1,4 +1,4 @@
-#!/bin/sh -ex
+#!/bin/bash -ex
 
 # This docker image doesn't react to SIGINTs (Ctrl+C) which is used by
 # pm2 to kill processes.
@@ -22,4 +22,4 @@ docker run --rm --name pushbox_db \
   -e MYSQL_PASSWORD=test \
   mysql/mysql-server:5.6 &
 
-while :; do read; done
+while :; do read -r; done

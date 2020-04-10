@@ -33,12 +33,12 @@
     {
       "label": "Stop PM2 Auth Server",
       "type": "shell",
-      "command": "pm2 stop 'auth-server key server PORT 9000'"
+      "command": "pm2 stop auth"
     },
     {
       "label": "Start PM2 Auth Server",
       "type": "shell",
-      "command": "pm2 start 'auth-server key server PORT 9000'"
+      "command": "pm2 start auth"
     }
   ]
 }

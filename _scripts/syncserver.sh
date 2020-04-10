@@ -1,12 +1,14 @@
-#!/bin/sh -ex
+#!/bin/bash -ex
 
-DOCKER_OS="`docker info --format '{{.OperatingSystem}}'`"
+DOCKER_OS="$(docker info --format '{{.OperatingSystem}}')"
 
-if [ "$DOCKER_OS" = 'Docker for Windows' -o "$DOCKER_OS" = 'Docker for Mac' -o "$DOCKER_OS" = 'Docker Desktop' ]; then
+if [ "$DOCKER_OS" = 'Docker for Windows' ] || [ "$DOCKER_OS" = 'Docker for Mac' ] || [ "$DOCKER_OS" = 'Docker Desktop' ]; then
   HOST_ADDR='host.docker.internal'
 else
   HOST_ADDR='127.0.0.1'
 fi
+
+"${0%/*}/check-url.sh" "http://$HOST_ADDR:3030/.well-known/fxa-client-configuration"
 
 docker run --rm --name syncserver \
   -p 5000:5000 \

@@ -23,7 +23,6 @@ jobs:
         type: string
     environment:
       SKIP_PACKAGES: true
-      SKIP_DOCKER: true
     steps:
       - base-install:
           package: << parameters.package >>
@@ -41,7 +40,6 @@ jobs:
       - image: redis
     environment:
       SKIP_PACKAGES: true
-      SKIP_DOCKER: true
     steps:
       - base-install
       - run:
@@ -87,7 +85,6 @@ jobs:
           RUST_BACKTRACE: 1
     environment:
       SKIP_PACKAGES: false
-      SKIP_DOCKER: true
     steps:
       - base-install:
           package: fxa-content-server
@@ -111,7 +108,6 @@ jobs:
       - image: redis
     environment:
       SKIP_PACKAGES: true
-      SKIP_DOCKER: true
     steps:
       - base-install:
           package: fxa-email-service
@@ -125,7 +121,6 @@ jobs:
       - image: circleci/node:12
     environment:
       SKIP_PACKAGES: true
-      SKIP_DOCKER: true
     steps:
       - base-install:
           package: fxa-circleci
@@ -138,7 +133,6 @@ jobs:
       - image: circleci/node:12
     environment:
       SKIP_PACKAGES: true
-      SKIP_DOCKER: true
     steps:
       - base-install
       - setup_remote_docker

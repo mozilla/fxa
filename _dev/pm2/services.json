@@ -1,68 +1,14 @@
 {
   "apps": [
     {
-      "name": "MySQL server PORT 3306",
-      "script": "_scripts/mysql.sh",
+      "name": "email",
+      "script": "_scripts/fxa-email-service.sh",
       "max_restarts": "1",
       "min_uptime": "2m",
       "kill_timeout": 20000
     },
     {
-      "name": "redis PORT 6379",
-      "script": "_scripts/redis.sh",
-      "env": {
-        "PORT": "6379"
-      },
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "memcached PORT 11211",
-      "script": "_scripts/memcached.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "Fake SQS/SNS PORT 4100",
-      "script": "_scripts/goaws.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "autorestart": false,
-      "kill_timeout": 20000
-    },
-    {
-      "name": "google-pubsub-emulator PORT 8085",
-      "script": "_scripts/pubsub.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "google-firestore-emulator PORT 9090",
-      "script": "_scripts/firestore.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "sync server PORT 5000",
-      "script": "_scripts/syncserver.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "autorestart": false,
-      "kill_timeout": 20000
-    },
-    {
-      "name": "email-service PORT 8001",
-      "script": "_scripts/fxa_email_service.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "kill_timeout": 20000
-    },
-    {
-      "name": "auth-server local mail helper",
+      "name": "inbox",
       "script": "test/mail_helper.js",
       "cwd": "packages/fxa-auth-server",
       "env": {
@@ -72,8 +18,8 @@
       "min_uptime": "2m"
     },
     {
-      "name": "auth-server db mysql PORT 8000",
-      "script": "../../_scripts/start_after_mysql.sh",
+      "name": "auth-db",
+      "script": "../../_scripts/start-after-mysql.sh",
       "cwd": "packages/fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
@@ -82,8 +28,8 @@
       "min_uptime": "2m"
     },
     {
-      "name": "auth-server key server PORT 9000",
-      "script": "../../_scripts/start_after_mysql_debug.sh",
+      "name": "auth",
+      "script": "../../_scripts/start-after-mysql-debug.sh",
       "cwd": "packages/fxa-auth-server",
       "env": {
         "DB": "mysql",
@@ -91,13 +37,14 @@
         "IP_ADDRESS": "0.0.0.0",
         "SIGNIN_UNBLOCK_FORCED_EMAILS": "^block.*@restmail\\.net$",
         "SIGNIN_CONFIRMATION_ENABLED": "true",
-        "SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX": "^sync.*@restmail\\.net$"
+        "SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX": "^sync.*@restmail\\.net$",
+        "CONFIG_FILES": "config/secrets.json"
       },
       "max_restarts": "1",
       "min_uptime": "2m"
     },
     {
-      "name": "content-server PORT 3030",
+      "name": "content",
       "script": "npm",
       "args": ["run", "start-dev-debug"],
       "cwd": "packages/fxa-content-server",
@@ -108,8 +55,8 @@
       "min_uptime": "2m"
     },
     {
-      "name": "profile-server PORT 1111",
-      "script": "../../_scripts/start_after_mysql.sh",
+      "name": "profile",
+      "script": "../../_scripts/start-after-mysql.sh",
       "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
@@ -120,7 +67,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "Fortress PORT 9292",
+      "name": "fortress",
       "script": "server.js",
       "cwd": "packages/fortress",
       "max_restarts": "1",
@@ -131,7 +78,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "123done PORT 8080",
+      "name": "123done",
       "script": "server.js",
       "cwd": "packages/123done",
       "max_restarts": "1",
@@ -142,7 +89,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "321done UNTRUSTED PORT 10139",
+      "name": "321done",
       "script": "server.js",
       "cwd": "packages/123done",
       "max_restarts": "1",
@@ -153,7 +100,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "browserid-verifier PORT 5050",
+      "name": "browserid",
       "script": "server.js",
       "cwd": "packages/browserid-verifier",
       "env": {
@@ -165,7 +112,7 @@
       "min_uptime": "2m"
     },
     {
-      "name": "payments server PORT 3031",
+      "name": "payments",
       "cwd": "packages/fxa-payments-server",
       "script": "npm",
       "args": ["run", "start-dev-debug"],
@@ -173,11 +120,12 @@
       "min_uptime": "2m",
       "env": {
         "LOGGING_FORMAT": "pretty",
-        "NODE_ENV": "development"
+        "NODE_ENV": "development",
+        "CONFIG_FILES": "config/secrets.json"
       }
     },
     {
-      "name": "support admin panel PORT 7100",
+      "name": "support",
       "cwd": "packages/fxa-support-panel",
       "script": "npm",
       "args": ["run", "start-dev"],
@@ -190,7 +138,7 @@
     },
     {
       "name": "event-broker",
-      "script": "../../_scripts/start_after_mysql_debug.sh",
+      "script": "../../_scripts/start-after-mysql-debug.sh",
       "cwd": "packages/fxa-event-broker",
       "max_restarts": "1",
       "env": {
@@ -198,14 +146,6 @@
         "WORKER_HOST": "0.0.0.0"
       },
       "min_uptime": "2m"
-    },
-    {
-      "name": "pushbox PORT 8002",
-      "script": "_scripts/pushbox.sh",
-      "max_restarts": "1",
-      "min_uptime": "2m",
-      "args": "3306 root@mydb:3306",
-      "kill_timeout": 20000
     }
   ]
 }

@@ -1,10 +1,8 @@
-#!/bin/sh
-
-set -e
+#!/bin/bash -e
 
 echo "Branch: $CIRCLE_BRANCH    Pull request: $CIRCLE_PULL_REQUEST"
 
-if [ "$CIRCLE_BRANCH" != "master" -o "$CIRCLE_PULL_REQUEST" != "" ]; then
+if [ "$CIRCLE_BRANCH" != "master" ] || [ "$CIRCLE_PULL_REQUEST" != "" ]; then
   echo "Not building docs."
   exit 0
 fi
@@ -26,11 +24,11 @@ npm run build-storybook
 cd ../..
 git clone --branch gh-pages git@github.com:mozilla/fxa.git docs-build
 cd docs-build
-rm -rf *
+rm -rf ./*
 mv ../packages/fxa-email-service/target/doc fxa-email-service
 mv ../packages/fxa-payments-server/storybook-static fxa-payments-server
 
-CHANGES=`git status --porcelain`
+CHANGES=$(git status --porcelain)
 
 if [ "$CHANGES" = "" ]; then
   echo "Docs are unchanged, not deploying to GitHub Pages."
