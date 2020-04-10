@@ -41,13 +41,24 @@ h3.billing-title {
 }
 
 .main-content {
-  display: flex;
-  flex-direction: column-reverse;
-  padding-top: $header-height;
+  display: grid;
+  grid-template-columns: 100vw;
+  grid-template-rows: auto auto auto;
+  grid-column-gap: 16px;
+  margin-top: $header-height;
+  min-height: calc(100vh - #{$header-height});
 
   @include min-width('tablet') {
-    flex-direction: row;
-    padding-top: $header-height-tablet;
+    grid-template-columns: minmax(375px, 500px) 343px;
+    grid-template-rows: auto;
+    margin: $header-height-tablet 12px auto;
+    min-height: calc(100vh - #{$header-height-tablet});
+  }
+
+  @include min-width('desktop') {
+    grid-template-columns: 600px 343px;
+    grid-column-gap: 48px;
+
   }
 }
 

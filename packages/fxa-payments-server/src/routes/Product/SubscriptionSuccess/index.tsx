@@ -4,7 +4,6 @@ import { AppContext } from '../../../lib/AppContext';
 
 import { metadataFromPlan } from '../../../store/utils';
 
-import './index.scss';
 import PlanDetails from '../../../components/PlanDetails';
 import PaymentConfirmation from '../../../components/PaymentConfirmation';
 import Header from '../../../components/Header';
@@ -36,7 +35,7 @@ export const SubscriptionSuccess = ({
   return (
     <>
       <Header {...{ profile: profile }} />
-      <div className="main-content product-confirmation-wrap">
+      <div className="main-content">
         <PaymentConfirmation
           {...{
             profile: profile,
@@ -45,13 +44,15 @@ export const SubscriptionSuccess = ({
             productUrl,
           }}
         />
-        <PlanDetails
-          {...{
-            selectedPlan: plan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
+        {!isMobile && (
+          <PlanDetails
+            {...{
+              selectedPlan: plan,
+              isMobile,
+              showExpandButton: isMobile,
+            }}
+          />
+        )}
       </div>
     </>
   );

@@ -4,14 +4,21 @@
 .plan-details-component {
   font-size: 15px;
   margin: 32px auto;
-  width: 342px;
+  padding: 0 16px;
+  width: 100%;
+
+  @include max-width('tablet') {
+    grid-row: 2/3;
+  }
 
   @include min-width('tablet') {
-    margin: 40px 24px;
+    grid-row: auto;
+    margin: 16px 0;
+    padding: 0;
   }
 
   @include min-width('desktop') {
-    margin: 48px 24px;
+    margin: 48px 0;
   }
 
   .plan-details-component-inner {
@@ -25,7 +32,7 @@
     background: $color-white;
     border-radius: 8px;
     box-shadow: 0 1px 4px rgba(12, 12, 13, 0.1);
-    width: 342px;
+    width: 100%;
   }
 
   .plan-details-logo-wrap {
@@ -59,7 +66,7 @@
       font-size: 15px;
       font-weight: 600;
       line-height: 19px;
-      margin: 0;
+      margin: 0 4px 0 0;
       word-wrap: break-word;
     }
 
@@ -164,7 +171,7 @@
 
   .plan-details-total {
     padding: 24px 0;
-    width: 342px;
+    width: 100%;
 
     .plan-details-total-inner {
       display: flex;

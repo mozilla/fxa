@@ -3,18 +3,20 @@
 
 .payment-confirmation {
   background: $color-white;
-  border: 1px solid  #e7e7e7;
+  border: 1px solid #e7e7e7;
   border-bottom: 0;
-  border-radius: 8px;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  font-size: 15px;
-  height: 100%;
-  margin: 0;
-  max-width: 600px;
-  min-width: 375px;
+  color: rgba(12, 12, 13, 0.8);
+  min-height: 100%;
   padding: 20px 16px 0;
+  width: 100%;
+
+  @include min-width('tablet') {
+    border-top: 0;
+  }
+
+  @include min-width('desktop') {
+    padding-top: 12px;
+  }
 
   p {
     margin: unset;
@@ -55,6 +57,10 @@
     margin-top: 20px;
     padding-bottom: 32px;
     text-align: center;
+
+    @include min-width('desktop') {
+      margin-top: 32px;
+    }
 
     p {
       color: #6d6d6e;
