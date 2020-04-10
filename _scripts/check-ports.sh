@@ -24,9 +24,9 @@ PORTS=(
 
 occupied=()
 
-for port in ${PORTS[@]}; do
-  if echo PING | nc localhost $port >/dev/null; then
-    occupied=("${occupied[@]}" $port)
+for port in "${PORTS[@]}"; do
+  if echo PING | nc localhost "$port" >/dev/null; then
+    occupied=("${occupied[@]}" "$port")
   fi
 done
 

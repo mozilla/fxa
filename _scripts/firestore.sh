@@ -19,4 +19,4 @@ docker run --rm --name=firestore \
   -p 9090:9090 \
   jdlk7/firestore-emulator &
 
-while :; do read; done
+while :; do read -r; done

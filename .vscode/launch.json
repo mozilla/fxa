@@ -5,12 +5,36 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Attach by Process ID",
-      "processId": "${command:PickProcess}",
+      "name": "Attach to auth",
+      "type": "node",
       "request": "attach",
       "skipFiles": ["<node_internals>/**"],
-      "type": "pwa-node",
-      "restart": true
+      "cwd": "${workspaceFolder}",
+      "port": 9160
+    },
+    {
+      "name": "Attach to content",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9229
+    },
+    {
+      "name": "Attach to broker",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9180
+    },
+    {
+      "name": "Attach to payments",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9170
     }
   ]
 }

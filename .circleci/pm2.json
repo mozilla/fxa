@@ -12,7 +12,7 @@
     },
     {
       "name": "auth-server db mysql PORT 8000",
-      "script": "../../_scripts/start_after_mysql.sh",
+      "script": "../../_scripts/start-after-mysql.sh",
       "cwd": "packages/fxa-auth-db-mysql",
       "env": {
         "NODE_ENV": "dev"
@@ -22,7 +22,7 @@
     },
     {
       "name": "auth-server key server PORT 9000",
-      "script": "../../_scripts/start_after_mysql.sh",
+      "script": "../../_scripts/start-after-mysql.sh",
       "cwd": "packages/fxa-auth-server",
       "env": {
         "DB": "mysql",
@@ -48,7 +48,7 @@
     },
     {
       "name": "profile-server PORT 1111",
-      "script": "../../_scripts/start_after_mysql.sh",
+      "script": "../../_scripts/start-after-mysql.sh",
       "cwd": "packages/fxa-profile-server",
       "max_restarts": "1",
       "env": {
@@ -96,7 +96,7 @@
     },
     {
       "name": "event-broker",
-      "script": "../../_scripts/start_after_mysql.sh",
+      "script": "../../_scripts/start-after-mysql.sh",
       "cwd": "packages/fxa-event-broker",
       "max_restarts": "1",
       "env": {

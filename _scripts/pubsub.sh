@@ -19,4 +19,4 @@ docker run --rm --name=pubsub \
   -p 8085:8085 \
   knarz/pubsub-emulator:latest &
 
-while :; do read; done
+while :; do read -r; done
