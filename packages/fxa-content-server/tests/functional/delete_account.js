@@ -20,7 +20,6 @@ const {
   createEmail,
   createUser,
   type,
-  fillOutDeleteAccount,
   fillOutEmailFirstSignIn,
   testElementTextInclude,
   openPage,
@@ -40,7 +39,7 @@ registerSuite('delete_account', {
   },
 
   tests: {
-    'sign in, delete account with incorrect password': function() {
+    'sign in, delete account': function() {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -57,8 +56,13 @@ registerSuite('delete_account', {
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
           .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
           .end()
+
+          //enter incorrect password
           .then(
-            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, 'PASSWORD')
+            type(
+              selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD,
+              'incorrect password'
+            )
           )
           .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
           .then(
@@ -66,24 +70,12 @@ registerSuite('delete_account', {
               selectors.SETTINGS_DELETE_ACCOUNT.TOOLTIP_INCORRECT_PASSWORD
             )
           )
-      );
-    },
 
-    'sign in, delete account with correct password': function() {
-      return (
-        this.remote
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.SETTINGS.HEADER))
-
-          // Go to delete account screen
+          //enter correct password
           .then(
-            click(
-              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
-              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
-            )
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
           )
-          .then(fillOutDeleteAccount(PASSWORD))
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(testSuccessWasShown())
           .then(type(selectors.ENTER_EMAIL.EMAIL, email))
