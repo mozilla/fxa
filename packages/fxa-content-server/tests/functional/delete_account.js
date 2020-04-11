@@ -19,10 +19,12 @@ const {
   click,
   createEmail,
   createUser,
-  fillOutDeleteAccount,
+  type,
   fillOutEmailFirstSignIn,
+  testElementTextInclude,
   openPage,
   pollUntilHiddenByQSA,
+  visibleByQSA,
   testElementExists,
   testSuccessWasShown,
 } = FunctionalHelpers;
@@ -51,10 +53,34 @@ registerSuite('delete_account', {
               selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
             )
           )
-          .then(fillOutDeleteAccount(PASSWORD))
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .end()
 
+          //enter incorrect password
+          .then(
+            type(
+              selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD,
+              'incorrect password'
+            )
+          )
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
+          .then(
+            visibleByQSA(
+              selectors.SETTINGS_DELETE_ACCOUNT.TOOLTIP_INCORRECT_PASSWORD
+            )
+          )
+
+          //enter correct password
+          .then(
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
+          )
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(testSuccessWasShown())
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.HEADER))
       );
     },
 
@@ -72,8 +98,17 @@ registerSuite('delete_account', {
             )
           )
 
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .end()
+          .then(
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
+          )
           .then(click(selectors.SETTINGS_DELETE_ACCOUNT.CANCEL))
           .then(pollUntilHiddenByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
+          .then(
+            testElementTextInclude(selectors.SETTINGS.PROFILE_HEADER, email)
+          )
       );
     },
   },
