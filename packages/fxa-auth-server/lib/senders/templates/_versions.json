@@ -1,4 +1,6 @@
 {
+  "subscriptionUpgrade": 1,
+  "subscriptionDowngrade": 1,
   "subscriptionPaymentExpired": 1,
   "subscriptionPaymentFailed": 1,
   "subscriptionAccountDeletion": 1,

@@ -35,6 +35,8 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionUpgrade: 'subscription-upgrade',
+    subscriptionDowngrade: 'subscription-downgrade',
     subscriptionPaymentExpired: 'subscription-payment-expired',
     subscriptionPaymentFailed: 'subscription-payment-failed',
     subscriptionAccountDeletion: 'subscription-account-deletion',
@@ -74,6 +76,8 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    subscriptionUpgrade: 'subscriptions',
+    subscriptionDowngrade: 'subscriptions',
     subscriptionPaymentExpired: 'subscriptions',
     subscriptionPaymentFailed: 'subscriptions',
     subscriptionAccountDeletion: 'subscriptions',
@@ -1802,6 +1806,140 @@ module.exports = function(log, config, oauthdb) {
           message.timeZone,
           message.acceptLanguage
         ),
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionUpgradeEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      productIconNew,
+      productIconOld,
+      productNameOld,
+      productNameNew,
+      paymentAmountOld,
+      paymentAmountNew,
+      paymentProrated,
+      productPaymentCycle,
+    } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionUpgrade', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionUpgrade';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      uid,
+      email,
+      productIconNew,
+      productIconOld,
+      productNameOld,
+      productNameNew,
+      paymentAmountOld,
+      paymentAmountNew,
+      paymentProrated,
+      productPaymentCycle,
+    };
+    const subject = translator.gettext(
+      'You have upgraded to %(productNameNew)s'
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: productIconNew,
+        product: productNameNew,
+        subject: translator.format(subject, translatorParams),
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionDowngradeEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      productIconNew,
+      productIconOld,
+      productNameOld,
+      productNameNew,
+      paymentAmountOld,
+      paymentAmountNew,
+      paymentProrated,
+      productPaymentCycle,
+    } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionDowngrade', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionDowngrade';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      uid,
+      email,
+      productIconNew,
+      productIconOld,
+      productNameOld,
+      productNameNew,
+      paymentAmountOld,
+      paymentAmountNew,
+      paymentProrated,
+      productPaymentCycle,
+    };
+    const subject = translator.gettext(
+      'You have switched to %(productNameNew)s'
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: productIconNew,
+        product: productNameNew,
+        subject: translator.format(subject, translatorParams),
       },
     });
   };

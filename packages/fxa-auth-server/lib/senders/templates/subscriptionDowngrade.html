@@ -1,0 +1,41 @@
+{{> subscriptionIcon}}
+
+ <table class="featured-story featured-story--top" cellspacing="0" cellpadding="0">
+  <tr>
+   <td style="padding-bottom: 20px;">
+    <table cellspacing="0" cellpadding="0">
+     <tr>
+      <td class="featured-story__inner" style="background: #fff;">
+       <table cellspacing="0" cellpadding="0">
+        <tr>
+         <td class="featured-story__content-inner" style="padding: 32px 30px 45px;">
+          <table cellspacing="0" cellpadding="0">
+           <tr>
+            <td class="featured-story__copy" style="background: #fff;" width="640" align="center">
+             <table cellspacing="0" cellpadding="0">
+              <tr>
+               <td style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 16px; line-height: 22px; color: #555555; padding-top: 16px;text-align:left !important;" align="left">
+                {{t "You have successfully switched from %(productNameOld)s to %(productNameNew)s." }}
+                <br><br>
+                {{t "Starting with your next bill, your charge will change from $%(paymentAmountOld)s per %(productPaymentCycle)s to $%(paymentAmountNew)s. At that time you will also be given a one-time credit of $%(paymentProrated)s to reflect the lower charge for the remainder of this %(productPaymentCycle)s." }}
+                <br><br>
+                {{t "If there is new software for you to install in order to use %(productNameNew)s, you will receive a separate email with download instructions." }}
+                <br><br>
+                {{t "Your subscription will automatically renew each billing period unless you choose to cancel." }}
+                <br><br>
+                {{{t "Questions about your subscription? Our <a href=\"%(subscriptionSupportUrl)s\">support team</a> is here to help you." }}}
+               </td>
+              </tr>
+             </table>
+            </td>
+           </tr>
+          </table>
+         </td>
+        </tr>
+       </table>
+      </td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+ </table>
