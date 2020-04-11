@@ -1,3 +1,36 @@
+## 1.166.1
+
+### Bug fixes
+
+- favicon: Restore fxa-content-server favicon ([5e166246c](https://github.com/mozilla/fxa/commit/5e166246c))
+
+## 1.166.0
+
+### New features
+
+- payment-server: mobile payments flow for fpn ([33e59c64d](https://github.com/mozilla/fxa/commit/33e59c64d))
+- admin-panel: Add server_config, apollo-client, graphQL query and handling of response, favicon, style improvements, add script for new email bounce ([c4b05a435](https://github.com/mozilla/fxa/commit/c4b05a435))
+- metrics: add metrics to amplitude events ([75fa856a8](https://github.com/mozilla/fxa/commit/75fa856a8))
+
+### Bug fixes
+
+- docs: Update legal docs hash. More detail in #4649 ([e0edbd8fd](https://github.com/mozilla/fxa/commit/e0edbd8fd))
+- metrics: update language property on Amplitude schema ([4f2c4493b](https://github.com/mozilla/fxa/commit/4f2c4493b))
+- deeplink: Update our deeplinking url based on updates from adjust support ([f005577ea](https://github.com/mozilla/fxa/commit/f005577ea))
+- docker: fix content-server build broken by last commit ([e36d805c6](https://github.com/mozilla/fxa/commit/e36d805c6))
+- build: change fxa-js-client resolution in content-server ([688702964](https://github.com/mozilla/fxa/commit/688702964))
+- sync: Always show CWTS on signup for sync users ([cc07610b0](https://github.com/mozilla/fxa/commit/cc07610b0))
+
+### Refactorings
+
+- emails: move all email normalization and equality checks to helper functions ([ce1930f4b](https://github.com/mozilla/fxa/commit/ce1930f4b))
+
+### Other changes
+
+- 85f6ebd76 - fixed broken test due to element id not being updated for test ([85f6ebd76](https://github.com/mozilla/fxa/commit/85f6ebd76))
+- tests: set fixSessionCapabilities to no-detect ([ce3dc21c1](https://github.com/mozilla/fxa/commit/ce3dc21c1))
+- subscriptions: remove references to plan.name and plan.nickname ([4ffe01b37](https://github.com/mozilla/fxa/commit/4ffe01b37))
+
 ## 1.165.1
 
 No changes.

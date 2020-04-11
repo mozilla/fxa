@@ -1,3 +1,13 @@
+## 1.166.1
+
+No changes.
+
+## 1.166.0
+
+### Bug fixes
+
+- coverage: Report coverage ([d42aef600](https://github.com/mozilla/fxa/commit/d42aef600))
+
 ## 1.165.1
 
 No changes.

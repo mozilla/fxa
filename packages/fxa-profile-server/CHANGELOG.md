@@ -1,3 +1,13 @@
+## 1.166.1
+
+No changes.
+
+## 1.166.0
+
+### Other changes
+
+- profile: update Joi to v17 ([624b68d36](https://github.com/mozilla/fxa/commit/624b68d36))
+
 ## 1.165.1
 
 No changes.
