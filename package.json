@@ -12,7 +12,8 @@
     "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",
-    "format": "lerna run format"
+    "format": "lerna run format",
+    "ports": "pm2 jlist | json -d'\t' -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
@@ -88,6 +89,7 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "eslint-plugin-jest": "^23.8.2"
+    "eslint-plugin-jest": "^23.8.2",
+    "json": "^9.0.6"
   }
 }

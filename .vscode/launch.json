@@ -18,7 +18,7 @@
       "request": "attach",
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
-      "port": 9229
+      "port": 9130
     },
     {
       "name": "Attach to broker",
@@ -35,6 +35,30 @@
       "skipFiles": ["<node_internals>/**"],
       "cwd": "${workspaceFolder}",
       "port": 9170
+    },
+    {
+      "name": "Attach to support",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9190
+    },
+    {
+      "name": "Attach to admin",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9140
+    },
+    {
+      "name": "Attach to admin-server",
+      "type": "node",
+      "request": "attach",
+      "skipFiles": ["<node_internals>/**"],
+      "cwd": "${workspaceFolder}",
+      "port": 9150
     }
   ]
 }

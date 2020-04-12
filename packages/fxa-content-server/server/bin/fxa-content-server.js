@@ -41,8 +41,7 @@ if (!userAgent.isToVersionStringSupported()) {
   process.exit(1);
 }
 
-// This can't possibly be best way to librar-ify this module.
-const isMain = process.argv[1] === __filename;
+const isMain = require.main === module;
 if (isMain) {
   // ./server is our current working directory
   process.chdir(path.dirname(__dirname));

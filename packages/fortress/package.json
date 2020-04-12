@@ -34,6 +34,7 @@
     "eslint": "6.6.0",
     "eslint-plugin-fxa": "2.0.1",
     "npm-run-all": "4.1.5",
+    "pm2": "^4.2.3",
     "prettier": "1.18.2"
   },
   "scripts": {
@@ -41,7 +42,9 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
     "postinstall": "bower install --config.interactive=false -s",
-    "start": "node server.js",
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
     "test": "npm run lint",
     "format": "prettier '**' --write"
   }
