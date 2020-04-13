@@ -42,7 +42,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
 export const EmailBlocks = () => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showResult, setShowResult] = useState<Boolean>(false);
-  const [getAccount, { loading, error, data }] = useLazyQuery(
+  const [getAccount, { loading, error, data, refetch }] = useLazyQuery(
     GET_ACCOUNT_BY_EMAIL
   );
 
@@ -54,7 +54,7 @@ export const EmailBlocks = () => {
   };
 
   return (
-    <div className="email-blocks">
+    <div className="email-blocks" data-testid="email-blocks">
       <h2>Find and Delete Email Blocks</h2>
       <p>
         Email addresses are blocked from the FxA email sender when an email sent
@@ -67,7 +67,7 @@ export const EmailBlocks = () => {
         deleting the bounced email data.
       </p>
 
-      <form onSubmit={handleSubmit} data-testid="form" className="flex">
+      <form onSubmit={handleSubmit} data-testid="search-form" className="flex">
         <label htmlFor="email">Email to search for:</label>
         <br />
         <input
@@ -78,12 +78,12 @@ export const EmailBlocks = () => {
             setInputValue(event.target.value)
           }
           placeholder="hello@world.com"
-          data-testid="email"
+          data-testid="email-input"
         />
         <button
           className="email-blocks-search-button"
           title="search"
-          data-testid="button"
+          data-testid="search-button"
         ></button>
       </form>
 
@@ -91,6 +91,7 @@ export const EmailBlocks = () => {
         <>
           <hr />
           <AccountSearchResult
+            onCleared={refetch}
             {...{
               loading,
               error,
@@ -104,23 +105,25 @@ export const EmailBlocks = () => {
 };
 
 const AccountSearchResult = ({
+  onCleared,
   loading,
   error,
   data,
 }: {
+  onCleared: Function;
   loading: boolean;
   error?: {};
   data?: {
     accountByEmail: AccountType;
   };
 }) => {
-  if (loading) return <p data-testid="loading">Loading...</p>;
-  if (error) return <p data-testid="error">An error occured.</p>;
+  if (loading) return <p data-testid="loading-message">Loading...</p>;
+  if (error) return <p data-testid="error-message">An error occured.</p>;
 
   if (data?.accountByEmail) {
-    return <Account {...data.accountByEmail} />;
+    return <Account onCleared={onCleared} {...data.accountByEmail} />;
   }
-  return <p data-testid="no-account">Account not found.</p>;
+  return <p data-testid="no-account-message">Account not found.</p>;
 };
 
 export default EmailBlocks;

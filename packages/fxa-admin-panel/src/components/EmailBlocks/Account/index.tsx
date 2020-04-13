@@ -4,6 +4,8 @@
 
 import React from 'react';
 import dateFormat from 'dateformat';
+import { gql } from 'apollo-boost';
+import { useMutation } from 'react-apollo';
 import './index.scss';
 
 type AccountProps = {
@@ -12,6 +14,7 @@ type AccountProps = {
   createdAt: number;
   emailVerified: boolean;
   emailBounces: Array<EmailBounceProps>;
+  onCleared: Function;
 };
 
 type EmailBounceProps = {
@@ -23,17 +26,49 @@ type EmailBounceProps = {
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
 
+export const CLEAR_BOUNCES_BY_EMAIL = gql`
+  mutation clearBouncesByEmail($email: String!) {
+    clearEmailBounce(email: $email)
+  }
+`;
+
+export const ClearButton = ({
+  email,
+  onCleared,
+}: {
+  email: string;
+  onCleared: Function;
+}) => {
+  const [clearBounces] = useMutation(CLEAR_BOUNCES_BY_EMAIL);
+
+  const handleClear = () => {
+    if (!window.confirm('Are you sure? This cannot be undone.')) {
+      return;
+    }
+
+    clearBounces({ variables: { email } });
+    onCleared();
+  };
+
+  return (
+    <button data-testid="clear-button" className="delete" onClick={handleClear}>
+      Clear all bounces
+    </button>
+  );
+};
+
 export const Account = ({
   uid,
   email,
   createdAt,
   emailVerified,
   emailBounces,
+  onCleared,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
 
   return (
-    <section className="account" data-testid="account">
+    <section className="account" data-testid="account-section">
       <ul>
         <li className="flex justify-space-between">
           <h3>{email}</h3>
@@ -56,11 +91,14 @@ export const Account = ({
         </li>
 
         {emailBounces.length > 0 ? (
-          emailBounces.map((emailBounce: EmailBounceProps) => (
-            <EmailBounce key={emailBounce.createdAt} {...emailBounce} />
-          ))
+          <>
+            <ClearButton {...{ email }} {...{ onCleared }} />
+            {emailBounces.map((emailBounce: EmailBounceProps) => (
+              <EmailBounce key={emailBounce.createdAt} {...emailBounce} />
+            ))}
+          </>
         ) : (
-          <li className="email-bounce">
+          <li data-testid="no-bounces-message" className="email-bounce">
             This account doesn't have any bounced emails.
           </li>
         )}
@@ -77,7 +115,7 @@ const EmailBounce = ({
 }: EmailBounceProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
   return (
-    <li data-testid="bounce">
+    <li data-testid="bounce-group">
       <ul className="email-bounce">
         <li>
           email: <span className="result">{email}</span>
@@ -90,9 +128,6 @@ const EmailBounce = ({
         </li>
         <li>
           bounce subtype: <span className="result">{bounceSubType}</span>
-        </li>
-        <li>
-          <button className="delete">Delete email block</button>
         </li>
       </ul>
     </li>
