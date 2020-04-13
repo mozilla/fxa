@@ -16,26 +16,32 @@ const config = Config.getProperties();
 
 async function addBounceToDB() {
   const knex = setupDatabase(config.database);
+  const count = argv.count || 1;
 
   let bounce: BounceIsh;
   let account: AccountIsh;
 
-  if (argv.email) {
-    bounce = randomEmailBounce(argv.email as string);
-  } else {
-    account = randomAccount();
-    bounce = randomEmailBounce(account.email);
-    const email = randomEmail(account);
-    account.emails = [email];
+  for (let i = 0; i < count; i++) {
+    if (argv.email) {
+      bounce = randomEmailBounce(argv.email as string);
+    } else {
+      account = randomAccount();
+      bounce = randomEmailBounce(account.email);
+      const email = randomEmail(account);
+      account.emails = [email];
 
-    await Account.query().insertGraph({ ...account });
+      await Account.query().insertGraph({ ...account });
+    }
+
+    await EmailBounces.query().insertGraph(bounce);
   }
 
-  await EmailBounces.query().insertGraph(bounce);
   await knex.destroy();
 
   // tslint:disable-next-line: no-console
-  console.log(`=> Created email bounce for ${bounce.email}`);
+  console.log(
+    `=> Created ${count} email ${count === 1 ? 'bounce' : 'bounces'} for ${bounce.email}`
+  );
 }
 
 addBounceToDB();
