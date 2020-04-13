@@ -10,7 +10,7 @@
 
 {{{updateBillingUrl}}}
 
-{{{t "Unfortunately, if we don’t hear from you within three days you’ll lose access to %(productName)s." }}}
+{{{t "Unfortunately, if we don’t hear from you within three days, you’ll lose access to %(productName)s." }}}
 
 {{{t "Questions about your subscription? Our support team is here to help you:" }}}
 
