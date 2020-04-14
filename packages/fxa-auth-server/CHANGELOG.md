@@ -1,3 +1,9 @@
+## 1.166.2
+
+### New features
+
+- payments: localization updates ([47b03678e](https://github.com/mozilla/fxa/commit/47b03678e))
+
 ## 1.166.1
 
 No changes.
