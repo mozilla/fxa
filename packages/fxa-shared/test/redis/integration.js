@@ -15,7 +15,7 @@ describe('redis integration:', () => {
   before(() => {
     config = {
       enabled: true,
-      host: process.env.REDIS_HOST || '127.0.0.1',
+      host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT || 6379,
       prefix: process.env.REDIS_PREFIX || 'fxa-shared-test:',
       maxConnections: process.env.REDIS_POOL_MAX_CONNECTIONS || 200,

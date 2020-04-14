@@ -29,7 +29,7 @@ config.reputationService = {
   suspectBelow: 60,
   hawkId: 'root',
   hawkKey: 'toor',
-  baseUrl: 'http://127.0.0.1:9009',
+  baseUrl: 'http://localhost:9009',
   timeout: 25,
 };
 
@@ -48,7 +48,7 @@ var repJSClient = new ipr(repJSClientConfig);
 var testServer = new TestServer(config);
 
 var client = restifyClients.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port,
+  url: 'http://localhost:' + config.listen.port,
 });
 
 Promise.promisifyAll(client, { multiArgs: true });

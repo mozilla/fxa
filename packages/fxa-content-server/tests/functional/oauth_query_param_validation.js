@@ -244,7 +244,7 @@ registerSuite('oauth query parameter validation', {
         .then(
           openEmailFirstExpect400({
             client_id: TRUSTED_CLIENT_ID,
-            redirectTo: '127.0.0.1',
+            redirectTo: 'localhost',
             scope: TRUSTED_SCOPE,
           })
         )
@@ -257,7 +257,7 @@ registerSuite('oauth query parameter validation', {
         openEmailFirstExpect200({
           client_id: TRUSTED_CLIENT_ID,
           redirect_uri: TRUSTED_REDIRECT_URI,
-          redirectTo: 'http://127.0.0.1',
+          redirectTo: 'http://localhost',
           scope: TRUSTED_SCOPE,
         })
       );
@@ -268,7 +268,7 @@ registerSuite('oauth query parameter validation', {
         .then(
           openEmailFirstExpect400({
             client_id: TRUSTED_CLIENT_ID,
-            redirect_uri: '127.0.0.1',
+            redirect_uri: 'localhost',
             scope: TRUSTED_SCOPE,
           })
         )

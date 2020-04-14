@@ -23,11 +23,11 @@ function MockOAuthServers() {
         'Content-Type': 'application/json',
       },
       JSON.stringify({
-        authServerUrl: 'http://127.0.0.1:9000',
+        authServerUrl: 'http://localhost:9000',
         cookiesEnabled: true,
         language: 'en_US',
         metricsSampleRate: 1,
-        oauthUrl: 'http://127.0.0.1:9000',
+        oauthUrl: 'http://localhost:9000',
       })
     );
   });
@@ -45,7 +45,7 @@ function MockOAuthServers() {
           image_uri:
             'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png', //eslint-disable-line camelcase
           name: '123Done',
-          redirect_uri: 'http://127.0.0.1:8080/api/oauth', //eslint-disable-line camelcase
+          redirect_uri: 'http://localhost:8080/api/oauth', //eslint-disable-line camelcase
         })
       );
     }

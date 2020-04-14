@@ -11,10 +11,10 @@ const RequestMocks = require('../mocks/request');
 const ErrorMocks = require('../mocks/errors');
 function Environment() {
   var self = this;
-  this.authServerUrl = process.env.AUTH_SERVER_URL || 'http://127.0.0.1:9000';
+  this.authServerUrl = process.env.AUTH_SERVER_URL || 'http://localhost:9000';
   this.useRemoteServer = !!process.env.AUTH_SERVER_URL;
   this.mailServerUrl = this.authServerUrl.match(/^http:\/\/127/)
-    ? 'http://127.0.0.1:9001'
+    ? 'http://localhost:9001'
     : 'http://restmail.net';
 
   if (this.useRemoteServer) {

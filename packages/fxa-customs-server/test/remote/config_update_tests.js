@@ -13,7 +13,7 @@ config.updatePollIntervalSeconds = 1;
 var testServer = new TestServer(config);
 
 var client = restifyClients.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port,
+  url: 'http://localhost:' + config.listen.port,
 });
 
 var IP = '10.0.0.5';

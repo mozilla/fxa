@@ -12,7 +12,7 @@ module.exports = function(fs, path, url, convict) {
     },
     hostname: {
       doc: 'The IP address the server should bind to',
-      default: '127.0.0.1',
+      default: 'localhost',
       env: 'HOST',
     },
     port: {
@@ -90,7 +90,7 @@ module.exports = function(fs, path, url, convict) {
       },
       host: {
         doc: 'The host to connect to for MySql',
-        default: '127.0.0.1',
+        default: 'localhost',
         env: 'MYSQL_HOST',
       },
       port: {
@@ -133,7 +133,7 @@ module.exports = function(fs, path, url, convict) {
       },
       host: {
         doc: 'The host to connect to for MySql',
-        default: '127.0.0.1',
+        default: 'localhost',
         env: 'MYSQL_SLAVE_HOST',
       },
       port: {

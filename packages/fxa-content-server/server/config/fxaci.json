@@ -8,6 +8,6 @@
     "oauth_url": "https://oauth-fxaci.dev.lcip.org",
     "profile_images_url": "https://fxaci.dev.lcip.org/profile",
     "profile_url": "https://fxaci.dev.lcip.org/profile",
-    "public_url": "http://127.0.0.1:3030",
+    "public_url": "http://localhost:3030",
     "use_https": false
 }

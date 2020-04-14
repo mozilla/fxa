@@ -664,13 +664,13 @@ function getConfig() {
     corsOrigin: ['*'],
     maxEventLoopDelay: 0,
     listen: {
-      host: '127.0.0.1',
+      host: 'localhost',
       port: 9000,
     },
     useHttps: false,
     oauth: {
       clientIds: {},
-      url: 'http://127.0.0.1:9000',
+      url: 'http://localhost:9000',
       keepAlive: false,
     },
     env: 'prod',

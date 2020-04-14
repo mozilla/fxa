@@ -17,7 +17,7 @@ cp.execAsync = Promise.promisify(cp.exec);
 const redis = require(`${ROOT_DIR}/redis`)(
   {
     enabled: true,
-    host: process.env.REDIS_HOST || '127.0.0.1',
+    host: process.env.REDIS_HOST || 'localhost',
     port: process.env.REDIS_PORT || 6379,
     prefix: 'featureFlags:',
     maxConnections: 2,
@@ -79,15 +79,19 @@ describe('scripts/feature-flags:', () => {
     });
 
     it(`${command} fails if stdin is not valid JSON`, () => {
-      return cp
-        .execAsync(`echo "wibble" | ${SCRIPT} ${command}`, { cwd })
-        .then(() => assert(false, 'script should have failed'), () => {});
+      return cp.execAsync(`echo "wibble" | ${SCRIPT} ${command}`, { cwd }).then(
+        () => assert(false, 'script should have failed'),
+        () => {}
+      );
     });
 
     it(`${command} fails if stdin contains unexpected key`, () => {
       return cp
         .execAsync(`echo '{"wibble":{}}' | ${SCRIPT} ${command}`, { cwd })
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} does not fail with valid communicationPrefLanguages`, () => {
@@ -103,7 +107,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"communicationPrefLanguages":{"0":"en"}}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if communicationPrefLanguages contains empty string`, () => {
@@ -112,7 +119,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"communicationPrefLanguages":["en",""]}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if communicationPrefLanguages contains object`, () => {
@@ -121,7 +131,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"communicationPrefLanguages":[{}]}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} does not fail with metricsSampleRate 0`, () => {
@@ -150,7 +163,10 @@ describe('scripts/feature-flags:', () => {
         .execAsync(`echo '{"metricsSampleRate":-0.1}' | ${SCRIPT} ${command}`, {
           cwd,
         })
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if metricsSampleRate is greater than 1`, () => {
@@ -158,7 +174,10 @@ describe('scripts/feature-flags:', () => {
         .execAsync(`echo '{"metricsSampleRate":1.1}' | ${SCRIPT} ${command}`, {
           cwd,
         })
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} does not fail with sentrySampleRate 0`, () => {
@@ -187,7 +206,10 @@ describe('scripts/feature-flags:', () => {
         .execAsync(`echo '{"sentrySampleRate":-0.1}' | ${SCRIPT} ${command}`, {
           cwd,
         })
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if sentrySampleRate is greater than 1`, () => {
@@ -195,7 +217,10 @@ describe('scripts/feature-flags:', () => {
         .execAsync(`echo '{"sentrySampleRate":1.1}' | ${SCRIPT} ${command}`, {
           cwd,
         })
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} does not fail with valid tokenCodeClients`, () => {
@@ -211,7 +236,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"tokenCodeClients":{"0123456789abcdef":{"enableTestEmails":1,"groups":["treatment"],"name":"wibble","rolloutRate":1}}}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if tokenCodeClients contains empty groups string`, () => {
@@ -220,7 +248,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"tokenCodeClients":{"0123456789abcdef":{"enableTestEmails":true,"groups":[""],"name":"wibble","rolloutRate":1}}}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if tokenCodeClients contains empty name`, () => {
@@ -229,7 +260,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"tokenCodeClients":{"0123456789abcdef":{"enableTestEmails":true,"groups":["treatment"],"name":"","rolloutRate":1}}}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
 
     it(`${command} fails if tokenCodeClients contains rolloutRate greater than 1`, () => {
@@ -238,7 +272,10 @@ describe('scripts/feature-flags:', () => {
           `echo '{"tokenCodeClients":{"0123456789abcdef":{"enableTestEmails":true,"groups":["treatment"],"name":"wibble","rolloutRate":1.1}}}' | ${SCRIPT} ${command}`,
           { cwd }
         )
-        .then(() => assert(false, 'script should have failed'), () => {});
+        .then(
+          () => assert(false, 'script should have failed'),
+          () => {}
+        );
     });
   });
 

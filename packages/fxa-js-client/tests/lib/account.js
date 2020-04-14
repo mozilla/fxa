@@ -336,7 +336,7 @@ describe('account', function() {
     var account;
     var opts = {
       service: 'sync',
-      redirectTo: 'https://sync.127.0.0.1/after_reset',
+      redirectTo: 'https://sync.localhost/after_reset',
       resume: 'resumejwt',
     };
 

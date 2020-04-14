@@ -2,8 +2,8 @@
   "fxaOAuth": {
     "client_id": "263ceaa5546dce83",
     "client_secret": "852ae8d050d6805a402272e0c776193cfba263ceaa5546dce837191be98db91e",
-    "content_uri": "http://127.0.0.1:3030",
-    "profile_uri": "http://127.0.0.1:1111/v1",
-    "oauth_uri": "http://127.0.0.1:9000/v1"
+    "content_uri": "http://localhost:3030",
+    "profile_uri": "http://localhost:1111/v1",
+    "oauth_uri": "http://localhost:9000/v1"
   }
 }

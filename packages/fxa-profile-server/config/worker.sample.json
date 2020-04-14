@@ -2,7 +2,7 @@
   "img": {
     "driver": "aws",
     "providers": {
-      "fxa": "^http://127.0.0.1:1112/a/[0-9a-f]{32}$"
+      "fxa": "^http://localhost:1112/a/[0-9a-f]{32}$"
     },
     "uploads": {
       "dest": {
@@ -12,7 +12,7 @@
     "url": "https://a.p.firefoxusercontent.net/a/{id}"
   },
   "worker": {
-    "host": "127.0.0.1",
+    "host": "localhost",
     "port": 1113
   }
 }

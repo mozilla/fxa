@@ -9,7 +9,7 @@
     "level": "debug"
   },
   "openid": {
-    "issuer": "http://127.0.0.1:3030",
+    "issuer": "http://localhost:3030",
     "key": {}
   },
   "firestore": {

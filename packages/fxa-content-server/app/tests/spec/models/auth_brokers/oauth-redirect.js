@@ -29,7 +29,7 @@ function generateOAuthCode() {
   return code;
 }
 
-const REDIRECT_URI = 'https://127.0.0.1:8080';
+const REDIRECT_URI = 'https://localhost:8080';
 const VALID_OAUTH_CODE = generateOAuthCode();
 const VALID_OAUTH_CODE_REDIRECT_URL = `${REDIRECT_URI}?code=${VALID_OAUTH_CODE}&state=state`;
 

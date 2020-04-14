@@ -52,7 +52,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
           name: OAUTH_CLIENT_NAME,
           trusted: true,
           image_uri: '',
-          redirect_uri: `http://127.0.0.1:3030/oauth/success/${OAUTH_CLIENT_ID}`,
+          redirect_uri: `http://localhost:3030/oauth/success/${OAUTH_CLIENT_ID}`,
         })
       ),
     };
@@ -140,7 +140,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
         id: OAUTH_CLIENT_ID,
         image_uri: '',
         name: OAUTH_CLIENT_NAME,
-        redirect_uri: `http://127.0.0.1:3030/oauth/success/${OAUTH_CLIENT_ID}`,
+        redirect_uri: `http://localhost:3030/oauth/success/${OAUTH_CLIENT_ID}`,
         trusted: true,
       },
       refreshTokenId:
