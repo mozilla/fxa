@@ -8,7 +8,7 @@
 1. install dependencies: `npm install`
 1. generate keys `node scripts/gen_keys.js`
 1. run the server: `npm start`
-1. visit it in your browser: `http://127.0.0.1:8080/`
+1. visit it in your browser: `http://localhost:8080/`
 1. hack and reload! (web resources don't require a server restart)
 
 [git]: http://git-scm.org

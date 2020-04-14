@@ -67,7 +67,7 @@ fn invalid_aws_secret() {
 fn base_uri() {
     assert!(validate::base_uri("http://localhost/"));
     assert!(validate::base_uri("http://localhost:8080/"));
-    assert!(validate::base_uri("http://127.0.0.1/"));
+    assert!(validate::base_uri("http://localhost/"));
     assert!(validate::base_uri("https://localhost/"));
     assert!(validate::base_uri("http://localhost/foo/"));
 }
@@ -133,7 +133,7 @@ fn invalid_email_address() {
 fn host() {
     assert!(validate::host("foo"));
     assert!(validate::host("foo.bar"));
-    assert!(validate::host("127.0.0.1"));
+    assert!(validate::host("localhost"));
 }
 
 #[test]
@@ -143,7 +143,7 @@ fn invalid_host() {
     assert_eq!(validate::host("foo bar"), false);
     assert_eq!(validate::host("foo "), false);
     assert_eq!(validate::host(" foo"), false);
-    assert_eq!(validate::host("127.0.0.1:25"), false);
+    assert_eq!(validate::host("localhost:25"), false);
 }
 
 #[test]

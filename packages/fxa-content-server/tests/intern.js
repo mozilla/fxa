@@ -18,16 +18,16 @@ const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
 
-const fxaAuthRoot = args.fxaAuthRoot || 'http://127.0.0.1:9000/v1';
-const fxaContentRoot = args.fxaContentRoot || 'http://127.0.0.1:3030/';
-const fxaOAuthRoot = args.fxaOAuthRoot || 'http://127.0.0.1:9000';
-const fxaProfileRoot = args.fxaProfileRoot || 'http://127.0.0.1:1111';
-const fxaTokenRoot = args.fxaTokenRoot || 'http://127.0.0.1:5000/token';
-const fxaEmailRoot = args.fxaEmailRoot || 'http://127.0.0.1:9001';
-const fxaOAuthApp = args.fxaOAuthApp || 'http://127.0.0.1:8080/';
+const fxaAuthRoot = args.fxaAuthRoot || 'http://localhost:9000/v1';
+const fxaContentRoot = args.fxaContentRoot || 'http://localhost:3030/';
+const fxaOAuthRoot = args.fxaOAuthRoot || 'http://localhost:9000';
+const fxaProfileRoot = args.fxaProfileRoot || 'http://localhost:1111';
+const fxaTokenRoot = args.fxaTokenRoot || 'http://localhost:5000/token';
+const fxaEmailRoot = args.fxaEmailRoot || 'http://localhost:9001';
+const fxaOAuthApp = args.fxaOAuthApp || 'http://localhost:8080/';
 const fxaUntrustedOauthApp =
-  args.fxaUntrustedOauthApp || 'http://127.0.0.1:10139/';
-const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://127.0.0.1:3031/';
+  args.fxaUntrustedOauthApp || 'http://localhost:10139/';
+const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://localhost:3031/';
 
 // "fxaProduction" is a little overloaded in how it is used in the tests.
 // Sometimes it means real "stage" or real production configuration, but
@@ -75,7 +75,7 @@ const config = {
   pageLoadTimeout: 20000,
   reporters: 'runner',
   serverPort: 9091,
-  serverUrl: 'http://127.0.0.1:9091',
+  serverUrl: 'http://localhost:9091',
   socketPort: 9077,
   tunnelOptions: {
     drivers: [

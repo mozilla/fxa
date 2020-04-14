@@ -212,8 +212,8 @@ export const defaultAppContextValue = (): AppContextType => ({
       addListener: jest.fn(),
       addEventListener: jest.fn(),
       removeListener: jest.fn(),
-      removeEventListener: jest.fn()
-    }
+      removeEventListener: jest.fn(),
+    };
   }),
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
@@ -428,7 +428,7 @@ export const MOCK_PROFILE = {
   amrValues: ['pwd', 'email'],
   twoFactorAuthentication: false,
   uid: 'a90fef48240b49b2b6a33d333aee9b13',
-  avatar: 'http://127.0.0.1:1112/a/00000000000000000000000000000000',
+  avatar: 'http://localhost:1112/a/00000000000000000000000000000000',
   avatarDefault: true,
 };
 

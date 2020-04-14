@@ -53,7 +53,7 @@ fn create_settings(delivery_problem_limits: Json) -> Settings {
     let mut settings = Settings::default();
     settings.deliveryproblemlimits =
         serde_json::from_value(delivery_problem_limits).expect("JSON error");
-    settings.redis.host = Host(String::from("127.0.0.1"));
+    settings.redis.host = Host(String::from("localhost"));
     settings.redis.port = 6379;
     settings
 }

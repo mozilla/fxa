@@ -10,7 +10,7 @@ const EventEmitter = require('events').EventEmitter;
 
 /* eslint-disable no-console */
 module.exports = function(host, port, printLogs) {
-  host = host || '127.0.0.1';
+  host = host || 'localhost';
   port = port || 9001;
 
   const eventEmitter = new EventEmitter();

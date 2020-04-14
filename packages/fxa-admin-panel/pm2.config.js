@@ -14,7 +14,7 @@ module.exports = {
         LOGGING_FORMAT: 'pretty',
         NODE_ENV: 'development',
         NODE_OPTIONS: '--inspect=9140',
-        PROXY_STATIC_RESOURCES_FROM: 'http://127.0.0.1:8092',
+        PROXY_STATIC_RESOURCES_FROM: 'http://localhost:8092',
         CONFIG_FILES: 'config/secrets.json',
         PORT: '8091',
       },
@@ -27,7 +27,7 @@ module.exports = {
       min_uptime: '2m',
       env: {
         NODE_ENV: 'development',
-        PUBLIC_URL: 'http://127.0.0.1:8091',
+        PUBLIC_URL: 'http://localhost:8091',
         BROWSER: 'NONE',
         PORT: '8092',
       },

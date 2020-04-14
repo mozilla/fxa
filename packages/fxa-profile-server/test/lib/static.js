@@ -5,9 +5,9 @@
 const Static = require('../../lib/server/_static');
 
 function request(options) {
-  return Static.create().then((server) => {
+  return Static.create().then(server => {
     return server.inject(options);
-  })
+  });
 }
 
 function opts(options) {
@@ -19,7 +19,7 @@ function opts(options) {
 
 exports.get = function get(options) {
   options = opts(options);
-  options.url = options.url.replace('http://127.0.0.1:1112', '');
+  options.url = options.url.replace('http://localhost:1112', '');
   options.method = 'GET';
   return request(options);
 };

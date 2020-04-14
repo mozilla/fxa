@@ -39,7 +39,7 @@ describe('models/account', function() {
   var PROFILE_CLIENT_METHODS = ['getAvatar', 'deleteAvatar', 'uploadAvatar'];
   var SESSION_TOKEN = 'abc123';
   var UID = '6d940dd41e636cc156074109b8092f96';
-  var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
+  var URL = 'http://localhost:1112/avatar/example.jpg';
 
   beforeEach(function() {
     fxaClient = new FxaClientWrapper();

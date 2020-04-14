@@ -10,7 +10,7 @@
     "watch": "tsc -w",
     "test": "mocha -r ts-node/register src/test/**/*.spec.ts src/test/**/**/*.spec.ts",
     "start-prod": "npm run build && node ./dist/bin/worker.js",
-    "prestart": "../../_scripts/check-url.sh 127.0.0.1:9000/__heartbeat__",
+    "prestart": "../../_scripts/check-url.sh localhost:9000/__heartbeat__",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js"

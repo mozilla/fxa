@@ -18,7 +18,7 @@ it('performs a redirect to the expected URL for local product', () => {
   assertRedirectForProduct(
     '123doneProProduct',
     'local',
-    'http://127.0.0.1:8080/'
+    'http://localhost:8080/'
   );
 });
 
@@ -35,7 +35,7 @@ function assertRedirectForProduct(
     ...defaultConfig,
     env: 'testing',
     productRedirectURLs: {
-      '123doneProProduct': 'http://127.0.0.1:8080/',
+      '123doneProProduct': 'http://localhost:8080/',
     },
   };
   const navigateToUrl = jest.fn();

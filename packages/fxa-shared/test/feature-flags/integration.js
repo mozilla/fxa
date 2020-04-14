@@ -12,7 +12,7 @@ describe('featureFlags integration:', () => {
   before(() => {
     config = {
       interval: 10000,
-      host: process.env.REDIS_HOST || '127.0.0.1',
+      host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT || 6379,
       maxConnections: process.env.REDIS_POOL_MAX_CONNECTIONS || 1,
       minConnections: process.env.REDIS_POOL_MIN_CONNECTIONS || 1,

@@ -10,7 +10,7 @@ P.promisifyAll(Memcached.prototype);
 
 var config = {
   memcache: {
-    address: process.env.MEMCACHE_ADDRESS || '127.0.0.1:11211',
+    address: process.env.MEMCACHE_ADDRESS || 'localhost:11211',
   },
   limits: {
     blockIntervalSeconds: 1,

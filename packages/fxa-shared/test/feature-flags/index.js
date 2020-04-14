@@ -95,7 +95,7 @@ describe('feature-flags/index:', () => {
           interval: 300000,
           redis: {
             enabled: false,
-            host: '127.0.0.1',
+            host: 'localhost',
             port: 6379,
             prefix: 'wibble:',
           },
@@ -120,7 +120,7 @@ describe('feature-flags/index:', () => {
       assert.lengthOf(args, 2);
       assert.deepEqual(args[0], {
         enabled: true,
-        host: '127.0.0.1',
+        host: 'localhost',
         port: 6379,
         prefix: 'featureFlags:',
       });

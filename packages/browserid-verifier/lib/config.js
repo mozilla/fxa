@@ -8,8 +8,8 @@ function loadConf() {
   var conf = convict({
     ip: {
       doc: 'The IP address to bind.',
-      format: 'ipaddress',
-      default: '127.0.0.1',
+      format: String,
+      default: 'localhost',
       env: 'IP_ADDRESS',
     },
     port: {

@@ -19,7 +19,7 @@ const CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
 const CODE_CHALLENGE_METHOD = 'S256';
 const KEYS_JWK = 'keysJwk';
 const SCOPE = 'profile:email profile:uid';
-const SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
+const SERVER_REDIRECT_URI = 'http://localhost:8080/api/oauth';
 const SERVICE_NAME = '123Done';
 const STATE = 'fakestatetoken';
 /*eslint-disable camelcase*/

@@ -1,8 +1,8 @@
 {
   "oauthServer" : {
   "browserid": {
-    "issuer": "127.0.0.1:9000",
-    "verificationUrl": "http://127.0.0.1:5050/v2"
+    "issuer": "localhost:9000",
+    "verificationUrl": "http://localhost:5050/v2"
   },
   "clientManagement": {
     "enabled": true
@@ -123,7 +123,7 @@
       "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
       "name": "Disabled Client",
       "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
-      "redirectUri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1",
+      "redirectUri": "http://localhost:8080/?oauth_pkce_redirect=1",
       "trusted": true,
       "canGrant": false,
       "publicClient": true
@@ -140,7 +140,7 @@
     ]
   },
   "openid": {
-    "issuer": "http://127.0.0.1:3030",
+    "issuer": "http://localhost:3030",
     "keyFile": "config/key.json",
     "newKeyFile": "config/newKey.json",
     "oldKeyFile": "config/oldKey.json"

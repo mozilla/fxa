@@ -306,7 +306,7 @@ describe('session', function() {
         },
         originalLoginEmail: email.toUpperCase(),
         reason: 'password_change',
-        redirectTo: 'http://127.0.0.1',
+        redirectTo: 'http://localhost',
         resume: 'RESUME_TOKEN',
         service: 'sync',
         verificationMethod: 'email-2fa',

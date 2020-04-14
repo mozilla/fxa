@@ -7,7 +7,7 @@ const Server = require('../lib/server');
 const config = require('../lib/config').getProperties();
 
 function TestServer(configUpdates) {
-  this.url = 'http://127.0.0.1:' + configUpdates.listen.port;
+  this.url = 'http://localhost:' + configUpdates.listen.port;
   this.server = null;
   this.config = Object.assign({}, config, configUpdates);
   this.log = {
