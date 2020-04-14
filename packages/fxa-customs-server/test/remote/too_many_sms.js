@@ -16,19 +16,14 @@ var CONNECT_DEVICE_SMS = 'connectDeviceSms';
 var PHONE_NUMBER = '14071234567';
 const ALLOWED_PHONE_NUMBER = '13133249901';
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
-
 // Override limit values for testing
-process.env.SMS_RATE_LIMIT_INTERVAL_SECONDS = 1;
-process.env.MAX_SMS = 2;
-process.env.IP_RATE_LIMIT_INTERVAL_SECONDS = 1;
-process.env.IP_RATE_LIMIT_BAN_DURATION_SECONDS = 1;
-process.env.RATE_LIMIT_INTERVAL_SECONDS = 1;
-process.env.ALLOWED_PHONE_NUMBERS = ALLOWED_PHONE_NUMBER;
+const config = require('../../lib/config').getProperties();
+config.limits.smsRateLimit.limitIntervalSeconds = 1;
+config.limits.smsRateLimit.maxSms = 2;
+config.limits.ipRateLimitIntervalSeconds = 1;
+config.limits.ipRateLimitBanDurationSeconds = 1;
+config.limits.rateLimitIntervalSeconds = 1;
+config.allowedPhoneNumbers = [ALLOWED_PHONE_NUMBER];
 
 var mcHelper = require('../memcache-helper');
 
@@ -40,12 +35,10 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -378,8 +371,7 @@ test('clear everything', function(t) {
   });
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

@@ -1,9 +1,10 @@
 /* Any copyright is dedicated to the Public Domain.
  * http://creativecommons.org/publicdomain/zero/1.0/ */
 
-var test = require('tap').test;
+var tap = require('tap');
+var test = tap.test;
 var TestServer = require('../test_server');
-var ReputationServerStub = require('../test_reputation_server');
+var ReputationServer = require('../test_reputation_server');
 var Promise = require('bluebird');
 var restifyClients = require('restify-clients');
 var mcHelper = require('../memcache-helper');
@@ -19,37 +20,30 @@ var TEST_CHECK_ACTION = 'recoveryEmailVerifyCode';
 // before sending violation
 var TEST_DELAY_MS = 850;
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-  limits: {
-    rateLimitIntervalSeconds: 15,
-  },
-  reputationService: {
-    enable: true,
-    baseUrl: 'http://127.0.0.1:9009',
-    timeout: 25,
-  },
+const config = require('../../lib/config').getProperties();
+config.limits.rateLimitIntervalSeconds = 1;
+config.allowedIPs = [ALLOWED_IP];
+config.reputationService = {
+  enable: true,
+  enableCheck: true,
+  blockBelow: 50,
+  suspectBelow: 60,
+  hawkId: 'root',
+  hawkKey: 'toor',
+  baseUrl: 'http://127.0.0.1:9009',
+  timeout: 25,
 };
 
 // Override limit values for testing
-process.env.ALLOWED_IPS = ALLOWED_IP;
-process.env.MAX_VERIFY_CODES = 2;
-process.env.MAX_BAD_LOGINS_PER_IP = 1;
-process.env.UID_RATE_LIMIT = 3;
-process.env.UID_RATE_LIMIT_INTERVAL_SECONDS = 2;
-process.env.UID_RATE_LIMIT_BAN_DURATION_SECONDS = 2;
-process.env.RATE_LIMIT_INTERVAL_SECONDS =
-  config.limits.rateLimitIntervalSeconds;
-
-// Enable reputation test server
-process.env.REPUTATION_SERVICE_ENABLE = config.reputationService.enable;
-process.env.REPUTATION_SERVICE_BASE_URL = config.reputationService.baseUrl;
-process.env.REPUTATION_SERVICE_TIMEOUT = config.reputationService.timeout;
+config.allowedIPs = [ALLOWED_IP];
+config.limits.maxVerifyCodes = 2;
+config.limits.maxBadLoginsPerIp = 1;
+config.limits.uidRateLimit.maxChecks = 3;
+config.limits.uidRateLimit.limitIntervalSeconds = 2;
+config.limits.uidRateLimit.banDurationSeconds = 2;
 
 var testServer = new TestServer(config);
-var reputationServer = new ReputationServerStub(config);
+var reputationServer = new ReputationServer(config);
 
 var client = restifyClients.createJsonClient({
   url: 'http://127.0.0.1:' + config.listen.port,
@@ -61,12 +55,10 @@ var reputationClient = restifyClients.createJsonClient({
 Promise.promisifyAll(client, { multiArgs: true });
 Promise.promisifyAll(reputationClient, { multiArgs: true });
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -196,12 +188,9 @@ test('clear everything again', function(t) {
   });
 });
 
-test('startup reputation service', function(t) {
-  reputationServer.start(function(err) {
-    t.type(reputationServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup reputation service', async function(t) {
+  await reputationServer.start();
+  t.end();
 });
 
 test('sends violation /check resulting in lockout', function(t) {
@@ -236,9 +225,10 @@ test('sends violation /check resulting in lockout', function(t) {
       return reputationClient.getAsync('/mostRecentViolation/' + ip);
     })
     .spread(function(req, res, obj) {
+      const { violation } = obj;
       t.equal(
-        res.body,
-        '"fxa:request.check.block.' + TEST_CHECK_ACTION + '"',
+        violation,
+        `fxa:request.check.block.${TEST_CHECK_ACTION}`,
         'sends violation when /check'
       );
       return reputationClient.delAsync('/mostRecentViolation/' + ip);
@@ -283,8 +273,8 @@ test('sends violation when /checkAuthenticated rate limited', function(t) {
     })
     .spread(function(req, res, obj) {
       t.equal(
-        res.body,
-        `"fxa:request.checkAuthenticated.block.${action}"`,
+        obj.violation,
+        `fxa:request.checkAuthenticated.block.${action}`,
         'Violation sent.'
       );
       return reputationClient.delAsync('/mostRecentViolation/' + ip);
@@ -319,8 +309,8 @@ test('sends violation /failedLoginAttempt results in lockout', function(t) {
     })
     .spread(function(req, res, obj) {
       t.equal(
-        res.body,
-        '"fxa:request.failedLoginAttempt.isOverBadLogins"',
+        obj.violation,
+        'fxa:request.failedLoginAttempt.isOverBadLogins',
         'sends violation.'
       );
       return reputationClient.delAsync('/mostRecentViolation/' + TEST_IP);
@@ -351,8 +341,8 @@ test('sends violation for blocked IP from /blockIp request', function(t) {
     })
     .spread(function(req, res, obj) {
       t.equal(
-        res.body,
-        '"fxa:request.blockIp"',
+        obj.violation,
+        'fxa:request.blockIp',
         'sends violation when IP blocked'
       );
       return reputationClient.delAsync('/mostRecentViolation/' + TEST_IP);
@@ -371,18 +361,7 @@ test('sends violation for blocked IP from /blockIp request', function(t) {
     });
 });
 
-test('teardown test reputation server', function(t) {
-  reputationServer.stop();
-  t.equal(
-    reputationServer.server.killed,
-    true,
-    'test reputation server killed'
-  );
-  t.end();
-});
-
-test('teardown test server', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

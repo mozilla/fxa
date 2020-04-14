@@ -11,21 +11,16 @@ var TEST_EMAIL = 'test@example.com';
 var TEST_IP = '192.0.2.1';
 var EXEMPT_USER_AGENT = 'Testo 2K1/12 (Windows; rv:12.12) Gecko/10';
 
-process.env.FLOW_ID_REQUIRED_ON_LOGIN = 'true';
-process.env.FLOW_ID_EXEMPT_UA_REGEXES = 'Testo\\s+.?';
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+const config = require('../../lib/config').getProperties();
+config.requestChecks.flowIdRequiredOnLogin = true;
+config.requestChecks.flowIdExemptUserAgentREs = ['Testo\\s+.?'];
+
 var testServer = new TestServer(config);
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -126,16 +121,18 @@ test('request without flowId for @restmail.net address is not blocked', function
 
 test('requests without flowId from certain user-agents are not blocked', function(t) {
   return client.post(
-    '/check',
+    {
+      path: '/check',
+      headers: {
+        'user-agent': EXEMPT_USER_AGENT,
+      },
+    },
     {
       ip: TEST_IP,
       email: TEST_EMAIL,
       action: 'accountLogin',
       payload: {
         something: 'irrelevant',
-      },
-      headers: {
-        'user-agent': EXEMPT_USER_AGENT,
       },
     },
     function(err, req, res, obj) {
@@ -149,7 +146,13 @@ test('requests without flowId from certain user-agents are not blocked', functio
 
 test('request with missing flowId and Android user-agent is blocked', function(t) {
   client.post(
-    '/check',
+    {
+      path: '/check',
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
+      },
+    },
     {
       ip: TEST_IP,
       email: TEST_EMAIL,
@@ -158,10 +161,6 @@ test('request with missing flowId and Android user-agent is blocked', function(t
         metricsContext: {
           utm_campaign: 'test-campaign',
         },
-      },
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Android 4.4; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0',
       },
     },
     function(err, req, res, obj) {
@@ -217,8 +216,7 @@ test('request with reason=password_change is not blocked', function(t) {
   );
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

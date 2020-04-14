@@ -7,13 +7,8 @@ var Promise = require('bluebird');
 var restifyClients = Promise.promisifyAll(require('restify-clients'));
 var mcHelper = require('../memcache-helper');
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
-
-process.env.UPDATE_POLL_INTERVAL_SECONDS = 1;
+const config = require('../../lib/config').getProperties();
+config.updatePollIntervalSeconds = 1;
 
 var testServer = new TestServer(config);
 
@@ -26,12 +21,10 @@ var EMAIL = 'test@example.com';
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -237,50 +230,58 @@ test('change requestChecks.treatEveryoneWithSuspicion', function(t) {
     });
 });
 
-test('change requestChecks.flowIdRequiredOnLogin', function (t) {
-  return client.postAsync('/check', {
-    ip: IP,
-    email: EMAIL,
-    action: 'accountLogin'
-  })
-    .spread(function (req, res, obj) {
-      t.deepEqual(obj, {
-        block: false,
-        retryAfter: 0,
-        suspect: true,
-        unblock: true
-      }, 'request was not blocked');
+test('change requestChecks.flowIdRequiredOnLogin', function(t) {
+  return client
+    .postAsync('/check', {
+      ip: IP,
+      email: EMAIL,
+      action: 'accountLogin',
+    })
+    .spread(function(req, res, obj) {
+      t.deepEqual(
+        obj,
+        {
+          block: false,
+          retryAfter: 0,
+          suspect: true,
+          unblock: true,
+        },
+        'request was not blocked'
+      );
       return mcHelper.setRequestChecks({
-        flowIdRequiredOnLogin: true
+        flowIdRequiredOnLogin: true,
       });
     })
-    .then(function (ips) {
+    .then(function(ips) {
       return Promise.delay(1010);
     })
     .then(function() {
       return client.postAsync('/check', {
         ip: IP,
         email: EMAIL,
-        action: 'accountLogin'
+        action: 'accountLogin',
       });
     })
-    .spread(function (req, res, obj) {
-      t.deepEqual(obj, {
-        block: true,
-        retryAfter: 0,
-        suspect: true,
-        unblock: true
-      }, 'request was blocked after the change');
+    .spread(function(req, res, obj) {
+      t.deepEqual(
+        obj,
+        {
+          block: true,
+          retryAfter: 0,
+          suspect: true,
+          unblock: true,
+        },
+        'request was blocked after the change'
+      );
       t.end();
     })
-    .catch(function (err) {
+    .catch(function(err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', function (t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

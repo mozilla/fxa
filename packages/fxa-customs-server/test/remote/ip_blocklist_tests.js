@@ -16,25 +16,17 @@ var BLOCK_IP_INRANGE = '0.1.0.0';
 var VALID_IP = '3.0.0.0';
 const ENDPOINTS = ['/check', '/checkIpOnly'];
 
-process.env.IP_BLOCKLIST_ENABLE = true;
-process.env.IP_BLOCKLIST_FILES = ['./../test/mocks/simple.netset'];
-process.env.IP_BLOCKLIST_LOG_ONLY_FILES = [
-  './../test/mocks/logOnlyList.netset',
-];
+const config = require('../../lib/config').getProperties();
+config.ipBlocklist.enable = true;
+config.ipBlocklist.lists = ['./test/mocks/simple.netset'];
+config.ipBlocklist.logOnlyLists = ['./test/mocks/logOnlyList.netset'];
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
 var testServer = new TestServer(config);
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -108,8 +100,7 @@ ENDPOINTS.forEach(endpoint => {
   });
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

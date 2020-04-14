@@ -3,69 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /* eslint-disable no-console */
-var cp = require('child_process');
-var request = require('request');
+const Server = require('../lib/server');
+const config = require('../lib/config').getProperties();
 
-function TestServer(config) {
-  this.url = 'http://127.0.0.1:' + config.listen.port;
+function TestServer(configUpdates) {
+  this.url = 'http://127.0.0.1:' + configUpdates.listen.port;
   this.server = null;
+  this.config = Object.assign({}, config, configUpdates);
+  this.log = {
+    info: () => {},
+    error: () => {},
+  };
 }
 
-function waitLoop(testServer, url, cb) {
-  request(url + '/', function(err, res /*, body*/) {
-    if (err) {
-      if (err.errno !== 'ECONNREFUSED') {
-        console.log('ERROR: unexpected result from ' + url);
-        console.log(err);
-        return cb(err);
-      }
-      return setTimeout(waitLoop.bind(null, testServer, url, cb), 100);
-    }
-    if (res.statusCode !== 200) {
-      console.log('ERROR: bad status code: ' + res.statusCode);
-      return cb(res.statusCode);
-    }
-    return cb();
-  });
-}
-
-function isDebug() {
-  return global.v8debug ? true : false;
-}
-
-TestServer.prototype.start = function(cb) {
+TestServer.prototype.start = async function() {
   if (!this.server) {
-    var spawnOptions = ['./customs_server_stub.js'];
-
-    var nextDebugPort = process.debugPort + 2;
-    if (isDebug()) {
-      spawnOptions.unshift('--debug-brk=' + nextDebugPort);
-    }
-
-    this.server = cp.spawn('node', spawnOptions, {
-      cwd: __dirname,
-      stdio: isDebug() ? 'pipe' : 'ignore',
-    });
-
-    // Always log console when debugging
-    if (isDebug()) {
-      this.server.stdout.on('data', process.stdout.write.bind(process.stdout));
-      this.server.stderr.on('data', process.stderr.write.bind(process.stderr));
-    }
+    this.server = await Server(this.config, this.log);
+    await this.server.start();
   }
-
-  waitLoop(this, this.url, function(err) {
-    if (err) {
-      cb(err);
-    } else {
-      cb(null);
-    }
-  });
 };
 
-TestServer.prototype.stop = function() {
+TestServer.prototype.stop = async function() {
   if (this.server) {
-    this.server.kill('SIGINT');
+    await this.server.stop();
+    this.server = null;
+    process.nextTick(process.exit.bind(null, 0));
   }
 };
 

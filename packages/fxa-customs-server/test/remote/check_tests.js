@@ -20,21 +20,15 @@ for (let i = 0; i < 2; ++i) {
   DISALLOWED_EMAILS[i] = `test.${i}@example.com`;
 }
 
-process.env.MAX_VERIFY_CODES = '1';
+const config = require('../../lib/config').getProperties();
+config.limits.maxVerifyCodes = 1;
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
 var testServer = new TestServer(config);
 
-test('startup', function(t) {
-  testServer.start(function(err) {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 test('clear everything', function(t) {
@@ -165,8 +159,7 @@ test('disallowed email addresses in /check do not block subsequent requests to /
     .then(() => t.end());
 });
 
-test('teardown', function(t) {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });

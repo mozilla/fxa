@@ -18,15 +18,12 @@ function randomIp() {
   return [getSubnet(), getSubnet(), getSubnet(), getSubnet()].join('.');
 }
 
-const config = {
-  listen: {
-    port: 7000,
-  },
-};
-
-process.env.TOTP_CODE_RULE_MAX = process.env.TOKEN_CODE_RULE_MAX = 2;
-process.env.TOTP_CODE_RULE_PERIOD_MS = process.env.TOKEN_CODE_RULE_PERIOD_MS = 1000;
-process.env.TOTP_CODE_RULE_LIMIT_INTERVAL_MS = process.env.TOKEN_CODE_RULE_LIMIT_INTERVAL_MS = 1000;
+const config = require('../../lib/config').getProperties();
+config.userDefinedRateLimitRules.totpCodeRules.limits.periodMs = 1000;
+config.userDefinedRateLimitRules.totpCodeRules.limits.rateLimitIntervalMs = 1000;
+config.userDefinedRateLimitRules.tokenCodeRules.limits.max = 2;
+config.userDefinedRateLimitRules.tokenCodeRules.limits.periodMs = 1000;
+config.userDefinedRateLimitRules.tokenCodeRules.limits.rateLimitIntervalMs = 1000;
 
 const ACTIONS = ['verifyTotpCode', 'verifyTokenCode'];
 
@@ -38,12 +35,10 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', t => {
-  testServer.start(err => {
-    t.type(testServer.server, 'object', 'test server was started');
-    t.notOk(err, 'no errors were returned');
-    t.end();
-  });
+test('startup', async function(t) {
+  await testServer.start();
+  t.type(testServer.server, 'object', 'test server was started');
+  t.end();
 });
 
 ACTIONS.forEach(action => {
@@ -141,8 +136,7 @@ ACTIONS.forEach(action => {
   });
 });
 
-test('teardown', t => {
-  testServer.stop();
-  t.equal(testServer.server.killed, true, 'test server has been killed');
+test('teardown', async function(t) {
+  await testServer.stop();
   t.end();
 });
