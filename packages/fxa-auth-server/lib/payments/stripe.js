@@ -58,6 +58,13 @@ const VALID_RESOURCE_TYPES = [
   INVOICES_RESOURCE,
 ];
 
+const SUBSCRIPTION_UPDATE_TYPES = {
+  UPGRADE: 'upgrade',
+  DOWNGRADE: 'downgrade',
+  REACTIVATION: 'reactivation',
+  CANCELLATION: 'cancellation',
+};
+
 /**
  * Determine for two product metadata object's whether the new one
  * is a valid upgrade for the old one.
@@ -909,10 +916,7 @@ class StripeHelper {
     const {
       emailIconURL: planEmailIconURL = '',
       downloadURL: planDownloadURL = '',
-    } = {
-      ...abbrevProduct.product_metadata,
-      ...plan.metadata,
-    };
+    } = this.mergeMetadata(plan, abbrevProduct);
     const {
       brand: cardType,
       last4: lastFour,
@@ -997,10 +1001,7 @@ class StripeHelper {
     const {
       emailIconURL: planEmailIconURL = '',
       downloadURL: planDownloadURL = '',
-    } = {
-      ...abbrevProduct.product_metadata,
-      ...plan.metadata,
-    };
+    } = this.mergeMetadata(plan, abbrevProduct);
 
     return {
       uid,
@@ -1011,6 +1012,178 @@ class StripeHelper {
       planName,
       planEmailIconURL,
       planDownloadURL,
+    };
+  }
+
+  /**
+   * Extract subscription update details for billing emails
+   *
+   * @param {StripeEvent} event
+   */
+  async extractSubscriptionUpdateEventDetailsForEmail(event) {
+    if (event.type !== 'customer.subscription.updated') {
+      throw error.internalValidationError(
+        'extractSubscriptionUpdateEventDetailsForEmail',
+        event,
+        new Error('Event was not of type customer.subscription.updated')
+      );
+    }
+
+    const eventData = event.data;
+    const subscription = /** @type {Subscription} */ (eventData.object);
+    const customer = await this.expandResource(
+      subscription.customer,
+      'customers'
+    );
+    if (customer.deleted === true) {
+      throw error.unknownCustomer(subscription.customer);
+    }
+
+    const {
+      email,
+      metadata: { userid: uid },
+    } = customer;
+
+    const previousAttributes = eventData.previous_attributes;
+    const planNew = subscription.plan;
+    const planOld = previousAttributes.plan;
+    const cancelAtPeriodEndNew = subscription.cancel_at_period_end;
+    const cancelAtPeriodEndOld = previousAttributes.cancel_at_period_end;
+
+    const abbrevProductNew = await this.expandAbbrevProductForPlan(planNew);
+    const { interval: productPaymentCycle, amount: planAmountNew } = planNew;
+    const {
+      product_id: productIdNew,
+      product_name: productNameNew,
+    } = abbrevProductNew;
+    const {
+      productOrder: productOrderNew,
+      emailIconURL: productIconURLNew = '',
+      downloadURL: productDownloadURLNew = '',
+    } = this.mergeMetadata(planNew, abbrevProductNew);
+
+    const baseDetails = {
+      uid,
+      email,
+      productIdNew,
+      productNameNew,
+      productIconURLNew,
+      productDownloadURLNew,
+      planAmountNew,
+      productPaymentCycle,
+      closeDate: event.created,
+    };
+
+    if (!cancelAtPeriodEndOld && cancelAtPeriodEndNew && !planOld) {
+      return this.extractSubscriptionUpdateCancellationDetailsForEmail(
+        subscription,
+        baseDetails
+      );
+    } else if (cancelAtPeriodEndOld && !cancelAtPeriodEndNew && !planOld) {
+      return this.extractSubscriptionUpdateReactivationDetailsForEmail(
+        subscription,
+        baseDetails
+      );
+    } else if (!cancelAtPeriodEndOld && !cancelAtPeriodEndNew && planOld) {
+      return this.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+        subscription,
+        baseDetails,
+        customer,
+        productOrderNew,
+        planOld
+      );
+    }
+
+    // unknown update scenario, but let's return some details anyway
+    return baseDetails;
+  }
+
+  async extractSubscriptionUpdateCancellationDetailsForEmail(
+    subscription,
+    baseDetails
+  ) {
+    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L598
+    return {
+      ...baseDetails,
+      updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
+      cancelledAt: subscription.canceled_at,
+      cancelAt: subscription.cancel_at,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      currentPeriodStart: subscription.current_period_start,
+      currentPeriodEnd: subscription.current_period_end,
+      invoiceId: subscription.latest_invoice,
+    };
+  }
+
+  async extractSubscriptionUpdateReactivationDetailsForEmail(
+    subscription,
+    baseDetails
+  ) {
+    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L625
+    let invoice = subscription.latest_invoice;
+    if (typeof invoice === 'string') {
+      // if we have to do a fetch, go ahead and ensure we also get the additional needed resource
+      invoice = await this.stripe.invoices.retrieve(invoice, {
+        expand: ['charge'],
+      });
+    }
+    // this will only result to a call to stripe if the invoice was already expanded, but the charge was not
+    const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
+    const { brand, last4 } = charge.payment_method_details.card;
+    return {
+      ...baseDetails,
+      updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
+      invoiceId: subscription.latest_invoice,
+      currentPeriodEnd: subscription.current_period_end,
+      brand,
+      last4,
+    };
+  }
+
+  async extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+    subscription,
+    baseDetails,
+    customer,
+    productOrderNew,
+    planOld
+  ) {
+    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
+    const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
+    const { amount: planAmountOld } = planOld;
+    const {
+      product_id: productIdOld,
+      product_name: productNameOld,
+    } = abbrevProductOld;
+    const {
+      productOrder: productOrderOld,
+      emailIconURL: productIconURLOld = '',
+      downloadURL: productDownloadURLOld = '',
+    } = this.mergeMetadata(planOld, abbrevProductOld);
+
+    const updateType =
+      productOrderNew > productOrderOld
+        ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
+        : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
+
+    const invoice = await this.expandResource(
+      subscription.latest_invoice,
+      INVOICES_RESOURCE
+    );
+    const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
+      customer: customer.id,
+    });
+
+    return {
+      ...baseDetails,
+      updateType,
+      productIdOld,
+      productNameOld,
+      productIconURLOld,
+      productDownloadURLOld,
+      planAmountOld,
+      invoiceNumber: invoice.number,
+      invoiceId: invoice.id,
+      paymentProrated: upcomingInvoice.amount_due,
     };
   }
 
@@ -1071,6 +1244,19 @@ class StripeHelper {
       await this.stripe.products.retrieve(plan.product)
     );
   }
+
+  /**
+   * Metadata consists of product metadata with per-plan overrides.
+   *
+   * @param {Plan} plan
+   * @param {AbbrevProduct} abbrevProduct
+   */
+  mergeMetadata(plan, abbrevProduct) {
+    return {
+      ...abbrevProduct.product_metadata,
+      ...plan.metadata,
+    };
+  }
 }
 
 /**
@@ -1084,8 +1270,11 @@ class StripeHelper {
 function createStripeHelper(log, config, statsd) {
   return new StripeHelper(log, config, statsd);
 }
-// HACK: Hang a reference for StripeHelper off the factory function so we
-// can use it as a type in bin/key_server.js while keeping the exports simple.
-createStripeHelper.StripeHelper = StripeHelper;
+// HACK: Hang some references off the factory function so we can use it as
+// a type in bin/key_server.js while keeping the exports simple.
+Object.assign(createStripeHelper, {
+  StripeHelper,
+  SUBSCRIPTION_UPDATE_TYPES,
+});
 
 module.exports = createStripeHelper;
