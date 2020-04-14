@@ -161,10 +161,14 @@ const CancelSubscriptionPanel = ({
     }
   }, [engaged, plan]);
 
-  const engagedOnHideCancel = useCallback(() => {
-    engage();
-    hideCancel();
-  }, [hideCancel, engage]);
+  const engagedOnHideCancel = useCallback(
+    evt => {
+      engage();
+      onConfirmationChanged(evt);
+      hideCancel();
+    },
+    [hideCancel, engage]
+  );
 
   const engagedOnConfirmationChanged = useCallback(
     evt => {
@@ -203,9 +207,11 @@ const CancelSubscriptionPanel = ({
             <Localized id="sub-item-cancel-sub">
               <h3>Cancel Subscription</h3>
             </Localized>
-            <Localized id="sub-item-cancel-msg"
-                       $name={plan.product_name}
-                       $period={formatPeriodEndDate(current_period_end)}>
+            <Localized
+              id="sub-item-cancel-msg"
+              $name={plan.product_name}
+              $period={formatPeriodEndDate(current_period_end)}
+            >
               <p>
                 You will no longer be able to use {plan.product_name} after{' '}
                 {formatPeriodEndDate(current_period_end)}, the last day of your
@@ -220,9 +226,11 @@ const CancelSubscriptionPanel = ({
                   defaultChecked={confirmationChecked}
                   onChange={engagedOnConfirmationChanged}
                 />
-                <Localized id="sub-item-cancel-confirm"
-                           $name={plan.product_name}
-                           $period={formatPeriodEndDate(current_period_end)}>
+                <Localized
+                  id="sub-item-cancel-confirm"
+                  $name={plan.product_name}
+                  $period={formatPeriodEndDate(current_period_end)}
+                >
                   <span>
                     Cancel my access and my saved information within{' '}
                     {plan.product_name} on{' '}
