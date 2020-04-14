@@ -4,6 +4,7 @@ set -e
 
 rm -rf coverage
 rm -rf .nyc_output
+mkdir -p var/public
 
 if [ -z "$NODE_ENV" ]; then export NODE_ENV=test; fi;
 

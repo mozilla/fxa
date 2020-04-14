@@ -2,40 +2,18 @@
 
 DIR=$(dirname "$0")
 
-# copied from /test/curl.sh
-function check() {
-  # Real startup of the servers takes longer than `pm start`.
-  # In order to check their urls, we have to wait for them (2 minutes) and periodically
-  # check if their endpoints are available.
-  # Function takes following parameters:
-  # * $1 - an url of an endpoint to check
-  # * $2 [optional] - expected status code of a response from this endpoint. Defaults to 200.
-  RETRY=12
-  for i in $(eval echo "{1..$RETRY}"); do
-    if [ $(curl -s -o /dev/null --silent -w "%{http_code}"  http://$1) == "${2:-200}" ]; then
-      return
-    else
-      if [ $i -lt $RETRY ]; then
-        sleep 10
-      fi
-    fi
-  done
-
-  exit 1
-}
-
 function test_suite() {
   local suite=$1
   local numGroups=6
 
   for i in $(seq $numGroups)
   do
-    node tests/intern.js --suites=${suite} --groupsCount=${numGroups} --groupNum=${i} --firefoxBinary=./firefox/firefox || \
-    node tests/intern.js --suites=${suite} --groupsCount=${numGroups} --groupNum=${i} --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
+    node tests/intern.js --suites="${suite}" --groupsCount=${numGroups} --groupNum="${i}" --firefoxBinary=./firefox/firefox || \
+    node tests/intern.js --suites="${suite}" --groupsCount=${numGroups} --groupNum="${i}" --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
   done
 }
 
-cd $DIR/..
+cd "$DIR/.."
 
 mkdir -p config
 cp ../version.json ./
@@ -44,14 +22,26 @@ cp ../version.json config
 npm run lint
 
 cd ../../
-npx pm2 start circleci_servers.json
+npx lerna run start \
+  --scope "123done" \
+  --scope "browserid-verifier" \
+  --scope "fxa-auth-db-mysql" \
+  --scope "fxa-auth-server" \
+  --scope "fxa-content-server" \
+  --scope "fxa-payments-server" \
+  --scope "fxa-profile-server" \
+  --scope "fxa-support-panel" \
+  --concurrency 1 > /dev/null
+npx pm2 ls
+# ensure email-service is ready
+_scripts/check-url.sh 127.0.0.1:8001/__heartbeat__
+# ensure payments-server is ready
+_scripts/check-url.sh 127.0.0.1:3031/__lbheartbeat__
+# ensure content-server is ready
+_scripts/check-url.sh 127.0.0.1:3030/bundle/app.bundle.js
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
-
-# ensure email-service is ready
-check 127.0.0.1:8001/__heartbeat__
-check 127.0.0.1:3031/__lbheartbeat__
 test_suite circle
 
 # node 5 currently has the least work to do in the above tests

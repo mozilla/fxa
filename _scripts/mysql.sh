@@ -22,4 +22,4 @@ docker run --rm --name=mydb \
   -p 3306:3306 \
   mysql/mysql-server:5.6 &
 
-while :; do read; done
+while :; do read -r; done

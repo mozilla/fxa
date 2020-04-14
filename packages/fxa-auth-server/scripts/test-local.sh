@@ -16,6 +16,8 @@ DEFAULT_ARGS="--recursive --timeout 5000 --exit"
 ./scripts/gen_vapid_keys.js
 ./scripts/oauth_gen_keys.js
 node ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
+npm run lint:eslint
+grunt copyright
 
 GLOB=$*
 if [ -z "$GLOB" ]; then
@@ -34,6 +36,3 @@ if [ -z "$GLOB" ]; then
 else
   ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
 fi
-
-npm run lint:eslint
-grunt copyright

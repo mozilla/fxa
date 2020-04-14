@@ -59,11 +59,11 @@ The most common commands are:
 
 - `./pm2 logs` - logs for all servers (note: this must be used to verify accounts).
 
-- `./pm2 logs 1` - display logs for process `1`.
+- `./pm2 logs auth` - display logs for service `auth`.
 
-- `./pm2 stop 1` - stop process `1`.
+- `./pm2 stop content` - stop `content` service.
 
-- `./pm2 restart 1` - restart process `1`.
+- `./pm2 restart mysql` - restart `mysql` process.
 
 - More commands in the [PM2 Readme](https://github.com/Unitech/PM2#main-features).
 
@@ -88,7 +88,7 @@ Once you are back working on FxA just use the `npm start` command to bring the s
 
 Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server.
 
-When you signup for an account using the form on `127.0.0.1:3030/signup` the "auth-server local mail helper" logs will print out the verification code that you need to copy paste into your browser to verify your account locally:
+When you signup for an account using the form on `127.0.0.1:3030/signup` the "inbox" logs will print out the verification code that you need to copy paste into your browser to verify your account locally:
 
 ![](https://i.imgur.com/cdh9Xrl.png)
 
@@ -111,7 +111,6 @@ If you get an `error` status for any of the servers please verify that you insta
 > [libgmp](https://gmplib.org/),
 > [graphicsmagick](http://www.graphicsmagick.org/),
 > [docker](https://docs.docker.com/),
-> [grunt](https://github.com/gruntjs/grunt-cli),
 > [gcloud CLI](https://cloud.google.com/sdk/)
 
 ##### OS X (with [Brew](http://brew.sh/)):
@@ -196,16 +195,6 @@ Once the installer begins:
 4. Type "y" for "Modify PATH variable?"
 5. Select "1) Proceed with installation"
 
-#### Installing grunt
-
-```
-npm install -g grunt-cli
-```
-
----
-
----
-
 ---
 
 ### Secrets
@@ -221,7 +210,7 @@ Check out the Secrets section in the following READMEs:
 
 ### Firefox Custom Profile
 
-**Use `npm run start-firefox` to start Firefox with local server configurations.**
+**Use `npm start firefox` to start Firefox with local server configurations.**
 Available options:
 
 - `FXA_ENV=local` or `latest` or `stable` or `stage` (NOTE: `local` is default).
@@ -236,33 +225,23 @@ Available options:
 
 **The following requires [the JDK](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk) and tests the local servers only.**
 
+## run the following commands from the fxa-content-server directory
+
 To run all functional tests:
 
 ```
-npm test
+npm run test-functional
 ```
-
-Note that as of 2019-07-08, running this command at the project root will fail ([see issue #725](https://github.com/mozilla/fxa/issues/725)). Instead, run the command in the server that needs to be tested.
 
 To run a specific test or tests whose name matches part of a search string:
 
 ```
-node tests/intern.js --suites=all --grep="Test string to search for"
+npm run test-functional -- --grep="Test name"
 ```
 
-To run a single test:
+--where 'Test name' is not the file name but the description/name of the test(s).
 
-```
-npm run test-functional -- "--grep=Test name"
-```
-
---where 'Test name' is not the file name but the description/name of the test.
-
-```
-node tests/intern.js --grep="Test name"
-```
-
-## run the above command from the fxa-content-server directory
+---
 
 ### Node debugging
 
@@ -272,33 +251,23 @@ We have also extensively documented working with the [FxA code-base using VS Cod
 
 #### Debugging a server
 
-In the case of Firefox Accounts, the `pm2` process manager complicates setup a bit. Here's one approach that works:
+`npm start` runs some of the services with the debugger enabled by default.
 
 1. Start the whole server as usual (`npm install && npm start` from top-level in the monorepo)
-2. Stop the pm2-managed version of whatever server you care about:
-   - Get the pm2 `id` for the server from `./pm2 ls`
-   - Stop the process by doing `./pm2 stop NN` where NN is the pm2 `id`
-3. Restart the server manually, passing the `--inspect` argument:
-   - For fxa-content-server, fxa-payments-server, fxa-auth-server, or fxa-event-broker, just go to the package directory and do `npm run start-dev-debug` to start a debuggable server process.
-   - For other servers, we just haven't added a `start-dev-debug` run script yet; feel free to add one by tracing through the existing run scripts to find the actual script that runs the server (not one that forks another script).
-4. Connect to the process to debug it:
+2. To see which debug port each service is listening on check `.vscode/launch.json` or the `pm2.config.js` file of the package you're interested in.
+3. Connect to the process to debug it:
    - Using Google Chrome, go to `chrome://inspect`, then click the process to connect to devtools.
+     - you may need to add a new target in the "Configure..." menu with the correct debug port
    - VSCode requires setting up a `.vscode/launch.json` file; see the [VSCode docs](https://code.visualstudio.com/docs/nodejs/nodejs-debugging) for details.
-
-Alternatively if you want to be able to debug any of several servers that is configured with a `start-dev-debug` script you can start `pm2` using the `debug_servers.json` file:
-
-```bash
-pm2 kill
-pm2 start debug_servers.json
-```
 
 ##### Default Debug Ports
 
-If you're using `npm run start-dev-debug` or `pm2` with the `debug_server.json`, the following ports are used for `--inspect`:
+If you're using `npm start`, the following ports are used for `--inspect`:
 
 | Port | Service         |
 | ---- | --------------- |
-| 9140 | content-server  |
+| 9130 | content-server  |
+| 9140 | admin-panel     |
 | 9150 | admin-server    |
 | 9160 | auth-server     |
 | 9170 | payments-server |
@@ -393,7 +362,7 @@ npm install maildev -g
 
 ```bash
 npm start
-./pm2 stop 'auth-server local mail helper'
+./pm2 stop inbox
 ```
 
 Once services have started, you can start MailDev on port 9999. You might have to start MailDev with sudo permissions.
@@ -405,10 +374,6 @@ sudo maildev -s 9999
 All emails sent can be viewed from [http://localhost:1080](http://localhost:1080).
 
 ---
-
-### Other tasks
-
-- [Updating dependencies and `npm-shrinkwrap.json` files](https://mozilla.github.io/application-services/docs/accounts/local-development.html#updating-npm-shrinkwrap).
 
 ### Documentation
 

@@ -64,7 +64,7 @@ describe('Client Webhook Service', () => {
   });
 
   describe('using local Firestore', () => {
-    before(() => {
+    before(async () => {
       const fs = new Firestore({
         customHeaders: {
           Authorization: 'Bearer owner'
@@ -76,10 +76,14 @@ describe('Client Webhook Service', () => {
       });
       db = new FirestoreDatastore({ prefix: 'fxatest-' }, fs);
       service = new ClientWebhookService(logger, 600, db);
+      await service.start();
+    });
+
+    after(async () => {
+      await service.stop();
     });
 
     it('handles immediate updates', async () => {
-      await service.start();
       cassert.deepEqual(service.serviceData(), {});
       // Manually insert into the db
       const document = (db as any).db.doc('fxatest-clients/test');
@@ -89,7 +93,6 @@ describe('Client Webhook Service', () => {
       // Manually delete from the db
       await document.delete();
       cassert.deepEqual(service.serviceData(), {});
-      await service.stop();
     });
   });
 });

@@ -4,17 +4,16 @@
   "description": "Firefox Accounts monorepo",
   "scripts": {
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
-    "postinstall": "_scripts/install_all.sh",
-    "npm-ci-all": "lerna exec --parallel --ignore fxa-amplitude-send -- npm ci",
+    "postinstall": "_scripts/install-all.sh",
     "audit": "lerna run audit --parallel",
-    "start": "_scripts/check_ports.sh && pm2 start mysql_servers.json && echo \"Use 'npm stop' to stop all the servers\"",
-    "stop": "pm2 kill",
-    "firefox": "./packages/fxa-dev-launcher/bin/fxa-dev-launcher",
-    "start-firefox": "npm run firefox",
+    "start": "nps --prefix=start",
+    "stop": "nps --prefix=stop",
+    "restart": "nps --prefix=restart",
     "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",
-    "format": "lerna run format"
+    "format": "lerna run format",
+    "ports": "pm2 jlist | json -d'\t' -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
@@ -27,6 +26,7 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
+    "@dannycoates/nps": "^5.9.12",
     "diffparser": "^2.0.1",
     "husky": "^4.2.3",
     "lerna": "^3.20.2",
@@ -73,7 +73,7 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint -c .eslintrc",
+      "eslint -c _dev/.eslintrc",
       "prettier --write"
     ],
     "*.{ts,tsx}": [
@@ -89,6 +89,7 @@
   "devDependencies": {
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
-    "eslint-plugin-jest": "^23.8.2"
+    "eslint-plugin-jest": "^23.8.2",
+    "json": "^9.0.6"
   }
 }

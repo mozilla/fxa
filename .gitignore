@@ -61,8 +61,12 @@ Thumbs.db
 !.nsprc
 !.sass-lint.yml
 !.prettier*
+!.vscode
 
 ## Package-specific ##
+
+# circleci
+.circleci/local.yml
 
 # browserid-verifier
 packages/browserid-verifier/loadtest/venv

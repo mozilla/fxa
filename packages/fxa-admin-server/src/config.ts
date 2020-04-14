@@ -93,7 +93,6 @@ envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
-
 const Config = conf;
 
 export default Config;
