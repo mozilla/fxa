@@ -11,7 +11,7 @@ import { ReactStripeElements } from 'react-stripe-elements';
 import nock from 'nock';
 import fs from 'fs';
 import path from 'path';
-import { FluentBundle } from 'fluent';
+import { FluentBundle, FluentResource } from '@fluent/bundle';
 
 import { State } from '../store/state';
 import { Store, createAppStore } from '../../src/store';
@@ -212,8 +212,8 @@ export const defaultAppContextValue = (): AppContextType => ({
       addListener: jest.fn(),
       addEventListener: jest.fn(),
       removeListener: jest.fn(),
-      removeEventListener: jest.fn()
-    }
+      removeEventListener: jest.fn(),
+    };
   }),
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
@@ -290,7 +290,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: PLAN_ID,
     product_id: PRODUCT_ID,
     product_name: PRODUCT_NAME,
-    interval: 'month',
+    interval: 'month' as const,
     interval_count: 1,
     amount: 500,
     currency: 'usd',
@@ -303,7 +303,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: '123doneProMonthly',
     product_id: '123donepro',
     product_name: '123doneProProduct',
-    interval: 'month',
+    interval: 'month' as const,
     interval_count: 1,
     amount: 2500,
     currency: 'usd',
@@ -316,7 +316,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_upgrade',
     product_id: 'prod_upgrade',
     product_name: 'Upgrade Product',
-    interval: 'month',
+    interval: 'month' as const,
     interval_count: 1,
     amount: 5900,
     currency: 'usd',
@@ -328,7 +328,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_daily',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'day',
+    interval: 'day' as const,
     interval_count: 1,
     amount: 500,
     currency: 'usd',
@@ -340,7 +340,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_6days',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'day',
+    interval: 'day' as const,
     interval_count: 6,
     amount: 500,
     currency: 'usd',
@@ -352,7 +352,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_weekly',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'week',
+    interval: 'week' as const,
     interval_count: 1,
     amount: 500,
     currency: 'usd',
@@ -364,7 +364,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_6weeks',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'week',
+    interval: 'week' as const,
     interval_count: 6,
     amount: 500,
     currency: 'usd',
@@ -376,7 +376,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_monthly',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'month',
+    interval: 'month' as const,
     interval_count: 1,
     amount: 500,
     currency: 'usd',
@@ -388,7 +388,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_6months',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'month',
+    interval: 'month' as const,
     interval_count: 6,
     amount: 500,
     currency: 'usd',
@@ -400,7 +400,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_yearly',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'year',
+    interval: 'year' as const,
     interval_count: 1,
     amount: 500,
     currency: 'usd',
@@ -412,7 +412,7 @@ export const MOCK_PLANS: Plan[] = [
     plan_id: 'plan_6years',
     product_id: 'prod_fpn',
     product_name: 'FPN',
-    interval: 'year',
+    interval: 'year' as const,
     interval_count: 6,
     amount: 500,
     currency: 'usd',
@@ -508,8 +508,9 @@ export function setupFluentLocalizationTest(locale: string): FluentBundle {
     'main.ftl'
   );
   const messages = fs.readFileSync(filepath).toString();
+  const resource = new FluentResource(messages);
   const bundle = new FluentBundle(locale, { useIsolating: false });
-  bundle.addMessages(messages);
+  bundle.addResource(resource);
 
   return bundle;
 }
@@ -519,12 +520,12 @@ export function getLocalizedMessage(
   msgId: string,
   args: any
 ): string {
-  const msg = bundle.getMessage(msgId);
-  if (msg === undefined) {
+  let localizedMessage = bundle.getMessage(msgId);
+  if (localizedMessage === undefined || localizedMessage.value === null) {
     throw Error(`unable to locate fluent message with id: '${msgId}'`);
   }
 
-  return bundle.format(msg, { ...args });
+  return bundle.formatPattern(localizedMessage.value, { ...args });
 }
 
 export default MockApp;

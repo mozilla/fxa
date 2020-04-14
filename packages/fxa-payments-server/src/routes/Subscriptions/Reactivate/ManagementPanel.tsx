@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import {
   Plan,
   CustomerSubscription,
@@ -7,7 +7,7 @@ import {
   Customer,
 } from '../../../store/types';
 import { useBooleanState } from '../../../lib/hooks';
-import { formatPeriodEndDate } from '../../../lib/formats';
+import { getLocalizedDateString, getLocalizedDate } from '../../../lib/formats';
 import { ActionFunctions } from '../../../store/actions';
 import ReactivationConfirmationDialog from './ConfirmationDialog';
 
@@ -41,21 +41,17 @@ export default ({
     hideReactivateConfirmation,
   ]);
 
-  // TODO: date formats will need i18n someday
-  const cancelledAtDate = subscription.cancelledAt
-    ? formatPeriodEndDate((subscription.cancelledAt as number) / 1000)
+  const cancelledAt = subscription.cancelledAt
+    ? (subscription.cancelledAt as number) / 1000
     : null;
 
-  // TODO: date formats will need i18n someday
-  const periodEndDate = formatPeriodEndDate(
-    customerSubscription.current_period_end
-  );
+  const periodEndTimeStamp = customerSubscription.current_period_end;
 
   return (
     <>
       {reactivateConfirmationRevealed && (
         <ReactivationConfirmationDialog
-          {...{ plan, customer, periodEndDate }}
+          {...{ plan, customer, periodEndDate: periodEndTimeStamp }}
           onDismiss={hideReactivateConfirmation}
           onConfirm={onReactivateClick}
         />
@@ -63,22 +59,26 @@ export default ({
       <div className="subscription-cancelled">
         <div className="with-settings-button">
           <div className="subscription-cancelled-details">
-            {cancelledAtDate && (
-              <Localized id="reactivate-panel-date" $date={cancelledAtDate}>
+            {cancelledAt && (
+              <Localized
+                id="reactivate-panel-date"
+                $date={getLocalizedDate(cancelledAt)}
+              >
                 <p data-testid="subscription-cancelled-date">
-                  You cancelled your subscription on {cancelledAtDate}.
+                  You cancelled your subscription on{' '}
+                  {getLocalizedDateString(cancelledAt)}.
                 </p>
               </Localized>
             )}
             <Localized
               id="reactivate-panel-copy"
               $name={plan.product_name}
-              $date={periodEndDate}
+              $date={getLocalizedDate(periodEndTimeStamp)}
               strong={<strong></strong>}
             >
               <p>
                 You will lose access to {plan.product_name} on{' '}
-                <strong>{periodEndDate}</strong>.
+                <strong>{getLocalizedDateString(periodEndTimeStamp)}</strong>.
               </p>
             </Localized>
           </div>

@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useMemo } from 'react';
 import { connect } from 'react-redux';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';

@@ -209,7 +209,7 @@ describe('support', () => {
         const zendeskReq = spy.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
-          `${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
+          `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
@@ -258,7 +258,7 @@ describe('support', () => {
         const zendeskReq = spy.firstCall.args[0].request;
         assert.equal(
           zendeskReq.subject,
-          `${requestOptions.payload.plan}: ${requestOptions.payload.subject}`
+          `${requestOptions.payload.productName}: ${requestOptions.payload.subject}`
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(

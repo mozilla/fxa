@@ -29,15 +29,6 @@ const assertActionPayload = (
     ).payload
   ).toEqual(payload);
 
-const PLAN: Plan = {
-  plan_id: 'plan_8675309',
-  product_id: 'prod_8675309',
-  product_name: 'Example product',
-  currency: 'usd',
-  amount: 599,
-  interval: 'monthly',
-};
-
 describe('resetActions', () => {
   const actionNames: ActionsKey[] = [
     'resetCreateSubscription',

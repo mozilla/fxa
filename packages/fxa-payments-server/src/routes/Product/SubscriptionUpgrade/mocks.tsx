@@ -42,7 +42,7 @@ export const SELECTED_PLAN: Plan = {
   product_name: 'Better Upgrade Product',
   currency: 'USD',
   amount: 2999,
-  interval: 'month',
+  interval: 'month' as const,
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=2',
@@ -55,7 +55,7 @@ export const UPGRADE_FROM_PLAN: Plan = {
   product_name: 'Example Product',
   currency: 'USD',
   amount: 999,
-  interval: 'month',
+  interval: 'month' as const,
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=9',
