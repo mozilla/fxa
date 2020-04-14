@@ -1,13 +1,12 @@
-var path = require("path");
 var chalk = require("chalk");
 
 var CONFIGS = {
   local: {
-    auth: "http://127.0.0.1:9000/v1",
-    content: "http://127.0.0.1:3030/",
+    auth: "http://localhost:9000/v1",
+    content: "http://localhost:3030/",
     token: "http://localhost:5000/token/1.0/sync/1.5",
     loop: "http://localhost:10222",
-    oauth: "http://127.0.0.1:9000/v1",
+    oauth: "http://localhost:9000/v1",
     profile: "http://localhost:1111/v1"
   },
   latest: {
@@ -19,7 +18,7 @@ var CONFIGS = {
   },
   "start-remote": {
     auth: "https://fxaci.dev.lcip.org/auth/v1",
-    content: "http://127.0.0.1:3030/",
+    content: "http://localhost:3030/",
     token: "https://fxaci.dev.lcip.org/syncserver/token/1.0/sync/1.5",
     oauth: "https://oauth-fxaci.dev.lcip.org/v1",
     profile: "https://fxaci.dev.lcip.org/profile/v1"
@@ -65,7 +64,6 @@ if (!fxaEnv) {
   };
 }
 
-var FXA_DESKTOP_CONTEXT = process.env.FXA_DESKTOP_CONTEXT || "fx_desktop_v3";
 var fxaProfile = {
   // enable debugger and toolbox
   "devtools.chrome.enabled": true,
@@ -87,7 +85,7 @@ var fxaProfile = {
   "services.sync.log.appender.file.logOnSuccess": true,
   "services.sync.log.appender.console": "Debug",
   "browser.uitour.testingOrigins":
-    "http://127.0.0.1:8001,http://127.0.0.1:8000,https://www.mozilla.org,https://www.allizom.org,https://www-demo5.allizom.org,https://www-dev.allizom.org",
+    "http://localhost:8001,http://localhost:8000,https://www.mozilla.org,https://www.allizom.org,https://www-demo5.allizom.org,https://www-dev.allizom.org",
   "browser.uitour.requireSecure": false,
   "services.sync.log.appender.dump": "Debug",
   "identity.fxaccounts.auth.uri": fxaEnv.auth,

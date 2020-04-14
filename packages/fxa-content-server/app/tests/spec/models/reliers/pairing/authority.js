@@ -16,7 +16,7 @@ const ACTION = 'email';
 const ACCESS_TYPE = 'offline';
 const CLIENT_ID = 'dcdb5ae7add825d2';
 const SCOPE = 'profile:email profile:uid';
-const SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
+const SERVER_REDIRECT_URI = 'http://localhost:8080/api/oauth';
 const SERVICE_NAME = '123Done';
 const STATE = 'fakestatetoken';
 

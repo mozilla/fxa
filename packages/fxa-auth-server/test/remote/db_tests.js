@@ -1251,7 +1251,7 @@ describe('remote db', function() {
   it('db.securityEvent', () => {
     return db
       .securityEvent({
-        ipAddr: '127.0.0.1',
+        ipAddr: 'localhost',
         name: 'account.create',
         uid: account.uid,
       })
@@ -1260,7 +1260,7 @@ describe('remote db', function() {
         assert.equal(Object.keys(resp).length, 0);
 
         return db.securityEvent({
-          ipAddr: '127.0.0.1',
+          ipAddr: 'localhost',
           name: 'account.login',
           uid: account.uid,
         });
@@ -1274,13 +1274,13 @@ describe('remote db', function() {
   it('db.securityEvents', () => {
     return db
       .securityEvent({
-        ipAddr: '127.0.0.1',
+        ipAddr: 'localhost',
         name: 'account.create',
         uid: account.uid,
       })
       .then(() => {
         return db.securityEvents({
-          ipAddr: '127.0.0.1',
+          ipAddr: 'localhost',
           uid: account.uid,
         });
       })
@@ -1292,7 +1292,7 @@ describe('remote db', function() {
   it('db.securityEventsByUid', () => {
     return db
       .securityEvent({
-        ipAddr: '127.0.0.1',
+        ipAddr: 'localhost',
         name: 'account.create',
         uid: account.uid,
       })
@@ -1309,7 +1309,7 @@ describe('remote db', function() {
   it('db.deleteSecurityEvents', () => {
     return db
       .securityEvent({
-        ipAddr: '127.0.0.1',
+        ipAddr: 'localhost',
         name: 'account.create',
         uid: account.uid,
       })

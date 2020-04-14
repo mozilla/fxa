@@ -8,7 +8,7 @@ import { configureSentry } from '../../lib/sentry';
 
 describe('Sentry', () => {
   it('can be set up when sentry is enabled', async () => {
-    const dsn = 'https://deadbeef:deadbeef@127.0.0.1/123';
+    const dsn = 'https://deadbeef:deadbeef@localhost/123';
     try {
       await configureSentry({ dsn });
     } catch (err) {

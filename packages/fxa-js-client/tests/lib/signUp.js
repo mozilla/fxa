@@ -112,7 +112,7 @@ describe('signUp', function() {
     var password = 'iliketurtles';
     var opts = {
       service: 'sync',
-      redirectTo: 'https://sync.127.0.0.1/after_reset',
+      redirectTo: 'https://sync.localhost/after_reset',
       resume: 'resumejwt',
     };
 
@@ -174,7 +174,7 @@ describe('signUp', function() {
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
     var opts = {
-      redirectTo: 'http://sync.127.0.0.1/after_reset',
+      redirectTo: 'http://sync.localhost/after_reset',
     };
 
     return respond(client.signUp(email, password, opts), RequestMocks.signUp)

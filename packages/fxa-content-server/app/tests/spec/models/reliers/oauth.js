@@ -34,7 +34,7 @@ describe('models/reliers/oauth', () => {
   var CLIENT_IMAGE_URI =
     'https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.pngx';
   var PROMPT = OAuthPrompt.CONSENT;
-  var QUERY_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
+  var QUERY_REDIRECT_URI = 'http://localhost:8080/api/oauth';
   var SCOPE = 'profile:email profile:uid';
   var SCOPE_OLDSYNC = 'https://identity.mozilla.com/apps/oldsync';
   var SCOPE_PROFILE = Constants.OAUTH_TRUSTED_PROFILE_SCOPE;
@@ -44,7 +44,7 @@ describe('models/reliers/oauth', () => {
   var PERMISSIONS = ['profile:email', 'profile:uid'];
   var SCOPE_WITH_EXTRAS = 'profile:email profile:uid profile:non_whitelisted';
   var SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
-  var SERVER_REDIRECT_URI = 'http://127.0.0.1:8080/api/oauth';
+  var SERVER_REDIRECT_URI = 'http://localhost:8080/api/oauth';
   var SERVICE = 'service';
   var SERVICE_NAME = '123Done';
   var STATE = 'fakestatetoken';

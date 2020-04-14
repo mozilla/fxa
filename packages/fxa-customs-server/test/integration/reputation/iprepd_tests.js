@@ -59,7 +59,7 @@ process.env.REPUTATION_SERVICE_HAWK_KEY = config.reputationService.hawkKey;
 var testServer = new TestServer(config);
 
 var client = restifyClients.createJsonClient({
-  url: 'http://127.0.0.1:' + config.listen.port,
+  url: 'http://localhost:' + config.listen.port,
 });
 
 Promise.promisifyAll(client, { multiArgs: true });

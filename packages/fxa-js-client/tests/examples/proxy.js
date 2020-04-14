@@ -13,7 +13,7 @@ var httpProxy = require('http-proxy');
 
 var proxy = httpProxy.createProxyServer();
 var port = 9133;
-var targetAuthServer = 'http://127.0.0.1:9000';
+var targetAuthServer = 'http://localhost:9000';
 
 http
   .createServer(function(req, res) {

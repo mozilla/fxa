@@ -4,7 +4,7 @@
 
 var nock = require('nock');
 
-var CUSTOMS_URL_REAL = 'http://127.0.0.1:7000';
+var CUSTOMS_URL_REAL = 'http://localhost:7000';
 
 var customs = require('../lib/customs.js')({
   url: CUSTOMS_URL_REAL,

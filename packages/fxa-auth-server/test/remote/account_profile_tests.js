@@ -21,7 +21,7 @@ describe('fetch user profile data', function() {
     if (config.subscriptions) {
       config.subscriptions.enabled = false;
     }
-    config.oauth.url = 'http://127.0.0.1:9000';
+    config.oauth.url = 'http://localhost:9000';
     server = await TestServer.start(config, false);
   });
 

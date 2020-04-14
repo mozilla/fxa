@@ -26,7 +26,7 @@ function generateOAuthCode() {
 
 const OAUTH_STATUS_MESSAGE = 'fxaccounts:fxa_status';
 const OAUTH_LOGIN_MESSAGE = 'fxaccounts:oauth_login';
-const REDIRECT_URI = 'https://127.0.0.1:8080';
+const REDIRECT_URI = 'https://localhost:8080';
 const VALID_OAUTH_CODE = generateOAuthCode();
 
 describe('models/auth_brokers/oauth-webchannel-v1', () => {

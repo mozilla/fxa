@@ -56,10 +56,10 @@ const conf = convict({
   },
   listen: {
     host: {
-      default: '127.0.0.1',
+      default: 'localhost',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
-      format: 'ipaddress',
+      format: String,
     },
     port: {
       default: 8091,
@@ -68,7 +68,7 @@ const conf = convict({
       format: 'port',
     },
     publicUrl: {
-      default: 'http://127.0.0.1:8091',
+      default: 'http://localhost:8091',
       env: 'PUBLIC_URL',
       format: 'url',
     },
@@ -104,7 +104,7 @@ const conf = convict({
   servers: {
     admin: {
       url: {
-        default: 'http://127.0.0.1:8090',
+        default: 'http://localhost:8090',
         doc: 'The url of the fxa-admin-server instance',
         env: 'ADMIN_SERVER_URL',
         format: 'url',
@@ -125,7 +125,7 @@ const conf = convict({
       format: 'duration',
     },
     url: {
-      default: 'http://127.0.0.1:8091',
+      default: 'http://localhost:8091',
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
       format: 'url',

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 printf ">> Create ca.key, use a password phrase when asked.\n"
-printf ">> When asked 'Common Name (e.g. server FQDN or YOUR name) []:' use your hostname, i.e '127.0.0.1'\n\n"
+printf ">> When asked 'Common Name (e.g. server FQDN or YOUR name) []:' use your hostname, i.e 'localhost'\n\n"
 openssl genrsa -des3 -out ca.key 1024
 openssl req -new -key ca.key -out ca.csr
 openssl x509 -req -days 365 -in ca.csr -out ca.crt -signkey ca.key

@@ -17,11 +17,11 @@ describe('remote-address', () => {
     const result = remoteAddress({
       connection: {},
       headers: {
-        'x-forwarded-for': ' 194.12.187.0 , 127.0.0.1,wibble,127.0.0.1',
+        'x-forwarded-for': ' 194.12.187.0 , localhost,wibble,localhost',
       },
     });
     assert.deepEqual(result, {
-      addresses: ['194.12.187.0', '127.0.0.1', '127.0.0.1'],
+      addresses: ['194.12.187.0', 'localhost', 'localhost'],
       clientAddress: '194.12.187.0',
     });
   });
@@ -30,11 +30,11 @@ describe('remote-address', () => {
     const result = remoteAddress({
       connection: {},
       headers: {
-        'x-forwarded-for': '63.245.221.32, 127.0.0.1',
+        'x-forwarded-for': '63.245.221.32, localhost',
       },
     });
     assert.deepEqual(result, {
-      addresses: ['63.245.221.32', '127.0.0.1'],
+      addresses: ['63.245.221.32', 'localhost'],
       clientAddress: '63.245.221.32',
     });
   });
@@ -43,11 +43,11 @@ describe('remote-address', () => {
     const result = remoteAddress({
       connection: {},
       headers: {
-        'x-forwarded-for': '127.0.0.1, 194.12.187.1, 127.0.0.1, 127.0.0.1',
+        'x-forwarded-for': 'localhost, 194.12.187.1, localhost, localhost',
       },
     });
     assert.deepEqual(result, {
-      addresses: ['127.0.0.1', '194.12.187.1', '127.0.0.1', '127.0.0.1'],
+      addresses: ['localhost', '194.12.187.1', 'localhost', 'localhost'],
       clientAddress: '194.12.187.1',
     });
   });
@@ -55,12 +55,12 @@ describe('remote-address', () => {
   it('returns correct result with three forwarded addresses and request.ip', () => {
     const result = remoteAddress({
       headers: {
-        'x-forwarded-for': '127.0.0.1, 194.12.187.0, 127.0.0.1',
+        'x-forwarded-for': 'localhost, 194.12.187.0, localhost',
       },
-      ip: '127.0.0.1',
+      ip: 'localhost',
     });
     assert.deepEqual(result, {
-      addresses: ['127.0.0.1', '194.12.187.0', '127.0.0.1', '127.0.0.1'],
+      addresses: ['localhost', '194.12.187.0', 'localhost', 'localhost'],
       clientAddress: '194.12.187.0',
     });
   });
@@ -68,14 +68,14 @@ describe('remote-address', () => {
   it('returns correct result with three forwarded addresses and request.connection.remoteAddress', () => {
     const result = remoteAddress({
       connection: {
-        remoteAddress: '127.0.0.1',
+        remoteAddress: 'localhost',
       },
       headers: {
-        'x-forwarded-for': '127.0.0.1, 194.12.187.0, 127.0.0.1',
+        'x-forwarded-for': 'localhost, 194.12.187.0, localhost',
       },
     });
     assert.deepEqual(result, {
-      addresses: ['127.0.0.1', '194.12.187.0', '127.0.0.1', '127.0.0.1'],
+      addresses: ['localhost', '194.12.187.0', 'localhost', 'localhost'],
       clientAddress: '194.12.187.0',
     });
   });
@@ -83,15 +83,15 @@ describe('remote-address', () => {
   it('returns correct result with three forwarded addresses and request.ip and request.connection.remoteAddress', () => {
     const result = remoteAddress({
       connection: {
-        remoteAddress: '127.0.0.1',
+        remoteAddress: 'localhost',
       },
       headers: {
-        'x-forwarded-for': '127.0.0.1, 194.12.187.0, 127.0.0.1',
+        'x-forwarded-for': 'localhost, 194.12.187.0, localhost',
       },
       ip: '192.168.1.254',
     });
     assert.deepEqual(result, {
-      addresses: ['127.0.0.1', '194.12.187.0', '127.0.0.1', '192.168.1.254'],
+      addresses: ['localhost', '194.12.187.0', 'localhost', '192.168.1.254'],
       clientAddress: '194.12.187.0',
     });
   });
@@ -102,25 +102,25 @@ describe('remote-address', () => {
         remoteAddress: 'wibble',
       },
       headers: {
-        'x-forwarded-for': '127.0.0.1',
+        'x-forwarded-for': 'localhost',
       },
     });
     assert.deepEqual(result, {
-      addresses: ['127.0.0.1'],
-      clientAddress: '127.0.0.1',
+      addresses: ['localhost'],
+      clientAddress: 'localhost',
     });
   });
 
   it('ignores bad request.ip', () => {
     const result = remoteAddress({
       headers: {
-        'x-forwarded-for': '127.0.0.1',
+        'x-forwarded-for': 'localhost',
       },
       ip: 'wibble',
     });
     assert.deepEqual(result, {
-      addresses: ['127.0.0.1'],
-      clientAddress: '127.0.0.1',
+      addresses: ['localhost'],
+      clientAddress: 'localhost',
     });
   });
 });

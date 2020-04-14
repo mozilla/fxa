@@ -16,7 +16,7 @@ import testHelpers from '../../lib/helpers';
 import VerificationMethods from 'lib/verification-methods';
 import VerificationReasons from 'lib/verification-reasons';
 
-var AUTH_SERVER_URL = 'http://127.0.0.1:9000';
+var AUTH_SERVER_URL = 'http://localhost:9000';
 var NON_SYNC_SERVICE = 'chronicle';
 var REDIRECT_TO = 'https://sync.firefox.com';
 var STATE = 'state';

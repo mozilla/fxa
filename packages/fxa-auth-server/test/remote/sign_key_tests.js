@@ -25,7 +25,7 @@ describe('remote sign key', function() {
   });
 
   it('.well-known/browserid has keys', () => {
-    return request('http://127.0.0.1:9000/.well-known/browserid').spread(
+    return request('http://localhost:9000/.well-known/browserid').spread(
       (res, body) => {
         assert.equal(res.statusCode, 200);
         const json = JSON.parse(body);

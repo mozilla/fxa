@@ -69,7 +69,7 @@ const conf = (module.exports = convict({
       format: Number,
     },
     api_url: {
-      default: 'http://127.0.0.1:10140',
+      default: 'http://localhost:10140',
       doc: 'DEPRECATED - Url for the Basket API server',
       format: String,
     },
@@ -79,7 +79,7 @@ const conf = (module.exports = convict({
       format: String,
     },
     proxy_url: {
-      default: 'http://127.0.0.1:1114',
+      default: 'http://localhost:1114',
       doc: 'DEPRECATED - Url for the Basket proxy server',
       format: String,
     },
@@ -186,7 +186,7 @@ const conf = (module.exports = convict({
     },
     redis: {
       host: {
-        default: '127.0.0.1',
+        default: 'localhost',
         doc: 'Redis host name or IP address',
         env: 'FEATURE_FLAGS_REDIS_HOST',
         format: String,
@@ -256,7 +256,7 @@ const conf = (module.exports = convict({
     },
   },
   fxaccount_url: {
-    default: 'http://127.0.0.1:9000',
+    default: 'http://localhost:9000',
     doc: 'The url of the Firefox Account auth server',
     env: 'FXA_URL',
     format: 'url',
@@ -369,7 +369,7 @@ const conf = (module.exports = convict({
   },
   marketing_email: {
     api_url: {
-      default: 'http://127.0.0.1:1114',
+      default: 'http://localhost:1114',
       doc: 'DEPRECATED - User facing URL of the Marketing Email Server',
       env: 'FXA_MARKETING_EMAIL_API_URL',
       format: 'url',
@@ -404,7 +404,7 @@ const conf = (module.exports = convict({
     format: Object,
   },
   oauth_url: {
-    default: 'http://127.0.0.1:9000',
+    default: 'http://localhost:9000',
     doc: 'The url of the Firefox Account OAuth server',
     env: 'FXA_OAUTH_URL',
     format: 'url',
@@ -471,19 +471,19 @@ const conf = (module.exports = convict({
   },
   process_type: 'ephemeral',
   profile_images_url: {
-    default: 'http://127.0.0.1:1112',
+    default: 'http://localhost:1112',
     doc: 'The url of the Firefox Account Profile Image Server',
     env: 'FXA_PROFILE_IMAGES_URL',
     format: 'url',
   },
   profile_url: {
-    default: 'http://127.0.0.1:1111',
+    default: 'http://localhost:1111',
     doc: 'The url of the Firefox Account Profile Server',
     env: 'FXA_PROFILE_URL',
     format: 'url',
   },
   public_url: {
-    default: 'http://127.0.0.1:3030',
+    default: 'http://localhost:3030',
     doc: 'The publically visible URL of the deployment',
     env: 'PUBLIC_URL',
   },
@@ -684,14 +684,14 @@ const conf = (module.exports = convict({
       format: 'nat',
     },
     managementUrl: {
-      default: 'http://127.0.0.1:3031',
+      default: 'http://localhost:3031',
       doc: 'The publicly visible URL of the subscription management server',
       env: 'SUBSCRIPTIONS_MANAGEMENT_URL',
       format: String,
     },
   },
   sync_tokenserver_url: {
-    default: 'http://127.0.0.1:5000/token',
+    default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',
     env: 'SYNC_TOKENSERVER_URL',
     format: 'url',

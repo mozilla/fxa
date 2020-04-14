@@ -114,7 +114,7 @@ const conf = convict({
       default: '0.0.0.0',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
-      format: 'ipaddress',
+      format: String,
     },
     port: {
       default: 3031,
@@ -123,7 +123,7 @@ const conf = convict({
       format: 'port',
     },
     publicUrl: {
-      default: 'http://127.0.0.1:3031',
+      default: 'http://localhost:3031',
       env: 'PUBLIC_URL',
       format: 'url',
     },
@@ -158,8 +158,8 @@ const conf = convict({
   },
   productRedirectURLs: {
     default: {
-      '123doneProProduct': 'http://127.0.0.1:8080/',
-      fortressProProduct: 'http://127.0.0.1:9292/download',
+      '123doneProProduct': 'http://localhost:8080/',
+      fortressProProduct: 'http://localhost:9292/download',
       prod_FUUNYnlDso7FeB: 'https://fortress-latest.dev.lcip.org/',
       prod_Ex9Z1q5yVydhyk: 'https://123done-latest.dev.lcip.org/',
       // todo get new prod_id for 123done stage
@@ -193,7 +193,7 @@ const conf = convict({
   servers: {
     auth: {
       url: {
-        default: 'http://127.0.0.1:9000',
+        default: 'http://localhost:9000',
         doc: 'The url of the fxa-auth-server instance',
         env: 'AUTH_SERVER_URL',
         format: 'url',
@@ -201,7 +201,7 @@ const conf = convict({
     },
     content: {
       url: {
-        default: 'http://127.0.0.1:3030',
+        default: 'http://localhost:3030',
         doc: 'The url of the corresponding fxa-content-server instance',
         env: 'CONTENT_SERVER_URL',
         format: 'url',
@@ -209,7 +209,7 @@ const conf = convict({
     },
     oauth: {
       url: {
-        default: 'http://127.0.0.1:9000',
+        default: 'http://localhost:9000',
         doc: 'The url of the corresponding fxa-oauth-server instance',
         env: 'OAUTH_SERVER_URL',
         format: 'url',
@@ -217,7 +217,7 @@ const conf = convict({
     },
     profile: {
       url: {
-        default: 'http://127.0.0.1:1111',
+        default: 'http://localhost:1111',
         doc: 'The url of the corresponding fxa-profile-server instance',
         env: 'PROFILE_SERVER_URL',
         format: 'url',
@@ -225,7 +225,7 @@ const conf = convict({
     },
     profileImages: {
       url: {
-        default: 'http://127.0.0.1:1112',
+        default: 'http://localhost:1112',
         doc: 'The url of the Firefox Account Profile Image Server',
         env: 'FXA_PROFILE_IMAGES_URL',
         format: 'url',
@@ -262,7 +262,7 @@ const conf = convict({
       format: 'duration',
     },
     url: {
-      default: 'http://127.0.0.1:3031',
+      default: 'http://localhost:3031',
       doc: 'The origin of the static resources',
       env: 'STATIC_RESOURCE_URL',
       format: 'url',

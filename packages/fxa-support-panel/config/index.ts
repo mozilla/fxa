@@ -56,7 +56,7 @@ const conf = convict({
       default: '0.0.0.0',
       doc: 'The ip address the server should bind',
       env: 'IP_ADDRESS',
-      format: 'ipaddress',
+      format: String,
     },
     port: {
       default: 7100,
@@ -65,7 +65,7 @@ const conf = convict({
       format: 'port',
     },
     publicUrl: {
-      default: 'http://127.0.0.1:3031',
+      default: 'http://localhost:3031',
       env: 'PUBLIC_URL',
       format: 'url',
     },

@@ -43,7 +43,7 @@ The Firefox Accounts (fxa) monorepo
 
 Note this starts up all required services, including Redis, MySQL, and Memcached. It is recommended that you don't run these services yourself, or occupy any of the [server ports](https://github.com/mozilla/fxa/blob/master/mysql_servers.json). Doing so may result in errors.
 
-4. Visit [127.0.0.1:3030](http://127.0.0.1:3030/).
+4. Visit [localhost:3030](http://localhost:3030/).
 
 Use the [PM2 tool](https://github.com/Unitech/PM2#main-features) to stop and start the servers, and read server logs.
 
@@ -88,7 +88,7 @@ Once you are back working on FxA just use the `npm start` command to bring the s
 
 Use the `./pm2 logs` command to get the logs of all servers. You may also use `./pm2 logs [id]` to just see the logs for that particular server.
 
-When you signup for an account using the form on `127.0.0.1:3030/signup` the "inbox" logs will print out the verification code that you need to copy paste into your browser to verify your account locally:
+When you signup for an account using the form on `localhost:3030/signup` the "inbox" logs will print out the verification code that you need to copy paste into your browser to verify your account locally:
 
 ![](https://i.imgur.com/cdh9Xrl.png)
 

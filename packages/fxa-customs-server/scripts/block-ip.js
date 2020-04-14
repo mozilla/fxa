@@ -9,7 +9,7 @@ Block an ip address for a number of seconds.
 
 Example:
 
-$ ./block-ip.js localhost:11211 127.0.0.1 600
+$ ./block-ip.js localhost:11211 localhost 600
 
 /*/
 

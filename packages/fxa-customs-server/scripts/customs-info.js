@@ -9,9 +9,9 @@ Look up customs info for an ip, email, or ip+email.
 
 Examples:
 
-$ ./customs-info.js localhost:11211 127.0.0.1
+$ ./customs-info.js localhost:11211 localhost
 $ ./customs-info.js localhost:11211 test@example.com
-$ ./customs-info.js localhost:11211 127.0.0.1test@example.com
+$ ./customs-info.js localhost:11211 localhosttest@example.com
 
 /*/
 

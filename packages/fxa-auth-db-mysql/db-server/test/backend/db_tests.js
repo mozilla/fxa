@@ -2447,7 +2447,7 @@ module.exports = function(config, DB) {
       const evA = 'account.login',
         evB = 'account.create',
         evC = 'account.reset';
-      const addr1 = '127.0.0.1',
+      const addr1 = 'localhost',
         addr2 = '::127.0.0.2';
 
       function insert(uid, addr, name, session) {
@@ -2572,7 +2572,7 @@ module.exports = function(config, DB) {
       const evA = 'account.login',
         evB = 'account.create',
         evC = 'account.reset';
-      const addr = '127.0.0.1';
+      const addr = 'localhost';
 
       function insert(uid, addr, name, session) {
         return db.createSecurityEvent({

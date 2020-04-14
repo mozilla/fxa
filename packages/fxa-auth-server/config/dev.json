@@ -1,6 +1,6 @@
 {
   "contentServer": {
-    "url": "http://127.0.0.1:3030"
+    "url": "http://localhost:3030"
   },
   "customsUrl": "none",
   "lockoutEnabled": true,
@@ -13,10 +13,10 @@
     "useMock": true
   },
   "smtp": {
-    "host": "127.0.0.1",
+    "host": "localhost",
     "port": 9999,
     "secure": false,
-    "redirectDomain": "127.0.0.1",
+    "redirectDomain": "localhost",
     "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/firefox-private-network/"
   },
   "snsTopicArn": "arn:aws:sns:local-01:000000000000:local-topic1",
@@ -34,7 +34,7 @@
     "jwtSecretKeys": ["megaz0rd"]
   },
   "profileServer": {
-    "url": "http://127.0.0.1:1111",
+    "url": "http://localhost:1111",
     "secretBearerToken": "8675309jenny"
   },
   "pushbox": {
@@ -45,7 +45,7 @@
   },
   "subhub": {
     "enabled": true,
-    "url": "http://127.0.0.1:8012/",
+    "url": "http://localhost:8012/",
     "key": "abcde",
     "useStubs": true,
     "stubs": {
@@ -58,10 +58,10 @@
             "capabilities:dcdb5ae7add825d2": "123donePro",
             "productSet": "123done_product",
             "productOrder": "1",
-            "upgradeCTA": "Interested in an upgrade? <a href=\"http://127.0.0.1:3030/subscriptions/products/123doneProPlusProduct \">Get Pro+!</a>",
+            "upgradeCTA": "Interested in an upgrade? <a href=\"http://localhost:3030/subscriptions/products/123doneProPlusProduct \">Get Pro+!</a>",
             "webIconURL": "http://placekitten.com/512/512?image=6",
             "emailIconURL": "http://placekitten.com/512/512?image=0",
-            "downloadURL": "http://127.0.0.1:8080/"
+            "downloadURL": "http://localhost:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -73,7 +73,7 @@
           "product_name": "123done Pro+",
           "product_metadata": {
             "capabilities:dcdb5ae7add825d2": "123donePro",
-            "downloadURL": "http://127.0.0.1:8080/",
+            "downloadURL": "http://localhost:8080/",
             "productSet": "123done_product",
             "productOrder": "2"
           },
@@ -89,7 +89,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=7",
             "emailIconURL": "http://placekitten.com/512/512?image=1",
-            "downloadURL": "http://127.0.0.1:8080/"
+            "downloadURL": "http://localhost:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -104,7 +104,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=8",
             "emailIconURL": "http://placekitten.com/512/512?image=2",
-            "downloadURL": "http://127.0.0.1:8080/"
+            "downloadURL": "http://localhost:8080/"
           },
           "interval": "month",
           "amount": 50,
@@ -118,7 +118,7 @@
             "capabilities": "fortress",
             "webIconURL": "http://placekitten.com/512/512?image=9",
             "emailIconURL": "http://placekitten.com/512/512?image=3",
-            "downloadURL": "http://127.0.0.1:9292/"
+            "downloadURL": "http://localhost:9292/"
           },
           "interval": "month",
           "amount": 50,
@@ -132,7 +132,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=10",
             "emailIconURL": "http://placekitten.com/512/512?image=4",
-            "downloadURL": "http://127.0.0.1:8080/"
+            "downloadURL": "http://localhost:8080/"
           },
           "interval": "week",
           "amount": 5,
@@ -147,7 +147,7 @@
             "capabilities:325b4083e32fe8e7": "321donePro",
             "webIconURL": "http://placekitten.com/512/512?image=11",
             "emailIconURL": "http://placekitten.com/512/512?image=5",
-            "downloadURL": "http://127.0.0.1:8080/"
+            "downloadURL": "http://localhost:8080/"
           },
           "interval": "week",
           "amount": 5,
@@ -171,10 +171,10 @@
   },
   "oauthServer": {
     "browserid": {
-      "issuer": "127.0.0.1:9000",
-      "verificationUrl": "http://127.0.0.1:5050/v2"
+      "issuer": "localhost:9000",
+      "verificationUrl": "http://localhost:5050/v2"
     },
-    "contentUrl": "http://127.0.0.1:3030/oauth/",
+    "contentUrl": "http://localhost:3030/oauth/",
     "clientManagement": {
       "enabled": true
     },
@@ -190,7 +190,7 @@
         "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "name": "123Done",
         "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
-        "redirectUri": "http://127.0.0.1:8080/api/oauth",
+        "redirectUri": "http://localhost:8080/api/oauth",
         "trusted": true,
         "canGrant": false
       },
@@ -199,7 +199,7 @@
         "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "name": "123Done PKCE",
         "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
-        "redirectUri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1",
+        "redirectUri": "http://localhost:8080/?oauth_pkce_redirect=1",
         "trusted": true,
         "canGrant": false,
         "publicClient": true
@@ -222,7 +222,7 @@
         "hashedSecret": "ded3c396f28123f3fe6b152784e8eab7357c6806cb5175805602a2cd67f85080",
         "name": "321Done Untrusted",
         "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
-        "redirectUri": "http://127.0.0.1:10139/api/oauth",
+        "redirectUri": "http://localhost:10139/api/oauth",
         "trusted": false,
         "canGrant": false
       },
@@ -264,8 +264,8 @@
       },
       {
         "name": "FxA OAuth Console",
-        "redirectUri": "http://127.0.0.1:10137/oauth/redirect",
-        "imageUri": "http://127.0.0.1:10137/assets/firefox.png",
+        "redirectUri": "http://localhost:10137/oauth/redirect",
+        "imageUri": "http://localhost:10137/assets/firefox.png",
         "id": "24bdbfa45cd300c5",
         "hashedSecret": "dfe56d5c816d6b7493618f6a1567cfed4aa9c25f85d59c6804631c48774ba545",
         "trusted": true,
@@ -304,7 +304,7 @@
         "name": "Android Components Reference Browser",
         "hashedSecret": "a7ee3482fab1782f5d3945cde06bb911605a8dfc1a45e4b77bc76615d5671e51",
         "imageUri": "",
-        "redirectUri": "http://127.0.0.1:3030/oauth/success/3c49430b43dfba77",
+        "redirectUri": "http://localhost:3030/oauth/success/3c49430b43dfba77",
         "canGrant": true,
         "trusted": true,
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
@@ -315,7 +315,7 @@
         "name": "Fenix",
         "hashedSecret": "4a892c55feaceb4ef2dbfffaaaa3d8eea94b5c205c815dddfc90170741cd4c19",
         "imageUri": "",
-        "redirectUri": "http://127.0.0.1:3030/oauth/success/a2270f727f45f648",
+        "redirectUri": "http://localhost:3030/oauth/success/a2270f727f45f648",
         "canGrant": true,
         "trusted": true,
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
@@ -326,7 +326,7 @@
         "name": "Firefox for iOS",
         "hashedSecret": "4a892c55feaceb4ef2dbfffaaaa3d8eea94b5c205c815dddfc90170741cd4c19",
         "imageUri": "",
-        "redirectUri": "http://127.0.0.1:3030/oauth/success/1b1a3e44c54fbb58",
+        "redirectUri": "http://localhost:3030/oauth/success/1b1a3e44c54fbb58",
         "canGrant": true,
         "trusted": true,
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
@@ -336,7 +336,7 @@
         "id": "59cceb6f8c32317c",
         "name": "Firefox Accounts Subscriptions",
         "hashedSecret": "220e560d48cf91dbba0219b986ca242a0b278eab8467bb07442fdfed1b245788",
-        "redirectUri": "http://127.0.0.1:3031/",
+        "redirectUri": "http://localhost:3031/",
         "imageUri": "",
         "canGrant": true,
         "termsUri": "",
@@ -349,7 +349,7 @@
         "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "name": "Disabled Client",
         "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
-        "redirectUri": "http://127.0.0.1:8080/?oauth_pkce_redirect=1",
+        "redirectUri": "http://localhost:8080/?oauth_pkce_redirect=1",
         "trusted": true,
         "canGrant": false,
         "publicClient": true
@@ -366,7 +366,7 @@
       ]
     },
     "openid": {
-      "issuer": "http://127.0.0.1:3030",
+      "issuer": "http://localhost:3030",
       "keyFile": "config/key.json",
       "newKeyFile": "config/newKey.json",
       "oldKeyFile": "config/oldKey.json"

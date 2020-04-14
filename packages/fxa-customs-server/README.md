@@ -15,7 +15,7 @@ Install memcached
     You'll need to [install memcached](http://www.memcached.org/downloads),
     otherwise all requests will be blocked.
     By default, the customs server tries to connect to memcached
-    using port `11211` on `127.0.0.1`.
+    using port `11211` on `localhost`.
     You can specify a different port and IP address
     using the `memcache.address` configuration setting
     or the `MEMCACHE_ADDRESS` environment variable.
@@ -24,7 +24,7 @@ To start the server, run:
 
     npm start
 
-It will listen on http://127.0.0.1:7000 by default.
+It will listen on http://localhost:7000 by default.
 
 ## Docker Based Development
 

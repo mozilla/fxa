@@ -70,7 +70,7 @@ describe('fxa-geodb', () => {
   });
 
   it('throws `UNABLE_TO_FETCH_DATA` when no data is available', () => {
-    assert.throws(() => geoDb('127.0.0.1'), Error, ERRORS.UNABLE_TO_FETCH_DATA);
+    assert.throws(() => geoDb('localhost'), Error, ERRORS.UNABLE_TO_FETCH_DATA);
   });
 
   it('returns an object with partial location data when complete data is not available', () => {
