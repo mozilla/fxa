@@ -877,12 +877,8 @@ class DirectStripeRoutes {
    * @param {Subscription} subscription
    */
   async sendSubscriptionDeletedEmail(subscription) {
-    const invoice = await this.stripeHelper.expandResource(
-      subscription.latest_invoice,
-      'invoices'
-    );
     const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
-      invoice
+      subscription.latest_invoice
     );
     const { uid, email } = invoiceDetails;
 

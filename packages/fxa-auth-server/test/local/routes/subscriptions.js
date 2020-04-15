@@ -2032,11 +2032,6 @@ describe('DirectStripeRoutes', () => {
       const deletedEvent = deepCopy(subscriptionDeleted);
       const subscription = deletedEvent.data.object;
 
-      const mockInvoice = { test: 'fake' };
-      directStripeRoutesInstance.stripeHelper.expandResource.resolves(
-        mockInvoice
-      );
-
       const mockInvoiceDetails = {
         uid: '1234',
         test: 'fake',
@@ -2059,13 +2054,8 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.calledWith(
-        directStripeRoutesInstance.stripeHelper.expandResource,
-        subscription.latest_invoice,
-        'invoices'
-      );
-      assert.calledWith(
         directStripeRoutesInstance.stripeHelper.extractInvoiceDetailsForEmail,
-        mockInvoice
+        subscription.latest_invoice
       );
 
       if (accountFound) {
