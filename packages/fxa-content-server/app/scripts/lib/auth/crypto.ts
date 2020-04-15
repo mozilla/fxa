@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { hexToUint8, uint8ToHex, xor } from './utils';
 
-const encoder = new TextEncoder();
+const encoder = () => new TextEncoder();
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
 type hexstring = string;
@@ -11,7 +11,7 @@ type hexstring = string;
 export async function getCredentials(email: string, password: string) {
   const passkey = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(password),
+    encoder().encode(password),
     'PBKDF2',
     false,
     ['deriveBits']
@@ -19,7 +19,7 @@ export async function getCredentials(email: string, password: string) {
   const quickStretchedRaw = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
-      salt: encoder.encode(`${NAMESPACE}quickStretch:${email}`),
+      salt: encoder().encode(`${NAMESPACE}quickStretch:${email}`),
       iterations: 1000,
       hash: 'SHA-256',
     },
@@ -38,7 +38,7 @@ export async function getCredentials(email: string, password: string) {
       name: 'HKDF',
       salt: new Uint8Array(0),
       // @ts-ignore
-      info: encoder.encode(`${NAMESPACE}authPW`),
+      info: encoder().encode(`${NAMESPACE}authPW`),
       hash: 'SHA-256',
     },
     quickStretchedKey,
@@ -49,7 +49,7 @@ export async function getCredentials(email: string, password: string) {
       name: 'HKDF',
       salt: new Uint8Array(0),
       // @ts-ignore
-      info: encoder.encode(`${NAMESPACE}unwrapBkey`),
+      info: encoder().encode(`${NAMESPACE}unwrapBkey`),
       hash: 'SHA-256',
     },
     quickStretchedKey,
@@ -78,7 +78,7 @@ export async function deriveBundleKeys(
       name: 'HKDF',
       salt: new Uint8Array(0),
       // @ts-ignore
-      info: encoder.encode(`${NAMESPACE}${keyInfo}`),
+      info: encoder().encode(`${NAMESPACE}${keyInfo}`),
       hash: 'SHA-256',
     },
     baseKey,
@@ -92,7 +92,7 @@ export async function deriveBundleKeys(
       hash: 'SHA-256',
       length: 256,
     },
-    false,
+    true,
     ['verify']
   );
   const xorKey = new Uint8Array(keyMaterial, 32);
@@ -128,4 +128,55 @@ export async function unbundleKeyFetchResponse(
 
 export function unwrapKB(wrapKB: hexstring, unwrapBKey: hexstring) {
   return uint8ToHex(xor(hexToUint8(wrapKB), hexToUint8(unwrapBKey)));
+}
+
+export async function checkWebCrypto() {
+  try {
+    await crypto.subtle.importKey(
+      'raw',
+      crypto.getRandomValues(new Uint8Array(16)),
+      'PBKDF2',
+      false,
+      ['deriveKey']
+    );
+    await crypto.subtle.importKey(
+      'raw',
+      crypto.getRandomValues(new Uint8Array(16)),
+      'HKDF',
+      false,
+      ['deriveKey']
+    );
+    await crypto.subtle.importKey(
+      'raw',
+      crypto.getRandomValues(new Uint8Array(16)),
+      {
+        name: 'HMAC',
+        hash: 'SHA-256',
+        length: 256,
+      },
+      false,
+      ['sign']
+    );
+    await crypto.subtle.digest(
+      'SHA-256',
+      crypto.getRandomValues(new Uint8Array(16))
+    );
+    return true;
+  } catch (err) {
+    try {
+      console.warn('loading webcrypto shim');
+      await import(
+        /* webpackChunkName: "fast-text-encoding" */ 'fast-text-encoding'
+      );
+      // prettier-ignore
+      // @ts-ignore
+      window.asmCrypto = await import(/* webpackChunkName: "asmcrypto.js" */ 'asmcrypto.js');
+      await import(
+        /* webpackChunkName: "webcrypto-liner" */ '@dannycoates/webcrypto-liner'
+      );
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }

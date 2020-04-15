@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import * as crypto from './crypto';
 import * as hawk from './hawk';
 
@@ -47,13 +48,18 @@ async function fetchOrTimeout(
   init: RequestInit = {},
   timeout: number = 30000
 ) {
-  const aborter = new AbortController();
-  init.signal = aborter.signal;
-  const id = setTimeout(() => aborter.abort(), timeout);
+  let id = 0;
+  if (typeof AbortController !== 'undefined') {
+    const aborter = new AbortController();
+    init.signal = aborter.signal;
+    id = window.setTimeout(() => aborter.abort(), timeout);
+  }
   try {
     return await fetch(input, init);
   } finally {
-    clearTimeout(id);
+    if (id) {
+      window.clearTimeout(id);
+    }
   }
 }
 
@@ -159,6 +165,10 @@ export default class AuthClient {
       payload,
       headers
     );
+  }
+
+  static checkWebCrypto() {
+    return crypto.checkWebCrypto();
   }
 
   async signUp(

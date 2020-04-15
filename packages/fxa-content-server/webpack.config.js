@@ -52,6 +52,10 @@ const webpackConfig = {
       'node_modules',
     ],
     alias: {
+      'asmcrypto.js': path.resolve(
+        __dirname,
+        'node_modules/asmcrypto.js/asmcrypto.min.js'
+      ),
       'chosen-js': path.resolve(
         __dirname,
         'node_modules/chosen-js/public/chosen.jquery'
@@ -69,6 +73,10 @@ const webpackConfig = {
       'es6-promise': path.resolve(
         __dirname,
         'node_modules/es6-promise/dist/es6-promise'
+      ),
+      'fast-text-encoding': path.resolve(
+        __dirname,
+        'node_modules/fast-text-encoding'
       ),
       // fxaClient: path.resolve(__dirname, '../fxa-auth-client/dist/fxa-client'), //path.resolve(__dirname, '../fxa-js-client/build/fxa-client'), //
       fxaCryptoDeriver: path.resolve(
@@ -97,6 +105,10 @@ const webpackConfig = {
       ),
       uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
       vat: path.resolve(__dirname, 'node_modules/node-vat/vat'),
+      '@dannycoates/webcrypto-liner': path.resolve(
+        __dirname,
+        'node_modules/@dannycoates/webcrypto-liner/build/shim.js'
+      ),
     },
   },
 

@@ -136,10 +136,12 @@ FxaClientWrapper.prototype = {
     if (this._client) {
       return Promise.resolve(this._client);
     }
-
-    const client = new AuthClient(this._authServerUrl);
-    this._client = wrapClientToNormalizeErrors(client);
-    return Promise.resolve(this._client);
+    return AuthClient.checkWebCrypto().then(() => {
+      this._client = wrapClientToNormalizeErrors(
+        new AuthClient(this._authServerUrl)
+      );
+      return this._client;
+    });
   },
 
   /**

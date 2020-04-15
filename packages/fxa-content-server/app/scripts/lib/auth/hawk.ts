@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { hexToUint8, uint8ToBase64, uint8ToHex } from './utils';
 
-const encoder = new TextEncoder();
+const encoder = () => new TextEncoder();
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
 export async function deriveHawkCredentials(token: string, context: string) {
@@ -19,7 +19,7 @@ export async function deriveHawkCredentials(token: string, context: string) {
       name: 'HKDF',
       salt: new Uint8Array(0),
       // @ts-ignore
-      info: encoder.encode(`${NAMESPACE}${context}`),
+      info: encoder().encode(`${NAMESPACE}${context}`),
       hash: 'SHA-256',
     },
     baseKey,
@@ -113,7 +113,7 @@ async function calculatePayloadHash(
   payload: string = '',
   contentType: string = ''
 ) {
-  const data = encoder.encode(`hawk.1.payload\n${contentType}\n${payload}\n`);
+  const data = encoder().encode(`hawk.1.payload\n${contentType}\n${payload}\n`);
   const hash = await crypto.subtle.digest('SHA-256', data);
   return uint8ToBase64(new Uint8Array(hash));
 }
@@ -128,13 +128,13 @@ async function calculateMac(type: string, credentials: any, options: any) {
       hash: 'SHA-256',
       length: 256,
     },
-    false,
+    true,
     ['sign']
   );
   const hmac = await crypto.subtle.sign(
     'HMAC',
     key,
-    encoder.encode(normalized)
+    encoder().encode(normalized)
   );
   return uint8ToBase64(new Uint8Array(hmac));
 }
