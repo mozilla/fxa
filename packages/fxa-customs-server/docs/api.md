@@ -46,7 +46,7 @@ Used by internal services to temporarily ban requests associated with a given em
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/blockEmail" \
+"http://localhost:7000/blockEmail" \
 -d '{
   "email": "me@example.com"
 }'
@@ -79,7 +79,7 @@ Used by internal services to temporarily ban requests associated with a given IP
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/blockIp" \
+"http://localhost:7000/blockIp" \
 -d '{
   "ip": "192.0.2.1"
 }'
@@ -118,7 +118,7 @@ of [actions](https://github.com/mozilla/fxa-customs-server/blob/master/lib/actio
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/check" \
+"http://localhost:7000/check" \
 -d '{
   "email": "me@example.com",
   "ip": "192.0.2.1",
@@ -162,7 +162,7 @@ should be blocked based only on the request IP.
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/checkIpOnly" \
+"http://localhost:7000/checkIpOnly" \
 -d '{
   "ip": "192.0.2.1",
   "action": "accountCreate"
@@ -204,7 +204,7 @@ check whether or not the action should be blocked.
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/checkAuthenticated" \
+"http://localhost:7000/checkAuthenticated" \
 -d '{
   "action": "devicesNotify"
   "ip": "192.0.2.1",
@@ -250,7 +250,7 @@ its policies.
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/failedLoginAttempt" \
+"http://localhost:7000/failedLoginAttempt" \
 -d '{
   "email": "me@example.com",
   "ip": "192.0.2.1"
@@ -288,7 +288,7 @@ bad logins for example).
 ```sh
 curl -v \
 -H "Content-Type: application/json" \
-"http://127.0.0.1:7000/passwordReset" \
+"http://localhost:7000/passwordReset" \
 -d '{
   "email": "me@example.com"
 }'

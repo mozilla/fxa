@@ -1,6 +1,6 @@
 {
   "authdb": {
-    "baseuri": "http://127.0.0.1:8000/"
+    "baseuri": "http://localhost:8000/"
   },
   "aws": {
     "region": "us-west-2"
@@ -20,7 +20,7 @@
     ]
   },
   "hmackey": "YOU MUST CHANGE ME",
-  "host": "127.0.0.1",
+  "host": "localhost",
   "log": {
     "level": "off",
     "format": "mozlog"
@@ -31,7 +31,7 @@
     "forcedefault": false
   },
   "redis": {
-    "host": "127.0.0.1",
+    "host": "localhost",
     "port": 6379
   },
   "secretkey": "youmustchangethisfortheproductionenvironment",
@@ -40,7 +40,7 @@
     "name": "Firefox Accounts"
   },
   "smtp": {
-    "host": "127.0.0.1",
+    "host": "localhost",
     "port": 25
   }
 }

@@ -21,7 +21,7 @@ Static server that hosts [Firefox Account sign up](https://accounts.firefox.com)
 
 Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
 Run `npm install` and `npm run start-remote`.
-This will start a local fxa-content-server on [http://127.0.0.1:3030](http://127.0.0.1:3030) that works with remote Firefox Accounts servers.
+This will start a local fxa-content-server on [http://localhost:3030](http://localhost:3030) that works with remote Firefox Accounts servers.
 
 If you want to install all Firefox Accounts servers locally follow the instructions on:
 [fxa-local-dev](https://github.com/mozilla/fxa-local-dev) to get a full development setup running.
@@ -72,7 +72,7 @@ xvfb-run -s "-screen 0 1920x1200x16" npm run test-functional
 
 ### Unit Tests
 
-If you want to test only the unit tests (not Selenium/function tests) you can visit http://127.0.0.1:3030/tests/index.html and you can select specific tests with something like http://127.0.0.1:3030/tests/index.html?grep=fxa-client
+If you want to test only the unit tests (not Selenium/function tests) you can visit http://localhost:3030/tests/index.html and you can select specific tests with something like http://localhost:3030/tests/index.html?grep=fxa-client
 
 ---
 

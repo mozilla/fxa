@@ -34,11 +34,11 @@ npx lerna run start \
   --concurrency 1 > /dev/null
 npx pm2 ls
 # ensure email-service is ready
-_scripts/check-url.sh 127.0.0.1:8001/__heartbeat__
+_scripts/check-url.sh localhost:8001/__heartbeat__
 # ensure payments-server is ready
-_scripts/check-url.sh 127.0.0.1:3031/__lbheartbeat__
+_scripts/check-url.sh localhost:3031/__lbheartbeat__
 # ensure content-server is ready
-_scripts/check-url.sh 127.0.0.1:3030/bundle/app.bundle.js
+_scripts/check-url.sh localhost:3030/bundle/app.bundle.js
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2

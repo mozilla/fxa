@@ -53,7 +53,7 @@ const mockConfig = {
 };
 
 const mockRedisConfig = {
-  host: '127.0.0.1',
+  host: 'localhost',
   port: 6379,
   maxPending: 1000,
   retryCount: 5,

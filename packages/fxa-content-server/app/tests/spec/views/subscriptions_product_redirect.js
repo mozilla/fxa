@@ -86,7 +86,7 @@ describe('views/subscriptions_product_redirect', function() {
     });
 
     it('works with a local redirect with no query params', () => {
-      windowMock.location.href = `http://127.0.0.1:3030/subscriptions/products/${PRODUCT_ID}`;
+      windowMock.location.href = `http://localhost:3030/subscriptions/products/${PRODUCT_ID}`;
       windowMock.location.search = '';
       return render().then(() => {
         assert.isTrue(

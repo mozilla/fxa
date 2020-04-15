@@ -682,7 +682,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
     routes = makeRoutes({ log, config, sms });
     route = getRoute(routes, '/sms/status');
     request = mocks.mockRequest({
-      clientAddress: '127.0.0.1',
+      clientAddress: 'localhost',
       credentials: {
         email: 'foo@example.org',
       },

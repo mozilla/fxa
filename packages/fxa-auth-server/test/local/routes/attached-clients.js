@@ -19,7 +19,7 @@ function makeRoutes(options = {}, requireMocks) {
   const config = options.config || {};
   config.smtp = config.smtp || {};
   config.memcached = config.memcached || {
-    address: '127.0.0.1:1121',
+    address: 'localhost:1121',
     idle: 500,
     lifetime: 30,
   };

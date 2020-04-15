@@ -15,7 +15,7 @@ describe('remote base path', function() {
   let server, config;
   before(() => {
     config = require('../../config').getProperties();
-    config.publicUrl = 'http://127.0.0.1:9000/auth';
+    config.publicUrl = 'http://localhost:9000/auth';
 
     return TestServer.start(config).then(s => {
       server = s;
@@ -55,7 +55,7 @@ describe('remote base path', function() {
   });
 
   it('.well-known did not move', () => {
-    return request('http://127.0.0.1:9000/.well-known/browserid').spread(
+    return request('http://localhost:9000/.well-known/browserid').spread(
       (res, body) => {
         assert.equal(res.statusCode, 200);
         const json = JSON.parse(body);

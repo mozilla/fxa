@@ -596,13 +596,13 @@ describe('/v1', function() {
             });
         });
 
-        it('can be 127.0.0.1 with config set', function() {
+        it('can be localhost with config set', function() {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
               payload: authParams({
-                redirect_uri: 'http://127.0.0.1:8080/derp',
+                redirect_uri: 'http://localhost:8080/derp',
               }),
             })
             .then(function(res) {

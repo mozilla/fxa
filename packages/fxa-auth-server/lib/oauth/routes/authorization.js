@@ -36,7 +36,7 @@ if (config.get('oauthServer.allowHttpRedirects') === true) {
 
 function isLocalHost(url) {
   var host = new URI(url).hostname();
-  return host === 'localhost' || host === '127.0.0.1';
+  return host === 'localhost' || host === 'localhost';
 }
 
 module.exports = {

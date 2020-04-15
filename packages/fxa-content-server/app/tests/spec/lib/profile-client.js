@@ -7,13 +7,13 @@ import ProfileClient from 'lib/profile-client';
 import Session from 'lib/session';
 import sinon from 'sinon';
 
-var PROFILE_URL = 'http://127.0.0.1:1111';
+var PROFILE_URL = 'http://localhost:1111';
 var assert = chai.assert;
 var client;
 var server;
 var EMAIL = 'user@example.domain';
 var UID = '6d940dd41e636cc156074109b8092f96';
-var URL = 'http://127.0.0.1:1112/avatar/example.jpg';
+var URL = 'http://localhost:1112/avatar/example.jpg';
 var token = 'deadbeef';
 
 describe('lib/profile-client', function() {

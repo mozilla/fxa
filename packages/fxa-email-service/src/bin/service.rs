@@ -7,7 +7,7 @@
 //! that exposes one endpoint: `POST /send`
 //!
 //! Configuration is via [`settings::Settings`][settings].
-//! By default the server listens on `127.0.0.1:8001`.
+//! By default the server listens on `localhost:8001`.
 //!
 //! [settings]: ../fxa_email_service/settings/struct.Settings.html
 

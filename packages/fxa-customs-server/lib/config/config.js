@@ -18,14 +18,14 @@ module.exports = function(fs, path, url, convict) {
     },
     publicUrl: {
       format: 'url',
-      default: 'http://127.0.0.1:7000',
+      default: 'http://localhost:7000',
       env: 'PUBLIC_URL',
     },
     listen: {
       host: {
         doc: 'The ip address the server should bind',
-        default: '127.0.0.1',
-        format: 'ipaddress',
+        default: 'localhost',
+        format: String,
         env: 'IP_ADDRESS',
       },
       port: {
@@ -179,7 +179,7 @@ module.exports = function(fs, path, url, convict) {
     memcache: {
       address: {
         doc: 'Hostname/IP:Port of the memcache server',
-        default: '127.0.0.1:11211',
+        default: 'localhost:11211',
         env: 'MEMCACHE_ADDRESS',
       },
       recordLifetimeSeconds: {
@@ -283,7 +283,7 @@ module.exports = function(fs, path, url, convict) {
       },
       baseUrl: {
         doc: 'The reputation service base url.',
-        default: 'http://127.0.0.1:8080/',
+        default: 'http://localhost:8080/',
         format: 'url',
         env: 'REPUTATION_SERVICE_BASE_URL',
       },

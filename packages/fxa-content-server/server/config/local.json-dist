@@ -1,9 +1,9 @@
 {
-  "public_url": "http://127.0.0.1:3030",
+  "public_url": "http://localhost:3030",
   "oauth_client_id": "98e6508e88680e1a",
-  "oauth_url": "http://127.0.0.1:9000",
-  "profile_url": "http://127.0.0.1:1111",
-  "profile_images_url": "http://127.0.0.1:1112",
+  "oauth_url": "http://localhost:9000",
+  "profile_url": "http://localhost:1111",
+  "profile_images_url": "http://localhost:1112",
   "client_sessions": {
     "cookie_name": "session",
     "secret": "YOU MUST CHANGE ME",
@@ -22,8 +22,8 @@
     "validation": {
       "https://identity.mozilla.com/apps/oldsync": {
         "redirectUris": [
-         "http://127.0.0.1:3030/oauth/success/a2270f727f45f648",
-         "http://127.0.0.1:3030/oauth/success/1b1a3e44c54fbb58",
+         "http://localhost:3030/oauth/success/a2270f727f45f648",
+         "http://localhost:3030/oauth/success/1b1a3e44c54fbb58",
          "urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel",
          "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel"
         ]
@@ -34,8 +34,8 @@
   "subscriptions": {
     "enabled": true
   },
-  "allowed_metrics_flow_cors_origins": ["http://127.0.0.1:8001"],
-  "allowed_parent_origins": ["http://127.0.0.1:8080"],
+  "allowed_metrics_flow_cors_origins": ["http://localhost:8001"],
+  "allowed_parent_origins": ["http://localhost:8080"],
   "sourceMapType": "cheap-source-map",
   "csp": {
     "enabled": true,
