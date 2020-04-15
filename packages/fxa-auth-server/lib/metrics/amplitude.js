@@ -20,6 +20,8 @@ const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
 const EMAIL_TYPES = {
+  subscriptionUpgrade: 'subscription_upgrade',
+  subscriptionDowngrade: 'subscription_downgrade',
   subscriptionPaymentExpired: 'subscription_payment_expired',
   subscriptionPaymentFailed: 'subscription_payment_failed',
   subscriptionAccountDeletion: 'subscription_account_deletion',

@@ -58,6 +58,14 @@ const MESSAGE = {
   invoiceDate: new Date(1584747098816),
   nextInvoiceDate: new Date(1587339098816),
   serviceLastActiveDate: new Date(1587339098816),
+  productIconNew: 'http://placekitten.com/512/512?image=1',
+  productIconOld: 'http://placekitten.com/512/512?image=1',
+  productNameOld: 'Product A',
+  productNameNew: 'Product B',
+  paymentAmountOld: 99.99,
+  paymentAmountNew: 123.12,
+  paymentProrated: 5.23,
+  productPaymentCycle: 'month',
   service: 'sync',
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
@@ -321,6 +329,56 @@ const TESTS = new Map([
     ]],
     ['text', [
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionUpgradeEmail', new Map([
+    ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionUpgrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionUpgrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-upgrade', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms') },
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of $${MESSAGE.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of $${MESSAGE.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
+  ['subscriptionDowngradeEmail', new Map([
+    ['subject', { test: 'equal', expected: `You have switched to ${MESSAGE.productNameNew}` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionDowngrade') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionDowngrade' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionDowngrade }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-downgrade', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time credit of $${MESSAGE.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
+      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time credit of $${MESSAGE.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
