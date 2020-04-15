@@ -47,6 +47,7 @@ const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
 const PRODUCT_RESOURCE = 'products';
 const PLAN_RESOURCE = 'plans';
 const CHARGES_RESOURCE = 'charges';
+const INVOICES_RESOURCE = 'invoices';
 
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
@@ -54,6 +55,7 @@ const VALID_RESOURCE_TYPES = [
   PRODUCT_RESOURCE,
   PLAN_RESOURCE,
   CHARGES_RESOURCE,
+  INVOICES_RESOURCE,
 ];
 
 /**
@@ -875,18 +877,14 @@ class StripeHelper {
   /**
    * Extract invoice details for billing emails
    *
-   * @param {Invoice} invoice
+   * @param {Invoice|string} latestInvoice
    */
-  async extractInvoiceDetailsForEmail(invoice) {
-    if (!invoice || typeof invoice !== 'object') {
-      throw error.internalValidationError(
-        'extractInvoiceDetailsForEmail',
-        invoice,
-        new Error('Invoice undefined or not object')
-      );
-    }
-
-    const customer = await this.expandResource(invoice.customer, 'customers');
+  async extractInvoiceDetailsForEmail(latestInvoice) {
+    const invoice = await this.expandResource(latestInvoice, INVOICES_RESOURCE);
+    const customer = await this.expandResource(
+      invoice.customer,
+      CUSTOMER_RESOURCE
+    );
     if (customer.deleted === true) {
       throw error.unknownCustomer(invoice.customer);
     }
@@ -895,7 +893,7 @@ class StripeHelper {
     const { plan } = invoice.lines.data[0];
     const [abbrevProduct, charge] = await Promise.all([
       this.expandAbbrevProductForPlan(plan),
-      this.expandResource(invoice.charge, 'charges'),
+      this.expandResource(invoice.charge, CHARGES_RESOURCE),
     ]);
 
     const {
@@ -955,7 +953,10 @@ class StripeHelper {
       );
     }
 
-    const customer = await this.expandResource(source.customer, 'customers');
+    const customer = await this.expandResource(
+      source.customer,
+      CUSTOMER_RESOURCE
+    );
     if (customer.deleted === true) {
       throw error.unknownCustomer(source.customer);
     }
@@ -975,7 +976,7 @@ class StripeHelper {
     let plan;
     for (const subscription of customer.subscriptions.data) {
       if (['active', 'trialing'].includes(subscription.status)) {
-        plan = await this.expandResource(subscription.plan, 'plans');
+        plan = await this.expandResource(subscription.plan, PLAN_RESOURCE);
         abbrevProduct = await this.expandAbbrevProductForPlan(plan);
         break;
       }
@@ -1032,8 +1033,9 @@ class StripeHelper {
 
     if (!VALID_RESOURCE_TYPES.includes(resourceType)) {
       const errorMsg = `stripeHelper.expandResource was provided an invalid resource type: ${resourceType}`;
-      this.log.error(errorMsg);
-      throw new Error(errorMsg);
+      const error = new Error(errorMsg);
+      this.log.error(`stripeHelper.expandResource.failed`, { error });
+      throw error;
     }
 
     return this.stripe[resourceType].retrieve(resource);
