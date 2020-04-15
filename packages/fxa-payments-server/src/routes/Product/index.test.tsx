@@ -170,7 +170,9 @@ describe('routes/Product', () => {
     }
 
     await findAllByText('Set up your subscription');
-    expect(queryAllByText('30-day money-back guarantee')[0]).toBeInTheDocument();
+    expect(
+      queryAllByText('30-day money-back guarantee')[0]
+    ).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
   };
@@ -427,7 +429,7 @@ describe('routes/Product', () => {
       findByTestId,
     } = await commonCreateSubscriptionFailSetup('api_error', message);
     fireEvent.click(getByTestId('submit'));
-    await findByTestId('error-subscription-failed');
+    await findByTestId('error-sub-status');
     expect(queryByText(message)).toBeInTheDocument();
   });
 

@@ -8,7 +8,6 @@ import { getErrorMessage } from '../../../lib/errors';
 
 import { SignInLayoutContext } from '../../../components/AppLayout';
 import PaymentForm from '../../../components/PaymentForm';
-import DialogMessage from '../../../components/DialogMessage';
 import ErrorMessage from '../../../components/ErrorMessage';
 import AcceptedCards from '../AcceptedCards';
 
@@ -133,8 +132,10 @@ export const SubscriptionCreate = ({
 
   return (
     <div className="product-payment" data-testid="subscription-create">
-      <div className="subscription-create-heading"
-           data-testid="subscription-create-heading">
+      <div
+        className="subscription-create-heading"
+        data-testid="subscription-create-heading"
+      >
         <Localized id="product-plan-details-heading">
           <h2>Set up your subscription</h2>
         </Localized>
@@ -169,17 +170,15 @@ export const SubscriptionCreate = ({
         </Localized>
       </ErrorMessage>
 
-      {createSubscriptionStatus.error && !isCardError && (
-        <DialogMessage
-          className="dialog-error"
-          onDismiss={resetCreateSubscription}
-        >
-          <Localized id="sub-failed">
-            <h4 data-testid="error-subscription-failed">Subscription failed</h4>
-          </Localized>
-          <p>{createSubscriptionStatus.error.message}</p>
-        </DialogMessage>
-      )}
+      <ErrorMessage
+        isVisible={!!(createSubscriptionStatus.error && !isCardError)}
+      >
+        {createSubscriptionStatus.error ? (
+          <p data-testid="error-sub-status">
+            {createSubscriptionStatus.error.message}
+          </p>
+        ) : null}
+      </ErrorMessage>
 
       <PaymentForm
         {...{
