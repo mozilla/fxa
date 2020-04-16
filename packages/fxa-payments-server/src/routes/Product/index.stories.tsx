@@ -155,15 +155,14 @@ function init() {
     ))
     .add('stripe.createToken() fails on submit', () => {
       const validatorInitialState = mkValidPaymentFormState();
-      const applyStubsToStripe = (stripe: stripe.Stripe) => {
-        stripe.createToken = (element: stripe.elements.Element | string) => {
-          return Promise.reject({
+      const applyStubsToStripe = (stripe: stripe.Stripe) => ({
+        ...stripe,
+        createToken: (element: stripe.elements.Element | string) =>
+          Promise.reject({
             type: 'api_error',
             message: 'The Stripe system is down.',
-          });
-        };
-        return stripe;
-      };
+          }),
+      });
       return (
         <ProductRoute
           applyStubsToStripe={applyStubsToStripe}
