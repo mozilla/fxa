@@ -106,6 +106,7 @@ registerSuite('oauth prompt=none', {
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(
           openRP({
             query: { return_on_error: false },
