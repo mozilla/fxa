@@ -203,6 +203,10 @@ input[type='text'] ~ .show-password:focus + .show-password-label {
 .password[type='text']:focus ~ .show-password-label {
   background-color: $input-border-color-focus;
   color: $show-password-focus-label-color;
+
+  svg {
+    fill: #fff;
+  }
 }
 
 .modal {
