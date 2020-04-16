@@ -501,17 +501,22 @@ section.modal-panel {
 
   .client-name {
     line-height: 1.2;
+    word-break: break-word;
 
     html[dir='ltr'] & {
-      margin-right: 110px;
+      margin-right: 130px;
+
+      @include respond-to('small') {
+        margin-right: 0;
+      }
     }
 
     html[dir='rtl'] & {
-      margin-left: 110px;
-    }
+      margin-left: 130px;
 
-    @include respond-to('small') {
-      margin: 0;
+      @include respond-to('small') {
+        margin-left: 0;
+      }
     }
   }
 
