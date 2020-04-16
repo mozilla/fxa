@@ -41,9 +41,10 @@ export const defaultAppContextValue: AppContextType = {
   locationReload: action('locationReload'),
 };
 
-export const defaultStripeStubs = (stripe: stripe.Stripe) => {
-  stripe.createToken = (element: stripe.elements.Element | string) => {
-    return Promise.resolve({
+export const defaultStripeStubs = (stripe: stripe.Stripe) => ({
+  ...stripe,
+  createToken: (element: stripe.elements.Element | string) =>
+    Promise.resolve({
       token: {
         id: 'asdf',
         object: 'mock_object',
@@ -53,10 +54,8 @@ export const defaultStripeStubs = (stripe: stripe.Stripe) => {
         type: 'card',
         used: false,
       },
-    });
-  };
-  return stripe;
-};
+    }),
+});
 
 export const MockApp = ({
   children,
