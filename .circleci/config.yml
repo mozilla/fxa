@@ -1,5 +1,22 @@
 version: 2.1
 
+executors:
+  content-server-executor:
+    docker:
+      - image: mozilla/fxa-circleci
+      - image: redis
+      - image: memcached
+      - image: pafortin/goaws
+      - image: circleci/mysql:5.7.27
+      - image: mozilla/fxa-email-service
+        environment:
+          NODE_ENV: dev
+          FXA_EMAIL_ENV: dev
+          FXA_EMAIL_LOG_LEVEL: debug
+          RUST_BACKTRACE: 1
+    environment:
+      SKIP_PACKAGES: false
+
 commands:
   base-install:
     parameters:
@@ -9,6 +26,29 @@ commands:
     steps:
       - checkout
       - run: ./.circleci/base-install.sh << parameters.package >>
+  test-content-server-part:
+    parameters:
+      index:
+        type: integer
+        default: 0
+      total:
+        type: integer
+        default: 6
+    steps:
+      - base-install:
+        package: fxa-content-server
+      - run:
+          name: Running test section << parameters.index >> of << parameters.total >>
+          environment:
+            CIRCLE_NODE_INDEX: << parameters.index >>
+            CIRCLE_NODE_TOTAL: << parameters.total >>
+          command: ./.circleci/test-package.sh fxa-content-server
+      - store_artifacts:
+          path: ~/.pm2/logs
+          destination: logs
+      - store_artifacts:
+          path: ~/screenshots
+          destination: screenshots
 
 jobs:
   test-package:
@@ -69,32 +109,41 @@ jobs:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -X gcov
 
-  test-content-server:
-    parallelism: 6
-    docker:
-      - image: mozilla/fxa-circleci
-      - image: redis
-      - image: memcached
-      - image: pafortin/goaws
-      - image: circleci/mysql:5.7.27
-      - image: mozilla/fxa-email-service
-        environment:
-          NODE_ENV: dev
-          FXA_EMAIL_ENV: dev
-          FXA_EMAIL_LOG_LEVEL: debug
-          RUST_BACKTRACE: 1
-    environment:
-      SKIP_PACKAGES: false
+  test-content-server-0:
+    executor: content-server-executor
     steps:
-      - base-install:
-          package: fxa-content-server
-      - run: ./.circleci/test-package.sh fxa-content-server
-      - store_artifacts:
-          path: ~/.pm2/logs
-          destination: logs
-      - store_artifacts:
-          path: ~/screenshots
-          destination: screenshots
+      - test-content-server-part:
+          index: 0
+
+  test-content-server-1:
+    executor: content-server-executor
+    steps:
+      - test-content-server-part:
+          index: 1
+
+  test-content-server-2:
+    executor: content-server-executor
+    steps:
+      - test-content-server-part:
+          index: 2
+
+  test-content-server-3:
+    executor: content-server-executor
+    steps:
+      - test-content-server-part:
+          index: 3
+
+  test-content-server-4:
+    executor: content-server-executor
+    steps:
+      - test-content-server-part:
+          index: 4
+
+  test-content-server-5:
+    executor: content-server-executor
+    steps:
+      - test-content-server-part:
+          index: 5
 
   test-email-service:
     resource_class: large
@@ -163,7 +212,37 @@ workflows:
               ignore: master
             tags:
               ignore: /.*/
-      - test-content-server:
+      - test-content-server-0:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-content-server-1:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-content-server-2:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-content-server-3:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-content-server-4:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
+      - test-content-server-5:
           filters:
             branches:
               ignore: master
@@ -214,7 +293,37 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-      - test-content-server:
+      - test-content-server-0:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - test-content-server-1:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - test-content-server-2:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - test-content-server-3:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - test-content-server-4:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+      - test-content-server-5:
           filters:
             branches:
               ignore: /.*/
@@ -229,4 +338,9 @@ workflows:
           requires:
             - test-many
             - test-auth-server
-            - test-content-server
+            - test-content-server-0
+            - test-content-server-1
+            - test-content-server-2
+            - test-content-server-3
+            - test-content-server-4
+            - test-content-server-5
