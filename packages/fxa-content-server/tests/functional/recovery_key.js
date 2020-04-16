@@ -81,15 +81,67 @@ registerSuite('Recovery key', {
 
   tests: {
     'can revoke recovery key': function() {
-      return this.remote
-        .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE))
-        .then(
-          testElementExists(selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION)
-        )
+      const remote = this.remote;
+      let secondKey;
+      return (
+        this.remote
+          .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE))
+          .then(
+            testElementExists(selectors.RECOVERY_KEY.CONFIRM_REVOKE_DESCRIPTION)
+          )
+          .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE_OK))
+          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
 
-        .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE_OK))
-        .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
-        .end();
+          // create a new recovery key
+          .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
+          .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
+          .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE))
+          .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
+          .findByCssSelector(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT)
+          .getVisibleText()
+          .then(key => {
+            secondKey = key;
+            return remote.then(
+              click(selectors.RECOVERY_KEY.RECOVERY_KEY_DONE_BUTTON)
+            );
+          })
+          .end()
+          .then(testElementExists(selectors.RECOVERY_KEY.STATUS_ENABLED))
+          .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
+          .then(fillOutResetPassword(email))
+          .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+          .then(openVerificationLinkInSameTab(email, 4))
+          .then(
+            testElementExists(
+              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER
+            )
+          )
+
+          // enter old key
+          .then(fillOutRecoveryKey(recoveryKey))
+          .then(
+            testElementTextInclude(
+              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
+              'invalid'
+            )
+          )
+
+          // enter the new key
+          .then(() => {
+            return remote.then(fillOutRecoveryKey(secondKey));
+          })
+          .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
+          .then(fillOutCompleteResetPassword(NEW_PASSWORD, NEW_PASSWORD))
+          .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.HEADER))
+          .then(testElementExists(selectors.RESET_PASSWORD_COMPLETE.SUB_HEADER))
+          .then(testIsBrowserNotified('fxaccounts:login'))
+
+          // For good measure, lets re-login with new password
+          .then(clearBrowserState())
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
     },
 
     'can reset password with recovery key': function() {
@@ -105,11 +157,21 @@ registerSuite('Recovery key', {
             )
           )
 
+          // enter invalid recovery key
           .then(fillOutRecoveryKey('N8TVALID'))
           .then(
             testElementTextInclude(
               selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
               'invalid'
+            )
+          )
+
+          // continue without entering the recovery key
+          .then(fillOutRecoveryKey(''))
+          .then(
+            testElementTextInclude(
+              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
+              'recovery key required'
             )
           )
 
