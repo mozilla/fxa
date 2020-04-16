@@ -20,7 +20,6 @@ const {
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
-  noSuchElement,
   openPage,
   openFxaFromRp,
   testElementExists,
@@ -42,36 +41,44 @@ registerSuite('oauth webchannel', {
   },
   tests: {
     signup: function() {
-      return this.remote
-        .then(
-          openFxaFromRp('enter-email', {
-            query: {
-              context: 'oauth_webchannel_v1',
-            },
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                capabilities: {
-                  // eslint-disable-next-line camelcase
-                  choose_what_to_sync: true,
-                  engines: ['bookmarks', 'history'],
-                },
-                signedInUser: null,
+      return (
+        this.remote
+          .then(
+            openFxaFromRp('enter-email', {
+              query: {
+                context: 'oauth_webchannel_v1',
               },
-            },
-          })
-        )
-        .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS))
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
-        .then(noSuchElement(selectors.CHOOSE_WHAT_TO_SYNC.DO_NOT_SYNC))
-        .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
+              webChannelResponses: {
+                'fxaccounts:fxa_status': {
+                  capabilities: {
+                    // eslint-disable-next-line camelcase
+                    choose_what_to_sync: true,
+                    engines: ['bookmarks', 'history'],
+                  },
+                  signedInUser: null,
+                },
+              },
+            })
+          )
+          .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
+          .then(
+            fillOutEmailFirstSignUp(email, PASSWORD, {
+              disableAutoSubmit: true,
+            })
+          )
+          // the CWTS form is on the same signup page
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
+          .then(
+            testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_BOOKMARKS)
+          )
+          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.ENGINE_HISTORY))
+          .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
 
-        .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-        .then(fillOutSignUpCode(email, 0))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(email, 0))
 
-        .then(testIsBrowserNotified('fxaccounts:oauth_login'));
+          .then(testIsBrowserNotified('fxaccounts:oauth_login'))
+      );
     },
     signin: function() {
       return this.remote

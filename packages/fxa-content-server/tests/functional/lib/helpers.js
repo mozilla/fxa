@@ -1661,8 +1661,9 @@ const fillOutEmailFirstSignUp = thenify(function(
   password,
   options = {}
 ) {
-  var age = options.age || 24;
+  const age = options.age || 24;
   const vpassword = options.vpassword || password;
+  const autoSubmit = !options.disableAutoSubmit;
 
   return this.parent
     .then(() => {
@@ -1676,7 +1677,11 @@ const fillOutEmailFirstSignUp = thenify(function(
     .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, password))
     .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, vpassword))
     .then(type(selectors.SIGNUP_PASSWORD.AGE, age))
-    .then(click(selectors.SIGNUP_PASSWORD.SUBMIT));
+    .then(() => {
+      if (autoSubmit) {
+        return this.parent.then(click(selectors.SIGNUP_PASSWORD.SUBMIT));
+      }
+    });
 });
 
 const fillOutSignUp = thenify(function(email, password, options) {

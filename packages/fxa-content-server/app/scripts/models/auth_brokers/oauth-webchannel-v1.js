@@ -30,7 +30,7 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
 
   commands: _.pick(WebChannel, 'FXA_STATUS', 'OAUTH_LOGIN'),
 
-  type: 'oauth-webchannel-v1',
+  type: Constants.OAUTH_WEBCHANNEL_BROKER,
 
   initialize(options = {}) {
     this.session = options.session;
