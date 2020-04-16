@@ -92,7 +92,7 @@ registerSuite('Recovery key', {
           .then(click(selectors.RECOVERY_KEY.CONFIRM_REVOKE_OK))
           .then(testElementExists(selectors.RECOVERY_KEY.STATUS_DISABLED))
 
-          //create a new recovery key
+          // create a new recovery key
           .then(click(selectors.RECOVERY_KEY.GENERATE_KEY_BUTTON))
           .then(type(selectors.RECOVERY_KEY.PASSWORD_INPUT, PASSWORD))
           .then(click(selectors.RECOVERY_KEY.CONFIRM_PASSWORD_CONTINUE))
@@ -157,7 +157,7 @@ registerSuite('Recovery key', {
             )
           )
 
-          //enter invalid recovery key
+          // enter invalid recovery key
           .then(fillOutRecoveryKey('N8TVALID'))
           .then(
             testElementTextInclude(
@@ -166,7 +166,7 @@ registerSuite('Recovery key', {
             )
           )
 
-          //continue without entering the recovery key
+          // continue without entering the recovery key
           .then(fillOutRecoveryKey(''))
           .then(
             testElementTextInclude(
