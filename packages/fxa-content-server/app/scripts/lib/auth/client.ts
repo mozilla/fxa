@@ -985,7 +985,8 @@ export default class AuthClient {
       'DELETE',
       '/recoveryKey',
       sessionToken,
-      tokenType.sessionToken
+      tokenType.sessionToken,
+      {}
     );
   }
 
