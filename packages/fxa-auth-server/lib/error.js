@@ -142,7 +142,6 @@ const DEBUGGABLE_PAYLOAD_KEYS = new Set([
   'duration',
   'excluded',
   'features',
-  'marketingOptIn',
   'messageId',
   'metricsContext',
   'name',

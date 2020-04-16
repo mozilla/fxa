@@ -129,7 +129,6 @@ registerSuite('amplitude', {
           country: 'United States',
           state: 'California',
         },
-        marketingOptIn: 'none',
         newsletters: 'none',
         planId: 'abc',
         productId: 'gamma',
@@ -169,7 +168,6 @@ registerSuite('amplitude', {
             country: 'United States',
             state: 'California',
           },
-          marketingOptIn: 'none',
           newsletters: 'none',
           planId: 'abc',
           productId: 'gamma',
@@ -1620,58 +1618,6 @@ registerSuite('amplitude', {
         logger.info.args[0][1].event_type,
         'fxa_pref - two_step_authentication_view'
       );
-    },
-
-    'settings.communication-preferences.optIn.success': () => {
-      amplitude(
-        {
-          time: '1585321743',
-          type: 'settings.communication-preferences.optIn.success',
-        },
-        {
-          connection: {},
-          headers: {
-            'x-forwarded-for': '63.245.221.32',
-          },
-        },
-        {
-          flowBeginTime: '1585261624219',
-          flowId:
-            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
-          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
-        }
-      );
-
-      assert.equal(logger.info.callCount, 1);
-      const arg = logger.info.args[0][1];
-      assert.equal(arg.event_type, 'fxa_pref - newsletter');
-      assert.equal(arg.user_properties.newsletter_state, 'subscribed');
-    },
-
-    'settings.communication-preferences.optOut.success': () => {
-      amplitude(
-        {
-          time: '1585321743',
-          type: 'settings.communication-preferences.optOut.success',
-        },
-        {
-          connection: {},
-          headers: {
-            'x-forwarded-for': '63.245.221.32',
-          },
-        },
-        {
-          flowBeginTime: '1585261624219',
-          flowId:
-            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
-          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
-        }
-      );
-
-      assert.equal(logger.info.callCount, 1);
-      const arg = logger.info.args[0][1];
-      assert.equal(arg.event_type, 'fxa_pref - newsletter');
-      assert.equal(arg.user_properties.newsletter_state, 'unsubscribed');
     },
 
     'flow.signin-totp-code.success': () => {

@@ -63,7 +63,6 @@ Message Properties:
 - `uid`: The userid of the account being that was created.
 - `email`: The primary email address that was verified for the account.
 - `locale`: The accept-language header supplies by the user at account creation.
-- `marketingOptIn`: Optional, boolean, whether the user opted-in to marketing emails.
 
 Receiving services should use this message to initialize any state
 that needs to exist for _all_ Firefox Accounts.

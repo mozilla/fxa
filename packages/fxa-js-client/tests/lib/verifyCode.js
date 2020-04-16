@@ -185,41 +185,6 @@ describe('verifyCode', function() {
       }, assert.fail);
   });
 
-  it('#verifyEmail with marketingOptIn param', function() {
-    var user = 'test7' + new Date().getTime();
-    var email = user + '@restmail.net';
-    var password = 'iliketurtles';
-    var uid;
-
-    return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function(result) {
-        uid = result.uid;
-        assert.ok(uid, 'uid is returned');
-
-        return respond(mail.wait(user), RequestMocks.mail);
-      })
-      .then(function(emails) {
-        var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
-        assert.ok(code, 'code is returned');
-
-        return respond(
-          client.verifyCode(uid, code, { marketingOptIn: true }),
-          RequestMocks.verifyCode
-        );
-      })
-      .then(function(result) {
-        assert.ok(result);
-        assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
-        assert.include(
-          xhrOpen.args[2][1],
-          '/recovery_email/verify_code',
-          'path is correct'
-        );
-        var sentData = JSON.parse(xhrSend.args[2][0]);
-        assert.equal(sentData.marketingOptIn, true);
-      }, assert.fail);
-  });
-
   it('#verifyEmail with newsletters param', function() {
     var user = 'test7' + new Date().getTime();
     var email = user + '@restmail.net';

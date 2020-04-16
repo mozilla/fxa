@@ -17,7 +17,6 @@ const TOKEN_OBJ = {
   entrypointVariation: 'entrypoint-experiment',
   flowBegin: Date.now(),
   flowId: 'a-big-flow-id',
-  needsOptedInToMarketingEmail: true,
   newsletters: ['knowledge-is-power'],
   planId: 'wibble',
   productId: 'blee',
@@ -33,7 +32,7 @@ const TOKEN_OBJ = {
 
 describe('models/resume-token', function() {
   it('expected fields are allowed in resume token', () => {
-    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 19);
+    assert.lengthOf(ResumeToken.ALLOWED_KEYS, 18);
     assert.sameMembers(ResumeToken.ALLOWED_KEYS, Object.keys(TOKEN_OBJ));
   });
 

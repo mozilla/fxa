@@ -227,7 +227,6 @@ module.exports = (log, config) => {
         'entrypoint',
         'experiments',
         'location',
-        'marketingOptIn',
         'newsletters',
         'syncEngines',
         'templateVersion',

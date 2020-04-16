@@ -60,11 +60,6 @@ const DEFAULTS = _.extend(
     declinedSyncEngines: undefined,
     hasBounced: undefined,
     keyFetchToken: undefined,
-    // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
-    // Starting with train-138, we store a list of newsletters a user is opting in to,
-    // from the `newsletters` field. `needsOptedInToMarketingEmail` is kept around to
-    // load from old ResumeTokens.
-    needsOptedInToMarketingEmail: undefined,
     newsletters: undefined,
     offeredSyncEngines: undefined,
     // password field intentionally omitted to avoid unintentional leaks
@@ -131,15 +126,10 @@ const Account = Backbone.Model.extend(
       }
     },
 
-    resumeTokenFields: ['email', 'needsOptedInToMarketingEmail', 'newsletters'],
+    resumeTokenFields: ['email', 'newsletters'],
 
     resumeTokenSchema: {
       email: vat.email(),
-      // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
-      // Starting with train-138, we store a list of newsletters a user is opting in to,
-      // from the `newsletters` field. `needsOptedInToMarketingEmail` is kept around to
-      // load from old ResumeTokens.
-      needsOptedInToMarketingEmail: vat.boolean(),
       newsletters: vat.newslettersArray(),
     },
 
@@ -745,16 +735,6 @@ const Account = Backbone.Model.extend(
      * @returns {Promise} - resolves when complete
      */
     verifySignUp(code, options = {}) {
-      // We should be able to remove `needsOptedInToMarketingEmail` after train-140 or so.
-      // Starting with train-138, we store a list of newsletters a user is opting in to,
-      // from the `newsletters` field. `needsOptedInToMarketingEmail` is kept around to
-      // load from old ResumeTokens.
-      const marketingOptIn = this.get('needsOptedInToMarketingEmail');
-      if (marketingOptIn) {
-        this.unset('needsOptedInToMarketingEmail');
-        options.marketingOptIn = true;
-      }
-
       const newsletters = this.get('newsletters');
       if (newsletters && newsletters.length) {
         this.unset('newsletters');
@@ -764,7 +744,7 @@ const Account = Backbone.Model.extend(
       return this._fxaClient
         .verifyCode(this.get('uid'), code, options)
         .then(() => {
-          if (marketingOptIn) {
+          if (newsletters) {
             this._notifier.trigger('flow.initialize');
             this._notifier.trigger('flow.event', {
               event: 'newsletter.subscribed',
