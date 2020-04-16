@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Localized } from 'fluent-react';
-import { formatCurrencyInCents } from '../../lib/formats';
+import { Localized } from '@fluent/react';
+import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
 import { metadataFromPlan } from '../../store/utils';
 
 // this is a fallback incase webIconURL is undefined,
@@ -25,10 +25,23 @@ export const PlanDetails = ({
   className = 'default',
 }: PlanDetailsProps) => {
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
-  const { product_name, amount, interval } = selectedPlan;
+  const {
+    product_name,
+    amount,
+    currency,
+    interval,
+    interval_count,
+  } = selectedPlan;
   const { webIconURL } = metadataFromPlan(selectedPlan);
 
   const role = isMobile ? undefined : 'complementary';
+
+  const planPrice = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    interval_count
+  );
 
   return (
     <section
@@ -56,9 +69,13 @@ export const PlanDetails = ({
                 <p className="plan-details-description">Full-device VPN</p>
               </div>
             </div>
-            <p>
-              {formatCurrencyInCents(amount)}/{interval}
-            </p>
+            <Localized
+              id={`plan-price-${interval}`}
+              $amount={getLocalizedCurrency(amount, currency)}
+              $intervalCount={interval_count}
+            >
+              <p>{planPrice}</p>
+            </Localized>
           </div>
           {!detailsHidden ? (
             <div className="plan-details-list" data-testid="list">
@@ -126,9 +143,13 @@ export const PlanDetails = ({
               <Localized id="plan-details-total-label">
                 <p className="label">Total</p>
               </Localized>
-              <p className="total-price">
-                {formatCurrencyInCents(amount)}/{interval}
-              </p>
+              <Localized
+                id={`plan-price-${interval}`}
+                $amount={getLocalizedCurrency(amount, currency)}
+                $intervalCount={interval_count}
+              >
+                <p className="total-price">{planPrice}</p>
+              </Localized>
             </div>
           </div>
         ) : null}

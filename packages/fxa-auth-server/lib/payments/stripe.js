@@ -803,21 +803,24 @@ class StripeHelper {
         continue;
       }
 
+      let latestInvoice = sub.latest_invoice;
+      if (typeof latestInvoice === 'string') {
+        latestInvoice = await this.stripe.invoices.retrieve(latestInvoice, {
+          expand: ['charge'],
+        });
+      }
+
       // If this is a charge-automatically payment that is past_due, attempt
       // to get details of why it failed. The caller should expand the last_invoice
       // calls by passing ['data.subscriptions.data.latest_invoice'] to `fetchCustomer`
       // as the `expand` argument or this will not fetch the failure code/message.
       if (
-        sub.latest_invoice &&
         sub.status === 'past_due' &&
-        typeof sub.latest_invoice !== 'string' &&
         sub.collection_method === 'charge_automatically'
       ) {
-        let charge = sub.latest_invoice.charge;
-        if (typeof sub.latest_invoice.charge === 'string') {
-          charge = await this.stripe.charges.retrieve(
-            sub.latest_invoice.charge
-          );
+        let charge = latestInvoice.charge;
+        if (typeof latestInvoice.charge === 'string') {
+          charge = await this.stripe.charges.retrieve(latestInvoice.charge);
         }
 
         failure_code = /** @type {Charge} */ (charge).failure_code;
@@ -832,11 +835,6 @@ class StripeHelper {
       const product_id = product.id;
       const product_name = product.name;
 
-      let latestInvoice = sub.latest_invoice;
-      if (latestInvoice && typeof latestInvoice !== 'string') {
-        latestInvoice = latestInvoice.number;
-      }
-
       // FIXME: Note that the plan is only set if the subscription contains a single
       // plan. Multiple product support will require changes here to fetch all
       // plans for this subscription.
@@ -846,7 +844,7 @@ class StripeHelper {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
-        latest_invoice: latestInvoice,
+        latest_invoice: latestInvoice.number,
         plan_id: sub.plan.id,
         product_name,
         product_id,

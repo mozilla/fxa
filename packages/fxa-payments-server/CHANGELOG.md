@@ -1,5 +1,16 @@
 # Change history
 
+## 1.166.2
+
+### New features
+
+- payments: localization updates ([47b03678e](https://github.com/mozilla/fxa/commit/47b03678e))
+
+### Other changes
+
+- payments-server: fix padding on hide/show button ([147dd6c7e](https://github.com/mozilla/fxa/commit/147dd6c7e))
+- payments-server: clear checkbox when stay subscribed clicked ([e6e91f13b](https://github.com/mozilla/fxa/commit/e6e91f13b))
+
 ## 1.166.1
 
 No changes.

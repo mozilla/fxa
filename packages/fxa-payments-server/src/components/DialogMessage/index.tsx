@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 import { useClickOutsideEffect } from '../../lib/hooks';
 

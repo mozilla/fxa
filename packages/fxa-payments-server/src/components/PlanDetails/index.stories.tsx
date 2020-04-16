@@ -21,7 +21,7 @@ const selectedPlan = {
   product_name: 'Firefox Private Network Pro',
   currency: 'usd',
   amount: 935,
-  interval: 'mos',
+  interval: 'month' as const,
   interval_count: 1,
 };
 
@@ -29,14 +29,24 @@ storiesOf('components/PlanDetail', module)
   .add('default', () => (
     <MockApp>
       <PlanDetails
-        {...{ profile: userProfile, showExpandButton: false, selectedPlan, isMobile: false }}
+        {...{
+          profile: userProfile,
+          showExpandButton: false,
+          selectedPlan,
+          isMobile: false,
+        }}
       />
     </MockApp>
   ))
   .add('with expand button', () => (
     <MockApp>
       <PlanDetails
-        {...{ profile: userProfile, showExpandButton: true, selectedPlan, isMobile: false }}
+        {...{
+          profile: userProfile,
+          showExpandButton: true,
+          selectedPlan,
+          isMobile: false,
+        }}
       />
     </MockApp>
   ));

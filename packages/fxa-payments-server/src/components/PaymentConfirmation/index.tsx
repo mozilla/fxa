@@ -1,6 +1,6 @@
 import React from 'react';
-import { Localized } from 'fluent-react';
-import { formatCurrencyInCents } from '../../lib/formats';
+import { Localized } from '@fluent/react';
+import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
@@ -23,7 +23,7 @@ export const PaymentConfirmation = ({
   productUrl,
   className = 'default',
 }: PaymentConfirmationProps) => {
-  const { amount, interval } = selectedPlan;
+  const { amount, currency, interval, interval_count } = selectedPlan;
   const { displayName, email } = profile;
   const { brand, last4, subscriptions } = customer;
   const invoiceNumber = subscriptions[0].latest_invoice;
@@ -41,6 +41,13 @@ export const PaymentConfirmation = ({
     <Localized id="payment-confirmation-heading-bak">
       <h2></h2>
     </Localized>
+  );
+
+  const planPrice = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    interval_count
   );
 
   return (
@@ -85,11 +92,11 @@ export const PaymentConfirmation = ({
         </Localized>
         <div className="bottom-row">
           <Localized
-            id="payment-confirmation-amount"
-            $amount={formatCurrencyInCents(amount)}
-            $interval={interval}
+            id={`payment-confirmation-amount-${interval}`}
+            $amount={getLocalizedCurrency(amount, currency)}
+            $intervalCount={interval_count}
           >
-            <p></p>
+            <p>{planPrice}</p>
           </Localized>
           <Localized id="payment-confirmation-cc-preview" $last4={last4}>
             <p className={`c-card ${brand.toLowerCase()}`}></p>

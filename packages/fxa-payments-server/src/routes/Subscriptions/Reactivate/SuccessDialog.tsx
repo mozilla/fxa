@@ -3,7 +3,7 @@ import { Plan } from '../../../store/types';
 import { metadataFromPlan } from '../../../store/utils';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
-import { Localized } from 'fluent-react';
+import { Localized } from '@fluent/react';
 
 export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
   const { product_name: productName } = plan;
