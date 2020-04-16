@@ -27,6 +27,8 @@ const oauthRouteUtils = require('../utils/oauth');
 const { OAUTH_SCOPE_SESSION_TOKEN } = require('../../constants');
 const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
 
+const JWTIdToken = require('../../oauth/jwt_id_token');
+
 module.exports = (log, config, oauthdb, db, mailer, devices) => {
   const OAUTH_DISABLE_NEW_CONNECTIONS_FOR_CLIENTS = new Set(
     config.oauth.disableNewConnectionsForClients || []
@@ -77,6 +79,35 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
         return oauthdb.getScopedKeyData(sessionToken, request.payload);
+      },
+    },
+    {
+      method: 'POST',
+      path: '/oauth/id-token-verify',
+      options: {
+        validate: {
+          payload: {
+            client_id: Joi.string().required(),
+            id_token: Joi.string().required(),
+          },
+        },
+        response: {
+          schema: Joi.object().keys({
+            aud: Joi.string().optional(),
+            alg: Joi.string().optional(),
+            exp: Joi.number().optional(),
+            iat: Joi.number().optional(),
+            iss: Joi.string().optional(),
+            sub: Joi.string().optional(),
+          }),
+        },
+      },
+      handler: async function(request) {
+        const claims = await JWTIdToken.verify(
+          request.payload.id_token,
+          request.payload.client_id
+        );
+        return claims;
       },
     },
     {

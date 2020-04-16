@@ -24,6 +24,7 @@ Vat.register(
 Vat.register('codeChallengeMethod', Vat.string().valid('S256'));
 Vat.register('email', Vat.string().test(Validate.isEmailValid));
 Vat.register('hex', Vat.string().test(Validate.isHexValid));
+Vat.register('idToken', Vat.string().test(Validate.isBase64Url));
 Vat.register('keyFetchToken', Vat.string());
 Vat.register('keysJwk', Vat.string().test(Validate.isBase64Url));
 Vat.register(

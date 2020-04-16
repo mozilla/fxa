@@ -92,6 +92,7 @@ module.exports.service = isA
 module.exports.hexString = isA.string().regex(HEX_STRING);
 module.exports.clientId = module.exports.hexString.length(16);
 module.exports.clientSecret = module.exports.hexString;
+module.exports.idToken = module.exports.jwt;
 module.exports.refreshToken = module.exports.hexString.length(64);
 module.exports.sessionToken = module.exports.hexString.length(64);
 module.exports.sessionTokenId = module.exports.hexString.length(64);

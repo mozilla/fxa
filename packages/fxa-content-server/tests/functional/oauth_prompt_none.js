@@ -99,7 +99,13 @@ registerSuite('oauth prompt=none', {
     },
 
     'fails if no login_hint': function() {
+      const email = createEmail();
+      // We do the session check before the login_hint/id_token_hint check,
+      // so need a session to generate this error.
       return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(
           openRP({
             query: { return_on_error: false },

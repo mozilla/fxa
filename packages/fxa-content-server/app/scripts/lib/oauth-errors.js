@@ -177,6 +177,11 @@ var ERRORS = {
     message: t('Unverified user or session'),
     response_error_code: 'interaction_required',
   },
+  PROMPT_NONE_INVALID_ID_TOKEN_HINT: {
+    errno: 1013,
+    message: t('Invalid id_token_hint'),
+    response_error_code: 'invalid_request',
+  },
 };
 
 export default _.extend({}, Errors, {

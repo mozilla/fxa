@@ -2600,6 +2600,26 @@ FxAccountClient.prototype.verifyRecoveryKey = function(
 };
 
 /**
+ * @param {String} idToken, an OIDC ID Token
+ * @param {String} clientId, used to check the Audience Claim ('aud') in the
+ *   token matches the current client.
+ */
+FxAccountClient.prototype.verifyIdToken = function(idToken, clientId) {
+  var request = this.request;
+  return Promise.resolve()
+    .then(function() {
+      required(idToken, 'idToken');
+      required(clientId, 'clientId');
+    })
+    .then(function(creds) {
+      return request.send('/oauth/id-token-verify', 'POST', null, {
+        id_token: idToken,
+        client_id: clientId,
+      });
+    });
+};
+
+/**
  * Create an OAuth code using `sessionToken`
  *
  * @param {String} sessionToken

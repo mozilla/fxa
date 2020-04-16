@@ -13,9 +13,11 @@ const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
+const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
 
 const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_SCOPES = 'profile https://identity.mozilla.com/apps/scoped-example';
+const MOCK_UNIX_TIMESTAMP = Math.round(Date.now() / 1000);
 const MOCK_TOKEN =
   '00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff';
 const MOCK_JWT =
@@ -105,6 +107,37 @@ describe('/oauth/ routes', () => {
       assert.calledWithExactly(mockOAuthDB.getClientInfo, MOCK_CLIENT_ID);
       assert.equal(resp.id, MOCK_CLIENT_ID);
       assert.equal(resp.name, 'mock client');
+    });
+  });
+
+  describe('/oauth/id-token-verify', () => {
+    it('calls JWTIdToken.verify', async () => {
+      const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
+      const MOCK_ID_TOKEN_CLAIMS = {
+        iss: 'http://127.0.0.1:9000',
+        alg: 'RS256',
+        aud: MOCK_CLIENT_ID,
+        sub: MOCK_USER_ID,
+        exp: MOCK_UNIX_TIMESTAMP + 100,
+        iat: MOCK_UNIX_TIMESTAMP,
+      };
+
+      const mockVerify = sinon.stub(JWTIdToken, 'verify');
+      mockVerify.returns(MOCK_ID_TOKEN_CLAIMS);
+
+      const mockRequest = mocks.mockRequest({
+        payload: {
+          client_id: MOCK_CLIENT_ID,
+          id_token: MOCK_JWT,
+        },
+      });
+
+      const resp = await loadAndCallRoute(
+        '/oauth/id-token-verify',
+        mockRequest
+      );
+      assert.calledOnce(mockVerify);
+      assert.deepEqual(resp, MOCK_ID_TOKEN_CLAIMS);
     });
   });
 

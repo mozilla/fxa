@@ -303,8 +303,7 @@ content-server page.
   - `signin` triggers the signin flow. (will become deprecated and replaced by `email`)
   - `signup` triggers the signup flow. (will become deprecated and replaced by `email`)
   - `force_auth` requires the user to sign in using the address specified in `email`.
-- `email`: Optional if `action` is `email`, `signup` or `signin`. Required if `action`
-  is `force_auth` or `prompt=none`.
+- `email`: Optional if `action` is `email`, `signup`, `signin`. Optional, but deprecated, if `prompt` is `none` (use `login_hint` instead in this case). Required if `action` is `force_auth`.
   - if `action` is `email`, the email address will be used to determine whether to display the signup or signin form, but the user is free to change it.
   - If `action` is `signup` or `signin`, the email address will be pre-filled into the account form, but the user is free to change it.
   - If `action` is `signin`, the literal string `blank` will force the user to enter an email address and the last signed in email address will be ignored.
@@ -312,6 +311,7 @@ content-server page.
     signed in email address will be used as the default.
   - If `action` is `force_auth`, the user is unable to modify the email
     address and is unable to sign up if the address is not registered.
+- `id_token_hint`: An OpenID ID Token for the user being logged in silently via `prompt=none`. If this parameter and `login_hint` are both included in a `prompt=none` request, this parameter will be used, and the `login_hint` will be ignored. See the [prompt=none doc][prompt-none] for more info.
 - `login_hint`: An alias to `email`
 - `prompt`: Specifies whether the Authorization Server prompts the End-User for reauthentication and consent.
   - `consent`: The Authorization Server SHOULD prompt the End-User for consent before returning information to the Client.
