@@ -1,15 +1,26 @@
 {
   "compilerOptions": {
+    // Permit, but do not report errors for JS files
+    // TODO: Remove after transition to TS is complete
     "allowJs": true,
-    "checkJs": true,
-    "noEmit": true,
-    "target": "esnext",
+    "checkJs": false,
+
+    "target": "ES2019",
     "module": "commonjs",
+    "noEmit": true,
+    "strict": true,
+
     "resolveJsonModule": true,
-    "strict": false
-    // Turn these on to find a few dozen functions that don't return a value
-    // "noImplicitReturns": true,
-    // "noFallthroughCasesInSwitch": true
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "types": ["node"],
+    "typeRoots": ["./types", "node_modules/@types"]
   },
-  "exclude": ["test/**"]
+  "exclude": ["node_modules"]
 }

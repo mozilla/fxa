@@ -6,12 +6,13 @@ module.exports = {
   apps: [
     {
       name: 'auth',
-      script: './bin/key_server.js',
+      script: 'ts-node bin/key_server.js',
       cwd: __dirname,
       env: {
         DB: 'mysql',
         NODE_ENV: 'dev',
         NODE_OPTIONS: '--inspect=9160',
+        TS_NODE_TRANSPILE_ONLY: 'true',
         IP_ADDRESS: '0.0.0.0',
         SIGNIN_UNBLOCK_FORCED_EMAILS: '^block.*@restmail\\.net$',
         SIGNIN_CONFIRMATION_ENABLED: 'true',
