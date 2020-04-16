@@ -287,7 +287,6 @@ sub-customer-error =
 sub-billing-update-success = Your billing information has been updated successfully
 
 ## subscription create
-sub-failed = Subscription failed
 sub-guarantee = 30-day money-back guarantee
 
 ## plan-details
