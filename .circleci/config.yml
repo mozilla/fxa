@@ -99,6 +99,7 @@ jobs:
             'fxa-js-client' \
             'fxa-payments-server' \
             'fxa-profile-server' \
+            'fxa-settings' \
             'fxa-shared' \
             'fxa-support-panel' \
             )

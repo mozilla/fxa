@@ -89,6 +89,11 @@ function makeApp() {
         writeToDisk: true,
       })
     );
+    const { createProxyMiddleware } = require('http-proxy-middleware');
+    app.use(
+      '/beta/settings',
+      createProxyMiddleware({ target: 'http://localhost:3000', ws: true })
+    );
   }
 
   app.engine('html', consolidate.handlebars);
@@ -172,6 +177,13 @@ function makeApp() {
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
   routes.forEach(routeHelpers.addRoute);
+
+  if (!config.get('settings.enableBeta')) {
+    app.use('/beta/*', function(req, res) {
+      res.status(403);
+      res.send('<h1>403 Forbidden</h1>');
+    });
+  }
 
   app.use(
     serveStatic(STATIC_DIRECTORY, {

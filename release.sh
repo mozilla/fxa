@@ -309,6 +309,7 @@ packages/fxa-event-broker
 packages/fxa-geodb
 packages/fxa-payments-server
 packages/fxa-profile-server
+packages/fxa-settings
 packages/fxa-shared
 packages/fxa-support-panel"
 
