@@ -1,7 +1,27 @@
-# Contribution Guidelines for the Firefox Accounts Content Server
+# Contribution Guidelines for Firefox Accounts
 
-Anyone is welcome to help with Firefox Accounts. Feel free to get in touch with other community members on Matrix, the
-mailing list or through issues here on GitHub.
+Anyone is welcome to help with Firefox Accounts, but it's important to
+recognize that Firefox Accounts is a complex tool written by Mozilla and used
+solely within Mozilla or by parties tightly coupled to Mozilla.  The team's
+goal is focused on serving Mozilla's requirements -- not being easy to set up
+or easily usable in other scenarios.
+
+In order to scale effectively, we may use technologies which have significant
+barriers to entry (eg. cost or expertise).
+
+If you're filing bugs, working on documentation, or helping reproduce a
+problem, thank you for your help and please read below for guidelines.
+
+If you want to write code, and you are not an experienced programmer you will
+probably be more successful [looking for other projects at
+Mozilla](https://whatcanidoformozilla.org) to contribute to.  The Firefox
+Accounts team is happy to support open source contributions but we have limited
+time to assist in getting the FxA codebase up and running on other platforms.
+
+We use the standard `help wanted` and `good first issue` labels on GitHub to
+help identify bugs for contributors to work on.
+
+To get in touch with us and other community members:
 
 - Matrix: [#fxa:mozilla.org](https://chat.mozilla.org/#/room/#fxa:mozilla.org)
 - Mailing list: <https://mail.mozilla.org/listinfo/dev-fxacct>
@@ -18,29 +38,9 @@ You must agree to abide by the [Mozilla Community Participation Guidelines](http
 You can [file issues on GitHub](https://github.com/mozilla/fxa/issues/new). Please try to include as much information as you can and under what conditions
 you saw the issue.
 
-## Bug Triage
+## Development Process
 
-We triage bugs twice a week: in the Monday FxA Weekly meeting (after agenda items), and in the Friday Triage meeting (see the [Firefox Accounts Public Calendar](https://calendar.google.com/calendar/embed?src=mozilla.com_urbkla6jvphpk1t8adi5c12kic%40group.calendar.google.com) for times and details). If you are a contributor and would like to attend triage, reach out and let us know.
-
-The FxA core team uses ZenHub to measure velocity and organize work into Epics.
-
-### Estimation and Point Values
-
-Points are assigned to GitHub issues (ideally before starting work 😉) so that we can track our velocity over time, which aids in planning. Note that you'll need to be signed in to ZenHub to view and set estimates.
-
-We don't assign points to pull requests, unless it's a pull request without a corresponding issue.
-
-The goal of estimation is for us to assess the issue in terms of its relative complexity, effort, and doubt. When applying an estimate, we should consider all the steps in getting the particular work to a completed (ready for production) state for our consumer. The should include effort required for code reviews, security reviews, testing, integration and build/deploy.
-
-| Points  | Relative Size | Description                                                                |
-| ------- | ------------- | -------------------------------------------------------------------------- |
-| 1       | xs            | This is a trivial change with clearly defined parameters.                  |
-| 2       | s             | This is a small change with clearly defined parameters.                    |
-| 3       | m             | This is a small change, but there's some uncertainty.                      |
-| 5       | l             | Moderately complex, will require some effort but clearly defined.          |
-| 8       | xl            | Moderately complex, medium effort, some uncertainty.                       |
-| 13      | xxl           | Complex, large effort, well defined (these should be broken down further)  |
-| 21 (20) | ∞             | Meta issue or We do not have clear scope. (This issue must be broken down) |
+[Read about our development process](https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/fxa-dev-process)
 
 ## Sending Pull Requests
 
@@ -48,13 +48,13 @@ Patches should be submitted as pull requests (PR).
 
 Before submitting a PR:
 
-- Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be clearly labeled as such and should not be merged until all tests pass and the code has been reviewed.
+- Your code must run and pass all the automated tests before you submit your PR for review. "Work in progress" pull requests are allowed to be submitted, but should be opened as a `draft` and should not be merged until all tests pass and the code has been reviewed.
 - Your patch should include new tests that cover your changes. It is your and your reviewer's responsibility to ensure your patch includes adequate tests.
 - Your patch must be [GPG signed](https://help.github.com/articles/managing-commit-signature-verification) to ensure the commits come from a trusted source.
 
 When submitting a PR:
 
-- You agree to license your code under the project's open source license ([MPL 2.0](/LICENSE)).
+- You agree to and have the legal right to license your code under the project's [license](/LICENSE).
 - Base your branch off the current `master`.
 - Add both your code and new tests if relevant.
 - Run `grunt lint` and `npm test` to make sure your code passes linting and tests.
@@ -127,9 +127,6 @@ installed](https://github.com/mozilla/fxa/blob/master/package.json#L6) when you 
 
 ### L10N
 
-To contribute translations visit [mozilla/fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n).
+To contribute translations visit [Pontoon](https://pontoon.mozilla.org/).
+
 Use the `FXA_L10N_SHA` to pin L10N files to certain Git SHA. If not set then the `master` branch SHA will be used.
-
-## License
-
-MPL 2.0
