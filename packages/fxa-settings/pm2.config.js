@@ -7,7 +7,7 @@ module.exports = {
     {
       name: "settings-react",
       cwd: __dirname,
-      script: "react-scripts start",
+      script: "rescripts start",
       max_restarts: "1",
       min_uptime: "2m",
       env: {

@@ -62,6 +62,7 @@ Thumbs.db
 !.sass-lint.yml
 !.prettier*
 !.vscode
+!.rescriptsrc.js
 
 ## Package-specific ##
 
