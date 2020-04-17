@@ -1,3 +1,14 @@
+## 1.167.0
+
+### Refactorings
+
+* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+
+### Other changes
+
+* deps: Upgrade customs server to hapi 19 ([1c0fd9d6e](https://github.com/mozilla/fxa/commit/1c0fd9d6e))
+
 ## 1.166.2
 
 No changes.

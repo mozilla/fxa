@@ -1,3 +1,9 @@
+## 1.167.0
+
+### Refactorings
+
+* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+
 ## 1.166.2
 
 No changes.

@@ -1,5 +1,27 @@
 # Change history
 
+## 1.167.0
+
+### New features
+
+* payments: localization updates ([a0d64226f](https://github.com/mozilla/fxa/commit/a0d64226f))
+
+### Bug fixes
+
+* payments: bugfix for creating default mock stubs for stripe JS API ([7506b8642](https://github.com/mozilla/fxa/commit/7506b8642))
+
+### Refactorings
+
+* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+
+### Other changes
+
+* payments-server: no more dialog errors in subscription create ([bb563caef](https://github.com/mozilla/fxa/commit/bb563caef))
+* styles: convert payments UI to grid and tidy ([869b97603](https://github.com/mozilla/fxa/commit/869b97603))
+* payments-server: clear checkbox when stay subscribed clicked ([adfc11224](https://github.com/mozilla/fxa/commit/adfc11224))
+* payments-server: fix padding on hide/show button ([e5fc9c842](https://github.com/mozilla/fxa/commit/e5fc9c842))
+
 ## 1.166.2
 
 ### New features

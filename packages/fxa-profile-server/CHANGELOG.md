@@ -1,3 +1,10 @@
+## 1.167.0
+
+### Refactorings
+
+* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+
 ## 1.166.2
 
 No changes.

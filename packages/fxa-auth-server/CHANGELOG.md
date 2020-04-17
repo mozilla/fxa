@@ -1,3 +1,26 @@
+## 1.167.0
+
+### New features
+
+* payments: localization updates ([a0d64226f](https://github.com/mozilla/fxa/commit/a0d64226f))
+* payments: email methods for subscription upgrade and downgrade ([bc4dfa933](https://github.com/mozilla/fxa/commit/bc4dfa933))
+* settings: add error for when you try to add a secondary email already on your account ([36e21515d](https://github.com/mozilla/fxa/commit/36e21515d))
+
+### Bug fixes
+
+* payments: ensure 'invoices' is valid expandable Stripe resource ([2b4b803c3](https://github.com/mozilla/fxa/commit/2b4b803c3))
+
+### Refactorings
+
+* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+* npm-scripts: refactored npm scripts for better ergonomics ([a4b399634](https://github.com/mozilla/fxa/commit/a4b399634))
+
+### Other changes
+
+* 53bf24ad1 Add id_token_hint support to prompt=none ([53bf24ad1](https://github.com/mozilla/fxa/commit/53bf24ad1))
+* 25370b2f3 L10n change request ([25370b2f3](https://github.com/mozilla/fxa/commit/25370b2f3))
+
 ## 1.166.2
 
 ### New features
