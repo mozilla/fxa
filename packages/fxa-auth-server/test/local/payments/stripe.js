@@ -38,6 +38,7 @@ const unsuccessfulPaymentIntent = require('./fixtures/paymentIntent_requires_pay
 const failedCharge = require('./fixtures/charge_failed.json');
 const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/event_customer_source_expiring.json');
+const eventCustomerSubscriptionUpdated = require('./fixtures/event_customer_subscription_updated.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -1650,8 +1651,15 @@ describe('StripeHelper', () => {
 
     const mockInvoice = {
       id: 'inv_0000000000',
+      number: '1234567',
       charge: chargeId,
       default_source: { id: sourceId },
+    };
+
+    const mockInvoiceUpcoming = {
+      ...mockInvoice,
+      id: 'inv_upcoming',
+      amount_due: 299,
     };
 
     const mockCharge = {
@@ -1714,6 +1722,9 @@ describe('StripeHelper', () => {
         }),
         {}
       );
+      mockStripe.invoices.retrieveUpcoming = sinon
+        .stub()
+        .resolves(mockInvoiceUpcoming);
       stripeHelper.stripe = mockStripe;
     });
 
@@ -1946,6 +1957,234 @@ describe('StripeHelper', () => {
         }
         assert.isNotNull(thrownError);
         assert.equal(thrownError.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+      });
+    });
+
+    const expectedBaseUpdateDetails = {
+      uid,
+      email,
+      productIdNew: productId,
+      productNameNew: productName,
+      productIconURLNew:
+        eventCustomerSubscriptionUpdated.data.object.plan.metadata.emailIconURL,
+      productDownloadURLNew:
+        eventCustomerSubscriptionUpdated.data.object.plan.metadata.downloadURL,
+      productPaymentCycle: 'month',
+      planAmountNew: 500,
+      closeDate: 1326853478,
+    };
+
+    describe('extractSubscriptionUpdateEventDetailsForEmail', () => {
+      const mockReactivationDetails = 'mockReactivationDetails';
+      const mockCancellationDetails = 'mockCancellationDetails';
+      const mockUpgradeDowngradeDetails = 'mockUpgradeDowngradeDetails';
+
+      beforeEach(() => {
+        sandbox
+          .stub(
+            stripeHelper,
+            'extractSubscriptionUpdateCancellationDetailsForEmail'
+          )
+          .returns(mockCancellationDetails);
+        sandbox
+          .stub(
+            stripeHelper,
+            'extractSubscriptionUpdateReactivationDetailsForEmail'
+          )
+          .returns(mockReactivationDetails);
+        sandbox
+          .stub(
+            stripeHelper,
+            'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail'
+          )
+          .returns(mockUpgradeDowngradeDetails);
+      });
+
+      function assertOnlyExpectedHelperCalledWith(expectedHelperName, ...args) {
+        const allHelperNames = [
+          'extractSubscriptionUpdateReactivationDetailsForEmail',
+          'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
+          'extractSubscriptionUpdateCancellationDetailsForEmail',
+        ];
+        for (const helperName of allHelperNames) {
+          if (helperName !== expectedHelperName) {
+            assert.isTrue(stripeHelper[helperName].notCalled);
+          } else {
+            assert.isTrue(stripeHelper[helperName].calledWith(...args));
+          }
+        }
+      }
+
+      it('calls the expected helper method for cancellation', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = true;
+        event.data.previous_attributes = { cancel_at_period_end: false };
+        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+          event
+        );
+        assert.equal(result, mockCancellationDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateCancellationDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails
+        );
+      });
+
+      it('calls the expected helper method for reactivation', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = false;
+        event.data.previous_attributes = { cancel_at_period_end: true };
+        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+          event
+        );
+        assert.equal(result, mockReactivationDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateReactivationDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails
+        );
+      });
+
+      it('calls the expected helper method for upgrade or downgrade', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = false;
+        event.data.previous_attributes.cancel_at_period_end = false;
+        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+          event
+        );
+        assert.equal(result, mockUpgradeDowngradeDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails,
+          mockCustomer,
+          event.data.object.plan.metadata.productOrder,
+          event.data.previous_attributes.plan
+        );
+      });
+    });
+
+    describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
+      const commonTest = isUpgrade => async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+
+        const productIdOld = event.data.previous_attributes.plan.product;
+        const productNameOld = '123 Done Pro Plus Monthly';
+        const productIconURLOld = 'http://example.com/icon-old';
+        const productDownloadURLOld = 'http://example.com/download-old';
+        const productIdNew = event.data.object.plan.product;
+        const productNameNew = '123 Done Pro Monthly';
+        const productIconURLNew = 'http://example.com/icon-new';
+        const productDownloadURLNew = 'http://example.com/download-new';
+
+        const baseDetails = {
+          ...expectedBaseUpdateDetails,
+          productIdNew,
+          productNameNew,
+          productIconURLNew,
+          productDownloadURLNew,
+        };
+
+        mockAllProducts.push(
+          {
+            product_id: productIdOld,
+            product_name: productNameOld,
+            product_metadata: {
+              ...mockProduct.metadata,
+              emailIconUrl: productIconURLOld,
+              downloadURL: productDownloadURLOld,
+            },
+          },
+          {
+            product_id: productIdNew,
+            product_name: productNameNew,
+            product_metadata: {
+              ...mockProduct.metadata,
+              emailIconUrl: productIconURLNew,
+              downloadURL: productDownloadURLNew,
+            },
+          }
+        );
+
+        event.data.object.plan.metadata.productOrder = isUpgrade ? 2 : 1;
+        event.data.previous_attributes.plan.metadata.productOrder = isUpgrade
+          ? 1
+          : 2;
+
+        const result = await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
+          event.data.object,
+          baseDetails,
+          mockCustomer,
+          event.data.object.plan.metadata.productOrder,
+          event.data.previous_attributes.plan
+        );
+
+        assert.deepEqual(result, {
+          ...baseDetails,
+          productIdNew,
+          updateType:
+            StripeHelper.SUBSCRIPTION_UPDATE_TYPES[
+              isUpgrade ? 'UPGRADE' : 'DOWNGRADE'
+            ],
+          productIdOld,
+          productNameOld,
+          productIconURLOld,
+          productDownloadURLOld,
+          planAmountOld: event.data.previous_attributes.plan.amount,
+          invoiceNumber: mockInvoice.number,
+          invoiceId: mockInvoice.id,
+          paymentProrated: mockInvoiceUpcoming.amount_due,
+        });
+      };
+
+      it(
+        'extracts expected details for a subscription upgrade',
+        commonTest(true)
+      );
+      it(
+        'extracts expected details for a subscription downgrade',
+        commonTest(false)
+      );
+    });
+
+    describe('extractSubscriptionUpdateReactivationDetailsForEmail', () => {
+      it('extracts expected details for a subscription reactivation', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+          event.data.object,
+          expectedBaseUpdateDetails
+        );
+        const subscription = event.data.object;
+        const { card } = mockCharge.payment_method_details;
+        assert.deepEqual(result, {
+          ...expectedBaseUpdateDetails,
+          updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
+          invoiceId: subscription.latest_invoice,
+          currentPeriodEnd: subscription.current_period_end,
+          brand: card.brand,
+          last4: card.last4,
+        });
+      });
+    });
+
+    describe('extractSubscriptionUpdateCancellationDetailsForEmail', () => {
+      it('extracts expected details for a subscription cancellation', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const result = await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
+          event.data.object,
+          expectedBaseUpdateDetails
+        );
+        const subscription = event.data.object;
+        assert.deepEqual(result, {
+          ...expectedBaseUpdateDetails,
+          updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
+          cancelledAt: subscription.canceled_at,
+          cancelAt: subscription.cancel_at,
+          cancelAtPeriodEnd: subscription.cancel_at_period_end,
+          currentPeriodStart: subscription.current_period_start,
+          currentPeriodEnd: subscription.current_period_end,
+          invoiceId: subscription.latest_invoice,
+        });
       });
     });
   });

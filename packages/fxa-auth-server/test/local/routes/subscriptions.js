@@ -12,7 +12,10 @@ const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const P = require('../../../lib/promise');
 const Sentry = require('@sentry/node');
-const { StripeHelper } = require('../../../lib/payments/stripe');
+const {
+  StripeHelper,
+  SUBSCRIPTION_UPDATE_TYPES,
+} = require('../../../lib/payments/stripe');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 
@@ -36,6 +39,7 @@ const subscriptionUpdated = require('../payments/fixtures/subscription_updated.j
 const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscription_updated_from_incomplete.json');
 const eventInvoicePaymentSucceeded = require('../payments/fixtures/event_invoice_payment_succeeded.json');
 const eventInvoicePaymentFailed = require('../payments/fixtures/event_invoice_payment_failed.json');
+const eventCustomerSubscriptionUpdated = require('../payments/fixtures/event_customer_subscription_updated.json');
 const openInvoice = require('../payments/fixtures/invoice_open.json');
 const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
@@ -1790,17 +1794,21 @@ describe('DirectStripeRoutes', () => {
       );
 
     describe('handleSubscriptionUpdatedEvent', () => {
+      let sendSubscriptionUpdatedEmailStub;
+
+      beforeEach(() => {
+        sendSubscriptionUpdatedEmailStub = sandbox
+          .stub(directStripeRoutesInstance, 'sendSubscriptionUpdatedEmail')
+          .resolves({ uid: UID, email: TEST_EMAIL });
+      });
+
       it('emits a notification when transitioning from "incomplete" to "active/trialing"', async () => {
         const updatedEvent = deepCopy(subscriptionUpdatedFromIncomplete);
         await directStripeRoutesInstance.handleSubscriptionUpdatedEvent(
           {},
           updatedEvent
         );
-        assert.calledWith(
-          directStripeRoutesInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription,
-          updatedEvent.data.object
-        );
+        assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
         assert.calledWith(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer,
           UID,
@@ -1816,10 +1824,7 @@ describe('DirectStripeRoutes', () => {
           {},
           updatedEvent
         );
-        assert.notCalled(
-          directStripeRoutesInstance.stripeHelper
-            .getCustomerUidEmailFromSubscription
-        );
+        assert.calledWith(sendSubscriptionUpdatedEmailStub, updatedEvent);
         assert.notCalled(
           directStripeRoutesInstance.stripeHelper.refreshCachedCustomer
         );
@@ -2022,6 +2027,55 @@ describe('DirectStripeRoutes', () => {
         'sendSubscriptionSubsequentInvoiceEmail',
         'subscription_cycle'
       )
+    );
+  });
+
+  describe('sendSubscriptionUpdatedEmail', () => {
+    const commonSendSubscriptionUpdatedEmailTest = (
+      isUpgrade = true
+    ) => async () => {
+      const event = deepCopy(eventCustomerSubscriptionUpdated);
+
+      const mockDetails = {
+        uid: '1234',
+        test: 'fake',
+        updateType:
+          SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
+      };
+      directStripeRoutesInstance.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail.resolves(
+        mockDetails
+      );
+
+      const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
+      directStripeRoutesInstance.db.account = sinon.spy(
+        async data => mockAccount
+      );
+
+      await directStripeRoutesInstance.sendSubscriptionUpdatedEmail(event);
+
+      const expectedMethodName = isUpgrade
+        ? 'sendSubscriptionUpgradeEmail'
+        : 'sendSubscriptionDowngradeEmail';
+
+      assert.calledWith(
+        directStripeRoutesInstance.mailer[expectedMethodName],
+        mockAccount.emails,
+        mockAccount,
+        {
+          acceptLanguage: mockAccount.locale,
+          ...mockDetails,
+        }
+      );
+    };
+
+    it(
+      'sends an upgrade email on subscription upgrade',
+      commonSendSubscriptionUpdatedEmailTest(true)
+    );
+
+    it(
+      'sends a downgrade email on subscription downgrade',
+      commonSendSubscriptionUpdatedEmailTest(false)
     );
   });
 

@@ -13,6 +13,7 @@ const {
   metadataFromPlan,
   splitCapabilities,
 } = require('./utils/subscriptions');
+const { SUBSCRIPTION_UPDATE_TYPES } = require('../payments/stripe');
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
@@ -724,13 +725,21 @@ class DirectStripeRoutes {
     const stripeData =
       /** @type {import('stripe').Stripe.Event.Data } */ (event.data);
     const sub = /** @type {Subscription} */ (stripeData.object);
+    const { uid, email } = await this.sendSubscriptionUpdatedEmail(event);
 
     // if the subscription changed from 'incomplete' to 'active' or 'trialing'
     if (
       ['active', 'trialing'].includes(sub.status) &&
       stripeData.previous_attributes.status === 'incomplete'
     ) {
-      return this.updateCustomerAndSendStatus(request, event, sub, true);
+      return this.updateCustomerAndSendStatus(
+        request,
+        event,
+        sub,
+        true,
+        uid,
+        email
+      );
     }
   }
 
@@ -871,6 +880,46 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Send out the appropriate email on subscription update, depending on
+   * whether the change was a subscription upgrade or downgrade.
+   *
+   * @param {Event} event
+   */
+  async sendSubscriptionUpdatedEmail(event) {
+    const eventDetails = await this.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+      event
+    );
+    const { uid, email } = eventDetails;
+    const account = await this.db.account(uid);
+
+    const mailParams = [
+      account.emails,
+      account,
+      {
+        acceptLanguage: account.locale,
+        ...eventDetails,
+      },
+    ];
+
+    switch (eventDetails.updateType) {
+      case SUBSCRIPTION_UPDATE_TYPES.UPGRADE:
+        await this.mailer.sendSubscriptionUpgradeEmail(...mailParams);
+        break;
+      case SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE:
+        await this.mailer.sendSubscriptionDowngradeEmail(...mailParams);
+        break;
+      case SUBSCRIPTION_UPDATE_TYPES.REACTIVATION:
+        // TBD FXA-1157
+        break;
+      case SUBSCRIPTION_UPDATE_TYPES.CANCELLATION:
+        // TBD FXA-1157 / FXA-1154
+        break;
+    }
+
+    return { uid, email };
+  }
+
+  /**
    * Send out the appropriate email on subscription deletion, depending on
    * whether the user still has an account.
    *
@@ -884,6 +933,7 @@ class DirectStripeRoutes {
 
     let account;
     try {
+      // TODO: FXA-1157 / FXA-1154 - Move this cancellation into the subscription update event
       account = await this.db.account(uid);
       await this.mailer.sendSubscriptionCancellationEmail(
         account.emails,
