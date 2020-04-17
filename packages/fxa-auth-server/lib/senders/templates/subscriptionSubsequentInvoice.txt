@@ -12,6 +12,6 @@
 
 {{{t "Next Invoice: %(nextInvoiceDateOnly)s" }}}
 
-Questions about your subscription? Our support team is here to help you:
+{{{t "Questions about your subscription? Our support team is here to help you:" }}}
 
 {{{subscriptionSupportUrl}}}

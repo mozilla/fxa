@@ -35,6 +35,7 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
   const templateNameToCampaignMap = {
+    subscriptionReactivation: 'subscription-reactivation',
     subscriptionUpgrade: 'subscription-upgrade',
     subscriptionDowngrade: 'subscription-downgrade',
     subscriptionPaymentExpired: 'subscription-payment-expired',
@@ -76,6 +77,7 @@ module.exports = function(log, config, oauthdb) {
   // Email template to UTM content, this is typically the main call out link/button
   // in template.
   const templateNameToContentMap = {
+    subscriptionReactivation: 'subscriptions',
     subscriptionUpgrade: 'subscriptions',
     subscriptionDowngrade: 'subscriptions',
     subscriptionPaymentExpired: 'subscriptions',
@@ -2188,6 +2190,73 @@ module.exports = function(log, config, oauthdb) {
         product: productName,
         subject: translator.format(subject, translatorParams),
         invoiceTotal,
+      },
+    });
+  };
+
+  Mailer.prototype.subscriptionReactivationEmail = async function(message) {
+    const {
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceTotal,
+      cardType,
+      lastFour,
+      nextInvoiceDate,
+    } = message;
+
+    const enabled = config.subscriptions.transactionalEmails.enabled;
+    log.trace('mailer.subscriptionReactivation', {
+      enabled,
+      email,
+      productId,
+      uid,
+    });
+    if (!enabled) {
+      return;
+    }
+
+    const query = { plan_id: planId, product_id: productId, uid };
+    const template = 'subscriptionReactivation';
+    const translator = this.translator(message.acceptLanguage);
+
+    const links = this._generateLinks(null, message, query, template);
+    const headers = {};
+    const translatorParams = {
+      productName,
+      uid,
+      email,
+      nextInvoiceDateOnly: this._constructLocalDateString(
+        message.timeZone,
+        message.acceptLanguage,
+        nextInvoiceDate
+      ),
+    };
+    const subject = translator.gettext(
+      '%(productName)s subscription reactivated'
+    );
+
+    return this.send({
+      ...message,
+      headers,
+      layout: 'subscription',
+      subject,
+      template,
+      templateValues: {
+        ...links,
+        ...translatorParams,
+        uid,
+        email,
+        icon: planEmailIconURL,
+        product: productName,
+        subject: translator.format(subject, translatorParams),
+        invoiceTotal,
+        cardType: cardTypeToText(cardType),
+        lastFour,
+        nextInvoiceDate,
       },
     });
   };
