@@ -110,7 +110,7 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  ['trailhead-1', 'chromeless'].forEach(value => {
+  ['trailhead-1'].forEach(value => {
     testInvalidQueryParam('style', value);
   });
 
