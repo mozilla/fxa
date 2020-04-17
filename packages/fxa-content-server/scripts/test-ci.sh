@@ -31,6 +31,7 @@ npx lerna run start \
   --scope "fxa-payments-server" \
   --scope "fxa-profile-server" \
   --scope "fxa-support-panel" \
+  --scope "fxa-settings" \
   --concurrency 1 > /dev/null
 npx pm2 ls
 # ensure email-service is ready

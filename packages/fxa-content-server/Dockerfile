@@ -29,5 +29,9 @@ COPY --chown=app:app ["fxa-shared", "../fxa-shared/"]
 WORKDIR /fxa-shared
 RUN npm ci
 
+COPY --chown=app:app ["fxa-settings", "../fxa-settings/"]
+WORKDIR /fxa-settings
+RUN npm ci && npm run build
+
 WORKDIR /app
 RUN npm run build-production

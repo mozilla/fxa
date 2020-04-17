@@ -6,6 +6,7 @@
 const webpack = require('webpack');
 const path = require('path');
 const config = require('./server/lib/configuration').getProperties();
+const CopyPlugin = require('copy-webpack-plugin');
 
 const ENV = config.env;
 const webpackConfig = {
@@ -222,6 +223,13 @@ const webpackConfig = {
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
     new webpack.IgnorePlugin(/\.md$/),
+    new CopyPlugin([
+      {
+        context: path.resolve(__dirname, '../fxa-settings/build'),
+        from: '**',
+        to: '../beta/settings',
+      },
+    ]),
   ],
 
   stats: { colors: true },

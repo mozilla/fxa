@@ -561,6 +561,13 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
+  settings: {
+    enableBeta: {
+      default: false,
+      env: 'NEW_SETTINGS',
+      format: Boolean,
+    },
+  },
   sms: {
     redirect: {
       channels: {
