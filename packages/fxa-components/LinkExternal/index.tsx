@@ -15,7 +15,13 @@ export const LinkExternal = ({
   href,
   children
 }: LinkExternalProps) => (
-  <a target="_blank" rel="noopener noreferrer" {...{ className }} {...{ href }}>
+  <a
+    data-testid="link-external"
+    target="_blank"
+    rel="noopener noreferrer"
+    {...{ className }}
+    {...{ href }}
+  >
     {children}
   </a>
 );

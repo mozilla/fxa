@@ -12,8 +12,8 @@ This is an internal resource for FxA Admins to access a set of convenience tools
 You can import React components into this project. This is currently restricted to `fxa-components`:
 
 ```javascript
-// e.g. from within a file in ./src, assuming the HelloWorld exists
-import HelloWorld from '../../fxa-components/HelloWorld';
+// e.g. assuming the component HelloWorld exists
+import HelloWorld from '@fxa-components/HelloWorld';
 ```
 
 ## License
