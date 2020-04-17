@@ -8,10 +8,10 @@
     "restart": "pm2 restart pm2.config.js",
     "lint:eslint": "eslint .",
     "build": "npm-run-all build:client build:server",
-    "build:client": "react-scripts build",
+    "build:client": "rescripts build",
     "build:server": "tsc -p server/tsconfig.json",
     "test": "npm-run-all test:*",
-    "test:frontend": "react-scripts test --coverage --verbose",
+    "test:frontend": "rescripts test --coverage --verbose",
     "test:server": "jest --coverage --verbose --config server/jest.config.js",
     "format": "prettier '**' --write",
     "eject": "react-scripts eject"
@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@apollo/react-testing": "3.0.0",
+    "@rescripts/cli": "0.0.14",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.1",
     "@testing-library/user-event": "^7.2.1",
