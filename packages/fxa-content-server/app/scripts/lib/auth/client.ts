@@ -454,9 +454,13 @@ export default class AuthClient {
     };
     try {
       if (sessionToken) {
-        return this.sessionPost('/account/destroy', sessionToken, payload);
+        return await this.sessionPost(
+          '/account/destroy',
+          sessionToken,
+          payload
+        );
       } else {
-        return this.request('POST', '/account/destroy', payload);
+        return await this.request('POST', '/account/destroy', payload);
       }
     } catch (error) {
       if (
