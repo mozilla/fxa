@@ -12,6 +12,7 @@
  * mixin can be converted to general functionality to share
  * with choose_what_to_sync.js which won't go away.
  */
+import Constants from '../../lib/constants';
 import SyncOptionalMixin from './sync-optional-mixin';
 
 export default {
@@ -27,6 +28,12 @@ export default {
   },
 
   isCWTSOnSignupPasswordEnabled() {
+    if (this.broker.type === Constants.OAUTH_WEBCHANNEL_BROKER) {
+      // All clients that use the OAuth WebChannel flow,
+      // such as Fenix, get the CWTS on Sign Up.
+      return true;
+    }
+
     if (!this.relier.isSync() || !this.relier.get('multiService')) {
       // if not sync or not multi service, no possibility of enabling
       // Sync, get outta here.

@@ -3,9 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
+import Broker from 'models/auth_brokers/base';
+import BrowserRelier from 'models/reliers/browser';
 import Cocktail from 'lib/cocktail';
-import sinon from 'sinon';
 import Mixin from 'views/mixins/cwts-on-signup-password';
+import OAuthWebChannelBroker from 'models/auth_brokers/oauth-webchannel-v1';
+import sinon from 'sinon';
 import { Model, View } from 'backbone';
 
 const SignupPasswordView = View.extend({});
@@ -24,9 +27,11 @@ describe('views/mixins/cwts-on-signup-password', () => {
     context = new Model();
     sinon.stub(context, 'set');
     view = new SignupPasswordView({});
+    view.broker = new Broker();
     view.getAccount = () => account;
-    view.relier = new Model({
+    view.relier = new BrowserRelier({
       service: 'sync',
+      multiService: true,
     });
     view.notifier = {
       trigger: sinon.spy(),
@@ -43,6 +48,7 @@ describe('views/mixins/cwts-on-signup-password', () => {
       assert.isTrue(
         context.set.calledOnceWith({
           engines: ['foo', 'bar'],
+          isCWTSOnSignupPasswordEnabled: true,
         })
       );
     });
@@ -50,15 +56,11 @@ describe('views/mixins/cwts-on-signup-password', () => {
 
   describe('isCWTSOnSignupPasswordEnabled', () => {
     it('return true when relier is sync', () => {
-      view.relier = new Model({
-        service: 'sync',
-      });
-
       assert.isTrue(view.isCWTSOnSignupPasswordEnabled());
     });
 
     it('return true when relier is multiservice', () => {
-      view.relier = new Model({
+      view.relier = new BrowserRelier({
         service: 'notsync',
         multiService: true,
       });
@@ -66,8 +68,14 @@ describe('views/mixins/cwts-on-signup-password', () => {
       assert.isTrue(view.isCWTSOnSignupPasswordEnabled());
     });
 
+    it('return true when broker is oauth webchannel', () => {
+      view.relier = new BrowserRelier({});
+      view.broker = new OAuthWebChannelBroker();
+      assert.isTrue(view.isCWTSOnSignupPasswordEnabled());
+    });
+
     it('return false otherwise', () => {
-      view.relier = new Model({
+      view.relier = new BrowserRelier({
         service: 'notsync',
         multiService: false,
       });

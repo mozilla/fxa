@@ -33,6 +33,7 @@ module.exports = {
   FX_FENNEC_V1_CONTEXT: 'fx_fennec_v1',
   FX_IOS_V1_CONTEXT: 'fx_ios_v1',
   OAUTH_CONTEXT: 'oauth',
+  OAUTH_WEBCHANNEL_BROKER: 'oauth-webchannel-v1',
   OAUTH_WEBCHANNEL_CONTEXT: 'oauth_webchannel_v1',
   OAUTH_CHROME_ANDROID_CONTEXT: 'oauth_chrome_android',
 
