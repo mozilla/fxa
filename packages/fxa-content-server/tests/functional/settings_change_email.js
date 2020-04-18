@@ -265,6 +265,33 @@ registerSuite('settings change email', {
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
+
+    'can change primary email, delete account': function() {
+      return (
+        this.remote
+          // go to delete account screen
+          .then(
+            click(
+              selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON,
+              selectors.SETTINGS_DELETE_ACCOUNT.DETAILS
+            )
+          )
+          .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
+          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .end()
+
+          // enter correct password
+          .then(
+            type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
+          )
+          .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(testSuccessWasShown())
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(click(selectors.ENTER_EMAIL.SUBMIT))
+          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.HEADER))
+      );
+    },
   },
 });
 

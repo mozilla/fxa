@@ -1,3 +1,9 @@
+## 1.167.1
+
+### Bug fixes
+
+* delete: Specify `await` on `this.sessionPost` so error get caught in catch block ([3546f43dd](https://github.com/mozilla/fxa/commit/3546f43dd))
+
 ## 1.167.0
 
 ### New features
