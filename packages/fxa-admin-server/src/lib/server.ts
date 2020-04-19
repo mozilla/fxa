@@ -32,6 +32,7 @@ export async function createServer(
   logger: Logger,
   context?: () => object
 ): Promise<ApolloServer> {
+  logger.info('config', config.database);
   setupDatabase(config.database);
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
