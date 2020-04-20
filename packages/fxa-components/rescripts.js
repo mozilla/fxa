@@ -1,7 +1,7 @@
 const { resolve } = require("path");
 
 const additionalJSImports = {
-  "@fxa-components": resolve("../fxa-components")
+  "@fxa-components": __dirname
 };
 
 const permitAdditionalJSImports = config => {
@@ -74,7 +74,19 @@ const setupAliasedPaths = config => {
   return config;
 };
 
+const componentsJestMapper = {
+  jest: config => {
+    return {
+      ...config,
+      moduleNameMapper: {
+        "^@fxa-components/(.*)$": resolve(__dirname, "$1")
+      }
+    };
+  }
+};
+
 module.exports = {
   permitAdditionalJSImports,
-  setupAliasedPaths
+  setupAliasedPaths,
+  componentsJestMapper
 };
