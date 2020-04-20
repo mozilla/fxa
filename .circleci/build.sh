@@ -20,7 +20,7 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
 
   mkdir -p ../../artifacts
 
-  ODDBALLS=("fxa-auth-server" "fxa-content-server" "fxa-profile-server" "fxa-payments-server")
+  ODDBALLS=("fxa-admin-panel" "fxa-auth-server" "fxa-content-server" "fxa-profile-server" "fxa-payments-server")
 
   if [[ -x scripts/build-ci.sh ]]; then
     time ./scripts/build-ci.sh
