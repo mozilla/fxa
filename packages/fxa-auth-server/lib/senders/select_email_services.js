@@ -5,8 +5,7 @@
 'use strict';
 
 const Promise = require('../promise');
-const safeRegex = require('safe-regex');
-const Sandbox = require('sandbox');
+const { SandboxedRegExp } = require('sandboxed-regexp');
 
 const SERVICES = {
   internal: Symbol(),
@@ -17,6 +16,101 @@ const SERVICES = {
   },
 };
 
+// Live config looks like this (every property is optional):
+//
+// {
+//   sendgrid: {
+//     percentage: 100,
+//     regex: "^.+@example\.com$"
+//   },
+//   socketlabs: {
+//     percentage: 100,
+//     regex: "^.+@example\.org$"
+//   },
+//   ses: {
+//     percentage: 10,
+//     regex: ".*",
+//   }
+// }
+//
+// Where a percentage and a regex are both present, an email address must
+// satisfy both criteria to count as a match. Where an email address matches
+// sendgrid and ses, sendgrid wins. Where an email address matches socketlabs
+// and ses, socketlabs wins. Where an email address matches sendgrid and
+// socketlabs, sendgrid wins.
+//
+// Regular expressions are executed using the `SandboxedRegExp` class in order
+// to protect againt DoS if a malicious regex happened to make its way into the
+// live config; as a result the regex syntax may differ from that of standard
+// javascript, but you shouldn't be putting complex regex in here anyway.
+//
+// See https://github.com/mozilla/sandboxed-regexp#being-careful-with-it
+// for details.
+
+class LiveConfigForSender {
+  constructor(props) {
+    const { percentage, regex } = props;
+    if (percentage && percentage >= 0 && percentage < 100) {
+      this.percentage = percentage;
+    } else {
+      this.percentage = 0;
+    }
+    if (regex) {
+      this.regex = new SandboxedRegExp(regex);
+    } else {
+      this.regex = null;
+    }
+  }
+
+  match(emailAddress) {
+    if (this.percentage && Math.floor(Math.random() * 100) >= this.percentage) {
+      return false;
+    }
+    if (this.regex && !this.regex.test(emailAddress)) {
+      return false;
+    }
+    return true;
+  }
+}
+
+class LiveConfig {
+  constructor(sendgrid, socketlabs, ses) {
+    /** @type {LiveConfigForSender} */
+    this.sendgrid = sendgrid;
+    /** @type {LiveConfigForSender} */
+    this.socketlabs = socketlabs;
+    /** @type {LiveConfigForSender} */
+    this.ses = ses;
+  }
+
+  /**
+   *
+   * @param {string} string
+   * @returns {LiveConfig}
+   */
+  static parse(string) {
+    const obj = JSON.parse(string);
+    return new LiveConfig(
+      obj.sendgrid ? new LiveConfigForSender(obj.sendgrid) : null,
+      obj.socketlabs ? new LiveConfigForSender(obj.socketlabs) : null,
+      obj.ses ? new LiveConfigForSender(obj.ses) : null
+    );
+  }
+
+  match(emailAddress) {
+    if (this.sendgrid && this.sendgrid.match(emailAddress)) {
+      return 'sendgrid';
+    }
+    if (this.socketlabs && this.socketlabs.match(emailAddress)) {
+      return 'socketlabs';
+    }
+    if (this.ses && this.ses.match(emailAddress)) {
+      return 'ses';
+    }
+    return null;
+  }
+}
+
 module.exports = (log, config, mailer, emailService) => {
   const redis = require('../redis')(
     Object.assign({}, config.redis, config.redis.email),
@@ -26,40 +120,18 @@ module.exports = (log, config, mailer, emailService) => {
     get: () => Promise.resolve(),
   };
 
+  // We don't expect the live config to change very often, so this
+  // is a simple one-item cache to avoid re-processing the value.
+  let lastSeenLiveConfig = null;
+  let lastSeenLiveConfigParsed = null;
+
   // Based on the to and cc email addresses of a message, return an array of
   // `Service` objects that control how email traffic will be routed.
   //
   // It will attempt to read live config data from Redis and live config takes
   // precedence over local static config. If no config is found at all, email
-  // will be routed locally via the auth server.
-  //
-  // Live config looks like this (every property is optional):
-  //
-  // {
-  //   sendgrid: {
-  //     percentage: 100,
-  //     regex: "^.+@example\.com$"
-  //   },
-  //   socketlabs: {
-  //     percentage: 100,
-  //     regex: "^.+@example\.org$"
-  //   },
-  //   ses: {
-  //     percentage: 10,
-  //     regex: ".*",
-  //   }
-  // }
-  //
-  // Where a percentage and a regex are both present, an email address must
-  // satisfy both criteria to count as a match. Where an email address matches
-  // sendgrid and ses, sendgrid wins. Where an email address matches socketlabs
-  // and ses, socketlabs wins. Where an email address matches sendgrid and
-  // socketlabs, sendgrid wins.
-  //
-  // If a regex has a star height greater than 1, the email address will be
-  // treated as a non-match without executing the regex (to prevent us redosing
-  // ourselves). If a regex takes longer than 100 milliseconds to execute,
-  // it will be killed and the email address will be treated as a non-match.
+  // will be routed locally via the auth server. See the `LiveConfig` class
+  // for details of the config format.
   //
   // @param {Object} message
   //
@@ -94,115 +166,60 @@ module.exports = (log, config, mailer, emailService) => {
     }
 
     if (liveConfig) {
-      try {
-        liveConfig = JSON.parse(liveConfig);
-      } catch (err) {
-        log.error('emailConfig.parse.error', { err: err.message });
+      if (liveConfig === lastSeenLiveConfig) {
+        liveConfig = lastSeenLiveConfigParsed;
+      } else {
+        try {
+          lastSeenLiveConfig = liveConfig;
+          liveConfig = LiveConfig.parse(liveConfig);
+          lastSeenLiveConfigParsed = liveConfig;
+        } catch (err) {
+          lastSeenLiveConfig = lastSeenLiveConfigParsed = null;
+          log.error('emailConfig.parse.error', { err: err.message });
+        }
       }
     }
 
-    const services = await emailAddresses.reduce(
-      async (promise, emailAddress) => {
-        const services = await promise;
-
-        if (liveConfig) {
-          // eslint-disable-next-line space-unary-ops
-          const isMatched = await ['sendgrid', 'socketlabs', 'ses'].reduce(
-            async (promise, key) => {
-              if (await promise) {
-                return true;
-              }
-
-              const senderConfig = liveConfig[key];
-
-              if (
-                senderConfig &&
-                (await isLiveConfigMatch(senderConfig, emailAddress))
-              ) {
-                upsertServicesMap(
-                  services,
-                  SERVICES.external[key],
-                  emailAddress,
-                  {
-                    mailer: emailService,
-                    emailService: 'fxa-email-service',
-                    emailSender: key,
-                  }
-                );
-
-                return true;
-              }
-
-              return false;
-            },
-            Promise.resolve()
-          );
-
-          if (isMatched) {
-            return services;
-          }
-        }
-
-        if (config.emailService.forcedEmailAddresses.test(emailAddress)) {
+    const services = emailAddresses.reduce((services, emailAddress) => {
+      if (liveConfig) {
+        const which = liveConfig.match(emailAddress);
+        if (which) {
           return upsertServicesMap(
             services,
-            SERVICES.external.ses,
+            SERVICES.external[which],
             emailAddress,
             {
               mailer: emailService,
               emailService: 'fxa-email-service',
-              emailSender: 'ses',
+              emailSender: which,
             }
           );
         }
+      }
 
-        return upsertServicesMap(services, SERVICES.internal, emailAddress, {
-          mailer,
-          emailService: 'fxa-auth-server',
-          emailSender: 'ses',
-        });
-      },
-      Promise.resolve(new Map())
-    );
+      if (config.emailService.forcedEmailAddresses.test(emailAddress)) {
+        return upsertServicesMap(
+          services,
+          SERVICES.external.ses,
+          emailAddress,
+          {
+            mailer: emailService,
+            emailService: 'fxa-email-service',
+            emailSender: 'ses',
+          }
+        );
+      }
+
+      return upsertServicesMap(services, SERVICES.internal, emailAddress, {
+        mailer,
+        emailService: 'fxa-auth-server',
+        emailSender: 'ses',
+      });
+    }, new Map());
 
     return Array.from(services.values());
   };
 };
-
-async function isLiveConfigMatch(liveConfig, emailAddress) {
-  return new Promise(resolve => {
-    const { percentage, regex } = liveConfig;
-
-    if (
-      percentage >= 0 &&
-      percentage < 100 &&
-      Math.floor(Math.random() * 100) >= percentage
-    ) {
-      resolve(false);
-      return;
-    }
-
-    if (regex) {
-      if (
-        regex.indexOf('"') !== -1 ||
-        emailAddress.indexOf('"') !== -1 ||
-        !safeRegex(regex)
-      ) {
-        resolve(false);
-        return;
-      }
-
-      // Execute the regex inside a sandbox and kill it if it takes > 100 ms
-      const sandbox = new Sandbox({ timeout: 100 });
-      sandbox.run(`new RegExp("${regex}").test("${emailAddress}")`, output => {
-        resolve(output.result === 'true');
-      });
-      return;
-    }
-
-    resolve(true);
-  });
-}
 
 function upsertServicesMap(services, service, emailAddress, data) {
   if (services.has(service)) {
