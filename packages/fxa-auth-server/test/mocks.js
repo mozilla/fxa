@@ -132,6 +132,7 @@ const MAILER_METHOD_NAMES = [
   'sendSubscriptionPaymentFailedEmail',
   'sendSubscriptionAccountDeletionEmail',
   'sendSubscriptionCancellationEmail',
+  'sendSubscriptionReactivationEmail',
   'sendSubscriptionSubsequentInvoiceEmail',
   'sendSubscriptionFirstInvoiceEmail',
   'sendDownloadSubscriptionEmail',

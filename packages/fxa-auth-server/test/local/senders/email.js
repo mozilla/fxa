@@ -270,6 +270,27 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
+  ['subscriptionReactivationEmail', new Map([
+    ['subject', { test: 'equal', expected: `${MESSAGE.productName} subscription reactivated` }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionReactivation') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionReactivation' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReactivation }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('privacyUrl', 'subscription-reactivation', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
+      { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `be $${MESSAGE.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
+      { test: 'include', expected: `be $${MESSAGE.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ])],
   ['subscriptionAccountDeletionEmail', new Map([
     ['subject', { test: 'equal', expected: `Your ${MESSAGE.productName} subscription has been cancelled` }],
     ['headers', new Map([

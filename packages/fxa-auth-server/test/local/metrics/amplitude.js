@@ -196,6 +196,7 @@ describe('metrics/amplitude', () => {
             subscriptionPaymentFailed: 'subscription_payment_failed',
             subscriptionAccountDeletion: 'subscription_account_deletion',
             subscriptionCancellation: 'subscription_cancellation',
+            subscriptionReactivation: 'subscription_reactivation',
             subscriptionFirstInvoice: 'subscription_first_invoice',
             subscriptionSubsequentInvoice: 'subscription_subsequent_invoice',
             unblockCode: 'unblock',
