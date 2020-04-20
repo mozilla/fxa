@@ -19,5 +19,3 @@ RUN apk add --update build-base ca-certificates git python gmp-dev && \
 COPY . /app
 
 USER app
-ENTRYPOINT ["npm"]
-CMD ["start"]
