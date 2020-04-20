@@ -97,6 +97,7 @@ jobs:
             'fxa-event-broker' \
             'fxa-geodb' \
             'fxa-js-client' \
+            'fxa-metrics-processor' \
             'fxa-payments-server' \
             'fxa-profile-server' \
             'fxa-settings' \

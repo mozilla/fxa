@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tsc-watch",
+      "command": "npm",
+      "args": ["run", "watch"],
+      "type": "shell",
+      "isBackground": true,
+      "group": "build",
+      "problemMatcher": "$tsc-watch",
+      "presentation": {
+        "reveal": "always"
+      }
+    },
+    {
+      "label": "Run Current Test",
+      "type": "shell",
+      "command": "./node_modules/mocha/bin/mocha",
+      "options": {
+        "env": {
+          "FIRESTORE_EMULATOR_HOST": "localhost:8006",
+          "FIRESTORE_PROJECT_ID": "fx-event-broker"
+        }
+      },
+      "args": ["-r", "ts-node/register", "${relativeFile}"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "dedicated"
+      }
+    }
+  ]
+}
