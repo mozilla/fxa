@@ -862,7 +862,7 @@ module.exports = function(log, error) {
   // Update : accounts, emails
   // Set    : emailVerified = true if email is in accounts table or isVerified = true if on email table
   // Where  : uid = $1, emailCode = $2
-  var VERIFY_EMAIL = 'CALL verifyEmail_8(?, ?)';
+  var VERIFY_EMAIL = 'CALL verifyEmail_9(?, ?)';
 
   MySql.prototype.verifyEmail = function(uid, emailCode) {
     return this.write(VERIFY_EMAIL, [uid, emailCode]);
@@ -885,7 +885,7 @@ module.exports = function(log, error) {
   // Update : emails
   // Set    : isVerified = true
   // Where  : isPrimary = true AND uid = $4
-  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_7(?, ?, ?, ?, ?)';
+  var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_8(?, ?, ?, ?, ?)';
 
   MySql.prototype.forgotPasswordVerified = function(
     tokenId,
