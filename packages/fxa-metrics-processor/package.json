@@ -9,7 +9,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
     "start": "echo \"Error: no start script specified\" && exit 1",
-    "test": "mocha -r ts-node/register src/test/**/*.spec.ts",
+    "test": "mocha -r ts-node/register 'src/test/**/*.spec.ts'",
     "start-prod": "npm run build && node ./dist/bin/queueWorker.js",
     "watch": "tsc -w"
   },
@@ -39,8 +39,9 @@
     "typedi": "^0.8.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.2.11",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^13.11.1",
+    "@types/node": "^12.12.7",
     "@types/sinon": "^9.0.0",
     "audit-filter": "^0.5.0",
     "chai": "^4.2.0",

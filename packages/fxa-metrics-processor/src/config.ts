@@ -7,6 +7,14 @@ import fs from 'fs';
 import path from 'path';
 
 const conf = convict({
+  amplitude: {
+    hmac_key: {
+      default: '',
+      doc: 'A key used to create an Amplitude insert id and hash the UID',
+      env: 'AMPLITUDE_HMAC_KEY',
+      format: 'String'
+    }
+  },
   env: {
     default: 'production',
     doc: 'The current node.js environment',
