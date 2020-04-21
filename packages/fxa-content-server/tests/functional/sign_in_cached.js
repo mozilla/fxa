@@ -87,21 +87,11 @@ registerSuite('cached signin', {
           // done on the settings page, wait for the signin page to load,
           // denormalize, then refresh. See #4711
           .then(denormalizeStoredEmail(email))
+
           .refresh()
-          // This test is quite flakey without a pause here.
-          // Running locally I see a flash of the lowercase email
-          // before it changes to upper. I don't know where that
-          // first render is happening. - (dcoates)
-          .sleep(500)
+
           .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
 
-          // email is not yet normalized :(
-          .then(
-            testElementTextEquals(
-              selectors.SIGNIN_PASSWORD.EMAIL_NOT_EDITABLE,
-              email.toUpperCase()
-            )
-          )
           .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
