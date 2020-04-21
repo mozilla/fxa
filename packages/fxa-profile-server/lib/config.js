@@ -18,7 +18,6 @@ const conf = convict({
     url: {
       doc: 'URL of fxa-auth-server',
       env: 'AUTH_SERVER_URL',
-      format: 'url',
       default: 'http://localhost:9000/v1',
     },
   },
@@ -198,7 +197,6 @@ const conf = convict({
   oauth: {
     url: {
       doc: 'URL of fxa-oauth-server',
-      format: 'url',
       env: 'OAUTH_SERVER_URL',
       default: 'http://localhost:9000/v1',
     },

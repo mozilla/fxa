@@ -2,11 +2,13 @@
 
 DIR=$(dirname "$0")
 
-cd $DIR/../../fxa-components
-npm ci
+cd "$DIR/../../../"
 
-cd ../fxa-settings
-npm ci
+npx lerna bootstrap \
+  --scope fxa-components \
+  --scope fxa-settings
+
+cd packages/fxa-settings
 
 PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false npm run build
 CI=yes npm test

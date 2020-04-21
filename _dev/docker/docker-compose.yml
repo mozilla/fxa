@@ -1,0 +1,166 @@
+version: "3.7"
+services:
+  # 123done:
+  #   image: 123done:build
+  #   command: node server.js
+  #   environment:
+  #     - CONFIG_123DONE=./config-local.json
+  #     - NODE_ENV=dev
+  #     - PORT=8080
+  #   init: true
+  #   ports:
+  #     - "8080:8080"
+  browserid-verifier:
+    image: browserid-verifier:build
+    command: node server.js
+    environment:
+      - PORT=5050
+      - IP_ADDRESS=0.0.0.0
+      - FORCE_INSECURE_LOOKUP_OVER_HTTP=true
+    init: true
+    ports:
+      - "5050:5050"
+  authdb:
+    image: fxa-auth-db-mysql:build
+    entrypoint: /bin/bash -c
+    command: ["./check-mysql.sh 3306 mysql && node bin/db_patcher.js && node bin/server.js"]
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - NODE_ENV=dev
+      - MYSQL_HOST=mysql
+      - MYSQL_SLAVE_HOST=mysql
+    init: true
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+  auth:
+    image: fxa-auth-server:build
+    entrypoint: /bin/bash -c
+    command: ["./check-mysql.sh 3306 mysql && node bin/key_server.js"]
+    environment:
+      - PORT=9000
+      - NODE_ENV=dev
+      - IP_ADDRESS=0.0.0.0
+      - DB=mysql
+      - CONFIG_FILES=config/secrets.json
+      - MYSQL_HOST=mysql
+      - MEMCACHE_METRICS_CONTEXT_ADDRESS=memcached:11211
+      - HTTPDB_URL=http://authdb:8000
+      - EMAIL_SERVICE_HOST=email
+      - REDIS_HOST=redis
+      - ACCESS_TOKEN_REDIS_HOST=redis
+      - SMTP_HOST=maildev
+      - SMTP_PORT=25
+      - SNS_TOPIC_ENDPOINT=http://goaws:4100
+    init: true
+    ports:
+      - "9000:9000"
+    depends_on:
+      - authdb
+      - redis
+  content:
+    image: fxa-content-server:build
+    command: node server/bin/fxa-content-server.js
+    environment:
+      - PORT=3030
+      - NODE_ENV=production
+      - FEATURE_FLAGS_REDIS_HOST=redis
+      - STATIC_DIRECTORY=dist
+      - PAGE_TEMPLATE_SUBDIRECTORY=dist
+      - CONFIG_FILES=server/config/local.json
+    init: true
+    ports:
+      - "3030:3030"
+    depends_on:
+      - redis
+  profile:
+    image: fxa-profile-server:build
+    entrypoint: /bin/bash -c
+    command: ["./check-mysql.sh 3306 mysql && node bin/server.js"]
+    environment:
+      - HOST=0.0.0.0
+      - PORT=1111
+      - DB=mysql
+      - NODE_ENV=development
+      - MYSQL_HOST=mysql
+      - WORKER_HOST=profile-worker
+      - WORKER_URL=http://profile-worker:1113
+      - REDIS_HOST=redis
+      - AUTH_SERVER_URL=http://auth:9000/v1
+      - OAUTH_SERVER_URL=http://auth:9000/v1
+    init: true
+    ports:
+      - "1111:1111"
+    depends_on:
+      - mysql
+      - memcached
+  profile-worker:
+    image: fxa-profile-server:build
+    entrypoint: /bin/bash -c
+    command: ["./check-mysql.sh 3306 mysql && node bin/worker.js"]
+    environment:
+      - WORKER_HOST=0.0.0.0
+      - WORKER_PORT=1113
+      - DB=mysql
+      - NODE_ENV=development
+      - MYSQL_HOST=mysql
+      - REDIS_HOST=redis
+      - AUTH_SERVER_URL=http://auth:9000/v1
+      - OAUTH_SERVER_URL=http://auth:9000/v1
+    init: true
+    ports:
+      - "1113:1113"
+    depends_on:
+      - mysql
+      - memcached
+  profile-static:
+    image: fxa-profile-server:build
+    entrypoint: /bin/bash -c
+    command: ["./check-mysql.sh 3306 mysql && node bin/_static.js"]
+    environment:
+      - HOST=0.0.0.0
+      # yes, port is intentionally set to 1111
+      - PORT=1111
+      - DB=mysql
+      - NODE_ENV=development
+      - MYSQL_HOST=mysql
+    init: true
+    ports:
+      - "1112:1112"
+    depends_on:
+      - mysql
+      - memcached
+  redis:
+    image: redis
+  mysql:
+    image: mysql/mysql-server:5.6
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_DATABASE=fxa
+  memcached:
+    image: memcached
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - "1080:80"
+  goaws:
+    image: pafortin/goaws
+  pubsub:
+    image: knarz/pubsub-emulator:latest
+    ports:
+      - "8085:8085"
+  firestore:
+    image: jdlk7/firestore-emulator
+    ports:
+      - "9090:9090"
+  email:
+    image: mozilla/fxa-email-service
+    environment:
+      - NODE_ENV=dev
+      - FXA_EMAIL_ENV=dev
+      - FXA_EMAIL_LOG_LEVEL=debug
+    ports:
+      - "8001:8001"

@@ -2,15 +2,14 @@
 
 DIR=$(dirname "$0")
 
-cd $DIR/../../fxa-geodb
-npm ci
+cd "$DIR/../../../"
 
-cd ../fxa-shared
-npm ci
+npx lerna bootstrap \
+  --scope fxa-shared \
+  --scope fxa-geodb \
+  --scope fxa-auth-db-mysql \
+  --scope fxa-auth-server \
+  --concurrency 2
 
-cd ../fxa-auth-db-mysql
-npm ci
-
-cd ../fxa-auth-server
-npm ci
+cd packages/fxa-auth-server
 npm run test-ci

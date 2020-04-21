@@ -1,17 +1,3 @@
-# Build image
-FROM node:12 as builder
-WORKDIR /app
-COPY . /app
-RUN npm ci
-RUN npm run build
-RUN npm ci --production
+FROM fxa-node:latest
 
-# Production image
-FROM node:12-slim
-WORKDIR /app
-USER node
-COPY --from=builder --chown=node /app/dist ./dist/
-COPY --from=builder --chown=node /app/node_modules ./node_modules/
-COPY --from=builder --chown=node /app/version.json /app/version.json
-COPY --chown=node config/*.json ./config/
-COPY --chown=node package* ./
+COPY --from=fxa-builder:latest --chown=app:app /fxa/packages/fxa-admin-server /app
