@@ -14,6 +14,12 @@ npx lerna bootstrap \
 
 cd packages/fxa-payments-server
 
+cd ../fxa-components
+npm ci
+
+cd ../fxa-payments-server
+npm ci
+
 # TODO rm the CI=false
 PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false npm run build
 CI=yes npm test
