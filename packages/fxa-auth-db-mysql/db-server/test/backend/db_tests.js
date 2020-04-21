@@ -4182,7 +4182,7 @@ module.exports = function(config, DB) {
           .then(() => {
             data = createRecoveryData();
             // Create a valid recovery key
-            return db.createRecoveryKey(account.uid, data);
+            return db.upsertRecoveryKey(account.uid, data);
           })
           .then(res => {
             assert.ok(res, 'empty response');
@@ -4191,16 +4191,26 @@ module.exports = function(config, DB) {
 
       it('should fail to create for unknown user', () => {
         return db
-          .createRecoveryKey('12312312312', data)
+          .upsertRecoveryKey('12312312312', data)
           .then(assert.fail, err => {
             assert.equal(err.errno, 116, 'not found');
           });
       });
 
       it('should fail to create multiple keys', () => {
+        const updatedKey = Object.assign({}, data, {
+          verifiedAt: Date.now(),
+          enabled: true,
+        });
         data = createRecoveryData();
+        // recovery key must be verified to not create multiple keys
+        // else db.upserRecoveryKey will delete existing unverified key and create a new unverified key
         return db
-          .createRecoveryKey(account.uid, data)
+          .updateRecoveryKey(account.uid, updatedKey)
+          .then(res => {
+            assert.ok(res, 'empty response');
+            return db.upsertRecoveryKey(account.uid, data);
+          })
           .then(assert.fail, err => {
             assert.equal(err.errno, 101, 'record exists');
           });
@@ -4320,7 +4330,7 @@ module.exports = function(config, DB) {
         await db.createAccount(account.uid, account);
         data = createRecoveryData();
         data.enabled = false;
-        await db.createRecoveryKey(account.uid, data);
+        await db.upsertRecoveryKey(account.uid, data);
 
         let res = await db.getRecoveryKey({
           id: account.uid,

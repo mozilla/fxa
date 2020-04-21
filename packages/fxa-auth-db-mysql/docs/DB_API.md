@@ -72,6 +72,7 @@ There are a number of methods that a DB storage backend should implement:
   - .consumeRecoveryCode(uid, code)
 - Recovery keys
   - .createRecoveryKey(uid, data)
+  - .upsertRecoveryKey(uid, data)
   - .getRecoveryKey(data)
   - .deleteRecoveryKey(uid)
   - .recoveryKeyExists(uid)
@@ -983,7 +984,31 @@ Returns:
   - An empty object
 - Rejects with:
   - Any error from the underlying storage system (wrapped in `error.wrap()`)
-  - `error.notFound()` if this user found
+  - `error.notFound()` if this user is not found
+
+## upsertRecoveryKey(uid, data)
+
+It manages half baked recovery keys by using the following criterias,
+
+1. Creates a recovery key for the user if no recovery key exists.
+2. If unverified recovery key exists, it deletes that and create a new unverified recovery key.
+
+Parameters:
+
+- `uid` (Buffer16):
+  The uid of the owning account
+- `data` (Object):
+  - `recoveryKeyId` (String)
+  - `recoveryData` (String)
+
+Returns:
+
+- Resolves with:
+  - An empty object
+- Rejects with:
+  - Any error from the underlying storage system (wrapped in `error.wrap()`)
+  - `error.notFound()` if this user is not found
+  - `error.duplicate()` if a verified recovery key already exists
 
 ## getRecoveryKey(data)
 

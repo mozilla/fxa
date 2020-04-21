@@ -1625,6 +1625,33 @@ module.exports = function(log, error) {
       });
   };
 
+  // Upsert : recoveryKeys
+  // Where  : uid = $1, recoveryKeyId = $2, recoveryData = $3, createdAt = $4, enabled = $5
+  const UPSERT_RECOVERY_KEY = 'CALL upsertRecoveryKey_1(?, ?, ?, ?, ?)';
+  MySql.prototype.upsertRecoveryKey = function(uid, data) {
+    const recoveryKeyIdHash = dbUtil.createHash(data.recoveryKeyId);
+    const recoveryData = data.recoveryData;
+    return this.write(UPSERT_RECOVERY_KEY, [
+      uid,
+      recoveryKeyIdHash,
+      recoveryData,
+      Date.now(),
+      data.enabled,
+    ])
+      .then(() => {
+        return {};
+      })
+      .catch(err => {
+        if (err.errno === ER_SIGNAL_NOT_FOUND) {
+          throw error.notFound();
+        } else if (err.errno === ER_DUP_ENTRY) {
+          throw error.duplicate();
+        }
+
+        throw err;
+      });
+  };
+
   const GET_RECOVERY_KEY = 'CALL getRecoveryKey_4(?)';
   MySql.prototype.getRecoveryKey = function(options) {
     return this.readFirstResult(GET_RECOVERY_KEY, [options.id]).then(
