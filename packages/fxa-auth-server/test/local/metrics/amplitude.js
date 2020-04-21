@@ -186,8 +186,6 @@ describe('metrics/amplitude', () => {
             postRemoveSecondary: 'secondary_email',
             postRemoveTwoStepAuthentication: '2fa',
             postVerify: 'registration',
-            postVerifyAddRecoveryKey: 'registration',
-            postVerifyAddSecondary: 'registration',
             postVerifySecondary: 'secondary_email',
             recovery: 'reset_password',
             subscriptionUpgrade: 'subscription_upgrade',
