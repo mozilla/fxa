@@ -13,7 +13,7 @@ const FOUR_WEEKS = WEEK * 4;
 
 const NEWSLETTER_STATES = {
   optIn: 'subscribed',
-  optOut: 'unsubscribed'
+  optOut: 'unsubscribed',
 } as const;
 type NewsLetterStates = typeof NEWSLETTER_STATES;
 type NewsLetterStateKey = keyof NewsLetterStates;
@@ -62,7 +62,7 @@ export function mapAmplitudeUserProperties(
     utm_content,
     utm_medium,
     utm_source,
-    utm_term
+    utm_term,
   } = context;
 
   return {
@@ -79,7 +79,7 @@ export function mapAmplitudeUserProperties(
     ...mapSyncDevices(context),
     ...mapSyncEngines(context),
     ...mapNewsletterState(evt, context),
-    ...mapNewsletters(context)
+    ...mapNewsletters(context),
   };
 }
 
@@ -91,7 +91,7 @@ function mapSyncDevices(context: EventContext): SyncDevices | {} {
       sync_device_count: devices.length,
       sync_active_devices_day: countDevices(devices, DAY),
       sync_active_devices_week: countDevices(devices, WEEK),
-      sync_active_devices_month: countDevices(devices, FOUR_WEEKS)
+      sync_active_devices_month: countDevices(devices, FOUR_WEEKS),
     };
   }
 
@@ -99,7 +99,7 @@ function mapSyncDevices(context: EventContext): SyncDevices | {} {
 }
 
 function countDevices(devices: Device[], period: number) {
-  return devices.filter(device => device.lastAccessTime >= Date.now() - period).length;
+  return devices.filter((device) => device.lastAccessTime >= Date.now() - period).length;
 }
 
 function mapSyncEngines(context: EventContext): SyncEngines | {} {
@@ -118,14 +118,6 @@ function mapNewsletterState(evt: Event, context: EventContext): NewsLetterStateP
     newsletterState = NEWSLETTER_STATES[evt.category as NewsLetterStateKey];
   }
 
-  if (!newsletterState) {
-    const { marketingOptIn } = context;
-
-    if (marketingOptIn === true || marketingOptIn === false) {
-      newsletterState = marketingOptIn ? 'subscribed' : 'unsubscribed';
-    }
-  }
-
   if (newsletterState) {
     return { newsletter_state: newsletterState };
   }
@@ -136,7 +128,7 @@ function mapNewsletterState(evt: Event, context: EventContext): NewsLetterStateP
 function mapNewsletters(context: EventContext): NewsLettersProp | {} {
   const { newsletters: newslettersFromCtx } = context;
   if (newslettersFromCtx) {
-    const newsletters = newslettersFromCtx.map(newsletter => {
+    const newsletters = newslettersFromCtx.map((newsletter) => {
       return toSnakeCase(newsletter);
     });
     return { newsletters };

@@ -32,7 +32,7 @@ const EVENT_PROPERTIES: {
   [GROUPS.subPayManage]: NOP,
   [GROUPS.subPaySetup]: NOP,
   [GROUPS.subPayUpgrade]: NOP,
-  [GROUPS.subSupport]: NOP
+  [GROUPS.subSupport]: NOP,
 } as const;
 
 const CONNECT_DEVICE_FLOWS = {
@@ -40,7 +40,7 @@ const CONNECT_DEVICE_FLOWS = {
   install_from: 'store_buttons',
   pair: 'pairing',
   signin_from: 'signin',
-  sms: 'sms'
+  sms: 'sms',
 } as const;
 
 type ConnectDeviceFlowKeys = keyof typeof CONNECT_DEVICE_FLOWS;
@@ -83,7 +83,7 @@ export function createAmplitudeEventPropertiesMapper(
       product_id: context.productId,
       service,
       oauth_client_id: oauthClientId,
-      ...mapAmplitudeEventPropertiesFromGroup(evt, context)
+      ...mapAmplitudeEventPropertiesFromGroup(evt, context),
     };
   };
 }
@@ -125,7 +125,7 @@ function mapEmailType(evt: Event, context: EventContext): EmailTypeEventProperti
       email_type: emailType,
       email_provider: context.emailDomain,
       email_sender: context.emailSender,
-      email_service: context.emailService
+      email_service: context.emailService,
     };
 
     const { templateVersion } = context;

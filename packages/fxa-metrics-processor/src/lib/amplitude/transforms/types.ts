@@ -23,7 +23,7 @@ export enum GROUPS {
   subPayManage = 'fxa_pay_manage',
   subPaySetup = 'fxa_pay_setup',
   subPayUpgrade = 'fxa_pay_upgrade',
-  subSupport = 'fxa_subscribe_support'
+  subSupport = 'fxa_subscribe_support',
 }
 
 export type OptionalString = string | null;
@@ -79,7 +79,6 @@ export type EventContext = {
   flowId?: string;
   lang?: string;
   location?: Location | {};
-  marketingOptIn?: boolean;
   newsletters?: Newsletter[];
   planId?: string;
   productId?: string;
@@ -110,6 +109,7 @@ export type AmplitudeHttpEvent = {
   region?: string;
   os_name?: string;
   os_version?: string;
+  device_model?: string;
   event_properties: AmplitudeEventProperties;
   user_properties: AmplitudeUserProperties;
 };

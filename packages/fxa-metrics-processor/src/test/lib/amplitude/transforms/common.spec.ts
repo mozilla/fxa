@@ -12,13 +12,13 @@ import {
   mapLocation,
   tee,
   sha256Hmac,
-  prune
+  prune,
 } from '../../../../lib/amplitude/transforms/common';
 import { EventContext } from '../../../../lib/amplitude/transforms/types';
 
 const mockContext: EventContext = {
   eventSource: 'content',
-  version: '1.165.1'
+  version: '1.165.1',
 };
 const services = { foo: 'bar', fizz: 'buzz', level: 'over9000' };
 const mapper = createServiceNameAndClientIdMapper(services);
@@ -33,7 +33,7 @@ describe('service name and client id mapping', () => {
   it('should return a undefined service name and client id when "service" in context is "content-server"', () => {
     const props = mapper({
       ...mockContext,
-      service: 'content-server'
+      service: 'content-server',
     });
     assert.isUndefined(props.serviceName);
     assert.isUndefined(props.clientId);
@@ -42,7 +42,7 @@ describe('service name and client id mapping', () => {
   it('should return "sync" as service name when "service" in context is "sync"', () => {
     const props = mapper({
       ...mockContext,
-      service: 'sync'
+      service: 'sync',
     });
     assert.equal(props.serviceName, 'sync');
     assert.isUndefined(props.clientId);
@@ -51,7 +51,7 @@ describe('service name and client id mapping', () => {
   it('should return service name from services map when found', () => {
     const props = mapper({
       ...mockContext,
-      service: 'level'
+      service: 'level',
     });
     assert.equal(props.serviceName, 'over9000');
     assert.equal(props.clientId, 'level');
@@ -60,7 +60,7 @@ describe('service name and client id mapping', () => {
   it('should return "undefined_oauth" when service is not in services map', () => {
     const props = mapper({
       ...mockContext,
-      service: 'wibble'
+      service: 'wibble',
     });
     assert.equal(props.serviceName, 'undefined_oauth');
     assert.equal(props.clientId, 'wibble');
@@ -81,22 +81,22 @@ describe('location properties mapper', () => {
   it('should map the country correctly', () => {
     const actual = mapLocation({
       ...mockContext,
-      location: { country: 'United Devices of von Neumann', state: null }
+      location: { country: 'United Devices of von Neumann', state: null },
     });
     assert.deepEqual(actual, {
       country: 'United Devices of von Neumann',
-      region: null
+      region: null,
     });
   });
 
   it('should map the region correctly', () => {
     const actual = mapLocation({
       ...mockContext,
-      location: { country: null, state: 'Memory Palace' }
+      location: { country: null, state: 'Memory Palace' },
     });
     assert.deepEqual(actual, {
       country: null,
-      region: 'Memory Palace'
+      region: 'Memory Palace',
     });
   });
 
@@ -105,12 +105,12 @@ describe('location properties mapper', () => {
       ...mockContext,
       location: {
         country: 'United Devices of von Neumann',
-        state: 'Memory Palace'
-      }
+        state: 'Memory Palace',
+      },
     });
     assert.deepEqual(actual, {
       country: 'United Devices of von Neumann',
-      region: 'Memory Palace'
+      region: 'Memory Palace',
     });
   });
 });
@@ -122,7 +122,7 @@ describe('property pruning', () => {
       fuuz: null,
       fizz: undefined,
       extra: 'none',
-      level: 9001
+      level: 9001,
     });
     assert.deepEqual(actual, { foo: 'bar', level: 9001 });
   });
@@ -137,7 +137,7 @@ describe('property copying', () => {
         deviceId: 'wibble',
         flowBeginTime: 1586282556983,
         lang: 'gd',
-        uid: 'quuz'
+        uid: 'quuz',
       }
     );
     assert.deepEqual(actual, {
@@ -145,7 +145,7 @@ describe('property copying', () => {
       device_id: 'wibble',
       session_id: 1586282556983,
       language: 'gd',
-      user_id: 'quuz'
+      user_id: 'quuz',
     });
   });
 });

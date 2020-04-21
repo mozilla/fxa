@@ -28,7 +28,7 @@ function mapUserAgentProperties(
     if (family && family !== 'Other') {
       return {
         [familyProperty]: family,
-        [versionProperty]: group.toVersionString()
+        [versionProperty]: group.toVersionString(),
       };
     }
   }

@@ -13,7 +13,7 @@ const services = { foo: 'bar', fizz: 'buzz', level: 'over9000' };
 const mockEvent: Event = { type: 'a', group: 'bs' };
 const mockContext: EventContext = {
   eventSource: 'content',
-  version: '1.165.1'
+  version: '1.165.1',
 };
 const mapper = createAmplitudeEventPropertiesMapper(createServiceNameAndClientIdMapper(services));
 
@@ -23,7 +23,7 @@ describe('Amplitude event properties mapper', () => {
       const eventProperties = mapper(mockEvent, {
         ...mockContext,
         planId: 'quux',
-        productId: 'wibble'
+        productId: 'wibble',
       });
       assert.equal(eventProperties.plan_id, 'quux');
       assert.equal(eventProperties.product_id, 'wibble');
@@ -34,7 +34,7 @@ describe('Amplitude event properties mapper', () => {
     it('should map properties to "service" and "oauth_client_id"', () => {
       const eventProperties = mapper(mockEvent, {
         ...mockContext,
-        service: 'level'
+        service: 'level',
       });
       assert.equal(eventProperties.service, 'over9000');
       assert.equal(eventProperties.oauth_client_id, 'level');
@@ -63,7 +63,7 @@ describe('Amplitude event properties mapper', () => {
           ...mockEvent,
           group: GROUPS.connectDevice,
           category: 'sms',
-          target: 'os2'
+          target: 'os2',
         },
         mockContext
       );
@@ -78,7 +78,7 @@ describe('Amplitude event properties mapper', () => {
         { ...mockEvent, group: GROUPS.email },
         {
           ...mockContext,
-          emailTypes: { 'complete-reset-password': 'reset_password' }
+          emailTypes: { 'complete-reset-password': 'reset_password' },
         }
       );
       assert.isUndefined(eventProperties.email_type);
@@ -104,7 +104,7 @@ describe('Amplitude event properties mapper', () => {
         { ...mockEvent, group: GROUPS.email, category: 'xyz' },
         {
           ...mockContext,
-          emailTypes: { 'complete-reset-password': 'reset_password' }
+          emailTypes: { 'complete-reset-password': 'reset_password' },
         }
       );
       assert.isUndefined(eventProperties.email_type);
@@ -120,14 +120,14 @@ describe('Amplitude event properties mapper', () => {
         {
           ...mockEvent,
           group: GROUPS.email,
-          category: 'complete-reset-password'
+          category: 'complete-reset-password',
         },
         {
           ...mockContext,
           emailTypes: { 'complete-reset-password': 'reset_password' },
           emailDomain: 'gg.fail',
           emailSender: 'abc',
-          emailService: 'xyz'
+          emailService: 'xyz',
         }
       );
       assert.equal(eventProperties.email_type, 'reset_password');
@@ -143,7 +143,7 @@ describe('Amplitude event properties mapper', () => {
         {
           ...mockEvent,
           group: GROUPS.email,
-          category: 'complete-reset-password'
+          category: 'complete-reset-password',
         },
         {
           ...mockContext,
@@ -151,7 +151,7 @@ describe('Amplitude event properties mapper', () => {
           emailDomain: 'gg.fail',
           emailSender: 'abc',
           emailService: 'xyz',
-          templateVersion: '9000'
+          templateVersion: '9000',
         }
       );
       assert.equal(eventProperties.email_type, 'reset_password');
@@ -177,7 +177,7 @@ describe('Amplitude event properties mapper', () => {
         {
           ...mockEvent,
           group: GROUPS.settings,
-          type: 'disconnect_device'
+          type: 'disconnect_device',
         },
         mockContext
       );
@@ -190,7 +190,7 @@ describe('Amplitude event properties mapper', () => {
           ...mockEvent,
           group: GROUPS.settings,
           type: 'disconnect_device',
-          category: 'gg'
+          category: 'gg',
         },
         mockContext
       );
@@ -212,7 +212,7 @@ describe('Amplitude event properties mapper', () => {
         {
           ...mockEvent,
           group: GROUPS.registration,
-          type: 'domain_validation_result'
+          type: 'domain_validation_result',
         },
         mockContext
       );
@@ -225,7 +225,7 @@ describe('Amplitude event properties mapper', () => {
           ...mockEvent,
           group: GROUPS.registration,
           type: 'domain_validation_result',
-          category: 'oops'
+          category: 'oops',
         },
         mockContext
       );

@@ -13,7 +13,7 @@ const mockParsedUserAgent = {
     major: '66',
     minor: '12',
     patch: '0',
-    toVersionString: () => '66.12.0'
+    toVersionString: () => '66.12.0',
   },
   os: {
     family: 'OS2',
@@ -21,20 +21,20 @@ const mockParsedUserAgent = {
     minor: '135',
     patch: '3',
     patchMinor: 'q',
-    toVersionString: () => '10.135.3q'
+    toVersionString: () => '10.135.3q',
   },
   device: {
     family: 'iQod',
     brand: 'Kiwi',
-    model: 'fanciest'
-  }
+    model: 'fanciest',
+  },
 };
 
 describe('browser properties mapper', () => {
   it('should be empty when browser family is missing', () => {
     const browserProps = mapBrowser({
       ...mockParsedUserAgent,
-      ua: { ...mockParsedUserAgent.ua, family: null }
+      ua: { ...mockParsedUserAgent.ua, family: null },
     });
     assert.deepEqual(browserProps, {});
   });
@@ -42,7 +42,7 @@ describe('browser properties mapper', () => {
   it('should be empty when browser family is "Other"', () => {
     const browserProps = mapBrowser({
       ...mockParsedUserAgent,
-      ua: { ...mockParsedUserAgent.ua, family: 'Other' }
+      ua: { ...mockParsedUserAgent.ua, family: 'Other' },
     });
     assert.deepEqual(browserProps, {});
   });
@@ -51,7 +51,7 @@ describe('browser properties mapper', () => {
     const browserProps = mapBrowser(mockParsedUserAgent);
     assert.deepEqual(browserProps, {
       ua_browser: 'WaterCat',
-      ua_version: '66.12.0'
+      ua_version: '66.12.0',
     });
   });
 });
@@ -60,7 +60,7 @@ describe('OS properties mapper', () => {
   it('should be empty when OS family is missing', () => {
     const osProps = mapOs({
       ...mockParsedUserAgent,
-      os: { ...mockParsedUserAgent.os, family: null }
+      os: { ...mockParsedUserAgent.os, family: null },
     });
     assert.deepEqual(osProps, {});
   });
@@ -68,7 +68,7 @@ describe('OS properties mapper', () => {
   it('should be empty when the OS family is "Other"', () => {
     const osProps = mapOs({
       ...mockParsedUserAgent,
-      os: { ...mockParsedUserAgent.os, family: 'Other' }
+      os: { ...mockParsedUserAgent.os, family: 'Other' },
     });
     assert.deepEqual(osProps, {});
   });
@@ -77,7 +77,7 @@ describe('OS properties mapper', () => {
     const osProps = mapOs(mockParsedUserAgent);
     assert.deepEqual(osProps, {
       os_name: 'OS2',
-      os_version: '10.135.3q'
+      os_version: '10.135.3q',
     });
   });
 });
@@ -86,7 +86,7 @@ describe('device model mapper', () => {
   it('should be empty when device family is missing', () => {
     const device = mapDeviceModel({
       ...mockParsedUserAgent,
-      device: { ...mockParsedUserAgent.device, family: null }
+      device: { ...mockParsedUserAgent.device, family: null },
     });
     assert.deepEqual(device, {});
   });
@@ -94,7 +94,7 @@ describe('device model mapper', () => {
   it('should be empty when device brand is missing', () => {
     const device = mapDeviceModel({
       ...mockParsedUserAgent,
-      device: { ...mockParsedUserAgent.device, brand: null }
+      device: { ...mockParsedUserAgent.device, brand: null },
     });
     assert.deepEqual(device, {});
   });
@@ -102,7 +102,7 @@ describe('device model mapper', () => {
   it('should be empty when device brand is "Generic"', () => {
     const device = mapDeviceModel({
       ...mockParsedUserAgent,
-      device: { ...mockParsedUserAgent.device, brand: 'Generic' }
+      device: { ...mockParsedUserAgent.device, brand: 'Generic' },
     });
     assert.deepEqual(device, {});
   });
