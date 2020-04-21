@@ -1621,9 +1621,9 @@ describe('StripeHelper', () => {
   describe('extract details for billing emails', () => {
     const uid = '1234abcd';
     const email = 'test+20200324@example.com';
-    const planId = 'plan_0000000000';
+    const planId = 'plan_00000000000000';
     const planName = 'Example Plan';
-    const productId = 'prod_0000000000';
+    const productId = 'prod_00000000000000';
     const productName = 'Example Product';
     const planEmailIconURL = 'http://example.com/icon';
     const planDownloadURL = 'http://example.com/download';
@@ -1654,6 +1654,8 @@ describe('StripeHelper', () => {
       number: '1234567',
       charge: chargeId,
       default_source: { id: sourceId },
+      total: 1234,
+      period_end: 1587426018,
     };
 
     const mockInvoiceUpcoming = {
@@ -1963,14 +1965,17 @@ describe('StripeHelper', () => {
     const expectedBaseUpdateDetails = {
       uid,
       email,
+      planId,
+      productId,
       productIdNew: productId,
       productNameNew: productName,
       productIconURLNew:
         eventCustomerSubscriptionUpdated.data.object.plan.metadata.emailIconURL,
       productDownloadURLNew:
         eventCustomerSubscriptionUpdated.data.object.plan.metadata.downloadURL,
-      productPaymentCycle: 'month',
+      planIdNew: planId,
       planAmountNew: 500,
+      productPaymentCycle: 'month',
       closeDate: 1326853478,
     };
 
@@ -2010,7 +2015,8 @@ describe('StripeHelper', () => {
           if (helperName !== expectedHelperName) {
             assert.isTrue(stripeHelper[helperName].notCalled);
           } else {
-            assert.isTrue(stripeHelper[helperName].calledWith(...args));
+            assert.isTrue(stripeHelper[helperName].called);
+            assert.deepEqual(stripeHelper[helperName].args[0], args);
           }
         }
       }
@@ -2026,7 +2032,8 @@ describe('StripeHelper', () => {
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateCancellationDetailsForEmail',
           event.data.object,
-          expectedBaseUpdateDetails
+          expectedBaseUpdateDetails,
+          mockInvoice
         );
       });
 
@@ -2041,7 +2048,8 @@ describe('StripeHelper', () => {
         assertOnlyExpectedHelperCalledWith(
           'extractSubscriptionUpdateReactivationDetailsForEmail',
           event.data.object,
-          expectedBaseUpdateDetails
+          expectedBaseUpdateDetails,
+          mockInvoice
         );
       });
 
@@ -2057,6 +2065,7 @@ describe('StripeHelper', () => {
           'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
           event.data.object,
           expectedBaseUpdateDetails,
+          mockInvoice,
           mockCustomer,
           event.data.object.plan.metadata.productOrder,
           event.data.previous_attributes.plan
@@ -2064,18 +2073,18 @@ describe('StripeHelper', () => {
       });
     });
 
+    const productNameOld = '123 Done Pro Plus Monthly';
+    const productIconURLOld = 'http://example.com/icon-old';
+    const productDownloadURLOld = 'http://example.com/download-old';
+    const productNameNew = '123 Done Pro Monthly';
+    const productIconURLNew = 'http://example.com/icon-new';
+    const productDownloadURLNew = 'http://example.com/download-new';
+
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
       const commonTest = isUpgrade => async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
-
         const productIdOld = event.data.previous_attributes.plan.product;
-        const productNameOld = '123 Done Pro Plus Monthly';
-        const productIconURLOld = 'http://example.com/icon-old';
-        const productDownloadURLOld = 'http://example.com/download-old';
         const productIdNew = event.data.object.plan.product;
-        const productNameNew = '123 Done Pro Monthly';
-        const productIconURLNew = 'http://example.com/icon-new';
-        const productDownloadURLNew = 'http://example.com/download-new';
 
         const baseDetails = {
           ...expectedBaseUpdateDetails,
@@ -2114,6 +2123,7 @@ describe('StripeHelper', () => {
         const result = await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
           event.data.object,
           baseDetails,
+          mockInvoice,
           mockCustomer,
           event.data.object.plan.metadata.productOrder,
           event.data.previous_attributes.plan
@@ -2152,17 +2162,22 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
           event.data.object,
-          expectedBaseUpdateDetails
+          expectedBaseUpdateDetails,
+          mockInvoice
         );
-        const subscription = event.data.object;
         const { card } = mockCharge.payment_method_details;
         assert.deepEqual(result, {
-          ...expectedBaseUpdateDetails,
           updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
-          invoiceId: subscription.latest_invoice,
-          currentPeriodEnd: subscription.current_period_end,
-          brand: card.brand,
-          last4: card.last4,
+          email,
+          uid,
+          productId,
+          planId,
+          planEmailIconURL: productIconURLNew,
+          productName,
+          invoiceTotal: mockInvoice.total / 100.0,
+          cardType: card.brand,
+          lastFour: card.last4,
+          nextInvoiceDate: new Date(mockInvoice.period_end * 1000),
         });
       });
     });
@@ -2172,18 +2187,23 @@ describe('StripeHelper', () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const result = await stripeHelper.extractSubscriptionUpdateCancellationDetailsForEmail(
           event.data.object,
-          expectedBaseUpdateDetails
+          expectedBaseUpdateDetails,
+          mockInvoice
         );
         const subscription = event.data.object;
         assert.deepEqual(result, {
-          ...expectedBaseUpdateDetails,
           updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
-          cancelledAt: subscription.canceled_at,
-          cancelAt: subscription.cancel_at,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          currentPeriodStart: subscription.current_period_start,
-          currentPeriodEnd: subscription.current_period_end,
-          invoiceId: subscription.latest_invoice,
+          email,
+          uid,
+          productId,
+          planId,
+          planEmailIconURL: productIconURLNew,
+          productName,
+          invoiceDate: new Date(mockInvoice.created * 1000),
+          invoiceTotal: mockInvoice.total / 100.0,
+          serviceLastActiveDate: new Date(
+            subscription.current_period_end * 1000
+          ),
         });
       });
     });
