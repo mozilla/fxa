@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "NODE_ENV=dev npm run gen-keys",
+    "build": "NODE_ENV=dev npm run gen-keys && tsc",
     "bump-template-versions": "node scripts/template-version-bump",
     "lint": "npm-run-all --parallel lint:*",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
@@ -21,9 +21,9 @@
     "restart": "pm2 restart pm2.config.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",
     "test-ci": "scripts/test-local.sh && npm run test-e2e",
-    "test-e2e": "NODE_ENV=dev mocha test/e2e",
-    "test-scripts": "NODE_ENV=dev mocha test/scripts --exit",
-    "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha --timeout=300000 test/remote",
+    "test-e2e": "NODE_ENV=dev mocha -r ts-node/register test/e2e",
+    "test-scripts": "NODE_ENV=dev mocha -r ts-node/register test/scripts --exit",
+    "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha -r ts-node/register --timeout=300000 test/remote",
     "format": "prettier '**' --write",
     "gen-keys": "./scripts/gen_keys.js; ./scripts/oauth_gen_keys.js; ./scripts/gen_vapid_keys.js",
     "write-emails": "node ./scripts/write-emails-to-disk.js"
@@ -97,7 +97,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.4",
     "@types/convict": "^4.2.1",
-    "@types/hapi": "^18.0.2",
+    "@types/hapi": "^18.0.3",
     "@types/ioredis": "^4.14.8",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.3.5",

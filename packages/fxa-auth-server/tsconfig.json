@@ -1,26 +1,31 @@
 {
   "compilerOptions": {
+    "outDir": "./dist",
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
     "allowJs": true,
     "checkJs": false,
-
     "target": "ES2019",
     "module": "commonjs",
-    "noEmit": true,
     "strict": true,
-
     "resolveJsonModule": true,
     "moduleResolution": "node",
-    "esModuleInterop": true,
-
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-
-    "types": ["node"],
-    "typeRoots": ["./types", "node_modules/@types"]
+    "types": [
+      "node"
+    ],
+    "typeRoots": [
+      "./types",
+      "node_modules/@types"
+    ]
   },
-  "exclude": ["node_modules"]
+  "include": [
+    "bin/*",
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
