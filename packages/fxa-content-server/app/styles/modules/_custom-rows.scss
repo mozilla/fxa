@@ -311,3 +311,12 @@ input[type='text'] ~ .show-password:focus + .show-password-label {
     }
   }
 }
+
+.qr-code-container {
+  margin: 40px 0;
+}
+
+.qr-code-text {
+  font-family: monospace;
+  font-weight: bold;
+}

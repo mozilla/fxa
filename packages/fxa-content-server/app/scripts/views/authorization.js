@@ -8,6 +8,7 @@
 import AuthErrors from '../lib/auth-errors';
 import BaseView from './base';
 import Cocktail from 'cocktail';
+import ErrorRedirectMixin from './mixins/error-redirect-mixin';
 import OAuthErrors from '../lib/oauth-errors';
 import OAuthPrompt from '../lib/oauth-prompt';
 import SignInMixin from './mixins/signin-mixin';
@@ -59,15 +60,12 @@ class AuthorizationView extends BaseView {
 
   _handlePromptNoneError(err) {
     return Promise.resolve().then(() => {
-      if (this._shouldSendErrorToRP(err)) {
+      if (err.response_error_code) {
         // Unless the RP overrides this behavior, errors with a `response_error_code`
         // redirect back to the RP with `response_error_code` as the `error` parameter.
         // The override is used by the functional tests to ensure the expected error
         // case is being invoked when checking whether prompt=none can be used.
-        return this.broker.sendOAuthResultToRelier({
-          error: err.response_error_code,
-          redirect: this.relier.get('redirectUri'),
-        });
+        return this.redirectWithErrorCode(err);
       }
 
       // All other errors are handled at a higher level. If
@@ -77,14 +75,8 @@ class AuthorizationView extends BaseView {
       throw err;
     });
   }
-
-  _shouldSendErrorToRP(err) {
-    return (
-      err.response_error_code && this.relier.get('returnOnError') !== false
-    );
-  }
 }
 
-Cocktail.mixin(AuthorizationView, SignInMixin);
+Cocktail.mixin(AuthorizationView, ErrorRedirectMixin, SignInMixin);
 
 export default AuthorizationView;

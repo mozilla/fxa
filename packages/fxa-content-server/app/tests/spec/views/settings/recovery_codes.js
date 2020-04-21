@@ -54,6 +54,8 @@ describe('views/settings/recovery_codes', () => {
       })
     );
 
+    sinon.stub(view, 'verifyTotpStatus').callsFake(() => hasToken);
+
     return view.render().then(() => $('#container').html(view.$el));
   }
 
@@ -208,7 +210,7 @@ describe('views/settings/recovery_codes', () => {
       const padding = Array(256).join('1');
       email = `${padding}@email.com`;
       account.set('email', email);
-      const formattedFilename = view._getFormatedRecoveryCodeFilename();
+      const formattedFilename = view.getFormatedRecoveryCodeFilename();
       assert.equal(formattedFilename.length, 200, 'truncated filename');
       assert.equal(
         formattedFilename.indexOf('.txt') > 0,

@@ -11,10 +11,6 @@ import ResumeTokenMixin from './resume-token-mixin';
 import VerificationMethods from '../../lib/verification-methods';
 import VerificationReasons from '../../lib/verification-reasons';
 
-const t = msg => msg;
-const TOTP_SUPPORT_URL =
-  'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
-
 export default {
   dependsOn: [ResumeTokenMixin],
 
@@ -133,13 +129,10 @@ export default {
           AuthErrors.is(err, 'INSUFFICIENT_ACR_VALUES') ||
           OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')
         ) {
-          err.forceMessage = t(
-            'This request requires two step authentication enabled on your account. ' +
-              '<a target="_blank" href=\'' +
-              TOTP_SUPPORT_URL +
-              "'>More Information</a>"
-          );
-          return this.unsafeDisplayError(err);
+          return this.navigate('inline_totp_setup', {
+            account: account,
+            onSubmitComplete: this.onSignInSuccess.bind(this),
+          });
         }
 
         // re-throw error, it'll be handled elsewhere.

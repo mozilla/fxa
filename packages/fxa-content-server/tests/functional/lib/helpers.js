@@ -2563,6 +2563,75 @@ const enableTotp = thenify(function() {
       .then(() => secret)
   );
 });
+
+/**
+ * Enable TOTP inline in the login flow, for cases where the RP includes
+ * the acr_values=AAL2 parameter in the request, and the user did not already
+ * have 2FA enabled.
+ *
+ * @returns {promise} resolves when complete
+ */
+const enableTotpInline = thenify(function() {
+  let secret, recoveryCode;
+
+  return (
+    this.parent
+      // first, user sees the intro screen and clicks through
+      .then(testElementExists(selectors.INLINE_TOTP.HEADER))
+      .then(click(selectors.INLINE_TOTP.INTRO_CONTINUE_BUTTON))
+
+      // on the TOTP screen, get the secret text code, generate a code using otplib, submit
+      .then(testElementExists(selectors.INLINE_TOTP.TOTP_SETUP_HEADER))
+      .then(click(selectors.INLINE_TOTP.SHOW_CODE_LINK))
+      .then(testElementExists(selectors.INLINE_TOTP.TOTP_CODE_TEXT))
+      .then(visibleByQSA(selectors.INLINE_TOTP.TOTP_CODE_TEXT))
+      .findByCssSelector(selectors.INLINE_TOTP.TOTP_CODE_TEXT)
+      .getVisibleText()
+      .then(secretKey => {
+        secret = secretKey;
+      })
+      .end()
+      .then(() => {
+        return this.parent.then(
+          type(
+            selectors.INLINE_TOTP.CONFIRM_CODE_INPUT,
+            generateTotpCode(secret)
+          )
+        );
+      })
+      .then(click(selectors.INLINE_TOTP.READY_BUTTON))
+
+      // on the recovery codes screen, get the codes and advance to the confirm screen
+      .then(testElementExists(selectors.INLINE_RECOVERY_CODES.HEADER))
+      .then(visibleByQSA(selectors.INLINE_RECOVERY_CODES.RECOVERY_CODES))
+      .findByCssSelector(selectors.INLINE_RECOVERY_CODES.RECOVERY_CODES)
+      .getVisibleText()
+      .then(code => {
+        recoveryCode = code;
+        return this.parent.then(
+          click(selectors.INLINE_RECOVERY_CODES.DONE_BUTTON)
+        );
+      })
+      .end()
+
+      // on the confirm code screen, enter the saved code and we're done
+      .then(() => {
+        return this.parent.then(
+          visibleByQSA(selectors.INLINE_CONFIRM_RECOVERY.HEADER)
+        );
+      })
+      .then(() => {
+        return this.parent.then(
+          type(
+            selectors.INLINE_CONFIRM_RECOVERY.RECOVERY_CODE_INPUT,
+            recoveryCode
+          )
+        );
+      })
+      .then(click(selectors.INLINE_CONFIRM_RECOVERY.CONFIRM_BUTTON))
+  );
+});
+
 /**
  * Destroy the session for the given `email`. Only destroys
  * the first session for the given email address.
@@ -2658,6 +2727,7 @@ module.exports = {
   destroySessionForEmail,
   disableInProd,
   enableTotp,
+  enableTotpInline,
   confirmRecoveryCode,
   fetchAllMetrics,
   fillOutChangePassword,
