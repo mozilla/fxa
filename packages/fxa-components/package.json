@@ -18,13 +18,20 @@
     "node": ">=12"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "storybook": "start-storybook -p 6007",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "react": "^16.13.1",
     "react-dom": "^16.13.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@storybook/addon-actions": "^5.3.18",
+    "@storybook/addon-links": "^5.3.18",
+    "@storybook/addons": "^5.3.18",
+    "@storybook/react": "^5.3.18",
     "@testing-library/jest-dom": "^5.5.0",
     "@testing-library/react": "^10.0.2",
     "@testing-library/user-event": "^10.0.2",
@@ -33,6 +40,7 @@
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
     "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
     "jest": "^25.3.0",
     "ts-jest": "^25.4.0",
     "typescript": "^3.8.3"

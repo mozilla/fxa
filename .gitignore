@@ -20,6 +20,7 @@ secrets.json
 **/dist
 **/temp
 **/version.json
+**/storybook-static
 *.sass-cache
 *.map
 .es5
@@ -63,6 +64,7 @@ Thumbs.db
 !.prettier*
 !.vscode
 !.rescriptsrc.js
+!.storybook
 
 ## Package-specific ##
 
@@ -130,9 +132,6 @@ packages/fxa-geodb/db
 packages/fxa-js-client/components
 packages/fxa-js-client/docs
 packages/fxa-js-client/fxa-auth-server
-
-# fxa-payments-server
-packages/fxa-payments-server/storybook-static
 
 # fxa-profile-server
 packages/fxa-profile-server/var
