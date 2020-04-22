@@ -36,6 +36,7 @@ module.exports = function(config) {
   );
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
   const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
+  const SURVEY_GIZMO = 'https://qsurvey.mozilla.com';
   //
   // Double quoted values
   //
@@ -66,6 +67,7 @@ module.exports = function(config) {
       ],
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
+      frameSrc: addCdnRuleIfRequired([SURVEY_GIZMO]),
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,
@@ -99,6 +101,7 @@ module.exports = function(config) {
       PUBLIC_URL,
       SELF,
       SENTRY_SERVER,
+      SURVEY_GIZMO,
     },
   };
 
