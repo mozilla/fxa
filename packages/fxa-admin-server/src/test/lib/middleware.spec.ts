@@ -6,7 +6,7 @@ import express from 'express';
 import 'mocha';
 import request from 'supertest';
 
-import { loadBalancerRoutes } from '../../lib/middleware';
+import { loadBalancerRoutes, strictTransportSecurity } from '../../lib/middleware';
 import { version } from '../../lib/version';
 
 describe('loadBalancerRoutes', () => {
@@ -54,5 +54,16 @@ describe('loadBalancerRoutes', () => {
       .get('/__heartbeat__')
       .expect('Content-Type', /json/)
       .expect(200, { status: 'error' });
+  });
+});
+
+describe('strictTransportSecurity', () => {
+  const app = express();
+  app.use(strictTransportSecurity);
+
+  it('sets Strict-Transport-Header', () => {
+    return request(app)
+      .get('/')
+      .expect('Strict-Transport-Security', /max-age=\d*; includeSubDomains/);
   });
 });

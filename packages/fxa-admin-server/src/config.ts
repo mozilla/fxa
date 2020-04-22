@@ -79,6 +79,18 @@ const conf = convict({
     doc: 'Sentry DSN for error and log reporting',
     env: 'SENTRY_DSN',
     format: 'String'
+  },
+  hstsEnabled: {
+    default: true,
+    doc: 'Send a Strict-Transport-Security header',
+    env: 'HSTS_ENABLED',
+    format: Boolean
+  },
+  hstsMaxAge: {
+    default: 31536000, // a year
+    doc: 'Max age of the STS directive in seconds',
+    // Note: This format is a number because the value needs to be in seconds
+    format: Number
   }
 });
 

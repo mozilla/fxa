@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import Config from '../config';
 import { Request, Response, Router } from 'express';
 
 import { version } from './version';
@@ -34,4 +35,15 @@ export function loadBalancerRoutes(healthExtras?: () => Promise<HealthExtras>): 
   });
 
   return router;
+}
+
+export function strictTransportSecurity(_: Request, res: Response, next: () => void) {
+  if (Config.get('hstsEnabled')) {
+    res.header(
+      'Strict-Transport-Security',
+      `max-age=${Config.get('hstsMaxAge')}; includeSubDomains`
+    );
+  }
+
+  next();
 }

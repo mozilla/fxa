@@ -9,7 +9,7 @@ import mozlog from 'mozlog';
 
 import Config from '../config';
 import { dbHealthCheck } from '../lib/db';
-import { loadBalancerRoutes } from '../lib/middleware';
+import { loadBalancerRoutes, strictTransportSecurity } from '../lib/middleware';
 import { configureSentry } from '../lib/sentry';
 import { createServer } from '../lib/server';
 import { version } from '../lib/version';
@@ -19,9 +19,12 @@ configureSentry({ dsn: Config.getProperties().sentryDsn, release: version.versio
 
 async function run() {
   const app = express();
+  app.use(strictTransportSecurity);
+
   const server = await createServer(Config.getProperties(), logger);
   server.applyMiddleware({ app });
   app.use(loadBalancerRoutes(dbHealthCheck));
+
   app.listen({ port: 8090 }, () => {
     logger.info('startup', {
       message: `Server is running, GraphQL Playground available at http://localhost:8090${server.graphqlPath}`
