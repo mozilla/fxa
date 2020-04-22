@@ -2031,16 +2031,13 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('sendSubscriptionUpdatedEmail', () => {
-    const commonSendSubscriptionUpdatedEmailTest = (
-      isUpgrade = true
-    ) => async () => {
+    const commonSendSubscriptionUpdatedEmailTest = updateType => async () => {
       const event = deepCopy(eventCustomerSubscriptionUpdated);
 
       const mockDetails = {
         uid: '1234',
         test: 'fake',
-        updateType:
-          SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
+        updateType,
       };
       directStripeRoutesInstance.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail.resolves(
         mockDetails
@@ -2053,9 +2050,14 @@ describe('DirectStripeRoutes', () => {
 
       await directStripeRoutesInstance.sendSubscriptionUpdatedEmail(event);
 
-      const expectedMethodName = isUpgrade
-        ? 'sendSubscriptionUpgradeEmail'
-        : 'sendSubscriptionDowngradeEmail';
+      const expectedMethodName = {
+        [SUBSCRIPTION_UPDATE_TYPES.UPGRADE]: 'sendSubscriptionUpgradeEmail',
+        [SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE]: 'sendSubscriptionDowngradeEmail',
+        [SUBSCRIPTION_UPDATE_TYPES.REACTIVATION]:
+          'sendSubscriptionReactivationEmail',
+        [SUBSCRIPTION_UPDATE_TYPES.CANCELLATION]:
+          'sendSubscriptionCancellationEmail',
+      }[updateType];
 
       assert.calledWith(
         directStripeRoutesInstance.mailer[expectedMethodName],
@@ -2070,12 +2072,28 @@ describe('DirectStripeRoutes', () => {
 
     it(
       'sends an upgrade email on subscription upgrade',
-      commonSendSubscriptionUpdatedEmailTest(true)
+      commonSendSubscriptionUpdatedEmailTest(SUBSCRIPTION_UPDATE_TYPES.UPGRADE)
     );
 
     it(
       'sends a downgrade email on subscription downgrade',
-      commonSendSubscriptionUpdatedEmailTest(false)
+      commonSendSubscriptionUpdatedEmailTest(
+        SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE
+      )
+    );
+
+    it(
+      'sends a reactivation email on subscription reactivation',
+      commonSendSubscriptionUpdatedEmailTest(
+        SUBSCRIPTION_UPDATE_TYPES.REACTIVATION
+      )
+    );
+
+    it(
+      'sends a cancellation email on subscription cancellation',
+      commonSendSubscriptionUpdatedEmailTest(
+        SUBSCRIPTION_UPDATE_TYPES.CANCELLATION
+      )
     );
   });
 
@@ -2113,17 +2131,8 @@ describe('DirectStripeRoutes', () => {
       );
 
       if (accountFound) {
-        assert.calledWith(
-          directStripeRoutesInstance.mailer.sendSubscriptionCancellationEmail,
-          mockAccount.emails,
-          mockAccount,
-          {
-            acceptLanguage: mockAccount.locale,
-            serviceLastActiveDate: new Date(
-              subscription.current_period_end * 1000
-            ),
-            ...mockInvoiceDetails,
-          }
+        assert.notCalled(
+          directStripeRoutesInstance.mailer.sendSubscriptionCancellationEmail
         );
       } else {
         const fakeAccount = {
@@ -2142,7 +2151,7 @@ describe('DirectStripeRoutes', () => {
     };
 
     it(
-      'sends a plain cancellation email on subscription deletion',
+      'does not send a cancellation email on subscription deletion',
       commonSendSubscriptionDeletedEmailTest(true)
     );
 

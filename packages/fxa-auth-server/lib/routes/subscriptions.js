@@ -909,10 +909,10 @@ class DirectStripeRoutes {
         await this.mailer.sendSubscriptionDowngradeEmail(...mailParams);
         break;
       case SUBSCRIPTION_UPDATE_TYPES.REACTIVATION:
-        // TBD FXA-1157
+        await this.mailer.sendSubscriptionReactivationEmail(...mailParams);
         break;
       case SUBSCRIPTION_UPDATE_TYPES.CANCELLATION:
-        // TBD FXA-1157 / FXA-1154
+        await this.mailer.sendSubscriptionCancellationEmail(...mailParams);
         break;
     }
 
@@ -933,19 +933,9 @@ class DirectStripeRoutes {
 
     let account;
     try {
-      // TODO: FXA-1157 / FXA-1154 - Move this cancellation into the subscription update event
-      account = await this.db.account(uid);
-      await this.mailer.sendSubscriptionCancellationEmail(
-        account.emails,
-        account,
-        {
-          acceptLanguage: account.locale,
-          serviceLastActiveDate: new Date(
-            subscription.current_period_end * 1000
-          ),
-          ...invoiceDetails,
-        }
-      );
+      // If the user's account has not been deleted, we should have already
+      // sent email at subscription update when cancel_at_period_end = true
+      await this.db.account(uid);
     } catch (err) {
       // Has the user's account been deleted?
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {

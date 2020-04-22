@@ -1039,6 +1039,14 @@ class StripeHelper {
       throw error.unknownCustomer(subscription.customer);
     }
 
+    let invoice = subscription.latest_invoice;
+    if (typeof invoice === 'string') {
+      // if we have to do a fetch, go ahead and ensure we also get the additional needed resource
+      invoice = await this.stripe.invoices.retrieve(invoice, {
+        expand: ['charge'],
+      });
+    }
+
     const {
       email,
       metadata: { userid: uid },
@@ -1046,6 +1054,7 @@ class StripeHelper {
 
     const previousAttributes = eventData.previous_attributes;
     const planNew = subscription.plan;
+    const planIdNew = subscription.plan.id;
     const planOld = previousAttributes.plan;
     const cancelAtPeriodEndNew = subscription.cancel_at_period_end;
     const cancelAtPeriodEndOld = previousAttributes.cancel_at_period_end;
@@ -1065,10 +1074,13 @@ class StripeHelper {
     const baseDetails = {
       uid,
       email,
+      planId: planIdNew,
+      productId: productIdNew,
       productIdNew,
       productNameNew,
       productIconURLNew,
       productDownloadURLNew,
+      planIdNew,
       planAmountNew,
       productPaymentCycle,
       closeDate: event.created,
@@ -1077,17 +1089,20 @@ class StripeHelper {
     if (!cancelAtPeriodEndOld && cancelAtPeriodEndNew && !planOld) {
       return this.extractSubscriptionUpdateCancellationDetailsForEmail(
         subscription,
-        baseDetails
+        baseDetails,
+        invoice
       );
     } else if (cancelAtPeriodEndOld && !cancelAtPeriodEndNew && !planOld) {
       return this.extractSubscriptionUpdateReactivationDetailsForEmail(
         subscription,
-        baseDetails
+        baseDetails,
+        invoice
       );
     } else if (!cancelAtPeriodEndOld && !cancelAtPeriodEndNew && planOld) {
       return this.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
         subscription,
         baseDetails,
+        invoice,
         customer,
         productOrderNew,
         planOld
@@ -1098,55 +1113,119 @@ class StripeHelper {
     return baseDetails;
   }
 
+  /**
+   * Helper for extractSubscriptionUpdateEventDetailsForEmail to further
+   * extract details in cancellation case
+   *
+   * @param {Subscription} subscription
+   * @param {*} baseDetails
+   * @param {Invoice} invoice
+   */
   async extractSubscriptionUpdateCancellationDetailsForEmail(
     subscription,
-    baseDetails
+    baseDetails,
+    invoice
   ) {
-    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L598
+    const { current_period_end: serviceLastActiveDate } = subscription;
+
+    const {
+      uid,
+      email,
+      planId,
+      productId,
+      productNameNew: productName,
+      productIconURLNew: planEmailIconURL,
+    } = baseDetails;
+
+    const { total: invoiceTotal, created: invoiceDate } = invoice;
+
     return {
-      ...baseDetails,
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
-      cancelledAt: subscription.canceled_at,
-      cancelAt: subscription.cancel_at,
-      cancelAtPeriodEnd: subscription.cancel_at_period_end,
-      currentPeriodStart: subscription.current_period_start,
-      currentPeriodEnd: subscription.current_period_end,
-      invoiceId: subscription.latest_invoice,
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceDate: new Date(invoiceDate * 1000),
+      invoiceTotal: invoiceTotal / 100.0,
+      serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
     };
   }
 
+  /**
+   * Helper for extractSubscriptionUpdateEventDetailsForEmail to further
+   * extract details in reactivation case
+   *
+   * @param {Subscription} subscription
+   * @param {*} baseDetails
+   * @param {Invoice} invoice
+   */
   async extractSubscriptionUpdateReactivationDetailsForEmail(
     subscription,
-    baseDetails
+    baseDetails,
+    invoice
   ) {
-    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L625
-    let invoice = subscription.latest_invoice;
-    if (typeof invoice === 'string') {
-      // if we have to do a fetch, go ahead and ensure we also get the additional needed resource
-      invoice = await this.stripe.invoices.retrieve(invoice, {
-        expand: ['charge'],
-      });
-    }
-    // this will only result to a call to stripe if the invoice was already expanded, but the charge was not
     const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
-    const { brand, last4 } = charge.payment_method_details.card;
+
+    const { total: invoiceTotal, period_end: nextInvoiceDate } = invoice;
+
+    const {
+      brand: cardType,
+      last4: lastFour,
+    } = charge.payment_method_details.card;
+
+    const {
+      uid,
+      email,
+      planId,
+      productId,
+      productNameNew: productName,
+      productIconURLNew: planEmailIconURL,
+    } = baseDetails;
+
     return {
-      ...baseDetails,
       updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
-      invoiceId: subscription.latest_invoice,
-      currentPeriodEnd: subscription.current_period_end,
-      brand,
-      last4,
+      email,
+      uid,
+      productId,
+      planId,
+      planEmailIconURL,
+      productName,
+      invoiceTotal: invoiceTotal / 100.0,
+      cardType,
+      lastFour,
+      nextInvoiceDate: new Date(nextInvoiceDate * 1000),
     };
   }
 
+  /**
+   * Helper for extractSubscriptionUpdateEventDetailsForEmail to further
+   * extract details in upgrade & downgrade cases
+   *
+   * @param {Subscription} subscription
+   * @param {*} baseDetails
+   * @param {Invoice} invoice
+   * @param {Customer} customer
+   * @param {string} productOrderNew
+   * @param {Plan} planOld
+   */
   async extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
     subscription,
     baseDetails,
+    invoice,
     customer,
     productOrderNew,
     planOld
   ) {
+    const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
+      customer: customer.id,
+    });
+
+    const { id: invoiceId, number: invoiceNumber } = invoice;
+
+    const { amount_due: paymentProrated } = upcomingInvoice;
+
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
     const { amount: planAmountOld } = planOld;
@@ -1165,14 +1244,6 @@ class StripeHelper {
         ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
         : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
 
-    const invoice = await this.expandResource(
-      subscription.latest_invoice,
-      INVOICES_RESOURCE
-    );
-    const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
-      customer: customer.id,
-    });
-
     return {
       ...baseDetails,
       updateType,
@@ -1181,9 +1252,9 @@ class StripeHelper {
       productIconURLOld,
       productDownloadURLOld,
       planAmountOld,
-      invoiceNumber: invoice.number,
-      invoiceId: invoice.id,
-      paymentProrated: upcomingInvoice.amount_due,
+      invoiceNumber,
+      invoiceId,
+      paymentProrated,
     };
   }
 
