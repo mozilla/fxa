@@ -1273,6 +1273,38 @@ describe('/recovery_email', () => {
       return runTest(route, mockRequest).then(
         () =>
           assert.fail(
+            'Should have failed when adding an email that is the same as your primary'
+          ),
+        err =>
+          assert.equal(
+            err.errno,
+            139,
+            'add secondary email that is same as your primary'
+          )
+      );
+    });
+
+    it('should fail when adding email that already belongs to the account, and is not your primary', () => {
+      route = getRoute(accountRoutes, '/recovery_email');
+      mockRequest.payload.email = TEST_EMAIL_ADDITIONAL;
+      mockDB.account = sinon.spy(() => {
+        return P.resolve({
+          emails: [
+            {
+              isPrimary: true,
+              email: TEST_EMAIL,
+            },
+            {
+              isPrimary: false,
+              email: TEST_EMAIL_ADDITIONAL,
+            },
+          ],
+        });
+      });
+
+      return runTest(route, mockRequest).then(
+        () =>
+          assert.fail(
             'Should have failed when adding an email that already belongs to the account'
           ),
         err => assert.equal(err.errno, 189, 'already exists on your account')

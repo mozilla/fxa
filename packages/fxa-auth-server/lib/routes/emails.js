@@ -638,6 +638,10 @@ module.exports = (
           throw error.maxSecondaryEmailsReached();
         }
 
+        if (emailsMatch(sessionToken.email, email)) {
+          throw error.yourPrimaryEmailExists();
+        }
+
         if (
           account.emails.map(accountEmail => accountEmail.email).includes(email)
         ) {
@@ -650,10 +654,6 @@ module.exports = (
 
         if (sessionToken.tokenVerificationId) {
           throw error.unverifiedSession();
-        }
-
-        if (emailsMatch(sessionToken.email, email)) {
-          throw error.yourPrimaryEmailExists();
         }
 
         await deleteAccountIfUnverified();
