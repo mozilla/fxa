@@ -1,21 +1,3 @@
-FROM node:12-alpine
+FROM fxa-node:latest
 
-RUN apk add --no-cache make git gcc g++ python
-
-RUN addgroup -g 10001 app && \
-    adduser -D -G app -h /app -u 10001 app
-WORKDIR /app
-
-# S3 bucket in Cloud Services prod IAM
-ADD https://s3.amazonaws.com/dumb-init-dist/v1.2.0/dumb-init_1.2.0_amd64 /usr/local/bin/dumb-init
-RUN chmod +x /usr/local/bin/dumb-init
-ENTRYPOINT ["/usr/local/bin/dumb-init", "--"]
-
-USER app
-
-COPY package-lock.json package-lock.json
-COPY package.json package.json
-
-RUN npm install --production && rm -rf ~app/.npm
-
-COPY . /app
+COPY --from=fxa-builder:latest --chown=app:app /fxa/packages/fxa-auth-db-mysql /app

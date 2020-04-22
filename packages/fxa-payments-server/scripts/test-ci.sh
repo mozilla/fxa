@@ -2,17 +2,18 @@
 
 DIR=$(dirname "$0")
 
-cd $DIR/../../fxa-content-server
-npm ci
+cd "$DIR/../../../"
 
-cd ../fxa-geodb
-npm ci
+npx lerna bootstrap \
+  --scope fxa-shared \
+  --scope fxa-geodb \
+  --scope fxa-settings \
+  --scope fxa-content-server \
+  --scope fxa-payments-server \
+  --concurrency 2
 
-cd ../fxa-shared
-npm ci
+cd packages/fxa-payments-server
 
-cd ../fxa-payments-server
-npm ci
 # TODO rm the CI=false
 PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false npm run build
 CI=yes npm test

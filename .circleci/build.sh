@@ -11,24 +11,14 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
   echo "# building $MODULE"
   echo -e "################################\n"
 
-  # Place version.json so it is available as `/app/version.json` in the
-  # container, and also as `/app/config/version.json`, creating /app/config
-  # if needed.
-  cp ../version.json .
-  mkdir -p config
-  cp ../version.json config
-
   mkdir -p ../../artifacts
-
-  ODDBALLS=("fxa-admin-panel" "fxa-auth-server" "fxa-content-server" "fxa-profile-server" "fxa-payments-server")
 
   if [[ -x scripts/build-ci.sh ]]; then
     time ./scripts/build-ci.sh
-  elif [[ "${ODDBALLS[*]}" =~ ${MODULE} ]]; then
-    cd ..
-    time docker build --progress=plain -f "${MODULE}/Dockerfile" -t "${MODULE}:build" . > "../artifacts/${MODULE}.log"
   elif [[ -r Dockerfile ]]; then
-    time docker build --progress=plain -t "${MODULE}:build" . > "../../artifacts/${MODULE}.log"
+    # send Dockerfile over stdin to exclude local context
+    # https://docs.docker.com/develop/develop-images/dockerfile_best-practices/#pipe-dockerfile-through-stdin
+    time (< Dockerfile docker build --progress=plain -t "${MODULE}:build" - &> "../../artifacts/${MODULE}.log")
   fi
 
   # for debugging:

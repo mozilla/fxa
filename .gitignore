@@ -93,6 +93,7 @@ packages/fxa-auth-server/*.swp
 packages/fxa-auth-server/test/load/bin
 packages/fxa-auth-server/test/load/lib*
 packages/fxa-auth-server/test/load/include
+packages/fxa-auth-server/test/scripts/bulk-mailer/nodemailer-mocks/test_output
 packages/fxa-auth-server/*.pyc
 packages/fxa-auth-server/server.pot
 packages/fxa-auth-server/.mail_output

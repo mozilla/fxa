@@ -7,7 +7,7 @@
     "lint": "npm-run-all --parallel lint:*",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
-    "test": "mocha --ui tdd --recursive tests/",
+    "test": "npm run lint && mocha --ui tdd --recursive tests/",
     "build": "zip -q --recurse-paths -y fxa-email-event-proxy *.js *.json node_modules",
     "format": "prettier '**' --write"
   },

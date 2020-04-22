@@ -6,7 +6,7 @@ if [ "${SKIP_PACKAGES}" != "true" ]; then
 
   if [ "${CI}" = "true" ]; then
     # it seems the filesystem on circleci can't handle full concurrency
-    npx lerna exec --concurrency 6 --ignore fxa-amplitude-send -- npm ci
+    npx lerna bootstrap --hoist pm2 --concurrency 6 --ignore fxa-amplitude-send
   else
     npx lerna bootstrap --hoist pm2
   fi

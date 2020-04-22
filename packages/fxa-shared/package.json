@@ -6,7 +6,7 @@
   "scripts": {
     "postinstall": "npm run build",
     "build": "tsc",
-    "test": "node ./scripts/mocha-coverage.js -r ts-node/register --recursive test",
+    "test": "npm run lint && node ./scripts/mocha-coverage.js -r ts-node/register --recursive test",
     "lint": "npm-run-all --parallel lint:*",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
@@ -65,7 +65,7 @@
     "joi": "^14.3.1",
     "js-md5": "^0.7.3",
     "moment": "^2.24.0",
-    "node-uap": "git://github.com/vladikoff/node-uap.git#9cdd16247",
+    "node-uap": "git+https://github.com/dannycoates/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "redis": "^2.8.0"
   }
 }

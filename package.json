@@ -49,7 +49,6 @@
         "fxa-js-client",
         "fxa-shared",
         "fxa-profile-server",
-        "fxa-oauth-server",
         "fxa-payments-server"
       ],
       "fxa-auth-server": [
