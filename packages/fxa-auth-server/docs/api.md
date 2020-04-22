@@ -2032,15 +2032,6 @@ not just the one being attached to the Firefox account.
 
   <!--end-request-body-post-recovery_emailverify_code-type-->
 
-- `marketingOptIn`: _boolean_
-
-  <!--begin-request-body-post-recovery_emailverify_code-marketingOptIn-->
-
-  Set to true if the user has opted-in to our marketing. When verified,
-  the auth-server will notify Basket.
-
-  <!--end-request-body-post-recovery_emailverify_code-marketingOptIn-->
-
 ##### Error responses
 
 Failing requests may be caused

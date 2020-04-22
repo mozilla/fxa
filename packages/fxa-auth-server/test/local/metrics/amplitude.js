@@ -544,44 +544,6 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('account.verified, marketingOptIn=true', () => {
-      beforeEach(() => {
-        return amplitude('account.verified', mocks.mockRequest({}), {
-          marketingOptIn: true,
-        });
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1);
-        const args = log.amplitudeEvent.args[0];
-        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed');
-        assert.equal(args[0].user_properties.newsletter_state, 'subscribed');
-      });
-    });
-
-    describe('account.verified, marketingOptIn=false', () => {
-      beforeEach(() => {
-        return amplitude('account.verified', mocks.mockRequest({}), {
-          marketingOptIn: false,
-        });
-      });
-
-      it('did not call log.error', () => {
-        assert.equal(log.error.callCount, 0);
-      });
-
-      it('called log.amplitudeEvent correctly', () => {
-        assert.equal(log.amplitudeEvent.callCount, 1);
-        const args = log.amplitudeEvent.args[0];
-        assert.equal(args[0].event_type, 'fxa_reg - email_confirmed');
-        assert.equal(args[0].user_properties.newsletter_state, 'unsubscribed');
-      });
-    });
-
     describe('account.verified, newsletters is empty', () => {
       beforeEach(() => {
         return amplitude('account.verified', mocks.mockRequest({}), {

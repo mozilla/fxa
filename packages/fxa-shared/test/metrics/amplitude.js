@@ -162,7 +162,6 @@ describe('metrics/amplitude:', () => {
             flowId: 'l',
             formFactor: 'm',
             lang: 'n',
-            marketingOptIn: 'o',
             os: 'p',
             osVersion: 'q',
             planId: 'plid',
@@ -364,21 +363,6 @@ describe('metrics/amplitude:', () => {
       });
     });
 
-    describe('transform an event with newsletter optIn properties:', () => {
-      let result;
-
-      before(() => {
-        result = transform({ type: 'newsletter.optIn.wibble' }, {});
-      });
-
-      it('returned the correct event data', () => {
-        assert.equal(result.event_type, 'fxa_pref - newsletterEvent');
-        assert.deepEqual(result.user_properties, {
-          newsletter_state: 'subscribed',
-        });
-      });
-    });
-
     describe('transform an event with newsletters optIn properties:', () => {
       let result;
 
@@ -394,7 +378,6 @@ describe('metrics/amplitude:', () => {
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - newsletters');
         assert.deepEqual(result.user_properties, {
-          newsletter_state: 'subscribed',
           newsletters: ['test_pilot'],
         });
       });

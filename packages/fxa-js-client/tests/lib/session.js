@@ -383,7 +383,6 @@ describe('session', function() {
       const allOptions = {
         service: 'sync',
         style: 'trailhead',
-        marketingOptIn: true,
         newsletters: ['test-pilot'],
       };
       const response = await respond(
@@ -399,11 +398,10 @@ describe('session', function() {
       const payload = JSON.parse(
         xhr.prototype.send.args[xhr.prototype.send.args.length - 1][0]
       );
-      assert.equal(Object.keys(payload).length, 5);
+      assert.equal(Object.keys(payload).length, 4);
       assert.equal(payload.code, code);
       assert.equal(payload.service, allOptions.service);
       assert.equal(payload.style, allOptions.style);
-      assert.equal(payload.marketingOptIn, allOptions.marketingOptIn);
       assert.deepEqual(payload.newsletters, allOptions.newsletters);
     });
 

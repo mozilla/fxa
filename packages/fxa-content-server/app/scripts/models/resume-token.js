@@ -18,7 +18,6 @@ const ALLOWED_KEYS = [
   'entrypointVariation',
   'flowBegin',
   'flowId',
-  'needsOptedInToMarketingEmail',
   'newsletters',
   'planId',
   'productId',

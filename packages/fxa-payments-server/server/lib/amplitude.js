@@ -57,7 +57,6 @@ module.exports = (event, request, data) => {
       'flowId',
       'lang',
       'location',
-      'marketingOptIn',
       'newsletters',
       'planId',
       'productId',

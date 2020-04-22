@@ -13,7 +13,7 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
      */
     verifyAccount: async (request, account, options) => {
       const { uid } = account;
-      const { marketingOptIn, newsletters, service, reminder, style } = options;
+      const { newsletters, service, reminder, style } = options;
       await db.verifyEmail(account, account.primaryEmail.emailCode);
 
       const geoData = request.app.geo;
@@ -33,16 +33,12 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
           countryCode,
           email: account.primaryEmail.email,
           locale: account.locale,
-          marketingOptIn: marketingOptIn ? true : undefined,
           newsletters,
           service,
           uid,
           userAgent: request.headers['user-agent'],
         }),
         request.emitMetricsEvent('account.verified', {
-          // The content server omits marketingOptIn in the false case.
-          // Force it so that we emit the appropriate newsletter state.
-          marketingOptIn: marketingOptIn || false,
           deviceId,
           flowId,
           flowBeginTime,

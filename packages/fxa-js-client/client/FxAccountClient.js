@@ -323,8 +323,6 @@ FxAccountClient.prototype.signIn = function(email, password, options) {
  *   Reminder that was used to verify the account
  *   @param {String} [options.type]
  *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
- *   @param {Boolean} [options.marketingOptIn]
- *   If `true`, notifies marketing of opt-in intent.
  *   @param {Array} [options.newsletters]
  *   Array of newsletters to opt into.
  *   @param {String} [options.style]
@@ -354,10 +352,6 @@ FxAccountClient.prototype.verifyCode = function(uid, code, options) {
 
       if (options.type) {
         data.type = options.type;
-      }
-
-      if (options.marketingOptIn) {
-        data.marketingOptIn = true;
       }
 
       if (options.newsletters) {
@@ -1013,8 +1007,6 @@ FxAccountClient.prototype.sessionStatus = function(sessionToken) {
  * @param {Object} [options={}] Options
  *   @param {String} [options.service]
  *   Service being used
- *   @param {Boolean} [options.marketingOptIn]
- *   If `true`, notifies marketing of opt-in intent.
  *   @param {Array} [options.newsletters]
  *   Array of newsletters to opt into.
  *   @param {String} [options.style]
@@ -1038,10 +1030,6 @@ FxAccountClient.prototype.sessionVerifyCode = function(
 
   if (options.service) {
     data.service = options.service;
-  }
-
-  if (options.marketingOptIn) {
-    data.marketingOptIn = options.marketingOptIn;
   }
 
   if (options.newsletters) {

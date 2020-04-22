@@ -86,7 +86,6 @@ describe('verifyAccount', () => {
       args = log.notifyAttachedServices.args[0];
       assert.equal(args[0], 'verified');
       assert.equal(args[2].uid, TEST_UID);
-      assert.equal(args[2].marketingOptIn, undefined);
       assert.equal(args[2].service, 'sync');
       assert.equal(args[2].country, 'United States', 'set country');
       assert.equal(args[2].countryCode, 'US', 'set country code');

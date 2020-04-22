@@ -41,11 +41,6 @@ const CONNECT_DEVICE_FLOWS = {
   sms: 'sms',
 };
 
-const NEWSLETTER_STATES = {
-  optIn: 'subscribed',
-  optOut: 'unsubscribed',
-};
-
 const EVENT_PROPERTIES = {
   [GROUPS.activity]: NOP,
   [GROUPS.button]: NOP,
@@ -323,7 +318,6 @@ module.exports = {
         mapAppendProperties(data),
         mapSyncDevices(data),
         mapSyncEngines(data),
-        mapNewsletterState(eventCategory, data),
         mapNewsletters(data)
       );
     }
@@ -430,22 +424,6 @@ function mapSyncEngines(data) {
 
   if (Array.isArray(sync_engines) && sync_engines.length > 0) {
     return { sync_engines };
-  }
-}
-
-function mapNewsletterState(eventCategory, data) {
-  let newsletter_state = NEWSLETTER_STATES[eventCategory];
-
-  if (!newsletter_state) {
-    const { marketingOptIn } = data;
-
-    if (marketingOptIn === true || marketingOptIn === false) {
-      newsletter_state = marketingOptIn ? 'subscribed' : 'unsubscribed';
-    }
-  }
-
-  if (newsletter_state) {
-    return { newsletter_state };
   }
 }
 

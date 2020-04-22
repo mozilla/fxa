@@ -795,7 +795,6 @@ describe('/recovery_email/verify_code', () => {
         let args = mockLog.notifyAttachedServices.args[0];
         assert.equal(args[0], 'verified');
         assert.equal(args[2].uid, uid);
-        assert.equal(args[2].marketingOptIn, undefined);
         assert.equal(args[2].service, 'sync');
         assert.equal(args[2].country, 'United States', 'set country');
         assert.equal(args[2].countryCode, 'US', 'set country code');
@@ -828,7 +827,6 @@ describe('/recovery_email/verify_code', () => {
           {
             country: 'United States',
             event: 'account.verified',
-            marketingOptIn: false,
             newsletters: undefined,
             region: 'California',
             service: 'sync',
@@ -853,11 +851,6 @@ describe('/recovery_email/verify_code', () => {
           args[0].event_type,
           'fxa_reg - email_confirmed',
           'first call to amplitudeEvent was email_confirmed event'
-        );
-        assert.equal(
-          args[0].user_properties.newsletter_state,
-          'unsubscribed',
-          'newsletter_state was correct'
         );
 
         assert.equal(
@@ -911,41 +904,6 @@ describe('/recovery_email/verify_code', () => {
       });
     });
 
-    it('with marketingOptIn', () => {
-      mockRequest.payload.marketingOptIn = true;
-      return runTest(route, mockRequest, response => {
-        assert.equal(
-          mockLog.notifyAttachedServices.callCount,
-          1,
-          'logs verified'
-        );
-        let args = mockLog.notifyAttachedServices.args[0];
-        assert.equal(args[0], 'verified');
-        assert.equal(args[2].uid, uid);
-        assert.equal(args[2].marketingOptIn, true);
-        assert.equal(args[2].service, 'sync');
-
-        assert.equal(
-          mockLog.amplitudeEvent.callCount,
-          2,
-          'amplitudeEvent was called twice'
-        );
-        args = mockLog.amplitudeEvent.args[1];
-        assert.equal(
-          args[0].event_type,
-          'fxa_reg - email_confirmed',
-          'second call to amplitudeEvent was email_confirmed event'
-        );
-        assert.equal(
-          args[0].user_properties.newsletter_state,
-          'subscribed',
-          'newsletter_state was correct'
-        );
-
-        assert.equal(JSON.stringify(response), '{}');
-      });
-    });
-
     it('with newsletters', () => {
       mockRequest.payload.newsletters = ['test-pilot', 'firefox-pilot'];
       return runTest(route, mockRequest, response => {
@@ -962,10 +920,10 @@ describe('/recovery_email/verify_code', () => {
 
         assert.equal(
           mockLog.amplitudeEvent.callCount,
-          3,
+          2,
           'amplitudeEvent was called 3 times'
         );
-        args = mockLog.amplitudeEvent.args[2];
+        args = mockLog.amplitudeEvent.args[1];
         assert.equal(
           args[0].event_type,
           'fxa_reg - email_confirmed',

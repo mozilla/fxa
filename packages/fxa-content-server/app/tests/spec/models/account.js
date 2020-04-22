@@ -1188,7 +1188,6 @@ describe('models/account', function() {
 
   describe('signUp', function() {
     beforeEach(function() {
-      account.set('needsOptedInToMarketingEmail', true);
       sinon.stub(fxaClient, 'signUp').callsFake(function() {
         return Promise.resolve({
           sessionToken: SESSION_TOKEN,
@@ -1242,36 +1241,14 @@ describe('models/account', function() {
       notifier.trigger.resetHistory();
     });
 
-    describe('without email opt-in', function() {
-      beforeEach(function() {
-        sinon.stub(fxaClient, 'verifyCode').callsFake(function() {
-          return Promise.resolve();
-        });
-
-        account.set('uid', UID);
-        return account.verifySignUp('CODE');
-      });
-
-      it('delegates to the fxaClient', function() {
-        const options = sinon.match({
-          marketingOptIn: sinon.match.typeOf('undefined'),
-        });
-        assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE', options));
-      });
-
-      it('did not call notifier.trigger', () => {
-        assert.equal(notifier.trigger.callCount, 0);
-      });
-    });
-
-    describe('with email opt-in', function() {
+    describe('with newsletters', function() {
       beforeEach(function() {
         sinon.stub(fxaClient, 'verifyCode').callsFake(function() {
           return Promise.resolve();
         });
 
         account.set({
-          needsOptedInToMarketingEmail: true,
+          newsletters: ['knowledge-is-power'],
           uid: UID,
         });
 
@@ -1279,7 +1256,7 @@ describe('models/account', function() {
       });
 
       it('delegates to the fxaClient', function() {
-        const options = sinon.match.has('marketingOptIn', true);
+        const options = sinon.match.has('newsletters', ['knowledge-is-power']);
         assert.isTrue(fxaClient.verifyCode.calledWith(UID, 'CODE', options));
       });
 
