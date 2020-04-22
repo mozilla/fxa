@@ -1,0 +1,20 @@
+CREATE TABLE `accounts` (
+  `uid` binary(16) NOT NULL,
+  `normalizedEmail` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `emailCode` binary(16) NOT NULL,
+  `emailVerified` tinyint(1) NOT NULL DEFAULT '0',
+  `kA` binary(32) NOT NULL,
+  `wrapWrapKb` binary(32) NOT NULL,
+  `authSalt` binary(32) NOT NULL,
+  `verifyHash` binary(32) NOT NULL,
+  `verifierVersion` tinyint(3) unsigned NOT NULL,
+  `verifierSetAt` bigint(20) unsigned NOT NULL,
+  `createdAt` bigint(20) unsigned NOT NULL,
+  `locale` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `lockedAt` bigint(20) unsigned DEFAULT NULL,
+  `profileChangedAt` bigint(20) unsigned DEFAULT NULL,
+  `keysChangedAt` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`uid`),
+  UNIQUE KEY `normalizedEmail` (`normalizedEmail`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci

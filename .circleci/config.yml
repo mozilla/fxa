@@ -96,6 +96,7 @@ jobs:
             'fxa-email-event-proxy' \
             'fxa-event-broker' \
             'fxa-geodb' \
+            'fxa-graphql-api' \
             'fxa-js-client' \
             'fxa-metrics-processor' \
             'fxa-payments-server' \
