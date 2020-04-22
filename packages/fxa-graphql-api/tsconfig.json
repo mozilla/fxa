@@ -1,0 +1,22 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "commonjs",
+    "lib": ["ESNext.AsyncIterable"],
+    "outDir": "./dist",
+    "sourceMap": true,
+    "noEmitOnError": true,
+    "inlineSources": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitHelpers": true,
+    "importHelpers": true,
+    "typeRoots": ["./types", "node_modules/@types"]
+  },
+  "include": ["./src"],
+  "exclude": ["node_modules"]
+}

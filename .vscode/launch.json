@@ -5,6 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "pm2-node",
+      "request": "attach",
+      "name": "Attach via PM2",
+      "service": "${command:PickProcess}"
+    },
+    {
       "name": "Attach to auth",
       "type": "node",
       "request": "attach",
