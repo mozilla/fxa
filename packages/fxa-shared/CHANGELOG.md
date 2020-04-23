@@ -1,5 +1,16 @@
 # Change history
 
+## 1.168.0
+
+### New features
+
+- docker: created fxa-builder docker image ([d4da8a360](https://github.com/mozilla/fxa/commit/d4da8a360))
+- metrics: transform a "raw" Amplitude event into a HTTP payload ([ee5df17c6](https://github.com/mozilla/fxa/commit/ee5df17c6))
+
+### Other changes
+
+- cleanup: Remove the `marketingOptIn` param ([8a1446d43](https://github.com/mozilla/fxa/commit/8a1446d43))
+
 ## 1.167.1
 
 No changes.
@@ -8,7 +19,7 @@ No changes.
 
 ### Refactorings
 
-* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+- config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
 
 ## 1.166.2
 

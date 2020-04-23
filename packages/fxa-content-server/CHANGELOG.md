@@ -1,43 +1,67 @@
+## 1.168.0
+
+### New features
+
+- docker: created fxa-builder docker image ([d4da8a360](https://github.com/mozilla/fxa/commit/d4da8a360))
+- settings: hello new settings ([eba53c374](https://github.com/mozilla/fxa/commit/eba53c374))
+
+### Bug fixes
+
+- deps: update content-server and payments package-lock, fixes #5078 ([64b194d5a](https://github.com/mozilla/fxa/commit/64b194d5a))
+- deeplink: Revert deeplink used on Android while figuring out what might be going on ([d6e53fd66](https://github.com/mozilla/fxa/commit/d6e53fd66))
+- content-server: Header / modal collision index ([c4f9014c6](https://github.com/mozilla/fxa/commit/c4f9014c6))
+- cache: Attempt to fix denormalization signin error ([718e617f2](https://github.com/mozilla/fxa/commit/718e617f2))
+- cwts: Display CWTS on signup page for Fenix and iOS ([3963d0820](https://github.com/mozilla/fxa/commit/3963d0820))
+
+### Refactorings
+
+- content-server: Remove Reference to Chromeless param ([b180cf75f](https://github.com/mozilla/fxa/commit/b180cf75f))
+
+### Other changes
+
+- content-server: add csp rule for survey gizmo ([d4f1c2f4f](https://github.com/mozilla/fxa/commit/d4f1c2f4f))
+- cleanup: Remove the `marketingOptIn` param ([8a1446d43](https://github.com/mozilla/fxa/commit/8a1446d43))
+
 ## 1.167.1
 
 ### Bug fixes
 
-* delete: Specify `await` on `this.sessionPost` so error get caught in catch block ([3546f43dd](https://github.com/mozilla/fxa/commit/3546f43dd))
+- delete: Specify `await` on `this.sessionPost` so error get caught in catch block ([3546f43dd](https://github.com/mozilla/fxa/commit/3546f43dd))
 
 ## 1.167.0
 
 ### New features
 
-* settings: add error for when you try to add a secondary email already on your account ([36e21515d](https://github.com/mozilla/fxa/commit/36e21515d))
+- settings: add error for when you try to add a secondary email already on your account ([36e21515d](https://github.com/mozilla/fxa/commit/36e21515d))
 
 ### Bug fixes
 
-* content-server: fixed build-production after #4763 ([9d3926bc1](https://github.com/mozilla/fxa/commit/9d3926bc1))
-* content-server: fixed deleteRecoveryKey, missing payload ([536a69eb1](https://github.com/mozilla/fxa/commit/536a69eb1))
-* input: change password field preview icon to actual svg so it can be filled white when active ([7ccbc94a3](https://github.com/mozilla/fxa/commit/7ccbc94a3))
-* password input: use 1px less border radius on password revealer button ([4f97cb000](https://github.com/mozilla/fxa/commit/4f97cb000))
-* devices + apps: update styles to allow overflowing long device names ([7eb6f0c9c](https://github.com/mozilla/fxa/commit/7eb6f0c9c))
-* settings: don't allow display name or email to break page layout ([5a61bdb48](https://github.com/mozilla/fxa/commit/5a61bdb48))
-* avatar: add some space below controls ([dad94de86](https://github.com/mozilla/fxa/commit/dad94de86))
-* funtional: add test scenarios to delete account ([2cdc91348](https://github.com/mozilla/fxa/commit/2cdc91348))
-* test: install ../fxa-js-client ([2b1f0c13d](https://github.com/mozilla/fxa/commit/2b1f0c13d))
-* favicon: Restore fxa-content-server favicon ([27d3bcbe5](https://github.com/mozilla/fxa/commit/27d3bcbe5))
-* functional: add missing scenarios to the test ([27efef5fe](https://github.com/mozilla/fxa/commit/27efef5fe))
+- content-server: fixed build-production after #4763 ([9d3926bc1](https://github.com/mozilla/fxa/commit/9d3926bc1))
+- content-server: fixed deleteRecoveryKey, missing payload ([536a69eb1](https://github.com/mozilla/fxa/commit/536a69eb1))
+- input: change password field preview icon to actual svg so it can be filled white when active ([7ccbc94a3](https://github.com/mozilla/fxa/commit/7ccbc94a3))
+- password input: use 1px less border radius on password revealer button ([4f97cb000](https://github.com/mozilla/fxa/commit/4f97cb000))
+- devices + apps: update styles to allow overflowing long device names ([7eb6f0c9c](https://github.com/mozilla/fxa/commit/7eb6f0c9c))
+- settings: don't allow display name or email to break page layout ([5a61bdb48](https://github.com/mozilla/fxa/commit/5a61bdb48))
+- avatar: add some space below controls ([dad94de86](https://github.com/mozilla/fxa/commit/dad94de86))
+- funtional: add test scenarios to delete account ([2cdc91348](https://github.com/mozilla/fxa/commit/2cdc91348))
+- test: install ../fxa-js-client ([2b1f0c13d](https://github.com/mozilla/fxa/commit/2b1f0c13d))
+- favicon: Restore fxa-content-server favicon ([27d3bcbe5](https://github.com/mozilla/fxa/commit/27d3bcbe5))
+- functional: add missing scenarios to the test ([27efef5fe](https://github.com/mozilla/fxa/commit/27efef5fe))
 
 ### Refactorings
 
-* js-client: Implemented webcrypto based auth-client ([cdf424a7d](https://github.com/mozilla/fxa/commit/cdf424a7d))
-* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
-* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
-* npm-scripts: refactored npm scripts for better ergonomics ([a4b399634](https://github.com/mozilla/fxa/commit/a4b399634))
+- js-client: Implemented webcrypto based auth-client ([cdf424a7d](https://github.com/mozilla/fxa/commit/cdf424a7d))
+- config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+- pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+- npm-scripts: refactored npm scripts for better ergonomics ([a4b399634](https://github.com/mozilla/fxa/commit/a4b399634))
 
 ### Other changes
 
-* functional: fix breakage in login_hint test ([a1defb7f9](https://github.com/mozilla/fxa/commit/a1defb7f9))
-* functional: add testcase for old and blank recovery key ([c9a200920](https://github.com/mozilla/fxa/commit/c9a200920))
-* 53bf24ad1 Add id_token_hint support to prompt=none ([53bf24ad1](https://github.com/mozilla/fxa/commit/53bf24ad1))
-* functional: add testcase for old and blank recovery key ([848dad78c](https://github.com/mozilla/fxa/commit/848dad78c))
-* CI: stop using screencap.co.uk ([6065b4480](https://github.com/mozilla/fxa/commit/6065b4480))
+- functional: fix breakage in login_hint test ([a1defb7f9](https://github.com/mozilla/fxa/commit/a1defb7f9))
+- functional: add testcase for old and blank recovery key ([c9a200920](https://github.com/mozilla/fxa/commit/c9a200920))
+- 53bf24ad1 Add id_token_hint support to prompt=none ([53bf24ad1](https://github.com/mozilla/fxa/commit/53bf24ad1))
+- functional: add testcase for old and blank recovery key ([848dad78c](https://github.com/mozilla/fxa/commit/848dad78c))
+- CI: stop using screencap.co.uk ([6065b4480](https://github.com/mozilla/fxa/commit/6065b4480))
 
 ## 1.166.2
 
