@@ -36,7 +36,5 @@
   "postNewRecoveryCodes": 4,
   "passwordResetAccountRecovery": 5,
   "postAddAccountRecovery": 5,
-  "postRemoveAccountRecovery": 5,
-  "postVerifyAddRecoveryKey": 1,
-  "postVerifyAddSecondary": 1
+  "postRemoveAccountRecovery": 5
 }

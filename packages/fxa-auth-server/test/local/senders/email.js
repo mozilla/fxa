@@ -1072,58 +1072,6 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
-  ['postVerifyAddSecondaryEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Set up recovery email' }],
-    ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyAddSecondary') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postVerifyAddSecondary' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyAddSecondary }],
-      ['X-Link', { test: 'equal', expected:  configUrl('postVerifyAddSecondaryEmailUrl', 'account-verified', 'add-secondary-email', 'email', 'uid')}],
-    ])],
-    ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'account-verified', 'privacy') },
-      { test: 'include', expected: configHref('supportUrl', 'account-verified', 'support') },
-      { test: 'include', expected: 'Protect yourself from being locked out' },
-      { test: 'include', expected: 'Adding a secondary email helps get back into your account if you’re locked out and can’t access your email.' },
-      { test: 'include', expected: configHref('postVerifyAddSecondaryEmailUrl', 'account-verified', 'add-secondary-email', 'email', 'uid') },
-      { test: 'include', expected: 'Add a secondary email' },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-    ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
-      { test: 'include', expected: 'Protect yourself from being locked out' },
-      { test: 'include', expected: 'Adding a secondary email helps get back into your account if you’re locked out and can’t access your email.' },
-      { test: 'include', expected: configUrl('postVerifyAddSecondaryEmailUrl', 'account-verified', 'add-secondary-email', 'email', 'uid') },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-  ])],
-  ['postVerifyAddRecoveryKeyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Get a recovery key' }],
-    ['headers', new Map([
-      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerifyAddRecoveryKey') }],
-      ['X-Template-Name', { test: 'equal', expected: 'postVerifyAddRecoveryKey' }],
-      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerifyAddRecoveryKey }],
-      ['X-Link', { test: 'equal', expected:  configUrl('postVerifyAddRecoveryKeyUrl', 'account-verified', 'add-recovery-key', 'email', 'uid', 'keys=true')}],
-    ])],
-    ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'account-verified', 'privacy') },
-      { test: 'include', expected: configHref('supportUrl', 'account-verified', 'support') },
-      { test: 'include', expected: 'Protect your data with a recovery key' },
-      { test: 'include', expected: 'Restore your synced data and pick up right where you left off with a unique recovery key.' },
-      { test: 'include', expected: 'Otherwise, Firefox protects your data by erasing it when your password is reset.' },
-      { test: 'include', expected: configHref('postVerifyAddRecoveryKeyUrl', 'account-verified', 'add-recovery-key', 'email', 'uid', 'keys=true') },
-      { test: 'include', expected: 'Get a recovery key' },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-    ['text', [
-      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
-      { test: 'include', expected: 'Protect your data with a recovery key' },
-      { test: 'include', expected: 'Restore your synced data and pick up right where you left off with a unique recovery key.' },
-      { test: 'include', expected: 'Otherwise, Firefox protects your data by erasing it when your password is reset.' },
-      { test: 'include', expected: configUrl('postVerifyAddRecoveryKeyUrl', 'account-verified', 'add-recovery-key', 'email', 'uid', 'keys=true') },
-      { test: 'notInclude', expected: 'utm_source=email' },
-    ]],
-  ])],
 ]);
 
 describe('lib/senders/email:', () => {
