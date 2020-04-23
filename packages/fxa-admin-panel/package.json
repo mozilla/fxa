@@ -8,7 +8,7 @@
     "restart": "pm2 restart pm2.config.js",
     "lint:eslint": "eslint .",
     "build": "npm-run-all build:client build:server",
-    "build:client": "INLINE_RUNTIME_CHUNK=false rescripts build",
+    "build:client": "PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts build",
     "build:server": "tsc -p server/tsconfig.json",
     "test": "npm-run-all test:*",
     "test:frontend": "rescripts test --coverage --verbose",
