@@ -111,7 +111,7 @@ function sendMail(mailer, messageToSend) {
     invoiceDate: new Date(),
     nextInvoiceDate: new Date(Date.now() + 1000 * 3600 * 24 * 30),
     serviceLastActiveDate: new Date(Date.now() + 1000 * 3600 * 24 * 60),
-    productIconNew: 'http://placekitten.com/512/512?image=1',
+    productIconNew: 'http://placekitten.com/512/512?image=2',
     productIconOld: 'http://placekitten.com/512/512?image=1',
     productNameOld: 'Product A',
     productNameNew: 'Product B',

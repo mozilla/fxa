@@ -1,52 +1,17 @@
-{{> subscriptionIcon}}
+{{#*inline "title"}}
+  {{t "Sorry, we're having trouble with your payment" }}
+{{/inline}}
 
-<table class="featured-story featured-story--top" cellspacing="0" cellpadding="0">
- <tr>
-  <td style="padding-bottom: 20px;">
-   <table cellspacing="0" cellpadding="0">
-    <tr>
-     <td class="featured-story__inner" style="background: #fff;">
-      <table cellspacing="0" cellpadding="0">
-       <tr>
-        <td class="featured-story__content-inner" style="padding: 32px 30px 45px;">
-         <table cellspacing="0" cellpadding="0">
-          <tr>
-           <td class="featured-story__heading featured-story--top__heading" style="background: #fff;" max-width="640" width="100%" align="left">
-            <table cellspacing="0" cellpadding="0">
-             <tr>
-              <td style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 22px; color: #464646;text-align:center !important;" width="640" align="center">
-                <b>{{t "Sorry, we're having trouble with your payment" }}</b>
-              </td>
-             </tr>
-            </table>
-           </td>
-          </tr>
-          <tr>
-           <td class="featured-story__copy" style="background: #fff;" width="640" align="center">
-            <table cellspacing="0" cellpadding="0">
-             <tr>
-              <td style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 16px; line-height: 22px; color: #555555; padding-top: 16px;text-align:left !important;" align="left">
-                {{t "We had a problem with your latest payment for %(productName)s." }}
-                <br><br>
-                {{t "It may be that your credit card has expired, or your current payment method is out of date." }}
-                <br><br>
-                {{{t "Help us fix it by <a href=\"%(updateBillingUrl)s\">updating your payment information</a> within three days." }}}
-                <br><br>
-                {{t "Unfortunately, if we don’t hear from you within three days, you’ll lose access to %(productName)s." }}
-                <br><br>
-                {{{t "Questions about your subscription? Our <a href=\"%(subscriptionSupportUrl)s\">support team</a> is here to help you." }}}
-              </td>
-             </tr>
-            </table>
-           </td>
-          </tr>
-         </table>
-        </td>
-       </tr>
-      </table>
-     </td>
-    </tr>
-   </table>
-  </td>
- </tr>
-</table>
+{{#*inline "content"}}
+  {{t "We had a problem with your latest payment for %(productName)s." }}
+  <br><br>
+  {{t "It may be that your credit card has expired, or your current payment method is out of date." }}
+  <br><br>
+  {{{t "Help us fix it by <a href=\"%(updateBillingUrl)s\">updating your payment information</a> within three days." }}}
+  <br><br>
+  {{t "Unfortunately, if we don’t hear from you within three days, you’ll lose access to %(productName)s." }}
+  <br><br>
+  {{{t "Questions about your subscription? Our <a href=\"%(subscriptionSupportUrl)s\">support team</a> is here to help you." }}}
+{{/inline}}
+
+{{> subscriptionEmail}}

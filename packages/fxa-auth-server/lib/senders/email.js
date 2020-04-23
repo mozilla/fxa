@@ -1711,12 +1711,7 @@ module.exports = function(log, config, oauthdb) {
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
-    log.trace('mailer.subscriptionUpgrade', {
-      enabled,
-      email,
-      productId,
-      uid,
-    });
+    log.trace('mailer.subscriptionUpgrade', { enabled, email, productId, uid });
     if (!enabled) {
       return;
     }
@@ -1727,18 +1722,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      uid,
-      email,
-      productIconNew,
-      productIconOld,
-      productNameOld,
-      productNameNew,
-      paymentAmountOld,
-      paymentAmountNew,
-      paymentProrated,
-      productPaymentCycle,
-    };
+    const translatorParams = { productNameNew };
     const subject = translator.gettext(
       'You have upgraded to %(productNameNew)s'
     );
@@ -1754,6 +1738,13 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        productIconNew,
+        productIconOld,
+        productNameOld,
+        paymentAmountOld,
+        paymentAmountNew,
+        paymentProrated,
+        productPaymentCycle,
         icon: productIconNew,
         product: productNameNew,
         subject: translator.format(subject, translatorParams),
@@ -1794,18 +1785,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      uid,
-      email,
-      productIconNew,
-      productIconOld,
-      productNameOld,
-      productNameNew,
-      paymentAmountOld,
-      paymentAmountNew,
-      paymentProrated,
-      productPaymentCycle,
-    };
+    const translatorParams = { productNameNew };
     const subject = translator.gettext(
       'You have switched to %(productNameNew)s'
     );
@@ -1821,6 +1801,13 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        productIconNew,
+        productIconOld,
+        productNameOld,
+        paymentAmountOld,
+        paymentAmountNew,
+        paymentProrated,
+        productPaymentCycle,
         icon: productIconNew,
         product: productNameNew,
         subject: translator.format(subject, translatorParams),
@@ -1855,11 +1842,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext(
       'Credit card for %(productName)s expiring soon'
     );
@@ -1909,11 +1892,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext('%(productName)s payment failed');
 
     return this.send({
@@ -1946,22 +1925,16 @@ module.exports = function(log, config, oauthdb) {
       invoiceTotal,
     } = message;
 
-    if (!config.subscriptions.transactionalEmails.enabled) {
-      log.trace('mailer.subscriptionAccountDeletion', {
-        enabled: false,
-        email,
-        productId,
-        uid,
-      });
-      return;
-    }
-
+    const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionAccountDeletion', {
-      enabled: true,
+      enabled,
       email,
       productId,
       uid,
     });
+    if (!enabled) {
+      return;
+    }
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionAccountDeletion';
@@ -1969,16 +1942,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-      invoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        invoiceDate
-      ),
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext(
       'Your %(productName)s subscription has been cancelled'
     );
@@ -1994,6 +1958,11 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
@@ -2015,22 +1984,16 @@ module.exports = function(log, config, oauthdb) {
       serviceLastActiveDate,
     } = message;
 
-    if (!config.subscriptions.transactionalEmails.enabled) {
-      log.trace('mailer.subscriptionCancellation', {
-        enabled: false,
-        email,
-        productId,
-        uid,
-      });
-      return;
-    }
-
+    const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionCancellation', {
-      enabled: true,
+      enabled,
       email,
       productId,
       uid,
     });
+    if (!enabled) {
+      return;
+    }
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionCancellation';
@@ -2038,21 +2001,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-      invoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        invoiceDate
-      ),
-      serviceLastActiveDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        serviceLastActiveDate
-      ),
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext(
       'Your %(productName)s subscription has been cancelled'
     );
@@ -2068,6 +2017,16 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        serviceLastActiveDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          serviceLastActiveDate
+        ),
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
@@ -2107,16 +2066,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-      nextInvoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        nextInvoiceDate
-      ),
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext(
       '%(productName)s subscription reactivated'
     );
@@ -2132,6 +2082,11 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
@@ -2162,22 +2117,16 @@ module.exports = function(log, config, oauthdb) {
       proratedAmount,
     } = message;
 
-    if (!config.subscriptions.transactionalEmails.enabled) {
-      log.trace('mailer.subscriptionSubsequentInvoice', {
-        enabled: false,
-        email,
-        productId,
-        uid,
-      });
-      return;
-    }
-
+    const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionSubsequentInvoice', {
-      enabled: true,
+      enabled,
       email,
       productId,
       uid,
     });
+    if (!enabled) {
+      return;
+    }
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionSubsequentInvoice';
@@ -2185,21 +2134,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-      invoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        invoiceDate
-      ),
-      nextInvoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        nextInvoiceDate
-      ),
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext('%(productName)s payment received');
 
     return this.send({
@@ -2213,6 +2148,16 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
@@ -2244,22 +2189,16 @@ module.exports = function(log, config, oauthdb) {
       nextInvoiceDate,
     } = message;
 
-    if (!config.subscriptions.transactionalEmails.enabled) {
-      log.trace('mailer.subscriptionFirstInvoice', {
-        enabled: false,
-        email,
-        productId,
-        uid,
-      });
-      return;
-    }
-
+    const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionFirstInvoice', {
-      enabled: true,
+      enabled,
       email,
       productId,
       uid,
     });
+    if (!enabled) {
+      return;
+    }
 
     const query = { plan_id: planId, product_id: productId, uid };
     const template = 'subscriptionFirstInvoice';
@@ -2267,21 +2206,7 @@ module.exports = function(log, config, oauthdb) {
 
     const links = this._generateLinks(null, message, query, template);
     const headers = {};
-    const translatorParams = {
-      productName,
-      uid,
-      email,
-      invoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        invoiceDate
-      ),
-      nextInvoiceDateOnly: this._constructLocalDateString(
-        message.timeZone,
-        message.acceptLanguage,
-        nextInvoiceDate
-      ),
-    };
+    const translatorParams = { productName };
     const subject = translator.gettext('%(productName)s payment confirmed');
 
     return this.send({
@@ -2295,6 +2220,16 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        invoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          invoiceDate
+        ),
+        nextInvoiceDateOnly: this._constructLocalDateString(
+          message.timeZone,
+          message.acceptLanguage,
+          nextInvoiceDate
+        ),
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
