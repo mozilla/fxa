@@ -185,9 +185,11 @@ jobs:
       - image: circleci/node:12
     environment:
       SKIP_PACKAGES: true
+      DOCKER_BUILDKIT: 1
     steps:
       - base-install
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 18.09.3
       - run:
           name: Build docker images
           command: ./.circleci/build-all.sh
