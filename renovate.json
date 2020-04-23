@@ -1,10 +1,18 @@
 {
-  "automerge": false,
+  "automerge": true,
+  "major": {
+    "automerge": false
+  },
   "branchPrefix": "renovate/",
   "extends": [
-    "config:base"
+    "config:base",
+    ":maintainLockFilesWeekly"
   ],
-  "rangeStrategy": "replace",
+  "masterIssue": true,
   "prConcurrentLimit": 2,
-  "schedule": "every weekend"
+  "schedule": "after 1pm every tuesday",
+  "semanticCommits": true,
+  "stabilityDays": 7,
+  "timezone": "America/Los_Angeles",
+  "unicodeEmoji": true
 }
