@@ -117,6 +117,42 @@ registerSuite('routes/get-app', {
             },
           },
         },
+
+        'route.process with iOS device': {
+          before: function() {
+            request = {
+              params: {
+                signinCode: '12345678',
+              },
+              query: {
+                channel: 'beta',
+              },
+              headers: {
+                'user-agent':
+                  'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B367 Safari/531.21.10',
+              },
+            };
+            response = { redirect: sinon.spy() };
+            instance.process(request, response);
+          },
+          tests: {
+            'response.redirect was called correctly': function() {
+              assert.equal(response.redirect.callCount, 1);
+
+              const statusCode = response.redirect.args[0][0];
+              assert.equal(statusCode, 302);
+
+              const targetUrl = response.redirect.args[0][1];
+              assert.equal(
+                targetUrl,
+                _.template(config.get('sms.redirect.targetURITemplateiOS'))({
+                  channel: config.get('sms.redirect.channels.beta'),
+                  signinCode: '12345678',
+                })
+              );
+            },
+          },
+        },
       },
     },
   },
