@@ -1,5 +1,20 @@
 # Change history
 
+## 1.168.0
+
+### New features
+
+- docker: created fxa-builder docker image ([d4da8a360](https://github.com/mozilla/fxa/commit/d4da8a360))
+
+### Bug fixes
+
+- react: added PUBLIC_URL=/ to admin-panel and payments build script ([0432a10af](https://github.com/mozilla/fxa/commit/0432a10af))
+- deps: update content-server and payments package-lock, fixes #5078 ([64b194d5a](https://github.com/mozilla/fxa/commit/64b194d5a))
+
+### Other changes
+
+- cleanup: Remove the `marketingOptIn` param ([8a1446d43](https://github.com/mozilla/fxa/commit/8a1446d43))
+
 ## 1.167.1
 
 No changes.
@@ -8,23 +23,23 @@ No changes.
 
 ### New features
 
-* payments: localization updates ([a0d64226f](https://github.com/mozilla/fxa/commit/a0d64226f))
+- payments: localization updates ([a0d64226f](https://github.com/mozilla/fxa/commit/a0d64226f))
 
 ### Bug fixes
 
-* payments: bugfix for creating default mock stubs for stripe JS API ([7506b8642](https://github.com/mozilla/fxa/commit/7506b8642))
+- payments: bugfix for creating default mock stubs for stripe JS API ([7506b8642](https://github.com/mozilla/fxa/commit/7506b8642))
 
 ### Refactorings
 
-* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
-* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+- config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+- pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
 
 ### Other changes
 
-* payments-server: no more dialog errors in subscription create ([bb563caef](https://github.com/mozilla/fxa/commit/bb563caef))
-* styles: convert payments UI to grid and tidy ([869b97603](https://github.com/mozilla/fxa/commit/869b97603))
-* payments-server: clear checkbox when stay subscribed clicked ([adfc11224](https://github.com/mozilla/fxa/commit/adfc11224))
-* payments-server: fix padding on hide/show button ([e5fc9c842](https://github.com/mozilla/fxa/commit/e5fc9c842))
+- payments-server: no more dialog errors in subscription create ([bb563caef](https://github.com/mozilla/fxa/commit/bb563caef))
+- styles: convert payments UI to grid and tidy ([869b97603](https://github.com/mozilla/fxa/commit/869b97603))
+- payments-server: clear checkbox when stay subscribed clicked ([adfc11224](https://github.com/mozilla/fxa/commit/adfc11224))
+- payments-server: fix padding on hide/show button ([e5fc9c842](https://github.com/mozilla/fxa/commit/e5fc9c842))
 
 ## 1.166.2
 

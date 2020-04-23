@@ -1,3 +1,10 @@
+## 1.168.0
+
+### New features
+
+- docker: created fxa-builder docker image ([d4da8a360](https://github.com/mozilla/fxa/commit/d4da8a360))
+- db: modified procedures to set verifiedAt field when email gets verified ([710542f6d](https://github.com/mozilla/fxa/commit/710542f6d))
+
 ## 1.167.1
 
 No changes.
@@ -6,8 +13,8 @@ No changes.
 
 ### Refactorings
 
-* config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
-* pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
+- config: replace 127.0.0.1 with localhost ([1dd1b038d](https://github.com/mozilla/fxa/commit/1dd1b038d))
+- pm2: restructure our pm2 configs ([3a054dfc3](https://github.com/mozilla/fxa/commit/3a054dfc3))
 
 ## 1.166.2
 
