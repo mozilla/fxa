@@ -40,7 +40,7 @@ export function mapLocation(context: EventContext): LocationProperties | {} {
     if (('country' in location && location.country) || ('state' in location && location.state)) {
       return {
         country: location?.country,
-        region: location?.state
+        region: location?.state,
       };
     }
   }
@@ -66,21 +66,21 @@ export function tee(rawEvent: RawEvent, context: EventContext) {
     device_id: context.deviceId,
     session_id: context.flowBeginTime,
     language: context.lang,
-    user_id: context.uid
+    user_id: context.uid,
   };
 }
 
 export function toSnakeCase(camelS: string) {
   return camelS
     .replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
-    .replace(/([A-Z])/g, c => c.toLowerCase())
+    .replace(/([A-Z])/g, (c) => c.toLowerCase())
     .replace(/\./g, '_')
     .replace(/-/g, '_');
 }
 
 export function sha256Hmac(HMAC_KEY: string, ...properties: any[]) {
   const hmac = crypto.createHmac('sha256', HMAC_KEY);
-  properties.forEach(property => {
+  properties.forEach((property) => {
     if (property) {
       hmac.update(`${property}`);
     }

@@ -9,7 +9,7 @@ import sinon from 'sinon';
 import { GROUPS, OptionalString } from '../../../../lib/amplitude/transforms/types';
 import {
   createEventTypeMapper,
-  createAmplitudeEventType
+  createAmplitudeEventType,
 } from '../../../../lib/amplitude/transforms/event-type';
 
 const eventCb = sinon
@@ -21,49 +21,49 @@ const nullCb = sinon.stub().returns(null);
 const PLAIN_EVENTS = {
   'foo.bar.fizz.quux': {
     group: GROUPS.login,
-    event: 'quuxed'
+    event: 'quuxed',
   },
   'quuz.wibble.success': {
     group: GROUPS.login,
-    event: 'complete'
-  }
+    event: 'complete',
+  },
 };
 const FUZZY_EVENTS = new Map([
   [
     /^experiment\.(control|chaos|rando)\.que\.(\w+)$/,
     {
       group: GROUPS.registration,
-      event: eventCb
-    }
+      event: eventCb,
+    },
   ],
   [
     /^settings\.clients\.disconnect\.submit\.([a-z]+)$/,
     {
       group: GROUPS.settings,
-      event: eventCb
-    }
+      event: eventCb,
+    },
   ],
   [
     /^screen\.(settings)\.two-step-authentication\.(gogo)$/,
     {
       group: GROUPS.settings,
-      event: nullCb
-    }
+      event: nullCb,
+    },
   ],
   [
     /^flow\.(party)\.down$/,
     {
       group: groupCb,
-      event: 'shell_beach_party'
-    }
+      event: 'shell_beach_party',
+    },
   ],
   [
     /^flow\.([\w-]+)\.engage$/,
     {
       group: nullCb,
-      event: 'engage'
-    }
-  ]
+      event: 'engage',
+    },
+  ],
 ]);
 
 describe('event type mapper', () => {
@@ -103,7 +103,7 @@ describe('event type mapper', () => {
       group: 'group_party',
       type: 'shell_beach_party',
       category: 'party',
-      target: null
+      target: null,
     };
     const actual = mapper('flow.party.down');
     assert.deepEqual(actual, expected);
@@ -114,7 +114,7 @@ describe('event type mapper', () => {
       group: GROUPS.registration,
       type: 'testo_chaos_lol',
       category: 'chaos',
-      target: 'lol'
+      target: 'lol',
     };
     const actual = mapper('experiment.chaos.que.lol');
     assert.deepEqual(actual, expected);
@@ -126,7 +126,7 @@ describe('event type mapper', () => {
         group: GROUPS.settings,
         type: 'testo_quux',
         category: 'quux',
-        target: null
+        target: null,
       };
       const actual = mapper('settings.clients.disconnect.submit.quux');
       assert.deepEqual(actual, expected);
@@ -138,7 +138,7 @@ describe('event type mapper', () => {
         group: GROUPS.registration,
         type: 'testo_chaos_lol',
         category: 'chaos',
-        target: 'lol'
+        target: 'lol',
       };
       const actual = mapper('experiment.chaos.que.lol');
       assert.deepEqual(actual, expected);
@@ -151,7 +151,7 @@ describe('event type mapper', () => {
       group: 'group_party',
       type: 'shell_beach_party',
       category: 'party',
-      target: null
+      target: null,
     };
     const actual = mapper('flow.party.down');
     assert.deepEqual(actual, expected);

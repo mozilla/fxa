@@ -11,7 +11,7 @@ import { EventContext, Event } from '../../../../lib/amplitude/transforms/types'
 const mockEvent: Event = { type: 'a', group: 'bs' };
 const mockContext: EventContext = {
   eventSource: 'content',
-  version: '1.165.1'
+  version: '1.165.1',
 };
 const mockParsedUserAgent = {
   ua: {
@@ -19,7 +19,7 @@ const mockParsedUserAgent = {
     major: '66',
     minor: '12',
     patch: '0',
-    toVersionString: () => '66.12.0'
+    toVersionString: () => '66.12.0',
   },
   os: {
     family: null,
@@ -27,13 +27,13 @@ const mockParsedUserAgent = {
     minor: null,
     patch: null,
     patchMinor: null,
-    toVersionString: () => ''
+    toVersionString: () => '',
   },
   device: {
     family: null,
     brand: null,
-    model: null
-  }
+    model: null,
+  },
 };
 
 describe('Amplitude user properties mapper', () => {
@@ -50,7 +50,7 @@ describe('Amplitude user properties mapper', () => {
         utm_content: 'campaign',
         utm_medium: 'of',
         utm_source: 'all',
-        utm_term: 'time'
+        utm_term: 'time',
       },
       mockParsedUserAgent
     );
@@ -100,8 +100,8 @@ describe('Amplitude user properties mapper', () => {
             { lastAccessTime: lessThanADayAgo },
             { lastAccessTime: lessThanAWeekAgo },
             { lastAccessTime: lessThanAMonthAgo },
-            { lastAccessTime: moreThanAMonthAgo }
-          ]
+            { lastAccessTime: moreThanAMonthAgo },
+          ],
         },
         mockParsedUserAgent
       );
@@ -167,22 +167,6 @@ describe('Amplitude user properties mapper', () => {
       );
       assert.equal(userProperties.newsletter_state, 'unsubscribed');
     });
-
-    it('should map correctly with "marketingOptIn" in the context', () => {
-      let userProperties = mapAmplitudeUserProperties(
-        { ...mockEvent, category: 'inbetween' },
-        { ...mockContext, marketingOptIn: true },
-        mockParsedUserAgent
-      );
-      assert.equal(userProperties.newsletter_state, 'subscribed');
-
-      userProperties = mapAmplitudeUserProperties(
-        { ...mockEvent, category: 'inbetween' },
-        { ...mockContext, marketingOptIn: false },
-        mockParsedUserAgent
-      );
-      assert.equal(userProperties.newsletter_state, 'unsubscribed');
-    });
   });
 
   describe('newsletters mapper', () => {
@@ -200,13 +184,13 @@ describe('Amplitude user properties mapper', () => {
         mockEvent,
         {
           ...mockContext,
-          newsletters: ['firefox-accounts-journey', 'knowledge-is-power']
+          newsletters: ['firefox-accounts-journey', 'knowledge-is-power'],
         },
         mockParsedUserAgent
       );
       assert.deepEqual(userProperties.newsletters, [
         'firefox_accounts_journey',
-        'knowledge_is_power'
+        'knowledge_is_power',
       ]);
     });
   });

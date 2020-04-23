@@ -58,7 +58,7 @@ export function createEventTypeMapper(events: PlainEvents, fuzzyEvents: FuzzyEve
         type: evtType,
         group: evtGroup,
         category: evtCategory,
-        target: evtTarget
+        target: evtTarget,
       };
     }
 

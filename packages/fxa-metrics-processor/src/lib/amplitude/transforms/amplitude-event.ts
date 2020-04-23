@@ -2,16 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  PlainEvents,
-  FuzzyEvents,
-  RawEvent,
-  EventContext,
-  AmplitudeHttpEvent,
-  Services
-} from './types';
+import { PlainEvents, FuzzyEvents, RawEvent, EventContext, AmplitudeHttpEvent } from './types';
 import { createEventTypeMapper, createAmplitudeEventType } from './event-type';
-import { sha256Hmac, tee, mapLocation, createServiceNameAndClientIdMapper, prune } from './common';
+import { sha256Hmac, tee, mapLocation, prune, ServiceNameAndClientIdMapper } from './common';
 import { getVersion } from './version';
 import { mapOs, mapDeviceModel } from './user-agent';
 import { parse } from '../../../../../fxa-shared/metrics/user-agent';
@@ -27,33 +20,12 @@ export type AmplitudeEventTransformer = (
   context: EventContext
 ) => AmplitudeHttpEvent | null;
 
-/**
- * Create a transform function with the given maps.
- *
- * @param {Object} services An object of client-id:service-name mappings.
- *
- * @param {Object} events   An object of name:definition event mappings, where
- *                          each definition value is itself an object with `group`
- *                          and `event` string properties.
- *
- * @param {Map} fuzzyEvents A map of regex:definition event mappings. Each regex
- *                          key may include up to two capturing groups. The first
- *                          group is used as the event "category" and the second is
- *                          used as the event "target". Again each definition value
- *                          is an object containing `group` and `event` properties
- *                          but here `group` can be a string or a function. If it's
- *                          a function, it will be passed the matched category
- *                          as its argument and should return the group string.
- *
- * @returns {Function}      The mapper function.
- */
 export function createAmplitudeEventTransformer(
-  services: Services,
   events: PlainEvents,
-  fuzzyEvents: FuzzyEvents
+  fuzzyEvents: FuzzyEvents,
+  servicePropsMapper: ServiceNameAndClientIdMapper
 ): AmplitudeEventTransformer {
   const eventTypeMapper = createEventTypeMapper(events, fuzzyEvents);
-  const servicePropsMapper = createServiceNameAndClientIdMapper(services);
   const mapAmplitudeEventProperties = createAmplitudeEventPropertiesMapper(servicePropsMapper);
 
   /**
@@ -97,7 +69,7 @@ export function createAmplitudeEventTransformer(
       ...mapOs(userAgent),
       ...mapDeviceModel(userAgent),
       event_properties: prune(mapAmplitudeEventProperties(event, context)),
-      user_properties: prune(mapAmplitudeUserProperties(event, context, userAgent))
+      user_properties: prune(mapAmplitudeUserProperties(event, context, userAgent)),
     };
   };
 }
