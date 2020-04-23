@@ -31,7 +31,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@hapi/hapi": "^18.4.1",
-    "@hapi/scooter": "^5.1.1",
+    "@hapi/scooter": "^6.0.0",
     "blankie": "^4.1.1",
     "convict": "^5.2.0",
     "handlebars": "^4.5.2",
@@ -39,6 +39,7 @@
     "raven": "2.6.4",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.8",
+    "semver": "^6.3.0",
     "typesafe-joi": "^2.0.6"
   },
   "devDependencies": {
