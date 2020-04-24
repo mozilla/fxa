@@ -12,19 +12,17 @@ if ttl then
 end
 local count = redis.call('scard', userId)
 if count > limit then
-  local popped = redis.call('spop', userId, math.min((count - limit) + math.floor(limit / 10), limit))
-  if #popped < limit then
-    -- only a little over. check for expired tokens
-    local values = redis.call('mget', unpack(popped))
-    for i, value in ipairs(values) do
-      if value then
-        -- token has not expired
-        table.insert(toAdd, popped[i])
-      end
+  local toDel = redis.call('spop', userId, math.floor(limit / 2))
+  redis.call('unlink', unpack(toDel))
+elseif count > 0 and count % 5 == 0 then
+  local popped = redis.call('spop', userId, limit)
+  -- check for expired tokens
+  local values = redis.call('mget', unpack(popped))
+  for i, value in ipairs(values) do
+    if value then
+      -- token has not expired
+      table.insert(toAdd, popped[i])
     end
-  else
-    -- a lot over. just delete them
-    redis.call('unlink', unpack(popped))
   end
 end
 redis.call('set', tokenId, unpack(args))

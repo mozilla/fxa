@@ -250,7 +250,7 @@ describe('Redis', () => {
         assert.isAtMost(ttl, 1000);
       });
 
-      it('prunes the index by 10% when over the limit', async () => {
+      it('prunes the index by half of the limit when over', async () => {
         const tokenIds = new Array(101).fill(1).map((_, i) => `token-${i}`);
         await redis.redis.sadd(
           accessToken1.userId.toString('hex'),
@@ -260,9 +260,28 @@ describe('Redis', () => {
         const count = await redis.redis.scard(
           accessToken1.userId.toString('hex')
         );
-        assert.equal(count, 91);
+        assert.equal(count, 52);
         const token = await redis.getAccessToken(accessToken1.tokenId);
         assert.deepEqual(token, accessToken1);
+      });
+
+      it('prunes expired tokens when count % 5 == 0', async () => {
+        // 1 real + 4 "expired"
+        await redis.setAccessToken(accessToken1);
+        const expiredIds = new Array(4).fill(1).map((_, i) => `token-${i}`);
+        await redis.redis.sadd(
+          accessToken1.userId.toString('hex'),
+          ...expiredIds
+        );
+        await redis.setAccessToken(accessToken2);
+        const count = await redis.redis.scard(
+          accessToken1.userId.toString('hex')
+        );
+        assert.equal(count, 2);
+        const token = await redis.getAccessToken(accessToken1.tokenId);
+        assert.deepEqual(token, accessToken1);
+        const token2 = await redis.getAccessToken(accessToken2.tokenId);
+        assert.deepEqual(token2, accessToken2);
       });
 
       it('sets expiry on the index', async () => {
