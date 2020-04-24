@@ -16,6 +16,7 @@ docker cp "$ID":/app/.sourcehash /tmp
 if diff .sourcehash /tmp/.sourcehash ; then
   echo "The source is unchanged. Skipping build"
 else
+  cp ../version.json .
   docker build --progress=plain -t fxa-email-service:build . > ../../artifacts/fxa-email-service.log
 fi
 docker rm -v "$ID"
