@@ -7,7 +7,7 @@ describe('lib/auth/hawk', () => {
     const encoder = new TextEncoder();
     const credentials = {
       id: '123456',
-      key: encoder.encode('2983d45yun89q'),
+      key: encoder.encode('werxhqb98rpaxn39848xrunpaw3489ru'),
     };
     // Test vectors from https://github.com/hapijs/hawk/blob/master/test/client.js
     it('returns a valid authorization header (empty payload)', async () => {
@@ -24,7 +24,7 @@ describe('lib/auth/hawk', () => {
       );
       assert.equal(
         h,
-        'Hawk id="123456", ts="1353809207", nonce="Ygvqdz", hash="q/t+NNAkQZNlq/aAD6PlexImwQTxwgT2MahfTa9XRLA=", mac="U5k16YEzn3UnBHKeBzsDXn067Gu3R4YaY6xOt9PYRZM="'
+        'Hawk id="123456", ts="1353809207", nonce="Ygvqdz", hash="q/t+NNAkQZNlq/aAD6PlexImwQTxwgT2MahfTa9XRLA=", mac="ITZtYMyfEkprrB60U4wPxl+BgV8S/kXb+gbcqt0TfCk="'
       );
     });
     it('returns a valid authorization header with payload', async () => {
@@ -41,7 +41,7 @@ describe('lib/auth/hawk', () => {
       );
       assert.equal(
         h,
-        'Hawk id="123456", ts="1353809207", nonce="Ygvqdz", hash="2QfCt3GuY9HQnHWyWD3wX68ZOKbynqlfYmuO2ZBRqtY=", mac="HTgtd0jPI6E4izx8e4OHdO36q00xFCU0FolNq3RiCYs="'
+        'Hawk id="123456", ts="1353809207", nonce="Ygvqdz", hash="2QfCt3GuY9HQnHWyWD3wX68ZOKbynqlfYmuO2ZBRqtY=", mac="T8QFs1YhO9eqsXWKURQgL3vO8XbZIveFYiF/cTYBPYI="'
       );
     });
   });
