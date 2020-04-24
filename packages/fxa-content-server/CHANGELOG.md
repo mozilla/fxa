@@ -1,3 +1,9 @@
+## 1.167.2
+
+### Bug fixes
+
+* client: Use correct support ticket url ([b26fef1a5](https://github.com/mozilla/fxa/commit/b26fef1a5))
+
 ## 1.167.1
 
 ### Bug fixes
