@@ -1,3 +1,9 @@
+## 1.168.1
+
+### Bug fixes
+
+- email-service: copy version.json in build-ci.sh ([4a39ca60f](https://github.com/mozilla/fxa/commit/4a39ca60f))
+
 ## 1.168.0
 
 No changes.
