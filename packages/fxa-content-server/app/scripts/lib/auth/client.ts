@@ -1097,7 +1097,7 @@ export default class AuthClient {
   ) {
     return this.request(
       'POST',
-      '/oauth/subscriptions/plans',
+      '/support/ticket',
       supportTicket,
       new Headers({
         authorization: `Bearer ${accessToken}`,
