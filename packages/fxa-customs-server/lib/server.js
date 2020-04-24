@@ -12,7 +12,7 @@ const packageJson = require('../package.json');
 const blockReasons = require('./block_reasons');
 const P = require('bluebird');
 P.promisifyAll(Memcached.prototype);
-const Raven = require('raven');
+const { configureSentry } = require('./sentry');
 const dataflow = require('./dataflow');
 
 module.exports = async function createServer(config, log) {
@@ -29,16 +29,6 @@ module.exports = async function createServer(config, log) {
       )
     );
     blockListManager.pollForUpdates();
-  }
-
-  const sentryDsn = config.sentryDsn;
-
-  if (sentryDsn) {
-    // configure Sentry
-    Raven.config(sentryDsn, {});
-    log.info({ op: 'sentryEnabled' });
-  } else {
-    log.info({ op: 'sentryDisabled' });
   }
 
   var mc = new Memcached(config.memcache.address, {
@@ -104,6 +94,8 @@ module.exports = async function createServer(config, log) {
     port: config.listen.port,
     host: config.listen.host,
   });
+
+  await configureSentry(api, config, log);
 
   function logError(err) {
     log.error({ op: 'memcachedError', err: err });

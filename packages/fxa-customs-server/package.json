@@ -23,6 +23,8 @@
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",
     "@hapi/hapi": "^19.1.1",
+    "@hapi/hoek": "^9.0.4",
+    "@sentry/node": "^5.15.5",
     "bl": "1.1.2",
     "bluebird": "3.3.4",
     "bunyan": "1.8.0",
@@ -32,8 +34,7 @@
     "ip-reputation-js-client": "4.1.0",
     "lodash.isequal": "4.5.0",
     "lodash.merge": "4.6.2",
-    "memcached": "2.2.1",
-    "raven": "2.3.0"
+    "memcached": "2.2.1"
   },
   "devDependencies": {
     "audit-filter": "^0.5.0",
