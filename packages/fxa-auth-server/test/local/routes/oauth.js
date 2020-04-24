@@ -212,6 +212,12 @@ describe('/oauth/ routes', () => {
         },
       });
       const resp = await loadAndCallRoute('/oauth/authorization', mockRequest);
+      assert.calledOnce(mockLog.notifyAttachedServices);
+      const notifyCall = mockLog.notifyAttachedServices.args[0];
+      assert.equal(notifyCall[0], 'login');
+      const notification = notifyCall[2];
+      assert.equal(notification.clientId, MOCK_CLIENT_ID);
+      assert.equal(notification.service, MOCK_CLIENT_ID);
       assert.calledOnce(mockOAuthDB.createAuthorizationCode);
       assert.calledWithExactly(
         mockOAuthDB.createAuthorizationCode,
