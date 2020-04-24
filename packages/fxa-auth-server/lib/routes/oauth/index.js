@@ -131,8 +131,27 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
       },
       handler: async function(request) {
         checkDisabledClientId(request.payload);
+        const geoData = request.app.geo;
+        const country = geoData.location && geoData.location.country;
+        const countryCode = geoData.location && geoData.location.countryCode;
         const sessionToken = request.auth.credentials;
-        return oauthdb.createAuthorizationCode(sessionToken, request.payload);
+        const { email, uid } = sessionToken;
+        const devices = await request.app.devices;
+        const result = await oauthdb.createAuthorizationCode(
+          sessionToken,
+          request.payload
+        );
+        await log.notifyAttachedServices('login', request, {
+          country,
+          countryCode,
+          deviceCount: devices.length,
+          email,
+          service: request.payload.client_id,
+          clientId: request.payload.client_id,
+          uid,
+          userAgent: request.headers['user-agent'],
+        });
+        return result;
       },
     },
     {
