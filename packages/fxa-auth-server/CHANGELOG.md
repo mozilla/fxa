@@ -1,3 +1,9 @@
+## 1.168.1
+
+### New features
+
+- auth-server: emit login notif on oauth login ([d20bb8f27](https://github.com/mozilla/fxa/commit/d20bb8f27))
+
 ## 1.168.0
 
 ### New features

@@ -1,3 +1,9 @@
+## 1.168.1
+
+### Bug fixes
+
+- client: Use correct support ticket url ([41be533ef](https://github.com/mozilla/fxa/commit/41be533ef))
+
 ## 1.168.0
 
 ### New features
