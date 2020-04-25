@@ -84,12 +84,12 @@
   }
 
   #recovery-code-container {
-    margin-bottom: 20px;
     background-color: $recovery-code-background-color;
     border-color: $recovery-code-border-color;
+    border-radius: 2px;
     border-style: solid;
     border-width: 1px;
-    border-radius: 2px;
+    margin-bottom: 20px;
     padding-top: 8px;
 
     .recovery-code {

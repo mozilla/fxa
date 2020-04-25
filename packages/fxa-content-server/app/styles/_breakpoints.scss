@@ -40,11 +40,11 @@ $breakpoints: (
 @mixin min-width($breakpoint) {
   @include breakpoint-error-check($breakpoint) {
     @if $breakpoint == 'tablet' {
-      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) and (min-height: (#{map-get($breakpoints, 'mobileLandscape') + 1px})) {
+      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) and (min-height: (#{map-get($breakpoints, 'mobileLandscape') + 1px})) { // sass-lint:disable-line zero-unit
         @content;
       }
     } @else {
-      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) {
+      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) { // sass-lint:disable-line zero-unit
         @content;
       }
     }

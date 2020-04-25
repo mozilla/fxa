@@ -8,8 +8,8 @@
   }
 
   input {
-    transition: border-color $short-transition, box-shadow $short-transition;
     padding: 0 $input-left-right-padding;
+    transition: border-color $short-transition, box-shadow $short-transition;
 
     &::placeholder {
       color: $input-placeholder-color !important;
@@ -49,11 +49,12 @@
     }
 
     html[dir='rtl'] & {
+      padding: 0 $input-left-right-padding 0 11px;
+      text-align: right;
+
       &:not([type='number']) {
         direction: ltr;
       }
-      padding: 0 $input-left-right-padding 0 11px;
-      text-align: right;
     }
 
     &[type='checkbox']:hover,

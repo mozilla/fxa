@@ -11,7 +11,7 @@
 
   .chosen-drop {
     background: $color-white;
-    border: 1px solid $input-border-color-default;;
+    border: 1px solid $input-border-color-default;
     border-top: 0;
     box-shadow: 0 4px 5px rgba(0, 0, 0, 0.15);
     clip: rect(0, 0, 0, 0);
@@ -120,8 +120,8 @@
   }
 
   &.chosen-container-single-nosearch .chosen-search {
-    clip-path: inset(100% 100%);
     clip: rect(0, 0, 0, 0);
+    clip-path: inset(100% 100%);
     position: absolute;
   }
 }
