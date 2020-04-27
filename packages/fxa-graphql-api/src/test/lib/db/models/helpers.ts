@@ -32,7 +32,7 @@ export function randomAccount() {
     verifierSetAt: chance.timestamp(),
     verifierVersion: 0,
     verifyHash: Buffer.from('0', 'hex'),
-    wrapWrapKb: Buffer.from('0', 'hex')
+    wrapWrapKb: Buffer.from('0', 'hex'),
   };
 }
 
@@ -45,8 +45,8 @@ export async function testDatabaseSetup(): Promise<Knex> {
       host: 'localhost',
       password: '',
       port: 3306,
-      user: 'root'
-    }
+      user: 'root',
+    },
   });
 
   await knex.raw('DROP DATABASE IF EXISTS testAdmin');
@@ -58,7 +58,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
     host: 'localhost',
     password: '',
     port: 3306,
-    user: 'root'
+    user: 'root',
   });
 
   await knex.raw(accountTable);

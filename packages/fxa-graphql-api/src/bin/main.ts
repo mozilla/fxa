@@ -24,11 +24,11 @@ async function run() {
   app.use(loadBalancerRoutes(dbHealthCheck));
   app.listen({ port: 8290 }, () => {
     logger.info('startup', {
-      message: `Server is running, GraphQL Playground available at http://localhost:8290${server.graphqlPath}`
+      message: `Server is running, GraphQL Playground available at http://localhost:8290${server.graphqlPath}`,
     });
   });
 }
 
-run().catch(err => {
+run().catch((err) => {
   logger.error('startup', { err });
 });

@@ -34,7 +34,7 @@ export async function createServer(
   setupDatabase(config.database);
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
-    resolvers: [AccountResolver]
+    resolvers: [AccountResolver],
   });
   const debugMode = config.env !== 'production';
   const defaultContext = ({ req }: any) => {
@@ -44,13 +44,13 @@ export async function createServer(
       logAction: (action: string, options?: object): void => {
         logger.info(action, { authUser, ...options });
       },
-      logger
+      logger,
     };
   };
 
   return new ApolloServer({
     context: context ?? defaultContext,
-    formatError: err => reportGraphQLError(debugMode, logger, err),
-    schema
+    formatError: (err) => reportGraphQLError(debugMode, logger, err),
+    schema,
   });
 }

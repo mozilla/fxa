@@ -66,7 +66,7 @@ function getVersionInfo(): Version {
   return {
     commit,
     source,
-    version: packageInfo?.version
+    version: packageInfo?.version,
   };
 }
 

@@ -38,7 +38,7 @@ describe('sentry', () => {
     };
     mockCaptureException = sinon.stub();
     reportGraphQLError = proxyquire('../../lib/sentry.ts', {
-      '@sentry/node': { withScope: mockCapture, captureException: mockCaptureException }
+      '@sentry/node': { withScope: mockCapture, captureException: mockCaptureException },
     }).reportGraphQLError;
     logger = stubInterface<Logger>();
   });
@@ -55,7 +55,7 @@ describe('sentry', () => {
     assert.isTrue(
       (logger.error as SinonSpy).calledOnceWith('graphql', {
         error: 'boom',
-        path: 'resolver.field'
+        path: 'resolver.field',
       })
     );
     assert.isTrue(mockScope.setContext.calledOnceWith('graphql', { path: 'resolver.field' }));

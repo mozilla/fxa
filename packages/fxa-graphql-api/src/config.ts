@@ -11,75 +11,75 @@ const conf = convict({
     default: 'oidc-claim-id-token-email',
     doc: 'Authentication header that should be logged for the user',
     env: 'AUTH_HEADER',
-    format: String
+    format: String,
   },
   database: {
     database: {
       default: 'fxa',
       doc: 'MySQL database',
       env: 'DB_DATABASE',
-      format: String
+      format: String,
     },
     host: {
       default: 'localhost',
       doc: 'MySQL host',
       env: 'DB_HOST',
-      format: String
+      format: String,
     },
     password: {
       default: '',
       doc: 'MySQL password',
       env: 'DB_PASSWORD',
-      format: String
+      format: String,
     },
     port: {
       default: 3306,
       doc: 'MySQL port',
       env: 'DB_PORT',
-      format: Number
+      format: Number,
     },
     user: {
       default: 'root',
       doc: 'MySQL username',
       env: 'DB_USERNAME',
-      format: String
-    }
+      format: String,
+    },
   },
   env: {
     default: 'production',
     doc: 'The current node.js environment',
     env: 'NODE_ENV',
-    format: ['development', 'test', 'stage', 'production']
+    format: ['development', 'test', 'stage', 'production'],
   },
   logging: {
     app: { default: 'fxa-user-admin-server' },
     fmt: {
       default: 'heka',
       env: 'LOGGING_FORMAT',
-      format: ['heka', 'pretty']
+      format: ['heka', 'pretty'],
     },
     level: {
       default: 'info',
-      env: 'LOG_LEVEL'
+      env: 'LOG_LEVEL',
     },
     routes: {
       enabled: {
         default: true,
         doc: 'Enable route logging. Set to false to trimming CI logs.',
-        env: 'ENABLE_ROUTE_LOGGING'
+        env: 'ENABLE_ROUTE_LOGGING',
       },
       format: {
         default: 'default_fxa',
-        format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny']
-      }
-    }
+        format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
+      },
+    },
   },
   sentryDsn: {
     default: '',
     doc: 'Sentry DSN for error and log reporting',
     env: 'SENTRY_DSN',
-    format: 'String'
-  }
+    format: 'String',
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
