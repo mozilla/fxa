@@ -2099,10 +2099,15 @@ describe('DirectStripeRoutes', () => {
 
   describe('sendSubscriptionDeletedEmail', () => {
     const commonSendSubscriptionDeletedEmailTest = (
-      accountFound = true
+      accountFound = true,
+      subscriptionAlreadyCancelled = false
     ) => async () => {
       const deletedEvent = deepCopy(subscriptionDeleted);
       const subscription = deletedEvent.data.object;
+
+      if (subscriptionAlreadyCancelled) {
+        subscription.cancel_at_period_end = true;
+      }
 
       const mockInvoiceDetails = {
         uid: '1234',
@@ -2130,9 +2135,9 @@ describe('DirectStripeRoutes', () => {
         subscription.latest_invoice
       );
 
-      if (accountFound) {
+      if (accountFound || subscriptionAlreadyCancelled) {
         assert.notCalled(
-          directStripeRoutesInstance.mailer.sendSubscriptionCancellationEmail
+          directStripeRoutesInstance.mailer.sendSubscriptionAccountDeletionEmail
         );
       } else {
         const fakeAccount = {
@@ -2158,6 +2163,11 @@ describe('DirectStripeRoutes', () => {
     it(
       'sends an account deletion specific email on subscription deletion when account is gone',
       commonSendSubscriptionDeletedEmailTest(false)
+    );
+
+    it(
+      'does not send a cancellation email on account deletion when the subscription is already cancelled',
+      commonSendSubscriptionDeletedEmailTest(false, true)
     );
   });
 

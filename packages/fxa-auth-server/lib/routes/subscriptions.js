@@ -929,6 +929,10 @@ class DirectStripeRoutes {
     const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
       subscription.latest_invoice
     );
+    if (subscription.cancel_at_period_end) {
+      // Subscription already cancelled, should have triggered an email earlier
+      return invoiceDetails;
+    }
     const { uid, email } = invoiceDetails;
 
     let account;
