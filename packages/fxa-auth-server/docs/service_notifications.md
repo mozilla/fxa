@@ -63,6 +63,10 @@ Message Properties:
 - `uid`: The userid of the account being that was created.
 - `email`: The primary email address that was verified for the account.
 - `locale`: The accept-language header supplies by the user at account creation.
+- `country`: The estimated country (based on IP) of the user
+- `countryCode`: The country code of `country`
+- `newsletters`: Array of newsletter subscriptions for a user
+- `userAgent`: The user agent of device that completed the account verified
 
 Receiving services should use this message to initialize any state
 that needs to exist for _all_ Firefox Accounts.
@@ -216,3 +220,14 @@ so other services probably shouldn't use this.
 - `isActive`: Boolean indicating whether the subscription is active.
 - `productId`: Product id.
 - `productCapabilities`: Array of product capabilities.
+
+### Newsletter update event
+
+- `event`: The string "newsletters:update"
+- `uid`: The userid of the account being that was created.
+- `email`: The primary email address that was verified for the account.
+- `locale`: The accept-language header supplies by the user at account creation.
+- `country`: The estimated country (based on IP) of the user
+- `countryCode`: The country code of `country`
+- `newsletters`: Array of newsletter subscriptions for a user
+- `userAgent`: The user agent of device that completed the account verified

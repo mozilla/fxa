@@ -1361,6 +1361,14 @@ FxaClientWrapper.prototype = {
    *   - `ticket` OR `error`
    */
   createSupportTicket: createClientDelegate('createSupportTicket'),
+
+  /**
+   * Update a user newsletters subscription.
+   *
+   * @param {String[]} [newsletters]
+   * @returns {Promise} - resolves with empty response
+   */
+  updateNewsletters: createClientDelegate('updateNewsletters'),
 };
 
 export default FxaClientWrapper;

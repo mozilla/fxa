@@ -1104,4 +1104,10 @@ export default class AuthClient {
       })
     );
   }
+
+  async updateNewsletters(sessionToken: string, newsletters: string[]) {
+    return this.sessionPost('/newsletters', sessionToken, {
+      newsletters,
+    });
+  }
 }

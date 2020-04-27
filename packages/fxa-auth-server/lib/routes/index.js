@@ -164,6 +164,7 @@ module.exports = function(
     stripeHelper
   );
   const support = require('./support')(log, db, config, customs, zendeskClient);
+  const newsletters = require('./newsletters')(log, db);
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
   let basePath = url.parse(config.publicUrl).path;
@@ -189,7 +190,8 @@ module.exports = function(
     util,
     recoveryKey,
     subscriptions,
-    support
+    support,
+    newsletters
   );
   v1Routes.forEach(r => {
     r.path = `${basePath}/v1${r.path}`;

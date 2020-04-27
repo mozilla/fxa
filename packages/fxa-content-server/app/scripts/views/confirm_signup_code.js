@@ -83,6 +83,7 @@ class ConfirmSignupCodeView extends FormView {
           });
         }
 
+        // TBD We should setup experiment rules to determine which broker method gets called.
         return this.invokeBrokerMethod('afterSignUpConfirmationPoll', account);
       })
       .catch(err => {

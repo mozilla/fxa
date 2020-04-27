@@ -37,6 +37,7 @@ module.exports = function() {
     'post_verify/account_recovery/confirm_recovery_key',
     'post_verify/account_recovery/save_recovery_key',
     'post_verify/account_recovery/verified_recovery_key',
+    'post_verify/newsletters/add_newsletters',
     'post_verify/secondary_email/add_secondary_email',
     'post_verify/secondary_email/confirm_secondary_email',
     'post_verify/secondary_email/verified_secondary_email',

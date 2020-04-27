@@ -1127,6 +1127,19 @@ const Account = Backbone.Model.extend(
     },
 
     /**
+     * Update a user newsletters subscription.
+     *
+     * @param {String[]} [newsletters]
+     * @returns {Promise} - resolves with empty response
+     */
+    updateNewsletters(newsletters) {
+      return this._fxaClient.updateNewsletters(
+        this.get('sessionToken'),
+        newsletters
+      );
+    },
+
+    /**
      * Fetch an access token with subscription management scopes and a lifetime
      * of 30 seconds.
      *

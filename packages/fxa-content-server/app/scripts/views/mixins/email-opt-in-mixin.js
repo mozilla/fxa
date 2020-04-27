@@ -82,7 +82,7 @@ export default {
    * Get a list of newsletters the user has opted in to.
    *
    * @param {Newsletter} newsletter
-   * @returns {Boolean}
+   * @returns {String[]} Array containing list of newsletters
    */
   getOptedIntoNewsletters() {
     return this._getNewsletters()
