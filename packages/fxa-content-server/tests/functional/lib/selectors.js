@@ -309,6 +309,12 @@ module.exports = {
     READY: '.account-ready-service',
     SUBMIT: 'button[type="submit"]',
   },
+  POST_VERIFY_ADD_NEWSLETTERS: {
+    DESCRIPTION: '.description',
+    HEADER: '#fxa-add-newsletters-header',
+    SUBMIT: 'button[type="submit"]',
+    NEWSLETTERS,
+  },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',

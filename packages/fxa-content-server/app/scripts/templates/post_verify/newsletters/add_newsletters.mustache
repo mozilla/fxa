@@ -1,13 +1,19 @@
 <div id="main-content" class="card add-newsletters">
     <header>
-        <h1 id="fxa-add-newsletters-header">
-            {{#showSuccessMessage}}
-                {{#isSignedIn}}
-                    <span class="success success-authenticated visible">{{#t}}This Firefox is connected{{/t}}</span>
-                {{/isSignedIn}}
-            {{/showSuccessMessage}}
+        {{#isSignedIn}}
+            <span class="success success-authenticated visible">{{#t}}This Firefox is connected{{/t}}</span>
+        {{/isSignedIn}}
 
-            {{#t}}Sign up for more{{/t}}<span class="description">{{#t}}Practical knowledge is coming to your inbox.{{/t}}</span>
+        <h1 id="fxa-add-newsletters-header">
+            {{#t}}Sign up for more{{/t}}
+            <span class="description">
+                {{#isTrailheadCopy}}
+                  {{#t}}Practical knowledge is coming to your inbox.{{/t}}
+                {{/isTrailheadCopy}}
+                {{^isTrailheadCopy}}
+                    {{#t}}Get practical knowledge in your inbox about:{{/t}}
+                {{/isTrailheadCopy}}
+            </span>
         </h1>
     </header>
 
@@ -22,7 +28,7 @@
             {{/newsletters}}
 
             <div class="button-row">
-                <button id="submit-btn" type="submit">{{#t}}Subscribe{{/t}}</button>
+                <button id="submit-btn" type="submit">{{#t}}Subscribe %(email)s{{/t}}</button>
             </div>
             <div class="links">
                 <a id="maybe-later-btn" data-flow-event="link.maybe-later">{{#t}}Maybe later{{/t}}</a>
