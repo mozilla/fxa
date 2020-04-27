@@ -81,6 +81,9 @@
     "*.css": [
       "prettier --write"
     ],
+    "*.scss": [
+      "sass-lint --config packages/fxa-settings/.sass-lint.yml 'packages/fxa-settings/**/*.scss' --verbose"
+    ],
     "*.md": [
       "prettier --write"
     ]

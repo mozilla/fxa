@@ -5,16 +5,16 @@
 module.exports = {
   apps: [
     {
-      name: "settings-react",
+      name: 'settings-react',
       cwd: __dirname,
-      script: "rescripts start",
-      max_restarts: "1",
-      min_uptime: "2m",
+      script: 'rescripts start',
+      max_restarts: '1',
+      min_uptime: '2m',
       env: {
-        NODE_ENV: "development",
-        BROWSER: "NONE",
-        PORT: "3000"
-      }
-    }
-  ]
+        NODE_ENV: 'development',
+        BROWSER: 'NONE',
+        PORT: '3000',
+      },
+    },
+  ],
 };

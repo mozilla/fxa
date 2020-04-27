@@ -5,7 +5,12 @@
     // "compilerOptions.paths must not be set", but
     // this will still work.
     "paths": {
-      "@fxa-components/*": ["../fxa-components/*"]
+      "@fxa-components/*": [
+        "../fxa-components/*"
+      ],
+      "@fxa-shared/*": [
+        "../fxa-shared/*"
+      ]
     }
   }
 }

@@ -11,6 +11,7 @@
     "@types/node": "^12.12.35",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "modern-normalize": "^0.6.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
@@ -22,7 +23,10 @@
     "stop": "pm2 stop pm2.config.js",
     "build": "INLINE_RUNTIME_CHUNK=false rescripts build",
     "test": "rescripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "npm-run-all --parallel lint:*",
+    "lint:eslint": "eslint .",
+    "lint:sass": "sass-lint -v"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,9 +45,12 @@
   },
   "devDependencies": {
     "@rescripts/cli": "0.0.14",
-    "eslint-plugin-fxa": "^2.0.1",
-    "eslint-plugin-jest": "^23.8.1",
-    "eslint-plugin-react": "^7.18.3",
-    "pm2": "^4.2.3"
+    "eslint": "^6.8.0",
+    "eslint-plugin-fxa": "^2.0.2",
+    "eslint-plugin-jest": "^23.8.2",
+    "eslint-plugin-react": "^7.19.0",
+    "node-sass": "^4.14.0",
+    "pm2": "^4.2.3",
+    "sass-lint": "^1.13.1"
   }
 }

@@ -1,6 +1,9 @@
 {
   "extends": ["plugin:fxa/server", "plugin:jest/recommended"],
   "plugins": ["fxa"],
+  "ignorePatterns": [
+    "build/"
+  ],
   "parser": "babel-eslint",
   "parserOptions": {
     "sourceType": "module"
@@ -10,5 +13,9 @@
     "strict": "off",
     "no-useless-escape": "off",
     "handle-callback-err": "off"
+  },
+  "env": {
+    "browser": true,
+    "node": true
   }
 }
