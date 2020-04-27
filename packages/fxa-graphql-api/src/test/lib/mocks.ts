@@ -10,6 +10,6 @@ export function mockContext() {
   return {
     authUser: '',
     logAction: sinon.stub(),
-    logger: stubInterface<Logger>()
+    logger: stubInterface<Logger>(),
   };
 }

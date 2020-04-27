@@ -11,7 +11,7 @@ import {
   IntrospectionEnumType,
   IntrospectionObjectType,
   IntrospectionSchema,
-  TypeKind
+  TypeKind,
 } from 'graphql';
 import 'mocha';
 import { buildSchema } from 'type-graphql';
@@ -30,37 +30,37 @@ describe('Schema', () => {
     schemaIntrospection = builtSchema.data!.__schema as IntrospectionSchema;
     assert.isDefined(schemaIntrospection);
     queryType = schemaIntrospection.types.find(
-      type => type.name === (schemaIntrospection as IntrospectionSchema).queryType.name
+      (type) => type.name === (schemaIntrospection as IntrospectionSchema).queryType.name
     ) as IntrospectionObjectType;
 
     const mutationTypeNameRef = schemaIntrospection.mutationType;
     if (mutationTypeNameRef) {
       mutationType = schemaIntrospection.types.find(
-        type => type.name === mutationTypeNameRef.name
+        (type) => type.name === mutationTypeNameRef.name
       ) as IntrospectionObjectType;
     }
   });
 
   function findTypeByName(name: string) {
     return schemaIntrospection.types.find(
-      type => type.kind === TypeKind.OBJECT && type.name === name
+      (type) => type.kind === TypeKind.OBJECT && type.name === name
     ) as IntrospectionObjectType;
   }
 
   function findEnumByName(name: string) {
     return schemaIntrospection.types.find(
-      type => type.kind === TypeKind.ENUM && type.name === name
+      (type) => type.kind === TypeKind.ENUM && type.name === name
     ) as IntrospectionEnumType;
   }
 
   it('is created with expected types', async () => {
-    const queryNames = queryType.fields.map(it => it.name);
+    const queryNames = queryType.fields.map((it) => it.name);
     assert.sameMembers(queryNames, ['account']);
 
     const accountType = findTypeByName('Account');
     assert.isDefined(accountType);
     assert.lengthOf(accountType.fields, 2);
-    const accountTypeNames = accountType.fields.map(it => it.name);
+    const accountTypeNames = accountType.fields.map((it) => it.name);
     assert.sameMembers(accountTypeNames, ['uid', 'createdAt']);
   });
 });

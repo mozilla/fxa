@@ -14,17 +14,11 @@ describe('loadBalancerRoutes', () => {
   app.use(loadBalancerRoutes());
 
   it('returns version', () => {
-    return request(app)
-      .get('/__version__')
-      .expect('Content-Type', /json/)
-      .expect(200, version);
+    return request(app).get('/__version__').expect('Content-Type', /json/).expect(200, version);
   });
 
   it('returns lbheartbeat', () => {
-    return request(app)
-      .get('/__lbheartbeat__')
-      .expect('Content-Type', /json/)
-      .expect(200, {});
+    return request(app).get('/__lbheartbeat__').expect('Content-Type', /json/).expect(200, {});
   });
 
   it('returns heartbeat', () => {

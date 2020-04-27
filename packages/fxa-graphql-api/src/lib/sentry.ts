@@ -44,9 +44,9 @@ export function configureSentry(options?: Sentry.NodeOptions) {
     },
     integrations: [
       new RewriteFrames({
-        root: path.dirname(path.dirname(__dirname))
-      })
-    ]
+        root: path.dirname(path.dirname(__dirname)),
+      }),
+    ],
   });
 }
 
@@ -69,9 +69,9 @@ export function reportGraphQLError(debug: boolean, logger: Logger, error: GraphQ
 
   logger.error('graphql', { path: graphPath, error: error.originalError?.message });
 
-  Sentry.withScope(scope => {
+  Sentry.withScope((scope) => {
     scope.setContext('graphql', {
-      path: graphPath
+      path: graphPath,
     });
     Sentry.captureException(error.originalError);
   });

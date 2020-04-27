@@ -9,9 +9,9 @@ import { uuidTransformer } from '../db/transformers';
 import { Context } from '../server';
 import { Account as AccountType } from './types/account';
 
-@Resolver(of => AccountType)
+@Resolver((of) => AccountType)
 export class AccountResolver {
-  @Query(returns => AccountType, { nullable: true })
+  @Query((returns) => AccountType, { nullable: true })
   public account(@Ctx() context: Context) {
     let uidBuffer;
     try {

@@ -24,7 +24,7 @@ export async function dbHealthCheck(): Promise<HealthExtras> {
     status = 'error';
   }
   return {
-    db: { status }
+    db: { status },
   };
 }
 
