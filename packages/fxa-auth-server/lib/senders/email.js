@@ -1958,6 +1958,7 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        isCancellationEmail: true,
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
@@ -2017,6 +2018,7 @@ module.exports = function(log, config, oauthdb) {
         ...translatorParams,
         uid,
         email,
+        isCancellationEmail: true,
         invoiceDateOnly: this._constructLocalDateString(
           message.timeZone,
           message.acceptLanguage,
@@ -2467,6 +2469,12 @@ module.exports = function(log, config, oauthdb) {
       { ...query, email, uid },
       templateName,
       'cancel-subscription'
+    );
+    links.reactivateSubscriptionUrl = this._generateUTMLink(
+      this.subscriptionSettingsUrl,
+      { ...query, email, uid },
+      templateName,
+      'reactivate-subscription'
     );
     links.updateBillingUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,
