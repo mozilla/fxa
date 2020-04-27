@@ -68,7 +68,7 @@ button {
     }
 
     // 'type' is needed for selector specificity
-    &[type="submit"] {
+    &[type='submit'] {
       &:active:enabled,
       &:active:enabled:hover {
         background: darken($error-background-color, 10);
@@ -85,7 +85,7 @@ button {
     cursor: not-allowed;
     opacity: 0.4;
 
-    &:not(.primary-button):not([type="submit"]) {
+    &:not(.primary-button):not([type='submit']) {
       background: $button-background-color-default;
     }
   }
@@ -100,9 +100,9 @@ button {
 }
 
 .button-flex-row {
-  margin: 0 0 20px;
   display: flex;
   flex-direction: row;
+  margin: 0 0 20px;
 }
 
 button::-moz-focus-inner {
