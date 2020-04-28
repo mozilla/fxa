@@ -123,9 +123,9 @@ JWT access tokens are only enabled for RPs on an opt-in basis. RPs can request J
 tokens when their OAuth credentials are being provisioned.
 
 [#ietf-oauth-spec]: https://tools.ietf.org/html/rfc6749
-[#ietf-jwt-access-token-draft-spec]: https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00
-[#ietf-jwt-access-token-draft-spec-structure]: https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00#section-2.2
-[#ietf-jwt-access-token-draft-spec-validation]: https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00#section-4
+[#ietf-jwt-access-token-draft-spec]: https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-3
+[#ietf-jwt-access-token-draft-spec-structure]: https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-2.2
+[#ietf-jwt-access-token-draft-spec-validation]: https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-4
 [#ietf-jws-spec]: https://tools.ietf.org/html/rfc7515
 [#ietf-jwt-spec]: https://tools.ietf.org/html/rfc7519
 [#ietf-resource-indicator-draft-spec]: https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-08

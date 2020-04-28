@@ -5,7 +5,7 @@ including:
 
 - `id_token`s as defined by [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html)
 - `access_token`s as defined by [JWT Profile for OAuth 2.0 Access
-  Tokens](https://datatracker.ietf.org/doc/draft-bertocci-oauth-access-token-jwt/)
+  Tokens](https://datatracker.ietf.org/doc/draft-ietf-oauth-access-token-jwt/)
 - Security Event Tokens as defined by [RFC8417](https://tools.ietf.org/html/rfc8417)
 
 RPs are expected to verify the signatures on these JWTs by fetching our public keys via the
