@@ -271,14 +271,21 @@
                                           style="color:#ffffff;font-weight:500;"
                                           alias="TermsofService"
                                           >{{t "Terms and cancellation policy" }}</a>
-                                          &nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
+                                          &nbsp;&nbsp;&#8226;&nbsp;&nbsp;{{#if isCancellationEmail}}<a
+                                          href="{{{reactivateSubscriptionUrl}}}"
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          style="color:#ffffff;font-weight:normal;"
+                                          alias="ReactivateSubscription"
+                                          >{{t "Reactivate subscription" }}</a
+                                        >{{else}}<a
                                           href="{{{cancelSubscriptionUrl}}}"
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           style="color:#ffffff;font-weight:normal;"
                                           alias="CancelSubscription"
                                           >{{t "Cancel subscription" }}</a
-                                        >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
+                                        >{{/if}}&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
                                         <a
                                           href="{{{updateBillingUrl}}}"
                                           target="_blank"

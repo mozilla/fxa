@@ -255,7 +255,7 @@ const TESTS = new Map([
     ])],
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'subscription-cancellation', 'privacy') },
-      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
@@ -300,7 +300,7 @@ const TESTS = new Map([
     ])],
     ['html', [
       { test: 'include', expected: configHref('privacyUrl', 'subscription-account-deletion', 'privacy') },
-      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
       { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
