@@ -1,3 +1,9 @@
+## 1.168.2
+
+### Bug fixes
+
+- marketing: Add back the ability to set `needsOptedInToMarketingEmail` since it is needed for old resume tokens ([e3aee772d](https://github.com/mozilla/fxa/commit/e3aee772d))
+
 ## 1.168.1
 
 ### Bug fixes
