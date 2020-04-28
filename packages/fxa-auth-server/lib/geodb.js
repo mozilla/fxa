@@ -42,10 +42,12 @@ module.exports = log => {
         confidence += 'no_accuracy_data';
       }
 
-      log.info('geodb.accuracy', { accuracy });
-      log.info('geodb.accuracy_confidence', {
-        accuracy_confidence: confidence,
-      });
+      if (config.logAccuracy) {
+        log.info('geodb.accuracy', { accuracy });
+        log.info('geodb.accuracy_confidence', {
+          accuracy_confidence: confidence,
+        });
+      }
 
       return {
         location: {
