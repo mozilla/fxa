@@ -64,5 +64,5 @@ Firefox accounts does not currently support [sector identifiers][#oidc-sector-id
 [#oidc-spec]: https://openid.net/specs/oidc-core-1_0.html#Terminology
 [#oidc-id-token]: https://openid.net/specs/openid-connect-core-1_0.html#IDToken
 [#oidc-sector-identifier]: https://openid.net/specs/openid-connect-core-1_0.html#PairwiseAlg
-[#oauth-jwt-access-token]: https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00
+[#oauth-jwt-access-token]: https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt
 [#hkdf]: https://tools.ietf.org/html/rfc5869

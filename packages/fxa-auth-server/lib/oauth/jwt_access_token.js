@@ -14,16 +14,14 @@ const HEADER_TYP = 'at+JWT';
  */
 exports.create = async function generateJWTAccessToken(accessToken, grant) {
   const clientId = hex(grant.clientId);
-  // The IETF spec for `aud` refers to https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-  // > REQUIRED. Audience(s) that this ID Token is intended for. It MUST contain the
-  // > OAuth 2.0 client_id of the Relying Party as an audience value. It MAY also contain
-  // > identifiers for other audiences. In the general case, the aud value is an array of
-  // > case sensitive strings. In the common special case when there is one audience, the
-  // > aud value MAY be a single case sensitive string.
+  // For historical reasons (based on an early draft of the JWT-access-token spec) we
+  // always include the client_id in the `aud` claim. A future iteration of this code
+  // should instead infer an appropriate default `aud` based on the requested scopes.
+  // Ref https://github.com/mozilla/fxa/issues/4962
   const audience = grant.resource ? [clientId, grant.resource] : clientId;
 
   // Claims list from:
-  // https://tools.ietf.org/html/draft-bertocci-oauth-access-token-jwt-00#section-2.2
+  // https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-2.2
   const claims = {
     aud: audience,
     client_id: clientId,
