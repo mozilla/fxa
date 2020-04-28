@@ -910,7 +910,13 @@ class StripeHelper {
       number: invoiceNumber,
       created: invoiceDate,
       total: invoiceTotal,
-      period_end: nextInvoiceDate,
+      lines: {
+        data: [
+          {
+            period: { end: nextInvoiceDate },
+          },
+        ],
+      },
     } = invoice;
     const { id: planId, nickname: planName } = plan;
     const {

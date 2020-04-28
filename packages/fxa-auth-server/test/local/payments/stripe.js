@@ -1753,7 +1753,7 @@ describe('StripeHelper', () => {
         invoiceNumber: 'AAF2CECC-0001',
         invoiceTotal: 5,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
-        nextInvoiceDate: new Date('2020-03-24T22:23:40.000Z'),
+        nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
         productId,
         productName,
         planId,
@@ -1790,25 +1790,17 @@ describe('StripeHelper', () => {
       });
 
       it('extracts expected details from an expanded invoice', async () => {
-        const fixture = {
-          ...invoicePaymentSucceededSubscriptionCreate,
-          lines: {
-            data: [
-              {
-                plan: {
-                  id: planId,
-                  nickname: planName,
-                  metadata: {
-                    emailIconURL: 'http://example.com/icon',
-                  },
-                  product: mockProduct,
-                },
-              },
-            ],
+        const fixture = deepCopy(invoicePaymentSucceededSubscriptionCreate);
+        fixture.lines.data[0].plan = {
+          id: planId,
+          nickname: planName,
+          metadata: {
+            emailIconURL: 'http://example.com/icon',
           },
-          customer: mockCustomer,
-          charge: mockCharge,
+          product: mockProduct,
         };
+        fixture.customer = mockCustomer;
+        fixture.charge = mockCharge;
         const result = await stripeHelper.extractInvoiceDetailsForEmail(
           fixture
         );
