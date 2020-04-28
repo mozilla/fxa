@@ -30,6 +30,12 @@ const conf = convict({
       env: 'GEODB_ENABLED',
       format: Boolean,
     },
+    logAccuracy: {
+      doc: 'emit log lines for accuracy and confidence',
+      default: false,
+      env: 'GEODB_LOG_ACCURACY',
+      format: Boolean,
+    },
   },
   log: {
     app: {
