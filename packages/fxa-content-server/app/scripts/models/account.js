@@ -62,6 +62,9 @@ const DEFAULTS = _.extend(
     keyFetchToken: undefined,
     newsletters: undefined,
     offeredSyncEngines: undefined,
+    // `needsOptedInToMarketingEmail` is kept around to load from old ResumeTokens.
+    // This can be removed in post train-169+
+    needsOptedInToMarketingEmail: undefined,
     // password field intentionally omitted to avoid unintentional leaks
     unwrapBKey: undefined,
     verificationMethod: undefined,
