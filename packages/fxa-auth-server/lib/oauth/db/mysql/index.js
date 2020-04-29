@@ -241,6 +241,8 @@ const QUERY_LIST_REFRESH_TOKENS_BY_UID =
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
+const QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID =
+  'SELECT refreshTokens.createdAt, refreshTokens.userId FROM refreshTokens WHERE refreshTokens.clientId=?';
 const DELETE_ACTIVE_CODES_BY_CLIENT_AND_UID =
   'DELETE FROM codes WHERE clientId=? AND userId=?';
 const DELETE_ACTIVE_TOKENS_BY_CLIENT_AND_UID =
@@ -521,6 +523,18 @@ MysqlStore.prototype = {
       t.scope = ScopeSet.fromString(t.scope);
     });
     return refreshTokens;
+  },
+
+  /**
+   * Get all refresh tokens for all users for a given clientId.
+   * @param {String} clientId
+   * @param {String} uid
+   * @returns {Promise}
+   */
+  getRefreshTokensByClientId: async function getRefreshTokensByClientId(
+    clientId
+  ) {
+    return this._read(QUERY_LIST_REFRESH_TOKENS_BY_CLIENT_ID, [buf(clientId)]);
   },
 
   /**
