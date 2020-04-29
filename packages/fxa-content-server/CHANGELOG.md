@@ -1,3 +1,9 @@
+## 1.168.3
+
+### Bug fixes
+
+- experiments: Enabled variation B 100% for sms header experiment ([4bfaaaf96](https://github.com/mozilla/fxa/commit/4bfaaaf96))
+
 ## 1.168.2
 
 ### Bug fixes
