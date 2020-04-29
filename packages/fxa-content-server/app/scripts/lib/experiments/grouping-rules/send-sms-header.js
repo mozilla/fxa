@@ -25,7 +25,7 @@ module.exports = class SendSmsHeaderGroupingRule extends BaseGroupingRule {
    * @returns {Any}
    */
   choose(subject = {}) {
-    const GROUPS = ['control', 'syncPhone', 'syncBrowser'];
-    return this.uniformChoice(GROUPS, subject.uniqueUserId);
+    // Enable the `Would you like to sync your phone?` for 100% of users.
+    return 'syncPhone';
   }
 };
