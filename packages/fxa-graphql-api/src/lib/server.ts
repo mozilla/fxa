@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloServer } from 'apollo-server-express';
+import { Container } from 'typedi';
+import { ApolloServer, AuthenticationError } from 'apollo-server-express';
 import { Logger } from 'mozlog';
 import * as TypeGraphQL from 'type-graphql';
-import { Container } from 'typedi';
 
 import { DatabaseConfig, setupDatabase } from './db';
 import { AccountResolver } from './resolvers/account-resolver';
 import { reportGraphQLError } from './sentry';
+import { userLookupFnContainerToken } from './constants';
 
 type ServerConfig = {
   authHeader: string;
@@ -32,19 +33,24 @@ export async function createServer(
   context?: () => object
 ): Promise<ApolloServer> {
   setupDatabase(config.database);
+  const fetchUserFn = Container.get(userLookupFnContainerToken);
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
     resolvers: [AccountResolver],
   });
   const debugMode = config.env !== 'production';
-  const defaultContext = ({ req }: any) => {
-    const authUser = req.headers[config.authHeader.toLowerCase()];
+  const defaultContext = async ({ req }: any) => {
+    const bearerToken = req.headers[config.authHeader.toLowerCase()];
+    const authUser = await fetchUserFn(bearerToken);
+    if (!authUser) throw new AuthenticationError('You must be logged in');
+
     return {
       authUser,
       logAction: (action: string, options?: object): void => {
-        logger.info(action, { authUser, ...options });
+        logger.info(action, { uid: authUser.userId, ...options });
       },
       logger,
+      token: bearerToken,
     };
   };
 
