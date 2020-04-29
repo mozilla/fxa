@@ -7,6 +7,7 @@
   "rules": {
     "interface-name": [true, "never-prefix"],
     "interface-over-type-literal": false,
-    "prettier": [true, ".prettierrc"]
+    "prettier": [true, ".prettierrc"],
+    "no-var-requires": false
   }
 }
