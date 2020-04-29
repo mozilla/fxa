@@ -146,14 +146,14 @@ export async function checkWebCrypto() {
     );
     await crypto.subtle.importKey(
       'raw',
-      crypto.getRandomValues(new Uint8Array(16)),
+      crypto.getRandomValues(new Uint8Array(32)),
       'HKDF',
       false,
       ['deriveKey']
     );
     await crypto.subtle.importKey(
       'raw',
-      crypto.getRandomValues(new Uint8Array(16)),
+      crypto.getRandomValues(new Uint8Array(32)),
       {
         name: 'HMAC',
         hash: 'SHA-256',
@@ -169,7 +169,7 @@ export async function checkWebCrypto() {
     return true;
   } catch (err) {
     try {
-      console.warn('loading webcrypto shim');
+      console.warn('loading webcrypto shim', err);
       // prettier-ignore
       // @ts-ignore
       window.asmCrypto = await import(/* webpackChunkName: "asmcrypto.js" */ 'asmcrypto.js');
