@@ -17,6 +17,47 @@ const conf = convict({
     format: ['dev', 'test', 'stage', 'prod'],
     env: 'NODE_ENV',
   },
+  // TODO: Remove this after we have synchronized login records to Firestore
+  firestore: {
+    credentials: {
+      client_email: {
+        default: 'test@localtest.com',
+        doc: 'GCP Client key credential',
+        env: 'FIRESTORE_CLIENT_EMAIL_CREDENTIAL',
+        format: String,
+      },
+      private_key: {
+        default: '',
+        doc: 'GCP Private key credential',
+        env: 'FIRESTORE_PRIVATE_KEY_CREDENTIAL',
+        format: String,
+      },
+    },
+    enabled: {
+      default: true,
+      doc: 'Whether to use firestore',
+      env: 'FIRESTORE_ENABLED',
+      format: Boolean,
+    },
+    keyFilename: {
+      default: path.resolve(__dirname, 'secret-key.json'),
+      doc: 'Path to GCP key file',
+      env: 'FIRESTORE_KEY_FILE',
+      format: String,
+    },
+    prefix: {
+      default: 'fxa-eb-',
+      doc: 'Firestore collection prefix',
+      env: 'FIRESTORE_COLLECTION_PREFIX',
+      format: String,
+    },
+    projectId: {
+      default: '',
+      doc: 'GCP Project id',
+      env: 'FIRESTORE_PROJECT_ID',
+      format: String,
+    },
+  },
   geodb: {
     dbPath: {
       doc: 'Path to the maxmind database file',
