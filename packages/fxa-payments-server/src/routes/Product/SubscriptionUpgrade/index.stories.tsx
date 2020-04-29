@@ -7,7 +7,7 @@ import MockApp from '../../../../.storybook/components/MockApp';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
-import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
+import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN, PROFILE } from './mocks';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 
@@ -76,6 +76,8 @@ const linkToUpgradeOffer = linkTo(
 );
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
+  isMobile: false,
+  profile: PROFILE,
   customer: CUSTOMER,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,

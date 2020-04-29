@@ -5,7 +5,7 @@ import {
   Plan,
   Customer,
   CustomerSubscription,
-  PlanInterval,
+  Profile,
 } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 import { metadataFromPlan } from '../../../store/utils';
@@ -17,6 +17,7 @@ import {
   getLocalizedDateString,
   getLocalizedCurrency,
   formatPlanPricing,
+  getDefaultPaymentConfirmText,
 } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
 
@@ -25,27 +26,18 @@ import { useValidatorState } from '../../../lib/validator';
 
 import DialogMessage from '../../../components/DialogMessage';
 import PaymentLegalBlurb from '../../../components/PaymentLegalBlurb';
+import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
+
+import PlanUpgradeDetails from './PlanUpgradeDetails';
+import Header from '../../../components/Header';
 
 import './index.scss';
 
 import { ProductProps } from '../index';
 
-function getDefaultConfirmText(
-  amount: number,
-  currency: string,
-  interval: PlanInterval,
-  intervalCount: number
-) {
-  const planPricing = formatPlanPricing(
-    amount,
-    currency,
-    interval,
-    intervalCount
-  );
-  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to payment terms, until I cancel my subscription.`;
-}
-
 export type SubscriptionUpgradeProps = {
+  isMobile: boolean;
+  profile: Profile;
   customer: Customer;
   selectedPlan: Plan;
   upgradeFromPlan: Plan;
@@ -56,6 +48,8 @@ export type SubscriptionUpgradeProps = {
 };
 
 export const SubscriptionUpgrade = ({
+  isMobile,
+  profile,
   customer,
   selectedPlan,
   upgradeFromPlan,
@@ -94,19 +88,22 @@ export const SubscriptionUpgrade = ({
     ]
   );
 
-  const {
-    last4: cardLast4,
-    exp_month: cardExpMonth,
-    exp_year: cardExpYear,
-    // TODO https://github.com/mozilla/fxa/issues/3037
-    // brand: cardBrand,
-  } = customer;
+  const { last4: cardLast4, brand: cardBrand } = customer;
+
+  const cardBrandLc = ('' + cardBrand).toLowerCase();
+
+  const mobileUpdateHeading = isMobile ? (
+    <div className="mobile-subscription-update-heading">
+      <div className="subscription-update-heading">
+        <Localized id="product-plan-upgrade-heading">
+          <h2>Review your upgrade</h2>
+        </Localized>
+      </div>
+    </div>
+  ) : null;
 
   return (
-    <div
-      className="product-payment product-upgrade"
-      data-testid="subscription-upgrade"
-    >
+    <>
       {updateSubscriptionPlanStatus.error && (
         <DialogMessage
           className="dialog-error"
@@ -118,156 +115,126 @@ export const SubscriptionUpgrade = ({
           <p>{updateSubscriptionPlanStatus.error.message}</p>
         </DialogMessage>
       )}
-
-      <hr />
-
-      <div className="upgrade-details">
-        <h2>Review your upgrade details</h2>
-        <ol className="upgrade-plans">
-          <li className="from-plan">
-            <PlanDetail plan={upgradeFromPlan} />
-          </li>
-          <Localized id="sub-update-indicator">
-            <li
-              role="img"
-              aria-label="upgrade indicator"
-              className="upgrade-indicator"
-            >
-              &nbsp;
-            </li>
-          </Localized>
-          <li className="to-plan">
-            <PlanDetail plan={selectedPlan} />
-          </li>
-        </ol>
-      </div>
-
-      <hr />
-
-      <Form
-        data-testid="upgrade-form"
-        className="upgrade"
-        {...{ validator, onSubmit }}
-      >
-        <h3 className="billing-title">
-          <Localized id="sub-update-title">
-            <span className="title">Billing Information</span>
-          </Localized>
-
-          <span className="card-details">
-            {/* TODO: we don't have data from subhub to determine card icon
-                https://github.com/mozilla/fxa/issues/3037
-              <span className="icon">&nbsp;</span>
-            */}
-            <Localized id="sub-update-card-ending" $last={cardLast4}>
-              <span className="last">Card Ending {cardLast4}</span>
-            </Localized>
-            <Localized
-              id="sub-update-card-exp"
-              $cardExpMonth={cardExpMonth}
-              $cardExpYear={cardExpYear}
-            >
-              <span className="expires">
-                Expires {cardExpMonth}/{cardExpYear}
-              </span>
-            </Localized>
-          </span>
-        </h3>
-
-        <Localized
-          id="sub-update-copy"
-          $startingDate={getLocalizedDate(
-            upgradeFromSubscription.current_period_end
-          )}
+      <Header {...{ profile }} />
+      <div className="main-content">
+        <div
+          className="product-payment product-upgrade"
+          data-testid="subscription-upgrade"
         >
-          <p>
-            Your plan will change immediately, and you’ll be charged an adjusted
-            amount for the rest of your billing cycle. Starting{' '}
-            {getLocalizedDateString(upgradeFromSubscription.current_period_end)}{' '}
-            you’ll be charged the full amount.
-          </p>
-        </Localized>
-
-        <Checkbox
-          data-testid="confirm"
-          name="confirm"
-          onClick={engageOnce}
-          required
-        >
-          <Localized
-            id={`sub-update-confirm-${selectedPlan.interval}`}
-            strong={<strong></strong>}
-            $amount={getLocalizedCurrency(
-              selectedPlan.amount,
-              selectedPlan.currency
-            )}
-            $intervalCount={selectedPlan.interval_count}
+          <div
+            className="subscription-update-heading"
+            data-testid="subscription-update-heading"
           >
-            <p>
-              {getDefaultConfirmText(
-                selectedPlan.amount,
-                selectedPlan.currency,
-                selectedPlan.interval,
-                selectedPlan.interval_count
-              )}
-            </p>
-          </Localized>
-        </Checkbox>
+            <Localized id="product-plan-upgrade-heading">
+              <h2>Review your upgrade</h2>
+            </Localized>
+            <p className="subheading"></p>
+          </div>
 
-        <div className="button-row">
-          <SubmitButton
-            data-testid="submit"
-            name="submit"
-            disabled={inProgress}
-          >
-            {inProgress ? (
-              <span data-testid="spinner-submit" className="spinner">
-                &nbsp;
-              </span>
-            ) : (
-              <Localized id="sub-update-submit">
-                <span>Change Plans</span>
+          <div className="payment-details">
+            <h3 className="billing-title">
+              <Localized id="sub-update-title">
+                <span className="title">Billing information</span>
               </Localized>
-            )}
-          </SubmitButton>
+            </h3>
+
+            <div>
+              <Localized
+                id="payment-confirmation-cc-preview"
+                $last4={cardLast4}
+              >
+                <p className={`c-card ${cardBrandLc}`}>
+                  {' '}
+                  ending in {cardLast4}
+                </p>
+              </Localized>
+            </div>
+          </div>
+
+          <Form
+            data-testid="upgrade-form"
+            className="payment upgrade"
+            {...{ validator, onSubmit }}
+          >
+            <hr />
+            <Localized
+              id="sub-update-copy"
+              $startingDate={getLocalizedDate(
+                upgradeFromSubscription.current_period_end
+              )}
+            >
+              <p>
+                Your plan will change immediately, and you’ll be charged an
+                adjusted amount for the rest of your billing cycle. Starting
+                {getLocalizedDateString(
+                  upgradeFromSubscription.current_period_end
+                )}{' '}
+                you’ll be charged the full amount.
+              </p>
+            </Localized>
+
+            <hr />
+
+            <Localized
+              id={`sub-update-confirm-${selectedPlan.interval}`}
+              strong={<strong></strong>}
+              $amount={getLocalizedCurrency(
+                selectedPlan.amount,
+                selectedPlan.currency
+              )}
+              $intervalCount={selectedPlan.interval_count}
+            >
+              <Checkbox
+                data-testid="confirm"
+                name="confirm"
+                onClick={engageOnce}
+                required
+              >
+                {getDefaultPaymentConfirmText(
+                  selectedPlan.amount,
+                  selectedPlan.currency,
+                  selectedPlan.interval,
+                  selectedPlan.interval_count
+                )}
+              </Checkbox>
+            </Localized>
+
+            <hr />
+
+            <div className="button-row">
+              <SubmitButton
+                data-testid="submit"
+                name="submit"
+                disabled={inProgress}
+              >
+                {inProgress ? (
+                  <span data-testid="spinner-submit" className="spinner">
+                    &nbsp;
+                  </span>
+                ) : (
+                  <Localized id="sub-update-submit">
+                    <span>Confirm upgrade</span>
+                  </Localized>
+                )}
+              </SubmitButton>
+            </div>
+
+            <PaymentLegalBlurb />
+            <TermsAndPrivacy />
+          </Form>
         </div>
-
-        <PaymentLegalBlurb />
-      </Form>
-    </div>
-  );
-};
-
-export const PlanDetail = ({ plan }: { plan: Plan }) => {
-  const {
-    product_name: productName,
-    amount,
-    currency,
-    interval,
-    interval_count,
-  } = plan;
-  const { webIconURL } = metadataFromPlan(plan);
-  const planPrice = formatPlanPricing(
-    amount,
-    currency,
-    interval,
-    interval_count
-  );
-
-  return (
-    <div className="upgrade-plan-detail">
-      {webIconURL && (
-        <img src={webIconURL} alt={productName} height="49" width="49" />
-      )}
-      <span className="product-name">{productName}</span>
-      <Localized
-        id={`plan-price-${interval}`}
-        $amount={getLocalizedCurrency(amount, currency)}
-        $intervalCount={interval_count}
-      >
-        <span className="plan-price">{planPrice}</span>
-      </Localized>
-    </div>
+        <PlanUpgradeDetails
+          {...{
+            profile,
+            selectedPlan,
+            upgradeFromPlan,
+            isMobile,
+            showExpandButton: isMobile,
+          }}
+        />
+        {mobileUpdateHeading}
+      </div>
+    </>
   );
 };
 

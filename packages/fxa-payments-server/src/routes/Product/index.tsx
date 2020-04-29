@@ -158,6 +158,7 @@ export const Product = ({
       return (
         <SubscriptionUpgrade
           {...{
+            isMobile,
             profile: profile.result,
             customer: customer.result,
             selectedPlan,

@@ -210,3 +210,33 @@ hr {
     box-shadow: none;
   }
 }
+
+.c-card {
+  position: relative;
+}
+
+.c-card::before {
+  content: '';
+  display: block;
+  height: 27px;
+  left: -45px;
+  position: absolute;
+  top: 0;
+  width: 40px;
+}
+
+.visa::before {
+  background: url('./images/visa.svg') no-repeat;
+}
+
+.mastercard::before {
+  background: url('./images/mastercard.svg') no-repeat;
+}
+
+.american::before {
+  background: url('./images/amex.svg') no-repeat;
+}
+
+.discover::before {
+  background: url('./images/discover.svg') no-repeat;
+}

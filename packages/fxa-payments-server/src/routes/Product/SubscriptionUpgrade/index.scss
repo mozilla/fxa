@@ -1,4 +1,26 @@
+@import '../../../../../fxa-content-server/app/styles/variables';
+@import '../../../../../fxa-content-server/app/styles/breakpoints';
+@import '../../../styles/variables';
+
 .product-upgrade {
+
+  .c-card {
+    left: 45px;
+  }
+
+  .subscription-update-heading {
+    display: none;
+
+    @include min-width('tablet') {
+      display: block;
+      text-align: center;
+
+      h2 {
+        font-weight: normal;
+        margin-top: 20px;
+      }
+    }
+  }
 
   .upgrade-details {
     text-align: center;
@@ -49,10 +71,38 @@
   }
 
   form.upgrade {
-    margin: 0 25px;
+    margin: 0;
 
     > p {
       text-align: left;
+    }
+
+    button {
+      margin-top: 32px;
+    }
+  }
+}
+
+.plan-upgrade-details-component {
+
+  .plan-details-header {
+    border-bottom: 0;
+  }
+
+  p.plan-label {
+    color: #6d6d6e;
+    font-size: 11px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 18px;
+    margin: 0 0 8px 0;
+
+    &.new-plan-label {
+      background-image: url('../../../images/down-arrow.png');
+      background-position-x: center;
+      background-position-y: 18px;
+      background-repeat: no-repeat;
+      padding-top: 30px;
     }
   }
 }

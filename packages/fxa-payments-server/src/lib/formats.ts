@@ -146,3 +146,19 @@ export function formatPlanPricing(
       return `${formattedAmount} every ${intervalCount} years`;
   }
 }
+
+export function getDefaultPaymentConfirmText(
+  amount: number,
+  currency: string,
+  interval: PlanInterval,
+  intervalCount: number
+): string {
+  const planPricing = formatPlanPricing(
+    amount,
+    currency,
+    interval,
+    intervalCount
+  );
+
+  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to payment terms, until I cancel my subscription.`;
+}

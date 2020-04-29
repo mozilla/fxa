@@ -25,7 +25,11 @@ import {
   useValidatorState,
 } from '../../lib/validator';
 import { useCallbackOnce } from '../../lib/hooks';
-import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
+import {
+  getLocalizedCurrency,
+  formatPlanPricing,
+  getDefaultPaymentConfirmText,
+} from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
@@ -60,22 +64,6 @@ export type PaymentFormProps = {
   onChange: Function;
   submitNonce: string;
 };
-
-function getDefaultPaymentConfirmText(
-  amount: number,
-  currency: string,
-  interval: PlanInterval,
-  intervalCount: number
-): string {
-  const planPricing = formatPlanPricing(
-    amount,
-    currency,
-    interval,
-    intervalCount
-  );
-
-  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to payment terms, until I cancel my subscription.`;
-}
 
 export const PaymentForm = ({
   inProgress = false,

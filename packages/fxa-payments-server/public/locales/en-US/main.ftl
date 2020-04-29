@@ -131,8 +131,9 @@ sub-redirect-skip-survey = No thanks, just take me to my product.
 default-input-error = This field is required
 
 ## subscription upgrade
+product-plan-upgrade-heading = Review your upgrade
 sub-update-failed = Plan update failed
-sub-update-title = Billing Information
+sub-update-title = Billing information
 sub-update-card-ending = Card Ending { $last }
 sub-update-card-exp = Expires { $cardExpMonth }/{ $cardExpYear }
 sub-update-copy =
@@ -161,9 +162,12 @@ sub-update-confirm-year = { $intervalCount ->
   *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
 }
 
-sub-update-submit = Change Plans
+sub-update-submit = Confirm upgrade
 sub-update-indicator =
   .aria-label = upgrade indicator
+sub-update-current-plan-label = Current plan
+sub-update-new-plan-label = New plan
+sub-update-total-label = New total
 
 ## subscription upgrade plan details
 ## $amount (Number) - The amount billed. It will be formatted as currency.
