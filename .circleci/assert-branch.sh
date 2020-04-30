@@ -15,9 +15,3 @@ if grep -e 'fxa-email-service' ../packages/test.list; then
     exit 1
   fi
 fi
-if grep -e 'fxa-circleci' ../packages/test.list; then
-  if [[ ! $CIRCLE_BRANCH =~ ^fxa-circleci-.* ]]; then
-    echo "Please create a new PR from a branch name starting with 'fxa-circleci-'"
-    exit 1
-  fi
-fi

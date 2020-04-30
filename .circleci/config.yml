@@ -152,7 +152,7 @@ jobs:
   test-email-service:
     resource_class: large
     docker:
-      - image: mozilla/fxa-circleci
+      - image: circleci/rust:latest-node
       - image: mysql:5.7.27
         environment:
           - MYSQL_DATABASE: fxa
@@ -164,21 +164,10 @@ jobs:
     steps:
       - base-install:
           package: fxa-email-service
+      - run: cargo install cargo-audit
       - run: ./packages/fxa-email-service/scripts/test-ci.sh
       - store_artifacts:
           path: artifacts
-
-  test-fxa-circleci:
-    resource_class: small
-    docker:
-      - image: circleci/node:12
-    environment:
-      SKIP_PACKAGES: true
-    steps:
-      - base-install:
-          package: fxa-circleci
-      - setup_remote_docker
-      - run: ./.circleci/build.sh fxa-circleci
 
   deploy-packages:
     resource_class: small
@@ -198,6 +187,24 @@ jobs:
       - run:
           name: Push to docker hub
           command: ./.circleci/deploy-all.sh
+      - store_artifacts:
+          path: artifacts
+
+  # this job is manually triggered as needed. see _dev/docker/circleci/README.md
+  build-and-deploy-fxa-circleci:
+    resource_class: small
+    docker:
+      - image: circleci/node:12
+    environment:
+      SKIP_PACKAGES: true
+      DOCKER_BUILDKIT: 1
+    steps:
+      - setup_remote_docker:
+          version: 18.09.3
+      - run:
+          name: Build & deploy fxa-circleci
+          command: ./.circleci/build-and-deploy-fxa-circleci.sh
+          no_output_timeout: 1h
       - store_artifacts:
           path: artifacts
 
@@ -263,16 +270,6 @@ workflows:
             branches:
               only:
                 - /^email-service-.*/
-            tags:
-              ignore: /.*/
-      - test-fxa-circleci:
-          # since fxa-circleci rarely changes
-          # we only run it on branches
-          # starting with "fxa-circleci-"
-          filters:
-            branches:
-              only:
-                - /^fxa-circleci-.*/
             tags:
               ignore: /.*/
   deploy_master:
