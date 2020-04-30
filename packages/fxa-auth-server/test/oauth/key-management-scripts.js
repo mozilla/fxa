@@ -14,7 +14,7 @@ describe('the signing-key management scripts', function() {
   let runScript;
   let workDir, keyFile, newKeyFile, oldKeyFile;
 
-  this.timeout(15000);
+  this.timeout(30000);
 
   beforeEach(() => {
     const uniqName = crypto.randomBytes(8).toString('hex');
@@ -24,16 +24,25 @@ describe('the signing-key management scripts', function() {
     newKeyFile = path.join(workDir, 'newKey.json');
     oldKeyFile = path.join(workDir, 'oldKey.json');
     runScript = name => {
-      const script = path.resolve(__dirname, '../../scripts/', name);
-      return execFileSync(process.execPath, [script], {
-        env: {
-          FXA_OPENID_KEYFILE: keyFile,
-          FXA_OPENID_NEWKEYFILE: newKeyFile,
-          FXA_OPENID_OLDKEYFILE: oldKeyFile,
-          NODE_ENV: 'dev',
-        },
-        stdio: [0, 'pipe', 'pipe'],
-      });
+      const base = path.resolve(__dirname, '../../scripts');
+      return execFileSync(
+        process.execPath,
+        [
+          path.join(base, '../node_modules/.bin/ts-node'),
+          '-P',
+          path.join(base, '../tsconfig.json'),
+          path.join(base, name),
+        ],
+        {
+          env: {
+            FXA_OPENID_KEYFILE: keyFile,
+            FXA_OPENID_NEWKEYFILE: newKeyFile,
+            FXA_OPENID_OLDKEYFILE: oldKeyFile,
+            NODE_ENV: 'dev',
+          },
+          stdio: [0, 'pipe', 'pipe'],
+        }
+      );
     };
   });
 

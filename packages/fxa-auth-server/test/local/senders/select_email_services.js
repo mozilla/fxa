@@ -659,7 +659,7 @@ if (config.redis.email.enabled) {
 
     let emailService, selectEmailServices;
 
-    this.timeout(10000);
+    this.timeout(30000);
 
     before(() => {
       emailService = { emailService: true };
@@ -703,7 +703,9 @@ if (config.redis.email.enabled) {
 
 function redisWrite(emailConfig) {
   return cp.execAsync(
-    `echo '${JSON.stringify(emailConfig)}' | node scripts/email-config write`,
+    `echo '${JSON.stringify(
+      emailConfig
+    )}' | npx ts-node scripts/email-config write`,
     {
       cwd: path.resolve(__dirname, '../../..'),
     }
@@ -711,7 +713,7 @@ function redisWrite(emailConfig) {
 }
 
 function redisRevert() {
-  return cp.execAsync('node scripts/email-config revert', {
+  return cp.execAsync('npx ts-node scripts/email-config revert', {
     cwd: path.resolve(__dirname, '../../..'),
   });
 }

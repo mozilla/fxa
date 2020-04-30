@@ -26,7 +26,7 @@ module.exports = {
     },
     {
       name: 'inbox',
-      script: 'test/mail_helper.js',
+      script: 'ts-node test/mail_helper.js',
       cwd: __dirname,
       env: {
         NODE_ENV: 'dev',

@@ -9,16 +9,17 @@
 //
 // https://docs.google.com/spreadsheets/d/1G_8OJGOxeWXdGJ1Ugmykk33Zsl-qAQL05CONSeD4Uz4
 
-'use strict';
-
 const Sentry = require('@sentry/node');
+const { version: VERSION } = require('../../../package.json');
 
-const {
+import {
   GROUPS,
   initialize,
   validate,
-} = require('../../../../fxa-shared/metrics/amplitude');
-const { version: VERSION } = require('../../../package.json');
+} from '../../../../fxa-shared/metrics/amplitude';
+import { Logger } from 'mozlog';
+import { Scope } from '@sentry/node';
+import { conf } from '../../../config';
 
 const EVENTS = {
   'token.created': {
@@ -33,7 +34,7 @@ const EVENTS = {
 
 const FUZZY_EVENTS = new Map([]);
 
-module.exports = (log, config) => {
+module.exports = (log: Logger, config: conf) => {
   if (!log || !config.oauthServer.clientIdToServiceNames) {
     throw new TypeError('Missing argument');
   }
@@ -44,7 +45,14 @@ module.exports = (log, config) => {
     FUZZY_EVENTS
   );
 
-  return function receiveEvent(eventType, data) {
+  return function receiveEvent(
+    eventType: string,
+    data: {
+      time: Date;
+      uid: string;
+      service: string;
+    }
+  ) {
     if (!eventType || !data) {
       log.error('amplitude.badArgument', {
         err: 'Bad argument',
@@ -57,6 +65,7 @@ module.exports = (log, config) => {
       type: eventType,
       time: data.time || Date.now(),
     };
+
     const eventData = Object.assign(
       {},
       {
@@ -91,7 +100,7 @@ module.exports = (log, config) => {
           // that the schema is not too strict against existing events.  We'll
           // update the schema accordingly.  And allow the events in the
           // meantime.
-          Sentry.withScope(scope => {
+          Sentry.withScope((scope: Scope) => {
             scope.setContext('amplitude.validationError', {
               event_type: amplitudeEvent.event_type,
               flow_id: amplitudeEvent.user_properties.flow_id,

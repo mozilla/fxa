@@ -129,7 +129,7 @@ Refer to https://github.com/mozilla/fxa-dev.git.
 Configuration of this project
 is managed by [convict](https://github.com/mozilla/node-convict),
 using the schema in
-[`config/index.js`](config/index.js).
+[`config/index.ts`](config/index.ts).
 
 Default values from this schema
 can be overridden in two ways:
@@ -194,31 +194,31 @@ manage this config.
 - To print the current live config to stdout:
 
   ```
-  node scripts/email-config read
+  npx ts-node scripts/email-config read
   ```
 
 - To set the live config from a JSON file on disk:
 
   ```
-  cat foo.json | node scripts/email-config write
+  cat foo.json | npx ts-node scripts/email-config write
   ```
 
 - To set the live config from a string:
 
   ```
-  echo '{"sendgrid":{"percentage":10}}' | node scripts/email-config write
+  echo '{"sendgrid":{"percentage":10}}' | npx ts-node scripts/email-config write
   ```
 
 - To undo the last change:
 
   ```
-  node scripts/email-config revert
+  npx ts-node scripts/email-config revert
   ```
 
 - To check the resolved config for a specific email address:
 
   ```
-  node scripts/email-config check foo@example.com
+  npx ts-node scripts/email-config check foo@example.com
   ```
 
 ## Troubleshooting
