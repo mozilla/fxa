@@ -14,11 +14,9 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "types": [
-      "node"
-    ],
     "typeRoots": [
       "./types",
+      "../fxa-shared/types",
       "node_modules/@types"
     ]
   },
