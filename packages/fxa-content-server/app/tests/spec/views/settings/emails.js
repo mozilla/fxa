@@ -469,6 +469,7 @@ describe('views/settings/emails', function() {
       });
 
       it('can set primary email', done => {
+        const spy = sinon.spy(view, 'translate');
         // Find the third email
         $('.email-address')
           .eq(2)
@@ -478,6 +479,10 @@ describe('views/settings/emails', function() {
           .click();
         setTimeout(() => {
           TestHelpers.wrapAssertion(() => {
+            sinon.assert.calledWith(spy, 'Primary email set to %(email)s', {
+              email: newEmail,
+            });
+            spy.restore();
             assert.equal(
               account.get('email'),
               newEmail,
@@ -489,6 +494,10 @@ describe('views/settings/emails', function() {
               'originalLoginEmail is unset'
             );
 
+            // hey there, this fails if you view the test from
+            // http://localhost:3030/tests/index.html?grep=views%2Fsettings%2Femails%20feature%20enabled%20can%20change%20email%20can%20set%20primary%20email
+            // or somewhere that's not the root, because
+            // '/?grep=[some test name]' would be part of the argument.
             assert.isTrue(
               windowMock.history.replaceState.calledOnceWith(
                 {},
