@@ -1,3 +1,13 @@
+## 1.169.0
+
+### New features
+
+* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+
+### Bug fixes
+
+* sentry: Fix sentry reporting in customs server ([6352a99e6](https://github.com/mozilla/fxa/commit/6352a99e6))
+
 ## 1.168.3
 
 No changes.
