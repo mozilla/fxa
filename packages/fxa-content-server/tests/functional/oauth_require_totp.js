@@ -23,6 +23,7 @@ const {
   confirmTotpCode,
   createEmail,
   createUser,
+  enableTotpInline,
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
@@ -31,7 +32,6 @@ const {
   openPage,
   testElementExists,
   testElementTextInclude,
-  testErrorTextInclude,
   thenify,
   type,
   visibleByQSA,
@@ -78,7 +78,7 @@ registerSuite('oauth require totp', {
         .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },
 
-    'fails for account without TOTP': function() {
+    'account without TOTP redirects to TOTP setup and completes TOTP flow': function() {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -87,8 +87,30 @@ registerSuite('oauth require totp', {
           })
         )
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testErrorTextInclude('requires two step authentication enabled'))
-        .then(testErrorTextInclude('More information'));
+        .then(enableTotpInline())
+        .then(testAtOAuthApp());
+    },
+
+    'after enabling TOTP in the login flow, account bypasses TOTP setup on second visit': function() {
+      return this.remote
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(
+          openFxaFromRp('two-step-authentication', {
+            header: selectors.ENTER_EMAIL.HEADER,
+          })
+        )
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(enableTotpInline())
+        .then(testAtOAuthApp())
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
+        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
+        .then(
+          openFxaFromRp('two-step-authentication', {
+            header: selectors.SIGNIN_PASSWORD.HEADER,
+          })
+        )
+        .then(click(selectors.SIGNIN_PASSWORD.SUBMIT_USE_SIGNED_IN))
+        .then(testAtOAuthApp());
     },
 
     'succeed for account with TOTP': function() {

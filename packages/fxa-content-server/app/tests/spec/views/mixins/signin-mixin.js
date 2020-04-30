@@ -562,7 +562,7 @@ describe('views/mixins/signin-mixin', function() {
     });
 
     describe('relier wants TOTP', () => {
-      let err;
+      let err, succeeded, failed;
 
       beforeEach(() => {
         err = AuthErrors.toError('TOTP_REQUIRED');
@@ -572,34 +572,25 @@ describe('views/mixins/signin-mixin', function() {
         sinon.stub(relier, 'isOAuth').callsFake(() => true);
         sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => true);
 
-        return view.signIn(account, 'password');
-      });
-
-      it('failed', () => {
-        assert.isTrue(AuthErrors.is(err, 'TOTP_REQUIRED'));
-        assert.isTrue(view.unsafeDisplayError.calledWith(err));
-        const link =
-          'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
-        assert.isTrue(
-          err.forceMessage.indexOf(link) > 0,
-          'contains setup link'
-        );
-
-        const args = user.signInAccount.args[0];
-        assert.equal(
-          args[3].verificationMethod,
-          VerificationMethods.TOTP_2FA,
-          'correct verification method set'
+        return view.signIn(account, 'password').then(
+          () => (succeeded = true),
+          e => (failed = true)
         );
       });
 
-      it('did not navigate', () => {
-        assert.equal(view.navigate.callCount, 0);
+      it('succeeded', () => {
+        assert.isTrue(succeeded);
+        assert.isUndefined(failed);
+      });
+
+      it('navigated to the 2FA setup screen', () => {
+        assert.equal(view.navigate.callCount, 1);
+        assert.equal(view.navigate.args[0][0], 'inline_totp_setup');
       });
     });
 
     describe('relier has mismatch acr values', () => {
-      let err;
+      let err, succeeded, failed;
 
       beforeEach(() => {
         err = OAuthErrors.toError('MISMATCH_ACR_VALUES');
@@ -609,29 +600,20 @@ describe('views/mixins/signin-mixin', function() {
         sinon.stub(relier, 'isOAuth').callsFake(() => true);
         sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => true);
 
-        return view.signIn(account, 'password');
-      });
-
-      it('failed', () => {
-        assert.isTrue(OAuthErrors.is(err, 'MISMATCH_ACR_VALUES'));
-        assert.isTrue(view.unsafeDisplayError.calledWith(err));
-        const link =
-          'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
-        assert.isTrue(
-          err.forceMessage.indexOf(link) > 0,
-          'contains setup link'
-        );
-
-        const args = user.signInAccount.args[0];
-        assert.equal(
-          args[3].verificationMethod,
-          VerificationMethods.TOTP_2FA,
-          'correct verification method set'
+        return view.signIn(account, 'password').then(
+          () => (succeeded = true),
+          e => (failed = true)
         );
       });
 
-      it('did not navigate', () => {
-        assert.equal(view.navigate.callCount, 0);
+      it('succeeded', () => {
+        assert.isTrue(succeeded);
+        assert.isUndefined(failed);
+      });
+
+      it('navigated to the 2FA setup screen', () => {
+        assert.equal(view.navigate.callCount, 1);
+        assert.equal(view.navigate.args[0][0], 'inline_totp_setup');
       });
     });
   });

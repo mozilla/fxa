@@ -31,6 +31,8 @@ import DisplayNameView from '../views/settings/display_name';
 import EmailsView from '../views/settings/emails';
 import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
+import InlineTotpSetupView from '../views/inline_totp_setup';
+import InlineRecoverySetupView from '../views/inline_recovery_setup';
 import PermissionsView from '../views/permissions';
 import SupportView from '../views/support';
 import ReadyView from '../views/ready';
@@ -127,6 +129,8 @@ const Router = Backbone.Router.extend({
     ),
     'cookies_disabled(/)': createViewHandler(CookiesDisabledView),
     'force_auth(/)': createViewHandler(ForceAuthView),
+    'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
+    'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
     'legal(/)': createViewHandler('legal'),
     'legal/privacy(/)': createViewHandler('pp'),
     'legal/terms(/)': createViewHandler('tos'),

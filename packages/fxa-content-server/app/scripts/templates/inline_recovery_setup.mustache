@@ -1,0 +1,86 @@
+<div id="main-content" class="card inline-recovery-setup">
+  {{^showConfirmation}}
+  <header>
+    <h1 id="fxa-save-recovery-codes">
+      <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+      {{#t}}Save recovery codes{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+    </h1>
+  </header>
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+    <p>
+        {{#t}}Store these one-time use codes in a safe place for when you don't have your mobile device.{{/t}}
+    </p>
+    <div id="recovery-codes">
+      <div id="recovery-code-container">
+          {{#recoveryCodes}}
+              <div class="recovery-code">{{code}}</div>
+          {{/recoveryCodes}}
+          {{^isIos}}
+              <div class="button-row save-options">
+                  <button type="button" class="save-option download-option">
+                      <div class="graphic graphic-download-option"></div>
+                      <p class="name">{{#t}}Download{{/t}}</p>
+                  </button>
+                  <button type="button" class="save-option copy-option">
+                      <div class="graphic graphic-copy-option"></div>
+                      <p class="name">{{#t}}Copy{{/t}}</p>
+                  </button>
+                  <button type="button" class="save-option print-option">
+                      <div class="graphic graphic-print-option"></div>
+                      <p class="name">{{#t}}Print{{/t}}</p>
+                  </button>
+              </div>
+          {{/isIos}}
+
+          {{#isIos}}
+              <div class="button-row">
+                  <button type="button" class="save-option copy-option">
+                      <div class="graphic graphic-copy-option"></div>
+                      <p class="name">{{#t}}Copy{{/t}}</p>
+                  </button>
+              </div>
+          {{/isIos}}
+      </div>
+    </div>
+    <div class="button-row">
+        <button class="primary-button recovery-setup-done">{{#t}}Continue{{/t}}</button>
+    </div>
+    <div class="links">
+        <a href="#" class="cancel enabled recovery-cancel">{{#t}}Cancel setup{{/t}}</a>
+    </div>
+    </form>
+  </section>
+  {{/showConfirmation}}
+  {{#showConfirmation}}
+  <header>
+    <h1 id="fxa-confirm-recovery-code">
+      <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+      {{#t}}Confirm recovery code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+    </h1>
+  </header>
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+    <form novalidate>
+      <div id="recovery-codes">
+        <div class="graphic graphic-recovery-codes"></div>
+        <p>
+            {{#t}}To ensure that you will be able to regain access to your account, in the event of a lost device, please enter one of your saved recovery codes.{{/t}}
+        </p>
+        <div class="input-row">
+            <input type="text" class="tooltip-below recovery-code" placeholder="{{#t}}Recovery code{{/t}}" required autofocus autocomplete="off"/>
+        </div>
+        <div class="button-row">
+            <button type="submit" class="primary-button recovery-confirm-code">{{#t}}Confirm{{/t}}</button>
+        </div>
+        <div class="links">
+            <a href="#" class="left recovery-back">{{#t}}Back{{/t}}</a>
+            <a href="#" class="right recovery-cancel">{{#t}}Cancel setup{{/t}}</a>
+        </div>
+      </div>
+    </form>
+  {{/showConfirmation}}
+  </section>
+</div>

@@ -1,0 +1,86 @@
+<div id="main-content" class="card inline-totp-setup">
+  {{#showIntro}}
+    <header>
+      <h1 id="fxa-inline-totp-setup">
+        <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+        {{#t}}Enable two-step authentication{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+      </h1>
+    </header>
+    <section>
+      <div class="error"></div>
+      <div class="success"></div>
+
+      <div class="graphic graphic-two-factor-auth"></div>
+      <p>
+        {{#unsafeTranslate}}Add a layer of security to your account by requiring security codes from one of <a %(escapedTotpSupportAttributes)s>these authentication apps</a>.{{/unsafeTranslate}}
+      </p>
+      <div class="button-row">
+        <button type="submit" class="primary-button totp-continue">{{#t}}Continue{{/t}}</button>
+      </div>
+      <div class="links">
+          <a href="#" class="cancel enabled totp-cancel">{{#t}}Cancel setup{{/t}}</a>
+      </div>
+    </section>
+  {{/showIntro}}
+  {{^showIntro}}
+    <header>
+      {{#showQRImage}}
+        <h1 id="fxa-totp-qr-image">
+          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+          {{#t}}Scan authentication code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        </h1>
+      {{/showQRImage}}
+      {{^showQRImage}}
+        <h1 id="fxa-totp-code-text">
+          <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+          {{#t}}Enter code manually{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        </h1>
+      {{/showQRImage}}
+    </header>
+    <section>
+      <div class="error"></div>
+      <div class="success"></div>
+
+      <form novalidate>
+        <div id="totp" class="totp-details">
+          {{#showQRImage}}
+            <p>
+              {{#t}}Scan the QR code in your authentication app and then enter the security code it provides.{{/t}}
+              <a href="#" class="show-code-link">{{#t}}Can’t scan code?{{/t}}</a>
+            </p>
+            <div class="qr-image-container">
+              <img class="qr-image" alt="{{ qrImageAltText }}"/>
+            </div>
+            <p>
+              {{#t}}Once complete, it will begin generating security codes for you to enter.{{/t}}
+            <p>
+          {{/showQRImage}}
+          {{^showQRImage}}
+            <p>
+              {{#t}}Type this secret key into your authentication app.{{/t}}
+              <a href="#" class="hide-code-link">{{#t}}Scan QR code instead?{{/t}}</a></p>
+            </p>
+            <div class="qr-code-container">
+              <div class="qr-code-text">{{secret}}</div>
+            </div>
+            <p>
+              {{#t}}Once complete, it will begin generating security codes for you to enter.{{/t}}
+            </p>
+          {{/showQRImage}}
+
+          <div class="input-row">
+              <input type="number" pattern="\d+" length="6" class="tooltip-below totp-code" placeholder="{{#t}}Security code{{/t}}" value="{{ code }}" required autofocus autocomplete="off"/>
+          </div>
+
+          <div class="button-row">
+              <button type="submit" class="primary-button totp-confirm-code">{{#t}}Ready{{/t}}</button>
+          </div>
+
+          <div class="links">
+              <a href="#" class="cancel enabled totp-cancel">{{#t}}Cancel setup{{/t}}</a>
+          </div>
+        </div>
+      </form>
+    </section>
+  {{/showIntro}}
+</div>

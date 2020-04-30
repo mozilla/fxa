@@ -217,16 +217,22 @@ describe('views/authorization', function() {
   });
 
   describe('_handlePromptNoneError', () => {
-    it('sends permitted errors to the RP', () => {
-      sinon.stub(view, '_shouldSendErrorToRP').callsFake(() => true);
+    // This error should cause a redirect.
+    const oauthErr = OAuthErrors.toError(
+      'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN'
+    );
+
+    beforeEach(() => {
       sinon
         .stub(broker, 'sendOAuthResultToRelier')
         .callsFake(() => Promise.resolve());
       relier.set('redirectUri', 'https://redirect.to');
+    });
 
-      const err = OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
-      return view._handlePromptNoneError(err).then(() => {
-        assert.isTrue(view._shouldSendErrorToRP.calledOnceWith(err));
+    it('sends permitted errors to the RP', () => {
+      relier.set('returnOnError', true);
+
+      return view._handlePromptNoneError(oauthErr).then(() => {
         assert.isTrue(
           broker.sendOAuthResultToRelier.calledOnceWith({
             error: 'account_selection_required',
@@ -236,14 +242,20 @@ describe('views/authorization', function() {
       });
     });
 
-    it('re-throws other errors', () => {
-      sinon.stub(view, '_shouldSendErrorToRP').callsFake(() => false);
-      sinon.stub(broker, 'sendOAuthResultToRelier');
+    it('re-throws errors if RP does not allow returnOnError', () => {
+      relier.set('returnOnError', false);
 
-      const err = OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
-      return view._handlePromptNoneError(err).then(assert.fail, _err => {
-        assert.isTrue(view._shouldSendErrorToRP.calledOnceWith(err));
-        assert.strictEqual(_err, err);
+      return view._handlePromptNoneError(oauthErr).then(assert.fail, _err => {
+        assert.strictEqual(_err, oauthErr);
+      });
+    });
+
+    it('re-throws other errors', () => {
+      // This error lacks an error_response_code, so it should not redirect.
+      const authErr = AuthErrors.toError('USER_CANCELED_LOGIN');
+
+      return view._handlePromptNoneError(authErr).then(assert.fail, _err => {
+        assert.strictEqual(_err, authErr);
       });
     });
   });
