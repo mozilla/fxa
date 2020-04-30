@@ -8,7 +8,7 @@ import path from 'path';
 
 const conf = convict({
   authHeader: {
-    default: 'oidc-claim-id-token-email',
+    default: 'authorization',
     doc: 'Authentication header that should be logged for the user',
     env: 'AUTH_HEADER',
     format: String,
@@ -52,7 +52,7 @@ const conf = convict({
     format: ['development', 'test', 'stage', 'production'],
   },
   logging: {
-    app: { default: 'fxa-user-admin-server' },
+    app: { default: 'fxa-graphql-api-server' },
     fmt: {
       default: 'heka',
       env: 'LOGGING_FORMAT',
@@ -71,6 +71,42 @@ const conf = convict({
       format: {
         default: 'default_fxa',
         format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
+      },
+    },
+  },
+  oauth: {
+    accessToken: {
+      hexLength: {
+        default: 64,
+        doc: 'Number of characters in an access token as a hex string',
+        env: 'OAUTH_ACCESS_TOKEN_LENGTH',
+        format: 'int',
+      },
+    },
+    allowedClients: {
+      default: [],
+      doc: 'A list of OAuth client ids that are allowed to use this GraphQL api',
+      env: 'OAUTH_ALLOWED_CLIENTS',
+      format: Array,
+    },
+  },
+  redis: {
+    accessTokens: {
+      host: {
+        default: 'localhost',
+        env: 'ACCESS_TOKEN_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'ACCESS_TOKEN_REDIS_PORT',
+        format: 'port',
+      },
+      prefix: {
+        default: 'at:',
+        env: 'ACCESS_TOKEN_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for access tokens in Redis',
       },
     },
   },
@@ -95,4 +131,5 @@ conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 const Config = conf;
 
+export type AppConfig = typeof Config;
 export default Config;

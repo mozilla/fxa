@@ -272,7 +272,8 @@ If you're using `npm start`, the following ports are used for `--inspect`:
 | 9160 | auth-server     |
 | 9170 | payments-server |
 | 9180 | event-broker    |
-| 9190 | graphql-api     |
+| 9190 | support-panel   |
+| 9200 | graphql-api     |
 
 #### Debugging tests
 
