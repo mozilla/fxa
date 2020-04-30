@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { APIError } from '../../../lib/apiClient';
 import { Plan } from '../../../store/types';
-import { PlanDetail } from './index';
+import { PlanUpgradeDetails, PlanDetailsCard } from './PlanUpgradeDetails';
 
 jest.mock('../../../lib/sentry');
 
@@ -22,7 +22,7 @@ import {
   getLocalizedMessage,
 } from '../../../lib/test-utils';
 
-import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN } from './mocks';
+import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN, PROFILE } from './mocks';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
@@ -132,6 +132,8 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   describe('Legal', () => {
     describe('rendering the legal checkbox Localized component', () => {
       const baseProps = {
+        isMobile: false,
+        profile: PROFILE,
         customer: CUSTOMER,
         upgradeFromPlan: UPGRADE_FROM_PLAN,
         upgradeFromSubscription: CUSTOMER.subscriptions[0],
@@ -359,7 +361,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   });
 });
 
-describe('PlanDetail', () => {
+describe('PlanDetailsCard', () => {
   const dayBasedId = 'plan-price-day';
   const weekBasedId = 'plan-price-week';
   const monthBasedId = 'plan-price-month';
@@ -377,7 +379,7 @@ describe('PlanDetail', () => {
     function runTests(plan: Plan, expectedMsgId: string, expectedMsg: string) {
       const props = { plan: plan };
 
-      const testRenderer = TestRenderer.create(<PlanDetail {...props} />);
+      const testRenderer = TestRenderer.create(<PlanDetailsCard {...props} />);
       const testInstance = testRenderer.root;
       const planPriceComponent = testInstance.findByProps({
         id: expectedMsgId,
@@ -577,6 +579,7 @@ const Subject = ({ props = {} }: { props?: object }) => {
 
 const MOCK_PROPS: SubscriptionUpgradeProps = {
   customer: CUSTOMER,
+  profile: PROFILE,
   selectedPlan: SELECTED_PLAN,
   upgradeFromPlan: UPGRADE_FROM_PLAN,
   upgradeFromSubscription: CUSTOMER.subscriptions[0],
