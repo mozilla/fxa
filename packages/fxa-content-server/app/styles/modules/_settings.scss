@@ -643,6 +643,10 @@ section.modal-panel {
     background-image: url('/images/icon-service-private-network.svg');
   }
 
+  &[data-name^='Firefox Better Web with Scroll'] {
+    background-image: url('/images/icon-service-better-web.svg');
+  }
+
   &[data-name^='Firefox Reality'] {
     background-image: url('/images/icon-service-reality.svg');
   }
