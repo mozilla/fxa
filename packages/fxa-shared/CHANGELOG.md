@@ -1,5 +1,9 @@
 # Change history
 
+## 1.169.0
+
+No changes.
+
 ## 1.168.3
 
 No changes.

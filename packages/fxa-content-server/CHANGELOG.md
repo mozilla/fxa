@@ -1,3 +1,27 @@
+## 1.169.0
+
+### New features
+
+* totp: integrate TOTP setup into login flow ([5b333ac2a](https://github.com/mozilla/fxa/commit/5b333ac2a))
+* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+
+### Bug fixes
+
+* experiments: Enabled variation B 100% for sms header experiment ([af5a92162](https://github.com/mozilla/fxa/commit/af5a92162))
+* chrome: fixed webcrypto check on Chrome ([df7aaf155](https://github.com/mozilla/fxa/commit/df7aaf155))
+* client: Use correct support ticket url ([616b61717](https://github.com/mozilla/fxa/commit/616b61717))
+* tests: updated hawk tests with proper key length ([7218b3a7d](https://github.com/mozilla/fxa/commit/7218b3a7d))
+* npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
+
+### Refactorings
+
+* auth server: compile fxa-auth-server typescript for production, typescript lib/oauth/logging ([4b9b26241](https://github.com/mozilla/fxa/commit/4b9b26241))
+
+### Other changes
+
+* content-server: add fbw logo to device list ([92c682dc0](https://github.com/mozilla/fxa/commit/92c682dc0))
+* fxa-content-server: fix lint errors ([5ae7bc922](https://github.com/mozilla/fxa/commit/5ae7bc922))
+
 ## 1.168.3
 
 ### Bug fixes
