@@ -21,6 +21,7 @@ const log = require('../lib/log')(
 );
 
 const CLIENT_ID = process.env.CLIENT_ID;
+const REMOVE_CLIENT = process.env.REMOVE_CLIENT === 'true';
 
 async function main() {
   if (!CLIENT_ID) {
@@ -50,8 +51,20 @@ async function main() {
     if (doc.exists) {
       const data = doc.data();
       if (data && data.oauth_clients && data.oauth_clients[CLIENT_ID]) {
-        // Record is already in the database
-        continue;
+        if (REMOVE_CLIENT) {
+          // Remove this entry
+          await document.set(
+            {
+              oauth_clients: { [CLIENT_ID]: Firestore.FieldValue.delete() },
+            },
+            { merge: true }
+          );
+          log.info('Removed client id', { uid, clientId: CLIENT_ID });
+          continue;
+        } else {
+          // Record is already in the database
+          continue;
+        }
       }
     }
     log.info('Adding missing uid for client', { uid, clientId: CLIENT_ID });
