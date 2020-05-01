@@ -93,7 +93,16 @@ module.exports = async function createServer(config, log) {
   const api = Hapi.server({
     port: config.listen.port,
     host: config.listen.host,
+    // To reduce connection timeouts, increase the server and socket timeouts
+    routes: { timeout: { server: 4 * 60 * 1000, socket: 8 * 60 * 1000 } },
   });
+
+  // Allow Keep-Alive connections from the auth-server to be idle up to two
+  // minutes before closing the connection. If this is not set, the default
+  // idle-time is 5 seconds.  This can cause a lot of unneeded churn in server
+  // connections. Setting this to 120s makes node8 behave more like node6. -
+  // https://nodejs.org/docs/latest-v8.x/api/http.html#http_server_keepalivetimeout
+  api.listener.keepAliveTimeout = 2 * 60 * 1000;
 
   await configureSentry(api, config, log);
 
