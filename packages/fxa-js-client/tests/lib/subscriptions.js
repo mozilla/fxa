@@ -128,6 +128,7 @@ describe('subscriptions', function() {
         return respond(
           client.createSupportTicket('redpandas', {
             topic: 'Species',
+            issue: 'Other',
             subject: 'Cute & Rare',
             message: 'Need moar',
           }),

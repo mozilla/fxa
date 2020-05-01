@@ -3012,7 +3012,7 @@ describe('models/account', function() {
   describe('createSupportTicket', () => {
     it('delegates to the fxa-client', () => {
       const token = 'tickettoride';
-      const ticket = { topic: 'TESTO', message: 'testo?' };
+      const ticket = { topic: 'TESTO', issue: 'Other', message: 'testo?' };
       const ticketResp = { success: true, ticket: 123 };
       sinon.stub(account, 'createOAuthToken').callsFake(function() {
         return Promise.resolve(new OAuthToken({ token }));

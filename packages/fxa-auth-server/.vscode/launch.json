@@ -87,7 +87,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Arch 2.0 with Coverage",
+      "name": "Current File with Coverage",
       "program": "${workspaceFolder}/node_modules/nyc/bin/nyc.js",
       "args": [
         "--reporter=lcov",
@@ -95,8 +95,7 @@
         "--timeout",
         "999999",
         "--colors",
-        "${workspaceFolder}/test/local/payments/stripe.js",
-        "${workspaceFolder}/test/local/routes/subscriptions.js",
+        "${workspaceFolder}/${relativeFile}",
         "--exit"
       ],
       "env": { "NODE_ENV": "dev" },
