@@ -67,12 +67,14 @@ async function main() {
         }
       }
     }
-    log.info('Adding missing uid for client', { uid, clientId: CLIENT_ID });
-    await document.set(
-      { oauth_clients: { [CLIENT_ID]: true } },
-      { merge: true }
-    );
-    inserted += 1;
+    if (!REMOVE_CLIENT) {
+      log.info('Adding missing uid for client', { uid, clientId: CLIENT_ID });
+      await document.set(
+        { oauth_clients: { [CLIENT_ID]: true } },
+        { merge: true }
+      );
+      inserted += 1;
+    }
   }
   await firestore.terminate();
   log.info('Complete', { inserted });
