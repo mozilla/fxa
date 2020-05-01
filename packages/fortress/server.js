@@ -1,9 +1,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const path = require('path');
-const sessions = require('client-sessions');
 
 const config = require('./config');
+const { data } = require('./data');
 
 const logger = morgan('short');
 
@@ -11,36 +11,31 @@ const app = express();
 
 app.use(logger, express.json());
 
-app.use(function(req, res, next) {
-  if (/^\/api/.test(req.url)) {
-    res.setHeader('Cache-Control', 'no-cache, max-age=0');
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
-    return sessions({
-      cookieName: config.cookieName || 'fortress',
-      secret: process.env['COOKIE_SECRET'] || 'define a real secret, please',
-      requestKey: 'session',
-      cookie: {
-        path: '/api',
-        httpOnly: true,
-      },
-    })(req, res, next);
-  } else {
-    return next();
-  }
+app.get('/', (req, res, next) => {
+  res.render('index', { data });
 });
 
-app.get('/download', function(req, res, next) {
-  req.url = '/download.html';
-  next();
+app.get('/download', (req, res, next) => {
+  res.render('default', { data });
 });
 
-app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function(req, res, next) {
-  req.url = '/index.html';
-  next();
+data.products.forEach((product, index) => {
+  const productData = { global: data.global, ...product };
+  app.get(`/${product.slug}`, (req, res, next) => {
+    res.render('choice', { data: productData });
+  });
+
+  app.get(`/download/${product.slug}`, (req, res, next) => {
+    res.render('download', { data, index });
+  });
 });
 
 app.use(express.static(path.join(__dirname, 'static')));
 
 const port = process.env['PORT'] || config.port || 9292;
-app.listen(port, '0.0.0.0');
-console.log('Firefox Fortress started on port', port); //eslint-disable-line no-console
+app.listen(port, () => {
+  console.log(`Firefox Fortress started on ${port}`); //eslint-disable-line no-console
+});

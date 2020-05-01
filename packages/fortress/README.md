@@ -1,4 +1,4 @@
-## A demo of Product Relying party
+## A demo of a subscription flow
 
 ## Running locally
 
@@ -6,10 +6,10 @@
 1. get a local copy of the repository: `git clone https://github.com/mozilla/fxa`
 1. `cd fxa/packages/fortress`
 1. install dependencies: `npm install`
-1. generate keys `node scripts/gen_keys.js`
-1. run the server: `npm start`
+1. run the server: `npm run dev`
 1. visit it in your browser: `http://localhost:9292/`
-1. hack and reload! (web resources don't require a server restart)
+1. if you want to develop even faster, open a new terminal window and run `npm run ui`
+1. now you can go to `http://localhost:5000` and develop without having to ever restart the server or refresh the browser
 
 [git]: http://git-scm.org
 [node]: http://nodejs.org
