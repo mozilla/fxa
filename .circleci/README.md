@@ -4,11 +4,10 @@
 
 ## Special Cases
 
-`fxa-email-service` and `fxa-circleci` aren't tested for most PRs because
-they don't change often and are relatively resource intensive. In order to
-trigger these tests the PR branch should be prefixed with `email-service-`
-or `fxa-circleci-`. PRs that change those packages on other branches
-will (intentionally) fail.
+`fxa-email-service` isn't tested for most PRs because it doesn't change
+often and is relatively resource intensive. In order to
+trigger these tests the PR branch should be prefixed with `email-service-`.
+PRs that change those packages on other branches will (intentionally) fail.
 
 ## Scripts
 
