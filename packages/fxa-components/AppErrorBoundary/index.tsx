@@ -4,6 +4,7 @@
 
 import React from "react";
 import AppErrorDialog from "../AppErrorDialog";
+import sentryMetrics from "@fxa-shared/lib/sentry";
 
 class AppErrorBoundary extends React.Component {
   state: {
@@ -19,11 +20,9 @@ class AppErrorBoundary extends React.Component {
     return { error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error) {
     console.error("AppError", error);
-
-    // TODO: Add Sentry logging
-    // sentryMetrics.captureException(error);
+    sentryMetrics.captureException(error);
   }
 
   render() {

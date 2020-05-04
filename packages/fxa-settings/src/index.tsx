@@ -6,12 +6,11 @@ import React from 'react';
 import { render } from 'react-dom';
 import './index.scss';
 import App from './components/App';
+import sentryMetrics from '@fxa-shared/lib/sentry';
+import config from './lib/config';
 
 export async function init() {
-  // TODO: Configure Sentry logging
-  // if (config.sentry.dsn) {
-  //   sentryMetrics.configure(config.sentry.dsn, config.version);
-  // }
+  sentryMetrics.configure(config.sentry.dsn, config.version);
 
   render(
     <React.StrictMode>

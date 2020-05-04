@@ -83,9 +83,14 @@ const componentsJestMapper = {
   jest: config => {
     return {
       ...config,
-      moduleNameMapper: {
-        "^@fxa-components/(.*)$": resolve(__dirname, "$1")
-      }
+      moduleNameMapper: Object.keys(additionalJSImports).reduce(
+        (previous, key) => {
+          return Object.assign(previous, {
+            [`^${key}/(.*)$`]: resolve(additionalJSImports[key], "$1")
+          });
+        },
+        {}
+      )
     };
   }
 };
