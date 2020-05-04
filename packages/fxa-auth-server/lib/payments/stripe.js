@@ -1174,7 +1174,16 @@ class StripeHelper {
   ) {
     const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
 
-    const { total: invoiceTotal, period_end: nextInvoiceDate } = invoice;
+    const {
+      total: invoiceTotal,
+      lines: {
+        data: [
+          {
+            period: { end: nextInvoiceDate },
+          },
+        ],
+      },
+    } = invoice;
 
     const {
       brand: cardType,
