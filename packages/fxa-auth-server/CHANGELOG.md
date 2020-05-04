@@ -1,3 +1,9 @@
+## 1.169.1
+
+### Bug fixes
+
+* payments: use period end from first invoice line for reactivation billing date ([212f4049d](https://github.com/mozilla/fxa/commit/212f4049d))
+
 ## 1.169.0
 
 ### New features
