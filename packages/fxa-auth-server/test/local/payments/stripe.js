@@ -1656,6 +1656,13 @@ describe('StripeHelper', () => {
       default_source: { id: sourceId },
       total: 1234,
       period_end: 1587426018,
+      lines: {
+        data: [
+          {
+            period: { end: 1590018018 },
+          },
+        ],
+      },
     };
 
     const mockInvoiceUpcoming = {
@@ -2169,7 +2176,9 @@ describe('StripeHelper', () => {
           invoiceTotal: mockInvoice.total / 100.0,
           cardType: card.brand,
           lastFour: card.last4,
-          nextInvoiceDate: new Date(mockInvoice.period_end * 1000),
+          nextInvoiceDate: new Date(
+            mockInvoice.lines.data[0].period.end * 1000
+          ),
         });
       });
     });
