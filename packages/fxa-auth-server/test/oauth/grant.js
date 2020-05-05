@@ -79,6 +79,7 @@ describe('validateRequestedGrant', () => {
       aal: CLAIMS['fxa-aal'],
       profileChangedAt: CLAIMS['fxa-profileChangedAt'],
       keysJwe: undefined,
+      generation: 12345,
     });
   });
 

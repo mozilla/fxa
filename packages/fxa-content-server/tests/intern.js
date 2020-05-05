@@ -136,6 +136,8 @@ config.capabilities = {};
 config.capabilities['moz:firefoxOptions'] = {};
 // to create a profile, give it the `config` option.
 config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
+// uncomment to show devtools on launch
+// config.capabilities['moz:firefoxOptions'].args = ['-devtools'];
 
 // custom Firefox binary location, if specified then the default is ignored.
 // ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver

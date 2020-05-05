@@ -1701,6 +1701,12 @@ const conf = convict({
       format: 'String',
     },
   },
+  syncTokenserverUrl: {
+    default: 'http://localhost:5000/token',
+    doc: 'The url of the Firefox Sync tokenserver',
+    env: 'SYNC_TOKENSERVER_URL',
+    format: 'url',
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration
