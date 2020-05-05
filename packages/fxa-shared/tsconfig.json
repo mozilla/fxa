@@ -9,7 +9,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
-    "typeRoots": ["./types", "node_modules/@types"],
+    "typeRoots": ["./types", "node_modules/@types", "../fxa-auth-server/node_modules/@types"],
     "skipLibCheck": true
   },
   "include": ["./**/*", "./*"],
