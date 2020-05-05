@@ -1,3 +1,9 @@
+## 1.169.1
+
+### Bug fixes
+
+* customs: Update the route timeout level for customs server ([c273cb6c6](https://github.com/mozilla/fxa/commit/c273cb6c6))
+
 ## 1.169.0
 
 ### New features
