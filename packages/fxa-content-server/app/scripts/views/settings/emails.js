@@ -11,7 +11,6 @@ import LastCheckedTimeMixin from '../mixins/last-checked-time-mixin';
 import preventDefaultThen from '../decorators/prevent_default_then';
 import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import UpgradeSessionMixin from '../mixins/upgrade-session-mixin';
-import Strings from '../../lib/strings';
 import showProgressIndicator from '../decorators/progress_indicator';
 import Template from 'templates/settings/emails.mustache';
 import Url from '../../lib/url';
@@ -187,7 +186,7 @@ var View = FormView.extend({
       account.unset('originalLoginEmail');
       this.setSearchString('email', email);
       this.displaySuccess(
-        Strings.interpolate(t('Primary email set to %(email)s'), { email }),
+        this.translate(t('Primary email set to %(email)s'), { email }),
         {
           closePanel: false,
         }
