@@ -231,6 +231,7 @@ require('./spec/views/post_verify/account_recovery/add_recovery_key');
 require('./spec/views/post_verify/account_recovery/confirm_password');
 require('./spec/views/post_verify/account_recovery/save_recovery_key');
 require('./spec/views/post_verify/account_recovery/confirm_recovery_key');
+require('./spec/views/post_verify/newsletters/add_newsletters');
 require('./spec/views/post_verify/secondary_email/add_secondary_email');
 require('./spec/views/post_verify/secondary_email/confirm_secondary_email');
 require('./spec/views/progress_indicator');

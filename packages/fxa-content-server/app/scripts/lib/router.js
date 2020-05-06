@@ -170,6 +170,9 @@ const Router = Backbone.Router.extend({
         type: VerificationReasons.RECOVERY_KEY,
       }
     ),
+    'post_verify/newsletters/add_newsletters': createViewHandler(
+      'post_verify/newsletters/add_newsletters'
+    ),
     'post_verify/secondary_email/add_secondary_email': createViewHandler(
       'post_verify/secondary_email/add_secondary_email'
     ),

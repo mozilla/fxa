@@ -61,6 +61,16 @@
   }
 }
 
+.graphic-add-newsletters {
+  background-image: image-url('graphic_mail.svg');
+  height: 138px;
+  margin-top: 20px;
+
+  @include respond-to('small') {
+    height: 70px;
+  }
+}
+
 .graphic-recovery-codes {
   background-image: image-url('graphic_recovery_codes.svg');
   height: 138px;
