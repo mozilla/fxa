@@ -11,6 +11,8 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const nock = require('nock');
 const P = require('../../../lib/promise');
+const error = require('../../../lib/error');
+const handleAuth = require('../../../lib/routes/support').handleAuth;
 
 let config,
   log,
@@ -173,7 +175,8 @@ describe('support', () => {
     payload: {
       plan: '123done',
       productName: 'FxA - 123done Pro',
-      topic: 'Billing',
+      topic: 'Firefox Account',
+      issue: 'Payment & Billing',
       subject: 'Change of address',
       message: 'How do I change it?',
     },
@@ -217,6 +220,7 @@ describe('support', () => {
           [
             'FxA - 123done Pro',
             requestOptions.payload.topic,
+            requestOptions.payload.issue,
             'Mountain View',
             'California',
             'United States',
@@ -266,6 +270,7 @@ describe('support', () => {
           [
             'FxA - 123done Pro',
             requestOptions.payload.topic,
+            requestOptions.payload.issue,
             'Mountain View',
             'California',
             'United States',
@@ -295,6 +300,101 @@ describe('support', () => {
           );
         }
       });
+
+      it('should throw an error on failure', async () => {
+        config.subscriptions.enabled = true;
+        nock(`https://${SUBDOMAIN}.zendesk.com`)
+          .post('/api/v2/requests.json')
+          .reply(500);
+
+        try {
+          await runTest('/support/ticket', requestOptions);
+          nock.isDone();
+          assert.fail();
+        } catch (err) {
+          const expectedPayload = {
+            code: 500,
+            error: 'Internal Server Error',
+            errno: error.ERRNO.BACKEND_SERVICE_FAILURE,
+            message: 'A backend service request failed.',
+            info:
+              'https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format',
+            service: 'zendesk',
+            operation: 'createRequest',
+            uid: UID,
+            email: TEST_EMAIL,
+          };
+
+          const output = err.output;
+
+          assert.strictEqual(output.statusCode, 500);
+          assert.deepEqual(output.payload, expectedPayload);
+          nock.isDone();
+        }
+      });
+    });
+  });
+});
+
+describe('handleAuth', () => {
+  const AUTH_UID = uuid.v4('binary').toString('hex');
+  const AUTH_EMAIL = 'auth@example.com';
+  const DB_EMAIL = 'db@example.com';
+
+  const VALID_AUTH = {
+    credentials: {
+      scope: MOCK_SCOPES,
+      user: `${AUTH_UID}`,
+      email: `${AUTH_EMAIL}`,
+    },
+  };
+
+  const VALID_AUTH_NO_EMAIL = {
+    credentials: {
+      scope: MOCK_SCOPES,
+      user: `${AUTH_UID}`,
+    },
+  };
+
+  const INVALID_AUTH = {
+    credentials: {
+      scope: 'profile',
+      user: `${AUTH_UID}`,
+      email: `${AUTH_EMAIL}`,
+    },
+  };
+
+  let db;
+
+  before(() => {
+    db = mocks.mockDB({
+      uid: AUTH_UID,
+      email: DB_EMAIL,
+    });
+  });
+
+  it('throws an error when the scope is invalid', async () => {
+    return handleAuth(db, INVALID_AUTH).then(
+      () => Promise.reject(new Error('Method expected to reject')),
+      err => {
+        assert.equal(err.message, 'Requested scopes are not allowed');
+      }
+    );
+  });
+
+  describe('when the email is in the auth header', () => {
+    it('returns the uid and the email from the auth header', async () => {
+      const expected = { uid: AUTH_UID, email: AUTH_EMAIL };
+      const actual = await handleAuth(db, VALID_AUTH);
+      assert.deepEqual(actual, expected);
+    });
+  });
+
+  describe('when the email is missing from the auth header', () => {
+    it('returns the uid from the auth credentials and fetches the email from the database', async () => {
+      const expected = { uid: AUTH_UID, email: DB_EMAIL };
+      const actual = await handleAuth(db, VALID_AUTH_NO_EMAIL);
+      assert.deepEqual(actual, expected);
     });
   });
 });

@@ -1354,6 +1354,7 @@ FxaClientWrapper.prototype = {
    * @param {String} token A token from the OAuth server.
    * @param {Object} [supportTicket={}]
    *   @param {String} [supportTicket.topic]
+   *   @param {String} [supportTicket.issue]
    *   @param {String} [supportTicket.subject] Optional subject
    *   @param {String} [supportTicket.message]
    * @returns {Promise} A promise that will be fulfilled with:
