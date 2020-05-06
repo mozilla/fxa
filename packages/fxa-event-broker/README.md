@@ -214,3 +214,19 @@ of the diagrams.
 [mermaid live editor]: https://mermaid-js.github.io/mermaid-live-editor/
 [mermaid]: mermaidjs.github.io/
 [set]: https://tools.ietf.org/html/rfc8417
+
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending in `.spec.ts` under `src/test/` and uses `ts-node` so it can process TypeScript files.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only src/test/lib/db/firestore.spec.ts
+npx mocha -r ts-node/register src/test/lib/db/firestore.spec.ts
+
+# Grep for "queries on start"
+npx mocha -r ts-node/register src/test/**/** -g "queries on start"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.

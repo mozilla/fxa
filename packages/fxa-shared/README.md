@@ -95,3 +95,19 @@ Install the [np](https://github.com/sindresorhus/np) tool, run `np [new_version_
 - https://github.com/mozilla/fxa-auth-server
 - https://github.com/mozilla/fxa-oauth-server
 - https://github.com/mozilla/fxa-auth-mailer
+
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will first lint the code and then test all files ending under `test/`, and uses `ts-node` so it can process TypeScript files.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only test/oauth/scopes.js
+npx mocha -r ts-node/register test/oauth/scopes.js
+
+# Grep for "invalid scope values"
+npx mocha -r ts-node/register -g "invalid scope values" --recursive test
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.

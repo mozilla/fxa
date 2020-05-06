@@ -9,8 +9,8 @@ Static server that hosts [Firefox Account sign up](https://accounts.firefox.com)
   - [Changes to Stylesheets](#changes-to-stylesheets)
   - [Changes to Scripts and Templates](#changes-to-scripts-and-templates)
 - [Testing](#testing)
-  - [Prerequisites](#prerequisites)
-  - [Setup](#setup)
+  - [Functional Tests](#functional-tests)
+  - [Unit Tests](#unit-tests)
 - [Grunt Commands](#grunt-commands)
 - [Servers](#servers)
 - [License](#license)
@@ -39,19 +39,22 @@ Any changes made to the css resources, scripts or the template files will automa
 
 ## Testing
 
-### Prerequisites
+### Functional Tests
 
-- Java JDK or JRE (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+📖 A much more thorough breakdown of Content Server functional tests can be found in our [Ecosystem Platform docs](https://mozilla.github.io/ecosystem-platform/docs/fxa-engineering/functional-testing).
 
-### Setup
+**[JDK](https://www.oracle.com/java/technologies/javase-downloads.html) or [JRE](https://www.oracle.com/java/technologies/javase-jre8-downloads.html) is required to run functional tests.**
 
-To run tests locally with Selenium:
+This package uses Selenium to perform functional tests. By default `npm test` will run all functional tests under `tests/`. You can run specific tests with the following commands:
 
-```sh
-npm test
+```bash
+# Grep for "change password, sign in with new password"
+npm run test -- --grep="change password, sign in with new password"
 ```
 
-To change the default auth server edit `server/config/*.json` on your deployed instance.
+#### Changing the Auth Server
+
+To change the default Auth Server edit `server/config/*.json` on your deployed instance.
 
 ```json
 {
@@ -72,7 +75,7 @@ xvfb-run -s "-screen 0 1920x1200x16" npm run test-functional
 
 ### Unit Tests
 
-If you want to test only the unit tests (not Selenium/function tests) you can visit http://localhost:3030/tests/index.html and you can select specific tests with something like http://localhost:3030/tests/index.html?grep=fxa-client
+If you'd like to run only unit tests you can do so in your browser by navigating to <http://localhost:3030/tests/index.html>. You can also grep for specific tests by specifying the `grep` URL parameter (e.g. <http://localhost:3030/tests/index.html?grep=fxa-client>).
 
 ---
 

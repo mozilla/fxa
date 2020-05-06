@@ -1,6 +1,6 @@
 ## A demo of Product Relying party
 
-## running locally
+## Running locally
 
 1. install [git] and [node]
 1. get a local copy of the repository: `git clone https://github.com/mozilla/fxa`
@@ -13,3 +13,9 @@
 
 [git]: http://git-scm.org
 [node]: http://nodejs.org
+
+## Testing
+
+This package does not currently have a test suite.
+
+Run `npm test` to lint the code.

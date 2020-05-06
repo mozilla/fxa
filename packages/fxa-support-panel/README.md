@@ -27,3 +27,19 @@ procedures needed to run the queries that fetch basic profile information.
   - `server` - Hapi server setup and CSP configuration for above `api`.
 - `test` - Unit tests, organized in matching heirarchy with the root supprt-panel directory.
 - `types` - Additional TypeScript definitions for dependencies missing type information.
+
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending under `test/`, and uses `ts-node` so it can process TypeScript files.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only test/lib/api.spec.ts
+npx mocha -r ts-node/register test/lib/api.spec.ts
+
+# Grep for "has a heartbeat"
+npx mocha -r ts-node/register test/*/** -g "has a heartbeat"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.

@@ -14,6 +14,22 @@ Use the `--count` flag to create X number of bounces in a single command.
 
 Example: `npm run email-bounce -- --email=test@example.com --count=3`
 
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending in `.spec.ts` under `src/test/` and uses `ts-node` so it can process TypeScript files.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only src/test/lib/sentry.spec.ts
+npx mocha -r ts-node/register src/test/lib/sentry.spec.ts
+
+# Grep for "returns lbheartbeat"
+npx mocha -r ts-node/register src/test/lib/** -g "returns lbheartbeat"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
+
 ## License
 
 MPL-2.0

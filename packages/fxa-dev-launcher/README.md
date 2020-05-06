@@ -23,3 +23,7 @@ Available options:
 - `FXA_ENV=latest npm start`
 
 The above will start a firefox talking to `latest.dev.lcip.org`
+
+### Testing
+
+This package does not currently have a test suite.

@@ -43,6 +43,22 @@ const LogoImage = () => (
 const LogoImage = () => <div class="logo" role="img" aria-label="logo"></div>;
 ```
 
+## Testing
+
+This package uses [Jest](https://jestjs.io/) to test its code. By default `npm test` will test all JS files under `src/`.
+
+Test specific tests with the following commands:
+
+```bash
+# Test for the component AlertBar
+npm run test -- AppLayout
+
+# Grep for "renders as expected"
+npm run test -- -t "renders as expected"
+```
+
+Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
+
 ## License
 
 MPL-2.0

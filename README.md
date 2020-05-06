@@ -208,6 +208,33 @@ Check out the Secrets section in the following READMEs:
 
 ---
 
+### Testing
+
+ℹ️ While it is possible to run the entire code base's test suite, in development you'll likely want to run specific test or a subset of tests. Please refer to [each package's README](#documentation) for detailed instructions on testing its respective code.
+
+#### Test all or some packages
+
+From the root directory you may test all or some FxA packages:
+
+```bash
+# Test only `fxa-shared`
+npm test fxa-shared
+
+# Test `fxa-auth-db-mysql` and `fxa-auth-server`
+npm test fxa-auth-db-mysql fxa-auth-server
+
+# Test all packages
+npm test all
+```
+
+Note that this invokes the same test suite that CI uses, and is not necessarily the same as running `npm test` in any given package.
+
+#### Emulating CI environment
+
+It is possible to run various test suites (known as Jobs) acting as Circle CI. This is useful if you're encountering CI-specific failures. Please refer to [this documentation](https://github.com/mozilla/fxa/tree/master/.circleci#local-testing).
+
+---
+
 ### Firefox Custom Profile
 
 **Use `npm start firefox` to start Firefox with local server configurations.**
@@ -218,28 +245,6 @@ Available options:
 - `FXA_DESKTOP_CONTEXT` - `context=` value. (NOTE: `fx_desktop_v2` is default).
 - `FIREFOX_BIN=/Applications/FirefoxNightly.app/Contents/MacOS/firefox-bin npm start`
 - `FIREFOX_DEBUGGER=true` - open [Browser Toolbox](https://developer.mozilla.org/en-US/docs/Tools/Browser_Toolbox) on start (NOTE: `false` by default for speed).
-
----
-
-### Functional Tests
-
-**The following requires [the JDK](http://www.oracle.com/technetwork/java/javase/downloads/index-jsp-138363.html#javasejdk) and tests the local servers only.**
-
-## run the following commands from the fxa-content-server directory
-
-To run all functional tests:
-
-```
-npm run test-functional
-```
-
-To run a specific test or tests whose name matches part of a search string:
-
-```
-npm run test-functional -- --grep="Test name"
-```
-
---where 'Test name' is not the file name but the description/name of the test(s).
 
 ---
 

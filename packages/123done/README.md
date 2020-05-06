@@ -1,6 +1,6 @@
 ## A demo of Firefox Accounts OAuth
 
-## running locally
+## Running locally
 
 1. install [git], [node] and [redis]
 1. get a local copy of the repository: `git clone https://github.com/mozilla/123done`
@@ -18,3 +18,9 @@
 ### Ansible Deployment
 
 See [fxa-dev 123done](https://github.com/mozilla/fxa-dev/tree/master/roles/rp) Ansible configuration for details.
+
+## Testing
+
+This package does not currently have a test suite.
+
+Run `npm test` to lint the code.

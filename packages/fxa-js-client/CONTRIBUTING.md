@@ -65,9 +65,19 @@ Adjust this if you need other SJCL features.
 
 ## Testing
 
-`npm test` - run local tests via Node.js
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will first lint the code and then test all files under `tests/lib`, and `npm run test-local` will run the suite against the local fxa-auth-server running on port 9000.
 
-`npm run test-local` - run the tests against the local fxa-auth-server
+Test specific tests with the following commands:
+
+```bash
+# Test only tests/lib/sms.js
+npx mocha tests/lib/sms.js
+
+# Grep for "interface is correct"
+npx mocha tests/lib -g "interface is correct"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
 ## Git Commit Guidelines
 

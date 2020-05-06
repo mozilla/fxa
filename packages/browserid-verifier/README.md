@@ -2,8 +2,6 @@
 
 ## A BrowserID verification server
 
-**This project has moved to https://github.com/mozilla/fxa/tree/master/packages/browserid-verifier**
-
 This repository contains a flexible BrowserID verification server authored in
 Node.JS which uses the [local verification library](https://github.com/mozilla/browserid-local-verify).
 
@@ -33,6 +31,22 @@ inspect the current server configuration with:
 
 The server exports an endpoint at `/status` that can be polled for server health.
 When the server is healthy, a `200` HTTP response is returned with a body of `OK`.
+
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all JS files under `tests/`.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only tests/health-check.js
+npx mocha tests/health-check.js
+
+# Grep for "test servers should start"
+npx mocha -g "test servers should start"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
 ## API
 

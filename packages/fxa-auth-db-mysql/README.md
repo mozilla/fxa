@@ -8,18 +8,30 @@ Includes:
 - A [MySQL backend](#mysql-backend).
   Used in production.
 
-To run the tests
-for all components:
-
-```sh
-npm test
-```
-
 ## Prerequisites
 
 - node.js 12
 - npm
 - MySQL (we use version 5.6.42 in production)
+
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run all NPM test scripts and then lint the code:
+
+- `npm run test-mysql` will test database code under `test/backend` and `test/local`.
+- `npm run test-server` will test server code under `db-server/test/local`.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only test/lib/log.js
+./scripts/mocha-coverage.js test/lib/log.js
+
+# Grep for "error module" under db-server/test
+./scripts/mocha-coverage.js db-server/test/*/** -g "error module"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
 ## API Server
 

@@ -75,7 +75,19 @@ A working example is provided in the `examples` directory.
 
 ### Testing
 
-Mocha Tests are located in the `test` subdirectory. To run the tests, call `npm test`.
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files under `test/`.
+
+Test specific tests with the following commands:
+
+```bash
+# Test only src/test/lib/sentry.spec.ts
+npx mocha test/fxa-geodb.js
+
+# Grep for "setupDownloadList"
+npx mocha /test/** -g "setupDownloadList"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
 
 --
 

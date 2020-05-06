@@ -77,6 +77,22 @@ To select a specific glob of tests to run:
 - Note: stop the auth-server before running tests. Otherwise, they will fail with obscure errors.
 - You can use `LOG_LEVEL`, such as `LOG_LEVEL=debug` to specify the test logging level.
 
+## Testing
+
+This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will run a series of NPM test scripts and then lint the code:
+
+Run specific tests with the following commands:
+
+```bash
+# Test only test/local/account_routes.js
+npm test -- test/local/account_routes.js
+
+# Grep for "SQSReceiver"
+NODE_ENV=dev npx mocha -r ts-node/register test/*/** -g "SQSReceiver"
+```
+
+Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
+
 ## Mailer
 
 The mailer library is located in `mailer/` directory.
