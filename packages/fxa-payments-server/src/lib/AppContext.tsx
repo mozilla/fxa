@@ -11,6 +11,7 @@ export type AppContextType = {
   navigateToUrl: (url: string) => void;
   getScreenInfo: () => ScreenInfo;
   locationReload: (url: string) => void;
+  navigatorLanguages?: readonly string[];
 };
 
 /* istanbul ignore next - this function does nothing worth covering */
@@ -24,6 +25,7 @@ export const defaultAppContext = {
   matchMediaDefault: (query: string) => matchMedia(query),
   navigateToUrl: noopFunction,
   queryParams: {},
+  navigatorLanguages: ['en-US', 'en'],
 };
 
 export const AppContext = React.createContext<AppContextType>(

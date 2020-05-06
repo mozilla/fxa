@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Localized } from '@fluent/react';
 import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
-import { metadataFromPlan } from '../../store/utils';
+import { metadataFromPlan, productDetailsFromPlan } from '../../store/utils';
+import { AppContext } from '../../lib/AppContext';
 
 // this is a fallback incase webIconURL is undefined,
 // this is a rare case, but it also keeps typescript
@@ -24,6 +25,7 @@ export const PlanDetails = ({
   showExpandButton = false,
   className = 'default',
 }: PlanDetailsProps) => {
+  const { navigatorLanguages } = useContext(AppContext);
   const [detailsHidden, setDetailsState] = useState(showExpandButton);
   const {
     product_name,
@@ -33,6 +35,10 @@ export const PlanDetails = ({
     interval_count,
   } = selectedPlan;
   const { webIconURL } = metadataFromPlan(selectedPlan);
+  const productDetails = productDetailsFromPlan(
+    selectedPlan,
+    navigatorLanguages
+  );
 
   const role = isMobile ? undefined : 'complementary';
 
@@ -66,7 +72,9 @@ export const PlanDetails = ({
                 <h3 id="plan-details-product" className="plan-details-product">
                   {product_name}
                 </h3>
-                <p className="plan-details-description">Full-device VPN</p>
+                <p className="plan-details-description">
+                  {productDetails.subtitle}
+                </p>
               </div>
             </div>
             <Localized
@@ -77,32 +85,15 @@ export const PlanDetails = ({
               <p>{planPrice}</p>
             </Localized>
           </div>
-          {!detailsHidden ? (
+          {!detailsHidden && productDetails.details ? (
             <div className="plan-details-list" data-testid="list">
               <Localized id="plan-details-header">
                 <h4>Product details</h4>
               </Localized>
               <ul>
-                <li>
-                  <Localized id="fpn-details-1">
-                    <span></span>
-                  </Localized>
-                </li>
-                <li>
-                  <Localized id="fpn-details-2">
-                    <span></span>
-                  </Localized>
-                </li>
-                <li>
-                  <Localized id="fpn-details-3">
-                    <span></span>
-                  </Localized>
-                </li>
-                <li>
-                  <Localized id="fpn-details-4">
-                    <span></span>
-                  </Localized>
-                </li>
+                {productDetails.details.map((detail, idx) => (
+                  <li key={idx}>{detail}</li>
+                ))}
               </ul>
             </div>
           ) : null}

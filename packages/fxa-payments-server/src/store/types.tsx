@@ -36,12 +36,16 @@ export interface Token {
 
 export type PlanInterval = 'day' | 'week' | 'month' | 'year';
 
+export interface RawMetadata {
+  [propName: string]: any;
+}
+
 export interface Plan {
   plan_id: string;
-  plan_metadata?: PlanMetadata;
+  plan_metadata?: RawMetadata;
   product_id: string;
   product_name: string;
-  product_metadata?: ProductMetadata;
+  product_metadata?: RawMetadata;
   currency: string;
   amount: number;
   interval: PlanInterval;
@@ -62,6 +66,11 @@ export interface ProductMetadata {
   upgradeCTA?: string | null;
   downloadURL?: string | null;
   // capabilities:{clientID}: string // filtered out or ignored for now
+}
+
+export interface ProductDetails {
+  subtitle?: string;
+  details?: string[];
 }
 
 export interface Subscription {

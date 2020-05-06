@@ -35,6 +35,7 @@ type AppProps = {
   navigateToUrl: (url: string) => void;
   getScreenInfo: () => ScreenInfo;
   locationReload: () => void;
+  navigatorLanguages: readonly string[];
 };
 
 export const App = ({
@@ -46,6 +47,7 @@ export const App = ({
   navigateToUrl,
   getScreenInfo,
   locationReload,
+  navigatorLanguages = ['en-US', 'en'],
 }: AppProps) => {
   const appContextValue: AppContextType = {
     config,
@@ -55,6 +57,7 @@ export const App = ({
     navigateToUrl,
     getScreenInfo,
     locationReload,
+    navigatorLanguages,
   };
   FlowEvents.init(queryParams);
   observeNavigationTiming('/navigation-timing');
@@ -62,7 +65,7 @@ export const App = ({
   return (
     <AppContext.Provider value={appContextValue}>
       <AppLocalizationProvider
-        userLocales={navigator.languages}
+        userLocales={navigatorLanguages}
         bundles={['main']}
       >
         <Localized id="document" attrs={{ title: true }}>

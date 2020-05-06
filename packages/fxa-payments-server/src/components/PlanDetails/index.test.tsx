@@ -31,6 +31,12 @@ const selectedPlan = {
   amount: 935,
   interval: 'month' as const,
   interval_count: 1,
+  plan_metadata: {
+    'product:subtitle': 'FPN subtitle',
+    'product:details:1': 'Detail 1',
+    'product:details:2': 'Detail 2',
+    'product:details:3': 'Detail 3',
+  },
 };
 
 afterEach(cleanup);
@@ -50,9 +56,12 @@ describe('PlanDetails', () => {
       );
     };
 
-    const { queryByTestId } = subject();
+    const { queryByTestId, queryByText } = subject();
     const productLogo = queryByTestId('product-logo');
     expect(productLogo).toHaveAttribute('alt', selectedPlan.product_name);
+    expect(
+      queryByText(selectedPlan.plan_metadata['product:subtitle'])
+    ).toBeInTheDocument();
 
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
@@ -96,11 +105,16 @@ describe('PlanDetails', () => {
       );
     };
 
-    const { getByTestId, queryByTestId } = subject();
+    const { getByTestId, queryByTestId, queryByText } = subject();
 
     fireEvent.click(getByTestId('button'));
 
     expect(queryByTestId('list')).toBeVisible();
+
+    for (let idx = 1; idx <= 3; idx++) {
+      const item = selectedPlan.plan_metadata[`product:details:${idx}`];
+      expect(queryByText(item)).toBeInTheDocument();
+    }
 
     fireEvent.click(getByTestId('button'));
 

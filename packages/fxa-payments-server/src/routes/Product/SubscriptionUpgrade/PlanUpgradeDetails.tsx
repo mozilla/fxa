@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 import { getLocalizedCurrency, formatPlanPricing } from '../../../lib/formats';
-import { metadataFromPlan } from '../../../store/utils';
+import { metadataFromPlan, productDetailsFromPlan } from '../../../store/utils';
+import { AppContext } from '../../../lib/AppContext';
 
 import ffLogo from '../../../images/firefox-logo.svg';
 
@@ -76,8 +77,10 @@ export const PlanDetailsCard = ({
   plan: Plan;
   className?: string;
 }) => {
+  const { navigatorLanguages } = useContext(AppContext);
   const { product_name, amount, currency, interval, interval_count } = plan;
   const { webIconURL } = metadataFromPlan(plan);
+  const productDetails = productDetailsFromPlan(plan, navigatorLanguages);
   const planPrice = formatPlanPricing(
     amount,
     currency,
@@ -107,7 +110,7 @@ export const PlanDetailsCard = ({
             </h3>
             {/* TODO: make this configurable, issue #4741 / FXA-1484 */}
             <p className="product-description plan-details-description">
-              Full-device VPN
+              {productDetails.subtitle}
             </p>
           </div>
         </div>

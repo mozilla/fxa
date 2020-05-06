@@ -46,6 +46,14 @@ export const SELECTED_PLAN: Plan = {
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=2',
+    'product:subtitle': 'Even more keen product',
+    'product:details:1': 'Quis autem vel eum iure reprehenderit',
+    'product:details:2': 'Sed ut perspiciatis unde omnis iste natus',
+    'product:details:3': 'Nemo enim ipsam voluptatem',
+    'product:subtitle:xx-pirate': 'VPN fer land lubbers',
+    'product:details:1:xx-pirate': 'Device-level encryption arr',
+    'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
+    'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
   },
 };
 
@@ -59,5 +67,16 @@ export const UPGRADE_FROM_PLAN: Plan = {
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=9',
+    'product:subtitle': 'Nifty product',
+    'product:details:1':
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+    'product:details:2': 'Sed ut perspiciatis unde omnis iste natus',
+    'product:details:3': 'Nemo enim ipsam voluptatem',
+    'product:details:4':
+      'Ut enim ad minima veniam, quis nostrum exercitationem',
+    'product:subtitle:xx-pirate': 'VPN fer yer full-device',
+    'product:details:1:xx-pirate': 'Device-level encryption arr',
+    'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
+    'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
   },
 };

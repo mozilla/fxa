@@ -53,8 +53,20 @@ describe('routes/Product/SubscriptionUpgrade', () => {
       '.from-plan .product-name'
     ) as Element;
     expect(fromName.textContent).toEqual(UPGRADE_FROM_PLAN.product_name);
+    const fromDesc = container.querySelector(
+      '.from-plan .product-description'
+    ) as Element;
+    expect(fromDesc.textContent).toEqual(
+      UPGRADE_FROM_PLAN.product_metadata['product:subtitle']
+    );
     const toName = container.querySelector('.to-plan .product-name') as Element;
     expect(toName.textContent).toEqual(SELECTED_PLAN.product_name);
+    const toDesc = container.querySelector(
+      '.to-plan .product-description'
+    ) as Element;
+    expect(toDesc.textContent).toEqual(
+      SELECTED_PLAN.product_metadata['product:subtitle']
+    );
   });
 
   it('can be submitted after confirmation is checked', async () => {
