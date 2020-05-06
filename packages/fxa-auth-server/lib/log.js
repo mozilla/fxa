@@ -184,7 +184,6 @@ Lug.prototype.activityEvent = function(data) {
 
 Lug.prototype.flowEvent = function(data) {
   if (!data || !data.event || !data.flow_id || !data.flow_time || !data.time) {
-    this.error('flow.missingData', { data });
     return;
   }
 

@@ -335,25 +335,10 @@ describe('log', () => {
   it('.flowEvent with missing data', () => {
     log.flowEvent();
 
-    assert.equal(logger.error.callCount, 1, 'logger.error was called once');
-    const args = logger.error.args[0];
-    assert.equal(args.length, 2, 'logger.error was passed two arguments');
-    assert.equal(args[0], 'flow.missingData', 'first argument was op');
-    assert.deepEqual(
-      args[1],
-      {
-        data: undefined,
-      },
-      'argument was correct'
-    );
-
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
-    assert.equal(
-      logger.critical.callCount,
-      0,
-      'logger.critical was not called'
-    );
+    assert.equal(logger.error.callCount, 0, 'logger.error was not called');
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -364,29 +349,10 @@ describe('log', () => {
       time: 1483557217331,
     });
 
-    assert.equal(logger.error.callCount, 1, 'logger.error was called once');
-    const args = logger.error.args[0];
-    assert.equal(args.length, 2, 'logger.error was passed two arguments');
-    assert.equal(args[0], 'flow.missingData', 'first argument was op');
-    assert.deepEqual(
-      args[1],
-      {
-        data: {
-          flow_id: 'wibble',
-          flow_time: 1000,
-          time: 1483557217331,
-        },
-      },
-      'argument was correct'
-    );
-
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
-    assert.equal(
-      logger.critical.callCount,
-      0,
-      'logger.critical was not called'
-    );
+    assert.equal(logger.error.callCount, 0, 'logger.error was not called');
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -397,29 +363,10 @@ describe('log', () => {
       time: 1483557217331,
     });
 
-    assert.equal(logger.error.callCount, 1, 'logger.error was called once');
-    const args = logger.error.args[0];
-    assert.equal(args.length, 2, 'logger.error was passed two arguments');
-    assert.equal(args[0], 'flow.missingData', 'first argument was op');
-    assert.deepEqual(
-      args[1],
-      {
-        data: {
-          event: 'wibble',
-          flow_time: 1000,
-          time: 1483557217331,
-        },
-      },
-      'argument was correct'
-    );
-
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
-    assert.equal(
-      logger.critical.callCount,
-      0,
-      'logger.critical was not called'
-    );
+    assert.equal(logger.error.callCount, 0, 'logger.error was not called');
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -430,29 +377,10 @@ describe('log', () => {
       time: 1483557217331,
     });
 
-    assert.equal(logger.error.callCount, 1, 'logger.error was called once');
-    const args = logger.error.args[0];
-    assert.equal(args.length, 2, 'logger.error was passed two arguments');
-    assert.equal(args[0], 'flow.missingData', 'first argument was op');
-    assert.deepEqual(
-      args[1],
-      {
-        data: {
-          event: 'wibble',
-          flow_id: 'blee',
-          time: 1483557217331,
-        },
-      },
-      'argument was correct'
-    );
-
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
-    assert.equal(
-      logger.critical.callCount,
-      0,
-      'logger.critical was not called'
-    );
+    assert.equal(logger.error.callCount, 0, 'logger.error was not called');
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -463,29 +391,10 @@ describe('log', () => {
       flow_time: 1000,
     });
 
-    assert.equal(logger.error.callCount, 1, 'logger.error was called once');
-    const args = logger.error.args[0];
-    assert.equal(args.length, 2, 'logger.error was passed two arguments');
-    assert.equal(args[0], 'flow.missingData', 'first argument was op');
-    assert.deepEqual(
-      args[1],
-      {
-        data: {
-          event: 'wibble',
-          flow_id: 'blee',
-          flow_time: 1000,
-        },
-      },
-      'argument was correct'
-    );
-
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
-    assert.equal(
-      logger.critical.callCount,
-      0,
-      'logger.critical was not called'
-    );
+    assert.equal(logger.error.callCount, 0, 'logger.error was not called');
+    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
