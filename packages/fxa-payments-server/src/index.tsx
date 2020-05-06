@@ -42,6 +42,7 @@ async function init() {
           navigateToUrl,
           getScreenInfo,
           locationReload,
+          navigatorLanguages: navigator.languages,
         }}
       />,
       document.getElementById('root')

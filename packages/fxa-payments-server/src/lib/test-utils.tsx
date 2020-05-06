@@ -310,6 +310,7 @@ export const MOCK_PLANS: Plan[] = [
     product_metadata: {
       productSet: '123done',
       webIconURL: 'http://example.com/123donepro.jpg',
+      'product:subtitle': '123DonePro subtitle',
     },
   },
   {

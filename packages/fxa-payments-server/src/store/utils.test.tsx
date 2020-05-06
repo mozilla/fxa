@@ -1,6 +1,25 @@
 import { Plan, ProductMetadata } from './types';
 
-import { metadataFromPlan } from './utils';
+import { metadataFromPlan, productDetailsFromPlan } from './utils';
+
+const NULL_METADATA = {
+  productSet: null,
+  productOrder: null,
+  emailIconURL: null,
+  webIconURL: null,
+  upgradeCTA: null,
+  downloadURL: null,
+};
+
+const PLAN: Plan = {
+  plan_id: 'plan_8675309',
+  product_id: 'prod_8675309',
+  product_name: 'Example product',
+  currency: 'usd',
+  amount: 599,
+  interval: 'month' as const,
+  interval_count: 1,
+};
 
 describe('metadataFromPlan', () => {
   it('produces default null values', () => {
@@ -47,21 +66,86 @@ describe('metadataFromPlan', () => {
   });
 });
 
-const NULL_METADATA = {
-  productSet: null,
-  productOrder: null,
-  emailIconURL: null,
-  webIconURL: null,
-  upgradeCTA: null,
-  downloadURL: null,
-};
+describe('productDetailsFromPlan', () => {
+  const plan = {
+    ...PLAN,
+    product_metadata: {
+      productSet: 'foo',
+      productOrder: '2',
+      'product:ignoreme': 'Unknown name here',
+      'product:subtitle': 'Great Full-device VPN',
+      'product:details:3': 'Baz Connects 5 devices with one subscription',
+      'product:details:1': 'Foo Device-level encryption',
+      'product:details:2': 'Bar Servers in 30+ countries',
+      'product:details:4': 'Quux Available for Windows, iOS and Android',
+      'product:subtitle:xx-pirate': 'VPN fer yer full-device',
+      'product:foobar:9:xx-pirate': 'what even is this',
+      'product:details:4:xx-pirate': "Available fer Windows, iOS an' Android",
+      'product:details:1:xx-pirate': 'Device-level encryption arr',
+      'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
+      'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
+      'product:subtitle:xx-partial': 'Partial localization',
+      'product:details:1:xx-partial': true,
+    },
+  };
 
-const PLAN: Plan = {
-  plan_id: 'plan_8675309',
-  product_id: 'prod_8675309',
-  product_name: 'Example product',
-  currency: 'usd',
-  amount: 599,
-  interval: 'month' as const,
-  interval_count: 1,
-};
+  it('extracts base details when metadata does not supply product details', () => {
+    expect(productDetailsFromPlan(PLAN)).toEqual({
+      subtitle: 'Full-device VPN',
+      details: [
+        'Device-level encryption',
+        'Servers in 30+ countries',
+        'Connect 5 devices with one subscription',
+        'Available for Windows, iOS and Android',
+      ],
+    });
+  });
+
+  it('extracts product details for default locale', () => {
+    expect(productDetailsFromPlan(plan)).toEqual({
+      subtitle: 'Great Full-device VPN',
+      details: [
+        'Foo Device-level encryption',
+        'Bar Servers in 30+ countries',
+        'Baz Connects 5 devices with one subscription',
+        'Quux Available for Windows, iOS and Android',
+      ],
+    });
+  });
+
+  it('extracts product details for xx-pirate locale', () => {
+    expect(productDetailsFromPlan(plan, ['xx-pirate'])).toEqual({
+      subtitle: 'VPN fer yer full-device',
+      details: [
+        'Device-level encryption arr',
+        'Servers is 30+ countries matey',
+        "Connects 5 devices wit' one subscription",
+        "Available fer Windows, iOS an' Android",
+      ],
+    });
+  });
+
+  it('extracts product details for xx-partial locale', () => {
+    expect(productDetailsFromPlan(plan, ['xx-partial'])).toEqual({
+      subtitle: 'Partial localization',
+      details: [
+        'Foo Device-level encryption',
+        'Bar Servers in 30+ countries',
+        'Baz Connects 5 devices with one subscription',
+        'Quux Available for Windows, iOS and Android',
+      ],
+    });
+  });
+
+  it('extracts product details for xx-unknown locale', () => {
+    expect(productDetailsFromPlan(plan, ['xx-unknown'])).toEqual({
+      subtitle: 'Great Full-device VPN',
+      details: [
+        'Foo Device-level encryption',
+        'Bar Servers in 30+ countries',
+        'Baz Connects 5 devices with one subscription',
+        'Quux Available for Windows, iOS and Android',
+      ],
+    });
+  });
+});

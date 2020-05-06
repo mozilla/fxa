@@ -4,6 +4,7 @@ import { linkTo } from '@storybook/addon-links';
 import { storiesOf } from '@storybook/react';
 import { APIError } from '../../../lib/apiClient';
 import MockApp from '../../../../.storybook/components/MockApp';
+import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
@@ -15,6 +16,19 @@ function init() {
   storiesOf('routes/Product/SubscriptionUpgrade', module)
     .add('upgrade offer', () => (
       <SubscriptionUpgradeView
+        props={{
+          ...MOCK_PROPS,
+          updateSubscriptionPlanAndRefresh: (subscriptionId, plan) =>
+            linkToUpgradeSuccess(),
+        }}
+      />
+    ))
+    .add('upgrade offer localized to xx-pirate', () => (
+      <SubscriptionUpgradeView
+        appContextValue={{
+          ...defaultAppContext,
+          navigatorLanguages: ['xx-pirate'],
+        }}
         props={{
           ...MOCK_PROPS,
           updateSubscriptionPlanAndRefresh: (subscriptionId, plan) =>
@@ -58,10 +72,12 @@ function init() {
 
 const SubscriptionUpgradeView = ({
   props = MOCK_PROPS,
+  appContextValue = defaultAppContext,
 }: {
   props?: SubscriptionUpgradeProps;
+  appContextValue?: AppContextType;
 }) => (
-  <MockApp>
+  <MockApp appContextValue={appContextValue}>
     <SignInLayout>
       <SubscriptionUpgrade {...props} />
     </SignInLayout>
