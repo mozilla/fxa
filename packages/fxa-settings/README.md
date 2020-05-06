@@ -43,7 +43,6 @@ const LogoImage = () => (
 const LogoImage = () => <div class="logo" role="img" aria-label="logo"></div>;
 ```
 
-<<<<<<< HEAD
 ## Testing
 
 This package uses [Jest](https://jestjs.io/) to test its code. By default `npm test` will test all JS files under `src/`.
@@ -59,7 +58,7 @@ npm run test -- -t "renders as expected"
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
-=======
+
 ## Storybook
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
@@ -67,7 +66,6 @@ This project uses [Storybook](https://storybook.js.org/) to show each screen wit
 _You will eventually be able to view the built Storybook at <http://mozilla.github.io/fxa/settings>._
 
 In local development, `npm run storybook` should start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes.
->>>>>>> feat(settings): set up base storybook
 
 ## License
 
