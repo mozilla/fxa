@@ -1,3 +1,20 @@
+## 1.170.0
+
+### New features
+
+- newsletters: Add newsletters experiment metrics ([134a7fea3](https://github.com/mozilla/fxa/commit/134a7fea3))
+- newsletters: Add newsletters experiment ([77ef4605d](https://github.com/mozilla/fxa/commit/77ef4605d))
+- newsletters: Add subscribing to newsletters to signup flow ([1d731275e](https://github.com/mozilla/fxa/commit/1d731275e))
+- auth + content-server: add new support form field and update options in dropdown ([08e9b8830](https://github.com/mozilla/fxa/commit/08e9b8830))
+
+### Bug fixes
+
+- l10n: fix primary email update message l10n ([d2d292bcf](https://github.com/mozilla/fxa/commit/d2d292bcf))
+
+### Other changes
+
+- all: update readmes across all packages to improve testing documentation ([099163e94](https://github.com/mozilla/fxa/commit/099163e94))
+
 ## 1.169.1
 
 No changes.
@@ -6,25 +23,25 @@ No changes.
 
 ### New features
 
-* totp: integrate TOTP setup into login flow ([5b333ac2a](https://github.com/mozilla/fxa/commit/5b333ac2a))
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- totp: integrate TOTP setup into login flow ([5b333ac2a](https://github.com/mozilla/fxa/commit/5b333ac2a))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ### Bug fixes
 
-* experiments: Enabled variation B 100% for sms header experiment ([af5a92162](https://github.com/mozilla/fxa/commit/af5a92162))
-* chrome: fixed webcrypto check on Chrome ([df7aaf155](https://github.com/mozilla/fxa/commit/df7aaf155))
-* client: Use correct support ticket url ([616b61717](https://github.com/mozilla/fxa/commit/616b61717))
-* tests: updated hawk tests with proper key length ([7218b3a7d](https://github.com/mozilla/fxa/commit/7218b3a7d))
-* npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
+- experiments: Enabled variation B 100% for sms header experiment ([af5a92162](https://github.com/mozilla/fxa/commit/af5a92162))
+- chrome: fixed webcrypto check on Chrome ([df7aaf155](https://github.com/mozilla/fxa/commit/df7aaf155))
+- client: Use correct support ticket url ([616b61717](https://github.com/mozilla/fxa/commit/616b61717))
+- tests: updated hawk tests with proper key length ([7218b3a7d](https://github.com/mozilla/fxa/commit/7218b3a7d))
+- npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
 
 ### Refactorings
 
-* auth server: compile fxa-auth-server typescript for production, typescript lib/oauth/logging ([4b9b26241](https://github.com/mozilla/fxa/commit/4b9b26241))
+- auth server: compile fxa-auth-server typescript for production, typescript lib/oauth/logging ([4b9b26241](https://github.com/mozilla/fxa/commit/4b9b26241))
 
 ### Other changes
 
-* content-server: add fbw logo to device list ([92c682dc0](https://github.com/mozilla/fxa/commit/92c682dc0))
-* fxa-content-server: fix lint errors ([5ae7bc922](https://github.com/mozilla/fxa/commit/5ae7bc922))
+- content-server: add fbw logo to device list ([92c682dc0](https://github.com/mozilla/fxa/commit/92c682dc0))
+- fxa-content-server: fix lint errors ([5ae7bc922](https://github.com/mozilla/fxa/commit/5ae7bc922))
 
 ## 1.168.3
 

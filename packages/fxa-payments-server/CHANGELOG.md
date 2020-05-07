@@ -1,5 +1,21 @@
 # Change history
 
+## 1.170.0
+
+### New features
+
+- payments: make product details configurable in Stripe metadata ([765bafd49](https://github.com/mozilla/fxa/commit/765bafd49))
+- fxa-components: add Survey component ([e9bf5ad4d](https://github.com/mozilla/fxa/commit/e9bf5ad4d))
+- payments: update subscription upgrade UX for new designs ([cc0b1d69d](https://github.com/mozilla/fxa/commit/cc0b1d69d))
+
+### Bug fixes
+
+- payments-server: remove border in update pay ([c11951c7c](https://github.com/mozilla/fxa/commit/c11951c7c))
+
+### Other changes
+
+- all: update readmes across all packages to improve testing documentation ([099163e94](https://github.com/mozilla/fxa/commit/099163e94))
+
 ## 1.169.1
 
 No changes.
@@ -8,12 +24,12 @@ No changes.
 
 ### New features
 
-* payments: start using rescripts so we can import external components ([79cd1c121](https://github.com/mozilla/fxa/commit/79cd1c121))
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- payments: start using rescripts so we can import external components ([79cd1c121](https://github.com/mozilla/fxa/commit/79cd1c121))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ### Bug fixes
 
-* npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
+- npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
 
 ## 1.168.3
 
