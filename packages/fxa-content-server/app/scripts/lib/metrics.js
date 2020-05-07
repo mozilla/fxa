@@ -59,6 +59,7 @@ const ALLOWED_FIELDS = [
   'lang',
   'marketing',
   'navigationTiming',
+  'newsletters',
   'numStoredAccounts',
   'planId',
   'productId',
@@ -161,6 +162,7 @@ function Metrics(options = {}) {
   this._marketingImpressions = {};
   this._numStoredAccounts = options.numStoredAccounts || '';
   this._referrer = this._window.document.referrer || NOT_REPORTED_VALUE;
+  this._newsletters = NOT_REPORTED_VALUE;
   this._screenHeight = options.screenHeight || NOT_REPORTED_VALUE;
   this._screenWidth = options.screenWidth || NOT_REPORTED_VALUE;
   this._sentryMetrics = options.sentryMetrics;
@@ -408,6 +410,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
       lang: this._lang,
       marketing: flattenHashIntoArrayOfObjects(this._marketingImpressions),
       numStoredAccounts: this._numStoredAccounts,
+      newsletters: this._newsletters,
       // planId and productId are optional so we can physically remove
       // them from the payload instead of sending NOT_REPORTED_VALUE
       planId: this._subscriptionModel.get('planId') || undefined,
@@ -691,6 +694,15 @@ _.extend(Metrics.prototype, Backbone.Events, {
    */
   logUserPreferences(prefName, value) {
     this._userPreferences[prefName] = !!value;
+  },
+
+  /**
+   * Log subscribed newsletters for a user.
+   *
+   * @param {Array} newsletters - Array of newsletters that user belongs to
+   */
+  logNewsletters(newsletters) {
+    this._newsletters = newsletters;
   },
 
   /**

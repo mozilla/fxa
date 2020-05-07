@@ -11,13 +11,14 @@ import { assign } from 'underscore';
 import Cocktail from 'cocktail';
 import EmailOptInMixin from '../../mixins/email-opt-in-mixin';
 import FormView from '../../form';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import NewsletterSyncExperimentMixin from '../../mixins/newsletter-sync-experiment-mixin';
 import Template from 'templates/post_verify/newsletters/add_newsletters.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
 
 class AddNewsletters extends FormView {
   template = Template;
-  viewName = 'add-newsletter';
+  viewName = 'add-newsletters';
 
   events = assign(this.events, {
     'click #maybe-later-btn': preventDefaultThen('clickMaybeLater'),
@@ -56,6 +57,8 @@ class AddNewsletters extends FormView {
     return Promise.resolve()
       .then(() => {
         if (optedInNewsletters.length > 0) {
+          this.metrics.logNewsletters(optedInNewsletters);
+          this.logFlowEvent('subscribe', this.viewName);
           return account.updateNewsletters(optedInNewsletters);
         }
       })
@@ -70,6 +73,11 @@ class AddNewsletters extends FormView {
   }
 }
 
-Cocktail.mixin(AddNewsletters, EmailOptInMixin, NewsletterSyncExperimentMixin);
+Cocktail.mixin(
+  AddNewsletters,
+  EmailOptInMixin,
+  NewsletterSyncExperimentMixin,
+  FlowEventsMixin
+);
 
 export default AddNewsletters;

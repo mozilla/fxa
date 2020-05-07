@@ -378,6 +378,7 @@ describe('metrics/amplitude:', () => {
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - newsletters');
         assert.deepEqual(result.user_properties, {
+          newsletter_state: 'subscribed',
           newsletters: ['test_pilot'],
         });
       });
