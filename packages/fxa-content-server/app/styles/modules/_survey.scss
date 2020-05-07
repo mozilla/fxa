@@ -1,0 +1,115 @@
+$shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.04),
+  0 6px 22px 4px rgba(7, 48, 114, 0.12), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
+$survey-height: 360px;
+
+.survey-component {
+  align-items: flex-end;
+  background: $grey-10;
+  border-radius: 4px 4px 0 0;
+  bottom: -$survey-height;
+  box-shadow: $shadow;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  overflow: hidden;
+  position: fixed;
+  right: 10%;
+  transition: bottom 250ms ease-out;
+  width: 320px;
+}
+
+.survey-control {
+  align-items: center;
+  background: 50% no-repeat url('/images/chevron.svg');
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  height: 40px;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  width: 40px;
+
+  &:focus {
+    box-shadow: none;
+  }
+
+  &:hover {
+    background: 50% no-repeat url('/images/chevron.svg');
+    background-color: rgba(12,12,13,.05);
+  }
+
+  &:active {
+    background: 50% no-repeat url('/images/chevron.svg');
+    background-color: rgba(12,12,13,.1);
+  }
+}
+
+.survey-complete-msg {
+  align-items: center;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  height: $survey-height;
+  justify-content: center;
+  width: 100%;
+
+  p {
+    margin: 5px;
+  }
+
+  .emoji {
+    font-size: 2.4em;
+    margin: 0;
+  }
+
+  .small {
+    clear: both;
+    color: $grey-50;
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 6px 0 24px;
+  }
+}
+
+.survey-complete-msg,
+.survey-iframe {
+  box-shadow: 0 -1px 0 rgba(12,12,13,.1);
+}
+
+// animations
+.survey-inner-enter {
+  bottom: -$survey-height;
+}
+
+.survey-inner-enter-active {
+  bottom: 0;
+  transition: bottom 250ms ease-out;
+  transition-duration: 250ms;
+}
+
+.survey-inner-enter-done {
+  bottom: 0;
+}
+
+.survey-inner-exit {
+  bottom: 0;
+}
+
+.survey-inner-exit-active {
+  bottom: -$survey-height;
+  transition: bottom 250ms ease-out;
+  transition-duration: 250ms;
+}
+
+.button-inner-enter,
+.button-inner-exit-done {
+  transform: rotate(180deg);
+}
+
+.button-inner-exit,
+.button-inner-enter-done,
+.button-inner-enter-active {
+  transform: rotate(0deg);
+}
