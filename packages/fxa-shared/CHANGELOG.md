@@ -1,5 +1,20 @@
 # Change history
 
+## 1.170.0
+
+### New features
+
+- newsletters: Add newsletters experiment metrics ([134a7fea3](https://github.com/mozilla/fxa/commit/134a7fea3))
+- settings: add sentry setup ([9a9aaade7](https://github.com/mozilla/fxa/commit/9a9aaade7))
+
+### Bug fixes
+
+- l10n: temporary (hopefully) fix for l10n CI build ([90c407f5e](https://github.com/mozilla/fxa/commit/90c407f5e))
+
+### Other changes
+
+- all: update readmes across all packages to improve testing documentation ([099163e94](https://github.com/mozilla/fxa/commit/099163e94))
+
 ## 1.169.1
 
 No changes.
