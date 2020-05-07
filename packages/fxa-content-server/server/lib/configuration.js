@@ -705,6 +705,21 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
+  surveys: {
+    default: [
+    // Example survey:
+    // {
+    //   id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
+    //   conditions: {platform: 'mobile', region: 'southernHemisphere', lang: 'pt', relier: 'email'},
+    //   view: ['settings-home'],
+    //   rate: 0.1,
+    //   url: 'https://www.surveygizmo.com/s3/5541940/pizza'
+    // }
+  ],
+    doc: 'list of active surveys',
+    env: 'SURVEYS',
+    format: Array,
+  },
   sync_tokenserver_url: {
     default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',
