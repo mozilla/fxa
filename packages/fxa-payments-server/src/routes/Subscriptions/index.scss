@@ -23,6 +23,10 @@
     margin: 0 -16px;
   }
 
+  hr + hr {
+    border: 0;
+  }
+
   .subscription {
     margin: 25px 32px;
 
