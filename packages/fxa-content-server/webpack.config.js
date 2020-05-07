@@ -52,6 +52,7 @@ const webpackConfig = {
       'node_modules',
     ],
     alias: {
+      '@fxa-react': path.resolve(__dirname, '..', 'fxa-react'),
       'asmcrypto.js': require.resolve('asmcrypto.js/asmcrypto.min.js'),
       'chosen-js': require.resolve('chosen-js/public/chosen.jquery'),
       'cocktail-lib': require.resolve('backbone.cocktail/Cocktail'),
@@ -150,6 +151,10 @@ const webpackConfig = {
             },
           },
         ],
+      },
+      {
+        test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
+        loader: 'url-loader',
       },
       {
         test: /\.scss$/,

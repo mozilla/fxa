@@ -173,6 +173,7 @@ var BaseView = Backbone.View.extend({
     this.user = options.user;
     this.lang = options.lang;
     this.window = options.window || window;
+    this.surveys = options.config ? options.config.surveys : [];
     this.logger = new Logger(this.window);
 
     this.navigator = options.navigator || this.window.navigator || navigator;
