@@ -19,6 +19,7 @@ const GROUPS = {
   email: 'fxa_email',
   emailFirst: 'fxa_email_first',
   login: 'fxa_login',
+  newsletters: 'fxa_newsletter',
   notify: 'fxa_notify',
   registration: 'fxa_reg',
   rp: 'fxa_rp',
@@ -48,6 +49,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.email]: mapEmailType,
   [GROUPS.emailFirst]: NOP,
   [GROUPS.login]: NOP,
+  [GROUPS.newsletters]: NOP,
   [GROUPS.notify]: NOP,
   [GROUPS.registration]: mapDomainValidationResult,
   [GROUPS.rp]: NOP,
@@ -433,7 +435,7 @@ function mapNewsletters(data) {
     newsletters = newsletters.map(newsletter => {
       return toSnakeCase(newsletter);
     });
-    return { newsletters };
+    return { newsletters, newsletter_state: 'subscribed' };
   }
 }
 

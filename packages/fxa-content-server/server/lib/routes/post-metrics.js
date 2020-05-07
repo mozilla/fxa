@@ -35,6 +35,7 @@ const {
   EXPERIMENT: EXPERIMENT_TYPE,
   HEX32: HEX32_TYPE,
   INTEGER: INTEGER_TYPE,
+  NEWSLETTERS: NEWSLETTERS,
   OFFSET: OFFSET_TYPE,
   REFERRER: REFERRER_TYPE,
   STRING: STRING_TYPE,
@@ -122,6 +123,7 @@ const BODY_SCHEMA = {
       unloadEventStart: NAVIGATION_TIMING_TYPE.required(),
     })
     .optional(),
+  newsletters: NEWSLETTERS.optional(),
   numStoredAccounts: OFFSET_TYPE.min(0).optional(),
   // TODO: Delete plan_id and product_id after the camel-cased equivalents
   //       have been in place for at least one train.

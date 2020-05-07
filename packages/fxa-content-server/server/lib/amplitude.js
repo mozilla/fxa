@@ -214,6 +214,16 @@ const EVENTS = {
     event: 'forgot_password_recovery_key_success',
   },
 
+  'flow.add-newsletters.subscribe': {
+    group: GROUPS.newsletters,
+    event: 'subscribe',
+  },
+
+  'flow.add-newsletters.link.maybe-later': {
+    group: GROUPS.newsletters,
+    event: 'later',
+  },
+
   'screen.connect-another-device': {
     group: GROUPS.connectDevice,
     event: 'view',
@@ -237,6 +247,7 @@ const EVENTS = {
 };
 
 const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
+  'add-newsletters': GROUPS.newsletters,
   'enter-email': GROUPS.emailFirst,
   'force-auth': GROUPS.login,
   pair: GROUPS.connectDevice,
