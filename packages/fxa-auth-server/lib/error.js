@@ -101,6 +101,7 @@ const ERRNO = {
   INVALID_PLAN_UPGRADE: 185,
   PAYMENT_FAILED: 186,
   SUBSCRIPTION_ALREADY_EXISTS: 187,
+  UNKNOWN_SUBSCRIPTION_FOR_SOURCE: 188,
 
   SERVER_BUSY: 201,
   FEATURE_NOT_ENABLED: 202,
@@ -1386,6 +1387,20 @@ AppError.unexpectedError = request => {
   decorateErrorWithRequest(error, request);
   return error;
 };
+
+AppError.missingSubscriptionForSourceError = (op, data) =>
+  new AppError(
+    {
+      code: 500,
+      error: 'Missing subscription for source',
+      errno: ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
+      message: 'Failed to find a subscription associated with Stripe source.',
+    },
+    {
+      op,
+      data,
+    }
+  );
 
 function decorateErrorWithRequest(error, request) {
   if (request) {

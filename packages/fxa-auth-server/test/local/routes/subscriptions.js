@@ -40,6 +40,7 @@ const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscrip
 const eventInvoicePaymentSucceeded = require('../payments/fixtures/event_invoice_payment_succeeded.json');
 const eventInvoicePaymentFailed = require('../payments/fixtures/event_invoice_payment_failed.json');
 const eventCustomerSubscriptionUpdated = require('../payments/fixtures/event_customer_subscription_updated.json');
+const eventCustomerSourceExpiring = require('../payments/fixtures/event_customer_source_expiring.json');
 const openInvoice = require('../payments/fixtures/invoice_open.json');
 const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
@@ -1691,6 +1692,7 @@ describe('DirectStripeRoutes', () => {
         'handleSubscriptionCreatedEvent',
         'handleSubscriptionUpdatedEvent',
         'handleSubscriptionDeletedEvent',
+        'handleCustomerSourceExpiringEvent',
         'handleInvoicePaymentSucceededEvent',
         'handleInvoicePaymentFailedEvent',
       ];
@@ -1734,6 +1736,29 @@ describe('DirectStripeRoutes', () => {
           );
         });
 
+      it('does not produce an error response for an ignorable error', async () => {
+        const fixture = deepCopy(eventCustomerSourceExpiring);
+        const expectedError = error.missingSubscriptionForSourceError(
+          'extractSourceDetailsForEmail'
+        );
+        handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
+        directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
+          fixture
+        );
+        let errorThrown = null;
+        try {
+          await directStripeRoutesInstance.handleWebhookEvent(request);
+          assert.calledWith(
+            directStripeRoutesInstance.log.error,
+            'subscriptions.handleWebhookEvent.failure',
+            { error: expectedError }
+          );
+        } catch (err) {
+          errorThrown = err;
+        }
+        assert.isNull(errorThrown);
+      });
+
       describe('when the event.type is customer.subscription.created', () => {
         itOnlyCallsThisHandler(
           'handleSubscriptionCreatedEvent',
@@ -1752,6 +1777,13 @@ describe('DirectStripeRoutes', () => {
         itOnlyCallsThisHandler(
           'handleSubscriptionDeletedEvent',
           subscriptionDeleted
+        );
+      });
+
+      describe('when the event.type is customer.source.expiring', () => {
+        itOnlyCallsThisHandler(
+          'handleCustomerSourceExpiringEvent',
+          eventCustomerSourceExpiring
         );
       });
 

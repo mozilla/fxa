@@ -18,6 +18,10 @@ const { SUBSCRIPTION_UPDATE_TYPES } = require('../payments/stripe');
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
 
+const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
+  error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
+];
+
 /** @typedef {import('hapi').Request} Request */
 /** @typedef {import('stripe').Stripe.Customer} Customer */
 /** @typedef {import('stripe').Stripe.Source} Source */
@@ -655,43 +659,51 @@ class DirectStripeRoutes {
    * @param {*} request
    */
   async handleWebhookEvent(request) {
-    const event = this.stripeHelper.constructWebhookEvent(
-      request.payload,
-      request.headers['stripe-signature']
-    );
+    try {
+      const event = this.stripeHelper.constructWebhookEvent(
+        request.payload,
+        request.headers['stripe-signature']
+      );
 
-    switch (event.type) {
-      case 'customer.subscription.created':
-        await this.handleSubscriptionCreatedEvent(request, event);
-        break;
-      case 'customer.subscription.updated':
-        await this.handleSubscriptionUpdatedEvent(request, event);
-        break;
-      case 'customer.subscription.deleted':
-        await this.handleSubscriptionDeletedEvent(request, event);
-        break;
-      case 'customer.source.expiring':
-        await this.handleCustomerSourceExpiringEvent(request, event);
-        break;
-      case 'invoice.payment_succeeded':
-        await this.handleInvoicePaymentSucceededEvent(request, event);
-        break;
-      case 'invoice.payment_failed':
-        await this.handleInvoicePaymentFailedEvent(request, event);
-        break;
-      default:
-        Sentry.withScope(scope => {
-          scope.setContext('stripeEvent', {
-            event: { id: event.id, type: event.type },
+      switch (event.type) {
+        case 'customer.subscription.created':
+          await this.handleSubscriptionCreatedEvent(request, event);
+          break;
+        case 'customer.subscription.updated':
+          await this.handleSubscriptionUpdatedEvent(request, event);
+          break;
+        case 'customer.subscription.deleted':
+          await this.handleSubscriptionDeletedEvent(request, event);
+          break;
+        case 'customer.source.expiring':
+          await this.handleCustomerSourceExpiringEvent(request, event);
+          break;
+        case 'invoice.payment_succeeded':
+          await this.handleInvoicePaymentSucceededEvent(request, event);
+          break;
+        case 'invoice.payment_failed':
+          await this.handleInvoicePaymentFailedEvent(request, event);
+          break;
+        default:
+          Sentry.withScope(scope => {
+            scope.setContext('stripeEvent', {
+              event: { id: event.id, type: event.type },
+            });
+            Sentry.captureMessage(
+              'Unhandled Stripe event received.',
+              Sentry.Severity.Info
+            );
           });
-          Sentry.captureMessage(
-            'Unhandled Stripe event received.',
-            Sentry.Severity.Info
-          );
-        });
-        break;
+          break;
+      }
+    } catch (error) {
+      if (!IGNORABLE_STRIPE_WEBHOOK_ERRNOS.includes(error.errno)) {
+        // Error is not ignorable, so re-throw.
+        throw error;
+      }
+      // Caught an ignorable error, so let's log but continue to 200 OK response
+      this.log.error('subscriptions.handleWebhookEvent.failure', { error });
     }
-
     return {};
   }
 

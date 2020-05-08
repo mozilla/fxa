@@ -1942,7 +1942,10 @@ describe('StripeHelper', () => {
           thrownError = err;
         }
         assert.isNotNull(thrownError);
-        assert.equal(thrownError.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+        assert.equal(
+          thrownError.errno,
+          error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE
+        );
       });
 
       it('throws an exception with unexpected data', async () => {
