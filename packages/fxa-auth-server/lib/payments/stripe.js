@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Sentry = require('@sentry/node');
+const moment = require('moment');
 const error = require('../error');
 
 const stripe = require('stripe').Stripe;
@@ -604,13 +605,14 @@ class StripeHelper {
    * validate this is an appropraite change for tier use.
    *
    * @param {Subscription['id']} subscriptionId
-   * @param {Plan['id']} planId
+   * @param {Plan['id']} newPlanId
    */
-  async changeSubscriptionPlan(subscriptionId, planId) {
+  async changeSubscriptionPlan(subscriptionId, newPlanId) {
     const subscription = await this.stripe.subscriptions.retrieve(
       subscriptionId
     );
-    if (subscription.items.data[0].plan.id === planId) {
+    const currentPlanId = subscription.items.data[0].plan.id;
+    if (currentPlanId === newPlanId) {
       throw error.subscriptionAlreadyChanged();
     }
     return await this.stripe.subscriptions.update(subscriptionId, {
@@ -618,9 +620,13 @@ class StripeHelper {
       items: [
         {
           id: subscription.items.data[0].id,
-          plan: planId,
+          plan: newPlanId,
         },
       ],
+      metadata: {
+        previous_plan_id: currentPlanId,
+        plan_change_date: moment().unix(),
+      },
     });
   }
 

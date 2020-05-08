@@ -11,6 +11,7 @@ const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
 const stripeError = require('stripe').Stripe.errors;
 const uuidv4 = require('uuid').v4;
+const moment = require('moment');
 
 let mockRedis;
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -425,11 +426,15 @@ describe('StripeHelper', () => {
   });
 
   describe('changeSubscriptionPlan', () => {
-    it('accepts valid upgrade', async () => {
+    it('accepts valid upgrade and adds the appropriate metadata', async () => {
+      const unixTimestamp = moment().unix();
+
+      sandbox.stub(moment, 'unix').returns(unixTimestamp);
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'retrieve')
         .returns(subscription1);
-      sandbox
+
+      const update = sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
         .returns(subscription2);
 
@@ -438,6 +443,22 @@ describe('StripeHelper', () => {
         'plan_G93mMKnIFCjZek'
       );
       assert.deepEqual(actual, subscription2);
+
+      assert.isTrue(
+        update.calledOnceWithExactly('sub_GAt1vgMqOSr5hT', {
+          cancel_at_period_end: false,
+          items: [
+            {
+              id: subscription1.items.data[0].id,
+              plan: 'plan_G93mMKnIFCjZek',
+            },
+          ],
+          metadata: {
+            previous_plan_id: subscription1.items.data[0].plan.id,
+            plan_change_date: unixTimestamp,
+          },
+        })
+      );
     });
 
     it('throws an error if the user already upgraded', async () => {
