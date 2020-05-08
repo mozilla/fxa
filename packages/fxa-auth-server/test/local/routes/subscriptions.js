@@ -45,6 +45,7 @@ const eventCustomerSourceExpiring = require('../payments/fixtures/event_customer
 const openInvoice = require('../payments/fixtures/invoice_open.json');
 const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
+const stripePlan = require('../payments/fixtures/plan1.json');
 
 let config,
   log,
@@ -314,41 +315,42 @@ describe('subscriptions directRoutes', () => {
 
   describe('GET /oauth/subscriptions/search', () => {
     let reqOpts, stripeHelper;
-    const formatter = subs => subs.data.map(s => ({ subscription_id: s.id }));
+    const customer = deepCopy(customerFixture);
 
     beforeEach(() => {
+      customer.subscriptions.data[0].metadata = {
+        previous_plan_id: 'plan_123',
+        plan_change_date: '1588962638',
+      };
       reqOpts = {
         ...requestOptions,
         method: 'GET',
         query: { uid: UID, email: 'testo@blackhole.example.io' },
         auth: { strategy: 'supportPanelSecret' },
       };
-      stripeHelper = {
-        customer: sinon.fake.returns(customerFixture),
-        subscriptionsToResponse: sinon.fake(formatter),
-      };
-    });
 
-    it('should return empty list unknown customer', async () => {
-      stripeHelper.fetchCustomer = sinon.fake.throws(
-        error.unknownCustomer(reqOpts.query.uid)
-      );
-
-      const response = await runTest(
-        '/oauth/subscriptions/search',
-        reqOpts,
-        stripeHelper
-      );
-      assert.isTrue(
-        stripeHelper.customer.calledOnceWith(
-          reqOpts.query.uid,
-          reqOpts.query.email
-        )
-      );
-      assert.deepEqual(response, formatter(customerFixture.subscriptions));
+      stripeHelper = sinon.createStubInstance(StripeHelper);
+      stripeHelper.customer.returns(customer);
+      stripeHelper.expandResource.returns(stripePlan);
+      stripeHelper.findPlanById.returns(PLANS[0]);
+      stripeHelper.formatSubscriptionsForSupport.restore();
     });
 
     it('should return a formatted list of subscriptions in the customer response', async () => {
+      const sub = customer.subscriptions.data[0];
+      const expected = [
+        {
+          created: sub.created,
+          current_period_end: sub.current_period_end,
+          current_period_start: sub.current_period_start,
+          plan_changed: 1588962638,
+          previous_product: PLANS[0].product_name,
+          product_name: stripePlan.name,
+          status: sub.status,
+          subscription_id: sub.id,
+        },
+      ];
+
       const response = await runTest(
         '/oauth/subscriptions/search',
         reqOpts,
@@ -358,14 +360,10 @@ describe('subscriptions directRoutes', () => {
         stripeHelper.customer.calledOnceWith(
           reqOpts.query.uid,
           reqOpts.query.email
-        )
+        ),
+        'customer not called as expected'
       );
-      assert.isTrue(
-        stripeHelper.subscriptionsToResponse.calledOnceWith(
-          customerFixture.subscriptions
-        )
-      );
-      assert.deepEqual(response, formatter(customerFixture.subscriptions));
+      assert.deepEqual(response, expected);
     });
   });
 });
@@ -2258,33 +2256,6 @@ describe('DirectStripeRoutes', () => {
         assert.notCalled(
           directStripeRoutesInstance.stripeHelper.subscriptionsToResponse
         );
-      });
-    });
-  });
-
-  describe('getUidEmail', () => {
-    describe('when the auth strategy is supportPanelSecret', () => {
-      it('returns the uid and email from reques.query', async () => {
-        const expected = { uid: '12345', email: 'test@example.com' };
-        const request = {
-          auth: {
-            strategy: 'supportPanelSecret',
-          },
-          query: expected,
-        };
-
-        const actual = await directStripeRoutesInstance.getUidEmail(request);
-        assert.deepEqual(actual, expected);
-      });
-    });
-    describe('when the auth strategy is not supportPanelSecret', () => {
-      it('returns the uid and email from handleAuth', async () => {
-        const expected = { uid: UID, email: TEST_EMAIL };
-
-        const actual = await directStripeRoutesInstance.getUidEmail(
-          VALID_REQUEST
-        );
-        assert.deepEqual(actual, expected);
       });
     });
   });

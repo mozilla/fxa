@@ -615,6 +615,13 @@ class StripeHelper {
     if (currentPlanId === newPlanId) {
       throw error.subscriptionAlreadyChanged();
     }
+
+    const updatedMetadata = {
+      ...subscription.metadata,
+      previous_plan_id: currentPlanId,
+      plan_change_date: moment().unix(),
+    };
+
     return await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
       items: [
@@ -623,10 +630,7 @@ class StripeHelper {
           plan: newPlanId,
         },
       ],
-      metadata: {
-        previous_plan_id: currentPlanId,
-        plan_change_date: moment().unix(),
-      },
+      metadata: updatedMetadata,
     });
   }
 
@@ -873,6 +877,50 @@ class StripeHelper {
         subscription_id: sub.id,
         failure_code,
         failure_message,
+      });
+    }
+    return subs;
+  }
+
+  /**
+   * Formats Stripe subscriptions with information needed to provide support.
+   *
+   * @param {Subscriptions} subscriptions Subscriptions to finesse
+   * @returns {Promise<object[]>} Formatted list of subscriptions.
+   */
+  async formatSubscriptionsForSupport(subscriptions) {
+    const subs = [];
+    for (const sub of subscriptions.data) {
+      const product = await this.expandResource(
+        sub.plan.product,
+        PRODUCT_RESOURCE
+      );
+
+      const product_name = product.name;
+
+      let previous_product = null;
+      let plan_changed = null;
+
+      if (sub.metadata.previous_plan_id !== undefined) {
+        const previousPlan = await this.findPlanById(
+          sub.metadata.previous_plan_id
+        );
+        previous_product = previousPlan.product_name;
+        plan_changed = Number(sub.metadata.plan_change_date);
+      }
+
+      // FIXME: Note that the plan is only set if the subscription contains a single
+      // plan. Multiple product support will require changes here to fetch all
+      // plans for this subscription.
+      subs.push({
+        created: sub.created,
+        current_period_end: sub.current_period_end,
+        current_period_start: sub.current_period_start,
+        plan_changed,
+        previous_product,
+        product_name,
+        status: sub.status,
+        subscription_id: sub.id,
       });
     }
     return subs;

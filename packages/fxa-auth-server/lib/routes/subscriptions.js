@@ -520,7 +520,7 @@ class DirectStripeRoutes {
   async getCustomer(request) {
     this.log.begin('subscriptions.getCustomer', request);
 
-    const { uid, email } = await this.getUidEmail(request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
     const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
     ]);
@@ -986,7 +986,7 @@ class DirectStripeRoutes {
   async getSubscriptions(request) {
     this.log.begin('subscriptions.getSubscriptions', request);
 
-    const { uid, email } = await this.getUidEmail(request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
     const customer = await this.stripeHelper.customer(uid, email, false, true);
 
     // A FxA user isn't always a customer.
@@ -1001,17 +1001,23 @@ class DirectStripeRoutes {
     return response;
   }
 
-  async getUidEmail(request) {
-    let uid, email;
+  /**
+   * Get a list of subscriptions for support agents
+   *
+   * @param {Request} request a Hapi request
+   * @returns {Promise<object[]>} Formatted list of subscriptions.
+   */
+  async getSubscriptionsForSupport(request) {
+    this.log.begin('subscriptions.getSubscriptionsForSupport', request);
+    const { uid, email } = request.query;
 
-    if (request.auth.strategy === 'supportPanelSecret') {
-      ({ uid, email } = request.query);
-    } else {
-      // 'oauthToken' is the default
-      ({ uid, email } = await handleAuth(this.db, request.auth, true));
-    }
+    // We know that a user has to be a customer to create a support ticket
+    const customer = await this.stripeHelper.customer(uid, email);
+    const response = await this.stripeHelper.formatSubscriptionsForSupport(
+      customer.subscriptions
+    );
 
-    return { uid, email };
+    return response;
   }
 }
 
@@ -1162,7 +1168,8 @@ const directRoutes = (
           },
         },
       },
-      handler: request => directStripeRoutes.getSubscriptions(request),
+      handler: request =>
+        directStripeRoutes.getSubscriptionsForSupport(request),
     },
     {
       method: 'PUT',
@@ -1171,6 +1178,11 @@ const directRoutes = (
         auth: {
           payload: false,
           strategy: 'oauthToken',
+        },
+        response: {
+          schema: isA
+            .array()
+            .items(validators.subscriptionsSubscriptionSupportValidator),
         },
         validate: {
           params: {

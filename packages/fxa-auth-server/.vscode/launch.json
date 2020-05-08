@@ -113,5 +113,57 @@
       "runtimeVersion": "12.14.0",
       "protocol": "inspector"
     },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Coverage: Mocha All (local)",
+      "program": "${workspaceFolder}/node_modules/nyc/bin/nyc.js",
+      "args": [
+        "--reporter=lcov",
+        "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "--require",
+        "ts-node/register",
+        "--timeout",
+        "999999",
+        "--colors",
+        "${workspaceFolder}/test/local/**/*.js",
+        "--exit"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "dev",
+        "VERIFIER_VERSION": "0",
+        "CORS_ORIGIN": "http://foo,http://bar"
+      },
+      "preLaunchTask": "Stop PM2 Auth Server",
+      "postDebugTask": "Start PM2 Auth Server"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Coverage: Mocha All (oauth)",
+      "program": "${workspaceFolder}/node_modules/nyc/bin/nyc.js",
+      "args": [
+        "--reporter=lcov",
+        "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "--require",
+        "ts-node/register",
+        "--timeout",
+        "999999",
+        "--colors",
+        "${workspaceFolder}/test/oauth/**/*.js",
+        "--exit"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_ENV": "dev",
+        "VERIFIER_VERSION": "0",
+        "CORS_ORIGIN": "http://foo,http://bar"
+      },
+      "preLaunchTask": "Stop PM2 Auth Server",
+      "postDebugTask": "Start PM2 Auth Server"
+    },
   ]
 }
