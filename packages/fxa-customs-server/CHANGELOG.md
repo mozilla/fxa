@@ -1,18 +1,24 @@
+## 1.169.2
+
+### Bug fixes
+
+- sms: Enable sms for only US/CAD at 10%, reduce default max sms to 3 ([5f750ee08](https://github.com/mozilla/fxa/commit/5f750ee08))
+
 ## 1.169.1
 
 ### Bug fixes
 
-* customs: Update the route timeout level for customs server ([c273cb6c6](https://github.com/mozilla/fxa/commit/c273cb6c6))
+- customs: Update the route timeout level for customs server ([c273cb6c6](https://github.com/mozilla/fxa/commit/c273cb6c6))
 
 ## 1.169.0
 
 ### New features
 
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ### Bug fixes
 
-* sentry: Fix sentry reporting in customs server ([6352a99e6](https://github.com/mozilla/fxa/commit/6352a99e6))
+- sentry: Fix sentry reporting in customs server ([6352a99e6](https://github.com/mozilla/fxa/commit/6352a99e6))
 
 ## 1.168.3
 

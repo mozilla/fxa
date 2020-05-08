@@ -1,5 +1,9 @@
 # Change history
 
+## 1.169.2
+
+No changes.
+
 ## 1.169.1
 
 No changes.
@@ -8,12 +12,12 @@ No changes.
 
 ### New features
 
-* payments: start using rescripts so we can import external components ([79cd1c121](https://github.com/mozilla/fxa/commit/79cd1c121))
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- payments: start using rescripts so we can import external components ([79cd1c121](https://github.com/mozilla/fxa/commit/79cd1c121))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ### Bug fixes
 
-* npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
+- npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
 
 ## 1.168.3
 

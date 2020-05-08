@@ -1,34 +1,38 @@
+## 1.169.2
+
+No changes.
+
 ## 1.169.1
 
 ### Bug fixes
 
-* payments: use period end from first invoice line for reactivation billing date ([212f4049d](https://github.com/mozilla/fxa/commit/212f4049d))
+- payments: use period end from first invoice line for reactivation billing date ([212f4049d](https://github.com/mozilla/fxa/commit/212f4049d))
 
 ## 1.169.0
 
 ### New features
 
-* auth-server: add oauthdb firestore sync ([f40ed729b](https://github.com/mozilla/fxa/commit/f40ed729b))
-* auth-server: emit login notif on oauth login ([cdca46d01](https://github.com/mozilla/fxa/commit/cdca46d01))
-* access-tokens: prune access tokens form redis more frequently ([56cddad1a](https://github.com/mozilla/fxa/commit/56cddad1a))
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- auth-server: add oauthdb firestore sync ([f40ed729b](https://github.com/mozilla/fxa/commit/f40ed729b))
+- auth-server: emit login notif on oauth login ([cdca46d01](https://github.com/mozilla/fxa/commit/cdca46d01))
+- access-tokens: prune access tokens form redis more frequently ([56cddad1a](https://github.com/mozilla/fxa/commit/56cddad1a))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ### Bug fixes
 
-* auth server: reference fxa-shared types in tsconfig ([6093452eb](https://github.com/mozilla/fxa/commit/6093452eb))
-* geodb: make geodb accuracy logging optional ([a002393e3](https://github.com/mozilla/fxa/commit/a002393e3))
-* payments: use period end from first invoice line for next billing date ([a4c16c282](https://github.com/mozilla/fxa/commit/a4c16c282))
-* payments: switch to reactivate link in footer for subscription cancellation emails ([7acb7d776](https://github.com/mozilla/fxa/commit/7acb7d776))
-* payments: avoid sending redundant subscription cancellation email after account deletion ([048ad3014](https://github.com/mozilla/fxa/commit/048ad3014))
-* npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
+- auth server: reference fxa-shared types in tsconfig ([6093452eb](https://github.com/mozilla/fxa/commit/6093452eb))
+- geodb: make geodb accuracy logging optional ([a002393e3](https://github.com/mozilla/fxa/commit/a002393e3))
+- payments: use period end from first invoice line for next billing date ([a4c16c282](https://github.com/mozilla/fxa/commit/a4c16c282))
+- payments: switch to reactivate link in footer for subscription cancellation emails ([7acb7d776](https://github.com/mozilla/fxa/commit/7acb7d776))
+- payments: avoid sending redundant subscription cancellation email after account deletion ([048ad3014](https://github.com/mozilla/fxa/commit/048ad3014))
+- npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
 
 ### Refactorings
 
-* auth server: compile fxa-auth-server typescript for production, typescript lib/oauth/logging ([4b9b26241](https://github.com/mozilla/fxa/commit/4b9b26241))
+- auth server: compile fxa-auth-server typescript for production, typescript lib/oauth/logging ([4b9b26241](https://github.com/mozilla/fxa/commit/4b9b26241))
 
 ### Other changes
 
-* 40ec36790 Update link to OAuth JWT access tokens spec. ([40ec36790](https://github.com/mozilla/fxa/commit/40ec36790))
+- 40ec36790 Update link to OAuth JWT access tokens spec. ([40ec36790](https://github.com/mozilla/fxa/commit/40ec36790))
 
 ## 1.168.3
 

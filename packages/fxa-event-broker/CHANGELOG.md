@@ -1,5 +1,9 @@
 # Change history
 
+## 1.169.2
+
+No changes.
+
 ## 1.169.1
 
 No changes.
@@ -8,7 +12,7 @@ No changes.
 
 ### New features
 
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ## 1.168.3
 

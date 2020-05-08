@@ -1,3 +1,7 @@
+## 1.169.2
+
+No changes.
+
 ## 1.169.1
 
 No changes.
@@ -6,11 +10,11 @@ No changes.
 
 ### New features
 
-* build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
+- build: add a default dockerfile template to build.sh ([4dd0b0007](https://github.com/mozilla/fxa/commit/4dd0b0007))
 
 ### Bug fixes
 
-* npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
+- npm: fixed npm install in content-server etc ([11ddc0b60](https://github.com/mozilla/fxa/commit/11ddc0b60))
 
 ## 1.168.3
 
