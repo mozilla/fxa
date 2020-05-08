@@ -501,5 +501,38 @@ describe('lib/senders/sms:', () => {
         assert.equal(log.error.callCount, 0);
       });
     });
+
+    describe('send the correct type of sms:', () => {
+      it('sends a Promotional message by default', async () => {
+        await sms.send('+442078553000', 'installFirefox', 'en');
+        const args = mockSns.publish.args[0];
+        assert.equal(
+          args[0].MessageAttributes['AWS.SNS.SMS.SMSType']['StringValue'],
+          'Promotional'
+        );
+      });
+
+      it('sends the configured message type', async () => {
+        config.sms.smsType = 'Transactional';
+        sms = smsModule(log, translator, templates, config);
+        await sms.send('+442078553000', 'installFirefox', 'en');
+        const args = mockSns.publish.args[0];
+        assert.equal(
+          args[0].MessageAttributes['AWS.SNS.SMS.SMSType']['StringValue'],
+          'Transactional'
+        );
+      });
+
+      it('sends a Promotional message when given invalid config value', async () => {
+        config.sms.smsType = 'spooky';
+        sms = smsModule(log, translator, templates, config);
+        await sms.send('+442078553000', 'installFirefox', 'en');
+        const args = mockSns.publish.args[0];
+        assert.equal(
+          args[0].MessageAttributes['AWS.SNS.SMS.SMSType']['StringValue'],
+          'Promotional'
+        );
+      });
+    });
   });
 });

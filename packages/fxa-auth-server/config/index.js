@@ -1501,6 +1501,13 @@ const conf = convict({
       format: 'duration',
       env: 'SMS_POLL_CURRENT_SPEND_INTERVAL',
     },
+    smsType: {
+      doc:
+        'AWS.SNS.SMS.SMSType argument value.  "Promotional" or "Transactional".',
+      default: 'Promotional',
+      format: 'String',
+      env: 'SMS_AWS_SNS_SMSTYPE',
+    },
   },
   secondaryEmail: {
     minUnverifiedAccountTime: {
