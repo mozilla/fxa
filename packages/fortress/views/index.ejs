@@ -1,0 +1,19 @@
+<%- include('header'); -%>
+
+<h1><%= data.global.title %></h1>
+<h2><%= data.global.tagline %></h2>
+<div class="cards">
+  <% data.products.forEach(product => { %>
+  <div class="card">
+    <h3><%= product.title %></h3>
+    <ul>
+      <% product.sellingPoints.forEach(sellingPoint => { %>
+        <li><%= sellingPoint %> </li>
+      <% }) %>
+    </ul>
+    <a class="button" href="<%= product.slug %>">Subscribe to <%= product.title %></a>
+  </div>
+  <% }) %>
+</div>
+
+<%- include('footer'); -%>
