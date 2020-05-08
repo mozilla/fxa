@@ -135,7 +135,7 @@ module.exports = function(fs, path, url, convict) {
         maxSms: {
           doc:
             'Number of sms sent within rateLimitIntervalSeconds before throttling',
-          default: 5,
+          default: 3,
           format: 'nat',
           env: 'MAX_SMS',
         },
