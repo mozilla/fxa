@@ -991,10 +991,9 @@ class StripeHelper {
     }
 
     if (!plan || !abbrevProduct) {
-      throw error.internalValidationError(
+      throw error.missingSubscriptionForSourceError(
         'extractSourceDetailsForEmail',
-        source,
-        new Error(`Subscription corresponding to source not found`)
+        source
       );
     }
 
