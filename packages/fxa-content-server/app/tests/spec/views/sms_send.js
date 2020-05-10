@@ -45,9 +45,6 @@ describe('views/sms_send', () => {
     sinon
       .stub(view, 'checkAuthorization')
       .callsFake(() => Promise.resolve(true));
-    sinon
-      .stub(view, 'getAndReportExperimentGroup')
-      .callsFake(() => 'syncPhone');
   }
 
   beforeEach(() => {

@@ -16,7 +16,6 @@ const experimentGroupingRules = [
   require('./send-sms-install-link'),
   require('./sentry'),
   require('./email-mx-validation'),
-  require('./send-sms-header'),
   require('./newsletter-sync'),
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 

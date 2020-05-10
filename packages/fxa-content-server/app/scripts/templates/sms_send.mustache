@@ -11,24 +11,14 @@
       <div class="graphic {{graphicId}}" role="img" aria-label="{{#t}}Connect another device{{/t}}"></div>
 
       {{^userHasAttachedMobileDevice}}
-        {{#isSmsHeaderGroupSyncBrowser}}
-          <h1 data-id="prompt-header">{{#t}}Sync this browser with your phone{{/t}}</h1>
-        {{/isSmsHeaderGroupSyncBrowser}}
-        {{#isSmsHeaderGroupSyncPhone}}
-          <h1 data-id="prompt-header">{{#t}}Would you like to sync your phone?{{/t}}</h1>
-        {{/isSmsHeaderGroupSyncPhone}}
+        <h1 data-id="prompt-header">{{#t}}Would you like to sync your phone?{{/t}}</h1>
       {{/userHasAttachedMobileDevice}}
       {{#userHasAttachedMobileDevice}}
         <h1 data-id="prompt-header">{{#t}}Still adding devices?{{/t}}</h1>
       {{/userHasAttachedMobileDevice}}
 
       <p data-id="prompt-subheader">
-        {{#isSmsHeaderGroupControl}}
-          {{#t}}Send Firefox directly to your smartphone and sign in to complete set-up{{/t}}
-        {{/isSmsHeaderGroupControl}}
-        {{^isSmsHeaderGroupControl}}
-          {{#t}}Send a link by SMS to install Firefox on your phone.{{/t}}
-        {{/isSmsHeaderGroupControl}}
+        {{#t}}Send a link by SMS to install Firefox on your phone.{{/t}}
       </p>
 
       <form novalidate>
