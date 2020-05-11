@@ -15,8 +15,10 @@ import sinon from 'sinon';
 import User from 'models/user';
 import VerificationMethods from 'lib/verification-methods';
 import VerificationReasons from 'lib/verification-reasons';
+import WindowMock from '../../../mocks/window';
 
 const RESUME_TOKEN = 'a big hairy resume token';
+const FLOW_ID = 'h2k3v5';
 
 describe('views/mixins/signin-mixin', function() {
   it('exports correct interface', function() {
@@ -64,6 +66,11 @@ describe('views/mixins/signin-mixin', function() {
         logEvent: sinon.spy(),
         logFlowEvent: sinon.spy(),
         logViewEvent: sinon.spy(),
+        metrics: {
+          getFlowEventMetadata: sinon.spy(() => ({
+            flowId: FLOW_ID,
+          })),
+        },
         model: model,
         navigate: sinon.spy(),
         on: sinon.spy(),
@@ -73,6 +80,7 @@ describe('views/mixins/signin-mixin', function() {
         signIn: SignInMixin.signIn,
         unsafeDisplayError: sinon.spy(),
         user: user,
+        window: new WindowMock(),
       };
     });
 
@@ -558,6 +566,16 @@ describe('views/mixins/signin-mixin', function() {
         view.onSignInSuccess(account);
         assert.equal(relier.get('uid'), account.get('uid'));
         assert.equal(relier.get('email'), account.get('email'));
+      });
+
+      it('sets the flowId on localStorage', () => {
+        view.onSignInSuccess(account);
+
+        const storedFlowId = JSON.parse(
+          view.window.localStorage.getItem('__fxa_storage.flowId')
+        );
+
+        assert.equal(storedFlowId, FLOW_ID);
       });
     });
 

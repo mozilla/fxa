@@ -8,13 +8,17 @@ import './index.scss';
 import App from './components/App';
 import sentryMetrics from '@fxa-shared/lib/sentry';
 import config from './lib/config';
+import Storage from '@fxa-shared/lib/storage';
+
+const storage = Storage.factory('localStorage', window);
 
 export async function init() {
   sentryMetrics.configure(config.sentry.dsn, config.version);
+  const flowId = storage.get('flowId');
 
   render(
     <React.StrictMode>
-      <App />
+      <App {...{ flowId }} />
     </React.StrictMode>,
     document.getElementById('root')
   );

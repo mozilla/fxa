@@ -5,6 +5,7 @@
 // Shared implementation of `signUp` view method
 
 import ResumeTokenMixin from './resume-token-mixin';
+import Storage from '@fxa-shared/dist/lib/storage';
 
 export default {
   dependsOn: [ResumeTokenMixin],
@@ -77,6 +78,11 @@ export default {
   onSignUpSuccess(account) {
     this.logViewEvent('success');
     this.logViewEvent('signup.success');
+
+    // Now that the user is logged in store thier flowId in
+    // localStorage so it can be retrieved by fxa-settings
+    const { flowId } = this.metrics.getFlowEventMetadata();
+    Storage.factory('localStorage', this.window).set('flowId', flowId);
 
     if (account.get('verificationMethod') === 'email-otp') {
       this.navigate('/confirm_signup_code', { account });

@@ -10,6 +10,7 @@ import NavigateBehavior from '../behaviors/navigate';
 import ResumeTokenMixin from './resume-token-mixin';
 import VerificationMethods from '../../lib/verification-methods';
 import VerificationReasons from '../../lib/verification-reasons';
+import Storage from '@fxa-shared/dist/lib/storage';
 
 export default {
   dependsOn: [ResumeTokenMixin],
@@ -251,6 +252,11 @@ export default {
     // This event ties the signin success to a screen.
     // Currently, can be oauth, signin, signup, signin-unblock
     this.logViewEvent('signin.success');
+
+    // Now that the user is logged in store thier flowId in
+    // localStorage so it can be retrieved by fxa-settings
+    const { flowId } = this.metrics.getFlowEventMetadata();
+    Storage.factory('localStorage', this.window).set('flowId', flowId);
 
     const brokerMethod = this.afterSignInBrokerMethod || 'afterSignIn';
     const navigateData = this.afterSignInNavigateData || {};

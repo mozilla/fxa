@@ -7,7 +7,13 @@ import AppLayout from '../AppLayout';
 import AppErrorBoundary from '@fxa-components/AppErrorBoundary';
 import './index.scss';
 
-export const App = () => {
+type AppProps = {
+  flowId?: string;
+};
+
+export const App = ({ flowId }: AppProps) => {
+  console.info('flowId', flowId);
+
   return (
     <AppErrorBoundary>
       <AppLayout>

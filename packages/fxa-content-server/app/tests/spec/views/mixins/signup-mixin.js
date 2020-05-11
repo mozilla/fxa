@@ -9,6 +9,9 @@ import { Model } from 'backbone';
 import Relier from 'models/reliers/relier';
 import SignUpMixin from 'views/mixins/signup-mixin';
 import sinon from 'sinon';
+import WindowMock from '../../../mocks/window';
+
+const FLOW_ID = 'h2k3v5';
 
 describe('views/mixins/signup-mixin', function() {
   it('exports correct interface', function() {
@@ -51,6 +54,11 @@ describe('views/mixins/signup-mixin', function() {
         logFlowEvent: sinon.spy(),
         logViewEvent: sinon.spy(),
         navigate: sinon.spy(),
+        metrics: {
+          getFlowEventMetadata: sinon.spy(() => ({
+            flowId: FLOW_ID,
+          })),
+        },
         notifier: {
           trigger: sinon.spy(),
         },
@@ -59,6 +67,7 @@ describe('views/mixins/signup-mixin', function() {
         relier,
         signUp: SignUpMixin.signUp,
         user,
+        window: new WindowMock(),
       };
     });
 
@@ -221,6 +230,16 @@ describe('views/mixins/signup-mixin', function() {
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'afterSignUp');
         assert.deepEqual(args[1], account);
+      });
+
+      it('sets the flowId on localStorage', () => {
+        view.onSignUpSuccess(account);
+
+        const storedFlowId = JSON.parse(
+          view.window.localStorage.getItem('__fxa_storage.flowId')
+        );
+
+        assert.equal(storedFlowId, FLOW_ID);
       });
     });
 

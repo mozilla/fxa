@@ -1,6 +1,7 @@
 {
     "include": ["**/*.ts"],
     "exclude": ["node_modules", "**/*.spec.ts"],
+    "extends": "../fxa-components/tsconfig.common.json",
     "compilerOptions": {
         /* Basic Options */
         "target": "ES2017" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'. */,
