@@ -23,6 +23,8 @@
       "name": "Mocha All (local)",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
+        "--require",
+        "ts-node/register",
         "--timeout",
         "999999",
         "--colors",
@@ -45,6 +47,8 @@
       "name": "Mocha All (oauth)",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
+        "--require",
+        "ts-node/register",
         "--timeout",
         "999999",
         "--colors",
@@ -67,6 +71,8 @@
       "name": "Mocha Current File",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [
+        "--require",
+        "ts-node/register",
         "--timeout",
         "999999",
         "--colors",
@@ -92,6 +98,8 @@
       "args": [
         "--reporter=lcov",
         "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "--require",
+        "ts-node/register",
         "--timeout",
         "999999",
         "--colors",
