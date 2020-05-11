@@ -1,6 +1,8 @@
 {
   "comment_1179": "1179 is prototype pollution in minimist, used by eslint. Doesn't affect us, as we don't pass untrusted external inputs to eslint.",
+  "comment_1500": "1500 is prototype pollution in yargs-parser, used by rarely-updated browser-sync. Adding an exception while we wait for the package to be updated. Doesn't affect us, as we don't pass untrusted external inputs to browser-sync.",
   "exceptions": [
-    "https://npmjs.com/advisories/1179"
+    "https://npmjs.com/advisories/1179",
+    "https://npmjs.com/advisories/1500"
   ]
 }

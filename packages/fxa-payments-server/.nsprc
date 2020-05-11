@@ -4,11 +4,13 @@
   "comment_1426": "1426 is Cross-Site Scripting (XSS) in serialize-javascript, used by dev dep @storybook/react",
   "comment_1468": "1468 is a hoek vulnerability that only applies if the library is used outside hapi",
   "comment_1488": "1488 is a DoS against acorn (via webpack), which only applies if untrusted user content is passed in.",
+  "comment_1500": "1500 is prototype pollution in yargs-parser, used by react-scripts, nyc. Shouldn't affect us, as we don't pass untrusted external inputs via CLI.",
   "exceptions": [
     "https://npmjs.com/advisories/961",
     "https://npmjs.com/advisories/1179",
     "https://npmjs.com/advisories/1426",
     "https://npmjs.com/advisories/1468",
-    "https://npmjs.com/advisories/1488"
+    "https://npmjs.com/advisories/1488",
+    "https://npmjs.com/advisories/1500"
   ]
 }
