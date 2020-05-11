@@ -81,7 +81,7 @@ module.exports = {
     normalize: ensurePrefix('+43'),
     pattern: /^(?:\+43)?\d{6,}$/,
     prefix: '+43',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Australia
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Australia
@@ -90,7 +90,7 @@ module.exports = {
     normalize: ensurePrefix('+61'),
     pattern: /^(?:\+61\d{9}|\d{10})$/,
     prefix: '+61',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Belgium
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Belgium
@@ -99,7 +99,7 @@ module.exports = {
     normalize: ensurePrefix('+32'),
     pattern: /^(?:\+32\d{9}|\d{10})$/,
     prefix: '+32',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Germany
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Germany
@@ -108,7 +108,7 @@ module.exports = {
     normalize: ensurePrefix('+49'),
     pattern: /^(?:\+49)?\d{6,13}$/,
     prefix: '+49',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Denmark
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Denmark
@@ -117,7 +117,7 @@ module.exports = {
     normalize: ensurePrefix('+45'),
     pattern: /^(?:\+45)?\d{8}$/,
     prefix: '+45',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Spain
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Spain
@@ -126,7 +126,7 @@ module.exports = {
     normalize: ensurePrefix('+34'),
     pattern: /^(?:\+34)?\d{9}$/,
     prefix: '+34',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // France
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_France
@@ -135,14 +135,14 @@ module.exports = {
     normalize: ensurePrefix('+33'),
     pattern: /^(?:\+33\d{9}|\d{10})$/,
     prefix: '+33',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   GB: {
     format: formatter('+44 ${serverPhoneNumber}'),
     normalize: ensurePrefix('+44'),
     pattern: /^(?:\+44\d{10}|\d{11})$/,
     prefix: '+44',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Italy
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Italy
@@ -153,7 +153,7 @@ module.exports = {
     // are the old style and are still used.
     pattern: /^(?:\+39)?\d{9,10}$/,
     prefix: '+39',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Luxembourg
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Luxembourg
@@ -171,7 +171,7 @@ module.exports = {
     normalize: ensurePrefix('+31'),
     pattern: /^(?:\+31)?\d{4,}$/, // Non-geographical numbers have no fixed length. 3 access digits + at least one other digit.
     prefix: '+31',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   // Portugal
   // https://en.wikipedia.org/wiki/Telephone_numbers_in_Portugal
@@ -180,7 +180,7 @@ module.exports = {
     normalize: ensurePrefix('+351'),
     pattern: /^(?:\+351)?\d{9}$/,
     prefix: '+351',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   RO: {
     format: formatter('+40 ${serverPhoneNumber}'),
@@ -196,7 +196,7 @@ module.exports = {
     // +407xxxxxxxx, allow leading 0 for sloppiness.
     pattern: /^(?:\+40)?0?7\d{8,8}$/,
     prefix: '+40',
-    rolloutRate: 1,
+    rolloutRate: 0,
   },
   US: {
     // Americans don't use country codes, just return the number
@@ -212,7 +212,7 @@ module.exports = {
     },
     pattern: /^(\+?1)?[2-9]\d{9,9}$/, // allow for a +1 or 1 prefix before the area code, area codes are all 2-9
     prefix: '+1',
-    rolloutRate: 1,
+    rolloutRate: 0.1,
   },
 };
 
