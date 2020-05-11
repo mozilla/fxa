@@ -639,17 +639,21 @@ class StripeHelper {
    * @param {Subscription[id]} subscriptionId
    */
   async cancelSubscriptionForCustomer(uid, email, subscriptionId) {
-    const hasSubscription = await this.subscriptionForCustomer(
+    const subscription = await this.subscriptionForCustomer(
       uid,
       email,
       subscriptionId
     );
-    if (!hasSubscription) {
+    if (!subscription) {
       throw error.unknownSubscription();
     }
 
     await this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: true,
+      metadata: {
+        ...(subscription.metadata || {}),
+        cancelled_for_customer_at: moment().unix(),
+      },
     });
   }
 
@@ -690,6 +694,10 @@ class StripeHelper {
 
     return this.stripe.subscriptions.update(subscriptionId, {
       cancel_at_period_end: false,
+      metadata: {
+        ...(subscription.metadata || {}),
+        cancelled_for_customer_at: '',
+      },
     });
   }
 
