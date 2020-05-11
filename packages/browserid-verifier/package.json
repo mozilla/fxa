@@ -19,7 +19,7 @@
     "body-parser": "1.18.3",
     "browserid-local-verify": "0.5.2",
     "compute-cluster": "0.0.9",
-    "convict": "4.4.1",
+    "convict": "^6.0.0",
     "express": "4.16.4",
     "intel": "1.2.0",
     "morgan": "1.9.1",

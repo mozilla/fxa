@@ -33,7 +33,7 @@
     "@sentry/node": "^5.15.5",
     "apollo-server": "^2.12.0",
     "apollo-server-express": "^2.12.0",
-    "convict": "^5.2.0",
+    "convict": "^6.0.0",
     "graphql": "^14.6.0",
     "ioredis": "^4.16.3",
     "knex": "^0.21.0",
