@@ -1,0 +1,24 @@
+<div id="main-content" class="card cad-qr-ready-to-scan">
+    <header>
+        <h1 id="fxa-cad-qr-ready-to-scan-header">
+            {{#t}}Download Firefox with your camera{{/t}}
+        </h1>
+    </header>
+
+    <section>
+        <div class="graphic graphic-laptop-mobile-qr"></div>
+
+        <p class="verification-message">
+            {{#t}}Installing Firefox and syncing between at least two devices also protects against losing your data.{{/t}}
+        </p>
+        <form novalidate>
+            <div class="button-row">
+                <button id="submit-btn" class="qr-code-button" type="submit">{{#t}}Ready to scan{{/t}}</button>
+            </div>
+            <div class="links centered">
+                <a id="use-sms-link" data-flow-event="link.maybe-later">{{#t}}Use SMS instead{{/t}}</a>
+                <a id="maybe-later-link" data-flow-event="link.maybe-later" href="{{maybeLaterLink}}">{{#t}}I'll do this later, send me a reminder{{/t}}</a>
+            </div>
+        </form>
+    </section>
+</div>

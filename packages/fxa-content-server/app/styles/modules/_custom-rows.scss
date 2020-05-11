@@ -56,6 +56,26 @@
   }
 }
 
+.qr-code-step-message {
+  color: $text-color;
+  font-size: 15px;
+  padding: 0 30px 0 30px;
+  text-align: left;
+  word-wrap: break-word;
+
+  & .number {
+    background-color: #0060DF;
+    border-radius: 50%;
+    color: $color-white;
+    display: inline-block;
+    height: 24px;
+    margin-right: 10px;
+    padding-top: 3px;
+    text-align: center;
+    width: 24px;
+  }
+}
+
 .customize-sync-row {
   color: $link-color-extra;
   margin-bottom: 10px !important;
