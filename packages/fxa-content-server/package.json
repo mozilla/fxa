@@ -1,6 +1,6 @@
 {
     "name": "fxa-content-server",
-    "version": "1.170.0",
+    "version": "1.170.1",
     "description": "Firefox Accounts Content Server",
     "scripts": {
         "build": "NODE_ENV=production grunt build",

@@ -1,3 +1,9 @@
+## 1.170.1
+
+### New features
+
+- sms: make AWS.SNS.SMS.SMSType configurable ([a169f9c00](https://github.com/mozilla/fxa/commit/a169f9c00))
+
 ## 1.170.0
 
 ### New features
