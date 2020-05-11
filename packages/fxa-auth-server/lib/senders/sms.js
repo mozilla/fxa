@@ -38,6 +38,11 @@ module.exports = (log, translator, templates, config, statsd) => {
     setImmediate(pollCurrentSpend);
   }
 
+  const allowedSmsType = ['Promotional', 'Transactional'];
+  const smsType = allowedSmsType.includes(config.sms.smsType)
+    ? config.sms.smsType
+    : 'Promotional';
+
   return {
     isBudgetOk: () => isBudgetOk,
 
@@ -62,7 +67,7 @@ module.exports = (log, translator, templates, config, statsd) => {
             'AWS.SNS.SMS.SMSType': {
               // 'Promotional' for cheap marketing messages, 'Transactional' for critical transactions
               DataType: 'String',
-              StringValue: 'Promotional',
+              StringValue: smsType,
             },
           },
           PhoneNumber: phoneNumber,

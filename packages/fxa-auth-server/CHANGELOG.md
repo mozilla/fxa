@@ -20,6 +20,16 @@
 
 - all: update readmes across all packages to improve testing documentation ([099163e94](https://github.com/mozilla/fxa/commit/099163e94))
 
+## 1.169.3
+
+### New features
+
+- sms: make AWS.SNS.SMS.SMSType configurable ([a169f9c00](https://github.com/mozilla/fxa/commit/a169f9c00))
+
+## 1.169.2
+
+No changes.
+
 ## 1.169.1
 
 ### Bug fixes

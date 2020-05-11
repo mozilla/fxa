@@ -4,6 +4,16 @@
 
 - docker: added Dockerfile for fxa-customs-server ([fb0eb9404](https://github.com/mozilla/fxa/commit/fb0eb9404))
 
+## 1.169.3
+
+No changes.
+
+## 1.169.2
+
+### Bug fixes
+
+- sms: Enable sms for only US/CAD at 10%, reduce default max sms to 3 ([5f750ee08](https://github.com/mozilla/fxa/commit/5f750ee08))
+
 ## 1.169.1
 
 ### Bug fixes
