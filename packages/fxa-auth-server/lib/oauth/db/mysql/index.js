@@ -187,7 +187,7 @@ const QUERY_REFRESH_TOKEN_INSERT =
 // and hence would more properly be called `tokenId`.
 const QUERY_ACCESS_TOKEN_FIND =
   'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.email, tokens.scope, ' +
+  '  tokens.userId, tokens.scope, ' +
   '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
   '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
   '  clients.publicClient ' +
@@ -230,7 +230,7 @@ const QUERY_DEVELOPER_DELETE =
 // they get deleted from the db.
 const QUERY_LIST_ACCESS_TOKENS_BY_UID =
   'SELECT tokens.token AS tokenId, tokens.clientId, tokens.createdAt, ' +
-  '  tokens.userId, tokens.email, tokens.scope, ' +
+  '  tokens.userId, tokens.scope, ' +
   '  tokens.createdAt, tokens.expiresAt, tokens.profileChangedAt, ' +
   '  clients.name as clientName, clients.canGrant AS clientCanGrant, ' +
   '  clients.publicClient ' +
