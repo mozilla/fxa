@@ -1,3 +1,9 @@
+## 1.170.1
+
+### Bug fixes
+
+- sms: Enable sms for only US/CAD at 10%, reduce default max sms to 3 ([5f750ee08](https://github.com/mozilla/fxa/commit/5f750ee08))
+
 ## 1.170.0
 
 ### New features
@@ -14,6 +20,16 @@
 ### Other changes
 
 - all: update readmes across all packages to improve testing documentation ([099163e94](https://github.com/mozilla/fxa/commit/099163e94))
+
+## 1.169.3
+
+No changes.
+
+## 1.169.2
+
+### Bug fixes
+
+- sms: Enable sms for only US/CAD at 10%, reduce default max sms to 3 ([5f750ee08](https://github.com/mozilla/fxa/commit/5f750ee08))
 
 ## 1.169.1
 

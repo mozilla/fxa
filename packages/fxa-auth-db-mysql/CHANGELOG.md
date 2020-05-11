@@ -1,8 +1,20 @@
+## 1.170.1
+
+No changes.
+
 ## 1.170.0
 
 ### Other changes
 
 - all: update readmes across all packages to improve testing documentation ([099163e94](https://github.com/mozilla/fxa/commit/099163e94))
+
+## 1.169.3
+
+No changes.
+
+## 1.169.2
+
+No changes.
 
 ## 1.169.1
 
