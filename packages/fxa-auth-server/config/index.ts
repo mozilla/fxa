@@ -1658,17 +1658,9 @@ const conf = convict({
       format: String,
     },
     topicFieldId: {
-      doc:
-        'Zendesk support ticket custom field for topic. Corresponds to "Support Category" in Zendesk',
+      doc: 'Zendesk support ticket custom field for topic',
       default: '360028484432',
       env: 'ZENDESK_TOPIC_FIELD_ID',
-      format: String,
-    },
-    issueFieldId: {
-      doc:
-        'Zendesk support ticket custom field for issue. Corresponds to "Sub-Category" in Zendesk',
-      default: '360030780972',
-      env: 'ZENDESK_ISSUE_FIELD_ID',
       format: String,
     },
   },

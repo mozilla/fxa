@@ -88,12 +88,6 @@ registerSuite('support form with an active subscription', {
             '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
           )
         )
-        .then(click('#issue_chosen a.chosen-single'))
-        .then(
-          click(
-            '#issue_chosen ul.chosen-results li[data-option-array-index="1"]'
-          )
-        )
         .then(type('textarea[name=message]', 'please send halp'))
         .then(click('button[type=submit]'));
       // Since we don't have proper Zendesk config in CircleCI, the form

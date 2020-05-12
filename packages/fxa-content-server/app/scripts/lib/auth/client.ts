@@ -1091,7 +1091,6 @@ export default class AuthClient {
     accessToken: string,
     supportTicket: {
       topic: string;
-      issue: string;
       subject?: string;
       message: string;
     }

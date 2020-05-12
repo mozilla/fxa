@@ -32,8 +32,7 @@ describe('views/support', function() {
   const subscriptionsConfig = { managementClientId: 'OVER9000' };
   const supportTicket = {
     productName: 'FxA - 123Done Pro',
-    topic: 'Firefox Account',
-    issue: 'Payment & billing',
+    topic: 'General inquiries',
     subject: '',
     message: 'inquiries from generals',
   };
@@ -222,7 +221,7 @@ describe('views/support', function() {
         });
     });
 
-    it('should be enabled once a product, a topic, an issue, and a message is entered', function() {
+    it('should be enabled once a product, a topic, and a message is entered', function() {
       return view
         .render()
         .then(function() {
@@ -237,11 +236,6 @@ describe('views/support', function() {
           assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
           view
             .$('#topic option:eq(1)')
-            .prop('selected', true)
-            .trigger('change');
-          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
-          view
-            .$('#issue option:eq(1)')
             .prop('selected', true)
             .trigger('change');
           assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
@@ -265,7 +259,6 @@ describe('views/support', function() {
         .then(function() {
           view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view.$('#issue option:eq(1)').prop('selected', true);
           view
             .$('#message')
             .val(supportTicket.message)
@@ -296,7 +289,6 @@ describe('views/support', function() {
         .then(function() {
           view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view.$('#issue option:eq(1)').prop('selected', true);
           view
             .$('#message')
             .val(supportTicket.message)
@@ -334,7 +326,6 @@ describe('views/support', function() {
         .then(function() {
           view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view.$('#issue option:eq(1)').prop('selected', true);
           view
             .$('#message')
             .val(supportTicket.message)
@@ -383,7 +374,6 @@ describe('views/support', function() {
         })
         .then(function() {
           view.$('#topic option:eq(1)').prop('selected', true);
-          view.$('#issue option:eq(1)').prop('selected', true);
           view.$('#message').val(supportTicket.message);
 
           // calling this directly instead of clicking submit so we can have
