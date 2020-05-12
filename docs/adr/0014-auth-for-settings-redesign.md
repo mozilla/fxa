@@ -1,6 +1,6 @@
 # Authentication in Settings Redesign
 
-- Status: accepted
+- Status: superseded by [ADR-0017](0017-switch-settings-auth-to-sessiontoken)
 - Deciders: Les Orchard, Lauren Zugai, Ben Bangert, Ryan Kelly
 - Date: 2020-04-15
 
