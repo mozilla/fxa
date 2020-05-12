@@ -18,6 +18,7 @@ const {
 } = require('../../../lib/payments/stripe');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
+const moment = require('moment');
 
 const {
   sanitizePlans,
@@ -2138,7 +2139,9 @@ describe('DirectStripeRoutes', () => {
       const subscription = deletedEvent.data.object;
 
       if (subscriptionAlreadyCancelled) {
-        subscription.cancel_at_period_end = true;
+        subscription.metadata = {
+          cancelled_for_customer_at: moment().unix(),
+        };
       }
 
       const mockInvoiceDetails = {

@@ -492,9 +492,12 @@ describe('StripeHelper', () => {
 
     describe('customer owns subscription', () => {
       it('calls subscription update', async () => {
+        const existingMetadata = { foo: 'bar' };
+        const unixTimestamp = moment().unix();
+        sandbox.stub(moment, 'unix').returns(unixTimestamp);
         sandbox
           .stub(stripeHelper, 'subscriptionForCustomer')
-          .resolves(subscription2);
+          .resolves({ ...subscription2, metadata: existingMetadata });
 
         await stripeHelper.cancelSubscriptionForCustomer(
           '123',
@@ -504,6 +507,10 @@ describe('StripeHelper', () => {
         assert.isTrue(
           stripeSubscriptionsUpdateStub.calledOnceWith(subscription2.id, {
             cancel_at_period_end: true,
+            metadata: {
+              ...existingMetadata,
+              cancelled_for_customer_at: unixTimestamp,
+            },
           })
         );
       });
@@ -541,10 +548,14 @@ describe('StripeHelper', () => {
     describe('customer owns subscription', () => {
       describe('the intial subscription has a active status', () => {
         it('returns the updated subscription', async () => {
-          const expected = deepCopy(subscription2);
+          const existingMetadata = { foo: 'bar' };
+          const expected = {
+            ...deepCopy(subscription2),
+            metadata: existingMetadata,
+          };
           sandbox
             .stub(stripeHelper, 'subscriptionForCustomer')
-            .resolves(subscription2);
+            .resolves(expected);
           stripeHelper.stripe.subscriptions.update.resolves(expected);
 
           const actual = await stripeHelper.reactivateSubscriptionForCustomer(
@@ -554,10 +565,13 @@ describe('StripeHelper', () => {
           );
 
           assert.deepEqual(actual, expected);
-
           assert.isTrue(
             stripeSubscriptionsUpdateStub.calledOnceWith(expected.id, {
               cancel_at_period_end: false,
+              metadata: {
+                ...existingMetadata,
+                cancelled_for_customer_at: '',
+              },
             })
           );
         });
@@ -584,6 +598,9 @@ describe('StripeHelper', () => {
           assert.isTrue(
             stripeSubscriptionsUpdateStub.calledOnceWith(expected.id, {
               cancel_at_period_end: false,
+              metadata: {
+                cancelled_for_customer_at: '',
+              },
             })
           );
         });
