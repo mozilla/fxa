@@ -1,3 +1,9 @@
+## 1.170.2
+
+### Bug fixes
+
+- sms: revert non-US sms restrictions; US/CA back to 100% ([e3b5e6629](https://github.com/mozilla/fxa/commit/e3b5e6629))
+
 ## 1.170.1
 
 ### Bug fixes
