@@ -15,7 +15,7 @@ class ScanCode extends FormView {
 
   events = assign(this.events, {
     'click #done-link': preventDefaultThen('clickDoneLink'),
-    'click #use-sms': preventDefaultThen('clickUseSms'),
+    'click #use-sms-link': preventDefaultThen('clickUseSms'),
   });
 
   setInitialContext(context) {

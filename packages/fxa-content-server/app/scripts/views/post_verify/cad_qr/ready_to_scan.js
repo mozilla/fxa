@@ -14,7 +14,7 @@ class ReadyToScan extends FormView {
   viewName = 'ready-to-scan';
 
   events = assign(this.events, {
-    'click #use-sms': preventDefaultThen('clickUseSms'),
+    'click #use-sms-link': preventDefaultThen('clickUseSms'),
   });
 
   setInitialContext(context) {

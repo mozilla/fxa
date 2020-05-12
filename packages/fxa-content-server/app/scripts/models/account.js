@@ -1140,6 +1140,15 @@ const Account = Backbone.Model.extend(
     },
 
     /**
+     * Fetch the account's device list.
+     *
+     * @returns {Promise} - resolves with an array of devices
+     */
+    fetchDeviceList() {
+      return this._fxaClient.deviceList(this.get('sessionToken'));
+    },
+
+    /**
      * Fetch an access token with subscription management scopes and a lifetime
      * of 30 seconds.
      *
