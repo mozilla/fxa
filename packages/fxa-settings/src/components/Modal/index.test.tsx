@@ -10,39 +10,38 @@ import {
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { DialogMessage } from './index';
+import Modal from './index';
 
 afterEach(cleanup);
 
 it('renders as expected', () => {
   const onDismiss = jest.fn();
   const { queryByTestId } = render(
-    <DialogMessage onDismiss={onDismiss}>
+    <Modal {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
-    </DialogMessage>
+    </Modal>
   );
-  expect(queryByTestId('dialog-message-container')).toHaveClass('blocker');
   expect(queryByTestId('children')).toBeInTheDocument();
 });
 
 it('accepts an alternate className', () => {
   const onDismiss = jest.fn();
   const { queryByTestId } = render(
-    <DialogMessage onDismiss={onDismiss} className="barquux">
+    <Modal {...{onDismiss }} className="barquux">
       <div data-testid="children">Hi mom</div>
-    </DialogMessage>
+    </Modal>
   );
-  expect(queryByTestId('dialog-message-content')).toHaveClass('barquux');
+  expect(queryByTestId('modal-content-container')).toHaveClass('barquux');
 });
 
 it('calls onDismiss on click outside', () => {
   const onDismiss = jest.fn();
   const { container, getByTestId } = render(
-    <DialogMessage onDismiss={onDismiss}>
+    <Modal {...{onDismiss }}>
       <div data-testid="children">Hi mom</div>
-    </DialogMessage>
+    </Modal>
   );
-  fireEvent.click(getByTestId('dialog-message-content'));
+  fireEvent.click(getByTestId('modal-content-container'));
   expect(onDismiss).not.toHaveBeenCalled();
   fireEvent.click(container);
   expect(onDismiss).toHaveBeenCalled();
@@ -50,9 +49,9 @@ it('calls onDismiss on click outside', () => {
 
 it('hides the close button when onDismiss is not supplied', () => {
   const { queryByTestId } = render(
-    <DialogMessage>
+    <Modal>
       <div data-testid="children">Hi mom</div>
-    </DialogMessage>
+    </Modal>
   );
-  expect(queryByTestId('dialog-dismiss')).not.toBeInTheDocument();
+  expect(queryByTestId('modal-dismiss')).not.toBeInTheDocument();
 });

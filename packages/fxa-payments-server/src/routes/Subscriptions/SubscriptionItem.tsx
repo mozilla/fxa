@@ -1,7 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { Localized } from '@fluent/react';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
-import { useBooleanState, useCheckboxState } from '../../lib/hooks';
+import { useCheckboxState } from '../../lib/hooks';
+import { useBooleanState } from '@fxa-react/lib/hooks';
 import {
   CustomerSubscription,
   Subscription,

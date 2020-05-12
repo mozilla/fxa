@@ -1,12 +1,16 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { ReactNode } from 'react';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
-import { useClickOutsideEffect } from '../../lib/hooks';
+import { useClickOutsideEffect } from '@fxa-react/lib/hooks';
 
-import Portal from '../Portal';
+import Portal from '@fxa-react/components/Portal';
 
 import './index.scss';
-import CloseIcon from '../CloseIcon';
+import { ReactComponent as CloseIcon } from '@fxa-react/images/close.svg';
 
 type DialogMessageProps = {
   className?: string;

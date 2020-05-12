@@ -1,8 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import LoremIpsum from '../../../.storybook/components/LoremIpsum';
-import { useBooleanState } from '../../lib/hooks';
+import { useBooleanState } from '@fxa-react/lib/hooks';
 import { SignInLayout } from '../AppLayout';
 import { DialogMessage } from './index';
 
