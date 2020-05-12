@@ -53,14 +53,12 @@ const SupportView = BaseView.extend({
       unsafeHeaderHTML: this._getHeaderHTML(account),
       optionPlaceholder: t('Please Select One'),
       topicOptions: this.supportForm.topicOptions,
-      issueOptions: this.supportForm.issueOptions,
     });
   },
 
   events: {
     'change #product': 'onFormChange',
     'change #topic': 'onFormChange',
-    'change #issue': 'onFormChange',
     'keyup #message': 'onFormChange',
     'click button[type=submit]': 'submitSupportForm',
     'click button.cancel': 'navigateToSubscriptions',
@@ -102,7 +100,6 @@ const SupportView = BaseView.extend({
   afterVisible() {
     this.productEl = this.$('#product');
     this.topicEl = this.$('#topic');
-    this.issueEl = this.$('#issue');
     this.submitBtn = this.$('button[type="submit"]');
     this.submitText = this.$('.submit-content');
     this.submitSpinner = this.$('.spinner');
@@ -111,7 +108,6 @@ const SupportView = BaseView.extend({
     this.messageEl = this.$('#message');
     this.productEl.chosen({ disable_search: true, width: '100%' });
     this.topicEl.chosen({ disable_search: true, width: '100%' });
-    this.issueEl.chosen({ disable_search: true, width: '100%' });
 
     // Have screen readers use the form label for the drop down
     $('div.chosen-drop ul').each(function() {
@@ -155,7 +151,6 @@ const SupportView = BaseView.extend({
     this.supportForm.set({
       productName: this.formatProductName(productName),
       topic: this.topicEl.val(),
-      issue: this.issueEl.val(),
       subject: this.subjectEl.val().trim(),
       message: this.messageEl.val().trim(),
     });
@@ -215,11 +210,6 @@ const SupportView = BaseView.extend({
     const escapedLowercaseTopic = _.escape(
       this.supportForm.getLoweredTopic(this.supportForm.attributes.topic)
     );
-
-    const escapedLowercaseIssue = _.escape(
-      this.supportForm.getLoweredIssue(this.supportForm.attributes.issue)
-    );
-
     const escapedSelectedPlan = _.escape(this.supportForm.attributes.plan);
 
     if (this.supportForm.attributes.plan === t('Other')) {
@@ -235,7 +225,6 @@ const SupportView = BaseView.extend({
     message = Strings.interpolate(this.unsafeTranslate(message), {
       escapedSelectedPlan,
       escapedLowercaseTopic,
-      escapedLowercaseIssue,
     });
     const selector = '.modal.dialog-success';
     const successModal = this.renderTemplate(SupportFormSuccessTemplate, {

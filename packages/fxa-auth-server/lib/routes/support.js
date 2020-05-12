@@ -9,29 +9,29 @@ const isA = require('@hapi/joi');
 const pRetry = require('p-retry');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
 
-const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
-  'https://identity.mozilla.com/account/subscriptions';
-
-async function handleAuth(db, auth) {
-  const scope = ScopeSet.fromArray(auth.credentials.scope);
-  if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
-    throw error.invalidScopes('Invalid authentication scope in token');
-  }
-  const { user: uid } = auth.credentials;
-
-  let { email } = auth.credentials;
-
-  if (email === undefined) {
-    const account = await db.account(uid);
-    ({ email } = account.primaryEmail);
-  }
-  return { uid, email };
-}
-
-const supportRoutes = (log, db, config, customs, zendeskClient) => {
+module.exports = (log, db, config, customs, zendeskClient) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {
     return [];
+  }
+
+  const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
+    'https://identity.mozilla.com/account/subscriptions';
+
+  async function handleAuth(auth, fetchEmail = false) {
+    const scope = ScopeSet.fromArray(auth.credentials.scope);
+    if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
+      throw error.invalidScopes('Invalid authentication scope in token');
+    }
+    const { user: uid } = auth.credentials;
+    let email;
+    if (!fetchEmail) {
+      ({ email } = auth.credentials);
+    } else {
+      const account = await db.account(uid);
+      ({ email } = account.primaryEmail);
+    }
+    return { uid, email };
   }
 
   return [
@@ -47,7 +47,6 @@ const supportRoutes = (log, db, config, customs, zendeskClient) => {
           payload: isA.object().keys({
             productName: isA.string().required(),
             topic: isA.string().required(),
-            issue: isA.string().required(),
             subject: isA
               .string()
               .allow('')
@@ -65,7 +64,7 @@ const supportRoutes = (log, db, config, customs, zendeskClient) => {
       },
       handler: async function(request) {
         log.begin('support.ticket', request);
-        const { uid, email } = await handleAuth(db, request.auth);
+        const { uid, email } = await handleAuth(request.auth, true);
         const { location } = request.app.geo;
         await customs.check(request, email, 'supportRequest');
         let subject = `${request.payload.productName}`;
@@ -78,7 +77,6 @@ const supportRoutes = (log, db, config, customs, zendeskClient) => {
           locationStateFieldId,
           locationCountryFieldId,
           topicFieldId,
-          issueFieldId,
         } = config.zendesk;
 
         const zendeskReq = {
@@ -91,7 +89,6 @@ const supportRoutes = (log, db, config, customs, zendeskClient) => {
           custom_fields: [
             { id: productNameFieldId, value: request.payload.productName },
             { id: topicFieldId, value: request.payload.topic },
-            { id: issueFieldId, value: request.payload.issue },
             { id: locationCityFieldId, value: location.city },
             { id: locationStateFieldId, value: location.state },
             { id: locationCountryFieldId, value: location.country },
@@ -141,6 +138,3 @@ const supportRoutes = (log, db, config, customs, zendeskClient) => {
     },
   ];
 };
-
-module.exports = supportRoutes;
-module.exports.handleAuth = handleAuth;

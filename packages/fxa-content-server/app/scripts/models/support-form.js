@@ -10,22 +10,24 @@ const t = msg => msg;
 // Values sent as part of Zendesk support tickets. They also act as look up keys
 // for translated strings used in the UI.
 const TOPICS = [
-  'Firefox Account',
+  'General inquiries',
+  'Payment & billing',
+  'Connection issues',
+  'Getting started',
+  'Account issues',
   'Firefox Private Network Android App',
   'Firefox Private Network Windows App',
-  'Firefox Private Network IOS App',
-  'Firefox Private Network Browser Extension',
-  'Other',
 ];
 
 // Translated strings for the drop down options.
 const TRANSLATED_TOPICS = [
-  t('Firefox Account'),
+  t('General inquiries'),
+  t('Payment & billing'),
+  t('Connection issues'),
+  t('Getting started'),
+  t('Account issues'),
   t('Firefox Private Network Android App'),
   t('Firefox Private Network Windows App'),
-  t('Firefox Private Network IOS App'),
-  t('Firefox Private Network Browser Extension'),
-  t('Other'),
 ];
 
 // Lowercase translated strings used in the successful submission modal.
@@ -38,43 +40,9 @@ const topicOptions = _.zipWith(
   (topic, translated, lowered) => ({ topic, translated, lowered })
 );
 
-// Values sent as part of Zendesk support tickets. They also act as look up keys
-// for translated strings used in the UI.
-const ISSUES = [
-  'Payment & billing',
-  'Account issues',
-  'Technical issues',
-  'Provide feedback / request features',
-  'Not listed',
-];
-
-// Translated strings for the drop down options.
-const TRANSLATED_ISSUES = [
-  t('Payment & billing'),
-  t('Account issues'),
-  t('Technical issues'),
-  t('Provide feedback / request features'),
-  t('Not listed'),
-];
-
-// Lowercase translated strings used in the successful submission modal.
-const LOWERED_ISSUES = TRANSLATED_ISSUES.map(x => x.toLocaleLowerCase());
-
-const issueOptions = _.zipWith(
-  ISSUES,
-  TRANSLATED_ISSUES,
-  LOWERED_ISSUES,
-  (issue, translated, lowered) => ({ issue, translated, lowered })
-);
-
 const SupportForm = Backbone.Model.extend({
   validate: function(attrs) {
-    if (
-      attrs.message !== '' &&
-      attrs.productName &&
-      attrs.topic !== '' &&
-      attrs.issue !== ''
-    ) {
+    if (attrs.message !== '' && attrs.productName && attrs.topic !== '') {
       return;
     }
 
@@ -85,8 +53,6 @@ const SupportForm = Backbone.Model.extend({
 
   topicOptions,
 
-  issueOptions,
-
   getTranslatedTopic: function(topic) {
     const selected = topicOptions.find(t => t.topic === topic);
     return selected ? selected.translated : topic;
@@ -95,16 +61,6 @@ const SupportForm = Backbone.Model.extend({
   getLoweredTopic: function(topic) {
     const selected = topicOptions.find(t => t.topic === topic);
     return selected ? selected.lowered : topic;
-  },
-
-  getTranslatedIssue: function(issue) {
-    const selected = issueOptions.find(i => i.issue === issue);
-    return selected ? selected.translated : issue;
-  },
-
-  getLoweredIssue: function(issue) {
-    const selected = issueOptions.find(i => i.issue === issue);
-    return selected ? selected.lowered : issue;
   },
 });
 

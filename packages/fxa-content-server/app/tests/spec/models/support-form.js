@@ -13,7 +13,6 @@ describe('models/support-form', function() {
       plan: '123done',
       productName: 'FxA - Best Product Ever',
       topic: '345finished',
-      issue: 'Billing',
       subject: '',
       message: '678completed',
     });
@@ -26,11 +25,6 @@ describe('models/support-form', function() {
 
   it('requires a topic', function() {
     supportForm.set('topic', '');
-    assert.isFalse(supportForm.isValid());
-  });
-
-  it('requires an issue', function() {
-    supportForm.set('issue', '');
     assert.isFalse(supportForm.isValid());
   });
 
