@@ -57,6 +57,11 @@ body.settings #stage .settings {
   }
 }
 
+#submit-btn.qr-code-button::before {
+  content: image-url('icon-qr-code.svg');
+  padding: 3px 10px 0 0;
+}
+
 // settings header controls
 #fxa-settings-header-wrapper {
   align-items: center;

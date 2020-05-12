@@ -1,0 +1,17 @@
+<div id="main-content" class="card cad-qr-connected">
+    <section>
+        <div class="graphic graphic-cad-qr-code-connected"></div>
+
+        <form novalidate>
+            <p>{{#t}}Still adding devices?{{/t}}</p>
+
+            <div class="button-row">
+                <button id="submit-btn" class="qr-code-button" type="submit">{{#t}}Connect another one{{/t}}</button>
+            </div>
+            <div class="links centered">
+                <a id="use-sms-link" data-flow-event="link.use-sms">{{#t}}Use SMS instead{{/t}}</a>
+                <a id="done-link" data-flow-event="link.done" href="{{doneLink}}">{{#t}}I'm done for now{{/t}}</a>
+            </div>
+        </form>
+    </section>
+</div>

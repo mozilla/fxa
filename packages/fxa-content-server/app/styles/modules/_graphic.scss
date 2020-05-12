@@ -51,6 +51,29 @@
   margin: 0 auto 20px auto;
 }
 
+.graphic-laptop-mobile {
+  background-image: image-url('graphic_laptop_mobile.svg');
+  height: 138px;
+  margin: 40px auto 40px auto;
+}
+
+.graphic-laptop-mobile-qr {
+  background-image: image-url('graphic_laptop_mobile_qr.svg');
+  height: 138px;
+  margin: 40px auto 40px auto;
+}
+
+.graphic-cad-qr-code {
+  background-image: image-url('graphic_cad_qr_code.svg');
+  height: 175px;
+  margin: 40px auto 40px auto;
+}
+
+.graphic-cad-qr-code-connected {
+  background-image: image-url('account-verified-hearts.svg');
+  margin: 40px auto 40px auto;
+}
+
 .graphic-two-factor-auth {
   background-image: image-url('graphic_two_factor_auth.svg');
   height: 138px;

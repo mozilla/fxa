@@ -170,6 +170,18 @@ const Router = Backbone.Router.extend({
         type: VerificationReasons.RECOVERY_KEY,
       }
     ),
+    'post_verify/cad_qr/get_started': createViewHandler(
+      'post_verify/cad_qr/get_started'
+    ),
+    'post_verify/cad_qr/ready_to_scan': createViewHandler(
+      'post_verify/cad_qr/ready_to_scan'
+    ),
+    'post_verify/cad_qr/scan_code': createViewHandler(
+      'post_verify/cad_qr/scan_code'
+    ),
+    'post_verify/cad_qr/connected': createViewHandler(
+      'post_verify/cad_qr/connected'
+    ),
     'post_verify/newsletters/add_newsletters': createViewHandler(
       'post_verify/newsletters/add_newsletters'
     ),
