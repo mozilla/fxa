@@ -1737,27 +1737,40 @@ describe('DirectStripeRoutes', () => {
           );
         });
 
-      it('does not produce an error response for an ignorable error', async () => {
-        const fixture = deepCopy(eventCustomerSourceExpiring);
-        const expectedError = error.missingSubscriptionForSourceError(
-          'extractSourceDetailsForEmail'
-        );
-        handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
-        directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
-          fixture
-        );
-        let errorThrown = null;
-        try {
-          await directStripeRoutesInstance.handleWebhookEvent(request);
-          assert.calledWith(
-            directStripeRoutesInstance.log.error,
-            'subscriptions.handleWebhookEvent.failure',
-            { error: expectedError }
+      describe('ignorable errors', () => {
+        const commonIgnorableErrorTest = expectedError => async () => {
+          const fixture = deepCopy(eventCustomerSourceExpiring);
+          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
+          directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
+            fixture
           );
-        } catch (err) {
-          errorThrown = err;
-        }
-        assert.isNull(errorThrown);
+          let errorThrown = null;
+          try {
+            await directStripeRoutesInstance.handleWebhookEvent(request);
+            assert.calledWith(
+              directStripeRoutesInstance.log.error,
+              'subscriptions.handleWebhookEvent.failure',
+              { error: expectedError }
+            );
+          } catch (err) {
+            errorThrown = err;
+          }
+          assert.isNull(errorThrown);
+        };
+
+        it(
+          'ignores emailBouncedHard',
+          commonIgnorableErrorTest(error.emailBouncedHard(42))
+        );
+
+        it(
+          'ignores missingSubscriptionForSourceError',
+          commonIgnorableErrorTest(
+            error.missingSubscriptionForSourceError(
+              'extractSourceDetailsForEmail'
+            )
+          )
+        );
       });
 
       describe('when the event.type is customer.subscription.created', () => {

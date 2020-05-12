@@ -20,6 +20,7 @@ const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
 
 const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.UNKNOWN_SUBSCRIPTION_FOR_SOURCE,
+  error.ERRNO.BOUNCE_HARD,
 ];
 
 /** @typedef {import('hapi').Request} Request */
