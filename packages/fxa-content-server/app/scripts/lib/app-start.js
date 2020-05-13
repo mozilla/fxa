@@ -76,6 +76,8 @@ function Start(options = {}) {
 
 Start.prototype = {
   startApp() {
+    this.checkLocalHost();
+
     // The delay is to give the functional tests time to hook up
     // WebChannel message response listeners.
     const START_DELAY_MS = this._isAutomatedBrowser()
@@ -87,6 +89,20 @@ Start.prototype = {
       .then(() => this.testLocalStorage())
       .then(() => this.allResourcesReady())
       .catch(err => this.fatalError(err));
+  },
+
+  checkLocalHost() {
+    const hostName = window.location.hostname;
+
+    if (this._config.env !== 'development' || hostName === 'localhost') {
+      return;
+    }
+
+    console.warn(
+      `You are viewing FxA from an unsupported host. Please use ${window.location
+        .toString()
+        .replace(hostName, 'localhost')}`
+    );
   },
 
   initializeInterTabChannel() {
