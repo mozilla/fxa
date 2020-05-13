@@ -105,6 +105,18 @@ If you'd like to run only unit tests you can do so in your browser by navigating
 
 ---
 
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0001 - [Isolating payment content with third-party widgets from general account management](https://github.com/mozilla/fxa/blob/master/docs/adr/0001-isolating-payment-content-with-third-party-widgets-from-general-account-management.md)
+- 0002 - [Use React, Redux, and Typescript for subscription management pages](https://github.com/mozilla/fxa/blob/master/docs/adr/0002-use-react-redux-and-typescript-for-subscription-management-pages.md)
+- 0005 - [Minimizing password entry](https://github.com/mozilla/fxa/blob/master/docs/adr/0005-minimize-password-entry.md)
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)
+- 0010 - [Transition FxA from Backbone to React](https://github.com/mozilla/fxa/blob/master/docs/adr/0010-transition-fxa-from-backbone-to-react.md)
+
+---
+
 ## License
 
 MPL 2.0

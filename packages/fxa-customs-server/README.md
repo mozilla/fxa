@@ -86,3 +86,9 @@ The data that these policies are based on is stored in a memcache instance (keye
 - `ip_record.js` handles blocking based only on the IP address
 
 The rate-limiting and blocking policies are conveyed to the auth server via the `block` property in the response to `/check`.
+
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)

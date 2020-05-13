@@ -221,6 +221,19 @@ manage this config.
   npx ts-node scripts/email-config check foo@example.com
   ```
 
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0003 - [Event Broker for Subscription Platform](https://github.com/mozilla/fxa/blob/master/docs/adr/0003-event-broker-for-subscription-platform.md)
+- 0004 - [Product Capabilities for Subscription Services](https://github.com/mozilla/fxa/blob/master/docs/adr/0004-product-capabilities-for-subscription-services.md)
+- 0005 - [Minimizing password entry](https://github.com/mozilla/fxa/blob/master/docs/adr/0005-minimize-password-entry.md)
+- 0006 - [Utilizing JSON-Schemas, SemVer, and Tooling for JSON Messaging](https://github.com/mozilla/fxa/blob/master/docs/adr/0006-json-schemas-for-messaging.md)
+- 0007 - [Placing subscription info in the fxa-subscriptions claim of JWT access tokens](https://github.com/mozilla/fxa/blob/master/docs/adr/0007-subscription-claim-jwt-access-token.md)
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)
+- 0012 - [Next Two Factor authentication in FxA](https://github.com/mozilla/fxa/blob/master/docs/adr/0012-next-two-factor-authentication.md)
+- 0014 - [Authentication in Settings Redesign](https://github.com/mozilla/fxa/blob/master/docs/adr/0014-auth-for-settings-redesign.md)
+
 ## Troubleshooting
 
 Firefox Accounts authorization is a complicated flow. You can get verbose logging by adjusting the log level in the `config.json` on your deployed instance. Add a stanza like:

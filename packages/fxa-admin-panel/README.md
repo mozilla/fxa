@@ -43,6 +43,12 @@ Note that prior to testing you may need to create a build of the React App. You 
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
 
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)
+
 ## License
 
 MPL-2.0

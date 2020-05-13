@@ -67,6 +67,16 @@ _You will eventually be able to view the built Storybook at <http://mozilla.gith
 
 In local development, `npm run storybook` should start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes.
 
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)
+- 0010 - [Transition FxA from Backbone to React](https://github.com/mozilla/fxa/blob/master/docs/adr/0010-transition-fxa-from-backbone-to-react.md)
+- 0011 - [Create a New React Application for the Settings Redesign Project](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
+- 0013 - [React Toolchain for Settings Redesign](https://github.com/mozilla/fxa/blob/master/docs/adr/0013-react-toolchain-for-settings-redesign.md)
+- 0014 - [Authentication in Settings Redesign](https://github.com/mozilla/fxa/blob/master/docs/adr/0014-auth-for-settings-redesign.md)
+
 ## License
 
 MPL-2.0

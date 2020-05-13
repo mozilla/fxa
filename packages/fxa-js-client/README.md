@@ -26,3 +26,9 @@ See [Library Documentation](http://mozilla.github.io/fxa-js-client/classes/FxAcc
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details on building, developing, and testing the library.
+
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)

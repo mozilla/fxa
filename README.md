@@ -19,6 +19,7 @@ The Firefox Accounts (fxa) monorepo
 [Firefox for iOS](#firefox-for-ios)\
 [Running with MailDev](#running-with-maildev)\
 [Other tasks](#other-tasks)\
+[Architectural decisions](#architectural-decisions)\
 [Documentation](#documentation)
 
 ---
@@ -379,6 +380,16 @@ sudo maildev -s 9999
 ```
 
 All emails sent can be viewed from [http://localhost:1080](http://localhost:1080).
+
+---
+
+### Architectural decisions
+
+Since [May 2019](https://github.com/mozilla/fxa/blob/master/docs/adr/0000-use-markdown-architectural-decision-records.md) the FxA team has been using [Architectural Decision Records](https://adr.github.io/) to collectively make choices that influence the structure and practices set out in the code across this monorepo. This allows us to transparently weigh our options and come to decisions as a team, and have documentation to refer to when we implement new functionality, as new team members are onboarded, or if anyone, internally or externally, asks, "why did you do it this way?".
+
+An ADR is not necessarily a permanent decision; it is the result of what we decide is the best solution for us at that moment in time. As the FxA code base evolves and standards change over time new ADRs can be written to supersede previous decisions.
+
+Check out [each package's README](#documentation), under "Architectural decisions", for its list of relevant ADRs, or you can see all of them [here](https://github.com/mozilla/fxa/tree/master/docs/adr).
 
 ---
 

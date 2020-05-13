@@ -230,3 +230,10 @@ npx mocha -r ts-node/register src/test/**/** -g "queries on start"
 ```
 
 Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.
+
+## Architectural decisions
+
+The FxA team has made intentional decisions when it comes to the design of this package and its related packages' code bases. Learn more in the following ADRs:
+
+- 0003 - [Event Broker for Subscription Platform](https://github.com/mozilla/fxa/blob/master/docs/adr/0003-event-broker-for-subscription-platform.md)
+- 0009 - [Consistency in testing tools](https://github.com/mozilla/fxa/blob/master/docs/adr/0009-testing-stacks.md)
