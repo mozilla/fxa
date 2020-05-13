@@ -1116,7 +1116,7 @@ export default class AuthClient {
     clientId: string,
     expiryGracePeriod?: number
   ) {
-    const payload = {
+    const payload: any = {
       id_token: idToken,
       client_id: clientId,
     };
