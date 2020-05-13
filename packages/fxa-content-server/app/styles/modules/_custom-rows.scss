@@ -76,6 +76,13 @@
   }
 }
 
+.qr-code-connect-message {
+  color: $text-color;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 26px;
+}
+
 .customize-sync-row {
   color: $link-color-extra;
   margin-bottom: 10px !important;

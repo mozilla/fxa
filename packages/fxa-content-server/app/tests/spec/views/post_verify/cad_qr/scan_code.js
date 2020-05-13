@@ -57,6 +57,10 @@ describe('views/post_verify/cad_qr/scan_code', () => {
       user,
     });
 
+    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    sinon.stub(account, 'fetchDeviceList').callsFake(() => Promise.resolve([]));
+    sinon.spy(view, 'waitForDeviceConnected');
+
     return view.render().then(() => $('#container').html(view.$el));
   });
 
@@ -76,6 +80,39 @@ describe('views/post_verify/cad_qr/scan_code', () => {
       assert.lengthOf(view.$('.graphic-cad-qr-code'), 1);
       assert.lengthOf(view.$('.qr-code-step-message'), 4);
       assert.lengthOf(view.$('#use-sms-link'), 1);
+    });
+
+    it('polls for new devices', () => {
+      assert.equal(view.waitForDeviceConnected.callCount, 1);
+    });
+  });
+
+  describe("doesn't poll when no user signed in", () => {
+    beforeEach(() => {
+      account.unset('uid');
+      account.unset('email');
+      view.waitForDeviceConnected.resetHistory();
+      return view.render();
+    });
+
+    it('no polling', () => {
+      assert.equal(view.waitForDeviceConnected.callCount, 0);
+    });
+  });
+
+  describe('navigates to connected view when new device is connected', () => {
+    beforeEach(() => {
+      sinon.spy(view, 'navigate');
+      view._deviceConnectedPoll.trigger('device-connected', {});
+    });
+
+    it('navigates', () => {
+      assert.isTrue(
+        view.navigate.calledWith('/post_verify/cad_qr/connected', {
+          device: {},
+          showSuccessMessage: true,
+        })
+      );
     });
   });
 

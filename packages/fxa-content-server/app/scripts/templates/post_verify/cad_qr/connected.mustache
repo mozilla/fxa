@@ -1,9 +1,14 @@
 <div id="main-content" class="card cad-qr-connected">
+    <header id="fxa-cad-qr-connected-header">
+    {{#showSuccessMessage}}
+        <div class="success success-authenticated visible">{{#t}}Device connected!{{/t}}</div>
+    {{/showSuccessMessage}}
+    </header>
     <section>
         <div class="graphic graphic-cad-qr-code-connected"></div>
 
         <form novalidate>
-            <p>{{#t}}Still adding devices?{{/t}}</p>
+            <p class="qr-code-connect-message">{{#t}}Still adding devices?{{/t}}</p>
 
             <div class="button-row">
                 <button id="submit-btn" class="qr-code-button" type="submit">{{#t}}Connect another one{{/t}}</button>
