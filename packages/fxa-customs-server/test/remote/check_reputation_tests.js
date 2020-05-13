@@ -111,7 +111,7 @@ ENDPOINTS.forEach(endpoint => {
 
   test(`does not block ${endpoint} for IP with nonexistent reputation`, t => {
     return reputationClient
-      .delAsync('/' + TEST_IP)
+      .delAsync('/type/ip/' + TEST_IP)
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP');
         return client.postAsync(endpoint, {
@@ -133,11 +133,12 @@ ENDPOINTS.forEach(endpoint => {
 
   test(`does not block ${endpoint} for IP with reputation above blockBelow`, t => {
     return reputationClient
-      .delAsync('/' + TEST_IP)
+      .delAsync('/type/ip/' + TEST_IP)
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP');
-        return reputationClient.putAsync('/' + TEST_IP, {
-          ip: TEST_IP,
+        return reputationClient.putAsync('/type/ip/' + TEST_IP, {
+          object: TEST_IP,
+          type: 'ip',
           reputation: 60,
         });
       })
@@ -162,11 +163,12 @@ ENDPOINTS.forEach(endpoint => {
 
   test(`suspects ${endpoint} for IP with reputation below suspectBelow`, t => {
     return reputationClient
-      .delAsync('/' + TEST_IP)
+      .delAsync('/type/ip/' + TEST_IP)
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP');
-        return reputationClient.putAsync('/' + TEST_IP, {
-          ip: TEST_IP,
+        return reputationClient.putAsync('/type/ip/' + TEST_IP, {
+          object: TEST_IP,
+          type: 'ip',
           reputation: 55,
         });
       })
@@ -192,11 +194,12 @@ ENDPOINTS.forEach(endpoint => {
 
   test(`blocks ${endpoint} for IP with reputation below blockBelow`, t => {
     return reputationClient
-      .delAsync('/' + TEST_IP)
+      .delAsync('/type/ip/' + TEST_IP)
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for TEST_IP');
-        return reputationClient.putAsync('/' + TEST_IP, {
-          ip: TEST_IP,
+        return reputationClient.putAsync('/type/ip/' + TEST_IP, {
+          object: TEST_IP,
+          type: 'ip',
           reputation: 10,
         });
       })
@@ -234,11 +237,12 @@ ENDPOINTS.forEach(endpoint => {
 
   test(`does not block ${endpoint} for whitelisted IP with reputation below blockBelow`, t => {
     return reputationClient
-      .delAsync('/' + ALLOWED_IP)
+      .delAsync('/type/ip/' + ALLOWED_IP)
       .spread(function(req, res, obj) {
         t.equal(res.statusCode, 200, 'clears reputation for ALLOWED_IP');
-        return reputationClient.putAsync('/' + ALLOWED_IP, {
-          ip: ALLOWED_IP,
+        return reputationClient.putAsync('/type/ip/' + ALLOWED_IP, {
+          object: ALLOWED_IP,
+          type: 'ip',
           reputation: 10,
         });
       })
