@@ -15,8 +15,6 @@ const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('../constants');
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
-const SCOPES_REQUIRING_EMAIL = ScopeSet.fromArray(['profile:email', 'oauth']);
-
 /**
  * Get the tokenId stored in the DB for `accessToken`
  *
@@ -101,10 +99,6 @@ exports.verify = async function verify(accessToken) {
 
   if (token.profileChangedAt) {
     tokenInfo.profile_changed_at = token.profileChangedAt;
-  }
-
-  if (token.scope.intersects(SCOPES_REQUIRING_EMAIL)) {
-    tokenInfo.email = token.email;
   }
 
   return tokenInfo;
