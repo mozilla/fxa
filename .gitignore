@@ -28,6 +28,7 @@ secrets.json
 /artifacts
 /packages/test.list
 .last-audit
+.eslintcache
 
 # Dependencies
 **/node_modules
@@ -49,22 +50,6 @@ coverage.html
 .\#*
 .DS_Store
 Thumbs.db
-
-# Linux
-.*
-!.circleci/
-!.dockerignore
-!.gitignore
-!.git*
-!.eslintrc
-!.editorconfig
-!.npmignore
-!.nsprc
-!.sass-lint.yml
-!.prettier*
-!.vscode
-!.rescriptsrc.js
-!.storybook
 
 ## Package-specific ##
 
@@ -112,6 +97,8 @@ packages/fxa-content-server/app/i18n
 packages/fxa-content-server/fxa-content-server-l10n/
 packages/fxa-content-server/locale/*/*/*.po
 packages/fxa-content-server/rerun.txt
+packages/fxa-content-server/.tmp
+packages/fxa-content-server/.tscompiled
 
 # fxa-customs-server
 packages/fxa-customs-server/test/mocks/temp.netset
