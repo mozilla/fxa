@@ -26,6 +26,7 @@ module.exports = {
       client_id: Joi.string().required(),
       scope: Joi.array(),
       email: Joi.string(),
+      generation: Joi.number().min(0),
       profile_changed_at: Joi.number().min(0),
     },
   },

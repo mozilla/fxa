@@ -6,6 +6,9 @@ const hex = require('buf').to.hex;
 const AppError = require('./error');
 const jwt = require('./jwt');
 const sub = require('./jwt_sub');
+const { OAUTH_SCOPE_OLD_SYNC } = require('../constants');
+const config = require('../../config');
+const TOKEN_SERVER_URL = config.get('syncTokenserverUrl');
 
 const HEADER_TYP = 'at+JWT';
 
@@ -18,7 +21,11 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
   // always include the client_id in the `aud` claim. A future iteration of this code
   // should instead infer an appropriate default `aud` based on the requested scopes.
   // Ref https://github.com/mozilla/fxa/issues/4962
-  const audience = grant.resource ? [clientId, grant.resource] : clientId;
+  const audience = grant.resource
+    ? [clientId, grant.resource]
+    : grant.scope.contains(OAUTH_SCOPE_OLD_SYNC)
+    ? TOKEN_SERVER_URL
+    : clientId;
 
   // Claims list from:
   // https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-2.2
@@ -41,6 +48,14 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
   // paid for it or not. See https://github.com/mozilla/fxa/issues/2478
   if (grant['fxa-subscriptions']) {
     claims['fxa-subscriptions'] = grant['fxa-subscriptions'].join(' ');
+  }
+
+  if (grant.generation) {
+    claims['fxa-generation'] = grant.generation;
+  }
+
+  if (grant.profileChangedAt) {
+    claims['fxa-profileChangedAt'] = grant.profileChangedAt;
   }
 
   return {

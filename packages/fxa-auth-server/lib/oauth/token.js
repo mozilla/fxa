@@ -11,6 +11,7 @@ const encrypt = require('./encrypt');
 const logger = require('./logging')('token');
 const JWTAccessToken = require('./jwt_access_token');
 const validators = require('./validators');
+const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('../constants');
 
 const TWENTY_FOUR_HOURS = 24 * 60 * 60 * 1000;
 
@@ -35,7 +36,23 @@ exports.getTokenId = async function getTokenId(accessToken) {
  * Verify an accessToken.
  */
 exports.verify = async function verify(accessToken) {
-  // JWT access tokens are still database backed, continue
+  // JWT tokens with lifespan < SHORT_ACCESS_TOKEN_TTL_IN_MS are not
+  // stored in the db
+  if (!validators.jwt.validate(accessToken).error) {
+    const t = await JWTAccessToken.verify(accessToken);
+    const lifespan = (t.exp - t.iat) * 1000;
+    if (lifespan <= SHORT_ACCESS_TOKEN_TTL_IN_MS) {
+      const info = {
+        user: t.sub,
+        client_id: t.client_id,
+        scope: ScopeSet.fromString(t.scope),
+        generation: t['fxa-generation'],
+        profile_changed_at: t['fxa-profileChangedAt'],
+      };
+      return info;
+    }
+  }
+  // These JWT access tokens are still database backed, continue
   // to use the database as the canonical source of info
   // until we fully migrate to JWTs.
   const token = await db.getAccessToken(await exports.getTokenId(accessToken));

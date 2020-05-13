@@ -7,6 +7,8 @@ const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const AppError = require('../../lib/oauth/error');
 const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
+const TOKEN_SERVER_URL = require('../../config').get('syncTokenserverUrl');
 
 describe('lib/jwt_access_token', () => {
   let JWTAccessToken;
@@ -88,6 +90,33 @@ describe('lib/jwt_access_token', () => {
         signedClaims['fxa-subscriptions'],
         'subscription1 subscription2'
       );
+    });
+
+    it('should propagate `fxa-generation`', async () => {
+      requestedGrant.generation = 12345;
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockJWT.sign.args[0][0];
+
+      assert.equal(signedClaims['fxa-generation'], requestedGrant.generation);
+    });
+
+    it('should propagate `fxa-profileChangedAt`', async () => {
+      requestedGrant.profileChangedAt = 12345;
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockJWT.sign.args[0][0];
+
+      assert.equal(
+        signedClaims['fxa-profileChangedAt'],
+        requestedGrant.profileChangedAt
+      );
+    });
+
+    it('defaults oldsync scope to tokenserver audience', async () => {
+      requestedGrant.scope = ScopeSet.fromString(OAUTH_SCOPE_OLD_SYNC);
+      await JWTAccessToken.create(mockAccessToken, requestedGrant);
+      const signedClaims = mockJWT.sign.args[0][0];
+
+      assert.equal(signedClaims.aud, TOKEN_SERVER_URL);
     });
   });
 

@@ -5,4 +5,5 @@
 module.exports = {
   OAUTH_SCOPE_OLD_SYNC: 'https://identity.mozilla.com/apps/oldsync',
   OAUTH_SCOPE_SESSION_TOKEN: 'https://identity.mozilla.com/tokens/session',
+  SHORT_ACCESS_TOKEN_TTL_IN_MS: 1000 * 60 * 60 * 6,
 };

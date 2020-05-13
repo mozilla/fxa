@@ -111,6 +111,10 @@ if (profile) {
   // allowHttp for local dev
   myProfile.setPreference('identity.fxaccounts.allowHttp', true);
 
+  // show the js console in devtools
+  myProfile.setPreference('devtools.toolbox.selectedTool', 'webconsole');
+  myProfile.setPreference('devtools.webconsole.persistlog', true);
+
   myProfile.updatePreferences();
 
   myProfile.encoded(function(err, encodedProfile) {

@@ -145,6 +145,7 @@ module.exports.validateRequestedGrant = async function validateRequestedGrant(
     aal: verifiedClaims['fxa-aal'],
     profileChangedAt: verifiedClaims['fxa-profileChangedAt'],
     keysJwe: requestedGrant.keys_jwe,
+    generation: verifiedClaims['fxa-generation'],
   };
 };
 

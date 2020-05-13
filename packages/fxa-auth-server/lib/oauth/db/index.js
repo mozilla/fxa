@@ -12,6 +12,14 @@ const logger = require('../logging')('db');
 const mysql = require('./mysql');
 const redis = require('../../redis');
 const AccessToken = require('./accessToken');
+const { SHORT_ACCESS_TOKEN_TTL_IN_MS } = require('../../constants');
+
+const JWT_ACCESS_TOKENS_ENABLED = config.get(
+  'oauthServer.jwtAccessTokens.enabled'
+);
+const JWT_ACCESS_TOKENS_CLIENT_IDS = new Set(
+  config.get('oauthServer.jwtAccessTokens.enabledClientIds')
+);
 
 function getPocketIds(idNameMap) {
   return Object.entries(idNameMap)
@@ -61,7 +69,15 @@ class OauthDB {
       vals.expiresAt,
       vals.ttl
     );
-    if (POCKET_IDS.includes(hex(vals.clientId))) {
+    if (
+      JWT_ACCESS_TOKENS_ENABLED &&
+      JWT_ACCESS_TOKENS_CLIENT_IDS.has(vals.clientId) &&
+      token.ttl <= SHORT_ACCESS_TOKEN_TTL_IN_MS
+    ) {
+      // We avoid revocation concerns with short-lived
+      // tokens, so we do not store them.
+      return token;
+    } else if (POCKET_IDS.includes(hex(vals.clientId))) {
       // Pocket tokens are persisted past their expiration for legacy
       // reasons: https://bugzilla.mozilla.org/show_bug.cgi?id=1547902
       // since they are long lived we continue to store them in mysql
