@@ -7,6 +7,20 @@ const jwt = require('./jwt');
 const logger = require('./logging')('jwt_id_token');
 
 /**
+ * Verify the Expiration Time ('exp') claim value from an ID Token.
+ *
+ * This function was extracted into a helper to ease unit testing,
+ * because jsonwebtoken won't sign a token with an invalid data type
+ * for the 'exp' claim.
+ *
+ * @param {Any} exp
+ * @returns {Boolean} whether the value is a valid number
+ */
+exports._isValidExp = exp => {
+  return typeof exp === 'number' && !isNaN(exp);
+};
+
+/**
  * Verify an OIDC ID Token, following the flow in 3.1.3.7 of the spec:
  * https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
  *
@@ -17,12 +31,25 @@ const logger = require('./logging')('jwt_id_token');
  * skipped. All steps in the flow are indicated in comments, to hopefully
  * ease future maintenance.
  *
+ * Our ID Tokens are short-lived by default (5 minutes), but for some
+ * applications, a recently-expired token could be acceptable. The
+ * optional `expiryGracePeriod` argument allows this grace period to be
+ * specified in seconds.
+ *
  * @param {String} idToken
  * @param {String} clientId
+ * @param {Number} expiryGracePeriod - number of **seconds** past the
+ * token expiration ('exp' claim value) for which the token will be treated
+ * as valid.
+ *
  * @throws `invalidToken` error if ID Token is invalid.
  * @returns {Promise<Object>} resolves with claims in Token
  */
-exports.verify = async function verify(idToken, clientId) {
+exports.verify = async function verify(
+  idToken,
+  clientId,
+  expiryGracePeriod = 0
+) {
   // Step 1 is skipped, as we don't support JWE tokens.
   //
   // 1. If the ID Token is encrypted, decrypt it using the keys and algorithms
@@ -37,7 +64,7 @@ exports.verify = async function verify(idToken, clientId) {
   //    value of the `iss` (issuer) Claim.
   let claims;
   try {
-    claims = await jwt.verify(idToken);
+    claims = await jwt.verify(idToken, { ignoreExpiration: true });
   } catch (err) {
     logger.debug('verify.error.jwtverify', err);
     throw AppError.invalidToken();
@@ -97,10 +124,27 @@ exports.verify = async function verify(idToken, clientId) {
   // 9. The current time MUST be before the time represented by the `exp`
   //    Claim.
   //
-  // Note that this time is specified to be in seconds, not milliseconds.
+  // Note that we optionally allow for expired tokens via the
+  // `expiryGracePeriod` argument, so we have to do basic type checking of the
+  // 'exp' claim value ourselves.
+  //
+  // Note also that this time is specified to be in seconds, not milliseconds.
+  if (!exports._isValidExp(claims.exp)) {
+    logger.debug('verify.error.exp', { exp: claims.exp });
+    throw AppError.invalidToken();
+  }
+
   const currentTime = Math.round(Date.now() / 1000);
-  if (claims.exp < currentTime) {
-    logger.debug('verify.error.exp', { exp: claims.exp, currentTime });
+  const fiveMinutesAhead = currentTime + 60 * 5;
+  if (
+    claims.exp > fiveMinutesAhead ||
+    claims.exp + expiryGracePeriod < currentTime
+  ) {
+    logger.debug('verify.error.exp', {
+      exp: claims.exp,
+      expiryGracePeriod,
+      currentTime,
+    });
     throw AppError.invalidToken();
   }
 

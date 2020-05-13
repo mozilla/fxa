@@ -111,33 +111,77 @@ describe('/oauth/ routes', () => {
   });
 
   describe('/oauth/id-token-verify', () => {
-    it('calls JWTIdToken.verify', async () => {
-      const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
-      const MOCK_ID_TOKEN_CLAIMS = {
+    let MOCK_USER_ID, MOCK_ID_TOKEN_CLAIMS, mockVerify;
+
+    beforeEach(() => {
+      MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
+      MOCK_ID_TOKEN_CLAIMS = {
         iss: 'http://127.0.0.1:9000',
         alg: 'RS256',
         aud: MOCK_CLIENT_ID,
         sub: MOCK_USER_ID,
         exp: MOCK_UNIX_TIMESTAMP + 100,
         iat: MOCK_UNIX_TIMESTAMP,
+        amr: ['pwd', 'otp'],
+        at_hash: '47DEQpj8HBSa-_TImW-5JA',
+        acr: 'AAL2',
+        'fxa-aal': 2,
       };
+      mockVerify = sinon.stub(JWTIdToken, 'verify');
+    });
 
-      const mockVerify = sinon.stub(JWTIdToken, 'verify');
-      mockVerify.returns(MOCK_ID_TOKEN_CLAIMS);
+    const _testRequest = async (claims, gracePeriod) => {
+      mockVerify.returns(claims);
+      const payload = {
+        client_id: MOCK_CLIENT_ID,
+        id_token: MOCK_JWT,
+      };
+      if (gracePeriod) {
+        payload.expiry_grace_period = gracePeriod;
+      }
+      const mockRequest = mocks.mockRequest({ payload });
 
-      const mockRequest = mocks.mockRequest({
-        payload: {
-          client_id: MOCK_CLIENT_ID,
-          id_token: MOCK_JWT,
-        },
-      });
+      return await loadAndCallRoute('/oauth/id-token-verify', mockRequest);
+    };
 
-      const resp = await loadAndCallRoute(
-        '/oauth/id-token-verify',
-        mockRequest
-      );
+    afterEach(() => {
+      mockVerify.restore();
+    });
+
+    it('calls JWTIdToken.verify', async () => {
+      const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS);
+
       assert.calledOnce(mockVerify);
       assert.deepEqual(resp, MOCK_ID_TOKEN_CLAIMS);
+      mockVerify.restore();
+    });
+
+    it('supports expiryGracePeriod option', async () => {
+      const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS, 600);
+
+      assert.calledOnce(mockVerify);
+      assert.deepEqual(resp, MOCK_ID_TOKEN_CLAIMS);
+      mockVerify.restore();
+    });
+
+    it('allows extra claims', async () => {
+      MOCK_ID_TOKEN_CLAIMS.foo = 'bar';
+
+      const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS);
+
+      assert.calledOnce(mockVerify);
+      assert.deepEqual(resp, MOCK_ID_TOKEN_CLAIMS);
+      mockVerify.restore();
+    });
+
+    it('allows missing claims', async () => {
+      delete MOCK_ID_TOKEN_CLAIMS.acr;
+
+      const resp = await _testRequest(MOCK_ID_TOKEN_CLAIMS);
+
+      assert.calledOnce(mockVerify);
+      assert.deepEqual(resp, MOCK_ID_TOKEN_CLAIMS);
+      mockVerify.restore();
     });
   });
 

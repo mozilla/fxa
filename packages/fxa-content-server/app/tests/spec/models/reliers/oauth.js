@@ -307,16 +307,13 @@ describe('models/reliers/oauth', () => {
       });
 
       describe('id_token_hint', () => {
-        const invalidValues = ['', ' ', 'unsafe/?%'];
-        it('throws if id_token_hint token is invalid', () => {
-          testInvalidQueryParams('id_token_hint', invalidValues);
-        });
-
-        it('accepts a valid id_token_hint', () => {
-          testValidQueryParams('id_token_hint', ['whatever'], 'idTokenHint', [
-            'whatever',
-          ]);
-        });
+        var validValues = ['anystring'];
+        testValidQueryParams(
+          'id_token_hint',
+          validValues,
+          'idTokenHint',
+          validValues
+        );
       });
 
       describe('login_hint', () => {

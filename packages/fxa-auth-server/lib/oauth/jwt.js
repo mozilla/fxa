@@ -55,5 +55,6 @@ exports.verify = async function verify(jwt, options = {}) {
     json: true,
     // use the default issuer unless one is passed in.
     issuer: options.issuer || ISSUER,
+    ignoreExpiration: options.ignoreExpiration,
   });
 };

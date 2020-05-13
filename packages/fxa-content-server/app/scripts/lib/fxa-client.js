@@ -1369,6 +1369,14 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} - resolves with empty response
    */
   updateNewsletters: createClientDelegate('updateNewsletters'),
+
+  /**
+   * Verify an ID Token.
+   *
+   * @param {String} idToken An ID Token supplied as an id_token_hint by an RP
+   * @returns {Promise} resolves with response when complete.
+   */
+  verifyIdToken: createClientDelegate('verifyIdToken'),
 };
 
 export default FxaClientWrapper;

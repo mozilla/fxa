@@ -1655,10 +1655,17 @@ const Account = Backbone.Model.extend(
      *
      * @param {String} idToken - the ID Token
      * @param {String} clientId - the client ID, used to verify the 'aud' claim
+     * @param {Number} expiryGracePeriod - number of **seconds** past the
+     * token expiration ('exp' claim value) for which the token will be treated
+     * as valid.
      * @returns {Promise} resolves with response when complete.
      */
-    verifyIdToken(idToken, clientId) {
-      return this._fxaClient.verifyIdToken(idToken, clientId);
+    verifyIdToken(idToken, clientId, expiryGracePeriod) {
+      return this._fxaClient.verifyIdToken(
+        idToken,
+        clientId,
+        expiryGracePeriod
+      );
     },
   },
   {

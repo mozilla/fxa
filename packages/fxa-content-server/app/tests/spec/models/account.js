@@ -3074,4 +3074,19 @@ describe('models/account', function() {
       });
     });
   });
+
+  describe('verifyIdToken', () => {
+    beforeEach(() => {
+      sinon
+        .stub(fxaClient, 'verifyIdToken')
+        .callsFake(() => Promise.resolve({ foo: 'bar' }));
+      account.verifyIdToken('someIDToken', 'aclientID', 100);
+    });
+    it('delegates to the fxa-client', () => {
+      assert.isTrue(fxaClient.verifyIdToken.calledOnce);
+      assert.isTrue(
+        fxaClient.verifyIdToken.calledWith('someIDToken', 'aclientID', 100)
+      );
+    });
+  });
 });

@@ -408,8 +408,13 @@ var OAuthRelier = Relier.extend({
         // If `id_token_hint` is present, ignore `login_hint` / `email`.
         const idTokenHint = this.get('idTokenHint');
         if (idTokenHint) {
+          const clientId = this.get('clientId');
           return account
-            .verifyIdToken(idTokenHint, this.get('clientId'))
+            .verifyIdToken(
+              idTokenHint,
+              clientId,
+              Constants.ID_TOKEN_HINT_GRACE_PERIOD
+            )
             .catch(err => {
               throw OAuthErrors.toError('PROMPT_NONE_INVALID_ID_TOKEN_HINT');
             })
@@ -439,18 +444,19 @@ var OAuthRelier = Relier.extend({
           if (requestedEmail !== account.get('email')) {
             throw OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
           }
+          return Promise.resolve();
         }
-
+      })
+      .then(() => {
         // account has all the right bits associated with it,
         // now let's check to see whether the account and session
         // are verified. If session is no good, the promise will
         // reject with an INVALID_TOKEN error.
-        return account.sessionVerificationStatus();
-      })
-      .then(({ verified }) => {
-        if (!verified) {
-          throw OAuthErrors.toError('PROMPT_NONE_UNVERIFIED');
-        }
+        return account.sessionVerificationStatus().then(({ verified }) => {
+          if (!verified) {
+            throw OAuthErrors.toError('PROMPT_NONE_UNVERIFIED');
+          }
+        });
       });
   },
 
