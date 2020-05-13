@@ -1,3 +1,9 @@
+## 1.170.3
+
+### Other changes
+
+* auth + content-server: add new support form field and update options in dropdown" ([a714e4ccf](https://github.com/mozilla/fxa/commit/a714e4ccf))
+
 ## 1.170.2
 
 No changes.
