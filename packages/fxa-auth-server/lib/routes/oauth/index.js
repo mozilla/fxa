@@ -89,23 +89,33 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           payload: {
             client_id: Joi.string().required(),
             id_token: Joi.string().required(),
+            expiry_grace_period: Joi.number().default(0),
           },
         },
         response: {
-          schema: Joi.object().keys({
-            aud: Joi.string().optional(),
-            alg: Joi.string().optional(),
-            exp: Joi.number().optional(),
-            iat: Joi.number().optional(),
-            iss: Joi.string().optional(),
-            sub: Joi.string().optional(),
-          }),
+          schema: Joi.object()
+            .unknown()
+            .keys({
+              acr: Joi.string().optional(),
+              aud: Joi.string().optional(),
+              alg: Joi.string().optional(),
+              at_hash: Joi.string().optional(),
+              amr: Joi.array()
+                .items(Joi.string())
+                .optional(),
+              exp: Joi.number().optional(),
+              'fxa-aal': Joi.number().optional(),
+              iat: Joi.number().optional(),
+              iss: Joi.string().optional(),
+              sub: Joi.string().optional(),
+            }),
         },
       },
       handler: async function(request) {
         const claims = await JWTIdToken.verify(
           request.payload.id_token,
-          request.payload.client_id
+          request.payload.client_id,
+          request.payload.expiry_grace_period
         );
         return claims;
       },

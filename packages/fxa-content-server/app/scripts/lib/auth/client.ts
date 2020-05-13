@@ -1111,4 +1111,19 @@ export default class AuthClient {
       newsletters,
     });
   }
+
+  async verifyIdToken(
+    idToken: string,
+    clientId: string,
+    expiryGracePeriod?: number
+  ) {
+    const payload = {
+      id_token: idToken,
+      client_id: clientId,
+    };
+    if (expiryGracePeriod) {
+      payload.expiry_grace_period = expiryGracePeriod;
+    }
+    return this.request('POST', '/oauth/id-token-verify', payload);
+  }
 }

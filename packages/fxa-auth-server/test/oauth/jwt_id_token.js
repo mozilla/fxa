@@ -18,6 +18,10 @@ const CLIENT_ID = '59cceb6f8c32317c';
 const ISSUER = config.get('oauthServer.openid.issuer');
 const USER_ID = 'bcbe7c934446fe13aae5be4afed3161d';
 
+const NOW_IN_SECONDS = Math.round(Date.now() / 1000);
+const ONE_DAY_IN_SECONDS = 60 * 60 * 24;
+const TEN_MINUTES_IN_SECONDS = 60 * 10;
+
 describe('lib/jwt_id_token', () => {
   let claims;
 
@@ -44,15 +48,32 @@ describe('lib/jwt_id_token', () => {
   };
 
   beforeEach(() => {
-    const now = Date.now() / 1000;
+    const now = Math.round(Date.now() / 1000);
     claims = {
       iss: ISSUER,
       alg: SIGNING_ALG,
       aud: CLIENT_ID,
-      exp: now + 1000,
+      exp: now + 100,
       sub: USER_ID,
       iat: now,
     };
+  });
+
+  describe('_isValidExp', () => {
+    it(`fails if 'exp' is NaN`, () => {
+      const result = JWTIdToken._isValidExp(NaN);
+      assert.equal(false, result);
+    });
+
+    it(`fails if 'exp' is undefined`, () => {
+      const result = JWTIdToken._isValidExp(undefined);
+      assert.equal(false, result);
+    });
+
+    it(`fails if 'exp' is a string`, () => {
+      const result = JWTIdToken._isValidExp('current time');
+      assert.equal(false, result);
+    });
   });
 
   describe('verify', () => {
@@ -85,9 +106,35 @@ describe('lib/jwt_id_token', () => {
       await signAndAssertInvalid(claims, algorithm);
     });
 
-    it(`fails if the Expiration Time Claim is in the past`, async () => {
-      claims.exp = Math.round((Date.now() - 1000) / 1000);
+    it(`fails if the Expiration Time Claim is missing`, async () => {
+      delete claims.exp;
       await signAndAssertInvalid(claims);
+    });
+
+    it(`fails if the Expiration Time Claim is in the past`, async () => {
+      claims.exp = NOW_IN_SECONDS - TEN_MINUTES_IN_SECONDS;
+      await signAndAssertInvalid(claims);
+    });
+
+    it(`fails if the Expiration Time Claim is too far (more than five minutes) in the future`, async () => {
+      claims.exp = NOW_IN_SECONDS + TEN_MINUTES_IN_SECONDS;
+      await signAndAssertInvalid(claims);
+    });
+
+    it('succeeds if the token is expired but within the grace period', async () => {
+      claims.exp = NOW_IN_SECONDS - TEN_MINUTES_IN_SECONDS;
+
+      const recentlyExpiredToken = sign(claims);
+      try {
+        await JWTIdToken.verify(
+          recentlyExpiredToken,
+          CLIENT_ID,
+          ONE_DAY_IN_SECONDS
+        );
+        assert.ok(true);
+      } catch (ex) {
+        assert.fail();
+      }
     });
 
     it('succeeds if valid', async () => {

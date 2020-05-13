@@ -162,4 +162,8 @@ module.exports = {
   // This is compared against all secondary email
   // records, both verified and unverified
   MAX_SECONDARY_EMAILS: 3,
+
+  // Allow ID Tokens used as the id_token_hint argument in a prompt=none
+  // request to be this many seconds past their expiration.
+  ID_TOKEN_HINT_GRACE_PERIOD: 60 * 60 * 24 * 7,
 };

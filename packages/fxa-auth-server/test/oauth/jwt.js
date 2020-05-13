@@ -101,6 +101,18 @@ describe('lib/jwt', () => {
         }
       });
 
+      it('passes if expired and ignoreExpiration option is true', async () => {
+        const jwt = await JWT.sign({
+          exp: Math.floor((Date.now() - 2000) / 1000),
+          foo: 'bar',
+        });
+
+        const verifiedPayload = await JWT.verify(jwt, {
+          ignoreExpiration: true,
+        });
+        assert.strictEqual(verifiedPayload.foo, 'bar');
+      });
+
       it('fails if invalid issuer', async () => {
         const jwt = await JWT.sign({
           iss: 'another issuer',

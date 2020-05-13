@@ -1849,4 +1849,18 @@ describe('lib/fxa-client', function() {
         });
     });
   });
+
+  describe('verifyIdToken', () => {
+    it('delegates to the fxa-js-client', () => {
+      sinon
+        .stub(realClient, 'verifyIdToken')
+        .callsFake(() => Promise.resolve());
+
+      return client.verifyIdToken('sometoken', 'abcd1234', 100).then(resp => {
+        assert.isTrue(
+          realClient.verifyIdToken.calledOnceWith('sometoken', 'abcd1234', 100)
+        );
+      });
+    });
+  });
 });
