@@ -75,13 +75,24 @@ var View = FormView.extend({
     if (!account.get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
     }
-    return account.checkTotpTokenExists().then(result => {
-      if (result.exists && result.verified) {
-        return this.onSubmitComplete();
+    return account.checkTotpTokenExists().then(
+      result => {
+        if (result.exists && result.verified) {
+          return this.onSubmitComplete();
+        }
+        // pre-generate the TOTP token
+        return this.getTotpToken();
+      },
+      err => {
+        // Sometimes the session isn't marked as verified. Allow the user to
+        // re-verify.
+        if (err.errno.errno === 138) {
+          console.log('navigating to signin_token_code');
+          this.relier.set('redirectTo', this.window.location.href);
+          return this.replaceCurrentPage('/signin_token_code');
+        }
       }
-      // pre-generate the TOTP token
-      return this.getTotpToken();
-    });
+    );
   },
 
   afterRender() {

@@ -163,6 +163,7 @@ require('./spec/views/elements/recovery-key-input');
 require('./spec/views/force_auth');
 require('./spec/views/form');
 require('./spec/views/index');
+require('./spec/views/inline_totp_setup');
 require('./spec/views/marketing_snippet');
 require('./spec/views/mixins/account-by-uid-mixin');
 require('./spec/views/mixins/account-reset-mixin');
