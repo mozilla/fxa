@@ -22,6 +22,7 @@ module.exports = function() {
     'connect_another_device/why',
     'cookies_disabled',
     'force_auth',
+    'get_flow',
     'legal',
     'oauth',
     'oauth/force_auth',

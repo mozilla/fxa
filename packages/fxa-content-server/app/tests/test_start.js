@@ -162,6 +162,7 @@ require('./spec/views/elements/recovery-code-input');
 require('./spec/views/elements/recovery-key-input');
 require('./spec/views/force_auth');
 require('./spec/views/form');
+require('./spec/views/get_flow');
 require('./spec/views/index');
 require('./spec/views/marketing_snippet');
 require('./spec/views/mixins/account-by-uid-mixin');

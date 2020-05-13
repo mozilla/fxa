@@ -5,7 +5,7 @@
 import Cocktail from '../lib/cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
-import Template from 'templates/subscriptions_redirect.mustache';
+import Template from 'templates/redirect_loading.mustache';
 import PaymentServer from '../lib/payment-server';
 import Url from '../lib/url';
 

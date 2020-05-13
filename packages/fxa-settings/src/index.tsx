@@ -8,13 +8,16 @@ import './index.scss';
 import App from './components/App';
 import sentryMetrics from '@fxa-shared/lib/sentry';
 import config from './lib/config';
+import { parseParams } from './lib/url-params';
 
 export async function init() {
   sentryMetrics.configure(config.sentry.dsn, config.version);
 
+  const queryParams = parseParams(window.location.search);
+
   render(
     <React.StrictMode>
-      <App />
+      <App {...{ queryParams }} />
     </React.StrictMode>,
     document.getElementById('root')
   );

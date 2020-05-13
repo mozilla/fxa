@@ -5,9 +5,17 @@
 import React from 'react';
 import AppLayout from '../AppLayout';
 import AppErrorBoundary from '@fxa-components/AppErrorBoundary';
+import { QueryParams } from '../../lib/types';
+import FlowEvents from '../../lib/flow-event';
 import './index.scss';
 
-export const App = () => {
+type AppProps = {
+  queryParams: QueryParams;
+};
+
+export const App = ({ queryParams }: AppProps) => {
+  FlowEvents.init(queryParams);
+
   return (
     <AppErrorBoundary>
       <AppLayout>

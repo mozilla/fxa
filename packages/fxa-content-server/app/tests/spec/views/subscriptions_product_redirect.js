@@ -72,7 +72,7 @@ describe('views/subscriptions_product_redirect', function() {
   describe('render', () => {
     it('renders, initializes flow metrics, navigates to payments server', () => {
       return render().then(() => {
-        assert.lengthOf(view.$('.subscriptions-redirect'), 1);
+        assert.lengthOf(view.$('.redirect-loading'), 1);
         assert.isTrue(view.initializeFlowEvents.calledOnce);
         assert.isTrue(
           PaymentServer.navigateToPaymentServer.calledOnceWith(

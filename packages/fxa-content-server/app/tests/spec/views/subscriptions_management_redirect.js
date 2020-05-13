@@ -66,7 +66,7 @@ describe('views/subscriptions_management_redirect', function() {
 
   describe('render', () => {
     it('renders correctly, initializes flow events, navigates to payments server', () => {
-      assert.lengthOf(view.$('.subscriptions-redirect'), 1);
+      assert.lengthOf(view.$('.redirect-loading'), 1);
       assert.isTrue(view.initializeFlowEvents.calledOnce);
       assert.deepEqual(PaymentServer.navigateToPaymentServer.args, [
         [view, config.subscriptions, 'subscriptions'],
