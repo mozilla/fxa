@@ -31,9 +31,11 @@ yarn workspaces foreach \
     --include fxa-content-server \
     --include fxa-payments-server \
     --include fxa-profile-server \
+    --include "fxa-react" \
     --include fxa-support-panel \
     --include fxa-settings \
     run start > /dev/null
+
 npx pm2 ls
 # ensure email-service is ready
 _scripts/check-url.sh localhost:8001/__heartbeat__

@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 
+// TODO: Fix style inports so they work everywhere they are imported
 // import './index.scss';
 
 type SurveyProps = {
