@@ -71,17 +71,23 @@ export const Account = ({
     <section className="account" data-testid="account-section">
       <ul>
         <li className="flex justify-space-between">
-          <h3>{email}</h3>
-          <span className={`${emailVerified ? 'verified' : 'not-verified'}`}>
+          <h3 data-testid="email-label">{email}</h3>
+          <span
+            data-testid="verified-status"
+            className={`${emailVerified ? 'verified' : 'not-verified'}`}
+          >
             {emailVerified ? 'verified' : 'not verified'}
           </span>
         </li>
         <li className="flex justify-space-between">
-          <div>
+          <div data-testid="uid-label">
             uid: <span className="result">{uid}</span>
           </div>
           <div className="created-at">
-            created at: <span className="result">{createdAt}</span>
+            created at:{' '}
+            <span className="result" data-testid="createdat-label">
+              {createdAt}
+            </span>
             <br />
             {date}
           </div>

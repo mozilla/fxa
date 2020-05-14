@@ -29,6 +29,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
       uid
       email
       createdAt
+      emailVerified
       emailBounces {
         email
         createdAt

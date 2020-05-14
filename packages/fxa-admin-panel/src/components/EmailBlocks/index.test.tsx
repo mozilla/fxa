@@ -37,6 +37,7 @@ function exampleAccountResponse(email: string): MockedResponse {
           uid: 'a1b2c3',
           email,
           createdAt: chance.timestamp(),
+          emailVerified: true,
           emailBounces: [exampleBounce(email), exampleBounce(email)],
         },
       },
