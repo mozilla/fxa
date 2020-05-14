@@ -45,6 +45,15 @@ describe('lib/app-start', () => {
       featureFlags: {
         foo: 'bar',
       },
+      surveys: [
+        {
+          id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
+          conditions: {},
+          view: 'settings',
+          rate: 0.1,
+          url: 'https://www.surveygizmo.com/s3/5541940/pizza',
+        }
+      ]
     };
     notifier = new Notifier();
     routerMock = { navigate: sinon.spy() };
@@ -139,6 +148,11 @@ describe('lib/app-start', () => {
     assert.isDefined(appStart._getUniqueUserId());
   });
 
+  it('initializeSurveyTargeter creates targeter', () => {
+    appStart.initializeSurveyTargeter();
+    assert.isDefined(appStart._surveyTargeter);
+  });
+
   it('initializeRouter creates a router', () => {
     appStart.initializeRouter();
     assert.isDefined(appStart._router);
@@ -177,6 +191,11 @@ describe('lib/app-start', () => {
 
       appStart.initializeErrorMetrics();
       assert.isUndefined(appStart._sentryMetrics);
+    });
+
+    it('initializeSurveyTargeter _surveyTargeter should be undefined', () => {
+      appStart.initializeSurveyTargeter();
+      assert.isUndefined(appStart._surveyTargeter);
     });
   });
 

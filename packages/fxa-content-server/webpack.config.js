@@ -52,7 +52,7 @@ const webpackConfig = {
       'node_modules',
     ],
     alias: {
-      '@fxa-components': path.resolve(__dirname, '..', 'fxa-components'),
+      '@fxa-react': path.resolve(__dirname, '..', 'fxa-react'),
       'asmcrypto.js': path.resolve(
         __dirname,
         'node_modules/asmcrypto.js/asmcrypto.min.js'

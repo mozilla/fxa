@@ -44,6 +44,7 @@ import Session from './session';
 import Storage from './storage';
 import StorageMetrics from './storage-metrics';
 import SupplicantRelier from '../models/reliers/pairing/supplicant';
+import SurveyTargeter from './survey-targeter';
 import BrowserRelier from '../models/reliers/browser';
 import Translator from './translator';
 import UniqueUserId from '../models/unique-user-id';
@@ -109,6 +110,7 @@ Start.prototype = {
         .then(() => this.initializeInterTabChannel())
         .then(() => this.initializeExperimentGroupingRules())
         .then(() => this.initializeErrorMetrics())
+        .then(() => this.initializeSurveyTargeter())
         .then(() => this.initializeOAuthClient())
         // both the metrics and router depend on the language
         // fetched from config.
@@ -513,6 +515,17 @@ Start.prototype = {
     this._window.router = this._router;
   },
 
+  initializeSurveyTargeter() {
+    if (this._config &&
+        this._config.surveys &&
+        this._config.surveys.length &&
+        !this._surveyTargeter) {
+      this._surveyTargeter = new SurveyTargeter({
+        surveys: this._config.surveys,
+      });
+    }
+  },
+
   initializeAppView() {
     if (!this._appView) {
       this._appView = new AppView({
@@ -521,6 +534,7 @@ Start.prototype = {
         environment: new Environment(this._window),
         notifier: this._notifier,
         router: this._router,
+        surveyTargeter: this._surveyTargeter,
         translator: this._translator,
         window: this._window,
       });

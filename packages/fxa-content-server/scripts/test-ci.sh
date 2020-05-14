@@ -30,6 +30,7 @@ npx lerna run start \
   --scope "fxa-content-server" \
   --scope "fxa-payments-server" \
   --scope "fxa-profile-server" \
+  --scope "fxa-react" \
   --scope "fxa-support-panel" \
   --scope "fxa-settings" \
   --concurrency 1 > /dev/null

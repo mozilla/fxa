@@ -8,11 +8,17 @@ const config = require('../../server/lib/configuration');
 const path = require('path');
 const blockingRules = require('../../server/lib/csp/blocking');
 const proxyquire = require('proxyquire');
+const url = require('url');
 
 const csp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'csp'), {
   // totally ignore the html-middleware
   './html-middleware': callback => callback,
 });
+
+function getOrigin(link) {
+  const parsed = url.parse(link);
+  return `${parsed.protocol}//${parsed.host}`;
+}
 
 const suite = {
   tests: {},
@@ -60,10 +66,23 @@ suite.tests['blockingRules'] = function() {
   assert.include(fontSrc, Sources.SELF);
   assert.include(fontSrc, CDN_SERVER);
 
-  const frameSrc = directives.frameSrc;
-  assert.lengthOf(frameSrc, 2);
-  assert.include(frameSrc, Sources.SURVEY_GIZMO);
-  assert.include(fontSrc, CDN_SERVER);
+  let frameSrc = directives.frameSrc;
+
+  config.set('surveys', []);
+  assert.include(frameSrc, "'none'");
+  config.set('surveys', [
+      {
+        id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
+        conditions: {},
+        view: 'settings',
+        rate: 0.1,
+        url: 'https://www.surveygizmo.com/s3/5541940/pizza',
+      }
+  ]);
+  frameSrc = blockingRules(config).directives.frameSrc;
+  const SURVEYS = config.get('surveys');
+  assert.lengthOf(frameSrc, SURVEYS.length + 1);
+  assert.include(frameSrc, getOrigin(SURVEYS[0].url));
 
   const imgSrc = directives.imgSrc;
   assert.lengthOf(imgSrc, 5);

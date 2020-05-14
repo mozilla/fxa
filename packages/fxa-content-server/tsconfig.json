@@ -15,7 +15,7 @@
         // "sourceMap": true,                     /* Generates corresponding '.map' file. */
         // "outFile": "./",                       /* Concatenate and emit output to single file. */
         "outDir": "./.tscompiled/" /* Redirect output structure to the directory. */,
-        "rootDir": "./app/scripts/" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
+        //"rootDir": "./app/scripts/" /* Specify the root directory of input files. Use to control the output directory structure with --outDir. */,
         //"composite": true,                      /* Enable project compilation */
         "incremental": true /* Enable incremental compilation */,
         // "tsBuildInfoFile": "./",               /* Specify file to store incremental compilation information */
@@ -43,9 +43,9 @@
 
         /* Module Resolution Options */
         "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
-        "baseUrl": "./app/scripts" /* Base directory to resolve non-absolute module names. */,
+        // "baseUrl": "./app/scripts" /* Base directory to resolve non-absolute module names. */,
         // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
-        // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
+        "rootDirs": ["./app/scripts/", "../fxa-react/"],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
         // "typeRoots": [],                       /* List of folders to include type definitions from. */
         // "types": [],                           /* Type declaration files to be included in compilation. */
         "allowSyntheticDefaultImports": true /* Allow default imports from modules with no default export. This does not affect code emit, just typechecking. */,
@@ -62,8 +62,8 @@
         // "experimentalDecorators": true,        /* Enables experimental support for ES7 decorators. */
         // "emitDecoratorMetadata": true,         /* Enables experimental support for emitting type metadata for decorators. */
     },
-    "extends": "../fxa-components/tsconfig.common.json",
+    "extends": "../fxa-react/tsconfig.common.json",
     "references": [{
-        "@fxa-components": "../fxa-components"
+        "@fxa-react": "../fxa-react"
     }]
 }

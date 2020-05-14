@@ -15,7 +15,6 @@ import AvatarCropView from './settings/avatar_crop';
 import AvatarMixin from './mixins/avatar-mixin';
 import AvatarView from './settings/avatar';
 import BaseView from './base';
-import SurveyWrapperView from './survey';
 import ChangePasswordView from './settings/change_password';
 import ClientDisconnectView from './settings/client_disconnect';
 import ClientsView from './settings/clients';
@@ -55,8 +54,6 @@ var PANEL_VIEWS = [
   ClientsView,
   ClientDisconnectView,
   ChangePasswordView,
-  // SurveyWrapperView is a special case, show outside of the panel view
-  SurveyWrapperView,
   DeleteAccountView,
   AvatarChangeView,
   AvatarCropView,
