@@ -79,12 +79,21 @@ function createDefaults(): MockCallsResponse {
           created: 1555354567,
           current_period_end: 1579716673,
           current_period_start: 1579630273,
-          plan_id: 'plan_123',
-          product_id: 'prod_123',
+          plan_changed: 1579630273,
+          previous_product: 'Old Product',
           product_name: 'Example Product',
-          latest_invoice: '628031D-0002',
           status: 'active',
           subscription_id: 'sub_GZ7WKEJp1YGZ86',
+        },
+        {
+          created: 1588972390,
+          current_period_end: 1591650790,
+          current_period_start: 1588972390,
+          plan_changed: null,
+          previous_product: null,
+          product_name: 'Amazing Product',
+          status: 'active',
+          subscription_id: 'sub_12345',
         },
       ],
       status: 200,
@@ -282,11 +291,67 @@ describe('Support Controller', () => {
       url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 200);
+
     const headingMatch = result.payload.match(/<h3>Subscriptions<\/h3>/g);
-    const nameMatch = result.payload.match(
+
+    const firstSubNameMatch = result.payload.match(
       /<th>Subscription:<\/th>\s*<td>Example Product<\/td>/g
     );
-    cassert.isTrue(headingMatch?.length === 1 && nameMatch?.length === 1);
+    const firstSubOldProductMatch = result.payload.match(
+      /<th>Previous Product:<\/th>\s*<td>Old Product<\/td>/g
+    );
+    const firstSubChangedMatch = result.payload.match(
+      /<th>Plan Changed:<\/th>\s+<td>\w{3} \w{3} \d{1,2} \d{4} \d{1,2}:\d{2}:\d{2} GMT(-|\+)\d{4} \((\w\s?)+\)<\/td>/g
+    );
+
+    const secondSubNameMatch = result.payload.match(
+      /<th>Subscription:<\/th>\s*<td>Amazing Product<\/td>/g
+    );
+    const secondSubOldProductMatch = result.payload.match(
+      /<th>Previous Product:<\/th>\s*<td>N\/A<\/td>/g
+    );
+    const secondSubChangedMatch = result.payload.match(
+      /<th>Plan Changed:<\/th>\s+<td>N\/A<\/td>/g
+    );
+
+    const createdInfo = result.payload.match(
+      /<th>Created:<\/th>\s+<td>\w{3} \w{3} \d{1,2} \d{4} \d{1,2}:\d{2}:\d{2} GMT(-|\+)\d{4} \((\w\s?)+\)<\/td>/g
+    );
+
+    cassert.isTrue(
+      headingMatch?.length === 1,
+      'The subscription header was not rendered'
+    );
+    cassert.isTrue(
+      createdInfo?.length === 2,
+      'Two created dates were expected'
+    );
+
+    cassert.isTrue(
+      firstSubNameMatch?.length === 1,
+      'The first subscription was not rendered as expected'
+    );
+    cassert.isTrue(
+      firstSubOldProductMatch?.length === 1,
+      'The first subscription did not render the old product name as expected'
+    );
+    cassert.isTrue(
+      firstSubChangedMatch?.length === 1,
+      'The first subscription did not render the changed date name as expected'
+    );
+
+    cassert.isTrue(
+      secondSubNameMatch?.length === 1,
+      'The second subscription was not rendered as expected'
+    );
+    cassert.isTrue(
+      secondSubOldProductMatch?.length === 1,
+      'The second subscription did not render the old product name as expected'
+    );
+    cassert.isTrue(
+      secondSubChangedMatch?.length === 1,
+      'The second subscription did not render the changed date name as expected'
+    );
   });
 
   it('renders the created element', async () => {
@@ -299,10 +364,6 @@ describe('Support Controller', () => {
       url: `/?uid=${uid}`,
     });
     cassert.equal(result.statusCode, 200);
-    const createdInfo = result.payload.match(
-      /<th>Created:<\/th>\s+<td>\w{3} \w{3} \d{1,2} \d{4} \d{1,2}:\d{2}:\d{2} GMT(-|\+)\d{4} \((\w\s?)+\)<\/td>/g
-    );
-    cassert.isTrue(createdInfo?.length === 1);
   });
 
   it('gracefully handles 404s/500', async () => {

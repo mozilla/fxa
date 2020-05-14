@@ -318,6 +318,18 @@ module.exports.subscriptionsSubscriptionValidator = isA.object({
   subscription_id: module.exports.subscriptionsSubscriptionId.required(),
 });
 
+// This is support-panel's perspective on a subscription
+module.exports.subscriptionsSubscriptionSupportValidator = isA.object({
+  created: isA.number().required(),
+  current_period_end: isA.number().required(),
+  current_period_start: isA.number().required(),
+  plan_changed: isA.alternatives(isA.number(), isA.any().allow(null)),
+  previous_product: isA.alternatives(isA.string(), isA.any().allow(null)),
+  product_name: isA.string().required(),
+  status: isA.string().required(),
+  subscription_id: module.exports.subscriptionsSubscriptionId.required(),
+});
+
 module.exports.subscriptionsSubscriptionListValidator = isA.object({
   subscriptions: isA
     .array()

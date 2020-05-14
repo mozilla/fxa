@@ -57,10 +57,9 @@ interface Subscription {
   created: number;
   current_period_end: number;
   current_period_start: number;
-  plan_id: string;
-  product_id: string;
+  plan_changed: number | null;
+  previous_product: string | null;
   product_name: string;
-  latest_invoice: string;
   status: string;
   subscription_id: string;
 }
@@ -165,6 +164,10 @@ class SupportController {
       current_period_start: String(
         new Date(s.current_period_start * MS_IN_SEC)
       ),
+      plan_changed: s.plan_changed
+        ? String(new Date(s.plan_changed * MS_IN_SEC))
+        : 'N/A',
+      previous_product: s.previous_product || 'N/A',
     }));
 
     try {

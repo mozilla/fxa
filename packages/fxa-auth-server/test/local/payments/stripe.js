@@ -428,11 +428,17 @@ describe('StripeHelper', () => {
   describe('changeSubscriptionPlan', () => {
     it('accepts valid upgrade and adds the appropriate metadata', async () => {
       const unixTimestamp = moment().unix();
+      const subscription = deepCopy(subscription1);
+      subscription.metadata = {
+        key: 'value',
+        previous_plan_id: 'plan_123',
+        plan_change_date: 12345678,
+      };
 
       sandbox.stub(moment, 'unix').returns(unixTimestamp);
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'retrieve')
-        .returns(subscription1);
+        .returns(subscription);
 
       const update = sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
@@ -454,6 +460,7 @@ describe('StripeHelper', () => {
             },
           ],
           metadata: {
+            key: 'value',
             previous_plan_id: subscription1.items.data[0].plan.id,
             plan_change_date: unixTimestamp,
           },
@@ -1651,6 +1658,115 @@ describe('StripeHelper', () => {
         assert.isUndefined(
           response.find(x => x.subscription_id === incompleteSubscription.id),
           'should not contain incompleteSubscription'
+        );
+      });
+    });
+  });
+
+  describe('formatSubscriptionsForSupport', () => {
+    const productName = 'FPN Tier 1';
+    const productId = 'prod_123';
+
+    beforeEach(() => {
+      sandbox
+        .stub(stripeHelper, 'expandResource')
+        .returns({ id: productId, name: productName });
+    });
+
+    describe('when is one subscription', () => {
+      it('when there is a subscription with no metadata', () => {
+        it('should include the subscription with null values for plan changed data', async () => {
+          const subscription = deepCopy(subscription1);
+          subscription.status = 'incomplete';
+
+          const input = {
+            data: [subscription],
+          };
+
+          const expected = [
+            {
+              created: subscription.created,
+              current_period_end: subscription.current_period_end,
+              current_period_start: subscription.current_period_start,
+              plan_changed: null,
+              previous_product: null,
+              product_name: productName,
+              subscription_id: subscription.id,
+            },
+          ];
+          const actual = await stripeHelper.formatSubscriptionsForSupport(
+            input
+          );
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+
+      it('when there is a subscription with plan changed information in the metadata', () => {
+        it('should include the subscription with values for plan changed data', async () => {
+          const subscription = deepCopy(subscription1);
+          subscription.metadata = {
+            previous_plan_id: 'plan_123',
+            plan_change_date: '1588962638',
+          };
+
+          const input = {
+            data: [subscription],
+          };
+
+          const expected = [
+            {
+              created: subscription.created,
+              current_period_end: subscription.current_period_end,
+              current_period_start: subscription.current_period_start,
+              plan_changed: 'plan_123',
+              previous_product: 1588962638,
+              product_name: productName,
+              subscription_id: subscription.id,
+            },
+          ];
+          const actual = await stripeHelper.formatSubscriptionsForSupport(
+            input
+          );
+
+          assert.deepEqual(actual, expected);
+        });
+      });
+    });
+
+    describe('when there are no subscriptions', () => {
+      it('returns an empty array', async () => {
+        const expected = [];
+        const actual = await stripeHelper.formatSubscriptionsForSupport({
+          data: [],
+        });
+
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    describe('when there are multiple subscriptions', () => {
+      it('returns a formatted version of all subscriptions', async () => {
+        const input = {
+          data: [subscription1, subscription2, cancelledSubscription],
+        };
+
+        const response = await stripeHelper.formatSubscriptionsForSupport(
+          input
+        );
+
+        assert.lengthOf(response, 3);
+        assert.isDefined(
+          response.find(x => x.subscription_id === subscription1.id),
+          'should contain subscription1'
+        );
+        assert.isDefined(
+          response.find(x => x.subscription_id === subscription2.id),
+          'should contain subscription2'
+        );
+        assert.isDefined(
+          response.find(x => x.subscription_id === cancelledSubscription.id),
+          'should contain subscription2'
         );
       });
     });
