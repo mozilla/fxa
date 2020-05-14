@@ -40,7 +40,7 @@ async function init(config) {
 
   server.route({
     method: 'PUT',
-    path: '/violations/{ip}',
+    path: '/violations/type/ip/{ip}',
     handler: async req => {
       const ip = req.params.ip;
       mostRecentViolationByIp[ip] = req.payload.violation;
@@ -48,6 +48,7 @@ async function init(config) {
     },
   });
 
+  // This is not a real route in iprepd, and is only used by the tests
   server.route({
     method: 'GET',
     path: '/mostRecentViolation/{ip}',
@@ -62,6 +63,7 @@ async function init(config) {
     },
   });
 
+  // This is not a real route in iprepd, and is only used by the tests
   server.route({
     method: 'DELETE',
     path: '/mostRecentViolation/{ip}',
@@ -83,7 +85,7 @@ async function init(config) {
 
   server.route({
     method: 'GET',
-    path: '/{ip}',
+    path: '/type/ip/{ip}',
     handler: async (req, h) => {
       var ip = req.params.ip;
       if (ip === '9.9.9.9') {
@@ -98,7 +100,7 @@ async function init(config) {
 
   server.route({
     method: 'DELETE',
-    path: '/{ip}',
+    path: '/type/ip/{ip}',
     handler: async (req, h) => {
       var ip = req.params.ip;
       if (reputationsByIp.hasOwnProperty(ip)) {
@@ -110,9 +112,9 @@ async function init(config) {
 
   server.route({
     method: 'PUT',
-    path: '/{ip}',
+    path: '/type/ip/{ip}',
     handler: async (req, h) => {
-      var ip = req.payload.ip;
+      var ip = req.payload.object;
       reputationsByIp[ip] = req.payload.reputation;
       return {};
     },
