@@ -106,6 +106,10 @@ const takeScreenshot = function() {
           `Screenshot saved to https://${process.env.CIRCLE_BUILD_NUM}-36831081-gh.circle-artifacts.com/${process.env.CIRCLE_NODE_INDEX}/screenshots/${rando}.png`
         );
       }
+
+      if (process.env.LOG_ERROR_SCREENSHOT) {
+        console.error(`data:image/png;base64,${buffer.toString('base64')}`);
+      }
     });
   };
 };
