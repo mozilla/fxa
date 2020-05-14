@@ -4,7 +4,7 @@
 
 import React from 'react';
 import AppLayout from '../AppLayout';
-import AppErrorBoundary from '@fxa-components/AppErrorBoundary';
+import AppErrorBoundary from '@fxa-react/components/AppErrorBoundary';
 import { QueryParams } from '../../lib/types';
 import FlowEvents from '../../lib/flow-event';
 import './index.scss';

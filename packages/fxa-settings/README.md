@@ -7,11 +7,11 @@
 
 **External imports**
 
-You can import React components into this project. This is currently restricted to `fxa-components`:
+You can import React components into this project. This is currently restricted to `fxa-react`:
 
 ```javascript
 // e.g. assuming the component HelloWorld exists
-import HelloWorld from '@fxa-components/HelloWorld';
+import HelloWorld from '@fxa-react/components/HelloWorld';
 ```
 
 **Working with SVGs**

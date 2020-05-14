@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import LinkExternal from '@fxa-components/LinkExternal';
+import LinkExternal from '@fxa-react/components/LinkExternal';
 import './index.scss';
 
 export const LinkAbout = () => (

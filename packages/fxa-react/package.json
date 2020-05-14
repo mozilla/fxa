@@ -1,5 +1,5 @@
 {
-  "name": "fxa-components",
+  "name": "fxa-react",
   "version": "1.0.0",
   "description": "Shared components for FxA React Apps",
   "repository": {
