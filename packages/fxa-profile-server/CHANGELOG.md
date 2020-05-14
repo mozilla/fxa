@@ -1,3 +1,9 @@
+## 1.171.0
+
+### Bug fixes
+
+* deps: Upgrade convict to resolve yargs-parser nsp advisory 1500 ([7d2151465](https://github.com/mozilla/fxa/commit/7d2151465))
+
 ## 1.170.3
 
 No changes.
