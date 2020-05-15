@@ -23,5 +23,5 @@
   "include": [
     "src"
   ],
-  "extends": "../fxa-components/tsconfig.common.json"
+  "extends": "../fxa-react/tsconfig.common.json"
 }

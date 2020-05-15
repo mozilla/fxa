@@ -5,7 +5,7 @@
 const { resolve } = require("path");
 
 const additionalJSImports = {
-  "@fxa-components": __dirname,
+  "@fxa-react": __dirname,
   "@fxa-shared": resolve(__dirname, "../fxa-shared")
 };
 

@@ -6,7 +6,7 @@ cd "$DIR/../../../"
 
 npx lerna bootstrap \
   --scope fxa-shared \
-  --scope fxa-components \
+  --scope fxa-react \
   --scope fxa-settings
 
 cd packages/fxa-settings

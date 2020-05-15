@@ -9,11 +9,11 @@ This is an internal resource for FxA Admins to access a set of convenience tools
 
 **External imports**
 
-You can import React components into this project. This is currently restricted to `fxa-components`:
+You can import React components into this project. This is currently restricted to `fxa-react`:
 
 ```javascript
 // e.g. assuming the component HelloWorld exists
-import HelloWorld from '@fxa-components/HelloWorld';
+import HelloWorld from '@fxa-react/components/HelloWorld';
 ```
 
 ## Testing

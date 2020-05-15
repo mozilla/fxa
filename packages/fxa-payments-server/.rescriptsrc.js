@@ -2,7 +2,7 @@ const {
   permitAdditionalJSImports,
   setupAliasedPaths,
   componentsJestMapper,
-} = require('../fxa-components/rescripts');
+} = require('../fxa-react/rescripts');
 
 module.exports = [
   permitAdditionalJSImports,

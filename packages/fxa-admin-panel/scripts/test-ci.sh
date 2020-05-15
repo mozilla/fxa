@@ -5,7 +5,7 @@ DIR=$(dirname "$0")
 cd "$DIR/../../../"
 
 npx lerna bootstrap \
-  --scope fxa-components \
+  --scope fxa-react \
   --scope fxa-admin-panel
 
 cd packages/fxa-admin-panel

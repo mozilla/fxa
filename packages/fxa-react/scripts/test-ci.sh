@@ -6,7 +6,7 @@ cd "$DIR/../../../"
 
 npx lerna bootstrap \
   --scope fxa-shared \
-  --scope fxa-components
+  --scope fxa-react
 
-cd packages/fxa-components
+cd packages/fxa-react
 CI=yes npm test

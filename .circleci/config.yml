@@ -93,7 +93,7 @@ jobs:
             'fxa-admin-panel' \
             'fxa-admin-server' \
             'fxa-auth-db-mysql' \
-            'fxa-components' \
+            'fxa-react' \
             'fxa-customs-server' \
             'fxa-email-event-proxy' \
             'fxa-event-broker' \

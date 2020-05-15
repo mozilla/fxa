@@ -14,7 +14,7 @@ npx lerna bootstrap \
 
 cd packages/fxa-payments-server
 
-cd ../fxa-components
+cd ../fxa-react
 npm ci
 
 cd ../fxa-payments-server
