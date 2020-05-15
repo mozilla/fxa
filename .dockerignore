@@ -1,6 +1,7 @@
 .circleci
 .vscode
 .git
+.DS_Store
 **/coverage
 **/docs
 **/node_modules
@@ -9,12 +10,9 @@
 **/.nyc_output
 **/fxa-content-server-l10n
 packages/*/build
-packages/*/static/bower_components
 packages/fxa-auth-server/.mail_output
 !packages/fxa-auth-server/docs/pushpayloads.schema.json
-packages/fxa-amplitude-send
 packages/fxa-dev-launcher
 packages/fxa-email-event-proxy
 packages/fxa-email-service
 packages/fxa-content-server/dist
-packages/fxa-geodb/db

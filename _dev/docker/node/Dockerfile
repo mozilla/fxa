@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=fxa-builder:latest --chown=app:app /fxa/_scripts/check-mysql.sh /app/
+COPY --from=fxa-builder:latest --chown=app:app /fxa/node_modules /node_modules
 COPY --from=fxa-builder:latest --chown=app:app /fxa/packages/fxa-geodb /fxa-geodb
 COPY --from=fxa-builder:latest --chown=app:app /fxa/packages/fxa-shared /fxa-shared
 USER app

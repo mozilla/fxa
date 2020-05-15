@@ -52,62 +52,32 @@ const webpackConfig = {
       'node_modules',
     ],
     alias: {
-      'asmcrypto.js': path.resolve(
-        __dirname,
-        'node_modules/asmcrypto.js/asmcrypto.min.js'
+      'asmcrypto.js': require.resolve('asmcrypto.js/asmcrypto.min.js'),
+      'chosen-js': require.resolve('chosen-js/public/chosen.jquery'),
+      'cocktail-lib': require.resolve('backbone.cocktail/Cocktail'),
+      cocktail: require.resolve('./app/scripts/lib/cocktail'),
+      draggable: require.resolve('jquery-ui/ui/widgets/draggable'),
+      duration: require.resolve('duration-js/duration'),
+      'es6-promise': require.resolve('es6-promise/dist/es6-promise'),
+      'fast-text-encoding': require.resolve('fast-text-encoding'),
+      fxaCryptoDeriver: require.resolve(
+        'fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
       ),
-      'chosen-js': path.resolve(
-        __dirname,
-        'node_modules/chosen-js/public/chosen.jquery'
+      fxaPairingChannel: require.resolve(
+        'fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
       ),
-      'cocktail-lib': path.resolve(
-        __dirname,
-        'node_modules/backbone.cocktail/Cocktail'
-      ),
-      cocktail: path.resolve(__dirname, 'app/scripts/lib/cocktail'),
-      draggable: path.resolve(
-        __dirname,
-        'node_modules/jquery-ui/ui/widgets/draggable'
-      ),
-      duration: path.resolve(__dirname, 'node_modules/duration-js/duration'),
-      'es6-promise': path.resolve(
-        __dirname,
-        'node_modules/es6-promise/dist/es6-promise'
-      ),
-      'fast-text-encoding': path.resolve(
-        __dirname,
-        'node_modules/fast-text-encoding'
-      ),
-      fxaCryptoDeriver: path.resolve(
-        __dirname,
-        'node_modules/fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
-      ),
-      fxaPairingChannel: path.resolve(
-        __dirname,
-        'node_modules/fxa-pairing-channel/dist/FxAccountsPairingChannel.babel.umd.js'
-      ),
-      'base32-decode': path.resolve(
-        __dirname,
-        'node_modules/base32-decode/index'
-      ),
-      'js-md5': path.resolve(__dirname, 'node_modules/js-md5/src/md5'),
+      'base32-decode': require.resolve('base32-decode/index'),
+      'js-md5': require.resolve('js-md5/src/md5'),
       mocha: 'mocha/mocha',
-      modal: path.resolve(__dirname, 'node_modules/jquery-modal/jquery.modal'),
-      sinon: path.resolve(__dirname, 'node_modules/sinon/pkg/sinon'),
-      'touch-punch': path.resolve(
-        __dirname,
-        'node_modules/jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
+      modal: require.resolve('jquery-modal/jquery.modal'),
+      sinon: require.resolve('sinon/pkg/sinon'),
+      'touch-punch': require.resolve(
+        'jquery-ui-touch-punch-amd/jquery.ui.touch-punch'
       ),
-      'ua-parser-js': path.resolve(
-        __dirname,
-        'node_modules/ua-parser-js/src/ua-parser'
-      ),
-      uuid: path.resolve(__dirname, 'node_modules/node-uuid/uuid'),
-      vat: path.resolve(__dirname, 'node_modules/node-vat/vat'),
-      '@dannycoates/webcrypto-liner': path.resolve(
-        __dirname,
-        'node_modules/@dannycoates/webcrypto-liner/build/shim.js'
-      ),
+      'ua-parser-js': require.resolve('ua-parser-js/src/ua-parser'),
+      uuid: require.resolve('node-uuid/uuid'),
+      vat: require.resolve('node-vat/vat'),
+      'webcrypto-liner': require.resolve('webcrypto-liner/build/shim'),
     },
   },
 

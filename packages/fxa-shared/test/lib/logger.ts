@@ -4,7 +4,6 @@
 
 import 'jsdom-global/register';
 import Logger from '../../lib/logger';
-// tslint:disable-next-line: no-var-requires
 const sinon = require('sinon');
 
 let consoleFn: sinon.SinonSpy;

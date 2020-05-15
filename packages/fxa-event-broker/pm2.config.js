@@ -6,7 +6,7 @@ module.exports = {
   apps: [
     {
       name: 'event-broker',
-      script: 'ts-node src/bin/workerDev.ts',
+      script: 'node -r ts-node/register src/bin/workerDev.ts',
       cwd: __dirname,
       max_restarts: '1',
       env: {
@@ -19,6 +19,7 @@ module.exports = {
         FIRESTORE_EMULATOR_HOST: 'localhost:9090',
         PUBSUB_PROXY_PORT: '8090'
       },
+      filter_env: ['npm_'],
       watch: ['src', 'config'],
       min_uptime: '2m'
     }

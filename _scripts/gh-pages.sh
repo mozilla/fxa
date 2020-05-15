@@ -12,13 +12,8 @@ echo "Building docs."
 cd packages/fxa-email-service
 cargo doc --no-deps
 
-# fxa-payments-server relies on fxa-content-server .scss styles, which in turn
-# rely on some modules in package.json
-cd ../../packages/fxa-content-server
-npm ci
-
 cd ../../packages/fxa-payments-server
-npm ci
+yarn workspaces focus fxa-payments-server
 npm run build-storybook
 
 cd ../..

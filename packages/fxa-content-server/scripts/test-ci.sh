@@ -19,20 +19,21 @@ mkdir -p config
 cp ../version.json ./
 cp ../version.json config
 
-npm run lint
+yarn lint
 
 cd ../../
-npx lerna run start \
-  --scope "123done" \
-  --scope "browserid-verifier" \
-  --scope "fxa-auth-db-mysql" \
-  --scope "fxa-auth-server" \
-  --scope "fxa-content-server" \
-  --scope "fxa-payments-server" \
-  --scope "fxa-profile-server" \
-  --scope "fxa-support-panel" \
-  --scope "fxa-settings" \
-  --concurrency 1 > /dev/null
+yarn workspace fxa-shared run build
+yarn workspaces foreach \
+    --include 123done \
+    --include browserid-verifier \
+    --include fxa-auth-db-mysql \
+    --include fxa-auth-server \
+    --include fxa-content-server \
+    --include fxa-payments-server \
+    --include fxa-profile-server \
+    --include fxa-support-panel \
+    --include fxa-settings \
+    run start > /dev/null
 npx pm2 ls
 # ensure email-service is ready
 _scripts/check-url.sh localhost:8001/__heartbeat__

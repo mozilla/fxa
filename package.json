@@ -1,18 +1,19 @@
 {
   "name": "fxa",
+  "private": true,
   "version": "2.0.0",
   "description": "Firefox Accounts monorepo",
   "scripts": {
+    "preinstall": "_scripts/check-package-manager.sh",
     "authors": "git shortlog -s | cut -c8- | sort -f > AUTHORS",
-    "postinstall": "_scripts/install-all.sh",
-    "audit": "lerna run audit --parallel",
+    "audit": "echo 'audit is currently unavailable'",
     "start": "nps --prefix=start",
     "stop": "nps --prefix=stop",
     "restart": "nps --prefix=restart",
     "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",
-    "format": "lerna run format",
+    "format": "yarn workspaces foreach run format",
     "ports": "pm2 jlist | json -d'\t' -a -c 'this.pm2_env.env.PORT' pm2_env.env.PORT name"
   },
   "homepage": "https://github.com/mozilla/fxa",
@@ -29,12 +30,11 @@
     "@dannycoates/nps": "^5.9.12",
     "diffparser": "^2.0.1",
     "husky": "^4.2.3",
-    "lerna": "^3.20.2",
     "lint-staged": "^10.0.8",
     "node-fetch": "^2.6.0",
     "nodemon": "^2.0.3",
-    "pm2": "^4.2.3",
-    "prettier": "^1.19.1",
+    "pm2": "^4.4.0",
+    "prettier": "^2.0.5",
     "replace-in-file": "^5.0.2"
   },
   "engines": {
@@ -95,5 +95,13 @@
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-react": "^7.19.0",
     "json": "^9.0.6"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "resolutions": {
+    "gobbledygook": "git://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
+    "tap/typescript": "3.8.3",
+    "@types/node": "12.12.38"
   }
 }

@@ -2,10 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// const { dirname } = require('path');
+
 module.exports = function(grunt) {
-  var TEMP_DIR = '.tmp';
-  var TEMPLATE_ROOT = 'server/templates';
-  var TOS_PP_REPO_ROOT = 'node_modules/legal-docs';
+  const TEMP_DIR = '.tmp';
+  const TEMPLATE_ROOT = 'server/templates';
+  const TOS_PP_REPO_ROOT = '../../node_modules/legal-docs'; //dirname(require.resolve('legal-docs'));
 
   grunt.config('yeoman', {
     /*eslint-disable camelcase */

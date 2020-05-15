@@ -6,7 +6,7 @@ cd $DIR/..
 mkdir -p ../../artifacts
 
 cd ../fxa-auth-db-mysql
-npm ci
+yarn workspaces focus fxa-auth-db-mysql
 node ./bin/db_patcher
 node ./bin/server > ../../artifacts/fxa-auth-db-mysql.log 2>&1 &
 DB_PID="$!"

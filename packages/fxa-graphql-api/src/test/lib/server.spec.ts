@@ -19,7 +19,6 @@ const sandbox = sinon.createSandbox();
 
 const sessionAuth = { lookupUserId: sandbox.stub() };
 
-// tslint:disable-next-line: no-empty
 const mockLogger = ({ info: () => {} } as unknown) as Logger;
 
 describe('createServer', () => {

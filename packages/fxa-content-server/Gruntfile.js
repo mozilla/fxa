@@ -15,11 +15,14 @@
 module.exports = function(grunt) {
   // load all grunt tasks based on environment
   if (process.env.NODE_ENV && process.env.NODE_ENV === 'production') {
-    require('load-grunt-tasks')(grunt, { scope: 'dependencies' });
+    require('load-grunt-tasks')(grunt, {
+      scope: 'dependencies',
+      requireResolution: true,
+    });
   } else {
     // show elapsed time at the end
     require('time-grunt')(grunt);
-    require('load-grunt-tasks')(grunt);
+    require('load-grunt-tasks')(grunt, { requireResolution: true });
   }
 
   grunt.initConfig({

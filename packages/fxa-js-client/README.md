@@ -2,14 +2,6 @@
 
 > Web client that talks to the Firefox Accounts API server
 
-[![Sauce Test Status](https://saucelabs.com/browser-matrix/fxa-client.svg)](https://saucelabs.com/u/fxa-client)
-
-[**Download Library**](https://github.com/mozilla/fxa-js-client/releases)
-
-Install using [Bower](http://bower.io/): `bower install fxa-js-client`
-
-Install using [npm](http://npmjs.org/): `npm install fxa-js-client`
-
 ## Usage
 
 ```

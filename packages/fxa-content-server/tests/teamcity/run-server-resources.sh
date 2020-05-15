@@ -36,7 +36,7 @@ cd /app
 /bin/rm -rf ./node_modules
 
 # install it all
-npm ci
+npx yarn install
 
 node ./tests/intern.js \
   --suites="server-resources" \

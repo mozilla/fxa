@@ -83,10 +83,7 @@ export SKIP_MOCHA=true
 
 set -o xtrace # echo the following commands
 
-(cd ../fxa-shared; npm ci)
-(cd ../fxa-geodb; npm ci)
-(cd ../fxa-js-client; npm ci)
-npm ci
+npx yarn workspaces focus fxa-content-server
 
 # output the Firefox version number
 $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message

@@ -34,7 +34,6 @@ storybooks-publish
 # Dependencies
 **/node_modules
 **/browser_modules
-**/bower_components
 
 # Logging
 *.log*
@@ -52,6 +51,11 @@ coverage.html
 .DS_Store
 Thumbs.db
 
+# Yarn
+.yarn/cache
+.yarn/build-state.yml
+.yarn/install-state.gz
+
 ## Package-specific ##
 
 # circleci
@@ -60,11 +64,6 @@ Thumbs.db
 # browserid-verifier
 packages/browserid-verifier/loadtest/venv
 packages/browserid-verifier/loadtest/*.pyc
-
-# fxa-amplitude-send
-packages/fxa-amplitude-send/data.stage
-packages/fxa-amplitude-send/lambda.zip
-packages/fxa-amplitude-send/*.parquet
 
 # fxa-auth-db-mysql
 packages/fxa-auth-db-mysql/config/dev.js
@@ -112,9 +111,7 @@ packages/fxa-email-service/**/*.rs.bk
 packages/fxa-email-service/config/local.*
 packages/fxa-email-service/fxa-auth-db-mysql
 packages/fxa-email-service/target
-
-# fxa-geodb
-packages/fxa-geodb/db
+packages/fxa-email-service/.sourcehash
 
 # fxa-js-client
 packages/fxa-js-client/components

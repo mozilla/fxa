@@ -48,9 +48,7 @@ export function createAmplitudeEventTransformer(
       hashedUserId = sha256Hmac(HMAC_KEY, user_id);
     }
 
-    // tslint:disable-next-line: variable-name
     const event_type = createAmplitudeEventType(event);
-    // tslint:disable-next-line: variable-name
     const insert_id = sha256Hmac(HMAC_KEY, hashedUserId, device_id, session_id, event_type, time);
 
     const userAgent = parse(context.userAgent);
@@ -69,7 +67,7 @@ export function createAmplitudeEventTransformer(
       ...mapOs(userAgent),
       ...mapDeviceModel(userAgent),
       event_properties: prune(mapAmplitudeEventProperties(event, context)),
-      user_properties: prune(mapAmplitudeUserProperties(event, context, userAgent)),
+      user_properties: prune(mapAmplitudeUserProperties(event, context, userAgent))
     };
   };
 }

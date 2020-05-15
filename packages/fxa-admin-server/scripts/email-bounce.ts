@@ -38,7 +38,6 @@ async function addBounceToDB() {
 
   await knex.destroy();
 
-  // tslint:disable-next-line: no-console
   console.log(
     `=> Created ${count} email ${count === 1 ? 'bounce' : 'bounces'} for ${bounce.email}`
   );

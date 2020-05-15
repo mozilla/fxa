@@ -334,7 +334,7 @@ const conf = (module.exports = convict({
       format: Array,
     },
     translationDirectory: {
-      default: 'app/i18n/',
+      default: path.resolve(__dirname, '../../app/i18n/'),
       doc:
         'The directory where per-locale .json files containing translations reside',
       env: 'I18N_TRANSLATION_DIR',

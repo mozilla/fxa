@@ -10,17 +10,17 @@ npm test fxa-auth-db-mysql fxa-auth-server
 npm test all
 "
 
-scopes=""
-for scope in "$@"
+workspaces=""
+for workspace in "$@"
 do
-  scopes="$scopes --scope $scope"
+  workspaces="$workspaces --include $workspace"
 done
 
 if [[ -z "$PACKAGE" ]]; then
   >&2 echo "$help"
   exit 1
 elif [[ "$PACKAGE" == "all" ]]; then
-  lerna run test --stream --no-prefix --loglevel success --concurrency 1 --ignore fxa-amplitude-send
+  yarn workspaces foreach --topological-dev run test
 else
-  echo "$scopes" | xargs lerna run test --stream --no-prefix --loglevel success --concurrency 1
+  echo "$workspaces run test" | xargs yarn workspaces foreach --topological-dev
 fi

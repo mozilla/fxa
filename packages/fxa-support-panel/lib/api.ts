@@ -8,7 +8,6 @@
  * @module
  */
 import hapi from '@hapi/hapi';
-import hapiJoi from '@hapi/joi';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import { Logger } from 'mozlog';
@@ -108,7 +107,7 @@ class SupportController {
   }
 
   public async displayUser(request: hapi.Request, h: hapi.ResponseToolkit) {
-    const query = request.query as supportQuery;
+    const query = (request.query as unknown) as supportQuery;
     const uid = query.uid;
     const requestTicket = query.requestTicket || 'ticket-unknown';
     const opts = {
@@ -258,7 +257,8 @@ export function init(
       options: {
         handler: supportController.displayUser,
         validate: {
-          query: (queryValidator as unknown) as hapiJoi.ObjectSchema,
+          // @ts-ignore
+          query: queryValidator,
         },
       },
       path: '/',

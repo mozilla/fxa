@@ -173,9 +173,9 @@ export async function checkWebCrypto() {
       // prettier-ignore
       // @ts-ignore
       window.asmCrypto = await import(/* webpackChunkName: "asmcrypto.js" */ 'asmcrypto.js');
-      await import(
-        /* webpackChunkName: "webcrypto-liner" */ '@dannycoates/webcrypto-liner'
-      );
+      // prettier-ignore
+      // @ts-ignore
+      await import(/* webpackChunkName: "webcrypto-liner" */ 'webcrypto-liner');
       return true;
     } catch (e) {
       return false;

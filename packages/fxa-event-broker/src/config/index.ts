@@ -210,7 +210,6 @@ conf.validate({ allowed: 'strict' });
 
 // Replace openid key if file specified
 if (conf.get('openid.keyFile')) {
-  // tslint:disable-next-line
   let key = require(conf.get('openid.keyFile'));
   conf.set('openid.key', key);
 }

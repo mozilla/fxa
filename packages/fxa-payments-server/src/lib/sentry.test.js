@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import chai from 'chai';
-import * as Sentry from '@sentry/browser';
 import sentryMetrics from './sentry';
 
 var assert = chai.assert;
@@ -181,15 +180,6 @@ describe('lib/sentry', function() {
       var resultUrl = sentryMetrics.__cleanUpQueryParam(expectedUrl);
 
       assert.equal(resultUrl, expectedUrl);
-    });
-  });
-
-  describe('captureException', () => {
-    it('calls Sentry.captureException', () => {
-      jest.spyOn(Sentry, 'captureException');
-      sentryMetrics.captureException(new Error('testo'));
-      expect(Sentry.captureException).toHaveBeenCalled();
-      Sentry.captureException.mockRestore();
     });
   });
 });

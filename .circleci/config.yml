@@ -23,7 +23,7 @@ commands:
     parameters:
       package:
         type: string
-        default: all
+        default: none
     steps:
       - checkout
       - run: ./.circleci/base-install.sh << parameters.package >>
@@ -37,7 +37,7 @@ commands:
         default: 6
     steps:
       - base-install:
-        package: fxa-content-server
+          package: all
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
@@ -54,7 +54,7 @@ commands:
 jobs:
   test-package:
     docker:
-      - image: mozilla/fxa-circleci
+      - image: circleci/node:12
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -202,6 +202,7 @@ jobs:
     steps:
       - setup_remote_docker:
           version: 18.09.3
+      - checkout
       - run:
           name: Build & deploy fxa-circleci
           command: ./.circleci/build-and-deploy-fxa-circleci.sh
