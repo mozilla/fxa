@@ -414,6 +414,7 @@ module.exports = function(log, db, config) {
               pushPayload,
               pushOptions
             );
+            incrementPushAction(events.success);
           } catch (err) {
             // If we've stored an invalid key in the db for some reason, then we
             // might get an encryption failure here.  Check the key, which also
@@ -446,7 +447,6 @@ module.exports = function(log, db, config) {
               incrementPushAction(events.failed);
             }
           }
-          incrementPushAction(events.success);
         } else {
           // keep track if there are any devices with no push urls.
           reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId);
