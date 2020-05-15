@@ -124,3 +124,6 @@ packages/fxa-js-client/fxa-auth-server
 # fxa-profile-server
 packages/fxa-profile-server/var
 packages/fxa-profile-server/BUCKET_NAME
+
+# fxa-settings
+packages/fxa-settings/src/styles/tailwind.out.css

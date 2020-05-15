@@ -11,17 +11,18 @@
     "@types/node": "^12.12.35",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
-    "duration": "^0.2.2",
-    "modern-normalize": "^0.6.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
     "typescript": "^3.7.5"
   },
   "scripts": {
+    "prestart": "npm run build-postcss",
     "start": "pm2 start pm2.config.js",
+    "prerestart": "npm run build-postcss",
     "restart": "pm2 restart pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
+    "prebuild": "NODE_ENV=production npm run build-postcss",
     "build": "INLINE_RUNTIME_CHUNK=false rescripts build",
     "test": "rescripts test",
     "eject": "react-scripts eject",
@@ -29,7 +30,8 @@
     "lint:eslint": "eslint .",
     "lint:sass": "sass-lint -v",
     "storybook": "start-storybook -p 6008",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -60,6 +62,8 @@
     "eslint-plugin-react": "^7.19.0",
     "node-sass": "^4.14.0",
     "pm2": "^4.2.3",
-    "sass-lint": "^1.13.1"
+    "postcss-cli": "^7.1.1",
+    "sass-lint": "^1.13.1",
+    "tailwindcss": "^1.4.6"
   }
 }
