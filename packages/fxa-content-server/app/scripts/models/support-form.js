@@ -10,24 +10,22 @@ const t = msg => msg;
 // Values sent as part of Zendesk support tickets. They also act as look up keys
 // for translated strings used in the UI.
 const TOPICS = [
-  'General inquiries',
   'Payment & billing',
-  'Connection issues',
-  'Getting started',
   'Account issues',
-  'Firefox Private Network Android App',
-  'Firefox Private Network Windows App',
+  'Technical issues',
+  'Getting started',
+  'Provide feedback / request features',
+  'Not listed',
 ];
 
 // Translated strings for the drop down options.
 const TRANSLATED_TOPICS = [
-  t('General inquiries'),
   t('Payment & billing'),
-  t('Connection issues'),
-  t('Getting started'),
   t('Account issues'),
-  t('Firefox Private Network Android App'),
-  t('Firefox Private Network Windows App'),
+  t('Technical issues'),
+  t('Getting started'),
+  t('Provide feedback / request features'),
+  t('Not listed'),
 ];
 
 // Lowercase translated strings used in the successful submission modal.
