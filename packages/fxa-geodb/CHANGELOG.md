@@ -1,5 +1,11 @@
 # Change history
 
+## 1.171.0
+
+### Bug fixes
+
+* deps: Update istanbul-reports transitive deps to resolve nsp advisory 1500 ([cea3d74dc](https://github.com/mozilla/fxa/commit/cea3d74dc))
+
 ## 1.170.3
 
 No changes.

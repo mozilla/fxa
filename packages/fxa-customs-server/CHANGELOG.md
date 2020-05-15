@@ -1,3 +1,13 @@
+## 1.171.0
+
+### New features
+
+* customs: ip-reputation-js-client 6.0.0 ([8aa9abc28](https://github.com/mozilla/fxa/commit/8aa9abc28))
+
+### Bug fixes
+
+* deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
+
 ## 1.170.3
 
 No changes.

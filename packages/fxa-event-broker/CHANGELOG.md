@@ -1,5 +1,11 @@
 # Change history
 
+## 1.171.0
+
+### Bug fixes
+
+* deps: Upgrade convict and mocha to resolve yargs-parser nsp advisory 1500 ([3dbf5df4b](https://github.com/mozilla/fxa/commit/3dbf5df4b))
+
 ## 1.170.3
 
 No changes.
