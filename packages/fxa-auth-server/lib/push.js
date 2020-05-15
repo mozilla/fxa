@@ -9,6 +9,7 @@ const base64url = require('base64url');
 const webpush = require('web-push');
 
 const ERR_NO_PUSH_CALLBACK = 'No Push Callback';
+const ERR_PUSH_CALLBACK_EXPIRED = 'Push Callback expired';
 const ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)';
 const ERR_TOO_MANY_DEVICES = 'Too many devices connected to account';
 
@@ -56,6 +57,7 @@ const pushReasonsToEvents = (() => {
       success: `push.${id}.success`,
       resetSettings: `push.${id}.reset_settings`,
       failed: `push.${id}.failed`,
+      callbackExpired: `push.${id}.push_callback_expired`,
       noCallback: `push.${id}.no_push_callback`,
       noKeys: `push.${id}.data_but_no_keys`,
     };
@@ -387,7 +389,14 @@ module.exports = function(log, db, config) {
           pushCallback: device.pushCallback,
         });
 
-        if (device.pushCallback && !device.pushEndpointExpired) {
+        if (device.pushEndpointExpired) {
+          reportPushError(new Error(ERR_PUSH_CALLBACK_EXPIRED), uid, deviceId);
+          incrementPushAction(events.callbackExpired);
+        } else if (!device.pushCallback) {
+          // keep track if there are any devices with no push urls.
+          reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId);
+          incrementPushAction(events.noCallback);
+        } else {
           // send the push notification
           incrementPushAction(events.send);
           const pushSubscription = { endpoint: device.pushCallback };
@@ -447,10 +456,6 @@ module.exports = function(log, db, config) {
               incrementPushAction(events.failed);
             }
           }
-        } else {
-          // keep track if there are any devices with no push urls.
-          reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId);
-          incrementPushAction(events.noCallback);
         }
       }
     },
