@@ -80,6 +80,7 @@ export const MockApp = ({
   return (
     <AppContext.Provider value={appContextValue}>
       <AppLocalizationProvider
+        baseDir="./locales"
         userLocales={navigator.languages}
         bundles={['main']}
       >

@@ -29,6 +29,7 @@ secrets.json
 /packages/test.list
 .last-audit
 .eslintcache
+storybooks-publish
 
 # Dependencies
 **/node_modules
