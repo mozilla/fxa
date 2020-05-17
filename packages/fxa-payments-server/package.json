@@ -5,7 +5,6 @@
   "scripts": {
     "lint": "npm-run-all --parallel lint:eslint lint:sass",
     "lint:eslint": "eslint .",
-    "lint:sass": "sass-lint -v",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
@@ -86,7 +85,6 @@
     "pm2": "^4.4.0",
     "prettier": "^2.0.5",
     "redux-devtools-extension": "^2.13.8",
-    "sass-lint": "^1.13.1",
     "sinon": "^7.5.0",
     "supertest": "4.0.2",
     "ts-jest": "^24.1.0",
