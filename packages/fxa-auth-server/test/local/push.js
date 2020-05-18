@@ -427,6 +427,31 @@ describe('push', () => {
     });
   });
 
+  it('push catches devices with expired callback', () => {
+    let count = 0;
+    const thisMockLog = mockLog({
+      info: function(op, log) {
+        if (log.name === 'push.account_verify.push_callback_expired') {
+          // device had expired callback
+          count++;
+        }
+      },
+    });
+
+    const devices = [
+      {
+        id: 'foo',
+        name: 'My Phone',
+        pushEndpointExpired: true,
+      },
+    ];
+
+    const push = require(pushModulePath)(thisMockLog, mockDb, mockConfig);
+    return push.sendPush(mockUid, devices, 'accountVerify').then(() => {
+      assert.equal(count, 1);
+    });
+  });
+
   it('push reports errors when web-push fails', () => {
     let count = 0;
     const thisMockLog = mockLog({
