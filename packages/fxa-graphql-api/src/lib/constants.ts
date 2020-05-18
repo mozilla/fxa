@@ -7,8 +7,11 @@ import { AppConfig } from '../config';
 import { Redis } from 'ioredis';
 import { Logger } from 'mozlog';
 import { UserLookupFn } from './user';
+import { RedisConfig } from '../config';
 
 export const configContainerToken = new Token<AppConfig>();
 export const redisContainerToken = new Token<Redis>();
 export const loggerContainerToken = new Token<Logger>();
 export const userLookupFnContainerToken = new Token<UserLookupFn>();
+
+export const authRedisConfig = new Token<RedisConfig>();

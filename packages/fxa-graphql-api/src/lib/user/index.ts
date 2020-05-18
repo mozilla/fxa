@@ -3,11 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Container } from 'typedi';
-import Redis from 'ioredis';
 import { OAuthUser } from './types';
 import { getTokenId } from '../oauth';
 import { redisContainerToken, configContainerToken } from '../constants';
-import { AppConfig } from '../../config';
 
 const Config = Container.get(configContainerToken);
 const redis = Container.get(redisContainerToken);

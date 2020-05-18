@@ -10,7 +10,7 @@ import Knex from 'knex';
 import 'mocha';
 import { buildSchema } from 'type-graphql';
 
-import { randomAccount, testDatabaseSetup } from '../db/models/helpers';
+import { randomAccount, testDatabaseSetup } from '../db/models/auth/helpers';
 import { mockContext } from '../mocks';
 
 import { Account } from '../../../lib/db/models';
@@ -45,7 +45,7 @@ describe('accountResolver', () => {
     const query = `query {
       account {
         uid
-        createdAt
+        accountCreated
       }
     }`;
     context.authUser = USER_1.uid;
@@ -53,7 +53,7 @@ describe('accountResolver', () => {
     assert.isDefined(result.data);
     assert.isDefined(result.data.account);
     assert.deepEqual(result.data.account, {
-      createdAt: USER_1.createdAt,
+      accountCreated: USER_1.createdAt,
       uid: USER_1.uid,
     });
     assert.isTrue(context.logAction.calledOnce);

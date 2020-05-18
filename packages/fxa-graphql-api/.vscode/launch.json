@@ -7,10 +7,10 @@
       "name": "Local Nodemon",
       "preLaunchTask": "tsc-watch",
       "protocol": "auto",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "debug"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["--inspect=9200", "-r", "ts-node/register", "src/bin/main.ts"],
       "restart": true,
-      "port": 5860,
+      "port": 9200,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "outFiles": ["${workspaceFolder}/dist/**/*.js"]
