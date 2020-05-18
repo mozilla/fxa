@@ -120,7 +120,7 @@ function makeApp() {
   app.use(
     helmet.hsts({
       force: true,
-      includeSubdomains: true,
+      includeSubDomains: true,
       maxAge: config.get('hsts_max_age'),
     })
   );
