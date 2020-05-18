@@ -11,7 +11,7 @@ afterEach(cleanup);
 describe("Survey", () => {
   it("renders as expected", () => {
     const subject = () => {
-      return render(<Survey {...{surveyURL}}/>);
+      return render(<Survey {...{ surveyURL }} />);
     };
 
     const { queryByTestId } = subject();
@@ -22,7 +22,7 @@ describe("Survey", () => {
 
   it("hides iframe and renders survey complete message", () => {
     const subject = () => {
-      return render(<Survey {...{surveyURL}} surveyComplete />);
+      return render(<Survey {...{ surveyURL }} surveyComplete />);
     };
 
     const { queryByTestId } = subject();
@@ -34,14 +34,25 @@ describe("Survey", () => {
     expect(surveyCompleteMsg).toBeVisible();
   });
 
-  it("creates the iframe message handler correctly", () => {
+  it("creates the iframe message handler correctly with default survey completion message", () => {
     const stub = jest.fn();
     const handleIframeTask = CreateHandleIframeTask(stub);
 
-    handleIframeTask(new MessageEvent('noop', {}));
+    handleIframeTask(new MessageEvent("noop", {}));
     expect(stub).not.toBeCalled();
 
-    handleIframeTask(new MessageEvent('correct', {data: 'submitted survey'}));
+    handleIframeTask(new MessageEvent("correct", { data: "survey complete" }));
+    expect(stub).toBeCalled();
+  });
+
+  it("creates the iframe message handler correctly with custom survey completion message", () => {
+    const stub = jest.fn();
+    const handleIframeTask = CreateHandleIframeTask(stub, "it is done!");
+
+    handleIframeTask(new MessageEvent("noop", {}));
+    expect(stub).not.toBeCalled();
+
+    handleIframeTask(new MessageEvent("correct", { data: "it is done!" }));
     expect(stub).toBeCalled();
   });
 });
