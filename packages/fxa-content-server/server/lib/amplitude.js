@@ -327,6 +327,13 @@ const FUZZY_EVENTS = new Map([
     },
   ],
   [
+    /^screen\.(?:signup|signin)\.(sms)$/,
+    {
+      group: GROUPS.connectDevice,
+      event: 'view',
+    },
+  ],
+  [
     /^flow\.connect-another-device\.link\.(app-store)\.([\w-]+)$/,
     {
       group: GROUPS.connectDevice,

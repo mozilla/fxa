@@ -1132,6 +1132,60 @@ registerSuite('amplitude', {
       assert.equal(logger.info.args[0][1].event_type, 'fxa_reg - submit');
     },
 
+    'screen.signin.sms': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.signin.sms',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_connect_device - view');
+      assert.equal(arg.event_properties.connect_device_flow, 'sms');
+      assert.equal(arg.event_properties.connect_device_os, undefined);
+    },
+
+    'screen.signup.sms': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.signup.sms',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_connect_device - view');
+      assert.equal(arg.event_properties.connect_device_flow, 'sms');
+      assert.equal(arg.event_properties.connect_device_os, undefined);
+    },
+
     'flow.sms.submit': () => {
       amplitude(
         {
