@@ -54,6 +54,11 @@ describe('views/connect_another_device', () => {
       .callsFake(() => Promise.resolve(smsCountry));
     sinon.stub(view, 'replaceCurrentPageWithSmsScreen').callsFake(() => {});
 
+    // TODO: PUll this out into own test section
+    sinon
+      .stub(view, 'getEligibleQrCodeCadGroup')
+      .callsFake(() => Promise.resolve({ group: false }));
+
     // by default, user is ineligble to send an SMS
     smsCountry = null;
   });

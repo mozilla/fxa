@@ -17,6 +17,7 @@ const experimentGroupingRules = [
   require('./sentry'),
   require('./email-mx-validation'),
   require('./newsletter-sync'),
+  require('./qr-code-cad'),
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {

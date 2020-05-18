@@ -51,6 +51,7 @@ module.exports = [
   'tests/functional/post_verify/newsletters.js',
   'tests/functional/post_verify/account_recovery.js',
   'tests/functional/post_verify/secondary_email.js',
+  'tests/functional/post_verify/cad_qr.js',
   'tests/functional/pp.js',
   'tests/functional/recovery_key.js',
   'tests/functional/refreshes_metrics.js',

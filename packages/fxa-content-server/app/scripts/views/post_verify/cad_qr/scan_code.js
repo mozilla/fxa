@@ -17,6 +17,13 @@ class ScanCode extends FormView {
     'click #use-sms-link': preventDefaultThen('clickUseSms'),
   });
 
+  initialize() {
+    // Override the default poll time (6s) in functional tests
+    if (this.broker.isAutomatedBrowser()) {
+      this.DEVICE_CONNECTED_POLL_IN_MS = 500;
+    }
+  }
+
   _onConnected(device) {
     return this.navigate('/post_verify/cad_qr/connected', {
       device,

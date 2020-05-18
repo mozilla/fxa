@@ -32,20 +32,48 @@ class ConnectAnotherDeviceView extends FormView {
 
   beforeRender() {
     const account = this.getAccount();
-    // If the user is eligible for SMS, send them to the SMS screen.
-    // This allows the browser to link directly to /connect_another_device
-    // and we handle sending users to the correct place.
-    // See https://github.com/mozilla/fxa-content-server/issues/5737 and
-    // https://bugzilla.mozilla.org/show_bug.cgi?id=1418466
-    return this.getEligibleSmsCountry(account).then(country => {
-      if (country) {
-        return this.replaceCurrentPageWithSmsScreen(
-          account,
-          country,
-          this._showSuccessMessage()
-        );
+
+    // Check to see if user is enrolled in the CAD QR code experiment. This
+    // takes precedence over the "regular" sms experiment.
+    return this.getEligibleQrCodeCadGroup(account).then(
+      ({ group, country }) => {
+        if (group) {
+          switch (group) {
+            case 'control': {
+              // Current SMS experience
+              return this.replaceCurrentPageWithSmsScreen(
+                account,
+                country,
+                this._showSuccessMessage()
+              );
+            }
+            case 'treatment-a': {
+              // New updated CAD via QR code experience
+              return this.replaceCurrentPageWithQrCadScreen(account, country);
+            }
+            case 'treatment-b': {
+              // Current non-SMS experience
+              return;
+            }
+          }
+        }
+
+        // If the user is eligible for SMS, send them to the SMS screen.
+        // This allows the browser to link directly to /connect_another_device
+        // and we handle sending users to the correct place.
+        // See https://github.com/mozilla/fxa-content-server/issues/5737 and
+        // https://bugzilla.mozilla.org/show_bug.cgi?id=1418466
+        return this.getEligibleSmsCountry(account).then(country => {
+          if (country) {
+            return this.replaceCurrentPageWithSmsScreen(
+              account,
+              country,
+              this._showSuccessMessage()
+            );
+          }
+        });
       }
-    });
+    );
   }
 
   afterRender() {

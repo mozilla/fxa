@@ -25,6 +25,7 @@ const MANUAL_EXPERIMENTS = {
   // no special experiment is created.
   sendSms: BaseExperiment,
   newsletterSync: BaseExperiment,
+  qrCodeCad: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);

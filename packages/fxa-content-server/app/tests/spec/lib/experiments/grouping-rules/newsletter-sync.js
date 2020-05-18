@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import Experiment from 'lib/experiments/grouping-rules/send-sms-install-link';
+import Experiment from 'lib/experiments/grouping-rules/newsletter-sync';
 
 describe('lib/experiments/grouping-rules/newsletter-sync', () => {
   let experiment;
