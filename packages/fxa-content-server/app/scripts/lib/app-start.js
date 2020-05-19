@@ -110,7 +110,6 @@ Start.prototype = {
         .then(() => this.initializeInterTabChannel())
         .then(() => this.initializeExperimentGroupingRules())
         .then(() => this.initializeErrorMetrics())
-        .then(() => this.initializeSurveyTargeter())
         .then(() => this.initializeOAuthClient())
         // both the metrics and router depend on the language
         // fetched from config.
@@ -132,6 +131,8 @@ Start.prototype = {
         // user depends on the auth broker, profileClient, oAuthClient,
         // and notifier.
         .then(() => this.initializeUser())
+        // depends on relier, user, and window
+        .then(() => this.initializeSurveyTargeter())
         // depends on nothing
         .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
@@ -516,12 +517,17 @@ Start.prototype = {
   },
 
   initializeSurveyTargeter() {
-    if (this._config &&
-        this._config.surveys &&
-        this._config.surveys.length &&
-        !this._surveyTargeter) {
+    if (
+      this._config &&
+      this._config.surveys &&
+      this._config.surveys.length &&
+      !this._surveyTargeter
+    ) {
       this._surveyTargeter = new SurveyTargeter({
-        surveys: this._config.surveys,
+        config: this._config.surveys,
+        relier: this._relier,
+        user: this._user,
+        window: this._window,
       });
     }
   },

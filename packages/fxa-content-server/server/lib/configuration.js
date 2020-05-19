@@ -706,24 +706,38 @@ const conf = (module.exports = convict({
     },
   },
   surveys: {
-    default: [
-      // Example survey:
-      // {
-      //   id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
-      //   conditions: {
-      //     platform: 'mobile',
-      //     region: 'southernHemisphere',
-      //     lang: 'pt',
-      //     relier: 'email',
-      //   },
-      //   view: 'settings',
-      //   rate: 0.1,
-      //   url: 'https://www.surveygizmo.com/s3/5541940/pizza',
-      // },
-    ],
-    doc: 'list of active surveys',
-    env: 'SURVEYS',
-    format: Array,
+    enabled: {
+      default: true,
+      env: 'SURVEYS_ENABLE',
+      doc: 'Enable integrated surveys feature',
+      format: Boolean,
+    },
+    doNotBotherSpan: {
+      default: 2_592_000_000,
+      env: 'SURVEY_DONT_BOTHER_MS',
+      doc: 'Minimum time span in milliseconds between surveys for a user',
+      format: 'integer',
+    },
+    surveys: {
+      default: [
+        // Example survey:
+        // {
+        //   id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
+        //   conditions: {
+        //     platform: 'mobile',
+        //     region: 'southernHemisphere',
+        //     lang: 'pt',
+        //     relier: 'email',
+        //   },
+        //   view: 'settings',
+        //   rate: 0.1,
+        //   url: 'https://www.surveygizmo.com/s3/5541940/pizza',
+        // },
+      ],
+      doc: 'list of active surveys',
+      env: 'SURVEYS_LIST',
+      format: Array,
+    },
   },
   sync_tokenserver_url: {
     default: 'http://localhost:5000/token',

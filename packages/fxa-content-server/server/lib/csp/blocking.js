@@ -40,7 +40,7 @@ module.exports = function(config) {
   const SURVEYS = [
     ...new Set(
       config
-        .get('surveys')
+        .get('surveys.surveys')
         .map(s => s.url)
         .map(getOrigin)
     ),

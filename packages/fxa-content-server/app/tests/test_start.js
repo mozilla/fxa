@@ -69,6 +69,7 @@ require('./spec/lib/sign-in-reasons');
 require('./spec/lib/storage');
 require('./spec/lib/storage-metrics');
 require('./spec/lib/strings');
+require('./spec/lib/survey-filter');
 require('./spec/lib/transform');
 require('./spec/lib/translator');
 require('./spec/lib/url');
