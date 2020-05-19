@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node-script
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,7 +8,7 @@
 
  Usage:
 
- node scripts/must-reset.js -i ./reset.json
+ scripts/must-reset.js -i ./reset.json
 
  This script is used to put user accounts into a "must reset" state. It uses the
  same config file as key_server.js so should be run from a production instance.

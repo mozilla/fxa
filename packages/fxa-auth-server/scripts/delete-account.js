@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node-script
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -8,7 +8,7 @@
 
  Usage:
 
- node scripts/delete-account.js user@example.com [...]
+ scripts/delete-account.js user@example.com [...]
 
  This script is used to manually delete a user's account,
  e.g. in response to a GDPR deletion request.  It uses the

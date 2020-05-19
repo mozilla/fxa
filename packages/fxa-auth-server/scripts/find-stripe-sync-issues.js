@@ -1,11 +1,11 @@
-#!/usr/bin/env node
+#!/usr/bin/env ts-node-script
 
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const program = require('commander');
-const package = require('../package.json');
+const pckg = require('../package.json');
 const config = require('../config').getProperties();
 const StatsD = require('hot-shots');
 
@@ -24,7 +24,7 @@ function isNotFoundError(err) {
 
 async function init() {
   program
-    .version(package.version)
+    .version(pckg.version)
     .option('-c, --config [config]', 'Configuration to use. Ex. dev')
     .option(
       '-k, --stripe-key [key]',
