@@ -2,7 +2,7 @@
 
 Anyone is welcome to help with Firefox Accounts, but it's important to
 recognize that Firefox Accounts is a complex tool written by Mozilla and used
-solely within Mozilla or by parties tightly coupled to Mozilla.  The team's
+solely within Mozilla or by parties tightly coupled to Mozilla. The team's
 goal is focused on serving Mozilla's requirements -- not being easy to set up
 or easily usable in other scenarios.
 
@@ -14,7 +14,7 @@ problem, thank you for your help and please read below for guidelines.
 
 If you want to write code, and you are not an experienced programmer you will
 probably be more successful [looking for other projects at
-Mozilla](https://whatcanidoformozilla.org) to contribute to.  The Firefox
+Mozilla](https://whatcanidoformozilla.org) to contribute to. The Firefox
 Accounts team is happy to support open source contributions but we have limited
 time to assist in getting the FxA codebase up and running on other platforms.
 
@@ -98,18 +98,32 @@ The subject contains succinct description of the change:
 
 ### Body
 
-In order to maintain a reference to the context of the commit, add
-`fixes #<issue_number>` if it closes a related issue or `issue #<issue_number>`
-if it's a partial fix.
+The body should describe the purpose of the commit, so that it's clear why this change is being
+made. To assist in writing this along with the footer, a git commit template (saved as `~/.gitmessage`)
+can be used:
 
-You can also write a detailed description of the commit:
-Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes"
-It should include the motivation for the change and contrast this with previous behavior.
+```text
+feat: SUBJECT LINE
+Because:
+
+*
+
+This commit:
+
+*
+
+Closes #
+```
+
+Just as in the **subject**, use the imperative, present tense: "change" not "changed" nor "changes". Commits
+are expected to follow this format.
 
 ### Footer
 
 The footer should contain any information about **Breaking Changes** and is also the place to
-reference GitHub issues that this commit **Closes**.
+reference GitHub issues that this commit **Closes**. In order to maintain a reference to the context of the commit, add
+`fixes #<issue_number>` if it closes a related issue or `issue #<issue_number>`
+if it's a partial fix.
 
 ## Servers
 
