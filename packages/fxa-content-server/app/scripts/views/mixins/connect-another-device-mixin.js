@@ -89,6 +89,21 @@ export default {
   },
 
   /**
+   * Replace the current page with the new CAD via QR screen.
+   *
+   * @param {Object} account
+   * @param {String} country
+   */
+  replaceCurrentPageWithQrCadScreen(account, country) {
+    const type = this.model.get('type');
+    this.replaceCurrentPage('/post_verify/cad_qr/get_started', {
+      account,
+      country,
+      type,
+    });
+  },
+
+  /**
    * Get the country to send an sms to if `account` is eligible for SMS?
    *
    * @param {Object} account
@@ -110,6 +125,7 @@ export default {
         account,
         country,
       });
+
       if (!group) {
         // Auth server said "OK" but user was not selected
         // for the experiment, this mode is not logged in
@@ -125,6 +141,27 @@ export default {
           return country;
         }
       }
+    });
+  },
+
+  getEligibleQrCodeCadGroup(account) {
+    // Initialize the flow metrics so any flow events are logged.
+    // The flow-events-mixin, even if it were mixed in, does this in
+    // `afterRender` whereas this method can be called in `beforeRender`
+    this.notifier.trigger('flow.initialize');
+
+    return this._isEligibleForSms(account).then(({ country }) => {
+      if (!country) {
+        // If no country is returned, the reason is already logged.
+        return;
+      }
+      return {
+        group: this.getAndReportExperimentGroup('qrCodeCad', {
+          account,
+          country,
+        }),
+        country,
+      };
     });
   },
 

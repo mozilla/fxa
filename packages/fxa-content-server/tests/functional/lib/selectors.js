@@ -315,6 +315,27 @@ module.exports = {
     SUBMIT: 'button[type="submit"]',
     NEWSLETTERS,
   },
+  POST_VERIFY_CAD_QR_GET_STARTED: {
+    HEADER: '#fxa-cad-qr-get-started-header',
+    SUBMIT: 'button[type="submit"]',
+    LATER: '#maybe-later-btn',
+  },
+  POST_VERIFY_CAD_QR_READY_TO_SCAN: {
+    HEADER: '#fxa-cad-qr-ready-to-scan-header',
+    SUBMIT: 'button[type="submit"]',
+    LATER: '#maybe-later-btn',
+    USE_SMS: '#use-sms-link',
+  },
+  POST_VERIFY_CAD_QR_SCAN_CODE: {
+    HEADER: '#fxa-cad-qr-connect-your-mobile-device-header',
+    USE_SMS: '#use-sms-link',
+  },
+  POST_VERIFY_CAD_QR_CONNECTED: {
+    HEADER: '#fxa-cad-qr-connected-header',
+    SUBMIT: 'button[type="submit"]',
+    USE_SMS: '#use-sms-link',
+    DONE: '#done-link',
+  },
   RECOVERY_KEY: {
     CANCEL_BUTTON: '.cancel',
     CONFIRM_PASSWORD_CONTINUE: '.generate-key-link',
