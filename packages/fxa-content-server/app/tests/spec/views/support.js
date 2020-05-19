@@ -32,7 +32,7 @@ describe('views/support', function() {
   const subscriptionsConfig = { managementClientId: 'OVER9000' };
   const supportTicket = {
     productName: 'FxA - 123Done Pro',
-    topic: 'General inquiries',
+    topic: 'Payment & billing',
     subject: '',
     message: 'inquiries from generals',
   };
@@ -127,7 +127,7 @@ describe('views/support', function() {
   });
 
   describe('product name', function() {
-    it('should be the prefixed product name of the selected plan', function() {
+    it('should be the prefixed "Firefox Account" when "Firefox Account" is selected', function() {
       return view
         .render()
         .then(function() {
@@ -137,6 +137,25 @@ describe('views/support', function() {
         .then(function() {
           view
             .$('#product option:eq(1)')
+            .prop('selected', true)
+            .trigger('change');
+          assert.equal(
+            view.supportForm.get('productName'),
+            'FxA - Firefox Account'
+          );
+        });
+    });
+
+    it('should be the prefixed product name of the selected plan', function() {
+      return view
+        .render()
+        .then(function() {
+          view.afterVisible();
+          $('#container').append(view.el);
+        })
+        .then(function() {
+          view
+            .$('#product option:eq(2)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(
@@ -155,7 +174,7 @@ describe('views/support', function() {
         })
         .then(function() {
           view
-            .$('#product option:eq(1)')
+            .$('#product option:eq(2)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(notifier.trigger.callCount, 5);
@@ -178,7 +197,7 @@ describe('views/support', function() {
         })
         .then(function() {
           view
-            .$('#product option:eq(2)')
+            .$('#product option:eq(3)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(view.supportForm.get('productName'), 'FxA - Other');
@@ -324,7 +343,7 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
-          view.$('#product option:eq(1)').prop('selected', true);
+          view.$('#product option:eq(2)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
           view
             .$('#message')
