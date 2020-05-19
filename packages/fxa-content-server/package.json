@@ -162,8 +162,8 @@
     "request-promise": "4.2.0",
     "sinon": "4.5.0",
     "ts-node": "^8.10.1",
-    "url-loader": "4.1.0",
     "upng-js": "2.1.0",
+    "url-loader": "4.1.0",
     "webpack-dev-middleware": "^3.7.2",
     "xmlhttprequest": "git://github.com/mozilla-fxa/node-XMLHttpRequest.git#onerror",
     "yargs": "^15.0.2"

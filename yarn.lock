@@ -16808,6 +16808,7 @@ fsevents@^1.2.7:
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.10.2
     upng-js: 2.1.0
+    url-loader: 4.1.0
     verror: 1.10.0
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
@@ -24762,7 +24763,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.26, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
   version: 2.1.27
   resolution: "mime-types@npm:2.1.27"
   dependencies:
@@ -36177,6 +36178,23 @@ typescript@3.8.3:
     file-loader:
       optional: true
   checksum: 3/c24821b422c2057b6e8adc57f2855851c12a4449c5cbcc6ca7317d44185cfd11d8bea70cd7c8cca84032eb0ee033b24ed26ba0ad2a19fe2f58c5a9f47b31d14f
+  languageName: node
+  linkType: hard
+
+"url-loader@npm:4.1.0":
+  version: 4.1.0
+  resolution: "url-loader@npm:4.1.0"
+  dependencies:
+    loader-utils: ^2.0.0
+    mime-types: ^2.1.26
+    schema-utils: ^2.6.5
+  peerDependencies:
+    file-loader: "*"
+    webpack: ^4.0.0 || ^5.0.0
+  peerDependenciesMeta:
+    file-loader:
+      optional: true
+  checksum: 3/5870b969687458608c7cb7fc4e7f46a15478f506724828af3ddbe957318485b428f0fd9f08f01c413e8b556b08d7eb9520d5863e871b0bc279762a47d300a0b5
   languageName: node
   linkType: hard
 

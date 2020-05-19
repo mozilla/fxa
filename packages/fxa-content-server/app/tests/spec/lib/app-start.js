@@ -151,7 +151,10 @@ describe('lib/app-start', () => {
   it('initializeSurveyTargeter creates targeter', () => {
     appStart.initializeSurveyTargeter();
     assert.isDefined(appStart._surveyTargeter);
-    assert.isFunction(appStart._surveyTargeter.getSurvey);
+    assert.deepEqual(appStart._surveyTargeter.config, config.surveys);
+    assert.deepEqual(appStart._surveyTargeter.relier, appStart._relier);
+    assert.deepEqual(appStart._surveyTargeter.user, userMock);
+    assert.deepEqual(appStart._surveyTargeter.window, windowMock);
   });
 
   it('initializeRouter creates a router', () => {
@@ -472,7 +475,7 @@ describe('lib/app-start', () => {
     });
 
     it('creates a user, sets the uniqueUserId, populates from the browser', () => {
-      return appStart.initializeUser().then((result) => {
+      return appStart.initializeUser().then(result => {
         assert.isDefined(appStart._user);
         assert.isDefined(appStart._user.get('uniqueUserId'));
         assert.isTrue(appStart._updateUserFromSigninCodeAccount.calledOnce);
@@ -526,7 +529,7 @@ describe('lib/app-start', () => {
       sinon
         .stub(user, 'shouldSetSignedInAccountFromBrowser')
         .callsFake(() => true);
-      sinon.stub(user, 'mergeBrowserAccount').callsFake((accountData) => {
+      sinon.stub(user, 'mergeBrowserAccount').callsFake(accountData => {
         account = user.initAccount(accountData);
         return Promise.resolve(account);
       });
@@ -547,7 +550,7 @@ describe('lib/app-start', () => {
     });
 
     it('populates from the browser, updates the signed in account', () => {
-      return appStart._updateUserFromBrowserAccount().then((result) => {
+      return appStart._updateUserFromBrowserAccount().then(result => {
         assert.isTrue(
           user.mergeBrowserAccount.calledOnceWith(browserAccountData)
         );
@@ -819,7 +822,7 @@ describe('lib/app-start', () => {
     });
 
     const notReportSignIn = ['/', '/signup', '/signin', '/force_auth'];
-    notReportSignIn.forEach((pathname) => {
+    notReportSignIn.forEach(pathname => {
       it(`returns false for ${pathname}`, () => {
         windowMock.location.pathname = pathname;
         assert.isFalse(appStart._isReportSignIn());
