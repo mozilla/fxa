@@ -63,6 +63,8 @@ The currently-defined error responses are:
 - [DELETE /v1/avatar/:id][delete]
 - [GET /v1/display_name][display_name]
 - [POST /v1/display_name][display_name-post]
+- [GET /v1/ecosystem_anon_id][ecosystem_anon_id]
+- [POST /v1/ecosystem_anon_id][ecosystem_anon_id-post]
 - [DELETE /v1/cache/:uid][cache_delete]
 
 ### GET /v1/profile
@@ -84,6 +86,7 @@ curl -v \
 ```js
 {
   "uid": "6d940dd41e636cc156074109b8092f96",
+  "ecosystemAnonId": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA",
   "email": "user@example.domain",
   "locale": "en-US",
   "amrValues": ["pwd", "otp"],
@@ -310,6 +313,57 @@ curl -v \
 {}
 ```
 
+### GET /v1/ecosystem_anon_id
+
+- scope: `profile:ecosystem_anon_id`
+
+Get the user's anonymized ecosystem account identifier.
+
+#### Request
+
+```sh
+curl -v \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/ecosystem_anon_id"
+```
+
+#### Response
+
+```json
+{
+  "ecosystemAnonId": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA"
+}
+```
+
+Returns a `204 No Content` if there is no ecosystem_anon_id for the user.
+
+### POST /v1/ecosystem_anon_id
+
+- scope: `profile:ecosystem_anon_id:write`
+
+Update the user's anonymized ecosystem account identifier.
+
+#### Request
+
+- `ecosystemAnonId` - A new anonymized ecosystem account identifier.
+
+```sh
+curl -v \
+-X POST \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer 558f9980ad5a9c279beb52123653967342f702e84d3ab34c7f80427a6a37e2c0" \
+"https://profile.accounts.firefox.com/v1/ecosystem_anon_id" \
+-d '{
+  "ecosystemAnonId": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA"
+}'
+```
+
+#### Response
+
+```json
+{}
+```
+
 ### DELETE /v1/cache/:uid
 
 Delete cached profile data for user `:uid`
@@ -331,5 +385,7 @@ Delete cached profile data for user `:uid`
 [delete]: #delete-v1avatarid
 [display_name]: #get-v1display_name
 [display_name-post]: #post-v1display_name
+[ecosystem_anon_id]: #get-v1ecosystem_anon_id
+[ecosystem_anon_id-post]: #post-v1ecosystem_anon_id
 [oauth]: https://github.com/mozilla/fxa-oauth-server
 [cache_delete]: #delete-v1cache:uid

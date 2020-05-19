@@ -80,6 +80,16 @@ module.exports = [
     config: require('./routes/display_name/post'),
   },
   {
+    method: 'GET',
+    path: v('/ecosystem_anon_id'),
+    config: require('./routes/ecosystem_anon_id/get'),
+  },
+  {
+    method: 'POST',
+    path: v('/ecosystem_anon_id'),
+    config: require('./routes/ecosystem_anon_id/post'),
+  },
+  {
     method: 'DELETE',
     path: v('/cache/{uid}'),
     config: require('./routes/cache/delete'),

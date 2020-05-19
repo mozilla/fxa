@@ -21,6 +21,7 @@ module.exports = {
   auth: {
     strategy: 'oauth',
     scope: [
+      'profile:ecosystem_anon_id',
       'profile:email',
       'profile:locale',
       'profile:amr',
@@ -30,6 +31,7 @@ module.exports = {
   },
   response: {
     schema: {
+      ecosystemAnonId: Joi.string().optional(),
       email: Joi.string().optional(),
       locale: Joi.string().optional(),
       amrValues: Joi.array()
@@ -115,6 +117,9 @@ module.exports = {
             }
             if (typeof body.profileChangedAt !== 'undefined') {
               result.profileChangedAt = body.profileChangedAt;
+            }
+            if (typeof body.ecosystemAnonId !== 'undefined') {
+              result.ecosystemAnonId = body.ecosystemAnonId;
             }
             return resolve(result);
           }

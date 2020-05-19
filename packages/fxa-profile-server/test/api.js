@@ -614,6 +614,7 @@ describe('api', function() {
         locale: 'en-US',
         authenticationMethods: ['pwd'],
         authenticatorAssuranceLevel: 1,
+        ecosystemAnonId: 'foo.barzzy.123',
       });
       return Server.api
         .get({
@@ -626,12 +627,13 @@ describe('api', function() {
         .then(res => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
-          assert.equal(Object.keys(body).length, 4);
+          assert.equal(Object.keys(body).length, 5);
           assert.equal(body.email, 'user@example.domain');
           assert.equal(body.locale, 'en-US');
           assert.deepEqual(body.amrValues, ['pwd']);
           assert.equal(body.twoFactorAuthentication, false);
           assert.equal(typeof body.subscriptions, 'undefined');
+          assert.equal(body.ecosystemAnonId, 'foo.barzzy.123');
           assertSecurityHeaders(res);
         });
     });
@@ -764,6 +766,26 @@ describe('api', function() {
           assert.equal(body.twoFactorAuthentication, true);
           assertSecurityHeaders(res);
         });
+    });
+
+    it('should omit `ecosystem_anon_id` if not returned by auth-server', async () => {
+      mock.tokenGood();
+      mock.coreProfile({
+        email: 'user@example.domain',
+      });
+      const res = await Server.api.get({
+        allowInternals: true,
+        url: '/_core_profile',
+        headers: {
+          authorization: 'Bearer ' + tok,
+        },
+      });
+
+      assert.equal(res.statusCode, 200);
+      const body = JSON.parse(res.payload);
+      assert.equal(Object.keys(body).length, 1);
+      assert.equal(body.email, 'user@example.domain');
+      assertSecurityHeaders(res);
     });
   });
 
@@ -1459,6 +1481,119 @@ describe('api', function() {
             });
         });
       });
+    });
+  });
+
+  describe('/ecosystem_anon_id', function() {
+    var tok = token();
+
+    describe('GET', function() {
+      xit('should return an ecosystem_anon_id', function() {});
+
+      it('should return 204 if not set', async function() {
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id'],
+        });
+
+        const res = await Server.api.get({
+          url: '/ecosystem_anon_id',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+
+        assert.equal(res.statusCode, 204);
+        assert(!res.payload);
+        assertSecurityHeaders(res);
+      });
+
+      it('should NOT return an ecosystem_anon_id if wrong scope', async function() {
+        mock.token({
+          user: USERID,
+          scope: ['profile:email'],
+        });
+
+        const res = await Server.api.get({
+          url: '/ecosystem_anon_id',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+
+        assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
+      });
+    });
+
+    describe('POST', function() {
+      xit('should post a new ecosystem_anon_id', function() {});
+
+      it('should fail post if the ecosystem_anon_id is not a string', async function() {
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 12345,
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+
+        assert.equal(res.statusCode, 400);
+        assertSecurityHeaders(res);
+      });
+
+      it('should fail post if the ecosystem_anon_id is empty', async function() {
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: null,
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+
+        assert.equal(res.statusCode, 400);
+        assertSecurityHeaders(res);
+      });
+
+      xit('should fail post with 412 error if the If-Match header does not match the ETag', function() {});
+
+      it('should require :write scope', async function() {
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'foo-.xzzy_.bar',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+
+        assert.equal(res.statusCode, 403);
+        assertSecurityHeaders(res);
+      });
+
+      xit('should allow base64url characters as used in JWTs', function() {});
+
+      xit('should reject non-base64url characters', function() {});
     });
   });
 });
