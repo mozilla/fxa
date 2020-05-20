@@ -868,10 +868,10 @@ describe('metrics/events', () => {
         'metricsContext.gather was called once'
       );
 
-      assert.equal(log.error.callCount, 1, 'log.error was called once');
-      assert.equal(log.error.args[0][0], 'metricsEvents.emitFlowEvent');
+      assert.equal(log.trace.callCount, 1, 'log.trace was called once');
+      assert.equal(log.trace.args[0][0], 'metricsEvents.emitFlowEvent');
       assert.deepEqual(
-        log.error.args[0][1],
+        log.trace.args[0][1],
         {
           event: 'email.verification.sent',
           missingFlowId: true,

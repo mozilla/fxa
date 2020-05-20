@@ -210,7 +210,7 @@ module.exports = (log, config) => {
 
           log.flowEvent(data);
         } else if (!OPTIONAL_FLOW_EVENTS[event]) {
-          log.error('metricsEvents.emitFlowEvent', {
+          log.trace('metricsEvents.emitFlowEvent', {
             event,
             missingFlowId: true,
           });
