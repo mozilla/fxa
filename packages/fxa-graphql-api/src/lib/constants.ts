@@ -4,14 +4,12 @@
 
 import { Token } from 'typedi';
 import { AppConfig } from '../config';
-import { Redis } from 'ioredis';
 import { Logger } from 'mozlog';
-import { UserLookupFn } from './user';
 import { RedisConfig } from '../config';
+import { Client } from 'fxa-js-client';
 
 export const configContainerToken = new Token<AppConfig>();
-export const redisContainerToken = new Token<Redis>();
 export const loggerContainerToken = new Token<Logger>();
-export const userLookupFnContainerToken = new Token<UserLookupFn>();
 
+export const fxAccountClientToken = new Token<Client>();
 export const authRedisConfig = new Token<RedisConfig>();

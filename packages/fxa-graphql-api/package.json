@@ -34,6 +34,7 @@
     "apollo-server": "^2.13.1",
     "apollo-server-express": "^2.13.1",
     "convict": "^6.0.0",
+    "fxa-js-client": "^1.0.25",
     "graphql": "^14.0.0",
     "graphql-parse-resolve-info": "^4.7.0",
     "ioredis": "^4.16.3",
