@@ -156,9 +156,9 @@ const SupportView = BaseView.extend({
     });
 
     if (this.supportForm.isValid()) {
-      this.submitBtn.removeClass('disabled');
+      this.submitBtn.prop('disabled', false);
     } else {
-      this.submitBtn.addClass('disabled');
+      this.submitBtn.prop('disabled', true);
     }
   },
 
@@ -173,10 +173,18 @@ const SupportView = BaseView.extend({
   },
 
   submitButtonUIToggle: function() {
-    this.submitBtn.toggleClass('disabled');
-    this.cancelBtn.toggleClass('disabled');
     this.submitText.toggleClass('hidden');
     this.submitSpinner.toggleClass('hidden');
+    this.submitBtn.prop('disabled', !this.submitBtn.prop('disabled'));
+    this.cancelBtn.prop('disabled', !this.cancelBtn.prop('disabled'));
+  },
+
+  closeModalReset: function(button) {
+    this.submitBtn.prop('disabled', false);
+    this.cancelBtn.prop('disabled', false);
+
+    this.submitText.removeClass('hidden');
+    this.submitSpinner.addClass('hidden');
   },
 
   submitSupportForm: preventDefaultThen(
@@ -252,6 +260,8 @@ const SupportView = BaseView.extend({
     $(selector).modal({
       closeText: '',
     });
+
+    $(selector).on('modal:close', this.closeModalReset.bind(this));
   },
 
   navigateToSubscriptions(e) {

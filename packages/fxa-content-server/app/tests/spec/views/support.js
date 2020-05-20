@@ -236,7 +236,7 @@ describe('views/support', function() {
           $('#container').append(view.el);
         })
         .then(function() {
-          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
+          assert.ok(view.$('form button[type=submit]').prop('disabled'));
         });
     });
 
@@ -252,19 +252,17 @@ describe('views/support', function() {
             .$('#product option:eq(1)')
             .prop('selected', true)
             .trigger('change');
-          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
+          assert.ok(view.$('form button[type=submit]').prop('disabled'));
           view
             .$('#topic option:eq(1)')
             .prop('selected', true)
             .trigger('change');
-          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
+          assert.ok(view.$('form button[type=submit]').prop('disabled'));
           view
             .$('#message')
             .val(supportTicket.message)
             .trigger('keyup');
-          assert.isFalse(
-            view.$('form button[type=submit]').hasClass('disabled')
-          );
+          assert.isFalse(view.$('form button[type=submit]').prop('disabled'));
         });
     });
 
@@ -285,8 +283,8 @@ describe('views/support', function() {
           view.$('form button[type=submit]').click();
         })
         .then(function() {
-          assert.ok(view.$('form button[type=submit]').hasClass('disabled'));
-          assert.ok(view.$('form button.cancel').hasClass('disabled'));
+          assert.ok(view.$('form button[type=submit]').prop('disabled'));
+          assert.ok(view.$('form button.cancel').prop('disabled'));
           assert.ok(view.$('.submit-content').hasClass('hidden'));
           assert.isFalse(view.$('form .spinner').hasClass('hidden'));
         });
