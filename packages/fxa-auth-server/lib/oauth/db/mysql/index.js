@@ -173,14 +173,14 @@ const QUERY_CLIENT_DELETE =
   'LEFT JOIN clientDevelopers ON clients.id = clientDevelopers.clientId ' +
   'WHERE clients.id=?';
 const QUERY_CODE_INSERT =
-  'INSERT INTO codes (clientId, userId, email, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt, sessionTokenId) ' +
-  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+  'INSERT INTO codes (clientId, userId, scope, authAt, amr, aal, offline, code, codeChallengeMethod, codeChallenge, keysJwe, profileChangedAt, sessionTokenId) ' +
+  'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 const QUERY_ACCESS_TOKEN_INSERT =
-  'INSERT INTO tokens (clientId, userId, email, scope, type, expiresAt, ' +
-  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+  'INSERT INTO tokens (clientId, userId, scope, type, expiresAt, ' +
+  'token, profileChangedAt) VALUES (?, ?, ?, ?, ?, ?, ?)';
 const QUERY_REFRESH_TOKEN_INSERT =
-  'INSERT INTO refreshTokens (clientId, userId, email, scope, token, profileChangedAt) VALUES ' +
-  '(?, ?, ?, ?, ?, ?)';
+  'INSERT INTO refreshTokens (clientId, userId, scope, token, profileChangedAt) VALUES ' +
+  '(?, ?, ?, ?, ?)';
 // Access token storage in redis annotates each token with client metadata,
 // so we do the same when reading from MySQL, for consistency.
 // Note that the `token` field stores the hash of the token rather than the raw token,
@@ -427,7 +427,6 @@ MysqlStore.prototype = {
     return this._write(QUERY_CODE_INSERT, [
       codeObj.clientId,
       codeObj.userId,
-      codeObj.email,
       codeObj.scope.toString(),
       codeObj.authAt,
       codeObj.amr ? codeObj.amr.join(',') : null,
@@ -464,7 +463,6 @@ MysqlStore.prototype = {
     return this._write(QUERY_ACCESS_TOKEN_INSERT, [
       accessToken.clientId,
       accessToken.userId,
-      accessToken.email,
       accessToken.scope.toString(),
       accessToken.type,
       accessToken.expiresAt,
@@ -611,7 +609,6 @@ MysqlStore.prototype = {
     var t = {
       clientId: vals.clientId,
       userId: vals.userId,
-      email: vals.email,
       scope: vals.scope,
       profileChangedAt: vals.profileChangedAt,
     };
@@ -620,7 +617,6 @@ MysqlStore.prototype = {
     return this._write(QUERY_REFRESH_TOKEN_INSERT, [
       t.clientId,
       t.userId,
-      t.email,
       t.scope.toString(),
       hash,
       t.profileChangedAt,

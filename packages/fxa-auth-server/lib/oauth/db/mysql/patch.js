@@ -6,4 +6,4 @@
 // Update this if you add a new patch, and don't forget to update
 // the documentation for the current schema in ../schema.sql.
 
-module.exports.level = 28;
+module.exports.level = 29;
