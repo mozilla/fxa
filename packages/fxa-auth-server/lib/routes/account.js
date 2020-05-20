@@ -905,6 +905,7 @@ module.exports = (
         },
         response: {
           schema: {
+            ecosystemAnonId: isA.string().optional(),
             email: isA.string().optional(),
             locale: isA.string().optional().allow(null),
             authenticationMethods: isA
@@ -931,6 +932,9 @@ module.exports = (
         const res = {};
         const account = await db.account(uid);
 
+        if (scope.contains('profile:ecosystem_anon_id')) {
+          res.ecosystemAnonId = account.ecosystemAnonId;
+        }
         if (scope.contains('profile:email')) {
           res.email = account.primaryEmail.email;
         }
