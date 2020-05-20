@@ -10,6 +10,7 @@ import * as TypeGraphQL from 'type-graphql';
 import { AccountResolver } from './resolvers/account-resolver';
 import { reportGraphQLError } from './sentry';
 import { SessionTokenAuth } from './auth';
+import { AuthServerSource } from './datasources/authServer';
 
 type ServerConfig = {
   authHeader: string;
@@ -21,8 +22,13 @@ type ServerConfig = {
  */
 export type Context = {
   authUser: string;
+  token: string;
+  dataSources: DataSources;
   logger: Logger;
-  logAction: (action: string, options?: object) => {};
+};
+
+export type DataSources = {
+  authAPI: AuthServerSource;
 };
 
 export async function createServer(
@@ -41,16 +47,16 @@ export async function createServer(
     const userId = await authUser.lookupUserId(bearerToken);
     return {
       authUser: userId,
-      logAction: (action: string, options?: object): void => {
-        logger.info(action, { uid: userId, ...options });
-      },
-      logger,
       token: bearerToken,
+      logger,
     };
   };
 
   return new ApolloServer({
     context: context ?? defaultContext,
+    dataSources: () => ({
+      authAPI: new AuthServerSource(),
+    }),
     formatError: err => reportGraphQLError(debugMode, logger, err),
     schema,
   });

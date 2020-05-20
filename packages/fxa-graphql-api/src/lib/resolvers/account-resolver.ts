@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Ctx, Query, Resolver, FieldResolver, Root, Info } from 'type-graphql';
+import { GraphQLResolveInfo } from 'graphql';
 import {
   parseResolveInfo,
   simplifyParsedResolveInfoFragmentWithType,
 } from 'graphql-parse-resolve-info';
-import { GraphQLResolveInfo } from 'graphql';
+import { Ctx, Query, Resolver, FieldResolver, Root, Info } from 'type-graphql';
 
 import { accountByUid, Account, AccountOptions } from '../db/models/auth';
 import { profileByUid, selectedAvatar } from '../db/models/profile';
@@ -18,17 +18,14 @@ import { Account as AccountType } from './types/account';
 export class AccountResolver {
   @Query(returns => AccountType, { nullable: true })
   public account(@Ctx() context: Context, @Info() info: GraphQLResolveInfo) {
-    context.logAction('account', { uid: context.authUser });
+    context.logger.info('account', { uid: context.authUser });
 
     // Introspect the query to determine if we should load the emails
     const parsed: any = parseResolveInfo(info);
     const simplified = simplifyParsedResolveInfoFragmentWithType(parsed, info.returnType);
     const includeEmails = simplified.fields.hasOwnProperty('emails');
 
-    const options: AccountOptions = {};
-    if (includeEmails) {
-      options.include = ['emails'];
-    }
+    const options: AccountOptions = includeEmails ? { include: ['emails'] } : {};
     return accountByUid(context.authUser, options);
   }
 
@@ -63,5 +60,25 @@ export class AccountResolver {
     } else {
       return null;
     }
+  }
+
+  @FieldResolver()
+  public async subscriptions(@Ctx() context: Context) {
+    return context.dataSources.authAPI.subscriptions();
+  }
+
+  @FieldResolver()
+  public recoveryKey(@Ctx() context: Context) {
+    return context.dataSources.authAPI.hasRecoveryKey();
+  }
+
+  @FieldResolver()
+  public totp(@Ctx() context: Context) {
+    return context.dataSources.authAPI.totp();
+  }
+
+  @FieldResolver()
+  public attachedClients(@Ctx() context: Context) {
+    return context.dataSources.authAPI.attachedClients();
   }
 }
