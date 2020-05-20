@@ -16,7 +16,7 @@ describe('requestHelper', () => {
     );
     assert.equal(
       Object.keys(requestHelper).length,
-      1,
+      2,
       'object should have one properties'
     );
     assert.equal(

@@ -1667,6 +1667,16 @@ const Account = Backbone.Model.extend(
         expiryGracePeriod
       );
     },
+
+    /**
+     * Creates a signin code for a user. This code can be exchanged
+     * for a users email address.
+     *
+     * @returns {Promise} resolves with response when complete.
+     */
+    createSigninCode() {
+      return this._fxaClient.createSigninCode(this.get('sessionToken'));
+    },
   },
   {
     ALLOWED_KEYS: ALLOWED_KEYS,

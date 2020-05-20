@@ -9,6 +9,8 @@ import Template from 'templates/post_verify/cad_qr/scan_code.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
 import DeviceConnectedPollMixin from '../../mixins/device-connected-poll-mixin';
 
+const QR_IMG_SELECTOR = '#graphic-cad-qr-code';
+
 class ScanCode extends FormView {
   template = Template;
   viewName = 'scan-code';
@@ -31,14 +33,25 @@ class ScanCode extends FormView {
     });
   }
 
-  beforeRender() {
+  afterRender() {
     const account = this.getSignedInAccount();
 
     // We can only poll for new devices if a user is logged into a session.
     // Users that are not logged can not proceed to the next screen.
-    if (!account.isDefault()) {
-      this.waitForDeviceConnected(account, this._onConnected);
+    // A "default" QR code image will be shown that doesn't prefill any
+    // login form
+    if (account.isDefault()) {
+      return;
     }
+
+    return account
+      .createSigninCode()
+      .then(resp => {
+        this.$(QR_IMG_SELECTOR).attr('src', resp.installQrCode);
+      })
+      .then(() => {
+        this.waitForDeviceConnected(account, this._onConnected);
+      });
   }
 
   clickUseSms() {

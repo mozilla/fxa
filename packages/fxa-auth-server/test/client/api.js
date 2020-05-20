@@ -975,6 +975,11 @@ module.exports = config => {
     });
   };
 
+  ClientApi.prototype.createSigninCode = async function(sessionTokenHex) {
+    const token = await tokens.SessionToken.fromHex(sessionTokenHex);
+    return this.doRequest('POST', `${this.baseURL}/signinCodes`, token, {});
+  };
+
   ClientApi.prototype.createTotpToken = function(
     sessionTokenHex,
     options = {}

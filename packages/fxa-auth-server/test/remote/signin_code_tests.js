@@ -82,6 +82,39 @@ describe('remote signinCodes', function() {
     });
   });
 
+  it('POST /signinCodes creates code', async () => {
+    const email = server.uniqueEmail();
+    const client = await Client.create(config.publicUrl, email, 'wibble');
+    const { code, link, installQrCode } = await client.createSigninCode({
+      metricsContext: {
+        flowId:
+          '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+        flowBeginTime: Date.now(),
+      },
+    });
+
+    assert.ok(code);
+    assert.ok(link);
+    assert.ok(installQrCode);
+
+    const result = await client.consumeSigninCode(
+      SMS_SIGNIN_CODE.exec(link)[1],
+      {
+        metricsContext: {
+          flowId:
+            '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+          flowBeginTime: Date.now(),
+        },
+      }
+    );
+
+    assert.deepEqual(
+      result,
+      { email },
+      '/signinCodes/consume should return the email address'
+    );
+  });
+
   after(() => {
     return TestServer.stop(server);
   });

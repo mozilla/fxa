@@ -14,6 +14,15 @@ function wantsKeys(request) {
   return !!(request.query && request.query.keys);
 }
 
+function urlSafeBase64(hex) {
+  return Buffer.from(hex, 'hex')
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
 module.exports = {
-  wantsKeys: wantsKeys,
+  wantsKeys,
+  urlSafeBase64,
 };

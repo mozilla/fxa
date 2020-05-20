@@ -59,6 +59,13 @@ describe('views/post_verify/cad_qr/scan_code', () => {
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.stub(account, 'fetchDeviceList').callsFake(() => Promise.resolve([]));
+    sinon.stub(account, 'createSigninCode').callsFake(() =>
+      Promise.resolve({
+        code: 'code',
+        link: 'https://accounts.firefox.com/m/G-JAVtm7',
+        installQrCode: 'data:image/png;base64,iVBORw0KGg',
+      })
+    );
     sinon.spy(view, 'waitForDeviceConnected');
 
     return view.render().then(() => $('#container').html(view.$el));
@@ -77,7 +84,7 @@ describe('views/post_verify/cad_qr/scan_code', () => {
         view.$('#fxa-cad-qr-connect-your-mobile-device-header'),
         1
       );
-      assert.lengthOf(view.$('.graphic-cad-qr-code'), 1);
+      assert.lengthOf(view.$('#graphic-cad-qr-code'), 1);
       assert.lengthOf(view.$('.qr-code-step-message'), 4);
       assert.lengthOf(view.$('#use-sms-link'), 1);
     });
@@ -87,26 +94,49 @@ describe('views/post_verify/cad_qr/scan_code', () => {
     });
   });
 
-  describe("doesn't poll when no user signed in", () => {
+  describe('when no user signed in', () => {
     beforeEach(() => {
       account.unset('uid');
       account.unset('email');
       view.waitForDeviceConnected.resetHistory();
+      account.createSigninCode.resetHistory();
       return view.render();
     });
 
     it('no polling', () => {
       assert.equal(view.waitForDeviceConnected.callCount, 0);
     });
+
+    it('did not create signin code', () => {
+      assert.equal(account.createSigninCode.callCount, 0);
+    });
+
+    it('use standard qr code image', () => {
+      assert.equal(
+        view.$('#graphic-cad-qr-code').attr('src'),
+        '/images/graphic_cad_qr_code.svg'
+      );
+    });
   });
 
-  describe('navigates to connected view when new device is connected', () => {
+  describe('when user signed in', () => {
     beforeEach(() => {
       sinon.spy(view, 'navigate');
       view._deviceConnectedPoll.trigger('device-connected', {});
     });
 
-    it('navigates', () => {
+    it('did create signin code', () => {
+      assert.equal(account.createSigninCode.callCount, 1);
+    });
+
+    it('use signin code embedded qr code image', () => {
+      assert.equal(
+        view.$('#graphic-cad-qr-code').attr('src'),
+        'data:image/png;base64,iVBORw0KGg'
+      );
+    });
+
+    it('navigates to connected view when new device is connected', () => {
       assert.isTrue(
         view.navigate.calledWith('/post_verify/cad_qr/connected', {
           device: {},
