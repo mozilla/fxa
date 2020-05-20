@@ -103,6 +103,7 @@ describe('views/post_verify/cad_qr/scan_code', () => {
   describe('navigates to connected view when new device is connected', () => {
     beforeEach(() => {
       sinon.spy(view, 'navigate');
+      sinon.spy(view, 'logFlowEvent');
       view._deviceConnectedPoll.trigger('device-connected', {});
     });
 
@@ -112,6 +113,12 @@ describe('views/post_verify/cad_qr/scan_code', () => {
           device: {},
           showSuccessMessage: true,
         })
+      );
+    });
+
+    it('logs connected metric', () => {
+      assert.isTrue(
+        view.logFlowEvent.calledWith('device-connected', view.viewName)
       );
     });
   });
@@ -124,7 +131,7 @@ describe('views/post_verify/cad_qr/scan_code', () => {
       });
 
       it('calls correct broker methods', () => {
-        assert.isTrue(view.navigate.calledWith('/connect_another_device'));
+        assert.isTrue(view.navigate.calledWith('/sms'));
       });
     });
   });

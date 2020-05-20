@@ -100,7 +100,7 @@ describe('views/post_verify/cad_qr/ready_to_scan', () => {
       });
 
       it('calls correct broker methods', () => {
-        assert.isTrue(view.navigate.calledWith('/connect_another_device'));
+        assert.isTrue(view.navigate.calledWith('/sms'));
       });
     });
   });
