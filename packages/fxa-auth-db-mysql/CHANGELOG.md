@@ -1,8 +1,12 @@
+## 1.171.1
+
+No changes.
+
 ## 1.171.0
 
 ### Bug fixes
 
-* deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
+- deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
 
 ## 1.170.3
 

@@ -1,32 +1,36 @@
+## 1.171.1
+
+No changes.
+
 ## 1.171.0
 
 ### New features
 
-* payments: ignore hard email bounce errors in Stripe webhooks ([0d5cb9c72](https://github.com/mozilla/fxa/commit/0d5cb9c72))
-* oauth: support jwt access tokens for Sync ([2476a02ed](https://github.com/mozilla/fxa/commit/2476a02ed))
-* sms: make AWS.SNS.SMS.SMSType configurable ([393a6c99b](https://github.com/mozilla/fxa/commit/393a6c99b))
-* auth-server: add plan changed metadata to subscription ([e31535526](https://github.com/mozilla/fxa/commit/e31535526))
+- payments: ignore hard email bounce errors in Stripe webhooks ([0d5cb9c72](https://github.com/mozilla/fxa/commit/0d5cb9c72))
+- oauth: support jwt access tokens for Sync ([2476a02ed](https://github.com/mozilla/fxa/commit/2476a02ed))
+- sms: make AWS.SNS.SMS.SMSType configurable ([393a6c99b](https://github.com/mozilla/fxa/commit/393a6c99b))
+- auth-server: add plan changed metadata to subscription ([e31535526](https://github.com/mozilla/fxa/commit/e31535526))
 
 ### Bug fixes
 
-* bug: small fixes for id_token_hint ([a8ea33b32](https://github.com/mozilla/fxa/commit/a8ea33b32))
-* payments: record our subscription cancellation time to avoid duplicate email on account deletion ([e50335919](https://github.com/mozilla/fxa/commit/e50335919))
-* deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
-* payments: squelch error response to Stripe on expiring payment method without subscription ([cff67b91a](https://github.com/mozilla/fxa/commit/cff67b91a))
+- bug: small fixes for id_token_hint ([a8ea33b32](https://github.com/mozilla/fxa/commit/a8ea33b32))
+- payments: record our subscription cancellation time to avoid duplicate email on account deletion ([e50335919](https://github.com/mozilla/fxa/commit/e50335919))
+- deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
+- payments: squelch error response to Stripe on expiring payment method without subscription ([cff67b91a](https://github.com/mozilla/fxa/commit/cff67b91a))
 
 ### Refactorings
 
-* oauth: stop querying for 'email' in oauth tables ([e201e7631](https://github.com/mozilla/fxa/commit/e201e7631))
+- oauth: stop querying for 'email' in oauth tables ([e201e7631](https://github.com/mozilla/fxa/commit/e201e7631))
 
 ### Other changes
 
-* auth-server: fix vscode launch.json test scripts ([dcee33f70](https://github.com/mozilla/fxa/commit/dcee33f70))
+- auth-server: fix vscode launch.json test scripts ([dcee33f70](https://github.com/mozilla/fxa/commit/dcee33f70))
 
 ## 1.170.3
 
 ### Other changes
 
-* auth + content-server: add new support form field and update options in dropdown" ([a714e4ccf](https://github.com/mozilla/fxa/commit/a714e4ccf))
+- auth + content-server: add new support form field and update options in dropdown" ([a714e4ccf](https://github.com/mozilla/fxa/commit/a714e4ccf))
 
 ## 1.170.2
 

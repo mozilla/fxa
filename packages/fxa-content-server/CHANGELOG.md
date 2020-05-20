@@ -1,31 +1,37 @@
+## 1.171.1
+
+### Bug fixes
+
+- metrics: Correctly log CAD view metrics when coming from signin and signup ([f90aad740](https://github.com/mozilla/fxa/commit/f90aad740))
+
 ## 1.171.0
 
 ### New features
 
-* content + settings: ensure visiting beta/settings/ always has flow data ([b16edb5ee](https://github.com/mozilla/fxa/commit/b16edb5ee))
-* qr: Add first version of device connected polling ([e2af7cfbb](https://github.com/mozilla/fxa/commit/e2af7cfbb))
-* oauth: support jwt access tokens for Sync ([2476a02ed](https://github.com/mozilla/fxa/commit/2476a02ed))
-* qr: Add CAD via QR code UX ([0a86806a3](https://github.com/mozilla/fxa/commit/0a86806a3))
+- content + settings: ensure visiting beta/settings/ always has flow data ([b16edb5ee](https://github.com/mozilla/fxa/commit/b16edb5ee))
+- qr: Add first version of device connected polling ([e2af7cfbb](https://github.com/mozilla/fxa/commit/e2af7cfbb))
+- oauth: support jwt access tokens for Sync ([2476a02ed](https://github.com/mozilla/fxa/commit/2476a02ed))
+- qr: Add CAD via QR code UX ([0a86806a3](https://github.com/mozilla/fxa/commit/0a86806a3))
 
 ### Bug fixes
 
-* bug: fix typescript error ([804fda77f](https://github.com/mozilla/fxa/commit/804fda77f))
-* bug: small fixes for id_token_hint ([a8ea33b32](https://github.com/mozilla/fxa/commit/a8ea33b32))
-* deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
+- bug: fix typescript error ([804fda77f](https://github.com/mozilla/fxa/commit/804fda77f))
+- bug: small fixes for id_token_hint ([a8ea33b32](https://github.com/mozilla/fxa/commit/a8ea33b32))
+- deps: Add exception for yargs-parser nsp advisory 1500 ([b54877911](https://github.com/mozilla/fxa/commit/b54877911))
 
 ### Refactorings
 
-* content server: remove sendSmsHeader experiement ([f6209f858](https://github.com/mozilla/fxa/commit/f6209f858))
+- content server: remove sendSmsHeader experiement ([f6209f858](https://github.com/mozilla/fxa/commit/f6209f858))
 
 ### Other changes
 
-* image: Add env to specify logging a functional test screenshot error to console ([9ff937ff0](https://github.com/mozilla/fxa/commit/9ff937ff0))
+- image: Add env to specify logging a functional test screenshot error to console ([9ff937ff0](https://github.com/mozilla/fxa/commit/9ff937ff0))
 
 ## 1.170.3
 
 ### Other changes
 
-* auth + content-server: add new support form field and update options in dropdown" ([a714e4ccf](https://github.com/mozilla/fxa/commit/a714e4ccf))
+- auth + content-server: add new support form field and update options in dropdown" ([a714e4ccf](https://github.com/mozilla/fxa/commit/a714e4ccf))
 
 ## 1.170.2
 
