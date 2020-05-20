@@ -5373,6 +5373,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/prettier@npm:2.0.1":
+  version: 2.0.1
+  resolution: "@types/prettier@npm:2.0.1"
+  checksum: 3/fba408d98574b9790446bd5d5f1200a1baf164beea676eaad139320a1d1cdf54f2e411a865b253fc75fbadd1a096bb7eacbf13083fa7d26785e98dca57932b47
+  languageName: node
+  linkType: hard
+
 "@types/prettier@npm:^1.16.1, @types/prettier@npm:^1.19.0":
   version: 1.19.1
   resolution: "@types/prettier@npm:1.19.1"
@@ -17351,6 +17358,7 @@ fsevents@^1.2.7:
     "@testing-library/user-event": ^10.0.2
     "@types/jest": ^25.2.1
     "@types/node": ^13.13.0
+    "@types/prettier": 2.0.1
     "@types/react": ^16.9.34
     "@types/react-dom": ^16.9.6
     "@types/react-transition-group": ^4.2.4
@@ -17361,6 +17369,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
     jest: ^25.3.0
+    prettier: ^2.0.5
     react: ^16.13.1
     react-dom: ^16.13.1
     react-transition-group: ^4.3.0

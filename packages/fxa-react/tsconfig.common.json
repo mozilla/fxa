@@ -5,12 +5,8 @@
     // "compilerOptions.paths must not be set", but
     // this will still work.
     "paths": {
-      "@fxa-react/*": [
-        "../fxa-react/*"
-      ],
-      "@fxa-shared/*": [
-        "../fxa-shared/*"
-      ]
+      "@fxa-react/*": ["../fxa-react/*"],
+      "@fxa-shared/*": ["../fxa-shared/*"]
     }
   }
 }

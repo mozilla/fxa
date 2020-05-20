@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from "react";
-import { render } from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
-import AppErrorBoundary from ".";
+import React from 'react';
+import { render } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import AppErrorBoundary from '.';
 
-describe("AppErrorBoundary", () => {
+describe('AppErrorBoundary', () => {
   beforeEach(() => {
     // HACK: Swallow the exception thrown by BadComponent
     // it bubbles up unnecesarily to jest and makes noise
-    jest.spyOn(console, "error");
+    jest.spyOn(console, 'error');
     (global.console.error as jest.Mock).mockImplementation(() => {});
   });
 
@@ -19,7 +19,7 @@ describe("AppErrorBoundary", () => {
     (global.console.error as jest.Mock).mockRestore();
   });
 
-  it("renders children that do not cause exceptions", () => {
+  it('renders children that do not cause exceptions', () => {
     const GoodComponent = () => <p data-testid="good-component">Hi</p>;
 
     const { queryByTestId } = render(
@@ -28,12 +28,12 @@ describe("AppErrorBoundary", () => {
       </AppErrorBoundary>
     );
 
-    expect(queryByTestId("error-loading-app")).not.toBeInTheDocument();
+    expect(queryByTestId('error-loading-app')).not.toBeInTheDocument();
   });
 
-  it("renders a general error dialog on exception in child component", () => {
+  it('renders a general error dialog on exception in child component', () => {
     const BadComponent = () => {
-      throw new Error("bad");
+      throw new Error('bad');
     };
 
     const { queryByTestId } = render(
@@ -42,6 +42,6 @@ describe("AppErrorBoundary", () => {
       </AppErrorBoundary>
     );
 
-    expect(queryByTestId("error-loading-app")).toBeInTheDocument();
+    expect(queryByTestId('error-loading-app')).toBeInTheDocument();
   });
 });

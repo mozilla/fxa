@@ -2,7 +2,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-.portal#top-bar { // scss-lint:disable IdSelector
+.portal#top-bar {
+  // scss-lint:disable IdSelector
   left: 0;
   position: fixed;
   right: 0;
@@ -10,7 +11,8 @@
   z-index: 9999;
 }
 
-.portal#dialogs { // scss-lint:disable IdSelector
+.portal#dialogs {
+  // scss-lint:disable IdSelector
   align-items: center;
   bottom: 0;
   display: flex;

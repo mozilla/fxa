@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useCallback, useState, useEffect, useRef } from "react";
+import { useCallback, useState, useEffect, useRef } from 'react';
 
 type useBooleanStateResult = [boolean, () => void, () => void];
 export function useBooleanState(
@@ -42,8 +42,8 @@ export function useClickOutsideEffect<T>(onClickOutside: Function) {
         onClickOutside();
       }
     };
-    document.body.addEventListener("click", onBodyClick);
-    return () => document.body.removeEventListener("click", onBodyClick);
+    document.body.addEventListener('click', onBodyClick);
+    return () => document.body.removeEventListener('click', onBodyClick);
   }, [onClickOutside]);
 
   return insideEl;

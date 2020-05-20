@@ -2,19 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const { resolve } = require("path");
+const { resolve } = require('path');
 
 const additionalJSImports = {
-  "@fxa-react": __dirname,
-  "@fxa-shared": resolve(__dirname, "../fxa-shared")
+  '@fxa-react': __dirname,
+  '@fxa-shared': resolve(__dirname, '../fxa-shared'),
 };
 
-const permitAdditionalJSImports = config => {
+const permitAdditionalJSImports = (config) => {
   const importPaths = Object.values(additionalJSImports);
 
   // Update ModuleScopePlugin's appSrcs to allow our new directory
-  config.resolve.plugins.forEach(plugin => {
-    if (plugin.constructor && plugin.constructor.name === "ModuleScopePlugin") {
+  config.resolve.plugins.forEach((plugin) => {
+    if (plugin.constructor && plugin.constructor.name === 'ModuleScopePlugin') {
       plugin.appSrcs.push(...importPaths);
     }
   });
@@ -49,11 +49,11 @@ const permitAdditionalJSImports = config => {
     config.module.rules[2] &&
     config.module.rules[2].oneOf &&
     config.module.rules[2].oneOf[1].test.toString() ===
-      "/\\.(js|mjs|jsx|ts|tsx)$/"
+      '/\\.(js|mjs|jsx|ts|tsx)$/'
   ) {
     config.module.rules[2].oneOf[1].include = [
       config.module.rules[2].oneOf[1].include,
-      ...importPaths
+      ...importPaths,
     ];
   } else {
     throw new Error(
@@ -65,7 +65,7 @@ const permitAdditionalJSImports = config => {
   return config;
 };
 
-const setupAliasedPaths = config => {
+const setupAliasedPaths = (config) => {
   // Add the list of additional imports to Webpack's alias resolver
   config.resolve.alias = Object.assign(
     config.resolve.alias,
@@ -80,23 +80,23 @@ const setupAliasedPaths = config => {
 };
 
 const componentsJestMapper = {
-  jest: config => {
+  jest: (config) => {
     return {
       ...config,
       moduleNameMapper: Object.keys(additionalJSImports).reduce(
         (previous, key) => {
           return Object.assign(previous, {
-            [`^${key}/(.*)$`]: resolve(additionalJSImports[key], "$1")
+            [`^${key}/(.*)$`]: resolve(additionalJSImports[key], '$1'),
           });
         },
         {}
-      )
+      ),
     };
-  }
+  },
 };
 
 module.exports = {
   permitAdditionalJSImports,
   setupAliasedPaths,
-  componentsJestMapper
+  componentsJestMapper,
 };
