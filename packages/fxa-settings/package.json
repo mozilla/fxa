@@ -23,7 +23,7 @@
     "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-postcss && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
-    "test": "rescripts test",
+    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "eject": "react-scripts eject",
     "lint": "npm-run-all --parallel lint:eslint lint:sass",
     "lint:eslint": "eslint .",

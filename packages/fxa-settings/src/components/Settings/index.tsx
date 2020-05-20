@@ -30,11 +30,15 @@ export const Settings = () => {
   const primaryEmail =
     MOCK_ACCOUNT_DATA.emails.find((email) => email.isPrimary === true) ||
     MOCK_ACCOUNT_DATA.emails[0];
+
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const onSecondaryEmailConfirm = useCallback(() => {
     console.log('confirmed - resend verification code');
     hideModal();
   }, [hideModal]);
+
+  const modalHeaderId = 'modal-header-verify-email';
+  const modalDescId = 'modal-desc-verify-email';
 
   return (
     <main>
@@ -69,7 +73,10 @@ export const Settings = () => {
         <UnitRow
           header="Secondary email"
           headerValue={null}
-          {...{ revealModal }}
+          {...{
+            revealModal,
+            modalRevealed,
+          }}
         >
           <p>Access your account if you can't log in to your primary email.</p>
           <p>
@@ -78,9 +85,14 @@ export const Settings = () => {
           </p>
 
           {modalRevealed && (
-            <Modal onDismiss={hideModal} onConfirm={onSecondaryEmailConfirm}>
-              <h2>Verify primary email first</h2>
-              <p>
+            <Modal
+              onDismiss={hideModal}
+              onConfirm={onSecondaryEmailConfirm}
+              headerId={modalHeaderId}
+              descId={modalDescId}
+            >
+              <h2 id={modalHeaderId}>Verify primary email first</h2>
+              <p id={modalDescId}>
                 Before you can add a secondary email, you must verify your
                 primary email. To do this, you'll need access to{' '}
                 {primaryEmail.email}

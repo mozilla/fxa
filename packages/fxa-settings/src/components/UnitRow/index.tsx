@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useRef } from 'react';
+import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
 
 type UnitRowProps = {
   header: string;
@@ -12,6 +13,7 @@ type UnitRowProps = {
   children?: React.ReactNode;
   route?: string;
   revealModal?: () => void;
+  modalRevealed?: boolean;
 };
 
 // TO DO: accept a refresh button prop to use in for secondary email
@@ -26,8 +28,12 @@ export const UnitRow = ({
   noHeaderValueText = 'None',
   noHeaderValueCtaText = 'Add',
   revealModal,
+  modalRevealed,
 }: UnitRowProps) => {
   const ctaText = headerValue ? 'Change' : noHeaderValueCtaText;
+
+  const modalTriggerElement = useRef<HTMLButtonElement>(null);
+  useFocusOnTriggeringElementOnClose(modalRevealed, modalTriggerElement);
 
   return (
     <div>
@@ -47,7 +53,11 @@ export const UnitRow = ({
         )}
 
         {revealModal && (
-          <button data-testid="unit-row-modal" onClick={revealModal}>
+          <button
+            data-testid="unit-row-modal"
+            ref={modalTriggerElement}
+            onClick={revealModal}
+          >
             {ctaText}
           </button>
         )}
