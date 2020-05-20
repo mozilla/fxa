@@ -165,18 +165,13 @@ module.exports = function(log, db, config) {
 
   /**
    * Checks whether the given string is a valid public key for push.
-   * This is a little tricky because we need to work around a bug in nodejs
-   * where using an invalid ECDH key can cause a later (unrelated) attempt
-   * to generate an RSA signature to fail:
-   *
-   *   https://github.com/nodejs/node/pull/13275
+   * The easiest way to do this is to try using for an ECDH key agreement
+   * and seeing whether anything complains.
    *
    * @param key
    * The public key as a b64url string.
    */
 
-  const dummySigner = crypto.createSign('RSA-SHA256');
-  const dummyKey = Buffer.alloc(0);
   const dummyCurve = crypto.createECDH('prime256v1');
   dummyCurve.generateKeys();
 
@@ -190,13 +185,6 @@ module.exports = function(log, db, config) {
       log.info('push.isValidPublicKey', {
         name: 'Bad public key detected',
       });
-      // However!  The above call might have left some junk
-      // sitting around on the openssl error stack.
-      // Clear it by deliberately triggering a signing error
-      // before anything yields the event loop.
-      try {
-        dummySigner.sign(dummyKey);
-      } catch (e) {}
       return false;
     }
   }
