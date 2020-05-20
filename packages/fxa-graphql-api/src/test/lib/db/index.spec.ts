@@ -6,7 +6,7 @@ import { assert } from 'chai';
 import 'mocha';
 
 import { dbHealthCheck } from '../../../lib/db';
-import { testDatabaseSetup } from './models/helpers';
+import { testDatabaseSetup } from './models/auth/helpers';
 
 describe('db', () => {
   describe('dbHealthCheck', () => {

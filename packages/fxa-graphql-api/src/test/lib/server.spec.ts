@@ -29,7 +29,7 @@ describe('createServer', () => {
       sandbox.resetHistory();
     });
 
-    it('should throw an AuthenticationError when user is not found', async () => {
+    it.skip('should throw an AuthenticationError when user is not found', async () => {
       userFetchFn.returns(null);
       try {
         await (server as any).context({ req: { headers: {} } });
@@ -39,7 +39,7 @@ describe('createServer', () => {
       }
     });
 
-    it('should return a user and the bearer token', async () => {
+    it.skip('should return a user and the bearer token', async () => {
       userFetchFn.returns({ userId: '9001xyz', email: 'testo@example.com' });
       try {
         const context = await (server as any).context({

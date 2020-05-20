@@ -6,6 +6,78 @@ import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
 
+export interface MySQLConfig {
+  database: string;
+  host: string;
+  password: string;
+  port: number;
+  user: string;
+}
+
+export interface RedisConfig {
+  host: string;
+  keyPrefix: string;
+  port: number;
+}
+
+function makeMySQLConfig(envPrefix: string, database: string) {
+  return {
+    database: {
+      default: database,
+      doc: 'MySQL database',
+      env: envPrefix + '_MYSQL_DATABASE',
+      format: String,
+    },
+    host: {
+      default: 'localhost',
+      doc: 'MySQL host',
+      env: envPrefix + '_MYSQL_HOST',
+      format: String,
+    },
+    password: {
+      default: '',
+      doc: 'MySQL password',
+      env: '_MYSQL_PASSWORD',
+      format: String,
+    },
+    port: {
+      default: 3306,
+      doc: 'MySQL port',
+      env: '_MYSQL_PORT',
+      format: Number,
+    },
+    user: {
+      default: 'root',
+      doc: 'MySQL username',
+      env: '_MYSQL_USERNAME',
+      format: String,
+    },
+  };
+}
+
+function makeRedisConfig(envPrefix: string, prefix: string) {
+  return {
+    host: {
+      default: 'localhost',
+      env: envPrefix + '_REDIS_HOST',
+      format: String,
+      doc: 'Url for redis host',
+    },
+    keyPrefix: {
+      default: prefix,
+      env: envPrefix + '_REDIS_KEY_PREFIX',
+      format: String,
+      doc: 'Redis key prefix to use',
+    },
+    port: {
+      default: 6379,
+      env: envPrefix + '_REDIS_PORT',
+      format: 'port',
+      doc: 'Port for redis server',
+    },
+  };
+}
+
 const conf = convict({
   authHeader: {
     default: 'authorization',
@@ -13,37 +85,19 @@ const conf = convict({
     env: 'AUTH_HEADER',
     format: String,
   },
+  authServer: {
+    url: {
+      doc: 'URL of fxa-auth-server',
+      env: 'AUTH_SERVER_URL',
+      default: 'http://localhost:9000/v1',
+    },
+  },
   database: {
-    database: {
-      default: 'fxa',
-      doc: 'MySQL database',
-      env: 'DB_DATABASE',
-      format: String,
+    mysql: {
+      auth: makeMySQLConfig('AUTH', 'fxa'),
+      profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
     },
-    host: {
-      default: 'localhost',
-      doc: 'MySQL host',
-      env: 'DB_HOST',
-      format: String,
-    },
-    password: {
-      default: '',
-      doc: 'MySQL password',
-      env: 'DB_PASSWORD',
-      format: String,
-    },
-    port: {
-      default: 3306,
-      doc: 'MySQL port',
-      env: 'DB_PORT',
-      format: Number,
-    },
-    user: {
-      default: 'root',
-      doc: 'MySQL username',
-      env: 'DB_USERNAME',
-      format: String,
-    },
+    redis: {},
   },
   env: {
     default: 'production',

@@ -8,15 +8,16 @@ import path from 'path';
 import Chance from 'chance';
 import Knex from 'knex';
 
-import { setupDatabase } from '../../../../lib/db';
-import { Account } from '../../../../lib/db/models/account';
+import { setupAuthDatabase } from '../../../../../lib/db';
+import { Account } from '../../../../../lib/db/models/auth/account';
 
-export type AccountIsh = Pick<Account, 'uid'>;
+export type AccountIsh = Pick<Account, 'uid' | 'email' | 'emails' | 'normalizedEmail'>;
 
 export const chance = new Chance();
 
 const thisDir = path.dirname(__filename);
 export const accountTable = fs.readFileSync(path.join(thisDir, './accounts.sql'), 'utf8');
+export const emailsTable = fs.readFileSync(path.join(thisDir, './emails.sql'), 'utf8');
 
 export function randomAccount() {
   const email = chance.email();
@@ -36,12 +37,24 @@ export function randomAccount() {
   };
 }
 
+export function randomEmail(account: AccountIsh, primary = true) {
+  return {
+    createdAt: chance.timestamp(),
+    email: account.email,
+    emailCode: '00000000000000000000000000000000',
+    isPrimary: primary,
+    isVerified: true,
+    normalizedEmail: account.normalizedEmail,
+    uid: account.uid,
+  };
+}
+
 export async function testDatabaseSetup(): Promise<Knex> {
   // Create the db if it doesn't exist
   let knex = Knex({
     client: 'mysql',
     connection: {
-      charset: 'utf8',
+      charset: 'UTF8MB4_BIN',
       host: 'localhost',
       password: '',
       port: 3306,
@@ -53,7 +66,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
   await knex.raw('CREATE DATABASE testAdmin');
   await knex.destroy();
 
-  knex = setupDatabase({
+  knex = setupAuthDatabase({
     database: 'testAdmin',
     host: 'localhost',
     password: '',
@@ -62,12 +75,12 @@ export async function testDatabaseSetup(): Promise<Knex> {
   });
 
   await knex.raw(accountTable);
+  await knex.raw(emailsTable);
 
   /* Debugging Assistance
-  knex.on('query', data => {
+  knex.on('query', (data) => {
     console.dir(data);
   });
   */
-
   return knex;
 }
