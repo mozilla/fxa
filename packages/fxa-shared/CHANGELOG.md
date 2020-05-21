@@ -1,10 +1,14 @@
 # Change history
 
+## 1.171.1
+
+No changes.
+
 ## 1.171.0
 
 ### Bug fixes
 
-* deps: Upgrade mocha to resolve yargs-parser nsp advisory 1500 ([8246673ba](https://github.com/mozilla/fxa/commit/8246673ba))
+- deps: Upgrade mocha to resolve yargs-parser nsp advisory 1500 ([8246673ba](https://github.com/mozilla/fxa/commit/8246673ba))
 
 ## 1.170.3
 
