@@ -67,6 +67,9 @@ else
 fi
 echo "GIT_COMMIT          $GIT_COMMIT"
 
+# optionally run a pattern of tests matching $GREP, if set in the environment
+echo "GREP                $GREP"
+
 WORKDIR=fxa-"$FXA_TEST_NAME"
 rm -rf "$WORKDIR"
 git clone https://github.com/mozilla/fxa.git -b master "$WORKDIR"
@@ -103,4 +106,5 @@ node ./tests/intern.js \
     --fxaEmailRoot="http://restmail.net" \
     --fxaProduction="true" \
     --firefoxBinary="$FXA_FIREFOX_BINARY" \
-    --useTeamCityReporter=true
+    --useTeamCityReporter=true \
+    --grep="${GREP}"
