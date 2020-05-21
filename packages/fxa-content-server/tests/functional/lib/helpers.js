@@ -347,6 +347,17 @@ const type = thenify(function (selector, text, options = {}) {
     .end();
 });
 
+/**
+ * Send a keycode to the selector
+ *
+ * @param {string} selector
+ * @param {string} key
+ * @returns {promise}
+ */
+const typeNative = thenify(function (selector, key) {
+  return this.parent.findByCssSelector(selector).pressKeys(key).end();
+});
+
 const clearContentServerState = thenify(function (options) {
   options = options || {};
   // clear localStorage to avoid polluting other tests.
@@ -2835,6 +2846,7 @@ module.exports = {
   testUrlPathnameEquals,
   thenify,
   type,
+  typeNative,
   visibleByQSA,
   waitForUrl,
 };

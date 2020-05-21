@@ -24,6 +24,7 @@ const {
   testUrlPathnameEquals,
   testElementExists,
   type,
+  typeNative,
 } = FunctionalHelpers;
 
 registerSuite('support form without valid session', {
@@ -88,6 +89,8 @@ registerSuite('support form with an active subscription', {
             '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
           )
         )
+        // test hitting enter and making sure we don't leave the form
+        .then(typeNative('input[name="subject"]', 'ENTER'))
         .then(type('textarea[name=message]', 'please send halp'))
         .then(click('button[type=submit]'));
       // Since we don't have proper Zendesk config in CircleCI, the form
