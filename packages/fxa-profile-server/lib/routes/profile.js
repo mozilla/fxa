@@ -23,6 +23,7 @@ module.exports = {
   },
   response: {
     schema: {
+      ecosystemAnonId: Joi.string().optional(),
       email: Joi.string().allow(null),
       uid: Joi.string().allow(null),
       avatar: Joi.string().allow(null),
