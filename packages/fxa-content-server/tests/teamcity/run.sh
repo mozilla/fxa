@@ -67,6 +67,12 @@ else
 fi
 echo "GIT_COMMIT          $GIT_COMMIT"
 
+# optionally, set SUITES to only run specific suites
+if [ -z "$SUITES" ]; then
+  SUITES="all"
+fi
+echo "SUITES              $SUITES"
+
 # optionally run a pattern of tests matching $GREP, if set in the environment
 echo "GREP                $GREP"
 
@@ -97,14 +103,14 @@ $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' 
 # Tell the test where the X Server is located
 export DISPLAY=":99"
 
-node ./tests/intern.js \
-    --suites="all" \
-    --fxaAuthRoot="$FXA_AUTH_ROOT" \
-    --fxaContentRoot="$FXA_CONTENT_ROOT" \
-    --fxaOAuthApp="$FXA_OAUTH_APP_ROOT" \
+node ./tests/intern.js                                     \
+    --suites="${SUITES}"                                   \
+    --grep="${GREP}"                                       \
+    --fxaAuthRoot="$FXA_AUTH_ROOT"                         \
+    --fxaContentRoot="$FXA_CONTENT_ROOT"                   \
+    --fxaOAuthApp="$FXA_OAUTH_APP_ROOT"                    \
     --fxaUntrustedOauthApp="$FXA_UNTRUSTED_OAUTH_APP_ROOT" \
-    --fxaEmailRoot="http://restmail.net" \
-    --fxaProduction="true" \
-    --firefoxBinary="$FXA_FIREFOX_BINARY" \
-    --useTeamCityReporter=true \
-    --grep="${GREP}"
+    --fxaEmailRoot="http://restmail.net"                   \
+    --fxaProduction="true"                                 \
+    --firefoxBinary="$FXA_FIREFOX_BINARY"                  \
+    --useTeamCityReporter=true
