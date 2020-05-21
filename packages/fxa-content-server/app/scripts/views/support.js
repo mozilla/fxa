@@ -25,6 +25,8 @@ import SupportFormErrorTemplate from 'templates/partial/support-form-error.musta
 import SupportFormSuccessTemplate from 'templates/partial/support-form-success.mustache';
 import Template from 'templates/support.mustache';
 
+const productPrefix = 'FxA - ';
+
 const t = (msg) => msg;
 
 const proto = BaseView.prototype;
@@ -165,8 +167,11 @@ const SupportView = BaseView.extend({
   },
 
   formatProductName: function (name) {
-    const productNamePrefix = 'FxA - ';
-    return `${productNamePrefix}${name}`;
+    return `${productPrefix}${name}`;
+  },
+
+  unformatProductName: function (name) {
+    return name.slice(productPrefix.length);
   },
 
   submitButtonUIToggle: function () {
@@ -210,25 +215,28 @@ const SupportView = BaseView.extend({
 
   displaySuccessMessage() {
     // The message is slightly different if the user selected "Other" for the
-    // subscription plan
+    // subscription product
     let message;
+    const productName = this.unformatProductName(
+      this.supportForm.attributes.productName
+    );
     const escapedLowercaseTopic = _.escape(
       this.supportForm.getLoweredTopic(this.supportForm.attributes.topic)
     );
-    const escapedSelectedPlan = _.escape(this.supportForm.attributes.plan);
+    const escapedSelectedProduct = _.escape(productName);
 
-    if (this.supportForm.attributes.plan === t('Other')) {
+    if (productName === t('Other')) {
       message = t(
         "Thank you for reaching out to Mozilla Support about <b>%(escapedLowercaseTopic)s</b>. We'll contact you via email as soon as possible."
       );
     } else {
       message = t(
-        "Thank you for reaching out to Mozilla Support about <b>%(escapedLowercaseTopic)s</b> for <b>%(escapedSelectedPlan)s</b>. We'll contact you via email as soon as possible."
+        "Thank you for reaching out to Mozilla Support about <b>%(escapedLowercaseTopic)s</b> for <b>%(escapedSelectedProduct)s</b>. We'll contact you via email as soon as possible."
       );
     }
 
     message = Strings.interpolate(this.unsafeTranslate(message), {
-      escapedSelectedPlan,
+      escapedSelectedProduct,
       escapedLowercaseTopic,
     });
     const selector = '.modal.dialog-success';
