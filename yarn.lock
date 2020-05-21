@@ -17035,7 +17035,7 @@ fsevents@^1.2.7:
     install: 0.12.1
     intern: ^4.5.0
     joi: ^14.3.1
-    jquery: 3.4.0
+    jquery: 3.5.0
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     jquery-simulate: 1.0.2
     jquery-ui: 1.12.1
@@ -22758,10 +22758,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jquery@npm:3.4.0":
-  version: 3.4.0
-  resolution: "jquery@npm:3.4.0"
-  checksum: 3/ccfc6929d706da6a5b17ce309dde056988ce40d940c2914e4a65243bbf603d65f53450a1b0865836fe7da3dd0e080b39acb18f8c083e92d52493c15b048dc79c
+"jquery@npm:3.5.0":
+  version: 3.5.0
+  resolution: "jquery@npm:3.5.0"
+  checksum: 3/f293887214e527d4f8959bad75ca8058aa970554b67887c541308130fb0f5a97db065b7d4e4649de6ab4b26dd738f3ce888c0bd8382df4194e2e80cfe620f220
   languageName: node
   linkType: hard
 
