@@ -17,13 +17,10 @@
     "typescript": "3.8.3"
   },
   "scripts": {
-    "prestart": "npm run build-postcss",
-    "start": "pm2 start pm2.config.js",
-    "prerestart": "npm run build-postcss",
-    "restart": "pm2 restart pm2.config.js",
+    "start": "npm run build-postcss && pm2 start pm2.config.js",
+    "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
-    "prebuild": "NODE_ENV=production npm run build-postcss",
-    "build": "INLINE_RUNTIME_CHUNK=false rescripts build",
+    "build": "NODE_ENV=production npm run build-postcss && INLINE_RUNTIME_CHUNK=false rescripts build",
     "test": "rescripts test",
     "eject": "react-scripts eject",
     "lint": "npm-run-all --parallel lint:eslint lint:sass",
