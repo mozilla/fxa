@@ -8,8 +8,16 @@ const isA = require('@hapi/joi');
 const validators = require('./validators');
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').requiredSchema;
+const qrcode = require('qrcode');
+const requestHelper = require('./utils/request_helper');
 
-module.exports = (log, db, customs) => {
+module.exports = (log, db, customs, config) => {
+  // Currently, QR codes are rendered with the highest possible
+  // error correction, which should in theory allow clients to
+  // scan the image better.
+  // Ref: https://github.com/soldair/node-qrcode#error-correction-level
+  const qrCodeOptions = { errorCorrectionLevel: 'H' };
+
   return [
     {
       method: 'POST',
@@ -53,6 +61,44 @@ module.exports = (log, db, customs) => {
         }
 
         return { email: result.email };
+      },
+    },
+    {
+      method: 'POST',
+      path: '/signinCodes',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        response: {
+          schema: {
+            code: isA.string().required(),
+            installQrCode: isA.string().required(),
+            link: isA.string().required(),
+          },
+        },
+      },
+      handler: async function(request) {
+        log.begin('signinCodes', request);
+
+        const sessionToken = request.auth.credentials;
+
+        const metricsContext = await request.gatherMetricsContext({});
+        const signinCode = await db.createSigninCode(
+          sessionToken.uid,
+          metricsContext.flow_id
+        );
+
+        const link = `${
+          config.sms.installFirefoxWithSigninCodeBaseUri
+        }/${requestHelper.urlSafeBase64(signinCode)}`;
+        const installQrCode = await qrcode.toDataURL(link, qrCodeOptions);
+
+        return {
+          code: signinCode,
+          installQrCode,
+          link,
+        };
       },
     },
   ];

@@ -795,6 +795,10 @@ module.exports = config => {
     return this.api.consumeSigninCode(code, metricsContext);
   };
 
+  Client.prototype.createSigninCode = function(metricsContext) {
+    return this.api.createSigninCode(this.sessionToken, metricsContext);
+  };
+
   Client.prototype.createAuthorizationCode = function(oauthParams) {
     return this.api.createAuthorizationCode(this.sessionToken, oauthParams);
   };

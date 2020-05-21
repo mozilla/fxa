@@ -841,6 +841,10 @@ export default class AuthClient {
     });
   }
 
+  async createSigninCode(sessionToken: string) {
+    return this.sessionPost('/signinCodes', sessionToken, {});
+  }
+
   async recoveryEmails(sessionToken: string) {
     return this.sessionGet('/recovery_emails', sessionToken);
   }

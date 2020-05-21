@@ -1377,6 +1377,13 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   verifyIdToken: createClientDelegate('verifyIdToken'),
+
+  /**
+   * Create a one-time use sign-in code.
+   *
+   * @returns {Promise} resolves with response when complete.
+   */
+  createSigninCode: createClientDelegate('createSigninCode'),
 };
 
 export default FxaClientWrapper;

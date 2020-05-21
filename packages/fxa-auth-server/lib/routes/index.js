@@ -128,7 +128,7 @@ module.exports = function(
     push
   );
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
-  const signinCodes = require('./signin-codes')(log, db, customs);
+  const signinCodes = require('./signin-codes')(log, db, customs, config);
   const smsRoute = require('./sms')(log, db, config, customs, smsImpl);
   const unblockCodes = require('./unblock-codes')(
     log,
