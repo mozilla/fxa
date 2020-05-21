@@ -1,5 +1,11 @@
 # Change history
 
+## 1.172.0
+
+### New features
+
+- support + auth server: add past product information to support panel ([bf8bc234d](https://github.com/mozilla/fxa/commit/bf8bc234d))
+
 ## 1.171.1
 
 No changes.

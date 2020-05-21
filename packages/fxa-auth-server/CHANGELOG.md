@@ -1,3 +1,20 @@
+## 1.172.0
+
+### New features
+
+- cad: Add metrics for the CAD via QR code ([bf6594db2](https://github.com/mozilla/fxa/commit/bf6594db2))
+- cad: Add auth endpoint to generate CAD QR image ([91de57fed](https://github.com/mozilla/fxa/commit/91de57fed))
+- support + auth server: add past product information to support panel ([bf8bc234d](https://github.com/mozilla/fxa/commit/bf8bc234d))
+
+### Bug fixes
+
+- auth server: use ts-node-script shebang when executing ts-dependent scripts ([b84554f1e](https://github.com/mozilla/fxa/commit/b84554f1e))
+- metrics: Don't log `sendPush.success` message unless it actually succeeded. ([5ca76abb7](https://github.com/mozilla/fxa/commit/5ca76abb7))
+
+### Other changes
+
+- 9f09f182f Log push expired callbacks separately ([9f09f182f](https://github.com/mozilla/fxa/commit/9f09f182f))
+
 ## 1.171.1
 
 No changes.

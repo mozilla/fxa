@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-db-mysql",
-  "version": "1.171.1",
+  "version": "1.172.0",
   "description": "MySQL backend for Firefox Accounts",
   "main": "index.js",
   "repository": {

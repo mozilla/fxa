@@ -1,3 +1,9 @@
+## 1.172.0
+
+### New features
+
+- profile: Add API endpoints for ecosystem_anon_id ([c5ab58b6e](https://github.com/mozilla/fxa/commit/c5ab58b6e))
+
 ## 1.171.1
 
 No changes.
