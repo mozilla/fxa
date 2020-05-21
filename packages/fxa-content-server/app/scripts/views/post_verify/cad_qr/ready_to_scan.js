@@ -4,6 +4,7 @@
 
 import { assign } from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import Template from 'templates/post_verify/cad_qr/ready_to_scan.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
@@ -28,10 +29,10 @@ class ReadyToScan extends FormView {
   }
 
   clickUseSms() {
-    return this.navigate('/connect_another_device');
+    return this.navigate('/sms');
   }
 }
 
-Cocktail.mixin(ReadyToScan);
+Cocktail.mixin(ReadyToScan, FlowEventsMixin);
 
 export default ReadyToScan;

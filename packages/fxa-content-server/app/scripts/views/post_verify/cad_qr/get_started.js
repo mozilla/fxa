@@ -4,6 +4,7 @@
 
 import { assign } from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import Template from 'templates/post_verify/cad_qr/get_started.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
@@ -21,10 +22,10 @@ class GetStarted extends FormView {
   }
 
   clickMaybeLater() {
-    return this.navigate('/connect_another_device');
+    return this.navigate('/sms');
   }
 }
 
-Cocktail.mixin(GetStarted);
+Cocktail.mixin(GetStarted, FlowEventsMixin);
 
 export default GetStarted;

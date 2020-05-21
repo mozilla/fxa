@@ -32,6 +32,7 @@ const GROUPS = {
   subPaySetup: 'fxa_pay_setup',
   subPayUpgrade: 'fxa_pay_upgrade',
   subSupport: 'fxa_subscribe_support',
+  qrConnectDevice: 'fxa_qr_connect_device',
 };
 
 const CONNECT_DEVICE_FLOWS = {
@@ -62,6 +63,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subPaySetup]: NOP,
   [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
+  [GROUPS.qrConnectDevice]: NOP,
 };
 
 function NOP() {}

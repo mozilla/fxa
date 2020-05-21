@@ -4,6 +4,7 @@
 
 import { assign } from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import Template from 'templates/post_verify/cad_qr/connected.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
@@ -11,7 +12,7 @@ import { MOZ_ORG_SYNC_GET_STARTED_LINK } from '../../../lib/constants';
 
 class ScanCode extends FormView {
   template = Template;
-  viewName = 'scan-code';
+  viewName = 'connected';
 
   events = assign(this.events, {
     'click #done-link': preventDefaultThen('clickDoneLink'),
@@ -29,10 +30,10 @@ class ScanCode extends FormView {
   }
 
   clickUseSms() {
-    return this.navigate('/connect_another_device');
+    return this.navigate('/sms');
   }
 }
 
-Cocktail.mixin(ScanCode);
+Cocktail.mixin(ScanCode, FlowEventsMixin);
 
 export default ScanCode;

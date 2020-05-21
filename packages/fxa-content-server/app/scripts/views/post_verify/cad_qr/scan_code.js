@@ -25,6 +25,7 @@ class ScanCode extends FormView {
   }
 
   _onConnected(device) {
+    this.logFlowEvent('device-connected', this.viewName);
     return this.navigate('/post_verify/cad_qr/connected', {
       device,
       showSuccessMessage: true,
@@ -42,7 +43,7 @@ class ScanCode extends FormView {
   }
 
   clickUseSms() {
-    return this.navigate('/connect_another_device');
+    return this.navigate('/sms');
   }
 }
 
