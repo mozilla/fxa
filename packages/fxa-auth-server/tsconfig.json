@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-//    "outDir": "./dist",
+    "outDir": "./dist",
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
     "allowJs": true,
