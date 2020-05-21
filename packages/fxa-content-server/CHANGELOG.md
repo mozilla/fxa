@@ -1,3 +1,22 @@
+## 1.172.0
+
+### New features
+
+* cad: Add auth endpoint to generate CAD QR image ([91de57fed](https://github.com/mozilla/fxa/commit/91de57fed))
+* cad: Add metrics for the CAD via QR code ([2f9729154](https://github.com/mozilla/fxa/commit/2f9729154))
+* cad: Add feature flag for CAD via QR code ([99e626165](https://github.com/mozilla/fxa/commit/99e626165))
+* support-form: update dropdown options ([7595f1973](https://github.com/mozilla/fxa/commit/7595f1973))
+* fx-content-server: add autocomplete annotations to change password ([1613cee02](https://github.com/mozilla/fxa/commit/1613cee02))
+
+### Bug fixes
+
+* metrics: Correctly log CAD view metrics when coming from signin and signup ([9fd647185](https://github.com/mozilla/fxa/commit/9fd647185))
+
+### Other changes
+
+* content-server: fix support form submit button ([0944a0f1a](https://github.com/mozilla/fxa/commit/0944a0f1a))
+* content-server: fix includeSubDomains option ([8df2631a4](https://github.com/mozilla/fxa/commit/8df2631a4))
+
 ## 1.171.1
 
 ### Bug fixes
