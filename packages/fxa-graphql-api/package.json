@@ -31,6 +31,7 @@
   "dependencies": {
     "@sentry/integrations": "^5.15.5",
     "@sentry/node": "^5.15.5",
+    "apollo-datasource": "^0.7.0",
     "apollo-server": "^2.13.1",
     "apollo-server-express": "^2.13.1",
     "convict": "^6.0.0",

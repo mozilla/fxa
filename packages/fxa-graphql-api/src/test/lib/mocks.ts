@@ -3,13 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Logger } from 'mozlog';
-import sinon from 'sinon';
 import { stubInterface } from 'ts-sinon';
+import { DataSources } from '../../lib/server';
+import { AuthServerSource } from '../../lib/datasources/authServer';
 
-export function mockContext() {
+export function mockContext(dataSources?: DataSources) {
+  const ds = dataSources ?? { authAPI: stubInterface<AuthServerSource>() };
   return {
     authUser: '',
-    logAction: sinon.stub(),
+    token: 'test',
     logger: stubInterface<Logger>(),
+    dataSources: ds,
   };
 }

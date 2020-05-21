@@ -4,6 +4,9 @@
 
 import { Field, ID, ObjectType } from 'type-graphql';
 import { Email } from './emails';
+import { AttachedClient } from './attachedClient';
+import { Totp } from './totp';
+import { Subscription } from './subscription';
 
 @ObjectType()
 export class Account {
@@ -25,6 +28,18 @@ export class Account {
   @Field({ nullable: true })
   public locale!: string;
 
+  @Field(type => [Subscription])
+  public subscriptions!: Subscription[];
+
+  @Field(type => Totp)
+  public totp!: Totp;
+
+  @Field()
+  public recoveryKey!: boolean;
+
   @Field(type => [Email])
   public emails!: Email[];
+
+  @Field(type => [AttachedClient])
+  public attachedClients!: AttachedClient;
 }

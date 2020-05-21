@@ -56,7 +56,7 @@ describe('accountResolver', () => {
       accountCreated: USER_1.createdAt,
       uid: USER_1.uid,
     });
-    assert.isTrue(context.logAction.calledOnce);
+    assert.isTrue((context.logger.info as sinon.SinonSpy).calledOnce);
   });
 
   it('does not locate non-existent users by uid', async () => {
@@ -69,6 +69,6 @@ describe('accountResolver', () => {
     const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isNull(result.data.account);
-    assert.isTrue(context.logAction.calledOnce);
+    assert.isTrue((context.logger.info as sinon.SinonSpy).calledOnce);
   });
 });

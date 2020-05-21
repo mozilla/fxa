@@ -46,15 +46,19 @@ describe('Schema', () => {
     ) as IntrospectionObjectType;
   }
 
+  function verifyTypeMembers(name: string, members: string[]) {
+    const typ = findTypeByName(name);
+    assert.isDefined(typ);
+    assert.lengthOf(typ.fields, members.length);
+    const typNames = typ.fields.map(it => it.name);
+    assert.sameMembers(typNames, members);
+  }
+
   it('is created with expected types', async () => {
     const queryNames = queryType.fields.map(it => it.name);
     assert.sameMembers(queryNames, ['account']);
 
-    const accountType = findTypeByName('Account');
-    assert.isDefined(accountType);
-    assert.lengthOf(accountType.fields, 7);
-    const accountTypeNames = accountType.fields.map(it => it.name);
-    assert.sameMembers(accountTypeNames, [
+    verifyTypeMembers('Account', [
       'uid',
       'accountCreated',
       'passwordCreated',
@@ -62,6 +66,45 @@ describe('Schema', () => {
       'locale',
       'emails',
       'avatarUrl',
+      'subscriptions',
+      'totp',
+      'recoveryKey',
+      'attachedClients',
     ]);
+    verifyTypeMembers('Email', ['email', 'isPrimary', 'verified']);
+    verifyTypeMembers('Totp', ['exists', 'verified']);
+    verifyTypeMembers('Subscription', [
+      'created',
+      'cancelAtPeriodEnd',
+      'currentPeriodEnd',
+      'currentPeriodStart',
+      'endAt',
+      'latestInvoice',
+      'planId',
+      'productName',
+      'productId',
+      'status',
+      'subscriptionId',
+    ]);
+    verifyTypeMembers('AttachedClient', [
+      'clientId',
+      'sessionTokenId',
+      'refreshTokenId',
+      'deviceId',
+      'deviceType',
+      'isCurrentSession',
+      'name',
+      'createdTime',
+      'createdTimeFormatted',
+      'lastAccessTime',
+      'lastAccessTimeFormatted',
+      'approximateLastAccessTime',
+      'approximateLastAccessTimeFormatted',
+      'scope',
+      'location',
+      'userAgent',
+      'os',
+    ]);
+    verifyTypeMembers('Location', ['city', 'country', 'state', 'stateCode']);
   });
 });
