@@ -9,6 +9,7 @@ import * as TypeGraphQL from 'type-graphql';
 
 import { AccountResolver } from './resolvers/account-resolver';
 import { reportGraphQLError } from './sentry';
+import { SessionTokenAuth } from './auth';
 
 type ServerConfig = {
   authHeader: string;
@@ -33,10 +34,11 @@ export async function createServer(
     container: Container,
     resolvers: [AccountResolver],
   });
+  const authUser = Container.get(SessionTokenAuth);
   const debugMode = config.env !== 'production';
   const defaultContext = async ({ req }: any) => {
     const bearerToken = req.headers[config.authHeader.toLowerCase()];
-    const userId = bearerToken.split('Bearer ')[1];
+    const userId = await authUser.lookupUserId(bearerToken);
     return {
       authUser: userId,
       logAction: (action: string, options?: object): void => {
@@ -49,7 +51,7 @@ export async function createServer(
 
   return new ApolloServer({
     context: context ?? defaultContext,
-    formatError: (err) => reportGraphQLError(debugMode, logger, err),
+    formatError: err => reportGraphQLError(debugMode, logger, err),
     schema,
   });
 }

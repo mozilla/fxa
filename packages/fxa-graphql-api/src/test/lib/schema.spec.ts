@@ -10,7 +10,7 @@ import {
   graphql,
   IntrospectionObjectType,
   IntrospectionSchema,
-  TypeKind
+  TypeKind,
 } from 'graphql';
 import 'mocha';
 import { buildSchema } from 'type-graphql';
@@ -61,7 +61,7 @@ describe('Schema', () => {
       'displayName',
       'locale',
       'emails',
-      'avatarUrl'
+      'avatarUrl',
     ]);
   });
 });

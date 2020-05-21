@@ -26,7 +26,7 @@ export const profileTable = fs.readFileSync(path.join(thisDir, './profile.sql'),
 
 export function defaultProvider() {
   return {
-    name: 'gravatar'
+    name: 'gravatar',
   };
 }
 
@@ -35,14 +35,14 @@ export function randomAvatar(userId: string, providerId: number) {
     id: chance.guid({ version: 4 }).replace(/-/g, ''),
     url: chance.url(),
     userId,
-    providerId
+    providerId,
   };
 }
 
 export function randomProfile() {
   return {
     userId: chance.guid({ version: 4 }).replace(/-/g, ''),
-    displayName: chance.name()
+    displayName: chance.name(),
   };
 }
 
@@ -55,8 +55,8 @@ export async function testDatabaseSetup(): Promise<Knex> {
       host: 'localhost',
       password: '',
       port: 3306,
-      user: 'root'
-    }
+      user: 'root',
+    },
   });
 
   await knex.raw('DROP DATABASE IF EXISTS testAdmin');
@@ -68,7 +68,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
     host: 'localhost',
     password: '',
     port: 3306,
-    user: 'root'
+    user: 'root',
   });
 
   await knex.raw(avatarProvidersTable);

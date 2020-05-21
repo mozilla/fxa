@@ -15,7 +15,7 @@ import {
   Avatar,
   AvatarProvider,
   AvatarSelected,
-  Profile
+  Profile,
 } from '../../../../../lib/db/models/profile';
 
 const PROFILE_1 = randomProfile();
