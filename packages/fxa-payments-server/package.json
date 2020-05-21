@@ -10,7 +10,7 @@
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
-    "build": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false react-scripts build",
+    "build": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false rescripts build",
     "eject": "react-scripts eject",
     "test": "npm-run-all test:frontend test:server",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=yes rescripts test --coverage --verbose",

@@ -32,7 +32,7 @@ import AlertBar from '../../components/AlertBar';
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import CloseIcon from '../../components/CloseIcon';
+import { ReactComponent as CloseIcon } from '@fxa-react/images/close.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
 export type SubscriptionsProps = {

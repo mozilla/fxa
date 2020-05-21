@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { useCallback, useState } from 'react';
 import { Localized } from '@fluent/react';
 import dayjs from 'dayjs';
@@ -7,7 +11,8 @@ import {
   getLocalizedCurrency,
   formatPlanPricing,
 } from '../../lib/formats';
-import { useBooleanState, useNonce } from '../../lib/hooks';
+import { useNonce } from '../../lib/hooks';
+import { useBooleanState } from '@fxa-react/lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import { SelectorReturns } from '../../store/selectors';
 import {
