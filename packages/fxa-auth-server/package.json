@@ -135,7 +135,7 @@
     "lodash.pick": "4.4.0",
     "mailparser": "0.6.1",
     "mkdirp": "0.5.1",
-    "mocha": "5.2.0",
+    "mocha": "^7.1.2",
     "moment": "^2.24.0",
     "nock": "10.0.2",
     "nodemon": "^2.0.3",

@@ -9584,13 +9584,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browser-stdout@npm:1.3.0":
-  version: 1.3.0
-  resolution: "browser-stdout@npm:1.3.0"
-  checksum: 3/8501b6fa861e463b30da1f86ad8b2b4a5d84e19ba473addfca2d2db3e8fb3f7756b457197773e620c3950744fb5fd7080e7d944d52db2d96859880f863e1ee66
-  languageName: node
-  linkType: hard
-
 "browser-stdout@npm:1.3.1":
   version: 1.3.1
   resolution: "browser-stdout@npm:1.3.1"
@@ -9716,7 +9709,7 @@ __metadata:
     express: 4.16.4
     fxa-shared: "workspace:*"
     intel: 1.2.0
-    mocha: 5.2.0
+    mocha: ^7.1.2
     morgan: 1.9.1
     mozlog: 2.2.0
     optimist: 0.6.1
@@ -11337,13 +11330,6 @@ __metadata:
   version: 1.2.9
   resolution: "command-exists@npm:1.2.9"
   checksum: 3/c682ee2215e20c3e3ea9ebaaec403928f4e927dec75778e798766db9967a842f89ae2318ff3b384706bb22abb22eac983fe53d9ecd54d7b781a8dbed47ed6c6a
-  languageName: node
-  linkType: hard
-
-"commander@npm:2.11.0":
-  version: 2.11.0
-  resolution: "commander@npm:2.11.0"
-  checksum: 3/e3e937252eaa4ab130578c0fa57418f5b56b9eab24d08bb28c21fcb7669b88e8e6ab133f5286e7ccdfbddde92226184f1d77e64e5e0a0f5a87603c37dc92b4f2
   languageName: node
   linkType: hard
 
@@ -13417,13 +13403,6 @@ __metadata:
   version: 25.2.6
   resolution: "diff-sequences@npm:25.2.6"
   checksum: 3/332484fc00f6beca726d8dbc13095f6006527002bef936a07b4e6bbec681fbaac484e1a7ea4e9ab0d53e375d1cde9e642c8cce31dfe6329cfdf8f01f26b17505
-  languageName: node
-  linkType: hard
-
-"diff@npm:3.3.1":
-  version: 3.3.1
-  resolution: "diff@npm:3.3.1"
-  checksum: 3/8f293e2dfcb01a5c2e83dc017b84e638a897a54c3b5efb856b46986be0b48d25f1bd65be6f51c9bb6e14ead512880fbd1388fb5a550bb3eae24d604b3c113d57
   languageName: node
   linkType: hard
 
@@ -16803,7 +16782,7 @@ fsevents@^1.2.7:
     fxa-jwtool: 0.7.2
     fxa-shared: "workspace:*"
     ip: 1.1.5
-    mocha: ^6.2.2
+    mocha: ^7.1.2
     mozlog: 2.2.0
     mysql: ^2.17.1
     mysql-patcher: 0.7.0
@@ -16895,7 +16874,7 @@ fsevents@^1.2.7:
     mailparser: 0.6.1
     memcached: 2.2.2
     mkdirp: 0.5.1
-    mocha: 5.2.0
+    mocha: ^7.1.2
     moment: ^2.24.0
     moment-timezone: 0.5.11
     mozlog: 2.2.0
@@ -17047,7 +17026,7 @@ fsevents@^1.2.7:
     load-grunt-tasks: ^5.1.0
     lodash: 4.17.13
     mkdirp: 0.5.1
-    mocha: 4.0.1
+    mocha: ^7.1.2
     morgan: 1.9.1
     mozlog: 2.2.0
     mustache: 2.3.0
@@ -17176,7 +17155,7 @@ fsevents@^1.2.7:
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.1
     fxa-shared: "workspace:*"
-    mocha: ^7.1.1
+    mocha: ^7.1.2
     prettier: ^2.0.5
     proxyquire: ^2.1.0
     qs: ^6.9.3
@@ -17249,7 +17228,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     maxmind: 2.8.0
     mkdirp: 0.5.1
-    mocha: 5.1.1
+    mocha: ^7.1.2
     mozlog: 2.2.0
     nyc: ^14.1.1
     prettier: ^2.0.5
@@ -17372,7 +17351,7 @@ fsevents@^1.2.7:
     eslint: ^6.8.0
     fxa-shared: "workspace:*"
     json-schema-to-typescript: ^8.2.0
-    mocha: ^7.1.1
+    mocha: ^7.1.2
     mozlog: ^2.2.0
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
@@ -17548,7 +17527,7 @@ fsevents@^1.2.7:
     insist: 1.0.1
     lodash: ~4.17.15
     mkdirp: 0.5.1
-    mocha: 4.0.1
+    mocha: ^7.1.2
     mocha-text-cov: 0.1.1
     mozlog: 2.2.0
     mysql: 2.16.0
@@ -17710,7 +17689,7 @@ fsevents@^1.2.7:
     fxa-conventional-changelog: 1.1.0
     fxa-shared: "workspace:*"
     handlebars: ^4.5.2
-    mocha: ^6.2.2
+    mocha: ^7.1.2
     mozlog: 2.2.0
     nock: ^11.7.0
     nodemon: ^1.19.4
@@ -18033,20 +18012,6 @@ fsevents@^1.2.7:
   version: 0.4.1
   resolution: "glob-to-regexp@npm:0.4.1"
   checksum: 3/6093c15d9f92d010998dd7cc7a5ba4e74eea83878d3f8c2616c6935dab9a79bf31ca7ddc214604b84a87c65b9e51481221e325be68f5fe6db8ed27dc76a5230f
-  languageName: node
-  linkType: hard
-
-"glob@npm:7.1.2":
-  version: 7.1.2
-  resolution: "glob@npm:7.1.2"
-  dependencies:
-    fs.realpath: ^1.0.0
-    inflight: ^1.0.4
-    inherits: 2
-    minimatch: ^3.0.4
-    once: ^1.3.0
-    path-is-absolute: ^1.0.0
-  checksum: 3/eeb466da847c75811d6ba5ceb0e1fd857dbecfdef647eba8e71c4047b1882bf2d9b4def072382fa328283b3afb802de64ab240e9a169c1fede3aec53906520bc
   languageName: node
   linkType: hard
 
@@ -18548,13 +18513,6 @@ fsevents@^1.2.7:
   dependencies:
     iterall: ^1.2.2
   checksum: 3/24cab2758cea2ce592c59af28cac0fc80d2f2eac2f2441ce0152ce3c5a3a2416394aadf71b2d8db58f46c44ca3d20747eb168f58502f6eadafab0f11dea13791
-  languageName: node
-  linkType: hard
-
-"growl@npm:1.10.3":
-  version: 1.10.3
-  resolution: "growl@npm:1.10.3"
-  checksum: 3/f731b6ea4684c25892b2c8ed683a837502904f2b0baf447d3e3dd6e4da65429fbda40cb74ca28bc118d7c95cf057530de52bab51871aebd493b4a8ca6da75240
   languageName: node
   linkType: hard
 
@@ -19126,13 +19084,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"has-flag@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "has-flag@npm:2.0.0"
-  checksum: 3/bdc20630dfa70841dc00ab80d673a6801c685f4a3609f79c52c6755cc9aff950ceb39789ee63210e8a45e959f26c4496b0c9a9509b3d7017512743b8f1e741b4
-  languageName: node
-  linkType: hard
-
 "has-flag@npm:^3.0.0":
   version: 3.0.0
   resolution: "has-flag@npm:3.0.0"
@@ -19306,15 +19257,6 @@ fsevents@^1.2.7:
     hoek: 4.x.x
     sntp: 2.x.x
   checksum: 3/734a32369e741139009cbac83846a12641fb784760b2a445deb092676872056c36d3f934510653a009ea3ec64c2d15e456e9fecf38575a135dba498b7b5aafca
-  languageName: node
-  linkType: hard
-
-"he@npm:1.1.1":
-  version: 1.1.1
-  resolution: "he@npm:1.1.1"
-  bin:
-    he: bin/he
-  checksum: 3/b2b167171cf3eeec7db1c016fc650bc588771841b51f0d04538e700412932a1dc710d150bc629acab25b0ecc6ecf6646014dbf10160782b089651b984a3125fc
   languageName: node
   linkType: hard
 
@@ -24474,21 +24416,21 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:2.2.0, log-symbols@npm:^2.0.0, log-symbols@npm:^2.1.0, log-symbols@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "log-symbols@npm:2.2.0"
-  dependencies:
-    chalk: ^2.0.1
-  checksum: 3/e2dfd255f3e3080134055597fb67bd67798d65383488683ed90f0376f7264dd21028f30d4c3a0686251dcfc4dc71172e8061cef21e89c6deabb8b375450d5166
-  languageName: node
-  linkType: hard
-
 "log-symbols@npm:3.0.0, log-symbols@npm:^3.0.0":
   version: 3.0.0
   resolution: "log-symbols@npm:3.0.0"
   dependencies:
     chalk: ^2.4.2
   checksum: 3/bfa7cceaea16d7e378b4f6a16e22c5c78bc4250350a84d653766927bdf27e5b94015f616e193bc275e80d13f882867ddf224a3c6c152e24289ed5e58d84d306e
+  languageName: node
+  linkType: hard
+
+"log-symbols@npm:^2.0.0, log-symbols@npm:^2.1.0, log-symbols@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "log-symbols@npm:2.2.0"
+  dependencies:
+    chalk: ^2.0.1
+  checksum: 3/e2dfd255f3e3080134055597fb67bd67798d65383488683ed90f0376f7264dd21028f30d4c3a0686251dcfc4dc71172e8061cef21e89c6deabb8b375450d5166
   languageName: node
   linkType: hard
 
@@ -25479,17 +25421,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:0.5.4":
-  version: 0.5.4
-  resolution: "mkdirp@npm:0.5.4"
-  dependencies:
-    minimist: ^1.2.5
-  bin:
-    mkdirp: bin/cmd.js
-  checksum: 3/914b8b8b1c34128c06ddd41a1d33f1515f0dde80ba233e321385eedcd4cc71bc4a4b66c19c7fde708c3e7f22969403b371b81663761cff8b01a9a72c2b7bdd12
-  languageName: node
-  linkType: hard
-
 "mkdirp@npm:0.5.5, mkdirp@npm:>=0.5 0, mkdirp@npm:^0.5.3":
   version: 0.5.5
   resolution: "mkdirp@npm:0.5.5"
@@ -25514,105 +25445,6 @@ fsevents@^1.2.7:
   version: 0.1.1
   resolution: "mocha-text-cov@npm:0.1.1"
   checksum: 3/f204e153b579c3b56f5d881d49ccea553789d0d86fd1553f927573a3c919b3ee066bef25d1ed637631ae3a1b93532c406da08b678c44f680d5d2cd803e083b08
-  languageName: node
-  linkType: hard
-
-"mocha@npm:4.0.1":
-  version: 4.0.1
-  resolution: "mocha@npm:4.0.1"
-  dependencies:
-    browser-stdout: 1.3.0
-    commander: 2.11.0
-    debug: 3.1.0
-    diff: 3.3.1
-    escape-string-regexp: 1.0.5
-    glob: 7.1.2
-    growl: 1.10.3
-    he: 1.1.1
-    mkdirp: 0.5.1
-    supports-color: 4.4.0
-  bin:
-    _mocha: ./bin/_mocha
-    mocha: ./bin/mocha
-  checksum: 3/e78db4bc97ea5e4d1365ab6f798a68c474509b5358bef1d462bd550c1ee0cb2ea6906f9acb17c26d4d44604016ce0d696d843450e70c2dc0eb2fc75721db35f3
-  languageName: node
-  linkType: hard
-
-"mocha@npm:5.1.1":
-  version: 5.1.1
-  resolution: "mocha@npm:5.1.1"
-  dependencies:
-    browser-stdout: 1.3.1
-    commander: 2.11.0
-    debug: 3.1.0
-    diff: 3.5.0
-    escape-string-regexp: 1.0.5
-    glob: 7.1.2
-    growl: 1.10.3
-    he: 1.1.1
-    minimatch: 3.0.4
-    mkdirp: 0.5.1
-    supports-color: 4.4.0
-  bin:
-    _mocha: ./bin/_mocha
-    mocha: ./bin/mocha
-  checksum: 3/9a63aeeb97da8b03ec1b7154cb535791b7227daaee5095eba8ff57571d371a65caaa852e0c16e62c5b97b278557056eaaa8eac010fcfcc6075f537cf7a456d54
-  languageName: node
-  linkType: hard
-
-"mocha@npm:5.2.0":
-  version: 5.2.0
-  resolution: "mocha@npm:5.2.0"
-  dependencies:
-    browser-stdout: 1.3.1
-    commander: 2.15.1
-    debug: 3.1.0
-    diff: 3.5.0
-    escape-string-regexp: 1.0.5
-    glob: 7.1.2
-    growl: 1.10.5
-    he: 1.1.1
-    minimatch: 3.0.4
-    mkdirp: 0.5.1
-    supports-color: 5.4.0
-  bin:
-    _mocha: ./bin/_mocha
-    mocha: ./bin/mocha
-  checksum: 3/d00416391e21cc6906781634a6128c544449eadc1b0a9dfbcde19c7e87e732da23dd9b09ed79dfc3b0ca830da3e865100437a1bd4eb63ae669c713902c266d5c
-  languageName: node
-  linkType: hard
-
-"mocha@npm:^6.2.2":
-  version: 6.2.3
-  resolution: "mocha@npm:6.2.3"
-  dependencies:
-    ansi-colors: 3.2.3
-    browser-stdout: 1.3.1
-    debug: 3.2.6
-    diff: 3.5.0
-    escape-string-regexp: 1.0.5
-    find-up: 3.0.0
-    glob: 7.1.3
-    growl: 1.10.5
-    he: 1.2.0
-    js-yaml: 3.13.1
-    log-symbols: 2.2.0
-    minimatch: 3.0.4
-    mkdirp: 0.5.4
-    ms: 2.1.1
-    node-environment-flags: 1.0.5
-    object.assign: 4.1.0
-    strip-json-comments: 2.0.1
-    supports-color: 6.0.0
-    which: 1.3.1
-    wide-align: 1.1.3
-    yargs: 13.3.2
-    yargs-parser: 13.1.2
-    yargs-unparser: 1.6.0
-  bin:
-    _mocha: bin/_mocha
-    mocha: bin/mocha
-  checksum: 3/5cae051154b4693a0d416bae6a697efe414fa7d7517344eb447b0435b6bf8feca4774b56b80e596e3fd58833088289ca49c635d145cf48a9610f2e2217852605
   languageName: node
   linkType: hard
 
@@ -26197,16 +26029,6 @@ fsevents@^1.2.7:
   dependencies:
     lodash.toarray: ^4.4.0
   checksum: 3/9c73cd0af03965131225c388339ec5cb3b7239f9d63f15c7755540d265b20a4ecac855fd270af216fb14cdf8232ec4687ab5a52b4b475a681ee1bd74f7562ced
-  languageName: node
-  linkType: hard
-
-"node-environment-flags@npm:1.0.5":
-  version: 1.0.5
-  resolution: "node-environment-flags@npm:1.0.5"
-  dependencies:
-    object.getownpropertydescriptors: ^2.0.3
-    semver: ^5.7.0
-  checksum: 3/33d3ca3d95ef18f281675c6c1d763e0caf13b2734e84cf4ab69524b5197221fb1e9c9e4874e2d864f699eaf0aabef30a3fa87d73cd350d4639f193b0f68b4558
   languageName: node
   linkType: hard
 
@@ -35148,24 +34970,6 @@ resolve@~1.8.1:
     methods: ^1.1.2
     superagent: ^3.8.3
   checksum: 3/de8c87f0e0db94c50948cb7c3c2a103b6337790602003edd4a9f3b43573270981bb339f8fe71a292e67a93dcac65e5e77c4198bdc6a5ed946a95dbe6b1582cd0
-  languageName: node
-  linkType: hard
-
-"supports-color@npm:4.4.0":
-  version: 4.4.0
-  resolution: "supports-color@npm:4.4.0"
-  dependencies:
-    has-flag: ^2.0.0
-  checksum: 3/72b8b3a4af443ff81bfe0fc9a278f83e31bcd7e2b57d2af89f3200d7d03847d0cf74fd9688731efd92a3078831cb1190bb3aa8fe5f512a83711100eb2d8218d7
-  languageName: node
-  linkType: hard
-
-"supports-color@npm:5.4.0":
-  version: 5.4.0
-  resolution: "supports-color@npm:5.4.0"
-  dependencies:
-    has-flag: ^3.0.0
-  checksum: 3/4ca1281927b0f7fe9a95dae1249deb805d156cd13dd38234f2d0f80682aa6337b5cbd0fb2c16703e02efb149c2ff6f0587a912850f5156b32e6f53e6051c8ad5
   languageName: node
   linkType: hard
 
