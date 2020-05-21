@@ -5,12 +5,14 @@ DIR=$(dirname "$0")
 cd "$DIR/.."
 
 # npm install just enough to run these scripts
-npm ci --ignore-scripts --no-optional --only=prod
+npm i --ignore-scripts --no-optional --only=prod --no-package-lock
 node .circleci/modules-to-test.js | tee packages/test.list
 ./.circleci/assert-branch.sh
 ./_scripts/create-version-json.sh
 
+sudo apt-get install -y graphicsmagick
+
 # only run a full npm install if required
-if [[ "$MODULE" == "all" ]] || grep -e "$MODULE" -e 'all' packages/test.list > /dev/null; then
-  npm ci
+if [[ "$MODULE" == "all" ]]; then
+  yarn install --immutable
 fi

@@ -7,7 +7,7 @@ module.exports = {
     {
       name: 'support',
       cwd: __dirname,
-      script: 'ts-node bin/worker.ts',
+      script: 'node -r ts-node/register bin/worker.ts',
       max_restarts: '1',
       min_uptime: '2m',
       env: {
@@ -18,6 +18,7 @@ module.exports = {
         TS_NODE_FILES: 'true',
         PORT: '7100',
       },
+      filter_env: ['npm_'],
       watch: ['bin', 'config', 'lib'],
     },
   ],

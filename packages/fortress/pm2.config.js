@@ -14,6 +14,7 @@ module.exports = {
         NODE_ENV: 'dev',
         PORT: '9292',
       },
+      filter_env: ['npm_'],
       min_uptime: '2m',
     },
   ],

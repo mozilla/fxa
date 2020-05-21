@@ -6,7 +6,6 @@ import 'jsdom-global/register';
 import { assert } from 'chai';
 import * as Sentry from '@sentry/browser';
 import sentryMetrics from '../../lib/sentry';
-// tslint:disable-next-line: no-var-requires
 const sinon = require('sinon');
 
 const dsn = 'https://public:private@host:port/1';

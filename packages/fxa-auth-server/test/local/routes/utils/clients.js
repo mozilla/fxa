@@ -7,7 +7,7 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../../mocks');
-const moment = require('../../../../../fxa-shared/node_modules/moment');
+const moment = require('moment');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 

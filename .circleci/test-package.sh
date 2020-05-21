@@ -12,7 +12,7 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
     time ./scripts/test-ci.sh
   else
     # default action
-    time (npm ci && npm test)
+    time (yarn workspaces focus "$MODULE" && yarn test)
   fi
 else
   echo -e "\n###################################"

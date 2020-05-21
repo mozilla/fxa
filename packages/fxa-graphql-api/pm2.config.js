@@ -5,8 +5,8 @@
 module.exports = {
   apps: [
     {
-      name: 'graphql-api-server',
-      script: 'ts-node src/bin/main.ts',
+      name: 'gql-api',
+      script: 'node -r ts-node/register src/bin/main.ts',
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',
@@ -15,9 +15,10 @@ module.exports = {
         NODE_OPTIONS: '--inspect=9200',
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_FILES: 'true',
-        PORT: '8290', // TODO: this needs to get added to src/config.ts
+        PORT: '8290' // TODO: this needs to get added to src/config.ts
       },
-      watch: ['src'],
-    },
-  ],
+      filter_env: ['npm_'],
+      watch: ['src']
+    }
+  ]
 };

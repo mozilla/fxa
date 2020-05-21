@@ -7,7 +7,30 @@ for d in ./packages/*/ ; do
   (cd "$d" && mkdir -p config && cp ../version.json . && cp ../version.json config)
 done
 
-npm i lerna
-npx lerna bootstrap --hoist pm2
-npx lerna run --stream build
-npx lerna exec --stream --concurrency 2 --no-bail -- npm prune --production
+# `npx yarn` because `npm i -g yarn` needs sudo
+npx yarn install
+SKIP_PREFLIGHT_CHECK=true npx yarn workspaces foreach --topological run build
+rm -rf node_modules
+rm -rf packages/*/node_modules
+npx yarn workspaces focus --production \
+  123done \
+  browserid-verifier \
+  fxa-admin-panel \
+  fxa-admin-server \
+  fxa-auth-db-mysql \
+  fxa-auth-server \
+  fxa-content-server \
+  fxa-customs-server \
+  fxa-event-broker \
+  fxa-geodb \
+  fxa-graphql-api \
+  fxa-js-client \
+  fxa-metrics-processor \
+  fxa-payments-server \
+  fxa-profile-server \
+  fxa-react \
+  fxa-settings \
+  fxa-shared \
+  fxa-support-panel
+npx yarn cache clean --all
+rm -rf artifacts

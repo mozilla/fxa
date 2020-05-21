@@ -16,8 +16,7 @@ npx ts-node ./scripts/gen_keys.js
 npx ts-node ./scripts/gen_vapid_keys.js
 npx ts-node ./scripts/oauth_gen_keys.js
 node ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
-npm run lint:eslint
-grunt copyright
+npm run lint
 
 GLOB=$*
 if [ -z "$GLOB" ]; then

@@ -6,12 +6,10 @@
     "test": "test"
   },
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc",
-    "lint": "npm-run-all --parallel lint:*",
-    "lint:tslint": "./node_modules/tslint/bin/tslint -p .",
+    "build": "tsc",
+    "lint": "eslint *",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
-    "shrink": "npmshrink && npm run postinstall",
+    "test": "mocha -r ts-node/register test/**/*.spec.ts test/**/**/*.spec.ts",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js"
@@ -31,6 +29,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@hapi/hapi": "^18.4.1",
+    "@hapi/joi": "^15.0.1",
     "@hapi/scooter": "^6.0.0",
     "blankie": "^4.1.1",
     "convict": "^5.2.0",
@@ -45,26 +44,25 @@
   "devDependencies": {
     "@types/bluebird": "^3.5.28",
     "@types/convict": "^4.2.1",
+    "@types/eslint": "6.8.1",
     "@types/hapi__hapi": "^18.2.6",
+    "@types/hapi__joi": "15.0.1",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.7",
     "@types/request-promise-native": "^1.0.17",
     "audit-filter": "^0.5.0",
     "chai": "^4.2.0",
+    "eslint": "^6.8.0",
     "fxa-conventional-changelog": "1.1.0",
-    "mocha": "^6.2.2",
+    "fxa-shared": "workspace:*",
+    "mocha": "^7.1.2",
     "nock": "^11.7.0",
     "nodemon": "^1.19.4",
-    "npm-run-all": "^4.1.5",
-    "npmshrink": "2.0.0",
-    "pm2": "^4.2.3",
-    "prettier": "^1.19.1",
+    "pm2": "^4.4.0",
+    "prettier": "^2.0.5",
     "sinon": "^7.5.0",
-    "ts-node": "^8.4.1",
+    "ts-node": "^8.10.1",
     "ts-sinon": "^1.0.24",
-    "tslint": "^5.20.1",
-    "tslint-config-prettier": "^1.18.0",
-    "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.7.2"
+    "typescript": "3.8.3"
   }
 }

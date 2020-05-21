@@ -4,7 +4,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-npm run lint:eslint || exit 1
-node_modules/.bin/grunt copyright || exit 1
+npm run lint || exit 1
 
 tap test/local test/remote --coverage-report=lcov

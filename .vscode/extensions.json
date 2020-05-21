@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "ms-vscode.vscode-typescript-tslint-plugin",
     "rbbit.typescript-hero",
     "waderyan.nodejs-extension-pack",
     "esbenp.prettier-vscode",

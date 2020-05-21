@@ -28,7 +28,7 @@ describe('the signing-key management scripts', function() {
       return execFileSync(
         process.execPath,
         [
-          path.join(base, '../node_modules/.bin/ts-node'),
+          require.resolve('ts-node').replace('index.js', 'bin.js'),
           '-P',
           path.join(base, '../tsconfig.json'),
           path.join(base, name),

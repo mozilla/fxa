@@ -6,7 +6,7 @@ module.exports = {
   apps: [
     {
       name: 'auth',
-      script: 'ts-node bin/key_server.js',
+      script: 'node -r ts-node/register bin/key_server.js',
       cwd: __dirname,
       env: {
         DB: 'mysql',
@@ -20,18 +20,20 @@ module.exports = {
         CONFIG_FILES: 'config/secrets.json',
         PORT: '9000',
       },
+      filter_env: ['npm_'],
       watch: ['bin', 'config', 'lib'],
       max_restarts: '1',
       min_uptime: '2m',
     },
     {
       name: 'inbox',
-      script: 'ts-node test/mail_helper.js',
+      script: 'node -r ts-node/register test/mail_helper.js',
       cwd: __dirname,
       env: {
         NODE_ENV: 'dev',
         MAILER_PORT: '9001',
       },
+      filter_env: ['npm_'],
       max_restarts: '1',
       min_uptime: '2m',
     },

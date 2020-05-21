@@ -6,7 +6,7 @@ module.exports = {
   apps: [
     {
       name: 'admin-server',
-      script: 'ts-node src/bin/main.ts',
+      script: 'node -r ts-node/register src/bin/main.ts',
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',
@@ -17,6 +17,7 @@ module.exports = {
         TS_NODE_FILES: 'true',
         PORT: '8090' // TODO: this needs to get added to src/config.ts
       },
+      filter_env: ['npm_'],
       watch: ['src']
     }
   ]

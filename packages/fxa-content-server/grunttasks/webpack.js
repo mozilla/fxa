@@ -4,14 +4,12 @@
 
 'use strict';
 
-const path = require('path');
-
 module.exports = function(grunt) {
   grunt.registerTask('webpack', 'Run webpack build', function() {
     var done = this.async();
     var child = grunt.util.spawn(
       {
-        cmd: path.resolve(__dirname, '..', 'node_modules', '.bin', 'webpack'),
+        cmd: 'webpack',
       },
       done
     );

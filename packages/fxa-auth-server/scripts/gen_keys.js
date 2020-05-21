@@ -66,7 +66,9 @@ function addKeyProperties(key) {
 console.log('Generating keypair');
 
 cp.exec(
-  'openssl genrsa 2048 | ../node_modules/pem-jwk/bin/pem-jwk.js',
+  `openssl genrsa 2048 | ${require
+    .resolve('pem-jwk')
+    .replace('index.js', 'bin/pem-jwk.js')}`,
   {
     cwd: __dirname,
   },

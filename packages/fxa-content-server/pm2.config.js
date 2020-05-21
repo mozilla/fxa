@@ -13,6 +13,7 @@ module.exports = {
         CONFIG_FILES: 'server/config/local.json',
         PORT: 3030,
       },
+      filter_env: ['npm_'],
       watch: ['server'],
       max_restarts: '1',
       min_uptime: '2m',

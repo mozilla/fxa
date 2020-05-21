@@ -7,9 +7,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "bin/fxa-dev-launcher"
   },
-  "bin": {
-    "fxa-dev-launcher": "./bin/fxa-dev-launcher"
-  },
+  "bin": "./bin/fxa-dev-launcher",
   "repository": {
     "type": "git",
     "url": "https://github.com/vladikoff/fxa-dev-launcher"

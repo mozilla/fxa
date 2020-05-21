@@ -13,20 +13,17 @@
     "@types/react-dom": "^16.9.6",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.1",
-    "typescript": "^3.7.5"
+    "react-scripts": "^3.4.1",
+    "typescript": "3.8.3"
   },
   "scripts": {
-    "prestart": "npm run build-postcss",
-    "start": "pm2 start pm2.config.js",
-    "prerestart": "npm run build-postcss",
-    "restart": "pm2 restart pm2.config.js",
+    "start": "npm run build-postcss && pm2 start pm2.config.js",
+    "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
-    "prebuild": "NODE_ENV=production npm run build-postcss",
-    "build": "INLINE_RUNTIME_CHUNK=false rescripts build",
+    "build": "NODE_ENV=production npm run build-postcss && INLINE_RUNTIME_CHUNK=false rescripts build",
     "test": "rescripts test",
     "eject": "react-scripts eject",
-    "lint": "npm-run-all --parallel lint:*",
+    "lint": "npm-run-all --parallel lint:eslint lint:sass",
     "lint:eslint": "eslint .",
     "lint:sass": "sass-lint -v",
     "storybook": "start-storybook -p 6008",
@@ -49,6 +46,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/core": "^7.0.1",
     "@rescripts/cli": "0.0.14",
     "@sentry/browser": "^5.15.5",
     "@storybook/addon-actions": "^5.3.18",
@@ -56,14 +54,21 @@
     "@storybook/addons": "^5.3.18",
     "@storybook/preset-create-react-app": "^2.1.1",
     "@storybook/react": "^5.3.18",
+    "@testing-library/dom": "^7.2.2",
+    "@types/babel__core": "7.1.7",
+    "@types/webpack": "4.41.13",
+    "babel-loader": "^8.0.0",
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^23.8.2",
     "eslint-plugin-react": "^7.19.0",
+    "fxa-shared": "workspace:*",
     "node-sass": "^4.14.0",
-    "pm2": "^4.2.3",
+    "npm-run-all": "^4.1.5",
+    "pm2": "^4.4.0",
     "postcss-cli": "^7.1.1",
     "sass-lint": "^1.13.1",
-    "tailwindcss": "^1.4.6"
+    "tailwindcss": "^1.4.6",
+    "webpack": "^4.43.0"
   }
 }

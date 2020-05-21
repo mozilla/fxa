@@ -3,7 +3,6 @@
 DIR=$(dirname "$0")
 
 cd "$DIR/.."
-npm ci
 npm run build
 
 if [ -n "${CIRCLE_TAG}" ]; then

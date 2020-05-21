@@ -2,12 +2,7 @@
 
 DIR=$(dirname "$0")
 
-sudo apt-get install -y graphicsmagick
-
-cd $DIR/../../fxa-shared
-npm ci
-
-cd ../fxa-profile-server
-cp ../version.json config
-npm ci
-npm test
+cp "$DIR/../../version.json" "$DIR/../config"
+yarn workspaces focus fxa-profile-server
+yarn workspace fxa-shared run build
+yarn test

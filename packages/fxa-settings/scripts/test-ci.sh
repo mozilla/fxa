@@ -1,15 +1,5 @@
 #!/bin/bash -ex
 
-DIR=$(dirname "$0")
-
-cd "$DIR/../../../"
-
-npx lerna bootstrap \
-  --scope fxa-shared \
-  --scope fxa-react \
-  --scope fxa-settings
-
-cd packages/fxa-settings
-
-PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false npm run build
-CI=yes npm test
+yarn workspaces focus fxa-settings
+PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false SKIP_PREFLIGHT_CHECK=true yarn build
+CI=yes SKIP_PREFLIGHT_CHECK=true yarn test

@@ -16,12 +16,7 @@ module.exports = function(grunt) {
   // load local Grunt tasks
   grunt.loadTasks('tasks');
 
-  grunt.registerTask('build', 'Build client', [
-    'clean',
-    'lint',
-    'webpack:app',
-    'bytesize',
-  ]);
+  grunt.registerTask('build', 'Build client', ['clean', 'lint', 'webpack:app']);
 
   grunt.registerTask('lint', 'Alias for eslint', ['eslint']);
 

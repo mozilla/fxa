@@ -18,4 +18,3 @@ fi
 DEFAULT_ARGS="-R spec --timeout 20000 --recursive"
 
 ./scripts/mocha-coverage.js $DEFAULT_ARGS $GLOB
-grunt lint copyright

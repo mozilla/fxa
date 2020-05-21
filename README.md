@@ -37,9 +37,11 @@ The Firefox Accounts (fxa) monorepo
 
    ```sh
    cd fxa
-   npm install
+   yarn install
    npm start
    ```
+
+Note: If `yarn install` fails, ensure your `yarn -v` is at least `1.22.0`.
 
 Note this starts up all required services, including Redis, MySQL, and Memcached. It is recommended that you don't run these services yourself, or occupy any of the [server ports](https://github.com/mozilla/fxa/blob/master/mysql_servers.json). Doing so may result in errors.
 
@@ -94,6 +96,18 @@ When you signup for an account using the form on `localhost:3030/signup` the "in
 
 If you get an `error` status for any of the servers please verify that you installed all required dependencies. Otherwise file an issue on this repository or [connect with the team on Firefox Accounts Riot](https://chat.mozilla.org/#/room/#fxa:mozilla.org).
 
+### Managing dependencies
+
+Use `yarn` to add dependencies. To add a dependency to a single package, which is what you'll usually want, run something like:
+
+```sh
+yarn workspace fxa-shared add --dev eslint
+```
+
+For multiple packages use [workspaces foreach](https://yarnpkg.com/cli/workspaces/foreach).
+
+To update dependencies use [yarn up](https://yarnpkg.com/cli/up) or `yarn workspace <name> up`.
+
 ---
 
 ---
@@ -111,7 +125,7 @@ If you get an `error` status for any of the servers please verify that you insta
 > [libgmp](https://gmplib.org/),
 > [graphicsmagick](http://www.graphicsmagick.org/),
 > [docker](https://docs.docker.com/),
-> [gcloud CLI](https://cloud.google.com/sdk/)
+> [gcloud CLI](https://cloud.google.com/sdk/) > [Yarn 2](https://yarnpkg.com)
 
 ##### OS X (with [Brew](http://brew.sh/)):
 

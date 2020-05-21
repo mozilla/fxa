@@ -22,8 +22,8 @@ package directories.
 Packages are tested with `./test-package.sh`. The default action is to run:
 
 ```sh
-npm ci
-npm test
+yarn install
+yarn test
 ```
 
 Packages may define a `scripts/test-ci.sh` as a custom test script.

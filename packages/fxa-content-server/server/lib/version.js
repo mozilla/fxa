@@ -89,26 +89,9 @@ function getL10nVersion() {
 
 function getTosPpVersion() {
   try {
-    const pkgPath = '../../node_modules/legal-docs/package.json';
-    const pkgInfo = require(pkgPath);
-    let gitHead = undefined;
-    // npm < 5.8 has the git hash in `gitHead`
-    if (pkgInfo && pkgInfo.gitHead) {
-      gitHead = pkgInfo.gitHead;
-    }
-
-    // npm >= 5.8 has the git hash in `_resolved`
-    if (!gitHead && pkgInfo && pkgInfo._resolved) {
-      gitHead = pkgInfo._resolved.split('#')[1];
-    }
-
-    if (!gitHead) {
-      gitHead = require('../../package-lock.json').dependencies[
-        'legal-docs'
-      ].version.split('#')[1];
-    }
-
-    return gitHead;
+    return require('../../package.json').dependencies['legal-docs'].split(
+      '#'
+    )[1];
   } catch (e) {
     return UNKNOWN;
   }

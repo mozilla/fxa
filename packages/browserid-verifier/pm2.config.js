@@ -13,6 +13,7 @@ module.exports = {
         IP_ADDRESS: '0.0.0.0',
         FORCE_INSECURE_LOOKUP_OVER_HTTP: 'true',
       },
+      filter_env: ['npm_'],
       max_restarts: '1',
       min_uptime: '2m',
     },

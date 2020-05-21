@@ -15,6 +15,7 @@ module.exports = {
         DB: 'mysql',
         PORT: '1111',
       },
+      filter_env: ['npm_'],
       min_uptime: '2m',
     },
     {
@@ -27,6 +28,7 @@ module.exports = {
         HOST: '0.0.0.0',
         DB: 'mysql',
       },
+      filter_env: ['npm_'],
       min_uptime: '2m',
     },
     {
@@ -39,6 +41,7 @@ module.exports = {
         HOST: '0.0.0.0',
         DB: 'mysql',
       },
+      filter_env: ['npm_'],
       min_uptime: '2m',
     },
   ],
