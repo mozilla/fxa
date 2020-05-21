@@ -14,7 +14,8 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types", "../fxa-shared/types"]
+    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types", "../fxa-shared/types"],
+    "types": ["accept-language", "mocha", "mozlog", "node"]
   },
   "include": [
     "bin/*",
