@@ -17,7 +17,7 @@
     "test:server": "jest --coverage --verbose --config server/jest.config.js",
     "format": "prettier '**' --write",
     "storybook": "start-storybook -s ./public -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook && cp -r public/locales public/images storybook-static/"
   },
   "repository": {
     "type": "git",
