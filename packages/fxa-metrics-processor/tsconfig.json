@@ -15,7 +15,8 @@
     "forceConsistentCasingInFileNames": true,
     "noEmitHelpers": true,
     "importHelpers": true,
-    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types"]
+    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types"],
+    "types": ["mocha", "mozlog", "node"]
   },
   "include": ["./src"],
   "exclude": ["node_modules"]
