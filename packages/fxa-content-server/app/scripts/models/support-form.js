@@ -13,7 +13,6 @@ const TOPICS = [
   'Payment & billing',
   'Account issues',
   'Technical issues',
-  'Getting started',
   'Provide feedback / request features',
   'Not listed',
 ];
@@ -23,7 +22,6 @@ const TRANSLATED_TOPICS = [
   t('Payment & billing'),
   t('Account issues'),
   t('Technical issues'),
-  t('Getting started'),
   t('Provide feedback / request features'),
   t('Not listed'),
 ];
