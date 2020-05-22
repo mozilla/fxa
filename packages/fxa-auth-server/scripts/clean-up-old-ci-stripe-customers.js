@@ -4,6 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const path = require('path');
 const program = require('commander');
 const pckg = require('../package.json');
 
@@ -47,8 +48,23 @@ async function init() {
     process.env.SUBHUB_STRIPE_APIKEY = program.stripeKey;
   }
 
+  if (!process.env.CONFIG_FILES) {
+    // When run in local development, we might have a Stripe API key in secrets.json
+    process.env.CONFIG_FILES = path.join(__dirname, '../config/secrets.json');
+  }
+
+  // We don't need caching here and this skips creating a Redis connection.
+  process.env.SUBHUB_PLANS_CACHE_TTL_SECONDS = 0;
+
   const config = require('../config').getProperties();
   const log = require('../lib/log')(config.log.level);
+
+  if (!config.subscriptions.stripeApiKey) {
+    // When this is run in CI for pull requests on forks, the Stripe key
+    // will be withheld. We should bail out without error in that case.
+    console.warn('Stripe API key missing, skipping customer clean up.');
+    process.exit(0);
+  }
 
   if (!/.*_test_.*/.test(config.subscriptions.stripeApiKey)) {
     console.error(
@@ -118,8 +134,8 @@ async function init() {
 }
 
 init()
-  .catch(err => {
+  .catch((err) => {
     console.error(err.message);
     process.exit(1);
   })
-  .then(result => process.exit(result));
+  .then((result) => process.exit(result));

@@ -44,6 +44,11 @@ commands:
             CIRCLE_NODE_INDEX: << parameters.index >>
             CIRCLE_NODE_TOTAL: << parameters.total >>
           command: ./.circleci/test-package.sh fxa-content-server
+      - run:
+          name: Clean up old Stripe customers from testing
+          command: |
+            cd packages/fxa-auth-server && \
+            yarn run clean-up-old-ci-stripe-customers
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
