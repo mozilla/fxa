@@ -58,7 +58,6 @@ h3.billing-title {
   @include min-width('desktop') {
     grid-template-columns: 600px 343px;
     grid-column-gap: 48px;
-
   }
 }
 
@@ -82,6 +81,10 @@ hr {
     @include input-element();
     padding-top: 14px;
 
+    &:last-child {
+      margin-bottom: 0;
+    }
+
     html[dir='ltr'] & {
       padding: 14px 0 0 $input-left-right-padding;
 
@@ -98,10 +101,6 @@ hr {
       @include respond-to('simpleSmall') {
         padding-top: 11px;
       }
-    }
-
-    &:last-child {
-      margin-bottom: 0;
     }
   }
 
@@ -151,6 +150,7 @@ hr {
     display: flex;
     flex-direction: row;
 
+    /* stylelint-disable no-descending-specificity */
     input[type='checkbox'] {
       flex: 0 0 18px;
       margin-right: 16px;
@@ -161,6 +161,7 @@ hr {
         background-image: url('images/check.svg');
       }
     }
+    /* stylelint-enable no-descending-specificity */
 
     .label-text {
       display: block;

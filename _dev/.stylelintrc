@@ -1,0 +1,28 @@
+{
+  "ignoreFiles": [
+    "../packages/fxa-content-server/**"
+  ],
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "declaration-empty-line-before": "never",
+    "selector-max-id": [
+      0,
+      {
+        "message": "Using ID selectors is discouraged",
+        "severity": "warning"
+      }
+    ],
+    "at-rule-no-unknown": [
+      true,
+      {
+        "ignoreAtRules": [
+          "function",
+          "if",
+          "each",
+          "include",
+          "mixin"
+        ]
+      }
+    ]
+  }
+}

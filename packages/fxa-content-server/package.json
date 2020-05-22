@@ -148,7 +148,6 @@
         "grunt-htmllint": "0.3.0",
         "grunt-jsonlint": "1.0.7",
         "grunt-newer": "1.2.0",
-        "grunt-sass-lint": "0.2.0",
         "grunt-todo": "0.5.0",
         "htmlparser2": "3.9.0",
         "http-proxy-middleware": "^1.0.3",
