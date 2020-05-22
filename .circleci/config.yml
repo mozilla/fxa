@@ -215,6 +215,18 @@ jobs:
       - store_artifacts:
           path: artifacts
 
+  build-and-deploy-storybooks:
+    resource_class: small
+    docker:
+      - image: circleci/node:12
+    environment:
+      SKIP_PACKAGES: true
+    steps:
+      - base-install
+      - run:
+          name: Build and deploy Storybooks
+          command: ./_scripts/build-storybooks.sh
+
 workflows:
   test_pull_request:
     jobs:
@@ -279,9 +291,21 @@ workflows:
                 - /^email-service-.*/
             tags:
               ignore: /.*/
+      - build-and-deploy-storybooks:
+          filters:
+            branches:
+              ignore: master
+            tags:
+              ignore: /.*/
   deploy_master:
     jobs:
       - deploy-packages:
+          filters:
+            branches:
+              only: master
+            tags:
+              ignore: /.*/
+      - build-and-deploy-storybooks:
           filters:
             branches:
               only: master
