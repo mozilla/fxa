@@ -15,7 +15,7 @@ const error = require('../lib/error');
 const knownIpLocation = require('./known-ip-location');
 const P = require('../lib/promise');
 const sinon = require('sinon');
-const { normalizeEmail } = require('../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 const CUSTOMS_METHOD_NAMES = [
   'check',

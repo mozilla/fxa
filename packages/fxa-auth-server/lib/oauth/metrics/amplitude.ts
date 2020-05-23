@@ -12,11 +12,7 @@
 const Sentry = require('@sentry/node');
 const { version: VERSION } = require('../../../package.json');
 
-import {
-  GROUPS,
-  initialize,
-  validate,
-} from '../../../../fxa-shared/metrics/amplitude';
+import { GROUPS, initialize, validate } from 'fxa-shared/metrics/amplitude';
 import { Logger } from 'mozlog';
 import { Scope } from '@sentry/node';
 import { conf } from '../../../config';

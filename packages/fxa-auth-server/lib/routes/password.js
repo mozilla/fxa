@@ -13,7 +13,7 @@ const isA = require('@hapi/joi');
 const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
-const { emailsMatch } = require('../../../fxa-shared/email/helpers');
+const { emailsMatch } = require('fxa-shared/email/helpers');
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 

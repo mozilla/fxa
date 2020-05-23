@@ -25,7 +25,7 @@ const {
 const error = require('../../error');
 const oauthRouteUtils = require('../utils/oauth');
 const { OAUTH_SCOPE_SESSION_TOKEN } = require('../../constants');
-const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const JWTIdToken = require('../../oauth/jwt_id_token');
 

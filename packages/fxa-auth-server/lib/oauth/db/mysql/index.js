@@ -11,7 +11,7 @@ const MysqlPatcher = require('mysql-patcher');
 
 const encrypt = require('../../encrypt');
 const P = require('../../../promise');
-const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
 const patch = require('./patch');

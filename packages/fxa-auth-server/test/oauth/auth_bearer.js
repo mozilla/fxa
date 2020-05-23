@@ -8,7 +8,7 @@ const proxyquire = require('proxyquire');
 const AppError = require('../../lib/oauth/error');
 const P = require('../../lib/promise');
 const sinon = require('sinon');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const modulePath = '../../lib/oauth/auth_bearer';
 const mockRequest = {

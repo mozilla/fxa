@@ -15,7 +15,7 @@
 const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
 
-const { GROUPS, initialize } = require('../../../fxa-shared/metrics/amplitude');
+const { GROUPS, initialize } = require('fxa-shared/metrics/amplitude');
 const { version: VERSION } = require('../../package.json');
 
 // Maps template name to email type
