@@ -4,11 +4,14 @@
 
 import { Field, ObjectType } from 'type-graphql';
 
-@ObjectType()
+@ObjectType({ description: 'Two-factor authentication configuration (TOTP).' })
 export class Totp {
-  @Field()
+  @Field({ description: 'Whether a TOTP token exists for the user.' })
   public exists!: boolean;
 
-  @Field()
+  @Field({
+    description:
+      'Whether the current session was verified with the TOTP token.',
+  })
   public verified!: boolean;
 }

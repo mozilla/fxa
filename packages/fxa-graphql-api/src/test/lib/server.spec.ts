@@ -1,25 +1,78 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import 'mocha';
 import 'reflect-metadata';
 
-import { Container } from 'typedi';
+import { AuthenticationError, ValidationError } from 'apollo-server';
 import { assert } from 'chai';
-import 'mocha';
-import sinon from 'sinon';
+import { GraphQLError } from 'graphql';
 import { Logger } from 'mozlog';
-import { AuthenticationError } from 'apollo-server';
+import proxyquire from 'proxyquire';
+import sinon, { SinonSpy } from 'sinon';
+import { stubInterface } from 'ts-sinon';
+import { Container } from 'typedi';
 
-import { createServer } from '../../lib/server';
-import { fxAccountClientToken } from '../../lib/constants';
-import { SessionTokenAuth } from '../../lib/auth';
 import Config from '../../config';
+import { SessionTokenAuth } from '../../lib/auth';
+import { fxAccountClientToken } from '../../lib/constants';
+import { createServer } from '../../lib/server';
 
 const sandbox = sinon.createSandbox();
 
 const sessionAuth = { lookupUserId: sandbox.stub() };
 
 const mockLogger = ({ info: () => {} } as unknown) as Logger;
+
+describe('formatError', () => {
+  const mockReportGraphQLError = sandbox.stub();
+  const serverModule = proxyquire('../../lib/server.ts', {
+    './sentry': { reportGraphQLError: mockReportGraphQLError },
+  });
+  const formatError = serverModule.formatError;
+  let logger: Logger;
+
+  const originalError = new Error('boom');
+  const err = new GraphQLError(
+    'Internal server error',
+    undefined,
+    undefined,
+    undefined,
+    ['resolver', 'field'],
+    originalError
+  );
+
+  beforeEach(async () => {
+    logger = stubInterface<Logger>();
+  });
+
+  afterEach(() => {
+    sandbox.reset();
+  });
+
+  it('captures an error', async () => {
+    formatError(false, logger, err);
+    sinon.assert.calledOnceWithExactly(logger.error as SinonSpy, 'graphql', {
+      error: 'boom',
+      path: 'resolver.field',
+    });
+    sinon.assert.calledOnce(mockReportGraphQLError);
+  });
+
+  it('skips error capture in debug mode', () => {
+    const result = formatError(true, logger, err);
+    assert.equal(result, err);
+    sinon.assert.notCalled(logger.error as SinonSpy);
+  });
+
+  it('changes error capture on validation bugs', () => {
+    const validationErr = new ValidationError('Bad form');
+    const result = formatError(false, logger, validationErr);
+    assert.notEqual(result, err);
+    assert.equal(result.message, 'Request error');
+    sinon.assert.notCalled(logger.error as SinonSpy);
+  });
+});
 
 describe('createServer', () => {
   describe('the default context', async () => {
@@ -36,7 +89,9 @@ describe('createServer', () => {
     });
 
     it('should throw an AuthenticationError when auth server has auth error', async () => {
-      sessionAuth.lookupUserId.rejects(new AuthenticationError('Invalid token'));
+      sessionAuth.lookupUserId.rejects(
+        new AuthenticationError('Invalid token')
+      );
       try {
         await (server as any).context({ req: { headers: {} } });
         assert.fail('Should have thrown an exception');

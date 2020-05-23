@@ -1,12 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import path from 'path';
-
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import { GraphQLError } from 'graphql';
-import { Logger } from 'mozlog';
+import path from 'path';
 
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
@@ -56,25 +54,12 @@ export function configureSentry(options?: Sentry.NodeOptions) {
  * @param debug Debug mode or not
  * @param error
  */
-export function reportGraphQLError(debug: boolean, logger: Logger, error: GraphQLError) {
-  if (debug) {
-    return error;
-  }
-
-  if (error.name === 'ValidationError') {
-    return new Error('Request error');
-  }
-
+export function reportGraphQLError(error: GraphQLError) {
   const graphPath = error.path?.join('.');
-
-  logger.error('graphql', { path: graphPath, error: error.originalError?.message });
-
-  Sentry.withScope(scope => {
+  Sentry.withScope((scope) => {
     scope.setContext('graphql', {
       path: graphPath,
     });
     Sentry.captureException(error.originalError);
   });
-
-  return new Error('Internal server error');
 }

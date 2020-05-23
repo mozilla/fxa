@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
@@ -128,20 +127,39 @@ const conf = convict({
       },
     },
   },
-  oauth: {
-    accessToken: {
-      hexLength: {
-        default: 64,
-        doc: 'Number of characters in an access token as a hex string',
-        env: 'OAUTH_ACCESS_TOKEN_LENGTH',
-        format: 'int',
+  image: {
+    maxSize: {
+      doc: 'Maximum bytes allow for uploads',
+      default: 1024 * 1024 * 1, // 1MB
+      env: 'IMG_UPLOADS_DEST_MAX_SIZE',
+    },
+    types: {
+      doc: 'A mapping of allowed mime types and their file signatures',
+      format: Object,
+      default: {
+        // see https://en.wikipedia.org/wiki/List_of_file_signatures
+        'image/jpeg': [
+          [0xff, 0xd8, 0xff, 0xdb],
+          [0xff, 0xd8, 0xff, 0xe0],
+          [0xff, 0xd8, 0xff, 0xe1],
+        ],
+        'image/png': [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]],
       },
     },
-    allowedClients: {
-      default: [],
-      doc: 'A list of OAuth client ids that are allowed to use this GraphQL api',
-      env: 'OAUTH_ALLOWED_CLIENTS',
-      format: Array,
+  },
+  oauth: {
+    clientId: {
+      default: '98e6508e88680e1a',
+      doc: 'OAuth client id to identify with to the profile-server',
+      env: 'OAUTH_CLIENT_ID',
+      format: String,
+    },
+  },
+  profileServer: {
+    url: {
+      doc: 'URL of fxa-aprofile-server',
+      env: 'PROFILE_SERVER_URL',
+      default: 'http://localhost:1111/v1',
     },
   },
   redis: {
