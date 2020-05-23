@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "esnext",
+    "jsx": "react",
+    "sourceMap": true
+  }
+}

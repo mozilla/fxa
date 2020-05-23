@@ -13,7 +13,7 @@ import { assign, find } from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import { Model } from 'backbone';
 import { PASSWORD_MIN_LENGTH } from '../../lib/constants';
-import { normalizeEmail } from '../../../../../fxa-shared/email/helpers';
+import { normalizeEmail } from 'fxa-shared/email/helpers';
 
 const BANNED_SERVICE_NAMES = [
   'addons',

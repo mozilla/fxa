@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const crypto = require('crypto');
 const P = require('bluebird');
 const util = require('../../../lib/db/util');
-const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 const zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex');
 const zeroBuffer32 = Buffer.from(

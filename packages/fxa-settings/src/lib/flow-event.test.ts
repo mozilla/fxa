@@ -1,5 +1,5 @@
 import FlowEvent from './flow-event';
-import sentryMetrics from '@fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 
 const eventGroup = 'testo';
 const eventType = 'quuz';

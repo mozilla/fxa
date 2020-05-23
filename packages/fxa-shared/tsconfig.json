@@ -1,22 +1,10 @@
 {
-  "compileOnSave": true,
+  "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist",
-    "allowJs": true,
-    "target": "es6",
-    "sourceMap": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "strict": true,
-    "typeRoots": [
-      "./types",
-      "node_modules/@types",
-      "../../node_modules/@types"
-    ],
-    "skipLibCheck": true
+    "types": ["accept-language","mocha"]
   },
   "include": ["./**/*", "./*", "./**/*.json"],
-  "exclude": ["dist", "node_modules"]
+  "exclude": ["dist","node_modules"]
 }

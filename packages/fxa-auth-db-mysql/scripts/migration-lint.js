@@ -30,7 +30,7 @@
 // Non-conformance to those assumptions is not fatal. It just means we'll
 // fail to EXPLAIN the non-conforming queries.
 
-/* eslint-disable indent, no-console */
+/* eslint-disable indent, no-console, no-useless-escape */
 
 'use strict';
 
@@ -40,7 +40,7 @@ const cp = require('child_process');
 const fs = require('fs');
 const Mysql = require('../lib/db/mysql');
 const Promise = require('../lib/promise');
-const { normalizeEmail } = require('../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 const log = {
   error: () => {},

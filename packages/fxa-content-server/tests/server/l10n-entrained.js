@@ -4,7 +4,7 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const routesHelpers = require('./helpers/routesHelpers');
-const fxaShared = require('../../../fxa-shared');
+const fxaShared = require('fxa-shared');
 const dnshook = require('./lib/dnshook');
 
 var checkHeaders = routesHelpers.checkHeaders;

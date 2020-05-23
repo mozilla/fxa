@@ -5,7 +5,7 @@
 const Hapi = require('@hapi/hapi');
 const Raven = require('raven');
 const cloneDeep = require('lodash').cloneDeep;
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 const AppError = require('../error');
 const config = require('../config').getProperties();

@@ -1,20 +1,16 @@
 {
+  "extends": "../../_dev/tsconfig.browser.json",
   "compilerOptions": {
-    "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react"
+    "outDir": "./dist",
+    "composite": true,
+    "types": ["jest", "testing-library__jest-dom"]
   },
-  "include": ["."],
-  "extends": "./tsconfig.common.json"
+  "include": [
+    "./components",
+    "./lib"
+  ],
+  "exclude": ["node_modules"],
+  "references": [
+    {"path": "../fxa-shared"}
+  ]
 }

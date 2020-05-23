@@ -1,4 +1,4 @@
-import sentryMetrics from '@fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 
 interface FlowEventParams {
   device_id?: string;

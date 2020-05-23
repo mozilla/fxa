@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { useBooleanState } from '@fxa-react/lib/hooks';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import UnitRow from '../UnitRow';
 import UnitRowWithImage from '../UnitRowWithImage';
 import Modal from '../Modal';
@@ -28,7 +28,7 @@ const MOCK_ACCOUNT_DATA = {
 
 export const Settings = () => {
   const primaryEmail =
-    MOCK_ACCOUNT_DATA.emails.find(email => email.isPrimary === true) ||
+    MOCK_ACCOUNT_DATA.emails.find((email) => email.isPrimary === true) ||
     MOCK_ACCOUNT_DATA.emails[0];
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const onSecondaryEmailConfirm = useCallback(() => {

@@ -3,7 +3,7 @@
 
 var crypto = require('crypto');
 var base64url = require('base64url');
-const { normalizeEmail } = require('../../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 function hex(len) {
   return crypto.randomBytes(len).toString('hex');

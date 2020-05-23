@@ -6,7 +6,7 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import { Localized } from '@fluent/react';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 import { useCheckboxState } from '../../lib/hooks';
-import { useBooleanState } from '@fxa-react/lib/hooks';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import {
   CustomerSubscription,
   Subscription,

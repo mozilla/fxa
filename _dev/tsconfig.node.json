@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "commonjs",
+    "incremental": true,
+    "inlineSources": true,
+    "inlineSourceMap": true
+  }
+}

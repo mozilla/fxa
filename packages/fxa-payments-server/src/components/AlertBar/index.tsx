@@ -4,7 +4,7 @@
 
 import React from 'react';
 
-import Portal from '@fxa-react/components/Portal';
+import Portal from 'fxa-react/components/Portal';
 import './index.scss';
 
 type AlertBarProps = {

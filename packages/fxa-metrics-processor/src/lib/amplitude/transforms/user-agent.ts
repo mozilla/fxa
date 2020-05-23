@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ParsedUserAgentProperties } from '../../../../../fxa-shared/metrics/user-agent';
+import { ParsedUserAgentProperties } from 'fxa-shared/metrics/user-agent';
 
 export type BrowserProps = { ua_browser: string; ua_version: string };
 export type OsProps = { os_name: string; os_version: string };

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { useClickOutsideEffect } from '@fxa-react/lib/hooks';
+import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import classNames from 'classnames';
-import Portal from '@fxa-react/components/Portal';
-import { ReactComponent as CloseIcon } from '@fxa-react/images/close.svg';
+import Portal from 'fxa-react/components/Portal';
+import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 
 type ModalProps = {
   className?: string;
