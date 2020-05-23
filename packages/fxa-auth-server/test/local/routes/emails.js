@@ -16,7 +16,7 @@ const nock = require('nock');
 const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
-const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 const CUSTOMER_1 = require('../payments/fixtures/customer1.json');
 const CUSTOMER_1_UPDATED = require('../payments/fixtures/customer1_new_email.json');
@@ -140,7 +140,7 @@ const updateZendeskPrimaryEmail = require('../../../lib/routes/emails')
 const updateStripeEmail = require('../../../lib/routes/emails')
   ._updateStripeEmail;
 
-const makeRoutes = function(options = {}, requireMocks) {
+const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
   config.verifierVersion = config.verifierVersion || 0;
   config.smtp = config.smtp || {};
@@ -165,7 +165,7 @@ const makeRoutes = function(options = {}, requireMocks) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
-    check: function() {
+    check: function () {
       return P.resolve(true);
     },
   };
@@ -369,7 +369,7 @@ describe('/recovery_email/status', () => {
       return runTest(route, mockRequest)
         .then(
           () => assert.ok(false),
-          response => {
+          (response) => {
             assert.equal(mockDB.deleteAccount.callCount, 1);
             assert.equal(
               mockDB.deleteAccount.firstCall.args[0].email,
@@ -424,7 +424,7 @@ describe('/recovery_email/status', () => {
       return runTest(route, mockRequest)
         .then(
           () => assert.ok(false),
-          response => {
+          (response) => {
             const args = log.info.firstCall.args;
             assert.equal(args[0], 'recovery_email.status.stale');
             assert.equal(args[1].email, TEST_EMAIL_INVALID);
@@ -442,7 +442,7 @@ describe('/recovery_email/status', () => {
       mockRequest.auth.credentials.emailVerified = true;
       mockRequest.auth.credentials.tokenVerified = true;
 
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.deleteAccount.callCount, 0);
         assert.deepEqual(response, {
           email: TEST_EMAIL_INVALID,
@@ -468,7 +468,7 @@ describe('/recovery_email/status', () => {
       },
     });
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(pushCalled, true);
 
       assert.deepEqual(response, {
@@ -484,7 +484,7 @@ describe('/recovery_email/status', () => {
     mockRequest.auth.credentials.emailVerified = true;
     mockRequest.auth.credentials.tokenVerified = true;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {
         email: TEST_EMAIL,
         verified: true,
@@ -499,7 +499,7 @@ describe('/recovery_email/status', () => {
     mockRequest.auth.credentials.tokenVerified = false;
     mockRequest.auth.credentials.mustVerify = true;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {
         email: TEST_EMAIL,
         verified: false,
@@ -514,7 +514,7 @@ describe('/recovery_email/status', () => {
     mockRequest.auth.credentials.tokenVerified = false;
     mockRequest.auth.credentials.mustVerify = false;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(response, {
         email: TEST_EMAIL,
         verified: true,
@@ -570,7 +570,7 @@ describe('/recovery_email/resend_code', () => {
       },
     });
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once');
       assert.equal(
         mockLog.flowEvent.args[0][0].event,
@@ -627,7 +627,7 @@ describe('/recovery_email/resend_code', () => {
       },
     });
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockMailer.sendVerifySecondaryEmail.callCount, 1);
       assert.equal(
         mockMailer.sendVerifySecondaryEmail.args[0][2].deviceId,
@@ -688,7 +688,7 @@ describe('/recovery_email/resend_code', () => {
     });
     mockLog.flowEvent.resetHistory();
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockLog.flowEvent.callCount, 1, 'log.flowEvent called once');
       assert.equal(
         mockLog.flowEvent.args[0][0].event,
@@ -756,7 +756,7 @@ describe('/recovery_email/verify_code', () => {
   const mockCustoms = mocks.mockCustoms();
   const verificationReminders = mocks.mockVerificationReminders();
   const accountRoutes = makeRoutes({
-    checkPassword: function() {
+    checkPassword: function () {
       return P.resolve(true);
     },
     config: {},
@@ -782,7 +782,7 @@ describe('/recovery_email/verify_code', () => {
 
   describe('verifyTokens rejects with INVALID_VERIFICATION_CODE', () => {
     it('without a reminder payload', () => {
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'calls verifyTokens');
         assert.equal(mockDB.verifyEmail.callCount, 1, 'calls verifyEmail');
         assert.equal(mockCustoms.check.callCount, 1, 'calls customs.check');
@@ -906,7 +906,7 @@ describe('/recovery_email/verify_code', () => {
 
     it('with newsletters', () => {
       mockRequest.payload.newsletters = ['test-pilot', 'firefox-pilot'];
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockLog.notifyAttachedServices.callCount,
           1,
@@ -942,7 +942,7 @@ describe('/recovery_email/verify_code', () => {
     it('with a reminder payload', () => {
       mockRequest.payload.reminder = 'second';
 
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockLog.activityEvent.callCount, 1);
 
         assert.equal(mockLog.flowEvent.callCount, 3);
@@ -972,7 +972,7 @@ describe('/recovery_email/verify_code', () => {
     });
 
     it('email verification', () => {
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens');
         assert.equal(
           mockDB.verifyEmail.callCount,
@@ -1003,7 +1003,7 @@ describe('/recovery_email/verify_code', () => {
     });
 
     it('email verification with associated device', () => {
-      mockDB.deviceFromTokenVerificationId = function(
+      mockDB.deviceFromTokenVerificationId = function (
         uid,
         tokenVerificationId
       ) {
@@ -1013,7 +1013,7 @@ describe('/recovery_email/verify_code', () => {
           type: 'desktop',
         });
       };
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens');
         assert.equal(
           mockDB.verifyEmail.callCount,
@@ -1046,7 +1046,7 @@ describe('/recovery_email/verify_code', () => {
     it('sign-in confirmation', () => {
       dbData.emailCode = crypto.randomBytes(16);
 
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyTokens.callCount, 1, 'call db.verifyTokens');
         assert.equal(
           mockDB.verifyEmail.callCount,
@@ -1117,7 +1117,7 @@ describe('/recovery_email/verify_code', () => {
       mockRequest.payload.type = 'secondary';
       mockRequest.payload.verifiedEmail = dbData.secondEmail;
 
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(mockDB.verifyEmail.callCount, 1, 'call db.verifyEmail');
         let args = mockDB.verifyEmail.args[0];
         assert.equal(
@@ -1195,7 +1195,7 @@ describe('/recovery_email', () => {
     mockDB = mocks.mockDB(dbData);
     stripeHelper = mocks.mockStripeHelper();
     accountRoutes = makeRoutes({
-      checkPassword: function() {
+      checkPassword: function () {
         return P.resolve(true);
       },
       config: {
@@ -1235,7 +1235,7 @@ describe('/recovery_email', () => {
 
     it('should create email on account', () => {
       route = getRoute(accountRoutes, '/recovery_email');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
         assert.equal(
@@ -1262,7 +1262,7 @@ describe('/recovery_email', () => {
           assert.fail(
             'Should have failed adding secondary email with unverified primary email'
           ),
-        err => assert.equal(err.errno, 104, 'unverified account')
+        (err) => assert.equal(err.errno, 104, 'unverified account')
       );
     });
 
@@ -1275,7 +1275,7 @@ describe('/recovery_email', () => {
           assert.fail(
             'Should have failed when adding an email that is the same as your primary'
           ),
-        err =>
+        (err) =>
           assert.equal(
             err.errno,
             139,
@@ -1307,7 +1307,7 @@ describe('/recovery_email', () => {
           assert.fail(
             'Should have failed when adding an email that already belongs to the account'
           ),
-        err => assert.equal(err.errno, 189, 'already exists on your account')
+        (err) => assert.equal(err.errno, 189, 'already exists on your account')
       );
     });
 
@@ -1326,7 +1326,7 @@ describe('/recovery_email', () => {
           assert.fail(
             'Should have failed when adding secondary email when the account is at its max'
           ),
-        err =>
+        (err) =>
           assert.equal(
             err.errno,
             188,
@@ -1347,7 +1347,7 @@ describe('/recovery_email', () => {
       });
       route = getRoute(accountRoutes, '/recovery_email');
       mockRequest.payload.email = TEST_EMAIL_ADDITIONAL;
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(
           mockDB.deleteAccount.callCount,
@@ -1384,7 +1384,7 @@ describe('/recovery_email', () => {
 
       return runTest(route, mockRequest).then(
         () => assert.fail('Should have failed when creating email'),
-        err =>
+        (err) =>
           assert.equal(
             err.errno,
             141,
@@ -1401,7 +1401,7 @@ describe('/recovery_email', () => {
 
       return runTest(route, mockRequest, () => {
         assert.fail('should have failed');
-      }).catch(err => {
+      }).catch((err) => {
         assert.equal(err.errno, 151, 'failed to send email error');
         assert.equal(err.output.payload.code, 422);
         assert.equal(mockDB.createEmail.callCount, 1, 'call db.createEmail');
@@ -1436,7 +1436,7 @@ describe('/recovery_email', () => {
   describe('/recovery_emails', () => {
     it('should get all account emails', () => {
       route = getRoute(accountRoutes, '/recovery_emails');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(response.length, 1, 'should return account email');
         assert.equal(
           response[0].email,
@@ -1451,7 +1451,7 @@ describe('/recovery_email', () => {
   describe('/recovery_email/destroy', () => {
     it('should delete email from account ', () => {
       route = getRoute(accountRoutes, '/recovery_email/destroy');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
       });
@@ -1459,7 +1459,7 @@ describe('/recovery_email', () => {
 
     it('should reset outstanding tokens on the account ', () => {
       route = getRoute(accountRoutes, '/recovery_email/destroy');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(
           mockDB.resetAccountTokens.callCount,
@@ -1496,7 +1496,7 @@ describe('/recovery_email', () => {
         });
       });
       route = getRoute(accountRoutes, '/recovery_email/destroy');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
         assert.equal(
@@ -1534,7 +1534,7 @@ describe('/recovery_email', () => {
         });
       });
       route = getRoute(accountRoutes, '/recovery_email/destroy');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(mockDB.deleteEmail.callCount, 1, 'call db.deleteEmail');
         assert.equal(
@@ -1568,7 +1568,7 @@ describe('/recovery_email', () => {
       });
 
       route = getRoute(accountRoutes, '/recovery_email/set_primary');
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.ok(response);
         assert.equal(
           mockDB.setPrimaryEmail.callCount,
@@ -1635,7 +1635,7 @@ describe('/recovery_email', () => {
       route = getRoute(accountRoutes, '/recovery_email/set_primary');
       return runTest(route, mockRequest).then(
         () => assert.fail('should have errored'),
-        err =>
+        (err) =>
           assert.equal(
             err.errno,
             148,
@@ -1656,7 +1656,7 @@ describe('/recovery_email', () => {
       route = getRoute(accountRoutes, '/recovery_email/set_primary');
       return runTest(route, mockRequest).then(
         () => assert.fail('should have errored'),
-        err =>
+        (err) =>
           assert.equal(
             err.errno,
             147,

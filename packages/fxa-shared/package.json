@@ -4,8 +4,7 @@
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "scripts": {
-    "postinstall": "tsc",
-    "build": "tsc",
+    "build": "tsc --build",
     "test": "npm run lint && node ./scripts/mocha-coverage.js -r ts-node/register --recursive test",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",

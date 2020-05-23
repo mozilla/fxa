@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const AppError = require('./error');
 const logger = require('./logging')('server.auth_bearer');
@@ -17,7 +17,7 @@ exports.AUTH_SCHEME = authName;
 
 exports.SCOPE_CLIENT_WRITE = authOAuthScope;
 
-exports.strategy = function() {
+exports.strategy = function () {
   return {
     authenticate: async function authBearerStrategy(req, h) {
       var auth = req.headers.authorization;

@@ -14,7 +14,7 @@ const requestHelper = require('./utils/request_helper');
 const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const { determineSubscriptionCapabilities } = require('./utils/subscriptions');
 
@@ -72,38 +72,23 @@ module.exports = (
             redirectTo: validators
               .redirectTo(config.smtp.redirectDomain)
               .optional(),
-            resume: isA
-              .string()
-              .max(2048)
-              .optional(),
+            resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
-            style: isA
-              .string()
-              .allow(['trailhead'])
-              .optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             verificationMethod: validators.verificationMethod.optional(),
           },
         },
         response: {
           schema: {
-            uid: isA
-              .string()
-              .regex(HEX_STRING)
-              .required(),
-            sessionToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .required(),
-            keyFetchToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .optional(),
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             authAt: isA.number().integer(),
             verificationMethod: validators.verificationMethod.optional(),
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.create', request);
         const form = request.payload;
         const query = request.query;
@@ -466,10 +451,7 @@ module.exports = (
               .redirectTo(config.smtp.redirectDomain)
               .optional(),
             resume: isA.string().optional(),
-            reason: isA
-              .string()
-              .max(16)
-              .optional(),
+            reason: isA.string().max(16).optional(),
             unblockCode: signinUtils.validators.UNBLOCK_CODE,
             metricsContext: METRICS_CONTEXT_SCHEMA,
             originalLoginEmail: validators.email().optional(),
@@ -478,18 +460,9 @@ module.exports = (
         },
         response: {
           schema: {
-            uid: isA
-              .string()
-              .regex(HEX_STRING)
-              .required(),
-            sessionToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .required(),
-            keyFetchToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .optional(),
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
@@ -497,7 +470,7 @@ module.exports = (
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.login', request);
 
         const form = request.payload;
@@ -571,7 +544,7 @@ module.exports = (
 
             if (events.length > 0) {
               let latest = 0;
-              events.forEach(ev => {
+              events.forEach((ev) => {
                 if (ev.verified) {
                   securityEventVerified = true;
                   if (ev.createdAt > latest) {
@@ -866,15 +839,11 @@ module.exports = (
         },
         validate: {
           query: {
-            uid: isA
-              .string()
-              .min(32)
-              .max(32)
-              .regex(HEX_STRING),
+            uid: isA.string().min(32).max(32).regex(HEX_STRING),
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         const sessionToken = request.auth.credentials;
         if (sessionToken) {
           return { exists: true, locale: sessionToken.locale };
@@ -909,7 +878,7 @@ module.exports = (
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         const email = request.payload.email;
 
         await customs.check(request, email, 'accountStatusCheck');
@@ -937,24 +906,18 @@ module.exports = (
         response: {
           schema: {
             email: isA.string().optional(),
-            locale: isA
-              .string()
-              .optional()
-              .allow(null),
+            locale: isA.string().optional().allow(null),
             authenticationMethods: isA
               .array()
               .items(isA.string().required())
               .optional(),
             authenticatorAssuranceLevel: isA.number().min(0),
-            subscriptionsByClientId: isA
-              .object()
-              .unknown(true)
-              .optional(),
+            subscriptionsByClientId: isA.object().unknown(true).optional(),
             profileChangedAt: isA.number().min(0),
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         const auth = request.auth;
         let uid, scope;
         if (auth.strategy === 'sessionToken') {
@@ -1049,7 +1012,7 @@ module.exports = (
           payload: true,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.error('Account.UnlockCodeResend', { request: request });
         throw error.gone();
       },
@@ -1062,7 +1025,7 @@ module.exports = (
           payload: true,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.error('Account.UnlockCodeVerify', { request: request });
         throw error.gone();
       },
@@ -1441,7 +1404,7 @@ module.exports = (
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.get', request);
 
         const { uid, email } = request.auth.credentials;
@@ -1489,7 +1452,7 @@ module.exports = (
           payload: true,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.error('Account.lock', { request: request });
         throw error.gone();
       },

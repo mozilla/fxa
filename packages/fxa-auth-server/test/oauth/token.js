@@ -5,11 +5,11 @@
 const { assert } = require('chai');
 const token = require('../../lib/oauth/token');
 const JWTAccessToken = require('../../lib/oauth/jwt_access_token');
-const ScopeSet = require('../../../fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
-describe('token', function() {
-  describe('verify', function() {
-    it('verifies short lifespan JWT tokens without the db', async function() {
+describe('token', function () {
+  describe('verify', function () {
+    it('verifies short lifespan JWT tokens without the db', async function () {
       const accessToken = await JWTAccessToken.create(
         {
           expiresAt: Date.now() + 10000,

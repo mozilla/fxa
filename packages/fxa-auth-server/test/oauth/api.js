@@ -9,7 +9,7 @@ const buf = require('buf').hex;
 const generateRSAKeypair = require('keypair');
 const JWTool = require('fxa-jwtool');
 const testServer = require('../lib/server');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const { decodeJWT } = require('../lib/util');
 
 const db = require('../../lib/oauth/db');
@@ -121,7 +121,7 @@ function authParams(params, options) {
   };
 
   params = params || {};
-  Object.keys(params).forEach(function(key) {
+  Object.keys(params).forEach(function (key) {
     defaults[key] = params[key];
   });
   return defaults;
@@ -136,7 +136,7 @@ function newToken(payload = {}, options = {}) {
       url: '/authorization',
       payload: authParams(payload, options),
     })
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 200);
       assertSecurityHeaders(res);
       return Server.api.post({
@@ -174,28 +174,30 @@ function assertInvalidRequestParam(result, param) {
  * @param {Object} [options.scopes] - custom scopes
  */
 function clientByName(name) {
-  return config.get('oauthServer.clients').reduce(function(client, lastClient) {
-    return client.name === name ? client : lastClient;
-  });
+  return config
+    .get('oauthServer.clients')
+    .reduce(function (client, lastClient) {
+      return client.name === name ? client : lastClient;
+    });
 }
 
 function basicAuthHeader(clientId, secret) {
   return 'Basic ' + Buffer.from(clientId + ':' + secret).toString('base64');
 }
 
-describe('/v1', function() {
+describe('/v1', function () {
   const VERIFY_FAILURE = '{"status": "failure"}';
 
-  before(async function() {
+  before(async function () {
     this.timeout(20000);
     Server = await testServer.start();
     return P.all([
       genAssertion(USERID + config.get('oauthServer.browserid.issuer')).then(
-        function(ass) {
+        function (ass) {
           AN_ASSERTION = ass;
         }
       ),
-      db.ping().then(function() {
+      db.ping().then(function () {
         client = clientByName('Mocha');
         clientId = client.id;
         assert.equal(encrypt.hash(secret).toString('hex'), client.hashedSecret);
@@ -210,22 +212,22 @@ describe('/v1', function() {
     ]);
   });
 
-  after(function() {
+  after(function () {
     return Server.close();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     nock.cleanAll();
   });
 
-  describe('/authorization', function() {
-    describe('GET', function() {
-      it('redirects with all query params to /authorization', function() {
+  describe('/authorization', function () {
+    describe('GET', function () {
+      it('redirects with all query params to /authorization', function () {
         return Server.api
           .get(
             '/authorization?client_id=123&state=321&scope=1&action=signup&a=b'
           )
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 302);
             assertSecurityHeaders(res);
             var redirect = url.parse(res.headers.location, true);
@@ -245,15 +247,15 @@ describe('/v1', function() {
       it('should fail if keys_jwk specified', () => {
         return Server.api
           .get('/authorization?keys_jwk=xyz&client_id=123&state=321&scope=1')
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'keys_jwk');
             assertSecurityHeaders(res);
           });
       });
     });
 
-    describe('content-type', function() {
-      it('should fail if unsupported', function() {
+    describe('content-type', function () {
+      it('should fail if unsupported', function () {
         return Server.api
           .post({
             url: '/authorization',
@@ -262,7 +264,7 @@ describe('/v1', function() {
             },
             payload: authParams(),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 415);
             assertSecurityHeaders(res);
             assert.equal(res.result.errno, 113);
@@ -270,8 +272,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('untrusted client scope', function() {
-      it('should fail if invalid scopes', function() {
+    describe('untrusted client scope', function () {
+      it('should fail if invalid scopes', function () {
         var client = clientByName('Untrusted');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -282,7 +284,7 @@ describe('/v1', function() {
               scope: 'profile:write',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.errno, 114);
@@ -290,7 +292,7 @@ describe('/v1', function() {
           });
       });
 
-      it('should report all invalid scopes', function() {
+      it('should report all invalid scopes', function () {
         var client = clientByName('Untrusted');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -301,7 +303,7 @@ describe('/v1', function() {
               scope: 'profile:email profile:locale profile:amr',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.errno, 114);
@@ -313,7 +315,7 @@ describe('/v1', function() {
           });
       });
 
-      it('should succeed if valid scope', function() {
+      it('should succeed if valid scope', function () {
         var client = clientByName('Untrusted');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -324,13 +326,13 @@ describe('/v1', function() {
               scope: 'profile:email profile:uid',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
           });
       });
 
-      it('should succeed with https:// scopes', function() {
+      it('should succeed with https:// scopes', function () {
         const scopes =
           'profile:email profile:uid https://identity.mozilla.com/apps/notes https://identity.mozilla.com/apps/lockbox';
         const client = clientByName('Mocha');
@@ -344,15 +346,15 @@ describe('/v1', function() {
               scope: scopes,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
           });
       });
     });
 
-    describe('pkce', function() {
-      it('should fail if Public Client is not using code_challenge', function() {
+    describe('pkce', function () {
+      it('should fail if Public Client is not using code_challenge', function () {
         var client = clientByName('Public Client PKCE');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -363,7 +365,7 @@ describe('/v1', function() {
               scope: 'profile profile:write profile:uid',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.errno, 118);
@@ -371,7 +373,7 @@ describe('/v1', function() {
           });
       });
 
-      it('should allow Public Clients to direct grant without PKCE', function() {
+      it('should allow Public Clients to direct grant without PKCE', function () {
         var client = clientByName('Admin');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -383,13 +385,13 @@ describe('/v1', function() {
               scope: 'profile profile:write profile:uid',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
           });
       });
 
-      it('only works with Public Clients', function() {
+      it('only works with Public Clients', function () {
         var client = clientByName('Mocha');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -403,7 +405,7 @@ describe('/v1', function() {
               code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.errno, 116);
@@ -412,8 +414,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('?client_id', function() {
-      it('is required', function() {
+    describe('?client_id', function () {
+      it('is required', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -422,15 +424,15 @@ describe('/v1', function() {
               client_id: undefined,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'client_id');
             assertSecurityHeaders(res);
           });
       });
     });
 
-    describe('?assertion', function() {
-      it('is required', function() {
+    describe('?assertion', function () {
+      it('is required', function () {
         return Server.api
           .post({
             url: '/authorization',
@@ -438,40 +440,40 @@ describe('/v1', function() {
               assertion: undefined,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'assertion');
             assertSecurityHeaders(res);
           });
       });
 
-      it('errors correctly if invalid', function() {
+      it('errors correctly if invalid', function () {
         mockAssertion().reply(400, VERIFY_FAILURE);
         return Server.api
           .post({
             url: '/authorization',
             payload: authParams(),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.result.code, 401);
             assert.equal(res.result.message, 'Invalid assertion');
             assertSecurityHeaders(res);
           });
       });
 
-      it('succeeds by default when fxa-tokenVerified is false', function() {
+      it('succeeds by default when fxa-tokenVerified is false', function () {
         mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
         return Server.api
           .post({
             url: '/authorization',
             payload: authParams(),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
           });
       });
 
-      it('errors when fxa-tokenVerified is false and a scope has keys', function() {
+      it('errors when fxa-tokenVerified is false and a scope has keys', function () {
         mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
         return Server.api
           .post({
@@ -481,14 +483,14 @@ describe('/v1', function() {
               scope: SCOPE_CAN_SCOPE_KEY,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.result.code, 401);
             assert.equal(res.result.message, 'Invalid assertion');
             assertSecurityHeaders(res);
           });
       });
 
-      it('succeeds when fxa-tokenVerified is false and an unknown URL scope is requested', function() {
+      it('succeeds when fxa-tokenVerified is false and an unknown URL scope is requested', function () {
         mockAssertion().reply(200, VERIFY_GOOD_BUT_UNVERIFIED);
         return Server.api
           .post({
@@ -498,15 +500,15 @@ describe('/v1', function() {
               scope: 'https://example.com/unknown-scope',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
           });
       });
     });
 
-    describe('?redirect_uri', function() {
-      it('is optional', function() {
+    describe('?redirect_uri', function () {
+      it('is optional', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -515,14 +517,14 @@ describe('/v1', function() {
               redirect_uri: client.redirectUri,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert(res.result.redirect);
           });
       });
 
-      it('must be same as registered redirect', function() {
+      it('must be same as registered redirect', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -531,23 +533,23 @@ describe('/v1', function() {
               redirect_uri: 'http://localhost:8080/derp',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Incorrect redirect_uri');
             assertSecurityHeaders(res);
           });
       });
 
-      describe('with config.localRedirects', function() {
-        beforeEach(function() {
+      describe('with config.localRedirects', function () {
+        beforeEach(function () {
           config.set('oauthServer.localRedirects', true);
         });
 
-        afterEach(function() {
+        afterEach(function () {
           config.set('oauthServer.localRedirects', false);
         });
 
-        it('must be same as registered redirect with config set', function() {
+        it('must be same as registered redirect with config set', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -556,14 +558,14 @@ describe('/v1', function() {
                 redirect_uri: 'http://bad.uri/derp',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.result.code, 400);
               assert.equal(res.result.message, 'Incorrect redirect_uri');
               assertSecurityHeaders(res);
             });
         });
 
-        it('can be localhost with config set', function() {
+        it('can be localhost with config set', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -572,14 +574,14 @@ describe('/v1', function() {
                 redirect_uri: 'http://localhost:8080/derp',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert(res.result.redirect);
             });
         });
 
-        it('validates http and https scheme', function() {
+        it('validates http and https scheme', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -588,7 +590,7 @@ describe('/v1', function() {
                 redirect_uri: 'ftp://localhost:8080/derp',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assertSecurityHeaders(res);
               assert.equal(res.result.errno, 109);
@@ -596,7 +598,7 @@ describe('/v1', function() {
             });
         });
 
-        it('can be localhost with config set', function() {
+        it('can be localhost with config set', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -605,7 +607,7 @@ describe('/v1', function() {
                 redirect_uri: 'http://localhost:8080/derp',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert(res.result.redirect);
@@ -613,7 +615,7 @@ describe('/v1', function() {
         });
       });
 
-      it('can be a URN', function() {
+      it('can be a URN', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -622,7 +624,7 @@ describe('/v1', function() {
               client_id: '98e6508e88680e1b',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             var expected = 'urn:ietf:wg:oauth:2.0:fx:webchannel';
@@ -631,7 +633,7 @@ describe('/v1', function() {
           });
       });
 
-      it('can have query parameters', function() {
+      it('can have query parameters', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -640,7 +642,7 @@ describe('/v1', function() {
               client_id: 'dcdb5ae7add825d2',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             var expected = 'https://example.domain/return?foo=bar';
@@ -650,8 +652,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('?state', function() {
-      it('is required', function() {
+    describe('?state', function () {
+      it('is required', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -660,13 +662,13 @@ describe('/v1', function() {
               state: undefined,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'state');
             assertSecurityHeaders(res);
           });
       });
 
-      it('is returned', function() {
+      it('is returned', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -675,7 +677,7 @@ describe('/v1', function() {
               state: 'aa',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.equal(res.result.state, 'aa');
@@ -687,8 +689,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('?scope', function() {
-      it('is required', function() {
+    describe('?scope', function () {
+      it('is required', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -697,12 +699,12 @@ describe('/v1', function() {
               scope: undefined,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
           });
       });
 
-      it('is restricted to expected characters', function() {
+      it('is restricted to expected characters', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -711,7 +713,7 @@ describe('/v1', function() {
               scope: 'profile:\u2603',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
           });
@@ -755,8 +757,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('?response_type', function() {
-      it('is optional', function() {
+    describe('?response_type', function () {
+      it('is optional', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -765,14 +767,14 @@ describe('/v1', function() {
               response_type: undefined,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert(res.result.redirect);
           });
       });
 
-      it('can be code', function() {
+      it('can be code', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -781,7 +783,7 @@ describe('/v1', function() {
               response_type: 'code',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert(res.result.code);
@@ -789,7 +791,7 @@ describe('/v1', function() {
           });
       });
 
-      it('supports PKCE - code_challenge and code_challenge_method', function() {
+      it('supports PKCE - code_challenge and code_challenge_method', function () {
         var client = clientByName('Public Client PKCE');
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
@@ -802,7 +804,7 @@ describe('/v1', function() {
               code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert(res.result.code);
@@ -810,7 +812,7 @@ describe('/v1', function() {
           });
       });
 
-      it('supports code_challenge only with code response_type', function() {
+      it('supports code_challenge only with code response_type', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -821,13 +823,13 @@ describe('/v1', function() {
               code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assert.equal(res.result.errno, 109);
           });
       });
 
-      it('must not be something besides code or token', function() {
+      it('must not be something besides code or token', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -836,13 +838,13 @@ describe('/v1', function() {
               response_type: 'foo',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
           });
       });
 
-      it('fails if ttl is specified with code', function() {
+      it('fails if ttl is specified with code', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -852,13 +854,13 @@ describe('/v1', function() {
               ttl: 42,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
           });
       });
 
-      describe('token', function() {
+      describe('token', function () {
         const client2 = clientByName('Admin');
         assert(client2.canGrant); //sanity check
         const jwtClient = clientByName('JWT Client');
@@ -866,7 +868,7 @@ describe('/v1', function() {
         const ppidClient = clientByName('PPID JWT Client');
         assert(ppidClient.canGrant); //sanity check
 
-        it('does not require state argument', function() {
+        it('does not require state argument', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -877,13 +879,13 @@ describe('/v1', function() {
                 response_type: 'token',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
             });
         });
 
-        it('requires scope argument', function() {
+        it('requires scope argument', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -894,12 +896,12 @@ describe('/v1', function() {
                 response_type: 'token',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
             });
         });
 
-        it('requires a client with proper permission', function() {
+        it('requires a client with proper permission', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -909,14 +911,14 @@ describe('/v1', function() {
                 response_type: 'token',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assertSecurityHeaders(res);
               assert.equal(res.result.errno, 110);
             });
         });
 
-        it('returns an implicit token', function() {
+        it('returns an implicit token', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
@@ -926,7 +928,7 @@ describe('/v1', function() {
                 response_type: 'token',
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               var defaultExpiresIn =
                 config.get('oauthServer.expiration.accessToken') / 1000;
               assert.equal(res.statusCode, 200);
@@ -940,7 +942,7 @@ describe('/v1', function() {
             });
         });
 
-        it('returns an JWT formatted token in the implicit grant flow', async function() {
+        it('returns an JWT formatted token in the implicit grant flow', async function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           const res = await Server.api.post({
             url: '/authorization',
@@ -971,7 +973,7 @@ describe('/v1', function() {
           assert(res.result.auth_at);
         });
 
-        it('honours the ttl parameter', function() {
+        it('honours the ttl parameter', function () {
           var ttl = 42;
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
@@ -983,7 +985,7 @@ describe('/v1', function() {
                 ttl: ttl,
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert(res.result.expires_in <= ttl);
@@ -993,7 +995,7 @@ describe('/v1', function() {
       });
     });
 
-    describe('?keys_jwe', function() {
+    describe('?keys_jwe', function () {
       it('should validate the JWE', () => {
         const keys_jwe = 'some_string';
         const code_challenge = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
@@ -1009,7 +1011,7 @@ describe('/v1', function() {
               keys_jwe: keys_jwe,
             }),
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.statusCode, 400);
             assert.equal(res.result.errno, 109);
             assert.equal(res.result.validation.keys[0], 'keys_jwe');
@@ -1046,12 +1048,12 @@ describe('/v1', function() {
                   keys_jwe: keys_jwe,
                 }),
               })
-              .then(res => {
+              .then((res) => {
                 assert.equal(res.statusCode, 200);
                 return res.result.code;
               });
           })
-          .then(code => {
+          .then((code) => {
             return Server.api.post({
               url: '/token',
               payload: {
@@ -1061,23 +1063,23 @@ describe('/v1', function() {
               },
             });
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.statusCode, 200);
             assert.equal(res.result.keys_jwe, keys_jwe);
           });
       });
     });
 
-    describe('response', function() {
-      describe('with a trusted client', function() {
-        it('should redirect to the redirect_uri', function() {
+    describe('response', function () {
+      describe('with a trusted client', function () {
+        it('should redirect to the redirect_uri', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
               payload: authParams(),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               var loc = url.parse(res.result.redirect, true);
@@ -1103,7 +1105,7 @@ describe('/v1', function() {
             url: '/authorization',
             payload: authParams(payload),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.message, 'Mismatch acr value');
@@ -1120,7 +1122,7 @@ describe('/v1', function() {
             url: '/authorization',
             payload: authParams(payload),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.ok(res.result.code, 'code set');
@@ -1131,16 +1133,16 @@ describe('/v1', function() {
     });
   });
 
-  describe('/token', function() {
-    it('disallows GET', function() {
-      return Server.api.get('/token').then(function(res) {
+  describe('/token', function () {
+    it('disallows GET', function () {
+      return Server.api.get('/token').then(function (res) {
         assert.equal(res.statusCode, 404);
         assertSecurityHeaders(res);
       });
     });
 
-    describe('?client_id', function() {
-      it('is required', function() {
+    describe('?client_id', function () {
+      it('is required', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1149,13 +1151,13 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'client_id');
             assertSecurityHeaders(res);
           });
       });
 
-      it('is forbidden when authz header provided', function() {
+      it('is forbidden when authz header provided', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1168,13 +1170,13 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'client_id');
             assertSecurityHeaders(res);
           });
       });
 
-      it('must match an existing client', function() {
+      it('must match an existing client', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1184,7 +1186,7 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.result.code, 400);
             assert.equal(res.result.message, 'Unknown client');
             assertSecurityHeaders(res);
@@ -1192,8 +1194,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('?client_secret', function() {
-      it('is required', function() {
+    describe('?client_secret', function () {
+      it('is required', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1202,13 +1204,13 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'client_secret');
             assertSecurityHeaders(res);
           });
       });
 
-      it('is forbidden when authz header provided', function() {
+      it('is forbidden when authz header provided', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1220,13 +1222,13 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assertInvalidRequestParam(res.result, 'client_secret');
             assertSecurityHeaders(res);
           });
       });
 
-      it('must match server-stored secret', function() {
+      it('must match server-stored secret', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1236,14 +1238,14 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.message, 'Incorrect secret');
           });
       });
 
-      describe('previous secret', function() {
+      describe('previous secret', function () {
         function getCode(clientId) {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
@@ -1253,16 +1255,16 @@ describe('/v1', function() {
                 client_id: clientId,
               }),
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return res.result.code;
             });
         }
 
-        it('should get auth token with secret', function() {
+        it('should get auth token with secret', function () {
           return getCode(clientId)
-            .then(function(code) {
+            .then(function (code) {
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1272,7 +1274,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.ok(res.result.access_token);
@@ -1284,9 +1286,9 @@ describe('/v1', function() {
             });
         });
 
-        it('should get auth token with previous secret', function() {
+        it('should get auth token with previous secret', function () {
           return getCode(clientId)
-            .then(function(code) {
+            .then(function (code) {
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1296,7 +1298,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.ok(res.result.access_token);
@@ -1305,8 +1307,8 @@ describe('/v1', function() {
       });
     });
 
-    describe('authorization header', function() {
-      it('should allow fetching get auth token when the secret is valid', function() {
+    describe('authorization header', function () {
+      it('should allow fetching get auth token when the secret is valid', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -1315,11 +1317,11 @@ describe('/v1', function() {
               client_id: clientId,
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             return res.result.code;
           })
-          .then(function(code) {
+          .then(function (code) {
             return Server.api.post({
               url: '/token',
               headers: {
@@ -1330,7 +1332,7 @@ describe('/v1', function() {
               },
             });
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.ok(res.result.access_token);
@@ -1342,7 +1344,7 @@ describe('/v1', function() {
           });
       });
 
-      it('should be rejected if the secret is invalid', function() {
+      it('should be rejected if the secret is invalid', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1353,14 +1355,14 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assert.equal(res.result.message, 'Incorrect secret');
           });
       });
 
-      it('should be rejected if the credentials are malformed', function() {
+      it('should be rejected if the credentials are malformed', function () {
         return Server.api
           .post({
             url: '/token',
@@ -1372,7 +1374,7 @@ describe('/v1', function() {
               code: unique.code().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             assertInvalidRequestParam(res.result, 'authorization');
@@ -1380,9 +1382,9 @@ describe('/v1', function() {
       });
     });
 
-    describe('?grant_type=authorization_code', function() {
-      describe('?code', function() {
-        it('is required', function() {
+    describe('?grant_type=authorization_code', function () {
+      describe('?code', function () {
+        it('is required', function () {
           return Server.api
             .post({
               url: '/token',
@@ -1391,13 +1393,13 @@ describe('/v1', function() {
                 client_secret: secret,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assertInvalidRequestParam(res.result, 'code');
               assertSecurityHeaders(res);
             });
         });
 
-        it('must match an existing code', function() {
+        it('must match an existing code', function () {
           return Server.api
             .post({
               url: '/token',
@@ -1407,14 +1409,14 @@ describe('/v1', function() {
                 code: unique.code().toString('hex'),
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.result.code, 400);
               assert.equal(res.result.message, 'Unknown code');
               assertSecurityHeaders(res);
             });
         });
 
-        it('must be a code owned by this client', function() {
+        it('must be a code owned by this client', function () {
           var secret2 = unique.secret();
           var client2 = {
             name: 'client2',
@@ -1425,7 +1427,7 @@ describe('/v1', function() {
           };
           return db
             .registerClient(client2)
-            .then(function() {
+            .then(function () {
               mockAssertion().reply(200, VERIFY_GOOD);
               return Server.api
                 .post({
@@ -1434,13 +1436,13 @@ describe('/v1', function() {
                     client_id: client2.id.toString('hex'),
                   }),
                 })
-                .then(function(res) {
+                .then(function (res) {
                   assert.equal(res.statusCode, 200);
                   assertSecurityHeaders(res);
                   return res.result.code;
                 });
             })
-            .then(function(code) {
+            .then(function (code) {
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1451,14 +1453,14 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.result.code, 400);
               assert.equal(res.result.message, 'Incorrect code');
               assertSecurityHeaders(res);
             });
         });
 
-        describe('when used by a public client (PKCE)', function() {
+        describe('when used by a public client (PKCE)', function () {
           var code_verifier = 'WFX-9dPwcpPIXt8c5Pbx09_Z61zPm1Fjwv89lVrukOh';
           var code_verifier_bad = 'QnuuNM5gfnJmWwIjiOKk2SKn8A89tph3-8BjNUUtooJ';
           var code_challenge = 'xWVKKAQVD9XSXT4Z4Oh8dLJ5pqrr0gQes2QwZOVJyAk';
@@ -1472,11 +1474,11 @@ describe('/v1', function() {
             publicClient: true,
           };
 
-          before(function() {
+          before(function () {
             return db.registerClient(client2);
           });
 
-          it('consumes code when provided correct code_verifier', function() {
+          it('consumes code when provided correct code_verifier', function () {
             mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
@@ -1488,12 +1490,12 @@ describe('/v1', function() {
                   code_challenge: code_challenge,
                 }),
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assertSecurityHeaders(res);
                 return res.result.code;
               })
-              .then(function(code) {
+              .then(function (code) {
                 return Server.api.post({
                   url: '/token',
                   payload: {
@@ -1503,7 +1505,7 @@ describe('/v1', function() {
                   },
                 });
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assert.ok(res.result.access_token);
                 assert.ok(res.result.scope);
@@ -1513,7 +1515,7 @@ describe('/v1', function() {
               });
           });
 
-          it('rejects invalid code_verifier', function() {
+          it('rejects invalid code_verifier', function () {
             mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
@@ -1525,12 +1527,12 @@ describe('/v1', function() {
                   code_challenge: code_challenge,
                 }),
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assertSecurityHeaders(res);
                 return res.result.code;
               })
-              .then(function(code) {
+              .then(function (code) {
                 return Server.api.post({
                   url: '/token',
                   payload: {
@@ -1540,14 +1542,14 @@ describe('/v1', function() {
                   },
                 });
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 400);
                 assert.equal(res.result.errno, 117);
                 assert.equal(res.result.message, 'Incorrect code_challenge');
               });
           });
 
-          it('must not have expired', function() {
+          it('must not have expired', function () {
             this.slow(200);
             var exp = config.get('oauthServer.expiration.code');
             config.set('oauthServer.expiration.code', 50);
@@ -1562,12 +1564,12 @@ describe('/v1', function() {
                   code_challenge: code_challenge,
                 }),
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 return res.result.code;
               })
               .delay(60)
-              .then(function(code) {
+              .then(function (code) {
                 return Server.api.post({
                   url: '/token',
                   payload: {
@@ -1577,17 +1579,17 @@ describe('/v1', function() {
                   },
                 });
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.result.code, 400);
                 assert.equal(res.result.message, 'Expired code');
                 assertSecurityHeaders(res);
               })
-              .finally(function() {
+              .finally(function () {
                 config.set('oauthServer.expiration.code', exp);
               });
           });
 
-          it('must be a code owned by this client', function() {
+          it('must be a code owned by this client', function () {
             var client3 = {
               name: 'client3Public',
               hashedSecret: encrypt.hash(secret2),
@@ -1598,7 +1600,7 @@ describe('/v1', function() {
             };
             return db
               .registerClient(client3)
-              .then(function() {
+              .then(function () {
                 mockAssertion().reply(200, VERIFY_GOOD);
                 return Server.api
                   .post({
@@ -1610,13 +1612,13 @@ describe('/v1', function() {
                       code_challenge: code_challenge,
                     }),
                   })
-                  .then(function(res) {
+                  .then(function (res) {
                     assert.equal(res.statusCode, 200);
                     assertSecurityHeaders(res);
                     return res.result.code;
                   });
               })
-              .then(function(code) {
+              .then(function (code) {
                 return Server.api.post({
                   url: '/token',
                   payload: {
@@ -1627,7 +1629,7 @@ describe('/v1', function() {
                   },
                 });
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.result.code, 400);
                 assert.equal(res.result.message, 'Incorrect code');
                 assertSecurityHeaders(res);
@@ -1635,7 +1637,7 @@ describe('/v1', function() {
           });
         });
 
-        it('must not have expired', function() {
+        it('must not have expired', function () {
           this.slow(200);
           var exp = config.get('oauthServer.expiration.code');
           config.set('oauthServer.expiration.code', 50);
@@ -1645,11 +1647,11 @@ describe('/v1', function() {
               url: '/authorization',
               payload: authParams(),
             })
-            .then(function(res) {
+            .then(function (res) {
               return res.result.code;
             })
             .delay(60)
-            .then(function(code) {
+            .then(function (code) {
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1659,27 +1661,27 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.result.code, 400);
               assert.equal(res.result.message, 'Expired code');
               assertSecurityHeaders(res);
             })
-            .finally(function() {
+            .finally(function () {
               config.set('oauthServer.expiration.code', exp);
             });
         });
 
-        it('cannot use the same code multiple times', function() {
+        it('cannot use the same code multiple times', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
               payload: authParams(),
             })
-            .then(function(res) {
+            .then(function (res) {
               return res.result.code;
             })
-            .then(function(code) {
+            .then(function (code) {
               return Server.api
                 .post({
                   url: '/token',
@@ -1689,7 +1691,7 @@ describe('/v1', function() {
                     code: code,
                   },
                 })
-                .then(function(res) {
+                .then(function (res) {
                   assert.equal(res.statusCode, 200);
                   assertSecurityHeaders(res);
                   return Server.api.post({
@@ -1702,24 +1704,24 @@ describe('/v1', function() {
                   });
                 });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.result.code, 400);
               assert.equal(res.result.message, 'Unknown code');
               assertSecurityHeaders(res);
             });
         });
 
-        it('does not accept a `scope` parameter', function() {
+        it('does not accept a `scope` parameter', function () {
           mockAssertion().reply(200, VERIFY_GOOD);
           return Server.api
             .post({
               url: '/authorization',
               payload: authParams(),
             })
-            .then(function(res) {
+            .then(function (res) {
               return res.result.code;
             })
-            .then(function(code) {
+            .then(function (code) {
               return Server.api.post({
                 url: '/token',
                 payload: {
@@ -1730,7 +1732,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.result.code, 400);
               assert.equal(res.result.errno, 109);
               assert.deepEqual(res.result.validation, {
@@ -1742,9 +1744,9 @@ describe('/v1', function() {
         });
       });
 
-      describe('response', function() {
-        describe('access_type=online', function() {
-          it('should return a correct response', function() {
+      describe('response', function () {
+        describe('access_type=online', function () {
+          it('should return a correct response', function () {
             mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
@@ -1753,7 +1755,7 @@ describe('/v1', function() {
                   scope: 'foo bar bar',
                 }),
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assertSecurityHeaders(res);
                 return Server.api.post({
@@ -1766,7 +1768,7 @@ describe('/v1', function() {
                   },
                 });
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assertSecurityHeaders(res);
                 assert.equal(res.result.token_type, 'bearer');
@@ -1782,8 +1784,8 @@ describe('/v1', function() {
           });
         });
 
-        describe('access_type=offline', function() {
-          it('should return a correct response', function() {
+        describe('access_type=offline', function () {
+          it('should return a correct response', function () {
             mockAssertion().reply(200, VERIFY_GOOD);
             return Server.api
               .post({
@@ -1793,7 +1795,7 @@ describe('/v1', function() {
                   access_type: 'offline',
                 }),
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assertSecurityHeaders(res);
                 return Server.api.post({
@@ -1805,7 +1807,7 @@ describe('/v1', function() {
                   },
                 });
               })
-              .then(function(res) {
+              .then(function (res) {
                 assert.equal(res.statusCode, 200);
                 assertSecurityHeaders(res);
                 assert.equal(res.result.token_type, 'bearer');
@@ -1826,7 +1828,7 @@ describe('/v1', function() {
         });
       });
 
-      it('with a blank scope', function() {
+      it('with a blank scope', function () {
         mockAssertion().reply(200, VERIFY_GOOD);
         return Server.api
           .post({
@@ -1835,7 +1837,7 @@ describe('/v1', function() {
               scope: '',
             }),
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             return Server.api.post({
@@ -1847,7 +1849,7 @@ describe('/v1', function() {
               },
             });
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.equal(res.result.token_type, 'bearer');
@@ -1861,9 +1863,9 @@ describe('/v1', function() {
       });
     });
 
-    describe('?grant_type=refresh_token', function() {
-      describe('?refresh_token', function() {
-        it('should be required', function() {
+    describe('?grant_type=refresh_token', function () {
+      describe('?refresh_token', function () {
+        it('should be required', function () {
           return Server.api
             .post({
               url: '/token',
@@ -1873,13 +1875,13 @@ describe('/v1', function() {
                 grant_type: 'refresh_token',
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assertInvalidRequestParam(res.result, 'refresh_token');
               assertSecurityHeaders(res);
             });
         });
 
-        it('can refresh a token as a Public (PKCE) Client', function() {
+        it('can refresh a token as a Public (PKCE) Client', function () {
           var clientId = NO_KEY_SCOPES_CLIENT_ID;
           var clientSecret =
             'd914ea58d579ec907a1a40b19fb3f3a631461fe00e494521d41c0496f49d288f';
@@ -1896,7 +1898,7 @@ describe('/v1', function() {
               codeVerifier: 'WLjNEANMbRNUSG0uQsUZMQGgIL5FUknGz2jRipY79ZC',
             }
           )
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               refresh = res.result.refresh_token;
               assert(refresh);
@@ -1910,7 +1912,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(
                 res.statusCode,
                 400,
@@ -1927,7 +1929,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assert(res.result.expires_in);
               assert(res.result.access_token);
@@ -1935,7 +1937,7 @@ describe('/v1', function() {
             });
         });
 
-        it('should be an existing token', function() {
+        it('should be an existing token', function () {
           return Server.api
             .post({
               url: '/token',
@@ -1946,14 +1948,14 @@ describe('/v1', function() {
                 refresh_token: unique.token().toString('hex'),
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assertSecurityHeaders(res);
               assert.equal(res.result.errno, 108);
             });
         });
 
-        it('should be owned by the client_id', function() {
+        it('should be owned by the client_id', function () {
           var id2;
           var secret2 = unique.secret();
           var client2 = {
@@ -1965,11 +1967,11 @@ describe('/v1', function() {
           };
           return db
             .registerClient(client2)
-            .then(function(c) {
+            .then(function (c) {
               id2 = c.id.toString('hex');
               return newToken({ access_type: 'offline' }); //for main client
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               var refresh = res.result.refresh_token;
@@ -1984,16 +1986,16 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assertSecurityHeaders(res);
               assert.equal(res.result.errno, 108, 'invalid token');
             });
         });
 
-        it('should not create a new refresh token', function() {
+        it('should not create a new refresh token', function () {
           return newToken({ access_type: 'offline' })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return Server.api.post({
@@ -2006,7 +2008,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.refresh_token, undefined);
@@ -2014,13 +2016,13 @@ describe('/v1', function() {
         });
       });
 
-      describe('?scope', function() {
-        it('should default to returning the scopes that were originally requested', function() {
+      describe('?scope', function () {
+        it('should default to returning the scopes that were originally requested', function () {
           return newToken({
             access_type: 'offline',
             scope: 'foo bar:baz',
           })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.scope, 'foo bar:baz');
@@ -2034,19 +2036,19 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.scope, 'foo bar:baz');
             });
         });
 
-        it('should be able to reduce scopes', function() {
+        it('should be able to reduce scopes', function () {
           return newToken({
             access_type: 'offline',
             scope: 'foo bar:baz',
           })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.scope, 'foo bar:baz');
@@ -2061,19 +2063,19 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.scope, 'foo');
             });
         });
 
-        it('should not expand scopes', function() {
+        it('should not expand scopes', function () {
           return newToken({
             access_type: 'offline',
             scope: 'foo bar:baz',
           })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.scope, 'foo bar:baz');
@@ -2088,19 +2090,19 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assertSecurityHeaders(res);
               assert.equal(res.result.errno, 114);
             });
         });
 
-        it('should not expand read scope to write scope', function() {
+        it('should not expand read scope to write scope', function () {
           return newToken({
             access_type: 'offline',
             scope: 'foo',
           })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert.equal(res.result.scope, 'foo');
@@ -2115,7 +2117,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assertSecurityHeaders(res);
               assert.equal(res.result.errno, 114);
@@ -2123,10 +2125,10 @@ describe('/v1', function() {
         });
       });
 
-      describe('?ttl', function() {
-        it('should reduce the expires_in of the access_token', function() {
+      describe('?ttl', function () {
+        it('should reduce the expires_in of the access_token', function () {
           return newToken({ access_type: 'offline' })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return Server.api.post({
@@ -2140,16 +2142,16 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               assert(res.result.expires_in <= 60);
             });
         });
 
-        it('should not exceed the maximum', function() {
+        it('should not exceed the maximum', function () {
           return newToken({ access_type: 'offline' })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return Server.api.post({
@@ -2163,7 +2165,7 @@ describe('/v1', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assertInvalidRequestParam(res.result, 'ttl');
               assertSecurityHeaders(res);
             });
@@ -2171,7 +2173,7 @@ describe('/v1', function() {
       });
     });
 
-    describe('?grant_type=fxa-credentials', function() {
+    describe('?grant_type=fxa-credentials', function () {
       const clientId = '98e6508e88680e1a';
 
       it('assertion param should be required', async () => {
@@ -2289,9 +2291,9 @@ describe('/v1', function() {
       });
     });
 
-    describe('?scope=openid', function() {
+    describe('?scope=openid', function () {
       it("should return an id_token with user's sub if PPID not enabled for client", () => {
-        return newToken({ scope: 'openid' }).then(res => {
+        return newToken({ scope: 'openid' }).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert(res.result.access_token);
@@ -2322,7 +2324,7 @@ describe('/v1', function() {
         return newToken(
           { scope: 'openid' },
           { resource: 'https://resource.server1.com' }
-        ).then(res => {
+        ).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert(res.result.access_token);
@@ -2341,7 +2343,7 @@ describe('/v1', function() {
         const ppidClient = clientByName('PPID JWT Client');
 
         return newToken({ scope: 'openid' }, { clientId: ppidClient.id }).then(
-          res => {
+          (res) => {
             assert.equal(res.statusCode, 200);
             const { claims } = decodeJWT(res.result.id_token);
             assert.notEqual(claims.sub, USERID);
@@ -2399,46 +2401,50 @@ describe('/v1', function() {
         let verifierResponse = JSON.parse(VERIFY_GOOD);
         delete verifierResponse.idpClaims['fxa-amr'];
         verifierResponse = JSON.stringify(verifierResponse);
-        return newToken({ scope: 'openid' }, { verifierResponse }).then(res => {
-          assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
-          assert(res.result.id_token);
-          const jwt = decodeJWT(res.result.id_token);
-          const claims = jwt.claims;
+        return newToken({ scope: 'openid' }, { verifierResponse }).then(
+          (res) => {
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert(res.result.id_token);
+            const jwt = decodeJWT(res.result.id_token);
+            const claims = jwt.claims;
 
-          assert.equal(claims.sub, USERID);
-          assert.equal(claims.aud, clientId);
-          assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
-          assert.equal(claims.amr, undefined);
-          assert.equal(claims.acr, ACR);
-          assert.equal(claims['fxa-aal'], AAL);
-        });
+            assert.equal(claims.sub, USERID);
+            assert.equal(claims.aud, clientId);
+            assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
+            assert.equal(claims.amr, undefined);
+            assert.equal(claims.acr, ACR);
+            assert.equal(claims['fxa-aal'], AAL);
+          }
+        );
       });
 
       it('should omit acr and fxa-aal claims when not given in the assertion', () => {
         let verifierResponse = JSON.parse(VERIFY_GOOD);
         delete verifierResponse.idpClaims['fxa-aal'];
         verifierResponse = JSON.stringify(verifierResponse);
-        return newToken({ scope: 'openid' }, { verifierResponse }).then(res => {
-          assert.equal(res.statusCode, 200);
-          assertSecurityHeaders(res);
-          assert(res.result.id_token);
-          const jwt = decodeJWT(res.result.id_token);
-          const claims = jwt.claims;
+        return newToken({ scope: 'openid' }, { verifierResponse }).then(
+          (res) => {
+            assert.equal(res.statusCode, 200);
+            assertSecurityHeaders(res);
+            assert(res.result.id_token);
+            const jwt = decodeJWT(res.result.id_token);
+            const claims = jwt.claims;
 
-          assert.equal(claims.sub, USERID);
-          assert.equal(claims.aud, clientId);
-          assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
-          assert.deepEqual(claims.amr, AMR);
-          assert.equal(claims.acr, undefined);
-          assert.equal(claims['fxa-aal'], undefined);
-        });
+            assert.equal(claims.sub, USERID);
+            assert.equal(claims.aud, clientId);
+            assert.equal(claims.iss, config.get('oauthServer.openid.issuer'));
+            assert.deepEqual(claims.amr, AMR);
+            assert.equal(claims.acr, undefined);
+            assert.equal(claims['fxa-aal'], undefined);
+          }
+        );
       });
 
-      it('should be available to untrusted reliers', function() {
+      it('should be available to untrusted reliers', function () {
         const client = clientByName('Untrusted');
         return newToken({ scope: 'openid' }, { client_id: client.id }).then(
-          res => {
+          (res) => {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert(res.result.access_token);
@@ -2458,13 +2464,13 @@ describe('/v1', function() {
               client_id: clientId,
             }),
           })
-          .then(res => {
+          .then((res) => {
             return res.result.code;
           });
       }
       it('works with https redirect_uri', () => {
         return getCode(clientId)
-          .then(code => {
+          .then((code) => {
             return Server.api.post({
               url: '/token',
               payload: {
@@ -2476,14 +2482,14 @@ describe('/v1', function() {
               },
             });
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.statusCode, 200);
           });
       });
 
       it('works with app redirect_uri', () => {
         return getCode(clientId)
-          .then(code => {
+          .then((code) => {
             return Server.api.post({
               url: '/token',
               payload: {
@@ -2494,14 +2500,14 @@ describe('/v1', function() {
               },
             });
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.statusCode, 200);
           });
       });
 
       it('works with query parameters', () => {
         return getCode(clientId)
-          .then(code => {
+          .then((code) => {
             return Server.api.post({
               url: '/token',
               payload: {
@@ -2512,14 +2518,14 @@ describe('/v1', function() {
               },
             });
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.statusCode, 200);
           });
       });
 
       it('is validated', () => {
         return getCode(clientId)
-          .then(code => {
+          .then((code) => {
             return Server.api.post({
               url: '/token',
               payload: {
@@ -2530,7 +2536,7 @@ describe('/v1', function() {
               },
             });
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.statusCode, 400);
             assertInvalidRequestParam(res.result, 'redirect_uri');
             assertSecurityHeaders(res);
@@ -2539,11 +2545,11 @@ describe('/v1', function() {
     });
   });
 
-  describe('/client', function() {
-    describe('GET /:id', function() {
-      describe('response', function() {
-        it('should return the correct response', function() {
-          return Server.api.get('/client/' + clientId).then(function(res) {
+  describe('/client', function () {
+    describe('GET /:id', function () {
+      describe('response', function () {
+        it('should return the correct response', function () {
+          return Server.api.get('/client/' + clientId).then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             var body = res.result;
@@ -2555,7 +2561,7 @@ describe('/v1', function() {
         });
 
         it('should error for unknown clients', () => {
-          return Server.api.get('/client/100200300').then(res => {
+          return Server.api.get('/client/100200300').then((res) => {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
             const body = res.result;
@@ -2565,8 +2571,8 @@ describe('/v1', function() {
         });
       });
 
-      it('should allow for clients with no redirect_uri', function() {
-        return Server.api.get('/client/ea3ca969f8c6bb0d').then(function(res) {
+      it('should allow for clients with no redirect_uri', function () {
+        return Server.api.get('/client/ea3ca969f8c6bb0d').then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           var body = res.result;
@@ -2577,10 +2583,10 @@ describe('/v1', function() {
       });
     });
 
-    describe('POST /key-data', function() {
+    describe('POST /key-data', function () {
       let genericRequest;
 
-      beforeEach(function() {
+      beforeEach(function () {
         genericRequest = {
           url: '/key-data',
           payload: {
@@ -2593,7 +2599,7 @@ describe('/v1', function() {
 
       it('works with a correct response', () => {
         mockAssertion().reply(200, VERIFY_GOOD);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(
@@ -2622,7 +2628,7 @@ describe('/v1', function() {
           'https://identity.mozilla.com/apps/another-can-scope-key';
         genericRequest.payload.scope = `${SCOPE_CAN_SCOPE_KEY} ${ANOTHER_CAN_SCOPE_KEY}`;
 
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(
@@ -2653,7 +2659,7 @@ describe('/v1', function() {
       it('fails with non-existent client_id', () => {
         genericRequest.payload.client_id = BAD_CLIENT_ID;
         mockAssertion().reply(200, VERIFY_GOOD);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 400);
           assertSecurityHeaders(res);
           const body = res.result;
@@ -2666,7 +2672,7 @@ describe('/v1', function() {
         genericRequest.payload.scope =
           'https://identity.mozilla.com/apps/sample-scope';
         mockAssertion().reply(200, VERIFY_GOOD);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(Object.keys(res.result).length, 0, 'no scoped keys');
@@ -2676,7 +2682,7 @@ describe('/v1', function() {
       it('succeeds with scopes that arent explicitly defined in config', () => {
         genericRequest.payload.scope += ' kv';
         mockAssertion().reply(200, VERIFY_GOOD);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.deepEqual(
@@ -2689,7 +2695,7 @@ describe('/v1', function() {
 
       it('fails with bad assertion', () => {
         mockAssertion().reply(200, VERIFY_FAILURE);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 401);
           assertSecurityHeaders(res);
           const body = res.result;
@@ -2701,7 +2707,7 @@ describe('/v1', function() {
         genericRequest.payload.client_id = NO_KEY_SCOPES_CLIENT_ID;
 
         mockAssertion().reply(200, VERIFY_GOOD);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Requested scopes are not allowed');
           assertSecurityHeaders(res);
@@ -2712,7 +2718,7 @@ describe('/v1', function() {
         genericRequest.payload.client_id = NO_ALLOWED_SCOPES_CLIENT_ID;
 
         mockAssertion().reply(200, VERIFY_GOOD);
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 400);
           assert.equal(res.result.message, 'Requested scopes are not allowed');
           assertSecurityHeaders(res);
@@ -2727,7 +2733,7 @@ describe('/v1', function() {
             generation: 1549910733629,
           })
         );
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(
@@ -2746,7 +2752,7 @@ describe('/v1', function() {
             keysChangedAt: 1549910340000,
           })
         );
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(
@@ -2767,7 +2773,7 @@ describe('/v1', function() {
             keysChangedAt: undefined,
           })
         );
-        return Server.api.post(genericRequest).then(res => {
+        return Server.api.post(genericRequest).then((res) => {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(
@@ -2782,9 +2788,9 @@ describe('/v1', function() {
     });
   });
 
-  describe('/verify', function() {
-    describe('unknown token', function() {
-      it('should not error', function() {
+  describe('/verify', function () {
+    describe('unknown token', function () {
+      it('should not error', function () {
         return Server.api
           .post({
             url: '/verify',
@@ -2792,14 +2798,14 @@ describe('/v1', function() {
               token: unique.token().toString('hex'),
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
           });
       });
     });
 
-    it('should reject expired tokens from after the epoch', function() {
+    it('should reject expired tokens from after the epoch', function () {
       this.slow(2200);
       var epoch = config.get('oauthServer.expiration.accessTokenExpiryEpoch');
       config.set('oauthServer.expiration.accessTokenExpiryEpoch', Date.now());
@@ -2807,7 +2813,7 @@ describe('/v1', function() {
         ttl: 1,
       })
         .delay(1500)
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(res.result.expires_in, 1);
@@ -2818,20 +2824,20 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 400);
           assertSecurityHeaders(res);
           assert.equal(res.result.errno, 108);
         })
-        .finally(function() {
+        .finally(function () {
           config.set('oauthServer.expiration.accessTokenExpiryEpoch', epoch);
         });
     });
 
-    describe('response', function() {
-      it('should return the correct response', function() {
+    describe('response', function () {
+      it('should return the correct response', function () {
         return newToken({ scope: 'profile' })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             return Server.api.post({
@@ -2841,7 +2847,7 @@ describe('/v1', function() {
               },
             });
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.equal(res.result.user, USERID);
@@ -2852,12 +2858,12 @@ describe('/v1', function() {
           });
       });
 
-      it('should return profile_changed_at when set', function() {
+      it('should return profile_changed_at when set', function () {
         const verifierResponse = mockVerifierResult({
           profileChangedAt: PROFILE_CHANGED_AT_LATER_TIME,
         });
         return newToken({ scope: 'profile' }, { verifierResponse })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             return Server.api.post({
@@ -2867,7 +2873,7 @@ describe('/v1', function() {
               },
             });
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             assert.equal(res.result.user, USERID);
@@ -2883,9 +2889,9 @@ describe('/v1', function() {
       });
     });
 
-    it('should not return the email by default for profile:email scope', function() {
+    it('should not return the email by default for profile:email scope', function () {
       return newToken({ scope: 'profile:email' })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           return Server.api.post({
@@ -2895,16 +2901,16 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(res.result.email, undefined);
         });
     });
 
-    it('should not return email for payload having email:false', function() {
+    it('should not return email for payload having email:false', function () {
       return newToken({ scope: 'profile:email' })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           return Server.api.post({
@@ -2915,16 +2921,16 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(res.result.email, undefined);
         });
     });
 
-    it('should not return email for payload having email:true', function() {
+    it('should not return email for payload having email:true', function () {
       return newToken({ scope: 'profile:email' })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           return Server.api.post({
@@ -2935,7 +2941,7 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.equal(res.result.email, undefined);
@@ -2943,11 +2949,11 @@ describe('/v1', function() {
     });
   });
 
-  describe('/destroy', function() {
-    it('should destroy access tokens', function() {
+  describe('/destroy', function () {
+    it('should destroy access tokens', function () {
       var token;
       return newToken()
-        .then(function(res) {
+        .then(function (res) {
           token = res.result.access_token;
           return Server.api.post({
             url: '/destroy',
@@ -2956,20 +2962,20 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.deepEqual(res.result, {});
-          return db.getAccessToken(encrypt.hash(token)).then(function(tok) {
+          return db.getAccessToken(encrypt.hash(token)).then(function (tok) {
             assert.equal(tok, undefined);
           });
         });
     });
 
-    it('should destroy refresh tokens', function() {
+    it('should destroy refresh tokens', function () {
       var token;
       return newToken({ access_type: 'offline' })
-        .then(function(res) {
+        .then(function (res) {
           token = res.result.refresh_token;
           return Server.api.post({
             url: '/destroy',
@@ -2978,20 +2984,20 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.deepEqual(res.result, {});
-          return db.getRefreshToken(encrypt.hash(token)).then(function(tok) {
+          return db.getRefreshToken(encrypt.hash(token)).then(function (tok) {
             assert.equal(tok, undefined);
           });
         });
     });
 
-    it('should destroy refresh tokens by id', function() {
+    it('should destroy refresh tokens by id', function () {
       var token;
       return newToken({ access_type: 'offline' })
-        .then(function(res) {
+        .then(function (res) {
           token = res.result.refresh_token;
           const refreshTokenId = encrypt.hash(token).toString('hex');
           return Server.api.post({
@@ -3001,20 +3007,20 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
           assert.deepEqual(res.result, {});
-          return db.getRefreshToken(encrypt.hash(token)).then(function(tok) {
+          return db.getRefreshToken(encrypt.hash(token)).then(function (tok) {
             assert.equal(tok, undefined);
           });
         });
     });
 
-    it('should accept and ignore client_secret without client_id, for historical reasons', function() {
+    it('should accept and ignore client_secret without client_id, for historical reasons', function () {
       // Historical reasons ref https://github.com/mozilla/fxa-oauth-server/pull/198
       return newToken()
-        .then(function(res) {
+        .then(function (res) {
           return Server.api.post({
             url: '/destroy',
             payload: {
@@ -3023,16 +3029,16 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should accept empty client_secret without client_id, for historical reasons', function() {
+    it('should accept empty client_secret without client_id, for historical reasons', function () {
       // Historical reasons ref https://github.com/mozilla/fxa-oauth-server/pull/198
       return newToken()
-        .then(function(res) {
+        .then(function (res) {
           return Server.api.post({
             url: '/destroy',
             payload: {
@@ -3041,7 +3047,7 @@ describe('/v1', function() {
             },
           });
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res);
         });
@@ -3134,13 +3140,13 @@ describe('/v1', function() {
     });
   });
 
-  describe('/jwks', function() {
-    it('should not include the private part of the key', function() {
+  describe('/jwks', function () {
+    it('should not include the private part of the key', function () {
       return Server.api
         .get({
           url: '/jwks',
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res, {
             'cache-control': 'max-age=10, must-revalidate, public',
@@ -3153,7 +3159,7 @@ describe('/v1', function() {
         });
     });
 
-    it('should include the oldKey if present', function() {
+    it('should include the oldKey if present', function () {
       assert.ok(
         config.get('oauthServer.openid.oldKey'),
         'openid.oldKey should be present by default during tests'
@@ -3162,7 +3168,7 @@ describe('/v1', function() {
         .get({
           url: '/jwks',
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assertSecurityHeaders(res, {
             'cache-control': 'max-age=10, must-revalidate, public',
@@ -3403,7 +3409,7 @@ describe('/v1', function() {
       });
     });
 
-    describe('POST /authorized-clients/destroy', function() {
+    describe('POST /authorized-clients/destroy', function () {
       it('can delete all tokens a target client id', async () => {
         await makeAccessToken(client1, user1, ['profile']);
         await makeRefreshToken(client2, user1, ['profile']);

@@ -10,13 +10,13 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const buf = require('buf').hex;
 const hashRefreshToken = require('../../lib/oauth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
-describe('attached clients listing', function() {
+describe('attached clients listing', function () {
   this.timeout(15000);
   let server, oauthServerDb;
   before(async () => {
@@ -91,7 +91,7 @@ describe('attached clients listing', function() {
     );
     allClients = await client.attachedClients();
     assert.equal(allClients.length, 2);
-    const one = allClients.findIndex(c => c.name === 'test device');
+    const one = allClients.findIndex((c) => c.name === 'test device');
     const zero = (one + 1) % allClients.length;
     assert.equal(allClients[zero].sessionTokenId, mySessionTokenId);
     assert.equal(allClients[zero].deviceId, device.id);

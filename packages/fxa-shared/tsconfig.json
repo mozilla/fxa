@@ -1,6 +1,7 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
+    "composite": true,
     "outDir": "./dist",
     "allowJs": true,
     "target": "es6",
@@ -12,6 +13,6 @@
     "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types"],
     "skipLibCheck": true
   },
-  "include": ["./**/*", "./*"],
+  "include": ["./**/*", "./*", "./**/*.json"],
   "exclude": ["dist", "node_modules"]
 }

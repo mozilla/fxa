@@ -13,11 +13,11 @@ const isA = require('@hapi/joi');
 const P = require('../promise');
 const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
-const { emailsMatch } = require('../../../fxa-shared/email/helpers');
+const { emailsMatch } = require('fxa-shared/email/helpers');
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
-module.exports = function(
+module.exports = function (
   log,
   db,
   Password,
@@ -50,7 +50,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Password.changeStart', request);
         const form = request.payload;
         const oldAuthPW = form.oldAuthPW;
@@ -59,7 +59,7 @@ module.exports = function(
           .check(request, form.email, 'passwordChange')
           .then(db.accountRecord.bind(db, form.email))
           .then(
-            emailRecord => {
+            (emailRecord) => {
               const password = new Password(
                 oldAuthPW,
                 emailRecord.authSalt,
@@ -67,7 +67,7 @@ module.exports = function(
               );
               return signinUtils
                 .checkPassword(emailRecord, password, request.app.clientAddress)
-                .then(match => {
+                .then((match) => {
                   if (!match) {
                     throw error.incorrectPassword(
                       emailRecord.email,
@@ -81,7 +81,7 @@ module.exports = function(
                   );
                   return password.unwrap(emailRecord.wrapWrapKb);
                 })
-                .then(wrapKb => {
+                .then((wrapKb) => {
                   return db
                     .createKeyFetchToken({
                       uid: emailRecord.uid,
@@ -89,12 +89,12 @@ module.exports = function(
                       wrapKb: wrapKb,
                       emailVerified: emailRecord.emailVerified,
                     })
-                    .then(keyFetchToken => {
+                    .then((keyFetchToken) => {
                       return db
                         .createPasswordChangeToken({
                           uid: emailRecord.uid,
                         })
-                        .then(passwordChangeToken => {
+                        .then((passwordChangeToken) => {
                           return {
                             keyFetchToken: keyFetchToken,
                             passwordChangeToken: passwordChangeToken,
@@ -103,7 +103,7 @@ module.exports = function(
                     });
                 });
             },
-            err => {
+            (err) => {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
                 customs.flag(request.app.clientAddress, {
                   email: form.email,
@@ -113,7 +113,7 @@ module.exports = function(
               throw err;
             }
           )
-          .then(tokens => {
+          .then((tokens) => {
             return {
               keyFetchToken: tokens.keyFetchToken.data,
               passwordChangeToken: tokens.passwordChangeToken.data,
@@ -145,7 +145,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
         const authPW = request.payload.authPW;
@@ -172,7 +172,7 @@ module.exports = function(
           .then(createResponse);
 
         function checkTotpToken() {
-          return otpUtils.hasTotpToken(passwordChangeToken).then(result => {
+          return otpUtils.hasTotpToken(passwordChangeToken).then((result) => {
             hasTotp = result;
 
             // Currently, users that have a TOTP token must specify a sessionTokenId to complete the
@@ -187,7 +187,7 @@ module.exports = function(
 
         function getSessionVerificationStatus() {
           if (sessionTokenId) {
-            return db.sessionToken(sessionTokenId).then(tokenData => {
+            return db.sessionToken(sessionTokenId).then((tokenData) => {
               verifiedStatus = tokenData.tokenVerified;
               if (tokenData.deviceId) {
                 originatingDeviceId = tokenData.deviceId;
@@ -207,14 +207,14 @@ module.exports = function(
         function fetchDevicesToNotify() {
           // We fetch the devices to notify before changePassword() because
           // db.resetAccount() deletes all the devices saved in the account.
-          return request.app.devices.then(devices => {
+          return request.app.devices.then((devices) => {
             devicesToNotify = devices;
             // If the originating sessionToken belongs to a device,
             // do not send the notification to that device. It will
             // get informed about the change via WebChannel message.
             if (originatingDeviceId) {
               devicesToNotify = devicesToNotify.filter(
-                d => d.id !== originatingDeviceId
+                (d) => d.id !== originatingDeviceId
               );
             }
           });
@@ -224,7 +224,7 @@ module.exports = function(
           let authSalt, password;
           return random
             .hex(32)
-            .then(hex => {
+            .then((hex) => {
               authSalt = hex;
               password = new Password(authPW, authSalt, verifierVersion);
               return db.deletePasswordChangeToken(passwordChangeToken);
@@ -232,11 +232,11 @@ module.exports = function(
             .then(() => {
               return password.verifyHash();
             })
-            .then(hash => {
+            .then((hash) => {
               verifyHash = hash;
               return password.wrap(wrapKb);
             })
-            .then(wrapWrapKb => {
+            .then((wrapWrapKb) => {
               // Reset account, delete all sessions and tokens
               return db.resetAccount(passwordChangeToken, {
                 verifyHash: verifyHash,
@@ -246,7 +246,7 @@ module.exports = function(
                 keysHaveChanged: false,
               });
             })
-            .then(result => {
+            .then((result) => {
               return request
                 .emitMetricsEvent('account.changedPassword', {
                   uid: passwordChangeToken.uid,
@@ -268,7 +268,7 @@ module.exports = function(
 
           return db
             .account(passwordChangeToken.uid)
-            .then(accountData => {
+            .then((accountData) => {
               account = accountData;
 
               log.notifyAttachedServices('passwordChange', request, {
@@ -282,7 +282,7 @@ module.exports = function(
             .then(() => {
               return db.accountEmails(passwordChangeToken.uid);
             })
-            .then(emails => {
+            .then((emails) => {
               const geoData = request.app.geo;
               const {
                 browser: uaBrowser,
@@ -305,7 +305,7 @@ module.exports = function(
                   uaDeviceType,
                   uid: passwordChangeToken.uid,
                 })
-                .catch(e => {
+                .catch((e) => {
                   // If we couldn't email them, no big deal. Log
                   // and pretend everything worked.
                   log.trace(
@@ -325,7 +325,7 @@ module.exports = function(
                 return random.hex(16);
               }
             })
-            .then(maybeToken => {
+            .then((maybeToken) => {
               const {
                 browser: uaBrowser,
                 browserVersion: uaBrowserVersion,
@@ -354,7 +354,7 @@ module.exports = function(
 
               return db.createSessionToken(sessionTokenOptions);
             })
-            .then(result => {
+            .then((result) => {
               sessionToken = result;
             });
         }
@@ -370,7 +370,7 @@ module.exports = function(
                 wrapKb: wrapKb,
                 emailVerified: account.emailVerified,
               })
-              .then(result => {
+              .then((result) => {
                 keyFetchToken = result;
               });
           }
@@ -411,10 +411,7 @@ module.exports = function(
             email: validators.email().required(),
             service: validators.service,
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA
-              .string()
-              .max(2048)
-              .optional(),
+            resume: isA.string().max(2048).optional(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
@@ -427,7 +424,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Password.forgotSend', request);
         const email = request.payload.email;
         const service = request.payload.service || request.query.service;
@@ -453,7 +450,7 @@ module.exports = function(
           customs.check(request, email, 'passwordForgotSendCode'),
         ])
           .then(db.accountRecord.bind(db, email))
-          .then(accountRecord => {
+          .then((accountRecord) => {
             if (
               !emailsMatch(accountRecord.primaryEmail.normalizedEmail, email)
             ) {
@@ -464,7 +461,7 @@ module.exports = function(
             accountRecord.createdAt = undefined;
             return db.createPasswordForgotToken(accountRecord);
           })
-          .then(result => {
+          .then((result) => {
             passwordForgotToken = result;
             return P.all([
               request.stashMetricsContext(passwordForgotToken),
@@ -529,10 +526,7 @@ module.exports = function(
             email: validators.email().required(),
             service: validators.service,
             redirectTo: validators.redirectTo(redirectDomain).optional(),
-            resume: isA
-              .string()
-              .max(2048)
-              .optional(),
+            resume: isA.string().max(2048).optional(),
           },
         },
         response: {
@@ -544,7 +538,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Password.forgotResend', request);
         const passwordForgotToken = request.auth.credentials;
         const service = request.payload.service || request.query.service;
@@ -562,7 +556,7 @@ module.exports = function(
           ),
         ])
           .then(() => {
-            return db.accountEmails(passwordForgotToken.uid).then(emails => {
+            return db.accountEmails(passwordForgotToken.uid).then((emails) => {
               const geoData = request.app.geo;
               const {
                 browser: uaBrowser,
@@ -619,12 +613,7 @@ module.exports = function(
         },
         validate: {
           payload: {
-            code: isA
-              .string()
-              .min(32)
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             accountResetWithRecoveryKey: isA.boolean().optional(),
           },
         },
@@ -634,7 +623,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Password.forgotVerify', request);
         const passwordForgotToken = request.auth.credentials;
         const code = request.payload.code;
@@ -669,7 +658,7 @@ module.exports = function(
               });
             });
           })
-          .then(result => {
+          .then((result) => {
             accountResetToken = result;
             return P.all([
               request.propagateMetricsContext(
@@ -718,7 +707,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Password.forgotStatus', request);
         const passwordForgotToken = request.auth.credentials;
         return {

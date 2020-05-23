@@ -8,7 +8,7 @@ const Joi = require('@hapi/joi');
 const db = require('../../db');
 const validators = require('../../validators');
 const verifyAssertion = require('../../assertion');
-const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token, acceptLanguage) {
@@ -39,20 +39,13 @@ module.exports = {
         client_id: validators.clientId,
         refresh_token_id: validators.token.optional(),
         client_name: Joi.string().required(),
-        created_time: Joi.number()
-          .min(0)
-          .required(),
-        last_access_time: Joi.number()
-          .min(0)
-          .required()
-          .allow(null),
-        scope: Joi.array()
-          .items(Joi.string())
-          .required(),
+        created_time: Joi.number().min(0).required(),
+        last_access_time: Joi.number().min(0).required().allow(null),
+        scope: Joi.array().items(Joi.string()).required(),
       })
     ),
   },
-  handler: async function(req) {
+  handler: async function (req) {
     const claims = await verifyAssertion(req.payload.assertion);
     const authorizedClients = [];
 
@@ -107,7 +100,7 @@ module.exports = {
     }
 
     // Sort the final list first by last_access_time, then by client_name, then by created_time.
-    authorizedClients.sort(function(a, b) {
+    authorizedClients.sort(function (a, b) {
       if (b.last_access_time > a.last_access_time) {
         return 1;
       }

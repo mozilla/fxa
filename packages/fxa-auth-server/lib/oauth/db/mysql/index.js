@@ -11,7 +11,7 @@ const MysqlPatcher = require('mysql-patcher');
 
 const encrypt = require('../../encrypt');
 const P = require('../../../promise');
-const ScopeSet = require('../../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const unique = require('../../unique');
 const AccessToken = require('../accessToken');
 const patch = require('./patch');
@@ -29,7 +29,7 @@ function MysqlStore(options) {
   } else {
     options.charset = REQUIRED_CHARSET;
   }
-  options.typeCast = function(field, next) {
+  options.typeCast = function (field, next) {
     if (field.type === 'TINY' && field.length === 1) {
       return field.string() === '1';
     }
@@ -37,7 +37,7 @@ function MysqlStore(options) {
   };
   logger.info('pool.create', { options: options });
   var pool = (this._pool = mysql.createPool(options));
-  pool.on('enqueue', function() {
+  pool.on('enqueue', function () {
     logger.info('pool.enqueue', {
       queueLength: pool._connectionQueue && pool._connectionQueue.length,
     });
@@ -51,7 +51,7 @@ function updateDbSchema(patcher) {
   logger.verbose('updateDbSchema', patcher.options);
 
   var d = P.defer();
-  patcher.patch(function(err) {
+  patcher.patch(function (err) {
     if (err) {
       logger.error('updateDbSchema', err);
       return d.reject(err);
@@ -69,7 +69,7 @@ function checkDbPatchLevel(patcher) {
 
   var d = P.defer();
 
-  patcher.readDbPatchLevel(function(err) {
+  patcher.readDbPatchLevel(function (err) {
     if (err) {
       return d.reject(err);
     }
@@ -103,22 +103,22 @@ MysqlStore.connect = function mysqlConnect(options) {
   var patcher = new MysqlPatcher(options);
 
   return P.promisify(patcher.connect, { context: patcher })()
-    .then(function() {
+    .then(function () {
       if (options.createSchema) {
         return updateDbSchema(patcher);
       }
     })
-    .then(function() {
+    .then(function () {
       return checkDbPatchLevel(patcher);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       logger.error('checkDbPatchLevel', error);
       throw error;
     })
-    .finally(function() {
+    .finally(function () {
       return P.promisify(patcher.end, { context: patcher })();
     })
-    .then(function() {
+    .then(function () {
       return new MysqlStore(options);
     });
 };
@@ -270,9 +270,9 @@ MysqlStore.prototype = {
     logger.debug('ping');
     // see bluebird.using():
     // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
-    return P.using(this._getConnection(), function(conn) {
-      return new P(function(resolve, reject) {
-        conn.ping(function(err) {
+    return P.using(this._getConnection(), function (conn) {
+      return new P(function (resolve, reject) {
+        conn.ping(function (err) {
           if (err) {
             logger.error('ping:', err);
             reject(err);
@@ -310,7 +310,7 @@ MysqlStore.prototype = {
       client.allowedScopes ? client.allowedScopes : null,
       !!client.canGrant,
       !!client.publicClient,
-    ]).then(function() {
+    ]).then(function () {
       logger.debug('registerClient.success', { id: hex(id) });
       client.id = id;
       return client;
@@ -352,19 +352,19 @@ MysqlStore.prototype = {
     var developerId = unique.developerId();
     logger.debug('activateDeveloper', { developerId: developerId });
     return this._write(QUERY_DEVELOPER_INSERT, [developerId, email]).then(
-      function() {
+      function () {
         return this.getDeveloper(email);
       }.bind(this)
     );
   },
-  getDeveloper: function(email) {
+  getDeveloper: function (email) {
     if (!email) {
       return P.reject(new Error('Email is required'));
     }
 
     return this._readOne(QUERY_DEVELOPER, [email]);
   },
-  removeDeveloper: function(email) {
+  removeDeveloper: function (email) {
     if (!email) {
       return P.reject(new Error('Email is required'));
     }
@@ -375,7 +375,7 @@ MysqlStore.prototype = {
     return this._readOne(QUERY_DEVELOPER_OWNS_CLIENT, [
       developerEmail,
       buf(clientId),
-    ]).then(function(result) {
+    ]).then(function (result) {
       if (result) {
         return P.resolve(true);
       } else {
@@ -439,13 +439,13 @@ MysqlStore.prototype = {
       codeObj.keysJwe,
       codeObj.profileChangedAt,
       codeObj.sessionTokenId,
-    ]).then(function() {
+    ]).then(function () {
       return code;
     });
   },
   getCode: function getCode(code) {
     var hash = encrypt.hash(code);
-    return this._readOne(QUERY_CODE_FIND, [hash]).then(function(code) {
+    return this._readOne(QUERY_CODE_FIND, [hash]).then(function (code) {
       if (code) {
         code.scope = ScopeSet.fromString(code.scope);
         if (code.amr !== null) {
@@ -479,7 +479,7 @@ MysqlStore.prototype = {
    * @returns {*}
    */
   _getAccessToken: function _getAccessToken(id) {
-    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function(t) {
+    return this._readOne(QUERY_ACCESS_TOKEN_FIND, [buf(id)]).then(function (t) {
       if (t) {
         t = AccessToken.fromMySQL(t);
       }
@@ -505,7 +505,7 @@ MysqlStore.prototype = {
     const accessTokens = await this._read(QUERY_LIST_ACCESS_TOKENS_BY_UID, [
       buf(uid),
     ]);
-    return accessTokens.map(t => {
+    return accessTokens.map((t) => {
       return AccessToken.fromMySQL(t);
     });
   },
@@ -519,7 +519,7 @@ MysqlStore.prototype = {
     const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
       buf(uid),
     ]);
-    refreshTokens.forEach(t => {
+    refreshTokens.forEach((t) => {
       t.scope = ScopeSet.fromString(t.scope);
     });
     return refreshTokens;
@@ -624,14 +624,14 @@ MysqlStore.prototype = {
       t.scope.toString(),
       hash,
       t.profileChangedAt,
-    ]).then(function() {
+    ]).then(function () {
       t.token = token;
       return t;
     });
   },
 
   getRefreshToken: function getRefreshToken(token) {
-    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function(
+    return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function (
       t
     ) {
       if (t) {
@@ -659,14 +659,14 @@ MysqlStore.prototype = {
 
     var self = this;
     var qry = 'SHOW VARIABLES LIKE "%character\\_set\\_%"';
-    return this._read(qry).then(function(rows) {
-      rows.forEach(function(row) {
+    return this._read(qry).then(function (rows) {
+      rows.forEach(function (row) {
         info[row.Variable_name] = row.Value;
       });
 
       qry = 'SHOW VARIABLES LIKE "%collation\\_%"';
-      return self._read(qry).then(function(rows) {
-        rows.forEach(function(row) {
+      return self._read(qry).then(function (rows) {
+        rows.forEach(function (row) {
           info[row.Variable_name] = row.Value;
         });
         return info;
@@ -733,8 +733,8 @@ MysqlStore.prototype = {
     // ALWAYS be called at the end of the promise stack, regardless of
     // various errors thrown. So this should ALWAYS release the connection.
     var pool = this._pool;
-    return new P(function(resolve, reject) {
-      pool.getConnection(function(err, conn) {
+    return new P(function (resolve, reject) {
+      pool.getConnection(function (err, conn) {
         if (err) {
           return reject(err);
         }
@@ -780,9 +780,9 @@ MysqlStore.prototype = {
   },
 
   _query: function _query(sql, params) {
-    return P.using(this._getConnection(), function(conn) {
-      return new P(function(resolve, reject) {
-        conn.query(sql, params || [], function(err, results) {
+    return P.using(this._getConnection(), function (conn) {
+      return new P(function (resolve, reject) {
+        conn.query(sql, params || [], function (err, results) {
           if (err) {
             reject(err);
           } else {

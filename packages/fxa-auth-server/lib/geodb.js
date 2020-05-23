@@ -5,7 +5,7 @@
 'use strict';
 
 const config = require('../config').get('geodb');
-const geodb = require('../../fxa-geodb')(config);
+const geodb = require('fxa-geodb')(config);
 const ACCURACY_MAX_KM = 200;
 const ACCURACY_MIN_KM = 25;
 
@@ -19,10 +19,10 @@ geodb(knownIp);
  * and catch errors. On success, returns an object with
  * `location` data. On failure, returns an empty object
  **/
-module.exports = log => {
+module.exports = (log) => {
   log.info('geodb.start', { enabled: config.enabled, dbPath: config.dbPath });
 
-  return ip => {
+  return (ip) => {
     if (config.enabled === false) {
       return {};
     }

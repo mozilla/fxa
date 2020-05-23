@@ -40,7 +40,7 @@ const validators = require('../validators');
 const { validateRequestedGrant, generateTokens } = require('../grant');
 const verifyAssertion = require('../assertion');
 const { authenticateClient, clientAuthValidators } = require('../client');
-const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
 
@@ -97,11 +97,7 @@ const PAYLOAD_SCHEMA = Joi.object({
     .default(GRANT_AUTHORIZATION_CODE)
     .optional(),
 
-  ttl: Joi.number()
-    .positive()
-    .max(MAX_TTL_S)
-    .default(MAX_TTL_S)
-    .optional(),
+  ttl: Joi.number().positive().max(MAX_TTL_S).default(MAX_TTL_S).optional(),
 
   scope: Joi.alternatives()
     .when('grant_type', {
@@ -167,12 +163,8 @@ module.exports = {
       id_token: validators.assertion,
       session_token_id: validators.sessionTokenId.optional(),
       scope: validators.scope.required(),
-      token_type: Joi.string()
-        .valid('bearer')
-        .required(),
-      expires_in: Joi.number()
-        .max(MAX_TTL_S)
-        .required(),
+      token_type: Joi.string().valid('bearer').required(),
+      expires_in: Joi.number().max(MAX_TTL_S).required(),
       auth_at: Joi.number(),
       keys_jwe: validators.jwe.optional(),
     }),
@@ -372,9 +364,6 @@ async function validateAssertionGrant(client, params) {
  */
 function pkceHash(input) {
   return util.base64URLEncode(
-    crypto
-      .createHash('sha256')
-      .update(input)
-      .digest()
+    crypto.createHash('sha256').update(input).digest()
   );
 }

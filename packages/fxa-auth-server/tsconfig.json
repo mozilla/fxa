@@ -7,7 +7,9 @@
     "checkJs": false,
     "target": "ES2019",
     "module": "commonjs",
+    "skipLibCheck": true,
     "strict": true,
+    "declaration": false,
     "resolveJsonModule": true,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,
@@ -15,12 +17,22 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types", "../fxa-shared/types"],
-    "types": ["accept-language", "mocha", "mozlog", "node"]
+    "types": ["accept-language", "mocha", "mozlog", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "fxa-shared/*": [
+        "../fxa-shared/*"
+      ]
+    }
   },
+  "references": [
+    { "path": "../fxa-shared" }
+  ],
   "include": [
-    "bin/*",
+    "bin/*"
   ],
   "exclude": [
+    "dist",
     "node_modules"
   ]
 }

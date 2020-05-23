@@ -7,13 +7,15 @@
 const Joi = require('@hapi/joi');
 const createBackendServiceAPI = require('./backendService');
 const config = require('../config');
-const localizeTimestamp = require('../../fxa-shared').l10n.localizeTimestamp({
-  supportedLanguages: config.get('i18n').supportedLanguages,
-  defaultLanguage: config.get('i18n').defaultLanguage,
-});
+const localizeTimestamp = require('fxa-shared/l10n/localizeTimestamp').localizeTimestamp(
+  {
+    supportedLanguages: config.get('i18n').supportedLanguages,
+    defaultLanguage: config.get('i18n').defaultLanguage,
+  }
+);
 const serviceName = 'customs';
 
-module.exports = function(log, error, statsd) {
+module.exports = function (log, error, statsd) {
   const CustomsAPI = createBackendServiceAPI(
     log,
     config,
@@ -123,10 +125,10 @@ module.exports = function(log, error, statsd) {
 
   function Customs(url) {
     if (url === 'none') {
-      const noblock = async function() {
+      const noblock = async function () {
         return { block: false };
       };
-      const noop = async function() {};
+      const noop = async function () {};
       this.api = {
         check: noblock,
         checkAuthenticated: noblock,
@@ -140,7 +142,7 @@ module.exports = function(log, error, statsd) {
     }
   }
 
-  Customs.prototype.check = async function(request, email, action) {
+  Customs.prototype.check = async function (request, email, action) {
     const result = await this.api.check({
       ip: request.app.clientAddress,
       email: email,
@@ -210,7 +212,7 @@ module.exports = function(log, error, statsd) {
     }
   }
 
-  Customs.prototype.checkAuthenticated = async function(request, uid, action) {
+  Customs.prototype.checkAuthenticated = async function (request, uid, action) {
     const result = await this.api.checkAuthenticated({
       action: action,
       ip: request.app.clientAddress,
@@ -222,7 +224,7 @@ module.exports = function(log, error, statsd) {
     return handleCustomsResult(request, result);
   };
 
-  Customs.prototype.checkIpOnly = async function(request, action) {
+  Customs.prototype.checkIpOnly = async function (request, action) {
     const result = await this.api.checkIpOnly({
       ip: request.app.clientAddress,
       action: action,
@@ -233,7 +235,7 @@ module.exports = function(log, error, statsd) {
     return handleCustomsResult(request, result);
   };
 
-  Customs.prototype.flag = async function(ip, info) {
+  Customs.prototype.flag = async function (ip, info) {
     const email = info.email;
     const errno = info.errno || error.ERRNO.UNEXPECTED_ERROR;
     // There's no useful information in the HTTP response, ignore it.
@@ -244,14 +246,14 @@ module.exports = function(log, error, statsd) {
     });
   };
 
-  Customs.prototype.reset = async function(email) {
+  Customs.prototype.reset = async function (email) {
     // There's no useful information in the HTTP response, ignore it.
     await this.api.passwordReset({
       email: email,
     });
   };
 
-  Customs.prototype.close = function() {
+  Customs.prototype.close = function () {
     return this.api.close();
   };
 

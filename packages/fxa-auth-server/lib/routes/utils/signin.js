@@ -10,7 +10,7 @@ const validators = require('../validators');
 const P = require('../../promise');
 const butil = require('../../crypto/butil');
 const error = require('../../error');
-const { emailsMatch } = require('../../../../fxa-shared/email/helpers');
+const { emailsMatch } = require('fxa-shared/email/helpers');
 
 const BASE_36 = validators.BASE_36;
 
@@ -54,10 +54,10 @@ module.exports = (log, config, customs, db, mailer) => {
       }
       return password
         .verifyHash()
-        .then(verifyHash => {
+        .then((verifyHash) => {
           return db.checkPassword(accountRecord.uid, verifyHash);
         })
-        .then(match => {
+        .then((match) => {
           if (match) {
             return match;
           }
@@ -121,7 +121,7 @@ module.exports = (log, config, customs, db, mailer) => {
           }
           return customs.check(request, email, 'accountLogin');
         })
-        .catch(e => {
+        .catch((e) => {
           originalError = e;
           // Non-customs-related errors get thrown straight back to the caller.
           if (
@@ -143,11 +143,11 @@ module.exports = (log, config, customs, db, mailer) => {
             // Check for a valid unblockCode, to allow the request to proceed.
             // This requires that we load the accountRecord to learn the uid.
             const unblockCode = request.payload.unblockCode.toUpperCase();
-            return db.accountRecord(email).then(result => {
+            return db.accountRecord(email).then((result) => {
               accountRecord = result;
               return db
                 .consumeUnblockCode(accountRecord.uid, unblockCode)
-                .then(code => {
+                .then((code) => {
                   if (Date.now() - code.createdAt > unblockCodeLifetime) {
                     log.info('Account.login.unblockCode.expired', {
                       uid: accountRecord.uid,
@@ -161,7 +161,7 @@ module.exports = (log, config, customs, db, mailer) => {
                     'account.login.confirmedUnblockCode'
                   );
                 })
-                .catch(e => {
+                .catch((e) => {
                   if (e.errno !== error.ERRNO.INVALID_UNBLOCK_CODE) {
                     throw e;
                   }
@@ -178,7 +178,7 @@ module.exports = (log, config, customs, db, mailer) => {
           // If we didn't load it above while checking unblock codes,
           // it's now safe to load the account record from the db.
           if (!accountRecord) {
-            return db.accountRecord(email).then(result => {
+            return db.accountRecord(email).then((result) => {
               accountRecord = result;
             });
           }
@@ -186,7 +186,7 @@ module.exports = (log, config, customs, db, mailer) => {
         .then(() => {
           return { accountRecord, didSigninUnblock };
         })
-        .catch(e => {
+        .catch((e) => {
           // Some errors need to be flagged with customs.
           if (
             e.errno === error.ERRNO.INVALID_UNBLOCK_CODE ||
@@ -267,7 +267,7 @@ module.exports = (log, config, customs, db, mailer) => {
       }
 
       function checkNumberOfActiveSessions() {
-        return db.sessions(accountRecord.uid).then(s => {
+        return db.sessions(accountRecord.uid).then((s) => {
           sessions = s;
           if (sessions.length > MAX_ACTIVE_SESSIONS) {
             // There's no spec-compliant way to error out
@@ -399,7 +399,7 @@ module.exports = (log, config, customs, db, mailer) => {
             uid: sessionToken.uid,
           })
           .then(() => request.emitMetricsEvent('email.confirmation.sent'))
-          .catch(err => {
+          .catch((err) => {
             log.error('mailer.confirmation.error', { err });
 
             throw emailUtils.sendError(err, isUnverifiedAccount);
@@ -454,7 +454,7 @@ module.exports = (log, config, customs, db, mailer) => {
     createKeyFetchToken(request, accountRecord, password, sessionToken) {
       return password
         .unwrap(accountRecord.wrapWrapKb)
-        .then(wrapKb => {
+        .then((wrapKb) => {
           return db.createKeyFetchToken({
             uid: accountRecord.uid,
             kA: accountRecord.kA,
@@ -463,7 +463,7 @@ module.exports = (log, config, customs, db, mailer) => {
             tokenVerificationId: sessionToken.tokenVerificationId,
           });
         })
-        .then(keyFetchToken => {
+        .then((keyFetchToken) => {
           return request.stashMetricsContext(keyFetchToken).then(() => {
             return keyFetchToken;
           });

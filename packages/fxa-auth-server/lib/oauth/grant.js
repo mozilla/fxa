@@ -9,7 +9,7 @@ const config = require('../../config');
 const AppError = require('./error');
 const db = require('./db');
 const util = require('./util');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const JWTAccessToken = require('./jwt_access_token');
 const logger = require('./logging')('grant');
 const amplitude = require('./metrics/amplitude')(
@@ -48,7 +48,7 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'profile:display_name',
 ]);
 let stripeHelper = null;
-module.exports.setStripeHelper = function(val) {
+module.exports.setStripeHelper = function (val) {
   stripeHelper = val;
 };
 

@@ -9,7 +9,7 @@ const joi = require('@hapi/joi');
 const validators = require('../validators');
 const { BEARER_AUTH_REGEX } = validators;
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
-const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 // the refresh token scheme is currently used by things connected to sync,
 // and we're at a transitionary stage of its evolution into something more generic,
@@ -66,7 +66,7 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
 
         // use the hashed refreshToken id to find devices
         const device = devices.filter(
-          device => device.refreshTokenId === credentials.refreshTokenId
+          (device) => device.refreshTokenId === credentials.refreshTokenId
         )[0];
         if (device) {
           credentials.deviceId = device.id;
