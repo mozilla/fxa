@@ -39,7 +39,7 @@ const QUERY_PARAM_SCHEMA = {
   utm_term: UTM_TYPE.optional(),
 };
 
-module.exports = function(config) {
+module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
   const UPDATE_FIREFOX_FLOW_EVENT_NAME = 'flow.update-firefox.view';
@@ -52,7 +52,7 @@ module.exports = function(config) {
       // ensure the query params are all well formed
       query: QUERY_PARAM_SCHEMA,
     },
-    process: function(req, res) {
+    process: function (req, res) {
       const flowEventData = flowMetrics.create(
         FLOW_ID_KEY,
         req.headers['user-agent']

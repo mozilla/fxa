@@ -46,7 +46,7 @@ describe('mock-sns', () => {
           Message: 'message',
         })
         .promise()
-        .then(r => (result = r));
+        .then((r) => (result = r));
     });
 
     it('returns message id', () => {

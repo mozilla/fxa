@@ -34,15 +34,15 @@ function Lug(options) {
 }
 util.inherits(Lug, EventEmitter);
 
-Lug.prototype.close = function() {};
+Lug.prototype.close = function () {};
 
 // Expose the standard error/warn/info/debug/etc log methods.
 
-Lug.prototype.trace = function(op, data) {
+Lug.prototype.trace = function (op, data) {
   this.logger.debug(op, data);
 };
 
-Lug.prototype.error = function(op, data) {
+Lug.prototype.error = function (op, data) {
   // If the error object contains an email address,
   // lift it into top-level fields so that our
   // PII-scrubbing tool is able to find it.
@@ -55,23 +55,23 @@ Lug.prototype.error = function(op, data) {
   this.logger.error(op, data);
 };
 
-Lug.prototype.fatal = function(op, data) {
+Lug.prototype.fatal = function (op, data) {
   this.logger.critical(op, data);
 };
 
-Lug.prototype.warn = function(op, data) {
+Lug.prototype.warn = function (op, data) {
   this.logger.warn(op, data);
 };
 
-Lug.prototype.info = function(op, data) {
+Lug.prototype.info = function (op, data) {
   this.logger.info(op, data);
 };
 
-Lug.prototype.begin = function(op, request) {
+Lug.prototype.begin = function (op, request) {
   this.logger.debug(op);
 };
 
-Lug.prototype.stat = function(stats) {
+Lug.prototype.stat = function (stats) {
   this.logger.info('stat', stats);
 };
 
@@ -80,7 +80,7 @@ Lug.prototype.stat = function(stats) {
 // See https://mana.mozilla.org/wiki/display/CLOUDSERVICES/Logging+Standard
 // for a discussion of this format and why it's used.
 
-Lug.prototype.summary = function(request, response) {
+Lug.prototype.summary = function (request, response) {
   if (request.method === 'options') {
     return;
   }
@@ -134,7 +134,7 @@ Lug.prototype.summary = function(request, response) {
 
 // Broadcast an event to attached services, such as sync.
 // In production, these events are broadcast to relying services over SNS/SQS.
-Lug.prototype.notifyAttachedServices = async function(name, request, data) {
+Lug.prototype.notifyAttachedServices = async function (name, request, data) {
   let metricsContextData = {};
   if (request.gatherMetricsContext) {
     metricsContextData = await request.gatherMetricsContext({});
@@ -170,7 +170,7 @@ Lug.prototype.notifyAttachedServices = async function(name, request, data) {
 // These events indicate key points at which a particular
 // user has interacted with the service.
 
-Lug.prototype.activityEvent = function(data) {
+Lug.prototype.activityEvent = function (data) {
   if (!data || !data.event || !data.uid) {
     this.error('log.activityEvent', { data });
     return;
@@ -182,7 +182,7 @@ Lug.prototype.activityEvent = function(data) {
 // Log a flow metrics event.
 // These events help understand the user's sign-in or sign-up journey.
 
-Lug.prototype.flowEvent = function(data) {
+Lug.prototype.flowEvent = function (data) {
   if (!data || !data.event || !data.flow_id || !data.flow_time || !data.time) {
     return;
   }
@@ -190,7 +190,7 @@ Lug.prototype.flowEvent = function(data) {
   this.logger.info('flowEvent', data);
 };
 
-Lug.prototype.amplitudeEvent = function(data) {
+Lug.prototype.amplitudeEvent = function (data) {
   // @TODO We can remove this guard once we return early after a schema
   // validation failure.
   if (!data || !data.event_type || (!data.device_id && !data.user_id)) {
@@ -209,7 +209,7 @@ Lug.prototype.amplitudeEvent = function(data) {
       // that the schema is not too strict against existing events.  We'll
       // update the schema accordingly.  And allow the events in the
       // meantime.
-      Sentry.withScope(scope => {
+      Sentry.withScope((scope) => {
         scope.setContext('amplitude.validationError', {
           event_type: data.event_type,
           flow_id: data.user_properties.flow_id,
@@ -226,7 +226,7 @@ Lug.prototype.amplitudeEvent = function(data) {
   this.logger.info('amplitudeEvent', data);
 };
 
-module.exports = function(level, name, options = {}) {
+module.exports = function (level, name, options = {}) {
   if (arguments.length === 1 && typeof level === 'object') {
     options = level;
     level = options.level;
@@ -237,7 +237,7 @@ module.exports = function(level, name, options = {}) {
   options.fmt = logConfig.fmt;
   const log = new Lug(options);
 
-  log.stdout.on('error', err => {
+  log.stdout.on('error', (err) => {
     if (err.code === 'EPIPE') {
       log.emit('error', err);
     }

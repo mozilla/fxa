@@ -20,8 +20,8 @@ function initializeProvidersFromConfig(store) {
   var providers = Object.keys(config.get('img.providers'));
   logger.debug('providers.from-config', { providers: providers });
   return P.all(
-    providers.map(name => {
-      return store.getProviderByName(name).then(provider => {
+    providers.map((name) => {
+      return store.getProviderByName(name).then((provider) => {
         if (provider) {
           logger.debug('providers.exists', { name: name });
         } else {
@@ -53,7 +53,7 @@ function withDriver() {
   } else {
     connectPromise = klass.connect();
   }
-  driverPromise = connectPromise.then(store => {
+  driverPromise = connectPromise.then((store) => {
     logger.debug('connected', config.get('db.driver'));
     return initializeProvidersFromConfig(store).then(() => {
       driver = store;
@@ -78,7 +78,7 @@ exports.finalize = function finalize() {
   if (driverPromise) {
     const dPromise = driverPromise;
     driverPromise = null;
-    return dPromise.then(d => {
+    return dPromise.then((d) => {
       return d.disconnect();
     });
   }
@@ -104,7 +104,7 @@ function proxy(method) {
   return function proxied() {
     const args = arguments;
     return withDriver()
-      .then(driver => {
+      .then((driver) => {
         if (logger.isEnabledFor(logger.VERBOSE)) {
           logger.verbose('proxy', {
             method: method,
@@ -113,20 +113,20 @@ function proxy(method) {
         }
         let ret = driver[method].apply(driver, args);
         if (logger.isEnabledFor(logger.VERBOSE)) {
-          ret = ret.then(val => {
+          ret = ret.then((val) => {
             logger.verbose('proxied', { method: method, ret: val });
             return val;
           });
         }
         return ret;
       })
-      .catch(err => {
+      .catch((err) => {
         logger.error('proxy.error.' + method, err);
         throw err;
       });
   };
 }
 
-Object.keys(klass.prototype).forEach(key => {
+Object.keys(klass.prototype).forEach((key) => {
   exports[key] = proxy(key);
 });

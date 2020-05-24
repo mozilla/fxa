@@ -59,23 +59,23 @@ const SMS_SENDING_ACTION = {
 const ACCOUNT_ACCESS_ACTION = new Set(['consumeSigninCode']);
 
 module.exports = {
-  isPasswordCheckingAction: function(action) {
+  isPasswordCheckingAction: function (action) {
     return PASSWORD_CHECKING_ACTION[action];
   },
 
-  isCodeVerifyingAction: function(action) {
+  isCodeVerifyingAction: function (action) {
     return CODE_VERIFYING_ACTION[action];
   },
 
-  isAccountStatusAction: function(action) {
+  isAccountStatusAction: function (action) {
     return ACCOUNT_STATUS_ACTION[action];
   },
 
-  isEmailSendingAction: function(action) {
+  isEmailSendingAction: function (action) {
     return EMAIL_SENDING_ACTION[action];
   },
 
-  isSmsSendingAction: function(action) {
+  isSmsSendingAction: function (action) {
     return SMS_SENDING_ACTION[action];
   },
 

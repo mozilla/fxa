@@ -120,7 +120,7 @@ module.exports = {
 
       destroy() {
         if (!destroyPromise) {
-          destroyPromise = new Promise(resolve => {
+          destroyPromise = new Promise((resolve) => {
             client.quit();
             client.on('end', resolve);
           });

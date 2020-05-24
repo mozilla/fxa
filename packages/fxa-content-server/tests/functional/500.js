@@ -10,11 +10,11 @@ const { clearBrowserState, click, openPage } = require('./lib/helpers');
 const url = intern._config.fxaContentRoot + 'boom';
 
 registerSuite('500', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
 
-  'visit an invalid page': function() {
+  'visit an invalid page': function () {
     const expected = intern._config.fxaProduction
       ? selectors['404'].HEADER
       : selectors['500'].HEADER;

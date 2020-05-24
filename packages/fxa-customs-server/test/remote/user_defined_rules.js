@@ -35,21 +35,21 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-ACTIONS.forEach(action => {
-  test('clear everything', t => {
-    mcHelper.clearEverything(err => {
+ACTIONS.forEach((action) => {
+  test('clear everything', (t) => {
+    mcHelper.clearEverything((err) => {
       t.notOk(err, 'no errors were returned');
       t.end();
     });
   });
 
-  test('/check `' + action + '` by email', t => {
+  test('/check `' + action + '` by email', (t) => {
     const email = randomEmail();
     const ip = randomIp();
     // Send requests until throttled
@@ -84,14 +84,14 @@ ACTIONS.forEach(action => {
           t.equal(obj.block, false, 'not rate limited');
           t.end();
         })
-        .catch(err => {
+        .catch((err) => {
           t.fail(err);
           t.end();
         })
     );
   });
 
-  test('/check `' + action + '` does not rate limit other actions', t => {
+  test('/check `' + action + '` does not rate limit other actions', (t) => {
     const email = randomEmail();
     const ip = randomIp();
     return client
@@ -129,14 +129,14 @@ ACTIONS.forEach(action => {
       .spread((req, res, obj) => {
         t.equal(obj.block, false, 'not rate limited');
       })
-      .catch(err => {
+      .catch((err) => {
         t.fail(err);
         t.end();
       });
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

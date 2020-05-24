@@ -19,15 +19,9 @@ module.exports = {
   },
   validate: {
     payload: {
-      name: Joi.string()
-        .max(256)
-        .required(),
-      image_uri: Joi.string()
-        .max(256)
-        .allow(''),
-      redirect_uri: Joi.string()
-        .max(256)
-        .required(),
+      name: Joi.string().max(256).required(),
+      image_uri: Joi.string().max(256).allow(''),
+      redirect_uri: Joi.string().max(256).required(),
       can_grant: Joi.boolean(),
       trusted: Joi.boolean(),
     },
@@ -60,7 +54,7 @@ module.exports = {
 
     return db
       .getDeveloper(developerEmail)
-      .then(function(developer) {
+      .then(function (developer) {
         // must be a developer to register clients
         if (!developer) {
           throw AppError.unauthorized('Illegal Developer');
@@ -70,10 +64,10 @@ module.exports = {
 
         return db.registerClient(client);
       })
-      .then(function() {
+      .then(function () {
         return db.registerClientDeveloper(developerId, hex(client.id));
       })
-      .then(function() {
+      .then(function () {
         return h
           .response({
             id: hex(client.id),

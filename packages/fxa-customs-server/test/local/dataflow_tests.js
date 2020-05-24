@@ -45,7 +45,7 @@ tapTest('dataflow', async () => {
   const pubsub = {
     subscription: sandbox.spy(() => subscription),
   };
-  const PubSub = sandbox.spy(function() {
+  const PubSub = sandbox.spy(function () {
     return pubsub;
   });
   const dataflow = proxyquire('../../lib/dataflow', {

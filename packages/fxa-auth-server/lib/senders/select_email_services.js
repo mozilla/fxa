@@ -152,7 +152,7 @@ module.exports = (log, config, mailer, emailService) => {
   // @property {String} emailSender      The name of the underlying email sender,
   //                                     used for both metrics and sent as the
   //                                     `provider` param in external requests.
-  return async message => {
+  return async (message) => {
     const emailAddresses = [message.email];
     if (Array.isArray(message.ccEmails)) {
       emailAddresses.push(...message.ccEmails);

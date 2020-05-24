@@ -11,20 +11,20 @@ var IdP = require('browserid-local-verify/testing').IdP,
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('fallback configuration test', function() {
+describe('fallback configuration test', function () {
   var idp = new IdP();
   var verifier = new Verifier();
 
-  it('test servers should start', function(done) {
-    idp.start(function(e) {
+  it('test servers should start', function (done) {
+    idp.start(function (e) {
       verifier.setFallback(idp);
-      verifier.start(function(e1) {
+      verifier.start(function (e1) {
         done(e || e1);
       });
     });
   });
 
-  it('should verify an assertion vouched by the configured fallback', function(done) {
+  it('should verify an assertion vouched by the configured fallback', function (done) {
     var client = new Client({
       idp: idp,
       email: 'lloyd@nonidp.example.com',
@@ -34,7 +34,7 @@ describe('fallback configuration test', function() {
       {
         audience: 'http://rp.example.com',
       },
-      function(err, assertion) {
+      function (err, assertion) {
         should.not.exist(err);
         request(
           {
@@ -46,7 +46,7 @@ describe('fallback configuration test', function() {
               audience: 'http://rp.example.com',
             },
           },
-          function(err, r) {
+          function (err, r) {
             should.not.exist(err);
             r.body.status.should.equal('okay');
             r.body.email.should.equal(client.email());
@@ -61,16 +61,16 @@ describe('fallback configuration test', function() {
     );
   });
 
-  it('verifier should restart with cleared fallback', function(done) {
+  it('verifier should restart with cleared fallback', function (done) {
     verifier.setFallback(null);
-    verifier.stop(function(e) {
-      verifier.start(function(e1) {
+    verifier.stop(function (e) {
+      verifier.start(function (e1) {
         done(e || e1);
       });
     });
   });
 
-  it('should fail to verify an assertion when fallback is not configured', function(done) {
+  it('should fail to verify an assertion when fallback is not configured', function (done) {
     var client = new Client({
       idp: idp,
       email: 'lloyd@nonidp.example.com',
@@ -80,7 +80,7 @@ describe('fallback configuration test', function() {
       {
         audience: 'http://rp.example.com',
       },
-      function(err, assertion) {
+      function (err, assertion) {
         should.not.exist(err);
         request(
           {
@@ -92,7 +92,7 @@ describe('fallback configuration test', function() {
               audience: 'http://rp.example.com',
             },
           },
-          function(err, r) {
+          function (err, r) {
             should.not.exist(err);
             r.statusCode.should.equal(200);
             r.body.status.should.equal('failure');
@@ -106,9 +106,9 @@ describe('fallback configuration test', function() {
     );
   });
 
-  it('test servers should stop', function(done) {
-    idp.stop(function(e) {
-      verifier.stop(function(e1) {
+  it('test servers should stop', function (done) {
+    idp.stop(function (e) {
+      verifier.stop(function (e1) {
         done(e || e1);
       });
     });

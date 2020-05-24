@@ -46,9 +46,9 @@ function beforeSend(data) {
     }
 
     if (data.exception && data.exception.values) {
-      _.each(data.exception.values, function(value) {
+      _.each(data.exception.values, function (value) {
         if (value.stacktrace && value.stacktrace.frames) {
-          _.each(value.stacktrace.frames, function(frame) {
+          _.each(value.stacktrace.frames, function (frame) {
             if (frame.abs_path) {
               // clean up query parameters in absolute paths
               frame.abs_path = cleanUpQueryParam(frame.abs_path); //eslint-disable-line camelcase
@@ -88,7 +88,7 @@ function cleanUpQueryParam(url = '') {
   newUrl = url.substring(0, startOfParams);
 
   if (_.isObject(params)) {
-    Object.keys(params).forEach(function(key) {
+    Object.keys(params).forEach(function (key) {
       // if the param is a PII (not allowed) then reset the value.
       if (!_.contains(ALLOWED_QUERY_PARAMETERS, key)) {
         params[key] = 'VALUE';
@@ -143,8 +143,8 @@ SentryMetrics.prototype = {
    * @param {Error} err
    */
   captureException(err) {
-    Sentry.withScope(function(scope) {
-      exceptionTags.forEach(function(tagName) {
+    Sentry.withScope(function (scope) {
+      exceptionTags.forEach(function (tagName) {
         if (tagName in err) {
           scope.setTag(tagName, err[tagName]);
         }

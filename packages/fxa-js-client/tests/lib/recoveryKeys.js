@@ -6,7 +6,7 @@ const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
 const sinon = require('sinon');
-describe('recovery key', function() {
+describe('recovery key', function () {
   var account;
   var accountHelper;
   var respond;
@@ -29,7 +29,7 @@ describe('recovery key', function() {
     'l7Hp-lXEbb5mR1uXHrTH9iRXEBVaAfyf9KEAWOukWGVSH8EaOkr7cfu2Yr0K93Ec8glsssjiKp8NGB8VKTUJ-lmBv2cIrG68V4eTUVDo' +
     'DhMbXhrF-Mv4JNeh338pPeatTnyg.Ow2bhEYWxzxfSPMxVwKmSA';
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -39,7 +39,7 @@ describe('recovery key', function() {
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(newAccount) {
+      .then(function (newAccount) {
         account = newAccount;
         email = account.input.email;
         return respond(
@@ -50,7 +50,7 @@ describe('recovery key', function() {
           RequestMocks.accountKeys
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         keys = result;
         xhr = env.xhr;
         xhrOpen = sinon.spy(xhr.prototype, 'open');
@@ -58,12 +58,12 @@ describe('recovery key', function() {
       });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     xhrOpen.restore();
     xhrSend.restore();
   });
 
-  it('#can create and get a recovery key that can be used to reset an account', function() {
+  it('#can create and get a recovery key that can be used to reset an account', function () {
     return respond(
       client.createRecoveryKey(
         account.signIn.sessionToken,
@@ -73,14 +73,14 @@ describe('recovery key', function() {
       ),
       RequestMocks.createRecoveryKey
     )
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         return respond(
           client.passwordForgotSendCode(email),
           RequestMocks.passwordForgotSendCode
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         passwordForgotToken = result.passwordForgotToken;
         assert.ok(passwordForgotToken, 'passwordForgotToken is returned');
 
@@ -89,7 +89,7 @@ describe('recovery key', function() {
           RequestMocks.resetMailpasswordForgotRecoveryKey
         );
       })
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[3].html.match(/code=([A-Za-z0-9]+)/)[1];
         assert.ok(code, 'code is returned: ' + code);
 
@@ -100,7 +100,7 @@ describe('recovery key', function() {
           RequestMocks.passwordForgotVerifyCode
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         accountResetToken = result.accountResetToken;
         assert.ok(accountResetToken, 'accountResetToken is returned');
 
@@ -118,7 +118,7 @@ describe('recovery key', function() {
           RequestMocks.getRecoveryKey
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(xhrOpen.args[4][0], 'GET', 'method is correct');
         assert.include(
           xhrOpen.args[4][1],
@@ -154,7 +154,7 @@ describe('recovery key', function() {
           RequestMocks.accountReset
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.keyFetchToken);
         assert.ok(res.sessionToken);
         assert.ok(res.unwrapBKey);
@@ -166,13 +166,13 @@ describe('recovery key', function() {
           RequestMocks.signInWithKeys
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         return respond(
           client.accountKeys(res.keyFetchToken, res.unwrapBKey),
           RequestMocks.accountKeys
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         if (!env.useRemoteServer) {
           assert.ok(res.kB, 'kB exists');
         } else {
@@ -181,7 +181,7 @@ describe('recovery key', function() {
       });
   });
 
-  it('#can create and delete recovery key', function() {
+  it('#can create and delete recovery key', function () {
     return respond(
       client.createRecoveryKey(
         account.signIn.sessionToken,
@@ -191,26 +191,26 @@ describe('recovery key', function() {
       ),
       RequestMocks.createRecoveryKey
     )
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         return respond(
           client.deleteRecoveryKey(account.signIn.sessionToken),
           RequestMocks.deleteRecoveryKey
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(xhrOpen.args[1][0], 'DELETE', 'method is correct');
         assert.include(xhrOpen.args[1][1], '/recoveryKey', 'path is correct');
       });
   });
 
-  it('#can check if recovery exist using sessionToken', function() {
+  it('#can check if recovery exist using sessionToken', function () {
     return respond(
       client.recoveryKeyExists(account.signIn.sessionToken),
       RequestMocks.recoveryKeyExistsFalse
     )
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.exists, false, 'recovery key does not exist');
         assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
         assert.include(
@@ -228,14 +228,14 @@ describe('recovery key', function() {
           RequestMocks.createRecoveryKey
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         return respond(
           client.recoveryKeyExists(account.signIn.sessionToken),
           RequestMocks.recoveryKeyExistsTrue
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.exists, true, 'recovery key exists');
         assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
         assert.include(
@@ -246,12 +246,12 @@ describe('recovery key', function() {
       });
   });
 
-  it('#can check if recovery exist using email', function() {
+  it('#can check if recovery exist using email', function () {
     return respond(
       client.recoveryKeyExists(undefined, account.input.email),
       RequestMocks.recoveryKeyExistsFalse
     )
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.exists, false, 'recovery key does not exist');
         assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
         assert.include(
@@ -270,14 +270,14 @@ describe('recovery key', function() {
           RequestMocks.createRecoveryKey
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         return respond(
           client.recoveryKeyExists(undefined, account.input.email),
           RequestMocks.recoveryKeyExistsTrue
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.exists, true, 'recovery key exists');
         assert.equal(xhrOpen.args[2][0], 'POST', 'method is correct');
         assert.include(

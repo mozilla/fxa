@@ -4,8 +4,8 @@
 
 const assert = require('chai').assert;
 const FxAccountClient = require('../../client/FxAccountClient');
-describe('init', function() {
-  it('#should error if no options set', function() {
+describe('init', function () {
+  it('#should error if no options set', function () {
     try {
       void new FxAccountClient();
     } catch (e) {
@@ -13,7 +13,7 @@ describe('init', function() {
     }
   });
 
-  it('#should catch undefined parameters for the url', function() {
+  it('#should catch undefined parameters for the url', function () {
     try {
       void new FxAccountClient(undefined, {});
     } catch (e) {

@@ -24,7 +24,7 @@ import SyncSuggestionTemplate from 'templates/partial/sync-suggestion.mustache';
  *   @param {String} config.flowEvent
  * @returns {Function}
  */
-export default function(config) {
+export default function (config) {
   required(config.entrypoint, 'entrypoint');
   required(config.flowEvent, 'flowEvent');
 

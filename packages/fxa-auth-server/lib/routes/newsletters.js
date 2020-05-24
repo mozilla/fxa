@@ -21,7 +21,7 @@ module.exports = (log, db) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('newsletters', request);
 
         const { uid } = request.auth.credentials;

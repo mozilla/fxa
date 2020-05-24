@@ -34,17 +34,17 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Firefox Desktop Sync v3 force_auth', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'with a registered email, no uid': function() {
+    'with a registered email, no uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function(accountInfo) {
+        .then(function (accountInfo) {
           return openForceAuth({
             query: {
               context: 'fx_desktop_v3',
@@ -73,10 +73,10 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'with a registered email, registered uid': function() {
+    'with a registered email, registered uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function(accountInfo) {
+        .then(function (accountInfo) {
           return openForceAuth({
             query: {
               context: 'fx_desktop_v3',
@@ -107,7 +107,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'with a registered email, unregistered uid': function() {
+    'with a registered email, unregistered uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -141,7 +141,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'with an unregistered email, no uid': function() {
+    'with an unregistered email, no uid': function () {
       return (
         this.remote
           .then(
@@ -189,12 +189,12 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
       );
     },
 
-    'with an unregistered email, registered uid': function() {
+    'with an unregistered email, registered uid': function () {
       var unregisteredEmail = 'a' + email;
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(function(accountInfo) {
+          .then(function (accountInfo) {
             return openForceAuth({
               // user should be automatically redirected to the
               // signup page where they can signup with the
@@ -233,7 +233,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
       );
     },
 
-    'with an unregistered email, unregistered uid': function() {
+    'with an unregistered email, unregistered uid': function () {
       return (
         this.remote
           .then(
@@ -270,7 +270,7 @@ registerSuite('Firefox Desktop Sync v3 force_auth', {
       );
     },
 
-    'verified, blocked': function() {
+    'verified, blocked': function () {
       email = createEmail('blocked{id}');
 
       return this.remote

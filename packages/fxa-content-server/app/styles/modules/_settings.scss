@@ -431,7 +431,8 @@ section.modal-panel {
   }
 
   &-product-container {
-    &.hide { // 0 products or error during fetch for subscriptions and/or clients
+    &.hide {
+      // 0 products or error during fetch for subscriptions and/or clients
       display: none;
     }
   }

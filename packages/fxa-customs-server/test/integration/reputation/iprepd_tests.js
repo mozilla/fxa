@@ -64,26 +64,26 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup test server', function(t) {
-  testServer.start(function(err) {
+test('startup test server', function (t) {
+  testServer.start(function (err) {
     t.type(testServer.server, 'object', 'test server was started');
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-ENDPOINTS.forEach(endpoint => {
-  test('clear everything', t => {
-    mcHelper.clearEverything(function(err) {
+ENDPOINTS.forEach((endpoint) => {
+  test('clear everything', (t) => {
+    mcHelper.clearEverything(function (err) {
       t.notOk(err, 'no errors were returned');
       t.end();
     });
   });
 
-  test(`does not block ${endpoint} for IP with nonexistent reputation`, t => {
+  test(`does not block ${endpoint} for IP with nonexistent reputation`, (t) => {
     return repJSClient
       .remove(TEST_IP)
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -95,21 +95,21 @@ ENDPOINTS.forEach(endpoint => {
           action: TEST_CHECK_ACTION,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200');
         t.equal(obj.block, false, 'action not blocked');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       });
   });
 
-  test(`does not block ${endpoint} for IP with reputation above blockBelow`, t => {
+  test(`does not block ${endpoint} for IP with reputation above blockBelow`, (t) => {
     return repJSClient
       .remove(TEST_IP)
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -117,7 +117,7 @@ ENDPOINTS.forEach(endpoint => {
         );
         return repJSClient.update(TEST_IP, 65);
       })
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -129,22 +129,22 @@ ENDPOINTS.forEach(endpoint => {
           action: TEST_CHECK_ACTION,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200');
         t.equal(obj.suspect, false, 'action suspected');
         t.equal(obj.block, false, 'action not blocked');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       });
   });
 
-  test(`suspects ${endpoint} for IP with reputation below suspectBelow`, t => {
+  test(`suspects ${endpoint} for IP with reputation below suspectBelow`, (t) => {
     return repJSClient
       .remove(TEST_IP)
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -152,7 +152,7 @@ ENDPOINTS.forEach(endpoint => {
         );
         return repJSClient.update(TEST_IP, 55);
       })
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -164,22 +164,22 @@ ENDPOINTS.forEach(endpoint => {
           action: TEST_CHECK_ACTION,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200');
         t.equal(obj.suspect, true, 'action suspected');
         t.equal(obj.block, false, 'action not blocked');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       });
   });
 
-  test(`blocks ${endpoint} for IP with reputation below blockBelow`, t => {
+  test(`blocks ${endpoint} for IP with reputation below blockBelow`, (t) => {
     return repJSClient
       .remove(TEST_IP)
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -187,7 +187,7 @@ ENDPOINTS.forEach(endpoint => {
         );
         return repJSClient.update(TEST_IP, 20);
       })
-      .then(function(response) {
+      .then(function (response) {
         t.equal(
           response.statusCode,
           200,
@@ -199,23 +199,23 @@ ENDPOINTS.forEach(endpoint => {
           action: TEST_CHECK_ACTION,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'check returns 200');
         t.equal(obj.block, true, 'action blocked blocked');
         t.equal(obj.blockReason, undefined, 'block reason not returned');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       });
   });
 });
 
-test('sends violation for blocked IP from /blockIp request', function(t) {
+test('sends violation for blocked IP from /blockIp request', function (t) {
   return repJSClient
     .remove(TEST_IP)
-    .then(function(response) {
+    .then(function (response) {
       t.equal(
         response.statusCode,
         200,
@@ -223,24 +223,24 @@ test('sends violation for blocked IP from /blockIp request', function(t) {
       );
       return client.postAsync('/blockIp', { ip: TEST_IP });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'blockIp returns 200');
       return Promise.delay(TEST_DELAY_MS);
     })
-    .then(function() {
+    .then(function () {
       return repJSClient.get(TEST_IP);
     })
-    .then(function(response) {
+    .then(function (response) {
       t.equal(response.body.reputation, 50, 'violation was applied to TEST_IP');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown test server', function(t) {
+test('teardown test server', function (t) {
   testServer.stop();
   t.equal(testServer.server.killed, true, 'test server killed');
   t.end();

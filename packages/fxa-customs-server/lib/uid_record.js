@@ -5,14 +5,14 @@
 /**
  * This module keeps track of events related to a specific uid
  */
-module.exports = function(limits, now) {
+module.exports = function (limits, now) {
   now = now || Date.now;
   function UidRecord() {
     this.timestampsByAction = {};
     this.rateLimitedTimestamp = undefined;
   }
 
-  UidRecord.parse = function(object) {
+  UidRecord.parse = function (object) {
     var rec = new UidRecord();
     object = object || {};
     rec.rateLimitedTimestamp = object.rateLimitedTimestamp; // timestamp when the account was rateLimited
@@ -20,7 +20,7 @@ module.exports = function(limits, now) {
     return rec;
   };
 
-  UidRecord.prototype.getMinLifetimeMS = function() {
+  UidRecord.prototype.getMinLifetimeMS = function () {
     return Math.max(
       limits.uidRateLimitIntervalMs,
       limits.uidRateLimitBanDurationMs
@@ -31,7 +31,7 @@ module.exports = function(limits, now) {
    * stores check timestamps if account is not blocked.
    * returns remaining time until uid unblick
    */
-  UidRecord.prototype.addCount = function(action) {
+  UidRecord.prototype.addCount = function (action) {
     var timestamp = now();
     this.trimCounts(action, timestamp);
 
@@ -42,7 +42,7 @@ module.exports = function(limits, now) {
     return this.getPossibleRetryDelay(action);
   };
 
-  UidRecord.prototype.trimCounts = function(action, now) {
+  UidRecord.prototype.trimCounts = function (action, now) {
     this.timestampsByAction[action] = this._trim(
       now,
       this.timestampsByAction[action],
@@ -50,7 +50,7 @@ module.exports = function(limits, now) {
     );
   };
 
-  UidRecord.prototype._trim = function(now, items, max) {
+  UidRecord.prototype._trim = function (now, items, max) {
     if (!items || items.length === 0) {
       return [];
     }
@@ -69,15 +69,15 @@ module.exports = function(limits, now) {
     return items.slice(i + 1);
   };
 
-  UidRecord.prototype.rateLimit = function() {
+  UidRecord.prototype.rateLimit = function () {
     this.rateLimitedTimestamp = now();
   };
 
-  UidRecord.prototype.getRetryAfter = function() {
+  UidRecord.prototype.getRetryAfter = function () {
     return this.rateLimitedTimestamp + limits.uidRateLimitBanDurationMs - now();
   };
 
-  UidRecord.prototype.isRateLimited = function() {
+  UidRecord.prototype.isRateLimited = function () {
     //uid is rateLimited if there's a valid rateLimited timestamp and
     //waiting time interval wasn't reached
     return (
@@ -86,7 +86,7 @@ module.exports = function(limits, now) {
     );
   };
 
-  UidRecord.prototype.getPossibleRetryDelay = function(action) {
+  UidRecord.prototype.getPossibleRetryDelay = function (action) {
     if (this.timestampsByAction[action].length < limits.maxChecksPerUid) {
       this.rateLimitedTimestamp = undefined;
       return 0;

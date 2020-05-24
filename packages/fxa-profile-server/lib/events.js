@@ -13,7 +13,7 @@ const workers = require('./img-workers');
 
 const HEX_STRING = require('./validate').hex;
 
-module.exports = function(server) {
+module.exports = function (server) {
   function getUserId(message) {
     var userId = message.uid.split('@')[0];
     if (!HEX_STRING.test(userId)) {
@@ -28,16 +28,16 @@ module.exports = function(server) {
   function deleteUser(message) {
     var userId = getUserId(message);
     return P.all([
-      db.getSelectedAvatar(userId).then(function(avatar) {
+      db.getSelectedAvatar(userId).then(function (avatar) {
         if (avatar) {
           // if there is an avatar set then also delete it
-          return workers.delete(avatar.id).then(function() {
+          return workers.delete(avatar.id).then(function () {
             return db.deleteAvatar(avatar.id);
           });
         }
       }),
       db.removeProfile(userId),
-    ]).then(function() {
+    ]).then(function () {
       logger.info(message.event, { uid: userId });
     });
   }
@@ -50,7 +50,7 @@ module.exports = function(server) {
           logger.info('primaryEmailChanged:cacheCleared', { uid: userId });
         });
       })
-      .then(function() {
+      .then(function () {
         logger.info(message.event, { uid: userId });
       });
   }
@@ -58,12 +58,12 @@ module.exports = function(server) {
   function profileDataChanged(message) {
     var userId = getUserId(message);
     return P.resolve()
-      .then(function() {
+      .then(function () {
         server.methods.profileCache.drop(userId).then(() => {
           logger.info('profileDataChanged:cacheCleared', { uid: userId });
         });
       })
-      .then(function() {
+      .then(function () {
         logger.info(message.event, { uid: userId });
       });
   }
@@ -72,7 +72,7 @@ module.exports = function(server) {
     logger.verbose('data', message);
     var messageEvent = message.event;
     return P.resolve()
-      .then(function() {
+      .then(function () {
         switch (messageEvent) {
           case 'delete':
             return deleteUser(message);
@@ -85,10 +85,10 @@ module.exports = function(server) {
         }
       })
       .done(
-        function() {
+        function () {
           message.del();
         },
-        function(err) {
+        function (err) {
           logger.error(message.event, err);
           // The message visibility timeout (in SQS terms) will expire
           // and be reissued again.

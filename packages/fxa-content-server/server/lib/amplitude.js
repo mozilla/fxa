@@ -361,7 +361,7 @@ const FUZZY_EVENTS = new Map([
   [
     /^flow\.([\w-]+)\.engage$/,
     {
-      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      group: (eventCategory) => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'engage',
     },
   ],
@@ -403,14 +403,14 @@ const FUZZY_EVENTS = new Map([
   [
     /^flow\.([\w-]+)\.submit$/,
     {
-      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      group: (eventCategory) => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'submit',
     },
   ],
   [
     /^screen\.(?:oauth\.)?([\w-]+)$/,
     {
-      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      group: (eventCategory) => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'view',
     },
   ],
@@ -431,7 +431,7 @@ const FUZZY_EVENTS = new Map([
   [
     /^([\w-]+).verification.clicked$/,
     {
-      group: eventCategory =>
+      group: (eventCategory) =>
         eventCategory in EMAIL_TYPES ? GROUPS.email : null,
       event: 'click',
     },
@@ -446,21 +446,21 @@ const FUZZY_EVENTS = new Map([
   [
     /^flow\.(support)\.success$/,
     {
-      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      group: (eventCategory) => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'success',
     },
   ],
   [
     /^flow\.(support)\.view$/,
     {
-      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      group: (eventCategory) => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'view',
     },
   ],
   [
     /^flow\.(support)\.fail$/,
     {
-      group: eventCategory => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
+      group: (eventCategory) => VIEW_ENGAGE_SUBMIT_EVENT_GROUPS[eventCategory],
       event: 'fail',
     },
   ],
@@ -551,7 +551,7 @@ function receiveEvent(event, request, data) {
         // that the schema is not too strict against existing events.  We'll
         // update the schema accordingly.  And allow the events in the
         // meantime.
-        Sentry.withScope(scope => {
+        Sentry.withScope((scope) => {
           scope.setContext('amplitude.validationError', {
             event_type: amplitudeEvent.event_type,
             flow_id: amplitudeEvent.user_properties.flow_id,
@@ -574,7 +574,7 @@ function receiveEvent(event, request, data) {
 function pruneUnsetValues(data) {
   const result = {};
 
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     const value = data[key];
     if (value && value !== 'none') {
       result[key] = value;

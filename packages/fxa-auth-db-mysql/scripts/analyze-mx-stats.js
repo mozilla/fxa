@@ -21,7 +21,7 @@ var dns = require('dns');
 var P = require('../lib/promise');
 
 var log = {
-  info: function() {},
+  info: function () {},
 };
 var DB = require('../lib/db/mysql')(log, require('../db-server').errors);
 var config = require('../config');
@@ -29,7 +29,7 @@ var config = require('../config');
 var resolve = P.promisify(dns.resolve);
 
 DB.connect(config)
-  .then(function(db) {
+  .then(function (db) {
     var query = 'SELECT normalizedEmail FROM accounts ';
     // Ignore known test accounts.
     query += "WHERE normalizedEmail NOT LIKE '%@restmail.net' ";
@@ -39,16 +39,16 @@ DB.connect(config)
     // By default MySQL will walk them in order using the email index.
     query += 'ORDER BY uid ';
     query += 'LIMIT 10000';
-    return db.read(query).then(function(rows) {
-      var emails = rows.map(function(row) {
+    return db.read(query).then(function (rows) {
+      var emails = rows.map(function (row) {
         return row.normalizedEmail;
       });
-      return db.close().then(function() {
+      return db.close().then(function () {
         return emails;
       });
     });
   })
-  .then(function(emails) {
+  .then(function (emails) {
     // We want to count two distinct things:
     //
     //  * the total number of emails using that domain as MX
@@ -59,12 +59,12 @@ DB.connect(config)
     var countMx = {};
     var countMxDynamic = {};
 
-    return P.each(emails, function(email) {
+    return P.each(emails, function (email) {
       var host = getEmailHostPart(email);
 
       // Get all unique domains that provide MX for that host.
       // If no MX record, use the host itself.
-      var addrs = resolve(host, 'MX').catch(function(err) {
+      var addrs = resolve(host, 'MX').catch(function (err) {
         if (
           ['ENODATA', 'ENOTFOUND', 'ESERVFAIL'].indexOf(err.cause.code) !== -1
         ) {
@@ -74,12 +74,12 @@ DB.connect(config)
       });
 
       var seen = {};
-      return P.each(addrs, function(addr) {
+      return P.each(addrs, function (addr) {
         var mxDomain = normalizeMxDomain(addr.exchange);
         seen[mxDomain] = true;
-      }).then(function() {
+      }).then(function () {
         // Increment the counts for each unique MX domain.
-        Object.keys(seen).forEach(function(mxDomain) {
+        Object.keys(seen).forEach(function (mxDomain) {
           if (!countMx[mxDomain]) {
             countMx[mxDomain] = 0;
             countMxDynamic[mxDomain] = 0;
@@ -90,15 +90,15 @@ DB.connect(config)
           }
         });
       });
-    }).then(function() {
+    }).then(function () {
       // Now we can create a percentage breakdown of the most popular.
       var topMxDomains = Object.keys(countMx);
-      topMxDomains.sort(function(a, b) {
+      topMxDomains.sort(function (a, b) {
         return countMx[b] - countMx[a];
       });
 
       process.stdout.write('\nOf ' + emails.length + ' email addresses:\n\n');
-      topMxDomains.slice(0, 20).forEach(function(mxDomain) {
+      topMxDomains.slice(0, 20).forEach(function (mxDomain) {
         var count = countMx[mxDomain];
         var countDynamic = countMxDynamic[mxDomain] || 0;
         if (percentage(count, emails.length) > 1) {

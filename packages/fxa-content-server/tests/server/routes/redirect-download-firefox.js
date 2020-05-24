@@ -13,7 +13,7 @@ let response;
 let route;
 
 registerSuite('routes/redirect-download-firefox', {
-  before: function() {
+  before: function () {
     mocks = {
       amplitude: sinon.spy(),
       config: {
@@ -37,19 +37,19 @@ registerSuite('routes/redirect-download-firefox', {
     });
   },
 
-  'route interface is correct': function() {
+  'route interface is correct': function () {
     assert.isFunction(route);
     assert.lengthOf(route, 1);
   },
 
   tests: {
     'initialise route': {
-      before: function() {
+      before: function () {
         instance = route(mocks.config);
       },
 
       tests: {
-        'instance interface is correct': function() {
+        'instance interface is correct': function () {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 4);
           assert.equal(instance.method, 'get');
@@ -60,7 +60,7 @@ registerSuite('routes/redirect-download-firefox', {
         },
 
         'route.process': {
-          before: function() {
+          before: function () {
             request = {
               query: {
                 deviceId: 'foo',
@@ -74,7 +74,7 @@ registerSuite('routes/redirect-download-firefox', {
           },
 
           tests: {
-            'response.redirect was called correctly': function() {
+            'response.redirect was called correctly': function () {
               assert.isTrue(
                 response.redirect.calledOnceWith(
                   'https://www.mozilla.org/firefox/download/thanks/'
@@ -82,7 +82,7 @@ registerSuite('routes/redirect-download-firefox', {
               );
             },
 
-            'logs flow.update-firefox.engage amplitude and flow events': function() {
+            'logs flow.update-firefox.engage amplitude and flow events': function () {
               assert.equal(mocks.amplitude.callCount, 1);
               assert.equal(mocks.flowEvent.logFlowEvent.callCount, 1);
 

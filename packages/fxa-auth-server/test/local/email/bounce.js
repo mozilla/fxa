@@ -33,7 +33,7 @@ describe('bounce messages', () => {
     log = mockLog();
     mockDB = {
       createEmailBounce: sinon.spy(() => P.resolve({})),
-      accountRecord: sinon.spy(email => {
+      accountRecord: sinon.spy((email) => {
         return P.resolve({
           createdAt: Date.now(),
           email: email,
@@ -129,7 +129,7 @@ describe('bounce messages', () => {
 
   it('should not delete account that bounces and is older than 6 hours', () => {
     const SEVEN_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 7;
-    mockDB.accountRecord = sinon.spy(email => {
+    mockDB.accountRecord = sinon.spy((email) => {
       return P.resolve({
         createdAt: SEVEN_HOURS_AGO,
         uid: '123456',
@@ -167,7 +167,7 @@ describe('bounce messages', () => {
 
   it('should delete account that bounces and is younger than 6 hours', () => {
     const FOUR_HOURS_AGO = Date.now() - 1000 * 60 * 60 * 5;
-    mockDB.accountRecord = sinon.spy(email => {
+    mockDB.accountRecord = sinon.spy((email) => {
       return P.resolve({
         createdAt: FOUR_HOURS_AGO,
         uid: '123456',
@@ -266,7 +266,7 @@ describe('bounce messages', () => {
   });
 
   it('should not delete verified accounts on bounce', () => {
-    mockDB.accountRecord = sinon.spy(email => {
+    mockDB.accountRecord = sinon.spy((email) => {
       return P.resolve({
         createdAt: Date.now(),
         uid: '123456',
@@ -372,7 +372,7 @@ describe('bounce messages', () => {
   });
 
   it('should normalize quoted email addresses for lookup', () => {
-    mockDB.accountRecord = sinon.spy(email => {
+    mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test.@example.com') {
         return P.reject(new error.unknownAccount(email));
@@ -414,7 +414,7 @@ describe('bounce messages', () => {
   });
 
   it('should handle multiple consecutive dots even if not quoted', () => {
-    mockDB.accountRecord = sinon.spy(email => {
+    mockDB.accountRecord = sinon.spy((email) => {
       // Lookup only succeeds when using original, unquoted email addr.
       if (email !== 'test..me@example.com') {
         return P.reject(new error.unknownAccount(email));

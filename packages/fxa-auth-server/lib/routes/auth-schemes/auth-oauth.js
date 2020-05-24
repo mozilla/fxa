@@ -10,9 +10,9 @@ const authName = 'fxa-oauth';
 
 exports.AUTH_SCHEME = authName;
 
-exports.strategy = function() {
+exports.strategy = function () {
   return {
-    authenticate: async function(req, h) {
+    authenticate: async function (req, h) {
       var auth = req.headers.authorization;
 
       if (!auth || auth.indexOf('Bearer') !== 0) {

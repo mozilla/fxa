@@ -71,7 +71,7 @@ const routes = [
     method: 'POST',
     path: v('/authorized-clients/destroy'),
     config: require('./authorized-clients/destroy'),
-  }
+  },
 ];
 
 exports.clients = [
@@ -102,7 +102,7 @@ exports.clients = [
   },
 ];
 
-routes.forEach(function(route) {
+routes.forEach(function (route) {
   route.config.cors = { origin: 'ignore' };
   var method = route.method.toUpperCase();
   if (method !== 'GET' && method !== 'HEAD') {

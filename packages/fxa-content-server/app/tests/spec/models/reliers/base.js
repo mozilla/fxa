@@ -7,51 +7,51 @@ import chai from 'chai';
 
 var assert = chai.assert;
 
-describe('models/reliers/base', function() {
+describe('models/reliers/base', function () {
   var relier;
 
-  beforeEach(function() {
+  beforeEach(function () {
     relier = new BaseRelier();
   });
 
-  describe('fetch', function() {
-    it('returns a promise', function() {
+  describe('fetch', function () {
+    it('returns a promise', function () {
       return relier.fetch().then(assert.pass);
     });
   });
 
-  describe('isOAuth', function() {
-    it('returns `false`', function() {
+  describe('isOAuth', function () {
+    it('returns `false`', function () {
       assert.isFalse(relier.isOAuth());
     });
   });
 
-  describe('isSync', function() {
-    it('returns `false`', function() {
+  describe('isSync', function () {
+    it('returns `false`', function () {
       assert.isFalse(relier.isSync());
     });
   });
 
-  describe('wantsKeys', function() {
-    it('returns `false`', function() {
+  describe('wantsKeys', function () {
+    it('returns `false`', function () {
       assert.isFalse(relier.wantsKeys());
     });
   });
 
-  describe('pickResumeTokenInfo', function() {
-    it('returns an empty object by default', function() {
+  describe('pickResumeTokenInfo', function () {
+    it('returns an empty object by default', function () {
       assert.deepEqual(relier.pickResumeTokenInfo(), {});
     });
   });
 
-  describe('isTrusted', function() {
-    it('returns `true`', function() {
+  describe('isTrusted', function () {
+    it('returns `true`', function () {
       assert.isTrue(relier.isTrusted());
     });
   });
 
-  describe('accountNeedsPermissions', function() {
-    it('returns `false`', function() {
+  describe('accountNeedsPermissions', function () {
+    it('returns `false`', function () {
       assert.isFalse(relier.accountNeedsPermissions());
     });
   });

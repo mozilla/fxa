@@ -33,13 +33,13 @@ const PASSWORD = 'passwordcxzv';
 let email;
 
 registerSuite('force_auth', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'with a missing email': function() {
+    'with a missing email': function () {
       return this.remote
         .then(
           openForceAuth({
@@ -50,7 +50,7 @@ registerSuite('force_auth', {
         .then(testErrorTextInclude('email'));
     },
 
-    'with an invalid email': function() {
+    'with an invalid email': function () {
       return this.remote
         .then(
           openForceAuth({
@@ -64,7 +64,7 @@ registerSuite('force_auth', {
         .then(testErrorTextInclude('email'));
     },
 
-    'with a registered email, no uid': function() {
+    'with a registered email, no uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openForceAuth({ query: { email: email } }))
@@ -73,10 +73,10 @@ registerSuite('force_auth', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'with a registered email, invalid uid': function() {
+    'with a registered email, invalid uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function(accountInfo) {
+        .then(function (accountInfo) {
           return openForceAuth({
             header: selectors['400'].HEADER,
             query: {
@@ -89,10 +89,10 @@ registerSuite('force_auth', {
         .then(testErrorTextInclude('uid'));
     },
 
-    'with a registered email, registered uid': function() {
+    'with a registered email, registered uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function(accountInfo) {
+        .then(function (accountInfo) {
           return openForceAuth({
             query: {
               email: email,
@@ -105,7 +105,7 @@ registerSuite('force_auth', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'with a registered email, unregistered uid': function() {
+    'with a registered email, unregistered uid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -119,7 +119,7 @@ registerSuite('force_auth', {
         .then(testAccountNoLongerExistsErrorShown);
     },
 
-    'with an unregistered email, no uid': function() {
+    'with an unregistered email, no uid': function () {
       return (
         this.remote
           .then(
@@ -147,11 +147,11 @@ registerSuite('force_auth', {
       );
     },
 
-    'with an unregistered email, registered uid': function() {
+    'with an unregistered email, registered uid': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(function(accountInfo) {
+          .then(function (accountInfo) {
             return openForceAuth({
               query: {
                 email: 'a' + email,
@@ -166,7 +166,7 @@ registerSuite('force_auth', {
       );
     },
 
-    'with an unregistered email, unregistered uid': function() {
+    'with an unregistered email, unregistered uid': function () {
       return (
         this.remote
           .then(
@@ -184,7 +184,7 @@ registerSuite('force_auth', {
       );
     },
 
-    'forgot password flow via force_auth': function() {
+    'forgot password flow via force_auth': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -229,14 +229,14 @@ registerSuite('force_auth', {
       );
     },
 
-    'visiting the tos/pp links saves information for return': function() {
+    'visiting the tos/pp links saves information for return': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(testRepopulateFields('/legal/terms', 'fxa-tos-header'))
         .then(testRepopulateFields('/legal/privacy', 'fxa-pp-header'));
     },
 
-    'form prefill information is cleared after sign in->sign out': function() {
+    'form prefill information is cleared after sign in->sign out': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openForceAuth({ query: { email: email } }))
@@ -256,7 +256,7 @@ registerSuite('force_auth', {
 });
 
 function testRepopulateFields(dest, header) {
-  return function() {
+  return function () {
     return (
       this.parent
         .then(openForceAuth({ query: { email: email } }))

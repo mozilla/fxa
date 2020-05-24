@@ -44,7 +44,7 @@ function buf96() {
   return buf(96);
 }
 
-module.exports.newUserDataHex = function() {
+module.exports.newUserDataHex = function () {
   var data = {};
 
   // account
@@ -170,7 +170,7 @@ module.exports.newUserDataHex = function() {
   return data;
 };
 
-module.exports.newUserDataBuffer = function() {
+module.exports.newUserDataBuffer = function () {
   var data = {};
 
   // account

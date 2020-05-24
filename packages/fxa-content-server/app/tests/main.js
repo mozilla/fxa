@@ -8,9 +8,9 @@
 // to URLs being resolved relative to the tests subdirectory instead of
 // the scripts subdirectory. To avoid this, ensure require_config is loaded
 // before anything else.
-require(['../scripts/require_config'], function() {
+require(['../scripts/require_config'], function () {
   'use strict';
-  require(['../tests/test_start'], function() {
+  require(['../tests/test_start'], function () {
     // don't need to do anything.
   });
 });

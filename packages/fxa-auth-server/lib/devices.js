@@ -15,54 +15,25 @@ const {
 const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex');
 
 const SCHEMA = {
-  id: isA
-    .string()
-    .length(32)
-    .regex(HEX_STRING),
+  id: isA.string().length(32).regex(HEX_STRING),
   location: isA.object({
-    city: isA
-      .string()
-      .optional()
-      .allow(null),
-    country: isA
-      .string()
-      .optional()
-      .allow(null),
-    state: isA
-      .string()
-      .optional()
-      .allow(null),
-    stateCode: isA
-      .string()
-      .optional()
-      .allow(null),
+    city: isA.string().optional().allow(null),
+    country: isA.string().optional().allow(null),
+    state: isA.string().optional().allow(null),
+    stateCode: isA.string().optional().allow(null),
   }),
-  name: isA
-    .string()
-    .max(255)
-    .regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
+  name: isA.string().max(255).regex(DISPLAY_SAFE_UNICODE_WITH_NON_BMP),
   // We previously allowed devices to register with arbitrary unicode names,
   // so we can't assert DISPLAY_SAFE_UNICODE_WITH_NON_BMP in the response schema.
-  nameResponse: isA
-    .string()
-    .max(255)
-    .allow(''),
+  nameResponse: isA.string().max(255).allow(''),
   type: isA.string().max(16),
   pushCallback: validators
     .pushCallbackUrl({ scheme: 'https' })
     .regex(PUSH_SERVER_REGEX)
     .max(255)
     .allow(''),
-  pushPublicKey: isA
-    .string()
-    .max(88)
-    .regex(URL_SAFE_BASE_64)
-    .allow(''),
-  pushAuthKey: isA
-    .string()
-    .max(24)
-    .regex(URL_SAFE_BASE_64)
-    .allow(''),
+  pushPublicKey: isA.string().max(88).regex(URL_SAFE_BASE_64).allow(''),
+  pushAuthKey: isA.string().max(24).regex(URL_SAFE_BASE_64).allow(''),
   pushEndpointExpired: isA.boolean().strict(),
   // An object mapping command names to metadata bundles.
   availableCommands: isA
@@ -163,7 +134,7 @@ module.exports = (log, db, oauthdb, push) => {
         (async () => {
           const devices = await db.devices(credentials.uid);
           const otherDevices = devices.filter(
-            device => device.id !== result.id
+            (device) => device.id !== result.id
           );
           return push.notifyDeviceConnected(
             credentials.uid,

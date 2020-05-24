@@ -13,7 +13,7 @@ var FROM_URL = 'http://example.com/';
 var ENTER_EMAIL_URL = intern._config.fxaContentRoot;
 
 registerSuite('back button after navigating to the root', {
-  'start at github, visit Fxa root, click `back` - should go back to example': function() {
+  'start at github, visit Fxa root, click `back` - should go back to example': function () {
     return (
       this.remote
         .get(FROM_URL)
@@ -23,7 +23,7 @@ registerSuite('back button after navigating to the root', {
         .goBack()
 
         .getCurrentUrl()
-        .then(function(resultUrl) {
+        .then(function (resultUrl) {
           assert.equal(resultUrl, FROM_URL);
         })
         .end()

@@ -14,11 +14,11 @@ var suite = {
 
 suite.tests[
   '#options /.well-known/openid-configuration - CORS enabled'
-] = function() {
+] = function () {
   const dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/openid-configuration', { method: 'options' })
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 204);
       assert.equal(res.headers['access-control-allow-origin'], '*');
       assert.equal(res.headers['access-control-allow-methods'], 'GET');
@@ -30,11 +30,11 @@ suite.tests[
 
 suite.tests[
   '#get /.well-known/openid-configuration - returns a JSON doc with expected values'
-] = function() {
+] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/openid-configuration', {})
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 200);
       assert.equal(
         res.headers['content-type'],

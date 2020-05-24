@@ -23,7 +23,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('password strength balloon', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return this.remote
@@ -36,7 +36,7 @@ registerSuite('password strength balloon', {
   },
 
   tests: {
-    'submit w/o a password': function() {
+    'submit w/o a password': function () {
       return this.remote
         .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
         .then(
@@ -56,7 +56,7 @@ registerSuite('password strength balloon', {
         );
     },
 
-    'too short of a password': function() {
+    'too short of a password': function () {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'p'))
         .then(
@@ -76,7 +76,7 @@ registerSuite('password strength balloon', {
         );
     },
 
-    'password is too common': function() {
+    'password is too common': function () {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'password'))
         .then(
@@ -96,7 +96,7 @@ registerSuite('password strength balloon', {
         );
     },
 
-    'password is the same as the full email': function() {
+    'password is the same as the full email': function () {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, email))
         .then(
@@ -116,7 +116,7 @@ registerSuite('password strength balloon', {
         );
     },
 
-    'password is same as the local part of the email': function() {
+    'password is same as the local part of the email': function () {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, email.split('@')[0]))
         .then(
@@ -136,7 +136,7 @@ registerSuite('password strength balloon', {
         );
     },
 
-    'good password, then back to too short': function() {
+    'good password, then back to too short': function () {
       return this.remote
         .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, 'password123123'))
         .then(

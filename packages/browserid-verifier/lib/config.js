@@ -93,7 +93,7 @@ function loadConf() {
   // load environment dependent configuration
   if (process.env.CONFIG_FILES) {
     var files = process.env.CONFIG_FILES.split(',');
-    files.forEach(function(file) {
+    files.forEach(function (file) {
       conf.loadFile(file);
     });
   }
@@ -103,7 +103,7 @@ function loadConf() {
 
   module.exports = conf;
 
-  process.nextTick(function() {
+  process.nextTick(function () {
     require('./log')('config').debug(
       'current configuration:',
       JSON.stringify(conf.get(), null, 2)

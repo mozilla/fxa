@@ -8,9 +8,9 @@ var Promise = require('bluebird');
 var test = require('tap').test;
 
 var log = {
-  info: function() {},
-  error: function() {},
-  trace: function() {},
+  info: function () {},
+  error: function () {},
+  trace: function () {},
 };
 
 var config = {
@@ -41,12 +41,12 @@ var commonTestCases = [
   },
 ];
 
-commonTestCases.forEach(function(testCase) {
+commonTestCases.forEach(function (testCase) {
   var BlocklistClass = testCase.blocklistClass;
   var filePath = testCase.list;
   var name = testCase.name;
 
-  test(name + ', calling contains without loading csv return false', function(
+  test(name + ', calling contains without loading csv return false', function (
     t
   ) {
     var ipBlocklist = new BlocklistClass();
@@ -55,76 +55,76 @@ commonTestCases.forEach(function(testCase) {
     t.end();
   });
 
-  test(name + ', load ip blocklist', function(t) {
+  test(name + ', load ip blocklist', function (t) {
     var ipBlocklist = new BlocklistClass();
 
     ipBlocklist
       .load(filePath)
-      .then(function() {
+      .then(function () {
         t.end();
       })
-      .catch(function() {
+      .catch(function () {
         t.fail('Failed to load csv');
         t.end();
       });
   });
 
-  test(name + ', throw for empty ip', function(t) {
+  test(name + ', throw for empty ip', function (t) {
     var ipBlocklist = new BlocklistClass();
 
-    ipBlocklist.load(filePath).then(function() {
-      t.throws(function() {
+    ipBlocklist.load(filePath).then(function () {
+      t.throws(function () {
         ipBlocklist.contains();
       });
       t.end();
     });
   });
 
-  test(name + ', throw for invalid ip', function(t) {
+  test(name + ', throw for invalid ip', function (t) {
     var ipBlocklist = new BlocklistClass();
 
-    ipBlocklist.load(filePath).then(function() {
-      t.throws(function() {
+    ipBlocklist.load(filePath).then(function () {
+      t.throws(function () {
         ipBlocklist.contains('notanip');
       });
       t.end();
     });
   });
 
-  test(name + ', returns true for ip in blocklist', function(t) {
+  test(name + ', returns true for ip in blocklist', function (t) {
     var ipBlocklist = new BlocklistClass();
 
-    ipBlocklist.load(filePath).then(function() {
+    ipBlocklist.load(filePath).then(function () {
       var result = ipBlocklist.contains('1.93.0.224');
       t.equal(result, true, 'return true for found ip');
       t.end();
     });
   });
 
-  test(name + ', returns true for ip in blocklist range', function(t) {
+  test(name + ', returns true for ip in blocklist range', function (t) {
     var ipBlocklist = new BlocklistClass();
 
-    ipBlocklist.load(filePath).then(function() {
+    ipBlocklist.load(filePath).then(function () {
       var result = ipBlocklist.contains('0.0.0.1');
       t.equal(result, true, 'return true for found ip');
       t.end();
     });
   });
 
-  test(name + ', returns false for ip not in blocklist', function(t) {
+  test(name + ', returns false for ip not in blocklist', function (t) {
     var ipBlocklist = new BlocklistClass();
 
-    ipBlocklist.load(filePath).then(function() {
+    ipBlocklist.load(filePath).then(function () {
       var result = ipBlocklist.contains('12.34.32.1');
       t.equal(result, false, 'return false for not found ip');
       t.end();
     });
   });
 
-  test(name + ', returns false for ip not in blocklist range', function(t) {
+  test(name + ', returns false for ip not in blocklist range', function (t) {
     var ipBlocklist = new BlocklistClass();
 
-    ipBlocklist.load(filePath).then(function() {
+    ipBlocklist.load(filePath).then(function () {
       var result = ipBlocklist.contains('3.0.0.0');
       t.equal(result, false, 'return true for found ip');
       t.end();
@@ -134,10 +134,10 @@ commonTestCases.forEach(function(testCase) {
 
 // Clear and Refresh test cases are not similar for IPBlocklist
 // and IPBlocklistManager
-test('IPBlocklist, clear blocklist', function(t) {
+test('IPBlocklist, clear blocklist', function (t) {
   var ipBlocklist = new IPBlocklist();
 
-  ipBlocklist.load(lists[0]).then(function() {
+  ipBlocklist.load(lists[0]).then(function () {
     ipBlocklist.clear();
     t.deepEqual(
       ipBlocklist.ipsByPrefixLength,
@@ -149,59 +149,59 @@ test('IPBlocklist, clear blocklist', function(t) {
   });
 });
 
-test('IPBlocklist, refresh blocklist', function(t) {
+test('IPBlocklist, refresh blocklist', function (t) {
   var ipBlocklist = new IPBlocklist();
 
   ipBlocklist
     .load(lists[0])
-    .then(function() {
+    .then(function () {
       return ipBlocklist.refresh();
     })
-    .then(function() {
+    .then(function () {
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('IPBlocklistManager, clear blocklist', function(t) {
+test('IPBlocklistManager, clear blocklist', function (t) {
   var ipBlocklist = new IPBlocklistManager();
 
-  ipBlocklist.load(lists).then(function() {
+  ipBlocklist.load(lists).then(function () {
     ipBlocklist.clear();
     t.equal(ipBlocklist.ipBlocklists.length, 0, 'empty blocklist');
     t.end();
   });
 });
 
-test('IPBlocklistManager, logOnly', function(t) {
+test('IPBlocklistManager, logOnly', function (t) {
   var ipBlocklist = new IPBlocklistManager();
 
-  ipBlocklist.load(lists, config.ipBlocklist.logOnlyLists).then(function() {
+  ipBlocklist.load(lists, config.ipBlocklist.logOnlyLists).then(function () {
     var result = ipBlocklist.contains('86.75.30.9');
     t.equal(result, false, 'return false for not found ip');
     t.end();
   });
 });
 
-test('IPBlocklistManager, load fails on non array', function(t) {
+test('IPBlocklistManager, load fails on non array', function (t) {
   var ipBlocklist = new IPBlocklistManager();
 
   ipBlocklist
     .load('./somepath')
-    .then(function() {
+    .then(function () {
       t.fail('Failed to load csv');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.assert('lists must be an array', err.message);
       t.end();
     });
 });
 
-test('IPBlocklistManager, reloads file correctly', function(t) {
+test('IPBlocklistManager, reloads file correctly', function (t) {
   var tmpFilename = path.join(
     os.tmpdir(),
     'fxa-customs-ipblocklist-' + Date.now() + '.netset'
@@ -215,7 +215,7 @@ test('IPBlocklistManager, reloads file correctly', function(t) {
 
   ipBlocklist
     .load([tmpFilename])
-    .then(function() {
+    .then(function () {
       ipBlocklist.pollForUpdates();
 
       var result = ipBlocklist.contains(tmpFileContents);
@@ -228,13 +228,13 @@ test('IPBlocklistManager, reloads file correctly', function(t) {
       // from first file write
       return Promise.delay(1000);
     })
-    .then(function() {
+    .then(function () {
       fs.writeFileSync(tmpFilename, tmpFileContents2, {});
 
       // Delay again to ensure that list gets reloaded
       return Promise.delay(1100);
     })
-    .then(function() {
+    .then(function () {
       var result = ipBlocklist.contains(tmpFileContents);
       t.equal(result, false, 'should not contain ip');
 
@@ -248,7 +248,7 @@ test('IPBlocklistManager, reloads file correctly', function(t) {
 
       return Promise.delay(1000);
     })
-    .then(function() {
+    .then(function () {
       var result = ipBlocklist.contains(tmpFileContents);
       t.equal(result, false, 'should not contain ip');
 
@@ -257,7 +257,7 @@ test('IPBlocklistManager, reloads file correctly', function(t) {
 
       t.end();
     })
-    .finally(function() {
+    .finally(function () {
       // Try to clean up after ourselves
       try {
         fs.unlinkSync(tmpFilename);

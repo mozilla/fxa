@@ -25,20 +25,20 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', t => {
-  memcached.clearEverything(err => {
+test('clear everything', (t) => {
+  memcached.clearEverything((err) => {
     t.notOk(err, 'memcached.clearEverything should not return an error');
     t.end();
   });
 });
 
-test(`/checkIpOnly ${ACTION}`, t => {
+test(`/checkIpOnly ${ACTION}`, (t) => {
   return client
     .postAsync('/checkIpOnly', {
       ip: IP,
@@ -80,13 +80,13 @@ test(`/checkIpOnly ${ACTION}`, t => {
       t.equal(obj.block, false, '/checkIpOnly should return block:false');
       t.end();
     })
-    .catch(err => {
+    .catch((err) => {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

@@ -25,11 +25,11 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('password visibility', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'show password ended with second mousedown': function() {
+    'show password ended with second mousedown': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))

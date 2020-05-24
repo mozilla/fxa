@@ -55,7 +55,7 @@ const {
 } = FunctionalHelpers;
 
 function testSmsSupportedCountryForm(country, expectedPrefix) {
-  return function() {
+  return function () {
     return this.remote
       .then(
         openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER, {
@@ -90,7 +90,7 @@ function disableSmsTypeValidation() {
 }
 
 const suite = {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     testPhoneNumber = createPhoneNumber();
     formattedPhoneNumber = `${testPhoneNumber.substr(
@@ -112,7 +112,7 @@ const suite = {
     );
   },
   tests: {
-    'displays expected headers': function() {
+    'displays expected headers': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(
@@ -128,7 +128,7 @@ const suite = {
           )
         );
     },
-    'with no query parameters': function() {
+    'with no query parameters': function () {
       return this.remote
         .then(openPage(SEND_SMS_NO_QUERY_URL, selectors.SMS_SEND.HEADER))
         .then(testElementValueEquals(selectors.SMS_SEND.PHONE_NUMBER, ''))
@@ -150,7 +150,7 @@ const suite = {
         );
     },
 
-    'with no service, unsupported country': function() {
+    'with no service, unsupported country': function () {
       return (
         this.remote
           .then(
@@ -189,7 +189,7 @@ const suite = {
     'with `country=RO`': testSmsSupportedCountryForm('RO', '+40'),
     'with `country=US`': testSmsSupportedCountryForm('US', ''),
 
-    'with an unsupported `country`': function() {
+    'with an unsupported `country`': function () {
       return this.remote
         .then(
           openPage(SEND_SMS_URL, selectors['400'].HEADER, {
@@ -201,7 +201,7 @@ const suite = {
         .then(testElementTextInclude(selectors['400'].ERROR, 'country'));
     },
 
-    'learn more': function() {
+    'learn more': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(testElementExists(selectors.SMS_SEND.LINK_MARKETING))
@@ -212,7 +212,7 @@ const suite = {
         .then(closeCurrentWindow());
     },
 
-    'why is this required': function() {
+    'why is this required': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(click(selectors.SMS_SEND.LINK_WHY_IS_THIS_REQUIRED))
@@ -223,40 +223,40 @@ const suite = {
         .then(testElementExists(selectors.SMS_SEND.HEADER));
     },
 
-    'not now': function() {
+    'not now': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(testElementExists(selectors.SMS_SEND.LINK_NOT_NOW));
     },
 
-    'empty phone number': function() {
+    'empty phone number': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
     },
 
-    'invalid phone number (too short)': function() {
+    'invalid phone number (too short)': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, '2134567'))
         .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
     },
 
-    'invalid phone number (too long)': function() {
+    'invalid phone number (too long)': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, '21345678901'))
         .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
     },
 
-    'invalid phone number (contains letters)': function() {
+    'invalid phone number (contains letters)': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, '2134567a890'))
         .then(testElementDisabled(selectors.SMS_SEND.SUBMIT));
     },
 
-    'empty phone number with input-change validation disabled': function() {
+    'empty phone number with input-change validation disabled': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .execute(disableSmsTypeValidation)
@@ -270,7 +270,7 @@ const suite = {
         );
     },
 
-    'invalid phone number with input-change validation disabled': function() {
+    'invalid phone number with input-change validation disabled': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .execute(disableSmsTypeValidation)
@@ -285,7 +285,7 @@ const suite = {
         );
     },
 
-    'invalid phone number (that looks correct, but fails server validation)': function() {
+    'invalid phone number (that looks correct, but fails server validation)': function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, '1 223 123 1234'))
@@ -299,7 +299,7 @@ const suite = {
         );
     },
 
-    'valid phone number, back': disableInProd(function() {
+    'valid phone number, back': disableInProd(function () {
       return (
         this.remote
           .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
@@ -329,7 +329,7 @@ const suite = {
       );
     }),
 
-    'valid phone number, resend': disableInProd(function() {
+    'valid phone number, resend': disableInProd(function () {
       return (
         this.remote
           .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
@@ -361,7 +361,7 @@ const suite = {
       );
     }),
 
-    'valid phone number, enable signinCode': disableInProd(function() {
+    'valid phone number, enable signinCode': disableInProd(function () {
       return this.remote
         .then(openPage(SEND_SMS_SIGNIN_CODE_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, testPhoneNumber))
@@ -370,7 +370,7 @@ const suite = {
         .then(getSmsSigninCode(testPhoneNumber, 0));
     }),
 
-    'valid phone number w/ country code of 1': disableInProd(function() {
+    'valid phone number w/ country code of 1': disableInProd(function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, `1${testPhoneNumber}`))
@@ -386,7 +386,7 @@ const suite = {
         .then(getSms(testPhoneNumber, 0));
     }),
 
-    'valid phone number w/ country code of +1': disableInProd(function() {
+    'valid phone number w/ country code of +1': disableInProd(function () {
       return this.remote
         .then(openPage(SEND_SMS_URL, selectors.SMS_SEND.HEADER))
         .then(type(selectors.SMS_SEND.PHONE_NUMBER, `+1${testPhoneNumber}`))
@@ -403,7 +403,7 @@ const suite = {
     }),
 
     'valid phone number (contains spaces and punctuation)': disableInProd(
-      function() {
+      function () {
         const unformattedPhoneNumber = ` ${testPhoneNumber.slice(
           0,
           3

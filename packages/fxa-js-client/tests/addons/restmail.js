@@ -12,7 +12,7 @@ function Restmail(server, xhr) {
 }
 
 // utility function that waits for a restmail email to arrive
-Restmail.prototype.wait = function(user, number = 1, requestAttempts = 0) {
+Restmail.prototype.wait = function (user, number = 1, requestAttempts = 0) {
   const self = this;
   const path = '/mail/' + user;
 
@@ -22,13 +22,13 @@ Restmail.prototype.wait = function(user, number = 1, requestAttempts = 0) {
     console.log('Waiting for email at:', path);
   }
 
-  return this.request.send(path, 'GET').then(function(result) {
+  return this.request.send(path, 'GET').then(function (result) {
     requestAttempts++;
     if (result.length === number) {
       return result;
     } else {
-      return new Promise(function(resolve, reject) {
-        setTimeout(function() {
+      return new Promise(function (resolve, reject) {
+        setTimeout(function () {
           self.wait(user, number, requestAttempts).then(resolve, reject);
         }, 1000);
       });

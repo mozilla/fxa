@@ -219,7 +219,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
   });
 
   it('re-renders when a cached sessionToken expires after render', () => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       sinon.stub(view, 'rerender').callsFake(() => resolve());
       account.unset('sessionToken');
     });

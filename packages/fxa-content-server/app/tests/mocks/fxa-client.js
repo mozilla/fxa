@@ -8,8 +8,8 @@ import FxaClientWrapper from 'lib/fxa-client';
 
 function FxaClientWrapperMock() {}
 
-Object.keys(FxaClientWrapper.prototype).forEach(function(method) {
-  FxaClientWrapperMock.prototype[method] = function() {
+Object.keys(FxaClientWrapper.prototype).forEach(function (method) {
+  FxaClientWrapperMock.prototype[method] = function () {
     return Promise.reject(
       new Error('method "' + method + '" should be stubbed')
     );

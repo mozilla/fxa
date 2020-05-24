@@ -47,7 +47,7 @@ hawk.client = {
    }
    */
   // eslint-disable-next-line complexity
-  header: function(uri, method, options) {
+  header: function (uri, method, options) {
     /*eslint complexity: [2, 21] */
     var result = {
       field: '',
@@ -177,7 +177,7 @@ hawk.client = {
    }
    */
 
-  authenticate: function(request, credentials, artifacts, options) {
+  authenticate: function (request, credentials, artifacts, options) {
     options = options || {};
 
     if (request.getResponseHeader('www-authenticate')) {
@@ -254,7 +254,7 @@ hawk.client = {
     return calculatedHash === attributes.hash;
   },
 
-  message: function(host, port, message, options) {
+  message: function (host, port, message, options) {
     // Validate inputs
 
     if (
@@ -319,7 +319,7 @@ hawk.client = {
     return result;
   },
 
-  authenticateTimestamp: function(message, credentials, updateClock) {
+  authenticateTimestamp: function (message, credentials, updateClock) {
     // updateClock defaults to true
 
     var tsm = hawk.crypto.calculateTsMac(message.ts, credentials);
@@ -342,7 +342,7 @@ hawk.crypto = {
 
   algorithms: ['sha1', 'sha256'],
 
-  calculateMac: function(type, credentials, options) {
+  calculateMac: function (type, credentials, options) {
     var normalized = hawk.crypto.generateNormalizedString(type, options);
     var hmac = new sjcl.misc.hmac(credentials.key, sjcl.hash.sha256);
     hmac.update(normalized);
@@ -350,7 +350,7 @@ hawk.crypto = {
     return sjcl.codec.base64.fromBits(hmac.digest());
   },
 
-  generateNormalizedString: function(type, options) {
+  generateNormalizedString: function (type, options) {
     var normalized =
       'hawk.' +
       hawk.crypto.headerVersion +
@@ -385,7 +385,7 @@ hawk.crypto = {
     return normalized;
   },
 
-  calculatePayloadHash: function(payload, algorithm, contentType) {
+  calculatePayloadHash: function (payload, algorithm, contentType) {
     var hash = new sjcl.hash.sha256();
     hash
       .update('hawk.' + hawk.crypto.headerVersion + '.payload\n')
@@ -396,7 +396,7 @@ hawk.crypto = {
     return sjcl.codec.base64.fromBits(hash.finalize());
   },
 
-  calculateTsMac: function(ts, credentials) {
+  calculateTsMac: function (ts, credentials) {
     var hmac = new sjcl.misc.hmac(credentials.key, sjcl.hash.sha256);
     hmac.update('hawk.' + hawk.crypto.headerVersion + '.ts\n' + ts + '\n');
 
@@ -408,21 +408,21 @@ hawk.utils = {
   storage: {
     // localStorage compatible interface
     _cache: {},
-    setItem: function(key, value) {
+    setItem: function (key, value) {
       hawk.utils.storage._cache[key] = value;
     },
-    getItem: function(key) {
+    getItem: function (key) {
       return hawk.utils.storage._cache[key];
     },
   },
 
-  setStorage: function(storage) {
+  setStorage: function (storage) {
     var ntpOffset = hawk.utils.getNtpOffset() || 0;
     hawk.utils.storage = storage;
     hawk.utils.setNtpOffset(ntpOffset);
   },
 
-  setNtpOffset: function(offset) {
+  setNtpOffset: function (offset) {
     try {
       hawk.utils.storage.setItem('hawk_ntp_offset', offset);
     } catch (err) {
@@ -431,19 +431,19 @@ hawk.utils = {
     }
   },
 
-  getNtpOffset: function() {
+  getNtpOffset: function () {
     return parseInt(hawk.utils.storage.getItem('hawk_ntp_offset') || '0', 10);
   },
 
-  now: function() {
+  now: function () {
     return new Date().getTime() + hawk.utils.getNtpOffset();
   },
 
-  escapeHeaderAttribute: function(attribute) {
+  escapeHeaderAttribute: function (attribute) {
     return attribute.replace(/\\/g, '\\\\').replace(/\"/g, '\\"');
   },
 
-  parseContentType: function(header) {
+  parseContentType: function (header) {
     if (!header) {
       return '';
     }
@@ -454,7 +454,7 @@ hawk.utils = {
       .toLowerCase();
   },
 
-  parseAuthorizationHeader: function(header, keys) {
+  parseAuthorizationHeader: function (header, keys) {
     if (!header) {
       return null;
     }
@@ -477,7 +477,7 @@ hawk.utils = {
     var attributes = {};
     var verify = attributesString.replace(
       /(\w+)="([^"\\]*)"\s*(?:,\s*|$)/g,
-      function($0, $1, $2) {
+      function ($0, $1, $2) {
         // Check valid attribute names
 
         if (keys.indexOf($1) === -1) {
@@ -512,7 +512,7 @@ hawk.utils = {
     return attributes;
   },
 
-  randomString: function(size) {
+  randomString: function (size) {
     var randomSource =
       'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     var len = randomSource.length;
@@ -525,7 +525,7 @@ hawk.utils = {
     return result.join('');
   },
 
-  baseIndexOf: function(array, value, fromIndex) {
+  baseIndexOf: function (array, value, fromIndex) {
     var index = (fromIndex || 0) - 1,
       length = array ? array.length : 0;
 
@@ -537,7 +537,7 @@ hawk.utils = {
     return -1;
   },
 
-  parseUri: function(input) {
+  parseUri: function (input) {
     // Based on: parseURI 1.2.2
     // http://blog.stevenlevithan.com/archives/parseuri
     // (c) Steven Levithan <stevenlevithan.com>
@@ -575,8 +575,8 @@ hawk.utils = {
         uri.protocol.toLowerCase() === 'http'
           ? '80'
           : uri.protocol.toLowerCase() === 'https'
-            ? '443'
-            : '';
+          ? '443'
+          : '';
     }
 
     return uri;

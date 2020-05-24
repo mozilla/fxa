@@ -29,7 +29,7 @@ var verifier = new CCVerifier({
 
 // handle shutdown
 function shutdown(signal) {
-  return function() {
+  return function () {
     log.info('shutdown', { signal });
     toobusy.shutdown();
     verifier.shutdown();
@@ -37,12 +37,12 @@ function shutdown(signal) {
   };
 }
 
-['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(function(signal) {
+['SIGINT', 'SIGTERM', 'SIGQUIT'].forEach(function (signal) {
   process.on(signal, shutdown(signal.substr(3)));
 });
 
 // header manipulation
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   // no caching allowed, this is an API server.
   res.setHeader(
     'Cache-Control',
@@ -66,7 +66,7 @@ app.use(function(req, res, next) {
 });
 
 // health checks - registered before all other middleware.
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   switch (req.url) {
     case '/status':
       res.setHeader('Content-Type', 'text/plain');
@@ -77,7 +77,7 @@ app.use(function(req, res, next) {
       res.send({});
       break;
     case '/__version__':
-      version.getVersionInfo(function(info) {
+      version.getVersionInfo(function (info) {
         res.send(info);
       });
       break;
@@ -88,7 +88,7 @@ app.use(function(req, res, next) {
 
 // return 503 when the server is too busy
 toobusy.maxLag(config.get('toobusy.maxLag'));
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   if (toobusy()) {
     log.warn('tooBusy');
     res.json(503, { status: 'failure', reason: 'too busy' });
@@ -101,7 +101,7 @@ app.use(function(req, res, next) {
 app.use(
   morgan('common', {
     stream: {
-      write: function(message) {
+      write: function (message) {
         // trim newlines as our logger inserts them for us.
         if (typeof message === 'string') {
           message = message.trim();
@@ -126,12 +126,12 @@ function wrongMethod(req, res) {
   return res.sendStatus(405);
 }
 
-['/verify', '/', '/v2'].forEach(function(route) {
+['/verify', '/', '/v2'].forEach(function (route) {
   app.get(route, wrongMethod);
 });
 
 // error handler goes last, to receive any errors from previous middleware
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   if (err) {
     if (err.status) {
       res.statusCode = err.status;
@@ -144,7 +144,7 @@ app.use(function(err, req, res, next) {
   next();
 });
 
-server.listen(config.get('port'), config.get('ip'), function() {
+server.listen(config.get('port'), config.get('ip'), function () {
   log.info('running', {
     url: 'http://' + server.address().address + ':' + server.address().port,
   });

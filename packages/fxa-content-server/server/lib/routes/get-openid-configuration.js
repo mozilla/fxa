@@ -31,7 +31,7 @@ for (const key in c) {
   openidConfig[key] = c[key];
 }
 
-module.exports = function(config) {
+module.exports = function (config) {
   return {
     cors: {
       methods: 'GET',
@@ -40,7 +40,7 @@ module.exports = function(config) {
     },
     method: 'get',
     path: '/.well-known/openid-configuration',
-    process: function(req, res) {
+    process: function (req, res) {
       // taken from https://accounts.google.com/.well-known/openid-configuration
       res.header('Cache-Control', 'public, max-age=3600');
 

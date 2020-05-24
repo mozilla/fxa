@@ -21,7 +21,7 @@ function removeQuery(url) {
   return url.split('?').shift();
 }
 
-const eventFilter = event => {
+const eventFilter = (event) => {
   if (_.get(event, 'request.headers.Referer')) {
     event.request.headers.Referer = removeQuery(event.request.headers.Referer);
   }

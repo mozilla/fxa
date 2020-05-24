@@ -129,7 +129,7 @@ class StripeHelper {
     this.redis = redis;
 
     if (statsd) {
-      this.stripe.on('response', response => {
+      this.stripe.on('response', (response) => {
         statsd.timing('stripe_request', response.elapsed);
       });
     }
@@ -257,7 +257,7 @@ class StripeHelper {
       return { uid: undefined, email: undefined };
     }
     if (!(/** @type {Customer} */ (customer.metadata.userid))) {
-      Sentry.withScope(scope => {
+      Sentry.withScope((scope) => {
         scope.setContext('stripeEvent', {
           customer: { id: customer.id },
         });
@@ -409,7 +409,7 @@ class StripeHelper {
     }
 
     return customer.subscriptions.data.find(
-      subscription => subscription.id === subscriptionId
+      (subscription) => subscription.id === subscriptionId
     );
   }
 
@@ -556,7 +556,7 @@ class StripeHelper {
    */
   async findPlanById(planId) {
     const plans = await this.allPlans();
-    const selectedPlan = plans.find(p => p.plan_id === planId);
+    const selectedPlan = plans.find((p) => p.plan_id === planId);
     if (!selectedPlan) {
       throw error.unknownSubscriptionPlan(planId);
     }
@@ -575,10 +575,12 @@ class StripeHelper {
   async verifyPlanUpgradeForSubscription(currentPlanId, newPlanId) {
     const allPlans = await this.allPlans();
     const currentPlan = allPlans
-      .filter(plan => plan.plan_id === currentPlanId)
+      .filter((plan) => plan.plan_id === currentPlanId)
       .shift();
 
-    const newPlan = allPlans.filter(plan => plan.plan_id === newPlanId).shift();
+    const newPlan = allPlans
+      .filter((plan) => plan.plan_id === newPlanId)
+      .shift();
     if (!newPlan || !currentPlan) {
       throw error.unknownSubscriptionPlan();
     }
@@ -1367,7 +1369,7 @@ class StripeHelper {
    * @returns { Promise<AbbrevProduct> }
    */
   async expandAbbrevProductForPlan(plan) {
-    const checkDeletedProduct = product => {
+    const checkDeletedProduct = (product) => {
       if (product.deleted === true) {
         throw error.unknownSubscriptionPlan(plan.id);
       }
@@ -1381,7 +1383,7 @@ class StripeHelper {
 
     // Next, look for product details in cache
     const products = await this.allProducts();
-    const productCached = products.find(p => p.product_id === plan.product);
+    const productCached = products.find((p) => p.product_id === plan.product);
     if (productCached) {
       return productCached;
     }

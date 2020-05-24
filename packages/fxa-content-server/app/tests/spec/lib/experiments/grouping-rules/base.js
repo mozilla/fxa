@@ -117,7 +117,7 @@ describe('lib/experiments/grouping-rules/base', () => {
 
   describe('choose', () => {
     it('must be overridden', () => {
-      assert.throws(function() {
+      assert.throws(function () {
         experiment.choose();
       }, 'choose must be overridden');
     });
@@ -137,13 +137,13 @@ describe('lib/experiments/grouping-rules/base', () => {
       'testuser@mozilla.org',
       'tester@softvision.ro',
       'tester@softvision.com',
-    ].forEach(email => {
+    ].forEach((email) => {
       it(`returns 'true' for test email: ${email}`, () => {
         assert.isTrue(experiment.isTestEmail(email));
       });
     });
 
-    ['tester@google.com', 'tester@mozilla.es'].forEach(email => {
+    ['tester@google.com', 'tester@mozilla.es'].forEach((email) => {
       it(`returns false for other non-test email: ${email}`, () => {
         assert.isFalse(experiment.isTestEmail(email));
       });

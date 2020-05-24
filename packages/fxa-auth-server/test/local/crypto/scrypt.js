@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const config = { scrypt: { maxPending: 5 } };
 const log = {
   buffer: [],
-  warn: function(obj) {
+  warn: function (obj) {
     log.buffer.push(obj);
   },
 };

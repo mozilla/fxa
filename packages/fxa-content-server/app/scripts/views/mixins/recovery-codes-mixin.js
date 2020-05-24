@@ -13,7 +13,7 @@ import SaveOptionsMixin from './save-options-mixin';
 
 const RECOVERY_CODE_ELEMENT = '#recovery-codes';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 export default {
   dependsOn: [SaveOptionsMixin],
@@ -34,7 +34,7 @@ export default {
 
   printCodes() {
     this.logFlowEvent('print-option', this.viewName);
-    const recoveryCodes = this.recoveryCodes.map(code => {
+    const recoveryCodes = this.recoveryCodes.map((code) => {
       return new RecoveryCode({ code }).toJSON();
     });
     this.print(RecoveryCodePrintTemplate({ recoveryCodes }));
@@ -98,7 +98,7 @@ export default {
   setInitialContext(context) {
     let recoveryCodes = this.model.get('recoveryCodes');
     if (recoveryCodes) {
-      recoveryCodes = recoveryCodes.map(code => {
+      recoveryCodes = recoveryCodes.map((code) => {
         return new RecoveryCode({ code }).toJSON();
       });
     } else {
@@ -119,7 +119,7 @@ export default {
 
   verifyTotpStatus() {
     const account = this.getSignedInAccount();
-    return account.checkTotpTokenExists().then(result => {
+    return account.checkTotpTokenExists().then((result) => {
       return !!(
         result.exists &&
         result.verified &&
@@ -133,13 +133,13 @@ export default {
     const account = this.getSignedInAccount();
     if (totpSecret) {
       return getCode(totpSecret)
-        .then(code => {
+        .then((code) => {
           return account.verifyTotpCode(code, this.relier.get('service'));
         })
         .then(() =>
           this.displaySuccess(t('Two-step authentication enabled'), {})
         )
-        .then(done, err => this.displayError(err));
+        .then(done, (err) => this.displayError(err));
     }
     done();
   },

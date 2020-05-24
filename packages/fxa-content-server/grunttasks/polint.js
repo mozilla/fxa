@@ -24,7 +24,7 @@
 // 3. Lints the `/app/i18n/**/{client,server}.json` files against the proper
 // schemas created in step 2 (via the new zschema task and grunt-z-schema module).
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask('polint', [
     'jsonlint:i18n',
     'po2json:template',

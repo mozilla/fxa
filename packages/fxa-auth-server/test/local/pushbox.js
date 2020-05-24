@@ -54,7 +54,7 @@ describe('pushbox', () => {
         ],
       });
     const pushbox = pushboxModule(mockLog(), mockConfig);
-    return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(resp => {
+    return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then((resp) => {
       assert.deepEqual(resp, {
         last: true,
         index: 15,
@@ -79,7 +79,7 @@ describe('pushbox', () => {
     const pushbox = pushboxModule(log, mockConfig);
     return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
       () => assert.ok(false, 'should not happen'),
-      err => {
+      (err) => {
         assert.ok(err);
         assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
         assert.equal(log.error.callCount, 1, 'an error was logged');
@@ -104,7 +104,7 @@ describe('pushbox', () => {
     const pushbox = pushboxModule(log, mockConfig);
     return pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10).then(
       () => assert.ok(false, 'should not happen'),
-      err => {
+      (err) => {
         assert.ok(err);
         assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
         assert.equal(log.error.callCount, 1, 'an error was logged');
@@ -121,7 +121,7 @@ describe('pushbox', () => {
   it('store', () => {
     let requestBody;
     mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, body => {
+      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
         requestBody = body;
         return true;
       })
@@ -144,7 +144,7 @@ describe('pushbox', () => {
   it('store with custom ttl', () => {
     let requestBody;
     mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, body => {
+      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
         requestBody = body;
         return true;
       })
@@ -167,7 +167,7 @@ describe('pushbox', () => {
   it('store caps ttl at configured maximum', () => {
     let requestBody;
     mockPushboxServer
-      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, body => {
+      .post(`/v1/store/${mockUid}/${mockDeviceIds[0]}`, (body) => {
         requestBody = body;
         return true;
       })
@@ -197,7 +197,7 @@ describe('pushbox', () => {
     const pushbox = pushboxModule(log, mockConfig);
     return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
       () => assert.ok(false, 'should not happen'),
-      err => {
+      (err) => {
         assert.ok(err);
         assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
         assert.equal(log.error.callCount, 1, 'an error was logged');
@@ -221,7 +221,7 @@ describe('pushbox', () => {
     const pushbox = pushboxModule(log, mockConfig);
     return pushbox.store(mockUid, mockDeviceIds[0], { test: 'data' }).then(
       () => assert.ok(false, 'should not happen'),
-      err => {
+      (err) => {
         assert.ok(err);
         assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
         assert.equal(log.error.callCount, 1, 'an error was logged');
@@ -244,7 +244,7 @@ describe('pushbox', () => {
       .store(mockUid, mockDeviceIds[0], 'sendtab', mockData)
       .then(
         () => assert.ok(false, 'should not happen'),
-        err => {
+        (err) => {
           assert.ok(err);
           assert.equal(err.message, 'Feature not enabled');
         }
@@ -252,7 +252,7 @@ describe('pushbox', () => {
       .then(() => pushbox.retrieve(mockUid, mockDeviceIds[0], 50, 10))
       .then(
         () => assert.ok(false, 'should not happen'),
-        err => {
+        (err) => {
           assert.ok(err);
           assert.equal(err.message, 'Feature not enabled');
         }

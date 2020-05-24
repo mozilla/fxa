@@ -92,7 +92,7 @@ async function configureSentry(server, config) {
         new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
       ],
     });
-    Sentry.configureScope(scope => {
+    Sentry.configureScope((scope) => {
       scope.setTag('process', 'key_server');
     });
 
@@ -119,8 +119,8 @@ async function configureSentry(server, config) {
           }
         }
 
-        Sentry.withScope(scope => {
-          scope.addEventProcessor(_sentryEvent => {
+        Sentry.withScope((scope) => {
+          scope.addEventProcessor((_sentryEvent) => {
             const sentryEvent = Sentry.Handlers.parseRequest(
               _sentryEvent,
               request.raw.req

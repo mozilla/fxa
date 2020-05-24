@@ -62,7 +62,7 @@ describe('Customs', () => {
 
     return customsNoUrl
       .check(request, email, action)
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -72,7 +72,7 @@ describe('Customs', () => {
       .then(() => {
         return customsNoUrl.flag(ip, { email: email, uid: '12345' });
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -82,7 +82,7 @@ describe('Customs', () => {
       .then(() => {
         return customsNoUrl.reset(email);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -92,7 +92,7 @@ describe('Customs', () => {
       .then(() => {
         return customsNoUrl.checkIpOnly(request, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -108,7 +108,7 @@ describe('Customs', () => {
 
     // Mock a check that does not get blocked.
     customsServer
-      .post('/check', body => {
+      .post('/check', (body) => {
         assert.deepEqual(
           body,
           {
@@ -130,7 +130,7 @@ describe('Customs', () => {
 
     return customsWithUrl
       .check(request, email, action)
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -140,7 +140,7 @@ describe('Customs', () => {
       .then(() => {
         // Mock a report of a failed login attempt
         customsServer
-          .post('/failedLoginAttempt', body => {
+          .post('/failedLoginAttempt', (body) => {
             assert.deepEqual(
               body,
               {
@@ -155,7 +155,7 @@ describe('Customs', () => {
           .reply(200, {});
         return customsWithUrl.flag(ip, { email: email, uid: '12345' });
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -165,7 +165,7 @@ describe('Customs', () => {
       .then(() => {
         // Mock a report of a password reset.
         customsServer
-          .post('/passwordReset', body => {
+          .post('/passwordReset', (body) => {
             assert.deepEqual(
               body,
               {
@@ -178,7 +178,7 @@ describe('Customs', () => {
           .reply(200, {});
         return customsWithUrl.reset(email);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -188,7 +188,7 @@ describe('Customs', () => {
       .then(() => {
         // Mock a check that does get blocked, with a retryAfter.
         customsServer
-          .post('/check', body => {
+          .post('/check', (body) => {
             assert.deepEqual(
               body,
               {
@@ -210,13 +210,13 @@ describe('Customs', () => {
         return customsWithUrl.check(request, email, action);
       })
       .then(
-        result => {
+        (result) => {
           assert(
             false,
             'This should have failed the check since it should be blocked'
           );
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             error.ERRNO.THROTTLED,
@@ -244,7 +244,7 @@ describe('Customs', () => {
       .then(() => {
         // Mock a report of a failed login attempt that does trigger lockout.
         customsServer
-          .post('/failedLoginAttempt', body => {
+          .post('/failedLoginAttempt', (body) => {
             assert.deepEqual(
               body,
               {
@@ -262,7 +262,7 @@ describe('Customs', () => {
           errno: error.ERRNO.INCORRECT_PASSWORD,
         });
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -274,7 +274,7 @@ describe('Customs', () => {
         request.headers['user-agent'] = 'test passing through headers';
         request.payload['foo'] = 'bar';
         customsServer
-          .post('/check', body => {
+          .post('/check', (body) => {
             assert.deepEqual(
               body,
               {
@@ -295,13 +295,13 @@ describe('Customs', () => {
         return customsWithUrl.check(request, email, action);
       })
       .then(
-        result => {
+        (result) => {
           assert(
             false,
             'This should have failed the check since it should be blocked'
           );
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             error.ERRNO.REQUEST_BLOCKED,
@@ -328,7 +328,7 @@ describe('Customs', () => {
       )
       .then(() => {
         customsServer
-          .post('/checkIpOnly', body => {
+          .post('/checkIpOnly', (body) => {
             assert.deepEqual(
               body,
               {
@@ -345,7 +345,7 @@ describe('Customs', () => {
           });
         return customsWithUrl.checkIpOnly(request, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -363,17 +363,19 @@ describe('Customs', () => {
     );
 
     return P.all([
-      customsInvalidUrl.check(request, email, action).then(assert.fail, err => {
-        assert.equal(
-          err.errno,
-          error.ERRNO.BACKEND_SERVICE_FAILURE,
-          'an error is returned from /check'
-        );
-      }),
+      customsInvalidUrl
+        .check(request, email, action)
+        .then(assert.fail, (err) => {
+          assert.equal(
+            err.errno,
+            error.ERRNO.BACKEND_SERVICE_FAILURE,
+            'an error is returned from /check'
+          );
+        }),
 
       customsInvalidUrl
         .flag(ip, { email: email, uid: '12345' })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(
             err.errno,
             error.ERRNO.BACKEND_SERVICE_FAILURE,
@@ -381,7 +383,7 @@ describe('Customs', () => {
           );
         }),
 
-      customsInvalidUrl.reset(email).then(assert.fail, err => {
+      customsInvalidUrl.reset(email).then(assert.fail, (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.BACKEND_SERVICE_FAILURE,
@@ -430,7 +432,7 @@ describe('Customs', () => {
 
     return customsWithUrl
       .check(request, email, action)
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -438,7 +440,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.check(request, email, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -446,7 +448,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.check(request, email, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -454,7 +456,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.check(request, email, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -473,7 +475,7 @@ describe('Customs', () => {
             'This should have failed the check since it should be blocked'
           );
         },
-        error => {
+        (error) => {
           assert.equal(error.errno, 114, 'Error number is correct');
           assert.equal(
             error.message,
@@ -538,7 +540,7 @@ describe('Customs', () => {
 
     return customsWithUrl
       .checkAuthenticated(request, uid, action)
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -546,7 +548,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.checkAuthenticated(request, uid, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -554,7 +556,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.checkAuthenticated(request, uid, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -562,7 +564,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.checkAuthenticated(request, uid, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -581,7 +583,7 @@ describe('Customs', () => {
             'This should have failed the check since it should be blocked'
           );
         },
-        error => {
+        (error) => {
           assert.equal(error.errno, 114, 'Error number is correct');
           assert.equal(
             error.message,
@@ -637,7 +639,7 @@ describe('Customs', () => {
 
     return customsWithUrl
       .check(request, email, action)
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -645,7 +647,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.check(request, email, action);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(
           result,
           undefined,
@@ -653,7 +655,7 @@ describe('Customs', () => {
         );
         return customsWithUrl.check(request, email, action);
       })
-      .then(assert.fail, error => {
+      .then(assert.fail, (error) => {
         assert.equal(error.errno, 114, 'Error number is correct');
         assert.equal(
           error.message,
@@ -685,7 +687,7 @@ describe('Customs', () => {
     request.payload.notThePW = 'plaintext';
 
     customsServer
-      .post('/check', body => {
+      .post('/check', (body) => {
         assert.deepEqual(
           body,
           {
@@ -707,7 +709,7 @@ describe('Customs', () => {
         retryAfter: 0,
       });
 
-    return customsWithUrl.check(request, email, action).then(result => {
+    return customsWithUrl.check(request, email, action).then((result) => {
       assert.equal(
         result,
         undefined,
@@ -786,9 +788,7 @@ describe('Customs', () => {
 });
 
 function newEmail() {
-  return `${Math.random()
-    .toString()
-    .substr(2)}@example.com`;
+  return `${Math.random().toString().substr(2)}@example.com`;
 }
 
 function newIp() {

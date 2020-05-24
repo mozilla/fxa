@@ -15,12 +15,7 @@ Vat.register(
 Vat.register('base32', Vat.string().test(Validate.isBase32Valid));
 Vat.register('channelId', Vat.string().test(Validate.isBase64Url));
 Vat.register('channelKey', Vat.string().test(Validate.isBase64Url));
-Vat.register(
-  'codeChallenge',
-  Vat.string()
-    .min(43)
-    .max(128)
-);
+Vat.register('codeChallenge', Vat.string().min(43).max(128));
 Vat.register('codeChallengeMethod', Vat.string().valid('S256'));
 Vat.register('email', Vat.string().test(Validate.isEmailValid));
 Vat.register('hex', Vat.string().test(Validate.isHexValid));
@@ -54,7 +49,7 @@ Vat.register('clientId', Vat.hex());
 
 Vat.any().extend({
   empty(...args) {
-    return this.transform(val => (args.indexOf(val) > -1 ? undefined : val));
+    return this.transform((val) => (args.indexOf(val) > -1 ? undefined : val));
   },
 });
 

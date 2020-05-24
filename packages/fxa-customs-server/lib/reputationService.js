@@ -2,15 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-var isBlockBelow = function(config, reputation) {
+var isBlockBelow = function (config, reputation) {
   return reputation > 0 && reputation < config.reputationService.blockBelow;
 };
 
-var isSuspectBelow = function(config, reputation) {
+var isSuspectBelow = function (config, reputation) {
   return reputation > 0 && reputation < config.reputationService.suspectBelow;
 };
 
-var alwaysFalse = function() {
+var alwaysFalse = function () {
   return false;
 };
 
@@ -25,10 +25,10 @@ function getRequestTime(result) {
   return ret;
 }
 
-var report = function(log, ipClient, ip, action) {
+var report = function (log, ipClient, ip, action) {
   return ipClient
     .sendViolation(ip, action)
-    .then(function(result) {
+    .then(function (result) {
       var statusCode = result && result.statusCode;
       log.info({
         op: action + '.sendViolation',
@@ -37,15 +37,15 @@ var report = function(log, ipClient, ip, action) {
         rtime: getRequestTime(result),
       });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       log.error({ op: action + '.sendViolation', ip: ip, err: err });
     });
 };
 
-var get = function(log, ipClient, ip) {
+var get = function (log, ipClient, ip) {
   return ipClient
     .get(ip)
-    .then(function(response) {
+    .then(function (response) {
       if (response && response.body && response.statusCode === 200) {
         log.info({
           op: 'fetchIPReputation',
@@ -75,13 +75,13 @@ var get = function(log, ipClient, ip) {
 
       return null;
     })
-    .catch(function(err) {
+    .catch(function (err) {
       log.error({ op: 'fetchIPReputation', ip: ip, err: String(err) });
       return null;
     });
 };
 
-module.exports = function(config, log) {
+module.exports = function (config, log) {
   var mod = {
     isBlockBelow: alwaysFalse,
     isSuspectBelow: alwaysFalse,

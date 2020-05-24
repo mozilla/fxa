@@ -165,7 +165,7 @@ module.exports = (log, config) => {
             const cutoff = now - intervals[key];
             result[key] = redis
               .zpoprangebyscore(key, 0, cutoff, 'WITHSCORES')
-              .then(async items => {
+              .then(async (items) => {
                 const reminders = [];
                 let index = 0;
                 for (const item of items) {

@@ -84,7 +84,7 @@ export const App = ({
                       <Route
                         path="/subscriptions"
                         exact
-                        render={props => (
+                        render={(props) => (
                           <SettingsLayout>
                             <Subscriptions {...props} />
                           </SettingsLayout>
@@ -92,7 +92,7 @@ export const App = ({
                       />
                       <Route
                         path="/products/:productId"
-                        render={props => (
+                        render={(props) => (
                           <SignInLayout>
                             <Product {...props} />
                           </SignInLayout>

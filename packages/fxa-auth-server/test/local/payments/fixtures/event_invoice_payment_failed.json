@@ -33,12 +33,10 @@
       "customer_phone": null,
       "customer_shipping": null,
       "customer_tax_exempt": "none",
-      "customer_tax_ids": [
-      ],
+      "customer_tax_ids": [],
       "default_payment_method": null,
       "default_source": null,
-      "default_tax_rates": [
-      ],
+      "default_tax_rates": [],
       "description": null,
       "discount": null,
       "due_date": null,
@@ -56,8 +54,7 @@
             "description": "1 × 123Done Pro (at $5.00 / month)",
             "discountable": true,
             "livemode": false,
-            "metadata": {
-            },
+            "metadata": {},
             "period": {
               "end": 1591209300,
               "start": 1588530900
@@ -75,8 +72,7 @@
               "interval": "month",
               "interval_count": 1,
               "livemode": false,
-              "metadata": {
-              },
+              "metadata": {},
               "nickname": "123Done Pro Monthly",
               "product": "prod_00000000000000",
               "tiers": null,
@@ -89,10 +85,8 @@
             "quantity": 1,
             "subscription": "sub_00000000000000",
             "subscription_item": "si_00000000000000",
-            "tax_amounts": [
-            ],
-            "tax_rates": [
-            ],
+            "tax_amounts": [],
+            "tax_rates": [],
             "type": "subscription"
           }
         ],
@@ -101,8 +95,7 @@
         "url": "/v1/invoices/in_1GIfa4BVqmGyQTMaoSURXJFK/lines"
       },
       "livemode": false,
-      "metadata": {
-      },
+      "metadata": {},
       "next_payment_attempt": null,
       "number": "825C8B90-0001",
       "paid": false,
@@ -126,8 +119,7 @@
       "tax": null,
       "tax_percent": null,
       "total": 500,
-      "total_tax_amounts": [
-      ],
+      "total_tax_amounts": [],
       "webhooks_delivered_at": 1583260501,
       "closed": false
     }

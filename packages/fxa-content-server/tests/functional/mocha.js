@@ -21,7 +21,7 @@ var url = intern._config.fxaContentRoot + 'tests/index.html';
 var MOCHA_LOADER_SLEEP = 50;
 
 registerSuite('mocha tests', {
-  'run the mocha tests': function() {
+  'run the mocha tests': function () {
     var self = this;
     // timeout after 300 seconds
     this.timeout = 300000;
@@ -37,30 +37,32 @@ registerSuite('mocha tests', {
         // wait for the tests to complete
         .findById('total-failures')
         .getVisibleText()
-        .then(function(text) {
+        .then(function (text) {
           if (text !== '0') {
             return (
               self.remote
                 // print the errors to the console
                 .findAllByCssSelector('.fail')
-                .then(function(elements) {
+                .then(function (elements) {
                   return Promise.all(
-                    elements.map(function(element) {
-                      return element.getVisibleText().then(function(errorText) {
-                        var parts = errorText.split('‣');
-                        console.error(
-                          errorColor('Failed test: ' + parts[0].trim())
-                        );
-                        console.error(
-                          descriptionColor(' => ' + parts[1].trim())
-                        );
-                      });
+                    elements.map(function (element) {
+                      return element
+                        .getVisibleText()
+                        .then(function (errorText) {
+                          var parts = errorText.split('‣');
+                          console.error(
+                            errorColor('Failed test: ' + parts[0].trim())
+                          );
+                          console.error(
+                            descriptionColor(' => ' + parts[1].trim())
+                          );
+                        });
                     })
                   );
                 })
                 .end()
 
-                .then(function() {
+                .then(function () {
                   throw new Error('Expected 0 mocha test failures');
                 })
             );

@@ -216,17 +216,17 @@ describe('subscriptions directRoutes', () => {
       email: TEST_EMAIL,
       locale: ACCOUNT_LOCALE,
     });
-    db.createAccountSubscription = sinon.spy(async data => ({}));
+    db.createAccountSubscription = sinon.spy(async (data) => ({}));
     db.deleteAccountSubscription = sinon.spy(
       async (uid, subscriptionId) => ({})
     );
     db.cancelAccountSubscription = sinon.spy(async () => ({}));
-    db.fetchAccountSubscriptions = sinon.spy(async uid =>
-      ACTIVE_SUBSCRIPTIONS.filter(s => s.uid === uid)
+    db.fetchAccountSubscriptions = sinon.spy(async (uid) =>
+      ACTIVE_SUBSCRIPTIONS.filter((s) => s.uid === uid)
     );
     db.getAccountSubscription = sinon.spy(async (uid, subscriptionId) => {
       const subscription = ACTIVE_SUBSCRIPTIONS.filter(
-        s => s.uid === uid && s.subscriptionId === subscriptionId
+        (s) => s.uid === uid && s.subscriptionId === subscriptionId
       )[0];
       if (typeof subscription === 'undefined') {
         throw { statusCode: 404, errno: 116 };
@@ -238,7 +238,7 @@ describe('subscriptions directRoutes', () => {
     mailer = mocks.mockMailer();
 
     profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async uid => ({})),
+      deleteCache: sinon.spy(async (uid) => ({})),
     });
   });
 
@@ -402,7 +402,7 @@ describe('handleAuth', () => {
   it('throws an error when the scope is invalid', async () => {
     return handleAuth(db, INVALID_AUTH).then(
       () => Promise.reject(new Error('Method expected to reject')),
-      err => {
+      (err) => {
         assert.instanceOf(err, WError);
         assert.equal(err.message, 'Requested scopes are not allowed');
       }
@@ -433,7 +433,7 @@ describe('handleAuth', () => {
 
       await handleAuth(db, VALID_AUTH, true).then(
         () => Promise.reject(new Error('Method expected to reject')),
-        err => {
+        (err) => {
           failed = true;
           assert.equal(err.message, 'Unknown account');
         }
@@ -476,7 +476,7 @@ describe('DirectStripeRoutes', () => {
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
     profile = mocks.mockProfile({
-      deleteCache: sinon.spy(async uid => ({})),
+      deleteCache: sinon.spy(async (uid) => ({})),
     });
     mailer = mocks.mockMailer();
 
@@ -869,7 +869,7 @@ describe('DirectStripeRoutes', () => {
             )
             .then(
               () => Promise.reject(new Error('Method expected to reject')),
-              err => {
+              (err) => {
                 assert.instanceOf(err, WError);
                 assert.equal(
                   err.errno,
@@ -928,7 +928,7 @@ describe('DirectStripeRoutes', () => {
           )
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.instanceOf(err, WError);
               assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_EXISTS);
               assert.equal(
@@ -975,7 +975,7 @@ describe('DirectStripeRoutes', () => {
 
         return directStripeRoutesInstance.handleOpenInvoice(invoice).then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.instanceOf(err, WError);
             assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
             assert.equal(err.message, 'A backend service request failed.');
@@ -1345,7 +1345,7 @@ describe('DirectStripeRoutes', () => {
           .updateSubscription(VALID_REQUEST)
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.instanceOf(err, WError);
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
               assert.equal(err.message, 'Unknown subscription');
@@ -1378,7 +1378,7 @@ describe('DirectStripeRoutes', () => {
 
       return directStripeRoutesInstance.listPlans(invalid_request).then(
         () => Promise.reject(new Error('Method expected to reject')),
-        err => {
+        (err) => {
           assert.instanceOf(err, WError);
           assert.equal(err.message, 'Requested scopes are not allowed');
         }
@@ -1440,26 +1440,28 @@ describe('DirectStripeRoutes', () => {
 
           assert.lengthOf(activeSubscriptions, 4);
           assert.isDefined(
-            activeSubscriptions.find(x => x.subscriptionId === subscription2.id)
-          );
-          assert.isDefined(
             activeSubscriptions.find(
-              x => x.subscriptionId === trialSubscription.id
+              (x) => x.subscriptionId === subscription2.id
             )
           );
           assert.isDefined(
             activeSubscriptions.find(
-              x => x.subscriptionId === pastDueSubscription.id
+              (x) => x.subscriptionId === trialSubscription.id
             )
           );
           assert.isDefined(
             activeSubscriptions.find(
-              x => x.subscriptionId === setToCancelSubscription.id
+              (x) => x.subscriptionId === pastDueSubscription.id
+            )
+          );
+          assert.isDefined(
+            activeSubscriptions.find(
+              (x) => x.subscriptionId === setToCancelSubscription.id
             )
           );
           assert.isUndefined(
             activeSubscriptions.find(
-              x => x.subscriptionId === cancelledSubscription.id
+              (x) => x.subscriptionId === cancelledSubscription.id
             )
           );
         });
@@ -1707,7 +1709,7 @@ describe('DirectStripeRoutes', () => {
         scopeSpy = {
           setContext: scopeContextSpy,
         };
-        sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
+        sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
       });
 
       const assertNamedHandlerCalled = (expectedHandlerName = null) => {
@@ -1736,7 +1738,7 @@ describe('DirectStripeRoutes', () => {
         });
 
       describe('ignorable errors', () => {
-        const commonIgnorableErrorTest = expectedError => async () => {
+        const commonIgnorableErrorTest = (expectedError) => async () => {
           const fixture = deepCopy(eventCustomerSourceExpiring);
           handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
           directStripeRoutesInstance.stripeHelper.constructWebhookEvent.returns(
@@ -2009,7 +2011,7 @@ describe('DirectStripeRoutes', () => {
 
       const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
       directStripeRoutesInstance.db.account = sinon.spy(
-        async data => mockAccount
+        async (data) => mockAccount
       );
 
       await directStripeRoutesInstance.sendSubscriptionPaymentFailedEmail(
@@ -2042,7 +2044,7 @@ describe('DirectStripeRoutes', () => {
 
       const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
       directStripeRoutesInstance.db.account = sinon.spy(
-        async data => mockAccount
+        async (data) => mockAccount
       );
 
       await directStripeRoutesInstance.sendSubscriptionInvoiceEmail(invoice);
@@ -2075,7 +2077,7 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('sendSubscriptionUpdatedEmail', () => {
-    const commonSendSubscriptionUpdatedEmailTest = updateType => async () => {
+    const commonSendSubscriptionUpdatedEmailTest = (updateType) => async () => {
       const event = deepCopy(eventCustomerSubscriptionUpdated);
 
       const mockDetails = {
@@ -2089,7 +2091,7 @@ describe('DirectStripeRoutes', () => {
 
       const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
       directStripeRoutesInstance.db.account = sinon.spy(
-        async data => mockAccount
+        async (data) => mockAccount
       );
 
       await directStripeRoutesInstance.sendSubscriptionUpdatedEmail(event);
@@ -2165,7 +2167,7 @@ describe('DirectStripeRoutes', () => {
       );
 
       const mockAccount = { emails: 'fakeemails', locale: 'fakelocale' };
-      directStripeRoutesInstance.db.account = sinon.spy(async data => {
+      directStripeRoutesInstance.db.account = sinon.spy(async (data) => {
         if (accountFound) {
           return mockAccount;
         }
@@ -2218,7 +2220,8 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('getSubscriptions', () => {
-    const formatter = subs => subs.data.map(s => ({ subscription_id: s.id }));
+    const formatter = (subs) =>
+      subs.data.map((s) => ({ subscription_id: s.id }));
 
     describe('when a customer is found', () => {
       it('returns a formatted version of the customer subscriptions', async () => {

@@ -7,9 +7,7 @@ import { TermsAndPrivacy } from './index';
 afterEach(cleanup);
 
 it('renders as expected', () => {
-  const { queryByTestId } = render(
-    <TermsAndPrivacy/>
-  );
+  const { queryByTestId } = render(<TermsAndPrivacy />);
   expect(queryByTestId('terms')).toBeInTheDocument();
   expect(queryByTestId('privacy')).toBeInTheDocument();
 });

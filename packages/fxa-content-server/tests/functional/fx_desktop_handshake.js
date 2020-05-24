@@ -60,7 +60,7 @@ const {
   type,
 } = FunctionalHelpers;
 
-const ensureUsers = thenify(function() {
+const ensureUsers = thenify(function () {
   return this.parent
     .then(() => {
       if (!browserSignedInAccount) {
@@ -69,7 +69,7 @@ const ensureUsers = thenify(function() {
           .then(
             createUser(browserSignedInEmail, PASSWORD, { preVerified: true })
           )
-          .then(_browserSignedInAccount => {
+          .then((_browserSignedInAccount) => {
             browserSignedInAccount = _browserSignedInAccount;
             browserSignedInAccount.email = browserSignedInEmail;
             browserSignedInAccount.verified = true;
@@ -81,7 +81,7 @@ const ensureUsers = thenify(function() {
         otherEmail = createEmail();
         return this.parent
           .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
-          .then(_otherAccount => {
+          .then((_otherAccount) => {
             otherAccount = _otherAccount;
             otherAccount.email = otherEmail;
             otherAccount.verified = true;
@@ -91,14 +91,14 @@ const ensureUsers = thenify(function() {
 });
 
 registerSuite('Firefox desktop user info handshake', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote
       .then(clearBrowserState({ force: true }))
       .then(ensureUsers());
   },
 
   tests: {
-    'Sync - user signed into browser, no user signed in locally': function() {
+    'Sync - user signed into browser, no user signed in locally': function () {
       return this.remote
         .then(
           openPage(
@@ -121,7 +121,7 @@ registerSuite('Firefox desktop user info handshake', {
         );
     },
 
-    'Non-Sync - user signed into browser, no user signed in locally': function() {
+    'Non-Sync - user signed into browser, no user signed in locally': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_PAGE_URL, selectors.SIGNIN_PASSWORD.HEADER, {
@@ -148,7 +148,7 @@ registerSuite('Firefox desktop user info handshake', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'Non-Sync - user signed into browser, user signed in locally': function() {
+    'Non-Sync - user signed into browser, user signed in locally': function () {
       return (
         this.remote
           // First, sign in the user to populate localStorage
@@ -187,7 +187,7 @@ registerSuite('Firefox desktop user info handshake', {
       );
     },
 
-    'Sync - user signed into browser, signin code': disableInProd(function() {
+    'Sync - user signed into browser, signin code': disableInProd(function () {
       const testPhoneNumber = createPhoneNumber();
       let signinUrlWithSigninCode;
 
@@ -211,7 +211,7 @@ registerSuite('Firefox desktop user info handshake', {
 
           .then(testElementExists(selectors.SMS_SENT.HEADER))
           .then(getSmsSigninCode(testPhoneNumber, 0))
-          .then(function(signinCode) {
+          .then(function (signinCode) {
             signinUrlWithSigninCode = `${SYNC_ENTER_EMAIL_PAGE_URL}&signin=${signinCode}`;
             return (
               this.parent
@@ -246,13 +246,13 @@ registerSuite('Firefox desktop user info handshake', {
       );
     }),
 
-    'Sync - no user signed into browser, no user signed in locally': function() {
+    'Sync - no user signed into browser, no user signed in locally': function () {
       return this.remote
         .then(openPage(SYNC_ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''));
     },
 
-    'Sync - no user signed into browser, user signed in locally': function() {
+    'Sync - no user signed into browser, user signed in locally': function () {
       return (
         this.remote
           // First, sign in the user to populate localStorage
@@ -273,7 +273,7 @@ registerSuite('Firefox desktop user info handshake', {
       );
     },
 
-    'Non-Sync - no user signed into browser, no user signed in locally': function() {
+    'Non-Sync - no user signed into browser, no user signed in locally': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -287,7 +287,7 @@ registerSuite('Firefox desktop user info handshake', {
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''));
     },
 
-    'Sync force_auth page - user signed into browser is different to requested user': function() {
+    'Sync force_auth page - user signed into browser is different to requested user': function () {
       return this.remote
         .then(
           openPage(
@@ -307,7 +307,7 @@ registerSuite('Firefox desktop user info handshake', {
         .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
     },
 
-    'Non-Sync force_auth page - user signed into browser is different to requested user': function() {
+    'Non-Sync force_auth page - user signed into browser is different to requested user': function () {
       return this.remote
         .then(
           openPage(
@@ -325,7 +325,7 @@ registerSuite('Firefox desktop user info handshake', {
         .then(testElementValueEquals(selectors.FORCE_AUTH.EMAIL, otherEmail));
     },
 
-    'Sync settings page - user signed into browser': function() {
+    'Sync settings page - user signed into browser': function () {
       return this.remote
         .then(
           openPage(SYNC_SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
@@ -344,7 +344,7 @@ registerSuite('Firefox desktop user info handshake', {
         );
     },
 
-    'Non-Sync settings page - user signed into browser': function() {
+    'Non-Sync settings page - user signed into browser': function () {
       return this.remote
         .then(
           openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
@@ -363,19 +363,19 @@ registerSuite('Firefox desktop user info handshake', {
         );
     },
 
-    'Sync settings page - no user signed into browser': function() {
+    'Sync settings page - no user signed into browser': function () {
       return this.remote.then(
         openPage(SYNC_SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER)
       );
     },
 
-    'Non-Sync settings page - no user signed into browser, no user signed in locally': function() {
+    'Non-Sync settings page - no user signed into browser, no user signed in locally': function () {
       return this.remote.then(
         openPage(SETTINGS_PAGE_URL, selectors.ENTER_EMAIL.HEADER)
       );
     },
 
-    'Non-Sync settings page - no user signed into browser, user signed in locally': function() {
+    'Non-Sync settings page - no user signed into browser, user signed in locally': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(otherEmail, PASSWORD))

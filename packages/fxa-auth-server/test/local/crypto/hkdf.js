@@ -19,7 +19,7 @@ describe('hkdf', () => {
     );
     const lengthHkdf = 2 * 32;
 
-    return hkdf(stretchedPw, info, salt, lengthHkdf).then(hkdfResult => {
+    return hkdf(stretchedPw, info, salt, lengthHkdf).then((hkdfResult) => {
       const hkdfStr = hkdfResult.toString('hex');
 
       assert.equal(

@@ -44,7 +44,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('oauth permissions for untrusted reliers', {
-  beforeEach: function() {
+  beforeEach: function () {
     this.timeout = TIMEOUT;
     email = createEmail();
 
@@ -56,7 +56,7 @@ registerSuite('oauth permissions for untrusted reliers', {
     );
   },
   tests: {
-    'signin verified': function() {
+    'signin verified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openFxaFromUntrustedRp('enter-email'))
@@ -69,7 +69,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         .then(testUrlEquals(UNTRUSTED_OAUTH_APP));
     },
 
-    're-signin verified, no additional permissions': function() {
+    're-signin verified, no additional permissions': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -101,7 +101,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signin unverified, acts like signup': function() {
+    'signin unverified, acts like signup': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: false }))
@@ -124,12 +124,12 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signup, verify': function() {
+    'signup, verify': function () {
       return this.remote
         .then(openFxaFromUntrustedRp('enter-email'))
         .then(testElementExists(selectors.ENTER_EMAIL.SUB_HEADER))
         .getCurrentUrl()
-        .then(function(url) {
+        .then(function (url) {
           assert.ok(url.indexOf('client_id=') > -1);
           assert.ok(url.indexOf('redirect_uri=') > -1);
           assert.ok(url.indexOf('state=') > -1);
@@ -151,7 +151,7 @@ registerSuite('oauth permissions for untrusted reliers', {
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED));
     },
 
-    'signup, then signin with no additional permissions': function() {
+    'signup, then signin with no additional permissions': function () {
       return (
         this.remote
           .then(openFxaFromUntrustedRp('enter-email'))
@@ -181,7 +181,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signin with new permission available b/c of new account information': function() {
+    'signin with new permission available b/c of new account information': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -241,7 +241,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signin with additional requested permission': function() {
+    'signin with additional requested permission': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -306,7 +306,7 @@ registerSuite('oauth permissions for untrusted reliers', {
       );
     },
 
-    'signin after de-selecting a requested permission': function() {
+    'signin after de-selecting a requested permission': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -362,7 +362,7 @@ registerSuite('oauth permissions for untrusted reliers', {
 });
 
 registerSuite('oauth permissions for trusted reliers', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(
@@ -374,7 +374,7 @@ registerSuite('oauth permissions for trusted reliers', {
   },
 
   tests: {
-    'signup without `prompt=consent`': function() {
+    'signup without `prompt=consent`': function () {
       return (
         this.remote
           .then(openFxaFromTrustedRp('enter-email'))
@@ -385,7 +385,7 @@ registerSuite('oauth permissions for trusted reliers', {
       );
     },
 
-    'signup with `prompt=consent`': function() {
+    'signup with `prompt=consent`': function () {
       return (
         this.remote
           .then(
@@ -403,7 +403,7 @@ registerSuite('oauth permissions for trusted reliers', {
       );
     },
 
-    'signin without `prompt=consent`': function() {
+    'signin without `prompt=consent`': function () {
       return (
         this.remote
           .then(openFxaFromTrustedRp('enter-email'))
@@ -415,7 +415,7 @@ registerSuite('oauth permissions for trusted reliers', {
       );
     },
 
-    'signin with `prompt=consent`': function() {
+    'signin with `prompt=consent`': function () {
       return (
         this.remote
           .then(
@@ -434,7 +434,7 @@ registerSuite('oauth permissions for trusted reliers', {
       );
     },
 
-    'signin without `prompt=consent`, then re-signin with `prompt=consent`': function() {
+    'signin without `prompt=consent`, then re-signin with `prompt=consent`': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -468,7 +468,7 @@ registerSuite('oauth permissions for trusted reliers', {
       );
     },
 
-    'force_auth without `prompt=consent`': function() {
+    'force_auth without `prompt=consent`': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -480,7 +480,7 @@ registerSuite('oauth permissions for trusted reliers', {
       );
     },
 
-    'force_auth with `prompt=consent`': function() {
+    'force_auth with `prompt=consent`': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))

@@ -11,12 +11,12 @@ const P = require('../../lib/promise');
 
 const config = require('../../config').getProperties();
 
-describe('remote concurrect', function() {
+describe('remote concurrect', function () {
   this.timeout(15000);
   let server;
   before(() => {
     config.verifierVersion = 1;
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -30,7 +30,7 @@ describe('remote concurrect', function() {
     return P.all([r1, r2])
       .then(
         () => assert(false, 'created both accounts'),
-        err => {
+        (err) => {
           assert.equal(err.errno, 101, 'account exists');
           // Note that P.all fails fast when one of the requests fails,
           // but we have to wait for *both* to complete before tearing

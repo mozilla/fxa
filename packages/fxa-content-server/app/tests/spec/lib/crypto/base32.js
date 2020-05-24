@@ -9,7 +9,7 @@ import RecoveryKey from 'lib/crypto/recovery-keys';
 describe('lib/crypto/base32', () => {
   describe('generate', () => {
     it('should generate base32 string', () => {
-      return Base32.generate(100000).then(key => {
+      return Base32.generate(100000).then((key) => {
         assert.ok(/[0-9A-Z]+$/.test(key), 'no lowercase letters');
         assert.equal(key.indexOf('I'), -1, 'no I');
         assert.equal(key.indexOf('L'), -1, 'no L');
@@ -25,7 +25,7 @@ describe('lib/crypto/base32', () => {
     // Since we are using third party libs, we *should* assume that
     // they are testing edge cases.
     it('should decode base32 string', () => {
-      return Base32.decode('0123456789ABCDEFGHJKMNPQRSTVWXYZ').then(key => {
+      return Base32.decode('0123456789ABCDEFGHJKMNPQRSTVWXYZ').then((key) => {
         const hexKey = Buffer.from(key).toString('hex');
         assert.equal(
           hexKey,
@@ -36,8 +36,8 @@ describe('lib/crypto/base32', () => {
     });
 
     it('should decode base32 recovery key', () => {
-      return RecoveryKey.generateRecoveryKey(32).then(string => {
-        return Base32.decode(string).then(key => {
+      return RecoveryKey.generateRecoveryKey(32).then((string) => {
+        return Base32.decode(string).then((key) => {
           assert.ok(key, 'correctly decoded base32 recovery key');
         });
       });

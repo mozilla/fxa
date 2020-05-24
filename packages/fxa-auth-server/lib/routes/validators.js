@@ -63,15 +63,12 @@ module.exports.BEARER_AUTH_REGEX = BEARER_AUTH_REGEX;
 // or create an error object using `createError`.
 // see examples here: https://github.com/hapijs/joi/blob/master/lib/string.js
 
-module.exports.email = function() {
-  const email = isA
-    .string()
-    .max(255)
-    .regex(DISPLAY_SAFE_UNICODE);
+module.exports.email = function () {
+  const email = isA.string().max(255).regex(DISPLAY_SAFE_UNICODE);
   // Imma add a custom test to this Joi object using internal
   // properties because I can't find a nice API to do that.
   email._tests.push({
-    func: function(value, state, options) {
+    func: function (value, state, options) {
       if (value !== undefined && value !== null) {
         if (module.exports.isValidEmailAddress(value)) {
           return value;
@@ -149,7 +146,7 @@ module.exports.accessToken = isA
 const EMAIL_USER = /^[A-Z0-9.!#$%&'*+\/=?^_`{|}~-]{1,64}$/i;
 const EMAIL_DOMAIN = /^[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,253}[A-Z0-9])?)+$/i;
 
-module.exports.isValidEmailAddress = function(value) {
+module.exports.isValidEmailAddress = function (value) {
   if (!value) {
     return false;
   }
@@ -266,20 +263,10 @@ module.exports.verificationMethod = isA.string().valid([
   'totp-2fa', // Verification by TOTP authenticator device code, secret is randomly generated
 ]);
 
-module.exports.authPW = isA
-  .string()
-  .length(64)
-  .regex(HEX_STRING)
-  .required();
-module.exports.wrapKb = isA
-  .string()
-  .length(64)
-  .regex(HEX_STRING);
+module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
+module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
 
-module.exports.recoveryKeyId = isA
-  .string()
-  .regex(HEX_STRING)
-  .max(32);
+module.exports.recoveryKeyId = isA.string().regex(HEX_STRING).max(32);
 module.exports.recoveryData = isA
   .string()
   .regex(/[a-zA-Z0-9.]/)
@@ -379,16 +366,9 @@ module.exports.subscriptionsCustomerValidator = isA.object({
     .optional(),
 });
 
-module.exports.ppidSeed = isA
-  .number()
-  .integer()
-  .min(0)
-  .max(1024);
+module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
 
-module.exports.style = isA
-  .string()
-  .allow(['trailhead'])
-  .optional();
+module.exports.style = isA.string().allow(['trailhead']).optional();
 
 module.exports.newsletters = isA
   .array()

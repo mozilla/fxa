@@ -103,7 +103,7 @@ const translationQuirks = {
 
 function ary2map(ary) {
   const map = {};
-  ary.forEach(val => {
+  ary.forEach((val) => {
     if (map[val]) {
       console.log('Duplicate!:', val);
     }
@@ -112,7 +112,7 @@ function ary2map(ary) {
   return map;
 }
 
-Object.keys(translationQuirks).forEach(quirk => {
+Object.keys(translationQuirks).forEach((quirk) => {
   const locales = translationQuirks[quirk];
   translationQuirks[quirk] = ary2map(locales);
 });

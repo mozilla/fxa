@@ -57,7 +57,7 @@ describe('views/pair/supp_allow', () => {
     sinon.stub(view, 'replaceCurrentPage').callsFake(() => {});
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 
@@ -75,10 +75,7 @@ describe('views/pair/supp_allow', () => {
         assert.ok(view.$el.find('#supp-approve-btn').length);
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el
-            .find('.location')
-            .text()
-            .trim(),
+          view.$el.find('.location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
@@ -89,9 +86,7 @@ describe('views/pair/supp_allow', () => {
         assert.isTrue(
           view.invokeBrokerMethod.calledOnceWith('afterSupplicantApprove')
         );
-        $('#container')
-          .find('#cancel')
-          .click();
+        $('#container').find('#cancel').click();
         assert.isTrue(view.replaceCurrentPage.calledOnceWith('pair/failure'));
       });
     });

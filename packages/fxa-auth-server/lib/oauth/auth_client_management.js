@@ -11,7 +11,7 @@ const validators = require('./validators');
 
 const WHITELIST = require('../../config')
   .get('oauthServer.admin.whitelist')
-  .map(function(re) {
+  .map(function (re) {
     return new RegExp(re);
   });
 
@@ -20,7 +20,7 @@ exports.AUTH_SCHEME = 'bearer';
 
 exports.SCOPE_CLIENT_MANAGEMENT = ScopeSet.fromArray(['oauth']);
 
-exports.strategy = function() {
+exports.strategy = function () {
   logger.verbose('auth_client.whitelist', WHITELIST);
 
   return {
@@ -40,7 +40,7 @@ exports.strategy = function() {
         function tokenFound(details) {
           if (details.scope.contains(exports.SCOPE_CLIENT_MANAGEMENT)) {
             logger.debug('check.whitelist');
-            var blocked = !WHITELIST.some(function(re) {
+            var blocked = !WHITELIST.some(function (re) {
               return re.test(details.email);
             });
             if (blocked) {

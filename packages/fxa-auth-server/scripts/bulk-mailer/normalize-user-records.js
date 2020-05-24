@@ -19,8 +19,8 @@ module.exports = class UserRecordNormalizer {
     return (
       userRecords
         // no email can be sent if the record does not contain an email
-        .filter(record => !!record.email)
-        .map(userRecord => this.normalizeUserRecord(userRecord, translator))
+        .filter((record) => !!record.email)
+        .map((userRecord) => this.normalizeUserRecord(userRecord, translator))
     );
   }
 
@@ -50,7 +50,7 @@ module.exports = class UserRecordNormalizer {
     if (!userRecord.locations) {
       userRecord.locations = [];
     } else {
-      userRecord.locations.forEach(location =>
+      userRecord.locations.forEach((location) =>
         this.normalizeLocation(location, userRecord.language)
       );
     }

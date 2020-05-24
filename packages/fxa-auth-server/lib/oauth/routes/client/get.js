@@ -22,9 +22,7 @@ module.exports = {
       name: Joi.string().required(),
       trusted: Joi.boolean().required(),
       image_uri: Joi.any(),
-      redirect_uri: Joi.string()
-        .required()
-        .allow(''),
+      redirect_uri: Joi.string().required().allow(''),
     },
   },
   handler: async function requestInfoEndpoint(req) {
@@ -32,7 +30,7 @@ module.exports = {
 
     return db
       .getClient(Buffer.from(params.client_id, 'hex'))
-      .then(function(client) {
+      .then(function (client) {
         if (!client) {
           logger.debug('notFound', { id: params.client_id });
           throw AppError.unknownClient(params.client_id);

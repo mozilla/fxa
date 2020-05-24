@@ -14,17 +14,17 @@ function Customs(options) {
 
   if (url === 'none') {
     this.pool = {
-      post: function() {
+      post: function () {
         return P.resolve({ block: false });
       },
-      close: function() {},
+      close: function () {},
     };
   } else {
     this.pool = new Pool(url, { timeout: 1000 });
   }
 }
 
-Customs.prototype.checkAuthenticated = function(action, ip, uid) {
+Customs.prototype.checkAuthenticated = function (action, ip, uid) {
   logger.info('customs.checkAuthenticated', {
     action: action,
     ip: ip,
@@ -38,7 +38,7 @@ Customs.prototype.checkAuthenticated = function(action, ip, uid) {
       uid: uid,
     })
     .then(
-      function(result) {
+      function (result) {
         if (result.block) {
           if (result.retryAfter) {
             throw AppError.tooManyRequests(result.retryAfter);
@@ -47,7 +47,7 @@ Customs.prototype.checkAuthenticated = function(action, ip, uid) {
           throw AppError.requestBlocked();
         }
       },
-      function(err) {
+      function (err) {
         logger.error('customs.checkAuthenticated', {
           ip: ip,
           uid: uid,
@@ -62,10 +62,10 @@ Customs.prototype.checkAuthenticated = function(action, ip, uid) {
     );
 };
 
-Customs.prototype.close = function() {
+Customs.prototype.close = function () {
   return this.pool.close();
 };
 
-module.exports = function(options) {
+module.exports = function (options) {
   return new Customs(options);
 };

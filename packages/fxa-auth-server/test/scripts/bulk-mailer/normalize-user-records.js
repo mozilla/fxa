@@ -127,7 +127,7 @@ describe('normalize-user-records', () => {
     };
 
     before(() => {
-      translator = sinon.spy(language => ({ language }));
+      translator = sinon.spy((language) => ({ language }));
 
       sinon.stub(normalizer, 'normalizeAcceptLanguage');
       sinon.stub(normalizer, 'normalizeLanguage');
@@ -170,7 +170,7 @@ describe('normalize-user-records', () => {
     ];
 
     before(() => {
-      translator = sinon.spy(language => ({ language }));
+      translator = sinon.spy((language) => ({ language }));
       sinon.stub(normalizer, 'normalizeUserRecord');
 
       normalizer.normalize(userRecords, translator);

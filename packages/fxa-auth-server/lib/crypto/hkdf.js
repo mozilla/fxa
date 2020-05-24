@@ -20,7 +20,7 @@ function KW(name) {
 function hkdf(km, info, salt, len) {
   const d = P.defer();
   const df = new HKDF('sha256', salt, km);
-  df.derive(KW(info), len, key => {
+  df.derive(KW(info), len, (key) => {
     d.resolve(key);
   });
   return d.promise;

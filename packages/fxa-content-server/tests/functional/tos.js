@@ -14,12 +14,12 @@ const TOS_URL = intern._config.fxaContentRoot + 'legal/terms';
 const { click, createEmail, noSuchElement, openPage, type } = FunctionalHelpers;
 
 registerSuite('terms of service', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
 
   tests: {
-    'from signup': function() {
+    'from signup': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
@@ -31,13 +31,13 @@ registerSuite('terms of service', {
         .then(click(selectors.TOS.LINK_BACK, selectors.SIGNUP_PASSWORD.HEADER));
     },
 
-    'browse directly to page - no back button': function() {
+    'browse directly to page - no back button': function () {
       return this.remote
         .then(openPage(TOS_URL, selectors.TOS.HEADER))
         .then(noSuchElement(selectors.TOS.LINK_BACK));
     },
 
-    'refresh, back button is available': function() {
+    'refresh, back button is available': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))

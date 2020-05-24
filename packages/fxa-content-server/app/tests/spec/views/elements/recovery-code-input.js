@@ -11,7 +11,7 @@ const TEMPLATE =
   '<input type="text" class="recovery-code"></input>' +
   '<input type="text" class="not-code"></input>';
 
-describe('views/elements/recovery-code-input', function() {
+describe('views/elements/recovery-code-input', function () {
   let $element;
   let $otherElement;
 

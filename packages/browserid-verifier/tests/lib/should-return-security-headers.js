@@ -15,7 +15,7 @@ function shouldReturnSecurityHeaders(res) {
       "default-src 'none'; frame-ancestors 'none'; report-uri /__cspreport__",
   };
 
-  Object.keys(expect).forEach(function(header) {
+  Object.keys(expect).forEach(function (header) {
     should.exist(res.headers[header]);
     res.headers[header].should.equal(expect[header]);
   });

@@ -43,7 +43,7 @@ export default {
     const sessionVerificationPoll = this.getSessionVerificationPoll(account);
 
     this.listenTo(sessionVerificationPoll, 'verified', onVerified);
-    this.listenTo(sessionVerificationPoll, 'error', err =>
+    this.listenTo(sessionVerificationPoll, 'error', (err) =>
       this._handleSessionVerificationPollErrors(account, err)
     );
 

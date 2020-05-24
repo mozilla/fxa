@@ -263,7 +263,9 @@ var Validate = {
 
     // This function is called very rarely, generating the list
     // on demand should be fine.
-    const validSlugs = _.values(Newsletters).map(newsletter => newsletter.slug);
+    const validSlugs = _.values(Newsletters).map(
+      (newsletter) => newsletter.slug
+    );
 
     const areAllValid = newsletters.reduce((areAllValid, value) => {
       return areAllValid && validSlugs.indexOf(value) > -1;

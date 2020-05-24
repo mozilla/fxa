@@ -12,7 +12,7 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "test": "scripts/test-local.sh",
-    "format": "prettier '**' --write"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
     "@hapi/boom": "~9.1.0",

@@ -68,7 +68,7 @@ describe('views/mixins/modal-settings-panel-mixin', () => {
 
   describe('modal-cancel event', () => {
     beforeEach(() => {
-      sinon.stub(view, 'navigate').callsFake(function() {
+      sinon.stub(view, 'navigate').callsFake(function () {
         this._hasNavigated = true;
       });
     });

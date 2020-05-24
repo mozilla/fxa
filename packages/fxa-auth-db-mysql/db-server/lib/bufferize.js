@@ -18,7 +18,7 @@ function unbuffer(object) {
 function bufferize(object, onlyTheseKeys) {
   var keys = Object.keys(object);
   if (onlyTheseKeys) {
-    keys = keys.filter(key => onlyTheseKeys.has(key));
+    keys = keys.filter((key) => onlyTheseKeys.has(key));
   }
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];

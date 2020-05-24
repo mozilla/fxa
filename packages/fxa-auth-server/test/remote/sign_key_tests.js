@@ -10,7 +10,7 @@ const TestServer = require('../test_server');
 const request = P.promisify(require('request'), { multiArgs: true });
 const path = require('path');
 
-describe('remote sign key', function() {
+describe('remote sign key', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -19,7 +19,7 @@ describe('remote sign key', function() {
       __dirname,
       '../../config/public-key.json'
     );
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });

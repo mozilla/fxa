@@ -12,16 +12,16 @@ import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 
 const View = BaseView.extend({
-  template: context => '<a href="#" id="back">Back</a>',
+  template: (context) => '<a href="#" id="back">Back</a>',
 });
 
 Cocktail.mixin(View, BackMixin);
 
-describe('views/mixins/back-mixin', function() {
+describe('views/mixins/back-mixin', function () {
   var notifier;
   var view;
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new Notifier();
 
     view = new View({
@@ -33,8 +33,8 @@ describe('views/mixins/back-mixin', function() {
     return view.render();
   });
 
-  describe('back', function() {
-    it('triggers `navigate-back` message on the notifier once', function() {
+  describe('back', function () {
+    it('triggers `navigate-back` message on the notifier once', function () {
       sinon.spy(notifier, 'trigger');
 
       view.back({ nextViewField: 'value' });
@@ -83,7 +83,7 @@ describe('views/mixins/back-mixin', function() {
     });
   });
 
-  describe('backOnEnter', function() {
+  describe('backOnEnter', function () {
     let preventDefaultSpy;
 
     beforeEach(() => {
@@ -91,7 +91,7 @@ describe('views/mixins/back-mixin', function() {
       preventDefaultSpy = sinon.spy();
     });
 
-    it('calls back if user presses ENTER key', function() {
+    it('calls back if user presses ENTER key', function () {
       view.backOnEnter({
         preventDefault: preventDefaultSpy,
         which: KeyCodes.ENTER,
@@ -101,7 +101,7 @@ describe('views/mixins/back-mixin', function() {
       assert.isTrue(preventDefaultSpy.calledOnce);
     });
 
-    it('does not call back if user presses any key besides ENTER', function() {
+    it('does not call back if user presses any key besides ENTER', function () {
       sinon.stub(view, 'canGoBack').callsFake(() => true);
 
       view.backOnEnter({
@@ -114,13 +114,13 @@ describe('views/mixins/back-mixin', function() {
     });
   });
 
-  describe('canGoBack', function() {
-    it('returns `true` if view created with `canGoBack: true` option', function() {
+  describe('canGoBack', function () {
+    it('returns `true` if view created with `canGoBack: true` option', function () {
       view = new View({ canGoBack: true });
       assert.isTrue(view.canGoBack());
     });
 
-    it('returns `false` if view created with `canGoBack: false` option', function() {
+    it('returns `false` if view created with `canGoBack: false` option', function () {
       view = new View({ canGoBack: false });
       assert.isFalse(view.canGoBack());
     });

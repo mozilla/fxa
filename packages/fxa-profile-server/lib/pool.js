@@ -27,7 +27,7 @@ function Pool(url, options) {
   });
 }
 
-Pool.prototype.request = function(method, path, data) {
+Pool.prototype.request = function (method, path, data) {
   var d = P.defer();
   this.poolee.request(
     {
@@ -67,11 +67,11 @@ Pool.prototype.request = function(method, path, data) {
   }
 };
 
-Pool.prototype.post = function(path, data) {
+Pool.prototype.post = function (path, data) {
   return this.request('POST', path, data);
 };
 
-Pool.prototype.close = function() {
+Pool.prototype.close = function () {
   /*/
    This is a hack to coax the server to close its existing connections
    /*/

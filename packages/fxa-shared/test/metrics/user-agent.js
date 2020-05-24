@@ -29,7 +29,7 @@ describe('metrics/user-agent:', () => {
         ua: {
           major: 1,
           minor: 0,
-          toVersionString: function() {},
+          toVersionString: function () {},
         },
       })
     );
@@ -41,7 +41,7 @@ describe('metrics/user-agent:', () => {
         os: {
           major: 1,
           minor: 0,
-          toVersionString: function() {},
+          toVersionString: function () {},
         },
         ua: {
           major: 1,
@@ -57,12 +57,12 @@ describe('metrics/user-agent:', () => {
         os: {
           major: 1,
           minor: 0,
-          toVersionString: function() {},
+          toVersionString: function () {},
         },
         ua: {
           major: 1,
           minor: 0,
-          toVersionString: function() {},
+          toVersionString: function () {},
         },
       })
     );

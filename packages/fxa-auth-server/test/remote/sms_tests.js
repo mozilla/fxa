@@ -10,7 +10,7 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const error = require('../../lib/error');
 
-describe('remote sms without the signinCodes feature included in the payload', function() {
+describe('remote sms without the signinCodes feature included in the payload', function () {
   this.timeout(10000);
   let server;
 
@@ -20,28 +20,28 @@ describe('remote sms without the signinCodes feature included in the payload', f
     // /sms endpoints need creds and spend money unless the SMS provider is mocked
     config.sms.useMock = true;
 
-    return TestServer.start(config).then(result => {
+    return TestServer.start(config).then((result) => {
       server = result;
     });
   });
 
   it('POST /sms success', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
-      client => {
+      (client) => {
         return client
           .smsSend('+18885083401', 1)
-          .then(result => assert.ok(result));
+          .then((result) => assert.ok(result));
       }
     );
   });
 
   it('POST /sms with invalid phone number', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
-      client => {
+      (client) => {
         return client
           .smsSend('+15551234567', 1)
           .then(() => assert.fail('request should have failed'))
-          .catch(err => {
+          .catch((err) => {
             assert.ok(err);
             assert.equal(err.code, 400);
             assert.equal(err.errno, error.ERRNO.INVALID_PHONE_NUMBER);
@@ -53,11 +53,11 @@ describe('remote sms without the signinCodes feature included in the payload', f
 
   it('POST /sms with invalid region', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
-      client => {
+      (client) => {
         return client
           .smsSend('+886287861100', 1)
           .then(() => assert.fail('request should have failed'))
-          .catch(err => {
+          .catch((err) => {
             assert.ok(err);
             assert.equal(err.code, 400);
             assert.equal(err.errno, error.ERRNO.INVALID_REGION);
@@ -70,11 +70,11 @@ describe('remote sms without the signinCodes feature included in the payload', f
 
   it('POST /sms with invalid message id', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
-      client => {
+      (client) => {
         return client
           .smsSend('+18885083401', 2)
           .then(() => assert.fail('request should have failed'))
-          .catch(err => {
+          .catch((err) => {
             assert.ok(err);
             assert.equal(err.code, 400);
             assert.equal(err.errno, error.ERRNO.INVALID_MESSAGE_ID);
@@ -86,8 +86,8 @@ describe('remote sms without the signinCodes feature included in the payload', f
 
   it('GET /sms/status', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
-      client => {
-        return client.smsStatus().then(status => {
+      (client) => {
+        return client.smsStatus().then((status) => {
           assert.ok(status);
           assert.equal(typeof status.ok, 'boolean');
           assert.equal(status.country, 'US');
@@ -101,7 +101,7 @@ describe('remote sms without the signinCodes feature included in the payload', f
   });
 });
 
-describe('remote sms with the signinCodes feature included in the payload', function() {
+describe('remote sms with the signinCodes feature included in the payload', function () {
   this.timeout(10000);
   let server;
 
@@ -111,17 +111,17 @@ describe('remote sms with the signinCodes feature included in the payload', func
     // /sms endpoints need creds and spend money unless the SMS provider is mocked
     config.sms.useMock = true;
 
-    return TestServer.start(config).then(result => {
+    return TestServer.start(config).then((result) => {
       server = result;
     });
   });
 
   it('POST /sms success', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'wibble').then(
-      client => {
+      (client) => {
         return client
           .smsSend('+18885083401', 1, ['signinCodes'])
-          .then(result => assert.ok(result));
+          .then((result) => assert.ok(result));
       }
     );
   });

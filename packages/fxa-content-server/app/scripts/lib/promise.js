@@ -15,7 +15,7 @@ export default {
    * @returns {Promise}
    */
   delay(delayMS) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       setTimeout(resolve, delayMS);
     });
   },
@@ -28,7 +28,7 @@ export default {
    * @returns {Function} replacement callback that returns a Promise
    */
   denodeify(callback) {
-    return function(...args) {
+    return function (...args) {
       return new Promise((resolve, reject) => {
         callback(...args, (err, response) => {
           if (err) {

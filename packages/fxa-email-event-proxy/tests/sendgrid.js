@@ -61,7 +61,7 @@ suite('sendgrid:', () => {
   });
 
   suite('call with an event array:', () => {
-    setup(done => {
+    setup((done) => {
       proxy.main([
         {
           email: 'foo@example.com',
@@ -406,7 +406,7 @@ suite('sendgrid:', () => {
   suite('call delivery without error:', () => {
     let promise;
 
-    setup(done => {
+    setup((done) => {
       promise = proxy.main([
         {
           email: 'bar@example.com',
@@ -437,7 +437,7 @@ suite('sendgrid:', () => {
     });
 
     test('result is correct', () => {
-      return promise.then(result =>
+      return promise.then((result) =>
         assert.deepEqual(result, {
           statusCode: 200,
           body: '{"result":"Processed 1 events"}',
@@ -463,7 +463,7 @@ suite('sendgrid:', () => {
             response: '250 OK',
           },
         ])
-        .catch(e => (thrownError = e));
+        .catch((e) => (thrownError = e));
     });
 
     teardown(() => {
@@ -509,7 +509,7 @@ suite('sendgrid:', () => {
   });
 
   suite('call bounce without error:', () => {
-    setup(done => {
+    setup((done) => {
       proxy.main([
         {
           email: 'blee@example.com',
@@ -537,7 +537,7 @@ suite('sendgrid:', () => {
   });
 
   suite('call complaint without error:', () => {
-    setup(done => {
+    setup((done) => {
       proxy.main([
         {
           email: 'gom@example.com',
@@ -564,7 +564,7 @@ suite('sendgrid:', () => {
   });
 
   suite('call with an authorised request object:', () => {
-    setup(done => {
+    setup((done) => {
       proxy.main({
         body: JSON.stringify({
           email: 'foo@example.com',
@@ -634,7 +634,7 @@ suite('sendgrid:', () => {
     });
 
     test('result is correct', () => {
-      return promise.then(result =>
+      return promise.then((result) =>
         assert.deepEqual(result, {
           statusCode: 401,
           body:
@@ -671,7 +671,7 @@ suite('sendgrid:', () => {
     });
 
     test('result is correct', () => {
-      return promise.then(result =>
+      return promise.then((result) =>
         assert.deepEqual(result, {
           statusCode: 401,
           body:

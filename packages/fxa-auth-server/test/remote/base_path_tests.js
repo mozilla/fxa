@@ -10,14 +10,14 @@ const Client = require('../client')();
 const P = require('../../lib/promise');
 const request = P.promisify(require('request'), { multiArgs: true });
 
-describe('remote base path', function() {
+describe('remote base path', function () {
   this.timeout(15000);
   let server, config;
   before(() => {
     config = require('../../config').getProperties();
     config.publicUrl = 'http://localhost:9000/auth';
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });

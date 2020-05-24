@@ -14,7 +14,7 @@ const config = require('../config');
 const notifierSnsTopicArn = config.get('snsTopicArn');
 const notifierSnsTopicEndpoint = config.get('snsTopicEndpoint');
 let sns = {
-  publish: function(msg, cb) {
+  publish: function (msg, cb) {
     cb(null, { disabled: true });
   },
 };

@@ -12,11 +12,11 @@ var suite = {
 };
 
 function versionJson(route) {
-  return function() {
+  return function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + route)
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.statusCode, 200);
         assert.equal(
           res.headers['content-type'],

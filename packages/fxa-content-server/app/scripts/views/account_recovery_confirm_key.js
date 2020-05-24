@@ -62,7 +62,7 @@ const View = FormView.extend({
             .passwordForgotVerifyCode(code, token, {
               accountResetWithRecoveryKey: true,
             })
-            .then(result => {
+            .then((result) => {
               // The password forgot code can only be used once to retrieve
               // `accountResetToken`, therefore we store it in the model so
               // that it can be reused on subsequent requests.
@@ -72,8 +72,8 @@ const View = FormView.extend({
         }
         return accountResetToken;
       })
-      .then(accountResetToken => {
-        return account.getRecoveryBundle(uid, recoveryKey).then(data => {
+      .then((accountResetToken) => {
+        return account.getRecoveryBundle(uid, recoveryKey).then((data) => {
           this.logFlowEvent('success', this.viewName);
           this.navigate('/account_recovery_reset_password', {
             accountResetToken,
@@ -83,7 +83,7 @@ const View = FormView.extend({
           });
         });
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           this._verificationInfo.markExpired();
           // The token has expired since the first check, re-render to

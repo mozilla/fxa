@@ -91,7 +91,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
     it('calls sendOAuthResultToRelier with the correct options', () => {
       sinon.stub(broker, 'sendOAuthResultToRelier').resolves();
 
-      return broker.afterSignInConfirmationPoll(account).then(behavior => {
+      return broker.afterSignInConfirmationPoll(account).then((behavior) => {
         assert.isTrue(
           broker.finishOAuthFlow.calledWith(account, {
             action: Constants.OAUTH_ACTION_SIGNIN,
@@ -117,19 +117,19 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
       return broker
         .afterSignInConfirmationPoll(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(err.message, 'uh oh');
         });
     });
   });
 
-  describe('afterSignIn', function() {
-    it('calls sendOAuthResultToRelier with the correct options', function() {
-      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function() {
+  describe('afterSignIn', function () {
+    it('calls sendOAuthResultToRelier with the correct options', function () {
+      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
         return Promise.resolve();
       });
 
-      return broker.afterSignIn(account).then(function() {
+      return broker.afterSignIn(account).then(function () {
         assert.isTrue(
           broker.finishOAuthFlow.calledWith(account, {
             action: Constants.OAUTH_ACTION_SIGNIN,
@@ -146,18 +146,18 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
     });
 
-    it('returns any errors returned by getOAuthResult', function() {
-      sinon.stub(broker, 'getOAuthResult').callsFake(function() {
+    it('returns any errors returned by getOAuthResult', function () {
+      sinon.stub(broker, 'getOAuthResult').callsFake(function () {
         return Promise.reject(new Error('uh oh'));
       });
 
-      return broker.afterSignIn(account).then(assert.fail, function(err) {
+      return broker.afterSignIn(account).then(assert.fail, function (err) {
         assert.equal(err.message, 'uh oh');
       });
     });
   });
 
-  describe('afterSignUpConfirmationPoll', function() {
+  describe('afterSignUpConfirmationPoll', function () {
     describe('relier requires TOTP', () => {
       beforeEach(() => {
         sinon.stub(relier, 'wantsTwoStepAuthentication').callsFake(() => {
@@ -173,12 +173,12 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
     });
 
-    it('calls sendOAuthResultToRelier with the correct options', function() {
-      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function() {
+    it('calls sendOAuthResultToRelier with the correct options', function () {
+      sinon.stub(broker, 'sendOAuthResultToRelier').callsFake(function () {
         return Promise.resolve();
       });
 
-      return broker.afterSignUpConfirmationPoll(account).then(function() {
+      return broker.afterSignUpConfirmationPoll(account).then(function () {
         assert.isTrue(
           broker.finishOAuthFlow.calledWith(account, {
             action: Constants.OAUTH_ACTION_SIGNUP,
@@ -196,9 +196,9 @@ describe('models/auth_brokers/oauth-redirect', () => {
     });
   });
 
-  describe('afterResetPasswordConfirmationPoll', function() {
+  describe('afterResetPasswordConfirmationPoll', function () {
     describe('with a verified account', () => {
-      it('calls sendOAuthResultToRelier with the expected options', function() {
+      it('calls sendOAuthResultToRelier with the expected options', function () {
         account.set('verified', true);
         sinon
           .stub(broker, 'sendOAuthResultToRelier')
@@ -232,14 +232,14 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
         return broker
           .afterResetPasswordConfirmationPoll(account)
-          .then(behavior => {
+          .then((behavior) => {
             assert.isFalse(broker.finishOAuthFlow.called);
             assert.equal(behavior.type, 'navigate');
             assert.equal(behavior.endpoint, 'signin_totp_code');
           });
       });
 
-      it('ignores account `verified` if verification method and reason set', function() {
+      it('ignores account `verified` if verification method and reason set', function () {
         account.set({
           verificationMethod: VerificationMethods.TOTP_2FA,
           verificationReason: VerificationReasons.SIGN_IN,
@@ -248,7 +248,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
         return broker
           .afterResetPasswordConfirmationPoll(account)
-          .then(behavior => {
+          .then((behavior) => {
             assert.isFalse(broker.finishOAuthFlow.called);
             assert.equal(behavior.type, 'navigate');
             assert.equal(behavior.endpoint, 'signin_totp_code');
@@ -318,7 +318,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
 
   describe('persistVerificationData', () => {
     it('sets the Original Tab marker and saves OAuth params to session', () => {
-      return broker.persistVerificationData(account).then(function() {
+      return broker.persistVerificationData(account).then(function () {
         assert.ok(!!Session.oauth);
         assert.isTrue(broker.isOriginalTab());
       });
@@ -371,7 +371,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
         .stub(broker, '_provisionScopedKeys')
         .callsFake(() => Promise.resolve('glub'));
 
-      return broker.getOAuthResult(account).then(result => {
+      return broker.getOAuthResult(account).then((result) => {
         assert.isTrue(relier.wantsKeys.calledOnce);
         assert.isTrue(broker._provisionScopedKeys.calledOnceWith(account));
 
@@ -394,16 +394,16 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
     });
 
-    it('locally constructs the redirect URI, ignoring any provided by the server', function() {
+    it('locally constructs the redirect URI, ignoring any provided by the server', function () {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function() {
+      sinon.stub(account, 'createOAuthCode').callsFake(function () {
         return Promise.resolve({
           code: VALID_OAUTH_CODE,
           redirect: 'https://the.server.got.confused',
           state: 'state',
         });
       });
-      return broker.getOAuthResult(account).then(function(result) {
+      return broker.getOAuthResult(account).then(function (result) {
         assert.isTrue(account.createOAuthCode.calledOnce);
         assert.equal(result.redirect, VALID_OAUTH_CODE_REDIRECT_URL);
         assert.equal(result.state, 'state');
@@ -411,83 +411,83 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
     });
 
-    it('passes on errors from account.createOAuthCode', function() {
+    it('passes on errors from account.createOAuthCode', function () {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function() {
+      sinon.stub(account, 'createOAuthCode').callsFake(function () {
         return Promise.reject(new Error('uh oh'));
       });
 
-      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+      return broker.getOAuthResult(account).then(assert.fail, function (err) {
         assert.equal(err.message, 'uh oh');
       });
     });
 
-    it('throws an error if account.createOAuthCode returns nothing', function() {
+    it('throws an error if account.createOAuthCode returns nothing', function () {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function() {
+      sinon.stub(account, 'createOAuthCode').callsFake(function () {
         return;
       });
 
-      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+      return broker.getOAuthResult(account).then(assert.fail, function (err) {
         assert.isTrue(OAuthErrors.is(err, 'INVALID_RESULT'));
       });
     });
 
-    it('throws an error if account.createOAuthCode returns an empty object', function() {
+    it('throws an error if account.createOAuthCode returns an empty object', function () {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function() {
+      sinon.stub(account, 'createOAuthCode').callsFake(function () {
         return {};
       });
 
-      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+      return broker.getOAuthResult(account).then(assert.fail, function (err) {
         assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
       });
     });
 
-    it('throws an error if account.createOAuthCode returns an invalid code', function() {
+    it('throws an error if account.createOAuthCode returns an invalid code', function () {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function() {
+      sinon.stub(account, 'createOAuthCode').callsFake(function () {
         return {
           code: 'invalid-code',
         };
       });
 
-      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+      return broker.getOAuthResult(account).then(assert.fail, function (err) {
         assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
       });
     });
 
-    it('throws an error if account.createOAuthCode returns an invalid state', function() {
+    it('throws an error if account.createOAuthCode returns an invalid state', function () {
       account.createOAuthCode.restore();
-      sinon.stub(account, 'createOAuthCode').callsFake(function() {
+      sinon.stub(account, 'createOAuthCode').callsFake(function () {
         return {
           code: VALID_OAUTH_CODE,
           state: { invalid: 'state' },
         };
       });
 
-      return broker.getOAuthResult(account).then(assert.fail, function(err) {
+      return broker.getOAuthResult(account).then(assert.fail, function (err) {
         assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
       });
     });
 
-    it('throws an error if accountData is missing', function() {
-      return broker.getOAuthResult().then(assert.fail, function(err) {
+    it('throws an error if accountData is missing', function () {
+      return broker.getOAuthResult().then(assert.fail, function (err) {
         assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
       });
     });
 
-    it('throws an error if accountData is missing a sessionToken', function() {
+    it('throws an error if accountData is missing a sessionToken', function () {
       return broker
         .getOAuthResult(user.initAccount())
-        .then(assert.fail, function(err) {
+        .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
         });
     });
   });
 
   describe('transformLink', () => {
-    ['force_auth', 'signin', 'signup'].forEach(route => {
+    ['force_auth', 'signin', 'signup'].forEach((route) => {
       describe(`${route}`, () => {
         it('prepends `/oauth` to the link', () => {
           assert.include(broker.transformLink(`/${route}`), `/oauth/${route}`);
@@ -547,7 +547,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
           return Promise.resolve(keyData);
         });
 
-      sinon.stub(accountKey, 'accountKeys').callsFake(args => {
+      sinon.stub(accountKey, 'accountKeys').callsFake((args) => {
         return Promise.resolve(keys);
       });
     });
@@ -566,7 +566,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
           return Promise.resolve('bundle');
         });
 
-      return broker._provisionScopedKeys(accountKey).then(result => {
+      return broker._provisionScopedKeys(accountKey).then((result) => {
         assert.isTrue(broker._scopedKeys.createEncryptedBundle.calledOnce);
         assert.equal(result, 'bundle');
       });
@@ -575,20 +575,20 @@ describe('models/auth_brokers/oauth-redirect', () => {
     it('returns null if no unwrapBKey', () => {
       accountKey.set('unwrapBKey', null);
 
-      return broker._provisionScopedKeys(accountKey).then(result => {
+      return broker._provisionScopedKeys(accountKey).then((result) => {
         assert.equal(result, null);
       });
     });
 
     it('returns null if no clientKeyData', () => {
       accountKey.getOAuthScopedKeyData.restore();
-      sinon.stub(accountKey, 'getOAuthScopedKeyData').callsFake(args => {
+      sinon.stub(accountKey, 'getOAuthScopedKeyData').callsFake((args) => {
         return Promise.resolve({});
       });
 
       return broker
         ._provisionScopedKeys(accountKey, 'assertion')
-        .then(result => {
+        .then((result) => {
           assert.equal(result, null);
         });
     });
@@ -670,7 +670,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
         .then(() => {
           return broker.afterCompleteResetPassword(account);
         })
-        .then(behavior => {
+        .then((behavior) => {
           assert.isFalse(broker.finishOAuthFlow.called);
           assert.equal(behavior.type, 'navigate');
           assert.equal(behavior.endpoint, 'signin_totp_code');
@@ -686,7 +686,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
       // whenever the user verifies in a different tab, the relier has no state but we have defined the state of relier.
       relier.unset('state');
 
-      return broker.afterCompleteResetPassword(account).then(behavior => {
+      return broker.afterCompleteResetPassword(account).then((behavior) => {
         assert.isFalse(broker.finishOAuthFlow.called);
         assert.equal(behavior.type, 'null');
       });
@@ -700,7 +700,7 @@ describe('models/auth_brokers/oauth-redirect', () => {
       });
       relier.unset('state');
 
-      return broker.afterCompleteResetPassword(account).then(behavior => {
+      return broker.afterCompleteResetPassword(account).then((behavior) => {
         assert.isFalse(broker.finishOAuthFlow.called);
         assert.equal(behavior.type, 'null');
       });

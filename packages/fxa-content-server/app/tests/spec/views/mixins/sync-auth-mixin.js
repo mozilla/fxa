@@ -17,7 +17,7 @@ const SyncView = BaseView.extend({});
 
 Cocktail.mixin(SyncView, SyncAuthMixin, UserAgentMixin);
 
-describe('views/mixins/sync-auth-mixin', function() {
+describe('views/mixins/sync-auth-mixin', function () {
   let relier;
   let view;
   let windowMock;

@@ -75,7 +75,7 @@ describe('views/pair/auth_allow', () => {
     initView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 
@@ -105,10 +105,7 @@ describe('views/pair/auth_allow', () => {
         );
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el
-            .find('.location')
-            .text()
-            .trim(),
+          view.$el.find('.location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(
@@ -122,9 +119,7 @@ describe('views/pair/auth_allow', () => {
         assert.isFalse(
           view.invokeBrokerMethod.calledOnceWith('afterPairAuthDecline')
         );
-        $('#container')
-          .find('#cancel')
-          .click();
+        $('#container').find('#cancel').click();
         assert.isTrue(
           view.invokeBrokerMethod.secondCall.calledWith('afterPairAuthDecline')
         );
@@ -132,7 +127,7 @@ describe('views/pair/auth_allow', () => {
       });
     });
 
-    it('handles errors', done => {
+    it('handles errors', (done) => {
       sinon.spy(view, 'displayError');
       view.initialize();
       view.render().then(() => {
@@ -184,10 +179,7 @@ describe('views/pair/auth_allow', () => {
         );
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el
-            .find('.location')
-            .text()
-            .trim(),
+          view.$el.find('.location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(

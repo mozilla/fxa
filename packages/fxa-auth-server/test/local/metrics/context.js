@@ -90,9 +90,7 @@ describe('metricsContext', () => {
   it('metricsContext.stash', () => {
     results.add = P.resolve('wibble');
     const token = {
-      uid: Array(64)
-        .fill('c')
-        .join(''),
+      uid: Array(64).fill('c').join(''),
       id: 'foo',
     };
     return metricsContext.stash
@@ -108,7 +106,7 @@ describe('metricsContext', () => {
         },
         token
       )
-      .then(result => {
+      .then((result) => {
         assert.equal(result, 'wibble', 'result is correct');
 
         assert.equal(cache.add.callCount, 1, 'cache.add was called once');
@@ -140,9 +138,7 @@ describe('metricsContext', () => {
   it('metricsContext.stash with clashing data', () => {
     results.add = P.reject('wibble');
     const token = {
-      uid: Array(64)
-        .fill('c')
-        .join(''),
+      uid: Array(64).fill('c').join(''),
       id: 'foo',
     };
     return metricsContext.stash
@@ -158,7 +154,7 @@ describe('metricsContext', () => {
         },
         token
       )
-      .then(result => {
+      .then((result) => {
         assert.strictEqual(result, undefined, 'result is undefined');
         assert.equal(cache.add.callCount, 1, 'cache.add was called once');
         assert.equal(log.warn.callCount, 1, 'log.warn was called once');
@@ -169,9 +165,7 @@ describe('metricsContext', () => {
   it('metricsContext.stash with service query param', () => {
     results.add = P.resolve('wibble');
     const token = {
-      uid: Array(64)
-        .fill('c')
-        .join(''),
+      uid: Array(64).fill('c').join(''),
       id: 'foo',
     };
     return metricsContext.stash
@@ -188,7 +182,7 @@ describe('metricsContext', () => {
         },
         token
       )
-      .then(result => {
+      .then((result) => {
         assert.equal(cache.add.callCount, 1, 'cache.add was called once');
         assert.equal(
           cache.add.args[0][1].service,
@@ -215,7 +209,7 @@ describe('metricsContext', () => {
           id: 'foo',
         }
       )
-      .then(result => {
+      .then((result) => {
         assert.equal(result, undefined, 'result is undefined');
 
         assert.equal(log.error.callCount, 1, 'log.error was called once');
@@ -262,13 +256,11 @@ describe('metricsContext', () => {
           query: {},
         },
         {
-          uid: Array(64)
-            .fill('c')
-            .join(''),
+          uid: Array(64).fill('c').join(''),
           id: 'foo',
         }
       )
-      .then(result => {
+      .then((result) => {
         assert.equal(result, undefined, 'result is undefined');
 
         assert.equal(cache.add.callCount, 0, 'cache.add was not called');
@@ -331,9 +323,7 @@ describe('metricsContext', () => {
     });
 
     const token = {
-      uid: Array(64)
-        .fill('7')
-        .join(''),
+      uid: Array(64).fill('7').join(''),
       id: 'wibble',
     };
 
@@ -361,9 +351,7 @@ describe('metricsContext', () => {
       flowBeginTime: 1977,
     });
 
-    const uid = Array(64)
-      .fill('7')
-      .join('');
+    const uid = Array(64).fill('7').join('');
     const id = 'wibble';
 
     const token = { uid, id };
@@ -392,9 +380,7 @@ describe('metricsContext', () => {
     const result = await metricsContext.get({
       auth: {
         credentials: {
-          uid: Array(64)
-            .fill('c')
-            .join(''),
+          uid: Array(64).fill('c').join(''),
         },
       },
     });
@@ -429,9 +415,7 @@ describe('metricsContext', () => {
     const result = await metricsContext.get({
       auth: {
         credentials: {
-          uid: Array(16)
-            .fill('f')
-            .join(''),
+          uid: Array(16).fill('f').join(''),
           id: 'bar',
         },
       },
@@ -457,9 +441,7 @@ describe('metricsContext', () => {
     const result = await metricsContext.get({
       auth: {
         credentials: {
-          uid: Array(16)
-            .fill('f')
-            .join(''),
+          uid: Array(16).fill('f').join(''),
           id: 'bar',
         },
       },
@@ -513,7 +495,7 @@ describe('metricsContext', () => {
         },
         {}
       )
-      .then(result => {
+      .then((result) => {
         assert.isObject(result);
         assert.lengthOf(Object.keys(result), 18);
         assert.isAbove(result.time, time);
@@ -576,7 +558,7 @@ describe('metricsContext', () => {
         },
         {}
       )
-      .then(result => {
+      .then((result) => {
         assert.lengthOf(Object.keys(result), 8);
         assert.isUndefined(result.entrypoint);
         assert.isUndefined(result.entrypoint_experiment);
@@ -603,7 +585,7 @@ describe('metricsContext', () => {
         },
         {}
       )
-      .then(result => {
+      .then((result) => {
         assert.equal(typeof result, 'object', 'result is object');
         assert.notEqual(result, null, 'result is not null');
         assert.strictEqual(result.flow_time, 0, 'result.time is zero');
@@ -616,15 +598,11 @@ describe('metricsContext', () => {
     results.get = P.resolve('wibble');
     results.add = P.resolve();
     const oldToken = {
-      uid: Array(64)
-        .fill('c')
-        .join(''),
+      uid: Array(64).fill('c').join(''),
       id: 'foo',
     };
     const newToken = {
-      uid: Array(64)
-        .fill('d')
-        .join(''),
+      uid: Array(64).fill('d').join(''),
       id: 'bar',
     };
     return metricsContext.propagate(oldToken, newToken).then(() => {
@@ -649,15 +627,11 @@ describe('metricsContext', () => {
     results.get = P.resolve('wibble');
     results.add = P.reject('blee');
     const oldToken = {
-      uid: Array(64)
-        .fill('c')
-        .join(''),
+      uid: Array(64).fill('c').join(''),
       id: 'foo',
     };
     const newToken = {
-      uid: Array(64)
-        .fill('d')
-        .join(''),
+      uid: Array(64).fill('d').join(''),
       id: 'bar',
     };
     return metricsContext.propagate(oldToken, newToken).then(() => {
@@ -673,15 +647,11 @@ describe('metricsContext', () => {
     results.get = P.reject('wibble');
     results.add = P.resolve();
     const oldToken = {
-      uid: Array(64)
-        .fill('c')
-        .join(''),
+      uid: Array(64).fill('c').join(''),
       id: 'foo',
     };
     const newToken = {
-      uid: Array(64)
-        .fill('d')
-        .join(''),
+      uid: Array(64).fill('d').join(''),
       id: 'bar',
     };
     return metricsContext.propagate(oldToken, newToken).then(() => {
@@ -695,9 +665,7 @@ describe('metricsContext', () => {
 
   it('metricsContext.clear with token', () => {
     const token = {
-      uid: Array(64)
-        .fill('7')
-        .join(''),
+      uid: Array(64).fill('7').join(''),
       id: 'wibble',
     };
     return metricsContext.clear
@@ -722,9 +690,7 @@ describe('metricsContext', () => {
   });
 
   it('metricsContext.clear with fake token', () => {
-    const uid = Array(64)
-      .fill('6')
-      .join('');
+    const uid = Array(64).fill('6').join('');
     const id = 'blee';
     return metricsContext.clear
       .call({
@@ -755,14 +721,12 @@ describe('metricsContext', () => {
         assert.equal(cache.del.callCount, 0, 'cache.del was not called');
         assert.equal(log.error.callCount, 0, 'log.error was not called');
       })
-      .catch(err => assert.fail(err));
+      .catch((err) => assert.fail(err));
   });
 
   it('metricsContext.clear with memcached error', () => {
     const token = {
-      uid: Array(64)
-        .fill('7')
-        .join(''),
+      uid: Array(64).fill('7').join(''),
       id: 'wibble',
     };
     results.del = P.reject(new Error('blee'));
@@ -775,7 +739,7 @@ describe('metricsContext', () => {
       .then(() =>
         assert.fail('call to metricsContext.clear should have failed')
       )
-      .catch(err => {
+      .catch((err) => {
         assert.equal(
           err.message,
           'blee',

@@ -52,7 +52,7 @@ function wrapClientToNormalizeErrors(client) {
   const wrappedClient = Object.create(proto);
   for (var key of Object.getOwnPropertyNames(proto)) {
     if (typeof client[key] === 'function') {
-      wrappedClient[key] = function(key, ...args) {
+      wrappedClient[key] = function (key, ...args) {
         const retval = this[key].apply(this, args);
 
         // make no assumptions about the client returning a promise.
@@ -62,7 +62,7 @@ function wrapClientToNormalizeErrors(client) {
         }
 
         // a promise was returned, ensure any errors are normalized.
-        return retval.then(null, function(err) {
+        return retval.then(null, function (err) {
           throw AuthErrors.toError(err);
         });
       }.bind(client, key);
@@ -75,8 +75,8 @@ function wrapClientToNormalizeErrors(client) {
 // Class method decorator to get an fxa-js-client instance and pass
 // it as the first argument to the method.
 function withClient(callback) {
-  return function(...args) {
-    return this._getClient().then(client =>
+  return function (...args) {
+    return this._getClient().then((client) =>
       callback.apply(this, [client, ...args])
     );
   };
@@ -89,8 +89,8 @@ function withClient(callback) {
  * @returns {Function}
  */
 function createClientDelegate(method) {
-  return function(...args) {
-    return this._getClient().then(client => {
+  return function (...args) {
+    return this._getClient().then((client) => {
       if (!_.isFunction(client[method])) {
         throw new Error(`Invalid method on fxa-js-client: ${method}`);
       }
@@ -137,7 +137,7 @@ FxaClientWrapper.prototype = {
       return Promise.resolve(this._client);
     }
 
-    return AuthClient.create(this._authServerUrl).then(client => {
+    return AuthClient.create(this._authServerUrl).then((client) => {
       this._client = wrapClientToNormalizeErrors(client);
       return this._client;
     });
@@ -170,7 +170,7 @@ FxaClientWrapper.prototype = {
         .signIn(email, password, {
           reason: SignInReasons.PASSWORD_CHECK,
         })
-        .then(function(sessionInfo) {
+        .then(function (sessionInfo) {
           // a session was created on the backend to check the user's
           // password. Delete the newly created session immediately
           // so that the session token is not left in the database.
@@ -188,7 +188,7 @@ FxaClientWrapper.prototype = {
    * @returns {Promise}
    */
   checkAccountExists: withClient((client, uid) => {
-    return client.accountStatus(uid).then(function(status) {
+    return client.accountStatus(uid).then(function (status) {
       return status.exists;
     });
   }),
@@ -201,7 +201,7 @@ FxaClientWrapper.prototype = {
    * @returns {Promise}
    */
   checkAccountExistsByEmail: withClient((client, email) => {
-    return client.accountStatusByEmail(email).then(function(status) {
+    return client.accountStatusByEmail(email).then(function (status) {
       return status.exists;
     });
   }),
@@ -272,7 +272,7 @@ FxaClientWrapper.prototype = {
 
       return client
         .signIn(email, password, signInOptions)
-        .then(function(accountData) {
+        .then(function (accountData) {
           if (
             !accountData.verified &&
             // eslint-disable-next-line no-prototype-builtins
@@ -362,7 +362,7 @@ FxaClientWrapper.prototype = {
 
       return client
         .sessionReauth(sessionToken, email, password, reauthOptions)
-        .then(accountData => {
+        .then((accountData) => {
           accountData.sessionToken = sessionToken;
           return getUpdatedSessionData(email, relier, accountData, options);
         });
@@ -388,7 +388,7 @@ FxaClientWrapper.prototype = {
    *   @param {String} [options.style] - Specify the style for emails
    * @returns {Promise}
    */
-  signUp: withClient(function(
+  signUp: withClient(function (
     client,
     originalEmail,
     password,
@@ -429,7 +429,7 @@ FxaClientWrapper.prototype = {
 
     return client
       .signUp(email, password, signUpOptions)
-      .then(accountData =>
+      .then((accountData) =>
         getUpdatedSessionData(email, relier, accountData, options)
       );
   }),
@@ -542,7 +542,7 @@ FxaClientWrapper.prototype = {
 
     return client
       .passwordForgotSendCode(email, clientOptions)
-      .then(function(result) {
+      .then(function (result) {
         Session.clear();
         return result;
       });
@@ -611,7 +611,7 @@ FxaClientWrapper.prototype = {
 
       return client
         .passwordForgotVerifyCode(code, token, {})
-        .then(result => {
+        .then((result) => {
           let emailToHashWith = email;
 
           // The `emailToHashWith` option is returned by the auth-server to let the content-server
@@ -630,7 +630,7 @@ FxaClientWrapper.prototype = {
             accountResetOptions
           );
         })
-        .then(accountData => {
+        .then((accountData) => {
           return getUpdatedSessionData(email, relier, accountData);
         });
     }
@@ -644,11 +644,11 @@ FxaClientWrapper.prototype = {
    */
   isPasswordResetComplete: withClient((client, token) => {
     return client.passwordForgotStatus(token).then(
-      function() {
+      function () {
         // if the request succeeds, the password reset hasn't completed
         return false;
       },
-      function(err) {
+      function (err) {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return true;
         }
@@ -744,10 +744,10 @@ FxaClientWrapper.prototype = {
 
     // Validate session token
     return this.sessionStatus(sessionToken).then(
-      function() {
+      function () {
         return true;
       },
-      function(err) {
+      function (err) {
         // the only error that we expect is INVALID_TOKEN,
         // rethrow all others.
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
@@ -776,8 +776,8 @@ FxaClientWrapper.prototype = {
    *   verificationReason: <see lib/verification-reasons.js>
    * }
    */
-  recoveryEmailStatus: withClient(function(client, sessionToken) {
-    return client.recoveryEmailStatus(sessionToken).then(function(response) {
+  recoveryEmailStatus: withClient(function (client, sessionToken) {
+    return client.recoveryEmailStatus(sessionToken).then(function (response) {
       if (!response.verified) {
         // This is a little bit unnatural. /recovery_email/status
         // returns two fields, `emailVerified` and
@@ -939,7 +939,7 @@ FxaClientWrapper.prototype = {
     (client, sessionToken, phoneNumber, messageId, options = {}) => {
       return client
         .sendSms(sessionToken, phoneNumber, messageId, options)
-        .catch(err => {
+        .catch((err) => {
           function isInvalidPhoneNumberError(err) {
             // If the number fails joi validation, the error
             // returns in this format.
@@ -1139,21 +1139,21 @@ FxaClientWrapper.prototype = {
           keys: true,
           reason: VerificationReasons.RECOVERY_KEY,
         })
-        .then(res => client.accountKeys(res.keyFetchToken, res.unwrapBKey))
-        .then(result => {
+        .then((res) => client.accountKeys(res.keyFetchToken, res.unwrapBKey))
+        .then((result) => {
           keys = result;
           return RecoveryKey.generateRecoveryKey(
             Constants.RECOVERY_KEY_LENGTH
-          ).then(result => {
+          ).then((result) => {
             recoveryKey = result;
             return RecoveryKey.getRecoveryJwk(uid, recoveryKey);
           });
         })
-        .then(result => {
+        .then((result) => {
           recoveryJwk = result;
           return RecoveryKey.bundleRecoveryData(recoveryJwk, keys);
         })
-        .then(bundle =>
+        .then((bundle) =>
           client.createRecoveryKey(
             sessionToken,
             recoveryJwk.kid,
@@ -1220,19 +1220,21 @@ FxaClientWrapper.prototype = {
    */
   getRecoveryBundle: withClient(
     (client, accountResetToken, uid, recoveryKey) => {
-      return RecoveryKey.getRecoveryJwk(uid, recoveryKey).then(recoveryJwk => {
-        return client
-          .getRecoveryKey(accountResetToken, recoveryJwk.kid)
-          .then(bundle =>
-            RecoveryKey.unbundleRecoveryData(recoveryJwk, bundle.recoveryData)
-          )
-          .then(data => {
-            return {
-              keys: data,
-              recoveryKeyId: recoveryJwk.kid,
-            };
-          });
-      });
+      return RecoveryKey.getRecoveryJwk(uid, recoveryKey).then(
+        (recoveryJwk) => {
+          return client
+            .getRecoveryKey(accountResetToken, recoveryJwk.kid)
+            .then((bundle) =>
+              RecoveryKey.unbundleRecoveryData(recoveryJwk, bundle.recoveryData)
+            )
+            .then((data) => {
+              return {
+                keys: data,
+                recoveryKeyId: recoveryJwk.kid,
+              };
+            });
+        }
+      );
     }
   ),
 
@@ -1267,7 +1269,7 @@ FxaClientWrapper.prototype = {
           keys,
           { keys: true, sessionToken: true }
         )
-        .then(accountData => {
+        .then((accountData) => {
           return getUpdatedSessionData(email, relier, accountData);
         });
     }

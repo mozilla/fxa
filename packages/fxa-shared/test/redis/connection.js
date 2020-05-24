@@ -231,7 +231,7 @@ describe('redis/connection:', () => {
     });
   });
 
-  redisConnection.methods.forEach(method => {
+  redisConnection.methods.forEach((method) => {
     if (method === 'update' || method === 'zpoprangebyscore') {
       return;
     }
@@ -272,7 +272,7 @@ describe('redis/connection:', () => {
         let error;
 
         beforeEach(() => {
-          return connection[method]('wibble', 'blee').catch(e => (error = e));
+          return connection[method]('wibble', 'blee').catch((e) => (error = e));
         });
 
         it('rejected', () => {
@@ -291,7 +291,7 @@ describe('redis/connection:', () => {
           beforeEach(() => {
             return connection
               .update('wibble', getValue)
-              .catch(e => (error = e));
+              .catch((e) => (error = e));
           });
 
           it('rejected', () => {
@@ -349,7 +349,7 @@ describe('redis/connection:', () => {
   describe('redisConnection.destroy:', () => {
     let resolved;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       connection.destroy().then(() => (resolved = true));
       setImmediate(done);
     });
@@ -378,7 +378,7 @@ describe('redis/connection:', () => {
     describe('redisConnection.destroy:', () => {
       let innerResolved;
 
-      beforeEach(done => {
+      beforeEach((done) => {
         connection.destroy().then(() => (innerResolved = true));
         setImmediate(done);
       });
@@ -396,7 +396,7 @@ describe('redis/connection:', () => {
       });
 
       describe('end event handler:', () => {
-        beforeEach(done => {
+        beforeEach((done) => {
           redisClient.on.args[0][1]();
           setImmediate(done);
         });
@@ -426,7 +426,7 @@ describe('redis/connection:', () => {
       let error;
 
       beforeEach(() => {
-        return connection.update('wibble', getValue).catch(e => (error = e));
+        return connection.update('wibble', getValue).catch((e) => (error = e));
       });
 
       it('rejected', () => {
@@ -487,7 +487,7 @@ describe('redis/connection:', () => {
       let error;
 
       beforeEach(() => {
-        return connection.update('wibble', getValue).catch(e => (error = e));
+        return connection.update('wibble', getValue).catch((e) => (error = e));
       });
 
       it('rejected', () => {

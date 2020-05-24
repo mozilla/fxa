@@ -13,7 +13,7 @@ import CountryTelephoneInfo from '../../lib/country-telephone-info';
 import Relier from './relier';
 import Vat from '../../lib/vat';
 
-const t = msg => msg;
+const t = (msg) => msg;
 const AllowedCountries = Object.keys(CountryTelephoneInfo);
 
 /*eslint-disable camelcase*/
@@ -26,9 +26,7 @@ const QUERY_PARAMETER_SCHEMA = {
   // because users that open the verification link with an
   // invalid signinCode should still be able to sign in.
   // The error will be logged and the signinCode ignored.
-  signin: Vat.string()
-    .empty('')
-    .renameTo('signinCode'),
+  signin: Vat.string().empty('').renameTo('signinCode'),
 };
 /*eslint-enable camelcase*/
 

@@ -50,7 +50,7 @@ var SYNC_SERVICE = 'service=sync';
 const PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
 
 function testAtConfirmScreen(email) {
-  return function() {
+  return function () {
     return this.parent
       .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       .then(
@@ -60,13 +60,13 @@ function testAtConfirmScreen(email) {
 }
 
 registerSuite('signup here', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'with an invalid email': function() {
+    'with an invalid email': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL + '?email=invalid', selectors['400'].HEADER)
@@ -75,14 +75,14 @@ registerSuite('signup here', {
         .then(testErrorTextInclude('email'));
     },
 
-    'with an empty email': function() {
+    'with an empty email': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL + '?email=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
-    'COPPA disabled': function() {
+    'COPPA disabled': function () {
       return this.remote
         .then(
           openPage(
@@ -102,7 +102,7 @@ registerSuite('signup here', {
         .then(testAtConfirmScreen(email));
     },
 
-    'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function() {
+    'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = createEmail();
       this.timeout = 90000;
@@ -132,7 +132,7 @@ registerSuite('signup here', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signup with email with leading whitespace on the email': function() {
+    'signup with email with leading whitespace on the email': function () {
       var emailWithoutSpace = email;
       var emailWithSpace = '   ' + email;
       return (
@@ -149,7 +149,7 @@ registerSuite('signup here', {
       );
     },
 
-    'signup with email with trailing whitespace on the email': function() {
+    'signup with email with trailing whitespace on the email': function () {
       var emailWithoutSpace = email;
       var emailWithSpace = '   ' + email;
 
@@ -167,7 +167,7 @@ registerSuite('signup here', {
       );
     },
 
-    'signup with invalid email address': function() {
+    'signup with invalid email address': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -182,7 +182,7 @@ registerSuite('signup here', {
       );
     },
 
-    'coppa is empty': function() {
+    'coppa is empty': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -196,7 +196,7 @@ registerSuite('signup here', {
       );
     },
 
-    'coppa is too young': function() {
+    'coppa is too young': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -207,7 +207,7 @@ registerSuite('signup here', {
       );
     },
 
-    'visiting the pp links saves information for return': function() {
+    'visiting the pp links saves information for return': function () {
       return testRepopulateFields.call(
         this,
         '/legal/terms',
@@ -215,7 +215,7 @@ registerSuite('signup here', {
       );
     },
 
-    'visiting the tos links saves information for return': function() {
+    'visiting the tos links saves information for return': function () {
       return testRepopulateFields.call(
         this,
         '/legal/privacy',
@@ -223,7 +223,7 @@ registerSuite('signup here', {
       );
     },
 
-    'form prefill information is cleared after signup->sign out': function() {
+    'form prefill information is cleared after signup->sign out': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -252,7 +252,7 @@ registerSuite('signup here', {
       );
     },
 
-    'signup, open sign-up in second tab, verify in original tab': function() {
+    'signup, open sign-up in second tab, verify in original tab': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -270,7 +270,7 @@ registerSuite('signup here', {
         .then(closeCurrentWindow());
     },
 
-    'signup via product page and redirect after confirm': async function() {
+    'signup via product page and redirect after confirm': async function () {
       if (
         process.env.CIRCLECI === 'true' &&
         !process.env.SUBHUB_STRIPE_APIKEY
@@ -287,10 +287,10 @@ registerSuite('signup here', {
         .then(testAtConfirmScreen(email))
         .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.PAYMENTS.HEADER))
-        .then(waitForUrl(url => url.includes(productUrlPath)));
+        .then(waitForUrl((url) => url.includes(productUrlPath)));
     },
 
-    'signup non matching passwords': function() {
+    'signup non matching passwords': function () {
       const DROWSSAP = 'drowssap';
       return (
         this.remote
@@ -325,7 +325,7 @@ registerSuite('signup here', {
       );
     },
 
-    'sync suggestion for Fx Desktop': function() {
+    'sync suggestion for Fx Desktop': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -343,7 +343,7 @@ registerSuite('signup here', {
         .then(testUrlInclude(ENTER_EMAIL_ENTRYPOINT));
     },
 
-    'sync suggestion for Fennec': function() {
+    'sync suggestion for Fennec': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -362,7 +362,7 @@ registerSuite('signup here', {
         .then(testUrlInclude(ENTER_EMAIL_ENTRYPOINT));
     },
 
-    'sync suggestion for everyone else': function() {
+    'sync suggestion for everyone else': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {

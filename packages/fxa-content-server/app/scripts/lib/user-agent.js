@@ -5,7 +5,7 @@
 import _ from 'underscore';
 import UAParser from 'ua-parser-js';
 
-const UserAgent = function(userAgent) {
+const UserAgent = function (userAgent) {
   const uap = UAParser(userAgent);
 
   _.extend(uap, {

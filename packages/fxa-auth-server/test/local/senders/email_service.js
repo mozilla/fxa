@@ -24,9 +24,9 @@ const emailConfig = {
 };
 
 describe('lib/senders/email_service', () => {
-  it('emailService serializes options correctly', done => {
+  it('emailService serializes options correctly', (done) => {
     const mock = {
-      request: function(config, cb) {
+      request: function (config, cb) {
         cb(config);
       },
     };
@@ -35,7 +35,7 @@ describe('lib/senders/email_service', () => {
       `${ROOT_DIR}/lib/senders/email_service`,
       mock
     )(config);
-    emailService.sendMail(emailConfig, serialized => {
+    emailService.sendMail(emailConfig, (serialized) => {
       assert.equal(
         serialized.url,
         `http://${config.emailService.host}:${config.emailService.port}/send`
@@ -53,9 +53,9 @@ describe('lib/senders/email_service', () => {
     });
   });
 
-  it('emailService handles successful request and response', done => {
+  it('emailService handles successful request and response', (done) => {
     const mock = {
-      request: function(config, cb) {
+      request: function (config, cb) {
         cb(
           null,
           {
@@ -80,9 +80,9 @@ describe('lib/senders/email_service', () => {
     });
   });
 
-  it('emailService handles 500 response', done => {
+  it('emailService handles 500 response', (done) => {
     const mock = {
-      request: function(config, cb) {
+      request: function (config, cb) {
         cb(
           null,
           {
@@ -112,9 +112,9 @@ describe('lib/senders/email_service', () => {
     });
   });
 
-  it('emailService handles old 429 response', done => {
+  it('emailService handles old 429 response', (done) => {
     const mock = {
-      request: function(config, cb) {
+      request: function (config, cb) {
         cb(
           null,
           {
@@ -146,9 +146,9 @@ describe('lib/senders/email_service', () => {
     });
   });
 
-  it('emailService handles new 429 response', done => {
+  it('emailService handles new 429 response', (done) => {
     const mock = {
-      request: function(config, cb) {
+      request: function (config, cb) {
         cb(
           null,
           {
@@ -180,9 +180,9 @@ describe('lib/senders/email_service', () => {
     });
   });
 
-  it('emailService handles unsuccessful request', done => {
+  it('emailService handles unsuccessful request', (done) => {
     const mock = {
-      request: function(config, cb) {
+      request: function (config, cb) {
         cb(Error('FREAKOUT'), undefined, undefined);
       },
     };

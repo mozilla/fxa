@@ -16,9 +16,16 @@
  *    using uid: node read-security-events.js -u uid
  */
 
-const log = { table: console.table, trace: console.log, error: console.error, stat: console.log, info: console.log }; //eslint-disable-line no-console
+const log = {
+  table: console.table,
+  trace: console.log,
+  error: console.error,
+  stat: console.log,
+  info: console.log,
+}; //eslint-disable-line no-console
 const errors = {
-  invalidFlag: 'Invalid Flag Error: Only use -u flag for uid or -e flag for email',
+  invalidFlag:
+    'Invalid Flag Error: Only use -u flag for uid or -e flag for email',
   invalidUid: 'Invalid UID Error: Pass a valid uid as an argument',
   invalidEmail: 'Invalid Email Error: Pass a valid email as an argument',
   missingFlagOrValue: 'Error: Pass the uid or email after -u or -e flag',
@@ -41,8 +48,8 @@ if (flag && validFlags.indexOf(flag) === -1) {
   process.exit();
 }
 
-const uid = (flag === '-u') ? value : false;
-const email = (flag === '-e') ? value : false;
+const uid = flag === '-u' ? value : false;
+const email = flag === '-e' ? value : false;
 
 const user = {};
 const securityEventsObject = {};
@@ -67,7 +74,7 @@ if (email) {
 }
 
 function readEvents() {
-  DB.connect(config).then(async db => {
+  DB.connect(config).then(async (db) => {
     try {
       if (email) {
         const uid = await readUidByEmail(db, email);
@@ -75,31 +82,31 @@ function readEvents() {
       }
 
       const devices = await readDevices(db);
-      securityEventsObject.devices = devices.map(device => {
+      securityEventsObject.devices = devices.map((device) => {
         return {
           uaBrowser: device.uaBrowser,
           uaBrowserVersion: device.uaBrowserVersion,
           lastAccessTime: device.lastAccessTime,
-          createdAt: device.createdAt
+          createdAt: device.createdAt,
         };
       });
 
       const sessions = await readSessionTokens(db);
-      securityEventsObject.sessions = sessions.map(session => {
+      securityEventsObject.sessions = sessions.map((session) => {
         return {
           uaBrowser: session.uaBrowser,
           uaBrowserVersion: session.uaBrowserVersion,
           lastAccessTime: session.lastAccessTime,
-          createdAt: session.createdAt
+          createdAt: session.createdAt,
         };
       });
 
       const events = await readSecurityEvents(db);
-      securityEventsObject.securityEvents = events.map(event => {
+      securityEventsObject.securityEvents = events.map((event) => {
         return {
           name: event.name,
           verified: event.verified,
-          createdAt: event.createdAt
+          createdAt: event.createdAt,
         };
       });
 

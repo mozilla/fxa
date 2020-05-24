@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function(config, i18n) {
+module.exports = function (config, i18n) {
   const redirectVersionedToUnversioned = require('./routes/redirect-versioned-to-unversioned');
 
   const routes = [

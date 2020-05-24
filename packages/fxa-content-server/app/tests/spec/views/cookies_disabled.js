@@ -11,17 +11,17 @@ import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 
-describe('views/cookies_disabled', function() {
+describe('views/cookies_disabled', function () {
   var view, windowMock, serverConfig;
 
   var origGetJSON = $.getJSON;
 
-  beforeEach(function() {
+  beforeEach(function () {
     // Going deep into the internals, which isn't great. Monkey patch
     // $.getJSON so that we do not have to actually make a request to
     // the backend and can control the return value.
 
-    $.getJSON = function() {
+    $.getJSON = function () {
       var deferred = $.Deferred();
       deferred.resolve(serverConfig);
       return deferred.promise();
@@ -32,26 +32,26 @@ describe('views/cookies_disabled', function() {
       Storage: Storage,
       window: windowMock,
     });
-    return view.render().then(function() {
+    return view.render().then(function () {
       $('#container').html(view.el);
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.remove();
     view.destroy();
 
     $.getJSON = origGetJSON;
   });
 
-  describe('constructor creates it', function() {
-    it('is drawn', function() {
+  describe('constructor creates it', function () {
+    it('is drawn', function () {
       assert.ok(view.$('#fxa-cookies-disabled-header').length);
     });
   });
 
-  describe('backIfLocalStorageEnabled', function() {
-    it('goes back in history if localStorage is enabled and there is a page to go back to', function() {
+  describe('backIfLocalStorageEnabled', function () {
+    it('goes back in history if localStorage is enabled and there is a page to go back to', function () {
       sinon.stub(view, 'back').callsFake(sinon.spy());
 
       view.backIfLocalStorageEnabled();
@@ -59,9 +59,9 @@ describe('views/cookies_disabled', function() {
       assert.equal(view.$('.error').text(), '');
     });
 
-    it('shows an error message if localStorage is still disabled', function() {
+    it('shows an error message if localStorage is still disabled', function () {
       var sandbox = sinon.sandbox.create();
-      sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(function() {
+      sandbox.stub(Storage, 'isLocalStorageEnabled').callsFake(function () {
         return false;
       });
       view.backIfLocalStorageEnabled();

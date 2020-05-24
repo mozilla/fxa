@@ -11,7 +11,7 @@ const Client = require('../client')();
 const otplib = require('otplib');
 const BASE_36 = require('../../lib/routes/validators').BASE_36;
 
-describe('remote recovery codes', function() {
+describe('remote recovery codes', function () {
   let server, client, email, recoveryCodes;
   const recoveryCodeCount = 9;
   const password = 'pssssst';
@@ -30,7 +30,7 @@ describe('remote recovery codes', function() {
   before(() => {
     config.totp.recoveryCodes.count = recoveryCodeCount;
     config.totp.recoveryCodes.notifyLowCount = recoveryCodeCount - 2;
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -42,10 +42,10 @@ describe('remote recovery codes', function() {
       email,
       password,
       server.mailbox
-    ).then(x => {
+    ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
-      return client.createTotpToken({ metricsContext }).then(result => {
+      return client.createTotpToken({ metricsContext }).then((result) => {
         otplib.authenticator.options = {
           secret: result.secret,
         };
@@ -60,12 +60,12 @@ describe('remote recovery codes', function() {
         const code = otplib.authenticator.generate();
         return client
           .verifyTotpCode(code, { metricsContext })
-          .then(response => {
+          .then((response) => {
             assert.equal(response.success, true, 'totp codes match');
 
             return server.mailbox.waitForEmail(email);
           })
-          .then(emailData => {
+          .then((emailData) => {
             assert.equal(
               emailData.headers['x-template-name'],
               'postAddTwoStepAuthentication'
@@ -82,7 +82,7 @@ describe('remote recovery codes', function() {
       recoveryCodeCount,
       'recovery codes returned'
     );
-    recoveryCodes.forEach(code => {
+    recoveryCodes.forEach((code) => {
       assert.equal(code.length > 1, true, 'correct length');
       assert.equal(BASE_36.test(code), true, 'code is hex');
     });
@@ -91,7 +91,7 @@ describe('remote recovery codes', function() {
   it('should replace recovery codes', () => {
     return client
       .replaceRecoveryCodes()
-      .then(result => {
+      .then((result) => {
         assert.ok(
           result.recoveryCodes.length,
           recoveryCodeCount,
@@ -105,7 +105,7 @@ describe('remote recovery codes', function() {
 
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(
           emailData.headers['x-template-name'],
           'postNewRecoveryCodes'
@@ -117,11 +117,11 @@ describe('remote recovery codes', function() {
     beforeEach(() => {
       // Create a new unverified session to test recovery codes
       return Client.login(config.publicUrl, email, password)
-        .then(response => {
+        .then((response) => {
           client = response;
           return client.emailStatus();
         })
-        .then(res =>
+        .then((res) =>
           assert.equal(res.sessionVerified, false, 'session not verified')
         );
     });
@@ -129,7 +129,7 @@ describe('remote recovery codes', function() {
     it('should fail to consume unknown recovery code', () => {
       return client
         .consumeRecoveryCode('1234abcd', { metricsContext })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(err.errno, 156, 'correct error errno');
         });
@@ -138,7 +138,7 @@ describe('remote recovery codes', function() {
     it('should consume recovery code and verify session', () => {
       return client
         .consumeRecoveryCode(recoveryCodes[0], { metricsContext })
-        .then(res => {
+        .then((res) => {
           assert.equal(
             res.remaining,
             recoveryCodeCount - 1,
@@ -146,11 +146,11 @@ describe('remote recovery codes', function() {
           );
           return client.emailStatus();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.sessionVerified, true, 'session verified');
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(
             emailData.headers['x-template-name'],
             'postConsumeRecoveryCode'
@@ -161,7 +161,7 @@ describe('remote recovery codes', function() {
     it('should consume recovery code and can remove TOTP token', () => {
       return client
         .consumeRecoveryCode(recoveryCodes[0], { metricsContext })
-        .then(res => {
+        .then((res) => {
           assert.equal(
             res.remaining,
             recoveryCodeCount - 1,
@@ -169,18 +169,18 @@ describe('remote recovery codes', function() {
           );
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(
             emailData.headers['x-template-name'],
             'postConsumeRecoveryCode'
           );
           return client.deleteTotpToken();
         })
-        .then(result => {
+        .then((result) => {
           assert.ok(result, 'delete totp token successfully');
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(
             emailData.headers['x-template-name'],
             'postRemoveTwoStepAuthentication'
@@ -193,11 +193,11 @@ describe('remote recovery codes', function() {
     beforeEach(() => {
       // Create a new unverified session to test recovery codes
       return Client.login(config.publicUrl, email, password)
-        .then(response => {
+        .then((response) => {
           client = response;
           return client.emailStatus();
         })
-        .then(res =>
+        .then((res) =>
           assert.equal(res.sessionVerified, false, 'session not verified')
         );
     });
@@ -205,7 +205,7 @@ describe('remote recovery codes', function() {
     it('should consume recovery code and verify session', () => {
       return client
         .consumeRecoveryCode(recoveryCodes[0], { metricsContext })
-        .then(res => {
+        .then((res) => {
           assert.equal(
             res.remaining,
             recoveryCodeCount - 1,
@@ -213,7 +213,7 @@ describe('remote recovery codes', function() {
           );
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(
             emailData.headers['x-template-name'],
             'postConsumeRecoveryCode'
@@ -222,7 +222,7 @@ describe('remote recovery codes', function() {
             metricsContext,
           });
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(
             res.remaining,
             recoveryCodeCount - 2,
@@ -230,7 +230,7 @@ describe('remote recovery codes', function() {
           );
           return server.mailbox.waitForEmail(email);
         })
-        .then(emails => {
+        .then((emails) => {
           // The order in which the emails are sent is not guaranteed, test for both possible templates
           const email1 = emails[0].headers['x-template-name'];
           const email2 = emails[1].headers['x-template-name'];

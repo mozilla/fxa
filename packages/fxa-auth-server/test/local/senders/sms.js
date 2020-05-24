@@ -66,20 +66,20 @@ describe('lib/senders/sms:', () => {
       })),
     };
     smsModule = proxyquire(`${ROOT_DIR}/lib/senders/sms`, {
-      'aws-sdk/clients/cloudwatch': function() {
+      'aws-sdk/clients/cloudwatch': function () {
         return cloudwatch;
       },
-      'aws-sdk/clients/sns': function() {
+      'aws-sdk/clients/sns': function () {
         return sns;
       },
-      '../../test/mock-sns': function() {
+      '../../test/mock-sns': function () {
         return mockSns;
       },
     });
     return P.all([
       require(`${ROOT_DIR}/lib/senders/translator`)(['en'], 'en'),
       require(`${ROOT_DIR}/lib/senders/templates`)(mocks.mockLog()),
-    ]).then(results => {
+    ]).then((results) => {
       translator = results[0];
       templates = results[1];
     });
@@ -111,7 +111,7 @@ describe('lib/senders/sms:', () => {
     });
 
     describe('wait a tick:', () => {
-      beforeEach(done => setImmediate(done));
+      beforeEach((done) => setImmediate(done));
 
       it('called sns.getSMSAttributes correctly', () => {
         assert.equal(sns.getSMSAttributes.callCount, 1);
@@ -177,7 +177,7 @@ describe('lib/senders/sms:', () => {
       });
 
       describe('wait a tick:', () => {
-        beforeEach(done => setImmediate(done));
+        beforeEach((done) => setImmediate(done));
 
         it('isBudgetOk returns false', () => {
           assert.strictEqual(sms.isBudgetOk(), false);
@@ -195,7 +195,7 @@ describe('lib/senders/sms:', () => {
       });
 
       describe('wait a tick:', () => {
-        beforeEach(done => setImmediate(done));
+        beforeEach((done) => setImmediate(done));
 
         it('isBudgetOk returns true', () => {
           assert.strictEqual(sms.isBudgetOk(), true);
@@ -220,7 +220,7 @@ describe('lib/senders/sms:', () => {
       });
 
       describe('wait a tick:', () => {
-        beforeEach(done => setImmediate(done));
+        beforeEach((done) => setImmediate(done));
 
         it('isBudgetOk returns true', () => {
           assert.strictEqual(sms.isBudgetOk(), true);
@@ -335,7 +335,7 @@ describe('lib/senders/sms:', () => {
             'en',
             Buffer.from('++//ff0=', 'base64')
           )
-          .catch(e => (error = e));
+          .catch((e) => (error = e));
       });
 
       it('failed correctly', () => {
@@ -374,7 +374,7 @@ describe('lib/senders/sms:', () => {
             'en',
             Buffer.from('++//ff0=', 'base64')
           )
-          .catch(e => (error = e));
+          .catch((e) => (error = e));
       });
 
       it('failed correctly', () => {
@@ -447,7 +447,7 @@ describe('lib/senders/sms:', () => {
     });
 
     describe('wait a tick:', () => {
-      beforeEach(done => setImmediate(done));
+      beforeEach((done) => setImmediate(done));
 
       it('isBudgetOk returns true', () => {
         assert.strictEqual(sms.isBudgetOk(), true);

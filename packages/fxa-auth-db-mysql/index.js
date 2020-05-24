@@ -8,8 +8,8 @@ var error = dbServer.errors;
 var logger = require('./lib/logging')('bin.server');
 var DB = require('./lib/db/mysql')(logger, error);
 
-module.exports = function() {
-  return DB.connect(config).then(function(db) {
+module.exports = function () {
+  return DB.connect(config).then(function (db) {
     const server = dbServer.createServer(db);
     server.on('close', () => db.close());
     return server;

@@ -14,7 +14,7 @@ describe('geodb', () => {
   it('returns location data when enabled', () => {
     const moduleMocks = {
       '../config': {
-        get: function(item) {
+        get: function (item) {
           if (item === 'geodb') {
             return {
               enabled: true,
@@ -44,7 +44,7 @@ describe('geodb', () => {
   it('returns empty object data when disabled', () => {
     const moduleMocks = {
       '../config': {
-        get: function(item) {
+        get: function (item) {
           if (item === 'geodb') {
             return {
               enabled: false,

@@ -31,20 +31,14 @@ module.exports = (log, db, config, customs, sms) => {
         },
         validate: {
           payload: {
-            phoneNumber: isA
-              .string()
-              .regex(validators.E164_NUMBER)
-              .required(),
-            messageId: isA
-              .number()
-              .positive()
-              .required(),
+            phoneNumber: isA.string().regex(validators.E164_NUMBER).required(),
+            messageId: isA.number().positive().required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
             features: FEATURES_SCHEMA,
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('sms.send', request);
         request.validateMetricsContext();
 
@@ -112,7 +106,7 @@ module.exports = (log, db, config, customs, sms) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('sms.status', request);
 
         let country;

@@ -102,9 +102,7 @@ export default {
 
   onShowPasswordMouseUp(event) {
     // return focus to input
-    this.$(event.target)
-      .siblings('.password')
-      .focus();
+    this.$(event.target).siblings('.password').focus();
   },
 
   togglePasswordVisibility($el) {

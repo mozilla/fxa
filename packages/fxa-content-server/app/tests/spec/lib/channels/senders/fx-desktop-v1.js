@@ -12,8 +12,8 @@ var sender;
 
 var assert = chai.assert;
 
-describe('lib/channels/senders/fx-desktop-v1', function() {
-  beforeEach(function() {
+describe('lib/channels/senders/fx-desktop-v1', function () {
+  beforeEach(function () {
     windowMock = new WindowMock();
     sender = new FxDesktopV1Sender();
     sender.initialize({
@@ -21,17 +21,17 @@ describe('lib/channels/senders/fx-desktop-v1', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sender.teardown();
   });
 
-  describe('send', function() {
-    it('dispatches a CustomEvent to the window', function() {
+  describe('send', function () {
+    it('dispatches a CustomEvent to the window', function () {
       sinon.spy(windowMock, 'dispatchEvent');
       sinon.spy(windowMock, 'CustomEvent');
 
       var messageId = Date.now();
-      return sender.send('ping', { key: 'value' }, messageId).then(function() {
+      return sender.send('ping', { key: 'value' }, messageId).then(function () {
         assert.isTrue(windowMock.dispatchEvent.called);
 
         var eventType = windowMock.CustomEvent.args[0][0];

@@ -14,12 +14,14 @@ module.exports = function createClient(cfg) {
   const client = clients.createJsonClient(cfg);
 
   // create a thenable version of each operation
-  ops.forEach(function(name) {
-    client[name + 'Then'] = function() {
+  ops.forEach(function (name) {
+    client[name + 'Then'] = function () {
       var p = P.defer();
       var args = Array.prototype.slice.call(arguments, 0);
-      args.push(function(err, req, res, obj) {
-        if (err) {return p.reject(err);}
+      args.push(function (err, req, res, obj) {
+        if (err) {
+          return p.reject(err);
+        }
         p.resolve({ req: req, res: res, obj: obj });
       });
       client[name].apply(this, args);

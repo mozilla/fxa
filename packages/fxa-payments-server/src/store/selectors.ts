@@ -16,7 +16,7 @@ export const selectors = {
 
   plansByProductId: (state: State) => (productId: string): Array<Plan> => {
     const fetchedPlans = selectors.plans(state).result || [];
-    return fetchedPlans.filter(plan => plan.product_id === productId);
+    return fetchedPlans.filter((plan) => plan.product_id === productId);
   },
 
   customerSubscriptions: (state: State) => {

@@ -12,7 +12,7 @@
 // They compiled templates are placed in the server's compiled template directory to await further processing
 // (minification, revving).
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   var path = require('path');
   const versionInfo = require('../server/lib/version');
   var Handlebars = require('handlebars');
@@ -43,7 +43,7 @@ module.exports = function(grunt) {
   };
 
   // Make the 'gettext' function available in the templates.
-  Handlebars.registerHelper('t', function(string) {
+  Handlebars.registerHelper('t', function (string) {
     if (string.fn) {
       return this.l10n.format(this.l10n.gettext(string.fn(this)), this);
     } else {
@@ -60,7 +60,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'l10n-compile-templates',
     'Generate localized versions of the static pages',
-    function() {
+    function () {
       var done = this.async();
 
       var i18n = require('../server/lib/i18n')(grunt.config.get('server.i18n'));
@@ -80,11 +80,11 @@ module.exports = function(grunt) {
 
       // Create a cache of the templates so we can reference them synchronously later
       Promise.settle(
-        legalTemplateLanguages.map(function(lang) {
+        legalTemplateLanguages.map(function (lang) {
           return Promise.all([
             getTemplate('terms', lang, defaultLegalLang),
             getTemplate('privacy', lang, defaultLegalLang),
-          ]).then(function(temps) {
+          ]).then(function (temps) {
             legalTemplates[lang] = {
               privacy: temps[1],
               terms: temps[0],
@@ -92,8 +92,8 @@ module.exports = function(grunt) {
           });
         })
       )
-        .then(function() {
-          supportedLanguages.forEach(function(lang) {
+        .then(function () {
+          supportedLanguages.forEach(function (lang) {
             generatePagesForLanguage(i18n, lang, {
               versionInfo: versionInfo,
             });
@@ -119,7 +119,7 @@ module.exports = function(grunt) {
       },
       ['**/*.html', '!style-guide.html', '!mocha.html']
     );
-    templates.forEach(function(fileName) {
+    templates.forEach(function (fileName) {
       var srcPath = path.join(templateSrc, fileName);
       var destPath = path.join(destRoot, fileName);
       generatePage(srcPath, destPath, context, options);
@@ -130,7 +130,7 @@ module.exports = function(grunt) {
     grunt.verbose.writeln('generating `%s`', destPath);
 
     grunt.file.copy(srcPath, destPath, {
-      process: function(contents) {
+      process: function (contents) {
         var terms =
           legalTemplates[context.lang].terms ||
           legalTemplates[defaultLegalLang].terms;
@@ -152,10 +152,10 @@ module.exports = function(grunt) {
         };
         // Propagate any tags that are required for data
         // to be rendered dynamically by the server.
-        PROPAGATED_ESCAPED_TEMPLATE_FIELDS.forEach(function(field) {
+        PROPAGATED_ESCAPED_TEMPLATE_FIELDS.forEach(function (field) {
           data[field] = '{{' + field + '}}';
         });
-        PROPAGATED_UNSAFE_TEMPLATE_FIELDS.forEach(function(field) {
+        PROPAGATED_UNSAFE_TEMPLATE_FIELDS.forEach(function (field) {
           data[field] = '{{{' + field + '}}}';
         });
         return template(data);

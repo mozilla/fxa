@@ -25,13 +25,13 @@ function createJwkForHexKey(hexKey, kid) {
 describe('lib/crypto/a256gcm', () => {
   describe('createJwkFromKey', () => {
     it('throws if no key', () => {
-      return a256gcm.createJwkFromKey().then(assert.fail, err => {
+      return a256gcm.createJwkFromKey().then(assert.fail, (err) => {
         assert.equal(err.message, 'key is required');
       });
     });
 
     it('should create jwk', () => {
-      return createJwkForHexKey(hexKey, kid).then(jwk => {
+      return createJwkForHexKey(hexKey, kid).then((jwk) => {
         assert.ok(jwk, 'jwk returned');
         assert.equal(jwk.alg, 'A256GCM', 'correct algorithm');
         assert.equal(jwk.kty, 'oct', 'correct kty');
@@ -44,17 +44,17 @@ describe('lib/crypto/a256gcm', () => {
   describe('encrypt', () => {
     let jwk;
     before(() => {
-      return createJwkForHexKey(hexKey).then(result => (jwk = result));
+      return createJwkForHexKey(hexKey).then((result) => (jwk = result));
     });
 
     it('throws if no plaintext', () => {
-      return a256gcm.encrypt(undefined, jwk).then(assert.fail, err => {
+      return a256gcm.encrypt(undefined, jwk).then(assert.fail, (err) => {
         assert.equal(err.message, 'plaintext is required');
       });
     });
 
     it('throws if no keysJwk', () => {
-      return a256gcm.encrypt(plaintext).then(assert.fail, err => {
+      return a256gcm.encrypt(plaintext).then(assert.fail, (err) => {
         assert.equal(err.message, 'keysJwk is required');
       });
     });
@@ -62,7 +62,7 @@ describe('lib/crypto/a256gcm', () => {
     it('should encrypt', () => {
       return a256gcm
         .encrypt(plaintext, jwk, encryptionOptions)
-        .then(ciphertext => {
+        .then((ciphertext) => {
           assert.ok(ciphertext, 'ciphertext exists');
         });
     });
@@ -74,27 +74,27 @@ describe('lib/crypto/a256gcm', () => {
 
     before(() => {
       return createJwkForHexKey(hexKey)
-        .then(result => {
+        .then((result) => {
           jwk = result;
           return a256gcm.encrypt(plaintext, jwk, encryptionOptions);
         })
-        .then(result => (ciphertext = result));
+        .then((result) => (ciphertext = result));
     });
 
     it('throws if no keysJwk', () => {
-      return a256gcm.decrypt(ciphertext, undefined).then(assert.fail, err => {
+      return a256gcm.decrypt(ciphertext, undefined).then(assert.fail, (err) => {
         assert.equal(err.message, 'keysJwk is required');
       });
     });
 
     it('throws if no ciphertext', () => {
-      return a256gcm.decrypt(undefined, jwk).then(assert.fail, err => {
+      return a256gcm.decrypt(undefined, jwk).then(assert.fail, (err) => {
         assert.equal(err.message, 'ciphertext is required');
       });
     });
 
     it('should decrypt data', () => {
-      return a256gcm.decrypt(ciphertext, jwk).then(result => {
+      return a256gcm.decrypt(ciphertext, jwk).then((result) => {
         assert.equal(
           result,
           plaintext,
@@ -105,10 +105,10 @@ describe('lib/crypto/a256gcm', () => {
 
     it('should fail to unbundle with incorrect recovery key', () => {
       return createJwkForHexKey(incorrectHexKey)
-        .then(incorrectJwk => {
+        .then((incorrectJwk) => {
           return a256gcm.decrypt(ciphertext, incorrectJwk);
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           // Blink and WebKit do not provide the same decrypt error, it reports an empty string
           const isWebkit =
             UAParser(navigator.userAgent).engine.name === 'WebKit';

@@ -25,7 +25,10 @@ const DEFAULT_DATA_TYPE = 'json';
 // https://github.com/kriskowal/q/wiki/Coming-from-jQuery
 function convertJQueryPromise(jqPromise) {
   return new Promise((resolve, reject) => {
-    jqPromise.then(data => resolve(data), jqXHR => reject(jqXHR));
+    jqPromise.then(
+      (data) => resolve(data),
+      (jqXHR) => reject(jqXHR)
+    );
   });
 }
 

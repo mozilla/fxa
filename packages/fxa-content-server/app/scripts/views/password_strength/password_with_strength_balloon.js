@@ -43,7 +43,7 @@ const PasswordWithStrengthBalloonView = FormView.extend({
     const delayBeforeUpdateModelMS =
       options.delayBeforeUpdateModelMS || DELAY_BEFORE_UPDATE_MODEL_MS;
     this.updateModelAfterDelay = debounce(
-      event => this.updateModel(event.type),
+      (event) => this.updateModel(event.type),
       delayBeforeUpdateModelMS
     );
   },

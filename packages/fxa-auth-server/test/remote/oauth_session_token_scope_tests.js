@@ -20,7 +20,7 @@ const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
 const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
-describe('/oauth/ session token scope', function() {
+describe('/oauth/ session token scope', function () {
   this.timeout(15000);
   let client;
   let email;

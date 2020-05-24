@@ -301,7 +301,7 @@ describe('createBackendServiceAPI', () => {
     }
 
     mockService
-      .get('/test_get_with_headers', body => true)
+      .get('/test_get_with_headers', (body) => true)
       .reply(200, {
         status: 200,
         message: 'ok',
@@ -313,7 +313,7 @@ describe('createBackendServiceAPI', () => {
   it('validates response body', async () => {
     let requestBody;
     mockService
-      .post('/test_post/abc', body => {
+      .post('/test_post/abc', (body) => {
         requestBody = body;
         return true;
       })
@@ -365,7 +365,7 @@ describe('createBackendServiceAPI', () => {
   it('strips unknown keys from response body', async () => {
     let requestBody;
     mockService
-      .post('/test_post/abc', body => {
+      .post('/test_post/abc', (body) => {
         requestBody = body;
         return true;
       })
@@ -391,7 +391,7 @@ describe('createBackendServiceAPI', () => {
 
   it('re-throws 400-level errors returned by the service', async () => {
     mockService
-      .post('/test_post/abc', body => true)
+      .post('/test_post/abc', (body) => true)
       .reply(400, {
         message: 'invalid frobble',
       });
@@ -406,7 +406,7 @@ describe('createBackendServiceAPI', () => {
 
   it('logs 500-level errors and returns backendServiceFailure', async () => {
     mockService
-      .post('/test_post/abc', body => true)
+      .post('/test_post/abc', (body) => true)
       .reply(500, {
         message: 'invalid frobble',
       });
@@ -431,7 +431,9 @@ describe('createBackendServiceAPI', () => {
   });
 
   it('logs connection errors and returns backendServiceFailure', async () => {
-    mockService.post('/test_post/abc', body => true).replyWithError('ruh-roh!');
+    mockService
+      .post('/test_post/abc', (body) => true)
+      .replyWithError('ruh-roh!');
     try {
       await api.testPostWithValidation('abc', {}, { foo: 'bar' });
       assert.fail('should have thrown');

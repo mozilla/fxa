@@ -29,7 +29,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('oauth signup', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     bouncedEmail = createEmail();
 
@@ -45,7 +45,7 @@ registerSuite('oauth signup', {
   },
 
   tests: {
-    signup: function() {
+    signup: function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email'))
@@ -66,14 +66,14 @@ registerSuite('oauth signup', {
       );
     },
 
-    'signup, bounce email, allow user to restart flow but force a different email': function() {
+    'signup, bounce email, allow user to restart flow but force a different email': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email'))
           .then(fillOutEmailFirstSignUp(bouncedEmail, PASSWORD))
 
           .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-          .then(function() {
+          .then(function () {
             return getFxaClient().accountDestroy(bouncedEmail, PASSWORD);
           })
 
@@ -90,7 +90,7 @@ registerSuite('oauth signup', {
       );
     },
 
-    'a success screen is available': function() {
+    'a success screen is available': function () {
       return this.remote.then(
         openPage(SUCCESS_URL, '#fxa-oauth-success-header')
       );

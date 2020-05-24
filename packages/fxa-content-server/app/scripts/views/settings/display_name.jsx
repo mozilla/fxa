@@ -15,7 +15,7 @@ const translator = new Translator();
 /* Using local translator instead of view's translator
  * because View does not have access to React components. */
 
-const t = msg => translator.get(msg);
+const t = (msg) => translator.get(msg);
 
 function DisplayName(props) {
   return (
@@ -75,74 +75,74 @@ export class DisplayNameFormComponent extends React.Component {
     };
   }
 
-    handleChange = event => {
-      this.setState(
-        {
-          displayName: event.target.value,
-        },
-        () => {
-          /* isValid(): function that set the state for disableChangeButton.
-           * Whenever the value in the input box changes, the function is called
-           * to check whether the change button should be disabled or not. */
+  handleChange = (event) => {
+    this.setState(
+      {
+        displayName: event.target.value,
+      },
+      () => {
+        /* isValid(): function that set the state for disableChangeButton.
+         * Whenever the value in the input box changes, the function is called
+         * to check whether the change button should be disabled or not. */
 
-          this.isValid();
-        }
-      );
-    };
+        this.isValid();
+      }
+    );
+  };
 
-    componentDidUpdate () {
-      this._input.focus();
-    }
+  componentDidUpdate() {
+    this._input.focus();
+  }
 
-    isValid() {
-      const propsDisplayName = this.props.displayName || '';
-      this.setState({
-        disableChangeButton: propsDisplayName === this.state.displayName,
-      });
-    }
+  isValid() {
+    const propsDisplayName = this.props.displayName || '';
+    this.setState({
+      disableChangeButton: propsDisplayName === this.state.displayName,
+    });
+  }
 
-    handleSubmit = event => {
-      event.preventDefault();
-      this.setState({ disableChangeButton: 1 }, () => {
-        this.props.submit(this.state.displayName);
-      });
-    };
+  handleSubmit = (event) => {
+    event.preventDefault();
+    this.setState({ disableChangeButton: 1 }, () => {
+      this.props.submit(this.state.displayName);
+    });
+  };
 
-    render() {
-      return (
-        <form noValidate onSubmit={this.handleSubmit}>
-          <p>
-            {t(
-              'Choose the name you would like to appear in Firefox and when managing your account.'
-            )}
-          </p>
-          <div className="input-row">
-            <input
-              type="text"
-              className="text display-name"
-              placeholder={t('Display name')}
-              value={this.state.displayName}
-              onChange={this.handleChange}
-              ref={input => (this._input = input)}
-              autoComplete="off"
-            />
-          </div>
-          <div className="button-row">
-            <button
-              type="submit"
-              id="submit_display"
-              className="settings-button primary-button"
-              disabled={this.state.disableChangeButton}
-            >
-              {t('Change')}
-            </button>
-            <button className="settings-button secondary-button cancel">
-              {t('Cancel')}
-            </button>
-          </div>
-        </form>
-      );
-    }
+  render() {
+    return (
+      <form noValidate onSubmit={this.handleSubmit}>
+        <p>
+          {t(
+            'Choose the name you would like to appear in Firefox and when managing your account.'
+          )}
+        </p>
+        <div className="input-row">
+          <input
+            type="text"
+            className="text display-name"
+            placeholder={t('Display name')}
+            value={this.state.displayName}
+            onChange={this.handleChange}
+            ref={(input) => (this._input = input)}
+            autoComplete="off"
+          />
+        </div>
+        <div className="button-row">
+          <button
+            type="submit"
+            id="submit_display"
+            className="settings-button primary-button"
+            disabled={this.state.disableChangeButton}
+          >
+            {t('Change')}
+          </button>
+          <button className="settings-button secondary-button cancel">
+            {t('Cancel')}
+          </button>
+        </div>
+      </form>
+    );
+  }
 }
 
 /* BaseView template is used to satisfy the expectations of container view.
@@ -161,7 +161,7 @@ const View = BaseView.extend({
     this.render();
   },
 
-  openPanel () {
+  openPanel() {
     // force a re-render so that the input element is focused.
     return this.render();
   },
@@ -174,9 +174,7 @@ const View = BaseView.extend({
       this.logViewEvent('success');
       this.updateDisplayName(displayName);
       this.displaySuccess(t('Display name updated'));
-      this.logFlowEvent(
-        `timing.displayName.change.${Date.now() - start}`
-      );
+      this.logFlowEvent(`timing.displayName.change.${Date.now() - start}`);
       this.navigate('settings');
     });
   },
@@ -188,7 +186,7 @@ const View = BaseView.extend({
         ReactDOM.render(
           <DisplayName
             account={account}
-            submit={displayName => this.submit(displayName)}
+            submit={(displayName) => this.submit(displayName)}
             displayName={account.get('displayName')}
           />,
           this.$el.get(0)

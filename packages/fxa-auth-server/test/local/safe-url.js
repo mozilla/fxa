@@ -130,7 +130,7 @@ describe('require:', () => {
       });
     });
 
-    SOME_DISALLOWED_GRAPHEMES.forEach(grapheme => {
+    SOME_DISALLOWED_GRAPHEMES.forEach((grapheme) => {
       it(`logs an error and throws when param contains ${grapheme}`, () => {
         assert.throws(() => safeUrl.render({ bar: `wibble${grapheme}` }));
         assert.equal(log.error.callCount, 1);

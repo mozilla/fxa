@@ -25,7 +25,7 @@ function hexString(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
 }
 
-const makeRoutes = function(options = {}, requireMocks) {
+const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
@@ -172,7 +172,7 @@ describe('/account/reset', () => {
     beforeEach(() => {
       mockRequest.payload.wrapKb = hexString(32);
       mockRequest.payload.recoveryKeyId = hexString(16);
-      return runTest(route, mockRequest, result => (res = result));
+      return runTest(route, mockRequest, (result) => (res = result));
     });
 
     it('should return response', () => {
@@ -324,7 +324,7 @@ describe('/account/reset', () => {
           enabled: true,
         });
       });
-      return runTest(route, mockRequest, result => (res = result));
+      return runTest(route, mockRequest, (result) => (res = result));
     });
 
     it('should return response', () => {
@@ -370,7 +370,7 @@ describe('/account/reset', () => {
   });
 
   it('should reset account', () => {
-    return runTest(route, mockRequest, res => {
+    return runTest(route, mockRequest, (res) => {
       assert.equal(mockDB.resetAccount.callCount, 1);
       assert.equal(mockDB.resetAccountTokens.callCount, 1);
 
@@ -561,12 +561,12 @@ describe('/account/create', () => {
       db: mockDB,
       log: mockLog,
       mailer: mockMailer,
-      Password: function() {
+      Password: function () {
         return {
-          unwrap: function() {
+          unwrap: function () {
             return P.resolve('wibble');
           },
-          verifyHash: function() {
+          verifyHash: function () {
             return P.resolve('wibble');
           },
         };
@@ -956,7 +956,7 @@ describe('/account/create', () => {
 
         mockRequest.payload.verificationMethod = 'email-otp';
 
-        await runTest(route, mockRequest, res => {
+        await runTest(route, mockRequest, (res) => {
           assert.calledOnce(mockMailer.sendVerifyShortCodeEmail);
 
           const authenticator = new otplib.authenticator.Authenticator();
@@ -988,7 +988,7 @@ describe('/account/create', () => {
 
     mockMailer.sendVerifyEmail = sinon.spy(() => P.reject());
 
-    return runTest(route, mockRequest).then(assert.fail, err => {
+    return runTest(route, mockRequest).then(assert.fail, (err) => {
       assert.equal(err.message, 'Failed to send email');
       assert.equal(err.output.payload.code, 422);
       assert.equal(err.output.payload.errno, 151);
@@ -1005,7 +1005,7 @@ describe('/account/create', () => {
       P.reject(error.emailBouncedHard(42))
     );
 
-    return runTest(route, mockRequest).then(assert.fail, err => {
+    return runTest(route, mockRequest).then(assert.fail, (err) => {
       assert.equal(err.message, 'Email account hard bounced');
       assert.equal(err.output.payload.code, 400);
       assert.equal(err.output.payload.errno, 134);
@@ -1150,7 +1150,7 @@ describe('/account/login', () => {
     flag: () => P.resolve(),
   };
   const accountRoutes = makeRoutes({
-    checkPassword: function() {
+    checkPassword: function () {
       return P.resolve(true);
     },
     config: config,
@@ -1192,7 +1192,7 @@ describe('/account/login', () => {
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockDB.accountRecord.callCount,
         1,
@@ -1474,7 +1474,7 @@ describe('/account/login', () => {
   describe('sign-in unverified account', () => {
     it('sends email code', () => {
       const emailCode = hexString(16);
-      mockDB.accountRecord = function() {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
@@ -1488,7 +1488,7 @@ describe('/account/login', () => {
             isPrimary: true,
           },
           kA: hexString(32),
-          lastAuthAt: function() {
+          lastAuthAt: function () {
             return Date.now();
           },
           uid: uid,
@@ -1496,7 +1496,7 @@ describe('/account/login', () => {
         });
       };
 
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockMailer.sendVerifyEmail.callCount,
           1,
@@ -1554,7 +1554,7 @@ describe('/account/login', () => {
     before(() => {
       config.signinConfirmation.forcedEmailAddresses = /.+@mozilla\.com$/;
 
-      mockDB.accountRecord = function() {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
@@ -1567,7 +1567,7 @@ describe('/account/login', () => {
             isPrimary: true,
           },
           kA: hexString(32),
-          lastAuthAt: function() {
+          lastAuthAt: function () {
             return Date.now();
           },
           uid: uid,
@@ -1577,7 +1577,7 @@ describe('/account/login', () => {
     });
 
     it('is enabled by default', () => {
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockDB.createSessionToken.callCount,
           1,
@@ -1635,7 +1635,7 @@ describe('/account/login', () => {
 
     it('does not require verification when keys are not requested', () => {
       const email = 'test@mozilla.com';
-      mockDB.accountRecord = function() {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
@@ -1648,7 +1648,7 @@ describe('/account/login', () => {
             isPrimary: true,
           },
           kA: hexString(32),
-          lastAuthAt: function() {
+          lastAuthAt: function () {
             return Date.now();
           },
           uid: uid,
@@ -1656,7 +1656,7 @@ describe('/account/login', () => {
         });
       };
 
-      return runTest(route, mockRequestNoKeys, response => {
+      return runTest(route, mockRequestNoKeys, (response) => {
         assert.equal(
           mockDB.createSessionToken.callCount,
           1,
@@ -1706,7 +1706,7 @@ describe('/account/login', () => {
     it('unverified account gets account confirmation email', () => {
       const email = 'test@mozilla.com';
       mockRequest.payload.email = email;
-      mockDB.accountRecord = function() {
+      mockDB.accountRecord = function () {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
@@ -1719,7 +1719,7 @@ describe('/account/login', () => {
             isPrimary: true,
           },
           kA: hexString(32),
-          lastAuthAt: function() {
+          lastAuthAt: function () {
             return Date.now();
           },
           uid: uid,
@@ -1727,7 +1727,7 @@ describe('/account/login', () => {
         });
       };
 
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockDB.createSessionToken.callCount,
           1,
@@ -1773,7 +1773,7 @@ describe('/account/login', () => {
     it('should return an error if email fails to send', () => {
       mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.reject());
 
-      return runTest(route, mockRequest).then(assert.fail, err => {
+      return runTest(route, mockRequest).then(assert.fail, (err) => {
         assert.equal(err.message, 'Failed to send email');
         assert.equal(err.output.payload.code, 500);
         assert.equal(err.output.payload.errno, 151);
@@ -1790,7 +1790,7 @@ describe('/account/login', () => {
 
         const email = mockRequest.payload.email;
 
-        mockDB.accountRecord = function() {
+        mockDB.accountRecord = function () {
           return P.resolve({
             authSalt: hexString(32),
             createdAt: Date.now() - accountCreatedSince,
@@ -1804,7 +1804,7 @@ describe('/account/login', () => {
               isPrimary: true,
             },
             kA: hexString(32),
-            lastAuthAt: function() {
+            lastAuthAt: function () {
               return Date.now();
             },
             uid: uid,
@@ -1813,7 +1813,7 @@ describe('/account/login', () => {
         };
 
         const accountRoutes = makeRoutes({
-          checkPassword: function() {
+          checkPassword: function () {
             return P.resolve(true);
           },
           config: config,
@@ -1830,7 +1830,7 @@ describe('/account/login', () => {
       it('is disabled', () => {
         setup(false);
 
-        return runTest(route, mockRequest, response => {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.createSessionToken.callCount,
             1,
@@ -1889,7 +1889,7 @@ describe('/account/login', () => {
       it('skip sign-in confirmation on recently created account', () => {
         setup(true, 0);
 
-        return runTest(route, mockRequest, response => {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.createSessionToken.callCount,
             1,
@@ -1921,7 +1921,7 @@ describe('/account/login', () => {
           P.reject(error.emailBouncedHard())
         );
 
-        return runTest(route, mockRequest, response => {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.createSessionToken.callCount,
             1,
@@ -1966,7 +1966,7 @@ describe('/account/login', () => {
       it("don't skip sign-in confirmation on older account", () => {
         setup(true, 10);
 
-        return runTest(route, mockRequest, response => {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.createSessionToken.callCount,
             1,
@@ -2037,7 +2037,7 @@ describe('/account/login', () => {
       it('should not skip sign-in confirmation for specified email', () => {
         setup('not@skip.com');
 
-        return runTest(route, mockRequest, response => {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.createSessionToken.callCount,
             1,
@@ -2064,7 +2064,7 @@ describe('/account/login', () => {
       it('should skip sign-in confirmation for specified email', () => {
         setup('skip@confirmation.com');
 
-        return runTest(route, mockRequest, response => {
+        return runTest(route, mockRequest, (response) => {
           assert.equal(
             mockDB.createSessionToken.callCount,
             1,
@@ -2127,7 +2127,7 @@ describe('/account/login', () => {
     it('with a seen ip address', () => {
       record = undefined;
       let securityQuery;
-      mockDB.securityEvents = sinon.spy(arg => {
+      mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return P.resolve([
           {
@@ -2137,7 +2137,7 @@ describe('/account/login', () => {
           },
         ]);
       });
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockDB.securityEvents.callCount,
           1,
@@ -2157,7 +2157,7 @@ describe('/account/login', () => {
     it('with a seen, unverified ip address', () => {
       record = undefined;
       let securityQuery;
-      mockDB.securityEvents = sinon.spy(arg => {
+      mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return P.resolve([
           {
@@ -2167,7 +2167,7 @@ describe('/account/login', () => {
           },
         ]);
       });
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockDB.securityEvents.callCount,
           1,
@@ -2187,11 +2187,11 @@ describe('/account/login', () => {
       record = undefined;
 
       let securityQuery;
-      mockDB.securityEvents = sinon.spy(arg => {
+      mockDB.securityEvents = sinon.spy((arg) => {
         securityQuery = arg;
         return P.resolve([]);
       });
-      return runTest(route, mockRequest, response => {
+      return runTest(route, mockRequest, (response) => {
         assert.equal(
           mockDB.securityEvents.callCount,
           1,
@@ -2212,11 +2212,11 @@ describe('/account/login', () => {
   it('records security event', () => {
     const clientAddress = mockRequest.app.clientAddress;
     let securityQuery;
-    mockDB.securityEvent = sinon.spy(arg => {
+    mockDB.securityEvent = sinon.spy((arg) => {
       securityQuery = arg;
       return P.resolve();
     });
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockDB.securityEvent.callCount,
         1,
@@ -2253,7 +2253,7 @@ describe('/account/login', () => {
         it('without unblock code', () => {
           return runTest(route, mockRequest).then(
             () => assert.ok(false),
-            err => {
+            (err) => {
               assert.equal(
                 err.errno,
                 error.ERRNO.REQUEST_BLOCKED,
@@ -2290,7 +2290,7 @@ describe('/account/login', () => {
               P.reject(error.invalidUnblockCode());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert.ok(false),
-              err => {
+              (err) => {
                 assert.equal(
                   err.errno,
                   error.ERRNO.INVALID_UNBLOCK_CODE,
@@ -2326,7 +2326,7 @@ describe('/account/login', () => {
               });
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert.ok(false),
-              err => {
+              (err) => {
                 assert.equal(
                   err.errno,
                   error.ERRNO.INVALID_UNBLOCK_CODE,
@@ -2360,7 +2360,7 @@ describe('/account/login', () => {
             mockDB.emailRecord = () => P.reject(new error.unknownAccount());
             return runTest(route, mockRequestWithUnblockCode).then(
               () => assert(false),
-              err => {
+              (err) => {
                 assert.equal(err.errno, error.ERRNO.REQUEST_BLOCKED);
                 assert.equal(err.output.statusCode, 400);
               }
@@ -2370,7 +2370,7 @@ describe('/account/login', () => {
           it('valid code', () => {
             mockDB.consumeUnblockCode = () =>
               P.resolve({ createdAt: Date.now() });
-            return runTest(route, mockRequestWithUnblockCode, res => {
+            return runTest(route, mockRequestWithUnblockCode, (res) => {
               assert.equal(mockLog.flowEvent.callCount, 4);
               assert.equal(
                 mockLog.flowEvent.args[0][0].event,
@@ -2411,7 +2411,7 @@ describe('/account/login', () => {
       it('without an unblock code', () => {
         return runTest(route, mockRequest).then(
           () => assert.ok(false),
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               error.ERRNO.REQUEST_BLOCKED,
@@ -2439,7 +2439,7 @@ describe('/account/login', () => {
       it('with unblock code', () => {
         return runTest(route, mockRequestWithUnblockCode).then(
           () => assert.ok(false),
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               error.ERRNO.REQUEST_BLOCKED,
@@ -2480,7 +2480,7 @@ describe('/account/login', () => {
     });
     return runTest(route, mockRequest).then(
       () => assert.ok(false),
-      err => {
+      (err) => {
         assert.equal(
           mockDB.accountRecord.callCount,
           1,
@@ -2501,7 +2501,7 @@ describe('/account/login', () => {
     mockRequest.payload.verificationMethod = 'totp-2fa';
     return runTest(route, mockRequest).then(
       () => assert.ok(false),
-      err => {
+      (err) => {
         assert.equal(mockDB.totpToken.callCount, 1, 'db.totpToken was called');
         assert.equal(err.errno, 160, 'correct errno called');
       }
@@ -2559,7 +2559,7 @@ describe('/account/keys', () => {
   const route = getRoute(accountRoutes, '/account/keys');
 
   it('verified token', () => {
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.deepEqual(
         response,
         { bundle: mockRequest.auth.credentials.keyBundle },
@@ -2614,7 +2614,7 @@ describe('/account/keys', () => {
     return runTest(route, mockRequest)
       .then(
         () => assert.ok(false),
-        response => {
+        (response) => {
           assert.equal(
             response.errno,
             104,
@@ -2647,7 +2647,9 @@ describe('/account/destroy', () => {
   beforeEach(async () => {
     mockDB = {
       ...mocks.mockDB({ email: email, uid: uid }),
-      fetchAccountSubscriptions: sinon.spy(async uid => expectedSubscriptions),
+      fetchAccountSubscriptions: sinon.spy(
+        async (uid) => expectedSubscriptions
+      ),
     };
     mockLog = mocks.mockLog();
     mockRequest = mocks.mockRequest({
@@ -2666,7 +2668,7 @@ describe('/account/destroy', () => {
 
   function buildRoute(subscriptionsEnabled = true) {
     const accountRoutes = makeRoutes({
-      checkPassword: function() {
+      checkPassword: function () {
         return P.resolve(true);
       },
       config: {
@@ -2808,7 +2810,7 @@ describe('/account', () => {
     ]);
     mockStripeHelper.customer = sinon.spy(async (uid, email) => mockCustomer);
     mockStripeHelper.subscriptionsToResponse = sinon.spy(
-      async subscriptions => mockSubscriptionsResponse
+      async (subscriptions) => mockSubscriptionsResponse
     );
   });
 
@@ -2826,7 +2828,7 @@ describe('/account', () => {
   }
 
   it('should return formatted Stripe subscriptions when subscriptions are enabled', () => {
-    return runTest(buildRoute(), request, result => {
+    return runTest(buildRoute(), request, (result) => {
       assert.deepEqual(mockStripeHelper.customer.args[0], [
         uid,
         email,
@@ -2848,7 +2850,7 @@ describe('/account', () => {
       throw error.unknownCustomer();
     });
 
-    return runTest(buildRoute(), request, result => {
+    return runTest(buildRoute(), request, (result) => {
       assert.deepEqual(result, {
         subscriptions: [],
       });
@@ -2875,7 +2877,7 @@ describe('/account', () => {
   });
 
   it('should not return stripe.customer result when subscriptions are disabled', () => {
-    return runTest(buildRoute(false), request, result => {
+    return runTest(buildRoute(false), request, (result) => {
       assert.deepEqual(result, {
         subscriptions: [],
       });

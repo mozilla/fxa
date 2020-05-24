@@ -13,7 +13,11 @@
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "typeRoots": ["../types", "../node_modules/@types", "../../../node_modules/@types"],
+    "typeRoots": [
+      "../types",
+      "../node_modules/@types",
+      "../../../node_modules/@types"
+    ],
     "types": ["jest", "mozlog"]
   },
   "include": ["."]

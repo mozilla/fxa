@@ -8,12 +8,12 @@ import sinon from 'sinon';
 import StartupStyles from 'head/startup-styles';
 import WindowMock from '../../mocks/window';
 
-describe('head/startup-styles', function() {
+describe('head/startup-styles', function () {
   var startupStyles;
   var windowMock;
   var environment;
 
-  beforeEach(function() {
+  beforeEach(function () {
     windowMock = new WindowMock();
     environment = new Environment(windowMock);
 
@@ -23,16 +23,16 @@ describe('head/startup-styles', function() {
     });
   });
 
-  describe('addJSStyle', function() {
-    it('adds `js`', function() {
+  describe('addJSStyle', function () {
+    it('adds `js`', function () {
       startupStyles.addJSStyle();
       assert.isTrue(/js/.test(startupStyles.getClassName()));
     });
   });
 
-  describe('addTouchEventStyles', function() {
-    it('adds `touch` if the UA supports touch events', function() {
-      sinon.stub(environment, 'hasTouchEvents').callsFake(function() {
+  describe('addTouchEventStyles', function () {
+    it('adds `touch` if the UA supports touch events', function () {
+      sinon.stub(environment, 'hasTouchEvents').callsFake(function () {
         return true;
       });
 
@@ -41,8 +41,8 @@ describe('head/startup-styles', function() {
       assert.isFalse(/no-touch/.test(startupStyles.getClassName()));
     });
 
-    it('adds `no-touch` if the UA does not support touch events', function() {
-      sinon.stub(environment, 'hasTouchEvents').callsFake(function() {
+    it('adds `no-touch` if the UA does not support touch events', function () {
+      sinon.stub(environment, 'hasTouchEvents').callsFake(function () {
         return false;
       });
 
@@ -51,9 +51,9 @@ describe('head/startup-styles', function() {
     });
   });
 
-  describe('addPasswordRevealerStyles', function() {
-    it('adds `reveal-pw` if the UA has its own password revealer', function() {
-      sinon.stub(environment, 'hasPasswordRevealer').callsFake(function() {
+  describe('addPasswordRevealerStyles', function () {
+    it('adds `reveal-pw` if the UA has its own password revealer', function () {
+      sinon.stub(environment, 'hasPasswordRevealer').callsFake(function () {
         return true;
       });
 
@@ -62,8 +62,8 @@ describe('head/startup-styles', function() {
       assert.isFalse(/no-reveal-pw/.test(startupStyles.getClassName()));
     });
 
-    it('adds `no-reveal-pw` if UA has no password revealer', function() {
-      sinon.stub(environment, 'hasPasswordRevealer').callsFake(function() {
+    it('adds `no-reveal-pw` if UA has no password revealer', function () {
+      sinon.stub(environment, 'hasPasswordRevealer').callsFake(function () {
         return false;
       });
 
@@ -72,10 +72,10 @@ describe('head/startup-styles', function() {
     });
   });
 
-  describe('addFxiOSSyncStyles', function() {
-    it('adds the `fx-ios-sync` style if service=sync and on Fx for iOS', function() {
+  describe('addFxiOSSyncStyles', function () {
+    it('adds the `fx-ios-sync` style if service=sync and on Fx for iOS', function () {
       windowMock.location.search = '?service=sync';
-      sinon.stub(environment, 'isFxiOS').callsFake(function() {
+      sinon.stub(environment, 'isFxiOS').callsFake(function () {
         return true;
       });
 
@@ -83,9 +83,9 @@ describe('head/startup-styles', function() {
       assert.isTrue(/fx-ios-sync/.test(startupStyles.getClassName()));
     });
 
-    it('does not add `fx-ios-sync` style if service!==sync', function() {
+    it('does not add `fx-ios-sync` style if service!==sync', function () {
       windowMock.location.search = '?service=not-sync';
-      sinon.stub(environment, 'isFxiOS').callsFake(function() {
+      sinon.stub(environment, 'isFxiOS').callsFake(function () {
         return true;
       });
 
@@ -93,9 +93,9 @@ describe('head/startup-styles', function() {
       assert.isFalse(/fx-ios-sync/.test(startupStyles.getClassName()));
     });
 
-    it('does not add `fx-ios-sync` style if service=sync and not on Fx for iOS', function() {
+    it('does not add `fx-ios-sync` style if service=sync and not on Fx for iOS', function () {
       windowMock.location.search = '?service=not-sync';
-      sinon.stub(environment, 'isFxiOS').callsFake(function() {
+      sinon.stub(environment, 'isFxiOS').callsFake(function () {
         return false;
       });
 
@@ -104,9 +104,9 @@ describe('head/startup-styles', function() {
     });
   });
 
-  describe('addGetUserMediaStyles', function() {
-    it('adds `getusermedia` if UA supports getUserMedia', function() {
-      sinon.stub(environment, 'hasGetUserMedia').callsFake(function() {
+  describe('addGetUserMediaStyles', function () {
+    it('adds `getusermedia` if UA supports getUserMedia', function () {
+      sinon.stub(environment, 'hasGetUserMedia').callsFake(function () {
         return true;
       });
 
@@ -115,8 +115,8 @@ describe('head/startup-styles', function() {
       assert.isFalse(/no-getusermedia/.test(startupStyles.getClassName()));
     });
 
-    it('adds `no-getusermedia` if UA does not support getUserMedia', function() {
-      sinon.stub(environment, 'hasGetUserMedia').callsFake(function() {
+    it('adds `no-getusermedia` if UA does not support getUserMedia', function () {
+      sinon.stub(environment, 'hasGetUserMedia').callsFake(function () {
         return false;
       });
 
@@ -125,8 +125,8 @@ describe('head/startup-styles', function() {
     });
   });
 
-  describe('initialize', function() {
-    it('runs all the tests', function() {
+  describe('initialize', function () {
+    it('runs all the tests', function () {
       startupStyles.initialize();
     });
   });

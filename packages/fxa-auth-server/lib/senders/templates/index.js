@@ -36,7 +36,7 @@ async function init(log) {
   handlebars.txt.registerHelper('or', orHelper);
 
   // helpers from https://gist.github.com/servel333/21e1eedbd70db5a7cfff327526c72bc5
-  const reduceOp = function(args, reducer) {
+  const reduceOp = function (args, reducer) {
     args = Array.from(args);
     args.pop(); // => options
     var first = args.shift();
@@ -98,7 +98,7 @@ async function init(log) {
 async function forEachTemplate(dir, action) {
   const files = await readDir(dir);
   return Promise.all(
-    files.map(async file => {
+    files.map(async (file) => {
       const parts = TEMPLATE_FILE.exec(file);
       if (parts) {
         const template = await readFile(path.join(dir, file), {

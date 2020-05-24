@@ -9,7 +9,7 @@ var user2;
 var user2Email;
 const Environment = require('../addons/environment');
 
-describe('emails', function() {
+describe('emails', function () {
   var accountHelper;
   var respond;
   var mail;
@@ -21,7 +21,7 @@ describe('emails', function() {
   var xhrOpen;
   var xhrSend;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -37,13 +37,13 @@ describe('emails', function() {
     xhrSend = sinon.spy(xhr.prototype, 'send');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     xhrOpen.restore();
     xhrSend.restore();
   });
 
   function recoveryEmailCreate(options = {}) {
-    return accountHelper.newVerifiedAccount().then(function(res) {
+    return accountHelper.newVerifiedAccount().then(function (res) {
       account = res;
       return respond(
         client.recoveryEmailCreate(
@@ -61,36 +61,36 @@ describe('emails', function() {
     assert.fail();
   }
 
-  it('#recoveryEmailCreate', function() {
-    return recoveryEmailCreate().then(function(res) {
+  it('#recoveryEmailCreate', function () {
+    return recoveryEmailCreate().then(function (res) {
       assert.ok(res);
     }, handleError);
   });
 
-  it('#recoveryEmails', function() {
+  it('#recoveryEmails', function () {
     return recoveryEmailCreate()
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         return respond(
           client.recoveryEmails(account.signIn.sessionToken),
           RequestMocks.recoveryEmailsUnverified
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 2, 'returned two emails');
         assert.equal(res[1].verified, false, 'returned not verified');
       }, handleError);
   });
 
-  it('#verifyCode', function() {
+  it('#verifyCode', function () {
     return recoveryEmailCreate()
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(mail.wait(user2, 1), RequestMocks.mailUnverifiedEmail);
       }, handleError)
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
         return respond(
@@ -100,7 +100,7 @@ describe('emails', function() {
           RequestMocks.verifyCode
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -108,16 +108,16 @@ describe('emails', function() {
           RequestMocks.recoveryEmailsVerified
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 2, 'returned one email');
         assert.equal(res[1].verified, true, 'returned not verified');
       }, handleError);
   });
 
-  it('#recoveryEmailDestroy', function() {
+  it('#recoveryEmailDestroy', function () {
     return recoveryEmailCreate()
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -125,7 +125,7 @@ describe('emails', function() {
           RequestMocks.recoveryEmailsUnverified
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 2, 'returned two email');
         assert.equal(res[1].verified, false, 'returned not verified');
@@ -135,7 +135,7 @@ describe('emails', function() {
           RequestMocks.recoveryEmailDestroy
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -143,20 +143,20 @@ describe('emails', function() {
           RequestMocks.recoveryEmails
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 1, 'returned one email');
       }, handleError);
   });
 
-  it('#recoveryEmailSetPrimaryEmail', function() {
+  it('#recoveryEmailSetPrimaryEmail', function () {
     return recoveryEmailCreate()
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(mail.wait(user2, 1), RequestMocks.mailUnverifiedEmail);
       }, handleError)
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
 
         return respond(
@@ -166,7 +166,7 @@ describe('emails', function() {
           RequestMocks.verifyCode
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -177,7 +177,7 @@ describe('emails', function() {
           RequestMocks.recoveryEmailSetPrimaryEmail
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -185,7 +185,7 @@ describe('emails', function() {
           RequestMocks.recoveryEmailsSetPrimaryVerified
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 2, 'returned two emails');
 
@@ -202,17 +202,17 @@ describe('emails', function() {
       }, handleError);
   });
 
-  it('#recoveryEmailSecondaryVerifyCode', function() {
+  it('#recoveryEmailSecondaryVerifyCode', function () {
     var code;
     return recoveryEmailCreate({
       verificationMethod: 'email-otp',
     })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(mail.wait(user2, 1), RequestMocks.mailUnverifiedEmail);
       }, handleError)
-      .then(function(emails) {
+      .then(function (emails) {
         code = emails[0].headers['x-verify-code'];
 
         return respond(
@@ -225,7 +225,7 @@ describe('emails', function() {
           RequestMocks.verifyCode
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         assert.equal(xhrOpen.args[6][0], 'POST', 'method is correct');
@@ -243,23 +243,23 @@ describe('emails', function() {
           RequestMocks.recoveryEmailsVerified
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 2, 'returned one email');
         assert.equal(res[1].verified, true, 'returned verified');
       }, handleError);
   });
 
-  it('#recoveryEmailSecondaryResendCode', function() {
+  it('#recoveryEmailSecondaryResendCode', function () {
     var code;
     return recoveryEmailCreate({
       verificationMethod: 'email-otp',
     })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         return respond(mail.wait(user2, 1), RequestMocks.mailUnverifiedEmail);
       }, handleError)
-      .then(function() {
+      .then(function () {
         return respond(
           client.recoveryEmailSecondaryResendCode(
             account.signIn.sessionToken,
@@ -268,7 +268,7 @@ describe('emails', function() {
           RequestMocks.verifyCode
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         assert.equal(xhrOpen.args[6][0], 'POST', 'method is correct');
@@ -286,7 +286,7 @@ describe('emails', function() {
           RequestMocks.mailUnverifiedEmailResend
         );
       }, handleError)
-      .then(function(emails) {
+      .then(function (emails) {
         code = emails[1].headers['x-verify-code'];
 
         return respond(
@@ -299,7 +299,7 @@ describe('emails', function() {
           RequestMocks.verifyCode
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -307,7 +307,7 @@ describe('emails', function() {
           RequestMocks.recoveryEmailsVerified
         );
       }, handleError)
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
         assert.equal(res.length, 2, 'returned one email');
         assert.equal(res[1].verified, true, 'returned verified');

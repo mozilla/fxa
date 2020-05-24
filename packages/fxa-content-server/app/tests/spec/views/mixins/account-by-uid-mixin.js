@@ -18,14 +18,14 @@ const UID = TestHelpers.createUid();
 const View = BaseView.extend({});
 Cocktail.mixin(View, AccountByUidMixin);
 
-describe('views/mixins/account-by-uid-mixin', function() {
+describe('views/mixins/account-by-uid-mixin', function () {
   let notifier;
   let relier;
   let tabChannelMock;
   let user;
   let view;
 
-  beforeEach(function() {
+  beforeEach(function () {
     relier = new Relier();
     tabChannelMock = new NullChannel();
     user = new User();
@@ -33,10 +33,7 @@ describe('views/mixins/account-by-uid-mixin', function() {
       tabChannel: tabChannelMock,
     });
 
-    sinon
-      .stub(relier, 'get')
-      .withArgs('uid')
-      .returns(UID);
+    sinon.stub(relier, 'get').withArgs('uid').returns(UID);
 
     view = new View({
       notifier: notifier,
@@ -45,7 +42,7 @@ describe('views/mixins/account-by-uid-mixin', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     relier.get.restore();
 
     view.remove();
@@ -53,8 +50,8 @@ describe('views/mixins/account-by-uid-mixin', function() {
     view = null;
   });
 
-  describe('getUidAndSetSignedInAccount', function() {
-    it('gets the uid from the relier', function() {
+  describe('getUidAndSetSignedInAccount', function () {
+    it('gets the uid from the relier', function () {
       sinon.spy(notifier, 'trigger');
       sinon.stub(user, 'clearSignedInAccountUid');
 
@@ -66,7 +63,7 @@ describe('views/mixins/account-by-uid-mixin', function() {
       user.clearSignedInAccountUid.restore();
     });
 
-    it('sets signed in account with uid when account exists', function() {
+    it('sets signed in account with uid when account exists', function () {
       sinon.stub(user, 'getAccountByUid').returns({ isDefault: () => false });
       sinon.stub(user, 'setSignedInAccountByUid');
 
@@ -78,7 +75,7 @@ describe('views/mixins/account-by-uid-mixin', function() {
       user.getAccountByUid.restore();
     });
 
-    it('forces the user to sign in when account does not exist', function() {
+    it('forces the user to sign in when account does not exist', function () {
       sinon.stub(user, 'getAccountByUid').returns({ isDefault: () => true });
       sinon.stub(user, 'clearSignedInAccountUid');
       sinon.stub(Session, 'clear');

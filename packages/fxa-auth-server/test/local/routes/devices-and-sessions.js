@@ -43,7 +43,7 @@ function makeRoutes(options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const oauthdb = options.oauthdb || mocks.mockOAuthDB(log, config);
   const customs = options.customs || {
-    check: function() {
+    check: function () {
       return P.resolve(true);
     },
   };
@@ -70,10 +70,7 @@ function makeRoutes(options = {}, requireMocks) {
 }
 
 function runTest(route, request, onSuccess, onError) {
-  return route
-    .handler(request)
-    .then(onSuccess, onError)
-    .catch(onError);
+  return route.handler(request).then(onSuccess, onError).catch(onError);
 }
 
 function hexString(bytes) {
@@ -123,7 +120,7 @@ describe('/account/device', () => {
 
   it('identical data', () => {
     devicesData.spurious = true;
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.isSpuriousUpdate.callCount, 1);
       const args = mockDevices.isSpuriousUpdate.args[0];
       assert.equal(args.length, 2);
@@ -158,7 +155,7 @@ describe('/account/device', () => {
     payload.pushCallback = 'https://push.services.mozilla.com/123456';
     payload.pushPublicKey = mocks.MOCK_PUSH_KEY;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.isSpuriousUpdate.callCount, 1);
       assert.equal(
         mockDevices.upsert.callCount,
@@ -186,7 +183,7 @@ describe('/account/device', () => {
     devicesData.spurious = false;
     mockRequest.payload.id = undefined;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockDevices.upsert.callCount,
         1,
@@ -206,7 +203,7 @@ describe('/account/device', () => {
     devicesData.spurious = true;
     mockRequest.auth.credentials.deviceType = undefined;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(mockDevices.upsert.callCount, 0);
     });
   });
@@ -218,7 +215,7 @@ describe('/account/device', () => {
       assert(false, 'should have thrown');
     }).then(
       () => assert.ok(false),
-      err => {
+      (err) => {
         assert.equal(
           err.output.statusCode,
           503,
@@ -274,7 +271,7 @@ describe('/account/device', () => {
       },
     });
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockDevices.upsert.callCount,
         1,
@@ -307,7 +304,7 @@ describe('/account/device', () => {
       },
     });
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockDevices.upsert.callCount,
         1,
@@ -371,7 +368,7 @@ describe('/account/devices/notify', () => {
       assert(false, 'should have thrown');
     }).then(
       () => assert(false),
-      err => {
+      (err) => {
         assert.equal(
           mockPush.sendPush.callCount,
           0,
@@ -396,7 +393,7 @@ describe('/account/devices/notify', () => {
       sendPushPromise.resolve();
       return P.resolve();
     });
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       return sendPushPromise.promise.then(() => {
         assert.equal(
           mockCustoms.checkAuthenticated.callCount,
@@ -454,7 +451,7 @@ describe('/account/devices/notify', () => {
       assert(false, 'should have thrown');
     }).then(
       () => assert.ok(false),
-      err => {
+      (err) => {
         assert.equal(
           err.output.statusCode,
           400,
@@ -485,7 +482,7 @@ describe('/account/devices/notify', () => {
       sendPushPromise.resolve();
       return P.resolve();
     });
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       return sendPushPromise.promise.then(() => {
         assert.equal(
           mockCustoms.checkAuthenticated.callCount,
@@ -559,7 +556,7 @@ describe('/account/devices/notify', () => {
         command: 'fxaccounts:password_reset',
       },
     };
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockPush.sendPush.callCount,
         1,
@@ -587,7 +584,7 @@ describe('/account/devices/notify', () => {
       assert(false, 'should have thrown');
     }).then(
       () => assert.ok(false),
-      err => {
+      (err) => {
         assert.equal(
           err.output.statusCode,
           503,
@@ -619,11 +616,11 @@ describe('/account/devices/notify', () => {
       '/account/devices/notify'
     );
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert(false, 'should have thrown');
     }).then(
       () => assert(false),
-      err => {
+      (err) => {
         assert.equal(
           mockCustoms.checkAuthenticated.callCount,
           1,
@@ -658,7 +655,7 @@ describe('/account/devices/notify', () => {
       '/account/devices/notify'
     );
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         JSON.stringify(response),
         '{}',
@@ -740,7 +737,7 @@ describe('/account/devices/notify', () => {
       () => {
         assert.fail('should not have succeed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, 107, 'invalid parameter in request body');
       }
     );
@@ -793,7 +790,7 @@ describe('/account/device/commands', () => {
       route.options.validate.query
     ).value;
     assert.ok(mockRequest.query);
-    return runTest(route, mockRequest).then(response => {
+    return runTest(route, mockRequest).then((response) => {
       assert.equal(mockPushbox.retrieve.callCount, 1, 'pushbox was called');
       assert.calledWithExactly(mockPushbox.retrieve, uid, deviceId, 100, 2);
       assert.deepEqual(response, mockResponse);
@@ -846,7 +843,7 @@ describe('/account/device/commands', () => {
       () => {
         assert.ok(false, 'should not go here');
       },
-      err => {
+      (err) => {
         assert.equal(err.message, 'Boom!');
         assert.equal(err.statusCode, 500);
       }
@@ -1054,7 +1051,7 @@ describe('/account/devices/invoke_command', () => {
       () => {
         assert(false, 'should have thrown');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, 123, 'Unknown device');
         assert.equal(mockPushbox.store.callCount, 0, 'pushbox was not called');
         assert.equal(
@@ -1092,7 +1089,7 @@ describe('/account/devices/invoke_command', () => {
       () => {
         assert(false, 'should have thrown');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, 157, 'unavailable device command');
         assert.equal(mockPushbox.store.callCount, 0, 'pushbox was not called');
         assert.equal(
@@ -1137,7 +1134,7 @@ describe('/account/devices/invoke_command', () => {
       () => {
         assert(false, 'should have thrown');
       },
-      err => {
+      (err) => {
         assert.equal(mockPushbox.store.callCount, 1, 'pushbox was called');
         assert.equal(err.message, 'Boom!');
         assert.equal(err.statusCode, 500);
@@ -1272,7 +1269,7 @@ describe('/account/devices', () => {
     });
     const route = getRoute(accountRoutes, '/account/devices');
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       const now = Date.now();
 
       assert.ok(Array.isArray(response), 'response is array');
@@ -1301,9 +1298,7 @@ describe('/account/devices', () => {
       assert.equal(response[1].lastAccessTime, 1);
       assert.equal(
         response[1].lastAccessTimeFormatted,
-        moment(1)
-          .locale('fr')
-          .fromNow()
+        moment(1).locale('fr').fromNow()
       );
       assert.equal(
         response[1].approximateLastAccessTime,
@@ -1311,9 +1306,7 @@ describe('/account/devices', () => {
       );
       assert.equal(
         response[1].approximateLastAccessTimeFormatted,
-        moment(EARLIEST_SANE_TIMESTAMP)
-          .locale('fr')
-          .fromNow()
+        moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow()
       );
       assert.deepEqual(response[1].location, {});
 
@@ -1333,9 +1326,7 @@ describe('/account/devices', () => {
       );
       assert.equal(
         response[2].approximateLastAccessTimeFormatted,
-        moment(EARLIEST_SANE_TIMESTAMP)
-          .locale('fr')
-          .fromNow()
+        moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow()
       );
       assert.deepEqual(response[2].location, {
         country: 'Royaume-Uni',
@@ -1345,9 +1336,7 @@ describe('/account/devices', () => {
       assert.equal(response[3].lastAccessTime, EARLIEST_SANE_TIMESTAMP);
       assert.equal(
         response[3].lastAccessTimeFormatted,
-        moment(EARLIEST_SANE_TIMESTAMP)
-          .locale('fr')
-          .fromNow()
+        moment(EARLIEST_SANE_TIMESTAMP).locale('fr').fromNow()
       );
       assert.equal(response[3].approximateLastAccessTime, undefined);
       assert.equal(response[3].approximateLastAccessTimeFormatted, undefined);
@@ -1404,7 +1393,7 @@ describe('/account/devices', () => {
     const accountRoutes = makeRoutes({ db, devices, log });
     const route = getRoute(accountRoutes, '/account/devices');
 
-    return runTest(route, request, response => {
+    return runTest(route, request, (response) => {
       assert.equal(response.length, 1);
       assert.equal(response[0].name, 'wibble');
       assert.deepEqual(response[0].location, {
@@ -1612,7 +1601,7 @@ describe('/account/sessions', () => {
   it('should list account sessions', () => {
     const route = getRoute(accountRoutes, '/account/sessions');
 
-    return runTest(route, request, result => {
+    return runTest(route, request, (result) => {
       assert.ok(Array.isArray(result));
       assert.equal(result.length, 4);
       assert.deepEqual(result, [
@@ -1629,9 +1618,7 @@ describe('/account/sessions', () => {
           isCurrentDevice: true,
           isDevice: false,
           lastAccessTime: times[1],
-          lastAccessTimeFormatted: moment(times[1])
-            .locale('en')
-            .fromNow(),
+          lastAccessTimeFormatted: moment(times[1]).locale('en').fromNow(),
           createdTime: times[0],
           createdTimeFormatted: 'a few seconds ago',
           os: 'Windows',
@@ -1709,9 +1696,7 @@ describe('/account/sessions', () => {
           isCurrentDevice: false,
           isDevice: true,
           lastAccessTime: 1,
-          lastAccessTimeFormatted: moment(1)
-            .locale('en')
-            .fromNow(),
+          lastAccessTimeFormatted: moment(1).locale('en').fromNow(),
           approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
           approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
             .locale('en')
@@ -1761,13 +1746,13 @@ describe('GET /account/sessions/locations', () => {
 
   it('should return a list of locations from redis', () => {
     redis.getSessionTokens = sinon.fake.returns(tokenMetadata);
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.isTrue(redis.getSessionTokens.calledOnceWith(uid));
       assert.deepEqual(
         response,
         tokenMetadata
-          .filter(x => x.location)
-          .map(x => ({ ...x.location, lastAccessTime: x.lastAccessTime }))
+          .filter((x) => x.location)
+          .map((x) => ({ ...x.location, lastAccessTime: x.lastAccessTime }))
       );
     });
   });
@@ -1780,7 +1765,7 @@ describe('GET /account/sessions/locations', () => {
       () => {
         assert.fail('error expected');
       },
-      err => {
+      (err) => {
         mockLog.error.calledOnceWith('Account.sessionsLocations', {
           uid,
           error: err,

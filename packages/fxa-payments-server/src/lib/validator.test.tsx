@@ -19,16 +19,14 @@ describe('mainReducer', () => {
     const action = { type: 'bogus' };
     const newState = mainReducer(state, action as ValidatorAction);
     expect(newState).toEqual(state);
-  })
+  });
 });
 
 describe('useValidatorState', () => {
   it('does not throw error when missing initial state or middleware', () => {
     const Subject = () => {
       const validator = useValidatorState();
-      return (
-        <div>{JSON.stringify(validator.state)}</div>
-      )
+      return <div>{JSON.stringify(validator.state)}</div>;
     };
     render(<Subject />);
   });
@@ -37,8 +35,9 @@ describe('useValidatorState', () => {
 describe('Validator', () => {
   it('supports registering a field', () => {
     const { state } = runAgainstValidator(
-      v => v.registerField({ name: 'foo', fieldType: 'input', required: true }),
-      v =>
+      (v) =>
+        v.registerField({ name: 'foo', fieldType: 'input', required: true }),
+      (v) =>
         v.registerField({
           name: 'bar',
           fieldType: 'input',
@@ -66,10 +65,16 @@ describe('Validator', () => {
 
   it('supports updating a field', () => {
     const { results } = runAgainstValidator(
-      v => v.registerField({ name: 'foo', fieldType: 'input', required: true }),
-      v =>
-        v.updateField({ name: 'foo', value: 'bar', valid: false, error: 'meep' }),
-      v => v.getFieldState('foo')
+      (v) =>
+        v.registerField({ name: 'foo', fieldType: 'input', required: true }),
+      (v) =>
+        v.updateField({
+          name: 'foo',
+          value: 'bar',
+          valid: false,
+          error: 'meep',
+        }),
+      (v) => v.getFieldState('foo')
     );
     expect(results.pop()).toEqual({
       fieldType: 'input',
@@ -82,21 +87,23 @@ describe('Validator', () => {
 
   it('supports checking if fields are valid', () => {
     const { results } = runAgainstValidator(
-      v => v.registerField({ name: 'foo', fieldType: 'input', required: true }),
-      v => v.registerField({ name: 'baz', fieldType: 'input', required: true }),
-      v => v.updateField({ name: 'foo', value: 'bar', valid: true }),
-      v =>
+      (v) =>
+        v.registerField({ name: 'foo', fieldType: 'input', required: true }),
+      (v) =>
+        v.registerField({ name: 'baz', fieldType: 'input', required: true }),
+      (v) => v.updateField({ name: 'foo', value: 'bar', valid: true }),
+      (v) =>
         v.updateField({
           name: 'baz',
           value: 'quux',
           valid: false,
           error: 'meep',
         }),
-      v => v.isInvalid('baz'),
-      v => v.getError('baz'),
-      v => v.allValid(),
-      v => v.updateField({ name: 'baz', value: 'xyzzy', valid: true }),
-      v => v.allValid()
+      (v) => v.isInvalid('baz'),
+      (v) => v.getError('baz'),
+      (v) => v.allValid(),
+      (v) => v.updateField({ name: 'baz', value: 'xyzzy', valid: true }),
+      (v) => v.allValid()
     );
     expect(results).toEqual([
       undefined,
@@ -113,20 +120,27 @@ describe('Validator', () => {
 
   it('supports getting field values', () => {
     const { results } = runAgainstValidator(
-      v => v.registerField({ name: 'foo', fieldType: 'input', required: true }),
-      v => v.registerField({ name: 'baz', fieldType: 'input', required: true }),
-      v => v.registerField({ name: 'hello', fieldType: 'input', required: true }),
-      v =>
-        v.registerField({ name: 'nothere', fieldType: 'input', required: true }),
-      v => v.updateField({ name: 'foo', value: 'bar', valid: true }),
-      v => v.updateField({ name: 'baz', value: 'xyzzy', valid: true }),
-      v => v.updateField({ name: 'hello', value: 'world', valid: true }),
-      v => v.getValue('foo'),
-      v => v.getValue('baz'),
-      v => v.getValue('hello'),
-      v => v.getValue('nothere'),
-      v => v.getValue('nothere', 'honk'),
-      v => v.getValues()
+      (v) =>
+        v.registerField({ name: 'foo', fieldType: 'input', required: true }),
+      (v) =>
+        v.registerField({ name: 'baz', fieldType: 'input', required: true }),
+      (v) =>
+        v.registerField({ name: 'hello', fieldType: 'input', required: true }),
+      (v) =>
+        v.registerField({
+          name: 'nothere',
+          fieldType: 'input',
+          required: true,
+        }),
+      (v) => v.updateField({ name: 'foo', value: 'bar', valid: true }),
+      (v) => v.updateField({ name: 'baz', value: 'xyzzy', valid: true }),
+      (v) => v.updateField({ name: 'hello', value: 'world', valid: true }),
+      (v) => v.getValue('foo'),
+      (v) => v.getValue('baz'),
+      (v) => v.getValue('hello'),
+      (v) => v.getValue('nothere'),
+      (v) => v.getValue('nothere', 'honk'),
+      (v) => v.getValues()
     );
     expect(results).toEqual([
       undefined,
@@ -152,11 +166,11 @@ describe('Validator', () => {
 
   it('supports set, get, reset of a global error', () => {
     const { results } = runAgainstValidator(
-      v => v.getGlobalError(),
-      v => v.setGlobalError('everything is bad'),
-      v => v.getGlobalError(),
-      v => v.resetGlobalError(),
-      v => v.getGlobalError()
+      (v) => v.getGlobalError(),
+      (v) => v.setGlobalError('everything is bad'),
+      (v) => v.getGlobalError(),
+      (v) => v.resetGlobalError(),
+      (v) => v.getGlobalError()
     );
     expect(results).toEqual([
       null,

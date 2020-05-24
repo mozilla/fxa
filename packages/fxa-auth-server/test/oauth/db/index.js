@@ -18,10 +18,10 @@ function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');
 }
 
-describe('db', function() {
-  describe('utf-8', function() {
+describe('db', function () {
+  describe('utf-8', function () {
     function makeTest(clientId, clientName) {
-      return function() {
+      return function () {
         var data = {
           id: clientId,
           name: clientName,
@@ -33,18 +33,18 @@ describe('db', function() {
 
         return db
           .registerClient(data)
-          .then(function(c) {
+          .then(function (c) {
             assert.equal(c.id.toString('hex'), clientId);
             assert.equal(c.name, clientName);
             return db.getClient(c.id);
           })
-          .then(function(cli) {
+          .then(function (cli) {
             assert.equal(cli.id.toString('hex'), clientId);
             assert.equal(cli.name, clientName);
             return db.removeClient(clientId);
           })
-          .then(function() {
-            return db.getClient(clientId).then(function(cli) {
+          .then(function () {
+            return db.getClient(clientId).then(function (cli) {
               assert.equal(void 0, cli);
             });
           });
@@ -53,7 +53,7 @@ describe('db', function() {
 
     it('2-byte encoding preserved', makeTest(randomString(8), 'Düsseldorf'));
     it('3-byte encoding preserved', makeTest(randomString(8), '北京')); // Beijing
-    it('4-byte encoding throws with mysql', function() {
+    it('4-byte encoding throws with mysql', function () {
       var data = {
         id: randomString(8),
         // 'MUSICAL SYMBOL F CLEF' (U+1D122) (JS: '\uD834\uDD22', UTF8: '0xF0 0x9D 0x84 0xA2')
@@ -67,10 +67,10 @@ describe('db', function() {
 
       return db
         .registerClient(data)
-        .then(function(c) {
+        .then(function (c) {
           assert.fail('This should not have succeeded.');
         })
-        .catch(function(err) {
+        .catch(function (err) {
           assert.ok(err);
           assert.equal(err.code, 'ER_TRUNCATED_WRONG_VALUE_FOR_FIELD');
           assert.equal(err.errno, 1366);
@@ -78,9 +78,9 @@ describe('db', function() {
     });
   });
 
-  describe('getEncodingInfo', function() {
-    it('should use utf8', function() {
-      return db.getEncodingInfo().then(function(info) {
+  describe('getEncodingInfo', function () {
+    it('should use utf8', function () {
+      return db.getEncodingInfo().then(function (info) {
         assert.equal(info['character_set_connection'], 'utf8mb4');
         assert.equal(info['character_set_database'], 'utf8');
         assert.equal(info['collation_connection'], 'utf8mb4_unicode_ci');
@@ -89,7 +89,7 @@ describe('db', function() {
     });
   });
 
-  describe('removeUser', function() {
+  describe('removeUser', function () {
     var clientId = buf(randomString(8));
     var userId = buf(randomString(16));
     var email = 'a@b.c';
@@ -98,7 +98,7 @@ describe('db', function() {
     var token = null;
     var refreshToken = null;
 
-    before(function() {
+    before(function () {
       return db
         .registerClient({
           id: clientId,
@@ -108,7 +108,7 @@ describe('db', function() {
           redirectUri: 'https://example.domain/return?foo=bar',
           trusted: true,
         })
-        .then(function() {
+        .then(function () {
           return db.generateCode({
             clientId: clientId,
             userId: userId,
@@ -117,11 +117,11 @@ describe('db', function() {
             authAt: 0,
           });
         })
-        .then(function(c) {
+        .then(function (c) {
           code = c;
           return db.getCode(code);
         })
-        .then(function(code) {
+        .then(function (code) {
           assert.equal(hex(code.userId), hex(userId));
           return db.generateAccessToken({
             clientId: clientId,
@@ -130,7 +130,7 @@ describe('db', function() {
             scope: scope,
           });
         })
-        .then(function(t) {
+        .then(function (t) {
           token = t.token;
           assert.equal(hex(t.userId), hex(userId), 'token userId');
           return db.generateRefreshToken({
@@ -140,40 +140,40 @@ describe('db', function() {
             scope: scope,
           });
         })
-        .then(function(t) {
+        .then(function (t) {
           refreshToken = t.token;
           assert.equal(hex(t.userId), hex(userId), 'token userId');
         });
     });
 
-    it('should get the right refreshToken', function() {
+    it('should get the right refreshToken', function () {
       var hash = encrypt.hash(refreshToken);
-      return db.getRefreshToken(hash).then(function(t) {
+      return db.getRefreshToken(hash).then(function (t) {
         assert.equal(hex(t.token), hex(hash), 'got the right refresh_token');
       });
     });
 
-    it('should delete tokens and codes for the given userId', function() {
+    it('should delete tokens and codes for the given userId', function () {
       return db
         .removeUser(userId)
-        .then(function() {
+        .then(function () {
           return db.getCode(code);
         })
-        .then(function(c) {
+        .then(function (c) {
           assert.equal(c, undefined, 'code deleted');
           return db.getAccessToken(token);
         })
-        .then(function(t) {
+        .then(function (t) {
           assert.equal(t, undefined, 'token deleted');
           return db.getRefreshToken(encrypt.hash(refreshToken));
         })
-        .then(function(t) {
+        .then(function (t) {
           assert.equal(t, undefined, 'refresh_token deleted');
         });
     });
   });
 
-  describe('removePublicAndCanGrantTokens', function() {
+  describe('removePublicAndCanGrantTokens', function () {
     function testRemovalWithClient(clientOptions = {}) {
       const clientId = buf(randomString(8));
       const userId = buf(randomString(16));
@@ -193,7 +193,7 @@ describe('db', function() {
           canGrant: clientOptions.canGrant || false,
           publicClient: clientOptions.publicClient || false,
         })
-        .then(function() {
+        .then(function () {
           return db.generateAccessToken({
             clientId: clientId,
             canGrant: clientOptions.canGrant,
@@ -203,7 +203,7 @@ describe('db', function() {
             scope: scope,
           });
         })
-        .then(function(t) {
+        .then(function (t) {
           tokenIdHash = encrypt.hash(t.token.toString('hex'));
           return db.generateRefreshToken({
             clientId: clientId,
@@ -212,7 +212,7 @@ describe('db', function() {
             scope: scope,
           });
         })
-        .then(function(t) {
+        .then(function (t) {
           refreshTokenIdHash = encrypt.hash(t.token.toString('hex'));
 
           return Promise.all([
@@ -220,18 +220,18 @@ describe('db', function() {
             db.getAccessToken(tokenIdHash),
           ]);
         })
-        .then(tokens => {
+        .then((tokens) => {
           assert.ok(tokens[0].token);
           assert.ok(tokens[1].tokenId);
           return db.removePublicAndCanGrantTokens(hex(userId));
         })
-        .then(t => {
+        .then((t) => {
           return Promise.all([
             db.getRefreshToken(refreshTokenIdHash),
             db.getAccessToken(tokenIdHash),
           ]);
         })
-        .catch(err => {
+        .catch((err) => {
           throw err;
         });
     }
@@ -239,7 +239,7 @@ describe('db', function() {
     it('revokes tokens for canGrant', () => {
       return testRemovalWithClient({
         canGrant: true,
-      }).then(tokens => {
+      }).then((tokens) => {
         assert.equal(tokens[0], undefined);
         assert.equal(tokens[1], undefined);
       });
@@ -248,7 +248,7 @@ describe('db', function() {
     it('revokes tokens for publicClient', () => {
       return testRemovalWithClient({
         publicClient: true,
-      }).then(tokens => {
+      }).then((tokens) => {
         assert.equal(tokens[0], undefined);
         assert.equal(tokens[1], undefined);
       });
@@ -258,7 +258,7 @@ describe('db', function() {
       return testRemovalWithClient({
         canGrant: false,
         publicClient: false,
-      }).then(tokens => {
+      }).then((tokens) => {
         assert.ok(tokens[0].token);
         assert.ok(tokens[1].tokenId);
       });
@@ -268,14 +268,14 @@ describe('db', function() {
       return testRemovalWithClient({
         canGrant: true,
         publicClient: true,
-      }).then(tokens => {
+      }).then((tokens) => {
         assert.equal(tokens[0], undefined);
         assert.equal(tokens[1], undefined);
       });
     });
   });
 
-  describe('refresh token lastUsedAt', function() {
+  describe('refresh token lastUsedAt', function () {
     var clientId = buf(randomString(8));
     var userId = buf(randomString(16));
     var email = 'a@b.c';
@@ -283,7 +283,7 @@ describe('db', function() {
     var code = null;
     var refreshToken = null;
 
-    beforeEach(function() {
+    beforeEach(function () {
       return db
         .registerClient({
           id: clientId,
@@ -293,7 +293,7 @@ describe('db', function() {
           redirectUri: 'https://example.domain/return?foo=bar',
           trusted: true,
         })
-        .then(function() {
+        .then(function () {
           return db.generateCode({
             clientId: clientId,
             userId: userId,
@@ -302,11 +302,11 @@ describe('db', function() {
             authAt: 0,
           });
         })
-        .then(function(c) {
+        .then(function (c) {
           code = c;
           return db.getCode(code);
         })
-        .then(function(code) {
+        .then(function (code) {
           assert.equal(hex(code.userId), hex(userId));
           return db.generateAccessToken({
             clientId: clientId,
@@ -315,7 +315,7 @@ describe('db', function() {
             scope: scope,
           });
         })
-        .then(function(t) {
+        .then(function (t) {
           assert.equal(hex(t.userId), hex(userId), 'token userId');
           return db.generateRefreshToken({
             clientId: clientId,
@@ -324,18 +324,18 @@ describe('db', function() {
             scope: scope,
           });
         })
-        .then(function(t) {
+        .then(function (t) {
           refreshToken = t;
         });
     });
 
-    it('should refresh token lastUsedAt', function() {
+    it('should refresh token lastUsedAt', function () {
       var tokenFirstUsage = {};
       var hash = encrypt.hash(refreshToken.token);
 
       return db
         .getRefreshToken(hash)
-        .then(function(t) {
+        .then(function (t) {
           assert.equal(hex(t.token), hex(hash), 'same token');
 
           tokenFirstUsage.createdAt = new Date(t.createdAt);
@@ -343,13 +343,13 @@ describe('db', function() {
 
           return Promise.delay(1000); //ensures that creation and subsequent usage are at least 1s apart
         })
-        .then(function() {
+        .then(function () {
           return db.usedRefreshToken(encrypt.hash(refreshToken.token));
         })
-        .then(function() {
+        .then(function () {
           return db.getRefreshToken(hash);
         })
-        .then(function(t) {
+        .then(function (t) {
           assert.equal(hex(t.token), hex(hash), 'same token');
           var updatedLastUsedAt = new Date(t.lastUsedAt);
 
@@ -367,7 +367,7 @@ describe('db', function() {
     });
   });
 
-  describe('scopes', function() {
+  describe('scopes', function () {
     it('can register and fetch scopes', () => {
       const scopeName = 'https://some-scope.mozilla.org/apps/' + Math.random();
       const notFoundScope = 'https://some-scope-404.mozilla.org';
@@ -380,27 +380,27 @@ describe('db', function() {
         .then(() => {
           return db.getScope(notFoundScope);
         })
-        .then(notFoundScope => {
+        .then((notFoundScope) => {
           assert.equal(notFoundScope, undefined);
           return db.getScope(scopeName);
         })
-        .then(result => {
+        .then((result) => {
           assert.deepEqual(newScope, result);
         });
     });
   });
 
-  describe('client-tokens', function() {
-    describe('deleteClientAuthorization', function() {
+  describe('client-tokens', function () {
+    describe('deleteClientAuthorization', function () {
       var clientId = buf(randomString(8));
       var userId = buf(randomString(16));
 
-      it('should delete client tokens', function() {
+      it('should delete client tokens', function () {
         return db.deleteClientAuthorization(clientId, userId).then(
-          function(result) {
+          function (result) {
             assert.ok(result);
           },
-          function(err) {
+          function (err) {
             assert.fail(err);
           }
         );
@@ -408,60 +408,60 @@ describe('db', function() {
     });
   });
 
-  describe('developers', function() {
-    describe('removeDeveloper', function() {
-      it('should not fail on non-existent developers', function() {
+  describe('developers', function () {
+    describe('removeDeveloper', function () {
+      it('should not fail on non-existent developers', function () {
         return db.removeDeveloper('unknown@developer.com');
       });
 
-      it('should delete developers', function() {
+      it('should delete developers', function () {
         var email = 'email' + randomString(10) + '@mozilla.com';
         return db
           .activateDeveloper(email)
-          .then(function(developer) {
+          .then(function (developer) {
             assert.equal(developer.email, email);
 
             return db.removeDeveloper(email);
           })
-          .then(function() {
+          .then(function () {
             return db.getDeveloper(email);
           })
-          .then(function(developer) {
+          .then(function (developer) {
             assert.equal(developer, null);
           });
       });
     });
 
-    describe('getDeveloper', function() {
-      it('should return null if developer does not exit', function() {
+    describe('getDeveloper', function () {
+      it('should return null if developer does not exit', function () {
         return db
           .getDeveloper('unknown@developer.com')
-          .then(function(developer) {
+          .then(function (developer) {
             assert.equal(developer, null);
           });
       });
 
-      it('should throw on empty email', function() {
-        mock.log('db', rec => {
+      it('should throw on empty email', function () {
+        mock.log('db', (rec) => {
           return rec.levelname === 'ERROR' && rec.args[0] === 'getDeveloper';
         });
-        return db.getDeveloper().then(assert.fail, function(err) {
+        return db.getDeveloper().then(assert.fail, function (err) {
           assert.equal(err.message, 'Email is required');
         });
       });
     });
 
-    describe('activateDeveloper and getDeveloper', function() {
-      it('should create developers', function() {
+    describe('activateDeveloper and getDeveloper', function () {
+      it('should create developers', function () {
         var email = 'email' + randomString(10) + '@mozilla.com';
 
-        return db.activateDeveloper(email).then(function(developer) {
+        return db.activateDeveloper(email).then(function (developer) {
           assert.equal(developer.email, email);
         });
       });
 
-      it('should not allow duplicates', function() {
-        mock.log('db', rec => {
+      it('should not allow duplicates', function () {
+        mock.log('db', (rec) => {
           return (
             rec.levelname === 'ERROR' && rec.args[0] === 'activateDeveloper'
           );
@@ -470,39 +470,39 @@ describe('db', function() {
 
         return db
           .activateDeveloper(email)
-          .then(function() {
+          .then(function () {
             return db.activateDeveloper(email);
           })
           .then(
-            function() {
+            function () {
               assert.fail();
             },
-            function(err) {
+            function (err) {
               assert.equal(err.message.indexOf('ER_DUP_ENTRY') >= 0, true);
             }
           );
       });
 
-      it('should throw on empty email', function() {
-        mock.log('db', rec => {
+      it('should throw on empty email', function () {
+        mock.log('db', (rec) => {
           return (
             rec.levelname === 'ERROR' && rec.args[0] === 'activateDeveloper'
           );
         });
-        return db.activateDeveloper().then(assert.fail, function(err) {
+        return db.activateDeveloper().then(assert.fail, function (err) {
           assert.equal(err.message, 'Email is required');
         });
       });
     });
 
-    describe('registerClientDeveloper and developerOwnsClient', function() {
+    describe('registerClientDeveloper and developerOwnsClient', function () {
       var clientId = buf(randomString(8));
       var userId = buf(randomString(16));
       var email = 'a@b.c';
       var scope = ['no_scope'];
       var code = null;
 
-      before(function() {
+      before(function () {
         return db
           .registerClient({
             id: clientId,
@@ -512,7 +512,7 @@ describe('db', function() {
             redirectUri: 'https://example.domain/return?foo=bar',
             trusted: true,
           })
-          .then(function() {
+          .then(function () {
             return db.generateCode({
               clientId: clientId,
               userId: userId,
@@ -521,11 +521,11 @@ describe('db', function() {
               authAt: 0,
             });
           })
-          .then(function(c) {
+          .then(function (c) {
             code = c;
             return db.getCode(code);
           })
-          .then(function(code) {
+          .then(function (code) {
             assert.equal(hex(code.userId), hex(userId));
             return db.generateAccessToken({
               clientId: clientId,
@@ -534,30 +534,30 @@ describe('db', function() {
               scope: scope,
             });
           })
-          .then(function(t) {
+          .then(function (t) {
             assert.equal(hex(t.userId), hex(userId), 'token userId');
           });
       });
 
-      it('should attach a developer to a client', function() {
+      it('should attach a developer to a client', function () {
         var email = 'email' + randomString(10) + '@mozilla.com';
 
         return db
           .activateDeveloper(email)
-          .then(function(developer) {
+          .then(function (developer) {
             return db.registerClientDeveloper(
               hex(developer.developerId),
               hex(clientId)
             );
           })
-          .then(function() {
+          .then(function () {
             return db.getClientDevelopers(hex(clientId));
           })
-          .then(function(developers) {
+          .then(function (developers) {
             if (developers) {
               var found = false;
 
-              developers.forEach(function(developer) {
+              developers.forEach(function (developer) {
                 if (developer.email === email) {
                   found = true;
                 }
@@ -570,10 +570,10 @@ describe('db', function() {
     });
   });
 
-  describe('getLock', function() {
-    it('should return an acquired status', function() {
+  describe('getLock', function () {
+    it('should return an acquired status', function () {
       const lockName = randomString(10);
-      return db.getLock(lockName, 3).then(function(result) {
+      return db.getLock(lockName, 3).then(function (result) {
         assert.ok(result);
         assert.ok('acquired' in result);
         assert.ok(result.acquired === 1);
@@ -650,7 +650,7 @@ describe('db', function() {
         scope: ScopeSet.fromArray(['no_scope']),
       };
 
-      before(function() {
+      before(function () {
         return db.registerClient({
           id: pocketId,
           name: 'pocket',
@@ -660,7 +660,7 @@ describe('db', function() {
           trusted: true,
         });
       });
-      after(function() {
+      after(function () {
         return db.removeClient(pocketId);
       });
 

@@ -71,7 +71,7 @@ describe('views/post_verify/cad_qr/scan_code', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();

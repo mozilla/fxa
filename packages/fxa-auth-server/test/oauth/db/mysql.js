@@ -16,7 +16,7 @@ var dependencies = mocks.require(
     { path: 'mysql' },
     {
       path: 'mysql-patcher',
-      ctor: function() {
+      ctor: function () {
         return instances.patcher;
       },
     },
@@ -37,15 +37,15 @@ function callback(cb) {
 
 process.setMaxListeners(0);
 
-describe('db/mysql:', function() {
+describe('db/mysql:', function () {
   var sandbox, mysql;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.createSandbox();
 
     sandbox
       .stub(dependencies['../../../../config'], 'get')
-      .callsFake(function() {
+      .callsFake(function () {
         return 'mock config.get result';
       });
     instances.logger = {
@@ -55,23 +55,23 @@ describe('db/mysql:', function() {
       error: nop,
       verbose: nop,
     };
-    Object.keys(instances.logger).forEach(function(methodName) {
+    Object.keys(instances.logger).forEach(function (methodName) {
       sandbox.spy(instances.logger, methodName);
     });
 
     mysql = proxyquire(modulePath, dependencies);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  it('exports a connect function', function() {
+  it('exports a connect function', function () {
     assert.equal(typeof mysql.connect, 'function');
   });
 
-  describe('connect:', function() {
-    beforeEach(function() {
+  describe('connect:', function () {
+    beforeEach(function () {
       instances.patcher = {
         connect: nop,
         patch: nop,
@@ -85,25 +85,25 @@ describe('db/mysql:', function() {
       sandbox.stub(process, 'exit').callsFake(nop);
     });
 
-    describe('readDbPatchLevel succeeds:', function() {
-      beforeEach(function() {
+    describe('readDbPatchLevel succeeds:', function () {
+      beforeEach(function () {
         sandbox
           .stub(instances.patcher, 'readDbPatchLevel')
-          .callsFake(function(callback) {
+          .callsFake(function (callback) {
             callback();
           });
       });
 
-      describe('db patch level is okay:', function() {
+      describe('db patch level is okay:', function () {
         var result;
 
-        beforeEach(function() {
-          return mysql.connect({ logger: instances.logger }).then(function(r) {
+        beforeEach(function () {
+          return mysql.connect({ logger: instances.logger }).then(function (r) {
             result = r;
           });
         });
 
-        it('called patcher.connect', function() {
+        it('called patcher.connect', function () {
           assert.equal(instances.patcher.connect.callCount, 1);
           var args = instances.patcher.connect.getCall(0).args;
           assert.equal(args.length, 1);
@@ -111,11 +111,11 @@ describe('db/mysql:', function() {
           assert.equal(args[0].length, 2);
         });
 
-        it('did not call patcher.patch', function() {
+        it('did not call patcher.patch', function () {
           assert.equal(instances.patcher.patch.callCount, 0);
         });
 
-        it('called patcher.readDbPatchLevel', function() {
+        it('called patcher.readDbPatchLevel', function () {
           assert.equal(instances.patcher.readDbPatchLevel.callCount, 1);
           var args = instances.patcher.readDbPatchLevel.getCall(0).args;
           assert.equal(args.length, 1);
@@ -123,7 +123,7 @@ describe('db/mysql:', function() {
           assert.equal(args[0].length, 1);
         });
 
-        it('called patcher.end', function() {
+        it('called patcher.end', function () {
           assert.equal(instances.patcher.end.callCount, 1);
           var args = instances.patcher.end.getCall(0).args;
           assert.equal(args.length, 1);
@@ -131,37 +131,37 @@ describe('db/mysql:', function() {
           assert.equal(args[0].length, 2);
         });
 
-        it('did not call logger.error', function() {
+        it('did not call logger.error', function () {
           assert.equal(instances.logger.error.callCount, 0);
         });
 
-        it('returned an object', function() {
+        it('returned an object', function () {
           assert.equal(typeof result, 'object');
           assert.notEqual(result, null);
         });
       });
 
-      describe('db patch level is bad:', function() {
+      describe('db patch level is bad:', function () {
         var result;
 
-        beforeEach(function() {
+        beforeEach(function () {
           instances.patcher.currentPatchLevel -= 2;
           return mysql
             .connect({ logger: instances.logger })
-            .catch(function(err) {
+            .catch(function (err) {
               result = err;
             });
         });
 
-        afterEach(function() {
+        afterEach(function () {
           instances.patcher.currentPatchLevel += 2;
         });
 
-        it('called patcher.end', function() {
+        it('called patcher.end', function () {
           assert.equal(instances.patcher.end.callCount, 1);
         });
 
-        it('called logger.error', function() {
+        it('called logger.error', function () {
           assert.equal(instances.logger.error.callCount, 1);
           var args = instances.logger.error.getCall(0).args;
           assert.equal(args.length, 2);
@@ -173,31 +173,33 @@ describe('db/mysql:', function() {
           );
         });
 
-        it('returned an error', function() {
+        it('returned an error', function () {
           assert.ok(result instanceof Error);
         });
       });
     });
 
-    describe('readDbPatchLevel fails:', function() {
+    describe('readDbPatchLevel fails:', function () {
       var result;
 
-      beforeEach(function() {
+      beforeEach(function () {
         sandbox
           .stub(instances.patcher, 'readDbPatchLevel')
-          .callsFake(function(callback) {
+          .callsFake(function (callback) {
             callback(new Error('foo'));
           });
-        return mysql.connect({ logger: instances.logger }).catch(function(err) {
-          result = err;
-        });
+        return mysql
+          .connect({ logger: instances.logger })
+          .catch(function (err) {
+            result = err;
+          });
       });
 
-      it('called patcher.end', function() {
+      it('called patcher.end', function () {
         assert.equal(instances.patcher.end.callCount, 1);
       });
 
-      it('called logger.error', function() {
+      it('called logger.error', function () {
         assert.equal(instances.logger.error.callCount, 1);
         var args = instances.logger.error.getCall(0).args;
         assert.equal(args[0], 'checkDbPatchLevel');
@@ -205,40 +207,40 @@ describe('db/mysql:', function() {
         assert.equal(args[1].message, 'foo');
       });
 
-      it('returned an error', function() {
+      it('returned an error', function () {
         assert.ok(result instanceof Error);
       });
     });
   });
 
-  describe('mysql connection mode', function() {
+  describe('mysql connection mode', function () {
     var MysqlStore = proxyquire(modulePath, dependencies);
     var store;
     var mockConnection;
     var mockResponses;
     var capturedQueries;
 
-    beforeEach(function() {
+    beforeEach(function () {
       capturedQueries = [];
       mockResponses = [];
       mockConnection = {
         release: sinon.spy(),
-        ping: sinon.spy(function(cb) {
+        ping: sinon.spy(function (cb) {
           return cb();
         }),
-        query: sinon.spy(function(q, cb) {
+        query: sinon.spy(function (q, cb) {
           capturedQueries.push(q);
           return cb.apply(undefined, mockResponses[capturedQueries.length - 1]);
         }),
       };
 
       store = new MysqlStore({});
-      sinon.stub(store._pool, 'getConnection').callsFake(function(cb) {
+      sinon.stub(store._pool, 'getConnection').callsFake(function (cb) {
         cb(null, mockConnection);
       });
     });
 
-    it('should force new connections into strict mode', function() {
+    it('should force new connections into strict mode', function () {
       mockResponses.push([null, []]);
       mockResponses.push([null, []]);
       mockResponses.push([
@@ -248,7 +250,7 @@ describe('db/mysql:', function() {
       mockResponses.push([null, []]);
       return store
         .ping()
-        .then(function() {
+        .then(function () {
           assert.equal(capturedQueries.length, 4);
           // The first query sets the timezone.
           assert.equal(capturedQueries[0], "SET time_zone = '+00:00'");
@@ -265,24 +267,24 @@ describe('db/mysql:', function() {
             "SET SESSION sql_mode = 'DUMMY_VALUE,NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES'"
           );
         })
-        .then(function() {
+        .then(function () {
           // But re-using the connection a second time
           return store.ping();
         })
-        .then(function() {
+        .then(function () {
           // Should not re-issue the strict-mode queries.
           assert.equal(capturedQueries.length, 4);
         });
     });
 
-    it('should not mess with connections that already have strict mode', function() {
+    it('should not mess with connections that already have strict mode', function () {
       mockResponses.push([null, []]);
       mockResponses.push([null, []]);
       mockResponses.push([
         null,
         [{ mode: 'STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION' }],
       ]);
-      return store.ping().then(function() {
+      return store.ping().then(function () {
         assert.equal(capturedQueries.length, 3);
         assert.equal(capturedQueries[0], "SET time_zone = '+00:00'");
         assert.equal(
@@ -293,17 +295,17 @@ describe('db/mysql:', function() {
       });
     });
 
-    it('should propagate any errors that happen when setting the mode', function() {
+    it('should propagate any errors that happen when setting the mode', function () {
       mockResponses.push([null, []]);
       mockResponses.push([null, []]);
       mockResponses.push([null, [{ mode: 'SOME_NONSENSE_DEFAULT' }]]);
       mockResponses.push([new Error('failed to set mode')]);
       return store
         .ping()
-        .then(function() {
+        .then(function () {
           assert.fail('the ping attempt should have failed');
         })
-        .catch(function(err) {
+        .catch(function (err) {
           assert.equal(capturedQueries.length, 4);
           assert.equal(err.message, 'failed to set mode');
         });

@@ -65,7 +65,7 @@ const View = FormView.extend({
     };
 
     return this.window.navigator.mediaDevices.getUserMedia(constraints).then(
-      stream => {
+      (stream) => {
         this.stream = stream;
         const video = this.video;
         video.srcObject = stream;
@@ -85,7 +85,7 @@ const View = FormView.extend({
       // The newest spec stops individual tracks, older specs
       // stops streams, and Fx18 is just bonkers.
       if (stream.getTracks) {
-        stream.getTracks().forEach(function(track) {
+        stream.getTracks().forEach(function (track) {
           track.stop();
         });
       } else if (stream.stop) {
@@ -159,9 +159,7 @@ const View = FormView.extend({
       this.canvas.height = this.height;
       this._avatarProgressIndicator.done();
       this.$('.progress-container').addClass('hidden');
-      this.$('#video')
-        .height(this.height)
-        .removeClass('hidden');
+      this.$('#video').height(this.height).removeClass('hidden');
       this.streaming = true;
 
       this.enableForm();
@@ -180,11 +178,11 @@ const View = FormView.extend({
     this.logAccountImageChange(account);
 
     return this.takePicture()
-      .then(data => {
+      .then((data) => {
         start = Date.now();
         return account.uploadAvatar(data);
       })
-      .then(result => {
+      .then((result) => {
         this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
         this.stopAndDestroyStream();
 
@@ -199,7 +197,7 @@ const View = FormView.extend({
   },
 
   takePicture: function takePicture() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       var w = this.video.videoWidth;
       var h = this.video.videoHeight;
       var minValue = Math.min(h, w);

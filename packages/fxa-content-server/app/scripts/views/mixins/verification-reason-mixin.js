@@ -12,7 +12,7 @@ import _ from 'underscore';
 import VerificationReasons from '../../lib/verification-reasons';
 
 function findKey(haystack, needle) {
-  return _.findKey(haystack, function(value) {
+  return _.findKey(haystack, function (value) {
     return value === needle;
   });
 }

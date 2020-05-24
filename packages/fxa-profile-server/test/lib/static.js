@@ -5,7 +5,7 @@
 const Static = require('../../lib/server/_static');
 
 function request(options) {
-  return Static.create().then(server => {
+  return Static.create().then((server) => {
     return server.inject(options);
   });
 }

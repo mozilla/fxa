@@ -12,7 +12,7 @@ const View = BaseView.extend({});
 
 Cocktail.mixin(View, PairingGraphicsMixin);
 
-describe('views/mixins/pairing-graphics-mixin', function() {
+describe('views/mixins/pairing-graphics-mixin', function () {
   let view;
 
   beforeEach(() => {

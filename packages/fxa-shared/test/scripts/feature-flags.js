@@ -73,7 +73,7 @@ describe('scripts/feature-flags:', () => {
     return;
   }
 
-  ['write', 'merge'].forEach(command => {
+  ['write', 'merge'].forEach((command) => {
     it(`${command} does not fail`, () => {
       return cp.execAsync(`echo '{}' | ${SCRIPT} ${command}`, { cwd });
     });

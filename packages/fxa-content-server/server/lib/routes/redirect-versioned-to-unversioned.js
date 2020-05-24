@@ -7,7 +7,7 @@
  */
 
 'use strict';
-module.exports = function(path) {
+module.exports = function (path) {
   const VERSION_PREFIX = '/v1';
   const VERSION_PREFIX_REGEXP = new RegExp('^' + VERSION_PREFIX);
 

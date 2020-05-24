@@ -17,7 +17,7 @@ const serverUrl = intern._config.fxaContentRoot.replace(/\/$/, '/metrics-flow');
 let instance, request, response, route, mocks, sandbox;
 
 registerSuite('routes/get-metrics-flow', {
-  before: function() {
+  before: function () {
     sandbox = sinon.sandbox.create();
     mocks = {
       amplitude: sandbox.spy(),
@@ -64,17 +64,17 @@ registerSuite('routes/get-metrics-flow', {
     response = { json: sandbox.spy() };
   },
 
-  afterEach: function() {
+  afterEach: function () {
     sandbox.resetHistory();
   },
 
   tests: {
-    'route interface is correct': function() {
+    'route interface is correct': function () {
       assert.isFunction(route);
       assert.lengthOf(route, 1);
     },
 
-    'instance interface is correct': function() {
+    'instance interface is correct': function () {
       assert.isObject(instance);
       assert.lengthOf(Object.keys(instance), 5);
       assert.equal(instance.method, 'get');
@@ -88,7 +88,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.isObject(instance.validate.query);
     },
 
-    'response.json was called correctly': function() {
+    'response.json was called correctly': function () {
       instance.process(request, response);
       assert.equal(response.json.callCount, 1);
       const args = response.json.args[0];
@@ -103,7 +103,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(argsFlowEvent.length, 3);
     },
 
-    'supports query params and logs begin amplitude and flow events': function() {
+    'supports query params and logs begin amplitude and flow events': function () {
       request = {
         headers: {},
         query: {
@@ -155,7 +155,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.deviceId);
     },
 
-    'invalid context query parameter': function() {
+    'invalid context query parameter': function () {
       const query = {
         context: 'con text',
       };
@@ -168,7 +168,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'con text');
     },
 
-    'invalid entrypoint query parameter': function() {
+    'invalid entrypoint query parameter': function () {
       const query = {
         entrypoint: 'foo bar',
       };
@@ -181,7 +181,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'foo bar');
     },
 
-    'invalid form_type query parameter': function() {
+    'invalid form_type query parameter': function () {
       const query = {
         form_type: 'biz',
       };
@@ -194,7 +194,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'biz');
     },
 
-    'invalid service query parameter': function() {
+    'invalid service query parameter': function () {
       const query = {
         service: 'zzzz',
       };
@@ -207,7 +207,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'zzzz');
     },
 
-    'invalid utm_campaign query parameter': function() {
+    'invalid utm_campaign query parameter': function () {
       const query = {
         utm_campaign: 1,
       };
@@ -220,7 +220,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 1);
     },
 
-    'invalid utm_content query parameter': function() {
+    'invalid utm_content query parameter': function () {
       const query = {
         utm_content: 'qux qux',
       };
@@ -233,7 +233,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'qux qux');
     },
 
-    'invalid utm_medium query parameter': function() {
+    'invalid utm_medium query parameter': function () {
       const query = {
         utm_medium: 'wimble!@$',
       };
@@ -246,7 +246,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'wimble!@$');
     },
 
-    'invalid utm_source query parameter': function() {
+    'invalid utm_source query parameter': function () {
       const query = {
         utm_source: '%!@%womble',
       };
@@ -259,7 +259,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, '%!@%womble');
     },
 
-    'invalid utm_term query parameter': function() {
+    'invalid utm_term query parameter': function () {
       const query = {
         utm_term: 'jum!%^gle',
       };
@@ -272,7 +272,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'jum!%^gle');
     },
 
-    'invalid uid query parameter': function() {
+    'invalid uid query parameter': function () {
       const query = {
         uid: 'not-hex-string-not-35-charz',
       };
@@ -285,7 +285,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'not-hex-string-not-35-charz');
     },
 
-    'invalid event_type query parameter': function() {
+    'invalid event_type query parameter': function () {
       const query = {
         event_type: 'invalid!!',
       };
@@ -298,7 +298,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(error.context.value, 'invalid!!');
     },
 
-    'logs enter-email.view amplitude and flow events if form_type email is set': function() {
+    'logs enter-email.view amplitude and flow events if form_type email is set': function () {
       request = {
         headers: {},
         query: {
@@ -338,7 +338,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.flowId);
     },
 
-    'logs button.view amplitude and flow events if form_type button is set': function() {
+    'logs button.view amplitude and flow events if form_type button is set': function () {
       request = {
         headers: {},
         query: {
@@ -378,7 +378,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.flowId);
     },
 
-    'logs button.view amplitude and flow events if form_type subscribe is set': function() {
+    'logs button.view amplitude and flow events if form_type subscribe is set': function () {
       request = {
         headers: {},
         query: {
@@ -421,7 +421,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(metricsData.flowId);
     },
 
-    'logs flow.rp.engage amplitude event if event_type=engage and service and uid are present': function() {
+    'logs flow.rp.engage amplitude event if event_type=engage and service and uid are present': function () {
       request = {
         headers: {},
         query: {
@@ -445,7 +445,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.ok(args[2].flowId);
     },
 
-    'does not log flow.rp.engage amplitude event if service is not a registered oauth client_id': function() {
+    'does not log flow.rp.engage amplitude event if service is not a registered oauth client_id': function () {
       request = {
         headers: {},
         query: {
@@ -460,7 +460,7 @@ registerSuite('routes/get-metrics-flow', {
       assert.equal(mocks.amplitude.callCount, 0);
     },
 
-    'validates CORS': function() {
+    'validates CORS': function () {
       const dfd = this.async(1000);
       const corsFunc = instance.cors.origin;
 
@@ -480,7 +480,7 @@ registerSuite('routes/get-metrics-flow', {
 });
 
 registerSuite('routes/get-metrics-flow remote request', {
-  'valid query parameters': function() {
+  'valid query parameters': function () {
     const headers = {
       Origin: origin,
     };
@@ -502,47 +502,47 @@ registerSuite('routes/get-metrics-flow remote request', {
     return got(serverUrl, { headers, query });
   },
 
-  'invalid context query parameter': function() {
+  'invalid context query parameter': function () {
     return testInvalidFlowQueryParam('context', 'con text');
   },
 
-  'invalid entrypoint query parameter': function() {
+  'invalid entrypoint query parameter': function () {
     return testInvalidFlowQueryParam('entrypoint', 'foo bar');
   },
 
-  'invalid entrypoint_experiment query parameter': function() {
+  'invalid entrypoint_experiment query parameter': function () {
     return testInvalidFlowQueryParam('entrypoint_experiment', 'herf menk');
   },
 
-  'invalid entrypoint_variation query parameter': function() {
+  'invalid entrypoint_variation query parameter': function () {
     return testInvalidFlowQueryParam('entrypoint_variation', 'menk herf');
   },
 
-  'invalid form_type query parameter': function() {
+  'invalid form_type query parameter': function () {
     return testInvalidFlowQueryParam('form_type', 'biz');
   },
 
-  'invalid service query parameter': function() {
+  'invalid service query parameter': function () {
     return testInvalidFlowQueryParam('service', 'zzzz');
   },
 
-  'invalid utm_campaign query parameter': function() {
+  'invalid utm_campaign query parameter': function () {
     return testInvalidFlowQueryParam('utm_campaign', 'moo cow');
   },
 
-  'invalid utm_content query parameter': function() {
+  'invalid utm_content query parameter': function () {
     return testInvalidFlowQueryParam('utm_content', 'quix quix');
   },
 
-  'invalid utm_medium query parameter': function() {
+  'invalid utm_medium query parameter': function () {
     return testInvalidFlowQueryParam('utm_medium', 'wimble!@$');
   },
 
-  'invalid utm_source query parameter': function() {
+  'invalid utm_source query parameter': function () {
     return testInvalidFlowQueryParam('utm_source', '%!@%womble');
   },
 
-  'invalid utm_term query parameter': function() {
+  'invalid utm_term query parameter': function () {
     return testInvalidFlowQueryParam('utm_term', 'jum!%^gle');
   },
 });

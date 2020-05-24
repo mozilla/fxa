@@ -15,7 +15,7 @@ const VALID_FAMILY = /^[\w ]{1,32}$/;
 
 const VALID_VERSION = /^[\w.]{1,16}$/;
 
-exports.parse = userAgentString => {
+exports.parse = (userAgentString) => {
   const result = ua.parse(userAgentString);
 
   safeFamily(result.ua);
@@ -27,7 +27,7 @@ exports.parse = userAgentString => {
   return result;
 };
 
-exports.isToVersionStringSupported = result => {
+exports.isToVersionStringSupported = (result) => {
   if (!result) {
     result = exports.parse(
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:65.0) Gecko/20100101 Firefox/65.0'

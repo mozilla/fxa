@@ -27,7 +27,7 @@ let docs;
 
 registerSuite('validation', {
   before() {
-    return request({ url: METRICS_DOCS_URL }).then(result => (docs = result));
+    return request({ url: METRICS_DOCS_URL }).then((result) => (docs = result));
   },
 
   tests: Array.from(REGEXES.entries()).reduce((tests, [name, regex]) => {

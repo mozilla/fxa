@@ -5,7 +5,7 @@
 import _ from 'lodash';
 import Backbone from 'backbone';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 // Values sent as part of Zendesk support tickets. They also act as look up keys
 // for translated strings used in the UI.
@@ -29,7 +29,7 @@ const TRANSLATED_TOPICS = [
 ];
 
 // Lowercase translated strings used in the successful submission modal.
-const LOWERED_TOPICS = TRANSLATED_TOPICS.map(x => x.toLocaleLowerCase());
+const LOWERED_TOPICS = TRANSLATED_TOPICS.map((x) => x.toLocaleLowerCase());
 
 const topicOptions = _.zipWith(
   TOPICS,
@@ -39,7 +39,7 @@ const topicOptions = _.zipWith(
 );
 
 const SupportForm = Backbone.Model.extend({
-  validate: function(attrs) {
+  validate: function (attrs) {
     if (attrs.message !== '' && attrs.productName && attrs.topic !== '') {
       return;
     }
@@ -51,13 +51,13 @@ const SupportForm = Backbone.Model.extend({
 
   topicOptions,
 
-  getTranslatedTopic: function(topic) {
-    const selected = topicOptions.find(t => t.topic === topic);
+  getTranslatedTopic: function (topic) {
+    const selected = topicOptions.find((t) => t.topic === topic);
     return selected ? selected.translated : topic;
   },
 
-  getLoweredTopic: function(topic) {
-    const selected = topicOptions.find(t => t.topic === topic);
+  getLoweredTopic: function (topic) {
+    const selected = topicOptions.find((t) => t.topic === topic);
     return selected ? selected.lowered : topic;
   },
 });

@@ -24,13 +24,13 @@ class View extends BaseView {
 
 Cocktail.mixin(View, SyncOptionalMixin);
 
-describe('views/mixins/sync-optional-mixin', function() {
+describe('views/mixins/sync-optional-mixin', function () {
   let broker;
   let view;
   let relier;
   let notifier;
 
-  beforeEach(function() {
+  beforeEach(function () {
     relier = new Relier();
     broker = new Broker();
     notifier = new Notifier();
@@ -46,7 +46,7 @@ describe('views/mixins/sync-optional-mixin', function() {
     return view.render();
   });
 
-  describe('doNotSync', function() {
+  describe('doNotSync', function () {
     it('triggers onSubmitComplete', () => {
       return view.doNotSync().then(() => {
         assert.isTrue(view.onSubmitComplete.calledOnce);

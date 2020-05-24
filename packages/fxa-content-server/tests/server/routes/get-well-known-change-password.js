@@ -15,7 +15,7 @@ const suite = {
 var route;
 
 suite.tests['get-well-known-change-password route function'] = {
-  'route function is correct': function() {
+  'route function is correct': function () {
     route = routeModule();
     assert.isObject(route);
     assert.lengthOf(Object.keys(route), 3);
@@ -25,7 +25,7 @@ suite.tests['get-well-known-change-password route function'] = {
     assert.lengthOf(route.process, 2);
   },
 
-  'route.process calls redirect': function() {
+  'route.process calls redirect': function () {
     const response = { redirect: sinon.spy() };
 
     routeModule().process({}, response);
@@ -38,11 +38,11 @@ suite.tests['get-well-known-change-password route function'] = {
 
 suite.tests[
   '#get /.well-known/change-password - returns a redirected page'
-] = function() {
+] = function () {
   const dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/change-password', {})
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 200);
       assert.equal(res.url, `${serverUrl}/settings/change_password`);
       assert.isTrue(res.body.includes('<title>Firefox Accounts</title>'));

@@ -19,12 +19,12 @@ const publicKey = {
   e: '65537',
 };
 
-describe('remote session', function() {
+describe('remote session', function () {
   this.timeout(15000);
   let server;
   config.signinConfirmation.skipForNewAccounts.enabled = false;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -41,7 +41,7 @@ describe('remote session', function() {
         password,
         server.mailbox
       )
-        .then(x => {
+        .then((x) => {
           client = x;
           return client.sessionStatus();
         })
@@ -55,10 +55,10 @@ describe('remote session', function() {
           return client.sessionStatus();
         })
         .then(
-          status => {
+          (status) => {
             assert(false, 'got status with destroyed session');
           },
-          err => {
+          (err) => {
             assert.equal(err.errno, 110, 'session is invalid');
           }
         );
@@ -72,20 +72,20 @@ describe('remote session', function() {
       let sessionTokenCreate = null;
       let sessionTokenLogin = null;
       return Client.create(config.publicUrl, email, password)
-        .then(x => {
+        .then((x) => {
           client = x;
           sessionTokenCreate = client.sessionToken;
           return client.api.sessions(sessionTokenCreate);
         })
-        .then(sessions => {
+        .then((sessions) => {
           tokenId = sessions[0].id;
           return client.login();
         })
-        .then(c => {
+        .then((c) => {
           sessionTokenLogin = c.sessionToken;
           return client.api.sessionStatus(sessionTokenCreate);
         })
-        .then(status => {
+        .then((status) => {
           assert.ok(status.uid, 'got valid session');
 
           return client.api.sessionDestroy(sessionTokenLogin, {
@@ -96,10 +96,10 @@ describe('remote session', function() {
           return client.api.sessionStatus(sessionTokenCreate);
         })
         .then(
-          status => {
+          (status) => {
             assert(false, 'got status with destroyed session');
           },
-          err => {
+          (err) => {
             assert.equal(err.code, 401);
             assert.equal(err.errno, 110, 'session is invalid');
           }
@@ -113,12 +113,12 @@ describe('remote session', function() {
       let sessionTokenCreate = null;
       let sessionTokenLogin = null;
       return Client.create(config.publicUrl, email, password)
-        .then(x => {
+        .then((x) => {
           client = x;
           sessionTokenCreate = client.sessionToken;
           return client.login();
         })
-        .then(c => {
+        .then((c) => {
           sessionTokenLogin = c.sessionToken;
           return client.api.sessionStatus(sessionTokenCreate);
         })
@@ -132,10 +132,10 @@ describe('remote session', function() {
           return client.api.sessionStatus(sessionTokenCreate);
         })
         .then(
-          status => {
+          (status) => {
             assert(false, 'got status with destroyed session');
           },
-          err => {
+          (err) => {
             assert.equal(err.code, 401);
             assert.equal(err.errno, 110, 'session is invalid');
             assert.equal(err.error, 'Unauthorized');
@@ -159,11 +159,11 @@ describe('remote session', function() {
         password,
         server.mailbox
       )
-        .then(x => {
+        .then((x) => {
           client1 = x;
           return client1.duplicate();
         })
-        .then(x => {
+        .then((x) => {
           client2 = x;
           assert.notEqual(
             client1.sessionToken,
@@ -179,7 +179,7 @@ describe('remote session', function() {
           () => {
             assert.fail('client1 session should have been destroyed');
           },
-          err => {
+          (err) => {
             assert.equal(err.code, 401);
             assert.equal(err.errno, 110);
           }
@@ -187,7 +187,7 @@ describe('remote session', function() {
         .then(() => {
           return client2.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.ok(status, 'client2 session is still alive');
           return client2.api.sessionDestroy(client2.sessionToken);
         })
@@ -198,7 +198,7 @@ describe('remote session', function() {
           () => {
             assert.fail('client2 session should have been destroyed');
           },
-          err => {
+          (err) => {
             assert.equal(err.code, 401);
             assert.equal(err.errno, 110);
           }
@@ -210,23 +210,23 @@ describe('remote session', function() {
       const password = 'foobar';
       let client1, client2, client3;
       return Client.create(config.publicUrl, email, password, server.mailbox)
-        .then(x => {
+        .then((x) => {
           client1 = x;
           return client1.duplicate();
         })
-        .then(x => {
+        .then((x) => {
           client2 = x;
           assert.ok(!client1.verified, 'client1 session is not verified');
           assert.ok(!client2.verified, 'client2 session is not verified');
           return server.mailbox.waitForCode(email);
         })
-        .then(code => {
+        .then((code) => {
           return client1.verifyEmail(code);
         })
         .then(() => {
           return client1.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'verified',
@@ -234,7 +234,7 @@ describe('remote session', function() {
           );
           return client2.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'unverified',
@@ -242,20 +242,20 @@ describe('remote session', function() {
           );
           return client2.duplicate();
         })
-        .then(x => {
+        .then((x) => {
           client3 = x;
           return client2.requestVerifyEmail();
         })
         .then(() => {
           return server.mailbox.waitForCode(email);
         })
-        .then(code => {
+        .then((code) => {
           return client2.verifyEmail(code);
         })
         .then(() => {
           return client2.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'verified',
@@ -263,7 +263,7 @@ describe('remote session', function() {
           );
           return client3.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.ok(
             status.state,
             'unverified',
@@ -285,11 +285,11 @@ describe('remote session', function() {
         server.mailbox,
         { keys: true }
       )
-        .then(x => {
+        .then((x) => {
           client = x;
           return client.keys();
         })
-        .then(keys => {
+        .then((keys) => {
           kA = keys.kA;
           kB = keys.kB;
           assert.equal(
@@ -303,7 +303,7 @@ describe('remote session', function() {
           assert.ok(client.keyFetchToken, 'got a new keyFetchToken');
           return client.keys();
         })
-        .then(keys => {
+        .then((keys) => {
           assert.equal(keys.kA, kA, 'kA was fetched successfully');
           assert.equal(keys.kB, kB, 'kB was fetched successfully');
           assert.equal(
@@ -324,13 +324,13 @@ describe('remote session', function() {
         password,
         server.mailbox
       )
-        .then(x => {
+        .then((x) => {
           client = x;
         })
         .then(() => {
           return client.sign(publicKey, duration);
         })
-        .then(cert => {
+        .then((cert) => {
           const payload = jwtool.verify(cert, pubSigKey.pem);
           assert.equal(
             payload.principal.email.split('@')[0],
@@ -346,7 +346,7 @@ describe('remote session', function() {
         .then(() => {
           return client.sign(publicKey, duration);
         })
-        .then(cert => {
+        .then((cert) => {
           const payload = jwtool.verify(cert, pubSigKey.pem);
           assert.equal(
             payload.principal.email.split('@')[0],
@@ -368,7 +368,7 @@ describe('remote session', function() {
         password,
         server.mailbox
       )
-        .then(x => {
+        .then((x) => {
           client = x;
         })
         .then(() => {
@@ -381,7 +381,7 @@ describe('remote session', function() {
           () => {
             assert.fail('password should have been rejected');
           },
-          err => {
+          (err) => {
             assert.equal(err.code, 400);
             assert.equal(err.errno, 103);
           }
@@ -393,7 +393,7 @@ describe('remote session', function() {
       const password = 'foobar';
       let client;
       return Client.create(config.publicUrl, email, password, server.mailbox)
-        .then(x => {
+        .then((x) => {
           client = x;
           assert.ok(!client.verified, 'account is not verified');
           // Clear the verification email, without verifying.
@@ -405,7 +405,7 @@ describe('remote session', function() {
         .then(() => {
           return client.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'unverified',
@@ -416,13 +416,13 @@ describe('remote session', function() {
           // The reauth should have triggerd a second email.
           return server.mailbox.waitForCode(email);
         })
-        .then(code => {
+        .then((code) => {
           return client.verifyEmail(code);
         })
         .then(() => {
           return client.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'verified',
@@ -447,11 +447,11 @@ describe('remote session', function() {
             keys: false,
           });
         })
-        .then(x => {
+        .then((x) => {
           client = x;
           return client.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'unverified',
@@ -459,7 +459,7 @@ describe('remote session', function() {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.verified,
             true,
@@ -470,7 +470,7 @@ describe('remote session', function() {
         .then(() => {
           return client.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'unverified',
@@ -478,7 +478,7 @@ describe('remote session', function() {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.verified,
             false,
@@ -487,13 +487,13 @@ describe('remote session', function() {
           // The reauth should have triggerd a verification email.
           return server.mailbox.waitForCode(email);
         })
-        .then(code => {
+        .then((code) => {
           return client.verifyEmail(code);
         })
         .then(() => {
           return client.sessionStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.state,
             'verified',
@@ -501,7 +501,7 @@ describe('remote session', function() {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(
             status.verified,
             true,
@@ -521,7 +521,7 @@ describe('remote session', function() {
         server.mailbox,
         { keys: true }
       )
-        .then(x => {
+        .then((x) => {
           client = x;
           return client.reauth({ keys: true });
         })
@@ -533,7 +533,7 @@ describe('remote session', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(msg => {
+        .then((msg) => {
           assert.ok(
             msg.headers['x-recovery-code'],
             'the next email was the password-reset email'
@@ -553,13 +553,13 @@ describe('remote session', function() {
         password,
         server.mailbox
       )
-        .then(c => {
+        .then((c) => {
           uid = c.uid;
           return c.login().then(() => {
             return c.api.sessionStatus(c.sessionToken);
           });
         })
-        .then(x => {
+        .then((x) => {
           assert.deepEqual(x, {
             state: 'unverified',
             uid: uid,
@@ -575,7 +575,7 @@ describe('remote session', function() {
         )
         .then(
           () => assert(false),
-          err => {
+          (err) => {
             assert.equal(err.errno, 110, 'invalid token');
           }
         );

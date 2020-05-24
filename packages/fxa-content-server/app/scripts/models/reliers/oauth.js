@@ -14,23 +14,14 @@ import Relier from './relier';
 import Transform from '../../lib/transform';
 import Vat from '../../lib/vat';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 /*eslint-disable camelcase*/
 const CLIENT_INFO_SCHEMA = {
-  id: Vat.hex()
-    .required()
-    .renameTo('clientId'),
-  image_uri: Vat.url()
-    .allow('')
-    .renameTo('imageUri'),
-  name: Vat.string()
-    .required()
-    .min(1)
-    .renameTo('serviceName'),
-  redirect_uri: Vat.url()
-    .required()
-    .renameTo('redirectUri'),
+  id: Vat.hex().required().renameTo('clientId'),
+  image_uri: Vat.url().allow('').renameTo('imageUri'),
+  name: Vat.string().required().min(1).renameTo('serviceName'),
+  redirect_uri: Vat.url().required().renameTo('redirectUri'),
   trusted: Vat.boolean().required(),
 };
 
@@ -38,9 +29,7 @@ const SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
   acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.action(),
-  client_id: Vat.clientId()
-    .required()
-    .renameTo('clientId'),
+  client_id: Vat.clientId().required().renameTo('clientId'),
   code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
   code_challenge_method: Vat.codeChallengeMethod().renameTo(
     'codeChallengeMethod'
@@ -54,9 +43,7 @@ const SIGNIN_SIGNUP_QUERY_PARAM_SCHEMA = {
     .renameTo('redirectUri'),
   redirectTo: Vat.url(),
   return_on_error: Vat.boolean().renameTo('returnOnError'),
-  scope: Vat.string()
-    .required()
-    .min(1),
+  scope: Vat.string().required().min(1),
   state: Vat.string(),
 };
 
@@ -64,9 +51,7 @@ const VERIFICATION_INFO_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
   acr_values: Vat.string().renameTo('acrValues'),
   action: Vat.string().min(1),
-  client_id: Vat.clientId()
-    .required()
-    .renameTo('clientId'),
+  client_id: Vat.clientId().required().renameTo('clientId'),
   code_challenge: Vat.codeChallenge().renameTo('codeChallenge'),
   code_challenge_method: Vat.codeChallengeMethod().renameTo(
     'codeChallengeMethod'
@@ -241,7 +226,7 @@ var OAuthRelier = Relier.extend({
     const clientId = this.get('clientId');
 
     return this._oAuthClient.getClientInfo(clientId).then(
-      serviceInfo => {
+      (serviceInfo) => {
         const result = Transform.transformUsingSchema(
           serviceInfo,
           CLIENT_INFO_SCHEMA,
@@ -261,7 +246,7 @@ var OAuthRelier = Relier.extend({
 
         this.set(result);
       },
-      function(err) {
+      function (err) {
         // the server returns an invalid request parameter for an
         // invalid/unknown client_id
         if (
@@ -360,7 +345,7 @@ var OAuthRelier = Relier.extend({
 
     const validation = this._config.scopedKeysValidation || {};
 
-    this.scopeStrToArray(this.get('scope')).forEach(scope => {
+    this.scopeStrToArray(this.get('scope')).forEach((scope) => {
       // eslint-disable-next-line no-prototype-builtins
       if (validation.hasOwnProperty(scope)) {
         if (validation[scope].redirectUris.includes(this.get('redirectUri'))) {
@@ -415,10 +400,10 @@ var OAuthRelier = Relier.extend({
               clientId,
               Constants.ID_TOKEN_HINT_GRACE_PERIOD
             )
-            .catch(err => {
+            .catch((err) => {
               throw OAuthErrors.toError('PROMPT_NONE_INVALID_ID_TOKEN_HINT');
             })
-            .then(claims => {
+            .then((claims) => {
               if (claims.sub !== account.get('uid')) {
                 throw OAuthErrors.toError(
                   'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN'

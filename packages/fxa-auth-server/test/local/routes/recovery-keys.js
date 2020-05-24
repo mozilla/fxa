@@ -26,7 +26,7 @@ describe('POST /recoveryKey', () => {
         payload: { recoveryKeyId, recoveryData, enabled: true },
       };
       return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
-        r => (response = r)
+        (r) => (response = r)
       );
     });
 
@@ -94,7 +94,7 @@ describe('POST /recoveryKey', () => {
         payload: { recoveryKeyId, recoveryData, enabled: false },
       };
       return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
-        r => (response = r)
+        (r) => (response = r)
       );
     });
 
@@ -125,7 +125,7 @@ describe('POST /recoveryKey', () => {
         {},
         '/recoveryKey/verify',
         requestOptions
-      ).then(r => (response = r));
+      ).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -184,7 +184,7 @@ describe('POST /recoveryKey', () => {
       };
       return setup({ db: {} }, {}, '/recoveryKey', requestOptions).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.deepEqual(
             err.errno,
             errors.ERRNO.SESSION_UNVERIFIED,
@@ -209,7 +209,7 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
         {},
         '/recoveryKey/{recoveryKeyId}',
         requestOptions
-      ).then(r => (response = r));
+      ).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -258,7 +258,7 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
         {},
         '/recoveryKey/{recoveryKeyId}',
         requestOptions
-      ).then(assert.fail, err => (response = err));
+      ).then(assert.fail, (err) => (response = err));
     });
 
     it('returned the correct response', () => {
@@ -283,7 +283,7 @@ describe('POST /recoveryKey/exists', () => {
         {},
         '/recoveryKey/exists',
         requestOptions
-      ).then(r => (response = r));
+      ).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -317,7 +317,7 @@ describe('POST /recoveryKey/exists', () => {
         {},
         '/recoveryKey/exists',
         requestOptions
-      ).then(r => (response = r));
+      ).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -362,7 +362,7 @@ describe('DELETE /recoveryKey', () => {
         {},
         '/recoveryKey',
         requestOptions
-      ).then(r => (response = r));
+      ).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -404,7 +404,7 @@ describe('DELETE /recoveryKey', () => {
         {},
         '/recoveryKey',
         requestOptions
-      ).then(assert.fail, err => (response = err));
+      ).then(assert.fail, (err) => (response = err));
     });
 
     it('returned the correct response', () => {

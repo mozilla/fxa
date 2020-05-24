@@ -14,7 +14,7 @@
     "test": "npm-run-all test:frontend test:server",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=yes rescripts test --coverage --verbose",
     "test:server": "jest --coverage --verbose --config server/jest.config.js",
-    "format": "prettier '**' --write",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "storybook": "start-storybook -s ./public -p 6006",
     "build-storybook": "build-storybook && cp -r public/locales public/images storybook-static/"
   },

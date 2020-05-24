@@ -41,23 +41,23 @@ const ACCOUNT = {
   tokenVerificationId: zeroBuffer16,
 };
 const mockLog = {
-  error: function() {},
-  increment: function() {},
-  trace: function() {},
-  info: function() {},
+  error: function () {},
+  increment: function () {},
+  trace: function () {},
+  info: function () {},
 };
 
-describe('remote push db', function() {
+describe('remote push db', function () {
   this.timeout(15000);
 
   let dbServer, db;
   before(() => {
     return TestServer.start(config)
-      .then(s => {
+      .then((s) => {
         dbServer = s;
         return DB.connect(config[config.db.backend]);
       })
-      .then(x => {
+      .then((x) => {
         db = x;
       });
   });
@@ -80,7 +80,7 @@ describe('remote push db', function() {
     // second, for a known 400 error we reset the device
     const mocksKnown400 = {
       'web-push': {
-        sendNotification: function(endpoint, params) {
+        sendNotification: function (endpoint, params) {
           const err = new Error('Failed 400 level');
           err.statusCode = 410;
           return P.reject(err);
@@ -89,7 +89,7 @@ describe('remote push db', function() {
     };
     const mocksUnknown400 = {
       'web-push': {
-        sendNotification: function(endpoint, params) {
+        sendNotification: function (endpoint, params) {
           const err = new Error('Failed 429 level');
           err.statusCode = 429;
           return P.reject(err);
@@ -102,17 +102,17 @@ describe('remote push db', function() {
       .then(() => {
         return db.emailRecord(ACCOUNT.email);
       })
-      .then(emailRecord => {
+      .then((emailRecord) => {
         emailRecord.createdAt = Date.now();
         return db.createSessionToken(emailRecord, SESSION_TOKEN_UA);
       })
 
-      .then(sessionToken => {
+      .then((sessionToken) => {
         sessionTokenId = sessionToken.id;
         deviceInfo.sessionTokenId = sessionTokenId;
         return db.createDevice(ACCOUNT.uid, deviceInfo);
       })
-      .then(device => {
+      .then((device) => {
         assert.equal(device.name, deviceInfo.name);
         assert.equal(device.pushCallback, deviceInfo.pushCallback);
         assert.equal(device.pushPublicKey, deviceInfo.pushPublicKey);
@@ -121,7 +121,7 @@ describe('remote push db', function() {
       .then(() => {
         return db.devices(ACCOUNT.uid);
       })
-      .then(devices => {
+      .then((devices) => {
         const pushWithUnknown400 = proxyquire(
           '../../lib/push',
           mocksUnknown400
@@ -135,7 +135,7 @@ describe('remote push db', function() {
       .then(() => {
         return db.devices(ACCOUNT.uid);
       })
-      .then(devices => {
+      .then((devices) => {
         const device = devices[0];
         assert.equal(device.name, deviceInfo.name);
         assert.equal(device.pushCallback, deviceInfo.pushCallback);
@@ -165,7 +165,7 @@ describe('remote push db', function() {
       .then(() => {
         return db.devices(ACCOUNT.uid);
       })
-      .then(devices => {
+      .then((devices) => {
         const device = devices[0];
         assert.equal(device.name, deviceInfo.name);
         assert.equal(

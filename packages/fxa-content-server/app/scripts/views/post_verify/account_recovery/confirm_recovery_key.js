@@ -36,7 +36,7 @@ class ConfirmRecoveryKey extends FormView {
       return this.navigate('/post_verify/account_recovery/add_recovery_key');
     }
     // An account can only support one recovery key at a time
-    return account.checkRecoveryKeyExists().then(status => {
+    return account.checkRecoveryKeyExists().then((status) => {
       if (status.exists) {
         return this.navigate(
           '/post_verify/account_recovery/verified_recovery_key'
@@ -74,7 +74,7 @@ class ConfirmRecoveryKey extends FormView {
           '/post_verify/account_recovery/verified_recovery_key'
         );
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_RECOVERY_KEY')) {
           return this.showValidationError(this.$(RECOVERY_KEY_INPUT), err);
         }

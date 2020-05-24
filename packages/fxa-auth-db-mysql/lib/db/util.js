@@ -87,7 +87,7 @@ module.exports = {
   createHash() {
     const hash = crypto.createHash('sha256');
     const args = [...arguments];
-    args.forEach(arg => {
+    args.forEach((arg) => {
       hash.update(arg);
     });
     return hash.digest();
@@ -97,10 +97,10 @@ module.exports = {
     // Creates an scrypt hash from string input with a randomly generated
     // salt. This matches process on auth-server.
     let salt;
-    return randomBytes(32).then(result => {
+    return randomBytes(32).then((result) => {
       salt = result;
       const inputBuffer = Buffer.from(input);
-      return scryptHash(inputBuffer, salt).then(hash => {
+      return scryptHash(inputBuffer, salt).then((hash) => {
         return { hash, salt };
       });
     });
@@ -108,7 +108,7 @@ module.exports = {
 
   compareHashScrypt(input, verifyHash, salt) {
     const inputBuffer = Buffer.from(input);
-    return scryptHash(inputBuffer, salt).then(hash =>
+    return scryptHash(inputBuffer, salt).then((hash) =>
       crypto.timingSafeEqual(hash, verifyHash)
     );
   },
@@ -193,7 +193,7 @@ module.exports = {
         !row[idColumn].equals(curItem[idColumn])
       ) {
         curItem = {};
-        Object.keys(row).forEach(column => {
+        Object.keys(row).forEach((column) => {
           if (column !== nameColumn && column !== valueColumn) {
             curItem[column] = row[column];
           }

@@ -32,7 +32,7 @@ LocalDriver.prototype = {
     return new P(function uploadPromise(resolve, reject) {
       var dir = PUBLIC_DIR;
       logger.debug('upload.start', name);
-      fs.writeFile(path.join(dir, name), buf, function(err) {
+      fs.writeFile(path.join(dir, name), buf, function (err) {
         if (err) {
           logger.error('upload', err);
           reject(err);
@@ -52,7 +52,7 @@ LocalDriver.prototype = {
       if (/[^a-zA-Z0-9\_\-]/.test(key)) {
         return reject(new Error('Illegal characters in key'));
       }
-      fs.unlink(path.join(dir, key), function(err) {
+      fs.unlink(path.join(dir, key), function (err) {
         if (err) {
           logger.error('delete', err);
           reject(err);

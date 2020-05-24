@@ -80,9 +80,7 @@ const BODY_SCHEMA = {
     )
     .required(),
   flowBeginTime: OFFSET_TYPE.optional(),
-  flowId: STRING_TYPE.hex()
-    .length(64)
-    .optional(),
+  flowId: STRING_TYPE.hex().length(64).optional(),
   flushTime: TIME_TYPE.required(),
   initialView: STRING_TYPE.regex(/^[a-z._-]+$/).optional(),
   isSampledUser: BOOLEAN_TYPE.required(),
@@ -137,11 +135,7 @@ const BODY_SCHEMA = {
     .keys({
       clientHeight: DIMENSION_TYPE.allow('none').required(),
       clientWidth: DIMENSION_TYPE.allow('none').required(),
-      devicePixelRatio: joi
-        .number()
-        .min(0)
-        .allow('none')
-        .required(),
+      devicePixelRatio: joi.number().min(0).allow('none').required(),
       height: DIMENSION_TYPE.allow('none').required(),
       width: DIMENSION_TYPE.allow('none').required(),
     })
@@ -162,7 +156,7 @@ const BODY_SCHEMA = {
   utm_term: UTM_TYPE.required(),
 };
 
-module.exports = function() {
+module.exports = function () {
   const metricsCollector = new MetricsCollector();
 
   return {
@@ -171,7 +165,7 @@ module.exports = function() {
     validate: {
       body: BODY_SCHEMA,
     },
-    preProcess: function(req, res, next) {
+    preProcess: function (req, res, next) {
       // convert text/plain types to JSON for validation.
       if (/^text\/plain/.test(req.get('content-type'))) {
         try {
@@ -185,7 +179,7 @@ module.exports = function() {
 
       next();
     },
-    process: function(req, res) {
+    process: function (req, res) {
       const requestReceivedTime = Date.now();
       const metrics = req.body || {};
 
@@ -215,7 +209,7 @@ module.exports = function() {
 };
 
 function findInvalidEventOffsets(events, maxOffset) {
-  return _.find(events, event => event.offset > maxOffset);
+  return _.find(events, (event) => event.offset > maxOffset);
 }
 
 function MaxOffsetError(offset, maxOffset) {

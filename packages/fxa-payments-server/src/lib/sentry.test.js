@@ -8,7 +8,7 @@ import sentryMetrics from './sentry';
 var assert = chai.assert;
 const dsn = 'https://public:private@host:port/1';
 
-describe('lib/sentry', function() {
+describe('lib/sentry', function () {
   beforeAll(() => {
     // Reduce console log noise in test output
     jest.spyOn(console, 'error').mockImplementation();
@@ -18,8 +18,8 @@ describe('lib/sentry', function() {
     jest.restoreAllMocks();
   });
 
-  describe('init', function() {
-    it('properly configures with dsn', function() {
+  describe('init', function () {
+    it('properly configures with dsn', function () {
       try {
         sentryMetrics.configure(dsn);
       } catch (e) {
@@ -28,10 +28,10 @@ describe('lib/sentry', function() {
     });
   });
 
-  describe('beforeSend', function() {
+  describe('beforeSend', function () {
     sentryMetrics.configure(dsn);
 
-    it('works without request url', function() {
+    it('works without request url', function () {
       var data = {
         key: 'value',
       };
@@ -40,7 +40,7 @@ describe('lib/sentry', function() {
       assert.equal(data, resultData);
     });
 
-    it('fingerprints errno', function() {
+    it('fingerprints errno', function () {
       var data = {
         key: 'value',
         request: {
@@ -60,7 +60,7 @@ describe('lib/sentry', function() {
       assert.equal(resultData.level, 'info', 'correct known error level');
     });
 
-    it('properly erases sensitive information from url', function() {
+    it('properly erases sensitive information from url', function () {
       var url = 'https://accounts.firefox.com/complete_reset_password';
       var badQuery =
         '?token=foo&code=bar&email=some%40restmail.net&service=sync';
@@ -83,7 +83,7 @@ describe('lib/sentry', function() {
       assert.equal(resultData.url, goodData.url);
     });
 
-    it('properly erases sensitive information from referrer', function() {
+    it('properly erases sensitive information from referrer', function () {
       var url = 'https://accounts.firefox.com/complete_reset_password';
       var badQuery =
         '?token=foo&code=bar&email=some%40restmail.net&service=sync';
@@ -111,7 +111,7 @@ describe('lib/sentry', function() {
       );
     });
 
-    it('properly erases sensitive information from abs_path', function() {
+    it('properly erases sensitive information from abs_path', function () {
       var url = 'https://accounts.firefox.com/complete_reset_password';
       var badCulprit = 'https://accounts.firefox.com/scripts/57f6d4e4.main.js';
       var badAbsPath =
@@ -154,8 +154,8 @@ describe('lib/sentry', function() {
     });
   });
 
-  describe('cleanUpQueryParam', function() {
-    it('properly erases sensitive information', function() {
+  describe('cleanUpQueryParam', function () {
+    it('properly erases sensitive information', function () {
       var fixtureUrl1 =
         'https://accounts.firefox.com/complete_reset_password?token=foo&code=bar&email=some%40restmail.net';
       var expectedUrl1 =
@@ -165,7 +165,7 @@ describe('lib/sentry', function() {
       assert.equal(resultUrl1, expectedUrl1);
     });
 
-    it('properly erases sensitive information, keeps allowed fields', function() {
+    it('properly erases sensitive information, keeps allowed fields', function () {
       var fixtureUrl2 =
         'https://accounts.firefox.com/signup?client_id=foo&service=sync';
       var expectedUrl2 =
@@ -175,7 +175,7 @@ describe('lib/sentry', function() {
       assert.equal(resultUrl2, expectedUrl2);
     });
 
-    it('properly returns the url when there is no query', function() {
+    it('properly returns the url when there is no query', function () {
       var expectedUrl = 'https://accounts.firefox.com/signup';
       var resultUrl = sentryMetrics.__cleanUpQueryParam(expectedUrl);
 

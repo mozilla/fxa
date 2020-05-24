@@ -163,7 +163,7 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('notifies the channel of login, halts by default', () => {
       sinon.spy(broker, 'send');
 
-      return broker.afterSignIn(account).then(result => {
+      return broker.afterSignIn(account).then((result) => {
         assert.isTrue(broker.send.calledWith('login'));
         assert.isTrue(result.halt);
       });
@@ -214,12 +214,14 @@ describe('models/auth_brokers/fx-ios-v1', () => {
     it('notifies the channel of login, halts by default', () => {
       sinon.spy(broker, 'send');
 
-      return broker.afterResetPasswordConfirmationPoll(account).then(result => {
-        assert.isTrue(broker.send.calledWith('login'));
-        assert.isTrue(broker.send.calledOnce);
+      return broker
+        .afterResetPasswordConfirmationPoll(account)
+        .then((result) => {
+          assert.isTrue(broker.send.calledWith('login'));
+          assert.isTrue(broker.send.calledOnce);
 
-        assert.isTrue(result.halt);
-      });
+          assert.isTrue(result.halt);
+        });
     });
   });
 

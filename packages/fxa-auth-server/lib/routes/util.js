@@ -31,26 +31,14 @@ module.exports = (log, config, redirectDomain) => {
       options: {
         validate: {
           query: {
-            code: isA
-              .string()
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
-            uid: isA
-              .string()
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
-            service: isA
-              .string()
-              .max(16)
-              .alphanum()
-              .optional(),
+            code: isA.string().max(32).regex(HEX_STRING).required(),
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
           },
         },
       },
-      handler: async function(request, h) {
+      handler: async function (request, h) {
         return h.redirect(config.contentServer.url + request.raw.req.url);
       },
     },
@@ -61,26 +49,14 @@ module.exports = (log, config, redirectDomain) => {
         validate: {
           query: {
             email: validators.email().required(),
-            code: isA
-              .string()
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
-            token: isA
-              .string()
-              .max(64)
-              .regex(HEX_STRING)
-              .required(),
-            service: isA
-              .string()
-              .max(16)
-              .alphanum()
-              .optional(),
+            code: isA.string().max(32).regex(HEX_STRING).required(),
+            token: isA.string().max(64).regex(HEX_STRING).required(),
+            service: isA.string().max(16).alphanum().optional(),
             redirectTo: validators.redirectTo(redirectDomain).optional(),
           },
         },
       },
-      handler: async function(request, h) {
+      handler: async function (request, h) {
         return h.redirect(config.contentServer.url + request.raw.req.url);
       },
     },

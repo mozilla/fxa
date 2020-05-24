@@ -8,7 +8,7 @@
  */
 import _ from 'underscore';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const WEBMAIL_SERVICES = [
   {
@@ -61,7 +61,7 @@ export default {
   },
 
   _getService(email) {
-    return _.find(WEBMAIL_SERVICES, function(service) {
+    return _.find(WEBMAIL_SERVICES, function (service) {
       return service.regex.test(email);
     });
   },

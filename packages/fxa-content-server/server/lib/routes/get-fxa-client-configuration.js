@@ -15,7 +15,7 @@ function stripV1Suffix(url) {
   return url;
 }
 
-module.exports = function(config) {
+module.exports = function (config) {
   const route = {};
   route.method = 'get';
   route.path = '/.well-known/fxa-client-configuration';
@@ -49,7 +49,7 @@ module.exports = function(config) {
     cacheControlHeader = 'public, max-age=' + maxAge;
   }
 
-  route.process = function(req, res) {
+  route.process = function (req, res) {
     if (cacheControlHeader) {
       res.header('Cache-Control', cacheControlHeader);
     }

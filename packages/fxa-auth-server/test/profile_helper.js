@@ -20,13 +20,13 @@ module.exports = () => {
       {
         method: 'DELETE',
         path: '/v1/cache/{uid}',
-        handler: async function(request, h) {
+        handler: async function (request, h) {
           return h.response({}).code(200);
         },
       },
     ]);
 
-    api.start().then(err => {
+    api.start().then((err) => {
       if (err) {
         console.log(err); // eslint-disable-line no-console
         return reject(err);
@@ -34,7 +34,7 @@ module.exports = () => {
       resolve({
         close() {
           return new P((resolve, reject) => {
-            api.stop().then(err => {
+            api.stop().then((err) => {
               if (err) {
                 reject(err);
               } else {

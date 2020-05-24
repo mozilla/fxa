@@ -108,9 +108,9 @@ exports.create = async function createServer() {
     );
   }
 
-  server.auth.scheme('oauth', function() {
+  server.auth.scheme('oauth', function () {
     return {
-      authenticate: async function(req, h) {
+      authenticate: async function (req, h) {
         var auth = req.headers.authorization;
         var url = config.oauth.url + '/verify';
         logger.debug('auth', auth);
@@ -128,7 +128,7 @@ exports.create = async function createServer() {
                   token: token,
                 },
               },
-              function(err, resp, body) {
+              function (err, resp, body) {
                 if (err || resp.statusCode >= 500) {
                   err = err || resp.statusMessage || 'unknown';
                   logger.error('oauth.error', err);
@@ -146,7 +146,7 @@ exports.create = async function createServer() {
           });
         }
 
-        return makeReq().then(body => {
+        return makeReq().then((body) => {
           return h.authenticated({
             credentials: body,
           });
@@ -157,9 +157,9 @@ exports.create = async function createServer() {
 
   server.auth.strategy('oauth', 'oauth');
 
-  server.auth.scheme('secretBearerToken', function() {
+  server.auth.scheme('secretBearerToken', function () {
     return {
-      authenticate: async function(req, h) {
+      authenticate: async function (req, h) {
         // HACK: get fresh copy of secretBearerToken from config because tests change it.
         var expectedToken = require('../config').get('secretBearerToken');
         var auth = req.headers.authorization;
@@ -192,7 +192,7 @@ exports.create = async function createServer() {
   var routes = require('../routing');
   if (isProd) {
     logger.info('production', 'Disabling response schema validation');
-    routes.forEach(function(route) {
+    routes.forEach(function (route) {
       delete route.config.response;
     });
   }
@@ -200,7 +200,7 @@ exports.create = async function createServer() {
   // Expand the scope list on each route to include all super-scopes,
   // so that Hapi can easily check them via simple string comparison.
   routes = routes
-    .map(function(routeDefinition) {
+    .map(function (routeDefinition) {
       // create a copy of the route definition to avoid cross-unit test
       // contamination since we make local changes to the definition object.
       const route = cloneDeep(routeDefinition);
@@ -212,7 +212,7 @@ exports.create = async function createServer() {
       }
       return route;
     })
-    .map(function(route) {
+    .map(function (route) {
       if (route.config.cache === undefined) {
         route.config.cache = {
           otherwise: 'private, no-cache, no-store, must-revalidate',
@@ -223,12 +223,12 @@ exports.create = async function createServer() {
 
   await server.route(routes);
 
-  server.ext('onPreAuth', function(request, h) {
+  server.ext('onPreAuth', function (request, h) {
     // Construct source-ip-address chain for logging.
     var xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(request.info.remoteAddress);
     // Remove empty items from the list, in case of badly-formed header.
-    xff = xff.filter(function(x) {
+    xff = xff.filter(function (x) {
       return x;
     });
     // Skip over entries for our own infra, loadbalancers, etc.
@@ -252,7 +252,7 @@ exports.create = async function createServer() {
     return h.continue;
   });
 
-  server.ext('onPreResponse', request => {
+  server.ext('onPreResponse', (request) => {
     var response = request.response;
     if (response.isBoom) {
       response = AppError.translate(response);

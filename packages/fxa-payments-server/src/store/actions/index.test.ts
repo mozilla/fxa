@@ -37,7 +37,7 @@ describe('resetActions', () => {
     'resetUpdatePayment',
     'resetUpdateSubscriptionPlan',
   ];
-  actionNames.forEach(name => {
+  actionNames.forEach((name) => {
     describe(name, () => {
       const type = name;
       it('produces the expected type', assertActionType(name, type));

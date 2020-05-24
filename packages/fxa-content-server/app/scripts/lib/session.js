@@ -43,7 +43,7 @@ Session.prototype = {
     // Update new values, without overwriting items on the prototype.
     _.each(
       values,
-      function(value, key) {
+      function (value, key) {
         // eslint-disable-next-line no-prototype-builtins
         if (!Session.prototype.hasOwnProperty(key)) {
           this[key] = value;
@@ -67,7 +67,7 @@ Session.prototype = {
     // Clear values that no longer exist in storage.
     _.each(
       this,
-      function(value, key) {
+      function (value, key) {
         if (!Session.prototype.hasOwnProperty(key)) {
           if (!values.hasOwnProperty(key)) {
             this[key] = null;
@@ -92,7 +92,7 @@ Session.prototype = {
     if (typeof value === 'undefined' && typeof key === 'object') {
       return _.each(
         key,
-        function(value, key) {
+        function (value, key) {
           this.set(key, value);
         },
         this
@@ -114,7 +114,7 @@ Session.prototype = {
     // items on the blacklist do not get saved to sessionStorage.
     var toSaveToSessionStorage = {};
     var toSaveToLocalStorage = {};
-    _.each(this, function(value, key) {
+    _.each(this, function (value, key) {
       if (_.indexOf(PERSIST_TO_LOCAL_STORAGE, key) >= 0) {
         toSaveToLocalStorage[key] = value;
       } else {

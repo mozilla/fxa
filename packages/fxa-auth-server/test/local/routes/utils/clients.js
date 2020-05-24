@@ -11,7 +11,7 @@ const moment = require('moment');
 
 const EARLIEST_SANE_TIMESTAMP = 31536000000;
 
-const makeClientUtils = options => {
+const makeClientUtils = (options) => {
   const log = options.log || mocks.mockLog();
   const config = options.config || {};
   config.lastAccessTimeUpdates = config.lastAccessTimeUpdates || {
@@ -184,9 +184,7 @@ describe('clientUtils.formatTimestamps', () => {
     assert.equal(client.approximateLastAccessTime, EARLIEST_SANE_TIMESTAMP);
     assert.equal(
       client.approximateLastAccessTimeFormatted,
-      moment(EARLIEST_SANE_TIMESTAMP)
-        .locale('en')
-        .fromNow()
+      moment(EARLIEST_SANE_TIMESTAMP).locale('en').fromNow()
     );
   });
 

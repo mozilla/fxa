@@ -32,7 +32,7 @@ describe('views/behaviors/settings', () => {
       const account = new Account();
       sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(true));
 
-      return settingsBehavior(view, account).then(behavior => {
+      return settingsBehavior(view, account).then((behavior) => {
         assert.equal(behavior.type, 'navigate');
         assert.equal(behavior.endpoint, 'settings');
       });
@@ -47,7 +47,7 @@ describe('views/behaviors/settings', () => {
       const account = new Account();
       sinon.stub(account, 'isSignedIn').callsFake(() => Promise.resolve(false));
 
-      return settingsBehavior(view, account).then(behavior => {
+      return settingsBehavior(view, account).then((behavior) => {
         assert.strictEqual(behavior, defaultBehavior);
       });
     });

@@ -22,7 +22,7 @@ options.createDatabase = true;
 options.reversePatchAllowed = false;
 options.database = constants.DATABASE_NAME;
 
-patcher.patch(options, function(err) {
+patcher.patch(options, function (err) {
   if (err) {
     logger.error('patch-error', { err: '' + err });
     process.exit(2);

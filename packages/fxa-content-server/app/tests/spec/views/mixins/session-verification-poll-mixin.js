@@ -53,7 +53,7 @@ describe('views/mixins/session-verification-poll-mixin', () => {
       sinon.stub(sessionVerificationPoll, 'start').callsFake(() => {});
     });
 
-    it('calls the callback when the session is verified', done => {
+    it('calls the callback when the session is verified', (done) => {
       view.waitForSessionVerification(account, () => done());
 
       assert.isTrue(sessionVerificationPoll.start.calledOnce);
@@ -132,7 +132,7 @@ describe('views/mixins/session-verification-poll-mixin', () => {
       );
     });
 
-    it('displays an error when an unknown error occurs', function() {
+    it('displays an error when an unknown error occurs', function () {
       const unknownError = 'Something failed';
 
       sinon.spy(view, 'replaceCurrentPage');
@@ -144,13 +144,13 @@ describe('views/mixins/session-verification-poll-mixin', () => {
     });
 
     function testErrorRestartsPoll(errorName) {
-      describe(`with ${errorName}`, function() {
+      describe(`with ${errorName}`, function () {
         let sandbox;
 
-        beforeEach(function() {
+        beforeEach(function () {
           sandbox = sinon.sandbox.create();
           sandbox.stub(sessionVerificationPoll, 'start').callsFake(() => {});
-          sandbox.stub(view, 'setTimeout').callsFake(callback => callback());
+          sandbox.stub(view, 'setTimeout').callsFake((callback) => callback());
 
           view._handleSessionVerificationPollErrors(
             account,
@@ -158,11 +158,11 @@ describe('views/mixins/session-verification-poll-mixin', () => {
           );
         });
 
-        afterEach(function() {
+        afterEach(function () {
           sandbox.restore();
         });
 
-        it('polls the auth server, captures the exception, no error to user, restarts polling', function() {
+        it('polls the auth server, captures the exception, no error to user, restarts polling', function () {
           assert.equal(view.$('.error').text(), '');
           assert.equal(sessionVerificationPoll.start.callCount, 1);
         });

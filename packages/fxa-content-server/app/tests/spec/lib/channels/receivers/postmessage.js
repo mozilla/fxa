@@ -11,8 +11,8 @@ import WindowMock from '../../../../mocks/window';
 let windowMock;
 let receiver;
 
-describe('lib/channels/receivers/postmessage', function() {
-  beforeEach(function() {
+describe('lib/channels/receivers/postmessage', function () {
+  beforeEach(function () {
     windowMock = new WindowMock();
     receiver = new PostMessageReceiver();
     receiver.initialize({
@@ -21,22 +21,22 @@ describe('lib/channels/receivers/postmessage', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     receiver.teardown();
   });
 
-  describe('isOriginIgnored', function() {
-    it('returns `true` for `chrome://browser`', function() {
+  describe('isOriginIgnored', function () {
+    it('returns `true` for `chrome://browser`', function () {
       assert.isTrue(receiver.isOriginIgnored('chrome://browser'));
     });
 
-    it('returns `false` by default', function() {
+    it('returns `false` by default', function () {
       assert.isFalse(receiver.isOriginIgnored('https://accounts.firefox.com'));
     });
   });
 
-  describe('isOriginTrusted', function() {
-    it('accepts an origin of the string constant `null`', function() {
+  describe('isOriginTrusted', function () {
+    it('accepts an origin of the string constant `null`', function () {
       // `message` events that come from the Fx Desktop browser have an
       // origin of the string constant 'null'. See
       // https://developer.mozilla.org/docs/Web/API/Window/postMessage#Using_win.postMessage_in_extensions
@@ -53,7 +53,7 @@ describe('lib/channels/receivers/postmessage', function() {
       assert.isFalse(receiver.isOriginTrusted(undefined));
     });
 
-    it('accepts an origin if it matches the passed in origin', function() {
+    it('accepts an origin if it matches the passed in origin', function () {
       assert.isTrue(receiver.isOriginTrusted('http://firstrun.firefox.org'));
       // scheme mismatch
       assert.isFalse(receiver.isOriginTrusted('https://firstrun.firefox.org'));
@@ -61,8 +61,8 @@ describe('lib/channels/receivers/postmessage', function() {
     });
   });
 
-  describe('receiveEvent', function() {
-    it('ignores messages from an ignored origin', function() {
+  describe('receiveEvent', function () {
+    it('ignores messages from an ignored origin', function () {
       var errorSpy = sinon.spy();
       receiver.on('error', errorSpy);
 
@@ -79,7 +79,7 @@ describe('lib/channels/receivers/postmessage', function() {
       assert.isFalse(messageSpy.called);
     });
 
-    it('ignores messages with an incorrect type', function() {
+    it('ignores messages with an incorrect type', function () {
       var errorSpy = sinon.spy();
       receiver.on('error', errorSpy);
 
@@ -95,7 +95,7 @@ describe('lib/channels/receivers/postmessage', function() {
       assert.isFalse(messageSpy.called);
     });
 
-    it('triggers an `error` message if the postMessage event is malformed', function() {
+    it('triggers an `error` message if the postMessage event is malformed', function () {
       var errorSpy = sinon.spy();
       receiver.on('error', errorSpy);
 
@@ -108,7 +108,7 @@ describe('lib/channels/receivers/postmessage', function() {
       assert.equal(errorSpy.args[0][0].error.message, 'malformed event');
     });
 
-    it('triggers an `error` message if the postMessage event is from an untrusted origin', function() {
+    it('triggers an `error` message if the postMessage event is from an untrusted origin', function () {
       var errorSpy = sinon.spy();
       receiver.on('error', errorSpy);
 
@@ -128,7 +128,7 @@ describe('lib/channels/receivers/postmessage', function() {
       );
     });
 
-    it("triggers a `message` event with event's message", function() {
+    it("triggers a `message` event with event's message", function () {
       var messageSpy = sinon.spy();
       receiver.on('message', messageSpy);
 

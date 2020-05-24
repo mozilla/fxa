@@ -9,7 +9,7 @@ const hex = require('buf').to.hex;
 const SubscriptionUtils = (module.exports = {
   // Support some default null values for product / plan metadata and
   // allow plan metadata to override product metadata
-  metadataFromPlan: plan => ({
+  metadataFromPlan: (plan) => ({
     productSet: null,
     productOrder: null,
     emailIconURL: null,
@@ -21,14 +21,14 @@ const SubscriptionUtils = (module.exports = {
   }),
 
   // Parse a comma-separated list of capabilities with allowance for varied whitespace
-  splitCapabilities: s =>
+  splitCapabilities: (s) =>
     (s || '')
       .trim()
       .split(',')
-      .map(c => c.trim())
-      .filter(c => !!c),
+      .map((c) => c.trim())
+      .filter((c) => !!c),
 
-  determineSubscriptionCapabilities: async function(stripeHelper, uid, email) {
+  determineSubscriptionCapabilities: async function (stripeHelper, uid, email) {
     if (!stripeHelper) {
       return undefined;
     }
@@ -40,7 +40,7 @@ const SubscriptionUtils = (module.exports = {
     return gatherCapabilitiesFromStripe(subscribedProducts, stripeHelper);
   },
 
-  determineClientVisibleSubscriptionCapabilities: function(
+  determineClientVisibleSubscriptionCapabilities: function (
     clientIdRaw,
     allCapabilities
   ) {
@@ -83,7 +83,7 @@ async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
   }
   const subscribedProducts = customer.subscriptions.data
     // TODO: Centralize subscription filtering logic for active subs
-    .filter(sub => ['active', 'trialing', 'past_due'].includes(sub.status))
+    .filter((sub) => ['active', 'trialing', 'past_due'].includes(sub.status))
     .map(({ plan: { product: productId } }) => productId);
   return subscribedProducts;
 }
@@ -98,7 +98,7 @@ async function gatherCapabilitiesFromStripe(subscribedProducts, stripeHelper) {
       continue;
     }
     const metadata = SubscriptionUtils.metadataFromPlan(plan);
-    const capabilityKeys = Object.keys(metadata).filter(key =>
+    const capabilityKeys = Object.keys(metadata).filter((key) =>
       key.startsWith('capabilities')
     );
     for (const key of capabilityKeys) {

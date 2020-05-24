@@ -47,7 +47,7 @@ PushManager.prototype.getSubscription = function getSubscription() {
   // See http://mozilla-push-service.readthedocs.io/en/latest/design/#simplepush-protocol
 
   function send(msg) {
-    ws.send(JSON.stringify(msg), { mask: true }, err => {
+    ws.send(JSON.stringify(msg), { mask: true }, (err) => {
       if (err) {
         onError(err);
       }
@@ -60,19 +60,19 @@ PushManager.prototype.getSubscription = function getSubscription() {
   }
 
   const handlers = {
-    hello: function() {
+    hello: function () {
       send({
         messageType: 'register',
         channelID: self.channelId,
       });
     },
-    register: function(data) {
+    register: function (data) {
       d.resolve({
         endpoint: data.pushEndpoint,
       });
       ws.close();
     },
-    '': function(data) {
+    '': function (data) {
       onError(new Error(`Unexpected ws message: ${JSON.stringify(data)}`));
     },
   };

@@ -37,7 +37,7 @@ const MOBILE_UA_OS_FAMILIES = new Set(['Firefox iOS']);
 // $6 = application name
 const SYNC_USER_AGENT = /^(Firefox|Mobile)-(\w+)-(?:FxA(?:ccounts)?|Sync)\/([^\sb]*)(?:b\S+)? ?(?:\(([\w\s]+); [\w\s]+ ([^\s()]+)\))?(?: \((.+)\))?$/;
 
-module.exports = function(userAgentString) {
+module.exports = function (userAgentString) {
   const matches = SYNC_USER_AGENT.exec(userAgentString);
   if (matches && matches.length > 2) {
     // Always parse known Sync user-agents ourselves,

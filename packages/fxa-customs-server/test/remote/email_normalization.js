@@ -24,23 +24,23 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('too many failed logins using different capitalizations', function(t) {
+test('too many failed logins using different capitalizations', function (t) {
   return client
     .postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'first login attempt noted');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -49,7 +49,7 @@ test('too many failed logins using different capitalizations', function(t) {
         ip: TEST_IP,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'second login attempt noted');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -58,7 +58,7 @@ test('too many failed logins using different capitalizations', function(t) {
         ip: TEST_IP,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'third login attempt noted');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -68,7 +68,7 @@ test('too many failed logins using different capitalizations', function(t) {
         action: 'accountLogin',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'login check succeeds');
       t.equal(obj.block, true, 'login with exact email address is blocked');
 
@@ -78,21 +78,21 @@ test('too many failed logins using different capitalizations', function(t) {
         action: 'accountLogin',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'login check succeeds');
       t.equal(obj.block, true, 'login with weird caps is blocked');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('failed logins are cleared', function(t) {
+test('failed logins are cleared', function (t) {
   return client
     .postAsync('/passwordReset', { email: 'tEst@example.com' })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'request returns a 200');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -102,21 +102,21 @@ test('failed logins are cleared', function(t) {
         action: 'accountLogin',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'login check succeeds');
       t.equal(obj.block, false, 'login is no longer blocked');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('blocking an email using weird caps', function(t) {
+test('blocking an email using weird caps', function (t) {
   return client
     .postAsync('/blockEmail', { email: 'test@EXAMPLE.COM' })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'block request returns a 200');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -126,18 +126,18 @@ test('blocking an email using weird caps', function(t) {
         action: 'accountCreate',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, true, 'request was blocked');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('treat gmail email alias containing `+` and `.` as the same email', t => {
+test('treat gmail email alias containing `+` and `.` as the same email', (t) => {
   return client
     .postAsync('/check', {
       email: 'test@gmail.com',
@@ -185,13 +185,13 @@ test('treat gmail email alias containing `+` and `.` as the same email', t => {
       t.equal(obj.block, false, 'login not blocked on different email');
       t.end();
     })
-    .catch(err => {
+    .catch((err) => {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

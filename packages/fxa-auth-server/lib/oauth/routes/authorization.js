@@ -54,13 +54,11 @@ module.exports = {
       response_type: Joi.string()
         .valid(RESPONSE_TYPE_CODE, RESPONSE_TYPE_TOKEN)
         .default(RESPONSE_TYPE_CODE),
-      state: Joi.string()
-        .max(256)
-        .when('response_type', {
-          is: RESPONSE_TYPE_TOKEN,
-          then: Joi.optional(),
-          otherwise: Joi.required(),
-        }),
+      state: Joi.string().max(256).when('response_type', {
+        is: RESPONSE_TYPE_TOKEN,
+        then: Joi.optional(),
+        otherwise: Joi.required(),
+      }),
       ttl: Joi.number()
         .positive()
         .max(MAX_TTL_S)
@@ -97,10 +95,7 @@ module.exports = {
         then: Joi.optional(),
         otherwise: Joi.forbidden(),
       }),
-      acr_values: Joi.string()
-        .max(256)
-        .optional()
-        .allow(null),
+      acr_values: Joi.string().max(256).optional().allow(null),
 
       resource: validators.resourceUrl.when('response_type', {
         is: RESPONSE_TYPE_TOKEN,

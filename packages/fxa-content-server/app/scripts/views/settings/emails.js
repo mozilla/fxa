@@ -16,7 +16,7 @@ import Template from 'templates/settings/emails.mustache';
 import Url from '../../lib/url';
 import { MAX_SECONDARY_EMAILS } from '../../lib/constants';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const EMAIL_INPUT_SELECTOR = 'input.new-email';
 const EMAIL_REFRESH_SELECTOR = 'button.settings-button.email-refresh';
@@ -38,7 +38,7 @@ var View = FormView.extend({
   },
 
   beforeRender() {
-    return this.setupSessionGateIfRequired().then(isEnabled => {
+    return this.setupSessionGateIfRequired().then((isEnabled) => {
       if (isEnabled) {
         return this._fetchEmails();
       }
@@ -128,15 +128,15 @@ var View = FormView.extend({
 
   _fetchEmails() {
     const account = this.getSignedInAccount();
-    return account.recoveryEmails().then(emails => {
-      this._emails = emails.map(email => {
+    return account.recoveryEmails().then((emails) => {
+      this._emails = emails.map((email) => {
         return new Email(email).toJSON();
       });
     });
   },
 
   refresh: showProgressIndicator(
-    function() {
+    function () {
       this.setLastCheckedTime();
       return this.render();
     },
@@ -170,7 +170,7 @@ var View = FormView.extend({
           });
           this.render();
         })
-        .catch(err =>
+        .catch((err) =>
           this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err)
         );
     }

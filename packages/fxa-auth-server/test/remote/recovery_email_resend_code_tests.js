@@ -11,14 +11,14 @@ const P = require('../../lib/promise');
 
 const config = require('../../config').getProperties();
 
-describe('remote recovery email resend code', function() {
+describe('remote recovery email resend code', function () {
   this.timeout(15000);
   let server;
   before(() => {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -41,7 +41,7 @@ describe('remote recovery email resend code', function() {
       server.mailbox,
       options
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         // Clear first account create email and login again
         return server.mailbox
@@ -55,20 +55,20 @@ describe('remote recovery email resend code', function() {
               options
             )
           )
-          .then(c => (client = c));
+          .then((c) => (client = c));
       })
       .then(() => server.mailbox.waitForCode(email))
-      .then(code => {
+      .then((code) => {
         verifyEmailCode = code;
         return client.requestVerifyEmail();
       })
       .then(() => server.mailbox.waitForCode(email))
-      .then(code => {
+      .then((code) => {
         assert.equal(code, verifyEmailCode, 'code equal to verify email code');
         return client.verifyEmail(code);
       })
       .then(() => client.emailStatus())
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -107,7 +107,7 @@ describe('remote recovery email resend code', function() {
           options
         );
       })
-      .then(c => {
+      .then((c) => {
         client2 = c;
       })
       .then(() => {
@@ -116,21 +116,21 @@ describe('remote recovery email resend code', function() {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(code => {
+      .then((code) => {
         verifyEmailCode = code;
         return client2.requestVerifyEmail();
       })
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(code => {
+      .then((code) => {
         assert.equal(code, verifyEmailCode, 'code equal to verify email code');
         return client2.verifyEmail(code);
       })
       .then(() => {
         return client2.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -165,7 +165,7 @@ describe('remote recovery email resend code', function() {
         options
       ),
     ])
-      .then(res => {
+      .then((res) => {
         // Login with `email` and attempt to resend verification code for `secondEmail`
         client = res[0];
         client.options = {
@@ -175,7 +175,7 @@ describe('remote recovery email resend code', function() {
           assert.fail('Should not have succeeded in sending verification code');
         });
       })
-      .catch(err => {
+      .catch((err) => {
         assert.equal(err.code, 400);
         assert.equal(err.errno, 150);
       });
@@ -195,26 +195,26 @@ describe('remote recovery email resend code', function() {
       server.mailbox,
       options
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         // Create an unverified session
         return client
           .login()
-          .then(c => {
+          .then((c) => {
             client = c;
             // Clear the verify account email
             return server.mailbox.waitForCode(email);
           })
           .then(() => client.sessionStatus());
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(result.state, 'unverified', 'session is unverified');
         // set the type of code to receive
         client.options.type = 'upgradeSession';
         return client.requestVerifyEmail();
       })
       .then(() => server.mailbox.waitForEmail(email))
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyPrimary');
         const code = emailData.headers['x-verify-code'];
         assert.ok(code, 'code set');
@@ -226,7 +226,7 @@ describe('remote recovery email resend code', function() {
         return client.verifyEmail(code);
       })
       .then(() => client.sessionStatus())
-      .then(result => {
+      .then((result) => {
         assert.equal(result.state, 'verified', 'session is verified');
       });
   });

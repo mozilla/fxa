@@ -50,7 +50,7 @@ describe('checkPassword', () => {
   });
 
   it('should check with correct password', () => {
-    db.checkPassword = sinon.spy(uid => P.resolve(true));
+    db.checkPassword = sinon.spy((uid) => P.resolve(true));
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,
@@ -63,10 +63,10 @@ describe('checkPassword', () => {
       accountRecord.verifierVersion
     );
 
-    return password.verifyHash().then(hash => {
+    return password.verifyHash().then((hash) => {
       return signinUtils
         .checkPassword(accountRecord, password, CLIENT_ADDRESS)
-        .then(match => {
+        .then((match) => {
           assert.ok(match, 'password matches, checkPassword returns true');
 
           assert.calledOnce(db.checkPassword);
@@ -78,7 +78,7 @@ describe('checkPassword', () => {
   });
 
   it('should return false when check with incorrect password', () => {
-    db.checkPassword = sinon.spy(uid => P.resolve(false));
+    db.checkPassword = sinon.spy((uid) => P.resolve(false));
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,
@@ -107,7 +107,7 @@ describe('checkPassword', () => {
         );
         return signinUtils
           .checkPassword(accountRecord, badPassword, CLIENT_ADDRESS)
-          .then(match => {
+          .then((match) => {
             assert.equal(
               !!match,
               false,
@@ -144,10 +144,10 @@ describe('checkPassword', () => {
     return signinUtils
       .checkPassword(accountRecord, incorrectPassword, CLIENT_ADDRESS)
       .then(
-        match => {
+        (match) => {
           assert(false, 'password check should not have succeeded');
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             error.ERRNO.ACCOUNT_RESET,
@@ -256,7 +256,7 @@ describe('checkCustomsAndLoadAccount', () => {
   });
 
   it('should load the account record when customs allows the request', () => {
-    return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(res => {
+    return checkCustomsAndLoadAccount(request, TEST_EMAIL).then((res) => {
       assert.equal(res.didSigninUnblock, false, 'did not do signin unblock');
       assert.ok(res.accountRecord, 'accountRecord was returned');
       assert.equal(
@@ -288,7 +288,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.message,
           'unexpected!',
@@ -308,7 +308,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.deepEqual(
           err,
           origErr,
@@ -331,7 +331,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.ACCOUNT_UNKNOWN,
@@ -354,7 +354,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.ACCOUNT_UNKNOWN,
@@ -377,7 +377,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.REQUEST_BLOCKED,
@@ -410,7 +410,7 @@ describe('checkCustomsAndLoadAccount', () => {
     db.consumeUnblockCode = sinon.spy(() =>
       P.resolve({ createdAt: Date.now() })
     );
-    return checkCustomsAndLoadAccount(request, TEST_EMAIL).then(res => {
+    return checkCustomsAndLoadAccount(request, TEST_EMAIL).then((res) => {
       assert.equal(res.didSigninUnblock, true, 'did ignin unblock');
       assert.ok(res.accountRecord, 'accountRecord was returned');
       assert.equal(
@@ -449,7 +449,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.THROTTLED,
@@ -473,7 +473,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.SERVER_BUSY,
@@ -500,7 +500,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.THROTTLED,
@@ -528,7 +528,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.INVALID_UNBLOCK_CODE,
@@ -569,7 +569,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.INVALID_UNBLOCK_CODE,
@@ -608,7 +608,7 @@ describe('checkCustomsAndLoadAccount', () => {
       () => {
         assert.fail('should not succeed');
       },
-      err => {
+      (err) => {
         assert.equal(
           err.errno,
           error.ERRNO.REQUEST_BLOCKED,
@@ -1259,7 +1259,7 @@ describe('createKeyFetchToken', () => {
       accountRecord,
       password,
       sessionToken
-    ).then(res => {
+    ).then((res) => {
       assert.deepEqual(
         res,
         { id: 'KEY_FETCH_TOKEN' },

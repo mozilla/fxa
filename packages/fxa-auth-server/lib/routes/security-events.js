@@ -14,7 +14,7 @@ module.exports = (log, db, config) => {
           strategy: 'sessionToken',
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('SecurityEventsGet', request);
         const { uid } = request.auth.credentials;
 
@@ -30,7 +30,7 @@ module.exports = (log, db, config) => {
           strategy: 'sessionToken',
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('SecurityEventsDelete', request);
         const { uid } = request.auth.credentials;
 

@@ -68,7 +68,7 @@ describe('models/sync-engines', () => {
       fx56UserAgent = new UserAgent(FIREFOX_56_USER_AGENT_STRING);
     });
 
-    DEFAULT_SYNC_ENGINE_IDS.forEach(engineId => {
+    DEFAULT_SYNC_ENGINE_IDS.forEach((engineId) => {
       it(`always returns \`true\` for ${engineId}`, () => {
         assert.isTrue(
           syncEngines.isEngineSupportedByUA(engineId, fx55UserAgent)

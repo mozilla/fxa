@@ -43,7 +43,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('cached signin', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
     email2 = createEmail();
     return this.remote
@@ -52,7 +52,7 @@ registerSuite('cached signin', {
       .then(createUser(email2, PASSWORD, { preVerified: true }));
   },
   tests: {
-    'sign in twice, on second attempt email will be cached': function() {
+    'sign in twice, on second attempt email will be cached': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -69,7 +69,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in with incorrect email case before normalization fix, on second attempt canonical form is used': function() {
+    'sign in with incorrect email case before normalization fix, on second attempt canonical form is used': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -100,7 +100,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in once, use a different account': function() {
+    'sign in once, use a different account': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -135,7 +135,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'expired cached credentials': function() {
+    'expired cached credentials': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -151,7 +151,7 @@ registerSuite('cached signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'cached credentials that expire while on page': function() {
+    'cached credentials that expire while on page': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -183,7 +183,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'unverified cached signin redirects to confirm email': function() {
+    'unverified cached signin redirects to confirm email': function () {
       const email = createEmail();
 
       return (
@@ -204,7 +204,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in on desktop then specify a different email on query parameter continues to cache desktop signin': function() {
+    'sign in on desktop then specify a different email on query parameter continues to cache desktop signin': function () {
       return (
         this.remote
           .then(
@@ -250,7 +250,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in with desktop context then no context, desktop credentials should persist': function() {
+    'sign in with desktop context then no context, desktop credentials should persist': function () {
       return (
         this.remote
           .then(
@@ -308,7 +308,7 @@ registerSuite('cached signin', {
       );
     },
 
-    'sign in then use cached credentials to sign in again, existing session token should be re-authenticated': function() {
+    'sign in then use cached credentials to sign in again, existing session token should be re-authenticated': function () {
       let accountData1, accountData2;
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -316,7 +316,7 @@ registerSuite('cached signin', {
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))
-        .then(accountData => {
+        .then((accountData) => {
           assert.ok(accountData.sessionToken);
           accountData1 = accountData;
         })
@@ -326,7 +326,7 @@ registerSuite('cached signin', {
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))
-        .then(accountData => {
+        .then((accountData) => {
           assert.ok(accountData.sessionToken);
           accountData2 = accountData;
         })
@@ -337,7 +337,7 @@ registerSuite('cached signin', {
         });
     },
 
-    'sign in then use cached credentials to sign in to sync, a new session token should be created': function() {
+    'sign in then use cached credentials to sign in to sync, a new session token should be created': function () {
       let accountData1, accountData2;
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -345,7 +345,7 @@ registerSuite('cached signin', {
 
         .then(testElementExists(selectors.SETTINGS.HEADER))
         .then(getStoredAccountByEmail(email))
-        .then(accountData => {
+        .then((accountData) => {
           assert.ok(accountData.sessionToken);
           accountData1 = accountData;
         })
@@ -382,7 +382,7 @@ registerSuite('cached signin', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(getStoredAccountByEmail(email))
-        .then(accountData => {
+        .then((accountData) => {
           assert.ok(accountData.sessionToken);
           accountData2 = accountData;
         })

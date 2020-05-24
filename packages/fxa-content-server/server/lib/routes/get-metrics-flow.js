@@ -37,7 +37,7 @@ const {
   UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
 } = validation.TYPES;
 
-module.exports = function(config) {
+module.exports = function (config) {
   const FLOW_ID_KEY = config.get('flow_id_key');
   const FLOW_EVENT_NAME = 'flow.begin';
   const SERVICES = config.get('oauth_client_id_map');
@@ -101,7 +101,7 @@ module.exports = function(config) {
     query: QUERY_SCHEMA,
   };
 
-  route.process = function(req, res) {
+  route.process = function (req, res) {
     const flowEventData = flowMetrics.create(
       FLOW_ID_KEY,
       req.headers['user-agent']

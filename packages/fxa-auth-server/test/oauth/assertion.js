@@ -54,7 +54,7 @@ const VERIFIER_URL = url.parse(
 
 function mockVerifierResponse(status, body) {
   return nock(VERIFIER_URL.protocol + '//' + VERIFIER_URL.host)
-    .post(VERIFIER_URL.path, body => {
+    .post(VERIFIER_URL.path, (body) => {
       assert.deepEqual(body, {
         assertion: MOCK_ASSERTION,
         audience: AUDIENCE,
@@ -89,10 +89,10 @@ async function makeJWT(claims, key, options = {}) {
   return await jwt.sign(claims, key, options);
 }
 
-describe('browserid verifyAssertion', function() {
+describe('browserid verifyAssertion', function () {
   it('should accept well-formed signed assertions', () => {
     mockVerifierResponse(200, GOOD_VERIFIER_RESPONSE);
-    return verifyAssertion(MOCK_ASSERTION).then(claims => {
+    return verifyAssertion(MOCK_ASSERTION).then((claims) => {
       assert.deepEqual(claims, {
         uid: USERID,
         'fxa-generation': GENERATION,
@@ -112,7 +112,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -129,7 +129,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -146,7 +146,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -164,7 +164,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -176,7 +176,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -190,7 +190,7 @@ describe('browserid verifyAssertion', function() {
       () => {
         assert.fail('verification should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, ERRNO_INVALID_ASSERTION);
       }
     );
@@ -200,7 +200,7 @@ describe('browserid verifyAssertion', function() {
     const response = cloneDeep(GOOD_VERIFIER_RESPONSE);
     delete response['idpClaims']['fxa-amr'];
     mockVerifierResponse(200, response);
-    return verifyAssertion(MOCK_ASSERTION).then(claims => {
+    return verifyAssertion(MOCK_ASSERTION).then((claims) => {
       assert.deepEqual(Object.keys(claims).sort(), [
         'fxa-aal',
         'fxa-generation',
@@ -219,7 +219,7 @@ describe('browserid verifyAssertion', function() {
     });
     delete response['idpClaims']['fxa-aal'];
     mockVerifierResponse(200, response);
-    return verifyAssertion(MOCK_ASSERTION).then(claims => {
+    return verifyAssertion(MOCK_ASSERTION).then((claims) => {
       assert.deepEqual(Object.keys(claims).sort(), [
         'fxa-amr',
         'fxa-generation',
@@ -236,7 +236,7 @@ describe('browserid verifyAssertion', function() {
     const response = cloneDeep(GOOD_VERIFIER_RESPONSE);
     delete response['idpClaims']['fxa-profileChangedAt'];
     mockVerifierResponse(200, response);
-    return verifyAssertion(MOCK_ASSERTION).then(claims => {
+    return verifyAssertion(MOCK_ASSERTION).then((claims) => {
       assert.deepEqual(Object.keys(claims).sort(), [
         'fxa-aal',
         'fxa-amr',
@@ -250,7 +250,7 @@ describe('browserid verifyAssertion', function() {
   });
 });
 
-describe('JWT verifyAssertion', function() {
+describe('JWT verifyAssertion', function () {
   it('should accept well-formed JWT assertions', async () => {
     assert.ok(
       AUTH_SERVER_SECRETS.length >= 1,

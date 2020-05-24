@@ -21,7 +21,7 @@ describe('models/security-events', () => {
   ];
 
   beforeEach(() => {
-    securityEvent = events.map(event => {
+    securityEvent = events.map((event) => {
       return new SecurityEvent(event);
     });
   });

@@ -15,7 +15,7 @@ const WORKER_URL = config.get('worker.url');
 const ACCEPT_ENCODING_HEADER = 'identity';
 
 exports.upload = function upload(id, payload, headers) {
-  return new P(function(resolve, reject) {
+  return new P(function (resolve, reject) {
     var url = WORKER_URL + '/a/' + hex(id);
 
     // do not compress the response to the local worker
@@ -30,7 +30,7 @@ exports.upload = function upload(id, payload, headers) {
     };
     logger.verbose('upload', url);
     payload.pipe(
-      request.post(url, opts, function(err, res, body) {
+      request.post(url, opts, function (err, res, body) {
         var nestedError = null;
         if (body && body[0] && body[0].error) {
           nestedError = body[0].error;
@@ -51,7 +51,7 @@ exports.upload = function upload(id, payload, headers) {
         resolve(body);
       })
     );
-    payload.on('error', function(err) {
+    payload.on('error', function (err) {
       logger.error('upload.payload.error', err);
       reject(err);
     });
@@ -59,11 +59,11 @@ exports.upload = function upload(id, payload, headers) {
 };
 
 exports.delete = function deleteAvatar(id) {
-  return new P(function(resolve, reject) {
+  return new P(function (resolve, reject) {
     var url = WORKER_URL + '/a/' + hex(id);
     var opts = { method: 'delete', json: true };
     logger.verbose('delete', url);
-    request(url, opts, function(err, res, body) {
+    request(url, opts, function (err, res, body) {
       if (err) {
         logger.error('delete.network.error', err);
         return reject(AppError.processingError(err));

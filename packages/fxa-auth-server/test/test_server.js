@@ -34,9 +34,9 @@ function TestServer(config, printLogs, options = {}) {
   } else {
     config.log.level = 'critical';
     config.log.stdout = new EventEmitter();
-    config.log.stdout.write = function() {};
+    config.log.stdout.write = function () {};
     config.log.stderr = new EventEmitter();
-    config.log.stderr.write = function() {};
+    config.log.stderr.write = function () {};
   }
   this.printLogs = printLogs;
   this.config = config;
@@ -49,7 +49,7 @@ function TestServer(config, printLogs, options = {}) {
   );
 }
 
-TestServer.start = async function(config, printLogs, options) {
+TestServer.start = async function (config, printLogs, options) {
   await TestServer.stop();
   currentDBServer = await createDBServer();
   currentDBServer.listen(config.httpdb.url.split(':')[2]);
@@ -62,7 +62,7 @@ TestServer.start = async function(config, printLogs, options) {
   return currentServer.start().then(() => currentServer);
 };
 
-TestServer.prototype.start = function() {
+TestServer.prototype.start = function () {
   const { authServerMockDependencies = {} } = this.options;
   const createAuthServer = proxyquire(
     '../bin/key_server',
@@ -84,7 +84,7 @@ TestServer.prototype.start = function() {
   });
 };
 
-TestServer.stop = async function(maybeServer) {
+TestServer.stop = async function (maybeServer) {
   if (maybeServer) {
     await maybeServer.stop();
     maybeServer = undefined;
@@ -103,7 +103,7 @@ TestServer.stop = async function(maybeServer) {
   return P.resolve();
 };
 
-TestServer.prototype.stop = async function() {
+TestServer.prototype.stop = async function () {
   currentServer = undefined;
   currentDBServer = undefined;
   try {
@@ -121,16 +121,17 @@ TestServer.prototype.stop = async function() {
   }
 };
 
-TestServer.prototype.uniqueEmail = function(domain) {
+TestServer.prototype.uniqueEmail = function (domain) {
   if (!domain) {
     domain = '@restmail.net';
   }
   return crypto.randomBytes(10).toString('hex') + domain;
 };
 
-TestServer.prototype.uniqueUnicodeEmail = function() {
-  return `${crypto.randomBytes(10).toString('hex') +
-    String.fromCharCode(1234)}@${String.fromCharCode(5678)}restmail.net`;
+TestServer.prototype.uniqueUnicodeEmail = function () {
+  return `${
+    crypto.randomBytes(10).toString('hex') + String.fromCharCode(1234)
+  }@${String.fromCharCode(5678)}restmail.net`;
 };
 
 module.exports = TestServer;

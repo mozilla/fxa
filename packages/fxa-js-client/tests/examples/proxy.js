@@ -16,7 +16,7 @@ var port = 9133;
 var targetAuthServer = 'http://localhost:9000';
 
 http
-  .createServer(function(req, res) {
+  .createServer(function (req, res) {
     if (req.url === '/example.html') {
       res.end(fs.readFileSync('tests/examples/example.html'));
     } else if (req.url === '/build/fxa-client.js') {

@@ -6,11 +6,11 @@
 const crypto = require('crypto');
 
 module.exports = {
-  randomEmail: function() {
+  randomEmail: function () {
     return Math.floor(Math.random() * 10000) + '@email.com';
   },
 
-  randomIp: function() {
+  randomIp: function () {
     function getSubnet() {
       return Math.floor(Math.random() * 255);
     }
@@ -18,14 +18,11 @@ module.exports = {
     return [getSubnet(), getSubnet(), getSubnet(), getSubnet()].join('.');
   },
 
-  randomHexString: function(length) {
+  randomHexString: function (length) {
     if (length === 0) {
       return '';
     }
 
-    return crypto
-      .randomBytes(length)
-      .toString('hex')
-      .slice(0, length);
+    return crypto.randomBytes(length).toString('hex').slice(0, length);
   },
 };

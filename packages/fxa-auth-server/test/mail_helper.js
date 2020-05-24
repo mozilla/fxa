@@ -22,7 +22,7 @@ function emailName(emailAddress) {
   return utf8Address.split('@')[0];
 }
 
-module.exports = printLogs => {
+module.exports = (printLogs) => {
   printLogs = printLogs || process.env.MAIL_HELPER_LOGS;
   const console = printLogs
     ? global.console
@@ -35,9 +35,9 @@ module.exports = printLogs => {
       {
         SMTPBanner: 'FXATEST',
       },
-      req => {
+      (req) => {
         const mp = new MailParser({ defaultCharset: 'utf-8' });
-        mp.on('end', mail => {
+        mp.on('end', (mail) => {
           const link = mail.headers['x-link'];
           const rc = mail.headers['x-recovery-code'];
           const rul = mail.headers['x-report-signin-link'];
@@ -99,7 +99,7 @@ module.exports = printLogs => {
       }
     );
 
-    smtp.listen(config.smtp.port, err => {
+    smtp.listen(config.smtp.port, (err) => {
       if (!err) {
         console.log(`Local SMTP server listening on port ${config.smtp.port}`);
       } else {
@@ -128,16 +128,16 @@ module.exports = printLogs => {
       {
         method: 'GET',
         path: '/mail/{email}',
-        handler: async function(request) {
-          const emailLoop = function() {
-            return new P(resolve => {
-              loop(decodeURIComponent(request.params.email), emailData => {
+        handler: async function (request) {
+          const emailLoop = function () {
+            return new P((resolve) => {
+              loop(decodeURIComponent(request.params.email), (emailData) => {
                 resolve(emailData);
               });
             });
           };
 
-          return emailLoop().then(emailData => {
+          return emailLoop().then((emailData) => {
             return emailData;
           });
         },
@@ -145,7 +145,7 @@ module.exports = printLogs => {
       {
         method: 'DELETE',
         path: '/mail/{email}',
-        handler: async function(request) {
+        handler: async function (request) {
           delete users[decodeURIComponent(request.params.email)];
           return {};
         },

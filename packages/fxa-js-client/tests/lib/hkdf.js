@@ -6,15 +6,15 @@ const assert = require('chai').assert;
 const sjcl = require('sjcl');
 const hkdf = require('../../client/lib/hkdf');
 // test vectors from RFC5869
-describe('hkdf', function() {
-  it('#vector 1', function() {
+describe('hkdf', function () {
+  it('#vector 1', function () {
     var ikm = sjcl.codec.hex.toBits(
       '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b'
     );
     var salt = sjcl.codec.hex.toBits('000102030405060708090a0b0c');
     var info = sjcl.codec.hex.toBits('f0f1f2f3f4f5f6f7f8f9');
 
-    return hkdf(ikm, info, salt, 42).then(function(result) {
+    return hkdf(ikm, info, salt, 42).then(function (result) {
       assert.equal(sjcl.codec.hex.fromBits(result).length, 84);
       assert.equal(
         sjcl.codec.hex.fromBits(result),
@@ -23,14 +23,14 @@ describe('hkdf', function() {
     }, assert.fail);
   });
 
-  it('#vector 2', function() {
+  it('#vector 2', function () {
     var ikm = sjcl.codec.hex.toBits(
       '0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b'
     );
     var salt = sjcl.codec.hex.toBits('');
     var info = sjcl.codec.hex.toBits('');
 
-    return hkdf(ikm, info, salt, 42).then(function(result) {
+    return hkdf(ikm, info, salt, 42).then(function (result) {
       assert.equal(sjcl.codec.hex.fromBits(result).length, 84);
       assert.equal(
         sjcl.codec.hex.fromBits(result),
@@ -39,7 +39,7 @@ describe('hkdf', function() {
     }, assert.fail);
   });
 
-  it('#vector 3', function() {
+  it('#vector 3', function () {
     var ikm = sjcl.codec.hex.toBits(
       '4a9cbe5ae7190a7bb7cc54d5d84f5e4ba743904f8a764933b72f10260067375a'
     );
@@ -48,7 +48,7 @@ describe('hkdf', function() {
       'identity.mozilla.com/picl/v1/keyFetchToken'
     );
 
-    return hkdf(ikm, info, salt, 3 * 32).then(function(result) {
+    return hkdf(ikm, info, salt, 3 * 32).then(function (result) {
       assert.equal(
         sjcl.codec.hex.fromBits(result),
         'f4df04ffb79db35e94e4881719a6f145f9206e8efea17fc9f02a5ce09cbfac1e829a935f34111d75e0d16b7aa178e2766759eedb6f623c0babd2abcfea82bc12af75f6aa543a8ba7e0a029f87c785c4af0ad03889f7437f735b5256a88fc73fd'
@@ -56,7 +56,7 @@ describe('hkdf', function() {
     }, assert.fail);
   });
 
-  it('#vector 4', function() {
+  it('#vector 4', function () {
     var ikm = sjcl.codec.hex.toBits(
       'ba0a107dab60f3b065ff7a642d14fe824fbd71bc5c99087e9e172a1abd1634f1'
     );
@@ -65,7 +65,7 @@ describe('hkdf', function() {
       'identity.mozilla.com/picl/v1/account/keys'
     );
 
-    return hkdf(ikm, info, salt, 3 * 32).then(function(result) {
+    return hkdf(ikm, info, salt, 3 * 32).then(function (result) {
       assert.equal(
         sjcl.codec.hex.fromBits(result),
         '17ab463653a94c9a6419b48781930edefe500395e3b4e7879a2be1599975702285de16c3218a126404668bf9b7acfb6ce2b7e03c8889047ba48b8b854c6d8beb3ae100e145ca6d69cb519a872a83af788771954455716143bc08225ea8644d85'

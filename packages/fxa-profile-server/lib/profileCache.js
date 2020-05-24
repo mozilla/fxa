@@ -68,7 +68,7 @@ module.exports = function profileCache(server, options) {
         '/v1/uid': true,
         '/v1/avatar': ['avatar', 'avatarDefault'],
         '/v1/display_name': true,
-      }).then(result => {
+      }).then((result) => {
         // Only cache the result if we can produce a suitable cache key.
         const key = getProfileCacheKey(req);
         // Since Hapi 17+ "When a server method is cached, the result no longer changes to an envelope with the result and ttl value."
@@ -84,18 +84,18 @@ module.exports = function profileCache(server, options) {
         // As of Hapi 17 we must set 'getDecoratedValue' to get information about the cache result
         getDecoratedValue: true,
       },
-      generateKey: req => {
+      generateKey: (req) => {
         return getProfileCacheKey(req) || 'can-not-cache';
       },
     }
   );
 
   // Drop any cached profile data for the given user.
-  server.method('profileCache.drop', uid => {
+  server.method('profileCache.drop', (uid) => {
     // To work transparently with hapi's caching and `getProfileCacheKey` above,
     // we make a bunch of synthetic request objects on which to drop the
     // cache, one for each possible set of scopes in the cache.
-    return P.each(CACHEABLE_SCOPES, scope => {
+    return P.each(CACHEABLE_SCOPES, (scope) => {
       const req = {
         auth: {
           credentials: {

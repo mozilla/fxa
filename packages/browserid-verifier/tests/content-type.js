@@ -11,14 +11,14 @@ var IdP = require('browserid-local-verify/testing').IdP,
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('content-type tests', function() {
+describe('content-type tests', function () {
   var verifier = new Verifier();
   var idp = new IdP();
   var client;
 
-  it('test servers should start', function(done) {
-    idp.start(function(e) {
-      verifier.start(function(e1) {
+  it('test servers should start', function (done) {
+    idp.start(function (e) {
+      verifier.start(function (e1) {
         client = new Client({ idp: idp });
         done(e || e1);
       });
@@ -27,14 +27,14 @@ describe('content-type tests', function() {
 
   var assertion;
 
-  it('test assertion should be created', function(done) {
-    client.assertion({ audience: 'http://example.com' }, function(err, ass) {
+  it('test assertion should be created', function (done) {
+    client.assertion({ audience: 'http://example.com' }, function (err, ass) {
       assertion = ass;
       done(err);
     });
   });
 
-  it('(v2 api) should fail to verify when content-type is unsupported', function(done) {
+  it('(v2 api) should fail to verify when content-type is unsupported', function (done) {
     request(
       {
         method: 'post',
@@ -43,10 +43,10 @@ describe('content-type tests', function() {
           'Content-Type': 'text/plain',
         },
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(415);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -57,17 +57,17 @@ describe('content-type tests', function() {
     );
   });
 
-  it('(v2 api) should fail to verify when content-type is not specified', function(done) {
+  it('(v2 api) should fail to verify when content-type is not specified', function (done) {
     request(
       {
         method: 'post',
         url: verifier.url(),
         headers: {},
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(415);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -78,7 +78,7 @@ describe('content-type tests', function() {
     );
   });
 
-  it('(v1 api) should fail to verify when content-type is unsupported', function(done) {
+  it('(v1 api) should fail to verify when content-type is unsupported', function (done) {
     request(
       {
         method: 'post',
@@ -87,10 +87,10 @@ describe('content-type tests', function() {
           'Content-Type': 'text/plain',
         },
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(415);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -101,17 +101,17 @@ describe('content-type tests', function() {
     );
   });
 
-  it('(v1 api) should fail to verify when content-type is not specified', function(done) {
+  it('(v1 api) should fail to verify when content-type is not specified', function (done) {
     request(
       {
         method: 'post',
         url: verifier.v1url(),
         headers: {},
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(415);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -122,7 +122,7 @@ describe('content-type tests', function() {
     );
   });
 
-  it("(v2 api) shouldn't get confused when extended content-types are used", function(done) {
+  it("(v2 api) shouldn't get confused when extended content-types are used", function (done) {
     request(
       {
         method: 'post',
@@ -134,10 +134,10 @@ describe('content-type tests', function() {
           assertion: assertion,
         }),
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(400);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -147,7 +147,7 @@ describe('content-type tests', function() {
     );
   });
 
-  it("(v1 api) shouldn't get confused when extended content-types are used", function(done) {
+  it("(v1 api) shouldn't get confused when extended content-types are used", function (done) {
     request(
       {
         method: 'post',
@@ -159,10 +159,10 @@ describe('content-type tests', function() {
           assertion: assertion,
         }),
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(400);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -172,7 +172,7 @@ describe('content-type tests', function() {
     );
   });
 
-  it("(v2 api) shouldn't support x-www-form-urlencoded", function(done) {
+  it("(v2 api) shouldn't support x-www-form-urlencoded", function (done) {
     request(
       {
         method: 'post',
@@ -184,10 +184,10 @@ describe('content-type tests', function() {
           assertion: assertion,
         }),
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(415);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -198,7 +198,7 @@ describe('content-type tests', function() {
     );
   });
 
-  it('(v1 api) should support x-www-form-urlencoded', function(done) {
+  it('(v1 api) should support x-www-form-urlencoded', function (done) {
     request(
       {
         method: 'post',
@@ -210,10 +210,10 @@ describe('content-type tests', function() {
           assertion: assertion,
         }),
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(400);
-        (function() {
+        (function () {
           r.body = JSON.parse(r.body);
         }.should.not.throw());
         r.body.status.should.equal('failure');
@@ -224,7 +224,7 @@ describe('content-type tests', function() {
     );
   });
 
-  it('test servers should stop', function(done) {
+  it('test servers should stop', function (done) {
     verifier.stop(done);
   });
 });

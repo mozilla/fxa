@@ -4,12 +4,12 @@
 
 'use strict';
 
-module.exports = function() {
+module.exports = function () {
   const route = {};
   route.method = 'get';
   route.path = '/.well-known/apple-app-site-association';
 
-  route.process = function(req, res) {
+  route.process = function (req, res) {
     // charset must be set on json responses.
     res.charset = 'utf-8';
 

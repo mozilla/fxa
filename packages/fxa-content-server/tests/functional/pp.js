@@ -21,12 +21,12 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('privacy policy', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'from signup': function() {
+    'from signup': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, createEmail()))
@@ -48,13 +48,13 @@ registerSuite('privacy policy', {
         );
     },
 
-    'browse directly to page - no back button': function() {
+    'browse directly to page - no back button': function () {
       return this.remote
         .then(openPage(PP_URL, selectors.PRIVACY_POLICY.HEADER))
         .then(noSuchElement(selectors.PRIVACY_POLICY.LINK_BACK));
     },
 
-    'refresh, back button is available': function() {
+    'refresh, back button is available': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))

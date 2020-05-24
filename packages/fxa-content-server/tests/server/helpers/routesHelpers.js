@@ -43,7 +43,7 @@ function isProductionLike() {
 }
 
 function makeRequest(url, requestOptions) {
-  return got(url, requestOptions).catch(function(err) {
+  return got(url, requestOptions).catch(function (err) {
     return err.response;
   });
 }
@@ -73,13 +73,13 @@ function checkHeaders(routes, route, res) {
 function extractAndCheckUrls(res, testName) {
   var href = url.parse(res.url);
   var origin = [href.protocol, '//', href.host].join('');
-  return extractUrls(res.body).then(resources =>
+  return extractUrls(res.body).then((resources) =>
     checkUrls(origin, resources, testName)
   );
 }
 
 function extractUrls(body) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var dependencyResources = [];
     var comments = [];
     var parser;
@@ -146,14 +146,14 @@ const IGNORE_URL_REGEXPS = [
 ];
 
 function isUrlIgnored(url) {
-  return IGNORE_URL_REGEXPS.find(domainRegExp => domainRegExp.test(url));
+  return IGNORE_URL_REGEXPS.find((domainRegExp) => domainRegExp.test(url));
 }
 
 function checkUrls(origin, resources, testName = '') {
-  return findCssSubResources(origin, resources).then(cssSubResources => {
+  return findCssSubResources(origin, resources).then((cssSubResources) => {
     resources = resources.concat(cssSubResources);
 
-    var requests = resources.map(function(resource) {
+    var requests = resources.map(function (resource) {
       if (checkedUrlPromises[resource.url]) {
         return checkedUrlPromises[resource.url];
       }
@@ -167,7 +167,7 @@ function checkUrls(origin, resources, testName = '') {
         };
       }
 
-      var promise = makeRequest(resource.url, requestOptions).then(function(
+      var promise = makeRequest(resource.url, requestOptions).then(function (
         res
       ) {
         if (isUrlIgnored(resource.url)) {
@@ -241,14 +241,14 @@ function parseCssUrls(content, base) {
   var ast = css.parse(content);
   var urls = {};
 
-  ast.stylesheet.rules.forEach(function(rule) {
+  ast.stylesheet.rules.forEach(function (rule) {
     if (rule.type === 'font-face' || rule.type === 'rule') {
-      rule.declarations.forEach(function(declaration) {
+      rule.declarations.forEach(function (declaration) {
         extend(urls, findCssUrlMatches(declaration.value, base));
       });
     } else if (rule.type === 'media') {
-      rule.rules.forEach(function(mediaRule) {
-        mediaRule.declarations.forEach(function(declaration) {
+      rule.rules.forEach(function (mediaRule) {
+        mediaRule.declarations.forEach(function (declaration) {
           extend(urls, findCssUrlMatches(declaration.value, base));
         });
       });
@@ -259,7 +259,7 @@ function parseCssUrls(content, base) {
 }
 
 function filterCssUrls(resources) {
-  return resources.filter(function(resource) {
+  return resources.filter(function (resource) {
     var parsedUri = url.parse(resource.url);
     var extension = path.extname(parsedUri.pathname);
     if (extension === '.css') {
@@ -273,7 +273,7 @@ function findCssSubResources(origin, resources) {
   // entrained from CSS.
   var cssResources = filterCssUrls(resources);
 
-  var requests = cssResources.map(function(resource) {
+  var requests = cssResources.map(function (resource) {
     if (checkedUrlPromises[resource.url]) {
       return checkedUrlPromises[resource.url];
     }
@@ -288,7 +288,9 @@ function findCssSubResources(origin, resources) {
       requestOptions.headers.Origin = origin;
     }
 
-    var promise = makeRequest(resource.url, requestOptions).then(function(res) {
+    var promise = makeRequest(resource.url, requestOptions).then(function (
+      res
+    ) {
       // Only a minimal check here. The resolved Promise response will be
       // checked in detail again in `checkUrls()`.
       assert.equal(res.statusCode, 200, resource.url);
@@ -301,10 +303,10 @@ function findCssSubResources(origin, resources) {
     return promise;
   });
 
-  return Promise.all(requests).then(function(resources) {
+  return Promise.all(requests).then(function (resources) {
     // convert the return value to a flattened list of resource objects
     var flattened = [].concat.apply([], resources);
-    return flattened.map(url => {
+    return flattened.map((url) => {
       return {
         url: url,
       };

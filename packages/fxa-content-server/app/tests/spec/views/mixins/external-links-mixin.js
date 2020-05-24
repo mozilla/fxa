@@ -18,14 +18,14 @@ const View = BaseView.extend({
 });
 Cocktail.mixin(View, ExternalLinksMixin);
 
-describe('views/mixins/external-links-mixin', function() {
+describe('views/mixins/external-links-mixin', function () {
   let broker;
   let metrics;
   let notifier;
   let view;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     broker = new Broker();
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
@@ -38,7 +38,7 @@ describe('views/mixins/external-links-mixin', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     return view.destroy();
   });
 

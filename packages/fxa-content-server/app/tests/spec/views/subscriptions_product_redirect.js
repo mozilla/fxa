@@ -15,7 +15,7 @@ import PaymentServer from 'lib/payment-server';
 const PRODUCT_ID = 'pk_8675309';
 const SEARCH_QUERY = '?plan=plk_12345';
 
-describe('views/subscriptions_product_redirect', function() {
+describe('views/subscriptions_product_redirect', function () {
   let account;
   let user;
   let view;
@@ -27,7 +27,7 @@ describe('views/subscriptions_product_redirect', function() {
     return view.render().then(() => view.afterVisible());
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     user = new User();
     account = new Account();
     notifier = new Notifier();
@@ -62,7 +62,7 @@ describe('views/subscriptions_product_redirect', function() {
       .callsFake(() => Promise.resolve(true));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     PaymentServer.navigateToPaymentServer.restore();
     $(view.el).remove();
     view.destroy();

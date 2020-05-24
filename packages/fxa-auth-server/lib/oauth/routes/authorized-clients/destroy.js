@@ -15,7 +15,7 @@ module.exports = {
       assertion: validators.assertion,
     },
   },
-  handler: async function(req) {
+  handler: async function (req) {
     const claims = await verifyAssertion(req.payload.assertion);
     if (req.payload.refresh_token_id) {
       if (

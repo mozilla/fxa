@@ -20,7 +20,7 @@ import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/ready.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 /*eslint-disable camelcase*/
 
@@ -129,7 +129,7 @@ const View = FormView.extend({
           return this.invokeBrokerMethod(continueBrokerMethod, account);
         }
       })
-      .catch(err => this.displayError(err));
+      .catch((err) => this.displayError(err));
   },
 
   createRecoveryKey() {

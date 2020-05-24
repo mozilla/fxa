@@ -22,7 +22,7 @@ export default {
     if (typeof searchFor.errno === 'number') {
       found = this.find(searchFor.errno);
     } else if (typeof searchFor === 'number') {
-      found = _.find(this.ERRORS, function(value) {
+      found = _.find(this.ERRORS, function (value) {
         return value.errno === searchFor;
       });
     } else if (typeof searchFor === 'string') {

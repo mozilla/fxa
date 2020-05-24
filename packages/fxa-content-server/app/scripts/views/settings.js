@@ -137,11 +137,11 @@ const View = BaseView.extend({
       .then(([, data]) => {
         if (data && Array.isArray(data.subscriptions)) {
           this._ccExpired = data.subscriptions.some(
-            s => s.failure_code === Constants.CC_EXPIRED
+            (s) => s.failure_code === Constants.CC_EXPIRED
           );
         }
       })
-      .catch(err => {
+      .catch((err) => {
         this.model.set('error', err);
       });
   },
@@ -226,7 +226,7 @@ const View = BaseView.extend({
    */
   _getPanelsToDisplay() {
     const areCommunicationPrefsVisible = this._areCommunicationPrefsVisible();
-    return PANEL_VIEWS.filter(ChildView => {
+    return PANEL_VIEWS.filter((ChildView) => {
       if (ChildView === CommunicationPreferencesView) {
         return areCommunicationPrefsVisible;
       }
@@ -266,7 +266,7 @@ const View = BaseView.extend({
     return true;
   },
 
-  signOut: allowOnlyOneSubmit(function() {
+  signOut: allowOnlyOneSubmit(function () {
     var accountToSignOut = this.getSignedInAccount();
 
     this.logViewEvent('signout.submit');

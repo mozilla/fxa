@@ -18,7 +18,7 @@ const APP_VERSION = /([0-9]+)\.([0-9])$/.exec(pkg.version)[0];
 const schemaValidatorStub = sinon.stub().returns(true);
 let scope;
 const mockSentry = {
-  withScope: sinon.stub().callsFake(cb => {
+  withScope: sinon.stub().callsFake((cb) => {
     scope = { setContext: sinon.stub() };
     cb(scope);
   }),
@@ -44,7 +44,7 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
 const Sentry = require('@sentry/node');
 
 registerSuite('amplitude json schema validation', {
-  beforeEach: function() {
+  beforeEach: function () {
     logger.info.resetHistory();
     logger.error.resetHistory();
     schemaValidatorStub.reset();

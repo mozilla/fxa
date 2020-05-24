@@ -12,13 +12,13 @@ import View from 'views/settings/subscription';
 import PaymentServer from 'lib/payment-server';
 import User from 'models/user';
 
-describe('views/settings/subscription', function() {
+describe('views/settings/subscription', function () {
   var view;
   var account;
   var config;
   var UID = TestHelpers.createUid();
 
-  beforeEach(function() {
+  beforeEach(function () {
     config = {
       subscriptions: {
         managementClientId: 'MOCK_CLIENT_ID',
@@ -50,7 +50,7 @@ describe('views/settings/subscription', function() {
       .callsFake(() => Promise.resolve(true));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     PaymentServer.navigateToPaymentServer.restore();
     view.beforeRender.restore();
     $(view.el).remove();

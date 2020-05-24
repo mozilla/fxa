@@ -23,7 +23,7 @@ async function random(bytes) {
     const sum = bytes.reduce((acc, val) => acc + val, 0);
     const buf = await randomBytes(sum);
     let pos = 0;
-    return bytes.map(num => {
+    return bytes.map((num) => {
       const slice = buf.slice(pos, pos + num);
       pos += num;
       return slice;
@@ -36,7 +36,7 @@ async function random(bytes) {
 random.hex = async function hex() {
   const bufs = await random.apply(null, arguments);
   if (Array.isArray(bufs)) {
-    return bufs.map(buf => buf.toString('hex'));
+    return bufs.map((buf) => buf.toString('hex'));
   } else {
     return bufs.toString('hex');
   }
@@ -57,11 +57,11 @@ async function randomValue(base, len) {
   return out.join('');
 }
 
-random.base10 = function(len) {
+random.base10 = function (len) {
   return () => randomValue(BASE10, len);
 };
 
-random.base32 = function(len) {
+random.base32 = function (len) {
   return () => randomValue(BASE32, len);
 };
 

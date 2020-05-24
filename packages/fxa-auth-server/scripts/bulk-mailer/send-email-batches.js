@@ -16,7 +16,7 @@ const sendEmailBatch = require('./send-email-batch');
  * @param {Object} log logger
  * @param {Boolean} [isTest=false] is this a test run?
  */
-module.exports = async function(
+module.exports = async function (
   userRecordBatches,
   batchDelayMS,
   sendEmail,
@@ -31,7 +31,7 @@ module.exports = async function(
   logBegin(log, countEmails(userRecordBatches), isTest);
 
   await P.each(userRecordBatches, (currentBatch, index) => {
-    return sendEmailBatch(currentBatch, sendEmail, log).then(result => {
+    return sendEmailBatch(currentBatch, sendEmail, log).then((result) => {
       successCount += result.successCount;
       errorCount += result.errorCount;
 

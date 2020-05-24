@@ -37,7 +37,7 @@ if (!/.+:\d+/.test(process.argv[2])) {
 }
 
 function writeMergedSettings(mc, key, newSettings) {
-  return mc.getAsync(key).then(function(settings) {
+  return mc.getAsync(key).then(function (settings) {
     if (typeof newSettings !== 'object' || Array.isArray(newSettings)) {
       throw new Error('tried to merge non-Object-typed settings value');
     }
@@ -48,7 +48,7 @@ function writeMergedSettings(mc, key, newSettings) {
 }
 
 function clobberSettings(mc, key, newSettings) {
-  return mc.getAsync(key).then(function(settings) {
+  return mc.getAsync(key).then(function (settings) {
     if (!Array.isArray(newSettings)) {
       throw new Error('tried to clobber non-Array-typed settings value');
     }
@@ -63,7 +63,7 @@ function clobberSettings(mc, key, newSettings) {
 
 var b = process.stdin.pipe(new BL());
 
-process.stdin.on('end', function() {
+process.stdin.on('end', function () {
   var input = null;
   try {
     input = JSON.parse(b.toString());
@@ -101,11 +101,11 @@ process.stdin.on('end', function() {
   }
 
   P.all(actions)
-    .catch(function(err) {
+    .catch(function (err) {
       console.error('update failed');
       console.error(err);
     })
-    .then(function() {
+    .then(function () {
       mc.end();
     });
 });

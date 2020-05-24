@@ -53,7 +53,7 @@ describe('lib/channels/notifier-mixin', () => {
   it('exports correct interface', () => {
     const expectedFunctions = ['initialize'];
     assert.lengthOf(Object.keys(NotifierMixin), expectedFunctions.length);
-    expectedFunctions.forEach(function(expectedFunction) {
+    expectedFunctions.forEach(function (expectedFunction) {
       assert.isFunction(NotifierMixin[expectedFunction]);
     });
   });

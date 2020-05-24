@@ -7,14 +7,14 @@
 const hkdf = require('./hkdf');
 const butil = require('./butil');
 
-module.exports = function(log, config) {
+module.exports = function (log, config) {
   const scrypt = require('./scrypt')(log, config);
 
   const hashVersions = {
-    0: function(authPW, authSalt) {
+    0: function (authPW, authSalt) {
       return Promise.resolve(butil.xorBuffers(authPW, authSalt));
     },
-    1: function(authPW, authSalt) {
+    1: function (authPW, authSalt) {
       return scrypt.hash(authPW, authSalt, 65536, 8, 1, 32);
     },
   };
@@ -28,20 +28,20 @@ module.exports = function(log, config) {
     this.verifyHashPromise = this.stretchPromise.then(hkdfVerify);
   }
 
-  Password.prototype.stretchedPassword = function() {
+  Password.prototype.stretchedPassword = function () {
     return this.stretchPromise;
   };
 
-  Password.prototype.verifyHash = function() {
+  Password.prototype.verifyHash = function () {
     return this.verifyHashPromise;
   };
 
-  Password.prototype.matches = async function(verifyHash) {
+  Password.prototype.matches = async function (verifyHash) {
     const hash = await this.verifyHash();
     return butil.buffersAreEqual(hash, verifyHash);
   };
 
-  Password.prototype.unwrap = async function(wrapped, context) {
+  Password.prototype.unwrap = async function (wrapped, context) {
     context = context || 'wrapwrapKey';
     const stretched = await this.stretchedPassword();
     const wrapper = await hkdf(stretched, context, null, 32);
@@ -54,7 +54,7 @@ module.exports = function(log, config) {
     return buf.toString('hex');
   }
 
-  Password.stat = function() {
+  Password.stat = function () {
     // Reset the high-water-mark whenever it is read.
     const numPendingHWM = scrypt.numPendingHWM;
     scrypt.numPendingHWM = scrypt.numPending;

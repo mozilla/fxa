@@ -72,7 +72,7 @@ export default {
           verificationMethod: verificationMethod,
         });
       })
-      .then(account => {
+      .then((account) => {
         if (this.formPrefill) {
           this.formPrefill.clear();
         }
@@ -107,7 +107,7 @@ export default {
 
         return this.onSignInSuccess(account);
       })
-      .catch(err => {
+      .catch((err) => {
         if (
           AuthErrors.is(err, 'THROTTLED') ||
           AuthErrors.is(err, 'REQUEST_BLOCKED')

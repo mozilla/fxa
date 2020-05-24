@@ -28,7 +28,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('oauth webchannel', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(
@@ -40,7 +40,7 @@ registerSuite('oauth webchannel', {
     );
   },
   tests: {
-    signup: function() {
+    signup: function () {
       return (
         this.remote
           .then(
@@ -80,7 +80,7 @@ registerSuite('oauth webchannel', {
           .then(testIsBrowserNotified('fxaccounts:oauth_login'))
       );
     },
-    signin: function() {
+    signin: function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -106,12 +106,12 @@ registerSuite('oauth webchannel', {
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
         .then(testIsBrowserNotified('fxaccounts:oauth_login'));
     },
-    settings: function() {
+    settings: function () {
       const SETTINGS_PAGE_URL = `${config.fxaContentRoot}settings?context=oauth_webchannel_v1`;
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(result => {
+        .then((result) => {
           return this.remote.then(
             openPage(SETTINGS_PAGE_URL, selectors.SETTINGS.HEADER, {
               webChannelResponses: {

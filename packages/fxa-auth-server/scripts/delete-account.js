@@ -30,7 +30,7 @@ const mailer = null;
 
 const DB = require('../lib/db')(config, log, Token);
 
-DB.connect(config[config.db.backend]).then(db => {
+DB.connect(config[config.db.backend]).then((db) => {
   // Bypass customs checks.
   const mockCustoms = {
     check: () => {
@@ -47,7 +47,7 @@ DB.connect(config[config.db.backend]).then(db => {
     db,
     mailer
   );
-  signinUtils.checkPassword = function() {
+  signinUtils.checkPassword = function () {
     return P.resolve(true);
   };
 
@@ -88,12 +88,12 @@ DB.connect(config[config.db.backend]).then(db => {
     verificationReminders,
     oauthdb,
     stripeHelper
-  ).find(r => r.path === '/account/destroy');
+  ).find((r) => r.path === '/account/destroy');
 
   let retval = 0;
 
-  P.each(process.argv.slice(2), email => {
-    return db.accountRecord(email).then(account => {
+  P.each(process.argv.slice(2), (email) => {
+    return db.accountRecord(email).then((account) => {
       // This is a pretty destructive action, ask the operator
       // to confirm each individual account deletion in turn.
       console.log('Found account record:');
@@ -104,7 +104,7 @@ DB.connect(config[config.db.backend]).then(db => {
         output: process.stdout,
       });
       return new P((resolve, reject) => {
-        rl.question('Really delete this account? (y/n) ', answer => {
+        rl.question('Really delete this account? (y/n) ', (answer) => {
           rl.close();
           if (['y', 'yes'].indexOf(answer.toLowerCase()) === -1) {
             return reject('Cancelled');
@@ -137,7 +137,7 @@ DB.connect(config[config.db.backend]).then(db => {
         retval = 0;
         console.log('ok');
       },
-      err => {
+      (err) => {
         retval = 1;
         console.log('ERROR:', err.message || err);
       }

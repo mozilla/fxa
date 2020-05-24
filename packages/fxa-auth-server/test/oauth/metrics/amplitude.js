@@ -11,7 +11,7 @@ const sinon = require('sinon');
 const mockAmplitudeConfig = { schemaValidation: true, rawEvents: false };
 let sentryScope;
 const mockSentry = {
-  withScope: sinon.stub().callsFake(cb => {
+  withScope: sinon.stub().callsFake((cb) => {
     sentryScope = { setContext: sinon.stub() };
     cb(sentryScope);
   }),

@@ -57,7 +57,7 @@ async function handleAuth(db, auth, fetchEmail = false) {
 // sending response. We don't need to reveal those.
 // https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
 function sanitizePlans(plans) {
-  return plans.map(planIn => {
+  return plans.map((planIn) => {
     // Try not to mutate the original in case we cache plans in memory.
     const plan = { ...planIn };
     for (const metadataKey of ['plan_metadata', 'product_metadata']) {
@@ -66,7 +66,7 @@ function sanitizePlans(plans) {
         const metadata = { ...plan[metadataKey] };
         const capabilityKeys = [
           'capabilities',
-          ...Object.keys(metadata).filter(key =>
+          ...Object.keys(metadata).filter((key) =>
             key.startsWith('capabilities:')
           ),
         ];
@@ -128,7 +128,7 @@ class DirectStripeRoutes {
       if (metadata.capabilities) {
         capabilitiesForAll.push(...splitCapabilities(metadata.capabilities));
       }
-      const capabilityKeys = Object.keys(metadata).filter(key =>
+      const capabilityKeys = Object.keys(metadata).filter((key) =>
         key.startsWith('capabilities:')
       );
       for (const key of capabilityKeys) {
@@ -354,7 +354,7 @@ class DirectStripeRoutes {
 
   findCustomerSubscriptionByPlanId(customer, planId) {
     const subscription = customer.subscriptions.data.find(
-      sub => sub.items.data.find(item => item.plan.id === planId) != null
+      (sub) => sub.items.data.find((item) => item.plan.id === planId) != null
     );
 
     return subscription;
@@ -362,9 +362,9 @@ class DirectStripeRoutes {
 
   findCustomerSubscriptionByProductId(customer, productId) {
     const subscription = customer.subscriptions.data.find(
-      sub =>
+      (sub) =>
         sub.items.data.find(
-          item =>
+          (item) =>
             item.plan.product === productId ||
             item.plan.product.id === productId
         ) != null
@@ -566,7 +566,9 @@ class DirectStripeRoutes {
       const metadata = metadataFromPlan(plan);
       const capabilityKeys = [
         'capabilities',
-        ...Object.keys(metadata).filter(key => key.startsWith('capabilities:')),
+        ...Object.keys(metadata).filter((key) =>
+          key.startsWith('capabilities:')
+        ),
       ];
       for (const key of capabilityKeys) {
         capabilitiesForProduct.push(...splitCapabilities(metadata[key]));
@@ -686,7 +688,7 @@ class DirectStripeRoutes {
           await this.handleInvoicePaymentFailedEvent(request, event);
           break;
         default:
-          Sentry.withScope(scope => {
+          Sentry.withScope((scope) => {
             scope.setContext('stripeEvent', {
               event: { id: event.id, type: event.type },
             });
@@ -735,8 +737,7 @@ class DirectStripeRoutes {
    * @param {Event} event
    */
   async handleSubscriptionUpdatedEvent(request, event) {
-    const stripeData =
-      /** @type {import('stripe').Stripe.Event.Data } */ (event.data);
+    const stripeData = /** @type {import('stripe').Stripe.Event.Data } */ (event.data);
     const sub = /** @type {Subscription} */ (stripeData.object);
     const { uid, email } = await this.sendSubscriptionUpdatedEmail(event);
 
@@ -1063,7 +1064,7 @@ const directRoutes = (
           ),
         },
       },
-      handler: request => directStripeRoutes.getClients(request),
+      handler: (request) => directStripeRoutes.getClients(request),
     },
     {
       method: 'GET',
@@ -1077,7 +1078,7 @@ const directRoutes = (
           schema: isA.array().items(validators.subscriptionsPlanValidator),
         },
       },
-      handler: request => directStripeRoutes.listPlans(request),
+      handler: (request) => directStripeRoutes.listPlans(request),
     },
     {
       method: 'GET',
@@ -1091,7 +1092,7 @@ const directRoutes = (
           schema: isA.array().items(validators.activeSubscriptionValidator),
         },
       },
-      handler: request => directStripeRoutes.listActive(request),
+      handler: (request) => directStripeRoutes.listActive(request),
     },
     {
       method: 'POST',
@@ -1115,7 +1116,7 @@ const directRoutes = (
           }),
         },
       },
-      handler: request => directStripeRoutes.createSubscription(request),
+      handler: (request) => directStripeRoutes.createSubscription(request),
     },
     {
       method: 'POST',
@@ -1131,7 +1132,7 @@ const directRoutes = (
           },
         },
       },
-      handler: request => directStripeRoutes.updatePayment(request),
+      handler: (request) => directStripeRoutes.updatePayment(request),
     },
     {
       method: 'GET',
@@ -1145,7 +1146,7 @@ const directRoutes = (
           schema: validators.subscriptionsCustomerValidator,
         },
       },
-      handler: request => directStripeRoutes.getCustomer(request),
+      handler: (request) => directStripeRoutes.getCustomer(request),
     },
     {
       method: 'GET',
@@ -1168,7 +1169,7 @@ const directRoutes = (
           },
         },
       },
-      handler: request =>
+      handler: (request) =>
         directStripeRoutes.getSubscriptionsForSupport(request),
     },
     {
@@ -1193,7 +1194,7 @@ const directRoutes = (
           },
         },
       },
-      handler: request => directStripeRoutes.updateSubscription(request),
+      handler: (request) => directStripeRoutes.updateSubscription(request),
     },
     {
       method: 'DELETE',
@@ -1209,7 +1210,7 @@ const directRoutes = (
           },
         },
       },
-      handler: request => directStripeRoutes.deleteSubscription(request),
+      handler: (request) => directStripeRoutes.deleteSubscription(request),
     },
     {
       method: 'POST',
@@ -1225,7 +1226,7 @@ const directRoutes = (
           },
         },
       },
-      handler: request => directStripeRoutes.reactivateSubscription(request),
+      handler: (request) => directStripeRoutes.reactivateSubscription(request),
     },
     {
       method: 'POST',
@@ -1243,7 +1244,7 @@ const directRoutes = (
           headers: { 'stripe-signature': isA.string().required() },
         },
       },
-      handler: request => directStripeRoutes.handleWebhookEvent(request),
+      handler: (request) => directStripeRoutes.handleWebhookEvent(request),
     },
   ];
 };

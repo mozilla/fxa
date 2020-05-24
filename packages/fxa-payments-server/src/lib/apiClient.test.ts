@@ -95,7 +95,7 @@ describe('API requests', () => {
     updateAPIClientConfig(config);
     updateAPIClientToken(OAUTH_TOKEN);
 
-    [OAUTH_BASE_URL, AUTH_BASE_URL, PROFILE_BASE_URL].forEach(baseUrl =>
+    [OAUTH_BASE_URL, AUTH_BASE_URL, PROFILE_BASE_URL].forEach((baseUrl) =>
       mockOptionsResponses(baseUrl)
     );
   });
@@ -168,9 +168,7 @@ describe('API requests', () => {
     };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active', async () => {
-      const requestMock = nock(AUTH_BASE_URL)
-        .post(path, params)
-        .reply(200, {});
+      const requestMock = nock(AUTH_BASE_URL).post(path, params).reply(200, {});
       expect(await apiCreateSubscription(params)).toEqual({});
       expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith(
         metricsOptions

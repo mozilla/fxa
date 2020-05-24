@@ -23,7 +23,7 @@ exports.remote = function remote(backend) {
   const DB = DBS[backend](log, dbServer.errors);
 
   backendTests.remote(config, () => {
-    return DB.connect(config).then(function(newDb) {
+    return DB.connect(config).then(function (newDb) {
       const db = newDb;
       const server = dbServer.createServer(db);
       const d = P.defer();
@@ -32,7 +32,7 @@ exports.remote = function remote(backend) {
         close.call(server);
         return db.close();
       };
-      server.listen(config.port, config.hostname, function() {
+      server.listen(config.port, config.hostname, function () {
         d.resolve(server);
       });
       return d.promise;

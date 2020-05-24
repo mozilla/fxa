@@ -10,24 +10,24 @@ var supportedThreshold = 90;
 // percentage of strings that must be translated for verbose feedback
 var verboseThreshold = 60;
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask('l10n-supported-locales', [
     'selectconfig:dist',
     'l10n-create-json',
     'l10n-locale-counts',
   ]);
 
-  var getCount = function(clientKeys, serverKeys, src) {
+  var getCount = function (clientKeys, serverKeys, src) {
     var clientJson = require(path.resolve(src, 'client.json'));
     var messagesJson = require(path.resolve(src, 'messages.json'));
     var count = 0;
 
-    clientKeys.forEach(function(key) {
+    clientKeys.forEach(function (key) {
       if (key in clientJson && clientJson[key] !== '') {
         count++;
       }
     });
-    serverKeys.forEach(function(key) {
+    serverKeys.forEach(function (key) {
       if (key in messagesJson && messagesJson[key] !== '') {
         count++;
       }
@@ -36,17 +36,17 @@ module.exports = function(grunt) {
     return count;
   };
 
-  var getMissingStrings = function(clientKeys, serverKeys, src) {
+  var getMissingStrings = function (clientKeys, serverKeys, src) {
     var clientJson = require(path.resolve(src, 'client.json'));
     var messagesJson = require(path.resolve(src, 'messages.json'));
     var missing = [];
 
-    clientKeys.forEach(function(key) {
+    clientKeys.forEach(function (key) {
       if (!clientJson[key]) {
         missing.push('client.json: ' + key);
       }
     });
-    serverKeys.forEach(function(key) {
+    serverKeys.forEach(function (key) {
       if (!messagesJson[key]) {
         missing.push('messages.json: ' + key);
       }
@@ -69,7 +69,7 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(
     'l10n-locale-counts',
     'Print the list of locales we should enable in production.',
-    function() {
+    function () {
       // config must be loaded inside of the task so that it does not interfere
       // with other tasks.
       var config = grunt.config().server;
@@ -89,7 +89,7 @@ module.exports = function(grunt) {
       );
       var totalStrings = templateClientKeys.length + templateServerKeys.length;
 
-      this.files.forEach(function(file) {
+      this.files.forEach(function (file) {
         var src = file.src[0];
         var locale = path.basename(src);
         var count = getCount(templateClientKeys, templateServerKeys, src);

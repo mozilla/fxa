@@ -27,7 +27,7 @@ const {
 
 registerSuite('subscriptions', {
   tests: {
-    'sign up, subscribe for 123Done Pro, sign into 123Done to verify subscription': function() {
+    'sign up, subscribe for 123Done Pro, sign into 123Done to verify subscription': function () {
       if (
         process.env.CIRCLECI === 'true' &&
         !process.env.SUBHUB_STRIPE_APIKEY

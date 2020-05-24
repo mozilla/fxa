@@ -20,7 +20,7 @@ describe('feature-flags/index:', () => {
     reject,
     initialise;
 
-  beforeEach(done => {
+  beforeEach((done) => {
     origSetTimeout = setTimeout;
     origClearTimeout = clearTimeout;
     setTimeout = sinon.spy(() => 'wibble');
@@ -89,7 +89,7 @@ describe('feature-flags/index:', () => {
   describe('initialise, successful get:', () => {
     let featureFlags;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       featureFlags = initialise(
         {
           interval: 300000,
@@ -190,7 +190,7 @@ describe('feature-flags/index:', () => {
   describe('initialise without defaults, failed get:', () => {
     let featureFlags;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       featureFlags = initialise({ interval: 300000 }, log);
       reject(new Error('Not implemented'));
       setImmediate(done);
@@ -234,7 +234,7 @@ describe('feature-flags/index:', () => {
   describe('initialise with defaults, immediate failed get:', () => {
     let featureFlags;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       featureFlags = initialise({ interval: 300000 }, log, { foo: 'bar' });
       reject(new Error('Not implemented'));
       setImmediate(done);
@@ -257,7 +257,7 @@ describe('feature-flags/index:', () => {
     });
 
     describe('call refresh:', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         setTimeout.args[0][0]();
         setImmediate(done);
       });
@@ -267,7 +267,7 @@ describe('feature-flags/index:', () => {
       });
 
       describe('resolve refresh:', () => {
-        beforeEach(done => {
+        beforeEach((done) => {
           resolve(JSON.stringify({ baz: 'qux' }));
           setImmediate(done);
         });
@@ -286,7 +286,7 @@ describe('feature-flags/index:', () => {
   describe('initialise with defaults, delayed failed get:', () => {
     let featureFlags;
 
-    beforeEach(done => {
+    beforeEach((done) => {
       featureFlags = initialise({ interval: 300000 }, log, { foo: 'bar' });
       setImmediate(done);
     });

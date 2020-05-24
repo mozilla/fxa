@@ -12,7 +12,7 @@ describe('views/pair/failure', () => {
     initView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 

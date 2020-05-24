@@ -81,6 +81,6 @@ async function main() {
   process.exit();
 }
 
-main().catch(err => {
+main().catch((err) => {
   log.error('Errored out', err);
 });

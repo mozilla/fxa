@@ -22,7 +22,7 @@ import Vat from '../../lib/vat';
 import VerificationMethods from '../../lib/verification-methods';
 import VerificationReasons from '../../lib/verification-reasons';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const QUERY_PARAMETER_SCHEMA = {
   automatedBrowser: Vat.boolean(),
@@ -53,7 +53,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
       this.setCapability('fxaStatus', isFxaStatusSupported);
 
       if (isFxaStatusSupported) {
-        this.on('fxa_status', response => this.onFxaStatus(response));
+        this.on('fxa_status', (response) => this.onFxaStatus(response));
       }
     }
   },
@@ -209,7 +209,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
           // in the response, handle it here.
           this.trigger('fxa_status', response);
         },
-        err => {
+        (err) => {
           // The browser is not configured to accept WebChannel messages from
           // this FxA server. fxaStatus is not supported. Error has
           // already been logged and can be ignored. See #5114
@@ -237,10 +237,10 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     return this._fxaClient
       .consumeSigninCode(signinCode, flowId, flowBeginTime)
       .then(
-        response => {
+        (response) => {
           this.set('signinCodeAccount', response);
         },
-        err => {
+        (err) => {
           // log and ignore any errors. The user should still
           // be able to sign in normally.
           this._metrics.logError(err);
@@ -399,7 +399,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    * @return {Promise}
    */
   unpersistVerificationData(account) {
-    return Promise.resolve().then(function() {
+    return Promise.resolve().then(function () {
       clearSameBrowserVerificationModel(account, 'context');
     });
   },

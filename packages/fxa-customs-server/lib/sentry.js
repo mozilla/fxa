@@ -19,7 +19,7 @@ async function configureSentry(server, config, log) {
       ],
     });
 
-    Sentry.configureScope(scope => {
+    Sentry.configureScope((scope) => {
       scope.setTag('process', 'customs_server');
     });
 
@@ -49,8 +49,8 @@ async function configureSentry(server, config, log) {
           // ignore bad stack frames
         }
       }
-      Sentry.withScope(scope => {
-        scope.addEventProcessor(_sentryEvent => {
+      Sentry.withScope((scope) => {
+        scope.addEventProcessor((_sentryEvent) => {
           const sentryEvent = Sentry.Handlers.parseRequest(
             _sentryEvent,
             request.raw.req

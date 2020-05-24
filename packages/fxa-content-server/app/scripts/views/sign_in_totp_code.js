@@ -33,7 +33,7 @@ const View = FormView.extend({
     const code = this.getElementValue('input.totp-code');
     return account
       .verifyTotpCode(code, this.relier.get('service'))
-      .then(result => {
+      .then((result) => {
         if (result.success) {
           this.logFlowEvent('success', this.viewName);
           return this.invokeBrokerMethod(
@@ -44,7 +44,9 @@ const View = FormView.extend({
           throw AuthErrors.toError('INVALID_TOTP_CODE');
         }
       })
-      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch((err) =>
+        this.showValidationError(this.$(CODE_INPUT_SELECTOR), err)
+      );
   },
 
   /**

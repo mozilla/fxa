@@ -11,7 +11,7 @@ import preventDefaultThen from '../decorators/prevent_default_then';
 import SaveOptionsMixin from '../mixins/save-options-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const View = FormView.extend({
   template: Template,
@@ -46,7 +46,7 @@ const View = FormView.extend({
 
   _replaceRecoveryCodes() {
     const account = this.getSignedInAccount();
-    return account.replaceRecoveryCodes().then(result => {
+    return account.replaceRecoveryCodes().then((result) => {
       this.setupRecoveryCodes(
         result.recoveryCodes,
         t('New recovery codes generated')

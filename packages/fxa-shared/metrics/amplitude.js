@@ -358,7 +358,7 @@ module.exports = {
 function pruneUnsetValues(data) {
   const result = {};
 
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     const value = data[key];
 
     if (value || value === false) {
@@ -375,7 +375,7 @@ function mapExperiments(data) {
   if (Array.isArray(experiments) && experiments.length > 0) {
     return {
       experiments: experiments.map(
-        e => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`
+        (e) => `${toSnakeCase(e.choice)}_${toSnakeCase(e.group)}`
       ),
     };
   }
@@ -400,7 +400,7 @@ function mapUserPreferences(data) {
 function toSnakeCase(string) {
   return string
     .replace(/([a-z])([A-Z])/g, (s, c1, c2) => `${c1}_${c2.toLowerCase()}`)
-    .replace(/([A-Z])/g, c => c.toLowerCase())
+    .replace(/([A-Z])/g, (c) => c.toLowerCase())
     .replace(/\./g, '_')
     .replace(/-/g, '_');
 }
@@ -419,8 +419,9 @@ function mapSyncDevices(data) {
 }
 
 function countDevices(devices, period) {
-  return devices.filter(device => device.lastAccessTime >= Date.now() - period)
-    .length;
+  return devices.filter(
+    (device) => device.lastAccessTime >= Date.now() - period
+  ).length;
 }
 
 function mapSyncEngines(data) {
@@ -434,7 +435,7 @@ function mapSyncEngines(data) {
 function mapNewsletters(data) {
   let { newsletters } = data;
   if (newsletters) {
-    newsletters = newsletters.map(newsletter => {
+    newsletters = newsletters.map((newsletter) => {
       return toSnakeCase(newsletter);
     });
     return { newsletters, newsletter_state: 'subscribed' };

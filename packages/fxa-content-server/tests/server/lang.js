@@ -30,10 +30,10 @@ function langTest(lang) {
     return lang;
   }
 
-  suite.tests['#https get ' + httpsUrl + '/ -> ' + lang] = function() {
+  suite.tests['#https get ' + httpsUrl + '/ -> ' + lang] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
     got(httpsUrl + '/', options)
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.statusCode, 200);
         var langRegExp = new RegExp(util.format('lang="?%s"?', lang));
         assert.ok(langRegExp.test(res.body), 'html has correct lang attribute');
@@ -55,10 +55,10 @@ function langTest(lang) {
 
   suite.tests[
     '#https get ' + httpsUrl + '/i18n/client.json -> ' + lang
-  ] = function() {
+  ] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
     got(httpsUrl + '/i18n/client.json', options)
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.statusCode, 200);
         if (intern._config.fxaProduction) {
           // using the empty string '' as the key below is intentional
@@ -73,7 +73,7 @@ function langTest(lang) {
   };
 }
 
-languages.forEach(function(lang) {
+languages.forEach(function (lang) {
   langTest(lang);
 });
 

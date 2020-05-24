@@ -143,7 +143,7 @@ const Account = Backbone.Model.extend(
       }
 
       // upgrade the credentials with verified state
-      return this.sessionStatus().catch(err => {
+      return this.sessionStatus().catch((err) => {
         // Ignore UNAUTHORIZED errors; we'll just fetch again when needed
         // Otherwise report the error
         if (!AuthErrors.is(err, 'UNAUTHORIZED') && this._sentryMetrics) {
@@ -172,7 +172,7 @@ const Account = Backbone.Model.extend(
         // Docs: github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#post-v1authorization
         // Issue: https://github.com/mozilla/fxa-content-server/issues/3982
         ttl: 300,
-      }).then(accessToken => {
+      }).then((accessToken) => {
         this.set('accessToken', accessToken.get('token'));
       });
     },
@@ -199,7 +199,7 @@ const Account = Backbone.Model.extend(
 
     // returns true if all attributes within ALLOWED_KEYS are defaults
     isDefault() {
-      return !_.find(ALLOWED_KEYS, key => {
+      return !_.find(ALLOWED_KEYS, (key) => {
         return this.get(key) !== DEFAULTS[key];
       });
     },
@@ -229,7 +229,7 @@ const Account = Backbone.Model.extend(
 
       return this._fxaClient
         .createOAuthToken(sessionToken, clientId, options)
-        .then(result => {
+        .then((result) => {
           return new OAuthToken({
             oAuthClient: this._oAuthClient,
             token: result.access_token,
@@ -321,14 +321,14 @@ const Account = Backbone.Model.extend(
           return this._fxaClient.recoveryEmailStatus(sessionToken);
         })
         .then(
-          resp => {
+          (resp) => {
             // The session info may have changed since when it was last stored.
             // Store the server's view of the world. This will update the model
             // with the canonicalized email.
             this.set(resp);
             return resp;
           },
-          err => {
+          (err) => {
             if (AuthErrors.is(err, 'INVALID_TOKEN')) {
               // sessionToken is no longer valid, kill it.
               this.discardSessionToken();
@@ -391,7 +391,7 @@ const Account = Backbone.Model.extend(
 
         return this._fxaClient
           .account(sessionToken)
-          .then(result => (this._settingsData = result));
+          .then((result) => (this._settingsData = result));
       });
     },
 
@@ -424,7 +424,7 @@ const Account = Backbone.Model.extend(
 
           return this._fxaClient.sessionVerificationStatus(sessionToken);
         })
-        .then(null, err => {
+        .then(null, (err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             // sessionToken is no longer valid, kill it.
             this.discardSessionToken();
@@ -521,7 +521,7 @@ const Account = Backbone.Model.extend(
       // the call to _fetchProfileOAuthToken made in `getProfile`.
       this.off('change', this._boundOnChange);
 
-      this._profileFetchPromise = this.getProfile().then(result => {
+      this._profileFetchPromise = this.getProfile().then((result) => {
         const profileImage = new ProfileImage({
           default: result.avatarDefault,
           url: result.avatar,
@@ -540,7 +540,7 @@ const Account = Backbone.Model.extend(
       let profileImage = new ProfileImage();
 
       return this.getAvatar()
-        .then(result => {
+        .then((result) => {
           profileImage = new ProfileImage({
             default: result.avatarDefault,
             id: result.id,
@@ -610,7 +610,7 @@ const Account = Backbone.Model.extend(
                   relier,
                   signinOptions
                 )
-                .catch(err => {
+                .catch((err) => {
                   // The session was invalid, do a fresh login.
                   if (!AuthErrors.is(err, 'INVALID_TOKEN')) {
                     throw err;
@@ -632,7 +632,7 @@ const Account = Backbone.Model.extend(
             throw AuthErrors.toError('UNEXPECTED_ERROR');
           }
         })
-        .then(updatedSessionData => {
+        .then((updatedSessionData) => {
           // If a different email case or primary email was used to login,
           // the session won't have correct email. Update the session to use the one
           // originally used for login.
@@ -649,7 +649,7 @@ const Account = Backbone.Model.extend(
 
           return updatedSessionData;
         })
-        .catch(err => {
+        .catch((err) => {
           // The `INCORRECT_EMAIL_CASE` can be returned if a user is attempting to login with a different
           // email case than what the account was created with or if they changed their primary email address.
           // In both scenarios, the content-server needs to know the original account email to hash
@@ -697,7 +697,7 @@ const Account = Backbone.Model.extend(
           resume: options.resume,
           verificationMethod: options.verificationMethod,
         })
-        .then(updatedSessionData => {
+        .then((updatedSessionData) => {
           this.set(updatedSessionData);
         });
     },
@@ -848,7 +848,7 @@ const Account = Backbone.Model.extend(
         // eslint-disable-next-line no-unused-vars
         for (const clientId in grantedPermissions) {
           const clientPermissions = {};
-          grantedPermissions[clientId].forEach(function(permissionName) {
+          grantedPermissions[clientId].forEach(function (permissionName) {
             // if the permission is in grantedPermissions, it's
             // status is `true`
             clientPermissions[permissionName] = true;
@@ -934,7 +934,7 @@ const Account = Backbone.Model.extend(
      */
     getPermissionsWithValues(permissionNames) {
       return permissionNames
-        .map(permissionName => {
+        .map((permissionName) => {
           const accountKey = PERMISSIONS_TO_KEYS[permissionName];
 
           // filter out permissions we do not know about
@@ -949,7 +949,7 @@ const Account = Backbone.Model.extend(
 
           return permissionName;
         })
-        .filter(permissionName => permissionName !== null);
+        .filter((permissionName) => permissionName !== null);
     },
 
     /**
@@ -991,7 +991,7 @@ const Account = Backbone.Model.extend(
      *
      * @method set
      */
-    set: _.wrap(Backbone.Model.prototype.set, function(
+    set: _.wrap(Backbone.Model.prototype.set, function (
       func,
       attribute,
       value,
@@ -1058,7 +1058,7 @@ const Account = Backbone.Model.extend(
      */
     fetchSubscriptionPlans() {
       return this._fetchShortLivedSubscriptionsOAuthToken().then(
-        accessToken => {
+        (accessToken) => {
           return this._fxaClient.getSubscriptionPlans(accessToken.get('token'));
         }
       );
@@ -1070,7 +1070,7 @@ const Account = Backbone.Model.extend(
      * @returns {Promise} resolves to an array of zero or more subscriptions.
      */
     getSubscriptions() {
-      return this.settingsData().then(settingsData =>
+      return this.settingsData().then((settingsData) =>
         Array.isArray(settingsData.subscriptions)
           ? settingsData.subscriptions
           : []
@@ -1084,7 +1084,7 @@ const Account = Backbone.Model.extend(
      */
     hasSubscriptions() {
       return this.getSubscriptions().then(
-        subscriptions => subscriptions.length > 0
+        (subscriptions) => subscriptions.length > 0
       );
     },
 
@@ -1095,7 +1095,7 @@ const Account = Backbone.Model.extend(
      */
     fetchActiveSubscriptions() {
       return this._fetchShortLivedSubscriptionsOAuthToken().then(
-        accessToken => {
+        (accessToken) => {
           return this._fxaClient.getActiveSubscriptions(
             accessToken.get('token')
           );
@@ -1117,7 +1117,7 @@ const Account = Backbone.Model.extend(
      */
     createSupportTicket(supportTicket) {
       return this._fetchShortLivedSubscriptionsOAuthToken().then(
-        accessToken => {
+        (accessToken) => {
           return this._fxaClient.createSupportTicket(
             accessToken.get('token'),
             supportTicket
@@ -1480,7 +1480,7 @@ const Account = Backbone.Model.extend(
       };
       return this._fxaClient
         .verifyTotpCode(this.get('sessionToken'), code, options)
-        .then(result => {
+        .then((result) => {
           if (result.success) {
             this.set('totpVerified', true);
           }
@@ -1690,16 +1690,16 @@ const Account = Backbone.Model.extend(
   'deleteAvatar',
   'uploadAvatar',
   'postDisplayName',
-].forEach(function(method) {
-  Account.prototype[method] = function(...args) {
+].forEach(function (method) {
+  Account.prototype[method] = function (...args) {
     let profileClient;
     return this.profileClient()
-      .then(client => {
+      .then((client) => {
         profileClient = client;
         const accessToken = this.get('accessToken');
         return profileClient[method].call(profileClient, accessToken, ...args);
       })
-      .catch(err => {
+      .catch((err) => {
         if (ProfileErrors.is(err, 'INVALID_TOKEN')) {
           this.discardSessionToken();
         } else if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
@@ -1714,7 +1714,7 @@ const Account = Backbone.Model.extend(
                 ...args
               );
             })
-            .catch(err => {
+            .catch((err) => {
               if (ProfileErrors.is(err, 'UNAUTHORIZED')) {
                 // If fetching a new profile token failed, or using
                 // the new profile token failed, consider the sessionToken

@@ -2,10 +2,12 @@
  *
  */
 
-$(document).ready(function() {
+/* eslint-disable */
+
+$(document).ready(function () {
   detectCompletePkceFlow();
 
-  $('button.signin-pkce').click(function(ev) {
+  $('button.signin-pkce').click(function (ev) {
     authenticatePkce();
   });
 });
@@ -14,10 +16,10 @@ $(document).ready(function() {
  * Starts a FxA OAuth Pkce flow
  */
 function authenticatePkce() {
-  $.getJSON('/api/login').done(function(data) {
+  $.getJSON('/api/login').done(function (data) {
     const codeVerifier = createRandomString(32);
     console.log('codeVerifier', codeVerifier);
-    sha256(codeVerifier).then(function(res) {
+    sha256(codeVerifier).then(function (res) {
       const codeChallenge = btoa(
         String.fromCharCode.apply(null, new Uint8Array(res))
       )
@@ -51,7 +53,7 @@ function detectCompletePkceFlow() {
   if (params.has('code')) {
     var code = params.get('code');
 
-    $.getJSON('/api/login').done(function(config) {
+    $.getJSON('/api/login').done(function (config) {
       var tokenHeaders = new Headers();
       tokenHeaders.append('Content-Type', 'application/json');
 
@@ -66,11 +68,11 @@ function detectCompletePkceFlow() {
           }),
         })
       )
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) return response.json();
           else throw new Error('Something went wrong on api server!');
         })
-        .then(function(token) {
+        .then(function (token) {
           var profileHeaders = new Headers();
           profileHeaders.append('Content-Type', 'application/json');
           profileHeaders.append(
@@ -85,16 +87,16 @@ function detectCompletePkceFlow() {
             })
           );
         })
-        .then(function(response) {
+        .then(function (response) {
           if (response.status === 200) return response.json();
           else throw new Error('Something went wrong on api server!');
         })
-        .then(function(profile) {
+        .then(function (profile) {
           $('.signin-pkce').hide();
           $('.pkce-data').text('PKCE Flow Complete:' + JSON.stringify(profile));
           console.log('profile', profile);
         })
-        .catch(function(error) {
+        .catch(function (error) {
           console.error(error);
         });
     }); // configData ends
@@ -103,10 +105,7 @@ function detectCompletePkceFlow() {
 
 // Util functions
 function str2base64url(str) {
-  return btoa(str)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/\=+$/, '');
+  return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/\=+$/, '');
 }
 function sha256(str) {
   var buffer = new TextEncoder('utf-8').encode(str);

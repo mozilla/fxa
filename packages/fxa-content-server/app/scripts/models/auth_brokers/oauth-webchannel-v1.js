@@ -42,7 +42,7 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     // the Base broker determines if fxaStatus is supported based on UA
     // after we initialize we want to explicitly set that this broker supports the status
     this.setCapability('fxaStatus', true);
-    this.on('fxa_status', response => this.onFxaStatus(response));
+    this.on('fxa_status', (response) => this.onFxaStatus(response));
   },
 
   /**

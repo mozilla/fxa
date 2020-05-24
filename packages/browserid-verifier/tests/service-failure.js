@@ -11,14 +11,14 @@ var IdP = require('browserid-local-verify/testing').IdP,
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('audience tests', function() {
+describe('audience tests', function () {
   var verifier = new Verifier({ testServiceFailure: true });
   var idp = new IdP();
   var client;
 
-  it('test servers should start', function(done) {
-    idp.start(function(e) {
-      verifier.start(function(e1) {
+  it('test servers should start', function (done) {
+    idp.start(function (e) {
+      verifier.start(function (e1) {
         client = new Client({ idp: idp });
         done(e || e1);
       });
@@ -27,14 +27,14 @@ describe('audience tests', function() {
 
   var assertion;
 
-  it('test assertion should be created', function(done) {
-    client.assertion({ audience: 'http://example.com' }, function(err, ass) {
+  it('test assertion should be created', function (done) {
+    client.assertion({ audience: 'http://example.com' }, function (err, ass) {
       assertion = ass;
       done(err);
     });
   });
 
-  it('(v1 api) should return a 503 on service failure', function(done) {
+  it('(v1 api) should return a 503 on service failure', function (done) {
     request(
       {
         method: 'post',
@@ -45,7 +45,7 @@ describe('audience tests', function() {
           audience: 'http://example.com',
         },
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         (503).should.equal(r.statusCode);
         'failure'.should.equal(r.body.status);
@@ -55,7 +55,7 @@ describe('audience tests', function() {
     );
   });
 
-  it('(v2 api) should return a 503 on service failure', function(done) {
+  it('(v2 api) should return a 503 on service failure', function (done) {
     request(
       {
         method: 'post',
@@ -66,7 +66,7 @@ describe('audience tests', function() {
           audience: 'http://example.com',
         },
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         (503).should.equal(r.statusCode);
         'failure'.should.equal(r.body.status);
@@ -76,9 +76,9 @@ describe('audience tests', function() {
     );
   });
 
-  it('test servers should stop', function(done) {
-    idp.stop(function(e) {
-      verifier.stop(function(e1) {
+  it('test servers should stop', function (done) {
+    idp.stop(function (e) {
+      verifier.stop(function (e1) {
         done(e || e1);
       });
     });

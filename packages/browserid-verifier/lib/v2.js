@@ -19,7 +19,7 @@ function validateTrustedIssuers(obj) {
     };
   }
 
-  ti.forEach(function(hostname) {
+  ti.forEach(function (hostname) {
     if (typeof hostname !== 'string') {
       throw {
         reason: 'trusted issuers must be an array of strings',
@@ -49,7 +49,7 @@ function verify(verifier, req, res) {
     res._summary.rp = req.body.audience;
 
     // assertion and audience are required
-    ['assertion', 'audience'].forEach(function(field) {
+    ['assertion', 'audience'].forEach(function (field) {
       if (!req.body[field]) {
         throw {
           reason: util.format('missing %s parameter', field),
@@ -69,7 +69,7 @@ function verify(verifier, req, res) {
         trustedIssuers: trustedIssuers,
         fallback: config.get('fallback'),
       },
-      function(err, r) {
+      function (err, r) {
         var reqTime = new Date() - startTime;
         log.info('assertion_verification_time', { reqTime });
         res._summary.assertion_verification_time = reqTime;

@@ -45,7 +45,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('settings change email', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     secondaryEmail = createEmail();
     return (
@@ -78,7 +78,7 @@ registerSuite('settings change email', {
   },
 
   tests: {
-    'can change primary email and login': function() {
+    'can change primary email and login': function () {
       return (
         this.remote
           // sign out
@@ -111,7 +111,7 @@ registerSuite('settings change email', {
       );
     },
 
-    'can change primary email, change password and login': function() {
+    'can change primary email, change password and login': function () {
       return (
         this.remote
           // change password
@@ -136,7 +136,7 @@ registerSuite('settings change email', {
       );
     },
 
-    'can change primary email, reset password and login': function() {
+    'can change primary email, reset password and login': function () {
       return (
         this.remote
           .then(click(selectors.SETTINGS.SIGNOUT))
@@ -179,7 +179,7 @@ registerSuite('settings change email', {
       );
     },
 
-    'can change primary email, change password, login, change email and login': function() {
+    'can change primary email, change password, login, change email and login': function () {
       return (
         this.remote
           // change password
@@ -216,7 +216,7 @@ registerSuite('settings change email', {
       );
     },
 
-    'can change primary email, reset password, login, change email and login': function() {
+    'can change primary email, reset password, login, change email and login': function () {
       return (
         this.remote
           .then(click(selectors.SETTINGS.SIGNOUT))
@@ -266,7 +266,7 @@ registerSuite('settings change email', {
       );
     },
 
-    'can change primary email, delete account': function() {
+    'can change primary email, delete account': function () {
       return (
         this.remote
           // go to delete account screen
@@ -277,7 +277,7 @@ registerSuite('settings change email', {
             )
           )
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
           .end()
 
           // enter correct password
@@ -296,7 +296,7 @@ registerSuite('settings change email', {
 });
 
 registerSuite('settings change email - unblock', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     // Create a new primary email that is always forced through the unblock flow
@@ -334,12 +334,12 @@ registerSuite('settings change email - unblock', {
     );
   },
 
-  afterEach: function() {
+  afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'can change primary email, get blocked with invalid password, redirect enter password page': function() {
+    'can change primary email, get blocked with invalid password, redirect enter password page': function () {
       return (
         this.remote
           // sign in
@@ -361,7 +361,7 @@ registerSuite('settings change email - unblock', {
       );
     },
 
-    'can change primary email, get blocked with valid password, redirect settings page': function() {
+    'can change primary email, get blocked with valid password, redirect settings page': function () {
       return (
         this.remote
           // sign in

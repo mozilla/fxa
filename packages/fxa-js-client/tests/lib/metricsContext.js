@@ -7,14 +7,14 @@
 const assert = require('chai').assert;
 const metricsContext = require('../../client/lib/metricsContext');
 
-describe('metricsContext', function() {
-  it('interface is correct', function() {
+describe('metricsContext', function () {
+  it('interface is correct', function () {
     assert.isObject(metricsContext);
     assert.lengthOf(Object.keys(metricsContext), 1);
     assert.isFunction(metricsContext.marshall);
   });
 
-  it('marshall returns correct data', function() {
+  it('marshall returns correct data', function () {
     var input = {
       context: 'fx_desktop_v3',
       deviceId: '0123456789abcdef0123456789abcdef',

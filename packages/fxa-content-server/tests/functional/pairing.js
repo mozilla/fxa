@@ -42,7 +42,7 @@ const {
 } = FunctionalHelpers;
 
 function getQrData(buffer) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const jsQR = require('jsqr');
     const png = require('upng-js');
 
@@ -67,7 +67,7 @@ function getQrData(buffer) {
   });
 }
 
-const waitForQR = thenify(function() {
+const waitForQR = thenify(function () {
   let requestAttempts = 0;
   const maxAttempts = 3;
   const parent = this.parent;
@@ -76,9 +76,9 @@ const waitForQR = thenify(function() {
     return parent
       .sleep(1500)
       .takeScreenshot()
-      .then(buffer => {
+      .then((buffer) => {
         return getQrData(buffer)
-          .then(result => {
+          .then((result) => {
             const pairingStuff = result.split('#')[1];
             return parent.then(
               openTab(
@@ -87,13 +87,13 @@ const waitForQR = thenify(function() {
               )
             );
           })
-          .catch(err => {
+          .catch((err) => {
             requestAttempts++;
             if (requestAttempts >= maxAttempts) {
               return Promise.reject(new Error(`QRTimeout: ${err}`));
             } else {
-              return new Promise(function(resolve, reject) {
-                setTimeout(function() {
+              return new Promise(function (resolve, reject) {
+                setTimeout(function () {
                   pollForScreenshot().then(resolve, reject);
                 }, 1000);
               });
@@ -107,7 +107,7 @@ const waitForQR = thenify(function() {
 
 registerSuite('pairing', {
   tests: {
-    'it can pair': function() {
+    'it can pair': function () {
       let secret;
       email = createEmail();
 
@@ -144,7 +144,7 @@ registerSuite('pairing', {
 
           .then(switchToWindow(1))
           .then(click(selectors.PAIRING.SUPP_SUBMIT))
-          .catch(err => {
+          .catch((err) => {
             if (err.message && err.message.includes('Web element reference')) {
               // We have to catch an error here due to https://bugzilla.mozilla.org/show_bug.cgi?id=1422769
               // .click still works, but just throws for no reason. We assert below that pairing still works.
@@ -159,7 +159,7 @@ registerSuite('pairing', {
           .then(switchToWindow(1))
           .then(testElementExists(selectors.PAIRING.COMPLETE))
           .getCurrentUrl()
-          .then(function(redirectResult) {
+          .then(function (redirectResult) {
             assert.ok(
               redirectResult.includes('code='),
               'final OAuth redirect has the code'
@@ -179,7 +179,7 @@ registerSuite('pairing', {
 
           .findByCssSelector(selectors.TOTP.MANUAL_CODE)
           .getVisibleText()
-          .then(secretKey => {
+          .then((secretKey) => {
             secret = secretKey;
           })
           .then(() => this.remote.then(click(selectors.TOTP.KEY_OK_BUTTON)))
@@ -201,7 +201,7 @@ registerSuite('pairing', {
           .then(switchToWindow(1))
 
           .then(click(selectors.PAIRING.SUPP_SUBMIT))
-          .catch(err => {
+          .catch((err) => {
             if (err.message && err.message.includes('Web element reference')) {
               // We have to catch an error here due to https://bugzilla.mozilla.org/show_bug.cgi?id=1422769
               // .click still works, but just throws for no reason. We assert below that pairing still works.
@@ -223,7 +223,7 @@ registerSuite('pairing', {
           .then(switchToWindow(1))
           .then(testElementExists(selectors.PAIRING.COMPLETE))
           .getCurrentUrl()
-          .then(function(redirectResult) {
+          .then(function (redirectResult) {
             assert.ok(
               redirectResult.includes('code='),
               'final OAuth redirect has the code'
@@ -238,7 +238,7 @@ registerSuite('pairing', {
       );
     },
 
-    'handles invalid clients': function() {
+    'handles invalid clients': function () {
       return this.remote
         .then(
           openPage(

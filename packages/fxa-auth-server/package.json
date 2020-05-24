@@ -22,7 +22,7 @@
     "test-e2e": "NODE_ENV=dev mocha -r ts-node/register test/e2e",
     "test-scripts": "NODE_ENV=dev mocha -r ts-node/register test/scripts --exit",
     "test-remote": "MAILER_HOST=restmail.net MAILER_PORT=80 CORS_ORIGIN=http://baz mocha -r ts-node/register --timeout=300000 test/remote",
-    "format": "prettier '**' --write",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "gen-keys": "ts-node ./scripts/gen_keys.js; ts-node ./scripts/oauth_gen_keys.js; ts-node ./scripts/gen_vapid_keys.js",
     "write-emails": "node ./scripts/write-emails-to-disk.js",
     "clean-up-old-ci-stripe-customers": "ts-node ./scripts/clean-up-old-ci-stripe-customers.js"

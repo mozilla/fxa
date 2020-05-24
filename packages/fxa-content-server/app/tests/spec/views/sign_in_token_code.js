@@ -75,7 +75,7 @@ describe('views/sign_in_token_code', () => {
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();
@@ -138,7 +138,7 @@ describe('views/sign_in_token_code', () => {
       TOKEN_CODE + '   ',
       '   ' + TOKEN_CODE + '   ',
     ];
-    validCodes.forEach(code => {
+    validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
           view.$('input.otp-code').val(code);

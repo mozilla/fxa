@@ -146,7 +146,7 @@ describe('models/auth_brokers/fx-sync', () => {
         broker.setCapability('browserTransitionsAfterEmailVerification', false);
         sinon.spy(metrics, 'setViewNamePrefix');
 
-        return broker.afterSignUpConfirmationPoll(account).then(behavior => {
+        return broker.afterSignUpConfirmationPoll(account).then((behavior) => {
           assert.equal(behavior.type, 'connect-another-device');
 
           assert.isTrue(metrics.setViewNamePrefix.calledOnce);
@@ -164,12 +164,14 @@ describe('models/auth_brokers/fx-sync', () => {
           );
           sinon.spy(metrics, 'setViewNamePrefix');
 
-          return broker.afterSignInConfirmationPoll(account).then(behavior => {
-            assert.equal(behavior.type, 'connect-another-device');
+          return broker
+            .afterSignInConfirmationPoll(account)
+            .then((behavior) => {
+              assert.equal(behavior.type, 'connect-another-device');
 
-            assert.isTrue(metrics.setViewNamePrefix.calledOnce);
-            assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
-          });
+              assert.isTrue(metrics.setViewNamePrefix.calledOnce);
+              assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
+            });
         });
       });
 
@@ -181,21 +183,23 @@ describe('models/auth_brokers/fx-sync', () => {
           );
           sinon.spy(metrics, 'setViewNamePrefix');
 
-          return broker.afterSignInConfirmationPoll(account).then(behavior => {
-            assert.equal(
-              behavior.type,
-              broker.getBehavior('afterSignInConfirmationPoll').type
-            );
+          return broker
+            .afterSignInConfirmationPoll(account)
+            .then((behavior) => {
+              assert.equal(
+                behavior.type,
+                broker.getBehavior('afterSignInConfirmationPoll').type
+              );
 
-            assert.isFalse(metrics.setViewNamePrefix.called);
-          });
+              assert.isFalse(metrics.setViewNamePrefix.called);
+            });
         });
       });
     });
 
     describe('afterCompleteSignUp', () => {
       it('returns a ConnectAnotherDeviceBehavior', () => {
-        return broker.afterCompleteSignUp(account).then(behavior => {
+        return broker.afterCompleteSignUp(account).then((behavior) => {
           assert.equal(behavior.type, 'connect-another-device');
         });
       });
@@ -203,7 +207,7 @@ describe('models/auth_brokers/fx-sync', () => {
 
     describe('afterCompleteSignIn', () => {
       it('returns a ConnectAnotherDeviceBehavior', () => {
-        return broker.afterCompleteSignIn(account).then(behavior => {
+        return broker.afterCompleteSignIn(account).then((behavior) => {
           assert.equal(behavior.type, 'connect-another-device');
         });
       });
@@ -213,7 +217,7 @@ describe('models/auth_brokers/fx-sync', () => {
   describe('afterCompleteSignUp', () => {
     it('resolves to a `ConnectAnotherDeviceBehavior`', () => {
       account.get = sinon.spy();
-      return broker.afterCompleteSignUp(account).then(behavior => {
+      return broker.afterCompleteSignUp(account).then((behavior) => {
         assert.equal(behavior.type, 'connect-another-device');
       });
     });

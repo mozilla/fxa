@@ -5,7 +5,7 @@
 var nodeXMLHttpRequest = require('xmlhttprequest');
 
 function request(uri, method, jsonPayload, headers) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     var xhr = new nodeXMLHttpRequest.XMLHttpRequest();
     var payload;
 

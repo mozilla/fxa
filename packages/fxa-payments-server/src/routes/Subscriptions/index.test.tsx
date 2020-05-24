@@ -126,9 +126,7 @@ describe('routes/Subscriptions', () => {
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, { ...MOCK_PROFILE, displayName }),
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, mockPlans),
+    nock(authServer).get('/v1/oauth/subscriptions/plans').reply(200, mockPlans),
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, mockActiveSubscriptions),
@@ -181,7 +179,7 @@ describe('routes/Subscriptions', () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
-      mockPlans: MOCK_PLANS.map(plan => ({
+      mockPlans: MOCK_PLANS.map((plan) => ({
         ...plan,
         product_metadata: {
           upgradeCTA: `
@@ -230,15 +228,11 @@ describe('routes/Subscriptions', () => {
 
   it('redirects to settings if no subscriptions are available', async () => {
     const apiMocks = [
-      nock(profileServer)
-        .get('/v1/profile')
-        .reply(200, MOCK_PROFILE),
+      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, []),
+      nock(authServer).get('/v1/oauth/subscriptions/active').reply(200, []),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
         .reply(200, {
@@ -255,9 +249,7 @@ describe('routes/Subscriptions', () => {
   });
 
   it('displays an error if profile fetch fails', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(500, MOCK_PROFILE);
+    nock(profileServer).get('/v1/profile').reply(500, MOCK_PROFILE);
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, MOCK_PLANS);
@@ -272,9 +264,7 @@ describe('routes/Subscriptions', () => {
   });
 
   it('displays an error if plans fetch fails', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(500, MOCK_PLANS);
@@ -289,15 +279,11 @@ describe('routes/Subscriptions', () => {
   });
 
   it('displays an error if subscriptions fetch fails', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, MOCK_PLANS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(500, {});
+    nock(authServer).get('/v1/oauth/subscriptions/active').reply(500, {});
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
       .reply(403, MOCK_CUSTOMER);
@@ -306,37 +292,29 @@ describe('routes/Subscriptions', () => {
   });
 
   it('displays an error if customer fetch fails', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, MOCK_PLANS);
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(403, {});
+    nock(authServer).get('/v1/oauth/subscriptions/customer').reply(403, {});
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
   });
 
   it('redirects to settings if customer fetch fails with 404', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, MOCK_PLANS);
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(404, {
-        errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER,
-      });
+    nock(authServer).get('/v1/oauth/subscriptions/customer').reply(404, {
+      errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER,
+    });
 
     const navigateToUrl = jest.fn();
     render(<Subject navigateToUrl={navigateToUrl} />);
@@ -459,12 +437,8 @@ describe('routes/Subscriptions', () => {
           ...MOCK_PLANS.slice(2),
         ];
 
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/plans')
-        .reply(200, plans),
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(authServer).get('/v1/oauth/subscriptions/plans').reply(200, plans),
       nock(authServer)
         .get('/v1/oauth/subscriptions/active')
         .reply(200, [
@@ -624,15 +598,11 @@ describe('routes/Subscriptions', () => {
   describe('reactivation with default icon', reactivationTests(true));
 
   it('should display an error message if subhub reports a subscription not found in auth-server', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, MOCK_PLANS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, []);
+    nock(authServer).get('/v1/oauth/subscriptions/active').reply(200, []);
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
       .reply(200, MOCK_CUSTOMER);
@@ -641,12 +611,8 @@ describe('routes/Subscriptions', () => {
   });
 
   it('should display an error message for a plan found in auth-server but not subhub', async () => {
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, []);
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
+    nock(authServer).get('/v1/oauth/subscriptions/plans').reply(200, []);
     nock(authServer)
       .get('/v1/oauth/subscriptions/active')
       .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);

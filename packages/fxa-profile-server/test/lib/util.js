@@ -13,7 +13,7 @@ function assertSecurityHeaders(res) {
     'cache-control': 'private, no-cache, no-store, must-revalidate',
   };
 
-  Object.keys(expect).forEach(function(header) {
+  Object.keys(expect).forEach(function (header) {
     assert.ok(res.headers[header]);
     assert.equal(res.headers[header], expect[header]);
   });

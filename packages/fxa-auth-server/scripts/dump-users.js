@@ -66,5 +66,5 @@ function marshallInput(input = '') {
   }
 
   const items = input.split(/[,\s]+/);
-  return items.filter(item => !!item.trim().length);
+  return items.filter((item) => !!item.trim().length);
 }

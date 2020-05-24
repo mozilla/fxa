@@ -37,7 +37,7 @@ Cocktail.mixin(SettingsPanelView, SettingsPanelMixin);
 Cocktail.mixin(SettingsPanelView2, SettingsPanelMixin);
 Cocktail.mixin(ModalSettingsPanelView, ModalSettingsPanelMixin);
 
-describe('views/sub_panels', function() {
+describe('views/sub_panels', function () {
   var metrics;
   var notifier;
   var panelViews;
@@ -56,7 +56,7 @@ describe('views/sub_panels', function() {
     });
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
     parent = {
@@ -72,20 +72,20 @@ describe('views/sub_panels', function() {
     createView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     $(view.el).remove();
     view.destroy();
     view = null;
   });
 
-  describe('childViews', function() {
-    it('renders non-modal childViews on render', function() {
-      sinon.stub(view, '_createChildViewIfNeeded').callsFake(function(View) {
+  describe('childViews', function () {
+    it('renders non-modal childViews on render', function () {
+      sinon.stub(view, '_createChildViewIfNeeded').callsFake(function (View) {
         var childView = new View();
         return childView;
       });
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.isTrue(
           view._createChildViewIfNeeded.calledTwice,
           'is only called for the non-modal views'
@@ -102,8 +102,8 @@ describe('views/sub_panels', function() {
     });
   });
 
-  describe('_createChildViewIfNeeded', function() {
-    it('creates, tracks, and renders a childView', function() {
+  describe('_createChildViewIfNeeded', function () {
+    it('creates, tracks, and renders a childView', function () {
       sinon.spy(view, 'trackChildView');
       sinon.spy(view, 'renderChildView');
 
@@ -113,7 +113,7 @@ describe('views/sub_panels', function() {
       };
       return view
         ._createChildViewIfNeeded(SettingsPanelView, options)
-        .then(function(childView) {
+        .then(function (childView) {
           assert.ok(childView);
           // passed in model data is immediately made
           // available to the child.
@@ -123,43 +123,43 @@ describe('views/sub_panels', function() {
         });
     });
 
-    it('only creates view once', function() {
+    it('only creates view once', function () {
       var firstChildView;
       return view
         ._createChildViewIfNeeded(SettingsPanelView)
-        .then(function(childView) {
+        .then(function (childView) {
           firstChildView = childView;
           return view._createChildViewIfNeeded(SettingsPanelView);
         })
-        .then(function(secondChildView) {
+        .then(function (secondChildView) {
           assert.ok(secondChildView);
           assert.strictEqual(firstChildView, secondChildView);
         });
     });
   });
 
-  describe('showChildView', function() {
-    it('with non-subpanel view returns', function() {
-      return view.showChildView(BaseView).then(function(shownView) {
+  describe('showChildView', function () {
+    it('with non-subpanel view returns', function () {
+      return view.showChildView(BaseView).then(function (shownView) {
         assert.isNull(shownView);
       });
     });
 
-    it('showChildView renders and opens', function() {
-      sinon.stub(view, '_createChildViewIfNeeded').callsFake(function(View) {
+    it('showChildView renders and opens', function () {
+      sinon.stub(view, '_createChildViewIfNeeded').callsFake(function (View) {
         var childView = new View();
-        sinon.stub(childView, 'openPanel').callsFake(function() {});
+        sinon.stub(childView, 'openPanel').callsFake(function () {});
         return Promise.resolve(childView);
       });
 
       var options = {};
       return view
         .render()
-        .then(function() {
+        .then(function () {
           $('#container').append(view.el);
           return view.showChildView(SettingsPanelView, options);
         })
-        .then(function(childView) {
+        .then(function (childView) {
           assert.isTrue(
             view._createChildViewIfNeeded.calledWith(SettingsPanelView, options)
           );
@@ -168,30 +168,30 @@ describe('views/sub_panels', function() {
     });
   });
 
-  describe('renderChildView', function() {
-    it('calls render and afterVisible on childView', function() {
+  describe('renderChildView', function () {
+    it('calls render and afterVisible on childView', function () {
       var childView = new View();
-      sinon.stub(childView, 'render').callsFake(function() {
+      sinon.stub(childView, 'render').callsFake(function () {
         return Promise.resolve(true);
       });
       sinon.spy(childView, 'afterVisible');
 
-      return view.renderChildView(childView).then(function(renderedChildView) {
+      return view.renderChildView(childView).then(function (renderedChildView) {
         assert.strictEqual(renderedChildView, childView);
         assert.isTrue(childView.render.called);
         assert.isTrue(childView.afterVisible.called);
       });
     });
 
-    it('destroys childView if render fails', function() {
+    it('destroys childView if render fails', function () {
       var childView = new View();
-      sinon.stub(childView, 'render').callsFake(function() {
+      sinon.stub(childView, 'render').callsFake(function () {
         return Promise.resolve(false);
       });
       sinon.spy(childView, 'afterVisible');
       sinon.spy(childView, 'destroy');
 
-      return view.renderChildView(childView).then(function(renderedChildView) {
+      return view.renderChildView(childView).then(function (renderedChildView) {
         assert.isUndefined(renderedChildView);
         assert.isTrue(childView.render.called);
         assert.isFalse(childView.afterVisible.called);

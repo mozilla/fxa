@@ -6,7 +6,7 @@ import ConfigLoader from './lib/config-loader';
 import AppStart from './lib/app-start';
 
 const configLoader = new ConfigLoader();
-configLoader.fetch().then(config => {
+configLoader.fetch().then((config) => {
   const appStart = new AppStart({
     config,
   });

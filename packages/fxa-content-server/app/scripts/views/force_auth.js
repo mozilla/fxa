@@ -21,7 +21,7 @@ import Transform from '../lib/transform';
 import UserCardMixin from './mixins/user-card-mixin';
 import Vat from '../lib/vat';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 var RELIER_DATA_SCHEMA = {
   email: Vat.email().required(),
@@ -44,7 +44,7 @@ const View = FormView.extend({
     var accountData = {};
     var relier = this.relier;
 
-    fieldsToPick.forEach(function(fieldName) {
+    fieldsToPick.forEach(function (fieldName) {
       if (relier.has(fieldName)) {
         accountData[fieldName] = relier.get(fieldName);
       }
@@ -110,7 +110,7 @@ const View = FormView.extend({
     } else {
       // relier did not specify a uid, there's a bit more flexibility.
       // If the email no longer exists, sign up the user.
-      return this.user.checkAccountEmailExists(account).then(emailExists => {
+      return this.user.checkAccountEmailExists(account).then((emailExists) => {
         if (!emailExists) {
           return this._navigateToForceSignUp(account);
         }
@@ -183,7 +183,7 @@ const View = FormView.extend({
     const account = this.getAccount();
     const password = this.getElementValue(PASSWORD_SELECTOR);
 
-    return this.signIn(account, password).catch(error =>
+    return this.signIn(account, password).catch((error) =>
       this.onSignInError(account, error)
     );
   },

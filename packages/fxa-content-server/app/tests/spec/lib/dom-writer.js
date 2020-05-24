@@ -6,15 +6,15 @@ import $ from 'jquery';
 import { assert } from 'chai';
 import domWriter from 'lib/dom-writer';
 
-describe('lib/dom-writer', function() {
+describe('lib/dom-writer', function () {
   var content = '<div id="stage-child">stage child content</div>';
 
-  beforeEach(function() {
+  beforeEach(function () {
     $('#container').html('<div id="stage">stage content</div>');
   });
 
-  describe('with text', function() {
-    it('overwrite #stage with the html', function() {
+  describe('with text', function () {
+    it('overwrite #stage with the html', function () {
       domWriter.write(window, content);
 
       assert.notInclude($('#stage').html(), 'stage content');
@@ -22,8 +22,8 @@ describe('lib/dom-writer', function() {
     });
   });
 
-  describe('with a jQuery element', function() {
-    it('overwrite #stage with the html', function() {
+  describe('with a jQuery element', function () {
+    it('overwrite #stage with the html', function () {
       domWriter.write(window, $(content));
 
       assert.notInclude($('#stage').html(), 'stage content');

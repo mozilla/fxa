@@ -22,7 +22,6 @@
   }
 
   .plan-details-component-inner {
-
     @include min-width('tablet') {
       position: fixed;
     }

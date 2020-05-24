@@ -57,7 +57,7 @@ const SignInPasswordView = FormView.extend({
     const account = this.getAccount();
     if (this.isPasswordNeededForAccount(account)) {
       const password = this.getElementValue('input[type=password]');
-      return this.signIn(account, password).catch(error =>
+      return this.signIn(account, password).catch((error) =>
         this.onSignInError(account, password, error)
       );
     } else {

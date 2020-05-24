@@ -22,7 +22,7 @@ import WindowMock from '../../mocks/window';
 
 const Selectors = FORCE_AUTH;
 
-describe('/views/force_auth', function() {
+describe('/views/force_auth', function () {
   var broker;
   var email;
   var formPrefill;
@@ -64,11 +64,11 @@ describe('/views/force_auth', function() {
 
     isEmailRegistered = isUidRegistered = false;
 
-    sinon.stub(user, 'checkAccountEmailExists').callsFake(function() {
+    sinon.stub(user, 'checkAccountEmailExists').callsFake(function () {
       return Promise.resolve(isEmailRegistered);
     });
 
-    sinon.stub(user, 'checkAccountUidExists').callsFake(function() {
+    sinon.stub(user, 'checkAccountUidExists').callsFake(function () {
       return Promise.resolve(isUidRegistered);
     });
 
@@ -98,57 +98,57 @@ describe('/views/force_auth', function() {
     notifier.trigger('flow.initialize');
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     initDeps();
 
     relier.set('email', email);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.remove();
     view.destroy();
     view = null;
   });
 
-  describe('render', function() {
-    describe('with a missing email address', function() {
-      beforeEach(function() {
+  describe('render', function () {
+    describe('with a missing email address', function () {
+      beforeEach(function () {
         relier.unset('email');
 
         return view.render();
       });
 
-      it('delegates to fatalError', function() {
+      it('delegates to fatalError', function () {
         assert.isTrue(view.fatalError.called);
       });
     });
 
-    describe('with an invalid email address', function() {
-      beforeEach(function() {
+    describe('with an invalid email address', function () {
+      beforeEach(function () {
         relier.set('email', 'not an email');
 
         return view.render();
       });
 
-      it('delegates to fatalError', function() {
+      it('delegates to fatalError', function () {
         assert.isTrue(view.fatalError.called);
       });
     });
 
-    describe('with an invalid uid', function() {
-      beforeEach(function() {
+    describe('with an invalid uid', function () {
+      beforeEach(function () {
         relier.set('uid', 'invalid uid');
 
         return view.render();
       });
 
-      it('delegates to fatalError', function() {
+      it('delegates to fatalError', function () {
         assert.isTrue(view.fatalError.called);
       });
     });
 
-    describe('with registered email, no uid', function() {
-      beforeEach(function() {
+    describe('with registered email, no uid', function () {
+      beforeEach(function () {
         isEmailRegistered = true;
 
         return view.render();
@@ -162,8 +162,8 @@ describe('/views/force_auth', function() {
       });
     });
 
-    describe('with registered email, registered uid', function() {
-      beforeEach(function() {
+    describe('with registered email, registered uid', function () {
+      beforeEach(function () {
         relier.set({
           uid: TestHelpers.createUid(),
         });
@@ -185,8 +185,8 @@ describe('/views/force_auth', function() {
       });
     });
 
-    describe('with service=sync', function() {
-      it('has the service title', function() {
+    describe('with service=sync', function () {
+      it('has the service title', function () {
         relier.set({
           serviceName: 'Firefox Sync',
           uid: TestHelpers.createUid(),
@@ -201,8 +201,8 @@ describe('/views/force_auth', function() {
       });
     });
 
-    describe('with registered email, unregistered uid', function() {
-      beforeEach(function() {
+    describe('with registered email, unregistered uid', function () {
+      beforeEach(function () {
         relier.set({
           uid: TestHelpers.createUid(),
         });
@@ -210,51 +210,51 @@ describe('/views/force_auth', function() {
         isEmailRegistered = true;
       });
 
-      describe('broker supports UID change', function() {
-        beforeEach(function() {
+      describe('broker supports UID change', function () {
+        beforeEach(function () {
           broker.setCapability('allowUidChange', true);
           return view.render();
         });
 
-        it('does not navigate', function() {
+        it('does not navigate', function () {
           assert.isFalse(view.navigate.called);
         });
 
-        it('does not error', function() {
+        it('does not error', function () {
           assert.lengthOf(view.$('.error.visible'), 0);
         });
       });
 
-      describe('broker does not support UID change', function() {
-        beforeEach(function() {
+      describe('broker does not support UID change', function () {
+        beforeEach(function () {
           broker.unsetCapability('allowUidChange');
           sinon.spy(view, 'displayError');
           return view.render().then(() => view.afterVisible());
         });
 
-        it('does not navigate', function() {
+        it('does not navigate', function () {
           assert.isFalse(view.navigate.called);
         });
 
-        it('displays the error', function() {
+        it('displays the error', function () {
           assert.isTrue(view.displayError.called);
         });
       });
     });
 
-    describe('with unregistered email, no uid', function() {
-      beforeEach(function() {
+    describe('with unregistered email, no uid', function () {
+      beforeEach(function () {
         isEmailRegistered = false;
         return view.render();
       });
 
-      it('navigates to signup', function() {
+      it('navigates to signup', function () {
         testNavigatesToForceSignUp(view, email);
       });
     });
 
-    describe('with unregistered email, registered uid', function() {
-      beforeEach(function() {
+    describe('with unregistered email, registered uid', function () {
+      beforeEach(function () {
         relier.set({
           uid: TestHelpers.createUid(),
         });
@@ -263,36 +263,36 @@ describe('/views/force_auth', function() {
         isUidRegistered = true;
       });
 
-      describe('broker supports UID change', function() {
-        beforeEach(function() {
+      describe('broker supports UID change', function () {
+        beforeEach(function () {
           broker.setCapability('allowUidChange', true);
           return view.render();
         });
 
-        it('navigates to signup', function() {
+        it('navigates to signup', function () {
           testNavigatesToForceSignUp(view, email);
         });
       });
 
-      describe('broker does not support UID change', function() {
-        beforeEach(function() {
+      describe('broker does not support UID change', function () {
+        beforeEach(function () {
           broker.unsetCapability('allowUidChange');
           sinon.spy(view, 'displayError');
           return view.render().then(() => view.afterVisible());
         });
 
-        it('does not navigate', function() {
+        it('does not navigate', function () {
           assert.isFalse(view.navigate.called);
         });
 
-        it('displays the error', function() {
+        it('displays the error', function () {
           assert.isTrue(view.displayError.called);
         });
       });
     });
 
-    describe('with unregistered email, unregistered uid', function() {
-      beforeEach(function() {
+    describe('with unregistered email, unregistered uid', function () {
+      beforeEach(function () {
         relier.set({
           uid: TestHelpers.createUid(),
         });
@@ -300,36 +300,36 @@ describe('/views/force_auth', function() {
         isEmailRegistered = isUidRegistered = false;
       });
 
-      describe('broker supports UID change', function() {
-        beforeEach(function() {
+      describe('broker supports UID change', function () {
+        beforeEach(function () {
           broker.setCapability('allowUidChange', true);
           return view.render();
         });
 
-        it('navigates to signup', function() {
+        it('navigates to signup', function () {
           testNavigatesToForceSignUp(view, email);
         });
       });
 
-      describe('broker does not support UID change', function() {
-        beforeEach(function() {
+      describe('broker does not support UID change', function () {
+        beforeEach(function () {
           broker.unsetCapability('allowUidChange');
           sinon.spy(view, 'displayError');
           return view.render().then(() => view.afterVisible());
         });
 
-        it('does not navigate', function() {
+        it('does not navigate', function () {
           assert.isFalse(view.navigate.called);
         });
 
-        it('displays the error', function() {
+        it('displays the error', function () {
           assert.isTrue(view.displayError.called);
         });
       });
     });
 
-    describe('with form prefill', function() {
-      beforeEach(function() {
+    describe('with form prefill', function () {
+      beforeEach(function () {
         formPrefill.set('password', 'password');
 
         isEmailRegistered = true;
@@ -337,45 +337,45 @@ describe('/views/force_auth', function() {
         return view.render();
       });
 
-      it('prefills password', function() {
+      it('prefills password', function () {
         assert.equal(view.$('input[type=password]').val(), 'password');
       });
     });
 
-    describe('email registered behaviors', function() {
-      beforeEach(function() {
+    describe('email registered behaviors', function () {
+      beforeEach(function () {
         isEmailRegistered = true;
 
         sinon.spy(view, 'displayAccountProfileImage');
 
-        return view.render().then(function() {
+        return view.render().then(function () {
           view.afterVisible();
         });
       });
 
-      it('email input is hidden for the Firefox Password manager', function() {
+      it('email input is hidden for the Firefox Password manager', function () {
         assert.equal(view.$('input[type=email]').hasClass('hidden'), 1);
       });
 
-      it('user cannot create an account', function() {
+      it('user cannot create an account', function () {
         assert.equal(view.$('a[href="/signup"]').length, 0);
       });
 
-      it('delegates to `displayAccountProfileImage` with the correct email', function() {
+      it('delegates to `displayAccountProfileImage` with the correct email', function () {
         assert.isTrue(view.displayAccountProfileImage.called);
 
         const account = view.displayAccountProfileImage.args[0][0];
         assert.instanceOf(account, Account);
       });
 
-      it('isValid is successful when the password is filled out', function() {
+      it('isValid is successful when the password is filled out', function () {
         view.$('.password').val('password');
         assert.isTrue(view.isValid());
       });
     });
 
     describe('`INCORRECT_PASSWORD` passed in from the previous view', () => {
-      beforeEach(function() {
+      beforeEach(function () {
         isEmailRegistered = true;
 
         model.set('error', AuthErrors.toError('INCORRECT_PASSWORD'));
@@ -385,10 +385,7 @@ describe('/views/force_auth', function() {
 
       it('renders the error, allows user to enter their password again', () => {
         assert.include(
-          view
-            .$('.error')
-            .text()
-            .toLowerCase(),
+          view.$('.error').text().toLowerCase(),
           'incorrect password'
         );
         assert.lengthOf(view.$('input[type=password]'), 1);
@@ -396,22 +393,22 @@ describe('/views/force_auth', function() {
     });
   });
 
-  describe('submit', function() {
+  describe('submit', function () {
     var password = 'password';
 
-    beforeEach(function() {
+    beforeEach(function () {
       // stub out `beforeRender` to ensure no redirect occurs.
       sinon.stub(view, 'beforeRender').callsFake(() => Promise.resolve());
       sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         view.$('input[type=password]').val(password);
 
         return view.submit();
       });
     });
 
-    it('calls view.signIn with the expected data', function() {
+    it('calls view.signIn with the expected data', function () {
       var account = view.signIn.args[0][0];
       assert.equal(account.get('email'), email);
 
@@ -420,34 +417,34 @@ describe('/views/force_auth', function() {
     });
   });
 
-  describe('onSignInError', function() {
+  describe('onSignInError', function () {
     var account;
     var err;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: email,
       });
     });
 
-    describe('account was deleted after page load', function() {
-      beforeEach(function() {
+    describe('account was deleted after page load', function () {
+      beforeEach(function () {
         err = AuthErrors.toError('UNKNOWN_ACCOUNT');
       });
 
-      describe('uid specified', function() {
-        beforeEach(function() {
+      describe('uid specified', function () {
+        beforeEach(function () {
           relier.set('uid', 'uid');
         });
 
-        describe('broker supports UID change', function() {
-          beforeEach(function() {
+        describe('broker supports UID change', function () {
+          beforeEach(function () {
             broker.setCapability('allowUidChange', true);
 
             return view.onSignInError(account, err);
           });
 
-          it('navigates to `signup` with expected data', function() {
+          it('navigates to `signup` with expected data', function () {
             var args = view.navigate.args[0];
             assert.equal(args[0], 'signup');
 
@@ -457,7 +454,7 @@ describe('/views/force_auth', function() {
           });
         });
 
-        describe('broker does not support UID change', function() {
+        describe('broker does not support UID change', function () {
           it('prints an error message and does not allow the user to sign up', () => {
             broker.unsetCapability('allowUidChange');
 
@@ -465,21 +462,21 @@ describe('/views/force_auth', function() {
 
             return view
               .onSignInError(account, AuthErrors.toError('UNKNOWN_ACCOUNT'))
-              .then(assert.fail, _err => {
+              .then(assert.fail, (_err) => {
                 assert.isTrue(AuthErrors.is(_err, 'DELETED_ACCOUNT'));
               });
           });
         });
       });
 
-      describe('no uid specified', function() {
-        beforeEach(function() {
+      describe('no uid specified', function () {
+        beforeEach(function () {
           relier.unset('uid');
 
           return view.onSignInError(account, err);
         });
 
-        it('navigates to `signup` with expected data', function() {
+        it('navigates to `signup` with expected data', function () {
           var args = view.navigate.args[0];
           assert.equal(args[0], 'signup');
 
@@ -490,21 +487,21 @@ describe('/views/force_auth', function() {
       });
     });
 
-    it('all other errors are re-thrown', function() {
+    it('all other errors are re-thrown', function () {
       err = AuthErrors.toError('UNEXPECTED_ERROR');
 
-      return view.onSignInError(account, err).then(assert.fail, _err => {
+      return view.onSignInError(account, err).then(assert.fail, (_err) => {
         assert.strictEqual(_err, err);
       });
     });
   });
 
-  describe('_navigateToForceResetPassword', function() {
-    beforeEach(function() {
+  describe('_navigateToForceResetPassword', function () {
+    beforeEach(function () {
       return view._navigateToForceResetPassword();
     });
 
-    it('navigates to `/reset_password` with the expected email', function() {
+    it('navigates to `/reset_password` with the expected email', function () {
       assert.isTrue(
         view.navigate.calledWith('reset_password', {
           forceEmail: email,
@@ -513,17 +510,17 @@ describe('/views/force_auth', function() {
     });
   });
 
-  describe('beforeDestroy', function() {
-    beforeEach(function() {
+  describe('beforeDestroy', function () {
+    beforeEach(function () {
       isEmailRegistered = true;
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         view.$('.password').val('password');
         view.beforeDestroy();
       });
     });
 
-    it('saves the form info to formPrefill', function() {
+    it('saves the form info to formPrefill', function () {
       assert.equal(formPrefill.get('password'), 'password');
     });
   });

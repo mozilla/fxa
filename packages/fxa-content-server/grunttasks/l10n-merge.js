@@ -6,11 +6,11 @@
 
 var path = require('path');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask(
     'l10n-merge',
     'Merge extracted strings with .PO files.',
-    function() {
+    function () {
       var done = this.async();
       grunt.util.spawn(
         {

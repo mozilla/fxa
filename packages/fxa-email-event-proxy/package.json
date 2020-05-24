@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "test": "npm run lint && mocha --ui tdd --recursive tests/",
     "build": "zip -q --recurse-paths -y fxa-email-event-proxy *.js *.json node_modules",
-    "format": "prettier '**' --write"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
     "type": "git",

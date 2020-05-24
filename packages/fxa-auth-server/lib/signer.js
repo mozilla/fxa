@@ -6,11 +6,11 @@
 
 const jwtool = require('fxa-jwtool');
 
-module.exports = function(secretKeyFile, domain) {
+module.exports = function (secretKeyFile, domain) {
   const key = jwtool.JWK.fromFile(secretKeyFile, { iss: domain });
 
   return {
-    sign: async function(data) {
+    sign: async function (data) {
       const now = Date.now();
       const cert = await key.sign({
         'public-key': data.publicKey,

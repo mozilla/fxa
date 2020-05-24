@@ -108,7 +108,7 @@ describe('/password', () => {
       passwordRoutes,
       '/password/forgot/send_code',
       mockRequest
-    ).then(response => {
+    ).then((response) => {
       assert.equal(
         mockDB.accountRecord.callCount,
         1,
@@ -216,7 +216,7 @@ describe('/password', () => {
         data: crypto.randomBytes(16).toString('hex'),
         email: TEST_EMAIL,
         passCode: Buffer.from('abcdef', 'hex'),
-        ttl: function() {
+        ttl: function () {
           return 17;
         },
         uid: uid,
@@ -238,7 +238,7 @@ describe('/password', () => {
       passwordRoutes,
       '/password/forgot/resend_code',
       mockRequest
-    ).then(response => {
+    ).then((response) => {
       assert.equal(
         mockMailer.sendRecoveryEmail.callCount,
         1,
@@ -310,7 +310,7 @@ describe('/password', () => {
         email: TEST_EMAIL,
         id: passwordForgotTokenId,
         passCode: Buffer.from('abcdef', 'hex'),
-        ttl: function() {
+        ttl: function () {
           return 17;
         },
         uid,
@@ -331,7 +331,7 @@ describe('/password', () => {
       passwordRoutes,
       '/password/forgot/verify_code',
       mockRequest
-    ).then(response => {
+    ).then((response) => {
       assert.deepEqual(
         Object.keys(response),
         ['accountResetToken'],
@@ -445,7 +445,7 @@ describe('/password', () => {
         passwordRoutes,
         '/password/change/finish',
         mockRequest
-      ).then(response => {
+      ).then((response) => {
         assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
         assert.equal(mockDB.resetAccount.callCount, 1);
 
@@ -585,7 +585,7 @@ describe('/password', () => {
         passwordRoutes,
         '/password/change/finish',
         mockRequest
-      ).then(response => {
+      ).then((response) => {
         assert.equal(mockDB.deletePasswordChangeToken.callCount, 1);
         assert.equal(mockDB.resetAccount.callCount, 1);
 

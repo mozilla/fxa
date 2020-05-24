@@ -50,13 +50,13 @@ describe('lib/senders/oauth_client_info:', () => {
     });
 
     it('returns Firefox if no client id', () => {
-      return fetch().then(res => {
+      return fetch().then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT);
       });
     });
 
     it('returns Firefox if service=sync', () => {
-      return fetch('sync').then(res => {
+      return fetch('sync').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT);
       });
     });
@@ -65,7 +65,7 @@ describe('lib/senders/oauth_client_info:', () => {
       mockOAuthDB.getClientInfo = sinon.spy(async () => {
         throw new Error('Request failed');
       });
-      return fetch('24bdbfa45cd300c5').then(res => {
+      return fetch('24bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT);
         assert.ok(mockLog.fatal.calledOnce, 'called fatal log');
       });
@@ -79,19 +79,19 @@ describe('lib/senders/oauth_client_info:', () => {
           errno: 109,
         });
       });
-      return fetch('f00bdbfa45cd300c5').then(res => {
+      return fetch('f00bdbfa45cd300c5').then((res) => {
         assert.deepEqual(res, FIREFOX_CLIENT);
         assert.ok(mockLog.warn.calledOnce, 'called warn log');
       });
     });
 
     it('fetches and memory caches client information', () => {
-      mockOAuthDB.getClientInfo = sinon.spy(async clientId => {
+      mockOAuthDB.getClientInfo = sinon.spy(async (clientId) => {
         assert.equal(clientId, '24bdbfa45cd300c5');
         return OAUTH_CLIENT;
       });
       return fetch('24bdbfa45cd300c5')
-        .then(res => {
+        .then((res) => {
           assert.deepEqual(res, OAUTH_CLIENT);
           assert.equal(mockLog.trace.getCall(0).args[0], 'fetch.start');
           assert.equal(mockLog.trace.getCall(1).args[0], 'fetch.usedServer');
@@ -101,7 +101,7 @@ describe('lib/senders/oauth_client_info:', () => {
           // second call is cached
           return fetch('24bdbfa45cd300c5');
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(mockLog.trace.getCall(2).args[0], 'fetch.start');
           assert.equal(mockLog.trace.getCall(3).args[0], 'fetch.usedCache');
           assert.ok(mockOAuthDB.getClientInfo.calledOnce);
@@ -110,11 +110,11 @@ describe('lib/senders/oauth_client_info:', () => {
     });
 
     it('memory cache expires', () => {
-      mockOAuthDB.getClientInfo = sinon.spy(async clientId => {
+      mockOAuthDB.getClientInfo = sinon.spy(async (clientId) => {
         return OAUTH_CLIENT;
       });
       return P.delay(15, fetch('24bdbfa45cd300c5'))
-        .then(res => {
+        .then((res) => {
           assert.deepEqual(res, OAUTH_CLIENT);
           assert.equal(mockLog.trace.getCall(1).args[0], 'fetch.usedServer');
           assert.ok(mockOAuthDB.getClientInfo.calledOnce);
@@ -122,7 +122,7 @@ describe('lib/senders/oauth_client_info:', () => {
           // second call uses server, cache expired
           return fetch('24bdbfa45cd300c5');
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(mockLog.trace.getCall(3).args[0], 'fetch.usedServer');
           assert.ok(mockOAuthDB.getClientInfo.calledTwice);
           assert.deepEqual(res, OAUTH_CLIENT);

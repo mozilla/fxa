@@ -11,21 +11,21 @@ const config = require('../../config').getProperties();
 const TestServer = require('../test_server');
 const url = require('url');
 
-const tokens = require('../../lib/tokens')({ trace: function() {} });
+const tokens = require('../../lib/tokens')({ trace: function () {} });
 function getSessionTokenId(sessionTokenHex) {
-  return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
     return token.id;
   });
 }
 
-describe('remote password change', function() {
+describe('remote password change', function () {
   this.timeout(15000);
   let server;
   before(() => {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -43,27 +43,27 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         originalSessionToken = client.sessionToken;
         firstAuthPW = x.authPW.toString('hex');
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         kB = keys.kB;
         kA = keys.kA;
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
         // Login from different location to created unverified session
         return Client.login(config.publicUrl, email, password, { keys: true });
       })
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
@@ -73,7 +73,7 @@ describe('remote password change', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         // Verify correct status
         assert.equal(status.verified, false, 'account is unverified');
         assert.equal(status.emailVerified, true, 'account email is verified');
@@ -86,10 +86,10 @@ describe('remote password change', function() {
       .then(() => {
         return getSessionTokenId(client.sessionToken);
       })
-      .then(sessionTokenId => {
+      .then((sessionTokenId) => {
         return client.changePassword(newPassword, undefined, sessionTokenId);
       })
-      .then(response => {
+      .then((response) => {
         // Verify correct change password response
         assert.notEqual(
           response.sessionToken,
@@ -106,7 +106,7 @@ describe('remote password change', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const subject = emailData.headers['subject'];
         assert.equal(subject, 'Password updated');
         const link = emailData.headers['x-link'];
@@ -116,7 +116,7 @@ describe('remote password change', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         // Verify correct status
         assert.equal(status.verified, false, 'account is unverified');
         assert.equal(status.emailVerified, true, 'account email is verified');
@@ -135,11 +135,11 @@ describe('remote password change', function() {
           { keys: true }
         );
       })
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.deepEqual(keys.kB, kB, 'kB is preserved');
         assert.deepEqual(keys.kA, kA, 'kA is preserved');
       });
@@ -158,29 +158,29 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         originalSessionToken = client.sessionToken;
         firstAuthPW = x.authPW.toString('hex');
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         kB = keys.kB;
         kA = keys.kA;
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
         return getSessionTokenId(client.sessionToken);
       })
-      .then(sessionTokenId => {
+      .then((sessionTokenId) => {
         return client.changePassword(newPassword, undefined, sessionTokenId);
       })
-      .then(response => {
+      .then((response) => {
         assert.notEqual(
           response.sessionToken,
           originalSessionToken,
@@ -196,7 +196,7 @@ describe('remote password change', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const subject = emailData.headers['subject'];
         assert.equal(subject, 'Password updated');
         const link = emailData.headers['x-link'];
@@ -211,7 +211,7 @@ describe('remote password change', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
@@ -223,11 +223,11 @@ describe('remote password change', function() {
           { keys: true }
         );
       })
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.deepEqual(keys.kB, kB, 'kB is preserved');
         assert.deepEqual(keys.kA, kA, 'kA is preserved');
       });
@@ -246,14 +246,14 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
@@ -267,7 +267,7 @@ describe('remote password change', function() {
         () => {
           assert(false);
         },
-        err => {
+        (err) => {
           assert.equal(err.errno, 110, 'Invalid token error');
           assert.equal(
             err.message,
@@ -290,19 +290,19 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         firstAuthPW = x.authPW.toString('hex');
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         kB = keys.kB;
         kA = keys.kA;
       })
       .then(() => {
         return client.changePassword(newPassword);
       })
-      .then(response => {
+      .then((response) => {
         assert(!response.sessionToken, 'no session token returned');
         assert(!response.keyFetchToken, 'no key fetch token returned');
         assert.notEqual(
@@ -314,7 +314,7 @@ describe('remote password change', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const subject = emailData.headers['subject'];
         assert.equal(subject, 'Password updated');
         const link = emailData.headers['x-link'];
@@ -330,11 +330,11 @@ describe('remote password change', function() {
           { keys: true }
         );
       })
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.deepEqual(keys.kB, kB, 'kB is preserved');
         assert.deepEqual(keys.kA, kA, 'kA is preserved');
       });
@@ -390,7 +390,7 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
@@ -403,7 +403,7 @@ describe('remote password change', function() {
       })
       .then(
         () => assert(false),
-        err => {
+        (err) => {
           assert.equal(err.errno, 103, 'invalid password');
         }
       );
@@ -420,13 +420,13 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(res => {
+      .then((res) => {
         client = res;
 
         // Doesn't specify a sessionToken to use
         return client.changePassword('foobar');
       })
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 138, 'unverified session');
       });
   });
@@ -442,15 +442,15 @@ describe('remote password change', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(res => {
+      .then((res) => {
         client = res;
         firstAuthPW = client.authPW.toString('hex');
         return getSessionTokenId(client.sessionToken);
       })
-      .then(sessionTokenId => {
+      .then((sessionTokenId) => {
         return client.changePassword('foobar', undefined, sessionTokenId);
       })
-      .then(response => {
+      .then((response) => {
         assert(response.sessionToken, 'session token returned');
         assert(response.keyFetchToken, 'key fetch token returned');
         assert.notEqual(
@@ -477,14 +477,14 @@ describe('remote password change', function() {
         .then(() =>
           Client.login(config.publicUrl, email, password, { keys: true })
         )
-        .then(res => {
+        .then((res) => {
           client = res;
           return getSessionTokenId(client.sessionToken);
         })
-        .then(sessionTokenId => {
+        .then((sessionTokenId) => {
           return client.changePassword('foobar', undefined, sessionTokenId);
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(err.errno, 138, 'unverified session');
         })
     );

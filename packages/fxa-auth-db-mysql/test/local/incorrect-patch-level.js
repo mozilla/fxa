@@ -19,13 +19,13 @@ describe('DB patch', () => {
 
   it('should error with incorrect patchVersion', () => {
     return DB.connect(config).then(
-      db => {
+      (db) => {
         assert(
           false,
           'DB.connect should have failed on an incorrect patchVersion'
         );
       },
-      err => {
+      (err) => {
         assert.instanceOf(err, Error);
         assert.equal(err.message, 'dbIncorrectPatchLevel');
       }

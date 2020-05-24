@@ -12,10 +12,7 @@ const config = require('../../config');
 const clientMetricsConfig = config.get('clientMetrics');
 const MAX_EVENT_OFFSET = clientMetricsConfig.maxEventOffset;
 const EVENT_TYPE_PATTERN = /^[\w\s.:-]+$/; // the space is to allow for error contexts that contain spaces, e.g., `error.unknown context.auth.108`
-const OFFSET_TYPE = joi
-  .number()
-  .integer()
-  .min(0);
+const OFFSET_TYPE = joi.number().integer().min(0);
 const STRING_TYPE = joi.string().max(1024);
 const BODY_SCHEMA = {
   data: joi.object().required(),
@@ -29,9 +26,7 @@ const BODY_SCHEMA = {
     )
     .required(),
   flowBeginTime: OFFSET_TYPE.optional(),
-  flowId: STRING_TYPE.hex()
-    .length(64)
-    .optional(),
+  flowId: STRING_TYPE.hex().length(64).optional(),
 };
 
 module.exports = {
@@ -40,7 +35,7 @@ module.exports = {
   validate: {
     body: BODY_SCHEMA,
   },
-  preProcess: function(req, res, next) {
+  preProcess: function (req, res, next) {
     // convert text/plain types to JSON for validation.
     if (/^text\/plain/.test(req.get('content-type'))) {
       try {
@@ -56,7 +51,7 @@ module.exports = {
   },
   process(request, response) {
     const { data, events } = request.body;
-    events.forEach(event => {
+    events.forEach((event) => {
       event.time = data.flushTime;
       amplitude(event, request, data);
     });

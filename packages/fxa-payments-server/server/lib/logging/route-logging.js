@@ -50,7 +50,7 @@ module.exports = () => {
   if (enabled) {
     return morgan(formats[format], {
       stream: {
-        write: x => {
+        write: (x) => {
           const logBody = format === 'dev_fxa' ? x.trim() : JSON.parse(x);
           logger.info('route', logBody);
         },

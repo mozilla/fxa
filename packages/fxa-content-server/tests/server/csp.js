@@ -11,14 +11,14 @@ const proxyquire = require('proxyquire');
 
 const csp = proxyquire(path.join(process.cwd(), 'server', 'lib', 'csp'), {
   // totally ignore the html-middleware
-  './html-middleware': callback => callback,
+  './html-middleware': (callback) => callback,
 });
 
 const suite = {
   tests: {},
 };
 
-suite.tests['isCspRequired'] = function() {
+suite.tests['isCspRequired'] = function () {
   assert.isFalse(
     csp.isCspRequired({ method: 'GET', path: '/tests/index.html' })
   );
@@ -29,7 +29,7 @@ suite.tests['isCspRequired'] = function() {
   assert.isTrue(csp.isCspRequired({ method: 'GET', path: '/confirm' }));
 };
 
-suite.tests['blockingRules'] = function() {
+suite.tests['blockingRules'] = function () {
   // force the CDN to be enabled for tests.
   const CDN_SERVER = 'https://static.accounts.firefox.com';
   config.set('static_resource_url', CDN_SERVER);

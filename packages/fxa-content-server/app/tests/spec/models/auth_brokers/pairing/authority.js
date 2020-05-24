@@ -12,7 +12,7 @@ import WindowMock from '../../../../mocks/window';
 
 const CHANNEL_ID = 'channelId';
 
-describe('models/auth_brokers/pairing/authority', function() {
+describe('models/auth_brokers/pairing/authority', function () {
   let broker;
   let config;
   let relier;
@@ -20,11 +20,11 @@ describe('models/auth_brokers/pairing/authority', function() {
   let notificationChannel;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     windowMock = new WindowMock();
     notificationChannel = new WebChannel('web_channel');
     notificationChannel.initialize({ window: windowMock });
-    sinon.stub(notificationChannel, 'request').callsFake(command => {
+    sinon.stub(notificationChannel, 'request').callsFake((command) => {
       let response;
       switch (command) {
         case 'fxaccounts:pair_supplicant_metadata':
@@ -113,7 +113,7 @@ describe('models/auth_brokers/pairing/authority', function() {
   });
 
   describe('hearbeat', () => {
-    it('heartbeats', done => {
+    it('heartbeats', (done) => {
       broker.startHeartbeat(5);
       sinon.spy(broker, 'request');
       setTimeout(() => {

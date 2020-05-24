@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask(
     'l10n-translate-verify',
     'Run the Valid URL parser on the generated l10n files',
@@ -19,7 +19,7 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(
     'verify-urls',
     'Verify whether the translated urls are valid',
-    function() {
+    function () {
       var fileArray = this.files[0].src;
       var contents = grunt.file.read(fileArray.shift());
       contents = JSON.parse(contents);
@@ -30,13 +30,13 @@ module.exports = function(grunt) {
       var idRegex = /(?:<a).*id="[\w\-]+"/gi;
       // Extract the href and id from each file and check if it belongs to
       // a valid representation of the url. Flag it if not.
-      fileArray.forEach(function(src) {
+      fileArray.forEach(function (src) {
         var html = grunt.file.read(src);
         var urlList = html.match(urlRegex);
         var idList = html.match(idRegex);
         // Check if there were any urls found, .match() might return null
         if (urlList !== null) {
-          urlList.forEach(function(url) {
+          urlList.forEach(function (url) {
             if (urlArray.indexOf(url) === -1) {
               grunt.log.error(
                 'Found an url which should not be there',
@@ -48,7 +48,7 @@ module.exports = function(grunt) {
           });
         }
         if (idList !== null) {
-          idList.forEach(function(id) {
+          idList.forEach(function (id) {
             id = returnId(id);
             if (idArray.indexOf(id) === -1) {
               grunt.log.error('Found an id which should not be there', id, src);
@@ -94,13 +94,13 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(
     'generate-valid-urls',
     'Generate the list of valid urls and ids for translation',
-    function() {
+    function () {
       var urlRegex = /(href=\\?(?:"|')[\w/:\\\.%()]+(?:"|'))/gi;
       var idRegex = /(?:<a).*id=\\"[\w\-]+\\"/gi;
       var urlArray = [];
       var idArray = [];
       // iterate through eact .pot file and extract the urls
-      this.files[0].src.forEach(function(src) {
+      this.files[0].src.forEach(function (src) {
         var contents = grunt.file.read(src);
         if (urlRegex.test(contents)) {
           Array.prototype.push.apply(urlArray, contents.match(urlRegex));

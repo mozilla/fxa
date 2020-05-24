@@ -15,7 +15,7 @@ import Strings from '../../lib/strings';
 import Template from 'templates/settings/clients.mustache';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const DEVICE_REMOVED_ANIMATION_MS = 150;
 const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';
@@ -121,7 +121,7 @@ const View = FormView.extend(
     },
 
     _formatAccessTimeAndScope(items) {
-      return _.map(items, item => {
+      return _.map(items, (item) => {
         item.title = item.name;
 
         if (item.scope) {
@@ -220,7 +220,7 @@ const View = FormView.extend(
      */
     _showMobileApps(clients) {
       // we would show mobile apps if there are no mobile or tablet clients
-      return !_.some(clients, function(client) {
+      return !_.some(clients, function (client) {
         return client.deviceType === 'mobile' || client.deviceType === 'tablet';
       });
     },

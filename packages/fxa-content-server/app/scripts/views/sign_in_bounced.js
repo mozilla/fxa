@@ -41,7 +41,7 @@ const SignInBouncedView = BaseView.extend({
     });
   },
 
-  _createAccount: preventDefaultThen(function() {
+  _createAccount: preventDefaultThen(function () {
     this.user.removeAllAccounts();
     Session.clear();
     this._formPrefill.clear();

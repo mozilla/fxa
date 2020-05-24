@@ -61,7 +61,7 @@ describe('models/reliers/pairing/supplicant', () => {
     );
   });
 
-  describe('fetch', function() {
+  describe('fetch', function () {
     it('throws without channel_id', () => {
       /*eslint-disable camelcase*/
       windowMock.location.hash = Url.objToHashString({});
@@ -72,7 +72,7 @@ describe('models/reliers/pairing/supplicant', () => {
       });
       /*eslint-enable camelcase*/
 
-      return relier.fetch().then(assert.fail, err => {
+      return relier.fetch().then(assert.fail, (err) => {
         assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
         assert.equal(err.param, 'channel_id');
       });
@@ -89,7 +89,7 @@ describe('models/reliers/pairing/supplicant', () => {
         redirect_uri: SERVER_REDIRECT_URI,
       });
       /*eslint-enable camelcase*/
-      return relier.fetch().then(assert.fail, err => {
+      return relier.fetch().then(assert.fail, (err) => {
         assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
         assert.equal(err.param, 'channel_key');
       });
@@ -117,7 +117,7 @@ describe('models/reliers/pairing/supplicant', () => {
     });
   });
 
-  describe('getOAuthParams', function() {
+  describe('getOAuthParams', function () {
     it('returns oauth params', () => {
       windowMock.location.hash = Url.objToHashString(HASH_PARAMS);
       windowMock.location.search = TestHelpers.toSearchString(SEARCH_PARAMS);
@@ -138,7 +138,7 @@ describe('models/reliers/pairing/supplicant', () => {
     });
   });
 
-  describe('validateApprovalData', function() {
+  describe('validateApprovalData', function () {
     it('validates code', () => {
       relier.set('state', 'one');
       try {

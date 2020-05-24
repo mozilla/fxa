@@ -20,7 +20,7 @@ var minOptions = {
   useShortDoctype: true,
 };
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.config('htmlmin', {
     appFiles: {
       files: [

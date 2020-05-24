@@ -58,14 +58,14 @@ const BODY_SCHEMA = {
     .required(),
 };
 
-module.exports = function(options = {}) {
+module.exports = function (options = {}) {
   return {
     method: 'post',
     path: options.path,
     validate: {
       body: BODY_SCHEMA,
     },
-    process: function(req, res) {
+    process: function (req, res) {
       res.json({ success: true });
 
       const today = new Date();

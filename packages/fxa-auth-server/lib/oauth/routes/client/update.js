@@ -32,7 +32,7 @@ module.exports = {
     const email = req.auth.credentials.email;
 
     return db.developerOwnsClient(email, clientId).then(
-      function() {
+      function () {
         return db
           .updateClient({
             id: buf(clientId),
@@ -41,11 +41,11 @@ module.exports = {
             imageUri: payload.image_uri,
             canGrant: payload.can_grant,
           })
-          .then(function() {
+          .then(function () {
             return {};
           });
       },
-      function() {
+      function () {
         throw AppError.unauthorized('Illegal Developer');
       }
     );

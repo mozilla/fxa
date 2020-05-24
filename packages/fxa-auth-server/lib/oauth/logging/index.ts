@@ -7,7 +7,7 @@ const { Logger } = require('mozlog');
 type MozLog = { logger: typeof Logger };
 let mozlog: null | MozLog;
 
-module.exports = function(nameOrLog: string | MozLog): typeof Logger | void {
+module.exports = function (nameOrLog: string | MozLog): typeof Logger | void {
   if (typeof nameOrLog === 'string') {
     // ignore logger labels for now. auth and oauth used
     // different logging strategies eventually these should

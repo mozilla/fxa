@@ -9,9 +9,9 @@ import Strings from 'lib/strings';
 
 var assert = chai.assert;
 
-describe('lib/strings', function() {
-  describe('interpolate', function() {
-    it('can do string interpolation on unnamed `%s` when given array context', function() {
+describe('lib/strings', function () {
+  describe('interpolate', function () {
+    it('can do string interpolation on unnamed `%s` when given array context', function () {
       var stringToInterpolate = 'Hi %s, this is interpolated.';
       var interpolated = Strings.interpolate(stringToInterpolate, [
         'testuser@testuser.com',
@@ -22,7 +22,7 @@ describe('lib/strings', function() {
       );
     });
 
-    it('can do string interpolation on named `%(name)s` when given array context', function() {
+    it('can do string interpolation on named `%(name)s` when given array context', function () {
       var stringToInterpolate =
         'Error encountered trying to register: %(email)s.';
       var interpolated = Strings.interpolate(stringToInterpolate, {
@@ -34,7 +34,7 @@ describe('lib/strings', function() {
       );
     });
 
-    it('can do interpolation multiple times with an array', function() {
+    it('can do interpolation multiple times with an array', function () {
       var stringToInterpolate = 'Hi %s, you have been signed in since %s';
       var interpolated = Strings.interpolate(stringToInterpolate, [
         'testuser@testuser.com',
@@ -47,7 +47,7 @@ describe('lib/strings', function() {
       );
     });
 
-    it('can do interpolation multiple times with an object', function() {
+    it('can do interpolation multiple times with an object', function () {
       var stringToInterpolate =
         'Hi %(email)s, you have been signed in since %(time)s';
       var interpolated = Strings.interpolate(stringToInterpolate, {
@@ -61,14 +61,14 @@ describe('lib/strings', function() {
       );
     });
 
-    it('does no replacement on %s and %(name)s if not in context', function() {
+    it('does no replacement on %s and %(name)s if not in context', function () {
       var stringToInterpolate = 'Hi %s, you have been signed in since %(time)s';
       var interpolated = Strings.interpolate(stringToInterpolate);
 
       assert.equal(interpolated, stringToInterpolate);
     });
 
-    it('leaves remaining %s if not enough items in context', function() {
+    it('leaves remaining %s if not enough items in context', function () {
       var stringToInterpolate = 'Hi %s, you have been signed in since %s';
       var interpolated = Strings.interpolate(stringToInterpolate, [
         'testuser@testuser.com',

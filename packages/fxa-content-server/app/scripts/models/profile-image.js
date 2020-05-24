@@ -21,7 +21,7 @@ var ProfileImage = Backbone.Model.extend({
       return Promise.resolve();
     }
     return ImageLoader.load(this.get('url')).then(
-      img => this.set('img', img),
+      (img) => this.set('img', img),
       () => {
         var err = ProfileErrors.toError('IMAGE_LOAD_ERROR');
         // Set the context to the image's URL. This will be logged.

@@ -21,14 +21,14 @@ var config = {
 };
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
@@ -40,12 +40,12 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-ENDPOINTS.forEach(endpoint => {
-  test(`${endpoint} ignore ip from ip blocklist`, t => {
+ENDPOINTS.forEach((endpoint) => {
+  test(`${endpoint} ignore ip from ip blocklist`, (t) => {
     client.postAsync(
       endpoint,
       { ip: BLOCK_IP, email: TEST_EMAIL, action: ACTION },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is blocked');
         t.end();
       }
@@ -53,7 +53,7 @@ ENDPOINTS.forEach(endpoint => {
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

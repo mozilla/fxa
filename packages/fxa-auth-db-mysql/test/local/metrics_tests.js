@@ -25,7 +25,7 @@ const zeroBuffer32 = Buffer.from(
 describe('DB metrics', () => {
   let db;
   before(() => {
-    return DB.connect(config).then(d => {
+    return DB.connect(config).then((d) => {
       db = d;
     });
   });
@@ -50,8 +50,8 @@ describe('DB metrics', () => {
       db.readAllResults(metrics.countAccountsWithThreeOrMoreDevices, times[0]),
       db.readAllResults(metrics.countAccountsWithMobileDevice, times[0]),
     ])
-      .then(function(results) {
-        results.forEach(function(result, index) {
+      .then(function (results) {
+        results.forEach(function (result, index) {
           assert.isAtLeast(result.count, 0);
         });
         lastResults = results;
@@ -59,7 +59,7 @@ describe('DB metrics', () => {
         times[1] = Date.now();
         return createAccount(uid, times[1], false);
       })
-      .then(function() {
+      .then(function () {
         return db.readMultiple([
           { sql: metrics.countAccounts, params: times[1] + 1 },
           { sql: metrics.countVerifiedAccounts, params: times[1] + 1 },
@@ -74,7 +74,7 @@ describe('DB metrics', () => {
           { sql: metrics.countAccountsWithMobileDevice, params: times[1] + 1 },
         ]);
       })
-      .then(function(results) {
+      .then(function (results) {
         assert(
           results[0][0].count === lastResults[0].count + 1,
           'account count was incremented by one'
@@ -98,11 +98,11 @@ describe('DB metrics', () => {
         lastResults = results;
         return deleteAccount(uid);
       })
-      .then(function() {
+      .then(function () {
         times[2] = Date.now();
         return createAccount(uid, times[2], true);
       })
-      .then(function() {
+      .then(function () {
         return db.readMultiple(
           [
             { sql: 'SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED' },
@@ -125,7 +125,7 @@ describe('DB metrics', () => {
           { sql: 'COMMIT' }
         );
       })
-      .then(function(results) {
+      .then(function (results) {
         assert(
           results[2][0].count === lastResults[0][0].count,
           'account count was not incremented'
@@ -149,7 +149,7 @@ describe('DB metrics', () => {
         lastResults = results;
         return P.all([createSessionToken(uid), createSessionToken(uid)]);
       })
-      .then(function() {
+      .then(function () {
         return P.all([
           db.readAllResults(metrics.countAccounts, times[2]),
           db.readAllResults(metrics.countVerifiedAccounts, times[2]),
@@ -167,7 +167,7 @@ describe('DB metrics', () => {
           ),
         ]);
       })
-      .then(function(results) {
+      .then(function (results) {
         assert(
           results[0].count === lastResults[2][0].count - 1,
           'account count was decremented by one'
@@ -191,7 +191,7 @@ describe('DB metrics', () => {
         lastResults = results;
         return createSessionToken(uid);
       })
-      .then(function() {
+      .then(function () {
         return P.all([
           db.readAllResults(
             metrics.countAccountsWithTwoOrMoreDevices,
@@ -207,7 +207,7 @@ describe('DB metrics', () => {
           ),
         ]);
       })
-      .then(function(results) {
+      .then(function (results) {
         assert(
           results[0].count === lastResults[2].count,
           '2+ device account count was not incremented'
@@ -226,7 +226,7 @@ describe('DB metrics', () => {
           createSessionToken(uid, 'mobile'),
         ]);
       })
-      .then(function() {
+      .then(function () {
         return P.all([
           db.readAllResults(
             metrics.countAccountsWithTwoOrMoreDevices,
@@ -242,7 +242,7 @@ describe('DB metrics', () => {
           ),
         ]);
       })
-      .then(function(results) {
+      .then(function (results) {
         assert(
           results[0].count === lastResults[0].count,
           '2+ device account count was not incremented'
@@ -257,7 +257,7 @@ describe('DB metrics', () => {
         );
         lastResults = results;
       })
-      .then(function() {
+      .then(function () {
         return P.all([
           db.readAllResults(
             metrics.countAccountsWithTwoOrMoreDevices,
@@ -270,7 +270,7 @@ describe('DB metrics', () => {
           db.readAllResults(metrics.countAccountsWithMobileDevice, times[2]),
         ]);
       })
-      .then(function(results) {
+      .then(function (results) {
         assert(
           results[0].count === lastResults[0].count - 1,
           '2+ device account count was decremented by one'
@@ -285,13 +285,13 @@ describe('DB metrics', () => {
         );
         return deleteAccount(uid);
       })
-      .then(function() {
+      .then(function () {
         assert('account was deleted');
       });
   });
 
   it('run, with mocked queries', () => {
-    var readMultiple = sinon.spy(function() {
+    var readMultiple = sinon.spy(function () {
       return P.resolve([
         null,
         null,
@@ -303,7 +303,7 @@ describe('DB metrics', () => {
       ]);
     });
     var close = sinon.spy();
-    var connect = sinon.spy(function() {
+    var connect = sinon.spy(function () {
       return P.resolve({
         readMultiple: readMultiple,
         close: close,
@@ -311,14 +311,14 @@ describe('DB metrics', () => {
     });
     var mocks = {
       os: {
-        hostname: sinon.spy(function() {
+        hostname: sinon.spy(function () {
           return 'fake hostname';
         }),
       },
       fs: {
         appendFileSync: sinon.spy(),
       },
-      '../lib/logging': function() {
+      '../lib/logging': function () {
         return {
           error: sinon.spy(),
         };
@@ -326,7 +326,7 @@ describe('DB metrics', () => {
       '../db-server': {
         errors: 'fake errors',
       },
-      '../lib/db/mysql': function() {
+      '../lib/db/mysql': function () {
         return {
           connect: connect,
         };
@@ -346,7 +346,7 @@ describe('DB metrics', () => {
         },
         new Date(1977, 5, 10, 10, 30)
       )
-      .then(function() {
+      .then(function () {
         assert.equal(connect.callCount, 1, 'mysql.connect was called once');
         assert.lengthOf(connect.getCall(0).args, 1);
         var options = connect.getCall(0).args[0];
@@ -407,7 +407,7 @@ describe('DB metrics', () => {
         assert.isArray(queries);
         assert.lengthOf(queries, 7);
 
-        queries.forEach(function(query, index) {
+        queries.forEach(function (query, index) {
           assert.isObject(query);
           if (index <= 1) {
             assert.lengthOf(Object.keys(query), 1);

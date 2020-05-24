@@ -40,7 +40,7 @@ function batch(request, routeFieldsMap) {
   let numForbidden = 0;
   const routeFieldsKeys = Object.keys(routeFieldsMap);
 
-  return P.each(routeFieldsKeys, url => {
+  return P.each(routeFieldsKeys, (url) => {
     return request.server
       .inject({
         allowInternals: true,
@@ -56,7 +56,7 @@ function batch(request, routeFieldsMap) {
           strategy: 'oauth',
         },
       })
-      .then(res => {
+      .then((res) => {
         let fields;
         switch (res.statusCode) {
           case 200:
@@ -64,7 +64,7 @@ function batch(request, routeFieldsMap) {
             if (fields === true) {
               fields = Object.keys(res.result);
             }
-            fields.forEach(field => {
+            fields.forEach((field) => {
               result[field] = res.result[field];
             });
             break;

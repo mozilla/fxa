@@ -11,7 +11,7 @@ const extract = require('jsxgettext-recursive-next');
 
 const pkgroot = path.dirname(__dirname);
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.config('copy', {
     strings: {
       files: [
@@ -35,7 +35,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'l10n-extract',
     'Extract strings from templates for localization.',
-    function() {
+    function () {
       const done = this.async();
 
       const walker = extract({

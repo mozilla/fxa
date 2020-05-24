@@ -19,8 +19,8 @@ async function create() {
 }
 
 function request(options) {
-  return new Promise(resolve => {
-    server.inject(options).then(res => {
+  return new Promise((resolve) => {
+    server.inject(options).then((res) => {
       return resolve(res);
     });
   });
@@ -34,15 +34,15 @@ function opts(options) {
 }
 
 async function expose() {
-  ['GET', 'POST', 'PUT', 'DELETE'].forEach(function(method) {
-    exports[method.toLowerCase()] = exports[method] = async function(options) {
+  ['GET', 'POST', 'PUT', 'DELETE'].forEach(function (method) {
+    exports[method.toLowerCase()] = exports[method] = async function (options) {
       options = opts(options);
       options.method = method;
       return request(options);
     };
   });
 
-  Object.keys(exports).forEach(function(key) {
+  Object.keys(exports).forEach(function (key) {
     api[key] = function api(options) {
       options = opts(options);
       options.url = '/v' + version + options.url;

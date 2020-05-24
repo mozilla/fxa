@@ -9,7 +9,7 @@ const request = require('request');
 const EventEmitter = require('events').EventEmitter;
 
 /* eslint-disable no-console */
-module.exports = function(host, port, printLogs) {
+module.exports = function (host, port, printLogs) {
   host = host || 'localhost';
   port = port || 9001;
 
@@ -22,7 +22,7 @@ module.exports = function(host, port, printLogs) {
   }
 
   function waitForCode(email) {
-    return waitForEmail(email).then(emailData => {
+    return waitForEmail(email).then((emailData) => {
       const code =
         emailData.headers['x-verify-code'] ||
         emailData.headers['x-recovery-code'] ||

@@ -60,7 +60,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
     describe('with a verified session and no verificationMethod/verificationReason set', () => {
       it('notifies the relier of the login', () => {
         account.set('verified', true);
-        return broker.afterCompleteResetPassword(account).then(behavior => {
+        return broker.afterCompleteResetPassword(account).then((behavior) => {
           assert.isTrue(metrics.flush.calledOnce);
           assert.equal(behavior.type, 'null');
           assert.isTrue(broker._notifyRelierOfLogin.calledOnceWith(account));
@@ -73,7 +73,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
         account.set('verified', true);
         account.set('verificationReason', 'login');
         account.set('verificationMethod', 'email');
-        return broker.afterCompleteResetPassword(account).then(behavior => {
+        return broker.afterCompleteResetPassword(account).then((behavior) => {
           assert.isFalse(metrics.flush.called);
           assert.equal(behavior.type, 'null');
           assert.isFalse(broker._notifyRelierOfLogin.calledOnceWith(account));
@@ -84,7 +84,7 @@ describe('models/auth_brokers/fx-sync-web-channel', () => {
     describe('with an unverified session', () => {
       it('does not notify the relier of the login', () => {
         account.set('verified', false);
-        return broker.afterCompleteResetPassword(account).then(behavior => {
+        return broker.afterCompleteResetPassword(account).then((behavior) => {
           assert.isFalse(metrics.flush.called);
           assert.equal(behavior.type, 'null');
           assert.isFalse(broker._notifyRelierOfLogin.called);

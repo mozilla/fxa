@@ -13,13 +13,13 @@ const config = require('../../config').getProperties();
 
 const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
 
-describe('remote flow', function() {
+describe('remote flow', function () {
   this.timeout(15000);
   let server;
   let email1;
   config.signinConfirmation.skipForNewAccounts.enabled = true;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
       email1 = server.uniqueEmail();
     });
@@ -43,11 +43,11 @@ describe('remote flow', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.equal(typeof keys.kA, 'string', 'kA exists');
         assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists');
         assert.equal(typeof keys.kB, 'string', 'kB exists');
@@ -56,7 +56,7 @@ describe('remote flow', function() {
       .then(() => {
         return client.sign(publicKey, duration);
       })
-      .then(cert => {
+      .then((cert) => {
         assert.equal(typeof cert, 'string', 'cert exists');
         const payload = jwtool.verify(cert, pubSigKey.pem);
         assert.equal(
@@ -81,13 +81,13 @@ describe('remote flow', function() {
     return Client.login(config.publicUrl, email, password, server.mailbox, {
       keys: true,
     })
-      .then(x => {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
         assert.ok(client.uid, 'got a uid');
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.equal(typeof keys.kA, 'string', 'kA exists');
         assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists');
         assert.equal(typeof keys.kB, 'string', 'kB exists');
@@ -96,7 +96,7 @@ describe('remote flow', function() {
       .then(() => {
         return client.sign(publicKey, duration);
       })
-      .then(cert => {
+      .then((cert) => {
         assert.equal(typeof cert, 'string', 'cert exists');
       });
   });

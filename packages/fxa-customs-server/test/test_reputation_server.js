@@ -18,14 +18,14 @@ function ReputationServer(configUpdates) {
   this.config = Object.assign({}, config, configUpdates);
 }
 
-ReputationServer.prototype.start = async function() {
+ReputationServer.prototype.start = async function () {
   if (!this.server) {
     this.server = await init(this.config);
   }
   await this.server.start();
 };
 
-ReputationServer.prototype.stop = async function() {
+ReputationServer.prototype.stop = async function () {
   if (this.server) {
     await this.server.stop();
     this.server = null;
@@ -41,7 +41,7 @@ async function init(config) {
   server.route({
     method: 'PUT',
     path: '/violations/type/ip/{ip}',
-    handler: async req => {
+    handler: async (req) => {
       const ip = req.params.ip;
       mostRecentViolationByIp[ip] = req.payload.violation;
       return {};
@@ -67,7 +67,7 @@ async function init(config) {
   server.route({
     method: 'DELETE',
     path: '/mostRecentViolation/{ip}',
-    handler: async req => {
+    handler: async (req) => {
       var ip = req.params.ip;
       console.log('delete req', req.url);
       delete mostRecentViolationByIp[ip];
@@ -78,7 +78,7 @@ async function init(config) {
   server.route({
     method: 'GET',
     path: '/heartbeat',
-    handler: async req => {
+    handler: async (req) => {
       return {};
     },
   });

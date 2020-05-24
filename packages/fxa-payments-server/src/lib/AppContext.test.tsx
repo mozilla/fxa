@@ -16,15 +16,15 @@ it('passes along given app-global props', () => {
         <span data-testid="lang">{config.lang}</span>
         <span data-testid="screeninfo">{'' + getScreenInfo().clientWidth}</span>
       </div>
-    )
+    );
   };
 
-  const appContextValue: AppContextType ={
+  const appContextValue: AppContextType = {
     ...defaultAppContext,
     config: {
       ...defaultAppContext.config,
-      lang: MOCK_LANG
-    }
+      lang: MOCK_LANG,
+    },
   };
 
   const { getByTestId } = render(

@@ -69,7 +69,7 @@ describe('views/post_verify/account_recovery/add_recovery_key', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();

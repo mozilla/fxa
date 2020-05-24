@@ -9,12 +9,12 @@ var suite = {
   tests: {},
 };
 
-suite.tests['exports correctly'] = function() {
+suite.tests['exports correctly'] = function () {
   assert.ok(sentry.sentryModule);
   assert.ok(sentry._eventFilter);
 };
 
-suite.tests['eventFilter'] = function() {
+suite.tests['eventFilter'] = function () {
   var badUrl =
     'https://accounts.firefox.com/page?token=foo&code=bar&email=a@a.com&service=sync&resume=barbar';
   var goodUrl = 'https://accounts.firefox.com/page';

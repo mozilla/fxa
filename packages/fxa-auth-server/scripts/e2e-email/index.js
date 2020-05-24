@@ -36,7 +36,7 @@ function configure() {
     .option(
       '-L, --locale <en[,zh-TW,de,...]>',
       'Test only this csv list of locales',
-      list => {
+      (list) => {
         return list.split(/,/);
       }
     )
@@ -133,7 +133,7 @@ function signinAsSecondDevice(client) {
   };
 
   return Client.login(program.authServer, email, password, opts).then(
-    client => {
+    (client) => {
       return client.keys().then(() => {
         return fetchNotificationEmail(client);
       });
@@ -170,7 +170,7 @@ function passwordReset(client) {
     .then(() => {
       return program.mailserver.waitForCode(email);
     })
-    .then(code => {
+    .then((code) => {
       return client.verifyPasswordResetCode(code, headers);
     })
     .then(() => {
@@ -206,9 +206,9 @@ function dumpMessages(messages) {
   console.log('---');
   console.log('--- Dumping messages ---');
   console.log('---');
-  Object.keys(messages).map(key => {
+  Object.keys(messages).map((key) => {
     console.log('--- %s ---', key);
-    emailMessages[key].map(email => {
+    emailMessages[key].map((email) => {
       console.log(email.to[0], email.subject);
     });
   });
@@ -229,10 +229,10 @@ function main() {
       let errorCount = 0;
       Object.keys(errors)
         .sort()
-        .forEach(lang => {
+        .forEach((lang) => {
           output.push(`  ${lang}:`);
           const errorList = errors[lang];
-          errorList.forEach(err => {
+          errorList.forEach((err) => {
             errorCount++;
             output.push(`    ${err}`);
           });
@@ -251,7 +251,7 @@ function main() {
         process.exit(0);
       }
     })
-    .catch(err => {
+    .catch((err) => {
       log(log.ERROR, err.stack || err);
       process.exit(1);
     });

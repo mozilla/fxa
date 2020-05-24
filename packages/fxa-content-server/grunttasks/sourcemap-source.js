@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   /**
    *  This small task adjusts the 'sources' property of the main.js.map sourcemap.
    *  It changes the sources from '.tmp/scripts/main.js' to 'main.js', which makes
@@ -14,7 +14,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'sourcemap-source',
     'Adjusts the sourcemap source file to match the hosted path.',
-    function() {
+    function () {
       var MAP_PATH_MAIN = 'dist/scripts/main.js.map';
       var existingMap = JSON.parse(fs.readFileSync(MAP_PATH_MAIN));
       existingMap.sources = ['main.js'];

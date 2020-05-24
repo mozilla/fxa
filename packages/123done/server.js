@@ -12,7 +12,7 @@ const logger = morgan('short');
 // create a connection to the redis datastore
 let db = redis.createClient();
 
-db.on('error', function(err) {
+db.on('error', function (err) {
   // eslint-disable-line handle-callback-err
   db = null;
   console.log(
@@ -25,7 +25,7 @@ const app = express();
 
 app.use(logger, express.json());
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   if (/^\/api/.test(req.url)) {
     res.setHeader('Cache-Control', 'no-cache, max-age=0');
 
@@ -57,7 +57,7 @@ function checkAuth(req, res, next) {
 
 // auth status reports who the currently logged in user is on this
 // session
-app.get('/api/auth_status', function(req, res) {
+app.get('/api/auth_status', function (req, res) {
   console.log(req.session); //eslint-disable-line no-console
 
   res.send(
@@ -71,13 +71,13 @@ app.get('/api/auth_status', function(req, res) {
 });
 
 // logout clears the current authenticated user
-app.post('/api/logout', checkAuth, function(req, res) {
+app.post('/api/logout', checkAuth, function (req, res) {
   req.session.reset();
   res.send(200);
 });
 
 // the 'todo/save' api saves a todo list
-app.post('/api/todos/save', checkAuth, function(req, res) {
+app.post('/api/todos/save', checkAuth, function (req, res) {
   if (db) {
     db.set(req.session.user, JSON.stringify(req.body));
   }
@@ -86,9 +86,9 @@ app.post('/api/todos/save', checkAuth, function(req, res) {
 
 // the 'todo/get' api gets the current version of the todo list
 // from the server
-app.get('/api/todos/get', checkAuth, function(req, res) {
+app.get('/api/todos/get', checkAuth, function (req, res) {
   if (db) {
-    db.get(req.session.user, function(err, reply) {
+    db.get(req.session.user, function (err, reply) {
       if (err) {
         res.send(err.toString(), { 'Content-Type': 'text/plain' }, 500);
       } else {
@@ -108,7 +108,7 @@ app.get('/api/todos/get', checkAuth, function(req, res) {
   }
 });
 
-app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function(req, res, next) {
+app.get(/^\/iframe(:?\/(?:index.html)?)?$/, function (req, res, next) {
   req.url = '/index.html';
   next();
 });

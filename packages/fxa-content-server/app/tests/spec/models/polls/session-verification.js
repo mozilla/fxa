@@ -17,7 +17,7 @@ describe('models/polls/session-verification', () => {
   beforeEach(() => {
     account = new Account();
     windowMock = new WindowMock();
-    sinon.stub(windowMock, 'setTimeout').callsFake(func => func());
+    sinon.stub(windowMock, 'setTimeout').callsFake((func) => func());
 
     poll = new SessionVerificationPoll(
       {},
@@ -66,7 +66,7 @@ describe('models/polls/session-verification', () => {
 
           return new Promise((resolve, reject) => {
             poll.on('verified', () => reject(assert.catch()));
-            poll.on('error', _err => {
+            poll.on('error', (_err) => {
               err = _err;
               resolve();
             });
@@ -92,7 +92,7 @@ describe('models/polls/session-verification', () => {
 
           return new Promise((resolve, reject) => {
             poll.on('verified', () => reject(assert.catch()));
-            poll.on('error', _err => {
+            poll.on('error', (_err) => {
               err = _err;
               resolve();
             });
@@ -118,7 +118,7 @@ describe('models/polls/session-verification', () => {
 
           return new Promise((resolve, reject) => {
             poll.on('verified', () => reject(assert.catch()));
-            poll.on('error', _err => {
+            poll.on('error', (_err) => {
               err = _err;
               resolve();
             });

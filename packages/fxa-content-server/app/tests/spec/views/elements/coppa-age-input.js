@@ -12,7 +12,7 @@ const TEMPLATE = `
   <input type="number" id="age" />
 `;
 
-describe('views/elements/coppa-age-input', function() {
+describe('views/elements/coppa-age-input', function () {
   let $coppaEl;
   let $textEl;
 

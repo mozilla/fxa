@@ -21,7 +21,7 @@ config.pruneTokensMaxAge = 24 * 60 * 60 * 1000; // one day setting for tests
 describe('prune tokens', () => {
   let db;
   before(() => {
-    return DB.connect(config).then(db_ => {
+    return DB.connect(config).then((db_) => {
       db = db_;
       return db.ping();
     });
@@ -44,13 +44,13 @@ describe('prune tokens', () => {
     return (
       db
         .createAccount(user.accountId, user.account)
-        .then(function() {
+        .then(function () {
           return db.createPasswordForgotToken(
             user.passwordForgotTokenId,
             user.passwordForgotToken
           );
         })
-        .then(function() {
+        .then(function () {
           return db.forgotPasswordVerified(
             user.accountResetTokenId,
             user.accountResetToken
@@ -125,11 +125,11 @@ describe('prune tokens', () => {
             db.sessionToken(unprunableSessionTokenId),
           ]);
         })
-        .then(function() {
+        .then(function () {
           var sql = 'SELECT * FROM unblockCodes WHERE uid = ?';
           return db.read(sql, [user.accountId]);
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(
             res[0].uid.toString('hex'),
             user.accountId.toString('hex')
@@ -140,26 +140,26 @@ describe('prune tokens', () => {
             signinCodeHash,
           ]);
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(
             res[0].hash.toString('hex'),
             signinCodeHash.toString('hex')
           );
         })
-        .then(function() {
+        .then(function () {
           // prune older tokens
           return db.pruneTokens();
         })
-        .then(function() {
+        .then(function () {
           // now check that all tokens for this uid have been deleted
           return db.accountResetToken(user.accountResetTokenId).then(
-            function(accountResetToken) {
+            function (accountResetToken) {
               assert(
                 false,
                 'The above accountResetToken() call should fail, since the accountResetToken has been deleted'
               );
             },
-            function(err) {
+            function (err) {
               assert.equal(
                 err.code,
                 404,
@@ -183,15 +183,15 @@ describe('prune tokens', () => {
             }
           );
         })
-        .then(function() {
+        .then(function () {
           return db.passwordForgotToken(user.passwordForgotTokenId).then(
-            function(passwordForgotToken) {
+            function (passwordForgotToken) {
               assert(
                 false,
                 'The above passwordForgotToken() call should fail, since the passwordForgotToken has been pruned'
               );
             },
-            function(err) {
+            function (err) {
               assert.equal(
                 err.code,
                 404,
@@ -218,7 +218,7 @@ describe('prune tokens', () => {
         .then(() => {
           return db.sessionToken(user.sessionTokenId).then(
             () => assert(false, 'db.sessionToken should have failed'),
-            err => {
+            (err) => {
               assert.equal(
                 err.code,
                 404,
@@ -242,11 +242,11 @@ describe('prune tokens', () => {
             }
           );
         })
-        .then(function() {
+        .then(function () {
           var sql = 'SELECT * FROM unblockCodes WHERE uid = ?';
           return db.read(sql, [user.accountId]);
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.lengthOf(res, 0);
         })
         .then(() => {
@@ -254,7 +254,7 @@ describe('prune tokens', () => {
             signinCodeHash,
           ]);
         })
-        .then(res => {
+        .then((res) => {
           assert.lengthOf(res, 0);
         })
         // The unprunable session token should still exist
@@ -263,7 +263,7 @@ describe('prune tokens', () => {
         .then(() =>
           db.keyFetchTokenWithVerificationStatus(user.keyFetchTokenId)
         )
-        .then(keyFetchToken => {
+        .then((keyFetchToken) => {
           // unverifiedTokens must not be pruned if they belong to keyFetchTokens
           assert.equal(keyFetchToken.tokenVerificationId, tokenVerificationId);
         })
@@ -273,7 +273,7 @@ describe('prune tokens', () => {
             "SELECT value FROM dbMetadata WHERE name = 'sessionTokensPrunedUntil'";
           return db.read(sql);
         })
-        .then(res => {
+        .then((res) => {
           assert.lengthOf(res, 1);
           assert.ok(res[0].value, 'sessionTokensPrunedUntil is not falsy');
           const updatedPrunedUntilValue = parseInt(res[0].value, 10);
@@ -287,7 +287,7 @@ describe('prune tokens', () => {
                 "SELECT value FROM dbMetadata WHERE name = 'sessionTokensPrunedUntil'";
               return db.read(sql);
             })
-            .then(res => {
+            .then((res) => {
               assert.lengthOf(res, 1);
               assert.ok(res[0].value, 'sessionTokensPrunedUntil is not falsy');
               assert.equal(

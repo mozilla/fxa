@@ -14,7 +14,7 @@ const logger = require('../logging')('server.worker');
 
 const SIZES = img.SIZES;
 
-exports.create = async function() {
+exports.create = async function () {
   var server = new Hapi.Server({
     debug: false,
     host: config.worker.host,
@@ -62,7 +62,7 @@ exports.create = async function() {
     config: {
       handler: async function delete_(req) {
         return P.all(
-          Object.keys(SIZES).map(function(name) {
+          Object.keys(SIZES).map(function (name) {
             if (name === 'default') {
               return req.params.id;
             }
@@ -73,7 +73,7 @@ exports.create = async function() {
     },
   });
 
-  server.ext('onPreResponse', function(request) {
+  server.ext('onPreResponse', function (request) {
     var response = request.response;
     if (response.isBoom) {
       response = AppError.translate(response);

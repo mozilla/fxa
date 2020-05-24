@@ -87,7 +87,7 @@ export default {
       // When using a cached credential, the auth-server routes do not get hit,
       // This event will cause the content-server to emit the complete event.
       onSuccess: () => this.logEvent('cached.signin.success'),
-    }).catch(err => {
+    }).catch((err) => {
       // Session was invalid. Set a SESSION EXPIRED error on the model
       // causing an error to be displayed when the view re-renders
       // due to the sessionToken update.

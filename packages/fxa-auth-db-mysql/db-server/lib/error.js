@@ -9,15 +9,17 @@ function AppError(options) {
   this.errno = options.errno;
   this.error = options.error;
   this.code = options.code;
-  if (options.stack) {this.stack = options.stack;}
+  if (options.stack) {
+    this.stack = options.stack;
+  }
 }
 inherits(AppError, Error);
 
-AppError.prototype.toString = function() {
+AppError.prototype.toString = function () {
   return 'Error: ' + this.message;
 };
 
-AppError.duplicate = function() {
+AppError.duplicate = function () {
   return new AppError({
     code: 409,
     error: 'Conflict',
@@ -26,7 +28,7 @@ AppError.duplicate = function() {
   });
 };
 
-AppError.notFound = function() {
+AppError.notFound = function () {
   return new AppError({
     code: 404,
     error: 'Not Found',
@@ -35,7 +37,7 @@ AppError.notFound = function() {
   });
 };
 
-AppError.incorrectPassword = function() {
+AppError.incorrectPassword = function () {
   return new AppError({
     code: 400,
     error: 'Bad request',
@@ -44,7 +46,7 @@ AppError.incorrectPassword = function() {
   });
 };
 
-AppError.cannotDeletePrimaryEmail = function() {
+AppError.cannotDeletePrimaryEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad request',
@@ -53,7 +55,7 @@ AppError.cannotDeletePrimaryEmail = function() {
   });
 };
 
-AppError.expiredTokenVerificationCode = function() {
+AppError.expiredTokenVerificationCode = function () {
   return new AppError({
     code: 400,
     error: 'Bad request',
@@ -62,7 +64,7 @@ AppError.expiredTokenVerificationCode = function() {
   });
 };
 
-AppError.invalidVerificationMethod = function() {
+AppError.invalidVerificationMethod = function () {
   return new AppError({
     code: 400,
     error: 'Bad request',
@@ -80,7 +82,7 @@ AppError.recoveryKeyInvalid = () => {
   });
 };
 
-AppError.cannotSetUnverifiedPrimaryEmail = function() {
+AppError.cannotSetUnverifiedPrimaryEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad request',
@@ -89,7 +91,7 @@ AppError.cannotSetUnverifiedPrimaryEmail = function() {
   });
 };
 
-AppError.cannotSetUnownedPrimaryEmail = function() {
+AppError.cannotSetUnownedPrimaryEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad request',
@@ -98,7 +100,7 @@ AppError.cannotSetUnownedPrimaryEmail = function() {
   });
 };
 
-AppError.wrap = function(err) {
+AppError.wrap = function (err) {
   // Don't re-wrap!
   if (err instanceof AppError) {
     return err;

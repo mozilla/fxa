@@ -32,20 +32,20 @@ const {
   type,
 } = FunctionalHelpers;
 
-const getRecoveryKey = thenify(function() {
+const getRecoveryKey = thenify(function () {
   return (
     this.parent
       // Extract the recovery key from form
       .findByCssSelector(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.RECOVERY_KEY)
       .getVisibleText()
-      .then(key => {
+      .then((key) => {
         recoveryKey = key;
       })
   );
 });
 
 registerSuite('post_verify_account_recovery', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -54,7 +54,7 @@ registerSuite('post_verify_account_recovery', {
   },
 
   tests: {
-    'create account recovery': function() {
+    'create account recovery': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -127,7 +127,7 @@ registerSuite('post_verify_account_recovery', {
             .then(testSuccessWasShown('Account recovery enabled'));
         });
     },
-    'abort account recovery at add_recovery_key': function() {
+    'abort account recovery at add_recovery_key': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -141,7 +141,7 @@ registerSuite('post_verify_account_recovery', {
         .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.MAYBE_LATER))
         .then(testSuccessWasNotShown());
     },
-    'abort account recovery at confirm_password': function() {
+    'abort account recovery at confirm_password': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))

@@ -46,10 +46,10 @@ module.exports = (config, mc, log) => {
 
     refresh(options) {
       log.info({ op: this[KEY] + '.refresh' });
-      let result = mc.getAsync(this[KEY]).then(value => this.validate(value));
+      let result = mc.getAsync(this[KEY]).then((value) => this.validate(value));
 
       if (options && options.pushOnMissing) {
-        result = result.catch(err => {
+        result = result.catch((err) => {
           if (err instanceof Missing) {
             log.info({ op: this[KEY] + '.refresh.pushOnMissing' });
             return this.push();
@@ -59,8 +59,8 @@ module.exports = (config, mc, log) => {
         });
       }
       return result.then(
-        value => this.setAll(value),
-        err => {
+        (value) => this.setAll(value),
+        (err) => {
           log.error({ op: this[KEY] + '.refresh', err: err });
           throw err;
         }

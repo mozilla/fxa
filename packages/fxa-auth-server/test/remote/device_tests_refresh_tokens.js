@@ -32,7 +32,7 @@ const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const UNKNOWN_REFRESH_TOKEN =
   'B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78';
 
-describe('remote device with refresh tokens', function() {
+describe('remote device with refresh tokens', function () {
   this.timeout(15000);
   let client;
   let db;
@@ -48,11 +48,11 @@ describe('remote device with refresh tokens', function() {
 
     testUtils.disableLogs();
     return TestServer.start(config, false)
-      .then(s => {
+      .then((s) => {
         server = s;
         return DB.connect(config[config.db.backend]);
       })
-      .then(x => {
+      .then((x) => {
         db = x;
         oauthServerDb = require('../../lib/oauth/db');
       });
@@ -67,7 +67,7 @@ describe('remote device with refresh tokens', function() {
   beforeEach(() => {
     email = server.uniqueEmail();
     password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(c => {
+    return Client.create(config.publicUrl, email, password).then((c) => {
       client = c;
     });
   });
@@ -158,7 +158,7 @@ describe('remote device with refresh tokens', function() {
         email: client.email,
         scope: 'profile https://identity.mozilla.com/apps/oldsync',
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken = refresh.token.toString('hex');
         const deviceInfo = {
           name: 'test device 🍓🔥在𝌆',
@@ -171,14 +171,14 @@ describe('remote device with refresh tokens', function() {
 
         return client
           .devicesWithRefreshToken(refreshToken)
-          .then(devices => {
+          .then((devices) => {
             assert.equal(devices.length, 0, 'devices returned no items');
             return client.updateDeviceWithRefreshToken(
               refreshToken,
               deviceInfo
             );
           })
-          .then(device => {
+          .then((device) => {
             assert.ok(device.id, 'device.id was set');
             assert.ok(device.createdAt > 0, 'device.createdAt was set');
             assert.equal(
@@ -219,7 +219,7 @@ describe('remote device with refresh tokens', function() {
 
             return client.devicesWithRefreshToken(refreshToken);
           })
-          .then(devices => {
+          .then((devices) => {
             assert.equal(devices.length, 1, 'devices returned one item');
             assert.equal(
               devices[0].name,
@@ -274,7 +274,7 @@ describe('remote device with refresh tokens', function() {
         email: client.email,
         scope: 'profile https://identity.mozilla.com/apps/oldsync',
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken = refresh.token.toString('hex');
         const deviceInfo = {
           name: 'test device',
@@ -283,14 +283,14 @@ describe('remote device with refresh tokens', function() {
 
         return client
           .devicesWithRefreshToken(refreshToken)
-          .then(devices => {
+          .then((devices) => {
             assert.equal(devices.length, 0, 'devices returned no items');
             return client.updateDeviceWithRefreshToken(
               refreshToken,
               deviceInfo
             );
           })
-          .then(device => {
+          .then((device) => {
             assert.ok(device.id, 'device.id was set');
             assert.ok(device.createdAt > 0, 'device.createdAt was set');
             assert.equal(
@@ -326,7 +326,7 @@ describe('remote device with refresh tokens', function() {
 
             return client.devicesWithRefreshToken(refreshToken);
           })
-          .then(devices => {
+          .then((devices) => {
             deviceId = devices[0].id;
 
             assert.equal(devices.length, 1, 'devices returned one item');
@@ -363,7 +363,7 @@ describe('remote device with refresh tokens', function() {
 
             return oauthServerDb.getRefreshToken(encrypt.hash(refreshToken));
           })
-          .then(tokenObj => {
+          .then((tokenObj) => {
             assert.ok(tokenObj, 'refreshToken should exist');
 
             return client.destroyDeviceWithRefreshToken(refreshToken, deviceId);
@@ -372,7 +372,7 @@ describe('remote device with refresh tokens', function() {
             // deleting the device also deletes the associated refreshToken
             return oauthServerDb.getRefreshToken(encrypt.hash(refreshToken));
           })
-          .then(tokenObj => {
+          .then((tokenObj) => {
             assert.notOk(tokenObj, 'refreshToken should be gone');
           });
       });
@@ -388,7 +388,7 @@ describe('remote device with refresh tokens', function() {
         email: client.email,
         scope: 'profile https://identity.mozilla.com/apps/oldsync',
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken = refresh.token.toString('hex');
 
         return oauthServerDb.generateRefreshToken({
@@ -398,16 +398,16 @@ describe('remote device with refresh tokens', function() {
           scope: 'profile https://identity.mozilla.com/apps/oldsync',
         });
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken2 = refresh.token.toString('hex');
 
         return client.devicesWithRefreshToken(refreshToken);
       })
-      .then(devices => {
+      .then((devices) => {
         assert.equal(devices.length, 0);
         return client.updateDeviceWithRefreshToken(refreshToken, {});
       })
-      .then(device => {
+      .then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
         assert.equal(device.name, OAUTH_CLIENT_NAME, 'device.name is correct');
@@ -435,7 +435,7 @@ describe('remote device with refresh tokens', function() {
 
         return client.devicesWithRefreshToken(refreshToken2);
       })
-      .then(devices => {
+      .then((devices) => {
         assert.equal(devices.length, 1);
         assert.equal(
           devices[0].name,
@@ -454,13 +454,13 @@ describe('remote device with refresh tokens', function() {
         email: client.email,
         scope: 'profile https://identity.mozilla.com/apps/oldsync',
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken = refresh.token.toString('hex');
         return client.updateDeviceWithRefreshToken(refreshToken, {
           type: 'mobile',
         });
       })
-      .then(device => {
+      .then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
         assert.equal(device.name, OAUTH_CLIENT_NAME, 'device.name is correct');
@@ -499,7 +499,7 @@ describe('remote device with refresh tokens', function() {
     if (devices[0].name === deviceInfo.name) {
       // database results are unordered, swap them if necessary
       const swap = {};
-      Object.keys(devices[0]).forEach(key => {
+      Object.keys(devices[0]).forEach((key) => {
         swap[key] = devices[0][key];
         devices[0][key] = devices[1][key];
         devices[1][key] = swap[key];
@@ -519,7 +519,7 @@ describe('remote device with refresh tokens', function() {
         email: client.email,
         scope: 'profile https://identity.mozilla.com/apps/oldsync',
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken = refresh.token.toString('hex');
         return client.updateDeviceWithRefreshToken(refreshToken, {
           type: 'mobile',
@@ -527,7 +527,7 @@ describe('remote device with refresh tokens', function() {
       })
       .then(
         () => assert.fail('must fail'),
-        err => {
+        (err) => {
           assert.equal(err.message, 'Not a public client');
           assert.equal(err.errno, 166, 'Uses the auth-server errno');
         }
@@ -547,7 +547,7 @@ describe('remote device with refresh tokens', function() {
         email: client.email,
         scope: 'profile https://identity.mozilla.com/apps/oldsync',
       })
-      .then(refresh => {
+      .then((refresh) => {
         refreshToken = refresh.token.toString('hex');
         conflictingDeviceInfo.refreshTokenId = refreshToken;
 
@@ -559,7 +559,7 @@ describe('remote device with refresh tokens', function() {
       })
       .then(
         () => assert.fail('must fail'),
-        err => {
+        (err) => {
           assert.equal(
             err.message,
             'Session already registered by another device'

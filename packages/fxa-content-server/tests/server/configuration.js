@@ -28,24 +28,24 @@ function spawnServer(cb) {
   var errData = '';
 
   proc.stderr.setEncoding('utf8');
-  proc.stderr.on('data', function(data) {
+  proc.stderr.on('data', function (data) {
     errData += data;
   });
 
-  proc.on('error', function(err) {
+  proc.on('error', function (err) {
     cb(err);
   });
 
-  proc.on('exit', function(/*code*/) {
+  proc.on('exit', function (/*code*/) {
     cb(null, errData);
   });
 }
 
-suite.tests['#test incompatible locale lists 2'] = function() {
+suite.tests['#test incompatible locale lists 2'] = function () {
   var dfd = this.async(10000);
 
   spawnServer(
-    dfd.callback(function(err, data) {
+    dfd.callback(function (err, data) {
       assert.isNull(err);
       assert.ok(
         data.indexOf(

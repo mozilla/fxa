@@ -4,11 +4,11 @@
 
 var url = require('url');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   function normalizeSriDirectives(sriDirectives) {
     var normalized = {};
 
-    Object.keys(sriDirectives).forEach(function(key) {
+    Object.keys(sriDirectives).forEach(function (key) {
       var cleanedKey = key.replace(/@?dist/, '');
       normalized[cleanedKey] = sriDirectives[key];
     });
@@ -17,7 +17,7 @@ module.exports = function(grunt) {
   }
 
   function addSriAttributesToResourceElements(directives, html) {
-    return html.replace(/(?:src|href)="([^"]*)"/gi, function(
+    return html.replace(/(?:src|href)="([^"]*)"/gi, function (
       match,
       resourceUrl
     ) {
@@ -53,7 +53,7 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(
     'sri-update-html',
     'Update HTML with SRI attributes',
-    function() {
+    function () {
       // open each HTML file
       // look for src, href
       // look up url in sri table
@@ -93,7 +93,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'sriify',
     'Add SRI integrity attributes to static resources',
-    function(subtaskName) {
+    function (subtaskName) {
       // sri is run twice. The first time to find the sri hashes for
       // the resources embedded in main.js. This will modify main.js
       // so sri must be called again to find the final sri value for

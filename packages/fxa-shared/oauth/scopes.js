@@ -224,7 +224,7 @@ class ScopeSet {
     }
     // If the new scope implies some scopes that are already in this
     // `ScopeSet`, then those scopes are now redundant and can be removed.
-    this._iterImpliedScopes(scope, implied => {
+    this._iterImpliedScopes(scope, (implied) => {
       this._removeScope(implied);
     });
     // Add it into the bi-directional mapping.
@@ -339,10 +339,10 @@ class ScopeSet {
   intersects(other) {
     other = coerce(other);
     return (
-      other._searchImplicants(implicant => {
+      other._searchImplicants((implicant) => {
         return this._hasScope(implicant);
       }) ||
-      this._searchImplicants(implicant => {
+      this._searchImplicants((implicant) => {
         return other._hasScope(implicant);
       })
     );
@@ -486,7 +486,7 @@ function* getImplicantValuesForShortScope(value) {
   // and handle the special "write" flag if present.
   let hasWrite = false;
   const names = value.split(':');
-  names.forEach(name => {
+  names.forEach((name) => {
     if (!VALID_SHORT_NAME_VALUE.test(name)) {
       throw new Error('Invalid scope value: ' + value);
     }
@@ -581,7 +581,7 @@ module.exports = {
   fromString(scopesString) {
     // Split the string by one or more space characters.
     return new ScopeSet(
-      scopesString.split(/ +/).filter(scopeString => {
+      scopesString.split(/ +/).filter((scopeString) => {
         return !!scopeString;
       })
     );
@@ -602,10 +602,10 @@ module.exports = {
     return new ScopeSet(
       encodedScopesString
         .split(/\+/)
-        .filter(encodedScopeString => {
+        .filter((encodedScopeString) => {
           return !!encodedScopeString;
         })
-        .map(encodedScopeString => {
+        .map((encodedScopeString) => {
           return decodeURIComponent(encodedScopeString);
         })
     );

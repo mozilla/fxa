@@ -39,14 +39,14 @@ let email;
 const PASSWORD = 'password12345678';
 
 registerSuite('connect_another_device', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'signup Fx Desktop, load /connect_another_device page': function() {
+    'signup Fx Desktop, load /connect_another_device page': function () {
       // should have both links to mobile apps
       const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote
@@ -85,7 +85,7 @@ registerSuite('connect_another_device', {
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
     },
 
-    'signup Fx Desktop, load /connect_another_device page, SMS enabled': function() {
+    'signup Fx Desktop, load /connect_another_device page, SMS enabled': function () {
       // should have both links to mobile apps
       const forceUA = UA_STRINGS['desktop_firefox'];
       return this.remote

@@ -70,16 +70,16 @@ const zeroBuffer32 = Buffer.from(
 
 let account, secondEmail;
 
-describe('remote db', function() {
+describe('remote db', function () {
   this.timeout(20000);
   let dbServer, db;
   before(() => {
     return TestServer.start(config)
-      .then(s => {
+      .then((s) => {
         dbServer = s;
         return DB.connect(config[config.db.backend]);
       })
-      .then(x => {
+      .then((x) => {
         db = x;
       });
   });
@@ -101,7 +101,7 @@ describe('remote db', function() {
     return (
       db
         .createAccount(account)
-        .then(account => {
+        .then((account) => {
           assert.deepEqual(
             account.uid,
             account.uid,
@@ -131,13 +131,13 @@ describe('remote db', function() {
   it('account creation', () => {
     return db
       .accountExists(account.email)
-      .then(exists => {
+      .then((exists) => {
         assert.ok(exists, 'account exists for this email address');
       })
       .then(() => {
         return db.account(account.uid);
       })
-      .then(account => {
+      .then((account) => {
         assert.deepEqual(account.uid, account.uid, 'uid');
         assert.equal(account.email, account.email, 'email');
         assert.deepEqual(account.emailCode, account.emailCode, 'emailCode');
@@ -165,14 +165,14 @@ describe('remote db', function() {
     // Fetch all sessions for the account
     return db
       .sessions(account.uid)
-      .then(sessions => {
+      .then((sessions) => {
         assert.ok(Array.isArray(sessions), 'sessions is array');
         assert.equal(sessions.length, 0, 'sessions is empty');
 
         // Fetch the email record
         return db.emailRecord(account.email);
       })
-      .then(emailRecord => {
+      .then((emailRecord) => {
         emailRecord.createdAt = Date.now() - 1000;
         emailRecord.tokenVerificationId = account.tokenVerificationId;
         emailRecord.uaBrowser = 'Firefox';
@@ -184,14 +184,14 @@ describe('remote db', function() {
         // Create a session token
         return db.createSessionToken(emailRecord);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         assert.deepEqual(sessionToken.uid, account.uid);
         tokenId = sessionToken.id;
 
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions contains one item');
         assert.equal(
           Object.keys(sessions[0]).length,
@@ -263,7 +263,7 @@ describe('remote db', function() {
         // Fetch the session token
         return db.sessionToken(tokenId);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         assert.equal(sessionToken.id, tokenId, 'token id matches');
         assert.equal(sessionToken.uaBrowser, 'Firefox');
         assert.equal(sessionToken.uaBrowserVersion, '41');
@@ -283,13 +283,13 @@ describe('remote db', function() {
         // Attempt to update the session token
         return db.touchSessionToken(sessionToken, {});
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(result, undefined);
 
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions contains one item');
         assert.equal(
           Object.keys(sessions[0]).length,
@@ -314,7 +314,7 @@ describe('remote db', function() {
         // Fetch the session token
         return db.sessionToken(tokenId);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         // Update the session token
         return db.touchSessionToken(
           Object.assign({}, sessionToken, {
@@ -336,7 +336,7 @@ describe('remote db', function() {
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions contains one item');
         assert.equal(sessions[0].uid, account.uid, 'uid property is correct');
         assert.ok(
@@ -373,7 +373,7 @@ describe('remote db', function() {
         // Fetch the session token
         return db.sessionToken(tokenId);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         // Update the session token
         return db.touchSessionToken(
           Object.assign({}, sessionToken, {
@@ -391,7 +391,7 @@ describe('remote db', function() {
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions still contains one item');
         assert.equal(
           sessions[0].uaBrowser,
@@ -429,7 +429,7 @@ describe('remote db', function() {
         // Fetch the session token
         return db.sessionToken(tokenId);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         // this returns previously stored data since sessionToken doesnt read from cache
         assert.equal(sessionToken.uaBrowser, 'Firefox');
         assert.equal(sessionToken.uaBrowserVersion, '41');
@@ -445,7 +445,7 @@ describe('remote db', function() {
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions still contains one item');
         assert.equal(
           sessions[0].uaBrowser,
@@ -477,7 +477,7 @@ describe('remote db', function() {
         // Fetch the session token
         return db.sessionToken(tokenId);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         // Prune a session token that is older than maxAge
         sessionToken.createdAt = Date.now() - tokenPruning.maxAge - 1;
         return db.pruneSessionTokens(account.uid, [sessionToken]);
@@ -486,7 +486,7 @@ describe('remote db', function() {
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 1, 'sessions still contains one item');
         assert.equal(
           sessions[0].uaBrowser,
@@ -522,7 +522,7 @@ describe('remote db', function() {
         // Fetch the session token
         return db.sessionToken(tokenId);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         // Delete the session token
         return db.deleteSessionToken(sessionToken);
       })
@@ -530,15 +530,15 @@ describe('remote db', function() {
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         assert.equal(sessions.length, 0, 'sessions is empty');
 
         // Attempt to delete the deleted session token
         return db.sessionToken(tokenId).then(
-          sessionToken => {
+          (sessionToken) => {
             assert(false, 'db.sessionToken should have failed');
           },
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               110,
@@ -557,7 +557,7 @@ describe('remote db', function() {
         // Fetch the email record again
         return db.emailRecord(account.email);
       })
-      .then(emailRecord => {
+      .then((emailRecord) => {
         emailRecord.createdAt = Date.now() - 1000;
         emailRecord.tokenVerificationId = account.tokenVerificationId;
         emailRecord.uaBrowser = 'Firefox';
@@ -573,7 +573,7 @@ describe('remote db', function() {
         // Fetch all sessions for the account
         return db.sessions(account.uid);
       })
-      .then(sessions => {
+      .then((sessions) => {
         // Make sure that the data got deleted from redis too
         assert.equal(sessions.length, 1, 'sessions contains one item');
         assert.equal(
@@ -591,7 +591,7 @@ describe('remote db', function() {
         return db.deleteSessionToken(sessions[0]);
       })
       .then(() => redis.getAsync(account.uid))
-      .then(result => assert.equal(result, null, 'redis was cleared'));
+      .then((result) => assert.equal(result, null, 'redis was cleared'));
   });
 
   it('device registration', () => {
@@ -615,7 +615,7 @@ describe('remote db', function() {
     return (
       db
         .emailRecord(account.email)
-        .then(emailRecord => {
+        .then((emailRecord) => {
           emailRecord.tokenVerificationId = account.tokenVerificationId;
           emailRecord.uaBrowser = 'Firefox Mobile';
           emailRecord.uaBrowserVersion = '41';
@@ -627,7 +627,7 @@ describe('remote db', function() {
           // Create a session token
           return db.createSessionToken(emailRecord);
         })
-        .then(result => {
+        .then((result) => {
           sessionToken = result;
           deviceInfo.sessionTokenId = sessionToken.id;
 
@@ -639,7 +639,7 @@ describe('remote db', function() {
                 'updating a non-existent device should have failed'
               );
             },
-            err => {
+            (err) => {
               assert.equal(err.errno, 123, 'err.errno === 123');
             }
           );
@@ -653,7 +653,7 @@ describe('remote db', function() {
                 'deleting a non-existent device should have failed'
               );
             },
-            err => {
+            (err) => {
               assert.equal(err.errno, 123, 'err.errno === 123');
             }
           );
@@ -664,15 +664,15 @@ describe('remote db', function() {
             assert(false, 'getting devices should not have failed');
           });
         })
-        .then(devices => {
+        .then((devices) => {
           assert.ok(Array.isArray(devices), 'devices is array');
           assert.equal(devices.length, 0, 'devices array is empty');
           // Create a device
-          return db.createDevice(account.uid, deviceInfo).catch(_err => {
+          return db.createDevice(account.uid, deviceInfo).catch((_err) => {
             assert(false, 'adding a new device should not have failed');
           });
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id is set');
           assert.ok(device.createdAt > 0, 'device.createdAt is set');
           assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -705,7 +705,7 @@ describe('remote db', function() {
           // Fetch the session token
           return db.sessionToken(sessionToken.id);
         })
-        .then(sessionToken => {
+        .then((sessionToken) => {
           assert.equal(sessionToken.lifetime, Infinity);
           conflictingDeviceInfo.sessionTokenId = sessionToken.id;
           // Attempt to create a device with a duplicate session token
@@ -716,7 +716,7 @@ describe('remote db', function() {
                 'adding a device with a duplicate session token should have failed'
               );
             },
-            err => {
+            (err) => {
               assert.equal(err.errno, 124, 'err.errno');
               assert.equal(err.output.payload.deviceId, deviceInfo.id);
             }
@@ -726,11 +726,11 @@ describe('remote db', function() {
           // Fetch all of the devices for the account
           return db.devices(account.uid);
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 1, 'devices array contains one item');
           return devices[0];
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id is set');
           assert.ok(device.lastAccessTime > 0, 'device.lastAccessTime is set');
           assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -820,11 +820,11 @@ describe('remote db', function() {
             }),
           ]);
         })
-        .then(results => {
+        .then((results) => {
           // Create another session token
           return db.createSessionToken(sessionToken);
         })
-        .then(result => {
+        .then((result) => {
           anotherSessionToken = result;
           conflictingDeviceInfo.sessionTokenId = anotherSessionToken.id;
           // Create another device
@@ -840,7 +840,7 @@ describe('remote db', function() {
                 'updating a device with a duplicate session token should have failed'
               );
             },
-            err => {
+            (err) => {
               assert.equal(err.errno, 124, 'err.errno');
               assert.equal(
                 err.output.payload.deviceId,
@@ -853,7 +853,7 @@ describe('remote db', function() {
           // Fetch all of the devices for the account
           return db.devices(account.uid);
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 2, 'devices array contains two items');
 
           if (devices[0].id === deviceInfo.id) {
@@ -862,14 +862,14 @@ describe('remote db', function() {
 
           return devices[1];
         })
-        .then(device => {
+        .then((device) => {
           // Fetch a single device
-          return db.device(account.uid, device.id).then(result => {
+          return db.device(account.uid, device.id).then((result) => {
             assert.deepEqual(device, result);
             return device;
           });
         })
-        .then(device => {
+        .then((device) => {
           assert.equal(
             device.lastAccessTime,
             42,
@@ -954,7 +954,7 @@ describe('remote db', function() {
           lastAccessTimeUpdates.enabled = false;
           return db.devices(account.uid);
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 2, 'devices array contains two items');
           assert.equal(
             devices[0].lastAccessTime,
@@ -977,14 +977,14 @@ describe('remote db', function() {
         .then(() => db.deleteDevice(account.uid, conflictingDeviceInfo.id))
         // Deleting the devices should also have cleared the data from Redis
         .then(() => redis.getAsync(account.uid))
-        .then(result => {
+        .then((result) => {
           assert.equal(result, null, 'redis was cleared');
         })
         .then(() => {
           // Fetch all of the devices for the account
           return db.devices(account.uid);
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices array is empty');
 
           // Delete the account
@@ -997,40 +997,40 @@ describe('remote db', function() {
     let tokenId;
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         return db.createKeyFetchToken({
           uid: emailRecord.uid,
           kA: emailRecord.kA,
           wrapKb: account.wrapWrapKb,
         });
       })
-      .then(keyFetchToken => {
+      .then((keyFetchToken) => {
         assert.deepEqual(keyFetchToken.uid, account.uid);
         tokenId = keyFetchToken.id;
       })
       .then(() => {
         return db.keyFetchToken(tokenId);
       })
-      .then(keyFetchToken => {
+      .then((keyFetchToken) => {
         assert.deepEqual(keyFetchToken.id, tokenId, 'token id matches');
         assert.deepEqual(keyFetchToken.uid, account.uid);
         assert.equal(keyFetchToken.emailVerified, account.emailVerified);
         return keyFetchToken;
       })
-      .then(keyFetchToken => {
+      .then((keyFetchToken) => {
         return db.deleteKeyFetchToken(keyFetchToken);
       })
       .then(() => {
         return db.keyFetchToken(tokenId);
       })
       .then(
-        keyFetchToken => {
+        (keyFetchToken) => {
           assert(
             false,
             'The above keyFetchToken() call should fail, since the keyFetchToken has been deleted'
           );
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             110,
@@ -1050,13 +1050,13 @@ describe('remote db', function() {
     let tokenId;
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         return db.createPasswordForgotToken(emailRecord);
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         return db
           .forgotPasswordVerified(passwordForgotToken)
-          .then(accountResetToken => {
+          .then((accountResetToken) => {
             assert.ok(
               accountResetToken.createdAt >= passwordForgotToken.createdAt,
               'account reset token should be equal or newer than password forgot token'
@@ -1064,7 +1064,7 @@ describe('remote db', function() {
             return accountResetToken;
           });
       })
-      .then(accountResetToken => {
+      .then((accountResetToken) => {
         assert.deepEqual(
           accountResetToken.uid,
           account.uid,
@@ -1073,7 +1073,7 @@ describe('remote db', function() {
         tokenId = accountResetToken.id;
         return db.accountResetToken(tokenId);
       })
-      .then(accountResetToken => {
+      .then((accountResetToken) => {
         assert.deepEqual(accountResetToken.id, tokenId, 'token id matches');
         assert.deepEqual(
           accountResetToken.uid,
@@ -1082,11 +1082,11 @@ describe('remote db', function() {
         );
         return accountResetToken;
       })
-      .then(accountResetToken => {
+      .then((accountResetToken) => {
         return db.deleteAccountResetToken(accountResetToken);
       })
       .then(() => {
-        return db.accountResetToken(tokenId).then(assert.fail, err => {
+        return db.accountResetToken(tokenId).then(assert.fail, (err) => {
           assert.equal(
             err.errno,
             110,
@@ -1107,10 +1107,10 @@ describe('remote db', function() {
     let token1tries = 0;
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         return db.createPasswordForgotToken(emailRecord);
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         assert.deepEqual(
           passwordForgotToken.uid,
           account.uid,
@@ -1122,7 +1122,7 @@ describe('remote db', function() {
       .then(() => {
         return db.passwordForgotToken(token1.id);
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         assert.deepEqual(passwordForgotToken.id, token1.id, 'token id matches');
         assert.deepEqual(
           passwordForgotToken.uid,
@@ -1131,14 +1131,14 @@ describe('remote db', function() {
         );
         return passwordForgotToken;
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         passwordForgotToken.tries -= 1;
         return db.updatePasswordForgotToken(passwordForgotToken);
       })
       .then(() => {
         return db.passwordForgotToken(token1.id);
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         assert.deepEqual(
           passwordForgotToken.id,
           token1.id,
@@ -1147,20 +1147,20 @@ describe('remote db', function() {
         assert.equal(passwordForgotToken.tries, token1tries - 1, '');
         return passwordForgotToken;
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         return db.deletePasswordForgotToken(passwordForgotToken);
       })
       .then(() => {
         return db.passwordForgotToken(token1.id);
       })
       .then(
-        passwordForgotToken => {
+        (passwordForgotToken) => {
           assert(
             false,
             'The above passwordForgotToken() call should fail, since the passwordForgotToken has been deleted'
           );
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             110,
@@ -1179,13 +1179,13 @@ describe('remote db', function() {
   it('email verification', () => {
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         return db.verifyEmail(emailRecord, emailRecord.emailCode);
       })
       .then(() => {
         return db.account(account.uid);
       })
-      .then(account => {
+      .then((account) => {
         assert.ok(account.emailVerified, 'account should now be emailVerified');
       });
   });
@@ -1194,13 +1194,13 @@ describe('remote db', function() {
     let token1;
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         return db.createPasswordForgotToken(emailRecord);
       })
-      .then(passwordForgotToken => {
+      .then((passwordForgotToken) => {
         return db.forgotPasswordVerified(passwordForgotToken);
       })
-      .then(accountResetToken => {
+      .then((accountResetToken) => {
         assert.deepEqual(
           accountResetToken.uid,
           account.uid,
@@ -1211,7 +1211,7 @@ describe('remote db', function() {
       .then(() => {
         return db.accountResetToken(token1.id);
       })
-      .then(accountResetToken => {
+      .then((accountResetToken) => {
         assert.deepEqual(accountResetToken.uid, account.uid);
         return db.deleteAccountResetToken(token1);
       });
@@ -1220,7 +1220,7 @@ describe('remote db', function() {
   it('db.resetAccount', () => {
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         emailRecord.tokenVerificationId = account.tokenVerificationId;
         emailRecord.uaBrowser = 'Firefox';
         emailRecord.uaBrowserVersion = '41';
@@ -1229,21 +1229,21 @@ describe('remote db', function() {
         emailRecord.uaDeviceType = emailRecord.uaFormFactor = null;
         return db.createSessionToken(emailRecord);
       })
-      .then(sessionToken => {
+      .then((sessionToken) => {
         return db.forgotPasswordVerified(sessionToken);
       })
-      .then(accountResetToken => {
+      .then((accountResetToken) => {
         return db.resetAccount(accountResetToken, account);
       })
       .then(() => {
         return redis.getAsync(account.uid);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(result, null, 'redis was cleared');
         // account should STILL exist for this email address
         return db.accountExists(account.email);
       })
-      .then(exists => {
+      .then((exists) => {
         assert.equal(exists, true, 'account should still exist');
       });
   });
@@ -1255,7 +1255,7 @@ describe('remote db', function() {
         name: 'account.create',
         uid: account.uid,
       })
-      .then(resp => {
+      .then((resp) => {
         assert.equal(typeof resp, 'object');
         assert.equal(Object.keys(resp).length, 0);
 
@@ -1265,7 +1265,7 @@ describe('remote db', function() {
           uid: account.uid,
         });
       })
-      .then(resp => {
+      .then((resp) => {
         assert.equal(typeof resp, 'object');
         assert.equal(Object.keys(resp).length, 0);
       });
@@ -1284,7 +1284,7 @@ describe('remote db', function() {
           uid: account.uid,
         });
       })
-      .then(events => {
+      .then((events) => {
         assert.equal(events.length, 1);
       });
   });
@@ -1301,7 +1301,7 @@ describe('remote db', function() {
           uid: account.uid,
         });
       })
-      .then(events => {
+      .then((events) => {
         assert.equal(events.length, 1);
       });
   });
@@ -1318,13 +1318,13 @@ describe('remote db', function() {
           uid: account.uid,
         });
       })
-      .then(events => {
+      .then((events) => {
         assert.deepEqual(events, {});
         return db.securityEventsByUid({
           uid: account.uid,
         });
       })
-      .then(events => {
+      .then((events) => {
         assert.equal(events.length, 0);
       });
   });
@@ -1333,7 +1333,7 @@ describe('remote db', function() {
     let unblockCode;
     return db
       .createUnblockCode(account.uid)
-      .then(_unblockCode => {
+      .then((_unblockCode) => {
         assert.ok(_unblockCode);
         unblockCode = _unblockCode;
 
@@ -1346,7 +1346,7 @@ describe('remote db', function() {
             'consumeUnblockCode() with an invalid unblock code should not succeed'
           );
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             127,
@@ -1368,7 +1368,7 @@ describe('remote db', function() {
           // re-use unblock code, no longer valid
           return db.consumeUnblockCode(account.uid, unblockCode);
         },
-        _err => {
+        (_err) => {
           assert(
             false,
             'consumeUnblockCode() with a valid unblock code should succeed'
@@ -1382,7 +1382,7 @@ describe('remote db', function() {
             'consumeUnblockCode() with an invalid unblock code should not succeed'
           );
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             127,
@@ -1405,7 +1405,7 @@ describe('remote db', function() {
     // Create a signinCode without a flowId
     return db
       .createSigninCode(account.uid)
-      .then(code => {
+      .then((code) => {
         assert.equal(
           typeof code,
           'string',
@@ -1435,7 +1435,7 @@ describe('remote db', function() {
         // and this time specifying a flowId
         return db.createSigninCode(account.uid, flowId);
       })
-      .then(code => {
+      .then((code) => {
         assert.equal(
           typeof code,
           'string',
@@ -1458,7 +1458,7 @@ describe('remote db', function() {
           db.consumeSigninCode(code),
         ]);
       })
-      .then(results => {
+      .then((results) => {
         assert.equal(
           results[0].email,
           account.email,
@@ -1482,7 +1482,7 @@ describe('remote db', function() {
         return db
           .consumeSigninCode(previousCode)
           .then(() => assert.fail('db.consumeSigninCode should have failed'))
-          .catch(err => {
+          .catch((err) => {
             assert.equal(
               err.errno,
               146,
@@ -1505,7 +1505,7 @@ describe('remote db', function() {
   it('account deletion', () => {
     return db
       .emailRecord(account.email)
-      .then(emailRecord => {
+      .then((emailRecord) => {
         assert.deepEqual(
           emailRecord.uid,
           account.uid,
@@ -1516,12 +1516,12 @@ describe('remote db', function() {
       .then(() => {
         return redis.getAsync(account.uid);
       })
-      .then(result => {
+      .then((result) => {
         assert.equal(result, null, 'redis was cleared');
         // account should no longer exist for this email address
         return db.accountExists(account.email);
       })
-      .then(exists => {
+      .then((exists) => {
         assert.equal(exists, false, 'account should no longer exist');
       });
   });
@@ -1579,7 +1579,7 @@ describe('remote db', function() {
         .then(() => {
           assert.fail('should not have retrieved non-existent account');
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 102, 'unknown account error code');
         });
     });
@@ -1589,11 +1589,11 @@ describe('remote db', function() {
     it('can set primary email address', () => {
       return db
         .setPrimaryEmail(account.uid, secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return db.accountRecord(secondEmail);
         })
-        .then(account => {
+        .then((account) => {
           assert.equal(
             account.primaryEmail.email,
             secondEmail,

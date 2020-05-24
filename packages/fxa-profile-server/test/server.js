@@ -9,20 +9,20 @@ const Server = require('./lib/server');
 
 const db = require('../lib/db');
 
-describe('server', function() {
+describe('server', function () {
   let testServer;
 
-  before(async function() {
+  before(async function () {
     testServer = await Server.create();
   });
 
-  after(async function() {
+  after(async function () {
     return testServer.server.stop();
   });
 
   function checkVersionAndHeaders(path) {
-    return function() {
-      return Server.get('/').then(function(res) {
+    return function () {
+      return Server.get('/').then(function (res) {
         assert.equal(res.statusCode, 200);
         assert.equal(res.result.version, require('../package.json').version);
         assert(res.result.commit);
@@ -34,32 +34,32 @@ describe('server', function() {
           'x-download-options': 1,
         };
 
-        Object.keys(res.headers).forEach(function(header) {
+        Object.keys(res.headers).forEach(function (header) {
           assert.ok(!other[header.toLowerCase()]);
         });
       });
     };
   }
 
-  describe('/', function() {
+  describe('/', function () {
     it('should return the version', checkVersionAndHeaders('/'));
   });
 
-  describe('/__version__', function() {
+  describe('/__version__', function () {
     it('should return the version', checkVersionAndHeaders('/__version__'));
   });
 
-  describe('/__heartbeat__', function() {
-    it('should succeed', function() {
-      return Server.get('/__heartbeat__').then(function(res) {
+  describe('/__heartbeat__', function () {
+    it('should succeed', function () {
+      return Server.get('/__heartbeat__').then(function (res) {
         assert.equal(res.statusCode, 200);
       });
     });
   });
 
-  describe('/__lbheartbeat__', function() {
-    it('should succeed', function() {
-      return Server.get('/__lbheartbeat__').then(function(res) {
+  describe('/__lbheartbeat__', function () {
+    it('should succeed', function () {
+      return Server.get('/__lbheartbeat__').then(function (res) {
         assert.equal(res.statusCode, 200);
       });
     });

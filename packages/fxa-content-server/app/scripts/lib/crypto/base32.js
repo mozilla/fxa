@@ -16,7 +16,7 @@ export default {
    * @param {Integer} length Length of string
    * @returns {Promise<string>}
    */
-  generate: function(length = 32) {
+  generate: function (length = 32) {
     return importFxaCryptoDeriver().then(({ jose }) => {
       const bytes = jose.util.randomBytes(length);
 
@@ -34,7 +34,7 @@ export default {
    * @param {String} string String to decode
    * @returns {Promise<string>} A promise that will be fulfilled with decoded base 32 string raw bytes
    */
-  decode: function(string) {
+  decode: function (string) {
     return Promise.resolve(base32Decode(string, 'Crockford'));
   },
 };

@@ -31,7 +31,7 @@ registerSuite('email domain mx record validation', {
   },
 
   tests: {
-    'no validation on a popular domain': function() {
+    'no validation on a popular domain': function () {
       const email = 'coolfxauser@gmail.com';
 
       return this.remote
@@ -42,7 +42,7 @@ registerSuite('email domain mx record validation', {
         );
     },
 
-    'show validation error on invalid domain': function() {
+    'show validation error on invalid domain': function () {
       return this.remote
         .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, INVALID_EMAIL))
@@ -57,7 +57,7 @@ registerSuite('email domain mx record validation', {
         );
     },
 
-    'show tooltip on domain with an A record': function() {
+    'show tooltip on domain with an A record': function () {
       const email = 'coolfxauser@mail.google.com';
       return this.remote
         .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
@@ -79,7 +79,7 @@ registerSuite('email domain mx record validation', {
         );
     },
 
-    'allow submission on domain with an MX record': function() {
+    'allow submission on domain with an MX record': function () {
       const email = 'testfxauser@mozilla.com';
       return this.remote
         .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
@@ -89,7 +89,7 @@ registerSuite('email domain mx record validation', {
         );
     },
 
-    'user in control group of experiement proceeds to sign up password page': function() {
+    'user in control group of experiement proceeds to sign up password page': function () {
       return this.remote
         .then(openPage(EMAIL_FORM_CONTROL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, INVALID_EMAIL))

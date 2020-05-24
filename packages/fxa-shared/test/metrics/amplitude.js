@@ -73,7 +73,7 @@ describe('metrics/amplitude:', () => {
           [
             /^(wibble)\.(blee)/,
             {
-              group: eventCategory =>
+              group: (eventCategory) =>
                 eventCategory === 'wibble'
                   ? amplitude.GROUPS.registration
                   : null,

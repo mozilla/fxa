@@ -192,22 +192,22 @@ function AppError(options, extra, headers, error) {
 }
 inherits(AppError, verror.WError);
 
-AppError.prototype.toString = function() {
+AppError.prototype.toString = function () {
   return `Error: ${this.message}`;
 };
 
-AppError.prototype.header = function(name, value) {
+AppError.prototype.header = function (name, value) {
   this.output.headers[name] = value;
 };
 
-AppError.prototype.backtrace = function(traced) {
+AppError.prototype.backtrace = function (traced) {
   this.output.payload.log = traced;
 };
 
 /**
   Translates an error from Hapi format to our format
 */
-AppError.translate = function(request, response) {
+AppError.translate = function (request, response) {
   let error;
   if (response instanceof AppError) {
     return response;
@@ -283,7 +283,7 @@ AppError.translate = function(request, response) {
 
 // Helper functions for creating particular response types.
 
-AppError.dbIncorrectPatchLevel = function(level, levelRequired) {
+AppError.dbIncorrectPatchLevel = function (level, levelRequired) {
   return new AppError(
     {
       code: 400,
@@ -298,7 +298,7 @@ AppError.dbIncorrectPatchLevel = function(level, levelRequired) {
   );
 };
 
-AppError.accountExists = function(email) {
+AppError.accountExists = function (email) {
   return new AppError(
     {
       code: 400,
@@ -312,7 +312,7 @@ AppError.accountExists = function(email) {
   );
 };
 
-AppError.unknownAccount = function(email) {
+AppError.unknownAccount = function (email) {
   return new AppError(
     {
       code: 400,
@@ -326,7 +326,7 @@ AppError.unknownAccount = function(email) {
   );
 };
 
-AppError.incorrectPassword = function(dbEmail, requestEmail) {
+AppError.incorrectPassword = function (dbEmail, requestEmail) {
   if (dbEmail !== requestEmail) {
     return new AppError(
       {
@@ -353,7 +353,7 @@ AppError.incorrectPassword = function(dbEmail, requestEmail) {
   );
 };
 
-AppError.unverifiedAccount = function() {
+AppError.unverifiedAccount = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -362,7 +362,7 @@ AppError.unverifiedAccount = function() {
   });
 };
 
-AppError.invalidVerificationCode = function(details) {
+AppError.invalidVerificationCode = function (details) {
   return new AppError(
     {
       code: 400,
@@ -374,7 +374,7 @@ AppError.invalidVerificationCode = function(details) {
   );
 };
 
-AppError.invalidRequestBody = function() {
+AppError.invalidRequestBody = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -383,7 +383,7 @@ AppError.invalidRequestBody = function() {
   });
 };
 
-AppError.invalidRequestParameter = function(validation) {
+AppError.invalidRequestParameter = function (validation) {
   return new AppError(
     {
       code: 400,
@@ -397,7 +397,7 @@ AppError.invalidRequestParameter = function(validation) {
   );
 };
 
-AppError.missingRequestParameter = function(param) {
+AppError.missingRequestParameter = function (param) {
   return new AppError(
     {
       code: 400,
@@ -411,7 +411,7 @@ AppError.missingRequestParameter = function(param) {
   );
 };
 
-AppError.invalidSignature = function(message) {
+AppError.invalidSignature = function (message) {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
@@ -420,7 +420,7 @@ AppError.invalidSignature = function(message) {
   });
 };
 
-AppError.invalidToken = function(message) {
+AppError.invalidToken = function (message) {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
@@ -429,7 +429,7 @@ AppError.invalidToken = function(message) {
   });
 };
 
-AppError.invalidTimestamp = function() {
+AppError.invalidTimestamp = function () {
   return new AppError(
     {
       code: 401,
@@ -443,7 +443,7 @@ AppError.invalidTimestamp = function() {
   );
 };
 
-AppError.invalidNonce = function() {
+AppError.invalidNonce = function () {
   return new AppError({
     code: 401,
     error: 'Unauthorized',
@@ -466,7 +466,7 @@ AppError.unauthorized = function unauthorized(reason) {
   );
 };
 
-AppError.missingContentLength = function() {
+AppError.missingContentLength = function () {
   return new AppError({
     code: 411,
     error: 'Length Required',
@@ -475,7 +475,7 @@ AppError.missingContentLength = function() {
   });
 };
 
-AppError.requestBodyTooLarge = function() {
+AppError.requestBodyTooLarge = function () {
   return new AppError({
     code: 413,
     error: 'Request Entity Too Large',
@@ -484,7 +484,7 @@ AppError.requestBodyTooLarge = function() {
   });
 };
 
-AppError.tooManyRequests = function(
+AppError.tooManyRequests = function (
   retryAfter,
   retryAfterLocalized,
   canUnblock
@@ -520,7 +520,7 @@ AppError.tooManyRequests = function(
   );
 };
 
-AppError.requestBlocked = function(canUnblock) {
+AppError.requestBlocked = function (canUnblock) {
   let extra;
   if (canUnblock) {
     extra = {
@@ -539,7 +539,7 @@ AppError.requestBlocked = function(canUnblock) {
   );
 };
 
-AppError.serviceUnavailable = function(retryAfter) {
+AppError.serviceUnavailable = function (retryAfter) {
   if (!retryAfter) {
     retryAfter = 30;
   }
@@ -559,7 +559,7 @@ AppError.serviceUnavailable = function(retryAfter) {
   );
 };
 
-AppError.featureNotEnabled = function(retryAfter) {
+AppError.featureNotEnabled = function (retryAfter) {
   if (!retryAfter) {
     retryAfter = 30;
   }
@@ -579,7 +579,7 @@ AppError.featureNotEnabled = function(retryAfter) {
   );
 };
 
-AppError.gone = function() {
+AppError.gone = function () {
   return new AppError({
     code: 410,
     error: 'Gone',
@@ -588,7 +588,7 @@ AppError.gone = function() {
   });
 };
 
-AppError.mustResetAccount = function(email) {
+AppError.mustResetAccount = function (email) {
   return new AppError(
     {
       code: 400,
@@ -602,7 +602,7 @@ AppError.mustResetAccount = function(email) {
   );
 };
 
-AppError.unknownDevice = function() {
+AppError.unknownDevice = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -611,7 +611,7 @@ AppError.unknownDevice = function() {
   });
 };
 
-AppError.deviceSessionConflict = function(deviceId) {
+AppError.deviceSessionConflict = function (deviceId) {
   return new AppError(
     {
       code: 400,
@@ -623,7 +623,7 @@ AppError.deviceSessionConflict = function(deviceId) {
   );
 };
 
-AppError.invalidUnblockCode = function() {
+AppError.invalidUnblockCode = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -641,7 +641,7 @@ AppError.invalidPhoneNumber = () => {
   });
 };
 
-AppError.invalidRegion = region => {
+AppError.invalidRegion = (region) => {
   return new AppError(
     {
       code: 400,
@@ -679,7 +679,7 @@ AppError.messageRejected = (reason, reasonCode) => {
   );
 };
 
-AppError.emailComplaint = bouncedAt => {
+AppError.emailComplaint = (bouncedAt) => {
   return new AppError(
     {
       code: 400,
@@ -693,7 +693,7 @@ AppError.emailComplaint = bouncedAt => {
   );
 };
 
-AppError.emailBouncedHard = bouncedAt => {
+AppError.emailBouncedHard = (bouncedAt) => {
   return new AppError(
     {
       code: 400,
@@ -707,7 +707,7 @@ AppError.emailBouncedHard = bouncedAt => {
   );
 };
 
-AppError.emailBouncedSoft = bouncedAt => {
+AppError.emailBouncedSoft = (bouncedAt) => {
   return new AppError(
     {
       code: 400,
@@ -739,7 +739,7 @@ AppError.cannotDeletePrimaryEmail = () => {
   });
 };
 
-AppError.unverifiedSession = function() {
+AppError.unverifiedSession = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -832,7 +832,7 @@ AppError.cannotResetPasswordWithSecondaryEmail = () => {
   });
 };
 
-AppError.invalidSigninCode = function() {
+AppError.invalidSigninCode = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -841,7 +841,7 @@ AppError.invalidSigninCode = function() {
   });
 };
 
-AppError.cannotChangeEmailToUnverifiedEmail = function() {
+AppError.cannotChangeEmailToUnverifiedEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -850,7 +850,7 @@ AppError.cannotChangeEmailToUnverifiedEmail = function() {
   });
 };
 
-AppError.cannotChangeEmailToUnownedEmail = function() {
+AppError.cannotChangeEmailToUnownedEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -860,7 +860,7 @@ AppError.cannotChangeEmailToUnownedEmail = function() {
   });
 };
 
-AppError.cannotLoginWithEmail = function() {
+AppError.cannotLoginWithEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -869,7 +869,7 @@ AppError.cannotLoginWithEmail = function() {
   });
 };
 
-AppError.cannotResendEmailCodeToUnownedEmail = function() {
+AppError.cannotResendEmailCodeToUnownedEmail = function () {
   return new AppError({
     code: 400,
     error: 'Bad Request',
@@ -879,7 +879,7 @@ AppError.cannotResendEmailCodeToUnownedEmail = function() {
   });
 };
 
-AppError.cannotSendEmail = function(isNewAddress) {
+AppError.cannotSendEmail = function (isNewAddress) {
   if (!isNewAddress) {
     return new AppError({
       code: 500,
@@ -896,7 +896,7 @@ AppError.cannotSendEmail = function(isNewAddress) {
   });
 };
 
-AppError.invalidTokenVerficationCode = function(details) {
+AppError.invalidTokenVerficationCode = function (details) {
   return new AppError(
     {
       code: 400,
@@ -908,7 +908,7 @@ AppError.invalidTokenVerficationCode = function(details) {
   );
 };
 
-AppError.expiredTokenVerficationCode = function(details) {
+AppError.expiredTokenVerficationCode = function (details) {
   return new AppError(
     {
       code: 400,
@@ -993,7 +993,7 @@ AppError.recoveryKeyExists = () => {
   });
 };
 
-AppError.unknownClientId = clientId => {
+AppError.unknownClientId = (clientId) => {
   return new AppError(
     {
       code: 400,
@@ -1007,7 +1007,7 @@ AppError.unknownClientId = clientId => {
   );
 };
 
-AppError.incorrectClientSecret = clientId => {
+AppError.incorrectClientSecret = (clientId) => {
   return new AppError(
     {
       code: 400,
@@ -1021,7 +1021,7 @@ AppError.incorrectClientSecret = clientId => {
   );
 };
 
-AppError.staleAuthAt = authAt => {
+AppError.staleAuthAt = (authAt) => {
   return new AppError(
     {
       code: 400,
@@ -1053,7 +1053,7 @@ AppError.redisConflict = () => {
   });
 };
 
-AppError.incorrectRedirectURI = redirectUri => {
+AppError.incorrectRedirectURI = (redirectUri) => {
   return new AppError(
     {
       code: 400,
@@ -1067,7 +1067,7 @@ AppError.incorrectRedirectURI = redirectUri => {
   );
 };
 
-AppError.unknownAuthorizationCode = code => {
+AppError.unknownAuthorizationCode = (code) => {
   return new AppError(
     {
       code: 400,
@@ -1120,7 +1120,7 @@ AppError.invalidResponseType = () => {
   });
 };
 
-AppError.invalidScopes = invalidScopes => {
+AppError.invalidScopes = (invalidScopes) => {
   return new AppError(
     {
       code: 400,
@@ -1143,7 +1143,7 @@ AppError.missingPkceParameters = () => {
   });
 };
 
-AppError.invalidPkceChallenge = pkceHashValue => {
+AppError.invalidPkceChallenge = (pkceHashValue) => {
   return new AppError(
     {
       code: 400,
@@ -1157,7 +1157,7 @@ AppError.invalidPkceChallenge = pkceHashValue => {
   );
 };
 
-AppError.unknownCustomer = uid => {
+AppError.unknownCustomer = (uid) => {
   return new AppError(
     {
       code: 404,
@@ -1171,7 +1171,7 @@ AppError.unknownCustomer = uid => {
   );
 };
 
-AppError.unknownSubscription = subscriptionId => {
+AppError.unknownSubscription = (subscriptionId) => {
   return new AppError(
     {
       code: 404,
@@ -1185,7 +1185,7 @@ AppError.unknownSubscription = subscriptionId => {
   );
 };
 
-AppError.unknownSubscriptionPlan = planId => {
+AppError.unknownSubscriptionPlan = (planId) => {
   return new AppError(
     {
       code: 400,
@@ -1277,7 +1277,7 @@ AppError.userAlreadySubscribedToProduct = () => {
   });
 };
 
-AppError.insufficientACRValues = foundValue => {
+AppError.insufficientACRValues = (foundValue) => {
   return new AppError(
     {
       code: 400,
@@ -1382,7 +1382,7 @@ AppError.internalValidationError = (op, data, error) => {
   );
 };
 
-AppError.unexpectedError = request => {
+AppError.unexpectedError = (request) => {
   const error = new AppError({});
   decorateErrorWithRequest(error, request);
   return error;

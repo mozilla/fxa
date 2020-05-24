@@ -24,13 +24,13 @@ const INVALID_METRICS_OVERWRITE_TOSTRING_METHOD = JSON.parse(
 const FLUSH_TIME_START_TIME_DIFF =
   VALID_METRICS.flushTime - VALID_METRICS.startTime;
 
-suite.tests['#post /metrics - returns 200'] = function() {
+suite.tests['#post /metrics - returns 200'] = function () {
   return testValidMetricsData(VALID_METRICS, 'application/json');
 };
 
 suite.tests[
   '#post /metrics - returns 200 if Content-Type is text/plain'
-] = function() {
+] = function () {
   return testValidMetricsData(VALID_METRICS, 'text/plain;charset=UTF-8');
 };
 
@@ -324,7 +324,7 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
 };
 
 function testValidMetricsField(fieldName, fieldValue) {
-  return function() {
+  return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics[fieldName] = fieldValue;
     return testValidMetricsData(metrics);
@@ -332,7 +332,7 @@ function testValidMetricsField(fieldName, fieldValue) {
 }
 
 function testValidMetricsScreenField(fieldName, fieldValue) {
-  return function() {
+  return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics.screen[fieldName] = fieldValue;
     return testValidMetricsData(metrics);
@@ -340,7 +340,7 @@ function testValidMetricsScreenField(fieldName, fieldValue) {
 }
 
 function testValidMetricsEvent(fieldName, fieldValue) {
-  return function() {
+  return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics.events[0][fieldName] = fieldValue;
     return testValidMetricsData(metrics);
@@ -355,13 +355,13 @@ function testValidMetricsData(body, contentType) {
         'Content-Type': contentType || 'application/json',
       },
     })
-    .then(res => {
+    .then((res) => {
       assert.equal(res.statusCode, 200);
     });
 }
 
 function testValidNavigationTimingField(fieldName, fieldValue) {
-  return function() {
+  return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics.navigationTiming[fieldName] = fieldValue;
     return testValidMetricsData(metrics);
@@ -369,7 +369,7 @@ function testValidNavigationTimingField(fieldName, fieldValue) {
 }
 
 function testInvalidMetricsField(fieldName, fieldValue) {
-  return function() {
+  return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics[fieldName] = fieldValue;
     return testInvalidMetricsData(metrics);
@@ -377,7 +377,7 @@ function testInvalidMetricsField(fieldName, fieldValue) {
 }
 
 function testInvalidNavigationTimingField(fieldName, fieldValue) {
-  return function() {
+  return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics.navigationTiming[fieldName] = fieldValue;
     return testInvalidMetricsData(metrics);
@@ -392,7 +392,7 @@ function testInvalidMetricsData(body) {
         'Content-Type': 'text/plain;charset=UTF-8',
       },
     })
-    .then(assert.fail, res => {
+    .then(assert.fail, (res) => {
       assert.equal(res.statusCode, 400);
     });
 }

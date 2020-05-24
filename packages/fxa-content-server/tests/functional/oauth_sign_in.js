@@ -54,19 +54,19 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const testAtOAuthApp = thenify(function() {
+const testAtOAuthApp = thenify(function () {
   return this.parent
     .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
 
     .getCurrentUrl()
-    .then(function(url) {
+    .then(function (url) {
       // redirected back to the App
       assert.ok(url.indexOf(OAUTH_APP) > -1);
     });
 });
 
 registerSuite('oauth signin', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(
@@ -78,7 +78,7 @@ registerSuite('oauth signin', {
     );
   },
   tests: {
-    verified: function() {
+    verified: function () {
       return this.remote
         .then(openFxaFromRp('enter-email'))
         .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -88,7 +88,7 @@ registerSuite('oauth signin', {
         .then(testAtOAuthApp());
     },
 
-    'verified using a cached login': function() {
+    'verified using a cached login': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email'))
@@ -111,7 +111,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'verified using a cached expired login': function() {
+    'verified using a cached expired login': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email'))
@@ -149,7 +149,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'cached credentials that expire while on page': function() {
+    'cached credentials that expire while on page': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -197,7 +197,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'unverified, acts like signup': function() {
+    'unverified, acts like signup': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email'))
@@ -216,7 +216,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'unverified with a cached login': function() {
+    'unverified with a cached login': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email'))
@@ -246,7 +246,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'oauth endpoint chooses the right auth flows': function() {
+    'oauth endpoint chooses the right auth flows': function () {
       return (
         this.remote
           .then(openPage(OAUTH_APP, '.ready'))
@@ -269,7 +269,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'email specified by relier, invalid': function() {
+    'email specified by relier, invalid': function () {
       const invalidEmail = 'invalid@';
 
       return this.remote
@@ -291,7 +291,7 @@ registerSuite('oauth signin', {
         );
     },
 
-    'email specified by relier, not registered': function() {
+    'email specified by relier, not registered': function () {
       return (
         this.remote
           .then(
@@ -315,7 +315,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'login_hint specified by relier, not registered': function() {
+    'login_hint specified by relier, not registered': function () {
       return (
         this.remote
           .then(
@@ -340,7 +340,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'email specified by relier, registered': function() {
+    'email specified by relier, registered': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -365,7 +365,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'login_hint specified by relier, registered': function() {
+    'login_hint specified by relier, registered': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -379,7 +379,7 @@ registerSuite('oauth signin', {
         .then(testElementValueEquals(selectors.SIGNIN_PASSWORD.EMAIL, email));
     },
 
-    'cached credentials, login_hint specified by relier': function() {
+    'cached credentials, login_hint specified by relier': function () {
       const loginHintEmail = createEmail();
       const oAuthEmail = createEmail();
 
@@ -430,7 +430,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'login_hint specified by relier, registered, user changes email': function() {
+    'login_hint specified by relier, registered, user changes email': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -455,7 +455,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'verified, blocked': function() {
+    'verified, blocked': function () {
       email = createEmail('blocked{id}');
 
       return this.remote
@@ -470,7 +470,7 @@ registerSuite('oauth signin', {
         .then(testAtOAuthApp());
     },
 
-    'verified, blocked, incorrect password': function() {
+    'verified, blocked, incorrect password': function () {
       email = createEmail('blocked{id}');
 
       return (
@@ -503,7 +503,7 @@ registerSuite('oauth signin', {
       );
     },
 
-    'signin in Chrome for Android, verify same browser': function() {
+    'signin in Chrome for Android, verify same browser': function () {
       // The `sync` prefix is needed to force signin confirmation.
       email = createEmail('sync{id}');
       return this.remote
@@ -542,7 +542,7 @@ registerSuite('oauth signin', {
 });
 
 registerSuite('oauth signin - TOTP', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return (
       this.remote
@@ -568,7 +568,7 @@ registerSuite('oauth signin - TOTP', {
         // Store the secret key to recalculate the code later
         .findByCssSelector(selectors.TOTP.MANUAL_CODE)
         .getVisibleText()
-        .then(secretKey => {
+        .then((secretKey) => {
           secret = secretKey;
         })
         .end()
@@ -577,7 +577,7 @@ registerSuite('oauth signin - TOTP', {
   },
 
   tests: {
-    'can add TOTP to account and confirm oauth signin': function() {
+    'can add TOTP to account and confirm oauth signin': function () {
       return (
         this.remote
           .then(confirmTotpCode(secret))
@@ -601,7 +601,7 @@ registerSuite('oauth signin - TOTP', {
       );
     },
 
-    'can remove TOTP from account and skip confirmation': function() {
+    'can remove TOTP from account and skip confirmation': function () {
       return (
         this.remote
           .then(confirmTotpCode(secret))

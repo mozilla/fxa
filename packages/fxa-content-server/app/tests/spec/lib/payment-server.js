@@ -13,7 +13,7 @@ describe('lib/payment-server-redirect', () => {
   var tokenMock;
   var config;
 
-  beforeEach(function() {
+  beforeEach(function () {
     account = new Account();
     config = {
       subscriptions: {

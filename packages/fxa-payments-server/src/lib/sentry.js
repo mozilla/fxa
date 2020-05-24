@@ -45,9 +45,9 @@ function beforeSend(data) {
     }
 
     if (data.exception && data.exception.values) {
-      data.exception.values.forEach(value => {
+      data.exception.values.forEach((value) => {
         if (value.stacktrace && value.stacktrace.frames) {
-          value.stacktrace.frames.forEach(frame => {
+          value.stacktrace.frames.forEach((frame) => {
             if (frame.abs_path) {
               frame.abs_path = cleanUpQueryParam(frame.abs_path); // eslint-disable-line camelcase
             }
@@ -142,8 +142,8 @@ SentryMetrics.prototype = {
    * @param {Error} err
    */
   captureException(err) {
-    Sentry.withScope(function(scope) {
-      exceptionTags.forEach(function(tagName) {
+    Sentry.withScope(function (scope) {
+      exceptionTags.forEach(function (tagName) {
         if (tagName in err) {
           scope.setTag(tagName, err[tagName]);
         }

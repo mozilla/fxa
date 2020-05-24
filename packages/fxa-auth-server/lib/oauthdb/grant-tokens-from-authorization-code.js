@@ -7,7 +7,7 @@
 const Joi = require('@hapi/joi');
 const validators = require('../routes/validators');
 
-module.exports = config => {
+module.exports = (config) => {
   return {
     path: '/v1/token',
     method: 'POST',
@@ -23,9 +23,7 @@ module.exports = config => {
         redirect_uri: validators.url().optional(),
         // Note: the max allowed TTL is currently configured in oauth-server config,
         // making it hard to know what limit to set here.
-        ttl: Joi.number()
-          .positive()
-          .optional(),
+        ttl: Joi.number().positive().optional(),
         ppid_seed: validators.ppidSeed.optional(),
         resource: validators.resourceUrl.optional(),
       }).xor('client_secret', 'code_verifier'),
@@ -35,9 +33,7 @@ module.exports = config => {
         id_token: validators.assertion.optional(),
         session_token_id: validators.sessionTokenId.optional(),
         scope: validators.scope.required(),
-        token_type: Joi.string()
-          .valid('bearer')
-          .required(),
+        token_type: Joi.string().valid('bearer').required(),
         expires_in: Joi.number().required(),
         auth_at: Joi.number().required(),
         keys_jwe: validators.jwe.optional(),

@@ -12,7 +12,7 @@ import { CONTENT_SERVER_CONTEXT } from '../../lib/constants';
 import NavigateBehavior from '../../views/behaviors/navigate';
 import NavigateOrRedirectBehavior from '../../views/behaviors/navigate-or-redirect';
 import SettingsIfSignedInBehavior from '../../views/behaviors/settings';
-const t = msg => msg;
+const t = (msg) => msg;
 
 const proto = BaseBroker.prototype;
 

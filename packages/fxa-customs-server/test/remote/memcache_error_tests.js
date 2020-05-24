@@ -14,14 +14,14 @@ config.memcache.address = '128.0.0.1:12131';
 
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
@@ -31,11 +31,11 @@ var client = restifyClients.createJsonClient({
   url: 'http://localhost:' + config.listen.port,
 });
 
-test('request with disconnected memcache', function(t) {
+test('request with disconnected memcache', function (t) {
   client.post(
     '/check',
     { email: TEST_EMAIL, ip: TEST_IP, action: 'someRandomAction' },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, true, 'request was blocked');
       t.equal(obj.retryAfter, 900, 'retry after');
@@ -44,7 +44,7 @@ test('request with disconnected memcache', function(t) {
   );
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

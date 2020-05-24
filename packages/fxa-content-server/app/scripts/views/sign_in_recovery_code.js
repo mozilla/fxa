@@ -38,7 +38,7 @@ const View = FormView.extend({
 
     return account
       .consumeRecoveryCode(code)
-      .then(result => {
+      .then((result) => {
         if (result.remaining < MIN_REPLACE_RECOVERY_CODE) {
           return this.navigate(
             '/settings/two_step_authentication/recovery_codes',
@@ -51,7 +51,7 @@ const View = FormView.extend({
         this.logViewEvent('success');
         return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_PARAMETER')) {
           err = AuthErrors.toError('INVALID_RECOVERY_CODE');
         }

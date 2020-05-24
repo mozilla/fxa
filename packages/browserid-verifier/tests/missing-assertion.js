@@ -9,14 +9,14 @@ var Verifier = require('./lib/verifier.js'),
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('missing assertion test', function() {
+describe('missing assertion test', function () {
   var verifier = new Verifier();
 
-  it('test servers should start', function(done) {
+  it('test servers should start', function (done) {
     verifier.start(done);
   });
 
-  it('should fail to verify when assertion is missing', function(done) {
+  it('should fail to verify when assertion is missing', function (done) {
     request(
       {
         method: 'post',
@@ -26,7 +26,7 @@ describe('missing assertion test', function() {
           audience: 'http://example.com',
         },
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(400);
         r.body.status.should.equal('failure');
@@ -37,7 +37,7 @@ describe('missing assertion test', function() {
     );
   });
 
-  it('test servers should stop', function(done) {
+  it('test servers should stop', function (done) {
     verifier.stop(done);
   });
 });

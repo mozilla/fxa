@@ -10,7 +10,7 @@ const isValidEmailAddress = require('./../routes/validators')
   .isValidEmailAddress;
 const SIX_HOURS = 1000 * 60 * 60 * 6;
 
-module.exports = function(log, error) {
+module.exports = function (log, error) {
   return function start(bounceQueue, db) {
     function accountDeleted(uid, email) {
       log.info('accountDeleted', { uid: uid, email: email });

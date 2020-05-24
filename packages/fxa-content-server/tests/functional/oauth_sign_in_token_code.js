@@ -47,7 +47,7 @@ const experimentParams = {
 };
 
 registerSuite('OAuth signin token code', {
-  beforeEach: function() {
+  beforeEach: function () {
     // The `sync` prefix is needed to force confirmation.
     email = createEmail('sync{id}');
 
@@ -62,7 +62,7 @@ registerSuite('OAuth signin token code', {
   },
 
   tests: {
-    'verified - - bounce': function() {
+    'verified - - bounce': function () {
       experimentParams.query.forceExperiment = 'tokenCode';
       experimentParams.query.forceExperimentGroup = 'treatment-code';
 
@@ -77,7 +77,7 @@ registerSuite('OAuth signin token code', {
         .then(testElementExists(selectors.SIGNIN_BOUNCED.SUPPORT));
     },
 
-    'verified - valid code': function() {
+    'verified - valid code': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email', experimentParams))
@@ -104,7 +104,7 @@ registerSuite('OAuth signin token code', {
           // Correctly submits the token code and navigates to oauth page
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
           .then(getEmailHeaders(email, 1))
-          .then(headers => {
+          .then((headers) => {
             assert.equal(headers['x-template-name'], 'verifyLoginCode');
           })
           .then(fillOutSignInTokenCode(email, 1))
@@ -118,7 +118,7 @@ registerSuite('OAuth signin token code', {
       );
     },
 
-    'verified - valid code then click back': function() {
+    'verified - valid code then click back': function () {
       return (
         this.remote
           .then(openFxaFromRp('enter-email', experimentParams))

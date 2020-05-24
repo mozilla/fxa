@@ -16,7 +16,7 @@ const logger = require('./logging')('jwt_id_token');
  * @param {Any} exp
  * @returns {Boolean} whether the value is a valid number
  */
-exports._isValidExp = exp => {
+exports._isValidExp = (exp) => {
   return typeof exp === 'number' && !isNaN(exp);
 };
 

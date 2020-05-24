@@ -55,7 +55,7 @@ module.exports = {
    * @param {String} passwordInput
    * @return {Promise} A promise that will be fulfilled with `result` of generated credentials
    */
-  setup: function(emailInput, passwordInput) {
+  setup: function (emailInput, passwordInput) {
     var result = {};
     var email = kwe('quickStretch', emailInput);
     var password = sjcl.codec.utf8String.toBits(passwordInput);
@@ -65,7 +65,7 @@ module.exports = {
 
     return pbkdf2
       .derive(password, email, PBKDF2_ROUNDS, STRETCHED_PASS_LENGTH_BYTES)
-      .then(function(quickStretchedPW) {
+      .then(function (quickStretchedPW) {
         result.quickStretchedPW = quickStretchedPW;
 
         return hkdf(
@@ -73,7 +73,7 @@ module.exports = {
           kw('authPW'),
           HKDF_SALT,
           HKDF_LENGTH
-        ).then(function(authPW) {
+        ).then(function (authPW) {
           result.authPW = authPW;
 
           return hkdf(
@@ -84,7 +84,7 @@ module.exports = {
           );
         });
       })
-      .then(function(unwrapBKey) {
+      .then(function (unwrapBKey) {
         result.unwrapBKey = unwrapBKey;
         return result;
       });
@@ -97,7 +97,7 @@ module.exports = {
    * @param {bitArray} bitArray2
    * @return {bitArray} wrap result of the two bitArrays
    */
-  xor: function(bitArray1, bitArray2) {
+  xor: function (bitArray1, bitArray2) {
     var result = [];
 
     for (var i = 0; i < bitArray1.length; i++) {
@@ -112,11 +112,11 @@ module.exports = {
    * @param {String} bundle Key bundle in hex
    * @returns {*}
    */
-  unbundleKeyFetchResponse: function(key, bundle) {
+  unbundleKeyFetchResponse: function (key, bundle) {
     var self = this;
     var bitBundle = sjcl.codec.hex.toBits(bundle);
 
-    return this.deriveBundleKeys(key, 'account/keys').then(function(keys) {
+    return this.deriveBundleKeys(key, 'account/keys').then(function (keys) {
       var ciphertext = sjcl.bitArray.bitSlice(bitBundle, 0, 8 * 64);
       var expectedHmac = sjcl.bitArray.bitSlice(bitBundle, 8 * -32);
       var hmac = new sjcl.misc.hmac(keys.hmacKey, sjcl.hash.sha256);
@@ -147,12 +147,12 @@ module.exports = {
    * @param {String} keyInfo Bundle Key Info
    * @returns {Object} hmacKey, xorKey
    */
-  deriveBundleKeys: function(key, keyInfo) {
+  deriveBundleKeys: function (key, keyInfo) {
     var bitKeyInfo = kw(keyInfo);
     var salt = sjcl.codec.hex.toBits('');
     key = sjcl.codec.hex.toBits(key);
 
-    return hkdf(key, bitKeyInfo, salt, 3 * 32).then(function(keyMaterial) {
+    return hkdf(key, bitKeyInfo, salt, 3 * 32).then(function (keyMaterial) {
       return {
         hmacKey: sjcl.bitArray.bitSlice(keyMaterial, 0, 8 * 32),
         xorKey: sjcl.bitArray.bitSlice(keyMaterial, 8 * 32),

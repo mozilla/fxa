@@ -31,7 +31,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const ensureUsers = thenify(function() {
+const ensureUsers = thenify(function () {
   return this.parent
     .then(() => {
       if (!browserSignedInAccount) {
@@ -40,7 +40,7 @@ const ensureUsers = thenify(function() {
           .then(
             createUser(browserSignedInEmail, PASSWORD, { preVerified: true })
           )
-          .then(_browserSignedInAccount => {
+          .then((_browserSignedInAccount) => {
             browserSignedInAccount = _browserSignedInAccount;
             browserSignedInAccount.email = browserSignedInEmail;
             browserSignedInAccount.verified = true;
@@ -52,7 +52,7 @@ const ensureUsers = thenify(function() {
         otherEmail = createEmail();
         return this.parent
           .then(createUser(otherEmail, PASSWORD, { preVerified: true }))
-          .then(_otherAccount => {
+          .then((_otherAccount) => {
             otherAccount = _otherAccount;
             otherAccount.email = otherEmail;
             otherAccount.verified = true;
@@ -62,7 +62,7 @@ const ensureUsers = thenify(function() {
 });
 
 registerSuite('Firefox desktop user info handshake - OAuth flows', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote
       .then(
         clearBrowserState({
@@ -74,7 +74,7 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
   },
 
   tests: {
-    'OAuth signin page - user signed into browser, no user signed in locally': function() {
+    'OAuth signin page - user signed into browser, no user signed in locally': function () {
       return (
         this.remote
           .then(
@@ -108,7 +108,7 @@ registerSuite('Firefox desktop user info handshake - OAuth flows', {
       );
     },
 
-    'OAuth signin page - user signed into browser, user signed in locally': function() {
+    'OAuth signin page - user signed into browser, user signed in locally': function () {
       return (
         this.remote
           // First, sign in the user to populate localStorage

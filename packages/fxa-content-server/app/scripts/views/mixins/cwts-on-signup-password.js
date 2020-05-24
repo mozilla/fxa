@@ -66,7 +66,7 @@ export default {
    * @returns {String[]}
    */
   _getOfferedEngineIds() {
-    return this._getOfferedEngines().map(syncEngine => syncEngine.id);
+    return this._getOfferedEngines().map((syncEngine) => syncEngine.id);
   },
 
   /**
@@ -80,7 +80,7 @@ export default {
       .not(':checked');
 
     return uncheckedEngineEls
-      .map(function() {
+      .map(function () {
         return this.value;
       })
       .get();
@@ -93,7 +93,7 @@ export default {
    */
   _trackDeclinedEngineIds(declinedEngineIds) {
     if (Array.isArray(declinedEngineIds)) {
-      declinedEngineIds.forEach(engineId => {
+      declinedEngineIds.forEach((engineId) => {
         this.logViewEvent(`engine-unchecked.${engineId}`);
       });
     }
@@ -107,7 +107,7 @@ export default {
     const offeredSyncEngines = this._getOfferedEngineIds();
     const declinedSyncEngines = this._getDeclinedEngineIds();
     const enabledSyncEngines = offeredSyncEngines.filter(
-      e => declinedSyncEngines.indexOf(e) === -1
+      (e) => declinedSyncEngines.indexOf(e) === -1
     );
 
     // Tell multi-service browser integrations whether to send

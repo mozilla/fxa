@@ -84,7 +84,7 @@ const CompleteSignUpView = BaseView.extend({
     return this.user
       .completeAccountSignUp(account, code, options)
       .then(() => this._notifyBrokerAndComplete(account))
-      .catch(err => this._handleVerificationErrors(err));
+      .catch((err) => this._handleVerificationErrors(err));
   },
 
   setInitialContext(context) {
@@ -225,7 +225,7 @@ const CompleteSignUpView = BaseView.extend({
       .retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account),
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
             error: err,

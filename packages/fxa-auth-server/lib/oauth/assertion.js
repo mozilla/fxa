@@ -36,43 +36,17 @@ const HEX_STRING = /^[0-9a-f]+$/;
 // FxA sends several custom claims, ref
 // https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#post-certificatesign
 const CLAIMS_SCHEMA = Joi.object({
-  uid: Joi.string()
-    .length(32)
-    .regex(HEX_STRING)
-    .required(),
-  'fxa-generation': Joi.number()
-    .integer()
-    .min(0)
-    .required(),
-  'fxa-verifiedEmail': Joi.string()
-    .max(255)
-    .required(),
-  'fxa-lastAuthAt': Joi.number()
-    .integer()
-    .min(0)
-    .required(),
-  iat: Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
+  uid: Joi.string().length(32).regex(HEX_STRING).required(),
+  'fxa-generation': Joi.number().integer().min(0).required(),
+  'fxa-verifiedEmail': Joi.string().max(255).required(),
+  'fxa-lastAuthAt': Joi.number().integer().min(0).required(),
+  iat: Joi.number().integer().min(0).optional(),
   'fxa-tokenVerified': Joi.boolean().optional(),
   'fxa-sessionTokenId': validators.sessionTokenId.optional(),
-  'fxa-amr': Joi.array()
-    .items(Joi.string().alphanum())
-    .optional(),
-  'fxa-aal': Joi.number()
-    .integer()
-    .min(0)
-    .max(3)
-    .optional(),
-  'fxa-profileChangedAt': Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
-  'fxa-keysChangedAt': Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
+  'fxa-amr': Joi.array().items(Joi.string().alphanum()).optional(),
+  'fxa-aal': Joi.number().integer().min(0).max(3).optional(),
+  'fxa-profileChangedAt': Joi.number().integer().min(0).optional(),
+  'fxa-keysChangedAt': Joi.number().integer().min(0).optional(),
 }).options({ stripUnknown: true });
 const validateClaims = P.promisify(CLAIMS_SCHEMA.validate, {
   context: CLAIMS_SCHEMA,

@@ -54,7 +54,7 @@ describe('lib/router', () => {
 
     sinon
       .stub(Backbone.Router.prototype, 'navigate')
-      .callsFake(function(url, options) {
+      .callsFake(function (url, options) {
         navigateUrl = url;
         navigateOptions = options;
       });
@@ -68,7 +68,7 @@ describe('lib/router', () => {
 
   describe('navigate', () => {
     it('tells the router to navigate to a page', () => {
-      sinon.stub(broker, 'transformLink').callsFake(url => `/oauth/${url}`);
+      sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
       windowMock.location.search = '';
       router.navigate('signin');
 
@@ -142,7 +142,7 @@ describe('lib/router', () => {
     beforeEach(() => {
       sinon.spy(metrics, 'flush');
       sinon.spy(router, 'navigate');
-      sinon.stub(broker, 'transformLink').callsFake(url => `/oauth/${url}`);
+      sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
 
       return router.navigateAway('blee');
     });

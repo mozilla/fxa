@@ -23,7 +23,7 @@ const SESSION_TOKEN = 'session token';
 const UUID = '12345678-1234-1234-1234-1234567890ab';
 const DSN = 'https://deadbeef:deadbeef@localhost/123';
 
-describe('models/user', function() {
+describe('models/user', function () {
   let fxaClientMock;
   let metrics;
   let notifier;
@@ -49,7 +49,7 @@ describe('models/user', function() {
     );
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     fxaClientMock = new FxaClient();
     metrics = {
       logError: sinon.spy(),
@@ -69,28 +69,28 @@ describe('models/user', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     user = null;
   });
 
-  describe('initAccount', function() {
+  describe('initAccount', function () {
     let account;
     const email = 'a@a.com';
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: email,
       });
     });
 
-    it('creates an account', function() {
+    it('creates an account', function () {
       assert.equal(account.get('email'), email);
       assert.deepEqual(account.pick('email'), { email: email });
       assert.equal(account._notifier, notifier);
     });
   });
 
-  it('isSyncAccount', function() {
+  it('isSyncAccount', function () {
     const account = user.initAccount({
       email: EMAIL,
       sessionToken: 'session token',
@@ -100,28 +100,28 @@ describe('models/user', function() {
     assert.isTrue(user.isSyncAccount(account));
   });
 
-  it('getAccountByUid', function() {
-    return user.setAccount({ email: EMAIL, uid: 'uid' }).then(function() {
+  it('getAccountByUid', function () {
+    return user.setAccount({ email: EMAIL, uid: 'uid' }).then(function () {
       assert.equal(user.getAccountByUid('uid').get('uid'), 'uid');
     });
   });
 
-  it('getAccountByEmail', function() {
-    return user.setAccount({ email: EMAIL, uid: 'uid' }).then(function() {
+  it('getAccountByEmail', function () {
+    return user.setAccount({ email: EMAIL, uid: 'uid' }).then(function () {
       assert.equal(user.getAccountByEmail(EMAIL).get('email'), EMAIL);
     });
   });
 
-  it('getAccountByEmail gets the last added if there are multiple', function() {
+  it('getAccountByEmail gets the last added if there are multiple', function () {
     return user
       .setAccount({ email: EMAIL, uid: 'uid' })
-      .then(function() {
+      .then(function () {
         return user.setAccount({ email: EMAIL, uid: 'uid2' });
       })
-      .then(function() {
+      .then(function () {
         return user.setAccount({ email: EMAIL, uid: 'uid3' });
       })
-      .then(function() {
+      .then(function () {
         assert.equal(user.getAccountByEmail(EMAIL).get('uid'), 'uid3');
       });
   });
@@ -137,7 +137,7 @@ describe('models/user', function() {
         .stub(account, 'sessionStatus')
         .callsFake(() => Promise.resolve({ email: 'testuser@testuser.com' }));
 
-      return user.sessionStatus(account).then(signedInAccount => {
+      return user.sessionStatus(account).then((signedInAccount) => {
         assert.isFalse(user.getSignedInAccount.called);
         assert.strictEqual(signedInAccount, account);
       });
@@ -153,7 +153,7 @@ describe('models/user', function() {
         .stub(account, 'sessionStatus')
         .callsFake(() => Promise.resolve({ email: 'testuser@testuser.com' }));
 
-      return user.sessionStatus().then(signedInAccount => {
+      return user.sessionStatus().then((signedInAccount) => {
         assert.strictEqual(signedInAccount, account);
       });
     });
@@ -165,18 +165,18 @@ describe('models/user', function() {
         .stub(account, 'sessionStatus')
         .callsFake(() => Promise.reject(AuthErrors.toError('INVALID_TOKEN')));
 
-      return user.sessionStatus().then(assert.fail, err => {
+      return user.sessionStatus().then(assert.fail, (err) => {
         assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
       });
     });
   });
 
-  it('getSignedInAccount', function() {
+  it('getSignedInAccount', function () {
     const account = user.initAccount({
       email: EMAIL,
       uid: 'uid',
     });
-    return user.setSignedInAccount(account).then(function() {
+    return user.setSignedInAccount(account).then(function () {
       assert.equal(user.getSignedInAccount().get('uid'), account.get('uid'));
     });
   });
@@ -310,38 +310,38 @@ describe('models/user', function() {
     });
   });
 
-  it('removeAllAccounts', function() {
+  it('removeAllAccounts', function () {
     return user
       .setAccount({ email: EMAIL, uid: 'uid' })
-      .then(function() {
+      .then(function () {
         return user.setAccount({ email: EMAIL, uid: 'uid2' });
       })
-      .then(function() {
+      .then(function () {
         user.removeAllAccounts();
         assert.isTrue(user.getAccountByUid('uid').isDefault());
         assert.isTrue(user.getAccountByUid('uid2').isDefault());
       });
   });
 
-  it('removeAccount', function() {
+  it('removeAccount', function () {
     var account = { email: EMAIL, uid: createUid() };
-    return user.setSignedInAccount(account).then(function() {
+    return user.setSignedInAccount(account).then(function () {
       user.removeAccount(account);
       assert.isTrue(user.getAccountByUid(account.uid).isDefault());
       assert.isTrue(user.getSignedInAccount().isDefault());
     });
   });
 
-  describe('deleteAccount', function() {
+  describe('deleteAccount', function () {
     var account;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: 'testuser@testuser.com',
         uid: createUid(),
       });
 
-      sinon.stub(account, 'destroy').callsFake(function() {
+      sinon.stub(account, 'destroy').callsFake(function () {
         return Promise.resolve();
       });
 
@@ -352,16 +352,16 @@ describe('models/user', function() {
       return user.deleteAccount(account, 'password');
     });
 
-    it('should delegate to the account to remove itself', function() {
+    it('should delegate to the account to remove itself', function () {
       assert.isTrue(account.destroy.calledOnce);
       assert.isTrue(account.destroy.calledWith('password'));
     });
 
-    it('should remove the account from storage', function() {
+    it('should remove the account from storage', function () {
       assert.isNull(user._getAccount(account.get('uid')));
     });
 
-    it('should trigger a notification', function() {
+    it('should trigger a notification', function () {
       assert.isTrue(
         notifier.triggerAll.calledWith(notifier.COMMANDS.DELETE, {
           uid: account.get('uid'),
@@ -370,7 +370,7 @@ describe('models/user', function() {
     });
   });
 
-  it('setAccount', function() {
+  it('setAccount', function () {
     return user.setAccount({ email: EMAIL, uid: 'uid' });
   });
 
@@ -420,45 +420,45 @@ describe('models/user', function() {
     });
   });
 
-  it('setSignedInAccount', function() {
+  it('setSignedInAccount', function () {
     sinon.spy(notifier, 'triggerRemote');
     return user
       .setSignedInAccount({ email: EMAIL, uid: 'uid' })
-      .then(function() {
+      .then(function () {
         assert.equal(user.getSignedInAccount().get('uid'), 'uid');
         assert.equal(notifier.triggerRemote.callCount, 0);
       });
   });
 
-  describe('in memory caching of signed in account', function() {
-    it('getSignedInAccount returns same instance from setSignedInAccount', function() {
+  describe('in memory caching of signed in account', function () {
+    it('getSignedInAccount returns same instance from setSignedInAccount', function () {
       var account = user.initAccount({ email: EMAIL, uid: 'uid' });
-      return user.setSignedInAccount(account).then(function() {
+      return user.setSignedInAccount(account).then(function () {
         assert.strictEqual(user.getSignedInAccount(), account);
       });
     });
 
-    it('account is not cached in memory if setAccount fails', function() {
+    it('account is not cached in memory if setAccount fails', function () {
       var account = user.initAccount({ email: EMAIL, uid: 'uid' });
 
       return user
         .setSignedInAccount({ email: EMAIL, uid: 'foo' })
-        .then(function() {
-          sinon.stub(user, 'setAccount').callsFake(function() {
+        .then(function () {
+          sinon.stub(user, 'setAccount').callsFake(function () {
             return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
           });
           return user.setSignedInAccount(account);
         })
-        .then(assert.fail, function(err) {
+        .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
           assert.isFalse(user.getSignedInAccount() === account);
         });
     });
 
-    it('getSignedInAccount returns same instance when called multiple times', function() {
+    it('getSignedInAccount returns same instance when called multiple times', function () {
       return user
         .setSignedInAccount({ email: EMAIL, uid: 'uid' })
-        .then(function() {
+        .then(function () {
           assert.strictEqual(
             user.getSignedInAccount(),
             user.getSignedInAccount()
@@ -466,7 +466,7 @@ describe('models/user', function() {
         });
     });
 
-    it('getSignedInAccount returns same instance as getChooserAccount', function() {
+    it('getSignedInAccount returns same instance as getChooserAccount', function () {
       return user
         .setSignedInAccount({ email: EMAIL, sessionToken: 'token', uid: 'uid' })
         .then(() => {
@@ -477,59 +477,59 @@ describe('models/user', function() {
         });
     });
 
-    it('getSignedInAccount does not return previously cached account after clearSignedInAccountUid', function() {
+    it('getSignedInAccount does not return previously cached account after clearSignedInAccountUid', function () {
       var account = user.initAccount({ email: EMAIL, uid: createUid() });
-      return user.setSignedInAccount(account).then(function() {
+      return user.setSignedInAccount(account).then(function () {
         user.clearSignedInAccountUid();
         assert.isFalse(user.getSignedInAccount() === account);
       });
     });
 
-    it('getSignedInAccount does not return previously cached account after removeAccount', function() {
+    it('getSignedInAccount does not return previously cached account after removeAccount', function () {
       var account = user.initAccount({ email: EMAIL, uid: createUid() });
-      return user.setSignedInAccount(account).then(function() {
+      return user.setSignedInAccount(account).then(function () {
         user.removeAccount(account);
         assert.isFalse(user.getSignedInAccount() === account);
       });
     });
 
-    it('getSignedInAccount does not return previously cached account after removeAllAccounts', function() {
+    it('getSignedInAccount does not return previously cached account after removeAllAccounts', function () {
       var account = user.initAccount({ email: EMAIL, uid: 'uid' });
-      return user.setSignedInAccount(account).then(function() {
+      return user.setSignedInAccount(account).then(function () {
         user.removeAllAccounts();
         assert.isFalse(user.getSignedInAccount() === account);
       });
     });
 
-    it('getSignedInAccount does not return previously cached account after setSignedInAccountByUid with different account uid', function() {
+    it('getSignedInAccount does not return previously cached account after setSignedInAccountByUid with different account uid', function () {
       var uid = 'abc123';
       var account = user.initAccount({ email: EMAIL, uid: 'uid' });
 
-      return user.setSignedInAccount(account).then(function() {
-        return user.setAccount({ email: EMAIL, uid: uid }).then(function() {
+      return user.setSignedInAccount(account).then(function () {
+        return user.setAccount({ email: EMAIL, uid: uid }).then(function () {
           user.setSignedInAccountByUid(uid);
           assert.isFalse(user.getSignedInAccount() === account);
         });
       });
     });
 
-    it('getSignedInAccount returns previously cached account after setSignedInAccountByUid with same account uid', function() {
+    it('getSignedInAccount returns previously cached account after setSignedInAccountByUid with same account uid', function () {
       var account = user.initAccount({ email: EMAIL, uid: 'uid' });
 
-      return user.setSignedInAccount(account).then(function() {
+      return user.setSignedInAccount(account).then(function () {
         user.setSignedInAccountByUid('uid');
         assert.strictEqual(user.getSignedInAccount(), account);
       });
     });
   });
 
-  it('setSignedInAccountByUid works if account is already cached', function() {
+  it('setSignedInAccountByUid works if account is already cached', function () {
     var uid = 'abc123';
     sinon.spy(notifier, 'triggerRemote');
     return user
       .setSignedInAccount({ email: EMAIL, uid: 'uid' })
-      .then(function() {
-        return user.setAccount({ email: EMAIL, uid: uid }).then(function() {
+      .then(function () {
+        return user.setAccount({ email: EMAIL, uid: uid }).then(function () {
           user.setSignedInAccountByUid(uid);
           assert.equal(user.getSignedInAccount().get('uid'), uid);
           assert.equal(notifier.triggerRemote.callCount, 0);
@@ -537,12 +537,12 @@ describe('models/user', function() {
       });
   });
 
-  it('setSignedInAccountByUid does nothing if account is not cached', function() {
+  it('setSignedInAccountByUid does nothing if account is not cached', function () {
     var uid = 'abc123';
 
     return user
       .setSignedInAccount({ email: EMAIL, uid: 'uid' })
-      .then(function() {
+      .then(function () {
         user.setSignedInAccountByUid(uid);
         assert.equal(user.getSignedInAccount().get('uid'), 'uid');
       });
@@ -575,12 +575,12 @@ describe('models/user', function() {
     });
   });
 
-  describe('signInAccount', function() {
+  describe('signInAccount', function () {
     var account;
     var relierMock = {};
 
-    describe('with a new account', function() {
-      beforeEach(function() {
+    describe('with a new account', function () {
+      beforeEach(function () {
         account = user.initAccount({
           email: 'testuser@testuser.com',
           sessionToken: 'sessionToken',
@@ -599,7 +599,7 @@ describe('models/user', function() {
         });
       });
 
-      it('delegates to the account', function() {
+      it('delegates to the account', function () {
         assert.isTrue(
           account.signIn.calledWith('password', relierMock, {
             resume: 'resume token',
@@ -607,15 +607,15 @@ describe('models/user', function() {
         );
       });
 
-      it('saves the account', function() {
+      it('saves the account', function () {
         assert.isTrue(user.setSignedInAccount.calledWith(account));
       });
 
-      it('notifies remote listeners of the signin', function() {
+      it('notifies remote listeners of the signin', function () {
         testRemoteSignInMessageSent(account);
       });
 
-      it('did not call account.retrySignUp', function() {
+      it('did not call account.retrySignUp', function () {
         assert.strictEqual(account.retrySignUp.callCount, 0);
       });
 
@@ -633,8 +633,8 @@ describe('models/user', function() {
       });
     });
 
-    describe('with an already saved account', function() {
-      beforeEach(function() {
+    describe('with an already saved account', function () {
+      beforeEach(function () {
         account = user.initAccount({
           displayName: 'fx user',
           email: 'testuser@testuser.com',
@@ -649,11 +649,11 @@ describe('models/user', function() {
           uid: 'uid2',
         });
 
-        sinon.stub(account, 'signIn').callsFake(function() {
+        sinon.stub(account, 'signIn').callsFake(function () {
           return Promise.resolve();
         });
 
-        sinon.stub(account, 'get').callsFake(function(property) {
+        sinon.stub(account, 'get').callsFake(function (property) {
           if (property === 'verified') {
             return true;
           }
@@ -661,22 +661,22 @@ describe('models/user', function() {
           return property;
         });
 
-        sinon.stub(account, 'retrySignUp').callsFake(function() {
+        sinon.stub(account, 'retrySignUp').callsFake(function () {
           return Promise.resolve();
         });
 
-        sinon.stub(user, 'setSignedInAccount').callsFake(function() {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function () {
           return Promise.resolve(account);
         });
 
-        sinon.stub(user, 'getAccountByUid').callsFake(function() {
+        sinon.stub(user, 'getAccountByUid').callsFake(function () {
           return oldAccount;
         });
 
         return user.signInAccount(account, 'password', relierMock);
       });
 
-      it('merges data with old and new account', function() {
+      it('merges data with old and new account', function () {
         var updatedAccount = user.setSignedInAccount.args[0][0];
         assert.deepEqual(updatedAccount.getClientPermissions('foo'), {
           bar: true,
@@ -684,22 +684,22 @@ describe('models/user', function() {
         assert.equal(updatedAccount.get('displayName'), 'fx user');
       });
 
-      it('did not call account.retrySignUp', function() {
+      it('did not call account.retrySignUp', function () {
         assert.strictEqual(account.retrySignUp.callCount, 0);
       });
     });
   });
 
-  describe('signUpAccount', function() {
+  describe('signUpAccount', function () {
     var account;
     var relierMock = {};
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({ email: EMAIL, uid: createUid() });
-      sinon.stub(account, 'signUp').callsFake(function() {
+      sinon.stub(account, 'signUp').callsFake(function () {
         return Promise.resolve();
       });
-      sinon.stub(user, 'setSignedInAccount').callsFake(function() {
+      sinon.stub(user, 'setSignedInAccount').callsFake(function () {
         return Promise.resolve();
       });
 
@@ -708,7 +708,7 @@ describe('models/user', function() {
       });
     });
 
-    it('delegates to the account', function() {
+    it('delegates to the account', function () {
       assert.isTrue(
         account.signUp.calledWith('password', relierMock, {
           resume: 'resume token',
@@ -716,7 +716,7 @@ describe('models/user', function() {
       );
     });
 
-    it('stores the updated data', function() {
+    it('stores the updated data', function () {
       assert.isTrue(user.setSignedInAccount.calledWith(account));
     });
   });
@@ -747,7 +747,7 @@ describe('models/user', function() {
           return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
-        return user.signOutAccount(account).then(assert.fail, err => {
+        return user.signOutAccount(account).then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
           assert.isTrue(account.signOut.calledOnce);
           assert.isTrue(user.removeAccount.calledOnce);
@@ -757,10 +757,10 @@ describe('models/user', function() {
     });
   });
 
-  describe('completeAccountSignUp', function() {
+  describe('completeAccountSignUp', function () {
     var account;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: 'testuser@testuser.com',
         sessionToken: 'sessionToken',
@@ -770,40 +770,40 @@ describe('models/user', function() {
       sinon.spy(notifier, 'triggerRemote');
     });
 
-    describe('without a basket error', function() {
-      beforeEach(function() {
+    describe('without a basket error', function () {
+      beforeEach(function () {
         sinon.stub(account, 'verifySignUp').callsFake(() => Promise.resolve());
       });
 
-      describe('without a sessionToken', function() {
-        beforeEach(function() {
+      describe('without a sessionToken', function () {
+        beforeEach(function () {
           account.unset('sessionToken');
           account.unset('sessionTokenContext');
           return user.completeAccountSignUp(account, CODE);
         });
 
-        it('delegates to the account', function() {
+        it('delegates to the account', function () {
           assert.isTrue(account.verifySignUp.calledWith(CODE));
         });
 
-        it('does not notify remotes of signin', function() {
+        it('does not notify remotes of signin', function () {
           assert.isFalse(notifier.triggerRemote.called);
         });
       });
 
-      describe('with a sessionToken', function() {
-        beforeEach(function() {
+      describe('with a sessionToken', function () {
+        beforeEach(function () {
           return user.completeAccountSignUp(account, CODE);
         });
 
-        it('notifies remotes of signin', function() {
+        it('notifies remotes of signin', function () {
           testRemoteSignInMessageSent(account);
         });
       });
     });
   });
 
-  it('changeAccountPassword changes the account password, notifies the browser', function() {
+  it('changeAccountPassword changes the account password, notifies the browser', function () {
     const uid = createUid();
     const account = user.initAccount({
       email: 'testuser@testuser.com',
@@ -827,7 +827,7 @@ describe('models/user', function() {
 
       return Promise.resolve();
     });
-    sinon.stub(user, 'setSignedInAccount').callsFake(account => {
+    sinon.stub(user, 'setSignedInAccount').callsFake((account) => {
       return Promise.resolve(account);
     });
     sinon.spy(notifier, 'triggerRemote');
@@ -862,11 +862,11 @@ describe('models/user', function() {
       });
   });
 
-  describe('completeAccountPasswordReset', function() {
+  describe('completeAccountPasswordReset', function () {
     var account;
     var relierMock = {};
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: EMAIL,
         sessionToken: 'sessionToken',
@@ -874,11 +874,11 @@ describe('models/user', function() {
         uid: createUid(),
       });
 
-      sinon.stub(account, 'completePasswordReset').callsFake(function() {
+      sinon.stub(account, 'completePasswordReset').callsFake(function () {
         return Promise.resolve();
       });
 
-      sinon.stub(user, 'setSignedInAccount').callsFake(function(account) {
+      sinon.stub(user, 'setSignedInAccount').callsFake(function (account) {
         return Promise.resolve(account);
       });
 
@@ -894,7 +894,7 @@ describe('models/user', function() {
       );
     });
 
-    it('delegates to the account', function() {
+    it('delegates to the account', function () {
       assert.isTrue(
         account.completePasswordReset.calledWith(
           'password',
@@ -906,11 +906,11 @@ describe('models/user', function() {
       );
     });
 
-    it('saves the updated account data', function() {
+    it('saves the updated account data', function () {
       assert.isTrue(user.setSignedInAccount.calledWith(account));
     });
 
-    it('notifies remote listeners', function() {
+    it('notifies remote listeners', function () {
       testRemoteSignInMessageSent(account);
     });
   });
@@ -934,7 +934,7 @@ describe('models/user', function() {
         .callsFake(() => Promise.resolve());
       sinon
         .stub(user, 'setSignedInAccount')
-        .callsFake(account => Promise.resolve(account));
+        .callsFake((account) => Promise.resolve(account));
       sinon.spy(notifier, 'triggerRemote');
 
       return user.completeAccountPasswordResetWithRecoveryKey(
@@ -970,30 +970,30 @@ describe('models/user', function() {
     });
   });
 
-  describe('pickResumeTokenInfo', function() {
-    it('returns the uniqueUserId', function() {
+  describe('pickResumeTokenInfo', function () {
+    it('returns the uniqueUserId', function () {
       var resumeTokenInfo = user.pickResumeTokenInfo();
       assert.equal(resumeTokenInfo.uniqueUserId, UUID);
     });
   });
 
-  describe('fetchAccountAttachedClients', function() {
+  describe('fetchAccountAttachedClients', function () {
     var account;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({});
-      sinon.stub(account, 'fetchAttachedClients').callsFake(function() {
+      sinon.stub(account, 'fetchAttachedClients').callsFake(function () {
         return Promise.resolve();
       });
       return user.fetchAccountAttachedClients(account);
     });
 
-    it('delegates to the account to fetch devices', function() {
+    it('delegates to the account to fetch devices', function () {
       assert.isTrue(account.fetchAttachedClients.calledOnce);
     });
   });
 
-  describe('destroyAccountAttachedClient', function() {
+  describe('destroyAccountAttachedClient', function () {
     var account;
     var client;
 
@@ -1037,7 +1037,7 @@ describe('models/user', function() {
     describe("with the current account's current session", () => {
       beforeEach(() => {
         sinon.spy(notifier, 'triggerRemote');
-        sinon.stub(user, 'isSignedInAccount').callsFake(function() {
+        sinon.stub(user, 'isSignedInAccount').callsFake(function () {
           return true;
         });
         client.set('isCurrentSession', true);
@@ -1063,72 +1063,72 @@ describe('models/user', function() {
     });
   });
 
-  describe('checkAccountUidExists', function() {
+  describe('checkAccountUidExists', function () {
     var account;
     var exists;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: EMAIL,
         sessionToken: SESSION_TOKEN,
         uid: UUID,
       });
 
-      sinon.stub(account, 'checkUidExists').callsFake(function() {
+      sinon.stub(account, 'checkUidExists').callsFake(function () {
         return Promise.resolve(false);
       });
 
       sinon.spy(user, 'removeAccount');
 
-      return user.checkAccountUidExists(account).then(function(_exists) {
+      return user.checkAccountUidExists(account).then(function (_exists) {
         exists = _exists;
       });
     });
 
-    it('delegates to the account model', function() {
+    it('delegates to the account model', function () {
       assert.isTrue(account.checkUidExists.called);
     });
 
-    it('removes the account if it does not exist', function() {
+    it('removes the account if it does not exist', function () {
       assert.isTrue(user.removeAccount.calledWith(account));
     });
 
-    it('returns a promise that resolves to whether the account exists', function() {
+    it('returns a promise that resolves to whether the account exists', function () {
       assert.isFalse(exists);
     });
   });
 
-  describe('checkAccountEmailExists', function() {
+  describe('checkAccountEmailExists', function () {
     var account;
     var exists;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = user.initAccount({
         email: EMAIL,
         sessionToken: SESSION_TOKEN,
         uid: UUID,
       });
 
-      sinon.stub(account, 'checkEmailExists').callsFake(function() {
+      sinon.stub(account, 'checkEmailExists').callsFake(function () {
         return Promise.resolve(false);
       });
 
       sinon.spy(user, 'removeAccount');
 
-      return user.checkAccountEmailExists(account).then(function(_exists) {
+      return user.checkAccountEmailExists(account).then(function (_exists) {
         exists = _exists;
       });
     });
 
-    it('delegates to the account model', function() {
+    it('delegates to the account model', function () {
       assert.isTrue(account.checkEmailExists.called);
     });
 
-    it('removes the account if it does not exist', function() {
+    it('removes the account if it does not exist', function () {
       assert.isTrue(user.removeAccount.calledWith(account));
     });
 
-    it('returns a promise that resolves to whether the account exists', function() {
+    it('returns a promise that resolves to whether the account exists', function () {
       assert.isFalse(exists);
     });
   });

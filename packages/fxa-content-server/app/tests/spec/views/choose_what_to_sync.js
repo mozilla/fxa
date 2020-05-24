@@ -224,7 +224,7 @@ describe('views/choose_what_to_sync', () => {
   describe('destroy', () => {
     it('removes SCREEN_CLASS from body, calls the parent', () => {
       return initView().then(() => {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
           view.on('destroyed', () => resolve());
 
           view.destroy();
@@ -239,7 +239,7 @@ describe('views/choose_what_to_sync', () => {
       return initView().then(() => {
         const offeredEngines = view._getOfferedEngines();
         assert.lengthOf(offeredEngines, DISPLAYED_ENGINE_IDS.length);
-        offeredEngines.forEach(offeredEngine => {
+        offeredEngines.forEach((offeredEngine) => {
           assert.ok(offeredEngine.tabindex);
           assert.ok(offeredEngine.text);
         });
@@ -252,9 +252,7 @@ describe('views/choose_what_to_sync', () => {
       return initView().then(() => {
         $('#container').html(view.el);
         //decline the first engine
-        $('.customize-sync')
-          .first()
-          .click();
+        $('.customize-sync').first().click();
         const declined = view._getDeclinedEngineIds();
         assert.sameMembers(declined, ['tabs']);
       });
@@ -274,10 +272,7 @@ describe('views/choose_what_to_sync', () => {
     it('updates the account, logs metrics, calls onSubmitComplete', () => {
       return initView()
         .then(() => {
-          view
-            .$('.customize-sync')
-            .first()
-            .removeAttr('checked');
+          view.$('.customize-sync').first().removeAttr('checked');
 
           sinon.spy(notifier, 'trigger');
           return view.submit();

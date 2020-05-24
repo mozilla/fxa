@@ -185,7 +185,7 @@ describe('AppErrors', () => {
   });
 
   const reasons = ['socket hang up', 'ECONNREFUSED'];
-  reasons.forEach(reason => {
+  reasons.forEach((reason) => {
     it(`converts ${reason} errors to backend service error`, () => {
       const result = AppError.translate(null, {
         output: {

@@ -68,7 +68,7 @@ describe('views/post_verify/secondary_email/add_secondary_email', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();

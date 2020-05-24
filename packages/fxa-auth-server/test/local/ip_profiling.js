@@ -100,7 +100,7 @@ describe('IP Profiling', () => {
   });
 
   it('no previously verified session', () => {
-    mockDB.securityEvents = function() {
+    mockDB.securityEvents = function () {
       return P.resolve([
         {
           name: 'account.login',
@@ -110,7 +110,7 @@ describe('IP Profiling', () => {
       ]);
     };
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         1,
@@ -122,7 +122,7 @@ describe('IP Profiling', () => {
   });
 
   it('previously verified session', () => {
-    mockDB.securityEvents = function() {
+    mockDB.securityEvents = function () {
       return P.resolve([
         {
           name: 'account.login',
@@ -132,7 +132,7 @@ describe('IP Profiling', () => {
       ]);
     };
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         0,
@@ -144,7 +144,7 @@ describe('IP Profiling', () => {
   });
 
   it('previously verified session more than a day', () => {
-    mockDB.securityEvents = function() {
+    mockDB.securityEvents = function () {
       return P.resolve([
         {
           name: 'account.login',
@@ -154,7 +154,7 @@ describe('IP Profiling', () => {
       ]);
     };
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         1,
@@ -169,7 +169,7 @@ describe('IP Profiling', () => {
     const forceSigninEmail = 'forcedemail@mozilla.com';
     mockRequest.payload.email = forceSigninEmail;
 
-    mockDB.accountRecord = function() {
+    mockDB.accountRecord = function () {
       return P.resolve({
         authSalt: crypto.randomBytes(32),
         data: crypto.randomBytes(32),
@@ -182,7 +182,7 @@ describe('IP Profiling', () => {
           isPrimary: true,
         },
         kA: crypto.randomBytes(32),
-        lastAuthAt: function() {
+        lastAuthAt: function () {
           return Date.now();
         },
         uid: UID,
@@ -190,7 +190,7 @@ describe('IP Profiling', () => {
       });
     };
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         1,
@@ -199,7 +199,7 @@ describe('IP Profiling', () => {
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
       assert.equal(response.verified, false, 'session verified');
       return runTest(route, mockRequest);
-    }).then(response => {
+    }).then((response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         2,
@@ -214,7 +214,7 @@ describe('IP Profiling', () => {
     mockRequest.app.clientAddress = '63.245.221.32';
     mockRequest.app.isSuspiciousRequest = true;
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         1,
@@ -223,7 +223,7 @@ describe('IP Profiling', () => {
       assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
       assert.equal(response.verified, false, 'session verified');
       return runTest(route, mockRequest);
-    }).then(response => {
+    }).then((response) => {
       assert.equal(
         mockMailer.sendVerifyLoginEmail.callCount,
         2,

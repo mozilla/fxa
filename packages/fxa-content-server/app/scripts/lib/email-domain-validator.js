@@ -32,7 +32,7 @@ import AuthErrors from './auth-errors';
 import Tooltip from '../views/tooltip';
 import TopEmailDomains from './top-email-domains';
 import xhr from './xhr';
-const t = msg => msg;
+const t = (msg) => msg;
 
 const EMAIL_VALIDATION_ENDPOINT = '/validate-email-domain';
 // This allows us to distinguish between our own rejection and a server error in
@@ -42,7 +42,7 @@ const MISTYPED_EMAIL_MESSAGE = t('Mistyped email?');
 
 let previousDomain, previousDomainResult;
 
-const resolveDomain = domain =>
+const resolveDomain = (domain) =>
   xhr.ajax({
     data: { domain },
     type: 'GET',
@@ -56,7 +56,7 @@ const checkEmailDomain = ($element, view) => {
   // so the tooltips position can be calculated correctly. Otherwise the tooltip
   // is displayed "on top of" the email field, obscuring the email address.
 
-  const showInvalidDomainError = domain => {
+  const showInvalidDomainError = (domain) => {
     const invalidDomainError = AuthErrors.toInvalidEmailDomainError(domain);
     $(() => view.showValidationError($element, invalidDomainError));
     view.logEvent('emailDomainValidation.fail');
@@ -103,7 +103,7 @@ const checkEmailDomain = ($element, view) => {
     view.logEvent('emailDomainValidation.triggered');
 
     resolveDomain(domain)
-      .then(resp => {
+      .then((resp) => {
         const { result } = resp;
         previousDomain = domain;
         previousDomainResult = result;
@@ -124,7 +124,7 @@ const checkEmailDomain = ($element, view) => {
         view.logFlowEvent('email-domain-validation.block');
         reject(REJECTION_CODE);
       })
-      .catch(err => {
+      .catch((err) => {
         // Do not let a server error stop someone's sign up process
         if (err !== REJECTION_CODE) {
           resolve();

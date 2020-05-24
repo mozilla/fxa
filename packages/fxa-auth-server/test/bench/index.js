@@ -24,14 +24,14 @@ const server = cp.spawn('node', ['../../bin/key_server.js'], {
 server.stderr
   .pipe(split())
   .pipe(
-    through(function(data) {
+    through(function (data) {
       try {
         this.emit('data', JSON.parse(data));
       } catch (e) {}
     })
   )
   .pipe(
-    through(function(json) {
+    through(function (json) {
       if (json.level > 30 && json.op !== 'console') {
         console.log(json);
       }

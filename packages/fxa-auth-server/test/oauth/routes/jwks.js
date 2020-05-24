@@ -14,7 +14,7 @@ var dependencies = mocks.require(
   __dirname
 );
 
-describe('/jwks GET', function() {
+describe('/jwks GET', function () {
   describe('config handling', () => {
     let PUBLIC_KEYS, getRoute;
 

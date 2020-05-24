@@ -2,10 +2,7 @@ import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { config } from '../../lib/config';
-import {
-  AppContext,
-  defaultAppContext,
-} from '../../lib/AppContext';
+import { AppContext, defaultAppContext } from '../../lib/AppContext';
 
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
@@ -13,7 +10,6 @@ import TermsAndPrivacy from '../TermsAndPrivacy';
 afterEach(cleanup);
 
 describe('AppLayout', () => {
-
   const subject = () => {
     const appContextValue = {
       ...defaultAppContext,
@@ -22,22 +18,24 @@ describe('AppLayout', () => {
         legalDocLinks: {
           privacyNotice: 'https://example.me/privacy',
           termsOfService: 'https://example.me/terms',
-        }
-      }
+        },
+      },
     };
 
     return render(
       <AppContext.Provider value={appContextValue}>
         <AppLayout>
-          <div data-testid="children"><TermsAndPrivacy/></div>
+          <div data-testid="children">
+            <TermsAndPrivacy />
+          </div>
         </AppLayout>
       </AppContext.Provider>
-    )
+    );
   };
 
   const { queryByTestId, getByText } = subject();
 
-  it ('renders as expected', () => {
+  it('renders as expected', () => {
     for (const id of ['terms', 'privacy']) {
       expect(queryByTestId(id)).toBeInTheDocument();
     }
@@ -46,7 +44,7 @@ describe('AppLayout', () => {
     expect(tosLink).toHaveAttribute('href', 'https://example.me/terms');
     const privacyLink = getByText('Privacy Notice');
     expect(privacyLink).toHaveAttribute('href', 'https://example.me/privacy');
-  })
+  });
 });
 
 describe('SignInLayout', () => {
@@ -76,10 +74,10 @@ describe('SettingsLayout', () => {
         servers: {
           ...config.servers,
           content: {
-            url: CONTENT_URL
-          }
-        }
-      }
+            url: CONTENT_URL,
+          },
+        },
+      },
     };
 
     return render(
@@ -88,7 +86,7 @@ describe('SettingsLayout', () => {
           <div data-testid="children">Testing</div>
         </SettingsLayout>
       </AppContext.Provider>
-    )
+    );
   };
 
   it('renders as expected', () => {

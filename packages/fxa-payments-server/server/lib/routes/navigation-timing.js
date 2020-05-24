@@ -16,21 +16,18 @@ const navigationTimingSchema = joi.object().keys({
   domInteractive: TIMESTAMP_MS.min(joi.ref('responseEnd')),
   loadEventEnd: TIMESTAMP_MS.min(joi.ref('loadEventStart')),
   loadEventStart: TIMESTAMP_MS.min(joi.ref('domComplete')),
-  name: joi
-    .string()
-    .uri()
-    .required(),
+  name: joi.string().uri().required(),
   redirectStart: TIMESTAMP_MS,
   requestStart: TIMESTAMP_MS.min(joi.ref('domainLookupStart')),
   responseEnd: TIMESTAMP_MS.min(joi.ref('responseStart')),
   responseStart: TIMESTAMP_MS.min(joi.ref('requestStart')),
 });
 
-module.exports = statsd => ({
+module.exports = (statsd) => ({
   method: 'post',
   path: '/navigation-timing',
   validate: { body: navigationTimingSchema },
-  preProcess: function(req, res, next) {
+  preProcess: function (req, res, next) {
     // convert text/plain to JSON
     if (req.get('content-type').startsWith('text/plain')) {
       try {
@@ -48,7 +45,7 @@ module.exports = statsd => ({
       const url = new URL(nt.name);
       const path = url.pathname
         .split('/')
-        .filter(x => !!x)
+        .filter((x) => !!x)
         .join('_');
       const tags = { path };
 

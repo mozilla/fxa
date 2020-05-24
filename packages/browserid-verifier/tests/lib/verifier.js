@@ -9,7 +9,7 @@ const cp = require('child_process'),
 
 function later(cb /* args */) {
   var args = Array.prototype.slice.call(arguments, 1);
-  process.nextTick(function() {
+  process.nextTick(function () {
     cb.apply(null, args);
   });
 }
@@ -21,16 +21,16 @@ function Verifier(args) {
   this.config = args;
 }
 
-Verifier.prototype.setFallback = function(idp) {
+Verifier.prototype.setFallback = function (idp) {
   if (idp === null) delete this.config.fallback;
   else this.config.fallback = idp.domain();
 };
 
-Verifier.prototype.setHTTPTimeout = function(timeo) {
+Verifier.prototype.setHTTPTimeout = function (timeo) {
   this.config.httpTimeout = timeo;
 };
 
-Verifier.prototype.buffer = function(b) {
+Verifier.prototype.buffer = function (b) {
   if (b !== undefined) {
     if (!b) {
       delete this._outBuf;
@@ -41,22 +41,22 @@ Verifier.prototype.buffer = function(b) {
   return this._outBuf;
 };
 
-Verifier.prototype.url = function() {
+Verifier.prototype.url = function () {
   return this.baseurl() + '/v2';
 };
 
-Verifier.prototype.v1url = function() {
+Verifier.prototype.v1url = function () {
   return this.baseurl();
 };
 
-Verifier.prototype.baseurl = function() {
+Verifier.prototype.baseurl = function () {
   if (!this._url) {
     throw new Error('verifier not running');
   }
   return this._url;
 };
 
-Verifier.prototype.start = function(cb) {
+Verifier.prototype.start = function (cb) {
   var self = this;
 
   var repoBaseDir = path.join(__dirname, '..', '..');
@@ -92,7 +92,7 @@ Verifier.prototype.start = function(cb) {
     }
   );
 
-  this.process.stdout.on('data', function(line) {
+  this.process.stdout.on('data', function (line) {
     if (typeof self._outBuf === 'string') {
       self._outBuf += line;
     }
@@ -115,11 +115,11 @@ Verifier.prototype.start = function(cb) {
   });
 
   this.errBuf = '';
-  this.process.stderr.on('data', function(d) {
+  this.process.stderr.on('data', function (d) {
     self.errBuf += d.toString();
   });
 
-  this.process.on('exit', function(code) {
+  this.process.on('exit', function (code) {
     var msg = 'exited';
     if (code !== 0) {
       msg += ' with code ' + code + ' (' + self.errBuf + ')';
@@ -132,12 +132,12 @@ Verifier.prototype.start = function(cb) {
   });
 };
 
-Verifier.prototype.stop = function(cb) {
+Verifier.prototype.stop = function (cb) {
   if (!this.process || !this._url) {
     throw new Error('verifier not running');
   }
   this.process.kill('SIGINT');
-  this.process.on('exit', function(code) {
+  this.process.on('exit', function (code) {
     cb(!code ? null : 'non-zero exit code: ' + code);
   });
 };

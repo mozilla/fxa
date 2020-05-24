@@ -15,14 +15,14 @@ var config = {
 };
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
@@ -32,8 +32,8 @@ var client = restifyClients.createJsonClient({
   url: 'http://localhost:' + config.listen.port,
 });
 
-test('well-formed request', function(t) {
-  client.post('/passwordReset', { email: TEST_EMAIL }, function(
+test('well-formed request', function (t) {
+  client.post('/passwordReset', { email: TEST_EMAIL }, function (
     err,
     req,
     res,
@@ -46,8 +46,8 @@ test('well-formed request', function(t) {
   });
 });
 
-test('missing email', function(t) {
-  client.post('/passwordReset', {}, function(err, req, res, obj) {
+test('missing email', function (t) {
+  client.post('/passwordReset', {}, function (err, req, res, obj) {
     t.equal(res.statusCode, 400, 'bad request returns a 400');
     t.type(obj.code, 'string', 'bad request returns an error code');
     t.type(obj.message, 'string', 'bad request returns an error message');
@@ -55,7 +55,7 @@ test('missing email', function(t) {
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

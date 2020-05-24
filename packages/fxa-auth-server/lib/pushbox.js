@@ -32,10 +32,7 @@ const PUSHBOX_RETRIEVE_SCHEMA = isA
       .items(
         isA.object({
           index: isA.number().required(),
-          data: isA
-            .string()
-            .regex(validators.URL_SAFE_BASE_64)
-            .required(),
+          data: isA.string().regex(validators.URL_SAFE_BASE_64).required(),
         })
       )
       .optional(),
@@ -65,7 +62,7 @@ function decodeFromStorage(data) {
   return JSON.parse(base64url.decode(data));
 }
 
-module.exports = function(log, config, statsd) {
+module.exports = function (log, config, statsd) {
   if (!config.pushbox.enabled) {
     return {
       retrieve() {
@@ -87,24 +84,12 @@ module.exports = function(log, config, statsd) {
         method: 'GET',
         validate: {
           params: {
-            uid: isA
-              .string()
-              .regex(validators.HEX_STRING)
-              .required(),
-            deviceId: isA
-              .string()
-              .regex(validators.HEX_STRING)
-              .required(),
+            uid: isA.string().regex(validators.HEX_STRING).required(),
+            deviceId: isA.string().regex(validators.HEX_STRING).required(),
           },
           query: {
-            limit: isA
-              .string()
-              .regex(validators.DIGITS)
-              .required(),
-            index: isA
-              .string()
-              .regex(validators.DIGITS)
-              .optional(),
+            limit: isA.string().regex(validators.DIGITS).required(),
+            index: isA.string().regex(validators.DIGITS).optional(),
           },
           response: PUSHBOX_RETRIEVE_SCHEMA,
         },
@@ -115,14 +100,8 @@ module.exports = function(log, config, statsd) {
         method: 'POST',
         validate: {
           params: {
-            uid: isA
-              .string()
-              .regex(validators.HEX_STRING)
-              .required(),
-            deviceId: isA
-              .string()
-              .regex(validators.HEX_STRING)
-              .required(),
+            uid: isA.string().regex(validators.HEX_STRING).required(),
+            deviceId: isA.string().regex(validators.HEX_STRING).required(),
           },
           payload: {
             data: isA.string().required(),
@@ -177,7 +156,7 @@ module.exports = function(log, config, statsd) {
         index: body.index,
         messages: !body.messages
           ? undefined
-          : body.messages.map(msg => {
+          : body.messages.map((msg) => {
               return {
                 index: msg.index,
                 data: decodeFromStorage(msg.data),

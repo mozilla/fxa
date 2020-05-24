@@ -71,7 +71,7 @@ describe('views/sign_in_unblock', () => {
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
 
     view.remove();
@@ -171,7 +171,7 @@ describe('views/sign_in_unblock', () => {
       UNBLOCK_CODE + '   ',
       '   ' + UNBLOCK_CODE + '   ',
     ];
-    validUnblockCodes.forEach(unblockCode => {
+    validUnblockCodes.forEach((unblockCode) => {
       describe(`with a valid code: '${unblockCode}'`, () => {
         beforeEach(() => {
           view.$('#unblock_code').val(UNBLOCK_CODE);
@@ -243,7 +243,7 @@ describe('views/sign_in_unblock', () => {
 
         view.$('#unblock_code').val(UNBLOCK_CODE);
 
-        return view.submit().then(assert.fail, err => (receivedError = err));
+        return view.submit().then(assert.fail, (err) => (receivedError = err));
       });
 
       it('rejects with the error for display at a lower level', () => {

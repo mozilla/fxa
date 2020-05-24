@@ -37,19 +37,19 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const testAtOAuthApp = thenify(function() {
+const testAtOAuthApp = thenify(function () {
   return this.parent
     .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
     .then(testElementTextInclude(selectors['123DONE'].AUTHENTICATED_TOTP, '🔒'))
     .getCurrentUrl()
-    .then(function(url) {
+    .then(function (url) {
       // redirected back to the App
       assert.ok(url.indexOf(OAUTH_APP) > -1);
     });
 });
 
 registerSuite('oauth require totp', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(
@@ -62,7 +62,7 @@ registerSuite('oauth require totp', {
   },
 
   tests: {
-    signup: function() {
+    signup: function () {
       return this.remote
         .then(
           openFxaFromRp('two-step-authentication', {
@@ -78,7 +78,7 @@ registerSuite('oauth require totp', {
         .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER));
     },
 
-    'account without TOTP redirects to TOTP setup and completes TOTP flow': function() {
+    'account without TOTP redirects to TOTP setup and completes TOTP flow': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -91,7 +91,7 @@ registerSuite('oauth require totp', {
         .then(testAtOAuthApp());
     },
 
-    'after enabling TOTP in the login flow, account bypasses TOTP setup on second visit': function() {
+    'after enabling TOTP in the login flow, account bypasses TOTP setup on second visit': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -113,7 +113,7 @@ registerSuite('oauth require totp', {
         .then(testAtOAuthApp());
     },
 
-    'succeed for account with TOTP': function() {
+    'succeed for account with TOTP': function () {
       this.timeout = 60 * 1000;
       let secret;
 
@@ -132,7 +132,7 @@ registerSuite('oauth require totp', {
           // Store the secret key to recalculate the code later
           .findByCssSelector(selectors.TOTP.MANUAL_CODE)
           .getVisibleText()
-          .then(secretKey => {
+          .then((secretKey) => {
             secret = secretKey;
           })
           .end()
