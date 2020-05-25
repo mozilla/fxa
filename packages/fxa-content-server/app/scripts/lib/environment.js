@@ -11,7 +11,7 @@
 
 // This is loaded in the HEAD of the doc & uses a modified version of
 // https://github.com/umdjs/umd/blob/master/amdWeb.js
-(function(root, factory) {
+(function (root, factory) {
   'use strict';
 
   if (typeof define === 'function' && define.amd) {
@@ -21,7 +21,7 @@
     // Browser globals
     root.FxaHead.Environment = factory();
   }
-})(window, function() {
+})(window, function () {
   'use strict';
 
   function Environment(win) {
@@ -29,7 +29,7 @@
   }
 
   Environment.prototype = {
-    hasGetUserMedia: function() {
+    hasGetUserMedia: function () {
       var nav = this.window.navigator;
 
       return !!(
@@ -41,14 +41,14 @@
       );
     },
 
-    hasPasswordRevealer: function() {
+    hasPasswordRevealer: function () {
       var document = this.window.document;
 
       // dirty hack and check IE >= 10 directly.
       return !!(document.documentMode && document.documentMode >= 10);
     },
 
-    hasTouchEvents: function() {
+    hasTouchEvents: function () {
       var win = this.window;
       var document = win.document;
 
@@ -69,12 +69,12 @@
       // END MODERNIZR BASED CODE
     },
 
-    isFxiOS: function() {
+    isFxiOS: function () {
       // User agent sniffing. Gross.
       return /FxiOS/.test(this.window.navigator.userAgent);
     },
 
-    hasSendBeacon: function() {
+    hasSendBeacon: function () {
       return typeof this.window.navigator.sendBeacon === 'function';
     },
   };

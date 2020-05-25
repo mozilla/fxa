@@ -28,7 +28,7 @@ const SIGNUP_REASON = VerificationReasons.SIGN_UP;
 const ConfirmSignInSelectors = CONFIRM_SIGNIN;
 const ConfirmSignUpSelectors = CONFIRM_SIGNUP;
 
-describe('views/confirm', function() {
+describe('views/confirm', function () {
   let account;
   let broker;
   let metrics;
@@ -40,7 +40,7 @@ describe('views/confirm', function() {
   let view;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     model = new Backbone.Model();
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
@@ -102,7 +102,7 @@ describe('views/confirm', function() {
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
 
     view.remove();
@@ -111,9 +111,9 @@ describe('views/confirm', function() {
     view = metrics = null;
   });
 
-  describe('render', function() {
-    describe('with sessionToken', function() {
-      describe('sign up', function() {
+  describe('render', function () {
+    describe('with sessionToken', function () {
+      describe('sign up', function () {
         it('legacy renders correctly', () => {
           model.set('type', SIGNUP_REASON);
 
@@ -124,22 +124,22 @@ describe('views/confirm', function() {
         });
       });
 
-      describe('sign in', function() {
-        beforeEach(function() {
+      describe('sign in', function () {
+        beforeEach(function () {
           model.set('type', SIGNIN_REASON);
 
           return view.render();
         });
 
-        it('draws the correct template', function() {
+        it('draws the correct template', function () {
           assert.lengthOf(view.$(ConfirmSignInSelectors.LINK_BACK), 1);
           assert.lengthOf(view.$(ConfirmSignInSelectors.HEADER), 1);
         });
       });
     });
 
-    describe('without a sessionToken', function() {
-      beforeEach(function() {
+    describe('without a sessionToken', function () {
+      beforeEach(function () {
         model.set({
           account: user.initAccount(),
         });
@@ -156,32 +156,32 @@ describe('views/confirm', function() {
         sinon.spy(view, 'navigate');
       });
 
-      describe('sign up', function() {
-        beforeEach(function() {
+      describe('sign up', function () {
+        beforeEach(function () {
           return view.render();
         });
 
-        it('redirects to `/signup`', function() {
+        it('redirects to `/signup`', function () {
           assert.isTrue(view.navigate.calledWith('signup'));
         });
       });
 
-      describe('sign in', function() {
-        beforeEach(function() {
+      describe('sign in', function () {
+        beforeEach(function () {
           model.set('type', SIGNIN_REASON);
 
           return view.render();
         });
 
-        it('redirects to `/signin`', function() {
+        it('redirects to `/signin`', function () {
           assert.isTrue(view.navigate.calledWith('signin'));
         });
       });
     });
   });
 
-  describe('afterVisible', function() {
-    it('notifies the broker before the confirmation', function() {
+  describe('afterVisible', function () {
+    it('notifies the broker before the confirmation', function () {
       sinon.spy(broker, 'persistVerificationData');
 
       sinon
@@ -190,7 +190,7 @@ describe('views/confirm', function() {
 
       sinon.stub(view, 'waitForSessionVerification').callsFake(() => {});
 
-      return view.afterVisible().then(function() {
+      return view.afterVisible().then(function () {
         assert.isTrue(view.waitForSessionVerification.calledOnce);
         assert.isTrue(view.waitForSessionVerification.calledWith(account));
 
@@ -215,8 +215,8 @@ describe('views/confirm', function() {
   });
 
   describe('_gotoNextScreen', () => {
-    describe('signup', function() {
-      it('notifies the broker after the account is confirmed', function() {
+    describe('signup', function () {
+      it('notifies the broker after the account is confirmed', function () {
         sinon.stub(view, 'isSignUp').callsFake(() => true);
         sinon.stub(view, 'isSignIn').callsFake(() => false);
 
@@ -224,8 +224,8 @@ describe('views/confirm', function() {
       });
     });
 
-    describe('signin', function() {
-      it('notifies the broker after the account is confirmed', function() {
+    describe('signin', function () {
+      it('notifies the broker after the account is confirmed', function () {
         sinon.stub(view, 'isSignUp').callsFake(() => false);
         sinon.stub(view, 'isSignIn').callsFake(() => true);
 
@@ -238,7 +238,7 @@ describe('views/confirm', function() {
 
       sinon.stub(broker, expectedBrokerCall).callsFake(() => Promise.resolve());
 
-      return view._gotoNextScreen().then(function() {
+      return view._gotoNextScreen().then(function () {
         assert.isTrue(broker[expectedBrokerCall].calledWith(account));
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'confirm.verification.success')
@@ -248,8 +248,8 @@ describe('views/confirm', function() {
     }
   });
 
-  describe('resend', function() {
-    it('resends the confirmation email', function() {
+  describe('resend', function () {
+    it('resends the confirmation email', function () {
       sinon.stub(account, 'retrySignUp').callsFake(() => Promise.resolve());
       sinon
         .stub(view, 'getStringifiedResumeToken')
@@ -266,9 +266,9 @@ describe('views/confirm', function() {
       });
     });
 
-    describe('with an invalid resend token', function() {
-      beforeEach(function() {
-        sinon.stub(account, 'retrySignUp').callsFake(function() {
+    describe('with an invalid resend token', function () {
+      beforeEach(function () {
+        sinon.stub(account, 'retrySignUp').callsFake(function () {
           return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -277,38 +277,38 @@ describe('views/confirm', function() {
         return view.resend();
       });
 
-      it('redirects to /signup', function() {
+      it('redirects to /signup', function () {
         assert.isTrue(view.navigate.calledWith('signup'));
       });
     });
 
-    describe('that causes other errors', function() {
+    describe('that causes other errors', function () {
       let error;
 
-      beforeEach(function() {
-        sinon.stub(account, 'retrySignUp').callsFake(function() {
+      beforeEach(function () {
+        sinon.stub(account, 'retrySignUp').callsFake(function () {
           return Promise.reject(
             new Error('synthesized error from auth server')
           );
         });
 
-        return view.resend().then(assert.fail, function(err) {
+        return view.resend().then(assert.fail, function (err) {
           error = err;
         });
       });
 
-      it('re-throws the error', function() {
+      it('re-throws the error', function () {
         assert.equal(error.message, 'synthesized error from auth server');
       });
     });
   });
 
-  describe('openWebmail feature', function() {
-    it('it is not visible in basic contexts', function() {
+  describe('openWebmail feature', function () {
+    it('it is not visible in basic contexts', function () {
       assert.notOk(view.$('#open-webmail').length);
     });
 
-    it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function() {
+    it('is visible with the the openGmailButtonVisible capability and email is @gmail.com', function () {
       broker.setCapability('openWebmailButtonVisible', true);
 
       account = user.initAccount({
@@ -333,7 +333,7 @@ describe('views/confirm', function() {
         window: windowMock,
       });
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.lengthOf(view.$('#open-webmail'), 1);
       });
     });

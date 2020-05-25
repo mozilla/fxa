@@ -9,7 +9,7 @@ const inherits = require('util').inherits;
 const EventEmitter = require('events').EventEmitter;
 const URL = require('url').URL;
 
-module.exports = function(log, statsd) {
+module.exports = function (log, statsd) {
   function SQSReceiver(region, urls) {
     this.sqs = new AWS.SQS({ region: region });
     this.queueUrls = urls || [];
@@ -17,7 +17,7 @@ module.exports = function(log, statsd) {
   }
   inherits(SQSReceiver, EventEmitter);
 
-  SQSReceiver.prototype.fetch = function(url) {
+  SQSReceiver.prototype.fetch = function (url) {
     // For statsd metrics, we want the queue name as part of the stat name
     let queueName;
     if (statsd) {
@@ -57,7 +57,7 @@ module.exports = function(log, statsd) {
               QueueUrl: url,
               ReceiptHandle: message.ReceiptHandle,
             },
-            err => {
+            (err) => {
               if (statsd) {
                 statsd.timing(
                   `sqs.${queueName}.delete`,
@@ -89,7 +89,7 @@ module.exports = function(log, statsd) {
     );
   };
 
-  SQSReceiver.prototype.start = function() {
+  SQSReceiver.prototype.start = function () {
     for (let i = 0; i < this.queueUrls.length; i++) {
       this.fetch(this.queueUrls[i]);
     }

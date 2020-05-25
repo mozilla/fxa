@@ -57,7 +57,7 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
       ]);
 
       // Send a push notification to all devices that the account changed
-      request.app.devices.then(devices =>
+      request.app.devices.then((devices) =>
         push.notifyAccountUpdated(uid, devices, 'accountVerify')
       );
 

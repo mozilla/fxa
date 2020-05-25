@@ -9,7 +9,7 @@
     "test": "npm run lint && node ./scripts/mocha-coverage.js -r ts-node/register --recursive test",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
-    "format": "prettier '**' --write"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
     "type": "git",

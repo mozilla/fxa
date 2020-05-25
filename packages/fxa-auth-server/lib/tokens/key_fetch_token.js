@@ -6,7 +6,7 @@
 
 const inherits = require('util').inherits;
 
-module.exports = function(log, Token) {
+module.exports = function (log, Token) {
   function KeyFetchToken(keys, details) {
     Token.call(this, keys, details);
     this.keyBundle = details.keyBundle;
@@ -20,7 +20,7 @@ module.exports = function(log, Token) {
 
   KeyFetchToken.tokenTypeID = 'keyFetchToken';
 
-  KeyFetchToken.create = async function(details) {
+  KeyFetchToken.create = async function (details) {
     log.trace('KeyFetchToken.create', { uid: details && details.uid });
     const token = await Token.createNewToken(KeyFetchToken, details || {});
     const keyBundle = await token.bundleKeys(details.kA, details.wrapKb);
@@ -28,24 +28,24 @@ module.exports = function(log, Token) {
     return token;
   };
 
-  KeyFetchToken.fromId = async function(id, details) {
+  KeyFetchToken.fromId = async function (id, details) {
     log.trace('KeyFetchToken.fromId');
     return new KeyFetchToken({ id, authKey: details.authKey }, details);
   };
 
-  KeyFetchToken.fromHex = function(string, details) {
+  KeyFetchToken.fromHex = function (string, details) {
     log.trace('KeyFetchToken.fromHex');
     return Token.createTokenFromHexData(KeyFetchToken, string, details || {});
   };
 
-  KeyFetchToken.prototype.bundleKeys = function(kA, wrapKb) {
+  KeyFetchToken.prototype.bundleKeys = function (kA, wrapKb) {
     log.trace('keyFetchToken.bundleKeys', { id: this.id });
     kA = Buffer.from(kA, 'hex');
     wrapKb = Buffer.from(wrapKb, 'hex');
     return this.bundle('account/keys', Buffer.concat([kA, wrapKb]));
   };
 
-  KeyFetchToken.prototype.unbundleKeys = async function(bundle) {
+  KeyFetchToken.prototype.unbundleKeys = async function (bundle) {
     log.trace('keyFetchToken.unbundleKeys', { id: this.id });
     const plaintext = await this.unbundle('account/keys', bundle);
     return {

@@ -40,7 +40,7 @@ import Tooltip from './tooltip';
  * @returns {Function}
  */
 function ifFormValuesChanged(handler) {
-  return function() {
+  return function () {
     if (this.updateFormValueChanges()) {
       return this.invokeHandler(handler, arguments);
     }
@@ -53,7 +53,7 @@ var FormView = BaseView.extend({
   // Time to wait for a request to finish before showing a notice
   LONGER_THAN_EXPECTED: new Duration('10s').milliseconds(),
 
-  constructor: function(options) {
+  constructor: function (options) {
     BaseView.call(this, options);
 
     this._attachEvents();
@@ -147,7 +147,7 @@ var FormView = BaseView.extend({
     return (
       this.validateAndSubmit()
         // drop the error on the ground, it'll already be logged.
-        .catch(err => {})
+        .catch((err) => {})
     );
   },
 
@@ -226,16 +226,16 @@ var FormView = BaseView.extend({
   }),
 
   _submitForm: notifyDelayedRequest(
-    showButtonProgressIndicator(function() {
+    showButtonProgressIndicator(function () {
       return Promise.resolve()
         .then(_.bind(this.beforeSubmit, this))
-        .then(shouldSubmit => {
+        .then((shouldSubmit) => {
           // submission is opt out, not opt in.
           if (shouldSubmit !== false) {
             return this.submit();
           }
         })
-        .catch(err => {
+        .catch((err) => {
           // display error and surface for testing.
           this.displayError(err);
           throw err;
@@ -382,7 +382,7 @@ var FormView = BaseView.extend({
     const $invalidEl = this.$(el);
     const message = AuthErrors.toMessage(err);
 
-    const markElementInvalidAndMaybeFocus = describedById => {
+    const markElementInvalidAndMaybeFocus = (describedById) => {
       this.markElementInvalid($invalidEl, describedById);
       // used for testing
       this.trigger('validation_error', el, message);
@@ -522,9 +522,7 @@ var FormView = BaseView.extend({
    * TODO - this should be named disableForm, but that name is already taken.
    */
   halt() {
-    this.$('input,textarea,button')
-      .attr('disabled', 'disabled')
-      .blur();
+    this.$('input,textarea,button').attr('disabled', 'disabled').blur();
     this._isHalted = true;
   },
 

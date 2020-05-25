@@ -33,7 +33,7 @@ describe('lib/routes/auth-schemes/serverJWT', () => {
             },
           },
           {
-            authenticated: arg => arg,
+            authenticated: (arg) => arg,
           }
         );
         assert.fail('this should have thrown');
@@ -69,7 +69,7 @@ describe('lib/routes/auth-schemes/serverJWT', () => {
             },
           },
           {
-            authenticated: arg => arg,
+            authenticated: (arg) => arg,
           }
         );
         assert.fail('this should have thrown');
@@ -111,7 +111,7 @@ describe('lib/routes/auth-schemes/serverJWT', () => {
           },
         },
         {
-          authenticated: arg => arg,
+          authenticated: (arg) => arg,
         }
       );
 

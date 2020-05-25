@@ -22,12 +22,12 @@ module.exports = {
     var clientId = req.params.client_id;
 
     return db.developerOwnsClient(email, clientId).then(
-      function() {
-        return db.removeClient(clientId).then(function() {
+      function () {
+        return db.removeClient(clientId).then(function () {
           return h.response({}).code(204);
         });
       },
-      function() {
+      function () {
         throw new AppError.unauthorized('Illegal Developer');
       }
     );

@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.config('eslint', {
     app: {
       src: ['{,bin/,config/,grunttasks/,lib/**/,scripts/**/,test/**/}*.js'],

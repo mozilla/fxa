@@ -30,7 +30,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('oauth prompt=none', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(
@@ -41,7 +41,7 @@ registerSuite('oauth prompt=none', {
     );
   },
 
-  afterEach: function() {
+  afterEach: function () {
     return this.remote.then(
       clearBrowserState({
         '123done': true,
@@ -51,7 +51,7 @@ registerSuite('oauth prompt=none', {
   },
 
   tests: {
-    'fails RP that is not allowed': function() {
+    'fails RP that is not allowed': function () {
       return this.remote
         .then(
           openRP({
@@ -69,7 +69,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'fails if requesting keys': function() {
+    'fails if requesting keys': function () {
       return this.remote
         .then(
           openRP({
@@ -98,7 +98,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'fails if no login_hint': function() {
+    'fails if no login_hint': function () {
       const email = createEmail();
       // We do the session check before the login_hint/id_token_hint check,
       // so need a session to generate this error.
@@ -122,7 +122,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'fails if no user logged in': function() {
+    'fails if no user logged in': function () {
       return this.remote
         .then(
           openRP({
@@ -142,7 +142,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'fails if account is not verified': function() {
+    'fails if account is not verified': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: false }))
 
@@ -161,7 +161,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'fails if login_hint is different to logged in user': function() {
+    'fails if login_hint is different to logged in user': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
@@ -184,7 +184,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'fails if session is no longer valid': function() {
+    'fails if session is no longer valid': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
 
@@ -207,7 +207,7 @@ registerSuite('oauth prompt=none', {
         );
     },
 
-    'succeeds if login_hint same as logged in user': function() {
+    'succeeds if login_hint same as logged in user': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
 

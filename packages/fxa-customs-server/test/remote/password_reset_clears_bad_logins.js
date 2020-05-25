@@ -24,23 +24,23 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('too many failed logins', function(t) {
+test('too many failed logins', function (t) {
   return client
     .postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'first login attempt noted');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -49,7 +49,7 @@ test('too many failed logins', function(t) {
         ip: TEST_IP,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'second login attempt noted');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -58,7 +58,7 @@ test('too many failed logins', function(t) {
         ip: TEST_IP,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'third login attempt noted');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -68,20 +68,20 @@ test('too many failed logins', function(t) {
         action: 'accountLogin',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'login check succeeds');
       t.equal(obj.block, true, 'login is blocked');
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('failed logins are cleared', function(t) {
+test('failed logins are cleared', function (t) {
   return client
     .postAsync('/passwordReset', { email: TEST_EMAIL })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'request returns a 200');
       t.ok(obj, 'got an obj, make jshint happy');
 
@@ -91,17 +91,17 @@ test('failed logins are cleared', function(t) {
         action: 'accountLogin',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'login check succeeds');
       t.equal(obj.block, false, 'login is no longer blocked');
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

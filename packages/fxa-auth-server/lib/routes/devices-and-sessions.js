@@ -108,10 +108,7 @@ module.exports = (
               // Some versions of desktop firefox send a zero-length
               // "capabilities" array, for historical reasons.
               // We accept but ignore it.
-              capabilities: isA
-                .array()
-                .length(0)
-                .optional(),
+              capabilities: isA.array().length(0).optional(),
             })
             .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
         },
@@ -119,10 +116,7 @@ module.exports = (
           schema: isA
             .object({
               id: DEVICES_SCHEMA.id.required(),
-              createdAt: isA
-                .number()
-                .positive()
-                .optional(),
+              createdAt: isA.number().positive().optional(),
               name: DEVICES_SCHEMA.nameResponse.optional(),
               type: DEVICES_SCHEMA.type.optional(),
               pushCallback: DEVICES_SCHEMA.pushCallback.optional(),
@@ -134,7 +128,7 @@ module.exports = (
             .and('pushCallback', 'pushPublicKey', 'pushAuthKey'),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.device', request);
 
         const payload = request.payload;
@@ -194,12 +188,7 @@ module.exports = (
         validate: {
           query: {
             index: isA.number().optional(),
-            limit: isA
-              .number()
-              .optional()
-              .min(0)
-              .max(100)
-              .default(100),
+            limit: isA.number().optional().min(0).max(100).default(100),
           },
         },
         auth: {
@@ -217,10 +206,7 @@ module.exports = (
                     index: isA.number().required(),
                     data: isA
                       .object({
-                        command: isA
-                          .string()
-                          .max(255)
-                          .required(),
+                        command: isA.string().max(255).required(),
                         payload: isA.object().required(),
                         sender: DEVICES_SCHEMA.id.optional(),
                       })
@@ -232,7 +218,7 @@ module.exports = (
             .and('last', 'messages'),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.deviceCommands', request);
 
         const credentials = request.auth.credentials;
@@ -265,19 +251,14 @@ module.exports = (
             target: DEVICES_SCHEMA.id.required(),
             command: isA.string().required(),
             payload: isA.object().required(),
-            ttl: isA
-              .number()
-              .integer()
-              .min(0)
-              .max(10000000)
-              .optional(),
+            ttl: isA.number().integer().min(0).max(10000000).optional(),
           },
         },
         response: {
           schema: {},
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.invokeDeviceCommand', request);
 
         const { target, command, payload } = request.payload;
@@ -338,58 +319,31 @@ module.exports = (
         validate: {
           payload: isA.alternatives().try(
             isA.object({
-              to: isA
-                .string()
-                .valid('all')
-                .required(),
-              _endpointAction: isA
-                .string()
-                .valid('accountVerify')
-                .optional(),
+              to: isA.string().valid('all').required(),
+              _endpointAction: isA.string().valid('accountVerify').optional(),
               excluded: isA
                 .array()
-                .items(
-                  isA
-                    .string()
-                    .length(32)
-                    .regex(HEX_STRING)
-                )
+                .items(isA.string().length(32).regex(HEX_STRING))
                 .optional(),
               payload: isA.object().when('_endpointAction', {
                 is: 'accountVerify',
                 then: isA.required(),
                 otherwise: isA.required(),
               }),
-              TTL: isA
-                .number()
-                .integer()
-                .min(0)
-                .optional(),
+              TTL: isA.number().integer().min(0).optional(),
             }),
             isA.object({
               to: isA
                 .array()
-                .items(
-                  isA
-                    .string()
-                    .length(32)
-                    .regex(HEX_STRING)
-                )
+                .items(isA.string().length(32).regex(HEX_STRING))
                 .required(),
-              _endpointAction: isA
-                .string()
-                .valid('accountVerify')
-                .optional(),
+              _endpointAction: isA.string().valid('accountVerify').optional(),
               payload: isA.object().when('_endpointAction', {
                 is: 'accountVerify',
                 then: isA.required(),
                 otherwise: isA.required(),
               }),
-              TTL: isA
-                .number()
-                .integer()
-                .min(0)
-                .optional(),
+              TTL: isA.number().integer().min(0).optional(),
             })
           ),
         },
@@ -397,7 +351,7 @@ module.exports = (
           schema: {},
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.devicesNotify', request);
 
         // We reserve the right to disable notifications until
@@ -431,7 +385,7 @@ module.exports = (
 
         if (body.to !== 'all') {
           const include = new Set(body.to);
-          deviceArray = deviceArray.filter(device => include.has(device.id));
+          deviceArray = deviceArray.filter((device) => include.has(device.id));
 
           if (deviceArray.length === 0) {
             log.error('Account.devicesNotify', {
@@ -441,7 +395,7 @@ module.exports = (
           }
         } else if (body.excluded) {
           const exclude = new Set(body.excluded);
-          deviceArray = deviceArray.filter(device => !exclude.has(device.id));
+          deviceArray = deviceArray.filter((device) => !exclude.has(device.id));
         }
 
         if (deviceArray.length !== 0) {
@@ -496,19 +450,9 @@ module.exports = (
               .object({
                 id: DEVICES_SCHEMA.id.required(),
                 isCurrentDevice: isA.boolean().required(),
-                lastAccessTime: isA
-                  .number()
-                  .min(0)
-                  .required()
-                  .allow(null),
-                lastAccessTimeFormatted: isA
-                  .string()
-                  .optional()
-                  .allow(''),
-                approximateLastAccessTime: isA
-                  .number()
-                  .min(0)
-                  .optional(),
+                lastAccessTime: isA.number().min(0).required().allow(null),
+                lastAccessTimeFormatted: isA.string().optional().allow(''),
+                approximateLastAccessTime: isA.number().min(0).optional(),
                 approximateLastAccessTimeFormatted: isA
                   .string()
                   .optional()
@@ -530,7 +474,7 @@ module.exports = (
           ),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.devices', request);
         const credentials = request.auth.credentials;
 
@@ -549,7 +493,7 @@ module.exports = (
 
         const deviceArray = await request.app.devices;
 
-        return deviceArray.map(device => {
+        return deviceArray.map((device) => {
           const formattedDevice = {
             id: device.id,
             isCurrentDevice: !!(
@@ -595,47 +539,19 @@ module.exports = (
         response: {
           schema: isA.array().items(
             isA.object({
-              id: isA
-                .string()
-                .regex(HEX_STRING)
-                .required(),
-              lastAccessTime: isA
-                .number()
-                .min(0)
-                .required()
-                .allow(null),
-              lastAccessTimeFormatted: isA
-                .string()
-                .optional()
-                .allow(''),
-              approximateLastAccessTime: isA
-                .number()
-                .min(0)
-                .optional(),
+              id: isA.string().regex(HEX_STRING).required(),
+              lastAccessTime: isA.number().min(0).required().allow(null),
+              lastAccessTimeFormatted: isA.string().optional().allow(''),
+              approximateLastAccessTime: isA.number().min(0).optional(),
               approximateLastAccessTimeFormatted: isA
                 .string()
                 .optional()
                 .allow(''),
-              createdTime: isA
-                .number()
-                .min(0)
-                .required()
-                .allow(null),
-              createdTimeFormatted: isA
-                .string()
-                .optional()
-                .allow(''),
+              createdTime: isA.number().min(0).required().allow(null),
+              createdTimeFormatted: isA.string().optional().allow(''),
               location: DEVICES_SCHEMA.location,
-              userAgent: isA
-                .string()
-                .max(255)
-                .required()
-                .allow(''),
-              os: isA
-                .string()
-                .max(255)
-                .allow('')
-                .allow(null),
+              userAgent: isA.string().max(255).required().allow(''),
+              os: isA.string().max(255).allow('').allow(null),
               deviceId: DEVICES_SCHEMA.id.allow(null).required(),
               deviceName: DEVICES_SCHEMA.nameResponse
                 .allow('')
@@ -663,7 +579,7 @@ module.exports = (
           ),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.sessions', request);
 
         const sessionToken = request.auth.credentials;
@@ -671,7 +587,7 @@ module.exports = (
 
         const sessions = await db.sessions(uid);
 
-        return sessions.map(session => {
+        return sessions.map((session) => {
           const deviceId = session.deviceId;
           const isDevice = !!deviceId;
 
@@ -732,7 +648,7 @@ module.exports = (
           schema: {},
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.deviceDestroy', request);
         await devices.destroy(request, request.payload.id);
         return {};
@@ -754,32 +670,17 @@ module.exports = (
         response: {
           schema: isA.array().items(
             isA.object({
-              city: isA
-                .string()
-                .required()
-                .allow(null),
-              state: isA
-                .string()
-                .required()
-                .allow(null),
-              stateCode: isA
-                .string()
-                .required()
-                .allow(null),
-              country: isA
-                .string()
-                .required()
-                .allow(null),
-              countryCode: isA
-                .string()
-                .required()
-                .allow(null),
+              city: isA.string().required().allow(null),
+              state: isA.string().required().allow(null),
+              stateCode: isA.string().required().allow(null),
+              country: isA.string().required().allow(null),
+              countryCode: isA.string().required().allow(null),
               lastAccessTime: isA.number().required(),
             })
           ),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.sessionsLocations', request);
         const { uid } = request.query;
 

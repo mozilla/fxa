@@ -11,67 +11,29 @@ const Joi = require('@hapi/joi');
 const BASE64URL = /^[A-Za-z0-9-_]+$/;
 
 const PUBLIC_KEY_SCHEMA = (exports.PUBLIC_KEY_SCHEMA = Joi.object({
-  kty: Joi.string()
-    .only('RSA')
-    .required(),
+  kty: Joi.string().only('RSA').required(),
   kid: Joi.string().required(),
-  n: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  e: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  alg: Joi.string()
-    .only('RS256')
-    .optional(),
-  use: Joi.string()
-    .only('sig')
-    .optional(),
-  'fxa-createdAt': Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
+  n: Joi.string().regex(BASE64URL).required(),
+  e: Joi.string().regex(BASE64URL).required(),
+  alg: Joi.string().only('RS256').optional(),
+  use: Joi.string().only('sig').optional(),
+  'fxa-createdAt': Joi.number().integer().min(0).optional(),
 }));
 
 const PRIVATE_KEY_SCHEMA = (exports.PRIVATE_KEY_SCHEMA = Joi.object({
-  kty: Joi.string()
-    .only('RSA')
-    .required(),
+  kty: Joi.string().only('RSA').required(),
   kid: Joi.string().required(),
-  n: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  e: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  d: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  alg: Joi.string()
-    .only('RS256')
-    .optional(),
-  use: Joi.string()
-    .only('sig')
-    .optional(),
-  p: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  q: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  dp: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  dq: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  qi: Joi.string()
-    .regex(BASE64URL)
-    .required(),
-  'fxa-createdAt': Joi.number()
-    .integer()
-    .min(0)
-    .optional(),
+  n: Joi.string().regex(BASE64URL).required(),
+  e: Joi.string().regex(BASE64URL).required(),
+  d: Joi.string().regex(BASE64URL).required(),
+  alg: Joi.string().only('RS256').optional(),
+  use: Joi.string().only('sig').optional(),
+  p: Joi.string().regex(BASE64URL).required(),
+  q: Joi.string().regex(BASE64URL).required(),
+  dp: Joi.string().regex(BASE64URL).required(),
+  dq: Joi.string().regex(BASE64URL).required(),
+  qi: Joi.string().regex(BASE64URL).required(),
+  'fxa-createdAt': Joi.number().integer().min(0).optional(),
 }));
 
 const PRIVATE_JWKS_MAP = new Map();
@@ -182,10 +144,7 @@ exports.generatePrivateKey = function generatePrivateKey() {
     .slice(0, 8);
   const privKey = Object.assign(pem2jwk(kp.privateKey), {
     kid:
-      now
-        .toISOString()
-        .slice(0, 10)
-        .replace(/-/g, '') +
+      now.toISOString().slice(0, 10).replace(/-/g, '') +
       '-' +
       pubKeyFingerprint,
     alg: 'RS256',

@@ -814,7 +814,7 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
 // Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
 const staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
 const missingLangs = [];
-supportedLanguages.forEach(function(l) {
+supportedLanguages.forEach(function (l) {
   if (staticallyGeneratedLanguages.indexOf(l) === -1) {
     missingLangs.push(l);
   }

@@ -40,7 +40,7 @@ export default BaseAuthenticationBroker.extend({
     this.set('chooseWhatToSyncWebV1Engines', syncEngines);
 
     if (this.hasCapability('fxaStatus')) {
-      this.on('fxa_status', response => this.onFxaStatus(response));
+      this.on('fxa_status', (response) => this.onFxaStatus(response));
     }
   },
 
@@ -86,14 +86,14 @@ export default BaseAuthenticationBroker.extend({
   addAdditionalSyncEngines(additionalEngineIds) {
     const syncEngines = this.get('chooseWhatToSyncWebV1Engines');
     if (syncEngines) {
-      additionalEngineIds.forEach(engineId => syncEngines.addById(engineId));
+      additionalEngineIds.forEach((engineId) => syncEngines.addById(engineId));
     }
   },
 
   afterSignInConfirmationPoll(account) {
     return proto.afterSignInConfirmationPoll
       .call(this, account)
-      .then(defaultBehavior => {
+      .then((defaultBehavior) => {
         if (!this.hasCapability('browserTransitionsAfterEmailVerification')) {
           // This is a hack to allow us to differentiate between users
           // who see CAD in the signin and verification tabs. CAD
@@ -116,7 +116,7 @@ export default BaseAuthenticationBroker.extend({
   afterSignUpConfirmationPoll(account) {
     return proto.afterSignUpConfirmationPoll
       .call(this, account)
-      .then(defaultBehavior => {
+      .then((defaultBehavior) => {
         if (!this.hasCapability('browserTransitionsAfterEmailVerification')) {
           // This is a hack to allow us to differentiate between users
           // who see CAD in the signup and verification tabs. CAD

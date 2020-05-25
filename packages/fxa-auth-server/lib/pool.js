@@ -28,7 +28,7 @@ function Pool(uri, options = {}) {
   });
 }
 
-Pool.prototype.request = function(
+Pool.prototype.request = function (
   method,
   url,
   params,
@@ -90,7 +90,7 @@ Pool.prototype.request = function(
   }
 };
 
-Pool.prototype.post = function(
+Pool.prototype.post = function (
   path,
   params,
   body,
@@ -99,7 +99,7 @@ Pool.prototype.post = function(
   return this.request('POST', path, params, query, body, headers);
 };
 
-Pool.prototype.put = function(
+Pool.prototype.put = function (
   path,
   params,
   body,
@@ -108,11 +108,15 @@ Pool.prototype.put = function(
   return this.request('PUT', path, params, query, body, headers);
 };
 
-Pool.prototype.get = function(path, params, { query = {}, headers = {} } = {}) {
+Pool.prototype.get = function (
+  path,
+  params,
+  { query = {}, headers = {} } = {}
+) {
   return this.request('GET', path, params, query, null, headers);
 };
 
-Pool.prototype.del = function(
+Pool.prototype.del = function (
   path,
   params,
   body,
@@ -121,7 +125,7 @@ Pool.prototype.del = function(
   return this.request('DELETE', path, params, query, body, headers);
 };
 
-Pool.prototype.head = function(
+Pool.prototype.head = function (
   path,
   params,
   { query = {}, headers = {} } = {}
@@ -129,7 +133,7 @@ Pool.prototype.head = function(
   return this.request('HEAD', path, params, query, null, headers);
 };
 
-Pool.prototype.close = function() {
+Pool.prototype.close = function () {
   /*/
     This is a hack to coax the server to close its existing connections
   /*/

@@ -32,23 +32,23 @@ function StartupStyles(options) {
 }
 
 StartupStyles.prototype = {
-  _addClass: function(className) {
+  _addClass: function (className) {
     this.window.document.documentElement.className += ' ' + className;
   },
 
-  getClassName: function() {
+  getClassName: function () {
     return this.window.document.documentElement.className;
   },
 
-  _getQueryParams: function() {
+  _getQueryParams: function () {
     return parseQueryParams(this.window.location.search);
   },
 
-  _getQueryParam: function(paramName) {
+  _getQueryParam: function (paramName) {
     return this._getQueryParams()[paramName];
   },
 
-  initialize: function() {
+  initialize: function () {
     this.addJSStyle();
     this.addTouchEventStyles();
     this.addPasswordRevealerStyles();
@@ -56,11 +56,11 @@ StartupStyles.prototype = {
     this.addGetUserMediaStyles();
   },
 
-  addJSStyle: function() {
+  addJSStyle: function () {
     this._addClass('js');
   },
 
-  addTouchEventStyles: function() {
+  addTouchEventStyles: function () {
     if (this.environment.hasTouchEvents()) {
       this._addClass('touch');
     } else {
@@ -68,7 +68,7 @@ StartupStyles.prototype = {
     }
   },
 
-  addPasswordRevealerStyles: function() {
+  addPasswordRevealerStyles: function () {
     if (this.environment.hasPasswordRevealer()) {
       this._addClass('reveal-pw');
     } else {
@@ -76,14 +76,14 @@ StartupStyles.prototype = {
     }
   },
 
-  addFxiOSSyncStyles: function() {
+  addFxiOSSyncStyles: function () {
     var isSync = this._getQueryParam('service') === 'sync';
     if (this.environment.isFxiOS() && isSync) {
       this._addClass('fx-ios-sync');
     }
   },
 
-  addGetUserMediaStyles: function() {
+  addGetUserMediaStyles: function () {
     if (this.environment.hasGetUserMedia()) {
       this._addClass('getusermedia');
     } else {

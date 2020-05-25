@@ -22,7 +22,7 @@ const now = Date.now();
 describe('MySQL', () => {
   let db;
   before(() => {
-    return DB.connect(config).then(db_ => {
+    return DB.connect(config).then((db_) => {
       db = db_;
       return db.ping();
     });
@@ -32,7 +32,7 @@ describe('MySQL', () => {
     const configCharset = Object.assign({}, config);
     configCharset.charset = 'wat';
 
-    return DB.connect(configCharset).then(assert.fail, err => {
+    return DB.connect(configCharset).then(assert.fail, (err) => {
       assert.equal(
         err.message,
         'You cannot use any charset besides UTF8MB4_BIN'
@@ -44,7 +44,7 @@ describe('MySQL', () => {
     const configModes = Object.assign({}, config);
     configModes.requiredSQLModes = 'STRICT_TRANS_TABLES,NO_ZERO_DATE';
 
-    return DB.connect(configModes).then(db => {
+    return DB.connect(configModes).then((db) => {
       assert.deepEqual(db.requiredModes, [
         'STRICT_TRANS_TABLES',
         'NO_ZERO_DATE',
@@ -56,7 +56,7 @@ describe('MySQL', () => {
     const configModes = Object.assign({}, config);
     configModes.requiredSQLModes = 'UNRECOGNIZED_SQL_MODE_NONSENSE';
 
-    return DB.connect(configModes).then(assert.fail, err => {
+    return DB.connect(configModes).then(assert.fail, (err) => {
       assert.equal(err.message, 'ER_WRONG_VALUE_FOR_VAR');
     });
   });
@@ -65,7 +65,7 @@ describe('MySQL', () => {
     const configModes = Object.assign({}, config);
     configModes.requiredSQLModes = "TEST,MODE,'; DROP TABLE users;";
 
-    return DB.connect(configModes).then(assert.fail, err => {
+    return DB.connect(configModes).then(assert.fail, (err) => {
       assert.ok(err.message.indexOf('Invalid SQL mode') === 0);
     });
   });
@@ -74,10 +74,10 @@ describe('MySQL', () => {
     var query = 'SELECT mumble as id FROM mumble.mumble WHERE mumble = ?';
     var param = 'mumble';
     return db.read(query, param).then(
-      function(result) {
+      function (result) {
         assert(false, 'Should not have arrived here for an invalid select');
       },
-      function(err) {
+      function (err) {
         assert(err, 'we have an error');
         assert.equal(err.code, 500);
         assert.equal(err.errno, 1146);
@@ -92,10 +92,10 @@ describe('MySQL', () => {
     var param = 'mumble';
 
     db.write(query, param).then(
-      function(result) {
+      function (result) {
         assert(false, 'Should not have arrived here for an invalid update');
       },
-      function(err) {
+      function (err) {
         assert(err, 'we have an error');
         assert.equal(err.code, 500);
         assert.equal(err.errno, 1146);
@@ -111,7 +111,7 @@ describe('MySQL', () => {
 
     function query(connection, sql, params) {
       var d = P.defer();
-      connection.query(sql, params || [], function(err, results) {
+      connection.query(sql, params || [], function (err, results) {
         if (err) {
           return d.reject(err);
         }
@@ -121,14 +121,14 @@ describe('MySQL', () => {
     }
 
     return db
-      .transaction(function(connection) {
+      .transaction(function (connection) {
         return query(connection, sql, param);
       })
       .then(
-        function(result) {
+        function (result) {
           assert(false, 'Should not have arrived here for an invalid update');
         },
-        function(err) {
+        function (err) {
           assert(err, 'we have an error');
           assert.equal(err.code, 500);
           assert.equal(err.errno, 1146);
@@ -144,13 +144,13 @@ describe('MySQL', () => {
 
     var callCount = 0;
 
-    var writer = function() {
+    var writer = function () {
       ++callCount;
       return db.write(query, param).then(
-        function(result) {
+        function (result) {
           assert(false, 'this query should never succeed!');
         },
-        function(err) {
+        function (err) {
           assert.equal(err.code, 500);
           assert.equal(err.errno, 1146);
           assert.equal(err.error, 'Internal Server Error');
@@ -161,13 +161,13 @@ describe('MySQL', () => {
     };
 
     return db.retryable_(writer, [1146]).then(
-      function(result) {
+      function (result) {
         assert(
           false,
           'This should never happen, even with a retry ' + callCount
         );
       },
-      function(err) {
+      function (err) {
         assert.equal(callCount, 2, 'the function was retried');
       }
     );
@@ -193,29 +193,29 @@ describe('MySQL', () => {
 
     return db
       .write(dropProcedure, [])
-      .then(function() {
+      .then(function () {
         return db.write(ensureProcedure, []);
       })
-      .then(function() {
+      .then(function () {
         // monkey patch the DB so that we're doing what the other writes to stored procedures are doing
-        db.testStoredProcedure = function() {
+        db.testStoredProcedure = function () {
           var callProcedure = 'CALL testStoredProcedure()';
           return this.write(callProcedure);
         };
         return db.testStoredProcedure();
       })
       .then(
-        function() {
+        function () {
           assert(false, 'The call to the stored prodcedure should have failed');
         },
-        function(err) {
+        function (err) {
           assert.equal(err.code, 500, 'error code is correct');
           var possibleErrors = [
             { msg: 'ER_BAD_NULL_ERROR', errno: 1048 },
             { msg: 'ER_NO_DEFAULT_FOR_FIELD', errno: 1364 },
           ];
           var matchedError = false;
-          possibleErrors.forEach(function(possibleErr) {
+          possibleErrors.forEach(function (possibleErr) {
             if (err.message === possibleErr.msg) {
               if (err.errno === possibleErr.errno) {
                 matchedError = true;
@@ -240,7 +240,7 @@ describe('MySQL', () => {
           params: [Date.now(), '%@mozilla.com'],
         },
       ])
-      .then(function(results) {
+      .then(function (results) {
         assert.isArray(results);
         assert.lengthOf(results, 2);
         assert.isArray(results[0]);
@@ -262,7 +262,7 @@ describe('MySQL', () => {
         ],
         { sql: 'SELECT * FROM accounts LIMIT 1' }
       )
-      .then(function(results) {
+      .then(function (results) {
         assert.lengthOf(results, 2);
       });
   });
@@ -277,10 +277,10 @@ describe('MySQL', () => {
         { sql: 'SELECT * FROM accounts LIMIT 1' }
       )
       .then(
-        function(results) {
+        function (results) {
           assert(false, 'should have failed');
         },
-        function(err) {}
+        function (err) {}
       );
   });
 
@@ -297,12 +297,12 @@ describe('MySQL', () => {
         () => {
           assert(false, 'should have failed');
         },
-        function(err) {}
+        function (err) {}
       );
   });
 
   it('_connectionConfig returns a plausible config object', () => {
-    return db._connectionConfig('MASTER').then(function(config) {
+    return db._connectionConfig('MASTER').then(function (config) {
       assert.isObject(config);
       assert.equal(config.protocol41, true, 'protocol41 is true');
       assert.equal(
@@ -319,7 +319,7 @@ describe('MySQL', () => {
   });
 
   it('_showVariables returns a plausible set of values', () => {
-    return db._showVariables('MASTER').then(function(vars) {
+    return db._showVariables('MASTER').then(function (vars) {
       assert.isObject(vars);
       assert.equal(
         vars['character_set_client'],
@@ -364,7 +364,7 @@ describe('MySQL', () => {
 
     return db
       .createAccount(uid, account)
-      .then(function(result) {
+      .then(function (result) {
         assert.deepEqual(
           result,
           {},
@@ -372,7 +372,7 @@ describe('MySQL', () => {
         );
         return db.emailRecord(account.email);
       })
-      .then(function(result) {
+      .then(function (result) {
         assert.equal(result.createdAt, account.createdAt, 'createdAt set');
         assert.equal(result.email, account.email, 'email set');
         assert.equal(result.emailVerified, 0, 'emailVerified set');
@@ -418,22 +418,22 @@ describe('MySQL', () => {
         'BFZcu6Sa-IP6xVjHH3cIDP2GGOO3MkXG9Da6QoU2ehzoAFSuZ73Rz3naZCGzhgpi8_kccLbURjAqYexaQed5FHA',
         'jrLebP8XXzzPD6ylenInQQ')`;
       return db.write(query, []).then(
-        function(result) {
+        function (result) {
           assert.deepEqual(result, {}, 'Returned an empty on success');
 
           const query = `SELECT * FROM devices WHERE id = X'${id}'`;
           return db.read(query).then(
-            function(result) {
+            function (result) {
               const row = result[0];
               assert.equal(row.name, brokenName);
               assert.equal(row.nameUtf8, nameUtf8);
             },
-            function(err) {
+            function (err) {
               assert.fail(err);
             }
           );
         },
-        function(err) {
+        function (err) {
           assert.fail(err);
         }
       );
@@ -451,12 +451,12 @@ describe('MySQL', () => {
   it('assertPatchLevel fails with an invalid patch level', () => {
     const selectPatchLevel =
       "SELECT value FROM dbMetadata WHERE name = 'schema-patch-level';";
-    return db.readAllResults(selectPatchLevel, []).then(patchLevel => {
+    return db.readAllResults(selectPatchLevel, []).then((patchLevel) => {
       patchLevel = parseInt(patchLevel.value);
       assert(patchLevel > 0);
       assert(patchLevel < Infinity);
       const assertPatchLevel = `CALL assertPatchLevel('${patchLevel + 1}');`;
-      return db.write(assertPatchLevel, []).catch(err => {
+      return db.write(assertPatchLevel, []).catch((err) => {
         assert.equal(err.code, 500);
         assert.equal(err.errno, 1643);
         assert.equal(err.message, 'ER_SIGNAL_NOT_FOUND');
@@ -468,7 +468,7 @@ describe('MySQL', () => {
   it('assertPatchLevel succeeds with an valid patch level', () => {
     const selectPatchLevel =
       "SELECT value FROM dbMetadata WHERE name = 'schema-patch-level';";
-    return db.readAllResults(selectPatchLevel, []).then(patchLevel => {
+    return db.readAllResults(selectPatchLevel, []).then((patchLevel) => {
       const assertPatchLevel = `CALL assertPatchLevel('${patchLevel.value}');`;
       return db.write(assertPatchLevel, []);
     });

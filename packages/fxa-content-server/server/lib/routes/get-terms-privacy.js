@@ -45,7 +45,7 @@ module.exports = function verRoute(i18n) {
   // * /<locale>/legal/privacy
   route.path = /^\/(?:([a-zA-Z-\_]*)\/)?legal\/(terms|privacy)(?:\/)?$/;
 
-  route.process = function(req, res, next) {
+  route.process = function (req, res, next) {
     const lang = req.params[0] || req.lang;
     const page = req.params[1];
 
@@ -57,7 +57,7 @@ module.exports = function verRoute(i18n) {
     }
 
     getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG).then(
-      function(template) {
+      function (template) {
         if (!template) {
           logger.warn(
             '%s->`%s` does not exist, redirecting to `%s`',
@@ -69,7 +69,7 @@ module.exports = function verRoute(i18n) {
         }
 
         res.format({
-          'text/html': function() {
+          'text/html': function () {
             const context = {
               // Note that staticResourceUrl is added to templates as a
               // build step
@@ -79,12 +79,12 @@ module.exports = function verRoute(i18n) {
 
             res.render(page, context);
           },
-          'text/partial': function() {
+          'text/partial': function () {
             res.send(template);
           },
         });
       },
-      function(err) {
+      function (err) {
         logger.error(err);
         return res.send(500, 'uh oh: ' + String(err));
       }

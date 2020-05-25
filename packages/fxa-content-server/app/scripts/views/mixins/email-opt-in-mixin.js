@@ -36,7 +36,7 @@ export default {
       return;
     }
 
-    const newsletters = this._getNewsletters().map(newsletter => {
+    const newsletters = this._getNewsletters().map((newsletter) => {
       // labels are untranslated, make sure to translate them
       // before rendering.
       return {
@@ -86,8 +86,8 @@ export default {
    */
   getOptedIntoNewsletters() {
     return this._getNewsletters()
-      .filter(newsletter => this._hasOptedIntoNewsletter(newsletter))
-      .map(newsletter => newsletter.slug);
+      .filter((newsletter) => this._hasOptedIntoNewsletter(newsletter))
+      .map((newsletter) => newsletter.slug);
   },
 
   /**

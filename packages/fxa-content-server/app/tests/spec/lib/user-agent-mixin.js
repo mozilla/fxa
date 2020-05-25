@@ -17,11 +17,11 @@ const NAVIGATOR_USER_AGENT_STRING =
 
 Cocktail.mixin(View, UserAgentMixin);
 
-describe('lib/user-agent-mixin', function() {
+describe('lib/user-agent-mixin', function () {
   let view;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     windowMock = new WindowMock();
     windowMock.navigator.userAgent = NAVIGATOR_USER_AGENT_STRING;
 
@@ -32,7 +32,7 @@ describe('lib/user-agent-mixin', function() {
 
   describe('getUserAgentString', () => {
     it('fetches from forceUA query parameter, if exists', () => {
-      sinon.stub(view, 'getSearchParam').callsFake(param => {
+      sinon.stub(view, 'getSearchParam').callsFake((param) => {
         if (param === 'forceUA') {
           return FORCED_USER_AGENT_STRING;
         }
@@ -42,7 +42,7 @@ describe('lib/user-agent-mixin', function() {
     });
 
     it('falls back to navigator.userAgent if forceUA query parameter does not exist', () => {
-      sinon.stub(view, 'getSearchParam').callsFake(param => {});
+      sinon.stub(view, 'getSearchParam').callsFake((param) => {});
 
       assert.equal(view.getUserAgentString(), NAVIGATOR_USER_AGENT_STRING);
     });
@@ -50,7 +50,7 @@ describe('lib/user-agent-mixin', function() {
 
   describe('getUserAgent', () => {
     it('returns a UserAgent instance', () => {
-      sinon.stub(view, 'getSearchParam').callsFake(param => {});
+      sinon.stub(view, 'getSearchParam').callsFake((param) => {});
 
       const uap = view.getUserAgent();
 

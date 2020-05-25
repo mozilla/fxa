@@ -14,7 +14,7 @@ var suite = {
 var route;
 
 suite.tests['get-apple-app-site-association route function'] = {
-  'route interface is correct': function() {
+  'route interface is correct': function () {
     route = getAppleSiteAssociation();
     assert.isObject(route);
     assert.lengthOf(Object.keys(route), 3);
@@ -27,11 +27,11 @@ suite.tests['get-apple-app-site-association route function'] = {
 
 suite.tests[
   '#get /.well-known/apple-app-site-association - returns a JSON doc with expected values'
-] = function() {
+] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/apple-app-site-association', {})
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 200);
       assert.equal(
         res.headers['content-type'],

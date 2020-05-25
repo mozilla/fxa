@@ -23,7 +23,7 @@ function simpleIpRecord() {
   return new (ipRecord(limits, now))();
 }
 
-test('shouldBlock works', function(t) {
+test('shouldBlock works', function (t) {
   var ir = simpleIpRecord();
 
   t.equal(ir.shouldBlock(), false, 'record has never been blocked');
@@ -42,7 +42,7 @@ test('shouldBlock works', function(t) {
   t.end();
 });
 
-test('suspect', t => {
+test('suspect', (t) => {
   const record = simpleIpRecord();
   t.equal(record.isSuspected(), false);
 
@@ -52,7 +52,7 @@ test('suspect', t => {
   t.end();
 });
 
-test('block', t => {
+test('block', (t) => {
   const ir = simpleIpRecord();
 
   t.equal(ir.shouldBlock(), false);
@@ -65,7 +65,7 @@ test('block', t => {
   t.end();
 });
 
-test('disable', t => {
+test('disable', (t) => {
   const record = simpleIpRecord();
   t.equal(record.isDisabled(), false);
 
@@ -75,7 +75,7 @@ test('disable', t => {
   t.end();
 });
 
-test('rate limit works', function(t) {
+test('rate limit works', function (t) {
   var ir = simpleIpRecord();
 
   t.equal(ir.isRateLimited(), false, 'record is not rate limited');
@@ -86,7 +86,7 @@ test('rate limit works', function(t) {
   t.end();
 });
 
-test('retryAfter block works', function(t) {
+test('retryAfter block works', function (t) {
   var ir = simpleIpRecord();
 
   t.equal(ir.retryAfter(), 0, 'unblocked records can be retried now');
@@ -99,7 +99,7 @@ test('retryAfter block works', function(t) {
   t.end();
 });
 
-test('parse works', function(t) {
+test('parse works', function (t) {
   var ir = simpleIpRecord();
   t.equal(ir.shouldBlock(), false, 'original object is not blocked');
   var limits = {
@@ -120,13 +120,13 @@ test('parse works', function(t) {
   t.end();
 });
 
-test('no action update works', function(t) {
+test('no action update works', function (t) {
   var ir = simpleIpRecord();
   t.equal(ir.update(), 0, 'update with no action does nothing');
   t.end();
 });
 
-test('action accountStatusCheck rate-limit works', function(t) {
+test('action accountStatusCheck rate-limit works', function (t) {
   var ir = simpleIpRecord();
   ir.as = [];
 
@@ -139,7 +139,7 @@ test('action accountStatusCheck rate-limit works', function(t) {
   t.end();
 });
 
-test('getMinLifetimeMS works', function(t) {
+test('getMinLifetimeMS works', function (t) {
   var limits = {
     blockIntervalMs: 10,
     ipRateLimitIntervalMs: 15,
@@ -173,7 +173,7 @@ test('getMinLifetimeMS works', function(t) {
   t.end();
 });
 
-test('addBadLogins works per IP', function(t) {
+test('addBadLogins works per IP', function (t) {
   var ir = simpleIpRecord();
   ir.addBadLogin({ email: 'test1@example.com', errno: 999 });
   t.equal(ir.isOverBadLogins(), false, 'one record is not over');
@@ -191,7 +191,7 @@ test('addBadLogins works per IP', function(t) {
   t.end();
 });
 
-test('isOverBadLogins counts max per unique email addresses', function(t) {
+test('isOverBadLogins counts max per unique email addresses', function (t) {
   var ir = simpleIpRecord();
   ir.addBadLogin({ email: 'test1@example.com' });
   ir.addBadLogin({ email: 'test1@example.com' });

@@ -11,7 +11,7 @@ const observeFn = jest.fn();
 const disconnectFn = jest.fn();
 const getEntries = jest.fn().mockReturnValue([{ foo: 'bar' }]);
 const mockObs = { observe: observeFn, disconnect: disconnectFn };
-const mockPerformanceObserver = function(callback: ObsCallback) {
+const mockPerformanceObserver = function (callback: ObsCallback) {
   cb = callback;
   return mockObs;
 };

@@ -7,7 +7,7 @@
 // This route handler prevents REFRESH behaviour for the pairing flow
 // If the user refreshes the browser during pairing, we instruct them to start over
 
-module.exports = function() {
+module.exports = function () {
   // The array is converted into a RegExp
   const PAIRING_ROUTES = [
     'pair/auth/allow',
@@ -21,7 +21,7 @@ module.exports = function() {
   return {
     method: 'get',
     path: new RegExp('^/(' + PAIRING_ROUTES + ')/?$'),
-    process: function(req, res) {
+    process: function (req, res) {
       res.redirect(302, '/pair/failure');
     },
   };

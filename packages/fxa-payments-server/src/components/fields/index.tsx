@@ -157,7 +157,7 @@ const UnwrappedInput = (props: InputProps) => {
   const { validator } = useContext(FormContext) as FormContextValue;
 
   const onChange = useCallback(
-    ev => {
+    (ev) => {
       const { value } = ev.target;
       validator.updateField({
         name,
@@ -168,7 +168,7 @@ const UnwrappedInput = (props: InputProps) => {
   );
 
   const onBlur = useCallback(
-    ev => {
+    (ev) => {
       const { value } = ev.target;
       validator.updateField({
         name,
@@ -272,7 +272,7 @@ export const StripeElement = (props: StripeElementProps) => {
   );
 
   const onBlur = useCallback(
-    ev => {
+    (ev) => {
       const value = elementValue.current;
       validator.updateField({
         name,
@@ -344,7 +344,7 @@ export const Checkbox = (props: CheckboxProps) => {
   const { validator } = useContext(FormContext) as FormContextValue;
 
   const onChange = useCallback(
-    ev => {
+    (ev) => {
       const value = ev.target.checked;
       validator.updateField({
         name,

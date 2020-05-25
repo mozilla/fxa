@@ -11,7 +11,7 @@ function getMozlogCallerLocation() {
 }
 
 // no-op except check that first arg is a string, etc., a la mozlog
-var noop = function() {
+var noop = function () {
   assert(
     arguments.length <= 2,
     'mozlog takes a maximum of 2 arguments' +

@@ -6,7 +6,7 @@
 
 'use strict';
 
-module.exports = geodb => remoteAddress => log => request => {
+module.exports = (geodb) => (remoteAddress) => (log) => (request) => {
   try {
     return geodb(remoteAddress(request).clientAddress);
   } catch (err) {

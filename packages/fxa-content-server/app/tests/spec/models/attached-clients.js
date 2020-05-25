@@ -9,12 +9,12 @@ import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 import User from 'models/user';
 
-describe('models/attached-clients', function() {
+describe('models/attached-clients', function () {
   var attachedClients;
   var notifier;
   var user;
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new Notifier();
     user = new User();
 
@@ -33,10 +33,10 @@ describe('models/attached-clients', function() {
     return items;
   }
 
-  describe('properly orders the attached clients', function() {
+  describe('properly orders the attached clients', function () {
     var now = Date.now();
 
-    beforeEach(function() {
+    beforeEach(function () {
       // We input the list of clients in a random order,
       // so that the tests won't accidentally depend on implementation
       // details of how the underlying sort algorithm works.
@@ -111,17 +111,17 @@ describe('models/attached-clients', function() {
       );
     });
 
-    it('places the `current` device first', function() {
+    it('places the `current` device first', function () {
       assert.equal(attachedClients.at(0).get('name'), 'zeta');
     });
 
-    it('sorts those with lastAccessTime next, by access time (descending) grouped by clientType', function() {
+    it('sorts those with lastAccessTime next, by access time (descending) grouped by clientType', function () {
       assert.equal(attachedClients.at(1).get('name'), 'sigma');
       assert.equal(attachedClients.at(2).get('name'), 'tau');
       assert.equal(attachedClients.at(3).get('name'), 'theta');
     });
 
-    it('sorts the rest alphabetically grouped by clientType', function() {
+    it('sorts the rest alphabetically grouped by clientType', function () {
       assert.equal(attachedClients.at(4).get('name'), 'phi');
       assert.equal(attachedClients.at(5).get('name'), 'xi');
       assert.equal(attachedClients.at(6).get('name'), 'xi');
@@ -131,7 +131,7 @@ describe('models/attached-clients', function() {
     });
 
     it('groups by clientType', () => {
-      const types = attachedClients.map(cl => cl.get('clientType'));
+      const types = attachedClients.map((cl) => cl.get('clientType'));
       assert.equal(types[0], Constants.CLIENT_TYPE_DEVICE);
       assert.equal(types[1], Constants.CLIENT_TYPE_DEVICE);
       assert.equal(types[2], Constants.CLIENT_TYPE_DEVICE);
@@ -145,8 +145,8 @@ describe('models/attached-clients', function() {
     });
   });
 
-  describe('device name change', function() {
-    beforeEach(function() {
+  describe('device name change', function () {
+    beforeEach(function () {
       attachedClients.set([
         {
           clientType: Constants.CLIENT_TYPE_DEVICE,
@@ -164,9 +164,9 @@ describe('models/attached-clients', function() {
     });
   });
 
-  describe('fetchClients', function() {
-    beforeEach(function() {
-      sinon.stub(user, 'fetchAccountAttachedClients').callsFake(function() {
+  describe('fetchClients', function () {
+    beforeEach(function () {
+      sinon.stub(user, 'fetchAccountAttachedClients').callsFake(function () {
         return Promise.resolve([
           {
             deviceId: 'device-1',
@@ -181,7 +181,7 @@ describe('models/attached-clients', function() {
       });
     });
 
-    it('fetches the list of attached clients', function() {
+    it('fetches the list of attached clients', function () {
       return attachedClients.fetchClients(user).then(() => {
         assert.equal(attachedClients.length, 2);
         assert.equal(attachedClients.at(0).get('clientType'), 'device');

@@ -60,7 +60,7 @@ describe('views/post_verify/cad_qr/connected', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();

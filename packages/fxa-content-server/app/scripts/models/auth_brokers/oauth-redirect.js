@@ -36,7 +36,7 @@ const OAUTH_CODE_RESPONSE_SCHEMA = {
  * @returns {Promise}
  */
 function finishOAuthFlowIfOriginalTab(brokerMethod, finishMethod) {
-  return function(account) {
+  return function (account) {
     // The user may have replaced the original tab with the verification
     // tab. If this is the case, send the OAuth result to the RP.
     //
@@ -44,10 +44,10 @@ function finishOAuthFlowIfOriginalTab(brokerMethod, finishMethod) {
     // event handlers before the flow completes.
     return proto[brokerMethod]
       .call(this, account)
-      .then(behavior => {
+      .then((behavior) => {
         return p.delay(this.DELAY_BROKER_RESPONSE_MS).then(() => behavior);
       })
-      .then(behavior => {
+      .then((behavior) => {
         if (this.isOriginalTab()) {
           return this[finishMethod](account).then(() => new HaltBehavior());
         }
@@ -136,7 +136,7 @@ export default BaseAuthenticationBroker.extend({
           return this._provisionScopedKeys(account);
         }
       })
-      .then(keysJwe => {
+      .then((keysJwe) => {
         /* eslint-disable camelcase */
         const oauthParams = {
           acr_values: relier.get('acrValues'),
@@ -160,7 +160,7 @@ export default BaseAuthenticationBroker.extend({
           oauthParams
         );
       })
-      .then(response => {
+      .then((response) => {
         if (!response) {
           return Promise.reject(OAuthErrors.toError('INVALID_RESULT'));
         }
@@ -202,13 +202,13 @@ export default BaseAuthenticationBroker.extend({
           );
         }
       })
-      .then(clientKeyData => {
+      .then((clientKeyData) => {
         if (!clientKeyData || Object.keys(clientKeyData).length === 0) {
           // if we got no key data then exit out
           return null;
         }
 
-        return account.accountKeys().then(keys => {
+        return account.accountKeys().then((keys) => {
           return this._scopedKeys.createEncryptedBundle(
             keys,
             uid,
@@ -353,7 +353,7 @@ export default BaseAuthenticationBroker.extend({
     // cleared in the a tab other than the original. Always clear it just
     // to make sure the bases are covered.
     this.clearOriginalTabMarker();
-    return this.getOAuthResult(account).then(result => {
+    return this.getOAuthResult(account).then((result) => {
       return this.sendOAuthResultToRelier(
         {
           ...result,
@@ -367,7 +367,7 @@ export default BaseAuthenticationBroker.extend({
   afterCompleteResetPassword(account) {
     return proto.afterCompleteResetPassword
       .call(this, account)
-      .then(behavior => {
+      .then((behavior) => {
         // a user can only redirect back to the relier from the original tab, this avoids
         // two tabs redirecting.
         if (

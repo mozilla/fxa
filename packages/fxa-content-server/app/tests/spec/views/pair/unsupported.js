@@ -12,7 +12,7 @@ describe('views/pair/unsupported', () => {
     initView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 

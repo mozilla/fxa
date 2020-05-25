@@ -14,7 +14,7 @@ function Location(locationData, userLocale) {
     this.timeZone = locationData.location.time_zone;
   }
 
-  this.getLocaleSpecificLocationString = function(locationObject, userLocale) {
+  this.getLocaleSpecificLocationString = function (locationObject, userLocale) {
     // if we have the user's locale specific name, return that,
     // else return 'en' - english.
     return locationObject.names[userLocale] || locationObject.names['en'];

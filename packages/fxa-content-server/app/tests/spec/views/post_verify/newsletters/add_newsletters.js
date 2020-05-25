@@ -69,7 +69,7 @@ describe('views/post_verify/newsletters/add_newsletters', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();

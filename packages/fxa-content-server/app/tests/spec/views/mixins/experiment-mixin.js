@@ -144,7 +144,7 @@ describe('views/mixins/experiment-mixin', () => {
       'isInExperiment',
       'isInExperimentGroup',
     ];
-    delegateMethods.forEach(methodName => {
+    delegateMethods.forEach((methodName) => {
       it(`delegates ${methodName} correctly`, () => {
         assert.isFunction(view[methodName]);
 

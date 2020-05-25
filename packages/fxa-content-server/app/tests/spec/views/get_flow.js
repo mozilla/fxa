@@ -14,7 +14,7 @@ import Notifier from 'lib/channels/notifier';
 import WindowMock from '../../mocks/window';
 import Url from '../../../scripts/lib/url';
 
-describe('views/get_flow', function() {
+describe('views/get_flow', function () {
   let account;
   let user;
   let view;
@@ -29,7 +29,7 @@ describe('views/get_flow', function() {
     return view.render().then(() => view.afterVisible());
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     account = new Account();
     user = new User();
 
@@ -48,7 +48,7 @@ describe('views/get_flow', function() {
     sinon.stub(view.window.console, 'error');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     $(view.el).remove();
     view.window.console.error.restore();
     view.metrics.getFlowEventMetadata.restore();

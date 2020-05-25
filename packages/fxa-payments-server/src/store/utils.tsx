@@ -79,7 +79,7 @@ export const productDetailsFromPlan = (
 
   const productDetailKeys = Object.keys(metadata)
     // Limit to product detail metadata keys
-    .filter(k => k.startsWith('product:'))
+    .filter((k) => k.startsWith('product:'))
     // Sorting keys ensures proper order for lists
     .sort();
 

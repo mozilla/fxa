@@ -31,19 +31,19 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('cad_qr_signin', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     client = FunctionalHelpers.getFxaClient();
     return this.remote
       .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(result => {
+      .then((result) => {
         accountData = result;
       });
   },
 
   tests: {
-    'control - CAD via sms': function() {
+    'control - CAD via sms': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -57,7 +57,7 @@ registerSuite('cad_qr_signin', {
         .then(testElementExists(selectors.SMS_SEND.HEADER));
     },
 
-    'treatment a - CAD via QR code': function() {
+    'treatment a - CAD via QR code': function () {
       return (
         this.remote
           .then(
@@ -86,7 +86,7 @@ registerSuite('cad_qr_signin', {
           // This page will be polling for a new device record. This typically
           // happens when the user successfully authenticates on a new
           // device.
-          .then(function() {
+          .then(function () {
             return client.deviceRegister(
               accountData.sessionToken,
               TEST_DEVICE_NAME,
@@ -100,7 +100,7 @@ registerSuite('cad_qr_signin', {
       );
     },
 
-    'treatment b - CAD via store badges': function() {
+    'treatment b - CAD via store badges': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -117,14 +117,14 @@ registerSuite('cad_qr_signin', {
 });
 
 registerSuite('cad_qr_signup', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     client = FunctionalHelpers.getFxaClient();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'control - CAD via sms': function() {
+    'control - CAD via sms': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -147,7 +147,7 @@ registerSuite('cad_qr_signup', {
         .then(testElementExists(selectors.SMS_SEND.HEADER));
     },
 
-    'treatment a - CAD via QR code': function() {
+    'treatment a - CAD via QR code': function () {
       return (
         this.remote
           .then(
@@ -184,7 +184,7 @@ registerSuite('cad_qr_signup', {
 
           // Add a device using a session token from the browser
           .then(getStoredAccountByEmail(email))
-          .then(function(account) {
+          .then(function (account) {
             return client.deviceRegister(
               account.sessionToken,
               TEST_DEVICE_NAME,
@@ -198,7 +198,7 @@ registerSuite('cad_qr_signup', {
       );
     },
 
-    'treatment b - CAD via store badges': function() {
+    'treatment b - CAD via store badges': function () {
       return this.remote
         .then(
           openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {

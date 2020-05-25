@@ -13,18 +13,18 @@ var rimraf = require('rimraf');
 var sinon = require('sinon');
 var assert = chai.assert;
 
-describe('maxmind-db-downloader', function() {
+describe('maxmind-db-downloader', function () {
   'use strict';
   var maxmindDbDownloader;
   var targetDirPath;
   var downloadPromiseFunctions;
   var expectedTargetDirPath = path.join(__dirname, '..', 'test-db');
 
-  beforeEach(function() {
+  beforeEach(function () {
     maxmindDbDownloader = new MaxmindDbDownloader();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     downloadPromiseFunctions = null;
     // cleanup, remove the created directory
     if (fs.statSync(expectedTargetDirPath).isDirectory()) {
@@ -34,8 +34,8 @@ describe('maxmind-db-downloader', function() {
     maxmindDbDownloader.stop();
   });
 
-  describe('createTargetDir', function() {
-    it('creates the specified directory', function() {
+  describe('createTargetDir', function () {
+    it('creates the specified directory', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       assert.equal(
         targetDirPath,
@@ -48,7 +48,7 @@ describe('maxmind-db-downloader', function() {
       );
     });
 
-    it('does nothing when directory already exists', function() {
+    it('does nothing when directory already exists', function () {
       // when mkdirp is called on existing directory, it
       // does nothing, and returns null
       maxmindDbDownloader.createTargetDir('test-db');
@@ -63,8 +63,8 @@ describe('maxmind-db-downloader', function() {
     });
   });
 
-  describe('setupDownloadList', function() {
-    it('sets up the download list from sources.json', function() {
+  describe('setupDownloadList', function () {
+    it('sets up the download list from sources.json', function () {
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
         path.join('..', 'sources.json'),
@@ -79,8 +79,8 @@ describe('maxmind-db-downloader', function() {
     });
   });
 
-  describe('downloadAll', function() {
-    it('calls Promise.all with a promise array', function() {
+  describe('downloadAll', function () {
+    it('calls Promise.all with a promise array', function () {
       sinon.spy(Promise, 'all');
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
@@ -93,13 +93,13 @@ describe('maxmind-db-downloader', function() {
     });
   });
 
-  describe('setupAutoUpdate', function() {
-    it('auto update calls downloadAll correctly', function(done) {
+  describe('setupAutoUpdate', function () {
+    it('auto update calls downloadAll correctly', function (done) {
       // test takes slightly over 5 seconds, set
       // timeout to 6 seconds to ensure that we don't
       // timeout prematurely.
       this.timeout(6000);
-      sinon.stub(maxmindDbDownloader, 'downloadAll').callsFake(function() {});
+      sinon.stub(maxmindDbDownloader, 'downloadAll').callsFake(function () {});
       targetDirPath = maxmindDbDownloader.createTargetDir('test-db');
       downloadPromiseFunctions = maxmindDbDownloader.setupDownloadList(
         path.join('..', 'sources.json'),
@@ -113,7 +113,7 @@ describe('maxmind-db-downloader', function() {
       );
       // now after 5 seconds, downloadAll must have been called
       // at least 4 times (accounting for lag - setTimeout)
-      setTimeout(function() {
+      setTimeout(function () {
         assert.isTrue(
           maxmindDbDownloader.downloadAll.called,
           'downloadAll was called'

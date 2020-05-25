@@ -27,17 +27,17 @@ const versions = require(`../${TEMPLATE_DIR}/${VERSIONS_FILE}`);
 const stagedTemplates = cp
   .execSync('git status --porcelain', { cwd: ROOT_DIR, encoding: 'utf8' })
   .split('\n')
-  .filter(line =>
+  .filter((line) =>
     line.match(`^[AM]. packages/fxa-auth-server/${TEMPLATE_DIR}/\\w+`)
   )
-  .map(line => {
+  .map((line) => {
     const parts = line.split(' ');
     return parts[2] || parts[1];
   })
-  .map(templatePath => templatePath.split('/')[5])
-  .filter(fileName => !IGNORE.has(fileName))
-  .map(fileName => fileName.substr(0, fileName.lastIndexOf('.')))
-  .filter(templateName => {
+  .map((templatePath) => templatePath.split('/')[5])
+  .filter((fileName) => !IGNORE.has(fileName))
+  .map((fileName) => fileName.substr(0, fileName.lastIndexOf('.')))
+  .filter((templateName) => {
     if (DEDUP[templateName]) {
       return false;
     }
@@ -51,7 +51,7 @@ if (stagedTemplates.length === 0) {
     console.log('I see no work. Did you remember to `git add` your changes?');
   }
 } else {
-  stagedTemplates.forEach(templateName => {
+  stagedTemplates.forEach((templateName) => {
     const version = versions[templateName];
     if (version) {
       const type = typeof version;

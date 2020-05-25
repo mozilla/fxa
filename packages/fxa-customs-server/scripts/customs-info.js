@@ -30,7 +30,7 @@ if (!/.+:\d+/.test(process.argv[2])) {
 
 var mc = new Memcached(process.argv[2], { namespace: 'fxa~' });
 
-mc.get(process.argv[3], function(err, data) {
+mc.get(process.argv[3], function (err, data) {
   if (err) {
     console.error(err);
     return process.exit(1);

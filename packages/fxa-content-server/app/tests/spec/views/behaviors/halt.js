@@ -7,8 +7,8 @@ import HaltBehavior from 'views/behaviors/halt';
 
 var assert = chai.assert;
 
-describe('views/behaviors/halt', function() {
-  it('returns a promise that never resolves', function() {
+describe('views/behaviors/halt', function () {
+  it('returns a promise that never resolves', function () {
     var haltBehavior = new HaltBehavior();
     var promise = haltBehavior({});
     assert.isFunction(promise.then);

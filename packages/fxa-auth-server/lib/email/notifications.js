@@ -15,7 +15,7 @@ module.exports = (log, error) => {
   return (queue, db) => {
     queue.start();
 
-    queue.on('data', async message => {
+    queue.on('data', async (message) => {
       try {
         utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'notification');
 
@@ -34,7 +34,7 @@ module.exports = (log, error) => {
         }
 
         await Promise.all(
-          addresses.map(async address => {
+          addresses.map(async (address) => {
             const domain = utils.getAnonymizedEmailDomain(address);
 
             utils.logFlowEventFromMessage(log, message, eventType);

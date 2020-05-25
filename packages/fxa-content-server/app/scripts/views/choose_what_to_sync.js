@@ -110,7 +110,9 @@ const View = FormView.extend(
 
         this.notifier.trigger(
           'set-sync-engines',
-          offeredSyncEngines.filter(e => declinedSyncEngines.indexOf(e) === -1)
+          offeredSyncEngines.filter(
+            (e) => declinedSyncEngines.indexOf(e) === -1
+          )
         );
         return this.onSubmitComplete(account);
       });
@@ -140,7 +142,7 @@ const View = FormView.extend(
      * @returns {String[]}
      */
     _getOfferedEngineIds() {
-      return this._getOfferedEngines().map(syncEngine => syncEngine.id);
+      return this._getOfferedEngines().map((syncEngine) => syncEngine.id);
     },
 
     /**
@@ -155,7 +157,7 @@ const View = FormView.extend(
         .not(':checked');
 
       return uncheckedEngineEls
-        .map(function() {
+        .map(function () {
           return this.value;
         })
         .get();
@@ -169,7 +171,7 @@ const View = FormView.extend(
      */
     _trackDeclinedEngineIds(declinedEngineIds) {
       if (_.isArray(declinedEngineIds)) {
-        declinedEngineIds.forEach(engineId => {
+        declinedEngineIds.forEach((engineId) => {
           this.logViewEvent(`engine-unchecked.${engineId}`);
         });
       }

@@ -24,7 +24,7 @@ import SettingsPanelMixin from '../mixins/settings-panel-mixin';
 import UpgradeSessionTemplate from 'templates/settings/upgrade_session.mustache';
 import showProgressIndicator from '../decorators/progress_indicator';
 
-const t = msg => msg;
+const t = (msg) => msg;
 const EMAIL_REFRESH_SELECTOR =
   'button.settings-button.refresh-verification-state';
 const EMAIL_REFRESH_DELAYMS = 350;
@@ -64,8 +64,8 @@ export default (options = {}) => {
     },
 
     _clickRefreshVerificationState: showProgressIndicator(
-      function() {
-        return this.setupSessionGateIfRequired().then(verified => {
+      function () {
+        return this.setupSessionGateIfRequired().then((verified) => {
           this.setLastCheckedTime();
           if (verified) {
             this.displaySuccess(t('Primary email verified successfully'), {

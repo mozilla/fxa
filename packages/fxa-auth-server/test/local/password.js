@@ -20,10 +20,10 @@ describe('Password', () => {
     assert.equal(p2.version, 0, 'should be using version zero');
     return p1
       .verifyHash()
-      .then(hash => {
+      .then((hash) => {
         return p2.matches(hash);
       })
-      .then(matched => {
+      .then((matched) => {
         assert.ok(matched, 'identical passwords should match');
       });
   });
@@ -37,10 +37,10 @@ describe('Password', () => {
     assert.equal(p2.version, 1, 'should be using version one');
     return p1
       .verifyHash()
-      .then(hash => {
+      .then((hash) => {
         return p2.matches(hash);
       })
-      .then(matched => {
+      .then((matched) => {
         assert.ok(matched, 'identical passwords should match');
       });
   });
@@ -52,10 +52,10 @@ describe('Password', () => {
     const p2 = new Password(pwd, salt, 1);
     return p1
       .verifyHash()
-      .then(hash => {
+      .then((hash) => {
         return p2.matches(hash);
       })
-      .then(matched => {
+      .then((matched) => {
         assert.ok(!matched, 'passwords should not match');
       });
   });

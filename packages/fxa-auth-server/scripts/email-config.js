@@ -45,10 +45,10 @@ const KEYS = {
 };
 const VALID_SERVICES = new Set(['sendgrid', 'ses', 'socketlabs']);
 const VALID_PROPERTIES = new Map([
-  ['percentage', value => value >= 0 && value <= 100],
+  ['percentage', (value) => value >= 0 && value <= 100],
   [
     'regex',
-    value =>
+    (value) =>
       value &&
       typeof value === 'string' &&
       value.indexOf('"') === -1 &&

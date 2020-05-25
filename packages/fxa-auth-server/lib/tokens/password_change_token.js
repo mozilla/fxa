@@ -6,7 +6,7 @@
 
 const inherits = require('util').inherits;
 
-module.exports = function(log, Token, lifetime) {
+module.exports = function (log, Token, lifetime) {
   function PasswordChangeToken(keys, details) {
     details.lifetime = lifetime;
     Token.call(this, keys, details);
@@ -15,12 +15,12 @@ module.exports = function(log, Token, lifetime) {
 
   PasswordChangeToken.tokenTypeID = 'passwordChangeToken';
 
-  PasswordChangeToken.create = function(details) {
+  PasswordChangeToken.create = function (details) {
     log.trace('PasswordChangeToken.create', { uid: details && details.uid });
     return Token.createNewToken(PasswordChangeToken, details || {});
   };
 
-  PasswordChangeToken.fromHex = function(string, details) {
+  PasswordChangeToken.fromHex = function (string, details) {
     log.trace('PasswordChangeToken.fromHex');
     return Token.createTokenFromHexData(
       PasswordChangeToken,

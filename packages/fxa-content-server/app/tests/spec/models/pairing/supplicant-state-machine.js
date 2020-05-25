@@ -24,7 +24,7 @@ import {
 } from 'models/pairing/supplicant-state-machine';
 import PairingChannelClientErrors from 'lib/pairing-channel-client-errors';
 
-describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
+describe('models/auth_brokers/pairing/supplicant-state-machine', function () {
   let state;
   let relier;
   let notifier;
@@ -58,7 +58,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   });
 
   describe('SupplicantState', () => {
-    beforeEach(function() {
+    beforeEach(function () {
       state = new SupplicantState(
         {},
         {
@@ -109,7 +109,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   });
 
   describe('SendOAuthRequestWaitForAccountMetadata', () => {
-    it('waits for account metadata', done => {
+    it('waits for account metadata', (done) => {
       sinon.stub(mockChannelClient, 'send').callsFake(() => {
         setTimeout(() => {
           mockChannelClient.trigger('remote:pair:auth:metadata', {
@@ -136,7 +136,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   });
 
   describe('WaitForAuthorizations', () => {
-    it('transitions to WaitForAuthorityAuthorize', done => {
+    it('transitions to WaitForAuthorityAuthorize', (done) => {
       state = new WaitForAuthorizations(
         {},
         {
@@ -161,7 +161,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
       }, 1);
     });
 
-    it('transitions to WaitForSupplicantAuthorize', done => {
+    it('transitions to WaitForSupplicantAuthorize', (done) => {
       state = new WaitForAuthorizations(
         {},
         {
@@ -186,7 +186,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
       }, 1);
     });
 
-    it('validates remote:pair:auth:authorize', done => {
+    it('validates remote:pair:auth:authorize', (done) => {
       state = new WaitForAuthorizations(
         {},
         {
@@ -217,7 +217,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   });
 
   describe('WaitForSupplicantAuthorize', () => {
-    it('goes to SendResultToRelier', done => {
+    it('goes to SendResultToRelier', (done) => {
       sinon.stub(mockChannelClient, 'send').callsFake(() => {
         return Promise.resolve();
       });
@@ -244,7 +244,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
   });
 
   describe('WaitForAuthorityAuthorize', () => {
-    it('transitions to the SendResultToRelier', done => {
+    it('transitions to the SendResultToRelier', (done) => {
       state = new WaitForAuthorityAuthorize(
         {},
         {
@@ -267,7 +267,7 @@ describe('models/auth_brokers/pairing/supplicant-state-machine', function() {
       }, 1);
     });
 
-    it('validates code', done => {
+    it('validates code', (done) => {
       state = new WaitForAuthorityAuthorize(
         {},
         {

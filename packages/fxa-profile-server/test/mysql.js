@@ -7,27 +7,27 @@ const sinon = require('sinon');
 
 const MysqlStore = require('../lib/db/mysql');
 
-describe('mysql db backend', function() {
+describe('mysql db backend', function () {
   var store;
   var mockConnection;
   var mockResponses;
   var capturedQueries;
 
-  beforeEach(function() {
+  beforeEach(function () {
     capturedQueries = [];
     mockResponses = [];
     mockConnection = {
       release: sinon.spy(),
-      ping: sinon.spy(function(cb) {
+      ping: sinon.spy(function (cb) {
         return cb();
       }),
-      query: sinon.spy(function(q, cb) {
+      query: sinon.spy(function (q, cb) {
         capturedQueries.push(q);
         return cb.apply(undefined, mockResponses[capturedQueries.length - 1]);
       }),
     };
     store = new MysqlStore({});
-    sinon.stub(store._pool, 'getConnection').callsFake(function(cb) {
+    sinon.stub(store._pool, 'getConnection').callsFake(function (cb) {
       cb(null, mockConnection);
     });
   });
@@ -36,7 +36,7 @@ describe('mysql db backend', function() {
     return store.disconnect();
   });
 
-  it('should force new connections into strict mode', function() {
+  it('should force new connections into strict mode', function () {
     mockResponses.push([null, []]);
     mockResponses.push([null, []]);
     mockResponses.push([
@@ -46,7 +46,7 @@ describe('mysql db backend', function() {
     mockResponses.push([null, []]);
     return store
       .ping()
-      .then(function() {
+      .then(function () {
         assert.equal(capturedQueries.length, 4);
         // The first query sets the timezone.
         assert.equal(capturedQueries[0], "SET time_zone = '+00:00'");
@@ -63,24 +63,24 @@ describe('mysql db backend', function() {
           "SET SESSION sql_mode = 'DUMMY_VALUE,NO_ENGINE_SUBSTITUTION,STRICT_ALL_TABLES'"
         );
       })
-      .then(function() {
+      .then(function () {
         // But re-using the connection a second time
         return store.ping();
       })
-      .then(function() {
+      .then(function () {
         // Should not re-issue the strict-mode queries.
         assert.equal(capturedQueries.length, 4);
       });
   });
 
-  it('should not mess with connections that already have strict mode', function() {
+  it('should not mess with connections that already have strict mode', function () {
     mockResponses.push([null, []]);
     mockResponses.push([null, []]);
     mockResponses.push([
       null,
       [{ mode: 'STRICT_ALL_TABLES,NO_ENGINE_SUBSTITUTION' }],
     ]);
-    return store.ping().then(function() {
+    return store.ping().then(function () {
       assert.equal(capturedQueries.length, 3);
       // The only queries are to check connection parameters.
       assert.equal(capturedQueries[0], "SET time_zone = '+00:00'");
@@ -94,17 +94,17 @@ describe('mysql db backend', function() {
     });
   });
 
-  it('should propagate any errors that happen when setting the mode', function() {
+  it('should propagate any errors that happen when setting the mode', function () {
     mockResponses.push([null, []]);
     mockResponses.push([null, []]);
     mockResponses.push([null, [{ mode: 'SOME_NONSENSE_DEFAULT' }]]);
     mockResponses.push([new Error('failed to set mode')]);
     return store
       .ping()
-      .then(function() {
+      .then(function () {
         assert.fail('the ping attempt should have failed');
       })
-      .catch(function(err) {
+      .catch(function (err) {
         assert.equal(capturedQueries.length, 4);
         assert.equal(err.message, 'failed to set mode');
       });

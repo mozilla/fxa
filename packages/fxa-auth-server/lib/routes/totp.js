@@ -43,14 +43,11 @@ module.exports = (log, db, mailer, customs, config) => {
           schema: isA.object({
             qrCodeUrl: isA.string().required(),
             secret: isA.string().required(),
-            recoveryCodes: isA
-              .array()
-              .items(isA.string())
-              .required(),
+            recoveryCodes: isA.array().items(isA.string()).required(),
           }),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('totp.create', request);
 
         const sessionToken = request.auth.credentials;
@@ -122,7 +119,7 @@ module.exports = (log, db, mailer, customs, config) => {
         },
         response: {},
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('totp.destroy', request);
 
         const sessionToken = request.auth.credentials;
@@ -195,7 +192,7 @@ module.exports = (log, db, mailer, customs, config) => {
           }),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('totp.exists', request);
 
         const sessionToken = request.auth.credentials;
@@ -231,11 +228,7 @@ module.exports = (log, db, mailer, customs, config) => {
         },
         validate: {
           payload: {
-            code: isA
-              .string()
-              .max(32)
-              .regex(validators.DIGITS)
-              .required(),
+            code: isA.string().max(32).regex(validators.DIGITS).required(),
             service: validators.service,
           },
         },
@@ -245,7 +238,7 @@ module.exports = (log, db, mailer, customs, config) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('session.verify.totp', request);
 
         const code = request.payload.code;

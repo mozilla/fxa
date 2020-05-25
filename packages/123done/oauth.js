@@ -20,10 +20,10 @@ function verifyIdToken(oauthConfig, token) {
   // Little bit of a hack to find a default kid.
   return verifier
     .fetch(jku)
-    .catch(function() {
+    .catch(function () {
       /* that preloaded the keyset, ignore inevitable failure */
     })
-    .then(function() {
+    .then(function () {
       var defaults = {
         jku: jku,
       };
@@ -33,7 +33,7 @@ function verifyIdToken(oauthConfig, token) {
       }
       return verifier.verify(token, defaults);
     })
-    .then(function(claims) {
+    .then(function (claims) {
       if (claims.aud !== config.client_id) {
         throw new Error('unexpected id_token audience: ' + claims.aud);
       }
@@ -66,7 +66,7 @@ function setupOAuthFlow(req, action, options = {}, cb) {
     {
       uri: config.issuer_uri + '/.well-known/openid-configuration',
     },
-    function(err, r, body) {
+    function (err, r, body) {
       if (err) {
         return cb(err);
       }
@@ -103,10 +103,10 @@ function redirectUrl(params, oauthConfig) {
   return oauthConfig.authorization_endpoint + toQueryString(params);
 }
 
-module.exports = function(app, db) {
+module.exports = function (app, db) {
   // begin a new oauth log in flow
-  app.get('/api/login', function(req, res) {
-    setupOAuthFlow(req, 'signin', {}, function(err, params, oauthConfig) {
+  app.get('/api/login', function (req, res) {
+    setupOAuthFlow(req, 'signin', {}, function (err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -115,8 +115,8 @@ module.exports = function(app, db) {
   });
 
   // begin a new oauth sign up flow
-  app.get('/api/signup', function(req, res) {
-    setupOAuthFlow(req, 'signup', {}, function(err, params, oauthConfig) {
+  app.get('/api/signup', function (req, res) {
+    setupOAuthFlow(req, 'signup', {}, function (err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -125,8 +125,8 @@ module.exports = function(app, db) {
   });
 
   // let the content server choose the flow
-  app.get('/api/best_choice', function(req, res) {
-    setupOAuthFlow(req, null, {}, function(err, params, oauthConfig) {
+  app.get('/api/best_choice', function (req, res) {
+    setupOAuthFlow(req, null, {}, function (err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -135,8 +135,8 @@ module.exports = function(app, db) {
   });
 
   // begin a new oauth email-first flow
-  app.get('/api/email_first', function(req, res) {
-    setupOAuthFlow(req, 'email', {}, function(err, params, oauthConfig) {
+  app.get('/api/email_first', function (req, res) {
+    setupOAuthFlow(req, 'email', {}, function (err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -144,8 +144,8 @@ module.exports = function(app, db) {
     });
   });
 
-  app.get('/api/two_step_authentication', function(req, res) {
-    setupOAuthFlow(req, 'email', { acrValues: 'AAL2' }, function(
+  app.get('/api/two_step_authentication', function (req, res) {
+    setupOAuthFlow(req, 'email', { acrValues: 'AAL2' }, function (
       err,
       params,
       oauthConfig
@@ -158,8 +158,8 @@ module.exports = function(app, db) {
   });
 
   // begin a force auth flow
-  app.get('/api/force_auth', function(req, res) {
-    setupOAuthFlow(req, 'force_auth', {}, function(err, params, oauthConfig) {
+  app.get('/api/force_auth', function (req, res) {
+    setupOAuthFlow(req, 'force_auth', {}, function (err, params, oauthConfig) {
       if (err) {
         return res.send(400, err);
       }
@@ -167,8 +167,8 @@ module.exports = function(app, db) {
     });
   });
 
-  app.get('/api/prompt_none', function(req, res) {
-    setupOAuthFlow(req, null, { prompt: 'none' }, function(
+  app.get('/api/prompt_none', function (req, res) {
+    setupOAuthFlow(req, null, { prompt: 'none' }, function (
       err,
       params,
       oauthConfig
@@ -186,7 +186,7 @@ module.exports = function(app, db) {
     });
   });
 
-  app.get('/api/oauth', function(req, res) {
+  app.get('/api/oauth', function (req, res) {
     var state = req.query.state;
     var code = req.query.code;
 
@@ -226,7 +226,7 @@ module.exports = function(app, db) {
             client_secret: config.client_secret,
           },
         },
-        function(err, r, body) {
+        function (err, r, body) {
           if (err) {
             return res.send(r.status, err);
           }
@@ -239,7 +239,7 @@ module.exports = function(app, db) {
 
           // Verify signature and extract claims from id_token
           verifyIdToken(oauthConfig, id_token)
-            .then(function(claims) {
+            .then(function (claims) {
               req.session.uid = claims.sub;
               req.session.amr = claims.amr;
               req.session.acr = claims.acr;
@@ -251,7 +251,7 @@ module.exports = function(app, db) {
                     Authorization: 'Bearer ' + token,
                   },
                 },
-                function(err, r, body) {
+                function (err, r, body) {
                   console.log(err, body); //eslint-disable-line no-console
                   if (err || r.status >= 400) {
                     return res.send(r ? r.status : 400, err || body);
@@ -271,7 +271,7 @@ module.exports = function(app, db) {
                 }
               );
             })
-            .catch(function(err) {
+            .catch(function (err) {
               return res.send(400, err);
             });
         }

@@ -35,45 +35,24 @@ const TYPES = {
   ACTION: joi.string().regex(PATTERNS.ACTION),
   ADJUST_CHANNEL_APP_ID: joi.string().regex(PATTERNS.ADJUST_CHANNEL_APP_ID),
   BOOLEAN: joi.boolean(),
-  DIMENSION: joi
-    .number()
-    .integer()
-    .min(0),
-  DOMAIN: joi
-    .string()
-    .max(32)
-    .regex(PATTERNS.DOMAIN),
+  DIMENSION: joi.number().integer().min(0),
+  DOMAIN: joi.string().max(32).regex(PATTERNS.DOMAIN),
   EXPERIMENT: joi.string().valid(EXPERIMENT_NAMES),
-  FLOW_ID: joi
-    .string()
-    .hex()
-    .length(64),
+  FLOW_ID: joi.string().hex().length(64),
   HEX32: joi.string().regex(/^[0-9a-f]{32}$/),
   INTEGER: joi.number().integer(),
-  NEWSLETTERS: joi
-    .array()
-    .items(joi.string().max(30))
-    .allow('none'),
-  OFFSET: joi
-    .number()
-    .integer()
-    .min(0),
+  NEWSLETTERS: joi.array().items(joi.string().max(30)).allow('none'),
+  OFFSET: joi.number().integer().min(0),
   REFERRER: joi
     .string()
     .max(2048)
     .uri({ scheme: ['android-app', 'http', 'https'] })
     .allow('none'),
   RESUME: joi.string().regex(PATTERNS.BASE64),
-  SIGNIN_CODE: joi
-    .string()
-    .regex(PATTERNS.BASE64_URL_SAFE)
-    .length(8),
+  SIGNIN_CODE: joi.string().regex(PATTERNS.BASE64_URL_SAFE).length(8),
   STRING: joi.string().max(1024), // 1024 is arbitrary, seems like it should give CSP reports plenty of space.
   SYNC_ENGINES: joi.array().items(joi.string().regex(PATTERNS.SYNC_ENGINE)),
-  TIME: joi
-    .number()
-    .integer()
-    .min(0),
+  TIME: joi.number().integer().min(0),
   URL: joi
     .string()
     .max(2048)

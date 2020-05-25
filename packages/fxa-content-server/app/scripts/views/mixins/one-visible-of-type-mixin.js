@@ -24,7 +24,7 @@ const visibleViews = {};
  * @param {String} options.viewType - Only one view per `viewType` can be visible at a time.
  * @returns {Function}
  */
-export default function(options) {
+export default function (options) {
   const { hideMethod, showMethod, viewType } = options;
 
   return {

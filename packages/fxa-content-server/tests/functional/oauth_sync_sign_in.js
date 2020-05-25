@@ -34,7 +34,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('signin with OAuth after Sync', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
     email2 = createEmail();
 
@@ -48,7 +48,7 @@ registerSuite('signin with OAuth after Sync', {
   },
 
   tests: {
-    'signin to OAuth with Sync creds': function() {
+    'signin to OAuth with Sync creds': function () {
       this.timeout = 60 * 1000;
       return (
         this.remote
@@ -109,7 +109,7 @@ registerSuite('signin with OAuth after Sync', {
 });
 
 registerSuite('signin to Sync after OAuth', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
     email2 = createEmail();
 
@@ -124,7 +124,7 @@ registerSuite('signin to Sync after OAuth', {
   },
 
   tests: {
-    'email-first Sync signin': function() {
+    'email-first Sync signin': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(

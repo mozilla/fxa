@@ -23,7 +23,7 @@ function jsonParse(content) {
 
 function isValidPng(image, cb) {
   // must parse ok, and be expected pixel dimensions
-  pngparse.parseBuffer(image, function(err, data) {
+  pngparse.parseBuffer(image, function (err, data) {
     if (err) {
       return cb(err);
     }
@@ -159,7 +159,7 @@ Avatar.prototype.download = function avatarDownload(options) {
       return self.emit('error', result);
     }
 
-    isValidPng(body, function(err /*, data */) {
+    isValidPng(body, function (err /*, data */) {
       if (err) {
         result.error = err;
         return self.emit('error', result);

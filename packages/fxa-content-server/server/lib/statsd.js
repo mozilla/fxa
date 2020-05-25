@@ -10,7 +10,7 @@ const StatsD = require('hot-shots');
 
 const noopStatsd = () => {
   const mock = {};
-  Object.keys(StatsD.prototype).forEach(x => {
+  Object.keys(StatsD.prototype).forEach((x) => {
     if (typeof StatsD.prototype[x] === 'function') {
       mock[x] = NOOP;
     }
@@ -21,7 +21,7 @@ const noopStatsd = () => {
 const statsd = config.enabled
   ? new StatsD({
       ...config,
-      errorHandler: err => {
+      errorHandler: (err) => {
         // eslint-disable-next-line no-use-before-define
         log.error('statsd.error', err);
       },

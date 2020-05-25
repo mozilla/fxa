@@ -6,8 +6,8 @@ const sinon = require('sinon');
 const { test } = require('tap');
 
 const log = {
-  info: function() {},
-  error: function() {},
+  info: function () {},
+  error: function () {},
 };
 
 const banHandler = require('../../lib/bans/handler');

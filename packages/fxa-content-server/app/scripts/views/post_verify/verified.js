@@ -12,7 +12,7 @@ import ServiceMixin from '../mixins/service-mixin';
 import Template from 'templates/post_verify/verified.mustache';
 import VerificationReasonMixin from '../mixins/verification-reason-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const TEMPLATE_INFO = {
   RECOVERY_KEY: {

@@ -23,7 +23,7 @@ function deriveHawkCredentials(tokenHex, context, size) {
   var token = sjcl.codec.hex.toBits(tokenHex);
   var info = sjcl.codec.utf8String.toBits(PREFIX_NAME + context);
 
-  return hkdf(token, info, salt, size || 3 * 32).then(function(out) {
+  return hkdf(token, info, salt, size || 3 * 32).then(function (out) {
     var authKey = bitSlice(out, 8 * 32, 8 * 64);
     var bundleKey = bitSlice(out, 8 * 64);
 

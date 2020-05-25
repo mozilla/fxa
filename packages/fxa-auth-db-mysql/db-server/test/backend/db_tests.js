@@ -196,11 +196,11 @@ function createRecoveryData() {
 
 // To run these tests from a new backend, pass the config and an already created
 // DB API for them to be run against.
-module.exports = function(config, DB) {
+module.exports = function (config, DB) {
   describe('db_tests', () => {
     let db, accountData;
     before(() => {
-      return DB.connect(config).then(db_ => {
+      return DB.connect(config).then((db_) => {
         db = db_;
         return db.ping();
       });
@@ -215,7 +215,7 @@ module.exports = function(config, DB) {
       beforeEach(() => {
         return db
           .accountExists(accountData.emailBuffer)
-          .then(exists =>
+          .then((exists) =>
             assert(exists, 'account exists for this email address')
           );
       });
@@ -224,11 +224,11 @@ module.exports = function(config, DB) {
         const anotherAccountData = createAccount();
         return db
           .accountExists(anotherAccountData.emailBuffer)
-          .then(assert.fail, err => assert.equal(err.code, 404, 'Not found'))
+          .then(assert.fail, (err) => assert.equal(err.code, 404, 'Not found'))
           .then(() =>
             db.createAccount(anotherAccountData.uid, anotherAccountData)
           )
-          .then(account => {
+          .then((account) => {
             assert.deepEqual(
               account,
               {},
@@ -237,7 +237,7 @@ module.exports = function(config, DB) {
             return db
               .accountExists(Buffer.from(anotherAccountData.email))
               .then(
-                exists =>
+                (exists) =>
                   assert(exists, 'account exists for this email address'),
                 assert.fail
               );
@@ -247,7 +247,7 @@ module.exports = function(config, DB) {
       it('should fail with duplicate account', () => {
         return db
           .createAccount(accountData.uid, accountData)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert(err, 'trying to create the same account produces an error');
             assert.equal(err.code, 409, 'error code');
             assert.equal(err.errno, 101, 'error errno');
@@ -257,7 +257,7 @@ module.exports = function(config, DB) {
       });
 
       it('should return account', () => {
-        return db.account(accountData.uid).then(account => {
+        return db.account(accountData.uid).then((account) => {
           assert.deepEqual(account.uid, accountData.uid, 'uid');
           assert.equal(account.email, accountData.email, 'email');
           assert.deepEqual(
@@ -299,7 +299,7 @@ module.exports = function(config, DB) {
       });
 
       it('should return email record', () => {
-        return db.emailRecord(accountData.emailBuffer).then(account => {
+        return db.emailRecord(accountData.emailBuffer).then((account) => {
           assert.deepEqual(account.uid, accountData.uid, 'uid');
           assert.equal(account.email, accountData.email, 'email');
           assert.deepEqual(
@@ -345,7 +345,7 @@ module.exports = function(config, DB) {
           .checkPassword(accountData.uid, {
             verifyHash: Buffer.from(crypto.randomBytes(32)),
           })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert(err, 'incorrect password produces an error');
             assert.equal(err.code, 400, 'error code');
             assert.equal(err.errno, 103, 'error errno');
@@ -360,7 +360,7 @@ module.exports = function(config, DB) {
       it('should be successful with correct password', () => {
         return db
           .checkPassword(accountData.uid, { verifyHash: zeroBuffer32 })
-          .then(account => {
+          .then((account) => {
             assert.deepEqual(account.uid, account.uid, 'uid');
             assert.lengthOf(Object.keys(account), 1);
           });
@@ -378,7 +378,7 @@ module.exports = function(config, DB) {
       });
 
       it('should get sessions', () => {
-        return db.sessions(accountData.uid).then(sessions => {
+        return db.sessions(accountData.uid).then((sessions) => {
           assert.isArray(sessions);
           assert.lengthOf(sessions, 1);
 
@@ -449,7 +449,7 @@ module.exports = function(config, DB) {
           .then(() =>
             db.createSessionToken(sessionTokenData.tokenId, sessionTokenData)
           )
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -457,14 +457,14 @@ module.exports = function(config, DB) {
             );
             return db.sessions(accountData.uid);
           })
-          .then(sessions => {
+          .then((sessions) => {
             assert.isArray(sessions);
             assert.lengthOf(sessions, 1);
           });
       });
 
       it('should get session token', () => {
-        return db.sessionToken(sessionTokenData.tokenId).then(token => {
+        return db.sessionToken(sessionTokenData.tokenId).then((token) => {
           assert.isFalse(token.hasOwnProperty('tokenId'));
           assert.deepEqual(
             token.tokenData,
@@ -562,7 +562,7 @@ module.exports = function(config, DB) {
         };
         return db
           .updateSessionToken(sessionTokenData.tokenId, sessionTokenUpdates)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -570,7 +570,7 @@ module.exports = function(config, DB) {
             );
             return db.sessionToken(sessionTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.deepEqual(
               token.tokenData,
               sessionTokenData.data,
@@ -643,7 +643,7 @@ module.exports = function(config, DB) {
       it('should update mustVerify to true, but not to false', () => {
         return db
           .sessionToken(sessionTokenData.tokenId)
-          .then(token => {
+          .then((token) => {
             assert.equal(
               token.mustVerify,
               false,
@@ -658,7 +658,7 @@ module.exports = function(config, DB) {
               mustVerify: true,
             });
           })
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -666,7 +666,7 @@ module.exports = function(config, DB) {
             );
             return db.sessionToken(sessionTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.equal(
               token.mustVerify,
               true,
@@ -681,7 +681,7 @@ module.exports = function(config, DB) {
               mustVerify: false,
             });
           })
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -689,7 +689,7 @@ module.exports = function(config, DB) {
             );
             return db.sessionToken(sessionTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.equal(
               token.mustVerify,
               true,
@@ -704,7 +704,7 @@ module.exports = function(config, DB) {
       });
 
       it('should get verification state', () => {
-        return db.sessionToken(sessionTokenData.tokenId).then(token => {
+        return db.sessionToken(sessionTokenData.tokenId).then((token) => {
           assert.deepEqual(
             token.tokenData,
             sessionTokenData.data,
@@ -797,13 +797,13 @@ module.exports = function(config, DB) {
       it('should fail session verification for invalid tokenId', () => {
         return db
           .verifyTokens(hex16(), accountData)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'err.errno is correct');
             assert.equal(err.code, 404, 'err.code is correct');
 
             return db.sessionToken(sessionTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.equal(
               token.mustVerify,
               sessionTokenData.mustVerify,
@@ -820,13 +820,13 @@ module.exports = function(config, DB) {
       it('should fail session verification for invalid uid', () => {
         return db
           .verifyTokens(sessionTokenData.tokenVerificationId, { uid: hex16() })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'err.errno is correct');
             assert.equal(err.code, 404, 'err.code is correct');
 
             return db.sessionToken(sessionTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.equal(
               token.mustVerify,
               sessionTokenData.mustVerify,
@@ -846,7 +846,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.sessionToken(sessionTokenData.tokenId);
           }, assert.fail)
-          .then(token => {
+          .then((token) => {
             assert.equal(!!token.mustVerify, false, 'mustVerify is null');
             assert.isNull(token.tokenVerificationId);
           });
@@ -864,13 +864,13 @@ module.exports = function(config, DB) {
         });
 
         it('should get device count', () => {
-          return db.accountDevices(accountData.uid).then(results => {
+          return db.accountDevices(accountData.uid).then((results) => {
             assert.lengthOf(results, 1);
           });
         });
 
         it('db.sessions should contain device data', () => {
-          return db.sessions(accountData.uid).then(sessions => {
+          return db.sessions(accountData.uid).then((sessions) => {
             assert.lengthOf(sessions, 1);
             // the next session has a device attached to it
             assert.equal(
@@ -890,12 +890,12 @@ module.exports = function(config, DB) {
         it('db.deleteSessionToken should delete device', () => {
           return db
             .accountDevices(accountData.uid)
-            .then(results => {
+            .then((results) => {
               assert.lengthOf(results, 1);
               return db.deleteSessionToken(sessionTokenData.tokenId);
             })
             .then(() => db.accountDevices(accountData.uid))
-            .then(results => {
+            .then((results) => {
               assert.lengthOf(results, 0);
             });
         });
@@ -905,7 +905,7 @@ module.exports = function(config, DB) {
         beforeEach(() => {
           return db
             .deleteSessionToken(sessionTokenData.tokenId)
-            .then(result => {
+            .then((result) => {
               assert.deepEqual(
                 result,
                 {},
@@ -917,7 +917,7 @@ module.exports = function(config, DB) {
         it('should delete session', () => {
           return db
             .sessionToken(sessionTokenData.tokenId)
-            .then(assert.fail, err => {
+            .then(assert.fail, (err) => {
               assert.equal(err.errno, 116, 'err.errno is correct');
               assert.equal(err.code, 404, 'err.code is correct');
             });
@@ -926,7 +926,7 @@ module.exports = function(config, DB) {
         it('should fail to verify deleted session', () => {
           return db
             .verifyTokens(sessionTokenData.tokenVerificationId, accountData)
-            .then(assert.fail, err => {
+            .then(assert.fail, (err) => {
               assert.equal(err.errno, 116, 'err.errno is correct');
               assert.equal(err.code, 404, 'err.code is correct');
             });
@@ -948,7 +948,7 @@ module.exports = function(config, DB) {
         keyFetchTokenData = makeMockKeyFetchToken(accountData.uid, false);
         return db
           .createKeyFetchToken(keyFetchTokenData.tokenId, keyFetchTokenData)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -956,7 +956,7 @@ module.exports = function(config, DB) {
             );
             return db.keyFetchToken(keyFetchTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.isUndefined(token.tokenId);
             assert.deepEqual(
               token.authKey,
@@ -993,7 +993,7 @@ module.exports = function(config, DB) {
         keyFetchTokenData = makeMockKeyFetchToken(accountData.uid, true);
         return db
           .createKeyFetchToken(keyFetchTokenData.tokenId, keyFetchTokenData)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1003,7 +1003,7 @@ module.exports = function(config, DB) {
               keyFetchTokenData.tokenId
             );
           })
-          .then(token => {
+          .then((token) => {
             assert.isUndefined(token.tokenId);
             assert.deepEqual(
               token.authKey,
@@ -1043,7 +1043,7 @@ module.exports = function(config, DB) {
       it('should get keyfetch token verification status', () => {
         return db
           .keyFetchTokenWithVerificationStatus(keyFetchTokenData.tokenId)
-          .then(token => {
+          .then((token) => {
             assert.deepEqual(
               token.authKey,
               keyFetchTokenData.authKey,
@@ -1078,16 +1078,18 @@ module.exports = function(config, DB) {
       });
 
       it('should fail keyfetch token verficiation for invalid tokenVerficationId', () => {
-        return db.verifyTokens(hex16(), accountData).then(assert.fail, err => {
-          assert.equal(err.errno, 116, 'err.errno is correct');
-          assert.equal(err.code, 404, 'err.code is correct');
-        });
+        return db
+          .verifyTokens(hex16(), accountData)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'err.errno is correct');
+            assert.equal(err.code, 404, 'err.code is correct');
+          });
       });
 
       it('should fail keyfetch token verficiation for invalid uid', () => {
         return db
           .verifyTokens(keyFetchTokenData.tokenVerificationId, { uid: hex16() })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'err.errno is correct');
             assert.equal(err.code, 404, 'err.code is correct');
           });
@@ -1096,7 +1098,7 @@ module.exports = function(config, DB) {
       it('should verify keyfetch token', () => {
         return db
           .keyFetchTokenWithVerificationStatus(keyFetchTokenData.tokenId)
-          .then(token => {
+          .then((token) => {
             assert.deepEqual(
               token.tokenVerificationId,
               keyFetchTokenData.tokenVerificationId,
@@ -1112,7 +1114,7 @@ module.exports = function(config, DB) {
               keyFetchTokenData.tokenId
             );
           })
-          .then(token => {
+          .then((token) => {
             assert.isNull(token.tokenVerificationId);
           });
       });
@@ -1120,7 +1122,7 @@ module.exports = function(config, DB) {
       it('should delete key fetch token', () => {
         return db
           .deleteKeyFetchToken(keyFetchTokenData.tokenId)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1128,7 +1130,7 @@ module.exports = function(config, DB) {
             );
             return db
               .keyFetchToken(keyFetchTokenData.tokenVerificationId)
-              .then(assert.fail, err => {
+              .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'err.errno is correct');
                 assert.equal(err.code, 404, 'err.code is correct');
               });
@@ -1149,7 +1151,7 @@ module.exports = function(config, DB) {
       it('should have created password forgot token', () => {
         return db
           .passwordForgotToken(forgotPasswordTokenData.tokenId)
-          .then(token => {
+          .then((token) => {
             assert.deepEqual(
               token.tokenData,
               forgotPasswordTokenData.data,
@@ -1195,7 +1197,7 @@ module.exports = function(config, DB) {
             forgotPasswordTokenData.tokenId,
             forgotPasswordTokenData
           )
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1203,7 +1205,7 @@ module.exports = function(config, DB) {
             );
             return db.passwordForgotToken(forgotPasswordTokenData.tokenId);
           })
-          .then(token => {
+          .then((token) => {
             assert.equal(token.tries, 9, 'token now has had 9 tries');
           });
       });
@@ -1211,7 +1213,7 @@ module.exports = function(config, DB) {
       it('should delete password forgot token', () => {
         return db
           .deletePasswordForgotToken(forgotPasswordTokenData.tokenId)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1219,7 +1221,7 @@ module.exports = function(config, DB) {
             );
             return db
               .passwordForgotToken(forgotPasswordTokenData.tokenId)
-              .then(assert.fail, err => {
+              .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'err.errno is correct');
                 assert.equal(err.code, 404, 'err.code is correct');
               });
@@ -1241,7 +1243,7 @@ module.exports = function(config, DB) {
       it('should have created password change token', () => {
         return db
           .passwordChangeToken(changePasswordTokenData.tokenId)
-          .then(token => {
+          .then((token) => {
             assert.equal(
               token.hasOwnProperty('tokenId'),
               false,
@@ -1279,7 +1281,7 @@ module.exports = function(config, DB) {
             anotherChangePasswordTokenData.tokenId,
             anotherChangePasswordTokenData
           )
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1289,7 +1291,7 @@ module.exports = function(config, DB) {
             // Fails to retrieve original change token since it was over written
             return db
               .passwordChangeToken(changePasswordTokenData.tokenId)
-              .then(assert.fail, err => {
+              .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'err.errno is correct');
                 assert.equal(err.code, 404, 'err.code is correct');
                 return db.passwordChangeToken(
@@ -1297,7 +1299,7 @@ module.exports = function(config, DB) {
                 );
               });
           })
-          .then(token => {
+          .then((token) => {
             assert.deepEqual(
               token.tokenData,
               anotherChangePasswordTokenData.data,
@@ -1327,7 +1329,7 @@ module.exports = function(config, DB) {
             changePasswordTokenData.tokenId,
             changePasswordTokenData
           )
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1335,7 +1337,7 @@ module.exports = function(config, DB) {
             );
             return db
               .passwordChangeToken(changePasswordTokenData.tokenId)
-              .then(assert.fail, err => {
+              .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'err.errno is correct');
                 assert.equal(err.code, 404, 'err.code is correct');
               });
@@ -1346,7 +1348,7 @@ module.exports = function(config, DB) {
     it('should verify account email with legacy db.verifyEmail', () => {
       return db
         .emailRecord(accountData.emailBuffer)
-        .then(emailRecord => {
+        .then((emailRecord) => {
           assert.equal(
             emailRecord.emailVerified,
             false,
@@ -1359,7 +1361,7 @@ module.exports = function(config, DB) {
           );
           return db.verifyEmail(emailRecord.uid, emailRecord.emailCode);
         })
-        .then(function(result) {
+        .then(function (result) {
           assert.deepEqual(
             result,
             {},
@@ -1367,7 +1369,7 @@ module.exports = function(config, DB) {
           );
           return db.accountEmails(accountData.uid);
         })
-        .then(function(emails) {
+        .then(function (emails) {
           assert.lengthOf(emails, 1);
           assert.equal(!!emails[0].isVerified, true, 'email is verified');
           assert.notEqual(emails[0].verifiedAt, null);
@@ -1375,7 +1377,7 @@ module.exports = function(config, DB) {
           assert.equal(!!emails[0].isPrimary, true, 'email is primary');
           return db.account(accountData.uid);
         })
-        .then(function(account) {
+        .then(function (account) {
           assert(
             account.emailVerified,
             'account should now be emailVerified (truthy)'
@@ -1392,12 +1394,12 @@ module.exports = function(config, DB) {
     it('should change account locale', () => {
       return db
         .account(accountData.uid)
-        .then(account => {
+        .then((account) => {
           assert.equal(account.locale, 'en_US', 'correct locale set');
           accountData.locale = 'en_NZ';
           return db.updateLocale(accountData.uid, accountData);
         })
-        .then(function(result) {
+        .then(function (result) {
           assert.deepEqual(
             result,
             {},
@@ -1405,7 +1407,7 @@ module.exports = function(config, DB) {
           );
           return db.account(accountData.uid);
         })
-        .then(function(account) {
+        .then(function (account) {
           assert.equal(
             account.locale,
             'en_NZ',
@@ -1424,7 +1426,7 @@ module.exports = function(config, DB) {
             forgotPasswordTokenData.tokenId,
             forgotPasswordTokenData
           )
-          .then(function() {
+          .then(function () {
             return db.forgotPasswordVerified(
               forgotPasswordTokenData.tokenId,
               accountResetTokenData
@@ -1435,7 +1437,7 @@ module.exports = function(config, DB) {
       it('db.accountResetToken should create token', () => {
         return db
           .accountResetToken(accountResetTokenData.tokenId)
-          .then(token => {
+          .then((token) => {
             assert.isFalse(token.hasOwnProperty('tokenId'));
             assert.deepEqual(
               token.uid,
@@ -1462,7 +1464,7 @@ module.exports = function(config, DB) {
       it('db.deleteAccountResetToken should delete token', () => {
         return db
           .deleteAccountResetToken(accountResetTokenData.tokenId)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1470,7 +1472,7 @@ module.exports = function(config, DB) {
             );
             return db
               .accountResetToken(accountResetTokenData.tokenId)
-              .then(assert.fail, err => {
+              .then(assert.fail, (err) => {
                 assert.equal(err.errno, 116, 'err.errno is correct');
                 assert.equal(err.code, 404, 'err.code is correct');
               });
@@ -1513,7 +1515,7 @@ module.exports = function(config, DB) {
             () => db.accountResetToken(anotherAccountResetTokenData.tokenId),
             assert.fail
           )
-          .then(token => {
+          .then((token) => {
             // check a couple of fields
             assert.deepEqual(
               token.uid,
@@ -1551,21 +1553,21 @@ module.exports = function(config, DB) {
           .then(() =>
             db.accountResetToken(anotherAccountResetTokenData.tokenId)
           )
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             // throw away accountResetToken (shouldn't exist any longer)
             assert.equal(err.errno, 116, 'err.errno is correct');
             assert.equal(err.code, 404, 'err.code is correct');
 
             return db.passwordForgotToken(forgotPasswordTokenData.tokenId);
           })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             // throw away passwordForgotToken (shouldn't exist any longer)
             assert.equal(err.errno, 116, 'err.errno is correct');
             assert.equal(err.code, 404, 'err.code is correct');
 
             return db.deleteAccountResetToken(accountResetTokenData.tokenId);
           })
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -1573,7 +1575,7 @@ module.exports = function(config, DB) {
             );
             return db.accountResetToken(accountResetTokenData.tokenId);
           })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'err.errno is correct');
             assert.equal(err.code, 404, 'err.code is correct');
           });
@@ -1593,7 +1595,7 @@ module.exports = function(config, DB) {
       it('should fail for non-existing session', () => {
         return db
           .deviceFromTokenVerificationId(accountData.uid, hex16())
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -1605,7 +1607,7 @@ module.exports = function(config, DB) {
             accountData.uid,
             sessionTokenData.tokenVerificationId
           )
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -1621,7 +1623,7 @@ module.exports = function(config, DB) {
               sessionTokenData.tokenVerificationId
             );
           })
-          .then(sessionDeviceInfo => {
+          .then((sessionDeviceInfo) => {
             assert.deepEqual(
               sessionDeviceInfo.id,
               deviceData.deviceId,
@@ -1644,7 +1646,7 @@ module.exports = function(config, DB) {
 
       // A little helper function for finding a specific device record in a list.
       function matchById(field, value) {
-        return d => d[field] && d[field].equals(value);
+        return (d) => d[field] && d[field].equals(value);
       }
 
       beforeEach(() => {
@@ -1663,7 +1665,7 @@ module.exports = function(config, DB) {
               sessionDeviceInfo
             )
           )
-          .then(result => {
+          .then((result) => {
             return assert.deepEqual(result, {}, 'returned empty object');
           })
           .then(() =>
@@ -1673,7 +1675,7 @@ module.exports = function(config, DB) {
               oauthDeviceInfo
             )
           )
-          .then(result => {
+          .then((result) => {
             return assert.deepEqual(result, {}, 'returned empty object');
           });
       });
@@ -1683,7 +1685,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.device(sessionTokenData.uid, sessionDeviceInfo.deviceId);
           })
-          .then(d => {
+          .then((d) => {
             assert.deepEqual(d.uid, sessionTokenData.uid, 'uid');
             assert.deepEqual(d.id, sessionDeviceInfo.deviceId, 'id');
             assert.equal(d.name, sessionDeviceInfo.name, 'name');
@@ -1718,7 +1720,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.device(refreshTokenData.uid, oauthDeviceInfo.deviceId);
           })
-          .then(d => {
+          .then((d) => {
             assert.deepEqual(d.uid, refreshTokenData.uid, 'uid');
             assert.deepEqual(d.id, oauthDeviceInfo.deviceId, 'id');
             assert.equal(d.name, oauthDeviceInfo.name, 'name');
@@ -1753,7 +1755,7 @@ module.exports = function(config, DB) {
       });
 
       it('should have linked one device to session token', () => {
-        return db.sessionToken(sessionTokenData.tokenId).then(s => {
+        return db.sessionToken(sessionTokenData.tokenId).then((s) => {
           assert.deepEqual(s.deviceId, sessionDeviceInfo.deviceId, 'id');
           assert.deepEqual(s.uid, sessionTokenData.uid, 'uid');
           assert.equal(s.deviceName, sessionDeviceInfo.name, 'name');
@@ -1802,7 +1804,7 @@ module.exports = function(config, DB) {
       });
 
       it('should get all devices', () => {
-        return db.accountDevices(accountData.uid).then(devices => {
+        return db.accountDevices(accountData.uid).then((devices) => {
           assert.lengthOf(devices, 2);
 
           let device = devices.find(
@@ -1916,11 +1918,11 @@ module.exports = function(config, DB) {
               sessionDeviceInfo
             );
           })
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(result, {}, 'returned empty object');
             return db.accountDevices(accountData.uid);
           })
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 2);
             const device = devices.find(
               matchById('sessionTokenId', newSessionTokenData.tokenId)
@@ -1970,11 +1972,11 @@ module.exports = function(config, DB) {
             oauthDeviceInfo.deviceId,
             oauthDeviceInfo
           )
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(result, {}, 'returned empty object');
             return db.accountDevices(accountData.uid);
           })
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 2);
             const device = devices.find(
               matchById('refreshTokenId', newRefreshTokenData.tokenId)
@@ -2015,11 +2017,11 @@ module.exports = function(config, DB) {
             sessionDeviceInfo.deviceId,
             sessionDeviceInfo
           )
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(result, {}, 'returned empty object');
             return db.accountDevices(accountData.uid);
           })
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 1);
             assert.isNull(devices[0].sessionTokenId);
             assert.deepEqual(
@@ -2034,7 +2036,7 @@ module.exports = function(config, DB) {
         const anotherDevice = makeMockDevice(sessionTokenData.tokenId);
         return db
           .createDevice(accountData.uid, anotherDevice.deviceId, anotherDevice)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 409, 'err.code');
             assert.equal(err.errno, 101, 'err.errno');
           });
@@ -2044,7 +2046,7 @@ module.exports = function(config, DB) {
         const anotherDevice = makeMockOAuthDevice(refreshTokenData.tokenId);
         return db
           .createDevice(accountData.uid, anotherDevice.deviceId, anotherDevice)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 409, 'err.code');
             assert.equal(err.errno, 101, 'err.errno');
           });
@@ -2062,7 +2064,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.accountDevices(accountData.uid);
           })
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 2);
             const comboDeviceInfo = devices.find(
               matchById('sessionTokenId', sessionTokenData.tokenId)
@@ -2078,7 +2080,7 @@ module.exports = function(config, DB) {
       it('should fail to update non-existent device', () => {
         return db
           .updateDevice(accountData.uid, hex16(), sessionDeviceInfo)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2092,7 +2094,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.device(accountData.uid, sessionDeviceInfo.deviceId);
           })
-          .then(device =>
+          .then((device) =>
             assert.deepEqual(device.availableCommands, {
               'https://identity.mozilla.com/cmd/display-uri': 'metadata-bundle',
             })
@@ -2111,7 +2113,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.device(accountData.uid, sessionDeviceInfo.deviceId);
           })
-          .then(device =>
+          .then((device) =>
             assert.deepEqual(device.availableCommands, {
               foo: 'bar',
               second: 'command',
@@ -2130,7 +2132,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.device(accountData.uid, sessionDeviceInfo.deviceId);
           })
-          .then(device =>
+          .then((device) =>
             assert.deepEqual(device.availableCommands, {
               'https://identity.mozilla.com/cmd/display-uri': 'new-metadata',
             })
@@ -2140,7 +2142,7 @@ module.exports = function(config, DB) {
       it('should fail to delete non-existent device', () => {
         return db
           .deleteDevice(accountData.uid, hex16())
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2186,7 +2188,7 @@ module.exports = function(config, DB) {
             )
           )
           .then(() => db.accountDevices(accountData.uid))
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 4);
 
             const device1 = devices.find(
@@ -2258,10 +2260,10 @@ module.exports = function(config, DB) {
             db.createSessionToken(sessionToken3.tokenId, sessionToken3)
           )
           .then(() => db.sessions(accountData.uid))
-          .then(sessions => {
+          .then((sessions) => {
             assert.lengthOf(sessions, 3);
 
-            const session1 = sessions.find(s =>
+            const session1 = sessions.find((s) =>
               s.tokenId.equals(sessionTokenData.tokenId)
             );
             assert.ok(session1, 'found first session');
@@ -2271,7 +2273,7 @@ module.exports = function(config, DB) {
               'session1 availableCommands'
             );
 
-            const session2 = sessions.find(s =>
+            const session2 = sessions.find((s) =>
               s.tokenId.equals(sessionToken2.tokenId)
             );
             assert.ok(session2, 'found second session');
@@ -2281,7 +2283,7 @@ module.exports = function(config, DB) {
               'session2 availableCommands'
             );
 
-            const session3 = sessions.find(s =>
+            const session3 = sessions.find((s) =>
               s.tokenId.equals(sessionToken3.tokenId)
             );
             assert.ok(session3, 'found third session');
@@ -2297,7 +2299,7 @@ module.exports = function(config, DB) {
       it('should delete session when device is deleted', () => {
         return db
           .deleteDevice(accountData.uid, sessionDeviceInfo.deviceId)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(result, {
               sessionTokenId: sessionTokenData.tokenId,
               refreshTokenId: null,
@@ -2306,9 +2308,9 @@ module.exports = function(config, DB) {
             // Fetch all of the devices for the account
             return db.accountDevices(accountData.uid);
           })
-          .then(devices => assert.lengthOf(devices, 1))
+          .then((devices) => assert.lengthOf(devices, 1))
           .then(() => db.sessionToken(sessionTokenData.tokenId))
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2317,7 +2319,7 @@ module.exports = function(config, DB) {
       it('should return refreshTokenId when device is deleted, so that calling code can delete it', () => {
         return db
           .deleteDevice(accountData.uid, oauthDeviceInfo.deviceId)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(result, {
               sessionTokenId: null,
               refreshTokenId: refreshTokenData.tokenId,
@@ -2326,7 +2328,7 @@ module.exports = function(config, DB) {
             // Fetch all of the devices for the account
             return db.accountDevices(accountData.uid);
           })
-          .then(devices => assert.lengthOf(devices, 1));
+          .then((devices) => assert.lengthOf(devices, 1));
       });
     });
 
@@ -2357,7 +2359,7 @@ module.exports = function(config, DB) {
       it('should verify account upon forgot token creation', () => {
         return db
           .accountEmails(accountData.uid)
-          .then(emails => {
+          .then((emails) => {
             // Account should be unverified
             assert.lengthOf(emails, 1);
             assert.equal(
@@ -2373,7 +2375,7 @@ module.exports = function(config, DB) {
             );
           })
           .then(() => db.accountEmails(accountData.uid))
-          .then(emails => {
+          .then((emails) => {
             // Account should be verified
             assert.lengthOf(emails, 1);
             assert.equal(!!emails[0].isVerified, true, 'email is verified');
@@ -2386,12 +2388,12 @@ module.exports = function(config, DB) {
       it('should remove devices after account reset', () => {
         return db
           .accountDevices(accountData.uid)
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 1);
             return db.resetAccount(accountData.uid, accountData);
           })
           .then(() => db.accountDevices(accountData.uid))
-          .then(devices => {
+          .then((devices) => {
             assert.lengthOf(devices, 0);
           });
       });
@@ -2400,7 +2402,7 @@ module.exports = function(config, DB) {
         return db
           .resetAccount(accountData.uid, accountData)
           .then(() => db.sessionToken(sessionTokenData.tokenId))
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2409,13 +2411,13 @@ module.exports = function(config, DB) {
       it('should still retrieve account after account reset', () => {
         return db
           .account(accountData.uid)
-          .then(account => {
+          .then((account) => {
             assert.ok(account, 'account exists');
             accountData.verifierSetAt = now + 1;
             return db.resetAccount(accountData.uid, accountData);
           })
           .then(() => db.account(accountData.uid))
-          .then(account => {
+          .then((account) => {
             assert.ok(account, 'account exists');
             assert.equal(
               account.profileChangedAt,
@@ -2498,38 +2500,40 @@ module.exports = function(config, DB) {
       });
 
       it('should get security event', () => {
-        return db.securityEvents({ id: uid1, ipAddr: addr1 }).then(results => {
-          assert.lengthOf(results, 3);
-          // The most recent event is returned first.
-          assert.equal(results[0].name, evC, 'correct event name');
-          assert.equal(
-            !!results[0].verified,
-            true,
-            'event without a session is already verified'
-          );
-          assert.isBelow(results[0].createdAt, Date.now());
-          assert.equal(results[1].name, evB, 'correct event name');
-          assert.equal(
-            !!results[1].verified,
-            false,
-            'second session is not verified yet'
-          );
-          assert.isBelow(results[1].createdAt, results[0].createdAt);
-          assert.equal(results[2].name, evA, 'correct event name');
-          assert.equal(
-            !!results[2].verified,
-            true,
-            'first session is already verified'
-          );
-          assert.isBelow(results[2].createdAt, results[1].createdAt);
-        });
+        return db
+          .securityEvents({ id: uid1, ipAddr: addr1 })
+          .then((results) => {
+            assert.lengthOf(results, 3);
+            // The most recent event is returned first.
+            assert.equal(results[0].name, evC, 'correct event name');
+            assert.equal(
+              !!results[0].verified,
+              true,
+              'event without a session is already verified'
+            );
+            assert.isBelow(results[0].createdAt, Date.now());
+            assert.equal(results[1].name, evB, 'correct event name');
+            assert.equal(
+              !!results[1].verified,
+              false,
+              'second session is not verified yet'
+            );
+            assert.isBelow(results[1].createdAt, results[0].createdAt);
+            assert.equal(results[2].name, evA, 'correct event name');
+            assert.equal(
+              !!results[2].verified,
+              true,
+              'first session is already verified'
+            );
+            assert.isBelow(results[2].createdAt, results[1].createdAt);
+          });
       });
 
       it('should get event after session verified', () => {
         return db
           .verifyTokens(session1.tokenVerificationId, { uid: uid1 })
           .then(() => db.securityEvents({ id: uid1, ipAddr: addr1 }))
-          .then(results => {
+          .then((results) => {
             assert.lengthOf(results, 3);
             assert.isTrue(!!results[0].verified);
             assert.isTrue(!!results[1].verified);
@@ -2538,18 +2542,20 @@ module.exports = function(config, DB) {
       });
 
       it('should get second address', () => {
-        return db.securityEvents({ id: uid1, ipAddr: addr2 }).then(results => {
-          assert.lengthOf(results, 1);
-          assert.equal(results[0].name, evA);
-          assert.isFalse(!!results[0].verified);
-        });
+        return db
+          .securityEvents({ id: uid1, ipAddr: addr2 })
+          .then((results) => {
+            assert.lengthOf(results, 1);
+            assert.equal(results[0].name, evA);
+            assert.isFalse(!!results[0].verified);
+          });
       });
 
       it('should get second addr after deleting unverified session', () => {
         return db
           .deleteSessionToken(session3.tokenId)
           .then(() => db.securityEvents({ id: uid1, ipAddr: addr2 }))
-          .then(results => {
+          .then((results) => {
             assert.lengthOf(results, 1);
             assert.equal(results[0].name, evA);
             assert.isFalse(!!results[0].verified);
@@ -2559,20 +2565,20 @@ module.exports = function(config, DB) {
       it('should get with IPv6', () => {
         return db
           .securityEvents({ id: uid1, ipAddr: '::' + addr1 })
-          .then(results => assert.lengthOf(results, 3));
+          .then((results) => assert.lengthOf(results, 3));
       });
 
       it('should fail with unknown uid', () => {
         return db
           .securityEvents({ id: newUuid(), ipAddr: addr1 })
-          .then(results => assert.lengthOf(results, 0));
+          .then((results) => assert.lengthOf(results, 0));
       });
 
       it('should delete events when account is deleted', () => {
         return db
           .deleteAccount(accountData.uid)
           .then(() => db.securityEvents({ id: uid1, ipAddr: addr1 }))
-          .then(res => {
+          .then((res) => {
             assert.lengthOf(res, 0);
           });
       });
@@ -2640,7 +2646,7 @@ module.exports = function(config, DB) {
       });
 
       it('should get security event', () => {
-        return db.securityEventsByUid(uid).then(results => {
+        return db.securityEventsByUid(uid).then((results) => {
           assert.lengthOf(results, 3);
           // The most recent event is returned first.
           assert.equal(results[0].name, evC, 'correct event name');
@@ -2668,7 +2674,7 @@ module.exports = function(config, DB) {
       });
 
       it('should get security event for another account', () => {
-        return db.securityEventsByUid(anotherUid).then(results => {
+        return db.securityEventsByUid(anotherUid).then((results) => {
           assert.lengthOf(results, 1);
           assert.equal(results[0].name, evA, 'correct event name');
           assert.equal(
@@ -2684,7 +2690,7 @@ module.exports = function(config, DB) {
         return db
           .verifyTokens(session1.tokenVerificationId, { uid })
           .then(() => db.securityEventsByUid(uid))
-          .then(results => {
+          .then((results) => {
             assert.lengthOf(results, 3);
             assert.isTrue(!!results[0].verified);
             assert.isTrue(!!results[1].verified);
@@ -2696,15 +2702,15 @@ module.exports = function(config, DB) {
         const unknownUid = newUuid();
         return db
           .securityEventsByUid(unknownUid)
-          .then(results => assert.lengthOf(results, 0));
+          .then((results) => assert.lengthOf(results, 0));
       });
 
       it('should get no events when events are deleted', () => {
         return db
           .deleteSecurityEventsByUid(accountData.uid)
-          .then(result => assert.deepEqual(result, {}))
+          .then((result) => assert.deepEqual(result, {}))
           .then(() => db.securityEventsByUid(uid))
-          .then(result => assert.lengthOf(result, 0));
+          .then((result) => assert.lengthOf(result, 0));
       });
     });
 
@@ -2716,7 +2722,7 @@ module.exports = function(config, DB) {
         return db
           .createSessionToken(sessionTokenData.tokenId, sessionTokenData)
           .then(() => db.accountExists(accountData.emailBuffer))
-          .then(exists => {
+          .then((exists) => {
             assert.ok(exists, 'account exists');
             return db.deleteAccount(accountData.uid);
           });
@@ -2725,7 +2731,7 @@ module.exports = function(config, DB) {
       it('should have delete account', () => {
         return db
           .accountExists(accountData.emailBuffer)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2734,7 +2740,7 @@ module.exports = function(config, DB) {
       it('should fail to verify session', () => {
         return db
           .verifyTokens(sessionTokenData.tokenVerificationId, accountData)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2743,7 +2749,7 @@ module.exports = function(config, DB) {
       it('should fail to fetch session', () => {
         return db
           .sessionToken(sessionTokenData.tokenId)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2769,7 +2775,7 @@ module.exports = function(config, DB) {
           .createVerificationReminder({ uid: accountData.uid, type: 'second' })
           .then(() => P.delay(20))
           .then(() => db.fetchReminders({}, fetchQuery))
-          .then(result => {
+          .then((result) => {
             assert.equal(result[0].type, 'second', 'correct type');
             assert.equal(
               result[0].uid.toString('hex'),
@@ -2778,7 +2784,7 @@ module.exports = function(config, DB) {
             );
             return db.fetchReminders({}, fetchQuery);
           })
-          .then(result => assert.lengthOf(result, 0));
+          .then((result) => assert.lengthOf(result, 0));
       });
 
       it('multiple accounts', () => {
@@ -2802,13 +2808,13 @@ module.exports = function(config, DB) {
             )
             .then(() => P.delay(20))
             .then(() => db.fetchReminders({}, fetchQuery))
-            .then(result => {
+            .then((result) => {
               assert.lengthOf(result, 2);
               assert.equal(result[0].type, 'first', 'correct type');
               assert.equal(result[1].type, 'first', 'correct type');
               return db.fetchReminders({}, fetchQuery);
             })
-            .then(result => assert.lengthOf(result, 0))
+            .then((result) => assert.lengthOf(result, 0))
         );
       });
 
@@ -2847,9 +2853,9 @@ module.exports = function(config, DB) {
                 db.fetchReminders({}, fetchQuery),
               ])
             )
-            .then(results => {
+            .then((results) => {
               let found = 0;
-              results.forEach(result => {
+              results.forEach((result) => {
                 if (result.length === 2) {
                   found++;
                 }
@@ -2877,16 +2883,16 @@ module.exports = function(config, DB) {
       it('should fail to consume unknown code', () => {
         return db
           .consumeUnblockCode(newUuid(), code1)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
       });
 
       it('should fail to consume old unblock code', () => {
-        return db.consumeUnblockCode(uid1, code1).then(code => {
+        return db.consumeUnblockCode(uid1, code1).then((code) => {
           assert.ok(code);
-          return db.consumeUnblockCode(uid1, code2).then(assert.fail, err => {
+          return db.consumeUnblockCode(uid1, code2).then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2894,15 +2900,15 @@ module.exports = function(config, DB) {
       });
 
       it('should consume unblock code', () => {
-        return db.consumeUnblockCode(uid1, code1).then(code => {
+        return db.consumeUnblockCode(uid1, code1).then((code) => {
           assert.isAtMost(code.createdAt, Date.now());
         });
       });
 
       it('should fail to consume code twice', () => {
-        return db.consumeUnblockCode(uid1, code1).then(code => {
+        return db.consumeUnblockCode(uid1, code1).then((code) => {
           assert.isAtMost(code.createdAt, Date.now());
-          return db.consumeUnblockCode(uid1, code1).then(assert.fail, err => {
+          return db.consumeUnblockCode(uid1, code1).then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2912,16 +2918,16 @@ module.exports = function(config, DB) {
       it('should delete all code when successfully consumed code', () => {
         return db
           .consumeUnblockCode(uid1, 'NOTREAL')
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
             return db.consumeUnblockCode(uid1, code1);
           })
-          .then(code => {
+          .then((code) => {
             assert.isAtMost(code.createdAt, Date.now());
             return db.consumeUnblockCode(uid1, code2);
           }, assert.fail)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 404, 'err.code');
             assert.equal(err.errno, 116, 'err.errno');
           });
@@ -2944,7 +2950,7 @@ module.exports = function(config, DB) {
           })
         )
         .then(() => db.fetchEmailBounces(email))
-        .then(bounces => {
+        .then((bounces) => {
           assert.lengthOf(bounces, 2);
           assert.equal(bounces[0].email, email);
           assert.equal(bounces[0].bounceType, 2);
@@ -2966,7 +2972,7 @@ module.exports = function(config, DB) {
 
         return db
           .createAccount(accountData.uid, accountData)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -2975,7 +2981,7 @@ module.exports = function(config, DB) {
 
             return db.createEmail(accountData.uid, secondEmail);
           })
-          .then(result =>
+          .then((result) =>
             assert.deepEqual(
               result,
               {},
@@ -2989,7 +2995,7 @@ module.exports = function(config, DB) {
         return db
           .createAccount(anotherAccountData.uid, anotherAccountData)
           .then(() => db.accountEmails(anotherAccountData.uid))
-          .then(result => {
+          .then((result) => {
             assert.lengthOf(result, 1);
 
             // Check first email is email from accounts table
@@ -3013,7 +3019,7 @@ module.exports = function(config, DB) {
       });
 
       it('should return secondary emails', () => {
-        return db.accountEmails(accountData.uid).then(result => {
+        return db.accountEmails(accountData.uid).then((result) => {
           assert.lengthOf(result, 2);
 
           // Check first email is email from accounts table
@@ -3055,7 +3061,7 @@ module.exports = function(config, DB) {
       });
 
       it('should get secondary email', () => {
-        return db.getSecondaryEmail(secondEmail.email).then(result => {
+        return db.getSecondaryEmail(secondEmail.email).then((result) => {
           assert.equal(
             result.email,
             secondEmail.email,
@@ -3073,7 +3079,7 @@ module.exports = function(config, DB) {
       it('should verify secondary email', () => {
         return db
           .verifyEmail(secondEmail.uid, secondEmail.emailCode)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -3081,7 +3087,7 @@ module.exports = function(config, DB) {
             );
             return db.accountEmails(accountData.uid);
           })
-          .then(result => {
+          .then((result) => {
             assert.lengthOf(result, 2);
 
             // Check second email is from emails table and verified
@@ -3094,7 +3100,7 @@ module.exports = function(config, DB) {
             assert.isTrue(!!result[1].isVerified);
             assert.notEqual(result[1].verifiedAt, null);
             assert.isAbove(result[1].verifiedAt, result[1].createdAt);
-            return db.account(accountData.uid).then(account => {
+            return db.account(accountData.uid).then((account) => {
               assert.isAbove(account.profileChangedAt, account.createdAt);
             });
           });
@@ -3103,7 +3109,7 @@ module.exports = function(config, DB) {
       it('should delete email', () => {
         return db
           .deleteEmail(secondEmail.uid, secondEmail.email)
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(
               result,
               {},
@@ -3113,7 +3119,7 @@ module.exports = function(config, DB) {
             // Get all emails and check to see if it has been removed
             return db.accountEmails(accountData.uid);
           })
-          .then(result => {
+          .then((result) => {
             // Verify that the email has been removed
             assert.lengthOf(result, 1);
 
@@ -3135,7 +3141,7 @@ module.exports = function(config, DB) {
               'matches account verifiedAt'
             );
 
-            return db.account(accountData.uid).then(account => {
+            return db.account(accountData.uid).then((account) => {
               assert.isAbove(account.profileChangedAt, account.createdAt);
             });
           });
@@ -3153,13 +3159,13 @@ module.exports = function(config, DB) {
 
             return db.createAccount(anotherAccountData.uid, anotherAccountData);
           })
-          .then(result => {
+          .then((result) => {
             assert.deepEqual(result, {}, 'successfully created an account');
 
             // Attempt to create secondary email address
             return db
               .createEmail(accountData.uid, secondEmail)
-              .then(assert.fail, err =>
+              .then(assert.fail, (err) =>
                 assert.equal(err.errno, 101, 'Correct errno')
               );
           });
@@ -3169,7 +3175,7 @@ module.exports = function(config, DB) {
         const anotherEmail = createEmail({ email: accountData.email });
         return db
           .createEmail(accountData.uid, anotherEmail)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 101, 'should return duplicate entry errno');
             assert.equal(err.code, 409, 'should return duplicate entry code');
           });
@@ -3179,7 +3185,7 @@ module.exports = function(config, DB) {
         const anotherEmail = createEmail({ email: secondEmail.email });
         return db
           .createEmail(accountData.uid, anotherEmail)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 101, 'should return duplicate entry errno');
             assert.equal(err.code, 409, 'should return duplicate entry code');
           });
@@ -3188,7 +3194,7 @@ module.exports = function(config, DB) {
       it('should fail to delete primary email', () => {
         return db
           .deleteEmail(accountData.uid, accountData.normalizedEmail)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 136, 'should return email delete errno');
             assert.equal(err.code, 400, 'should return email delete code');
           });
@@ -3200,7 +3206,7 @@ module.exports = function(config, DB) {
         anotherAccount.normalizedEmail = secondEmail.normalizedEmail;
         return db
           .createAccount(anotherAccount.uid, anotherAccount)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 101, 'should return duplicate entry errno');
             assert.equal(err.code, 409, 'should return duplicate entry code');
           });
@@ -3209,7 +3215,7 @@ module.exports = function(config, DB) {
       it('should fail to get non-existent secondary email', () => {
         return db
           .getSecondaryEmail('non-existent@email.com')
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'should return not found errno');
             assert.equal(err.code, 404, 'should return not found code');
           });
@@ -3244,8 +3250,8 @@ module.exports = function(config, DB) {
             TIMESTAMPS[2],
             FLOW_IDS[2]
           ),
-        ]).then(results => {
-          results.forEach(r =>
+        ]).then((results) => {
+          results.forEach((r) =>
             assert.deepEqual(
               r,
               {},
@@ -3258,7 +3264,7 @@ module.exports = function(config, DB) {
       it('should fail to create duplicate sign-in code', () => {
         return db
           .createSigninCode(SIGNIN_CODES[0], accountData.uid, TIMESTAMPS[0])
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert(err, 'db.createSigninCode should reject with an error');
             assert.equal(
               err.code,
@@ -3274,7 +3280,7 @@ module.exports = function(config, DB) {
       });
 
       it('should consume sign-in code', () => {
-        return db.consumeSigninCode(SIGNIN_CODES[0]).then(result => {
+        return db.consumeSigninCode(SIGNIN_CODES[0]).then((result) => {
           assert.deepEqual(
             result,
             {
@@ -3290,7 +3296,7 @@ module.exports = function(config, DB) {
         return db
           .consumeSigninCode(SIGNIN_CODES[0])
           .then(() => db.consumeSigninCode(SIGNIN_CODES[0]))
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert(err, 'db.consumeSigninCode should reject with an error');
             assert.equal(
               err.code,
@@ -3306,26 +3312,28 @@ module.exports = function(config, DB) {
       });
 
       it('should fail consume expired sign-in code', () => {
-        return db.consumeSigninCode(SIGNIN_CODES[2]).then(assert.fail, err => {
-          assert(err, 'db.consumeSigninCode should reject with an error');
-          assert.equal(
-            err.code,
-            404,
-            'db.consumeSigninCode should reject with code 404'
-          );
-          assert.equal(
-            err.errno,
-            116,
-            'db.consumeSigninCode should reject with errno 116'
-          );
-        });
+        return db
+          .consumeSigninCode(SIGNIN_CODES[2])
+          .then(assert.fail, (err) => {
+            assert(err, 'db.consumeSigninCode should reject with an error');
+            assert.equal(
+              err.code,
+              404,
+              'db.consumeSigninCode should reject with code 404'
+            );
+            assert.equal(
+              err.errno,
+              116,
+              'db.consumeSigninCode should reject with errno 116'
+            );
+          });
       });
 
       it('should fail to use sign-in code from deleted account', () => {
         return db.deleteAccount(accountData.uid).then(() => {
           return db
             .consumeSigninCode(SIGNIN_CODES[1])
-            .then(assert.fail, err => {
+            .then(assert.fail, (err) => {
               assert(err, 'db.consumeSigninCode should reject with an error');
               assert.equal(
                 err.code,
@@ -3347,7 +3355,7 @@ module.exports = function(config, DB) {
         db.accountEmails(accountData.uid),
         db.account(accountData.uid),
       ])
-        .spread(function(emails, account) {
+        .spread(function (emails, account) {
           assert.equal(
             emails[0].email,
             account.email,
@@ -3368,7 +3376,7 @@ module.exports = function(config, DB) {
           // Verify account email
           return db.verifyEmail(account.uid, account.emailCode);
         })
-        .then(function(result) {
+        .then(function (result) {
           assert.deepEqual(
             result,
             {},
@@ -3379,7 +3387,7 @@ module.exports = function(config, DB) {
             db.account(accountData.uid),
           ]);
         })
-        .spread(function(emails, account) {
+        .spread(function (emails, account) {
           assert.equal(
             emails[0].email,
             account.email,
@@ -3423,7 +3431,7 @@ module.exports = function(config, DB) {
               .then(() => {
                 return db
                   .accountResetToken(passwordForgotToken.tokenId)
-                  .then(res =>
+                  .then((res) =>
                     assert.deepEqual(
                       res.uid,
                       accountData.uid,
@@ -3442,7 +3450,7 @@ module.exports = function(config, DB) {
                   'should not have return account reset token token'
                 )
               )
-              .catch(err =>
+              .catch((err) =>
                 assert.equal(
                   err.errno,
                   116,
@@ -3461,7 +3469,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db
               .passwordChangeToken(passwordChangeToken.tokenId)
-              .then(res =>
+              .then((res) =>
                 assert.deepEqual(
                   res.uid,
                   accountData.uid,
@@ -3479,7 +3487,7 @@ module.exports = function(config, DB) {
                   'should not have return password change token'
                 )
               )
-              .catch(err =>
+              .catch((err) =>
                 assert.equal(
                   err.errno,
                   116,
@@ -3498,7 +3506,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db
               .passwordForgotToken(passwordForgotToken.tokenId)
-              .then(res =>
+              .then((res) =>
                 assert.deepEqual(
                   res.uid,
                   accountData.uid,
@@ -3516,7 +3524,7 @@ module.exports = function(config, DB) {
                   'should not have return password forgot token'
                 )
               )
-              .catch(err =>
+              .catch((err) =>
                 assert.equal(
                   err.errno,
                   116,
@@ -3540,10 +3548,10 @@ module.exports = function(config, DB) {
         });
         return db
           .createAccount(account.uid, account)
-          .then(function() {
+          .then(function () {
             return db.verifyEmail(account.uid, account.emailCode);
           })
-          .then(function(result) {
+          .then(function (result) {
             assert.deepEqual(
               result,
               {},
@@ -3551,7 +3559,7 @@ module.exports = function(config, DB) {
             );
             return db.createEmail(account.uid, secondEmail);
           })
-          .then(function(result) {
+          .then(function (result) {
             assert.deepEqual(
               result,
               {},
@@ -3559,7 +3567,7 @@ module.exports = function(config, DB) {
             );
             return db.accountEmails(account.uid);
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.lengthOf(res, 2);
             assert.equal(
               res[0].email,
@@ -3597,7 +3605,7 @@ module.exports = function(config, DB) {
         let sessionTokenData;
         return db
           .setPrimaryEmail(account.uid, secondEmail.email)
-          .then(function(res) {
+          .then(function (res) {
             assert.deepEqual(
               res,
               {},
@@ -3605,7 +3613,7 @@ module.exports = function(config, DB) {
             );
             return db.accountEmails(account.uid);
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.lengthOf(res, 2);
 
             assert.equal(
@@ -3655,7 +3663,7 @@ module.exports = function(config, DB) {
                 return db.sessionToken(sessionTokenData.tokenId);
               });
           })
-          .then(session => {
+          .then((session) => {
             assert.equal(
               session.email,
               secondEmail.email,
@@ -3676,7 +3684,7 @@ module.exports = function(config, DB) {
               db.accountRecord(account.email),
             ]);
           })
-          .then(res => {
+          .then((res) => {
             assert.deepEqual(
               res[0],
               res[1],
@@ -3712,7 +3720,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.setPrimaryEmail(account.uid, anotherEmail.email);
           })
-          .catch(err => {
+          .catch((err) => {
             assert.equal(err.errno, 148, 'correct errno set');
           });
       });
@@ -3735,7 +3743,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.sessionToken(tokenId);
           })
-          .then(session => {
+          .then((session) => {
             // Returns unverified session
             assert.equal(
               session.mustVerify,
@@ -3754,7 +3762,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.sessionToken(tokenId);
           })
-          .then(session => {
+          .then((session) => {
             // Returns verified session
             assert.isFalse(!!session.mustVerify);
             assert.isNull(session.tokenVerificationId);
@@ -3775,7 +3783,7 @@ module.exports = function(config, DB) {
               () => {
                 assert.fail('should not have verified expired token');
               },
-              err => {
+              (err) => {
                 assert.equal(err.errno, 137, 'correct errno, not found');
               }
             );
@@ -3793,7 +3801,7 @@ module.exports = function(config, DB) {
               () => {
                 assert.fail('should not have verified unknown token');
               },
-              err => {
+              (err) => {
                 assert.equal(err.errno, 116, 'correct errno, not found');
               }
             );
@@ -3818,7 +3826,7 @@ module.exports = function(config, DB) {
                 () => {
                   assert.fail('should not have verified unknown token');
                 },
-                err => {
+                (err) => {
                   assert.equal(err.errno, 116, 'correct errno, not found');
                 }
               );
@@ -3833,11 +3841,11 @@ module.exports = function(config, DB) {
         epoch = 0;
         return db
           .createTotpToken(accountData.uid, { sharedSecret, epoch })
-          .then(result => assert.ok(result, 'token created'));
+          .then((result) => assert.ok(result, 'token created'));
       });
 
       it('should create totp token', () => {
-        return db.totpToken(accountData.uid).then(token => {
+        return db.totpToken(accountData.uid).then((token) => {
           assert.equal(
             token.sharedSecret,
             sharedSecret,
@@ -3850,7 +3858,7 @@ module.exports = function(config, DB) {
       });
 
       it('should fail to get unknown totp token', () => {
-        return db.totpToken(newUuid()).then(assert.fail, err => {
+        return db.totpToken(newUuid()).then(assert.fail, (err) => {
           assert.equal(err.errno, 116, 'correct errno, not found');
         });
       });
@@ -3858,22 +3866,22 @@ module.exports = function(config, DB) {
       it('should fail to create second token for same user', () => {
         return db
           .createTotpToken(accountData.uid, { sharedSecret, epoch })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 101, 'correct errno, duplicate');
           });
       });
 
       it('should delete totp token', () => {
-        return db.deleteTotpToken(accountData.uid).then(result => {
+        return db.deleteTotpToken(accountData.uid).then((result) => {
           assert.ok(result);
           return db
             .totpToken(accountData.uid)
-            .then(assert.fail, err => {
+            .then(assert.fail, (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
 
               return db.account(accountData.uid);
             })
-            .then(account => {
+            .then((account) => {
               assert.isAbove(account.profileChangedAt, account.createdAt);
             });
         });
@@ -3882,11 +3890,11 @@ module.exports = function(config, DB) {
       it('should update totp token', () => {
         return db
           .updateTotpToken(accountData.uid, { verified: true, enabled: true })
-          .then(result => {
+          .then((result) => {
             assert.ok(result);
             return db
               .totpToken(accountData.uid)
-              .then(token => {
+              .then((token) => {
                 assert.equal(
                   token.sharedSecret,
                   sharedSecret,
@@ -3898,7 +3906,7 @@ module.exports = function(config, DB) {
 
                 return db.account(accountData.uid);
               })
-              .then(account => {
+              .then((account) => {
                 assert.isAbove(account.profileChangedAt, account.createdAt);
               });
           });
@@ -3907,7 +3915,7 @@ module.exports = function(config, DB) {
       it('should fail to update unknown totp token', () => {
         return db
           .updateTotpToken(newUuid(), { verified: true, enabled: true })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'correct errno, not found');
           });
       });
@@ -3918,7 +3926,7 @@ module.exports = function(config, DB) {
           .then(() => db.totpToken(accountData.uid))
           .then(
             () => assert.fail('should have deleted totp token'),
-            err => {
+            (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
             }
           );
@@ -3936,7 +3944,7 @@ module.exports = function(config, DB) {
           .createAccount(account.uid, account)
           .then(() => db.createSessionToken(tokenId, sessionToken))
           .then(() => db.sessionToken(tokenId))
-          .then(session => {
+          .then((session) => {
             // Returns unverified session
             assert.equal(
               session.tokenVerificationId.toString('hex'),
@@ -3953,7 +3961,7 @@ module.exports = function(config, DB) {
         };
         return db
           .verifyTokensWithMethod(hex32(), verifyOptions)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'correct errno, not found');
           });
       });
@@ -3967,7 +3975,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.sessionToken(tokenId);
           }, assert.fail)
-          .then(token => {
+          .then((token) => {
             assert.isFalse(!!token.mustVerify);
             assert.isNull(token.tokenVerificationId);
             assert.isNull(token.verificationMethod);
@@ -3976,7 +3984,7 @@ module.exports = function(config, DB) {
           .then(() => {
             return db.sessionToken(tokenId);
           }, assert.fail)
-          .then(token => {
+          .then((token) => {
             assert.isFalse(!!token.mustVerify);
             assert.isNull(token.tokenVerificationId);
             assert.equal(
@@ -3993,7 +4001,7 @@ module.exports = function(config, DB) {
         };
         return db
           .verifyTokensWithMethod(tokenId, verifyOptions)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(
               err.errno,
               138,
@@ -4008,13 +4016,13 @@ module.exports = function(config, DB) {
         };
         return db
           .verifyTokensWithMethod(tokenId, verifyOptions)
-          .then(res => {
+          .then((res) => {
             assert.ok(res);
 
             // Ensure session really has been verified and correct methods set
             return db.sessionToken(tokenId);
           })
-          .then(session => {
+          .then((session) => {
             assert.isNull(session.tokenVerificationId);
             assert.equal(
               session.verificationMethod,
@@ -4035,23 +4043,23 @@ module.exports = function(config, DB) {
       });
 
       it('should fail to generate for unknown user', () => {
-        return db.replaceRecoveryCodes(hex16(), 2).then(assert.fail, err => {
+        return db.replaceRecoveryCodes(hex16(), 2).then(assert.fail, (err) => {
           assert.equal(err.errno, 116, 'correct errno, not found');
         });
       });
 
       const codeLengthTest = [0, 4, 8];
       const codeTest = /^[a-zA-Z0-9]{0,20}$/;
-      codeLengthTest.forEach(num => {
+      codeLengthTest.forEach((num) => {
         it('should generate ' + num + ' recovery codes', () => {
           return db.replaceRecoveryCodes(account.uid, num).then(
-            codes => {
+            (codes) => {
               assert.lengthOf(codes, num);
-              codes.forEach(code => {
+              codes.forEach((code) => {
                 assert.match(code, codeTest);
               });
             },
-            err => {
+            (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
             }
           );
@@ -4062,13 +4070,13 @@ module.exports = function(config, DB) {
         let firstCodes;
         return db
           .replaceRecoveryCodes(account.uid, 2)
-          .then(codes => {
+          .then((codes) => {
             firstCodes = codes;
             assert.lengthOf(firstCodes, 2);
 
             return db.replaceRecoveryCodes(account.uid, 3);
           })
-          .then(codes => {
+          .then((codes) => {
             assert.lengthOf(codes, 3);
             assert.notDeepEqual(codes, firstCodes, 'codes are different');
           });
@@ -4078,27 +4086,29 @@ module.exports = function(config, DB) {
         let recoveryCodes;
         return db
           .replaceRecoveryCodes(account.uid, 2)
-          .then(codes => {
+          .then((codes) => {
             recoveryCodes = codes;
             return db.deleteAccount(account.uid);
           })
-          .then(result => db.consumeRecoveryCode(account.uid, recoveryCodes[0]))
+          .then((result) =>
+            db.consumeRecoveryCode(account.uid, recoveryCodes[0])
+          )
           .then(
             () => assert.fail('should have removed codes'),
-            err => {
+            (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
             }
           );
       });
 
-      describe('should consume recovery codes', function() {
+      describe('should consume recovery codes', function () {
         // Consuming recovery codes is more time intensive since the scrypt hashes need
         // to be compared. Let set timeout higher than 2s default.
         this.timeout(12000);
 
         let recoveryCodes;
         beforeEach(() => {
-          return db.replaceRecoveryCodes(account.uid, 2).then(codes => {
+          return db.replaceRecoveryCodes(account.uid, 2).then((codes) => {
             recoveryCodes = codes;
             assert.lengthOf(recoveryCodes, 2);
           });
@@ -4107,7 +4117,7 @@ module.exports = function(config, DB) {
         it('should fail to consume recovery code with unknown uid', () => {
           return db
             .consumeRecoveryCode(hex16(), 'recoverycodez')
-            .then(assert.fail, err => {
+            .then(assert.fail, (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
             });
         });
@@ -4116,7 +4126,7 @@ module.exports = function(config, DB) {
           return db.replaceRecoveryCodes(account.uid, 3).then(() => {
             return db
               .consumeRecoveryCode(account.uid, 'notvalidcode')
-              .then(assert.fail, err => {
+              .then(assert.fail, (err) => {
                 assert.equal(
                   err.errno,
                   116,
@@ -4129,7 +4139,7 @@ module.exports = function(config, DB) {
         it('should fail to consume code twice', () => {
           return db
             .consumeRecoveryCode(account.uid, recoveryCodes[0])
-            .then(result => {
+            .then((result) => {
               assert.equal(
                 result.remaining,
                 1,
@@ -4139,7 +4149,7 @@ module.exports = function(config, DB) {
               // Should fail to consume code twice
               return db
                 .consumeRecoveryCode(account.uid, recoveryCodes[0])
-                .then(assert.fail, err => {
+                .then(assert.fail, (err) => {
                   assert.equal(
                     err.errno,
                     116,
@@ -4152,7 +4162,7 @@ module.exports = function(config, DB) {
         it('should consume code', () => {
           return db
             .consumeRecoveryCode(account.uid, recoveryCodes[0])
-            .then(result => {
+            .then((result) => {
               assert.equal(
                 result.remaining,
                 1,
@@ -4161,7 +4171,7 @@ module.exports = function(config, DB) {
 
               return db
                 .consumeRecoveryCode(account.uid, recoveryCodes[1])
-                .then(result => {
+                .then((result) => {
                   assert.equal(
                     result.remaining,
                     0,
@@ -4184,7 +4194,7 @@ module.exports = function(config, DB) {
             // Create a valid recovery key
             return db.createRecoveryKey(account.uid, data);
           })
-          .then(res => {
+          .then((res) => {
             assert.ok(res, 'empty response');
           });
       });
@@ -4192,7 +4202,7 @@ module.exports = function(config, DB) {
       it('should fail to create for unknown user', () => {
         return db
           .createRecoveryKey('12312312312', data)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'not found');
           });
       });
@@ -4201,7 +4211,7 @@ module.exports = function(config, DB) {
         data = createRecoveryData();
         return db
           .createRecoveryKey(account.uid, data)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.errno, 101, 'record exists');
           });
       });
@@ -4211,7 +4221,7 @@ module.exports = function(config, DB) {
           id: account.uid,
           recoveryKeyId: data.recoveryKeyId,
         };
-        return db.getRecoveryKey(options).then(res => {
+        return db.getRecoveryKey(options).then((res) => {
           assert.equal(
             res.recoveryData,
             data.recoveryData,
@@ -4234,7 +4244,7 @@ module.exports = function(config, DB) {
           id: 'unknown',
           recoveryKeyId: '123',
         };
-        return db.getRecoveryKey(options).then(assert.fail, err => {
+        return db.getRecoveryKey(options).then(assert.fail, (err) => {
           assert.equal(err.errno, 116, 'not found');
         });
       });
@@ -4246,7 +4256,7 @@ module.exports = function(config, DB) {
             id: account.uid,
             recoveryKeyId: 'unknown',
           };
-          return db.getRecoveryKey(options).then(assert.fail, err => {
+          return db.getRecoveryKey(options).then(assert.fail, (err) => {
             assert.equal(err.errno, 116, 'not found');
           });
         });
@@ -4257,13 +4267,13 @@ module.exports = function(config, DB) {
           id: account.uid,
           recoveryKeyId: 'incorrect recoveryKeyId',
         };
-        return db.getRecoveryKey(options).then(assert.fail, err => {
+        return db.getRecoveryKey(options).then(assert.fail, (err) => {
           assert.equal(err.errno, 159, 'incorrect recoveryKeyId');
         });
       });
 
       it('should return true if recovery key exists', () => {
-        return db.recoveryKeyExists(account.uid).then(res => {
+        return db.recoveryKeyExists(account.uid).then((res) => {
           assert.isTrue(res.exists);
         });
       });
@@ -4271,14 +4281,14 @@ module.exports = function(config, DB) {
       it("should return false if recovery key doesn't exist", () => {
         account = createAccount();
         return db.createAccount(account.uid, account).then(() => {
-          return db.recoveryKeyExists(account.uid).then(res => {
+          return db.recoveryKeyExists(account.uid).then((res) => {
             assert.isFalse(res.exists);
           });
         });
       });
 
       it('should throw when checking for recovery key on non-existent user', () => {
-        return db.recoveryKeyExists('nonexistent').then(res => {
+        return db.recoveryKeyExists('nonexistent').then((res) => {
           assert.isFalse(res.exists);
         });
       });
@@ -4293,7 +4303,7 @@ module.exports = function(config, DB) {
           .then(() => db.getRecoveryKey(options))
           .then(
             () => assert.fail('should have deleted recovery key'),
-            err => {
+            (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
             }
           );
@@ -4309,7 +4319,7 @@ module.exports = function(config, DB) {
           .then(() => db.getRecoveryKey(options))
           .then(
             () => assert.fail('should have deleted recovery key'),
-            err => {
+            (err) => {
               assert.equal(err.errno, 116, 'correct errno, not found');
             }
           );

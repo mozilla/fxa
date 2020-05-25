@@ -16132,7 +16132,7 @@ __metadata:
     pm2: ^4.4.0
     prettier: ^2.0.5
     stylelint: ^13.3.3
-    stylelint-config-standard: ^20.0.0
+    stylelint-config-prettier: ^8.0.1
   languageName: unknown
   linkType: soft
 
@@ -17517,7 +17517,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     replace-in-file: ^5.0.2
     stylelint: ^13.4.0
-    stylelint-config-standard: ^20.0.0
+    stylelint-config-prettier: ^8.0.1
   languageName: unknown
   linkType: soft
 
@@ -34419,23 +34419,14 @@ resolve@~1.8.1:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "stylelint-config-recommended@npm:3.0.0"
+"stylelint-config-prettier@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "stylelint-config-prettier@npm:8.0.1"
   peerDependencies:
-    stylelint: ">=10.1.0"
-  checksum: 3/455fcb427786528495f66c2de1fbcb7cc7e8007aca303d21ad8f34b7150a3f4b7669a46d2b1c69ea7ac7f4f446c43b94c0920a3619b4a8d4dc5f3eee9df7cfa2
-  languageName: node
-  linkType: hard
-
-"stylelint-config-standard@npm:^20.0.0":
-  version: 20.0.0
-  resolution: "stylelint-config-standard@npm:20.0.0"
-  dependencies:
-    stylelint-config-recommended: ^3.0.0
-  peerDependencies:
-    stylelint: ">=10.1.0"
-  checksum: 3/3d70090294bad0ce2841a64feb97cd3985be8f51cdf4ed5e67c1f1c1578a15755a22dd2f8d63dce0f7db46607005b5a321fcbc2b0cbf4c636b9fd48ec35e82b2
+    stylelint: ">=11.0.0"
+  bin:
+    stylelint-config-prettier-check: bin/check.js
+  checksum: 3/6b9d562852ec8173f4fa38da83a1d3c53fafe6bf860f23143261bdc5fd70304be8c01c640bc02e5cc0cce19bde298aae810108e497f7462cdb7efae237699163
   languageName: node
   linkType: hard
 

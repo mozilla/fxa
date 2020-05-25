@@ -113,8 +113,8 @@ describe('redis/pool:', () => {
   describe('redisFactory.create:', () => {
     let result;
 
-    beforeEach(done => {
-      genericPoolCreatePool.args[0][0].create().then(r => (result = r));
+    beforeEach((done) => {
+      genericPoolCreatePool.args[0][0].create().then((r) => (result = r));
       setImmediate(done);
     });
 
@@ -153,7 +153,7 @@ describe('redis/pool:', () => {
     });
 
     describe('redis ready event:', () => {
-      beforeEach(done => {
+      beforeEach((done) => {
         redis.on.args[0][1]();
         setImmediate(done);
       });
@@ -257,7 +257,7 @@ describe('redis/pool:', () => {
     });
 
     it('returned a disposer for the connection', async () => {
-      await Promise.using(result, r => assert.equal(r, connection));
+      await Promise.using(result, (r) => assert.equal(r, connection));
 
       assert.equal(genericPool.release.callCount, 1);
       const args = genericPool.release.args[0];

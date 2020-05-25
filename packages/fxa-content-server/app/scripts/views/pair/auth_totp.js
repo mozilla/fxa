@@ -29,7 +29,7 @@ const View = FormView.extend({
     const code = this.getElementValue('input.totp-code');
     return account
       .verifyTotpCode(code, 'pair')
-      .then(result => {
+      .then((result) => {
         if (result.success) {
           return this.replaceCurrentPage('/pair/auth/allow', {
             totpComplete: true,
@@ -38,7 +38,9 @@ const View = FormView.extend({
           throw AuthErrors.toError('INVALID_TOTP_CODE');
         }
       })
-      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch((err) =>
+        this.showValidationError(this.$(CODE_INPUT_SELECTOR), err)
+      );
   },
 });
 

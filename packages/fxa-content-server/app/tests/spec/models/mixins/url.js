@@ -41,9 +41,7 @@ describe('models/mixins/url', () => {
   describe('importSearchParamsUsingSchema', () => {
     const schema = {
       optional: Vat.string().optional(),
-      required: Vat.string()
-        .valid('value')
-        .required(),
+      required: Vat.string().valid('value').required(),
     };
 
     describe('passes validation', () => {
@@ -111,9 +109,7 @@ describe('models/mixins/url', () => {
   describe('importHashParamsUsingSchema', () => {
     const schema = {
       optional: Vat.string().optional(),
-      required: Vat.string()
-        .valid('value')
-        .required(),
+      required: Vat.string().valid('value').required(),
     };
 
     describe('passes validation', () => {
@@ -181,9 +177,7 @@ describe('models/mixins/url', () => {
   describe('importFromObjectUsingSchema', () => {
     const schema = {
       optional: Vat.string().optional(),
-      required: Vat.string()
-        .valid('value')
-        .required(),
+      required: Vat.string().valid('value').required(),
     };
 
     describe('passes validation', () => {

@@ -1516,7 +1516,7 @@ describe('metrics/events', () => {
     '/password/forgot/status',
     '/recovery_email/status',
     '/recoveryKey/0123456789abcdef0123456789ABCDEF',
-  ].forEach(route =>
+  ].forEach((route) =>
     it(`.emitRouteFlowEvent with ${route}`, () => {
       const metricsContext = mocks.mockMetricsContext();
       const request = mocks.mockRequest({

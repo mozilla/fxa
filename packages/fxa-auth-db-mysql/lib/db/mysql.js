@@ -34,7 +34,7 @@ const ER_SIGNAL_NOT_FOUND = 1643;
 
 const RECOVERY_CODE_LENGTH = config.recoveryCodes.length;
 
-module.exports = function(log, error) {
+module.exports = function (log, error) {
   var LOCK_ERRNOS = [
     ER_LOCK_WAIT_TIMEOUT,
     ER_LOCK_TABLE_FULL,
@@ -76,7 +76,7 @@ module.exports = function(log, error) {
     this.requiredModes = REQUIRED_SQL_MODES;
     if (options.requiredSQLModes) {
       this.requiredModes = options.requiredSQLModes.split(',');
-      this.requiredModes.forEach(mode => {
+      this.requiredModes.forEach((mode) => {
         if (!/^[A-Z0-9_]+$/.test(mode)) {
           throw new Error('Invalid SQL mode: ' + mode);
         }
@@ -99,10 +99,10 @@ module.exports = function(log, error) {
     // prune tokens every so often
     function prune() {
       this.pruneTokens().then(
-        function() {
+        function () {
           log.info('MySql.pruneTokens', { msg: 'Finished' });
         },
-        function(err) {
+        function (err) {
           log.error('MySql.pruneTokens', { err: err });
         }
       );
@@ -119,12 +119,12 @@ module.exports = function(log, error) {
 
   function reportStats() {
     var nodes = Object.keys(this.poolCluster._nodes).map(
-      function(name) {
+      function (name) {
         return this.poolCluster._nodes[name];
       }.bind(this)
     );
     var stats = nodes.reduce(
-      function(totals, node) {
+      function (totals, node) {
         totals.errors += node.errorCount;
         totals.connections += node.pool._allConnections.length;
         totals.queue += node.pool._connectionQueue.length;
@@ -143,7 +143,7 @@ module.exports = function(log, error) {
   }
 
   // this will be called from outside this file
-  MySql.connect = function(options) {
+  MySql.connect = function (options) {
     return P.resolve().then(() => {
       // check that the database patch level is what we expect (or one above)
       var mysql = new MySql(options);
@@ -161,7 +161,7 @@ module.exports = function(log, error) {
 
       return mysql
         .readFirstResult(DB_METADATA, [options.patchKey])
-        .then(function(result) {
+        .then(function (result) {
           mysql.patchLevel = +result.value;
 
           log.info('connect', {
@@ -178,16 +178,16 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.close = function() {
+  MySql.prototype.close = function () {
     this.poolCluster.end();
     clearInterval(this.statInterval);
     return P.resolve();
   };
 
-  MySql.prototype.ping = function() {
-    return this.getConnection('MASTER').then(function(connection) {
+  MySql.prototype.ping = function () {
+    return this.getConnection('MASTER').then(function (connection) {
       var d = P.defer();
-      connection.ping(function(err) {
+      connection.ping(function (err) {
         connection.release();
         return err ? d.reject(err) : d.resolve();
       });
@@ -202,7 +202,7 @@ module.exports = function(log, error) {
   var CREATE_ACCOUNT =
     'CALL createAccount_7(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.createAccount = function(uid, data) {
+  MySql.prototype.createAccount = function (uid, data) {
     return this.write(CREATE_ACCOUNT, [
       uid,
       data.normalizedEmail,
@@ -228,7 +228,7 @@ module.exports = function(log, error) {
   var CREATE_SESSION_TOKEN =
     'CALL createSessionToken_9(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.createSessionToken = function(tokenId, sessionToken) {
+  MySql.prototype.createSessionToken = function (tokenId, sessionToken) {
     return this.write(CREATE_SESSION_TOKEN, [
       tokenId,
       sessionToken.data,
@@ -254,7 +254,7 @@ module.exports = function(log, error) {
   //          tokenVerificationId = $6
   var CREATE_KEY_FETCH_TOKEN = 'CALL createKeyFetchToken_2(?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.createKeyFetchToken = function(tokenId, keyFetchToken) {
+  MySql.prototype.createKeyFetchToken = function (tokenId, keyFetchToken) {
     return this.write(CREATE_KEY_FETCH_TOKEN, [
       tokenId,
       keyFetchToken.authKey,
@@ -270,7 +270,7 @@ module.exports = function(log, error) {
   var CREATE_PASSWORD_FORGOT_TOKEN =
     'CALL createPasswordForgotToken_2(?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.createPasswordForgotToken = function(
+  MySql.prototype.createPasswordForgotToken = function (
     tokenId,
     passwordForgotToken
   ) {
@@ -289,7 +289,7 @@ module.exports = function(log, error) {
   var CREATE_PASSWORD_CHANGE_TOKEN =
     'CALL createPasswordChangeToken_2(?, ?, ?, ?)';
 
-  MySql.prototype.createPasswordChangeToken = function(
+  MySql.prototype.createPasswordChangeToken = function (
     tokenId,
     passwordChangeToken
   ) {
@@ -318,7 +318,7 @@ module.exports = function(log, error) {
 
   const CREATE_DEVICE = 'CALL createDevice_5(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.createDevice = function(uid, deviceId, deviceInfo) {
+  MySql.prototype.createDevice = function (uid, deviceId, deviceInfo) {
     const statements = [
       {
         sql: CREATE_DEVICE,
@@ -346,7 +346,7 @@ module.exports = function(log, error) {
 
   const UPDATE_DEVICE = 'CALL updateDevice_6(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.updateDevice = function(uid, deviceId, deviceInfo) {
+  MySql.prototype.updateDevice = function (uid, deviceId, deviceInfo) {
     const statements = [
       {
         sql: UPDATE_DEVICE,
@@ -387,7 +387,7 @@ module.exports = function(log, error) {
   // Where  : normalizedEmail = LOWER($1)
   var ACCOUNT_EXISTS = 'CALL accountExists_2(?)';
 
-  MySql.prototype.accountExists = function(emailBuffer) {
+  MySql.prototype.accountExists = function (emailBuffer) {
     return this.readFirstResult(ACCOUNT_EXISTS, [emailBuffer.toString('utf8')]);
   };
 
@@ -396,9 +396,9 @@ module.exports = function(log, error) {
   // Where  : uid = $1 AND verifyHash = $2
   var CHECK_PASSWORD = 'CALL checkPassword_1(?, ?)';
 
-  MySql.prototype.checkPassword = function(uid, hash) {
+  MySql.prototype.checkPassword = function (uid, hash) {
     return this.readFirstResult(CHECK_PASSWORD, [uid, hash.verifyHash]).catch(
-      function(err) {
+      function (err) {
         // If .readFirstResult() doesn't find anything, it returns an error.notFound()
         // so we need to convert that to an error.incorrectPassword()
         if (err.errno === error.notFound().errno) {
@@ -423,8 +423,8 @@ module.exports = function(log, error) {
   // versioned name is granted the execute privilege, or
   // `fxa-support-panel` will break.
 
-  MySql.prototype.accountDevices = function(uid) {
-    return this.readAllResults(ACCOUNT_DEVICES, [uid]).then(rows =>
+  MySql.prototype.accountDevices = function (uid) {
+    return this.readAllResults(ACCOUNT_DEVICES, [uid]).then((rows) =>
       dbUtil.aggregateNameValuePairs(
         rows,
         'id',
@@ -443,9 +443,9 @@ module.exports = function(log, error) {
   // Where  : d.uid = $1 AND d.id = $2
   var DEVICE = 'CALL device_3(?, ?)';
 
-  MySql.prototype.device = function(uid, id) {
+  MySql.prototype.device = function (uid, id) {
     return this.readAllResults(DEVICE, [uid, id])
-      .then(rows =>
+      .then((rows) =>
         dbUtil.aggregateNameValuePairs(
           rows,
           'id',
@@ -454,7 +454,7 @@ module.exports = function(log, error) {
           'availableCommands'
         )
       )
-      .then(devices => {
+      .then((devices) => {
         if (devices.length === 0) {
           throw error.notFound();
         }
@@ -470,7 +470,7 @@ module.exports = function(log, error) {
   var DEVICE_FROM_TOKEN_VERIFICATION_ID =
     'CALL deviceFromTokenVerificationId_6(?, ?)';
 
-  MySql.prototype.deviceFromTokenVerificationId = function(
+  MySql.prototype.deviceFromTokenVerificationId = function (
     uid,
     tokenVerificationId
   ) {
@@ -478,7 +478,7 @@ module.exports = function(log, error) {
       uid,
       tokenVerificationId,
     ])
-      .then(rows =>
+      .then((rows) =>
         dbUtil.aggregateNameValuePairs(
           rows,
           'id',
@@ -487,7 +487,7 @@ module.exports = function(log, error) {
           'availableCommands'
         )
       )
-      .then(devices => {
+      .then((devices) => {
         if (devices.length === 0) {
           throw error.notFound();
         }
@@ -509,9 +509,9 @@ module.exports = function(log, error) {
   //          t.uid = d.uid AND t.tokenId = u.tokenId
   var SESSION_DEVICE = 'CALL sessionWithDevice_18(?)';
 
-  MySql.prototype.sessionToken = function(id) {
+  MySql.prototype.sessionToken = function (id) {
     return this.readAllResults(SESSION_DEVICE, [id])
-      .then(rows =>
+      .then((rows) =>
         dbUtil.aggregateNameValuePairs(
           rows,
           'deviceId',
@@ -520,7 +520,7 @@ module.exports = function(log, error) {
           'deviceAvailableCommands'
         )
       )
-      .then(results => {
+      .then((results) => {
         if (results.length === 0) {
           throw error.notFound();
         }
@@ -539,8 +539,8 @@ module.exports = function(log, error) {
   //          t.uid = d.uid AND t.tokenId = u.tokenId
   var SESSIONS = 'CALL sessions_11(?)';
 
-  MySql.prototype.sessions = function(uid) {
-    return this.readAllResults(SESSIONS, [uid]).then(rows =>
+  MySql.prototype.sessions = function (uid) {
+    return this.readAllResults(SESSIONS, [uid]).then((rows) =>
       dbUtil.aggregateNameValuePairs(
         rows,
         'deviceId',
@@ -556,7 +556,7 @@ module.exports = function(log, error) {
   // Where  : t.tokenId = $1 AND t.uid = a.uid
   var KEY_FETCH_TOKEN = 'CALL keyFetchToken_1(?)';
 
-  MySql.prototype.keyFetchToken = function(id) {
+  MySql.prototype.keyFetchToken = function (id) {
     return this.readFirstResult(KEY_FETCH_TOKEN, [id]);
   };
 
@@ -567,7 +567,7 @@ module.exports = function(log, error) {
   var KEY_FETCH_TOKEN_VERIFIED =
     'CALL keyFetchTokenWithVerificationStatus_2(?)';
 
-  MySql.prototype.keyFetchTokenWithVerificationStatus = function(tokenId) {
+  MySql.prototype.keyFetchTokenWithVerificationStatus = function (tokenId) {
     return this.readFirstResult(KEY_FETCH_TOKEN_VERIFIED, [tokenId]);
   };
 
@@ -576,7 +576,7 @@ module.exports = function(log, error) {
   // Where  : t.tokenId = $1 AND t.uid = a.uid
   var ACCOUNT_RESET_TOKEN = 'CALL accountResetToken_1(?)';
 
-  MySql.prototype.accountResetToken = function(id) {
+  MySql.prototype.accountResetToken = function (id) {
     return this.readFirstResult(ACCOUNT_RESET_TOKEN, [id]);
   };
 
@@ -584,7 +584,7 @@ module.exports = function(log, error) {
   // Fields : t.uid, t.tokenData, t.createdAt, t.passCode, t.tries, a.email, a.verifierSetAt
   // Where  : t.tokenId = $1 AND t.uid = a.uid
   var PASSWORD_FORGOT_TOKEN = 'CALL passwordForgotToken_2(?)';
-  MySql.prototype.passwordForgotToken = function(id) {
+  MySql.prototype.passwordForgotToken = function (id) {
     return this.readFirstResult(PASSWORD_FORGOT_TOKEN, [id]);
   };
 
@@ -593,7 +593,7 @@ module.exports = function(log, error) {
   // Where  : t.tokenId = $1 AND t.uid = a.uid
   var PASSWORD_CHANGE_TOKEN = 'CALL passwordChangeToken_3(?)';
 
-  MySql.prototype.passwordChangeToken = function(id) {
+  MySql.prototype.passwordChangeToken = function (id) {
     return this.readFirstResult(PASSWORD_CHANGE_TOKEN, [id]);
   };
 
@@ -602,7 +602,7 @@ module.exports = function(log, error) {
   // Where  : accounts.normalizedEmail = LOWER($1)
   var EMAIL_RECORD = 'CALL emailRecord_4(?)';
 
-  MySql.prototype.emailRecord = function(emailBuffer) {
+  MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')]);
   };
 
@@ -618,7 +618,7 @@ module.exports = function(log, error) {
   // versioned name is granted the execute privilege, or
   // `fxa-support-panel` will break.
 
-  MySql.prototype.account = function(uid) {
+  MySql.prototype.account = function (uid) {
     return this.readFirstResult(ACCOUNT, [uid]);
   };
 
@@ -629,7 +629,7 @@ module.exports = function(log, error) {
   // Where  : tokenId = $2
   var UPDATE_PASSWORD_FORGOT_TOKEN = 'CALL updatePasswordForgotToken_1(?, ?)';
 
-  MySql.prototype.updatePasswordForgotToken = function(tokenId, token) {
+  MySql.prototype.updatePasswordForgotToken = function (tokenId, token) {
     return this.write(UPDATE_PASSWORD_FORGOT_TOKEN, [token.tries, tokenId]);
   };
 
@@ -641,7 +641,7 @@ module.exports = function(log, error) {
   var UPDATE_SESSION_TOKEN =
     'CALL updateSessionToken_3(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.updateSessionToken = function(tokenId, token) {
+  MySql.prototype.updateSessionToken = function (tokenId, token) {
     return this.write(UPDATE_SESSION_TOKEN, [
       tokenId,
       token.uaBrowser,
@@ -664,7 +664,7 @@ module.exports = function(log, error) {
   // Where  : uid = $1
   var DELETE_ACCOUNT = 'CALL deleteAccount_18(?)';
 
-  MySql.prototype.deleteAccount = function(uid) {
+  MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid]);
   };
 
@@ -672,7 +672,7 @@ module.exports = function(log, error) {
   // Where  : tokenId = $1
   var DELETE_SESSION_TOKEN = 'CALL deleteSessionToken_4(?)';
 
-  MySql.prototype.deleteSessionToken = function(tokenId) {
+  MySql.prototype.deleteSessionToken = function (tokenId) {
     return this.write(DELETE_SESSION_TOKEN, [tokenId]);
   };
 
@@ -680,7 +680,7 @@ module.exports = function(log, error) {
   // Where  : tokenId = $1
   var DELETE_KEY_FETCH_TOKEN = 'CALL deleteKeyFetchToken_2(?)';
 
-  MySql.prototype.deleteKeyFetchToken = function(tokenId) {
+  MySql.prototype.deleteKeyFetchToken = function (tokenId) {
     return this.write(DELETE_KEY_FETCH_TOKEN, [tokenId]);
   };
 
@@ -688,11 +688,11 @@ module.exports = function(log, error) {
   // Where  : tokenVerificationId = $1, uid = $2
   var VERIFY_TOKENS = 'CALL verifyToken_3(?, ?)';
 
-  MySql.prototype.verifyTokens = function(tokenVerificationId, accountData) {
+  MySql.prototype.verifyTokens = function (tokenVerificationId, accountData) {
     return this.read(VERIFY_TOKENS, [
       tokenVerificationId,
       accountData.uid,
-    ]).then(function(result) {
+    ]).then(function (result) {
       if (result.affectedRows === 0) {
         throw error.notFound();
       }
@@ -703,17 +703,17 @@ module.exports = function(log, error) {
   // Where  : tokenVerificationCode = $1, uid = $2
   const VERIFY_TOKEN_CODE = 'CALL verifyTokenCode_2(?, ?)';
 
-  MySql.prototype.verifyTokenCode = function(tokenData, accountData) {
+  MySql.prototype.verifyTokenCode = function (tokenData, accountData) {
     return this.read(VERIFY_TOKEN_CODE, [
       dbUtil.createHash(tokenData.code),
       accountData.uid,
     ])
-      .then(result => {
+      .then((result) => {
         if (result.affectedRows === 0) {
           throw error.notFound();
         }
       })
-      .catch(err => {
+      .catch((err) => {
         // Custom error when attempted to verify an expired code
         if (err.errno === ER_EXPIRED_TOKEN_VERIFICATION_CODE) {
           throw error.expiredTokenVerificationCode();
@@ -726,7 +726,7 @@ module.exports = function(log, error) {
   // Where  : tokenId = $1
   var DELETE_ACCOUNT_RESET_TOKEN = 'CALL deleteAccountResetToken_1(?)';
 
-  MySql.prototype.deleteAccountResetToken = function(tokenId) {
+  MySql.prototype.deleteAccountResetToken = function (tokenId) {
     return this.write(DELETE_ACCOUNT_RESET_TOKEN, [tokenId]);
   };
 
@@ -734,7 +734,7 @@ module.exports = function(log, error) {
   // Where  : tokenId = $1
   var DELETE_PASSWORD_FORGOT_TOKEN = 'CALL deletePasswordForgotToken_1(?)';
 
-  MySql.prototype.deletePasswordForgotToken = function(tokenId) {
+  MySql.prototype.deletePasswordForgotToken = function (tokenId) {
     return this.write(DELETE_PASSWORD_FORGOT_TOKEN, [tokenId]);
   };
 
@@ -742,7 +742,7 @@ module.exports = function(log, error) {
   // Where  : tokenId = $1
   var DELETE_PASSWORD_CHANGE_TOKEN = 'CALL deletePasswordChangeToken_1(?)';
 
-  MySql.prototype.deletePasswordChangeToken = function(tokenId) {
+  MySql.prototype.deletePasswordChangeToken = function (tokenId) {
     return this.write(DELETE_PASSWORD_CHANGE_TOKEN, [tokenId]);
   };
 
@@ -752,8 +752,8 @@ module.exports = function(log, error) {
   // Where  : uid = $1, deviceId = $2
   var DELETE_DEVICE = 'CALL deleteDevice_4(?, ?)';
 
-  MySql.prototype.deleteDevice = function(uid, deviceId) {
-    return this.write(DELETE_DEVICE, [uid, deviceId], results => {
+  MySql.prototype.deleteDevice = function (uid, deviceId) {
+    return this.write(DELETE_DEVICE, [uid, deviceId], (results) => {
       const result = results[1];
       if (result.affectedRows === 0) {
         log.error('MySql.deleteDevice', { err: result });
@@ -768,7 +768,7 @@ module.exports = function(log, error) {
   // INSERT : id, uid, email, emailCode, type, acceptLanguage, createdAt
   var CREATE_REMINDER = 'CALL createVerificationReminder_2(?, ?, ?)';
 
-  MySql.prototype.createVerificationReminder = function(body) {
+  MySql.prototype.createVerificationReminder = function (body) {
     if (!body || !body.uid || !body.type) {
       throw error.wrap(new Error('"uid", "type" are required'));
     }
@@ -789,7 +789,7 @@ module.exports = function(log, error) {
   // SELECT:
   var FETCH_REMINDERS = 'CALL fetchVerificationReminders_2(?, ?, ?, ?, ?)';
 
-  MySql.prototype.fetchReminders = function(body, query) {
+  MySql.prototype.fetchReminders = function (body, query) {
     var now = Date.now();
 
     if (
@@ -812,7 +812,7 @@ module.exports = function(log, error) {
       query.reminderTime,
       query.reminderTimeOutdated,
       query.limit,
-    ]).then(function(readResult) {
+    ]).then(function (readResult) {
       return readResult[0];
     });
   };
@@ -820,7 +820,7 @@ module.exports = function(log, error) {
   // DELETE REMINDER:
   var DELETE_REMINDER = 'CALL deleteVerificationReminder_1(?, ?)';
 
-  MySql.prototype.deleteReminder = function(body) {
+  MySql.prototype.deleteReminder = function (body) {
     if (!body || !body.uid || !body.type) {
       throw error.wrap(new Error('"uid", "type" are required'));
     }
@@ -847,7 +847,7 @@ module.exports = function(log, error) {
   // Where  : uid = $1
   var RESET_ACCOUNT = 'CALL resetAccount_15(?, ?, ?, ?, ?, ?, ?)';
 
-  MySql.prototype.resetAccount = function(uid, data) {
+  MySql.prototype.resetAccount = function (uid, data) {
     return this.write(RESET_ACCOUNT, [
       uid,
       data.verifyHash,
@@ -864,7 +864,7 @@ module.exports = function(log, error) {
   // Where  : uid = $1, emailCode = $2
   var VERIFY_EMAIL = 'CALL verifyEmail_9(?, ?)';
 
-  MySql.prototype.verifyEmail = function(uid, emailCode) {
+  MySql.prototype.verifyEmail = function (uid, emailCode) {
     return this.write(VERIFY_EMAIL, [uid, emailCode]);
   };
 
@@ -887,7 +887,7 @@ module.exports = function(log, error) {
   // Where  : isPrimary = true AND uid = $4
   var FORGOT_PASSWORD_VERIFIED = 'CALL forgotPasswordVerified_8(?, ?, ?, ?, ?)';
 
-  MySql.prototype.forgotPasswordVerified = function(
+  MySql.prototype.forgotPasswordVerified = function (
     tokenId,
     accountResetToken
   ) {
@@ -905,16 +905,16 @@ module.exports = function(log, error) {
   // Where  : uid = $2
   var UPDATE_LOCALE = 'CALL updateLocale_1(?, ?)';
 
-  MySql.prototype.updateLocale = function(uid, data) {
+  MySql.prototype.updateLocale = function (uid, data) {
     return this.write(UPDATE_LOCALE, [data.locale, uid]);
   };
 
   var CREATE_UNBLOCK_CODE = 'CALL createUnblockCode_1(?, ?, ?)';
 
-  MySql.prototype.createUnblockCode = function(uid, code) {
+  MySql.prototype.createUnblockCode = function (uid, code) {
     // hash the code since it's like a password
     code = dbUtil.createHash(uid, code);
-    return this.write(CREATE_UNBLOCK_CODE, [uid, code, Date.now()], function(
+    return this.write(CREATE_UNBLOCK_CODE, [uid, code, Date.now()], function (
       result
     ) {
       return {};
@@ -923,10 +923,10 @@ module.exports = function(log, error) {
 
   var CONSUME_UNBLOCK_CODE = 'CALL consumeUnblockCode_3(?, ?)';
 
-  MySql.prototype.consumeUnblockCode = function(uid, code) {
+  MySql.prototype.consumeUnblockCode = function (uid, code) {
     // hash the code since it's like a password
     code = dbUtil.createHash(uid, code);
-    return this.write(CONSUME_UNBLOCK_CODE, [uid, code], function(result) {
+    return this.write(CONSUME_UNBLOCK_CODE, [uid, code], function (result) {
       if (
         result.length === 0 ||
         result[0].length === 0 ||
@@ -943,7 +943,7 @@ module.exports = function(log, error) {
   // Insert : emails
   // Values : normalizedEmail = $1, email = $2, uid = $3, emailCode = $4, isVerified = $5, verifiedAt = $7, createdAt = $8
   var CREATE_EMAIL = 'CALL createEmail_2(?, ?, ?, ?, ?, ?, ?)';
-  MySql.prototype.createEmail = function(uid, data) {
+  MySql.prototype.createEmail = function (uid, data) {
     return this.write(CREATE_EMAIL, [
       data.normalizedEmail,
       data.email,
@@ -958,7 +958,7 @@ module.exports = function(log, error) {
   // Get : email
   // Values : email = $1
   var GET_SECONDARY_EMAIL = 'CALL getSecondaryEmail_1(?)';
-  MySql.prototype.getSecondaryEmail = function(email) {
+  MySql.prototype.getSecondaryEmail = function (email) {
     return this.readFirstResult(GET_SECONDARY_EMAIL, [email]);
   };
 
@@ -968,26 +968,26 @@ module.exports = function(log, error) {
   // Where  : emails.normalizedEmail = LOWER($1)
   //
   var GET_ACCOUNT_RECORD = 'CALL accountRecord_6(?)';
-  MySql.prototype.accountRecord = function(email) {
+  MySql.prototype.accountRecord = function (email) {
     return this.readFirstResult(GET_ACCOUNT_RECORD, [email]);
   };
 
   // Select : emails
   // Values : uid = $1
   var ACCOUNT_EMAILS = 'CALL accountEmails_4(?)';
-  MySql.prototype.accountEmails = function(uid) {
+  MySql.prototype.accountEmails = function (uid) {
     return this.readAllResults(ACCOUNT_EMAILS, [uid]);
   };
 
   // Update : emails
   // Values : uid = $1, email = $2
   var SET_PRIMARY_EMAIL = 'CALL setPrimaryEmail_6(?, ?)';
-  MySql.prototype.setPrimaryEmail = function(uid, email) {
+  MySql.prototype.setPrimaryEmail = function (uid, email) {
     return this.write(SET_PRIMARY_EMAIL, [uid, email])
       .then(() => {
         return {};
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.errno === error.duplicate().errno) {
           throw error.cannotSetUnownedPrimaryEmail();
         }
@@ -999,8 +999,8 @@ module.exports = function(log, error) {
   // Delete : emails
   // Values : uid = $1, email = $2
   var DELETE_EMAIL = 'CALL deleteEmail_5(?, ?)';
-  MySql.prototype.deleteEmail = function(uid, email) {
-    return this.write(DELETE_EMAIL, [uid, email]).catch(function(err) {
+  MySql.prototype.deleteEmail = function (uid, email) {
+    return this.write(DELETE_EMAIL, [uid, email]).catch(function (err) {
       // Signal exception is triggered when an attempt to
       // delete a primary email.
       if (err.errno === ER_DELETE_PRIMARY_EMAIL) {
@@ -1012,14 +1012,14 @@ module.exports = function(log, error) {
 
   // Internal
 
-  MySql.prototype.singleQuery = function(poolName, sql, params) {
-    return this.getConnection(poolName).then(function(connection) {
+  MySql.prototype.singleQuery = function (poolName, sql, params) {
+    return this.getConnection(poolName).then(function (connection) {
       return query(connection, sql, params).then(
-        function(result) {
+        function (result) {
           connection.release();
           return result;
         },
-        function(err) {
+        function (err) {
           connection.release();
           throw err;
         }
@@ -1027,18 +1027,18 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.multipleQueries = function(poolName, queries, finalQuery) {
-    return this.getConnection(poolName).then(function(connection) {
+  MySql.prototype.multipleQueries = function (poolName, queries, finalQuery) {
+    return this.getConnection(poolName).then(function (connection) {
       var results = [];
-      return P.each(queries, function(q) {
-        return query(connection, q.sql, q.params).then(function(result) {
+      return P.each(queries, function (q) {
+        return query(connection, q.sql, q.params).then(function (result) {
           results.push(result);
         });
       })
-        .then(function() {
+        .then(function () {
           return results;
         })
-        .finally(function() {
+        .finally(function () {
           if (finalQuery) {
             return query(connection, finalQuery.sql, finalQuery.params).finally(
               finish
@@ -1054,31 +1054,31 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.transaction = function(fn) {
+  MySql.prototype.transaction = function (fn) {
     return retryable(
-      function() {
-        return this.getConnection('MASTER').then(function(connection) {
+      function () {
+        return this.getConnection('MASTER').then(function (connection) {
           return query(connection, 'BEGIN')
-            .then(function() {
+            .then(function () {
               return fn(connection);
             })
-            .then(function(result) {
-              return query(connection, 'COMMIT').then(function() {
+            .then(function (result) {
+              return query(connection, 'COMMIT').then(function () {
                 return result;
               });
             })
-            .catch(function(err) {
+            .catch(function (err) {
               log.error('MySql.transaction', { err: err });
-              return query(connection, 'ROLLBACK').then(function() {
+              return query(connection, 'ROLLBACK').then(function () {
                 throw err;
               });
             })
             .then(
-              function(result) {
+              function (result) {
                 connection.release();
                 return result;
               },
-              function(err) {
+              function (err) {
                 connection.release();
                 throw err;
               }
@@ -1086,13 +1086,13 @@ module.exports = function(log, error) {
         });
       }.bind(this),
       LOCK_ERRNOS
-    ).catch(function(err) {
+    ).catch(function (err) {
       throw error.wrap(err);
     });
   };
 
-  MySql.prototype.readFirstResult = function(sql, params) {
-    return this.read(sql, params).then(function(results) {
+  MySql.prototype.readFirstResult = function (sql, params) {
+    return this.read(sql, params).then(function (results) {
       // instead of the result being [result], it'll be [[result...]]
       if (!results.length) {
         throw error.notFound();
@@ -1104,8 +1104,8 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.readAllResults = function(sql, params) {
-    return this.read(sql, params).then(function(results) {
+  MySql.prototype.readAllResults = function (sql, params) {
+    return this.read(sql, params).then(function (results) {
       // instead of the result being [result], it'll be [[result...]]
       if (!results.length) {
         throw error.notFound();
@@ -1114,15 +1114,15 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.read = function(sql, params) {
-    return this.singleQuery('SLAVE*', sql, params).catch(function(err) {
+  MySql.prototype.read = function (sql, params) {
+    return this.singleQuery('SLAVE*', sql, params).catch(function (err) {
       log.error('MySql.read', { sql: sql, id: params, err: err });
       throw error.wrap(err);
     });
   };
 
-  MySql.prototype.readMultiple = function(queries, finalQuery) {
-    return this.multipleQueries('SLAVE*', queries, finalQuery).catch(function(
+  MySql.prototype.readMultiple = function (queries, finalQuery) {
+    return this.multipleQueries('SLAVE*', queries, finalQuery).catch(function (
       err
     ) {
       log.error('MySql.readMultiple', { err: err });
@@ -1130,16 +1130,16 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.write = function(sql, params, resultHandler) {
+  MySql.prototype.write = function (sql, params, resultHandler) {
     return this.singleQuery('MASTER', sql, params).then(
-      function(result) {
+      function (result) {
         log.trace('MySql.write', { sql: sql, result: result });
         if (resultHandler) {
           return resultHandler(result);
         }
         return {};
       },
-      function(err) {
+      function (err) {
         log.error('MySql.write', { sql: sql, err: err });
         if (err.errno === ER_DUP_ENTRY) {
           err = error.duplicate();
@@ -1151,17 +1151,17 @@ module.exports = function(log, error) {
     );
   };
 
-  MySql.prototype.writeMultiple = function(queries) {
-    return this.transaction(connection => {
+  MySql.prototype.writeMultiple = function (queries) {
+    return this.transaction((connection) => {
       return P.each(queries, ({ sql, params, resultHandler }) => {
         return query(connection, sql, params).then(
-          function(result) {
+          function (result) {
             log.trace('MySql.writeMultiple', { sql, result });
             if (resultHandler) {
               return resultHandler(result);
             }
           },
-          function(err) {
+          function (err) {
             log.error('MySql.writeMultiple', { sql, err });
             if (err.errno === ER_DUP_ENTRY) {
               err = error.duplicate();
@@ -1177,14 +1177,14 @@ module.exports = function(log, error) {
     });
   };
 
-  MySql.prototype.getConnection = function(name) {
+  MySql.prototype.getConnection = function (name) {
     return new P((resolve, reject) => {
       retryable(this.getClusterConnection.bind(this, name), [
         ER_TOO_MANY_CONNECTIONS,
         'ECONNREFUSED',
         'ETIMEDOUT',
         'ECONNRESET',
-      ]).then(connection => {
+      ]).then((connection) => {
         if (connection._fxa_initialized) {
           return resolve(connection);
         }
@@ -1223,7 +1223,7 @@ module.exports = function(log, error) {
 
   function query(connection, sql, params) {
     var d = P.defer();
-    connection.query(sql, params || [], function(err, results) {
+    connection.query(sql, params || [], function (err, results) {
       if (err) {
         return d.reject(err);
       }
@@ -1251,7 +1251,7 @@ module.exports = function(log, error) {
   MySql.prototype.retryable_ = retryable;
 
   const PRUNE = 'CALL prune_7(?)';
-  MySql.prototype.pruneTokens = function() {
+  MySql.prototype.pruneTokens = function () {
     log.info('MySql.pruneTokens');
 
     var pruneTokensMaxAge = this.options.pruneTokensMaxAge;
@@ -1266,16 +1266,16 @@ module.exports = function(log, error) {
   };
 
   // Utility method for logging connection config at startup
-  MySql.prototype._connectionConfig = function(poolName) {
+  MySql.prototype._connectionConfig = function (poolName) {
     var exclude = ['pool', 'password', 'user', 'host', 'port'];
 
-    return this.getConnection(poolName).then(function(connection) {
+    return this.getConnection(poolName).then(function (connection) {
       return query(connection, 'SELECT 1').then(
-        function(result) {
+        function (result) {
           var config = {};
           Object.keys(connection.config)
             .sort()
-            .forEach(function(key) {
+            .forEach(function (key) {
               if (exclude.indexOf(key) === -1) {
                 config[key] = connection.config[key];
               }
@@ -1283,7 +1283,7 @@ module.exports = function(log, error) {
           connection.release();
           return config;
         },
-        function(err) {
+        function (err) {
           connection.release();
           throw err;
         }
@@ -1292,7 +1292,7 @@ module.exports = function(log, error) {
   };
 
   // Utility method for logging charset/collation and other variables at startup
-  MySql.prototype._showVariables = function(poolName) {
+  MySql.prototype._showVariables = function (poolName) {
     var include = [
       'character_set_client',
       'character_set_connection',
@@ -1310,11 +1310,11 @@ module.exports = function(log, error) {
       'sql_mode',
     ];
 
-    return this.getConnection(poolName).then(function(connection) {
+    return this.getConnection(poolName).then(function (connection) {
       return query(connection, 'SHOW VARIABLES').then(
-        function(variables) {
+        function (variables) {
           var vars = {};
-          variables.forEach(function(v) {
+          variables.forEach(function (v) {
             var name = v.Variable_name;
             if (include.indexOf(name) !== -1) {
               vars[name] = v.Value;
@@ -1323,7 +1323,7 @@ module.exports = function(log, error) {
           connection.release();
           return vars;
         },
-        function(err) {
+        function (err) {
           connection.release();
           throw err;
         }
@@ -1351,7 +1351,7 @@ module.exports = function(log, error) {
   };
 
   var CREATE_SECURITY_EVENT = 'CALL createSecurityEvent_3(?, ?, ?, ?, ?)';
-  MySql.prototype.createSecurityEvent = function(data) {
+  MySql.prototype.createSecurityEvent = function (data) {
     var uid = data.uid;
     var tokenId = data.tokenId;
     var nameId = SECURITY_EVENT_NAMES[data.name];
@@ -1366,11 +1366,11 @@ module.exports = function(log, error) {
   };
 
   var FETCH_SECURITY_EVENTS = 'CALL fetchSecurityEvents_1(?, ?)';
-  MySql.prototype.securityEvents = function(where) {
+  MySql.prototype.securityEvents = function (where) {
     var uid = where.id;
 
     var ipAddr = ipHmac(this.ipHmacKey, uid, where.ipAddr);
-    return this.read(FETCH_SECURITY_EVENTS, [uid, ipAddr]).then(function(
+    return this.read(FETCH_SECURITY_EVENTS, [uid, ipAddr]).then(function (
       result
     ) {
       return result[0];
@@ -1378,19 +1378,19 @@ module.exports = function(log, error) {
   };
 
   const FETCH_SECURITY_EVENTS_BY_UID = 'CALL fetchSecurityEventsByUid_1(?)';
-  MySql.prototype.securityEventsByUid = function(uid) {
+  MySql.prototype.securityEventsByUid = function (uid) {
     return this.read(FETCH_SECURITY_EVENTS_BY_UID, [uid]).then(
-      result => result[0]
+      (result) => result[0]
     );
   };
 
   const DELETE_SECURITY_EVENTS_BY_UID = 'CALL deleteSecurityEventsByUid_1(?)';
-  MySql.prototype.deleteSecurityEventsByUid = function(uid) {
+  MySql.prototype.deleteSecurityEventsByUid = function (uid) {
     return this.write(DELETE_SECURITY_EVENTS_BY_UID, [uid]);
   };
 
   const CREATE_EMAIL_BOUNCE = 'CALL createEmailBounce_1(?, ?, ?, ?)';
-  MySql.prototype.createEmailBounce = function(data) {
+  MySql.prototype.createEmailBounce = function (data) {
     const args = [
       data.email,
       dbUtil.mapEmailBounceType(data.bounceType),
@@ -1401,16 +1401,16 @@ module.exports = function(log, error) {
   };
 
   const FETCH_EMAIL_BOUNCES = 'CALL fetchEmailBounces_1(?)';
-  MySql.prototype.fetchEmailBounces = function(emailBuffer) {
+  MySql.prototype.fetchEmailBounces = function (emailBuffer) {
     return this.read(FETCH_EMAIL_BOUNCES, [emailBuffer.toString('utf8')]).then(
-      result => result[0]
+      (result) => result[0]
     );
   };
 
   // Insert : signinCodes
   // Values : hash = $1, uid = $2, createdAt = $3, flowId = $4
   const CREATE_SIGNIN_CODE = 'CALL createSigninCode_2(?, ?, ?, ?)';
-  MySql.prototype.createSigninCode = function(code, uid, createdAt, flowId) {
+  MySql.prototype.createSigninCode = function (code, uid, createdAt, flowId) {
     // code is hashed to thwart timing attacks
     return this.write(CREATE_SIGNIN_CODE, [
       dbUtil.createHash(code),
@@ -1423,7 +1423,7 @@ module.exports = function(log, error) {
   // Delete : signinCodes
   // Where : hash = $1, createdAt > now - config.signinCodesMaxAge
   const CONSUME_SIGNIN_CODE = 'CALL consumeSigninCode_4(?, ?)';
-  MySql.prototype.consumeSigninCode = function(code) {
+  MySql.prototype.consumeSigninCode = function (code) {
     const newerThan = Date.now() - this.options.signinCodesMaxAge;
     return this.readFirstResult(CONSUME_SIGNIN_CODE, [
       dbUtil.createHash(code),
@@ -1434,12 +1434,12 @@ module.exports = function(log, error) {
   // Delete : account tokens passwordChangeTokens, passwordForgotTokens and accountResetTokens
   // Where : uid = $1
   const ACCOUNT_RESET_TOKENS = 'CALL resetAccountTokens_1(?)';
-  MySql.prototype.resetAccountTokens = function(uid) {
+  MySql.prototype.resetAccountTokens = function (uid) {
     return this.write(ACCOUNT_RESET_TOKENS, [uid]);
   };
 
   const CREATE_TOTP_TOKEN = 'CALL createTotpToken_1(?, ?, ?, ?)';
-  MySql.prototype.createTotpToken = function(uid, data) {
+  MySql.prototype.createTotpToken = function (uid, data) {
     return this.write(CREATE_TOTP_TOKEN, [
       uid,
       data.sharedSecret,
@@ -1454,22 +1454,22 @@ module.exports = function(log, error) {
   // versioned name is granted the execute privilege, or
   // `fxa-support-panel` will break.
   const GET_TOTP_TOKEN = 'CALL totpToken_2(?)';
-  MySql.prototype.totpToken = function(uid) {
+  MySql.prototype.totpToken = function (uid) {
     return this.readFirstResult(GET_TOTP_TOKEN, [uid]);
   };
 
   const DELETE_TOTP_TOKEN = 'CALL deleteTotpToken_4(?)';
-  MySql.prototype.deleteTotpToken = function(uid) {
+  MySql.prototype.deleteTotpToken = function (uid) {
     return this.write(DELETE_TOTP_TOKEN, [uid]);
   };
 
   const UPDATE_TOTP_TOKEN = 'CALL updateTotpToken_4(?, ?, ?)';
-  MySql.prototype.updateTotpToken = function(uid, token) {
+  MySql.prototype.updateTotpToken = function (uid, token) {
     return this.read(UPDATE_TOTP_TOKEN, [
       uid,
       token.verified,
       token.enabled,
-    ]).then(result => {
+    ]).then((result) => {
       if (result.affectedRows === 0) {
         throw error.notFound();
       }
@@ -1478,7 +1478,7 @@ module.exports = function(log, error) {
   };
 
   const VERIFY_SESSION_WITH_METHOD = 'CALL verifyTokensWithMethod_3(?, ?, ?)';
-  MySql.prototype.verifyTokensWithMethod = function(tokenId, data) {
+  MySql.prototype.verifyTokensWithMethod = function (tokenId, data) {
     return P.resolve().then(() => {
       const verificationMethod = dbUtil.mapVerificationMethodType(
         data.verificationMethod
@@ -1493,16 +1493,16 @@ module.exports = function(log, error) {
         verificationMethod,
         Date.now(),
       ])
-        .then(results => {
+        .then((results) => {
           if (results.affectedRows === 0) {
             throw error.notFound();
           }
 
           // Verify session in the `unverifiedTokens` table
-          return this.sessionToken(tokenId).then(session => {
+          return this.sessionToken(tokenId).then((session) => {
             return this.verifyTokens(session.tokenVerificationId, {
               uid: session.uid,
-            }).catch(err => {
+            }).catch((err) => {
               // Don't error if there wasn't a token found to verify. This token could have
               // already been verified with another method.
               if (err.errno === error.notFound().errno) {
@@ -1518,20 +1518,20 @@ module.exports = function(log, error) {
 
   const DELETE_RECOVERY_CODES = 'CALL deleteRecoveryCodes_1(?)';
   const INSERT_RECOVERY_CODE = 'CALL createRecoveryCode_3(?, ?, ?)';
-  MySql.prototype.replaceRecoveryCodes = function(uid, count) {
+  MySql.prototype.replaceRecoveryCodes = function (uid, count) {
     // Because of the hashing requirements the process of replacing
     // recovery codes is done is two separate procedures. First one
     // deletes all current codes and the second one inserts the
     // hashed randomly generated codes.
     return dbUtil
       .generateRecoveryCodes(count, RECOVERY_CODE_LENGTH)
-      .then(codes => {
+      .then((codes) => {
         return this.read(DELETE_RECOVERY_CODES, [uid])
-          .then(() => codes.map(code => dbUtil.createHashScrypt(code)))
+          .then(() => codes.map((code) => dbUtil.createHashScrypt(code)))
           .all()
-          .then(items => {
+          .then((items) => {
             const queries = [];
-            items.forEach(item => {
+            items.forEach((item) => {
               queries.push({
                 sql: INSERT_RECOVERY_CODE,
                 params: [uid, item.hash, item.salt],
@@ -1541,7 +1541,7 @@ module.exports = function(log, error) {
             return this.writeMultiple(queries);
           })
           .then(() => codes)
-          .catch(err => {
+          .catch((err) => {
             if (err.errno === ER_SIGNAL_NOT_FOUND) {
               throw error.notFound();
             }
@@ -1553,31 +1553,31 @@ module.exports = function(log, error) {
 
   const CONSUME_RECOVERY_CODE = 'CALL consumeRecoveryCode_3(?, ?)';
   const RECOVERY_CODES = 'CALL recoveryCodes_1(?)';
-  MySql.prototype.consumeRecoveryCode = function(uid, submittedCode) {
+  MySql.prototype.consumeRecoveryCode = function (uid, submittedCode) {
     // Consuming a recovery code is done in a two step process because
     // the stored scrypt hash will need to be calculated against the recovery
     // code salt.
     return this.readAllResults(RECOVERY_CODES, [uid])
-      .then(results => {
+      .then((results) => {
         // Throw if this user has no recovery codes
         if (results.length === 0) {
           throw error.notFound();
         }
 
-        const compareResults = results.map(code => {
+        const compareResults = results.map((code) => {
           return dbUtil
             .compareHashScrypt(submittedCode, code.codeHash, code.salt)
-            .then(equals => {
+            .then((equals) => {
               return { code, equals };
             });
         });
 
         // Filter only matching code
-        return P.filter(compareResults, result => result.equals).map(
-          result => result.code
+        return P.filter(compareResults, (result) => result.equals).map(
+          (result) => result.code
         );
       })
-      .then(result => {
+      .then((result) => {
         if (result.length === 0) {
           throw error.notFound();
         }
@@ -1586,12 +1586,12 @@ module.exports = function(log, error) {
           result[0].codeHash,
         ]);
       })
-      .then(result => {
+      .then((result) => {
         return P.resolve({
           remaining: result.count,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.errno === ER_SIGNAL_NOT_FOUND) {
           throw error.notFound();
         }
@@ -1603,7 +1603,7 @@ module.exports = function(log, error) {
   // Create : recoveryKeys
   // Where  : uid = $1, recoveryKeyId = $2, recoveryData = $3, createdAt = $4, enabled = $5
   const CREATE_RECOVERY_KEY = 'CALL createRecoveryKey_4(?, ?, ?, ?, ?)';
-  MySql.prototype.createRecoveryKey = function(uid, data) {
+  MySql.prototype.createRecoveryKey = function (uid, data) {
     const recoveryKeyIdHash = dbUtil.createHash(data.recoveryKeyId);
     const recoveryData = data.recoveryData;
     return this.write(CREATE_RECOVERY_KEY, [
@@ -1616,7 +1616,7 @@ module.exports = function(log, error) {
       .then(() => {
         return {};
       })
-      .catch(err => {
+      .catch((err) => {
         if (err.errno === ER_SIGNAL_NOT_FOUND) {
           throw error.notFound();
         }
@@ -1626,9 +1626,9 @@ module.exports = function(log, error) {
   };
 
   const GET_RECOVERY_KEY = 'CALL getRecoveryKey_4(?)';
-  MySql.prototype.getRecoveryKey = function(options) {
+  MySql.prototype.getRecoveryKey = function (options) {
     return this.readFirstResult(GET_RECOVERY_KEY, [options.id]).then(
-      results => {
+      (results) => {
         // Throw if this user has no recovery keys
         if (results.length === 0) {
           throw error.notFound();
@@ -1647,18 +1647,18 @@ module.exports = function(log, error) {
     );
   };
 
-  MySql.prototype.recoveryKeyExists = function(uid) {
-    return this.read(GET_RECOVERY_KEY, [uid]).then(results => {
+  MySql.prototype.recoveryKeyExists = function (uid) {
+    return this.read(GET_RECOVERY_KEY, [uid]).then((results) => {
       // A recovery key is considered to exist if and only if there is one key
       // that is enabled.
-      const exists = results[0].some(k => k.enabled);
+      const exists = results[0].some((k) => k.enabled);
 
       return { exists };
     });
   };
 
   const DELETE_RECOVERY_KEY = 'CALL deleteRecoveryKey_2(?)';
-  MySql.prototype.deleteRecoveryKey = function(options) {
+  MySql.prototype.deleteRecoveryKey = function (options) {
     return this.write(DELETE_RECOVERY_KEY, [options.id]).then(() => {
       return {};
     });
@@ -1667,7 +1667,7 @@ module.exports = function(log, error) {
   // Update : recoveryKeys
   // Where  : uid = $1, recoveryKeyId = $2, verifiedAt = $3, enabled = $4
   const UPDATE_RECOVERY_KEY = 'CALL updateRecoveryKey_1(?, ?, ?, ?)';
-  MySql.prototype.updateRecoveryKey = async function(uid, options) {
+  MySql.prototype.updateRecoveryKey = async function (uid, options) {
     const recoveryKeyIdHash = dbUtil.createHash(options.recoveryKeyId);
 
     try {

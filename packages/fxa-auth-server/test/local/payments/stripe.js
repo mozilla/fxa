@@ -105,7 +105,7 @@ function createMockRedis() {
       return _data[key];
     },
   };
-  Object.keys(mock).forEach(key => sinon.spy(mock, key));
+  Object.keys(mock).forEach((key) => sinon.spy(mock, key));
   return mock;
 }
 
@@ -375,7 +375,7 @@ describe('StripeHelper', () => {
           )
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPGRADE);
             }
           );
@@ -388,7 +388,7 @@ describe('StripeHelper', () => {
           .verifyPlanUpgradeForSubscription('plan_bad', 'plan_F4G9jB3x5i6Dpj')
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
             }
           );
@@ -401,7 +401,7 @@ describe('StripeHelper', () => {
           .verifyPlanUpgradeForSubscription('plan_F4G9jB3x5i6Dpj', 'plan_bad')
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
             }
           );
@@ -417,7 +417,7 @@ describe('StripeHelper', () => {
           )
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
             }
           );
@@ -534,7 +534,7 @@ describe('StripeHelper', () => {
           )
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
               assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
             }
@@ -629,7 +629,7 @@ describe('StripeHelper', () => {
             )
             .then(
               () => Promise.reject(new Error('Method expected to reject')),
-              err => {
+              (err) => {
                 assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
                 assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
               }
@@ -649,7 +649,7 @@ describe('StripeHelper', () => {
           )
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
-            err => {
+            (err) => {
               assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION);
               assert.isTrue(stripeSubscriptionsUpdateStub.notCalled);
             }
@@ -688,7 +688,7 @@ describe('StripeHelper', () => {
         )
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
@@ -711,7 +711,7 @@ describe('StripeHelper', () => {
         )
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(err, apiError);
           }
         );
@@ -729,7 +729,7 @@ describe('StripeHelper', () => {
       scopeSpy = {
         setContext: scopeContextSpy,
       };
-      sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
+      sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
     });
 
     describe('customer exists and has FxA UID on metadata', () => {
@@ -809,7 +809,7 @@ describe('StripeHelper', () => {
         .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
@@ -826,7 +826,7 @@ describe('StripeHelper', () => {
         .updateCustomerPaymentMethod(customer1.id, 'tok_visa')
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(err, apiError);
           }
         );
@@ -1203,7 +1203,7 @@ describe('StripeHelper', () => {
 
         return stripeHelper.createSubscription(customer1, plan1, uuidv4()).then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
@@ -1220,7 +1220,7 @@ describe('StripeHelper', () => {
 
         return stripeHelper.createSubscription(customer1, plan1, uuidv4()).then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(err, apiError);
           }
         );
@@ -1264,7 +1264,7 @@ describe('StripeHelper', () => {
             .createSubscription(customer1, plan1, uuidv4())
             .then(
               () => Promise.reject(new Error('Method expected to reject')),
-              err => {
+              (err) => {
                 failed = true;
                 assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
                 assert.equal(err.message, 'Payment method failed');
@@ -1334,7 +1334,7 @@ describe('StripeHelper', () => {
 
         return stripeHelper.payInvoice(paidInvoice.id).then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
             assert.equal(err.message, 'Payment method failed');
           }
@@ -1352,7 +1352,7 @@ describe('StripeHelper', () => {
 
         return stripeHelper.payInvoice(paidInvoice.id).then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(err.errno, error.ERRNO.PAYMENT_FAILED);
             assert.equal(err.message, 'Payment method failed');
           }
@@ -1366,7 +1366,7 @@ describe('StripeHelper', () => {
 
         return stripeHelper.payInvoice(paidInvoice.id).then(
           () => Promise.reject(new Error('Method expected to reject')),
-          err => {
+          (err) => {
             assert.equal(err, apiError);
           }
         );
@@ -1648,15 +1648,15 @@ describe('StripeHelper', () => {
 
         assert.lengthOf(response, 2);
         assert.isDefined(
-          response.find(x => x.subscription_id === subscription1.id),
+          response.find((x) => x.subscription_id === subscription1.id),
           'should contain subscription1'
         );
         assert.isDefined(
-          response.find(x => x.subscription_id === subscription2.id),
+          response.find((x) => x.subscription_id === subscription2.id),
           'should contain subscription2'
         );
         assert.isUndefined(
-          response.find(x => x.subscription_id === incompleteSubscription.id),
+          response.find((x) => x.subscription_id === incompleteSubscription.id),
           'should not contain incompleteSubscription'
         );
       });
@@ -1757,15 +1757,15 @@ describe('StripeHelper', () => {
 
         assert.lengthOf(response, 3);
         assert.isDefined(
-          response.find(x => x.subscription_id === subscription1.id),
+          response.find((x) => x.subscription_id === subscription1.id),
           'should contain subscription1'
         );
         assert.isDefined(
-          response.find(x => x.subscription_id === subscription2.id),
+          response.find((x) => x.subscription_id === subscription2.id),
           'should contain subscription2'
         );
         assert.isDefined(
-          response.find(x => x.subscription_id === cancelledSubscription.id),
+          response.find((x) => x.subscription_id === cancelledSubscription.id),
           'should contain subscription2'
         );
       });
@@ -2237,7 +2237,7 @@ describe('StripeHelper', () => {
     const productDownloadURLNew = 'http://example.com/download-new';
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
-      const commonTest = isUpgrade => async () => {
+      const commonTest = (isUpgrade) => async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const productIdOld = event.data.previous_attributes.plan.product;
         const productIdNew = event.data.object.plan.product;

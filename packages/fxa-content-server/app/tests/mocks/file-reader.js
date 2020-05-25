@@ -14,7 +14,7 @@ function FileReaderMock() {
   // nothing to do
 }
 
-FileReaderMock._mockFileEvent = function(type, src) {
+FileReaderMock._mockFileEvent = function (type, src) {
   var file = {
     _dataURL: src,
     type: type,
@@ -27,19 +27,19 @@ FileReaderMock._mockFileEvent = function(type, src) {
   };
 };
 
-FileReaderMock._mockPngEvent = function() {
+FileReaderMock._mockPngEvent = function () {
   return this._mockFileEvent('image/png', pngSrc);
 };
 
-FileReaderMock._mockTinyPngEvent = function() {
+FileReaderMock._mockTinyPngEvent = function () {
   return this._mockFileEvent('image/png', tinyPngSrc);
 };
 
-FileReaderMock._mockBadPngEvent = function() {
+FileReaderMock._mockBadPngEvent = function () {
   return this._mockFileEvent('image/png', 'data:image/png;base64,');
 };
 
-FileReaderMock._mockTextEvent = function() {
+FileReaderMock._mockTextEvent = function () {
   return this._mockFileEvent('text/plain', 'hi');
 };
 

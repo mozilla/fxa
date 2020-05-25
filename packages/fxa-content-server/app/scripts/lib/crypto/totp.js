@@ -28,10 +28,10 @@ export function getCode(secret, digits = 6, now = Date.now()) {
       false,
       ['sign']
     )
-    .then(key => {
+    .then((key) => {
       return crypto.subtle.sign('HMAC', key, counter);
     })
-    .then(data => {
+    .then((data) => {
       const hmac = new DataView(data);
       const offset = hmac.getUint8(hmac.byteLength - 1) & 0x0f;
       return trimOrPad(hmac.getInt32(offset, false) & 0x7fffffff, digits);
@@ -42,7 +42,7 @@ export function check(secret, code, now = Date.now(), tries = 2) {
   if (tries === 0) {
     return false;
   }
-  return getCode(secret, 6, now).then(current => {
+  return getCode(secret, 6, now).then((current) => {
     if (current !== code) {
       return check(secret, code, now - 30000, --tries);
     }

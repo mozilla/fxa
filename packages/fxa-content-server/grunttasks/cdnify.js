@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask(
     'cdnify',
     'Prepare static resources for CDN deployment',
-    function() {
+    function () {
       grunt.config('cdn', {
         options: {
           // That's right, a Handlebars variable entry is written in, the server

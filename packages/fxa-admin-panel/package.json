@@ -13,7 +13,7 @@
     "test": "npm-run-all test:frontend test:server",
     "test:frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=true rescripts test --coverage --verbose",
     "test:server": "jest --coverage --verbose --config server/jest.config.js",
-    "format": "prettier '**' --write",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "eject": "react-scripts eject"
   },
   "dependencies": {

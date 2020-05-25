@@ -8,13 +8,13 @@ import InterTabChannel from 'lib/channels/inter-tab';
 import sinon from 'sinon';
 import WindowMock from '../../../mocks/window';
 
-describe('lib/channels/inter-tab', function() {
-  describe('InterTabChannel', function() {
+describe('lib/channels/inter-tab', function () {
+  describe('InterTabChannel', function () {
     var interTabChannel;
 
-    describe('instantiation', function() {
-      describe('with `BroadcastChannel` support', function() {
-        beforeEach(function() {
+    describe('instantiation', function () {
+      describe('with `BroadcastChannel` support', function () {
+        beforeEach(function () {
           var windowMock = new WindowMock();
           windowMock.BroadcastChannel = BroadcastChannelMock;
 
@@ -23,13 +23,13 @@ describe('lib/channels/inter-tab', function() {
           });
         });
 
-        it('creates a BroadcastChannel', function() {
+        it('creates a BroadcastChannel', function () {
           assert.ok(interTabChannel._broadcastChannel);
         });
       });
 
-      describe('without `BroadcastChannel` support', function() {
-        beforeEach(function() {
+      describe('without `BroadcastChannel` support', function () {
+        beforeEach(function () {
           var windowMock = new WindowMock();
 
           interTabChannel = new InterTabChannel({
@@ -37,16 +37,16 @@ describe('lib/channels/inter-tab', function() {
           });
         });
 
-        it('does not create a BroadcastChannel', function() {
+        it('does not create a BroadcastChannel', function () {
           assert.notOk(interTabChannel._broadcastChannel);
         });
       });
     });
 
-    describe('public methods', function() {
+    describe('public methods', function () {
       var adapter;
 
-      beforeEach(function() {
+      beforeEach(function () {
         adapter = {
           off: sinon.spy(),
           on: sinon.spy(),
@@ -60,12 +60,12 @@ describe('lib/channels/inter-tab', function() {
     });
   });
 
-  describe('BroadcastChannelAdapter', function() {
+  describe('BroadcastChannelAdapter', function () {
     var broadcastChannel;
     var interTabChannel;
     var windowMock;
 
-    beforeEach(function() {
+    beforeEach(function () {
       windowMock = new WindowMock();
       windowMock.BroadcastChannel = BroadcastChannelMock;
 
@@ -76,12 +76,12 @@ describe('lib/channels/inter-tab', function() {
       broadcastChannel = interTabChannel._broadcastChannel;
     });
 
-    describe('send', function() {
-      beforeEach(function() {
+    describe('send', function () {
+      beforeEach(function () {
         interTabChannel.send('message', { key: 'value' });
       });
 
-      it('send a message to the broadcast channel', function() {
+      it('send a message to the broadcast channel', function () {
         var serializedMessage = interTabChannel.stringify('message', {
           key: 'value',
         });
@@ -92,10 +92,10 @@ describe('lib/channels/inter-tab', function() {
       });
     });
 
-    describe('on/onMessage', function() {
+    describe('on/onMessage', function () {
       let onMessageHandlerSpy;
 
-      beforeEach(function() {
+      beforeEach(function () {
         sinon.spy(interTabChannel, 'trigger');
 
         onMessageHandlerSpy = sinon.spy();
@@ -112,7 +112,7 @@ describe('lib/channels/inter-tab', function() {
         });
       });
 
-      it('triggers a message with the event and data', function() {
+      it('triggers a message with the event and data', function () {
         assert.isTrue(
           interTabChannel.trigger.calledWith('message', {
             key: 'value',
@@ -128,7 +128,7 @@ describe('lib/channels/inter-tab', function() {
     describe('off/onMessage', () => {
       let onRemovedHandlerSpy;
 
-      beforeEach(function() {
+      beforeEach(function () {
         onRemovedHandlerSpy = sinon.spy();
 
         interTabChannel.on('removed', onRemovedHandlerSpy);

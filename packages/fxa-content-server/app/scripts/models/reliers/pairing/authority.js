@@ -9,9 +9,7 @@ import Vat from '../../../lib/vat';
 /*eslint-disable camelcase */
 
 const AUTHORITY_QUERY_PARAM_SCHEMA = {
-  channel_id: Vat.channelId()
-    .required()
-    .renameTo('channelId'),
+  channel_id: Vat.channelId().required().renameTo('channelId'),
 };
 
 /*eslint-enable camelcase */

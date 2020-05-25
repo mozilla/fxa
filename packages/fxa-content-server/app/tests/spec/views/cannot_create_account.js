@@ -10,12 +10,12 @@ import View from 'views/cannot_create_account';
 
 var assert = chai.assert;
 
-describe('views/cannot_create_account', function() {
+describe('views/cannot_create_account', function () {
   var view;
   var relier;
   var broker;
 
-  beforeEach(function() {
+  beforeEach(function () {
     relier = new Relier();
     broker = new Broker({
       relier: relier,
@@ -26,28 +26,28 @@ describe('views/cannot_create_account', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.remove();
     view.destroy();
   });
 
-  it('ftc link opens in a new tab for sync', function() {
-    sinon.stub(relier, 'isSync').callsFake(function() {
+  it('ftc link opens in a new tab for sync', function () {
+    sinon.stub(relier, 'isSync').callsFake(function () {
       return true;
     });
 
-    return view.render().then(function() {
+    return view.render().then(function () {
       assert.ok(view.$('#fxa-cannot-create-account-header').length);
       assert.equal(view.$('.ftc').attr('target'), '_blank');
     });
   });
 
-  it('ftc link opens in a same tab for all others', function() {
-    sinon.stub(relier, 'isSync').callsFake(function() {
+  it('ftc link opens in a same tab for all others', function () {
+    sinon.stub(relier, 'isSync').callsFake(function () {
       return false;
     });
 
-    return view.render().then(function() {
+    return view.render().then(function () {
       assert.equal(view.$('.ftc').attr('target'), null);
     });
   });

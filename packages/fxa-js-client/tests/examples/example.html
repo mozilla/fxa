@@ -109,49 +109,49 @@
       $('#email').val(email);
 
       // Register Tester
-      $('#create').click(function() {
+      $('#create').click(function () {
         client.signUp($('#email').val(), $('#password').val());
       });
 
       // Login Tester
-      $('#login').click(function() {
+      $('#login').click(function () {
         client.signIn($('#email').val(), $('#password').val());
       });
 
-      $('#recoveryEmailStatus').click(function() {
+      $('#recoveryEmailStatus').click(function () {
         var sessionToken = $('#sessionToken').val();
 
         client.recoveryEmailStatus(sessionToken);
       });
 
-      $('#forgotPasswordSendCode').click(function() {
+      $('#forgotPasswordSendCode').click(function () {
         var email = $('#email').val();
 
         client.passwordForgotSendCode(email);
       });
 
-      $('#verifyAccount').click(function() {
+      $('#verifyAccount').click(function () {
         var uid = $('#uid').val();
         var verifyCode = $('#verifyCode').val();
 
         client.verifyCode(uid, verifyCode);
       });
 
-      $('#forgotPasswordResendCode').click(function() {
+      $('#forgotPasswordResendCode').click(function () {
         var email = $('#email').val();
         var passwordForgotToken = $('#passwordForgotToken').val();
 
         client.passwordForgotResendCode(email, passwordForgotToken);
       });
 
-      $('#forgotPasswordVerifyCode').click(function() {
+      $('#forgotPasswordVerifyCode').click(function () {
         var code = $('#code').val();
         var passwordForgotToken = $('#passwordForgotToken').val();
 
         client.passwordForgotVerifyCode(code, passwordForgotToken);
       });
 
-      $('#accountReset').click(function() {
+      $('#accountReset').click(function () {
         var email = $('#email').val();
         var newPassword = $('#newPassword').val();
         var accountResetToken = $('#accountResetToken').val();

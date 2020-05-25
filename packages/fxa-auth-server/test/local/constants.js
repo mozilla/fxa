@@ -9,7 +9,7 @@ const ROOT_DIR = '../..';
 const { assert } = require('chai');
 const constants = require(`${ROOT_DIR}/lib/constants`);
 
-describe('constants:', function() {
+describe('constants:', function () {
   it('exports the correct properties', () => {
     assert.ok(constants.OAUTH_SCOPE_OLD_SYNC);
     assert.ok(constants.OAUTH_SCOPE_SESSION_TOKEN);

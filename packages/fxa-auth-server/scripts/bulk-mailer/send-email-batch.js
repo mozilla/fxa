@@ -11,7 +11,7 @@ module.exports = function sendBatch(batch, sendEmail, log) {
   let errorCount = 0;
 
   return P.all(
-    batch.map(userRecord => {
+    batch.map((userRecord) => {
       return sendEmail(userRecord).then(
         () => {
           successCount++;
@@ -20,7 +20,7 @@ module.exports = function sendBatch(batch, sendEmail, log) {
             email: userRecord.email,
           });
         },
-        error => {
+        (error) => {
           errorCount++;
 
           log.error({

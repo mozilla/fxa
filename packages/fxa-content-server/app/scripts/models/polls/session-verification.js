@@ -61,12 +61,10 @@ export default class SessionVerificationPoll extends Backbone.Model {
       return;
     }
 
-    this._account
-      .sessionStatus()
-      .then(
-        result => this._onStatusComplete(result),
-        err => this._onStatusError(err)
-      );
+    this._account.sessionStatus().then(
+      (result) => this._onStatusComplete(result),
+      (err) => this._onStatusError(err)
+    );
   }
 
   _onStatusComplete(result) {
@@ -95,7 +93,7 @@ export default class SessionVerificationPoll extends Backbone.Model {
     // This makes the huge assumption that a confirmation email
     // was sent.
     if (AuthErrors.is(err, 'INVALID_TOKEN') && this._account.has('uid')) {
-      this._account.checkUidExists().then(accountExists => {
+      this._account.checkUidExists().then((accountExists) => {
         if (!accountExists) {
           err = AuthErrors.toError('SIGNUP_EMAIL_BOUNCE');
         }

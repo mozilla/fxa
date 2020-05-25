@@ -12,7 +12,7 @@ function fail() {
   throw new Error();
 }
 
-describe('remote token expiry', function() {
+describe('remote token expiry', function () {
   this.timeout(15000);
   let server, config;
   before(() => {
@@ -20,7 +20,7 @@ describe('remote token expiry', function() {
     config.tokenLifetimes.passwordChangeToken = 1;
     config.tokenLifetimes.sessionTokenWithoutDevice = 1;
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -32,10 +32,10 @@ describe('remote token expiry', function() {
     return Client.create(config.publicUrl, email, password, {
       preVerified: true,
     })
-      .then(c => {
+      .then((c) => {
         return c.changePassword('hello');
       })
-      .then(fail, err => {
+      .then(fail, (err) => {
         assert.equal(err.errno, 110, 'invalid token');
       });
   });
@@ -46,10 +46,10 @@ describe('remote token expiry', function() {
       `${Math.random()}@example.com`,
       'wibble',
       server.mailbox
-    ).then(client =>
+    ).then((client) =>
       client.sessionStatus().then(
         () => assert.ok(false, 'client.sessionStatus should have failed'),
-        err =>
+        (err) =>
           assert.equal(
             err.errno,
             110,

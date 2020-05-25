@@ -1,15 +1,17 @@
 [
-    {
-        "product_id": "prod_1",
-        "product_name": "Product A",
-        "product_metadata": []
-    },{
-        "product_id": "prod_2",
-        "product_name": "Product B",
-        "product_metadata": []
-    },{
-        "product_id": "prod_3",
-        "product_name": "Product C",
-        "product_metadata": []
-    }
+  {
+    "product_id": "prod_1",
+    "product_name": "Product A",
+    "product_metadata": []
+  },
+  {
+    "product_id": "prod_2",
+    "product_name": "Product B",
+    "product_metadata": []
+  },
+  {
+    "product_id": "prod_3",
+    "product_name": "Product C",
+    "product_metadata": []
+  }
 ]

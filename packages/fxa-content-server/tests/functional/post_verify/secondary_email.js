@@ -29,7 +29,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('post_verify_secondary_email', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     secondaryEmail = createEmail();
 
@@ -39,7 +39,7 @@ registerSuite('post_verify_secondary_email', {
   },
 
   tests: {
-    'create secondary email': function() {
+    'create secondary email': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))

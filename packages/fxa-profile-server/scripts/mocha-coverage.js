@@ -36,6 +36,6 @@ const p = spawn(bin, argv.concat(process.argv.slice(2)), {
 });
 
 // exit this process with the same exit code as the test process
-p.on('close', function(code) {
+p.on('close', function (code) {
   process.exit(code);
 });

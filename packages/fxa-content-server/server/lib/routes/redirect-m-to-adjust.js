@@ -11,7 +11,7 @@ const userAgent = require('../../../../fxa-shared/metrics/user-agent');
 const ADJUST_CHANNEL_APP_ID = validationTypes.ADJUST_CHANNEL_APP_ID;
 const SIGNIN_CODE = validationTypes.SIGNIN_CODE;
 
-module.exports = function(config) {
+module.exports = function (config) {
   const channels = config.get('sms.redirect.channels');
   const targetURITemplate = _.template(
     config.get('sms.redirect.targetURITemplate')
@@ -33,7 +33,7 @@ module.exports = function(config) {
         channel: ADJUST_CHANNEL_APP_ID,
       },
     },
-    process: function(req, res) {
+    process: function (req, res) {
       const channelName = req.query.channel || 'release';
       // channel and signinCode are already URL safe if they have validated correctly,
       // so encodeURIComponent is not called.

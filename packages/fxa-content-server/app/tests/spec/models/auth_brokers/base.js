@@ -17,7 +17,7 @@ import VerificationReasons from 'lib/verification-reasons';
 import WebChannel from 'lib/channels/web';
 import WindowMock from '../../../mocks/window';
 
-describe('models/auth_brokers/base', function() {
+describe('models/auth_brokers/base', function () {
   let account;
   let broker;
   let fxaClient;
@@ -27,7 +27,7 @@ describe('models/auth_brokers/base', function() {
   let relier;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     account = new Account({ uid: 'users_uid' });
     fxaClient = new FxaClient();
     metrics = new Metrics();
@@ -56,7 +56,7 @@ describe('models/auth_brokers/base', function() {
   }
 
   function testNavigates(expectedEndpoint) {
-    return behavior => {
+    return (behavior) => {
       assert.ok(behavior);
       assert.isTrue(behavior.halt);
       assert.equal(behavior.endpoint, expectedEndpoint);
@@ -259,15 +259,15 @@ describe('models/auth_brokers/base', function() {
             Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'))
           );
 
-        return broker._fetchFxaStatus().then(assert.fail, err => {
+        return broker._fetchFxaStatus().then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
         });
       });
     });
   });
 
-  describe('afterLoaded', function() {
-    it('returns a promise', function() {
+  describe('afterLoaded', function () {
+    it('returns a promise', function () {
       return broker.afterLoaded().then(assert.pass);
     });
 
@@ -281,11 +281,11 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('persistVerificationData', function() {
+  describe('persistVerificationData', function () {
     let verificationInfo;
 
-    beforeEach(function() {
-      return broker.persistVerificationData(account).then(function() {
+    beforeEach(function () {
+      return broker.persistVerificationData(account).then(function () {
         verificationInfo = new SameBrowserVerificationModel(
           {},
           {
@@ -297,21 +297,21 @@ describe('models/auth_brokers/base', function() {
       });
     });
 
-    it("persist the relier's `context` to localStorage", function() {
+    it("persist the relier's `context` to localStorage", function () {
       assert.equal(verificationInfo.get('context'), 'fx_fennec_v1');
     });
   });
 
-  describe('unpersistVerificationData', function() {
+  describe('unpersistVerificationData', function () {
     let verificationInfo;
 
-    beforeEach(function() {
+    beforeEach(function () {
       return broker
         .persistVerificationData(account)
-        .then(function() {
+        .then(function () {
           return broker.unpersistVerificationData(account);
         })
-        .then(function() {
+        .then(function () {
           verificationInfo = new SameBrowserVerificationModel(
             {},
             {
@@ -323,19 +323,19 @@ describe('models/auth_brokers/base', function() {
         });
     });
 
-    it("delete's the stored `context` from localStorage", function() {
+    it("delete's the stored `context` from localStorage", function () {
       assert.isFalse(verificationInfo.has('context'));
     });
   });
 
-  describe('afterChangePassword', function() {
-    it('returns a promise', function() {
+  describe('afterChangePassword', function () {
+    it('returns a promise', function () {
       return broker.afterChangePassword(account).then(testDoesNotHalt);
     });
   });
 
-  describe('afterCompleteResetPassword', function() {
-    beforeEach(function() {
+  describe('afterCompleteResetPassword', function () {
+    beforeEach(function () {
       sinon.spy(broker, 'unpersistVerificationData');
     });
 
@@ -345,7 +345,7 @@ describe('models/auth_brokers/base', function() {
           verificationMethod: VerificationMethods.TOTP_2FA,
           verificationReason: VerificationReasons.SIGN_IN,
         });
-        return broker.afterCompleteResetPassword(account).then(behavior => {
+        return broker.afterCompleteResetPassword(account).then((behavior) => {
           assert.isTrue(broker.unpersistVerificationData.calledWith(account));
           assert.equal(behavior.type, 'navigate');
           assert.equal(behavior.endpoint, 'signin_totp_code');
@@ -355,7 +355,7 @@ describe('models/auth_brokers/base', function() {
 
     describe('without TOTP enabled', () => {
       it('returns a NullBehavior', () => {
-        return broker.afterCompleteResetPassword(account).then(behavior => {
+        return broker.afterCompleteResetPassword(account).then((behavior) => {
           assert.isTrue(broker.unpersistVerificationData.calledWith(account));
           assert.equal(behavior.type, 'null');
         });
@@ -364,29 +364,29 @@ describe('models/auth_brokers/base', function() {
   });
 
   describe('afterCompletePrimaryEmail', () => {
-    it('unpersists VerificationData, returns the expected behavior', function() {
+    it('unpersists VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompletePrimaryEmail(account).then(behavior => {
+      return broker.afterCompletePrimaryEmail(account).then((behavior) => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
         assert.equal(behavior.type, 'settings');
       });
     });
   });
 
-  describe('afterCompleteSecondaryEmail', function() {
-    it('unpersist VerificationData, returns the expected behavior', function() {
+  describe('afterCompleteSecondaryEmail', function () {
+    it('unpersist VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompleteSecondaryEmail(account).then(behavior => {
+      return broker.afterCompleteSecondaryEmail(account).then((behavior) => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
         assert.equal(behavior.type, 'settings');
       });
     });
   });
 
-  describe('afterCompleteSignIn', function() {
-    it('unpersist VerificationData, returns the expected behavior', function() {
+  describe('afterCompleteSignIn', function () {
+    it('unpersist VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompleteSignIn(account).then(behavior => {
+      return broker.afterCompleteSignIn(account).then((behavior) => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
         assert.equal(behavior.type, 'navigate');
         assert.equal(behavior.endpoint, 'signin_verified');
@@ -394,10 +394,10 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('afterCompleteAddPostVerifyRecovery', function() {
-    it('unpersist VerificationData, returns the expected behavior', function() {
+  describe('afterCompleteAddPostVerifyRecovery', function () {
+    it('unpersist VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompleteSignIn(account).then(behavior => {
+      return broker.afterCompleteSignIn(account).then((behavior) => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
         assert.equal(behavior.type, 'navigate');
         assert.equal(behavior.endpoint, 'signin_verified');
@@ -405,10 +405,10 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('afterAbortAddPostVerifyRecovery', function() {
-    it('unpersist VerificationData, returns the expected behavior', function() {
+  describe('afterAbortAddPostVerifyRecovery', function () {
+    it('unpersist VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompleteSignIn(account).then(behavior => {
+      return broker.afterCompleteSignIn(account).then((behavior) => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
         assert.equal(behavior.type, 'navigate');
         assert.equal(behavior.endpoint, 'signin_verified');
@@ -416,10 +416,10 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('afterCompleteSignUp', function() {
-    it('unpersist VerificationData, returns the expected behavior', function() {
+  describe('afterCompleteSignUp', function () {
+    it('unpersist VerificationData, returns the expected behavior', function () {
       sinon.spy(broker, 'unpersistVerificationData');
-      return broker.afterCompleteSignUp(account).then(behavior => {
+      return broker.afterCompleteSignUp(account).then((behavior) => {
         assert.isTrue(broker.unpersistVerificationData.calledWith(account));
         assert.equal(behavior.type, 'navigateOrRedirect');
         assert.equal(behavior.endpoint, 'signup_verified');
@@ -427,51 +427,51 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('afterDeleteAccount', function() {
-    it('returns a promise', function() {
+  describe('afterDeleteAccount', function () {
+    it('returns a promise', function () {
       return broker.afterDeleteAccount(account).then(testDoesNotHalt);
     });
   });
 
-  describe('afterResetPasswordConfirmationPoll', function() {
-    it('returns a promise', function() {
+  describe('afterResetPasswordConfirmationPoll', function () {
+    it('returns a promise', function () {
       return broker
         .afterResetPasswordConfirmationPoll(account)
         .then(testDoesNotHalt);
     });
   });
 
-  describe('afterSignIn', function() {
-    it('returns a promise', function() {
+  describe('afterSignIn', function () {
+    it('returns a promise', function () {
       return broker
         .afterSignIn(account)
         .then(testNavigates('signin_confirmed'));
     });
   });
 
-  describe('afterSignInConfirmationPoll', function() {
-    it('returns a promise, behavior navigates to signin_confirmed', function() {
+  describe('afterSignInConfirmationPoll', function () {
+    it('returns a promise, behavior navigates to signin_confirmed', function () {
       return broker
         .afterSignInConfirmationPoll(account)
         .then(testNavigates('signin_confirmed'));
     });
   });
 
-  describe('afterForceAuth', function() {
-    it('returns a promise', function() {
+  describe('afterForceAuth', function () {
+    it('returns a promise', function () {
       return broker
         .afterForceAuth(account)
         .then(testNavigates('signin_confirmed'));
     });
   });
 
-  describe('beforeSignIn', function() {
-    it('returns a promise', function() {
+  describe('beforeSignIn', function () {
+    it('returns a promise', function () {
       return broker.beforeSignIn(account).then(testDoesNotHalt);
     });
   });
 
-  describe('afterSignUp', function() {
+  describe('afterSignUp', function () {
     it('delegates to `afterSignUpConfirmationPoll` if account is verified', () => {
       account.set('verified', true);
       sinon
@@ -488,8 +488,8 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('afterSignUpConfirmationPoll', function() {
-    it('returns a promise, behavior navigates to signup_confirmed', function() {
+  describe('afterSignUpConfirmationPoll', function () {
+    it('returns a promise, behavior navigates to signup_confirmed', function () {
       sinon.spy(broker, 'unpersistVerificationData');
       return broker
         .afterSignUpConfirmationPoll(account)
@@ -502,26 +502,26 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('beforeSignUpConfirmationPoll', function() {
-    it('returns a promise', function() {
+  describe('beforeSignUpConfirmationPoll', function () {
+    it('returns a promise', function () {
       return broker.beforeSignUpConfirmationPoll(account).then(testDoesNotHalt);
     });
   });
 
-  describe('transformLink', function() {
-    it('does nothing to the link', function() {
+  describe('transformLink', function () {
+    it('does nothing to the link', function () {
       assert.equal(broker.transformLink('signin'), 'signin');
     });
   });
 
-  describe('isForceAuth', function() {
-    it('returns `false` by default', function() {
+  describe('isForceAuth', function () {
+    it('returns `false` by default', function () {
       assert.isFalse(broker.isForceAuth());
     });
 
-    it('returns `true` if flow began at `/force_auth`', function() {
+    it('returns `true` if flow began at `/force_auth`', function () {
       windowMock.location.pathname = '/force_auth';
-      return broker.fetch().then(function() {
+      return broker.fetch().then(function () {
         assert.isTrue(broker.isForceAuth());
       });
     });
@@ -544,26 +544,26 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('isAutomatedBrowser', function() {
-    it('returns `false` by default', function() {
+  describe('isAutomatedBrowser', function () {
+    it('returns `false` by default', function () {
       assert.isFalse(broker.isAutomatedBrowser());
     });
 
-    it('returns `true` if the URL contains `isAutomatedBrowser=true`', function() {
+    it('returns `true` if the URL contains `isAutomatedBrowser=true`', function () {
       windowMock.location.search = '?automatedBrowser=true';
-      return broker.fetch().then(function() {
+      return broker.fetch().then(function () {
         assert.isTrue(broker.isAutomatedBrowser());
       });
     });
   });
 
-  describe('capabilities', function() {
-    describe('hasCapability', function() {
-      it('returns `false` by default', function() {
+  describe('capabilities', function () {
+    describe('hasCapability', function () {
+      it('returns `false` by default', function () {
         assert.isFalse(broker.hasCapability('some-capability'));
       });
 
-      it("returns `false` if the capability's value is falsy", function() {
+      it("returns `false` if the capability's value is falsy", function () {
         broker.setCapability('some-capability', false);
         assert.isFalse(broker.hasCapability('some-capability'));
 
@@ -577,7 +577,7 @@ describe('models/auth_brokers/base', function() {
         assert.isFalse(broker.hasCapability('some-capability'));
       });
 
-      it('returns `true` if `setCapability` was called with truthy value', function() {
+      it('returns `true` if `setCapability` was called with truthy value', function () {
         broker.setCapability('some-capability', { key: 'value' });
         assert.isTrue(broker.hasCapability('some-capability'));
 
@@ -588,27 +588,27 @@ describe('models/auth_brokers/base', function() {
         assert.isFalse(broker.hasCapability('other-capability'));
       });
 
-      it('returns `true` for `signup` by default', function() {
+      it('returns `true` for `signup` by default', function () {
         assert.isTrue(broker.hasCapability('signup'));
       });
 
-      it('returns `true` for `handleSignedInNotification` by default', function() {
+      it('returns `true` for `handleSignedInNotification` by default', function () {
         assert.isTrue(broker.hasCapability('handleSignedInNotification'));
       });
 
-      it('returns `true` for `emailVerificationMarketingSnippet` by default', function() {
+      it('returns `true` for `emailVerificationMarketingSnippet` by default', function () {
         assert.isTrue(
           broker.hasCapability('emailVerificationMarketingSnippet')
         );
       });
     });
 
-    describe('getCapability', function() {
-      it('returns `undefined` by default', function() {
+    describe('getCapability', function () {
+      it('returns `undefined` by default', function () {
         assert.isUndefined(broker.getCapability('missing-capability'));
       });
 
-      it('returns the capability value if available', function() {
+      it('returns the capability value if available', function () {
         const capabilityMetadata = { key: 'value' };
         broker.setCapability('some-capability', capabilityMetadata);
         assert.deepEqual(
@@ -622,21 +622,21 @@ describe('models/auth_brokers/base', function() {
     });
   });
 
-  describe('getBehavior', function() {
-    it('gets a behavior, if defined', function() {
+  describe('getBehavior', function () {
+    it('gets a behavior, if defined', function () {
       const behavior = broker.getBehavior('beforeSignIn');
       assert.isDefined(behavior);
     });
 
-    it('throws if behavior is not defined', function() {
-      assert.throws(function() {
+    it('throws if behavior is not defined', function () {
+      assert.throws(function () {
         broker.getBehavior('NOT_SET');
       }, 'behavior not found for: NOT_SET');
     });
   });
 
-  describe('setBehavior', function() {
-    it('sets a behavior', function() {
+  describe('setBehavior', function () {
+    it('sets a behavior', function () {
       broker.setBehavior('new behavior', { halt: true });
       assert.isTrue(broker.getBehavior('new behavior').halt);
     });

@@ -5,14 +5,14 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('errors', function() {
+describe('errors', function () {
   var accountHelper;
   var respond;
   var client;
   var ErrorMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -20,10 +20,10 @@ describe('errors', function() {
     ErrorMocks = env.ErrorMocks;
   });
 
-  it('#accountUnverified', function() {
+  it('#accountUnverified', function () {
     return accountHelper
       .newUnverifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         var pk = { algorithm: 'RS', n: 'x', e: 'y' };
         var duration = 1000;
 
@@ -33,20 +33,20 @@ describe('errors', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(error) {
+        function (error) {
           assert.equal(error.code, 400);
           assert.equal(error.errno, 104);
         }
       );
   });
 
-  it('#invalidVerificationCode', function() {
+  it('#invalidVerificationCode', function () {
     return accountHelper
       .newUnverifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.verifyCode(
             account.signUp.uid,
@@ -56,10 +56,10 @@ describe('errors', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(error) {
+        function (error) {
           assert.equal(error.code, 400);
           assert.equal(error.errno, 105);
         }

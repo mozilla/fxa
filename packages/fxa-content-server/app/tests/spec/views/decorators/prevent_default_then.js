@@ -11,13 +11,13 @@ import TestHelpers from '../../lib/helpers';
 
 const { wrapAssertion } = TestHelpers;
 
-describe('views/decorators/prevent_default_then', function() {
+describe('views/decorators/prevent_default_then', function () {
   let view;
   const viewName = 'view';
 
   const View = BaseView();
 
-  beforeEach(function() {
+  beforeEach(function () {
     view = new View({
       viewName: viewName,
     });
@@ -25,7 +25,7 @@ describe('views/decorators/prevent_default_then', function() {
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     if (view) {
       view.destroy();
       $('#container').empty();
@@ -34,10 +34,10 @@ describe('views/decorators/prevent_default_then', function() {
     view = null;
   });
 
-  describe('preventDefaultThen', function() {
-    it('can take the name of a function as the name of the event handler', function(done) {
-      view.eventHandler = function(event) {
-        wrapAssertion(function() {
+  describe('preventDefaultThen', function () {
+    it('can take the name of a function as the name of the event handler', function (done) {
+      view.eventHandler = function (event) {
+        wrapAssertion(function () {
           assert.isTrue(event.isDefaultPrevented());
         }, done);
       };
@@ -46,9 +46,9 @@ describe('views/decorators/prevent_default_then', function() {
       backboneHandler.call(view, new DOMEventMock());
     });
 
-    it('can take a function as the event handler', function(done) {
+    it('can take a function as the event handler', function (done) {
       function eventHandler(event) {
-        wrapAssertion(function() {
+        wrapAssertion(function () {
           assert.isTrue(event.isDefaultPrevented());
         }, done);
       }
@@ -57,7 +57,7 @@ describe('views/decorators/prevent_default_then', function() {
       backboneHandler.call(view, new DOMEventMock());
     });
 
-    it('can take no arguments at all', function() {
+    it('can take no arguments at all', function () {
       var backboneHandler = preventDefaultThen();
 
       var eventMock = new DOMEventMock();

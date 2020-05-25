@@ -5,7 +5,7 @@
 var actions = require('./actions');
 
 // Keep track of events related to just IP addresses
-module.exports = function(limits, now) {
+module.exports = function (limits, now) {
   now = now || Date.now;
 
   var ERRNO_THROTTLED = 114;
@@ -16,7 +16,7 @@ module.exports = function(limits, now) {
     this.as = [];
   }
 
-  IpRecord.parse = function(object) {
+  IpRecord.parse = function (object) {
     var rec = new IpRecord();
     object = object || {};
     rec.bk = object.bk; // timestamp when the IP address was blocked
@@ -31,7 +31,7 @@ module.exports = function(limits, now) {
     return rec;
   };
 
-  IpRecord.prototype.getMinLifetimeMS = function() {
+  IpRecord.prototype.getMinLifetimeMS = function () {
     return Math.max(
       limits.blockIntervalMs,
       limits.ipRateLimitIntervalMs,
@@ -39,14 +39,14 @@ module.exports = function(limits, now) {
     );
   };
 
-  IpRecord.prototype.isOverBadLogins = function() {
+  IpRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now());
     // IPs are limited based on the number of unique email
     // addresses they access.  Sum the highest-weighted
     // bad-login event for each user account to determine
     // the overall bad-logins score.
     var weights = {};
-    this.lf.forEach(function(info) {
+    this.lf.forEach(function (info) {
       var user = info.u;
       var errno = info.e;
       weights[user] = Math.max(
@@ -55,13 +55,13 @@ module.exports = function(limits, now) {
       );
     });
     var total = 0;
-    Object.keys(weights).forEach(function(user) {
+    Object.keys(weights).forEach(function (user) {
       total += weights[user];
     });
     return total > limits.maxBadLoginsPerIp;
   };
 
-  IpRecord.prototype.addBadLogin = function(info) {
+  IpRecord.prototype.addBadLogin = function (info) {
     info = info || {};
     var t = now();
     var email = info.email || '';
@@ -70,16 +70,16 @@ module.exports = function(limits, now) {
     this.lf.push({ t: t, e: Number(errno), u: email });
   };
 
-  IpRecord.prototype.trimBadLogins = function(now) {
+  IpRecord.prototype.trimBadLogins = function (now) {
     this.lf = this._trim(now, this.lf, limits.maxBadLoginsPerIp);
   };
 
-  IpRecord.prototype.isOverVerifyCodes = function() {
+  IpRecord.prototype.isOverVerifyCodes = function () {
     this.trimVerifyCodes(now());
     // Limit based on number of unique emails accessed by this IP.
     var count = 0;
     var seen = {};
-    this.vc.forEach(function(info) {
+    this.vc.forEach(function (info) {
       if (!(info.u in seen)) {
         count += 1;
         seen[info.u] = true;
@@ -88,7 +88,7 @@ module.exports = function(limits, now) {
     return count > limits.maxVerifyCodes;
   };
 
-  IpRecord.prototype.addVerifyCode = function(info) {
+  IpRecord.prototype.addVerifyCode = function (info) {
     info = info || {};
     var t = now();
     var email = info.email || '';
@@ -96,16 +96,16 @@ module.exports = function(limits, now) {
     this.vc.push({ t: t, u: email });
   };
 
-  IpRecord.prototype.trimVerifyCodes = function(now) {
+  IpRecord.prototype.trimVerifyCodes = function (now) {
     this.vc = this._trim(now, this.vc, limits.maxVerifyCodes);
   };
 
-  IpRecord.prototype.isOverAccountStatusCheck = function() {
+  IpRecord.prototype.isOverAccountStatusCheck = function () {
     this.trimAccountStatus(now());
     // Limit based on number of unique emails checked by this IP.
     var count = 0;
     var seen = {};
-    this.as.forEach(function(info) {
+    this.as.forEach(function (info) {
       if (!(info.u in seen)) {
         count += 1;
         seen[info.u] = true;
@@ -114,7 +114,7 @@ module.exports = function(limits, now) {
     return count > limits.maxAccountStatusCheck;
   };
 
-  IpRecord.prototype.addAccountStatusCheck = function(info) {
+  IpRecord.prototype.addAccountStatusCheck = function (info) {
     info = info || {};
     var t = now();
     var email = info.email || '';
@@ -122,20 +122,20 @@ module.exports = function(limits, now) {
     this.as.push({ t: t, u: email });
   };
 
-  IpRecord.prototype.trimAccountStatus = function(now) {
+  IpRecord.prototype.trimAccountStatus = function (now) {
     this.as = this._trim(now, this.as, limits.maxAccountStatusCheck);
   };
 
-  IpRecord.prototype.isOverSmsLimit = function() {
+  IpRecord.prototype.isOverSmsLimit = function () {
     this.trimSmsRequests(now());
     return this.sms.length > limits.maxSms;
   };
 
-  IpRecord.prototype.addSmsRequest = function() {
+  IpRecord.prototype.addSmsRequest = function () {
     this.sms.push(now());
   };
 
-  IpRecord.prototype.trimSmsRequests = function(now) {
+  IpRecord.prototype.trimSmsRequests = function (now) {
     if (this.sms.length === 0) {
       return;
     }
@@ -154,15 +154,15 @@ module.exports = function(limits, now) {
     this.sms = this.sms.slice(i + 1);
   };
 
-  IpRecord.prototype.addAccountAccess = function() {
+  IpRecord.prototype.addAccountAccess = function () {
     this.aa.push(now());
   };
 
-  IpRecord.prototype.isOverAccountAccessLimit = function() {
+  IpRecord.prototype.isOverAccountAccessLimit = function () {
     return this.aa.length > limits.maxAccountAccess;
   };
 
-  IpRecord.prototype._trim = function(now, items, maxUnique) {
+  IpRecord.prototype._trim = function (now, items, maxUnique) {
     if (items.length === 0) {
       return items;
     }
@@ -185,46 +185,46 @@ module.exports = function(limits, now) {
     return items.slice(i + 1);
   };
 
-  IpRecord.prototype.shouldBlock = function() {
+  IpRecord.prototype.shouldBlock = function () {
     return this.isBlocked() || this.isDisabled() || this.isRateLimited();
   };
 
-  IpRecord.prototype.isBlocked = function() {
+  IpRecord.prototype.isBlocked = function () {
     return !!(this.bk && now() - this.bk < limits.blockIntervalMs);
   };
 
-  IpRecord.prototype.isSuspected = function() {
+  IpRecord.prototype.isSuspected = function () {
     return !!(this.su && now() - this.su < limits.suspectIntervalMs);
   };
 
-  IpRecord.prototype.isDisabled = function() {
+  IpRecord.prototype.isDisabled = function () {
     return !!(this.di && now() - this.di < limits.disableIntervalMs);
   };
 
-  IpRecord.prototype.isRateLimited = function() {
+  IpRecord.prototype.isRateLimited = function () {
     return !!(this.rl && now() - this.rl < limits.ipRateLimitBanDurationMs);
   };
 
-  IpRecord.prototype.block = function() {
+  IpRecord.prototype.block = function () {
     this.bk = now();
   };
 
-  IpRecord.prototype.suspect = function() {
+  IpRecord.prototype.suspect = function () {
     this.su = now();
   };
 
-  IpRecord.prototype.disable = function() {
+  IpRecord.prototype.disable = function () {
     this.di = now();
   };
 
-  IpRecord.prototype.rateLimit = function() {
+  IpRecord.prototype.rateLimit = function () {
     this.rl = now();
     this.as = [];
     this.sms = [];
     this.aa = [];
   };
 
-  IpRecord.prototype.retryAfter = function() {
+  IpRecord.prototype.retryAfter = function () {
     var rateLimitAfter = Math.ceil(
       ((this.rl || 0) + limits.ipRateLimitBanDurationMs - now()) / 1000
     );
@@ -234,7 +234,7 @@ module.exports = function(limits, now) {
     return Math.max(0, rateLimitAfter, banAfter);
   };
 
-  IpRecord.prototype.update = function(action, email) {
+  IpRecord.prototype.update = function (action, email) {
     // ip block is explicit, no escape hatches
     if (this.isBlocked()) {
       return this.retryAfter();

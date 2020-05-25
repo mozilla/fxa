@@ -74,7 +74,7 @@ function Cropper(options) {
   });
 }
 
-Cropper.prototype._setupElements = function(container) {
+Cropper.prototype._setupElements = function (container) {
   this.container = container;
   this.img = container.find('img');
   this.wrapper = container.find('.wrapper');
@@ -127,11 +127,11 @@ Cropper.prototype._setupElements = function(container) {
   });
 };
 
-Cropper.prototype.destroy = function() {
+Cropper.prototype.destroy = function () {
   window.removeEventListener('resize', this.resizeAdjustment);
 };
 
-Cropper.prototype.updateMeasurements = function() {
+Cropper.prototype.updateMeasurements = function () {
   this._wrapperHeight = this.wrapper.outerHeight();
   this._wrapperWidth = this.wrapper.outerWidth();
 
@@ -143,7 +143,7 @@ Cropper.prototype.updateMeasurements = function() {
   this.xCenter = this._wrapperWidth / 2;
 };
 
-Cropper.prototype.updatePosition = function(_pos) {
+Cropper.prototype.updatePosition = function (_pos) {
   const pos =
     _pos ||
     this.getBoundedPosition(
@@ -164,7 +164,7 @@ Cropper.prototype.updatePosition = function(_pos) {
   return pos;
 };
 
-Cropper.prototype.setImageSrc = function(src, width, height) {
+Cropper.prototype.setImageSrc = function (src, width, height) {
   var img = this.img;
 
   this.src = src;
@@ -198,7 +198,7 @@ Cropper.prototype.setImageSrc = function(src, width, height) {
   this.zoom(this.scale);
 };
 
-Cropper.prototype.updateSize = function(length) {
+Cropper.prototype.updateSize = function (length) {
   if (this.isLandscape) {
     this._height = length;
     this._width = (length * this._originalWidth) / this._originalHeight;
@@ -210,7 +210,7 @@ Cropper.prototype.updateSize = function(length) {
   this.img.width(this._width);
 };
 
-Cropper.prototype.getBoundedPosition = function(top, left) {
+Cropper.prototype.getBoundedPosition = function (top, left) {
   var w = this._width;
   var h = this._height;
   var wh = this._wrapperHeight;
@@ -239,7 +239,7 @@ Cropper.prototype.getBoundedPosition = function(top, left) {
   return { left: left, top: top };
 };
 
-Cropper.prototype.resize = function(img, scale) {
+Cropper.prototype.resize = function (img, scale) {
   var canvas = this.canvas;
   var context = canvas.getContext('2d');
   canvas.width = img.width * scale;
@@ -270,7 +270,7 @@ Cropper.prototype.zoom = function zoom(scale) {
 };
 
 // Return new image data for the image rotated by a number of degrees
-Cropper.prototype.rotate = function(degrees) {
+Cropper.prototype.rotate = function (degrees) {
   var canvas = this.canvas;
   var context = canvas.getContext('2d');
 
@@ -296,7 +296,7 @@ Cropper.prototype.rotate = function(degrees) {
 };
 
 // Get the scaled position of the crop square over the source image
-Cropper.prototype.cropPosition = function() {
+Cropper.prototype.cropPosition = function () {
   var scale = this.isLandscape
     ? this._originalHeight / this.displayLength
     : this._originalWidth / this.displayLength;
@@ -314,7 +314,7 @@ Cropper.prototype.cropPosition = function() {
 };
 
 // Get the final cropped image data
-Cropper.prototype._export = function() {
+Cropper.prototype._export = function () {
   var context = this.canvas.getContext('2d');
   var sourcePos = this.cropPosition();
   var destLength = this.exportLength;
@@ -336,13 +336,13 @@ Cropper.prototype._export = function() {
 };
 
 // Get the final cropped image data as a datauri
-Cropper.prototype.toDataURL = function(type, quality) {
+Cropper.prototype.toDataURL = function (type, quality) {
   this._export();
   return this.canvas.toDataURL(type, quality);
 };
 
 // Get the final cropped image data as a blob
-Cropper.prototype.toBlob = function(cb, type, quality) {
+Cropper.prototype.toBlob = function (cb, type, quality) {
   this._export();
   return this.canvas.toBlob(cb, type, quality);
 };

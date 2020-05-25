@@ -22,20 +22,20 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', t => {
-  mcHelper.clearEverything(err => {
+test('clear everything', (t) => {
+  mcHelper.clearEverything((err) => {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('check with unblockCode in paylaod gets counted', t => {
+test('check with unblockCode in paylaod gets counted', (t) => {
   return client
     .postAsync('/check', {
       email: TEST_EMAIL,
@@ -49,7 +49,7 @@ test('check with unblockCode in paylaod gets counted', t => {
       t.equal(res.statusCode, 200, 'first login attempt noted');
       return mcHelper.badLoginCheck();
     })
-    .then(records => {
+    .then((records) => {
       t.equal(
         records.emailRecord.ub.length,
         1,
@@ -57,13 +57,13 @@ test('check with unblockCode in paylaod gets counted', t => {
       );
       t.end();
     })
-    .catch(err => {
+    .catch((err) => {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

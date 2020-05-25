@@ -24,7 +24,7 @@ describe('PaymentUpdateForm', () => {
   const subscription = MOCK_CUSTOMER.subscriptions[0];
 
   const findMockPlan = (planId: string): Plan => {
-    const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+    const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
     if (plan) {
       return plan;
     }

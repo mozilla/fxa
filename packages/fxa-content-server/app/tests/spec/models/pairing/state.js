@@ -7,7 +7,7 @@ import sinon from 'sinon';
 import { State } from 'models/pairing/state';
 import Notifier from 'lib/channels/notifier';
 
-describe('models/auth_brokers/pairing/state', function() {
+describe('models/auth_brokers/pairing/state', function () {
   describe('State', () => {
     let state;
     let notifier;

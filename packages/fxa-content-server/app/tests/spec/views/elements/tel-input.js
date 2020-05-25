@@ -12,7 +12,7 @@ const TEMPLATE =
   '<input type="tel" required id="required-tel"></input>' +
   '<input type="tel" id="optional-tel"></input>';
 
-describe('views/elements/tel-input', function() {
+describe('views/elements/tel-input', function () {
   let $optionalTelEl;
   let $requiredTelEl;
   let $textEl;

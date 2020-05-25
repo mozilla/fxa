@@ -87,8 +87,8 @@ module.exports.limits = limits;
 function blockedEmailCheck(cb) {
   setTimeout(
     // give memcache time to flush the writes
-    function() {
-      mc.get(TEST_EMAIL, function(err, data) {
+    function () {
+      mc.get(TEST_EMAIL, function (err, data) {
         var er = EmailRecord.parse(data);
         mc.end();
         cb(er.shouldBlock());
@@ -102,8 +102,8 @@ module.exports.blockedEmailCheck = blockedEmailCheck;
 function blockedIpCheck(cb) {
   setTimeout(
     // give memcache time to flush the writes
-    function() {
-      mc.get(TEST_IP, function(err, data) {
+    function () {
+      mc.get(TEST_IP, function (err, data) {
         var ir = IpRecord.parse(data);
         mc.end();
         cb(ir.shouldBlock());
@@ -119,7 +119,7 @@ function badLoginCheck() {
     mc.getAsync(TEST_IP + TEST_EMAIL),
     mc.getAsync(TEST_IP),
     mc.getAsync(TEST_EMAIL),
-  ]).spread(function(d1, d2, d3) {
+  ]).spread(function (d1, d2, d3) {
     var ipEmailRecord = IpEmailRecord.parse(d1);
     var ipRecord = IpRecord.parse(d2);
     var emailRecord = EmailRecord.parse(d3);
@@ -136,25 +136,25 @@ module.exports.badLoginCheck = badLoginCheck;
 
 function clearEverything(cb) {
   mc.itemsAsync()
-    .then(function(result) {
+    .then(function (result) {
       var firstServer = result[0];
 
       // we don't need the "server" key, but the other indicate the slab id's
       var keys = Object.keys(firstServer)
-        .filter(k => /[0-9]+/i.test(k))
+        .filter((k) => /[0-9]+/i.test(k))
         .map(Number);
 
       // get a cachedump for each slabid and slab.number
       var cachedumps = keys
-        .map(function(stats) {
+        .map(function (stats) {
           return mc.cachedumpAsync(
             firstServer.server,
             stats,
             firstServer[stats].number
           );
         })
-        .map(function(dumpPromise) {
-          return dumpPromise.then(function(dump) {
+        .map(function (dumpPromise) {
+          return dumpPromise.then(function (dump) {
             if (!dump) {
               return;
             }
@@ -164,8 +164,8 @@ function clearEverything(cb) {
             }
             return P.all(
               dump
-                .filter(item => /^fxa~/.test(item.key))
-                .map(function(item) {
+                .filter((item) => /^fxa~/.test(item.key))
+                .map(function (item) {
                   return mc.delAsync(item.key.replace(/^fxa~/, ''));
                 })
             );
@@ -174,7 +174,7 @@ function clearEverything(cb) {
 
       return P.all(cachedumps);
     })
-    .then(function() {
+    .then(function () {
       mc.end();
       cb();
     })
@@ -189,7 +189,7 @@ function setLimits(settings) {
     var k = keys[i];
     limits[k] = settings[k];
   }
-  return limits.push().then(function(s) {
+  return limits.push().then(function (s) {
     mc.end();
     return s;
   });
@@ -199,7 +199,7 @@ module.exports.setLimits = setLimits;
 
 function setAllowedIPs(ips) {
   allowedIPs.setAll(ips);
-  return allowedIPs.push().then(function(ips) {
+  return allowedIPs.push().then(function (ips) {
     mc.end();
     return ips;
   });
@@ -209,7 +209,7 @@ module.exports.setAllowedIPs = setAllowedIPs;
 
 function setAllowedEmailDomains(domains) {
   allowedEmailDomains.setAll(domains);
-  return allowedEmailDomains.push().then(function(domains) {
+  return allowedEmailDomains.push().then(function (domains) {
     mc.end();
     return domains;
   });
@@ -219,7 +219,7 @@ module.exports.setAllowedEmailDomains = setAllowedEmailDomains;
 
 function setAllowedPhoneNumbers(phoneNumbers) {
   allowedPhoneNumbers.setAll(phoneNumbers);
-  return allowedPhoneNumbers.push().then(phoneNumbers => {
+  return allowedPhoneNumbers.push().then((phoneNumbers) => {
     mc.end();
     return phoneNumbers;
   });
@@ -235,7 +235,7 @@ function setRequestChecks(settings) {
     var k = keys[i];
     requestChecks[k] = settings[k];
   }
-  return requestChecks.push().then(function(s) {
+  return requestChecks.push().then(function (s) {
     mc.end();
     return s;
   });

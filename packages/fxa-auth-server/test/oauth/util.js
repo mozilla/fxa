@@ -5,9 +5,9 @@
 const { assert } = require('chai');
 const util = require('../../lib/oauth/util');
 
-describe('util', function() {
-  describe('base64URLEncode', function() {
-    it('properly encodes', function() {
+describe('util', function () {
+  describe('base64URLEncode', function () {
+    it('properly encodes', function () {
       var testBase64 =
           'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/',
         testBuffer = Buffer.from(testBase64, 'base64'),

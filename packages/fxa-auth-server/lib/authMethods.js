@@ -79,7 +79,7 @@ module.exports = {
    */
   maximumAssuranceLevel(amrValues) {
     const types = new Set();
-    amrValues.forEach(amr => {
+    amrValues.forEach((amr) => {
       types.add(AMR_TO_TYPE[amr]);
     });
     return types.size;

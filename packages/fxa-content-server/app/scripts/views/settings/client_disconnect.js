@@ -9,7 +9,7 @@ import preventDefaultThen from '../decorators/prevent_default_then';
 import SignedOutNotificationMixin from '../mixins/signed-out-notification-mixin';
 import Template from 'templates/settings/client_disconnect.mustache';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const REASON_HELP = {
   lost: t(

@@ -29,7 +29,7 @@ function testClientJson(acceptLanguageHeader, expectedLanguage) {
   got(serverUrl + '/i18n/client.json', {
     headers: headers,
   })
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 200);
       assert.equal(
         res.headers['content-type'],
@@ -77,7 +77,7 @@ function testExpectHTMLResponse(url, acceptHeader) {
   got(url, {
     headers: headers,
   })
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.headers['content-type'], 'text/html; charset=utf-8');
     })
     .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
@@ -87,10 +87,10 @@ function testExpectHTMLResponse(url, acceptHeader) {
 
 // Test each server template based page
 ['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(
-  function(page) {
+  function (page) {
     suite.tests[
       '#get page ' + page + ' has correct localized resources'
-    ] = function() {
+    ] = function () {
       var dfd = this.async(intern._config.asyncTimeout);
 
       got(serverUrl + page, {
@@ -99,10 +99,10 @@ function testExpectHTMLResponse(url, acceptHeader) {
           'Accept-Language': 'en',
         },
       })
-        .catch(function(err) {
+        .catch(function (err) {
           return err.response;
         })
-        .then(function(res) {
+        .then(function (res) {
           var re = /styles\/main\.css/;
           if (intern._config.fxaProduction) {
             re = /styles\/[a-f0-9]{0,8}\.main\.css/;
@@ -119,10 +119,10 @@ function testExpectHTMLResponse(url, acceptHeader) {
 );
 
 // Test against Hebrew, a rtl langauge that must use system fonts
-['/', '/non-existent', '/boom'].forEach(function(page) {
+['/', '/non-existent', '/boom'].forEach(function (page) {
   suite.tests[
     '#get page ' + page + ' has correct localized resources for he locale'
-  ] = function() {
+  ] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     got(serverUrl + page, {
@@ -131,10 +131,10 @@ function testExpectHTMLResponse(url, acceptHeader) {
         'Accept-Language': 'he',
       },
     })
-      .catch(function(err) {
+      .catch(function (err) {
         return err.response;
       })
-      .then(function(res) {
+      .then(function (res) {
         var re = /styles\/main\.css/;
         if (intern._config.fxaProduction) {
           re = /styles\/[a-f0-9]{0,8}\.main\.css/;
@@ -149,7 +149,7 @@ function testExpectHTMLResponse(url, acceptHeader) {
   };
 });
 
-suite.tests['#get terms page using lang in the URL'] = function() {
+suite.tests['#get terms page using lang in the URL'] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/zh-CN/legal/terms', {
@@ -157,7 +157,7 @@ suite.tests['#get terms page using lang in the URL'] = function() {
       Accept: 'text/html',
     },
   })
-    .then(function(res) {
+    .then(function (res) {
       var re = /styles\/main\.css/;
       if (intern._config.fxaProduction) {
         re = /styles\/[a-f0-9]{0,8}\.main\.css/;
@@ -171,11 +171,11 @@ suite.tests['#get terms page using lang in the URL'] = function() {
   return dfd;
 };
 
-suite.tests['#get terms page with `Accept: */*` (IE8)'] = function() {
+suite.tests['#get terms page with `Accept: */*` (IE8)'] = function () {
   return testExpectHTMLResponse.call(this, serverUrl + '/legal/terms', '*/*');
 };
 
-suite.tests['#get terms page no `Accept` header'] = function() {
+suite.tests['#get terms page no `Accept` header'] = function () {
   return testExpectHTMLResponse.call(
     this,
     serverUrl + '/legal/terms',
@@ -183,7 +183,7 @@ suite.tests['#get terms page no `Accept` header'] = function() {
   );
 };
 
-suite.tests['#get privacy page using lang in the URL'] = function() {
+suite.tests['#get privacy page using lang in the URL'] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/zh-CN/legal/privacy', {
@@ -191,7 +191,7 @@ suite.tests['#get privacy page using lang in the URL'] = function() {
       Accept: 'text/html',
     },
   })
-    .then(function(res) {
+    .then(function (res) {
       var re = /styles\/main\.css/;
       if (intern._config.fxaProduction) {
         re = /styles\/[a-f0-9]{0,8}\.main\.css/;
@@ -207,7 +207,7 @@ suite.tests['#get privacy page using lang in the URL'] = function() {
 
 suite.tests[
   '#get privacy page with supported lang that has no privacy template should show en'
-] = function() {
+] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/legal/privacy', {
@@ -216,7 +216,7 @@ suite.tests[
       'Accept-Language': 'hsb',
     },
   })
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.url, serverUrl + '/en/legal/privacy');
     })
     .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
@@ -224,11 +224,11 @@ suite.tests[
   return dfd;
 };
 
-suite.tests['#get privacy page with `Accept: */*` (IE8)'] = function() {
+suite.tests['#get privacy page with `Accept: */*` (IE8)'] = function () {
   return testExpectHTMLResponse.call(this, serverUrl + '/legal/privacy', '*/*');
 };
 
-suite.tests['#get privacy page with no `Accept` header'] = function() {
+suite.tests['#get privacy page with no `Accept` header'] = function () {
   return testExpectHTMLResponse.call(
     this,
     serverUrl + '/legal/privacy',
@@ -238,7 +238,7 @@ suite.tests['#get privacy page with no `Accept` header'] = function() {
 
 suite.tests[
   '#get /i18n/client.json with multiple supported languages'
-] = function() {
+] = function () {
   return testClientJson.call(
     this,
     'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2',
@@ -246,57 +246,59 @@ suite.tests[
   );
 };
 
-suite.tests['#get /i18n/client.json with en,fr should use en'] = function() {
+suite.tests['#get /i18n/client.json with en,fr should use en'] = function () {
   return testClientJson.call(this, 'en,fr', 'en');
 };
 
-suite.tests['#get /i18n/client.json with en-US,fr should use en'] = function() {
+suite.tests[
+  '#get /i18n/client.json with en-US,fr should use en'
+] = function () {
   return testClientJson.call(this, 'en-us,fr', 'en');
 };
 
-suite.tests['#get /i18n/client.json with lowercase language'] = function() {
+suite.tests['#get /i18n/client.json with lowercase language'] = function () {
   return testClientJson.call(this, 'es-ar', 'es_AR');
 };
 
-suite.tests['#get /i18n/client.json with uppercase language'] = function() {
+suite.tests['#get /i18n/client.json with uppercase language'] = function () {
   return testClientJson.call(this, 'ES-ar', 'es_AR');
 };
 
-suite.tests['#get /i18n/client.json with uppercase region'] = function() {
+suite.tests['#get /i18n/client.json with uppercase region'] = function () {
   return testClientJson.call(this, 'es-AR', 'es_AR');
 };
 
-suite.tests['#get /i18n/client.json all uppercase language'] = function() {
+suite.tests['#get /i18n/client.json all uppercase language'] = function () {
   return testClientJson.call(this, 'ES-AR', 'es_AR');
 };
 
 suite.tests[
   '#get /i18n/client.json for language with multiple regions and only language specified'
-] = function() {
+] = function () {
   return testClientJson.call(this, 'es', 'es');
 };
 
 suite.tests[
   '#get /i18n/client.json for language with multiple regions and unsupported region specified'
-] = function() {
+] = function () {
   return testClientJson.call(this, 'es-NONEXISTANT', 'es');
 };
 
 suite.tests[
   '#get /i18n/client.json with language with two-part region with an unsupported region specified'
-] = function() {
+] = function () {
   return testClientJson.call(this, 'ja-JP-mac', 'ja');
 };
 
 suite.tests[
   '#get /i18n/client.json with unsupported language returns default locale'
-] = function() {
+] = function () {
   return testClientJson.call(this, 'no-OP', 'en');
 };
 
 suite.tests[
   '#get /i18n/client.json with no locale returns default locale'
-] = function() {
+] = function () {
   return testClientJson.call(this, null, 'en');
 };
 
@@ -304,7 +306,7 @@ suite.tests[
 // in dev mode and the templates do not render without text.
 suite.tests[
   '#get /503.html page - check text is rendered in dev mode'
-] = function() {
+] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/503.html', {
@@ -312,7 +314,7 @@ suite.tests[
       Accept: 'text/html',
     },
   })
-    .then(function(res) {
+    .then(function (res) {
       assert.ok(res.body.match(/server busy/i));
     })
     .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));

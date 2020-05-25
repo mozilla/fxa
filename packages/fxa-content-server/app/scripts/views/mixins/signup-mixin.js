@@ -36,7 +36,7 @@ export default {
 
         return this.user.signUpAccount(account, password, this.relier, options);
       })
-      .then(account => {
+      .then((account) => {
         if (this.formPrefill) {
           this.formPrefill.clear();
         }

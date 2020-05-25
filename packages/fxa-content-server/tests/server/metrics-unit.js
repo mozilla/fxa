@@ -13,11 +13,11 @@ var suite = {
   tests: {},
 };
 
-suite.afterEach = function() {
+suite.afterEach = function () {
   process.nextTick.restore();
 };
 
-suite.tests['sanity check'] = function() {
+suite.tests['sanity check'] = function () {
   var test = setUp();
 
   assert.equal(test.metrics.method, 'post');
@@ -27,7 +27,7 @@ suite.tests['sanity check'] = function() {
 
 suite.tests[
   'process responds with success immediately, calls process.nextTick'
-] = function() {
+] = function () {
   var test = setUp();
 
   test.metrics.process(test.mocks.request, test.mocks.response);
@@ -41,7 +41,7 @@ suite.tests[
   assert.equal(process.nextTick.callCount, 1);
 };
 
-suite.tests['Content-Type is unset, user is not sampled'] = function() {
+suite.tests['Content-Type is unset, user is not sampled'] = function () {
   var test = setUp();
 
   test.mocks.request.body = {};
@@ -60,8 +60,8 @@ suite.tests['Content-Type is unset, user is not sampled'] = function() {
   assert.equal(test.mocks.metricsCollector.write.callCount, 0);
 };
 
-suite.tests['Content-Type is unset, user is sampled'] = function() {
-  var test = setUp(function() {
+suite.tests['Content-Type is unset, user is sampled'] = function () {
+  var test = setUp(function () {
     return 'foo';
   });
   test.mocks.request.body = { bar: 'baz', isSampledUser: true };
@@ -80,8 +80,8 @@ suite.tests['Content-Type is unset, user is sampled'] = function() {
   assert.equal(data.isSampledUser, true);
 };
 
-suite.tests['Content-Type is text/plain, data is invalid JSON'] = function() {
-  var test = setUp(function(headerName) {
+suite.tests['Content-Type is text/plain, data is invalid JSON'] = function () {
+  var test = setUp(function (headerName) {
     if (headerName.toLowerCase() === 'content-type') {
       return 'text/plain';
     }
@@ -102,8 +102,8 @@ suite.tests['Content-Type is text/plain, data is invalid JSON'] = function() {
 
 suite.tests[
   'Content-Type is text/plain, data is valid JSON, user is sampled'
-] = function() {
-  var test = setUp(function(headerName) {
+] = function () {
+  var test = setUp(function (headerName) {
     if (headerName.toLowerCase() === 'content-type') {
       return 'text/plain';
     }
@@ -127,8 +127,8 @@ suite.tests[
 
 suite.tests[
   'Content-Type is text/plain;charset=UTF-8, data is valid JSON, user is sampled'
-] = function() {
-  var test = setUp(function(headerName) {
+] = function () {
+  var test = setUp(function (headerName) {
     if (headerName.toLowerCase() === 'content-type') {
       return 'text/plain;charset=UTF-8';
     }
@@ -167,18 +167,18 @@ function setUp(requestGet) {
     metrics: proxyquire(
       path.join(process.cwd(), 'server', 'lib', 'routes', 'post-metrics'),
       {
-        '../logging/log': function() {
+        '../logging/log': function () {
           return mocks.logger;
         },
         '../configuration': {
-          get: function() {
+          get: function () {
             return {
               max_event_offset: 1024,
               stderr_collector_disabled: false,
             };
           },
         },
-        '../metrics-collector-stderr': function() {
+        '../metrics-collector-stderr': function () {
           return mocks.metricsCollector;
         },
       }

@@ -11,11 +11,11 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').getProperties();
 
-describe('remote recovery email verify', function() {
+describe('remote recovery email verify', function () {
   this.timeout(15000);
   let server;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -25,13 +25,13 @@ describe('remote recovery email verify', function() {
     const password = 'allyourbasearebelongtous';
     let client = null;
     return Client.create(config.publicUrl, email, password)
-      .then(x => {
+      .then((x) => {
         client = x;
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'new account is not verified');
       })
       .then(() => {
@@ -41,7 +41,7 @@ describe('remote recovery email verify', function() {
         () => {
           assert(false, 'verified email with bad code');
         },
-        err => {
+        (err) => {
           assert.equal(
             err.message.toString(),
             'Invalid verification code',
@@ -52,7 +52,7 @@ describe('remote recovery email verify', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'account not verified');
       });
   });
@@ -66,13 +66,13 @@ describe('remote recovery email verify', function() {
       service: 'sync',
     };
     return Client.create(config.publicUrl, email, password, options)
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.uid, 'uid is in link');

@@ -27,62 +27,62 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('/checkAuthenticated requires action', function(t) {
+test('/checkAuthenticated requires action', function (t) {
   return client
     .postAsync('/checkAuthenticated', { ip: TEST_IP, uid: TEST_UID })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.fail('Success response from request missing param.');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.equal(err.statusCode, 400, 'returns a 400');
       t.equal(err.body.code, 'MissingParameters');
       t.end();
     });
 });
 
-test('/checkAuthenticated requires ip', function(t) {
+test('/checkAuthenticated requires ip', function (t) {
   return client
     .postAsync('/checkAuthenticated', { action: ACTION_ONE, uid: TEST_UID })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.fail('Success response from request missing param.');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.equal(err.statusCode, 400, 'returns a 400');
       t.equal(err.body.code, 'MissingParameters');
       t.end();
     });
 });
 
-test('/checkAuthenticated requires uid', function(t) {
+test('/checkAuthenticated requires uid', function (t) {
   return client
     .postAsync('/checkAuthenticated', { action: ACTION_ONE, ip: TEST_IP })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.fail('Success response from request missing param.');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.equal(err.statusCode, 400, 'returns a 400');
       t.equal(err.body.code, 'MissingParameters');
       t.end();
     });
 });
 
-test('/checkAuthenticated with same action', function(t) {
+test('/checkAuthenticated with same action', function (t) {
   // Send requests until it blocks
   return (
     client
@@ -91,7 +91,7 @@ test('/checkAuthenticated with same action', function(t) {
         ip: TEST_IP,
         uid: TEST_UID,
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200 check1');
         t.equal(obj.block, false, 'not rate limited');
 
@@ -101,7 +101,7 @@ test('/checkAuthenticated with same action', function(t) {
           uid: TEST_UID,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200 check2');
         t.equal(obj.block, false, 'not rate limited');
 
@@ -112,7 +112,7 @@ test('/checkAuthenticated with same action', function(t) {
         });
       })
       // uid should be now blocked
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200 check3');
         t.equal(obj.block, true, 'uid is rate limited');
 
@@ -120,14 +120,14 @@ test('/checkAuthenticated with same action', function(t) {
         return Promise.delay(2010);
       })
       // uid should be now unblocked
-      .then(function() {
+      .then(function () {
         return client.postAsync('/checkAuthenticated', {
           action: ACTION_ONE,
           ip: TEST_IP,
           uid: TEST_UID,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(
           obj.block,
@@ -136,14 +136,14 @@ test('/checkAuthenticated with same action', function(t) {
         );
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       })
   );
 });
 
-test('/checkAuthenticated with different actions', function(t) {
+test('/checkAuthenticated with different actions', function (t) {
   // Send requests until one gets rate limited
   return (
     client
@@ -152,7 +152,7 @@ test('/checkAuthenticated with different actions', function(t) {
         ip: TEST_IP,
         uid: TEST_UID,
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited on check1, actionA');
 
@@ -162,7 +162,7 @@ test('/checkAuthenticated with different actions', function(t) {
           uid: TEST_UID,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited on check1, actionB');
 
@@ -172,7 +172,7 @@ test('/checkAuthenticated with different actions', function(t) {
           uid: TEST_UID,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited on check2, actionA');
 
@@ -183,7 +183,7 @@ test('/checkAuthenticated with different actions', function(t) {
         });
       })
       // uid should be now blocked to action1
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'uid is actionA rate limited after check3');
 
@@ -193,7 +193,7 @@ test('/checkAuthenticated with different actions', function(t) {
           uid: TEST_UID,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited for actionB after check2');
 
@@ -201,14 +201,14 @@ test('/checkAuthenticated with different actions', function(t) {
         return Promise.delay(2010);
       })
       // uid should be now unblocked
-      .then(function() {
+      .then(function () {
         return client.postAsync('/checkAuthenticated', {
           action: ACTION_A,
           ip: TEST_IP,
           uid: TEST_UID,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(
           obj.block,
@@ -217,14 +217,14 @@ test('/checkAuthenticated with different actions', function(t) {
         );
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       })
   );
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

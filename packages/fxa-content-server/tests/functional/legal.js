@@ -12,7 +12,7 @@ var url = intern._config.fxaContentRoot + 'legal';
 var openPage = FunctionalHelpers.openPage;
 
 registerSuite('legal', {
-  'start at legal page': function() {
+  'start at legal page': function () {
     return (
       this.remote
         .then(openPage(url, '#fxa-legal-header'))
@@ -40,7 +40,7 @@ registerSuite('legal', {
     );
   },
 
-  'start at terms page': function() {
+  'start at terms page': function () {
     return this.remote
       .then(openPage(url + '/terms', '#fxa-tos-header'))
 
@@ -48,21 +48,21 @@ registerSuite('legal', {
       .findByCssSelector('#legal-copy[data-shown]')
 
       .getVisibleText()
-      .then(function(resultText) {
+      .then(function (resultText) {
         // the legal text shouldn't be empty
         assert.ok(resultText.trim().length);
       })
       .end();
   },
 
-  'start at privacy page': function() {
+  'start at privacy page': function () {
     return this.remote
       .then(openPage(url + '/privacy', '#fxa-pp-header'))
 
       .then(FunctionalHelpers.visibleByQSA('#legal-copy[data-shown]'))
       .findByCssSelector('#legal-copy[data-shown]')
       .getVisibleText()
-      .then(function(resultText) {
+      .then(function (resultText) {
         // the legal text shouldn't be empty
         assert.ok(resultText.trim().length);
       })

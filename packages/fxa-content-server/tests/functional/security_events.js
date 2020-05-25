@@ -38,20 +38,25 @@ let code;
 let email;
 let token;
 
-const initiateResetPassword = thenify(function(emailAddress, emailNumber) {
+const initiateResetPassword = thenify(function (emailAddress, emailNumber) {
   client = getFxaClient();
 
   return this.parent
     .then(() => client.passwordForgotSendCode(emailAddress))
     .then(getVerificationLink(emailAddress, emailNumber))
-    .then(link => {
+    .then((link) => {
       // token and code are hex values
       token = link.match(/token=([a-f\d]+)/)[1];
       code = link.match(/code=([a-f\d]+)/)[1];
     });
 });
 
-const openCompleteResetPassword = thenify(function(email, token, code, header) {
+const openCompleteResetPassword = thenify(function (
+  email,
+  token,
+  code,
+  header
+) {
   let url = COMPLETE_PAGE_URL_ROOT + '?';
 
   const queryParams = [];
@@ -72,7 +77,7 @@ const openCompleteResetPassword = thenify(function(email, token, code, header) {
 });
 
 registerSuite('security_events', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -82,7 +87,7 @@ registerSuite('security_events', {
   },
 
   tests: {
-    'gets security events table': function() {
+    'gets security events table': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
@@ -99,7 +104,7 @@ registerSuite('security_events', {
         );
     },
 
-    'login event is shown': function() {
+    'login event is shown': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
@@ -119,7 +124,7 @@ registerSuite('security_events', {
         );
     },
 
-    'reset event is shown': function() {
+    'reset event is shown': function () {
       this.timeout = TIMEOUT;
 
       return this.remote
@@ -162,7 +167,7 @@ registerSuite('security_events', {
         );
     },
 
-    'delete security events': function() {
+    'delete security events': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD, true))

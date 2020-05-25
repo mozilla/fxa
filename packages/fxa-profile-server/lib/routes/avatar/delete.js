@@ -25,10 +25,7 @@ module.exports = {
   },
   validate: {
     params: {
-      id: Joi.string()
-        .length(32)
-        .regex(validate.hex)
-        .optional(),
+      id: Joi.string().length(32).regex(validate.hex).optional(),
     },
   },
   handler: async function deleteAvatar(req) {
@@ -48,7 +45,7 @@ module.exports = {
       }
 
       return lookup
-        .then(av => {
+        .then((av) => {
           avatar = av;
           return P.all([
             db.deleteAvatar(avatar.id),
@@ -70,7 +67,7 @@ module.exports = {
 };
 
 function getAvatar(id, uid) {
-  return db.getAvatar(id).then(function(avatar) {
+  return db.getAvatar(id).then(function (avatar) {
     logger.debug('avatar', avatar);
     if (!avatar) {
       throw AppError.notFound();
@@ -83,7 +80,7 @@ function getAvatar(id, uid) {
 }
 
 function getSelectedAvatar(uid) {
-  return db.getSelectedAvatar(uid).then(function(avatar) {
+  return db.getSelectedAvatar(uid).then(function (avatar) {
     if (avatar) {
       return avatar;
     } else {

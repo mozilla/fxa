@@ -69,7 +69,7 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();
@@ -141,7 +141,7 @@ describe('views/post_verify/secondary_email/confirm_secondary_email', () => {
       '   ' + CODE + '   ',
       '111 111',
     ];
-    validCodes.forEach(code => {
+    validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
           view.$('.otp-code').val(code);

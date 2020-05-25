@@ -75,7 +75,7 @@ describe('views/confirm_signup_code', () => {
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();
@@ -99,7 +99,7 @@ describe('views/confirm_signup_code', () => {
     });
 
     describe('without a session', () => {
-      beforeEach(function() {
+      beforeEach(function () {
         model.unset('account');
         view = new View({
           relier,
@@ -127,7 +127,7 @@ describe('views/confirm_signup_code', () => {
       sinon.stub(broker, 'beforeSignUpConfirmationPoll').resolves({});
       sinon.stub(view, 'waitForSessionVerification');
 
-      return view.afterVisible().then(function() {
+      return view.afterVisible().then(function () {
         assert.isTrue(
           broker.persistVerificationData.calledOnce,
           'called persistVerificationData'
@@ -161,7 +161,7 @@ describe('views/confirm_signup_code', () => {
     });
 
     const validCodes = [CODE, '   ' + CODE, CODE + '   ', '   ' + CODE + '   '];
-    validCodes.forEach(code => {
+    validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
           view.$('input.otp-code').val(code);

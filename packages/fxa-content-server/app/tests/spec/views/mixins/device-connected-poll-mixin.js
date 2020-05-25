@@ -49,7 +49,7 @@ describe('views/mixins/device-connected-poll-mixin', () => {
   });
 
   describe('waitForDeviceConnected', () => {
-    it('calls the callback when a device is connected to account', done => {
+    it('calls the callback when a device is connected to account', (done) => {
       view.waitForDeviceConnected(account, () => done());
       assert.isTrue(deviceConnectedPoll.start.calledOnce);
 

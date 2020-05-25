@@ -25,7 +25,7 @@ var VerificationInfo = Backbone.Model.extend({
     // clean up any whitespace that was probably added by an MUA.
     _.each(
       this.defaults,
-      function(value, key) {
+      function (value, key) {
         if (this.has(key)) {
           var cleanedValue = this.get(key).replace(/ /g, '');
           if (cleanedValue) {

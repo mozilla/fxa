@@ -22,40 +22,40 @@ const imageData = fs.readFileSync(imagePath);
 const sinon = require('sinon');
 
 const SIZES = require('../lib/img').SIZES;
-const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
+const SIZE_SUFFIXES = Object.keys(SIZES).map(function (val) {
   if (val === 'default') {
     return '';
   }
   return '_' + val;
 });
 
-describe('events', function() {
+describe('events', function () {
   let Server;
   let mock;
   let events;
 
-  before(async function() {
+  before(async function () {
     Server = await testServer.create();
     events = require('../lib/events')(Server.server);
 
     return Server;
   });
 
-  after(async function() {
+  after(async function () {
     await db._teardown();
     return Server.server.stop();
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     await Server.server.initialize();
     mock = await require('./lib/mock')({ userid: UID });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     mock.done();
   });
 
-  describe('onDeleteMessage', function() {
+  describe('onDeleteMessage', function () {
     var tok = crypto.randomBytes(32).toString('hex');
     function Message(type, onDel) {
       if (typeof type === 'function') {
@@ -69,8 +69,8 @@ describe('events', function() {
       };
     }
 
-    describe('avatar', function() {
-      beforeEach(function() {
+    describe('avatar', function () {
+      beforeEach(function () {
         mock.token({
           user: UID,
           email: 'user@example.domain',
@@ -87,33 +87,33 @@ describe('events', function() {
               'content-length': imageData.length,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 201);
             assert(res.result.url);
             assert(res.result.id);
             assertSecurityHeaders(res);
             return res.result.url;
           })
-          .then(function(s3url) {
-            return P.all(SIZE_SUFFIXES).map(function(suffix) {
+          .then(function (s3url) {
+            return P.all(SIZE_SUFFIXES).map(function (suffix) {
               return Static.get(s3url + suffix);
             });
           })
-          .then(function(responses) {
+          .then(function (responses) {
             assert.equal(responses.length, SIZE_SUFFIXES.length);
-            responses.forEach(function(res) {
+            responses.forEach(function (res) {
               assert.equal(res.statusCode, 200);
             });
             mock.done();
           });
       });
 
-      it('should delete avatars', function(done) {
+      it('should delete avatars', function (done) {
         mock.deleteImage();
         events.onData(
-          new Message(function() {
+          new Message(function () {
             db.getSelectedAvatar(UID)
-              .then(function(avatar) {
+              .then(function (avatar) {
                 assert.equal(avatar, undefined);
               })
               .done(done, done);
@@ -121,16 +121,16 @@ describe('events', function() {
         );
       });
 
-      it('should not delete message on error', function(done) {
+      it('should not delete message on error', function (done) {
         mock.workerFailure('delete', 0);
         events.onData(
-          new Message(function() {
+          new Message(function () {
             assert(false, 'message.del() should not be called');
           })
         );
-        mock.log('events', function(record) {
+        mock.log('events', function (record) {
           if (record.levelname === 'ERROR' && record.args[0] === 'delete') {
-            setTimeout(function() {
+            setTimeout(function () {
               done();
             }, 1);
             return true;
@@ -140,12 +140,12 @@ describe('events', function() {
       });
     });
 
-    it('should ignore unknown messages', function(done) {
-      db.setDisplayName(UID, 'foo bar').then(function() {
+    it('should ignore unknown messages', function (done) {
+      db.setDisplayName(UID, 'foo bar').then(function () {
         events.onData(
-          new Message('baz', function() {
+          new Message('baz', function () {
             db.getDisplayName(UID)
-              .then(function(profile) {
+              .then(function (profile) {
                 assert.equal(profile.displayName, 'foo bar');
               })
               .done(done, done);
@@ -155,8 +155,8 @@ describe('events', function() {
     });
   });
 
-  describe('onPrimaryEmailChangedMessage', function() {
-    describe('should invalidate user cache', function() {
+  describe('onPrimaryEmailChangedMessage', function () {
+    describe('should invalidate user cache', function () {
       function Message(type, onDel) {
         if (typeof type === 'function') {
           onDel = type;
@@ -168,15 +168,15 @@ describe('events', function() {
           del: onDel,
         };
       }
-      beforeEach(function() {
-        Server.server.methods.profileCache.drop = sinon.spy(function(uid) {
+      beforeEach(function () {
+        Server.server.methods.profileCache.drop = sinon.spy(function (uid) {
           return P.resolve([]);
         });
       });
 
-      it('invalidate cache', function(done) {
+      it('invalidate cache', function (done) {
         events.onData(
-          new Message(function() {
+          new Message(function () {
             var args = Server.server.methods.profileCache.drop.getCall(0).args;
             var callCount = Server.server.methods.profileCache.drop.callCount;
             assert.equal(callCount, 1);
@@ -188,7 +188,7 @@ describe('events', function() {
       });
     });
 
-    describe('should delete message on invalid uid', function() {
+    describe('should delete message on invalid uid', function () {
       function Message(type, onDel) {
         if (typeof type === 'function') {
           onDel = type;
@@ -201,17 +201,17 @@ describe('events', function() {
         };
       }
 
-      it('invalid uid', function(done) {
+      it('invalid uid', function (done) {
         events.onData(
-          new Message(function() {
+          new Message(function () {
             assert(true, 'message.del() should be called');
           })
         );
 
-        mock.log('events', function(record) {
+        mock.log('events', function (record) {
           if (record.levelname === 'WARN' && record.args[0] === 'getUserId') {
             assert.equal(record.args[1].userId, 'notahexuid');
-            setTimeout(function() {
+            setTimeout(function () {
               done();
             }, 1);
             return true;
@@ -222,8 +222,8 @@ describe('events', function() {
     });
   });
 
-  describe('onProfileDataChanged', function() {
-    describe('should invalidate user cache', function() {
+  describe('onProfileDataChanged', function () {
+    describe('should invalidate user cache', function () {
       function Message(type, onDel) {
         if (typeof type === 'function') {
           onDel = type;
@@ -235,15 +235,15 @@ describe('events', function() {
           del: onDel,
         };
       }
-      beforeEach(function() {
-        Server.server.methods.profileCache.drop = sinon.spy(function(uid) {
+      beforeEach(function () {
+        Server.server.methods.profileCache.drop = sinon.spy(function (uid) {
           return P.resolve([]);
         });
       });
 
-      it('invalidate cache', function(done) {
+      it('invalidate cache', function (done) {
         events.onData(
-          new Message(function() {
+          new Message(function () {
             var args = Server.server.methods.profileCache.drop.getCall(0).args;
             var callCount = Server.server.methods.profileCache.drop.callCount;
             assert.equal(callCount, 1);
@@ -255,7 +255,7 @@ describe('events', function() {
       });
     });
 
-    describe('should delete message on invalid uid', function() {
+    describe('should delete message on invalid uid', function () {
       function Message(type, onDel) {
         if (typeof type === 'function') {
           onDel = type;
@@ -268,17 +268,17 @@ describe('events', function() {
         };
       }
 
-      it('invalid uid', function(done) {
+      it('invalid uid', function (done) {
         events.onData(
-          new Message(function() {
+          new Message(function () {
             assert(true, 'message.del() should be called');
           })
         );
 
-        mock.log('events', function(record) {
+        mock.log('events', function (record) {
           if (record.levelname === 'WARN' && record.args[0] === 'getUserId') {
             assert.equal(record.args[1].userId, 'notahexuid');
-            setTimeout(function() {
+            setTimeout(function () {
               done();
             }, 1);
             return true;

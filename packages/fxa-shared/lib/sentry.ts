@@ -113,7 +113,7 @@ interface SentryMetrics {
  *
  * @constructor
  */
-const SentryMetrics = (function(this: SentryMetrics) {
+const SentryMetrics = (function (this: SentryMetrics) {
   this._logger = new Logger();
 } as any) as new () => SentryMetrics;
 
@@ -150,7 +150,7 @@ SentryMetrics.prototype = {
    */
   captureException(err: Error) {
     Sentry.withScope((scope: Sentry.Scope) => {
-      exceptionTags.forEach(tagName => {
+      exceptionTags.forEach((tagName) => {
         if (tagName in err) {
           scope.setTag(
             tagName,

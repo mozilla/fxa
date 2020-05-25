@@ -40,18 +40,18 @@
     "pm2": "^4.4.0",
     "prettier": "^2.0.5",
     "stylelint": "^13.3.3",
-    "stylelint-config-standard": "^20.0.0"
+    "stylelint-config-prettier": "^8.0.1"
   },
   "scripts": {
     "lint": "npm-run-all --parallel lint:eslint lint:style",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint:eslint": "eslint .",
-    "lint:style": "stylelint static/*.css",
+    "lint:style": "stylelint --config ../../_dev/.stylelintrc static/*.css",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "test": "npm run lint",
-    "format": "prettier '**' --write",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "dev": "nodemon server.js",
     "ui": "browser-sync start --proxy='localhost:9292' --files='**/*.css, **/*.ejs, **/*.js' --ignore=node_modules --port=5000 --no-open --serveStatic='static'"
   }

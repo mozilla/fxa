@@ -12,7 +12,7 @@ describe('lib/serverJWT', () => {
   describe('signJWT', () => {
     it('signs the JWT', async () => {
       const jsonwebtokenMock = {
-        sign: sinon.spy(function(claims, key, opts, callback) {
+        sign: sinon.spy(function (claims, key, opts, callback) {
           callback(null, 'j.w.t');
         }),
       };
@@ -39,7 +39,7 @@ describe('lib/serverJWT', () => {
     describe('signed with the current key', () => {
       it('returns the claims', async () => {
         const jsonwebtokenMock = {
-          verify: sinon.spy(function(jwt, key, opts, callback) {
+          verify: sinon.spy(function (jwt, key, opts, callback) {
             callback(null, { sub: 'foo' });
           }),
         };
@@ -68,7 +68,7 @@ describe('lib/serverJWT', () => {
     describe('signed with an old key', () => {
       it('returns the claims', async () => {
         const jsonwebtokenMock = {
-          verify: sinon.spy(function(jwt, key, opts, callback) {
+          verify: sinon.spy(function (jwt, key, opts, callback) {
             if (key === 'current') {
               callback(new Error('invalid signature'));
             } else {
@@ -113,7 +113,7 @@ describe('lib/serverJWT', () => {
     describe('no key found', () => {
       it('throws an `Invalid jwt` error', async () => {
         const jsonwebtokenMock = {
-          verify: sinon.spy(function(jwt, key, opts, callback) {
+          verify: sinon.spy(function (jwt, key, opts, callback) {
             callback(new Error('invalid signature'));
           }),
         };
@@ -134,7 +134,7 @@ describe('lib/serverJWT', () => {
     describe('invalid JWT', () => {
       it('re-throw the verification error', async () => {
         const jsonwebtokenMock = {
-          verify: sinon.spy(function(jwt, key, opts, callback) {
+          verify: sinon.spy(function (jwt, key, opts, callback) {
             callback(new Error('invalid sub'));
           }),
         };

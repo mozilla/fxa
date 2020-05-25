@@ -11,7 +11,7 @@ const sinon = require('sinon');
 describe('send-email-batch', () => {
   const batch = ['a', 'b', 'c'];
 
-  const sender = sinon.spy(userRecord => {
+  const sender = sinon.spy((userRecord) => {
     if (userRecord === 'c') {
       return Promise.reject(new Error('problem sending'));
     } else {

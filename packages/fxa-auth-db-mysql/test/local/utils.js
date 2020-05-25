@@ -8,7 +8,7 @@ const P = require('bluebird');
 describe('utils', () => {
   it('createHashScrypt', () => {
     const input = 'somethingcool';
-    return dbUtils.createHashScrypt(input).then(result => {
+    return dbUtils.createHashScrypt(input).then((result) => {
       assert.ok(result.hash, 'hash exists');
       assert.ok(result.salt, 'salt exists');
       assert.lengthOf(result.hash, 32);
@@ -34,11 +34,11 @@ describe('utils', () => {
     it('should fail for different input', () => {
       return dbUtils
         .compareHashScrypt(inputA, resultB.hash, resultB.salt)
-        .then(result => {
+        .then((result) => {
           assert.isFalse(result);
           return dbUtils.compareHashScrypt(inputB, resultA.hash, resultA.salt);
         })
-        .then(result => {
+        .then((result) => {
           assert.isFalse(result);
         });
     });
@@ -46,7 +46,7 @@ describe('utils', () => {
     it('should succeed for same input', () => {
       return dbUtils
         .compareHashScrypt(inputA, resultA.hash, resultA.salt)
-        .then(result => {
+        .then((result) => {
           assert.isTrue(result);
         });
     });
@@ -59,7 +59,7 @@ describe('utils', () => {
     before(() => {
       return dbUtils
         .generateRecoveryCodes(codeCount, codeLength)
-        .then(result => (codes = result));
+        .then((result) => (codes = result));
     });
 
     it('should generate correct count of codes', () => {
@@ -67,14 +67,14 @@ describe('utils', () => {
     });
 
     it('should generate correct length of code', () => {
-      codes.forEach(code => {
+      codes.forEach((code) => {
         assert.lengthOf(code, codeLength);
       });
     });
 
     it('should generate code in keyspace', () => {
       const reg = /[a-z0-9]/;
-      codes.forEach(code => {
+      codes.forEach((code) => {
         assert.match(code, reg);
       });
     });

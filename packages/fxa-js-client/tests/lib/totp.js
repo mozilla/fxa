@@ -7,7 +7,7 @@ const Environment = require('../addons/environment');
 
 const sinon = require('sinon');
 const otplib = require('otplib');
-describe('totp', function() {
+describe('totp', function () {
   var authenticator;
   var account;
   var accountHelper;
@@ -28,7 +28,7 @@ describe('totp', function() {
     service: 'sync',
   };
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -37,14 +37,14 @@ describe('totp', function() {
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(newAccount) {
+      .then(function (newAccount) {
         account = newAccount;
         return respond(
           client.createTotpToken(account.signIn.sessionToken),
           RequestMocks.createTotpToken
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.qrCodeUrl, 'should return QR code data encoded url');
         assert.ok(res.secret, 'should return secret that is encoded in url');
 
@@ -59,39 +59,39 @@ describe('totp', function() {
       });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     xhrOpen.restore();
     xhrSend.restore();
   });
 
-  it('#createTotpToken - fails if already exists', function() {
+  it('#createTotpToken - fails if already exists', function () {
     return respond(
       client.createTotpToken(account.signIn.sessionToken),
       RequestMocks.createTotpTokenDuplicate
-    ).then(assert.fail, function(err) {
+    ).then(assert.fail, function (err) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(xhrOpen.args[0][1], '/totp/create', 'path is correct');
       assert.equal(err.errno, 154, 'token already exists for account errno');
     });
   });
 
-  it('#deleteTotpToken', function() {
+  it('#deleteTotpToken', function () {
     return respond(
       client.deleteTotpToken(account.signIn.sessionToken),
       RequestMocks.deleteTotpToken
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(xhrOpen.args[0][1], '/totp/destroy', 'path is correct');
       assert.ok(res, 'should return empty response');
     });
   });
 
-  it('#checkTotpTokenExists - does not exist returns false', function() {
-    return accountHelper.newVerifiedAccount().then(function(newAccount) {
+  it('#checkTotpTokenExists - does not exist returns false', function () {
+    return accountHelper.newVerifiedAccount().then(function (newAccount) {
       return respond(
         client.checkTotpTokenExists(newAccount.signIn.sessionToken),
         RequestMocks.checkTotpTokenExistsFalse
-      ).then(function(res) {
+      ).then(function (res) {
         assert.equal(xhrOpen.args[4][0], 'GET', 'method is correct');
         assert.include(xhrOpen.args[4][1], '/totp/exists', 'path is correct');
         assert.equal(res.exists, false);
@@ -99,23 +99,23 @@ describe('totp', function() {
     });
   });
 
-  it('#checkTotpTokenExists - created token but not verified returns false', function() {
+  it('#checkTotpTokenExists - created token but not verified returns false', function () {
     return respond(
       client.checkTotpTokenExists(account.signIn.sessionToken),
       RequestMocks.checkTotpTokenExistsFalse
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'GET', 'method is correct');
       assert.include(xhrOpen.args[0][1], '/totp/exists', 'path is correct');
       assert.equal(res.exists, false);
     });
   });
 
-  it('#checkTotpTokenExists - verified token returns true', function() {
+  it('#checkTotpTokenExists - verified token returns true', function () {
     var code = authenticator.generate(secret);
     return respond(
       client.verifyTotpCode(account.signIn.sessionToken, code),
       RequestMocks.verifyTotpCodeTrue
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(
         xhrOpen.args[0][1],
@@ -130,7 +130,7 @@ describe('totp', function() {
       return respond(
         client.checkTotpTokenExists(account.signIn.sessionToken),
         RequestMocks.checkTotpTokenExistsTrue
-      ).then(function(res) {
+      ).then(function (res) {
         assert.equal(xhrOpen.args[1][0], 'GET', 'method is correct');
         assert.include(xhrOpen.args[1][1], '/totp/exists', 'path is correct');
         assert.equal(res.exists, true);
@@ -138,12 +138,12 @@ describe('totp', function() {
     });
   });
 
-  it('#verifyTotpCode - succeeds for valid code', function() {
+  it('#verifyTotpCode - succeeds for valid code', function () {
     var code = authenticator.generate(secret);
     return respond(
       client.verifyTotpCode(account.signIn.sessionToken, code, opts),
       RequestMocks.verifyTotpCodeTrue
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(
         xhrOpen.args[0][1],
@@ -159,13 +159,13 @@ describe('totp', function() {
     });
   });
 
-  it('#verifyTotpCode - fails for invalid code', function() {
+  it('#verifyTotpCode - fails for invalid code', function () {
     var code =
       authenticator.generate(secret) === '000000' ? '000001' : '000000';
     return respond(
       client.verifyTotpCode(account.signIn.sessionToken, code, opts),
       RequestMocks.verifyTotpCodeFalse
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(
         xhrOpen.args[0][1],

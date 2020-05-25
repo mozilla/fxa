@@ -61,7 +61,7 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
 
   heartbeat() {
     this.request(this._notificationChannel.COMMANDS.PAIR_HEARTBEAT).then(
-      response => {
+      (response) => {
         if (response.err) {
           this.stateMachine.heartbeatError(response.err);
         } else if (response.suppAuthorized) {
@@ -79,7 +79,7 @@ export default class AuthorityBroker extends BaseAuthenticationBroker {
 
     return this.request(
       this._notificationChannel.COMMANDS.PAIR_REQUEST_SUPPLICANT_METADATA
-    ).then(response => {
+    ).then((response) => {
       this.setRemoteMetaData(response);
       return this.get('remoteMetaData');
     });

@@ -6,7 +6,7 @@ const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
 const sinon = require('sinon');
-describe('session', function() {
+describe('session', function () {
   var accountHelper;
   var respond;
   var requests;
@@ -17,7 +17,7 @@ describe('session', function() {
   let env;
   let mail;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -31,43 +31,43 @@ describe('session', function() {
     mail = env.mail;
   });
 
-  afterEach(function() {
+  afterEach(function () {
     xhr.prototype.open.restore();
     xhr.prototype.send.restore();
   });
 
-  it('#destroy', function() {
+  it('#destroy', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.sessionDestroy(account.signIn.sessionToken),
           RequestMocks.sessionDestroy
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res, 'got response');
       }, assert.fail);
   });
 
-  it('#status', function() {
+  it('#status', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.sessionStatus(account.signIn.sessionToken),
           RequestMocks.sessionStatus
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.isNotNull(res);
       }, assert.fail);
   });
 
-  it('#status error with a false token', function() {
+  it('#status error with a false token', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function() {
+      .then(function () {
         var fakeToken =
           'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
 
@@ -76,22 +76,22 @@ describe('session', function() {
           ErrorMocks.invalidAuthToken
         );
       })
-      .then(assert.fail, function(err) {
+      .then(assert.fail, function (err) {
         assert.equal(err.code, 401);
         assert.equal(err.errno, 110);
       });
   });
 
-  it('#sessions', function() {
+  it('#sessions', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.sessions(account.signIn.sessionToken),
           RequestMocks.sessions
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.length, 2);
         var s = res[0];
         assert.ok(s.id);
@@ -102,30 +102,30 @@ describe('session', function() {
       }, assert.fail);
   });
 
-  it('#sessions error', function() {
+  it('#sessions error', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         var fakeToken =
           'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
 
         return respond(client.sessions(fakeToken), ErrorMocks.invalidAuthToken);
       })
-      .then(assert.fail, function(err) {
+      .then(assert.fail, function (err) {
         assert.equal(err.code, 401);
         assert.equal(err.errno, 110);
       });
   });
 
-  it('#reauth', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#reauth', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var email = account.input.email;
       var password = account.input.password;
 
       return respond(
         client.sessionReauth(account.signIn.sessionToken, email, password),
         RequestMocks.sessionReauth
-      ).then(function(res) {
+      ).then(function (res) {
         assert.ok(res.uid);
         assert.ok(res.verified);
         assert.ok(res.authAt);
@@ -146,8 +146,8 @@ describe('session', function() {
     });
   });
 
-  it('#reauth with keys', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#reauth with keys', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var email = account.input.email;
       var password = account.input.password;
 
@@ -156,7 +156,7 @@ describe('session', function() {
           keys: true,
         }),
         RequestMocks.sessionReauthWithKeys
-      ).then(function(res) {
+      ).then(function (res) {
         assert.ok(res.uid);
         assert.ok(res.verified);
         assert.ok(res.authAt);
@@ -177,8 +177,8 @@ describe('session', function() {
     });
   });
 
-  it('#reauth with incorrect password', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#reauth with incorrect password', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var email = account.input.email;
       var password = 'incorrect password';
 
@@ -186,10 +186,10 @@ describe('session', function() {
         client.sessionReauth(account.signIn.sessionToken, email, password),
         ErrorMocks.accountIncorrectPassword
       ).then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(res) {
+        function (res) {
           assert.equal(res.code, 400);
           assert.equal(res.errno, 103);
         }
@@ -197,8 +197,8 @@ describe('session', function() {
     });
   });
 
-  it('#reauth with incorrect email case', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#reauth with incorrect email case', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var numSetupRequests = requests ? requests.length : null;
       var sessionToken = account.signIn.sessionToken;
       var incorrectCaseEmail =
@@ -210,7 +210,7 @@ describe('session', function() {
       return respond(
         client.sessionReauth(sessionToken, incorrectCaseEmail, password),
         RequestMocks.sessionReauth
-      ).then(function(res) {
+      ).then(function (res) {
         assert.property(res, 'uid');
         assert.property(res, 'verified');
         assert.property(res, 'authAt');
@@ -245,8 +245,8 @@ describe('session', function() {
     });
   });
 
-  it('#reauth with incorrect email case with skipCaseError', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#reauth with incorrect email case with skipCaseError', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var numSetupRequests = requests ? requests.length : null;
       var sessionToken = account.signIn.sessionToken;
       var incorrectCaseEmail =
@@ -260,10 +260,10 @@ describe('session', function() {
         }),
         ErrorMocks.incorrectEmailCase
       ).then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(res) {
+        function (res) {
           assert.equal(res.code, 400);
           assert.equal(res.errno, 120);
 
@@ -287,8 +287,8 @@ describe('session', function() {
     });
   });
 
-  it('#reauth with all the options', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#reauth with all the options', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var sessionToken = account.signIn.sessionToken;
       var email = account.input.email;
       var password = account.input.password;
@@ -315,7 +315,7 @@ describe('session', function() {
       return respond(
         client.sessionReauth(sessionToken, email, password, options),
         RequestMocks.sessionReauthWithKeys
-      ).then(function(res) {
+      ).then(function (res) {
         assert.ok(res.uid);
         assert.ok(res.verified);
         assert.ok(res.authAt);

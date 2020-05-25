@@ -29,7 +29,7 @@ describe('lib/crypto/recovery-keys', () => {
 
   describe('generateRecoveryKey', () => {
     it('should generate base32 string', () => {
-      return RecoveryKeys.generateRecoveryKey(1000).then(key => {
+      return RecoveryKeys.generateRecoveryKey(1000).then((key) => {
         assert.ok(/[0-9A-Z]+$/.test(key), 'no lowercase letters');
         assert.equal(key.indexOf('I'), -1, 'no I');
         assert.equal(key.indexOf('L'), -1, 'no L');
@@ -39,19 +39,19 @@ describe('lib/crypto/recovery-keys', () => {
     });
 
     it('should prepend version', () => {
-      return RecoveryKeys.generateRecoveryKey(1000).then(key =>
+      return RecoveryKeys.generateRecoveryKey(1000).then((key) =>
         assert.equal(key.charAt(0), RecoveryKeys.getCurrentRecoveryKeyVersion())
       );
     });
 
     it('should have correct length', () => {
-      return RecoveryKeys.generateRecoveryKey(1000).then(key =>
+      return RecoveryKeys.generateRecoveryKey(1000).then((key) =>
         assert.lengthOf(key, 1000)
       );
     });
 
     it('should fail for length less than 27', () => {
-      return RecoveryKeys.generateRecoveryKey(26).then(assert.fail, err => {
+      return RecoveryKeys.generateRecoveryKey(26).then(assert.fail, (err) => {
         assert.equal(err.message, 'Recovery key length must be at least 27');
       });
     });
@@ -61,7 +61,7 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no uid', () => {
       return RecoveryKeys.getRecoveryJwk(undefined, recoveryKey).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.message, 'uid is required');
         }
       );
@@ -70,14 +70,14 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no recoveryKey', () => {
       return RecoveryKeys.getRecoveryJwk(uid, undefined).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.message, 'recoveryKey is required');
         }
       );
     });
 
     it('should create recoveryJwk', () => {
-      return RecoveryKeys.getRecoveryJwk(uid, recoveryKey).then(jwk => {
+      return RecoveryKeys.getRecoveryJwk(uid, recoveryKey).then((jwk) => {
         assert.ok(jwk, 'jwk returned');
         assert.equal(jwk.alg, 'A256GCM', 'correct algorithm');
         assert.equal(jwk.kty, 'oct', 'correct kty');
@@ -91,7 +91,7 @@ describe('lib/crypto/recovery-keys', () => {
     let recoveryJwk;
 
     beforeEach(() => {
-      return RecoveryKeys.getRecoveryJwk(uid, recoveryKey).then(result => {
+      return RecoveryKeys.getRecoveryJwk(uid, recoveryKey).then((result) => {
         recoveryJwk = result;
       });
     });
@@ -99,7 +99,7 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no recoveryJwk', () => {
       return RecoveryKeys.bundleRecoveryData(undefined, recoveryData).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.message, 'recoveryJwk is required');
         }
       );
@@ -110,7 +110,7 @@ describe('lib/crypto/recovery-keys', () => {
         recoveryJwk,
         recoveryData,
         encryptionOptions
-      ).then(bundle => {
+      ).then((bundle) => {
         assert.ok(bundle, 'bundle exists');
         assert.equal(bundle, expectedBundle, 'bundle are equal');
       });
@@ -122,17 +122,17 @@ describe('lib/crypto/recovery-keys', () => {
 
     beforeEach(() => {
       return RecoveryKeys.getRecoveryJwk(uid, recoveryKey)
-        .then(result => {
+        .then((result) => {
           recoveryJwk = result;
           return RecoveryKeys.bundleRecoveryData(recoveryJwk, recoveryData);
         })
-        .then(res => (recoveryBundle = res));
+        .then((res) => (recoveryBundle = res));
     });
 
     it('throws if no recoveryJwk', () => {
       return RecoveryKeys.unbundleRecoveryData(undefined, recoveryBundle).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.message, 'recoveryJwk is required');
         }
       );
@@ -141,7 +141,7 @@ describe('lib/crypto/recovery-keys', () => {
     it('throws if no recoveryBundle', () => {
       return RecoveryKeys.unbundleRecoveryData(recoveryJwk, undefined).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.message, 'recoveryBundle is required');
         }
       );
@@ -151,7 +151,7 @@ describe('lib/crypto/recovery-keys', () => {
       return RecoveryKeys.unbundleRecoveryData(
         recoveryJwk,
         recoveryBundle
-      ).then(bundle => {
+      ).then((bundle) => {
         assert.equal(
           bundle.kB,
           recoveryData.kB,
@@ -163,10 +163,10 @@ describe('lib/crypto/recovery-keys', () => {
     it('should fail to unbundle with incorrect recovery key', () => {
       const recoveryKey = '00000000000000000000000000';
       return RecoveryKeys.getRecoveryJwk(uid, recoveryKey)
-        .then(recoveryJwk => {
+        .then((recoveryJwk) => {
           return RecoveryKeys.unbundleRecoveryData(recoveryJwk, recoveryBundle);
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(
             err.message,
             'Failed to unbundle recovery data',
@@ -180,11 +180,11 @@ describe('lib/crypto/recovery-keys', () => {
     it('performs round trip check', () => {
       let recoveryKey, recoveryJwk;
       return RecoveryKeys.generateRecoveryKey(32)
-        .then(result => {
+        .then((result) => {
           recoveryKey = result;
           return RecoveryKeys.getRecoveryJwk(uid, recoveryKey);
         })
-        .then(result => {
+        .then((result) => {
           recoveryJwk = result;
           assert.ok(recoveryJwk, 'jwk returned');
           assert.ok(recoveryJwk.alg, 'A256GCM', 'correct algorithm');
@@ -192,11 +192,11 @@ describe('lib/crypto/recovery-keys', () => {
           assert.ok(recoveryJwk.kid);
           return RecoveryKeys.bundleRecoveryData(recoveryJwk, recoveryData);
         })
-        .then(recoveryBundle => {
+        .then((recoveryBundle) => {
           assert.ok(recoveryBundle, 'recoveryBundle returned');
           return RecoveryKeys.unbundleRecoveryData(recoveryJwk, recoveryBundle);
         })
-        .then(unbundledData => {
+        .then((unbundledData) => {
           assert.equal(unbundledData.kB, recoveryData.kB, 'data is unbundled');
         });
     });

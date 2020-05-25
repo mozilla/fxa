@@ -20,7 +20,7 @@ import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import Template from 'templates/sign_up_password.mustache';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const PASSWORD_INPUT_SELECTOR = '#password';
 const VPASSWORD_INPUT_SELECTOR = '#vpassword';

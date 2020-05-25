@@ -12,7 +12,7 @@ const randomBytes = require('../promise').promisify(
 const ALPHABET = '0123456789abcdefghjkmnpqrstvwxyz';
 
 function base32(len) {
-  return randomBytes(len).then(bytes => {
+  return randomBytes(len).then((bytes) => {
     const out = [];
 
     for (let i = 0; i < len; i++) {

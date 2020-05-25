@@ -4,8 +4,8 @@
 
 'use strict';
 
-module.exports = function(grunt) {
-  grunt.registerTask('webpack', 'Run webpack build', function() {
+module.exports = function (grunt) {
+  grunt.registerTask('webpack', 'Run webpack build', function () {
     var done = this.async();
     var child = grunt.util.spawn(
       {

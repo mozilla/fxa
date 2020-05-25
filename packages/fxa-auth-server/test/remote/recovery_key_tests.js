@@ -12,7 +12,7 @@ const Client = require('../client')();
 const P = require('bluebird');
 const jwtool = require('fxa-jwtool');
 
-describe('remote recovery keys', function() {
+describe('remote recovery keys', function () {
   this.timeout(10000);
 
   let server, client, email;
@@ -41,7 +41,7 @@ describe('remote recovery keys', function() {
   }
 
   before(() => {
-    return TestServer.start(config).then(s => (server = s));
+    return TestServer.start(config).then((s) => (server = s));
   });
 
   beforeEach(() => {
@@ -53,24 +53,24 @@ describe('remote recovery keys', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
 
         return client.keys();
       })
-      .then(result => {
+      .then((result) => {
         keys = result;
 
-        return createMockRecoveryKey(client.uid, keys.kB).then(result => {
+        return createMockRecoveryKey(client.uid, keys.kB).then((result) => {
           recoveryKeyId = result.recoveryKeyId;
           recoveryData = result.recoveryData;
           // Should create recovery key
           return client
             .createRecoveryKey(result.recoveryKeyId, result.recoveryData)
-            .then(res => assert.ok(res, 'empty response'))
+            .then((res) => assert.ok(res, 'empty response'))
             .then(() => server.mailbox.waitForEmail(email))
-            .then(emailData => {
+            .then((emailData) => {
               assert.equal(
                 emailData.headers['x-template-name'],
                 'postAddAccountRecovery'
@@ -83,7 +83,7 @@ describe('remote recovery keys', function() {
   it('should get recovery key', () => {
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey(recoveryKeyId))
-      .then(res => {
+      .then((res) => {
         assert.equal(res.recoveryData, recoveryData, 'recoveryData returned');
       });
   });
@@ -91,7 +91,7 @@ describe('remote recovery keys', function() {
   it('should fail to get unknown recovery key', () => {
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey('abce1234567890'))
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 159, 'recovery key is not valid');
       });
   });
@@ -99,7 +99,7 @@ describe('remote recovery keys', function() {
   it('should fail if recoveryKeyId is missing', () => {
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey(recoveryKeyId))
-      .then(res =>
+      .then((res) =>
         assert.equal(res.recoveryData, recoveryData, 'recoveryData returned')
       )
       .then(() =>
@@ -111,7 +111,7 @@ describe('remote recovery keys', function() {
           { keys: true }
         )
       )
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 107, 'invalid param');
       });
   });
@@ -119,7 +119,7 @@ describe('remote recovery keys', function() {
   it('should fail if wrapKb is missing', () => {
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey(recoveryKeyId))
-      .then(res =>
+      .then((res) =>
         assert.equal(res.recoveryData, recoveryData, 'recoveryData returned')
       )
       .then(() =>
@@ -131,7 +131,7 @@ describe('remote recovery keys', function() {
           { keys: true, undefinedWrapKb: true }
         )
       )
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 107, 'invalid param');
       });
   });
@@ -189,15 +189,15 @@ describe('remote recovery keys', function() {
   });
 
   it('should delete recovery key', () => {
-    return client.deleteRecoveryKey().then(res => {
+    return client.deleteRecoveryKey().then((res) => {
       assert.ok(res, 'empty response');
       return client
         .getRecoveryKeyExists()
-        .then(result => {
+        .then((result) => {
           assert.equal(result.exists, false, 'recovery key deleted');
         })
         .then(() => server.mailbox.waitForEmail(email))
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(
             emailData.headers['x-template-name'],
             'postRemoveAccountRecovery'
@@ -207,12 +207,12 @@ describe('remote recovery keys', function() {
   });
 
   it('should fail to create recovery key when one already exists', () => {
-    return createMockRecoveryKey(client.uid, keys.kB).then(result => {
+    return createMockRecoveryKey(client.uid, keys.kB).then((result) => {
       recoveryKeyId = result.recoveryKeyId;
       recoveryData = result.recoveryData;
       return client
         .createRecoveryKey(result.recoveryKeyId, result.recoveryData)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(err.errno, 161, 'correct errno');
         });
     });
@@ -221,7 +221,7 @@ describe('remote recovery keys', function() {
   describe('check recovery key status', () => {
     describe('with sessionToken', () => {
       it('should return true if recovery key exists and enabled', () => {
-        return client.getRecoveryKeyExists().then(res => {
+        return client.getRecoveryKeyExists().then((res) => {
           assert.equal(res.exists, true, 'recovery key exists');
         });
       });
@@ -235,11 +235,11 @@ describe('remote recovery keys', function() {
           server.mailbox,
           { keys: true }
         )
-          .then(c => {
+          .then((c) => {
             client = c;
             return client.getRecoveryKeyExists();
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.exists, false, 'recovery key doesnt exists');
           });
       });
@@ -271,7 +271,7 @@ describe('remote recovery keys', function() {
 
     describe('with email', () => {
       it('should return true if recovery key exists', () => {
-        return client.getRecoveryKeyExists(email).then(res => {
+        return client.getRecoveryKeyExists(email).then((res) => {
           assert.equal(res.exists, true, 'recovery key exists');
         });
       });
@@ -285,11 +285,11 @@ describe('remote recovery keys', function() {
           server.mailbox,
           { keys: true }
         )
-          .then(c => {
+          .then((c) => {
             client = c;
             return client.getRecoveryKeyExists(email);
           })
-          .then(res => {
+          .then((res) => {
             assert.equal(res.exists, false, "recovery key doesn't exist");
           });
       });
@@ -305,7 +305,7 @@ function getAccountResetToken(client, server, email) {
   return client
     .forgotPassword()
     .then(() => server.mailbox.waitForCode(email))
-    .then(code =>
+    .then((code) =>
       client.verifyPasswordResetCode(
         code,
         {},

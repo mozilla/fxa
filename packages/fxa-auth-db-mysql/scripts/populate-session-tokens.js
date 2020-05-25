@@ -35,7 +35,7 @@ var count = parseInt(process.argv[2]);
 
 if (count > 0) {
   DB.connect(config)
-    .then(function(db) {
+    .then(function (db) {
       iterate(0);
 
       function iterate(index) {
@@ -50,7 +50,7 @@ if (count > 0) {
       function createRecords(index) {
         var uid = crypto.randomBytes(16);
         return createAccount(uid)
-          .then(function() {
+          .then(function () {
             if (index % 6 === 0) {
               // One sixth of accounts will have three session tokens
               // and three devices. Two of the devices are attached to
@@ -72,7 +72,7 @@ if (count > 0) {
               return createSessionTokenAndDevice(uid, null);
             }
           })
-          .catch(function(error) {
+          .catch(function (error) {
             log.error(error);
           });
       }
@@ -97,7 +97,7 @@ if (count > 0) {
       }
 
       function createSessionTokenAndDevice(uid, uaDeviceType) {
-        return createSessionToken(uid, uaDeviceType).then(function(
+        return createSessionToken(uid, uaDeviceType).then(function (
           sessionTokenId
         ) {
           return createDevice(uid, sessionTokenId, uaDeviceType);
@@ -117,7 +117,7 @@ if (count > 0) {
             uaOSVersion: 'qux',
             uaDeviceType: uaDeviceType,
           })
-          .then(function() {
+          .then(function () {
             return sessionTokenId;
           });
       }
@@ -135,7 +135,7 @@ if (count > 0) {
         });
       }
     })
-    .catch(function(err) {
+    .catch(function (err) {
       log.error(err.stack || err.message || err);
       process.exit();
     });

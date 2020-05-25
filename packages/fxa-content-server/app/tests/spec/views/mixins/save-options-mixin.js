@@ -25,13 +25,13 @@ describe('views/mixins/save-options-mixin', () => {
 
   beforeEach(() => {
     view = new View({});
-    sinon.stub(view, 'translate').callsFake(msg => `translated ${msg}`);
+    sinon.stub(view, 'translate').callsFake((msg) => `translated ${msg}`);
     sandbox = sinon.sandbox.create();
 
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 

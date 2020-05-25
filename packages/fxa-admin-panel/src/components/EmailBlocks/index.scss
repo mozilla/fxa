@@ -30,10 +30,14 @@
   }
 
   &-search-button {
-    background: 15px 12px no-repeat url('../../images/icon-search.svg') var(--color-black-05);
+    background: 15px 12px no-repeat url('../../images/icon-search.svg')
+      var(--color-black-05);
     border: var(--input-border-width) solid var(--color-black-20);
     border-left: 0;
-    height: calc(var(--input-height) + calc(var(--input-border-width) * 2) + calc(var(--input-padding-y) * 2));
+    height: calc(
+      var(--input-height) + calc(var(--input-border-width) * 2) +
+        calc(var(--input-padding-y) * 2)
+    );
     transition: var(--transition-duration) background-color;
     width: 45px;
 

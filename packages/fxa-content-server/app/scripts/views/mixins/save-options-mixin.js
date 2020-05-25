@@ -10,7 +10,7 @@
 import $ from 'jquery';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const Mixin = {
   dependsOn: [UserAgentMixin],
@@ -42,9 +42,7 @@ const Mixin = {
       selection.addRange(range);
       el.setSelectionRange(0, 999999);
     } else {
-      this.$('textArea.temporary-copy-text-area')
-        .select()
-        .focus();
+      this.$('textArea.temporary-copy-text-area').select().focus();
     }
 
     try {
@@ -115,9 +113,7 @@ const Mixin = {
 
     successBanner.addClass('hidden');
 
-    this.$('.error')
-      .removeClass('hidden')
-      .text(this.translate(msg));
+    this.$('.error').removeClass('hidden').text(this.translate(msg));
   },
 };
 

@@ -31,7 +31,7 @@ const {
 const ENTER_EMAIL_URL = config.fxaContentRoot;
 
 function testAtConfirmScreen(email) {
-  return function() {
+  return function () {
     return this.parent
       .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
       .then(
@@ -41,13 +41,13 @@ function testAtConfirmScreen(email) {
 }
 
 registerSuite('signup with code', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'bounced email': function() {
+    'bounced email': function () {
       const client = getFxaClient();
       return (
         this.remote
@@ -61,7 +61,7 @@ registerSuite('signup with code', {
       );
     },
 
-    'valid code then click back': function() {
+    'valid code then click back': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
@@ -74,13 +74,13 @@ registerSuite('signup with code', {
         .then(testAtConfirmScreen(email));
     },
 
-    'invalid code': function() {
+    'invalid code': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(testAtConfirmScreen(email))
         .then(getSignupCode(email, 0))
-        .then(code => {
+        .then((code) => {
           code = code === '123123' ? '123124' : '123123';
           return this.remote.then(
             type(selectors.SIGNIN_TOKEN_CODE.INPUT, code)

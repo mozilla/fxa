@@ -12,7 +12,7 @@ function ProfileClient(options) {
   this.profileUrl = options.profileUrl;
 }
 
-ProfileClient.prototype._request = function(
+ProfileClient.prototype._request = function (
   path,
   type,
   accessToken,
@@ -28,13 +28,13 @@ ProfileClient.prototype._request = function(
   };
 
   return xhr.oauthAjax(request).then(
-    function(result) {
+    function (result) {
       if (result.error) {
         throw ProfileErrors.toError(result);
       }
       return result;
     },
-    function(xhr) {
+    function (xhr) {
       throw ProfileErrors.normalizeXHRError(xhr);
     }
   );
@@ -42,29 +42,29 @@ ProfileClient.prototype._request = function(
 
 // Returns the user's profile data
 // including: email, uid, displayName, avatar
-ProfileClient.prototype.getProfile = function(accessToken) {
+ProfileClient.prototype.getProfile = function (accessToken) {
   return this._request('/v1/profile', 'get', accessToken);
 };
 
-ProfileClient.prototype.getAvatar = function(accessToken) {
+ProfileClient.prototype.getAvatar = function (accessToken) {
   return this._request('/v1/avatar', 'get', accessToken);
 };
 
-ProfileClient.prototype.deleteAvatar = function(accessToken, id) {
+ProfileClient.prototype.deleteAvatar = function (accessToken, id) {
   return this._request('/v1/avatar/' + id, 'delete', accessToken);
 };
 
-ProfileClient.prototype.uploadAvatar = function(accessToken, data) {
+ProfileClient.prototype.uploadAvatar = function (accessToken, data) {
   return this._request('/v1/avatar/upload', 'post', accessToken, data, {
     'Content-type': data.type,
   });
 };
 
-ProfileClient.prototype.getDisplayName = function(accessToken) {
+ProfileClient.prototype.getDisplayName = function (accessToken) {
   return this._request('/v1/display_name', 'get', accessToken);
 };
 
-ProfileClient.prototype.postDisplayName = function(accessToken, displayName) {
+ProfileClient.prototype.postDisplayName = function (accessToken, displayName) {
   return this._request('/v1/display_name', 'post', accessToken, {
     displayName: displayName,
   });

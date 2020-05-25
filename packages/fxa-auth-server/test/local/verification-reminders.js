@@ -92,7 +92,7 @@ describe('lib/verification-reminders:', () => {
       assert.deepEqual(createResult, EXPECTED_CREATE_DELETE_RESULT);
     });
 
-    REMINDERS.forEach(reminder => {
+    REMINDERS.forEach((reminder) => {
       it(`wrote ${reminder} reminder to redis`, async () => {
         const reminders = await redis.zrange(reminder, 0, -1);
         assert.deepEqual(reminders, ['wibble']);
@@ -115,7 +115,7 @@ describe('lib/verification-reminders:', () => {
         assert.deepEqual(deleteResult, EXPECTED_CREATE_DELETE_RESULT);
       });
 
-      REMINDERS.forEach(reminder => {
+      REMINDERS.forEach((reminder) => {
         it(`removed ${reminder} reminder from redis`, async () => {
           const reminders = await redis.zrange(reminder, 0, -1);
           assert.lengthOf(reminders, 0);
@@ -130,7 +130,7 @@ describe('lib/verification-reminders:', () => {
     describe('process:', () => {
       let before, processResult;
 
-      beforeEach(done => {
+      beforeEach((done) => {
         before = Date.now();
         verificationReminders.create('blee').then(() => {
           setTimeout(async () => {
@@ -187,7 +187,7 @@ describe('lib/verification-reminders:', () => {
         assert.deepEqual(processResult.third, []);
       });
 
-      REMINDERS.forEach(reminder => {
+      REMINDERS.forEach((reminder) => {
         if (reminder !== 'third') {
           it(`removed ${reminder} reminder from redis correctly`, async () => {
             const reminders = await redis.zrange(reminder, 0, -1);
@@ -256,7 +256,7 @@ describe('lib/verification-reminders:', () => {
       assert.deepEqual(createResult, EXPECTED_CREATE_DELETE_RESULT);
     });
 
-    REMINDERS.forEach(reminder => {
+    REMINDERS.forEach((reminder) => {
       it(`wrote ${reminder} reminder to redis`, async () => {
         const reminders = await redis.zrange(reminder, 0, -1);
         assert.deepEqual(reminders, ['wibble']);
@@ -279,7 +279,7 @@ describe('lib/verification-reminders:', () => {
         assert.deepEqual(deleteResult, EXPECTED_CREATE_DELETE_RESULT);
       });
 
-      REMINDERS.forEach(reminder => {
+      REMINDERS.forEach((reminder) => {
         it(`removed ${reminder} reminder from redis`, async () => {
           const reminders = await redis.zrange(reminder, 0, -1);
           assert.lengthOf(reminders, 0);
@@ -299,7 +299,7 @@ describe('lib/verification-reminders:', () => {
     describe('process:', () => {
       let processResult;
 
-      beforeEach(done => {
+      beforeEach((done) => {
         setTimeout(async () => {
           processResult = await verificationReminders.process();
           done();
@@ -322,7 +322,7 @@ describe('lib/verification-reminders:', () => {
         assert.deepEqual(processResult.third, []);
       });
 
-      REMINDERS.forEach(reminder => {
+      REMINDERS.forEach((reminder) => {
         if (reminder !== 'third') {
           it(`removed ${reminder} reminder from redis correctly`, async () => {
             const reminders = await redis.zrange(reminder, 0, -1);
@@ -392,7 +392,7 @@ describe('lib/verification-reminders:', () => {
       describe('process:', () => {
         let secondProcessResult;
 
-        beforeEach(done => {
+        beforeEach((done) => {
           setTimeout(async () => {
             secondProcessResult = await verificationReminders.process();
             done();

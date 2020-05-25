@@ -34,7 +34,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('signin blocked', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('blocked{id}');
 
     return this.remote
@@ -43,7 +43,7 @@ registerSuite('signin blocked', {
   },
 
   tests: {
-    'valid code entered': function() {
+    'valid code entered': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -57,7 +57,7 @@ registerSuite('signin blocked', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'valid code with whitespace at the beginning entered': function() {
+    'valid code with whitespace at the beginning entered': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -67,7 +67,7 @@ registerSuite('signin blocked', {
           testElementTextInclude(selectors.SIGNIN_UNBLOCK.VERIFICATION, email)
         )
         .then(getUnblockInfo(email, 0))
-        .then(function(unblockInfo) {
+        .then(function (unblockInfo) {
           return this.parent.then(
             type(
               selectors.SIGNIN_UNBLOCK.UNBLOCK_CODE,
@@ -80,7 +80,7 @@ registerSuite('signin blocked', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'valid code with whitespace at the end entered': function() {
+    'valid code with whitespace at the end entered': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -90,7 +90,7 @@ registerSuite('signin blocked', {
           testElementTextInclude(selectors.SIGNIN_UNBLOCK.VERIFICATION, email)
         )
         .then(getUnblockInfo(email, 0))
-        .then(function(unblockInfo) {
+        .then(function (unblockInfo) {
           return this.parent.then(
             type(
               selectors.SIGNIN_UNBLOCK.UNBLOCK_CODE,
@@ -103,7 +103,7 @@ registerSuite('signin blocked', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'invalid code entered': function() {
+    'invalid code entered': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -121,7 +121,7 @@ registerSuite('signin blocked', {
         );
     },
 
-    'incorrect code entered': function() {
+    'incorrect code entered': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -135,7 +135,7 @@ registerSuite('signin blocked', {
         .then(visibleByQSA(selectors.SIGNIN_UNBLOCK.ERROR))
         .then(testErrorTextInclude('invalid'))
         .then(getUnblockInfo(email, 0))
-        .then(function(unblockInfo) {
+        .then(function (unblockInfo) {
           return this.parent.then(
             type(selectors.SIGNIN_UNBLOCK.UNBLOCK_CODE, unblockInfo.unblockCode)
           );
@@ -145,7 +145,7 @@ registerSuite('signin blocked', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'incorrect password entered': function() {
+    'incorrect password entered': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -178,7 +178,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    resend: function() {
+    resend: function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -195,7 +195,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    'report signin success': function() {
+    'report signin success': function () {
       let unblockCode;
       return (
         this.remote
@@ -204,7 +204,7 @@ registerSuite('signin blocked', {
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(getUnblockInfo(email, 0))
-          .then(function(unblockInfo) {
+          .then(function (unblockInfo) {
             unblockCode = unblockInfo.unblockCode;
             return this.parent.then(openTab(unblockInfo.reportSignInLink));
           })
@@ -218,7 +218,7 @@ registerSuite('signin blocked', {
           .then(closeCurrentWindow())
 
           // try to use the code that was reported, it should error
-          .then(function() {
+          .then(function () {
             return this.parent.then(
               type(selectors.SIGNIN_UNBLOCK.UNBLOCK_CODE, unblockCode)
             );
@@ -229,7 +229,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    'report signin link unblockCode broken': function() {
+    'report signin link unblockCode broken': function () {
       let unblockCode;
       return (
         this.remote
@@ -238,7 +238,7 @@ registerSuite('signin blocked', {
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(getUnblockInfo(email, 0))
-          .then(function(unblockInfo) {
+          .then(function (unblockInfo) {
             unblockCode = unblockInfo.unblockCode;
             const invalidLink = unblockInfo.reportSignInLink.replace(
               /unblockCode=[^&]+/,
@@ -252,7 +252,7 @@ registerSuite('signin blocked', {
           .then(closeCurrentWindow())
 
           // code can still be used
-          .then(function() {
+          .then(function () {
             return this.parent.then(
               type(selectors.SIGNIN_UNBLOCK.UNBLOCK_CODE, unblockCode)
             );
@@ -263,7 +263,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    'report signin link uid broken': function() {
+    'report signin link uid broken': function () {
       let unblockCode;
       return (
         this.remote
@@ -272,7 +272,7 @@ registerSuite('signin blocked', {
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(getUnblockInfo(email, 0))
-          .then(function(unblockInfo) {
+          .then(function (unblockInfo) {
             unblockCode = unblockInfo.unblockCode;
             const invalidLink = unblockInfo.reportSignInLink.replace(
               /uid=[^&]+/,
@@ -286,7 +286,7 @@ registerSuite('signin blocked', {
           .then(closeCurrentWindow())
 
           // code can still be used
-          .then(function() {
+          .then(function () {
             return this.parent.then(
               type(selectors.SIGNIN_UNBLOCK.UNBLOCK_CODE, unblockCode)
             );
@@ -297,7 +297,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    'report link opened after code used': function() {
+    'report link opened after code used': function () {
       let reportSignInLink;
       return (
         this.remote
@@ -306,7 +306,7 @@ registerSuite('signin blocked', {
 
           .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
           .then(getUnblockInfo(email, 0))
-          .then(function(unblockInfo) {
+          .then(function (unblockInfo) {
             reportSignInLink = unblockInfo.reportSignInLink;
             return this.parent.then(
               type(
@@ -319,7 +319,7 @@ registerSuite('signin blocked', {
 
           .then(testElementExists(selectors.SETTINGS.HEADER))
 
-          .then(function() {
+          .then(function () {
             return this.parent.then(
               openPage(reportSignInLink, '#fxa-report-sign-in-header')
             );
@@ -331,7 +331,7 @@ registerSuite('signin blocked', {
       );
     },
 
-    unverified: function() {
+    unverified: function () {
       email = createEmail('blocked{id}');
 
       return (

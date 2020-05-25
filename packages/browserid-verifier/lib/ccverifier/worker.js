@@ -6,12 +6,12 @@ const LocalVerifier = require('browserid-local-verify');
 
 var verifier = new LocalVerifier();
 
-process.on('message', function(message) {
+process.on('message', function (message) {
   if (!message.args) {
     message.args = {};
   }
   try {
-    verifier.verify(message.args, function(err, res) {
+    verifier.verify(message.args, function (err, res) {
       if (err) {
         return process.send({ err: err });
       }
@@ -22,6 +22,6 @@ process.on('message', function(message) {
   }
 });
 
-process.on('uncaughtException', function() {
+process.on('uncaughtException', function () {
   process.exit(8);
 });

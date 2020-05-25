@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.config('localeschema', {
     app: {
       files: [
@@ -19,8 +19,8 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(
     'localeschema',
     'Create a JSON schema file from the template .pot file.',
-    function() {
-      this.files.forEach(function(file) {
+    function () {
+      this.files.forEach(function (file) {
         var src = file.orig.src[0];
         var dest = file.dest;
         var schema = createSchema(src);
@@ -39,7 +39,7 @@ module.exports = function(grunt) {
       required: keys,
     };
 
-    keys.forEach(function(key) {
+    keys.forEach(function (key) {
       var value = data[key];
       schema.properties[key] = { type: typeof value };
     });

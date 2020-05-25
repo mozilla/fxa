@@ -28,7 +28,7 @@ const FUZZY_EVENTS = new Map([
     // Emit events from the front-end as `amplitude.${GROUP}.${EVENT}`
     /^amplitude\.([\w-]+)\.([\w-]+)$/,
     {
-      group: group => GROUPS[group],
+      group: (group) => GROUPS[group],
       event: (group, event) => toSnakeCase(event),
     },
   ],
@@ -115,7 +115,7 @@ module.exports = (event, request, data) => {
         // that the schema is not too strict against existing events.  We'll
         // update the schema accordingly.  And allow the events in the
         // meantime.
-        Sentry.withScope(scope => {
+        Sentry.withScope((scope) => {
           scope.setContext('amplitude.validationError', {
             event_type: amplitudeEvent.event_type,
             flow_id: amplitudeEvent.user_properties.flow_id,

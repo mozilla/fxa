@@ -6,8 +6,8 @@ import { assert } from 'chai';
 import NavigateBehavior from 'views/behaviors/navigate';
 import sinon from 'sinon';
 
-describe('views/behaviors/navigate', function() {
-  it('navigates to the indicated view, passing in success/error options', function() {
+describe('views/behaviors/navigate', function () {
+  it('navigates to the indicated view, passing in success/error options', function () {
     const options = {
       error: 'error',
       success: 'success',

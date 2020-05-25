@@ -132,7 +132,7 @@ describe('oauth/scopes:', () => {
       'http://identity.mozilla.com/apps/old:sync',
     ];
 
-    INVALID_SCOPE_VALUES.forEach(source => {
+    INVALID_SCOPE_VALUES.forEach((source) => {
       it(`scope "${source}" is invalid`, () => {
         assert.throws(
           () => scopes.fromString(source),
@@ -142,7 +142,7 @@ describe('oauth/scopes:', () => {
       });
     });
 
-    INVALID_SCOPE_VALUES.forEach(source => {
+    INVALID_SCOPE_VALUES.forEach((source) => {
       source = encodeURIComponent(source);
       it(`url-encoded scope "${source}" is invalid`, () => {
         assert.throws(
@@ -161,7 +161,7 @@ describe('oauth/scopes:', () => {
       encodeURIComponent('http://identity.mozilla.com/apps/oldsync#read+write'),
     ];
 
-    INVALID_SCOPE_VALUES_WHEN_URIENCODED.forEach(source => {
+    INVALID_SCOPE_VALUES_WHEN_URIENCODED.forEach((source) => {
       it(`url-encoded scope "${source}" is invalid`, () => {
         assert.throws(
           () => scopes.fromURLEncodedString(source),

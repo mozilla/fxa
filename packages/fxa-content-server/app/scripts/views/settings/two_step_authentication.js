@@ -15,7 +15,7 @@ import preventDefaultThen from '../decorators/prevent_default_then';
 import showProgressIndicator from '../decorators/progress_indicator';
 import { check } from '../../lib/crypto/totp';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const CODE_REFRESH_SELECTOR = 'button.settings-button.totp-refresh';
@@ -41,7 +41,7 @@ const View = FormView.extend({
 
   _checkTokenExists() {
     const account = this.getSignedInAccount();
-    return account.checkTotpTokenExists().then(result => {
+    return account.checkTotpTokenExists().then((result) => {
       this._hasToken = result.exists && result.verified;
     });
   },
@@ -75,13 +75,13 @@ const View = FormView.extend({
 
   _replaceRecoveryCodes() {
     const account = this.getSignedInAccount();
-    return account.replaceRecoveryCodes().then(result => {
+    return account.replaceRecoveryCodes().then((result) => {
       this._showRecoveryCodes(result.recoveryCodes);
     });
   },
 
   beforeRender() {
-    return this.setupSessionGateIfRequired().then(isEnabled => {
+    return this.setupSessionGateIfRequired().then((isEnabled) => {
       if (isEnabled) {
         return this._checkTokenExists();
       }
@@ -115,7 +115,7 @@ const View = FormView.extend({
     this.listenTo(account, 'change:totpVerified', this.refresh);
     this.$el.find(SETTINGS_UNIT_DETAILS).hide();
     this.$el.find(LOADING_INDICATOR_BUTTON).show();
-    return account.createTotpToken().then(result => {
+    return account.createTotpToken().then((result) => {
       this._recoveryCodes = result.recoveryCodes;
       this.$el.find(SETTINGS_UNIT_DETAILS).show();
       this.$el.find(LOADING_INDICATOR_BUTTON).hide();
@@ -152,7 +152,7 @@ const View = FormView.extend({
     const secret = this.model.get('secret');
 
     //preverify code
-    return this.checkCode(secret, code).then(ok => {
+    return this.checkCode(secret, code).then((ok) => {
       if (!ok) {
         return this.showValidationError(
           this.$(CODE_INPUT_SELECTOR),
@@ -169,7 +169,7 @@ const View = FormView.extend({
   },
 
   refresh: showProgressIndicator(
-    function() {
+    function () {
       this.setLastCheckedTime();
       return this.render();
     },

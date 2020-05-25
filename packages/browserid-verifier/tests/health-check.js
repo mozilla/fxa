@@ -10,19 +10,19 @@ var Verifier = require('./lib/verifier.js'),
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('health check', function() {
+describe('health check', function () {
   var verifier = new Verifier();
 
-  it('test server should start', function(done) {
+  it('test server should start', function (done) {
     verifier.start(done);
   });
 
-  it('health check should return OK', function(done) {
+  it('health check should return OK', function (done) {
     request(
       {
         url: verifier.baseurl() + '/status',
       },
-      function(err, r) {
+      function (err, r) {
         r.statusCode.should.equal(200);
         r.body.should.equal('OK');
         shouldReturnSecurityHeaders(r);
@@ -31,12 +31,12 @@ describe('health check', function() {
     );
   });
 
-  it('__heartbeat__ should return success', function(done) {
+  it('__heartbeat__ should return success', function (done) {
     request(
       {
         url: verifier.baseurl() + '/__heartbeat__',
       },
-      function(err, r) {
+      function (err, r) {
         r.statusCode.should.equal(200);
         r.body.should.equal('{}');
         shouldReturnSecurityHeaders(r);
@@ -45,12 +45,12 @@ describe('health check', function() {
     );
   });
 
-  it('__lbheartbeat__ should return success', function(done) {
+  it('__lbheartbeat__ should return success', function (done) {
     request(
       {
         url: verifier.baseurl() + '/__lbheartbeat__',
       },
-      function(err, r) {
+      function (err, r) {
         r.statusCode.should.equal(200);
         r.body.should.equal('{}');
         shouldReturnSecurityHeaders(r);
@@ -59,12 +59,12 @@ describe('health check', function() {
     );
   });
 
-  it('__version__ should return version info', function(done) {
+  it('__version__ should return version info', function (done) {
     request(
       {
         url: verifier.baseurl() + '/__version__',
       },
-      function(err, r) {
+      function (err, r) {
         r.statusCode.should.equal(200);
         var obj = JSON.parse(r.body);
         obj.version.should.match(/^[0-9.]+$/);
@@ -76,12 +76,12 @@ describe('health check', function() {
     );
   });
 
-  it('__version__ should return version info (cached)', function(done) {
+  it('__version__ should return version info (cached)', function (done) {
     request(
       {
         url: verifier.baseurl() + '/__version__',
       },
-      function(err, r) {
+      function (err, r) {
         r.statusCode.should.equal(200);
         var obj = JSON.parse(r.body);
         obj.version.should.match(/^[0-9.]+$/);
@@ -93,7 +93,7 @@ describe('health check', function() {
     );
   });
 
-  it('test server should stop', function(done) {
+  it('test server should stop', function (done) {
     verifier.stop(done);
   });
 });

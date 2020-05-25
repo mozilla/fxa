@@ -20,13 +20,13 @@ const QUERY_FLOW_ID =
 const RESUME_FLOW_ID =
   '71031D71031D71031D71031D71031D71031D71031D71031D71031D71031D7103';
 
-describe('models/flow', function() {
+describe('models/flow', function () {
   var flow;
   var sentryMetricsMock;
   var windowMock;
   var metricsMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sentryMetricsMock = {
       captureException: sinon.spy(),
     };
@@ -34,9 +34,7 @@ describe('models/flow', function() {
       markEventLogged: sinon.spy(),
     };
     windowMock = new WindowMock();
-    $(windowMock.document.body)
-      .removeData('flowId')
-      .removeAttr('data-flow-id');
+    $(windowMock.document.body).removeData('flowId').removeAttr('data-flow-id');
     $(windowMock.document.body)
       .removeData('flowBegin')
       .removeAttr('data-flow-begin');
@@ -50,11 +48,11 @@ describe('models/flow', function() {
     });
   }
 
-  afterEach(function() {
+  afterEach(function () {
     flow = null;
   });
 
-  it('fetches from the `resume` search parameter, if available', function() {
+  it('fetches from the `resume` search parameter, if available', function () {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({
         deviceId: DEVICE_ID,
@@ -70,7 +68,7 @@ describe('models/flow', function() {
     assert.equal(flow.get('flowBegin'), 42);
   });
 
-  it('fetches from body data attributes, if available', function() {
+  it('fetches from body data attributes, if available', function () {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
@@ -81,7 +79,7 @@ describe('models/flow', function() {
     assert.equal(flow.get('flowBegin'), 42);
   });
 
-  it('gives preference to values from the `resume` search parameter', function() {
+  it('gives preference to values from the `resume` search parameter', function () {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({
         flowBegin: 42,
@@ -98,7 +96,7 @@ describe('models/flow', function() {
     assert.equal(flow.get('flowBegin'), 42);
   });
 
-  it('fetches from query parameters, if available', function() {
+  it('fetches from query parameters, if available', function () {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
@@ -141,7 +139,7 @@ describe('models/flow', function() {
     assert.equal(metricsMock.markEventLogged.callCount, 1);
   });
 
-  it('logs an error when the resume token contains `flowId` but not `flowBegin`', function() {
+  it('logs an error when the resume token contains `flowId` but not `flowBegin`', function () {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({
         deviceId: DEVICE_ID,
@@ -164,7 +162,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when the resume token contains `flowBegin` but not `flowId`', function() {
+  it('logs an error when the resume token contains `flowBegin` but not `flowId`', function () {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({ deviceId: DEVICE_ID, flowBegin: 42 }),
     });
@@ -184,7 +182,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs an error when the DOM contains `flowId` but not `flowBegin`', function() {
+  it('logs an error when the DOM contains `flowId` but not `flowBegin`', function () {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
 
     createFlow();
@@ -199,7 +197,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when the DOM contains `flowBegin` but not `flowId`', function() {
+  it('logs an error when the DOM contains `flowBegin` but not `flowId`', function () {
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
     createFlow();
@@ -214,7 +212,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs two errors when there is no flow data available', function() {
+  it('logs two errors when there is no flow data available', function () {
     createFlow();
 
     assert.match(flow.get('deviceId'), /^[0-9a-f]{32}$/);
@@ -234,7 +232,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when `data-flow-id` is too short', function() {
+  it('logs an error when `data-flow-id` is too short', function () {
     $(windowMock.document.body).attr('data-flow-id', '123456');
     $(windowMock.document.body).attr('data-flow-begin', '42');
 
@@ -250,7 +248,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs an error when `data-flow-id` is not a hex string', function() {
+  it('logs an error when `data-flow-id` is not a hex string', function () {
     $(windowMock.document.body).attr(
       'data-flow-id',
       BODY_FLOW_ID.substr(0, 63) + 'X'
@@ -269,7 +267,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowId');
   });
 
-  it('logs an error when `data-flow-begin` is not a number', function() {
+  it('logs an error when `data-flow-begin` is not a number', function () {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', 'forty-two');
 
@@ -285,7 +283,7 @@ describe('models/flow', function() {
     assert.strictEqual(args[0].property, 'flowBegin');
   });
 
-  it('logs an error when `data-flow-begin` is not an integer', function() {
+  it('logs an error when `data-flow-begin` is not an integer', function () {
     $(windowMock.document.body).attr('data-flow-id', BODY_FLOW_ID);
     $(windowMock.document.body).attr('data-flow-begin', '3.14159265');
 

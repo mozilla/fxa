@@ -16,7 +16,7 @@ import Session from '../lib/session';
 import Template from 'templates/confirm_reset_password.mustache';
 import { VERIFICATION_POLL_IN_MS } from '../lib/constants';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const View = BaseView.extend({
   template: Template,
@@ -57,7 +57,7 @@ const View = BaseView.extend({
     // The password reset success messaging will change depending on if it does
     return this.getAccount()
       .checkRecoveryKeyExistsByEmail()
-      .then(result => {
+      .then((result) => {
         this.model.set('hasRecoveryKey', result.exists);
       });
   },
@@ -66,7 +66,7 @@ const View = BaseView.extend({
     const account = this.getAccount();
     return this.broker.persistVerificationData(account).then(() => {
       return this._waitForConfirmation()
-        .then(sessionInfo => {
+        .then((sessionInfo) => {
           this.logViewEvent('verification.success');
           // The password was reset, future attempts should ask confirmation.
           this.relier.set('resetPasswordConfirm', true);
@@ -98,12 +98,12 @@ const View = BaseView.extend({
       // If either the `login` message comes through or the `login` message
       // timeout elapses after the server confirms the user is verified,
       // stop waiting all together and move to the next view.
-      const onComplete = response => {
+      const onComplete = (response) => {
         this._stopWaiting();
         resolve(response);
       };
 
-      const onError = err => {
+      const onError = (err) => {
         this._stopWaiting();
         reject(err);
       };
@@ -212,7 +212,7 @@ const View = BaseView.extend({
 
     const account = this.getAccount();
     const token = this.model.get('passwordForgotToken');
-    return account.isPasswordResetComplete(token).then(isComplete => {
+    return account.isPasswordResetComplete(token).then((isComplete) => {
       if (!this._isWaitingForServerConfirmation) {
         // we no longer care about the response, the other tab has opened.
         // drop the response on the ground and never resolve.
@@ -221,7 +221,7 @@ const View = BaseView.extend({
         return null;
       }
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         this._waitForServerConfirmationTimeout = this.setTimeout(() => {
           if (this._isWaitingForServerConfirmation) {
             resolve(this._waitForServerConfirmation());
@@ -240,7 +240,7 @@ const View = BaseView.extend({
 
   _isWaitingForLoginMessage: false,
   _waitForLoginMessage() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this._isWaitingForLoginMessage = true;
       this.notifier.on(Notifier.SIGNED_IN, resolve);
     });
@@ -260,7 +260,7 @@ const View = BaseView.extend({
     return this.retryResetPassword(
       this.model.get('email'),
       this.model.get('passwordForgotToken')
-    ).catch(err => {
+    ).catch((err) => {
       if (AuthErrors.is(err, 'INVALID_TOKEN')) {
         return this.navigate('reset_password', {
           error: err,

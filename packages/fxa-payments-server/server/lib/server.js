@@ -36,7 +36,7 @@ module.exports = () => {
   const statsd = statsdConfig.enabled
     ? new StatsD({
         ...statsdConfig,
-        errorHandler: err => {
+        errorHandler: (err) => {
           // eslint-disable-next-line no-use-before-define
           logger.error('statsd.error', err);
         },
@@ -171,7 +171,7 @@ module.exports = () => {
   function injectMetaContent(html, metaContent = {}) {
     let result = html;
 
-    Object.keys(metaContent).forEach(k => {
+    Object.keys(metaContent).forEach((k) => {
       result = result.replace(
         k,
         encodeURIComponent(JSON.stringify(metaContent[k]))
@@ -199,7 +199,7 @@ module.exports = () => {
     app.use(
       '/',
       proxy(proxyUrl, {
-        userResDecorator: function(
+        userResDecorator: function (
           proxyRes,
           proxyResData,
           userReq /*, userRes*/
@@ -232,7 +232,7 @@ module.exports = () => {
       { encoding: 'UTF-8' }
     );
 
-    INDEX_ROUTES.forEach(route => {
+    INDEX_ROUTES.forEach((route) => {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
         res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, {}));
@@ -268,7 +268,7 @@ module.exports = () => {
     const port = config.get('listen.port');
     const host = config.get('listen.host');
     logger.info('server.starting', { port });
-    app.listen(port, host, error => {
+    app.listen(port, host, (error) => {
       if (error) {
         logger.error('server.start.error', { error });
         return;

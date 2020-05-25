@@ -91,7 +91,7 @@ describe('Field', () => {
             <p ref={tooltipParentRef}>Hi mom</p>
           </Field>
           <TestValidatorFn
-            fn={validator => {
+            fn={(validator) => {
               validator.updateField({
                 name: 'foo',
                 value: 'bar',
@@ -122,7 +122,7 @@ describe('Field', () => {
             <p>Hi mom</p>
           </Field>
           <TestValidatorFn
-            fn={validator => {
+            fn={(validator) => {
               validator.updateField({
                 name: 'foo',
                 value: 'bar',
@@ -162,20 +162,15 @@ describe('Field', () => {
 describe('defaultInputValidator', () => {
   it('returns correct string when not provided `getString` prop', () => {
     const focused = false;
-    const props = {name: 'my-field', required: true};
+    const props = { name: 'my-field', required: true };
 
-    expect(defaultInputValidator(
-      '',
-      focused,
-      props,
-      (id: any) => id,
-    ).error).toEqual('default-input-error');
+    expect(
+      defaultInputValidator('', focused, props, (id: any) => id).error
+    ).toEqual('default-input-error');
 
-    expect(defaultInputValidator(
-      '',
-      focused,
-      props,
-    ).error).toEqual('This field is required');
+    expect(defaultInputValidator('', focused, props).error).toEqual(
+      'This field is required'
+    );
   });
 });
 
@@ -463,7 +458,7 @@ describe('StripeElement', () => {
     });
     const validatorStateRef = mkValidatorStateRef();
     const expectedError = 'My hovercraft is full of eels';
-    const onValidate = jest.fn(value => ({
+    const onValidate = jest.fn((value) => ({
       value,
       valid: false,
       error: expectedError,
@@ -627,7 +622,7 @@ describe('SubmitButton', () => {
           </SubmitButton>
           <Input name="foo" required />
           <TestValidatorFn
-            fn={validator => {
+            fn={(validator) => {
               validator.updateField({
                 name: 'foo',
                 value: 'bar',
@@ -637,7 +632,7 @@ describe('SubmitButton', () => {
             }}
           />
           <TestValidatorFn
-            fn={validator => {
+            fn={(validator) => {
               validator.updateField({ name: 'foo', value: 'baz', valid: true });
             }}
           />
@@ -680,7 +675,7 @@ const TestValidatorFn = ({ fn }: { fn: (validator: Validator) => any }) => {
   const { validator } = useContext(FormContext) as FormContextValue;
   const [result, setResult] = useState('');
   const onClick = useCallback(
-    ev => {
+    (ev) => {
       ev.preventDefault();
       setResult(JSON.stringify(fn(validator)));
     },

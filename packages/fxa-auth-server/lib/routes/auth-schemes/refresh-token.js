@@ -66,7 +66,7 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
 
         // use the hashed refreshToken id to find devices
         const device = devices.filter(
-          device => device.refreshTokenId === credentials.refreshTokenId
+          (device) => device.refreshTokenId === credentials.refreshTokenId
         )[0];
         if (device) {
           credentials.deviceId = device.id;

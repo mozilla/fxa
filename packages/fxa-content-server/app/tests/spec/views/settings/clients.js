@@ -51,7 +51,7 @@ describe('views/settings/clients', () => {
 
   function setupReRenderTest(testAction) {
     return initView().then(() => {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         view.on('rendered', () => resolve());
 
         if (_.isFunction(testAction)) {
@@ -168,10 +168,7 @@ describe('views/settings/clients', () => {
 
     it('renders attachedClients and apps', () => {
       assert.equal(
-        view
-          .$('#clients .settings-unit-title')
-          .text()
-          .trim(),
+        view.$('#clients .settings-unit-title').text().trim(),
         'Devices & apps'
       );
       assert.ok(
@@ -318,9 +315,7 @@ describe('views/settings/clients', () => {
       return initView().then(() => {
         $('#container').html(view.el);
         assert.equal(
-          $('#container #-device-1-- .client-name')
-            .text()
-            .trim(),
+          $('#container #-device-1-- .client-name').text().trim(),
           'Firefox',
           'device name is Firefox'
         );
@@ -517,7 +512,7 @@ describe('views/settings/clients', () => {
     it('translates the last active string', () => {
       return initView().then(() => {
         view.translator = {
-          get: untranslatedText => {
+          get: (untranslatedText) => {
             if (untranslatedText === 'Last seen %(translatedTimeAgo)s') {
               return 'Translated %(translatedTimeAgo)s';
             }

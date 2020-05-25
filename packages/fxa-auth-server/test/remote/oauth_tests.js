@@ -33,7 +33,7 @@ async function introspectToken(token) {
   return res;
 }
 
-describe('/oauth/ routes', function() {
+describe('/oauth/ routes', function () {
   this.timeout(15000);
   let client;
   let email;

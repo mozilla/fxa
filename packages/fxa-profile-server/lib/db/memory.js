@@ -108,13 +108,13 @@ MemoryStore.prototype = {
     return P.resolve();
   },
 
-  getDisplayName: function(uid) {
+  getDisplayName: function (uid) {
     var id = hex(uid);
     var name = this.profile[id] ? this.profile[id].displayName : undefined;
     return P.resolve({ displayName: name });
   },
 
-  setDisplayName: function(uid, displayName) {
+  setDisplayName: function (uid, displayName) {
     var id = hex(uid);
     if (this.profile[id]) {
       this.profile[id].displayName = displayName;

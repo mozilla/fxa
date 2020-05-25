@@ -36,7 +36,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const setupTest = thenify(function(options = {}) {
+const setupTest = thenify(function (options = {}) {
   const signUpEmail = options.signUpEmail || email;
   const signInEmail = options.signInEmail || email;
 
@@ -53,12 +53,12 @@ const setupTest = thenify(function(options = {}) {
 });
 
 registerSuite('change_password', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
   },
 
   tests: {
-    'try to change password with an incorrect old password': function() {
+    'try to change password with an incorrect old password': function () {
       return (
         this.remote
           .then(setupTest())
@@ -89,7 +89,7 @@ registerSuite('change_password', {
       );
     },
 
-    'try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function() {
+    'try to change password with short password, tooltip shows, cancel, try to change password again, tooltip is not shown': function () {
       return (
         this.remote
           .then(setupTest())
@@ -113,7 +113,7 @@ registerSuite('change_password', {
       );
     },
 
-    'new_password validation, balloon': function() {
+    'new_password validation, balloon': function () {
       return (
         this.remote
           .then(setupTest())
@@ -163,7 +163,7 @@ registerSuite('change_password', {
       );
     },
 
-    'new_vpassword validation, tooltip shows': function() {
+    'new_vpassword validation, tooltip shows': function () {
       return (
         this.remote
           .then(setupTest())
@@ -189,7 +189,7 @@ registerSuite('change_password', {
       );
     },
 
-    'change password, sign in with new password': function() {
+    'change password, sign in with new password': function () {
       return (
         this.remote
           .then(setupTest())
@@ -207,7 +207,7 @@ registerSuite('change_password', {
       );
     },
 
-    'sign in with an unnormalized email, change password, sign in with new password': function() {
+    'sign in with an unnormalized email, change password, sign in with new password': function () {
       return (
         this.remote
           .then(
@@ -227,7 +227,7 @@ registerSuite('change_password', {
       );
     },
 
-    'cached unnormalized email, change password, sign in with new password': function() {
+    'cached unnormalized email, change password, sign in with new password': function () {
       return (
         this.remote
           .then(setupTest())
@@ -251,7 +251,7 @@ registerSuite('change_password', {
       );
     },
 
-    'reset password via settings works': function() {
+    'reset password via settings works': function () {
       return (
         this.remote
           .then(setupTest())

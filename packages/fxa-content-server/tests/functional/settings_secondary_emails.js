@@ -50,7 +50,7 @@ const {
  * @param   {string} selector - child selector to append to group selector
  * @returns {string} generated selector
  */
-const secondaryEmailSelector = function(email, selectorKey) {
+const secondaryEmailSelector = function (email, selectorKey) {
   return [
     `${selectors.EMAIL.EMAIL_GROUP}[data-id="${email}"]`,
     selectorKey ? selectors.EMAIL[selectorKey] : '',
@@ -58,7 +58,7 @@ const secondaryEmailSelector = function(email, selectorKey) {
 };
 
 registerSuite('settings secondary emails', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
     secondaryEmail = createEmail('sync{id}');
     client = FunctionalHelpers.getFxaClient();
@@ -67,7 +67,7 @@ registerSuite('settings secondary emails', {
   },
 
   tests: {
-    'gated in unverified session open verification same tab': function() {
+    'gated in unverified session open verification same tab': function () {
       return (
         this.remote
           // when an account is created, the original session is verified
@@ -90,7 +90,7 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'gated in unverified session open verification new tab': function() {
+    'gated in unverified session open verification new tab': function () {
       return (
         this.remote
           // when an account is created, the original session is verified
@@ -121,7 +121,7 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'gated in unverified session open verification different browser': function() {
+    'gated in unverified session open verification different browser': function () {
       return (
         this.remote
           // when an account is created, the original session is verified
@@ -145,7 +145,7 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'add and verify secondary email': function() {
+    'add and verify secondary email': function () {
       const removedSecondaryEmail = createEmail('sync{id}');
       const verifiedSecondaryEmail = secondaryEmail;
       const removedTertieryEmail = createEmail('sync{id}');
@@ -278,7 +278,7 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'add secondary email that is primary to another account': function() {
+    'add secondary email that is primary to another account': function () {
       const existingUnverified = createEmail();
       const existingVerified = createEmail();
 
@@ -310,7 +310,7 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'add secondary email that alredy belongs to the account': function() {
+    'add secondary email that alredy belongs to the account': function () {
       const secondaryEmail = createEmail();
 
       return (
@@ -339,7 +339,7 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'signin with existing secondary email': function() {
+    'signin with existing secondary email': function () {
       return (
         this.remote
           // sign up via the UI, we need a verified session to use secondary email
@@ -365,12 +365,12 @@ registerSuite('settings secondary emails', {
       );
     },
 
-    'unblock code is sent to secondary emails': function() {
+    'unblock code is sent to secondary emails': function () {
       email = createEmail('blocked{id}');
 
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(function(result) {
+        .then(function (result) {
           return client.recoveryEmailCreate(
             result.sessionToken,
             secondaryEmail
@@ -383,7 +383,7 @@ registerSuite('settings secondary emails', {
           testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
         )
         .then(getUnblockInfo(email, 0))
-        .then(function(unblockInfo) {
+        .then(function (unblockInfo) {
           return this.parent.then(
             type('#unblock_code', '   ' + unblockInfo.unblockCode)
           );
@@ -400,12 +400,12 @@ registerSuite('settings secondary emails', {
           testElementTextInclude(selectors.SIGNIN_UNBLOCK.EMAIL_FIELD, email)
         )
         .then(getUnblockInfo(email, 0))
-        .then(function(unblockInfo) {
+        .then(function (unblockInfo) {
           // original email gets the unblock code
           assert.ok(unblockInfo.unblockCode);
         })
         .then(getUnblockInfo(secondaryEmail, 1))
-        .then(function(unblockInfo) {
+        .then(function (unblockInfo) {
           return this.parent.then(
             type('#unblock_code', '   ' + unblockInfo.unblockCode)
           );
@@ -415,7 +415,7 @@ registerSuite('settings secondary emails', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signin confirmation is sent to secondary emails': function() {
+    'signin confirmation is sent to secondary emails': function () {
       const SETTINGS_URL = `${config.fxaContentRoot}settings?context=fx_desktop_v3&service=sync`;
 
       email = createEmail('sync{id}');
@@ -423,7 +423,7 @@ registerSuite('settings secondary emails', {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(function(result) {
+          .then(function (result) {
             return client.recoveryEmailCreate(
               result.sessionToken,
               secondaryEmail
@@ -456,7 +456,7 @@ registerSuite('settings secondary emails', {
           // wait until account data is in localstorage before redirecting
           .then(
             FunctionalHelpers.pollUntil(
-              function() {
+              function () {
                 var accounts = Object.keys(
                   JSON.parse(localStorage.getItem('__fxa_storage.accounts')) ||
                     {}

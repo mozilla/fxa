@@ -9,36 +9,24 @@ import Vat from '../../../lib/vat';
 /*eslint-disable camelcase */
 const SUPPLICANT_QUERY_PARAM_SCHEMA = {
   access_type: Vat.accessType().renameTo('accessType'),
-  client_id: Vat.clientId()
-    .required()
-    .renameTo('clientId'),
-  code_challenge: Vat.codeChallenge()
-    .required()
-    .renameTo('codeChallenge'),
+  client_id: Vat.clientId().required().renameTo('clientId'),
+  code_challenge: Vat.codeChallenge().required().renameTo('codeChallenge'),
   code_challenge_method: Vat.codeChallengeMethod()
     .required()
     .renameTo('codeChallengeMethod'),
-  keys_jwk: Vat.keysJwk()
-    .required()
-    .renameTo('keysJwk'),
+  keys_jwk: Vat.keysJwk().required().renameTo('keysJwk'),
   redirect_uri: Vat.url()
     // redirect URI is not required for OAuth flows,
     // we only validate it in the OAuth broker if it is provided
     // See `isCorrectRedirect` app/scripts/models/reliers/oauth.js
     .renameTo('redirectUri'),
-  scope: Vat.string()
-    .required()
-    .min(1),
+  scope: Vat.string().required().min(1),
   state: Vat.string().required(),
 };
 
 const SUPPLICANT_HASH_PARAMETER_SCHEMA = {
-  channel_id: Vat.channelId()
-    .required()
-    .renameTo('channelId'),
-  channel_key: Vat.channelKey()
-    .required()
-    .renameTo('channelKey'),
+  channel_id: Vat.channelId().required().renameTo('channelId'),
+  channel_key: Vat.channelKey().required().renameTo('channelKey'),
 };
 
 /*eslint-enable camelcase */

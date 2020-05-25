@@ -63,7 +63,7 @@ suite('socketlabs:', () => {
   suite('call with a correct delivery event:', () => {
     let promise;
 
-    setup(done => {
+    setup((done) => {
       promise = proxy.main({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -107,7 +107,7 @@ suite('socketlabs:', () => {
       });
 
       test('result is correct', () => {
-        return promise.then(result =>
+        return promise.then((result) =>
           assert.deepEqual(result, {
             statusCode: 200,
             body:
@@ -134,7 +134,7 @@ suite('socketlabs:', () => {
   suite('call with a correct failure event:', () => {
     let promise;
 
-    setup(done => {
+    setup((done) => {
       promise = proxy.main({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -179,7 +179,7 @@ suite('socketlabs:', () => {
       });
 
       test('result is correct', () => {
-        return promise.then(result =>
+        return promise.then((result) =>
           assert.deepEqual(result, {
             statusCode: 200,
             body:
@@ -206,7 +206,7 @@ suite('socketlabs:', () => {
   suite('call with a correct complaint event:', () => {
     let promise;
 
-    setup(done => {
+    setup((done) => {
       promise = proxy.main({
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -249,7 +249,7 @@ suite('socketlabs:', () => {
       });
 
       test('result is correct', () => {
-        return promise.then(result =>
+        return promise.then((result) =>
           assert.deepEqual(result, {
             statusCode: 200,
             body:
@@ -298,7 +298,7 @@ suite('socketlabs:', () => {
     });
 
     test('result is correct', () => {
-      return promise.then(result =>
+      return promise.then((result) =>
         assert.deepEqual(result, {
           statusCode: 200,
           body: '{"ValidationKey":"validation"}',
@@ -322,7 +322,7 @@ suite('socketlabs:', () => {
             auth: 'authentication string',
           },
         })
-        .catch(e => (error = e));
+        .catch((e) => (error = e));
     });
 
     test('sqs.sendMessage was not called', () => {
@@ -360,7 +360,7 @@ suite('socketlabs:', () => {
     });
 
     test('result is correct', () => {
-      return promise.then(result =>
+      return promise.then((result) =>
         assert.deepEqual(result, {
           statusCode: 200,
           body: '{"result":"Processed 0 events","ValidationKey":"validation"}',
@@ -395,7 +395,7 @@ suite('socketlabs:', () => {
     });
 
     test('result is correct', () => {
-      return promise.then(result =>
+      return promise.then((result) =>
         assert.deepEqual(result, {
           statusCode: 200,
           body: '{"result":"Processed 0 events","ValidationKey":"validation"}',

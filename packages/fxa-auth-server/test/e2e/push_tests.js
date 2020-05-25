@@ -22,7 +22,7 @@ describe('e2e/push', () => {
   });
 
   it('sendPush sends notifications using a real push server', () => {
-    return pushManager.getSubscription().then(subscription => {
+    return pushManager.getSubscription().then((subscription) => {
       let count = 0;
       const thisSpyLog = mockLog({
         info(op, log) {

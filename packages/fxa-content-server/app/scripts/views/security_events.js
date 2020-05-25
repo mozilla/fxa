@@ -36,8 +36,8 @@ const View = BaseView.extend({
   },
 
   _fetchSecurityEvents() {
-    return account.securityEvents().then(events => {
-      this._securityEvents = events.map(event => {
+    return account.securityEvents().then((events) => {
+      this._securityEvents = events.map((event) => {
         event.createdAt = formatDate(new Date(event.createdAt));
 
         return new SecurityEvent(event).toJSON();

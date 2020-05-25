@@ -19,7 +19,7 @@ import ResumeTokenMixin from '../mixins/resume-token';
 import UrlMixin from '../mixins/url';
 import Vat from '../../lib/vat';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const RELIER_FIELDS_IN_RESUME_TOKEN = [
   'entrypoint',

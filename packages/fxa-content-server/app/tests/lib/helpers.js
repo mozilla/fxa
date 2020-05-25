@@ -83,7 +83,7 @@ function createRandomString(length, base = 36) {
   return str;
 }
 
-const createRandomHexString = length => createRandomString(length, 16);
+const createRandomHexString = (length) => createRandomString(length, 16);
 
 function createUid() {
   return createRandomHexString(Constants.UID_LENGTH);
@@ -148,7 +148,7 @@ function toSearchString(obj) {
 function stubbedProfileClient() {
   var profileClientMock = new ProfileMock();
 
-  sinon.stub(profileClientMock, 'getAvatar').callsFake(function() {
+  sinon.stub(profileClientMock, 'getAvatar').callsFake(function () {
     return Promise.resolve({});
   });
 

@@ -37,7 +37,7 @@ describe('models/polls/device-connected', () => {
   beforeEach(() => {
     account = new Account();
     windowMock = new WindowMock();
-    sinon.stub(windowMock, 'setTimeout').callsFake(func => func());
+    sinon.stub(windowMock, 'setTimeout').callsFake((func) => func());
 
     poll = new DeviceConnectedPoll(
       {},
@@ -80,7 +80,7 @@ describe('models/polls/device-connected', () => {
 
         return new Promise((resolve, reject) => {
           poll.on('device-connected', () => reject(assert.catch()));
-          poll.on('error', _err => {
+          poll.on('error', (_err) => {
             resolve();
           });
           poll.start();

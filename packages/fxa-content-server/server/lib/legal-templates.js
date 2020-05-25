@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const logger = require('./logging/log')('legal-templates');
 
-module.exports = function(i18n, root) {
+module.exports = function (i18n, root) {
   const TOS_ROOT_PATH = path.join(root, 'terms');
   const PP_ROOT_PATH = path.join(root, 'privacy');
 
@@ -23,14 +23,14 @@ module.exports = function(i18n, root) {
     const locale = i18n.localeFrom(lang);
     const templatePath = path.join(getRoot(type), locale + '.html');
 
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       // cache the promises to avoid multiple concurrent checks for
       // the same template due to async calls to the file system.
       if (templateCache[templatePath]) {
         return resolve(templateCache[templatePath]);
       }
 
-      fs.exists(templatePath, function(exists) {
+      fs.exists(templatePath, function (exists) {
         if (!exists) {
           let bestLang = i18n.bestLanguage(i18n.parseAcceptLanguage(lang));
           // If bestLang resolves to the default lang, replace it with
@@ -62,7 +62,7 @@ module.exports = function(i18n, root) {
           return resolve(null);
         }
 
-        fs.readFile(templatePath, 'utf8', function(err, data) {
+        fs.readFile(templatePath, 'utf8', function (err, data) {
           if (err) {
             return reject(err);
           }

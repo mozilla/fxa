@@ -33,7 +33,7 @@ const {
   type,
 } = FunctionalHelpers;
 
-const setupTest = thenify(function(query) {
+const setupTest = thenify(function (query) {
   return (
     this.parent
       .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -65,7 +65,7 @@ const setupTest = thenify(function(query) {
 });
 
 registerSuite('Firefox Desktop Sync v3 reset password', {
-  beforeEach: function() {
+  beforeEach: function () {
     // timeout after 90 seconds
     this.timeout = 90000;
 
@@ -73,12 +73,12 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
     return this.remote.then(clearBrowserState());
   },
 
-  afterEach: function() {
+  afterEach: function () {
     // clear localStorage to avoid polluting other tests.
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'reset password, verify same browser': function() {
+    'reset password, verify same browser': function () {
       const query = { forceUA: uaStrings['desktop_firefox_58'] };
 
       return (
@@ -93,7 +93,7 @@ registerSuite('Firefox Desktop Sync v3 reset password', {
       );
     },
 
-    'reset password, verify same browser, password validation': function() {
+    'reset password, verify same browser, password validation': function () {
       const query = {
         forceExperiment: 'passwordStrength',
         forceExperimentGroup: 'designF',

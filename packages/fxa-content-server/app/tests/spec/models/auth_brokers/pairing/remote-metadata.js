@@ -8,13 +8,13 @@ import SupplicantBroker from 'models/auth_brokers/pairing/supplicant';
 import { mockPairingChannel } from 'tests/mocks/pair';
 import { assert } from 'chai';
 
-describe('models/auth_brokers/pairing/remote-metadata', function() {
+describe('models/auth_brokers/pairing/remote-metadata', function () {
   let broker;
   let config;
   let relier;
   let notifier;
 
-  beforeEach(function() {
+  beforeEach(function () {
     config = {
       pairingChannelServerUri: 'ws://test',
       pairingClients: ['3c49430b43dfba77'],

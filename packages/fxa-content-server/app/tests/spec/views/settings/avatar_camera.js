@@ -27,7 +27,7 @@ function mockVideo(w, h) {
   };
 }
 
-describe('views/settings/avatar/camera', function() {
+describe('views/settings/avatar/camera', function () {
   var account;
   var broker;
   var metrics;
@@ -38,7 +38,7 @@ describe('views/settings/avatar/camera', function() {
   var view;
   var windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
     relier = new Relier();
@@ -65,7 +65,7 @@ describe('views/settings/avatar/camera', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     $(view.el).remove();
     view.destroy();
     view = null;
@@ -73,19 +73,19 @@ describe('views/settings/avatar/camera', function() {
     profileClientMock = null;
   });
 
-  describe('with session', function() {
-    beforeEach(function() {
-      sinon.stub(view, 'checkAuthorization').callsFake(function() {
+  describe('with session', function () {
+    beforeEach(function () {
+      sinon.stub(view, 'checkAuthorization').callsFake(function () {
         return Promise.resolve(true);
       });
-      sinon.stub(view, 'getSignedInAccount').callsFake(function() {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
       });
     });
 
-    describe('render', function() {
-      describe('without browser support', function() {
-        beforeEach(function() {
+    describe('render', function () {
+      describe('without browser support', function () {
+        beforeEach(function () {
           windowMock.navigator.getUserMedia = null;
           windowMock.navigator.mediaDevices = null;
 
@@ -94,53 +94,53 @@ describe('views/settings/avatar/camera', function() {
           return view.render();
         });
 
-        it('redirects to `settings/avatar/change`', function() {
+        it('redirects to `settings/avatar/change`', function () {
           assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
         });
       });
 
-      describe('success', function() {
-        beforeEach(function() {
+      describe('success', function () {
+        beforeEach(function () {
           sinon.spy(view, 'startStream');
 
           return view.render();
         });
 
-        it('finds the video element', function() {
+        it('finds the video element', function () {
           assert.ok(view.video);
         });
 
-        it('attempts to start streaming', function() {
+        it('attempts to start streaming', function () {
           assert.isFalse(view.streaming);
           assert.isTrue(view.startStream.called);
         });
 
-        describe('when stream starts', function() {
-          beforeEach(function() {
+        describe('when stream starts', function () {
+          beforeEach(function () {
             var ev = document.createEvent('HTMLEvents');
             ev.initEvent('loadedmetadata', true, true);
 
             return new Promise((resolve, reject) => {
-              windowMock.on('stream', function() {
+              windowMock.on('stream', function () {
                 view.video.dispatchEvent(ev);
                 resolve();
               });
             });
           });
 
-          it('sets the stream', function() {
+          it('sets the stream', function () {
             assert.ok(view.stream, 'stream is set');
           });
 
-          it('starts streaming', function() {
+          it('starts streaming', function () {
             assert.isTrue(view.streaming, 'is streaming');
           });
         });
       });
     });
 
-    it('logs video dimension error', function() {
-      return view.render().then(function() {
+    it('logs video dimension error', function () {
+      return view.render().then(function () {
         sinon.spy(view, 'logError');
         view.video = mockVideo(0, 0);
         view.onLoadedMetaData();
@@ -150,8 +150,8 @@ describe('views/settings/avatar/camera', function() {
       });
     });
 
-    it('does not log video dimension error', function() {
-      return view.render().then(function() {
+    it('does not log video dimension error', function () {
+      return view.render().then(function () {
         sinon.spy(view, 'logError');
         view.video = mockVideo(1, 1);
         view.onLoadedMetaData();
@@ -159,9 +159,9 @@ describe('views/settings/avatar/camera', function() {
       });
     });
 
-    it('computes height width correctly for landscape video', function() {
+    it('computes height width correctly for landscape video', function () {
       var expectedWidth = 640 / (480 / view.displayLength);
-      return view.render().then(function() {
+      return view.render().then(function () {
         sinon.spy(view, 'logError');
         view.video = mockVideo(640, 480);
         view.onLoadedMetaData();
@@ -170,9 +170,9 @@ describe('views/settings/avatar/camera', function() {
       });
     });
 
-    it('computes height width correctly for portrait video', function() {
+    it('computes height width correctly for portrait video', function () {
       var expectedHeight = 640 / (480 / view.displayLength);
-      return view.render().then(function() {
+      return view.render().then(function () {
         sinon.spy(view, 'logError');
         view.video = mockVideo(480, 640);
         view.onLoadedMetaData();
@@ -181,19 +181,19 @@ describe('views/settings/avatar/camera', function() {
       });
     });
 
-    it('centered position is accurate', function() {
+    it('centered position is accurate', function () {
       var pos = view.centeredPos(600, 300, 200);
       assert.equal(pos.left, -200);
       assert.equal(pos.top, 0);
     });
 
-    it('centered position is accurate for portrait', function() {
+    it('centered position is accurate for portrait', function () {
       var pos = view.centeredPos(300, 600, 200);
       assert.equal(pos.top, -200);
       assert.equal(pos.left, 0);
     });
 
-    it('submits', function(done) {
+    it('submits', function (done) {
       profileClientMock = new ProfileMock();
 
       view = new View({
@@ -207,26 +207,26 @@ describe('views/settings/avatar/camera', function() {
         window: windowMock,
       });
 
-      view.isUserAuthorized = function() {
+      view.isUserAuthorized = function () {
         return Promise.resolve(true);
       };
 
-      sinon.stub(view, 'getSignedInAccount').callsFake(function() {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
       });
 
-      sinon.stub(account, 'profileClient').callsFake(function() {
+      sinon.stub(account, 'profileClient').callsFake(function () {
         return Promise.resolve(profileClientMock);
       });
 
-      sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function() {
+      sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
         return Promise.resolve({
           id: 'foo',
           url: 'test',
         });
       });
 
-      sinon.stub(view, 'updateProfileImage').callsFake(function() {
+      sinon.stub(view, 'updateProfileImage').callsFake(function () {
         return Promise.resolve();
       });
 
@@ -237,19 +237,19 @@ describe('views/settings/avatar/camera', function() {
 
       view
         .render()
-        .then(function() {
+        .then(function () {
           view.canvas = new CanvasMock();
 
           var ev = document.createEvent('HTMLEvents');
           ev.initEvent('loadedmetadata', true, true);
 
-          windowMock.on('stream', function() {
+          windowMock.on('stream', function () {
             view.video.dispatchEvent(ev);
             assert.ok(view.stream, 'stream is set');
 
             assert.equal(view.logFlowEvent.callCount, 0);
 
-            view.submit().then(function(result) {
+            view.submit().then(function (result) {
               assert.isTrue(view.stopAndDestroyStream.called);
 
               assert.equal(result.url, 'test');
@@ -292,14 +292,14 @@ describe('views/settings/avatar/camera', function() {
         .catch(done);
     });
 
-    it('tracks new and change events for avatars', function(done) {
+    it('tracks new and change events for avatars', function (done) {
       profileClientMock = new ProfileMock();
 
-      sinon.stub(account, 'profileClient').callsFake(function() {
+      sinon.stub(account, 'profileClient').callsFake(function () {
         return Promise.resolve(profileClientMock);
       });
 
-      sinon.stub(view, 'updateProfileImage').callsFake(function() {
+      sinon.stub(view, 'updateProfileImage').callsFake(function () {
         return Promise.resolve();
       });
 
@@ -311,11 +311,11 @@ describe('views/settings/avatar/camera', function() {
 
       view
         .render()
-        .then(function() {
+        .then(function () {
           mockStream();
           return view.submit();
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             TestHelpers.isEventLogged(
               metrics,
@@ -333,7 +333,7 @@ describe('views/settings/avatar/camera', function() {
 
           return view.submit();
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             TestHelpers.isEventLogged(
               metrics,
@@ -345,15 +345,15 @@ describe('views/settings/avatar/camera', function() {
     });
   });
 
-  describe('startStream', function() {
-    beforeEach(function() {
+  describe('startStream', function () {
+    beforeEach(function () {
       return view.render();
     });
 
-    describe('success', function() {
+    describe('success', function () {
       let stream;
 
-      beforeEach(function() {
+      beforeEach(function () {
         stream = {};
 
         sinon
@@ -365,7 +365,7 @@ describe('views/settings/avatar/camera', function() {
         return view.startStream().then(() => view.onLoadedMetaData());
       });
 
-      it('initializes the device camera, attaches the media stream, starts playing the video', function() {
+      it('initializes the device camera, attaches the media stream, starts playing the video', function () {
         assert.isTrue(
           windowMock.navigator.mediaDevices.getUserMedia.calledWith({
             audio: false,
@@ -378,8 +378,8 @@ describe('views/settings/avatar/camera', function() {
       });
     });
 
-    describe('error', function() {
-      beforeEach(function() {
+    describe('error', function () {
+      beforeEach(function () {
         sinon
           .stub(windowMock.navigator.mediaDevices, 'getUserMedia')
           .callsFake(() => Promise.reject(AuthErrors.toError('NO_CAMERA')));
@@ -390,32 +390,32 @@ describe('views/settings/avatar/camera', function() {
         return view.startStream();
       });
 
-      it('displays the `NO_CAMERA` error', function() {
+      it('displays the `NO_CAMERA` error', function () {
         var err = view.displayError.args[0][0];
         assert.isTrue(AuthErrors.is(err, 'NO_CAMERA'));
       });
 
-      it('hides the progress indicator', function() {
+      it('hides the progress indicator', function () {
         assert.isTrue(view._avatarProgressIndicator.done.called);
       });
     });
   });
 
-  describe('stopAndDestroyStream', function() {
-    beforeEach(function() {
+  describe('stopAndDestroyStream', function () {
+    beforeEach(function () {
       return view.render();
     });
 
-    describe('with a stream that supports getTracks (newest spec)', function() {
+    describe('with a stream that supports getTracks (newest spec)', function () {
       var track;
 
-      beforeEach(function() {
+      beforeEach(function () {
         track = {
           stop: sinon.spy(),
         };
 
         view.stream = {
-          getTracks: sinon.spy(function() {
+          getTracks: sinon.spy(function () {
             return [track];
           }),
         };
@@ -423,15 +423,15 @@ describe('views/settings/avatar/camera', function() {
         return view.stopAndDestroyStream();
       });
 
-      it('stops each track', function() {
+      it('stops each track', function () {
         assert.isTrue(track.stop.called);
       });
     });
 
-    describe('with a stream that supports stop', function() {
+    describe('with a stream that supports stop', function () {
       var stream;
 
-      beforeEach(function() {
+      beforeEach(function () {
         stream = {
           stop: sinon.spy(),
         };
@@ -441,13 +441,13 @@ describe('views/settings/avatar/camera', function() {
         return view.stopAndDestroyStream();
       });
 
-      it('stops the stream', function() {
+      it('stops the stream', function () {
         assert.isTrue(stream.stop.called);
       });
     });
 
-    describe('with a video element that supports pause and mozSrcObject (Fx 18)', function() {
-      beforeEach(function() {
+    describe('with a video element that supports pause and mozSrcObject (Fx 18)', function () {
+      beforeEach(function () {
         view.video = {
           mozSrcObject: {},
           pause: sinon.spy(),
@@ -458,24 +458,24 @@ describe('views/settings/avatar/camera', function() {
         return view.stopAndDestroyStream();
       });
 
-      it('pauses the video', function() {
+      it('pauses the video', function () {
         assert.isTrue(view.video.pause.called);
       });
 
-      it('clears the mozSrcObject reference', function() {
+      it('clears the mozSrcObject reference', function () {
         assert.isNull(view.video.mozSrcObject);
       });
     });
   });
 
-  describe('destroy', function() {
-    beforeEach(function() {
+  describe('destroy', function () {
+    beforeEach(function () {
       sinon.spy(view, 'stopAndDestroyStream');
 
       return view.destroy();
     });
 
-    it('stops the stream', function() {
+    it('stops the stream', function () {
       assert.isTrue(view.stopAndDestroyStream.called);
     });
   });

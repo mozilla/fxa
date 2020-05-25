@@ -241,7 +241,7 @@ function mockDB(data, errors) {
   errors = errors || {};
 
   return mockObject(DB_METHOD_NAMES)({
-    account: sinon.spy(uid => {
+    account: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
       return P.resolve({
         email: data.email,
@@ -268,7 +268,7 @@ function mockDB(data, errors) {
         wrapWrapKb: data.wrapWrapKb,
       });
     }),
-    accountEmails: sinon.spy(uid => {
+    accountEmails: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
       return P.resolve([
         {
@@ -341,7 +341,7 @@ function mockDB(data, errors) {
         wrapWrapKb: data.wrapWrapKb,
       });
     }),
-    createDevice: sinon.spy(uid => {
+    createDevice: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
       return P.resolve(
         Object.keys(data.device).reduce(
@@ -369,12 +369,12 @@ function mockDB(data, errors) {
         passCode: data.passCode,
         id: data.passwordForgotTokenId,
         uid: data.uid,
-        ttl: function() {
+        ttl: function () {
           return data.passwordForgotTokenTTL || 100;
         },
       });
     }),
-    createSessionToken: sinon.spy(opts => {
+    createSessionToken: sinon.spy((opts) => {
       return P.resolve({
         createdAt: opts.createdAt || Date.now(),
         data: crypto.randomBytes(32).toString('hex'),
@@ -408,14 +408,14 @@ function mockDB(data, errors) {
       assert.ok(typeof flowId === 'string');
       return P.resolve(data.signinCode || []);
     }),
-    devices: sinon.spy(uid => {
+    devices: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
       return P.resolve(data.devices || []);
     }),
     device: sinon.spy((uid, deviceId) => {
       assert.ok(typeof uid === 'string');
       assert.ok(typeof deviceId === 'string');
-      const device = data.devices.find(d => d.id === deviceId);
+      const device = data.devices.find((d) => d.id === deviceId);
       assert.ok(device);
       return P.resolve(device);
     }),
@@ -500,7 +500,7 @@ function mockDB(data, errors) {
         },
       ]);
     }),
-    sessions: sinon.spy(uid => {
+    sessions: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
       return P.resolve(data.sessions || []);
     }),
@@ -523,7 +523,7 @@ function mockDB(data, errors) {
       // SessionToken is a class, and tokenTypeID is a class attribute. Fake that.
       res.constructor.tokenTypeID = 'sessionToken';
       if (data.devices && data.devices.length > 0) {
-        Object.keys(data.devices[0]).forEach(key => {
+        Object.keys(data.devices[0]).forEach((key) => {
           const keyOnSession = `device${key
             .charAt(0)
             .toUpperCase()}${key.substr(1)}`;
@@ -559,7 +559,7 @@ function mockOAuthDB(methods = {}) {
 }
 
 function mockObject(methodNames, baseObj) {
-  return methods => {
+  return (methods) => {
     methods = methods || {};
     return methodNames.reduce((object, name) => {
       object[name] = methods[name] || sinon.spy(() => P.resolve());
@@ -570,7 +570,7 @@ function mockObject(methodNames, baseObj) {
 
 function mockPush(methods) {
   const push = Object.assign({}, methods);
-  PUSH_METHOD_NAMES.forEach(name => {
+  PUSH_METHOD_NAMES.forEach((name) => {
     if (!push[name]) {
       push[name] = sinon.spy(() => P.resolve());
     }
@@ -580,7 +580,7 @@ function mockPush(methods) {
 
 function mockPushbox(methods) {
   const pushbox = Object.assign({}, methods);
-  PUSHBOX_METHOD_NAMES.forEach(name => {
+  PUSHBOX_METHOD_NAMES.forEach((name) => {
     if (!pushbox[name]) {
       pushbox[name] = sinon.spy(() => P.resolve());
     }
@@ -590,7 +590,7 @@ function mockPushbox(methods) {
 
 function mockSubHub(methods) {
   const subscriptionsBackend = Object.assign({}, methods);
-  SUBHUB_METHOD_NAMES.forEach(name => {
+  SUBHUB_METHOD_NAMES.forEach((name) => {
     if (!subscriptionsBackend[name]) {
       subscriptionsBackend[name] = sinon.spy(() => P.resolve());
     }
@@ -600,7 +600,7 @@ function mockSubHub(methods) {
 
 function mockProfile(methods) {
   const profileBackend = Object.assign({}, methods);
-  PROFILE_METHOD_NAMES.forEach(name => {
+  PROFILE_METHOD_NAMES.forEach((name) => {
     if (!profileBackend[name]) {
       profileBackend[name] = sinon.spy(() => P.resolve());
     }
@@ -638,7 +638,7 @@ function mockMetricsContext(methods) {
   return mockObject(METRICS_CONTEXT_METHOD_NAMES)({
     gather:
       methods.gather ||
-      sinon.spy(function(data) {
+      sinon.spy(function (data) {
         const time = Date.now();
         return P.resolve().then(() => {
           if (this.payload && this.payload.metricsContext) {
@@ -676,7 +676,7 @@ function mockMetricsContext(methods) {
         });
       }),
 
-    setFlowCompleteSignal: sinon.spy(function(flowCompleteSignal) {
+    setFlowCompleteSignal: sinon.spy(function (flowCompleteSignal) {
       if (this.payload && this.payload.metricsContext) {
         this.payload.metricsContext.flowCompleteSignal = flowCompleteSignal;
       }

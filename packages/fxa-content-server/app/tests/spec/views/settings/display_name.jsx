@@ -18,7 +18,7 @@ import {
 } from 'views/settings/display_name';
 import { render, cleanup } from '@testing-library/react';
 
-describe('views/settings/display_name', function() {
+describe('views/settings/display_name', function () {
   afterEach(() => {
     cleanup();
   });
@@ -62,7 +62,7 @@ describe('views/settings/display_name', function() {
     let account;
     let email;
     let user;
-    beforeEach(function() {
+    beforeEach(function () {
       email = TestHelpers.createEmail();
       user = new User();
       account = user.initAccount({
@@ -97,7 +97,7 @@ describe('views/settings/display_name', function() {
     });
   });
 
-  describe('submit', function() {
+  describe('submit', function () {
     let account;
     let email;
     let user;
@@ -106,7 +106,7 @@ describe('views/settings/display_name', function() {
     let relier;
     let view;
 
-    beforeEach(function() {
+    beforeEach(function () {
       email = TestHelpers.createEmail();
       user = new User();
       relier = new Relier();
@@ -124,7 +124,7 @@ describe('views/settings/display_name', function() {
       });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       metrics.destroy();
 
       view.remove();
@@ -132,9 +132,9 @@ describe('views/settings/display_name', function() {
 
       view = metrics = null;
     });
-    it('submits correctly', function() {
+    it('submits correctly', function () {
       var name = '  joe cool  ';
-      sinon.stub(account, 'postDisplayName').callsFake(function() {
+      sinon.stub(account, 'postDisplayName').callsFake(function () {
         return Promise.resolve();
       });
       function renderDisplayNameFormComponent(displayName = '') {
@@ -144,25 +144,25 @@ describe('views/settings/display_name', function() {
           relier: relier,
           user: user,
         });
-        sinon.stub(view, 'getSignedInAccount').callsFake(function() {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
-        sinon.stub(view, 'checkAuthorization').callsFake(function() {
+        sinon.stub(view, 'checkAuthorization').callsFake(function () {
           return Promise.resolve(true);
         });
-        sinon.stub(account, 'fetchProfile').callsFake(function() {
+        sinon.stub(account, 'fetchProfile').callsFake(function () {
           return Promise.resolve();
         });
-        sinon.stub(user, 'setAccount').callsFake(function() {
+        sinon.stub(user, 'setAccount').callsFake(function () {
           return Promise.resolve();
         });
-        sinon.stub(view, 'updateDisplayName').callsFake(function() {
+        sinon.stub(view, 'updateDisplayName').callsFake(function () {
           return Promise.resolve();
         });
-        sinon.stub(view, 'displaySuccess').callsFake(function() {
+        sinon.stub(view, 'displaySuccess').callsFake(function () {
           return Promise.resolve();
         });
-        return view.render(displayName).then(function(displayName) {
+        return view.render(displayName).then(function (displayName) {
           render(
             <DisplayNameFormComponent
               displayName={displayName}

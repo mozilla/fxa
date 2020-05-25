@@ -234,7 +234,7 @@ var User = Backbone.Model.extend({
     var uids = Object.keys(this._accounts()).reverse();
     var accounts = this._accounts();
 
-    var uid = _.find(uids, function(uid) {
+    var uid = _.find(uids, function (uid) {
       return accounts[uid].email === email;
     });
 
@@ -264,12 +264,12 @@ var User = Backbone.Model.extend({
       return this.get('signinCodeAccount');
     }
 
-    const allAccounts = _.map(this._accounts(), accountData =>
+    const allAccounts = _.map(this._accounts(), (accountData) =>
       this.initAccount(accountData)
     );
 
     // 2. First Sync account w/ email, sessionToken
-    const authenticatedSyncAccount = _.find(allAccounts, account => {
+    const authenticatedSyncAccount = _.find(allAccounts, (account) => {
       return this.isSyncAccount(account) && isAuthenticatedAccount(account);
     });
 
@@ -361,7 +361,7 @@ var User = Backbone.Model.extend({
    * @returns {Promise<Account>}
    */
   updateSignedInAccount(account) {
-    return this.setAccount(account).then(account => {
+    return this.setAccount(account).then((account) => {
       this._cachedSignedInAccount = account;
       this._setSignedInAccountUid(account.get('uid'));
       return account;
@@ -422,7 +422,7 @@ var User = Backbone.Model.extend({
         if (!oldAccount.isDefault()) {
           // allow new account attributes to override old ones
           oldAccount.set(
-            _.omit(account.attributes, function(val) {
+            _.omit(account.attributes, function (val) {
               return typeof val === 'undefined';
             })
           );
@@ -432,7 +432,7 @@ var User = Backbone.Model.extend({
         this._notifyOfAccountSignIn(account);
         return this.setSignedInAccount(account);
       },
-      err => {
+      (err) => {
         // User tried to sign in with a cached session that is no
         // longer valid. Remove the account from storage and mark
         // the session as invalid. See #999
@@ -471,11 +471,11 @@ var User = Backbone.Model.extend({
     return account.signOut().then(
       // Remove the account, even on failure. Everything is A-OK.
       // See issue #616
-      val => {
+      (val) => {
         this.removeAccount(account);
         return val;
       },
-      err => {
+      (err) => {
         this.removeAccount(account);
         throw err;
       }
@@ -497,13 +497,13 @@ var User = Backbone.Model.extend({
     // The original tab may no longer be open to notify other
     // windows the user is signed in. If the account has a `sessionToken`,
     // the user verified in the same browser. Notify any tabs that care.
-    const notifyIfSignedIn = account => {
+    const notifyIfSignedIn = (account) => {
       if (account.has('sessionToken')) {
         this._notifyOfAccountSignIn(account);
       }
     };
 
-    return account.verifySignUp(code, options).then(function() {
+    return account.verifySignUp(code, options).then(function () {
       notifyIfSignedIn(account);
 
       return account;
@@ -675,7 +675,7 @@ var User = Backbone.Model.extend({
    * @returns {Promise} resolves to `true` if an account exists, `false` otw.
    */
   checkAccountUidExists(account) {
-    return account.checkUidExists().then(exists => {
+    return account.checkUidExists().then((exists) => {
       if (!exists) {
         this.removeAccount(account);
       }
@@ -691,7 +691,7 @@ var User = Backbone.Model.extend({
    * @returns {Promise} resolves to `true` if an account exists, `false` otw.
    */
   checkAccountEmailExists(account) {
-    return account.checkEmailExists().then(exists => {
+    return account.checkEmailExists().then((exists) => {
       if (!exists) {
         this.removeAccount(account);
       }

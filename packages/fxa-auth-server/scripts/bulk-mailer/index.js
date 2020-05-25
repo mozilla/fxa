@@ -36,7 +36,7 @@ const oauthdbMock = {
  *   See `shouldSend`
  * @param {Boolean} useVerboseLogging if `true`, print info/trace messages to the console
  */
-module.exports = async function(
+module.exports = async function (
   userRecordsFilename,
   mailerMethodName,
   batchSize,
@@ -88,7 +88,7 @@ function normalizeUserRecords(userRecords, translator) {
 }
 
 function getValidMailerMethodNames(mailer) {
-  return Object.keys(mailer).filter(name => {
+  return Object.keys(mailer).filter((name) => {
     return (
       typeof mailer[name] === 'function' &&
       !/translator|stop|_ungatedMailer/.test(name)
@@ -109,7 +109,7 @@ function createSendDelegate(mailer, mailerMethodName) {
     throw err;
   }
 
-  return userRecord => {
+  return (userRecord) => {
     return mailer[mailerMethodName](userRecord.emails, userRecord, {
       acceptLanguage: userRecord.locale,
     });
@@ -125,15 +125,9 @@ async function createMailer(
 ) {
   const sender = shouldSend ? null : createSenderMock(emailOutputDirname);
 
-  return (await Senders(
-    log,
-    config,
-    error,
-    translator,
-    oauthdbMock,
-    null,
-    sender
-  )).email;
+  return (
+    await Senders(log, config, error, translator, oauthdbMock, null, sender)
+  ).email;
 }
 
 function createSenderMock(emailOutputDirname) {

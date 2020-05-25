@@ -47,7 +47,7 @@ const {
   testIsBrowserNotifiedOfLogin,
 } = FxDesktopHelpers;
 
-const setupTest = thenify(function(options = {}) {
+const setupTest = thenify(function (options = {}) {
   const successSelector = options.blocked
     ? selectors.SIGNIN_UNBLOCK.HEADER
     : options.preVerified
@@ -68,14 +68,14 @@ const setupTest = thenify(function(options = {}) {
 });
 
 registerSuite('FxiOS v1 signin', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'open directly to /signin page': function() {
+    'open directly to /signin page': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -84,7 +84,7 @@ registerSuite('FxiOS v1 signin', {
       );
     },
 
-    verified: function() {
+    verified: function () {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 
@@ -137,7 +137,7 @@ registerSuite('FxiOS v1 signin', {
       );
     },
 
-    unverified: function() {
+    unverified: function () {
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
 
@@ -156,7 +156,7 @@ registerSuite('FxiOS v1 signin', {
       );
     },
 
-    'blocked, valid code entered': function() {
+    'blocked, valid code entered': function () {
       email = createEmail('block{id}');
       const forceUA = UA_STRINGS['ios_firefox_6_1'];
       const query = { forceUA };
@@ -178,7 +178,7 @@ registerSuite('FxiOS v1 signin', {
     },
 
     'signup in desktop, send an SMS, open deferred deeplink in Fx for iOS': disableInProd(
-      function() {
+      function () {
         const testPhoneNumber = createPhoneNumber();
         const forceUA = UA_STRINGS['ios_firefox_6_1'];
         const query = { forceUA };
@@ -196,7 +196,7 @@ registerSuite('FxiOS v1 signin', {
 
             .then(testElementExists(selectors.SMS_SENT.HEADER))
             .then(getSmsSigninCode(testPhoneNumber, 0))
-            .then(function(signinCode) {
+            .then(function (signinCode) {
               query.signin = signinCode;
 
               return this.parent

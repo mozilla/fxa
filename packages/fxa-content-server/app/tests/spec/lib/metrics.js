@@ -498,7 +498,7 @@ describe('lib/metrics', () => {
     });
 
     describe('flush with timer', () => {
-      beforeEach(function(done) {
+      beforeEach(function (done) {
         sinon.stub(environment, 'hasSendBeacon').returns(true);
         sinon.stub(windowMock.navigator, 'sendBeacon').returns(true);
         metrics.startTimer('foo');
@@ -530,7 +530,7 @@ describe('lib/metrics', () => {
       let sendCount = 0;
       const events = [];
 
-      sinon.stub(metrics, '_send').callsFake(data => {
+      sinon.stub(metrics, '_send').callsFake((data) => {
         events[sendCount++] = data.events;
         if (sendCount < 3) {
           // Trigger re-entrant flushes the first couple of times
@@ -704,8 +704,8 @@ describe('lib/metrics', () => {
     });
   });
 
-  describe('setBrokerType', function() {
-    it('sets the broker name', function() {
+  describe('setBrokerType', function () {
+    it('sets the broker name', function () {
       metrics.setBrokerType('fx-desktop-v3');
       const { broker } = metrics.getFilteredData();
 
@@ -713,8 +713,8 @@ describe('lib/metrics', () => {
     });
   });
 
-  describe('setService', function() {
-    it('sets the service identifier', function() {
+  describe('setService', function () {
+    it('sets the service identifier', function () {
       metrics.setService('00112233445566');
       const { service } = metrics.getFilteredData();
 
@@ -722,8 +722,8 @@ describe('lib/metrics', () => {
     });
   });
 
-  describe('setService', function() {
-    it('sets the service identifier', function() {
+  describe('setService', function () {
+    it('sets the service identifier', function () {
       metrics.setService('00112233445566');
       const { service } = metrics.getFilteredData();
 
@@ -731,8 +731,8 @@ describe('lib/metrics', () => {
     });
   });
 
-  describe('setService', function() {
-    it('sets the service identifier', function() {
+  describe('setService', function () {
+    it('sets the service identifier', function () {
       metrics.setService('00112233445566');
       const { service } = metrics.getFilteredData();
 
@@ -976,7 +976,7 @@ describe('lib/metrics', () => {
   });
 
   describe('all together now', () => {
-    it('flushes as expected', done => {
+    it('flushes as expected', (done) => {
       sinon.stub(metrics, '_send').resolves(true);
 
       notifier.trigger('set-uid', 'mock uid');

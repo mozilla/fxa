@@ -26,7 +26,7 @@ export default {
       .resetPassword(this.relier, {
         resume: this.getStringifiedResumeToken(account),
       })
-      .then(result => {
+      .then((result) => {
         this.navigate(
           'confirm_reset_password',
           {

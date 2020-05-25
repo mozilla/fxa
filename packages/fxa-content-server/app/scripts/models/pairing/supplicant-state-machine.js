@@ -16,7 +16,7 @@ class SupplicantState extends State {
     this.listenTo(this.pairingChannelClient, 'close', () =>
       this.socketClosed()
     );
-    this.listenTo(this.pairingChannelClient, 'error', error =>
+    this.listenTo(this.pairingChannelClient, 'error', (error) =>
       this.socketError(error)
     );
   }
@@ -60,7 +60,7 @@ class SendOAuthRequestWaitForAccountMetadata extends SupplicantState {
         this.listenTo(
           this.pairingChannelClient,
           'remote:pair:auth:metadata',
-          data => {
+          (data) => {
             this.broker.setRemoteMetaData(data.remoteMetaData);
 
             this.gotoState(WaitForAuthorizations, data);
@@ -78,7 +78,7 @@ function onAuthAuthorize(NextState, result) {
       this.relier.set({ code });
       this.gotoState(NextState);
     })
-    .catch(err => this.trigger('error', err));
+    .catch((err) => this.trigger('error', err));
 }
 
 class WaitForAuthorizations extends SupplicantState {
@@ -153,7 +153,7 @@ class SendResultToRelier extends SupplicantState {
       .then(() => {
         this.gotoState(State);
       })
-      .catch(err => this.trigger('error', err));
+      .catch((err) => this.trigger('error', err));
   }
 }
 

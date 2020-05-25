@@ -5,7 +5,7 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('signIn', function() {
+describe('signIn', function () {
   var ErrorMocks;
   var RequestMocks;
   var accountHelper;
@@ -15,7 +15,7 @@ describe('signIn', function() {
   var requests;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     ErrorMocks = env.ErrorMocks;
     RequestMocks = env.RequestMocks;
@@ -26,43 +26,43 @@ describe('signIn', function() {
     requests = env.requests;
   });
 
-  it('#basic', function() {
+  it('#basic', function () {
     var email = 'test' + new Date().getTime() + '@restmail.net';
     var password = 'iliketurtles';
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function() {
+      .then(function () {
         return respond(client.signIn(email, password), RequestMocks.signIn);
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.sessionToken);
       }, assert.fail);
   });
 
-  it('#with keys', function() {
+  it('#with keys', function () {
     var email = 'test' + new Date().getTime() + '@restmail.net';
     var password = 'iliketurtles';
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function(res) {
+      .then(function (res) {
         return respond(
           client.signIn(email, password, { keys: true }),
           RequestMocks.signInWithKeys
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.sessionToken);
         assert.ok(res.keyFetchToken);
         assert.ok(res.unwrapBKey);
       }, assert.fail);
   });
 
-  it('#with service', function() {
+  it('#with service', function () {
     var email = 'test' + new Date().getTime() + '@restmail.net';
     var password = 'iliketurtles';
 
     return respond(client.signUp(email, password), RequestMocks.signUp).then(
-      function() {
+      function () {
         return respond(
           client.signIn(email, password, { service: 'sync' }),
           RequestMocks.signIn
@@ -71,12 +71,12 @@ describe('signIn', function() {
     );
   });
 
-  it('#with reason', function() {
+  it('#with reason', function () {
     var email = 'test' + new Date().getTime() + '@restmail.net';
     var password = 'iliketurtles';
 
     return respond(client.signUp(email, password), RequestMocks.signUp).then(
-      function() {
+      function () {
         return respond(
           client.signIn(email, password, { reason: 'password_change' }),
           RequestMocks.signIn
@@ -85,7 +85,7 @@ describe('signIn', function() {
     );
   });
 
-  it('#with Sync/redirectTo', function() {
+  it('#with Sync/redirectTo', function () {
     var user = 'sync.' + new Date().getTime();
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
@@ -102,17 +102,17 @@ describe('signIn', function() {
       client.signUp(email, password, { preVerified: true }),
       RequestMocks.signUp
     )
-      .then(function() {
+      .then(function () {
         return respond(
           client.signIn(email, password, opts),
           RequestMocks.signIn
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.uid);
         return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
       })
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
         var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
 
@@ -121,7 +121,7 @@ describe('signIn', function() {
       }, assert.fail);
   });
 
-  it('#with Sync/resume', function() {
+  it('#with Sync/resume', function () {
     var user = 'sync.' + new Date().getTime();
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
@@ -139,17 +139,17 @@ describe('signIn', function() {
       client.signUp(email, password, { preVerified: true }),
       RequestMocks.signUp
     )
-      .then(function() {
+      .then(function () {
         return respond(
           client.signIn(email, password, opts),
           RequestMocks.signIn
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.uid);
         return respond(mail.wait(user), RequestMocks.mailServiceAndRedirect);
       })
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
         var resume = emails[0].html.match(/resume=([A-Za-z0-9]+)/)[1];
 
@@ -158,8 +158,8 @@ describe('signIn', function() {
       }, assert.fail);
   });
 
-  it('#incorrect email case', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#incorrect email case', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var numSetupRequests = requests ? requests.length : null;
       var incorrectCaseEmail =
         account.input.email.charAt(0).toUpperCase() +
@@ -169,7 +169,7 @@ describe('signIn', function() {
       return respond(
         client.signIn(incorrectCaseEmail, account.input.password),
         RequestMocks.signIn
-      ).then(function(res) {
+      ).then(function (res) {
         assert.property(res, 'sessionToken');
         if (requests) {
           assert.equal(requests.length - numSetupRequests, 2);
@@ -178,8 +178,8 @@ describe('signIn', function() {
     });
   });
 
-  it('#incorrect email case with skipCaseError', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#incorrect email case with skipCaseError', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       var numSetupRequests = requests ? requests.length : null;
       var incorrectCaseEmail =
         account.input.email.charAt(0).toUpperCase() +
@@ -191,10 +191,10 @@ describe('signIn', function() {
         }),
         ErrorMocks.incorrectEmailCase
       ).then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(res) {
+        function (res) {
           assert.equal(res.code, 400);
           assert.equal(res.errno, 120);
           if (requests) {
@@ -205,32 +205,32 @@ describe('signIn', function() {
     });
   });
 
-  it('#incorrectPassword', function() {
+  it('#incorrectPassword', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.signIn(account.input.email, 'wrong password'),
           ErrorMocks.accountIncorrectPassword
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(res) {
+        function (res) {
           assert.equal(res.code, 400);
           assert.equal(res.errno, 103);
         }
       );
   });
 
-  it('#with metricsContext metadata', function() {
+  it('#with metricsContext metadata', function () {
     var email = 'test' + new Date().getTime() + '@restmail.net';
     var password = 'iliketurtles';
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function() {
+      .then(function () {
         return respond(
           client.signIn(email, password, {
             metricsContext: {},
@@ -239,7 +239,7 @@ describe('signIn', function() {
           RequestMocks.signIn
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });

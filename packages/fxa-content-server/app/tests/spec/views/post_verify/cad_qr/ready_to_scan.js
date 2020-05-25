@@ -60,7 +60,7 @@ describe('views/post_verify/cad_qr/ready_to_scan', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();

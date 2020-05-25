@@ -9,7 +9,7 @@ import TestHelpers from '../../../lib/helpers';
 
 var assert = chai.assert;
 
-describe('models/verification/sign-up', function() {
+describe('models/verification/sign-up', function () {
   var invalidCode = TestHelpers.createRandomHexString(
     Constants.CODE_LENGTH + 1
   );
@@ -17,8 +17,8 @@ describe('models/verification/sign-up', function() {
   var invalidUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH + 1);
   var validUid = TestHelpers.createRandomHexString(Constants.UID_LENGTH);
 
-  describe('isValid', function() {
-    it('returns false if uid is missing', function() {
+  describe('isValid', function () {
+    it('returns false if uid is missing', function () {
       var model = new Model({
         code: validCode,
       });
@@ -26,7 +26,7 @@ describe('models/verification/sign-up', function() {
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if uid is invalid', function() {
+    it('returns false if uid is invalid', function () {
       var model = new Model({
         code: validCode,
         uid: invalidUid,
@@ -35,7 +35,7 @@ describe('models/verification/sign-up', function() {
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if code is missing', function() {
+    it('returns false if code is missing', function () {
       var model = new Model({
         uid: validUid,
       });
@@ -43,7 +43,7 @@ describe('models/verification/sign-up', function() {
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if code is invalid', function() {
+    it('returns false if code is invalid', function () {
       var model = new Model({
         code: invalidCode,
         uid: validUid,
@@ -52,7 +52,7 @@ describe('models/verification/sign-up', function() {
       assert.isFalse(model.isValid());
     });
 
-    it('returns true otherwise', function() {
+    it('returns true otherwise', function () {
       var model = new Model({
         code: validCode,
         uid: validUid,

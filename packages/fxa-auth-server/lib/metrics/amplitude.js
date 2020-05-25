@@ -102,7 +102,7 @@ const FUZZY_EVENTS = new Map([
   [
     /^email\.(\w+)\.bounced$/,
     {
-      group: eventCategory =>
+      group: (eventCategory) =>
         EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
       event: 'bounced',
     },
@@ -110,7 +110,7 @@ const FUZZY_EVENTS = new Map([
   [
     /^email\.(\w+)\.sent$/,
     {
-      group: eventCategory =>
+      group: (eventCategory) =>
         EMAIL_TYPES[eventCategory] ? GROUPS.email : null,
       event: 'sent',
     },
@@ -118,7 +118,7 @@ const FUZZY_EVENTS = new Map([
   [
     /^flow\.complete\.(\w+)$/,
     {
-      group: eventCategory => GROUPS[eventCategory],
+      group: (eventCategory) => GROUPS[eventCategory],
       event: 'complete',
     },
   ],
@@ -136,7 +136,7 @@ module.exports = (log, config) => {
     log,
     config
   );
-  verificationReminders.keys.forEach(key => {
+  verificationReminders.keys.forEach((key) => {
     EMAIL_TYPES[
       `verificationReminder${key[0].toUpperCase()}${key.substr(1)}Email`
     ] = 'registration';

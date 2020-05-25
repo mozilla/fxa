@@ -21,13 +21,13 @@ describe('PasswordForgotToken', () => {
   it('can re-create from tokenData', () => {
     let token = null;
     return PasswordForgotToken.create(ACCOUNT)
-      .then(x => {
+      .then((x) => {
         token = x;
       })
       .then(() => {
         return PasswordForgotToken.fromHex(token.data, ACCOUNT);
       })
-      .then(token2 => {
+      .then((token2) => {
         assert.deepEqual(token.data, token2.data);
         assert.deepEqual(token.id, token2.id);
         assert.deepEqual(token.authKey, token2.authKey);
@@ -38,7 +38,7 @@ describe('PasswordForgotToken', () => {
   });
 
   it('ttl "works"', () => {
-    return PasswordForgotToken.create(ACCOUNT).then(token => {
+    return PasswordForgotToken.create(ACCOUNT).then((token) => {
       token.createdAt = timestamp;
       assert.equal(token.ttl(timestamp), 900);
       assert.equal(token.ttl(timestamp + 1000), 899);
@@ -47,7 +47,7 @@ describe('PasswordForgotToken', () => {
   });
 
   it('failAttempt decrements `tries`', () => {
-    return PasswordForgotToken.create(ACCOUNT).then(x => {
+    return PasswordForgotToken.create(ACCOUNT).then((x) => {
       assert.equal(x.tries, 3);
       assert.equal(x.failAttempt(), false);
       assert.equal(x.tries, 2);

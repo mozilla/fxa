@@ -34,7 +34,7 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
-const setupTest = thenify(function(options = {}) {
+const setupTest = thenify(function (options = {}) {
   const signInEmail = options.signInEmail || email;
   const signUpEmail = options.signUpEmail || email;
 
@@ -62,14 +62,14 @@ const setupTest = thenify(function(options = {}) {
 });
 
 registerSuite('Firefox Desktop Sync v3 signin', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'verified, does not need to confirm ': function() {
+    'verified, does not need to confirm ': function () {
       email = createEmail();
       const query = {
         forceUA: uaStrings['desktop_firefox_58'],
@@ -87,7 +87,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    verified: function() {
+    verified: function () {
       return this.remote
         .then(setupTest({ preVerified: true }))
         .then(fillOutSignInTokenCode(email, 0))
@@ -95,7 +95,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'verified, resend': function() {
+    'verified, resend': function () {
       return (
         this.remote
           .then(setupTest({ preVerified: true }))
@@ -111,7 +111,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
       );
     },
 
-    'verified - invalid code': function() {
+    'verified - invalid code': function () {
       return (
         this.remote
           .then(setupTest({ preVerified: true }))
@@ -127,7 +127,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
       );
     },
 
-    unverified: function() {
+    unverified: function () {
       // this test does a lot of waiting around, give it a little extra time
       this.timeout = 60 * 1000;
 
@@ -156,7 +156,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
       );
     },
 
-    'verified, blocked': function() {
+    'verified, blocked': function () {
       email = createEmail('blocked{id}');
       return this.remote
         .then(setupTest({ blocked: true, preVerified: true }))
@@ -167,7 +167,7 @@ registerSuite('Firefox Desktop Sync v3 signin', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    'verified, blocked, incorrect email case': function() {
+    'verified, blocked, incorrect email case': function () {
       const signUpEmail = createEmail('blocked{id}');
       const signInEmail = signUpEmail.toUpperCase();
       return (

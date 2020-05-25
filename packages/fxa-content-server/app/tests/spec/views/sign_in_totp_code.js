@@ -144,7 +144,7 @@ describe('views/sign_in_totp_code', () => {
       '001-001',
       '111 111',
     ];
-    validCodes.forEach(code => {
+    validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
           view.$('.totp-code').val(code);

@@ -21,35 +21,35 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('too many failed logins from the same IP', function(t) {
+test('too many failed logins from the same IP', function (t) {
   return client
     .postAsync('/failedLoginAttempt', { email: TEST_EMAIL, ip: TEST_IP })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'first login attempt noted');
       return client.postAsync('/failedLoginAttempt', {
         email: TEST_EMAIL,
         ip: TEST_IP,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'second login attempt noted');
 
       return mcHelper.badLoginCheck();
     })
-    .then(function(records) {
+    .then(function (records) {
       t.equal(
         records.ipEmailRecord.isOverBadLogins(),
         false,
@@ -61,30 +61,30 @@ test('too many failed logins from the same IP', function(t) {
         ip: TEST_IP,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'third login attempt noted');
 
       return mcHelper.badLoginCheck();
     })
-    .then(function(records) {
+    .then(function (records) {
       t.equal(
         records.ipEmailRecord.isOverBadLogins(),
         true,
         'is now over bad logins'
       );
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('failed logins expire', function(t) {
+test('failed logins expire', function (t) {
   return Promise.delay(config.limits.rateLimitIntervalSeconds * 1000)
-    .then(function() {
+    .then(function () {
       return mcHelper.badLoginCheck();
     })
-    .then(function(records) {
+    .then(function (records) {
       t.equal(
         records.ipEmailRecord.isOverBadLogins(),
         false,
@@ -94,14 +94,14 @@ test('failed logins expire', function(t) {
     });
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

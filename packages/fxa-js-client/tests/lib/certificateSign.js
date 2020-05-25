@@ -5,14 +5,14 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('certificateSign', function() {
+describe('certificateSign', function () {
   var accountHelper;
   var respond;
   var client;
   var RequestMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -20,10 +20,10 @@ describe('certificateSign', function() {
     RequestMocks = env.RequestMocks;
   });
 
-  it('#basic', function() {
+  it('#basic', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         var publicKey = {
           algorithm: 'RS',
           n:
@@ -41,15 +41,15 @@ describe('certificateSign', function() {
           RequestMocks.certificateSign
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.property(res, 'cert', 'got cert');
       }, assert.fail);
   });
 
-  it('#with service option', function() {
+  it('#with service option', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         var publicKey = {
           algorithm: 'RS',
           n:
@@ -70,7 +70,7 @@ describe('certificateSign', function() {
           RequestMocks.certificateSign
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
       }, assert.fail);
   });

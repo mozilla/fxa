@@ -45,7 +45,7 @@ describe('/certificate/sign', () => {
       uaOSVersion: 'bar',
       uaDeviceType: 'baz',
       uaFormFactor: 'qux',
-    }).then(result => {
+    }).then((result) => {
       assert.equal(
         result.lastAccessTime,
         undefined,
@@ -330,10 +330,10 @@ describe('/certificate/sign', () => {
         log: mockLog,
       },
       mockRequest,
-      r => {
+      (r) => {
         assert.fail('should have errored');
       },
-      e => {
+      (e) => {
         assert.equal(e.errno, 138, 'failed due to unverified session');
       }
     );
@@ -349,7 +349,7 @@ describe('/certificate/sign', () => {
         log: mockLog,
       },
       mockRequest,
-      res => {
+      (res) => {
         assert.ok(res);
       }
     );
@@ -381,13 +381,13 @@ describe('/certificate/sign', () => {
     return require('../../../lib/routes/sign')(
       log,
       options.signer || {
-        sign: function() {
+        sign: function () {
           return P.resolve({});
         },
       },
       options.db || {
-        touchSessionToken: function() {},
-        updateLocale: function() {},
+        touchSessionToken: function () {},
+        updateLocale: function () {},
       },
       options.domain || 'wibble',
       options.devices

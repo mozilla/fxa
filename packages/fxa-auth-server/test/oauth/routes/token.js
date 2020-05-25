@@ -30,7 +30,7 @@ function joiNotAllowed(err, param) {
   assert.equal(err.details[0].message, `"${param}" is not allowed`);
 }
 
-describe('/token POST', function() {
+describe('/token POST', function () {
   describe('input validation', () => {
     // route validation function
     function v(req, ctx, cb) {
@@ -41,47 +41,47 @@ describe('/token POST', function() {
       Joi.validate(req, route.validate.payload, { context: ctx }, cb);
     }
 
-    it('fails with no client_id', done => {
+    it('fails with no client_id', (done) => {
       v(
         {
           client_secret: CLIENT_SECRET,
           code: CODE,
         },
-        err => {
+        (err) => {
           joiRequired(err, 'client_id');
           done();
         }
       );
     });
 
-    it('valid client_secret scheme', done => {
+    it('valid client_secret scheme', (done) => {
       v(
         {
           client_id: CLIENT_ID,
           client_secret: CLIENT_SECRET,
           code: CODE,
         },
-        err => {
+        (err) => {
           assert.equal(err, null);
           done();
         }
       );
     });
 
-    it('requires client_secret', done => {
+    it('requires client_secret', (done) => {
       v(
         {
           client_id: CLIENT_ID,
           code: CODE,
         },
-        err => {
+        (err) => {
           joiRequired(err, 'client_secret');
           done();
         }
       );
     });
 
-    it('forbids client_id when authz header provided', done => {
+    it('forbids client_id when authz header provided', (done) => {
       v(
         {
           client_id: CLIENT_ID,
@@ -91,14 +91,14 @@ describe('/token POST', function() {
             authorization: 'Basic ABCDEF',
           },
         },
-        err => {
+        (err) => {
           joiNotAllowed(err, 'client_id');
           done();
         }
       );
     });
 
-    it('forbids client_secret when authz header provided', done => {
+    it('forbids client_secret when authz header provided', (done) => {
       v(
         {
           client_secret: CLIENT_SECRET,
@@ -109,7 +109,7 @@ describe('/token POST', function() {
             authorization: 'Basic ABCDEF',
           },
         },
-        err => {
+        (err) => {
           joiNotAllowed(err, 'client_secret');
           done();
         }
@@ -117,21 +117,21 @@ describe('/token POST', function() {
     });
 
     describe('pkce', () => {
-      it('accepts pkce code_verifier instead of client_secret', done => {
+      it('accepts pkce code_verifier instead of client_secret', (done) => {
         v(
           {
             client_id: CLIENT_ID,
             code_verifier: PKCE_CODE_VERIFIER,
             code: CODE,
           },
-          err => {
+          (err) => {
             assert.equal(err, null);
             done();
           }
         );
       });
 
-      it('rejects pkce code_verifier that is too small', done => {
+      it('rejects pkce code_verifier that is too small', (done) => {
         const bad_code_verifier = PKCE_CODE_VERIFIER.substring(0, 32);
         v(
           {
@@ -139,7 +139,7 @@ describe('/token POST', function() {
             code_verifier: bad_code_verifier,
             code: CODE,
           },
-          err => {
+          (err) => {
             assert.ok(err.isJoi);
             assert.ok(err.name, 'ValidationError');
             assert.equal(
@@ -152,7 +152,7 @@ describe('/token POST', function() {
         );
       });
 
-      it('rejects pkce code_verifier that is too big', done => {
+      it('rejects pkce code_verifier that is too big', (done) => {
         const bad_code_verifier =
           PKCE_CODE_VERIFIER +
           PKCE_CODE_VERIFIER +
@@ -164,7 +164,7 @@ describe('/token POST', function() {
             code_verifier: bad_code_verifier,
             code: CODE,
           },
-          err => {
+          (err) => {
             assert.ok(err.isJoi);
             assert.ok(err.name, 'ValidationError');
             assert.equal(
@@ -177,7 +177,7 @@ describe('/token POST', function() {
         );
       });
 
-      it('rejects pkce code_verifier that contains invalid characters', done => {
+      it('rejects pkce code_verifier that contains invalid characters', (done) => {
         const bad_code_verifier = PKCE_CODE_VERIFIER + ' :.';
         v(
           {
@@ -185,7 +185,7 @@ describe('/token POST', function() {
             code_verifier: bad_code_verifier,
             code: CODE,
           },
-          err => {
+          (err) => {
             assert.ok(err.isJoi);
             assert.ok(err.name, 'ValidationError');
             assert.equal(

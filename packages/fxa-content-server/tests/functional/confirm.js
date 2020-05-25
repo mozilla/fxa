@@ -24,12 +24,12 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('confirm', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'visit confirmation screen without initiating sign up, user is redirected to /signup': function() {
+    'visit confirmation screen without initiating sign up, user is redirected to /signup': function () {
       return (
         this.remote
           // user is immediately redirected to / if they have no sessionToken.
@@ -37,7 +37,7 @@ registerSuite('confirm', {
       );
     },
 
-    'sign up, wait for confirmation screen, click resend': function() {
+    'sign up, wait for confirmation screen, click resend': function () {
       const email = 'test_signin' + Math.random() + '@restmail.dev.lcip.org';
 
       return (

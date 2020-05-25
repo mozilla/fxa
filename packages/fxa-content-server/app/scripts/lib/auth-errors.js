@@ -9,7 +9,7 @@ import Errors from './errors';
 import Logger from './logger';
 var logger = new Logger();
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 var UNEXPECTED_ERROR_MESSAGE = t('Unexpected error');
 var EXPIRED_VERIFICATION_ERROR_MESSAGE = t(

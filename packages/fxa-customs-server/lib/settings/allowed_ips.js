@@ -30,7 +30,7 @@ module.exports = (config, Settings, log) => {
         log.error({ op: 'allowedIPs.validate.invalid', data: ips });
         throw new Settings.Missing('invalid allowedIPs from memcache');
       }
-      return ips.filter(function(ip) {
+      return ips.filter(function (ip) {
         var is = net.isIPv4(ip);
         if (!is) {
           log.error({ op: 'allowedIPs.validate.err', ip: ip });

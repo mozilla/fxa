@@ -47,7 +47,7 @@ const View = FormView.extend({
     const password = this.model.get('password');
     const unblockCode = this.getElementValue('#unblock_code');
 
-    return this.signIn(account, password, { unblockCode }).catch(err =>
+    return this.signIn(account, password, { unblockCode }).catch((err) =>
       this.onSignInError(account, password, err)
     );
   },
@@ -73,7 +73,7 @@ const View = FormView.extend({
   _sendUnblockEmail() {
     return this.getAccount()
       .sendUnblockEmail()
-      .catch(err => this.displayError(err));
+      .catch((err) => this.displayError(err));
   },
 
   /**

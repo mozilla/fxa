@@ -19,7 +19,7 @@ jest.mock('./actions', () => ({
 import { actions } from './actions';
 import { sequences } from './sequences';
 
-const dispatch = jest.fn().mockImplementation(async action => {
+const dispatch = jest.fn().mockImplementation(async (action) => {
   if (typeof action === 'function') {
     return await action(dispatch);
   }

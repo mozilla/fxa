@@ -37,13 +37,13 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Firefox Desktop non-sync', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'signup with no service - sync': function() {
+    'signup with no service - sync': function () {
       return (
         this.remote
           .then(
@@ -72,7 +72,7 @@ registerSuite('Firefox Desktop non-sync', {
           .then(testIsBrowserNotified('fxaccounts:login'))
       );
     },
-    'signin with no service - do not sync': function() {
+    'signin with no service - do not sync': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -110,7 +110,7 @@ registerSuite('Firefox Desktop non-sync', {
         )
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
-    'signin with no service - sync': function() {
+    'signin with no service - sync': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(
@@ -152,13 +152,13 @@ registerSuite('Firefox Desktop non-sync', {
 });
 
 registerSuite('Firefox Desktop non-sync - CWTS on signup', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('signupPasswordCWTS.{id}');
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'signup with no service - do not sync': function() {
+    'signup with no service - do not sync': function () {
       return (
         this.remote
           .then(
@@ -200,13 +200,13 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
           .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(
-            testIsBrowserNotified('fxaccounts:login', event => {
+            testIsBrowserNotified('fxaccounts:login', (event) => {
               assert.deepEqual(event.data.services, {});
             })
           )
       );
     },
-    'signup with no service - sync': function() {
+    'signup with no service - sync': function () {
       return this.remote
         .then(
           openPage(EMAIL_FIRST_URL, selectors.ENTER_EMAIL.SUB_HEADER, {
@@ -241,7 +241,7 @@ registerSuite('Firefox Desktop non-sync - CWTS on signup', {
         .then(fillOutSignUpCode(email, 0))
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
         .then(
-          testIsBrowserNotified('fxaccounts:login', event => {
+          testIsBrowserNotified('fxaccounts:login', (event) => {
             assert.deepEqual(event.data.services, {
               sync: {
                 declinedEngines: ['bookmarks', 'history'],

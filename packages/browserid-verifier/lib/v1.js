@@ -78,7 +78,7 @@ function verify(verifier, req, res) {
       trustedIssuers: trustedIssuers,
       fallback: config.get('fallback'),
     },
-    function(err, r) {
+    function (err, r) {
       var reqTime = new Date() - startTime;
       log.info('assertion_verification_time', { reqTime });
       res._summary.assertion_verification_time = reqTime;

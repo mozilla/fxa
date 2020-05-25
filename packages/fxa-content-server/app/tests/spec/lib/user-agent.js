@@ -30,7 +30,7 @@ describe('lib/user-agent', () => {
           'en-US) Presto/2.9.201 Version/12.02',
       ];
 
-      androidUserAgentStrings.forEach(userAgentString => {
+      androidUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isAndroid());
       });
@@ -48,7 +48,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
       ];
 
-      notAndroidUserAgentStrings.forEach(userAgentString => {
+      notAndroidUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isAndroid());
       });
@@ -69,7 +69,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B137 Safari/601.1',
       ];
 
-      iosUserAgentStrings.forEach(userAgentString => {
+      iosUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isIos());
       });
@@ -90,7 +90,7 @@ describe('lib/user-agent', () => {
           'Chrome/42.0.2311.135 Mobile Safari/537.36 Edge/12.10166',
       ];
 
-      notIosUserAgentStrings.forEach(userAgentString => {
+      notIosUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isIos());
       });
@@ -103,7 +103,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/20.2 Safari/605.1.15',
       ];
 
-      iosUserAgentStrings.forEach(userAgentString => {
+      iosUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isDesktopFirefoxOnIpad());
       });
@@ -117,7 +117,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (iPad; CPU OS 10_1_1 like Mac OS X) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0 Mobile/14B100 Safari/602.1',
       ];
 
-      isNotIosDesktopUserAgentStrings.forEach(userAgentString => {
+      isNotIosDesktopUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isDesktopFirefoxOnIpad());
       });
@@ -140,7 +140,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (Windows NT 10.0; WOW64; rv:46.0) Gecko/20100101 Firefox/65.0',
       ];
 
-      firefoxUserAgentStrings.forEach(userAgentString => {
+      firefoxUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isFirefox());
       });
@@ -160,7 +160,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B137 Safari/601.1',
       ];
 
-      notFirefoxUserAgentStrings.forEach(userAgentString => {
+      notFirefoxUserAgentStrings.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isFirefox());
       });
@@ -174,7 +174,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (Android 4.4; Tablet; rv:46.0) Gecko/46.0 Firefox/65.0',
       ];
 
-      fennecUserAgents.forEach(userAgentString => {
+      fennecUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isFirefoxAndroid(), userAgentString);
       });
@@ -196,7 +196,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
       ];
 
-      notFennecUserAgents.forEach(userAgentString => {
+      notFennecUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isFirefoxAndroid(), userAgentString);
       });
@@ -210,7 +210,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
       ];
 
-      IEAgents.forEach(userAgentString => {
+      IEAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isIE(), userAgentString);
       });
@@ -228,7 +228,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
       ];
 
-      notIE.forEach(userAgentString => {
+      notIE.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isIE(), userAgentString);
       });
@@ -244,7 +244,7 @@ describe('lib/user-agent', () => {
           'Chrome/51.0.2704.79 Safari/537.36 Edge/14.14393',
       ];
 
-      EdgeAgents.forEach(userAgentString => {
+      EdgeAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isEdge(), userAgentString);
       });
@@ -262,7 +262,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
       ];
 
-      notEdge.forEach(userAgentString => {
+      notEdge.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isEdge(), userAgentString);
       });
@@ -276,7 +276,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
       ];
 
-      fxIosUserAgents.forEach(userAgentString => {
+      fxIosUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isFirefoxIos(), userAgentString);
       });
@@ -301,7 +301,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
       ];
 
-      notFxIosUserAgents.forEach(userAgentString => {
+      notFxIosUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isFirefoxIos(), userAgentString);
       });
@@ -324,7 +324,7 @@ describe('lib/user-agent', () => {
         'Mozilla/5.0 (X11; Linux i686 on x86_64; rv:10.0) Gecko/20100101 Firefox/10.0',
       ];
 
-      fxDesktopUserAgents.forEach(userAgentString => {
+      fxDesktopUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isFirefoxDesktop(), userAgentString);
       });
@@ -350,7 +350,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
       ];
 
-      notFxDesktopUserAgents.forEach(userAgentString => {
+      notFxDesktopUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isFirefoxDesktop(), userAgentString);
       });
@@ -368,7 +368,7 @@ describe('lib/user-agent', () => {
           'Version/10.0 Mobile/14B100 Safari/602.1',
       ];
 
-      mobileSafariUserAgents.forEach(userAgentString => {
+      mobileSafariUserAgents.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.isMobileSafari());
       });
@@ -388,7 +388,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
       ];
 
-      notMobileSafari.forEach(userAgentString => {
+      notMobileSafari.forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.isMobileSafari());
       });
@@ -495,7 +495,7 @@ describe('lib/user-agent', () => {
       wearable: 'mobile',
     };
 
-    Object.keys(typeToGenericType).forEach(type => {
+    Object.keys(typeToGenericType).forEach((type) => {
       const genericType = typeToGenericType[type];
       it(`converts ${type} to ${genericType}`, () => {
         const uap = new UserAgent();
@@ -504,12 +504,12 @@ describe('lib/user-agent', () => {
     });
   });
 
-  describe('toGenericOSName', function() {
+  describe('toGenericOSName', function () {
     function eq(os, expected) {
       assert.equal(UserAgent.toGenericOSName(os), expected);
     }
 
-    it('returns proper generic operating system names', function() {
+    it('returns proper generic operating system names', function () {
       eq('Windows 10', 'Windows');
       eq('Windows RT 8.1', 'Windows');
       eq('Windows 7', 'Windows');
@@ -552,7 +552,7 @@ describe('lib/user-agent', () => {
         // Chrome Android
         'Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) ' +
           'AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19',
-      ].forEach(userAgentString => {
+      ].forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isTrue(uap.supportsSvgTransformOrigin(), userAgentString);
       });
@@ -569,7 +569,7 @@ describe('lib/user-agent', () => {
           'AppleWebKit/600.1.4 (KHTML, like Gecko) FxiOS/1.0 Mobile/12F69 Safari/600.1.4',
         // IE
         'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; Trident/6.0)',
-      ].forEach(userAgentString => {
+      ].forEach((userAgentString) => {
         const uap = new UserAgent(userAgentString);
         assert.isFalse(uap.supportsSvgTransformOrigin(), userAgentString);
       });

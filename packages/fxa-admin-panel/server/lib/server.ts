@@ -84,7 +84,7 @@ app.get('/__version__', (_, res) =>
 function injectMetaContent(html: string, metaContent: { [x: string]: any }) {
   let result = html;
 
-  Object.keys(metaContent).forEach(k => {
+  Object.keys(metaContent).forEach((k) => {
     result = result.replace(
       k,
       encodeURIComponent(JSON.stringify(metaContent[k]))
@@ -112,7 +112,7 @@ if (proxyUrl) {
   app.use(
     '/',
     proxy(proxyUrl, {
-      userResDecorator: function(
+      userResDecorator: function (
         proxyRes: Request,
         proxyResData: Response,
         userReq: Request
@@ -143,7 +143,7 @@ if (proxyUrl) {
     { encoding: 'UTF-8' }
   );
 
-  ['/', '/email-blocks'].forEach(route => {
+  ['/', '/email-blocks'].forEach((route) => {
     // FIXME: should set ETag, Not-Modified:
     app.get(route, (req, res) => {
       res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG));
@@ -164,7 +164,7 @@ export async function createServer() {
   const port = config.get('listen.port');
   const host = config.get('listen.host');
   logger.info('server.starting', { port });
-  app.listen(port, host, error => {
+  app.listen(port, host, (error) => {
     if (error) {
       logger.error('server.start.error', { error });
       return;

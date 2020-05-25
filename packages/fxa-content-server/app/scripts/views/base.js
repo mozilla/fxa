@@ -162,7 +162,7 @@ var BaseView = Backbone.View.extend({
    */
   partialTemplates: {},
 
-  constructor: function(options = {}) {
+  constructor: function (options = {}) {
     this.broker = options.broker;
     this.currentPage = options.currentPage;
     this.model = options.model || new Backbone.Model();
@@ -196,7 +196,7 @@ var BaseView = Backbone.View.extend({
       if (_.isString(method) && _.isFunction(this[method])) {
         // a function must be used instead of a fat arrow
         // or else Backbone will not add the handler.
-        this.events[eventName] = function(...args) {
+        this.events[eventName] = function (...args) {
           this[method](...args);
         };
       }
@@ -262,10 +262,10 @@ var BaseView = Backbone.View.extend({
     this._hasNavigated = false;
     return Promise.resolve()
       .then(() => this.checkAuthorization())
-      .then(isUserAuthorized => {
+      .then((isUserAuthorized) => {
         return isUserAuthorized && this.beforeRender();
       })
-      .then(shouldRender => {
+      .then((shouldRender) => {
         // rendering is opt out, should not occur if the view
         // has already navigated.
         if (shouldRender === false || this.hasNavigated()) {
@@ -296,7 +296,7 @@ var BaseView = Backbone.View.extend({
             return this.afterRender();
           });
       })
-      .then(shouldDisplay => {
+      .then((shouldDisplay) => {
         return shouldDisplay !== false && !this.hasNavigated();
       });
   },
@@ -319,10 +319,10 @@ var BaseView = Backbone.View.extend({
       this.getContext(),
       {
         // `t` is a Mustache helper to translate and HTML escape strings.
-        t: msg => this.translateInTemplate(msg, context),
+        t: (msg) => this.translateInTemplate(msg, context),
         // `unsafeTranslate` is a Mustache helper that translates a
         // string without HTML escaping. Prefer `t`
-        unsafeTranslate: msg => this.unsafeTranslateInTemplate(msg, context),
+        unsafeTranslate: (msg) => this.unsafeTranslateInTemplate(msg, context),
       },
       additionalContext
     );
@@ -360,7 +360,7 @@ var BaseView = Backbone.View.extend({
   checkAuthorization() {
     if (this.mustAuth || this.mustVerify) {
       return this.user.sessionStatus().then(
-        account => {
+        (account) => {
           if (this.mustVerify && !account.get('verified')) {
             this.relier.set('redirectTo', this.currentPage);
             let targetScreen;
@@ -397,7 +397,7 @@ var BaseView = Backbone.View.extend({
 
           return true;
         },
-        err => {
+        (err) => {
           if (AuthErrors.is(err, 'INVALID_TOKEN')) {
             this.logError(AuthErrors.toError('SESSION_EXPIRED'));
             // The redirectTo in .navigate() is lost if there's later navigations, so by saving it here
@@ -533,7 +533,7 @@ var BaseView = Backbone.View.extend({
    * @returns {Function}
    */
   translateInTemplate(text, context) {
-    return innerText => this.translate(text || innerText, context);
+    return (innerText) => this.translate(text || innerText, context);
   },
 
   /**
@@ -548,7 +548,7 @@ var BaseView = Backbone.View.extend({
    * @returns {function}
    */
   unsafeTranslateInTemplate(text, context) {
-    return innerText => this.unsafeTranslate(text || innerText, context);
+    return (innerText) => this.unsafeTranslate(text || innerText, context);
   },
 
   /**
@@ -1105,7 +1105,7 @@ var BaseView = Backbone.View.extend({
    * @returns {Promise}
    */
   invokeBrokerMethod(methodName, ...args) {
-    return Promise.resolve(this.broker[methodName](...args)).then(behavior =>
+    return Promise.resolve(this.broker[methodName](...args)).then((behavior) =>
       this.invokeBehavior(behavior, ...args)
     );
   },
@@ -1129,7 +1129,7 @@ var BaseView = Backbone.View.extend({
         }
         return behavior;
       })
-      .then(result => {
+      .then((result) => {
         // recursively invoke returned behaviors.
         if (_.isFunction(behavior)) {
           return this.invokeBehavior(result, ...args);

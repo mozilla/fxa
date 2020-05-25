@@ -54,7 +54,7 @@ describe('views/pair/auth_complete', () => {
     sinon.stub(view, 'invokeBrokerMethod').callsFake(() => {});
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 
@@ -87,10 +87,7 @@ describe('views/pair/auth_complete', () => {
         );
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el
-            .find('.location')
-            .text()
-            .trim(),
+          view.$el.find('.location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(

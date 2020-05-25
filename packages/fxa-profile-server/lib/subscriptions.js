@@ -4,7 +4,7 @@
 
 // This is an abbreviated version of the function from
 // fxa-auth-server/lib/routes/utils/subscriptions.js
-exports.determineClientVisibleSubscriptionCapabilities = function(
+exports.determineClientVisibleSubscriptionCapabilities = function (
   clientId,
   allCapabilities
 ) {

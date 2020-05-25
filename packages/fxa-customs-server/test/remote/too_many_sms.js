@@ -35,20 +35,20 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('/check `connectDeviceSms` by number', function(t) {
+test('/check `connectDeviceSms` by number', function (t) {
   // Send requests until throttled
   return (
     client
@@ -58,7 +58,7 @@ test('/check `connectDeviceSms` by number', function(t) {
         payload: { phoneNumber: PHONE_NUMBER },
         action: CONNECT_DEVICE_SMS,
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         return client.postAsync('/check', {
@@ -68,7 +68,7 @@ test('/check `connectDeviceSms` by number', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         return client.postAsync('/check', {
@@ -78,7 +78,7 @@ test('/check `connectDeviceSms` by number', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'rate limited');
         t.equal(obj.retryAfter, 1, 'rate limit retry amount');
@@ -90,7 +90,7 @@ test('/check `connectDeviceSms` by number', function(t) {
           action: 'anotherAction',
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
 
@@ -103,7 +103,7 @@ test('/check `connectDeviceSms` by number', function(t) {
         });
       })
       // Reissue requests to verify that throttling is disabled
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'rate limited');
         t.equal(obj.retryAfter, 1, 'rate limit retry amount');
@@ -111,7 +111,7 @@ test('/check `connectDeviceSms` by number', function(t) {
         // Delay ~1s for rate limit to go away
         return Promise.delay(1010);
       })
-      .then(function() {
+      .then(function () {
         // Issuing request for another ip address to the same phone number is still rate limited
         return client.postAsync('/check', {
           ip: TEST_IP5,
@@ -120,19 +120,19 @@ test('/check `connectDeviceSms` by number', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       })
   );
 });
 
-test('/check `connectDeviceSms` by allowed phone number', function(t) {
+test('/check `connectDeviceSms` by allowed phone number', function (t) {
   // synthesize sending a bunch of SMS to the same phone number
   // from the same IP address, much like functional tests.
   // The IP address and the phone number would both be rate
@@ -144,7 +144,7 @@ test('/check `connectDeviceSms` by allowed phone number', function(t) {
       payload: { phoneNumber: ALLOWED_PHONE_NUMBER },
       action: CONNECT_DEVICE_SMS,
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.block, false, 'not rate limited');
       return client.postAsync('/check', {
@@ -154,7 +154,7 @@ test('/check `connectDeviceSms` by allowed phone number', function(t) {
         action: CONNECT_DEVICE_SMS,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.block, false, 'not rate limited');
       return client.postAsync('/check', {
@@ -164,7 +164,7 @@ test('/check `connectDeviceSms` by allowed phone number', function(t) {
         action: CONNECT_DEVICE_SMS,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.block, false, 'not rate limited');
       return client.postAsync('/check', {
@@ -174,7 +174,7 @@ test('/check `connectDeviceSms` by allowed phone number', function(t) {
         action: CONNECT_DEVICE_SMS,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.block, false, 'not rate limited');
       return client.postAsync('/check', {
@@ -184,18 +184,18 @@ test('/check `connectDeviceSms` by allowed phone number', function(t) {
         action: CONNECT_DEVICE_SMS,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.block, false, 'not rate limited');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('/check `connectDeviceSms` by ip', function(t) {
+test('/check `connectDeviceSms` by ip', function (t) {
   // Send requests until throttled
   return (
     client
@@ -205,7 +205,7 @@ test('/check `connectDeviceSms` by ip', function(t) {
         payload: { phoneNumber: '1111111111' },
         action: CONNECT_DEVICE_SMS,
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         return client.postAsync('/check', {
@@ -215,7 +215,7 @@ test('/check `connectDeviceSms` by ip', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         return client.postAsync('/check', {
@@ -225,7 +225,7 @@ test('/check `connectDeviceSms` by ip', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'rate limited');
         t.equal(obj.retryAfter, 1, 'rate limit retry amount');
@@ -238,7 +238,7 @@ test('/check `connectDeviceSms` by ip', function(t) {
           action: 'anotherAction',
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'rate limited');
 
@@ -250,7 +250,7 @@ test('/check `connectDeviceSms` by ip', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'rate limited');
         t.equal(obj.retryAfter, 1, 'rate limit retry amount');
@@ -260,7 +260,7 @@ test('/check `connectDeviceSms` by ip', function(t) {
       })
 
       // Reissue requests to verify that throttling is disabled
-      .then(function() {
+      .then(function () {
         return client.postAsync('/check', {
           ip: TEST_IP4,
           email: 'test6@example.com',
@@ -268,19 +268,19 @@ test('/check `connectDeviceSms` by ip', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       })
   );
 });
 
-test('/check `connectDeviceSms` by email', function(t) {
+test('/check `connectDeviceSms` by email', function (t) {
   // Send requests until throttled
   return (
     client
@@ -290,7 +290,7 @@ test('/check `connectDeviceSms` by email', function(t) {
         payload: { phoneNumber: '1111111111' },
         action: CONNECT_DEVICE_SMS,
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         return client.postAsync('/check', {
@@ -300,7 +300,7 @@ test('/check `connectDeviceSms` by email', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         return client.postAsync('/check', {
@@ -310,7 +310,7 @@ test('/check `connectDeviceSms` by email', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'rate limited');
         t.equal(obj.retryAfter, 1, 'rate limit retry amount');
@@ -322,7 +322,7 @@ test('/check `connectDeviceSms` by email', function(t) {
           action: 'anotherAction',
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'rate limited');
 
@@ -334,7 +334,7 @@ test('/check `connectDeviceSms` by email', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'rate limited');
         t.equal(obj.retryAfter, 1, 'rate limit retry amount');
@@ -344,7 +344,7 @@ test('/check `connectDeviceSms` by email', function(t) {
       })
 
       // Reissue requests to verify that throttling is disabled
-      .then(function() {
+      .then(function () {
         return client.postAsync('/check', {
           ip: TEST_IP6,
           email: 'test1@example.com',
@@ -352,26 +352,26 @@ test('/check `connectDeviceSms` by email', function(t) {
           action: CONNECT_DEVICE_SMS,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       })
   );
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

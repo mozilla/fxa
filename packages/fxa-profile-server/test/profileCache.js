@@ -28,7 +28,7 @@ function token() {
 function clearRequireCache() {
   // Delete require cache so that correct configuration values get injected when
   // recreating server
-  Object.keys(require.cache).forEach(function(key) {
+  Object.keys(require.cache).forEach(function (key) {
     delete require.cache[key];
   });
 }
@@ -42,7 +42,7 @@ const MOZILLA_EMAIL = 'user@mozilla.com';
 const PROFILE_CHANGED_AT = Date.now();
 const PROFILE_CHANGED_AT_LATER_TIME = PROFILE_CHANGED_AT + 1000;
 
-describe('profile cache', function() {
+describe('profile cache', function () {
   let Server;
   let mock;
 
@@ -64,7 +64,7 @@ describe('profile cache', function() {
     });
   }
 
-  before(async function() {
+  before(async function () {
     clearRequireCache();
     const testServer = require('./lib/server');
     Server = await testServer.create();
@@ -73,7 +73,7 @@ describe('profile cache', function() {
     return Server;
   });
 
-  after(async function() {
+  after(async function () {
     return Server.server.stop();
   });
 
@@ -81,7 +81,7 @@ describe('profile cache', function() {
     mock.done();
   });
 
-  it('should cache profile info initially, and invalidate cache after 2 seconds', async function() {
+  it('should cache profile info initially, and invalidate cache after 2 seconds', async function () {
     const userid = uid();
     this.timeout(10000);
 
@@ -90,7 +90,7 @@ describe('profile cache', function() {
     // first req, store last modified header
     mock.email(MOZILLA_EMAIL);
     return makeProfileReq(userid)
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         lastModified = res.headers['last-modified'];
         return P.delay(1000);
@@ -99,7 +99,7 @@ describe('profile cache', function() {
         // second request verify cached result was returned
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.equal(res.headers['last-modified'], lastModified);
         return P.delay(1000);
@@ -109,13 +109,13 @@ describe('profile cache', function() {
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.notEqual(res.headers['last-modified'], lastModified);
       });
   });
 
-  it('should invalidate cache when display name is updated', async function() {
+  it('should invalidate cache when display name is updated', async function () {
     this.timeout(10000);
     const userid = uid();
     await Server.server.initialize();
@@ -123,7 +123,7 @@ describe('profile cache', function() {
     // first req, store last modified header
     mock.email(MOZILLA_EMAIL);
     return makeProfileReq(userid)
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         lastModified = res.headers['last-modified'];
         return P.delay(1000);
@@ -132,7 +132,7 @@ describe('profile cache', function() {
         // second request verify cached result was returned
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.equal(res.headers['last-modified'], lastModified);
         mock.token({
@@ -150,19 +150,19 @@ describe('profile cache', function() {
           },
         });
       })
-      .then(res => {
+      .then((res) => {
         assert.equal(res.statusCode, 200);
         // third req, verify cache invalidated
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.notEqual(res.headers['last-modified'], lastModified);
       });
   });
 
-  it('should invalidate cache when avatar is updated', async function() {
+  it('should invalidate cache when avatar is updated', async function () {
     const userid = uid();
     this.timeout(10000);
     await Server.server.initialize();
@@ -170,7 +170,7 @@ describe('profile cache', function() {
     // first req, store last modified header
     mock.email(MOZILLA_EMAIL);
     return makeProfileReq(userid)
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         lastModified = res.headers['last-modified'];
         return P.delay(1000);
@@ -179,7 +179,7 @@ describe('profile cache', function() {
         // second request verify cached result was returned
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.equal(res.headers['last-modified'], lastModified);
         mock.token({
@@ -198,19 +198,19 @@ describe('profile cache', function() {
           },
         });
       })
-      .then(res => {
+      .then((res) => {
         assert.equal(res.statusCode, 201);
         // third req verify cache invalidated
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.notEqual(res.headers['last-modified'], lastModified);
       });
   });
 
-  it('should invalidate cache when auth-server profileChangedAt is greater than cached version', async function() {
+  it('should invalidate cache when auth-server profileChangedAt is greater than cached version', async function () {
     const userid = uid();
     this.timeout(10000);
     await Server.server.initialize();
@@ -218,7 +218,7 @@ describe('profile cache', function() {
     // first req, store last modified header
     mock.profileChangedAt(MOZILLA_EMAIL, PROFILE_CHANGED_AT);
     return makeProfileReq(userid)
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         lastModified = res.headers['last-modified'];
         return P.delay(500);
@@ -227,7 +227,7 @@ describe('profile cache', function() {
         // second request verify cached result was returned
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.equal(res.headers['last-modified'], lastModified);
         return P.delay(500);
@@ -237,7 +237,7 @@ describe('profile cache', function() {
         mock.profileChangedAt(MOZILLA_EMAIL, PROFILE_CHANGED_AT);
         return makeProfileReq(userid, undefined, PROFILE_CHANGED_AT_LATER_TIME);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.equal(
           res.headers['last-modified'] > lastModified,
@@ -247,14 +247,14 @@ describe('profile cache', function() {
       });
   });
 
-  it('should not cache reads with unusual sets of scopes', async function() {
+  it('should not cache reads with unusual sets of scopes', async function () {
     this.timeout(10000);
     const userid = uid();
     const PARTIAL_SCOPES = ['profile:display_name', 'profile:uid'];
     await Server.server.initialize();
     let lastModified;
     return makeProfileReq(userid, PARTIAL_SCOPES)
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         lastModified = res.headers['last-modified'];
         return P.delay(1000);
@@ -262,13 +262,13 @@ describe('profile cache', function() {
       .then(() => {
         return makeProfileReq(userid, PARTIAL_SCOPES);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res.headers['last-modified']);
         assert.ok(lastModified < res.headers['last-modified']);
       });
   });
 
-  it('should separately cache full and partial profile reads', async function() {
+  it('should separately cache full and partial profile reads', async function () {
     this.timeout(10000);
     const userid = uid();
     const PARTIAL_SCOPES = [
@@ -293,13 +293,13 @@ describe('profile cache', function() {
           'content-length': imageData.length,
         },
       })
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         avatarUrl = body.url;
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid, PARTIAL_SCOPES);
       })
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         assert.equal(body.email, MOZILLA_EMAIL);
         assert.equal(body.avatar, undefined);
@@ -311,7 +311,7 @@ describe('profile cache', function() {
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         assert.equal(body.email, MOZILLA_EMAIL);
         assert.equal(body.avatar, avatarUrl);
@@ -322,7 +322,7 @@ describe('profile cache', function() {
       .then(() => {
         return makeProfileReq(userid, PARTIAL_SCOPES);
       })
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         assert.equal(body.email, MOZILLA_EMAIL);
         assert.equal(body.avatar, undefined);
@@ -332,7 +332,7 @@ describe('profile cache', function() {
       .then(() => {
         return makeProfileReq(userid);
       })
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         assert.equal(body.email, MOZILLA_EMAIL);
         assert.equal(body.avatar, avatarUrl);
@@ -341,7 +341,7 @@ describe('profile cache', function() {
       });
   });
 
-  it('should not leak unauthorized data from cached profile', async function() {
+  it('should not leak unauthorized data from cached profile', async function () {
     this.timeout(10000);
     const userid = uid();
     await Server.server.initialize();
@@ -351,7 +351,7 @@ describe('profile cache', function() {
       authenticatorAssuranceLevel: 2,
     });
     return makeProfileReq(userid)
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         assert.equal(body.email, MOZILLA_EMAIL);
         assert.deepEqual(body.amrValues, ['pwd', 'otp']);
@@ -361,7 +361,7 @@ describe('profile cache', function() {
         mock.email(MOZILLA_EMAIL);
         return makeProfileReq(userid, ['profile:email']);
       })
-      .then(res => {
+      .then((res) => {
         const body = JSON.parse(res.payload);
         assert.equal(body.email, MOZILLA_EMAIL);
         assert.equal(body.amrValues, undefined);

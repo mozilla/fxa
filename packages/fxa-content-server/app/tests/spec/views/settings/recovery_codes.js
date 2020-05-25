@@ -44,7 +44,7 @@ describe('views/settings/recovery_codes', () => {
       window: windowMock,
     });
 
-    sinon.stub(view, 'translate').callsFake(msg => `translated ${msg}`);
+    sinon.stub(view, 'translate').callsFake((msg) => `translated ${msg}`);
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
 

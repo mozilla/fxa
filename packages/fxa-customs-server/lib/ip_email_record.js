@@ -5,14 +5,14 @@
 var actions = require('./actions');
 
 // Keep track of events tied to both email and IP addresses
-module.exports = function(limits, now) {
+module.exports = function (limits, now) {
   now = now || Date.now;
 
   function IpEmailRecord() {
     this.lf = [];
   }
 
-  IpEmailRecord.parse = function(object) {
+  IpEmailRecord.parse = function (object) {
     var rec = new IpEmailRecord();
     object = object || {};
     rec.rl = object.rl; // timestamp when the account was rate-limited
@@ -20,21 +20,21 @@ module.exports = function(limits, now) {
     return rec;
   };
 
-  IpEmailRecord.prototype.getMinLifetimeMS = function() {
+  IpEmailRecord.prototype.getMinLifetimeMS = function () {
     return limits.rateLimitIntervalMs;
   };
 
-  IpEmailRecord.prototype.isOverBadLogins = function() {
+  IpEmailRecord.prototype.isOverBadLogins = function () {
     this.trimBadLogins(now());
     return this.lf.length > limits.maxBadLogins;
   };
 
-  IpEmailRecord.prototype.addBadLogin = function() {
+  IpEmailRecord.prototype.addBadLogin = function () {
     this.trimBadLogins(now());
     this.lf.push(now());
   };
 
-  IpEmailRecord.prototype.trimBadLogins = function(now) {
+  IpEmailRecord.prototype.trimBadLogins = function (now) {
     if (this.lf.length === 0) {
       return;
     }
@@ -54,20 +54,20 @@ module.exports = function(limits, now) {
     this.lf = this.lf.slice(i + 1);
   };
 
-  IpEmailRecord.prototype.shouldBlock = function() {
+  IpEmailRecord.prototype.shouldBlock = function () {
     return this.isRateLimited();
   };
 
-  IpEmailRecord.prototype.isRateLimited = function() {
+  IpEmailRecord.prototype.isRateLimited = function () {
     return !!(this.rl && now() - this.rl < limits.rateLimitIntervalMs);
   };
 
-  IpEmailRecord.prototype.rateLimit = function() {
+  IpEmailRecord.prototype.rateLimit = function () {
     this.rl = now();
     this.lf = [];
   };
 
-  IpEmailRecord.prototype.unblockIfReset = function(resetAt) {
+  IpEmailRecord.prototype.unblockIfReset = function (resetAt) {
     if (resetAt > this.rl) {
       this.lf = [];
       delete this.rl;
@@ -76,14 +76,14 @@ module.exports = function(limits, now) {
     return false;
   };
 
-  IpEmailRecord.prototype.retryAfter = function() {
+  IpEmailRecord.prototype.retryAfter = function () {
     return Math.max(
       0,
       Math.ceil(((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000)
     );
   };
 
-  IpEmailRecord.prototype.update = function(action) {
+  IpEmailRecord.prototype.update = function (action) {
     // if this is not an action that allows checking password,
     // then all ok (no block)
     if (!actions.isPasswordCheckingAction(action)) {

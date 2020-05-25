@@ -37,7 +37,7 @@ const SECOND_PASSWORD = 'new_password';
 let email;
 
 registerSuite('Firefox Desktop Sync v3 settings', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return (
@@ -64,7 +64,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         // wait until account data is in localstorage before redirecting
         .then(
           FunctionalHelpers.pollUntil(
-            function() {
+            function () {
               const accounts = Object.keys(
                 JSON.parse(localStorage.getItem('__fxa_storage.accounts')) || {}
               );
@@ -79,7 +79,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
     );
   },
   tests: {
-    'sign in, change the password': function() {
+    'sign in, change the password': function () {
       return this.remote
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
         .then(visibleByQSA(selectors.CHANGE_PASSWORD.DETAILS))
@@ -87,7 +87,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
-    'sign in, change the password by browsing directly to settings': function() {
+    'sign in, change the password by browsing directly to settings': function () {
       return this.remote
         .then(openPage(SETTINGS_NOCONTEXT_URL, selectors.SETTINGS.HEADER))
         .then(click(selectors.CHANGE_PASSWORD.MENU_BUTTON))
@@ -97,7 +97,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         .then(fillOutChangePassword(FIRST_PASSWORD, SECOND_PASSWORD));
     },
 
-    'sign in, delete the account': function() {
+    'sign in, delete the account': function () {
       return this.remote
         .then(click(selectors.SETTINGS_DELETE_ACCOUNT.MENU_BUTTON))
         .then(visibleByQSA(selectors.SETTINGS_DELETE_ACCOUNT.DETAILS))
@@ -108,7 +108,7 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
-    'sign in, no way to sign out': function() {
+    'sign in, no way to sign out': function () {
       return (
         this.remote
           // make sure the sign out element doesn't exist

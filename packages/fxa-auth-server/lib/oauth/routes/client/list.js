@@ -32,9 +32,7 @@ module.exports = {
           id: validators.clientId,
           name: Joi.string().required(),
           image_uri: Joi.string().allow(''),
-          redirect_uri: Joi.string()
-            .allow('')
-            .required(),
+          redirect_uri: Joi.string().allow('').required(),
           can_grant: Joi.boolean().required(),
           trusted: Joi.boolean().required(),
         })
@@ -44,7 +42,7 @@ module.exports = {
   handler: async function listEndpoint(req) {
     const developerEmail = req.auth.credentials.email;
 
-    return db.getClients(developerEmail).then(function(clients) {
+    return db.getClients(developerEmail).then(function (clients) {
       return {
         clients: clients.map(serialize),
       };

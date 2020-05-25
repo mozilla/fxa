@@ -10,25 +10,25 @@ const Client = require('../client')();
 
 const config = require('../../config').getProperties();
 
-describe('remote account unlock', function() {
+describe('remote account unlock', function () {
   this.timeout(15000);
   let server;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
 
   it('/account/lock is no longer supported', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
-      .then(c => {
+      .then((c) => {
         return c.lockAccount();
       })
       .then(
         () => {
           assert(false, 'should get an error');
         },
-        e => {
+        (e) => {
           assert.equal(e.code, 410, 'correct error status code');
         }
       );
@@ -36,14 +36,14 @@ describe('remote account unlock', function() {
 
   it('/account/unlock/resend_code is no longer supported', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
-      .then(c => {
+      .then((c) => {
         return c.resendAccountUnlockCode('en');
       })
       .then(
         () => {
           assert(false, 'should get an error');
         },
-        e => {
+        (e) => {
           assert.equal(e.code, 410, 'correct error status code');
         }
       );
@@ -51,14 +51,14 @@ describe('remote account unlock', function() {
 
   it('/account/unlock/verify_code is no longer supported', () => {
     return Client.create(config.publicUrl, server.uniqueEmail(), 'password')
-      .then(c => {
+      .then((c) => {
         return c.verifyAccountUnlockCode('bigscaryuid', 'bigscarycode');
       })
       .then(
         () => {
           assert(false, 'should get an error');
         },
-        e => {
+        (e) => {
           assert.equal(e.code, 410, 'correct error status code');
         }
       );

@@ -17,7 +17,7 @@ Cocktail.mixin(View, Mixin);
 
 let view;
 
-const createViewWithExperiments = experiments => {
+const createViewWithExperiments = (experiments) => {
   const notifier = {
     trigger: sinon.stub(),
   };
@@ -27,7 +27,7 @@ const createViewWithExperiments = experiments => {
   });
 };
 
-const createMockExperiments = mock => {
+const createMockExperiments = (mock) => {
   const defaultMock = {
     chooseExperiments: sinon.stub(),
     getAndReportExperimentGroup: sinon.stub(),

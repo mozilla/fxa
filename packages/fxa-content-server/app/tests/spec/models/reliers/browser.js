@@ -21,7 +21,7 @@ describe('models/reliers/browser', () => {
   let windowMock;
 
   function fetchExpectError() {
-    return relier.fetch().then(assert.fail, function(_err) {
+    return relier.fetch().then(assert.fail, function (_err) {
       err = _err;
     });
   }
@@ -77,7 +77,7 @@ describe('models/reliers/browser', () => {
         });
       });
 
-      ['signin', 'signup', 'email'].forEach(action => {
+      ['signin', 'signup', 'email'].forEach((action) => {
         it(`accepts action=\`${action}\``, () => {
           windowMock.location.search = TestHelpers.toSearchString({ action });
 
@@ -87,7 +87,7 @@ describe('models/reliers/browser', () => {
         });
       });
 
-      ['', ' ', 'reset_password'].forEach(action => {
+      ['', ' ', 'reset_password'].forEach((action) => {
         it(`errors for action=\`${action}\``, () => {
           windowMock.location.search = TestHelpers.toSearchString({ action });
 

@@ -6,7 +6,7 @@ const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 const sinon = require('sinon');
 
-describe('attachedClients', function() {
+describe('attachedClients', function () {
   var accountHelper;
   var respond;
   var client;
@@ -15,7 +15,7 @@ describe('attachedClients', function() {
   var xhr;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -27,21 +27,21 @@ describe('attachedClients', function() {
     sinon.spy(xhr.prototype, 'send');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     xhr.prototype.open.restore();
     xhr.prototype.send.restore();
   });
 
-  it('#attachedClients', function() {
+  it('#attachedClients', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.attachedClients(account.signIn.sessionToken),
           RequestMocks.attachedClients
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.length, 2);
         var s = res[0];
         assert.property(s, 'clientId');
@@ -61,10 +61,10 @@ describe('attachedClients', function() {
       }, assert.fail);
   });
 
-  it('#attachedClients error', function() {
+  it('#attachedClients error', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         var fakeToken =
           'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
 
@@ -73,16 +73,16 @@ describe('attachedClients', function() {
           ErrorMocks.invalidAuthToken
         );
       })
-      .then(assert.fail, function(err) {
+      .then(assert.fail, function (err) {
         assert.equal(err.code, 401);
         assert.equal(err.errno, 110);
       });
   });
 
-  it('#destroy', function() {
+  it('#destroy', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.attachedClientDestroy(account.signIn.sessionToken, {
             clientId: 'dcdb5ae7add825d2',
@@ -90,7 +90,7 @@ describe('attachedClients', function() {
           RequestMocks.attachedClientDestroy
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res, 'got response');
       }, assert.fail);
   });

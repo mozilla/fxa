@@ -28,7 +28,7 @@ const {
 
 registerSuite('support form without valid session', {
   tests: {
-    'go to support form, redirects to index': function() {
+    'go to support form, redirects to index': function () {
       return this.remote
         .then(clearBrowserState({ force: true }))
         .then(openPage(SUPPORT_URL, selectors.ENTER_EMAIL.HEADER));
@@ -38,7 +38,7 @@ registerSuite('support form without valid session', {
 
 registerSuite('support form without active subscriptions', {
   tests: {
-    'go to support form, redirects to subscription management, then back to settings': function() {
+    'go to support form, redirects to subscription management, then back to settings': function () {
       if (
         process.env.CIRCLECI === 'true' &&
         !process.env.SUBHUB_STRIPE_APIKEY
@@ -60,7 +60,7 @@ registerSuite('support form without active subscriptions', {
 
 registerSuite('support form with an active subscription', {
   tests: {
-    'go to support form, submits the form': function() {
+    'go to support form, submits the form': function () {
       if (
         process.env.CIRCLECI === 'true' &&
         !process.env.SUBHUB_STRIPE_APIKEY
@@ -95,7 +95,7 @@ registerSuite('support form with an active subscription', {
       // .then(testElementExists('.subscription-management'));
     },
 
-    'go to support form, cancel, redirects to subscription management': function() {
+    'go to support form, cancel, redirects to subscription management': function () {
       if (
         process.env.CIRCLECI === 'true' &&
         !process.env.SUBHUB_STRIPE_APIKEY

@@ -14,7 +14,7 @@ let amplitude;
 function getInsensitiveHeaderValueFromArray(headerName, headers) {
   let value = '';
   const headerNameNormalized = headerName.toLowerCase();
-  headers.some(header => {
+  headers.some((header) => {
     if (header.name.toLowerCase() === headerNameNormalized) {
       value = header.value;
       return true;
@@ -29,7 +29,7 @@ function getInsensitiveHeaderValueFromArray(headerName, headers) {
 function getInsensitiveHeaderValueFromObject(headerName, headers) {
   const headerNameNormalized = headerName.toLowerCase();
   let value = '';
-  Object.keys(headers).some(name => {
+  Object.keys(headers).some((name) => {
     if (name.toLowerCase() === headerNameNormalized) {
       value = headers[name];
       return true;
@@ -97,7 +97,7 @@ function logEmailEventSent(log, message) {
 
   const addrs = [message.email].concat(message.ccEmails || []);
 
-  addrs.forEach(addr => {
+  addrs.forEach((addr) => {
     const msg = Object.assign({}, emailEventInfo);
     msg.domain = getAnonymizedEmailDomain(addr);
     log.info('emailEvent', msg);

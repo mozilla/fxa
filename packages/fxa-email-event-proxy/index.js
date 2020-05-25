@@ -127,7 +127,7 @@ async function processEvents(events) {
   return P.all(
     events
       .map(provider.marshallEvent)
-      .filter(event => !!event)
+      .filter((event) => !!event)
       .map(sendEvent)
   );
 }
@@ -153,7 +153,7 @@ function sendEvent(event) {
   return SQS.sendMessage(params)
     .promise()
     .then(() => console.log('Sent:', event.notificationType))
-    .catch(error => {
+    .catch((error) => {
       console.error('Failed to send event:', event);
       console.error(error && error.stack);
       throw error;

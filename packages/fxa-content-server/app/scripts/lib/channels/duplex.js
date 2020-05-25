@@ -31,7 +31,7 @@ OutstandingRequests.prototype = {
     this.remove(messageId);
 
     request.timeout = this._window.setTimeout(
-      function(command) {
+      function (command) {
         this._logger.error('Response not received for: ' + command);
       }.bind(this, request.command),
       this._sendTimeoutLength
@@ -95,8 +95,8 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
     }
 
     // propagate errors outwards
-    this._receiver.on('error', err => this.onErrorReceived(err));
-    this._receiver.on('message', resp => this.onMessageReceived(resp));
+    this._receiver.on('error', (err) => this.onErrorReceived(err));
+    this._receiver.on('message', (resp) => this.onMessageReceived(resp));
 
     this._outstandingRequests = new OutstandingRequests({
       sendTimeoutLength: options.sendTimeoutLength,
@@ -152,7 +152,7 @@ _.extend(DuplexChannel.prototype, new BaseChannel(), {
       this._outstandingRequests.add(messageId, outstanding);
 
       this._sender.send(command, data, messageId);
-    }).catch(err => {
+    }).catch((err) => {
       // The request is no longer considered outstanding if
       // there was a problem sending.
       this._outstandingRequests.remove(messageId);

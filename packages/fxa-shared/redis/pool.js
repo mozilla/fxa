@@ -51,7 +51,7 @@ module.exports = (config, log) => {
           }
         });
 
-        client.on('error', error => {
+        client.on('error', (error) => {
           log.error('redis.error', { error: error.message });
         });
       });
@@ -82,7 +82,7 @@ module.exports = (config, log) => {
     testOnBorrow: true,
   });
 
-  pool.on('factoryCreateError', error =>
+  pool.on('factoryCreateError', (error) =>
     log.error('redisFactory.error', { error: error.message })
   );
 
@@ -96,7 +96,9 @@ module.exports = (config, log) => {
        * @return {Disposer} A bluebird disposer object
        */
       acquire() {
-        return pool.acquire().disposer(connection => pool.release(connection));
+        return pool
+          .acquire()
+          .disposer((connection) => pool.release(connection));
       },
 
       /**

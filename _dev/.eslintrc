@@ -3,6 +3,7 @@
   "plugins": ["fxa"],
   "rules": {
     "require-atomic-updates": "off",
-    "space-unary-ops": "off"
+    "space-unary-ops": "off",
+    "no-useless-escape": "off"
   }
 }

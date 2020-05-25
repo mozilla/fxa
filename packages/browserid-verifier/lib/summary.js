@@ -22,7 +22,7 @@ module.exports = function middlewareFactory() {
     res._summary.agent = req.headers['user-agent'] || '';
     var xff = (req.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
     xff.push(req.connection.remoteAddress);
-    res._summary.remoteAddressChain = xff.filter(function(x) {
+    res._summary.remoteAddressChain = xff.filter(function (x) {
       return x;
     });
 

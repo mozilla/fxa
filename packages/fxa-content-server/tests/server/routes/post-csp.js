@@ -31,11 +31,11 @@ const mockRequest = {
       'blocked-uri': 'http://bing.com',
     },
   },
-  get: function() {},
+  get: function () {},
 };
 
 const mockResponse = {
-  json: function() {},
+  json: function () {},
 };
 
 const createRandomHexString = TestHelpers.createRandomHexString;
@@ -44,7 +44,7 @@ const suite = {
   tests: {},
 };
 
-suite.tests['it works with csp reports'] = function() {
+suite.tests['it works with csp reports'] = function () {
   const mockLogger = {
     info: sinon.spy(),
   };
@@ -64,7 +64,7 @@ suite.tests['it works with csp reports'] = function() {
   assert.equal(mockLogger.info.callCount, 5);
 };
 
-suite.tests['it strips PII from the referrer and source fields'] = function() {
+suite.tests['it strips PII from the referrer and source fields'] = function () {
   const mockRequest = {
     body: {
       'csp-report': {
@@ -75,7 +75,7 @@ suite.tests['it strips PII from the referrer and source fields'] = function() {
           'https://accounts.firefox.com/settings?uid=bigscaryuid&email=testuser@testuser.com&notaffected=1',
       },
     },
-    get: function() {},
+    get: function () {},
   };
 
   const mockLogger = {
@@ -99,7 +99,9 @@ suite.tests['it strips PII from the referrer and source fields'] = function() {
   );
 };
 
-suite.tests['works correctly if query params do not contain PII'] = function() {
+suite.tests[
+  'works correctly if query params do not contain PII'
+] = function () {
   const mockRequest = {
     body: {
       'csp-report': {
@@ -108,7 +110,7 @@ suite.tests['works correctly if query params do not contain PII'] = function() {
         'source-file': 'https://accounts.firefox.com/settings?notaffected=1',
       },
     },
-    get: function() {},
+    get: function () {},
   };
 
   const mockLogger = {
@@ -132,10 +134,10 @@ suite.tests['works correctly if query params do not contain PII'] = function() {
   );
 };
 
-suite.tests['works correctly if no query params'] = function() {
+suite.tests['works correctly if no query params'] = function () {
   const mockRequest = {
     body: VALID_CSP_REPORT,
-    get: function() {},
+    get: function () {},
   };
 
   const mockLogger = {
@@ -192,7 +194,7 @@ suite.tests['#post csp - returns 400 if CSP report is invalid'] = {
   ),
 };
 
-suite.tests['#post csp - returns 400 if csp-report is empty'] = function() {
+suite.tests['#post csp - returns 400 if csp-report is empty'] = function () {
   testInvalidCspReport({
     'csp-report': {},
   });
@@ -230,13 +232,13 @@ suite.tests['#post csp - returns 200 if CSP report is valid'] = {
 };
 
 function testInvalidCspReport(cspReport) {
-  return function() {
+  return function () {
     return got
       .post(REPORT_URL, {
         body: JSON.stringify(cspReport),
         headers: { 'Content-Type': 'application/json' },
       })
-      .then(assert.fail, resp => {
+      .then(assert.fail, (resp) => {
         //console.log('resp', resp);
         assert.equal(resp.statusCode, 400);
         assert.equal(resp.statusMessage, 'Bad Request');
@@ -252,13 +254,13 @@ function testInvalidCspValue(fieldName, fieldValue) {
 }
 
 function testValidCspReport(cspReport) {
-  return function() {
+  return function () {
     return got
       .post(REPORT_URL, {
         body: JSON.stringify(cspReport),
         headers: { 'Content-Type': 'application/json' },
       })
-      .then(resp => {
+      .then((resp) => {
         assert.equal(resp.statusCode, 200);
       });
   };

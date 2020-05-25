@@ -55,7 +55,7 @@ describe('views/pair/auth_wait_for_supp', () => {
     sinon.spy(view, 'displayError');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 
@@ -70,7 +70,7 @@ describe('views/pair/auth_wait_for_supp', () => {
   }
 
   describe('initialize', () => {
-    it('handles change', done => {
+    it('handles change', (done) => {
       view.initialize();
       view.model.trigger('change');
       setTimeout(() => {
@@ -79,7 +79,7 @@ describe('views/pair/auth_wait_for_supp', () => {
       }, 1);
     });
 
-    it('handles error', done => {
+    it('handles error', (done) => {
       view.initialize();
       view.broker.trigger('error');
       setTimeout(() => {
@@ -94,10 +94,7 @@ describe('views/pair/auth_wait_for_supp', () => {
       return view.render().then(() => {
         assert.equal(view.$el.find('.family-os').text(), 'Firefox on Windows');
         assert.equal(
-          view.$el
-            .find('.location')
-            .text()
-            .trim(),
+          view.$el.find('.location').text().trim(),
           'Toronto, Ontario, Canada (estimated)'
         );
         assert.equal(

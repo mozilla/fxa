@@ -23,7 +23,7 @@ const TestView = BaseView.extend({
 
 Cocktail.mixin(TestView, ResumeTokenMixin);
 
-describe('views/mixins/resume-token-mixin', function() {
+describe('views/mixins/resume-token-mixin', function () {
   let account;
   let flow;
   let metrics;
@@ -32,7 +32,7 @@ describe('views/mixins/resume-token-mixin', function() {
   let user;
   let view;
 
-  beforeEach(function() {
+  beforeEach(function () {
     account = {
       pickResumeTokenInfo: sinon.spy(),
     };
@@ -73,12 +73,12 @@ describe('views/mixins/resume-token-mixin', function() {
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     $('#container').empty();
   });
 
-  describe('getResumeToken', function() {
-    it('returns a ResumeToken model', function() {
+  describe('getResumeToken', function () {
+    it('returns a ResumeToken model', function () {
       assert.instanceOf(view.getResumeToken(account), ResumeToken);
 
       assert.isTrue(account.pickResumeTokenInfo.calledOnce);
@@ -89,8 +89,8 @@ describe('views/mixins/resume-token-mixin', function() {
     });
   });
 
-  describe('getStringifiedResumeToken', function() {
-    it('returns a stringified resume token', function() {
+  describe('getStringifiedResumeToken', function () {
+    it('returns a stringified resume token', function () {
       assert.typeOf(view.getStringifiedResumeToken(account), 'string');
 
       assert.isTrue(account.pickResumeTokenInfo.calledOnce);

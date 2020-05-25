@@ -27,7 +27,7 @@ const {
 var forceAuthPageUrl;
 
 registerSuite('force_auth blocked', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('blocked{id}');
 
     forceAuthPageUrl = PAGE_URL + '?email=' + encodeURIComponent(email);
@@ -37,11 +37,11 @@ registerSuite('force_auth blocked', {
       .then(clearBrowserState());
   },
 
-  afterEach: function() {
+  afterEach: function () {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'valid code entered': function() {
+    'valid code entered': function () {
       return this.remote
         .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))
         .then(fillOutForceAuth(PASSWORD))
@@ -53,7 +53,7 @@ registerSuite('force_auth blocked', {
         .then(testElementExists('#fxa-settings-header'));
     },
 
-    'incorrect password entered': function() {
+    'incorrect password entered': function () {
       return (
         this.remote
           .then(openPage(forceAuthPageUrl, '#fxa-force-auth-header'))

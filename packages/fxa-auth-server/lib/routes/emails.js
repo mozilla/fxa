@@ -28,7 +28,9 @@ async function updateZendeskPrimaryEmail(
   const { result: searchResult } = await zendeskClient.searchQueryAll(
     `type:user user_id:${uid}`
   );
-  const zenUser = searchResult.find(user => user.email === currentPrimaryEmail);
+  const zenUser = searchResult.find(
+    (user) => user.email === currentPrimaryEmail
+  );
   if (!zenUser) {
     return;
   }
@@ -36,7 +38,7 @@ async function updateZendeskPrimaryEmail(
     zenUser.id
   );
   const primaryIdentity = identityResult.find(
-    identity =>
+    (identity) =>
       identity.type === 'email' &&
       identity.primary &&
       identity.value !== newPrimaryEmail
@@ -107,10 +109,7 @@ module.exports = (
         },
         validate: {
           query: {
-            reason: isA
-              .string()
-              .max(16)
-              .optional(),
+            reason: isA.string().max(16).optional(),
           },
         },
         response: {
@@ -124,7 +123,7 @@ module.exports = (
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailStatus', request);
 
         const sessionToken = request.auth.credentials;
@@ -219,14 +218,8 @@ module.exports = (
             redirectTo: validators
               .redirectTo(config.smtp.redirectDomain)
               .optional(),
-            resume: isA
-              .string()
-              .max(2048)
-              .optional(),
-            style: isA
-              .string()
-              .allow(['trailhead'])
-              .optional(),
+            resume: isA.string().max(2048).optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             type: isA
               .string()
               .max(32)
@@ -236,7 +229,7 @@ module.exports = (
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailResend', request);
 
         const email = request.payload.email;
@@ -312,7 +305,7 @@ module.exports = (
           if (email) {
             // If an email address is specified in payload, this is a request to verify
             // a secondary email. This should return the corresponding email code for verification.
-            const foundEmail = emailData.find(userEmail =>
+            const foundEmail = emailData.find((userEmail) =>
               emailsMatch(userEmail.normalizedEmail, email)
             );
 
@@ -372,38 +365,19 @@ module.exports = (
       options: {
         validate: {
           payload: {
-            uid: isA
-              .string()
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
-            code: isA
-              .string()
-              .min(32)
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
+            code: isA.string().min(32).max(32).regex(HEX_STRING).required(),
             service: validators.service,
-            reminder: isA
-              .string()
-              .regex(REMINDER_PATTERN)
-              .optional(),
-            type: isA
-              .string()
-              .max(32)
-              .alphanum()
-              .optional(),
-            style: isA
-              .string()
-              .allow(['trailhead'])
-              .optional(),
+            reminder: isA.string().regex(REMINDER_PATTERN).optional(),
+            type: isA.string().max(32).alphanum().optional(),
+            style: isA.string().allow(['trailhead']).optional(),
             // The `marketingOptIn` is safe to remove after train-167+
             marketingOptIn: isA.boolean().optional(),
             newsletters: validators.newsletters,
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailVerify', request);
 
         const { code, service, type, uid } = request.payload;
@@ -460,7 +434,7 @@ module.exports = (
 
         if (device) {
           const devices = await request.app.devices;
-          const otherDevices = devices.filter(d => d.id !== device.id);
+          const otherDevices = devices.filter((d) => d.id !== device.id);
           await push.notifyDeviceConnected(uid, otherDevices, device.name);
         }
 
@@ -479,7 +453,7 @@ module.exports = (
         async function verifySecondaryEmail(account) {
           let matchedEmail;
           const emails = await db.accountEmails(uid);
-          const isEmailVerification = emails.some(email => {
+          const isEmailVerification = emails.some((email) => {
             if (email.emailCode && code === email.emailCode) {
               matchedEmail = email;
               log.info('account.verifyEmail.secondary.started', {
@@ -581,14 +555,14 @@ module.exports = (
           ),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailEmails', request);
 
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
 
         const account = await db.account(uid);
-        return account.emails.map(email => ({
+        return account.emails.map((email) => ({
           email: email.email,
           isPrimary: !!email.isPrimary,
           verified: !!email.isVerified,
@@ -610,7 +584,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailCreate', request);
 
         const sessionToken = request.auth.credentials;
@@ -630,7 +604,7 @@ module.exports = (
 
         const account = await db.account(uid);
         const secondaryEmails = account.emails.filter(
-          email => !email.isPrimary
+          (email) => !email.isPrimary
         );
         // This is compared against all secondary email
         // records, both verified and unverified
@@ -643,7 +617,9 @@ module.exports = (
         }
 
         if (
-          account.emails.map(accountEmail => accountEmail.email).includes(email)
+          account.emails
+            .map((accountEmail) => accountEmail.email)
+            .includes(email)
         ) {
           throw error.alreadyOwnsEmail();
         }
@@ -769,7 +745,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailDestroy', request);
 
         const sessionToken = request.auth.credentials;
@@ -788,7 +764,7 @@ module.exports = (
         await db.resetAccountTokens(uid);
 
         // Find the email object that corresponds to the email being deleted
-        const emailIsVerified = account.emails.find(item => {
+        const emailIsVerified = account.emails.find((item) => {
           return emailsMatch(item.normalizedEmail, email) && item.isVerified;
         });
 
@@ -798,7 +774,7 @@ module.exports = (
         }
 
         // Notify any verified email address associated with the account of the deletion.
-        const emails = account.emails.filter(item => {
+        const emails = account.emails.filter((item) => {
           if (!emailsMatch(item.normalizedEmail, email)) {
             return item;
           }
@@ -826,7 +802,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: async function(request) {
+      handler: async function (request) {
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
         const primaryEmail = sessionToken.email;
@@ -864,7 +840,7 @@ module.exports = (
           // case we must record enough data for us to file a bug with Support
           // to update Zendesk so that this users' email matches their new primary.
           const handleCriticalError = (err, source) => {
-            Sentry.withScope(scope => {
+            Sentry.withScope((scope) => {
               scope.setContext('primaryEmailChange', {
                 originalEmail: primaryEmail,
                 newEmail: secondaryEmail.email,
@@ -882,7 +858,7 @@ module.exports = (
             uid,
             primaryEmail,
             secondaryEmail.email
-          ).catch(err => handleCriticalError(err, 'zendesk'));
+          ).catch((err) => handleCriticalError(err, 'zendesk'));
 
           if (stripeHelper) {
             // Wait here to update stripe and our local cache to avoid loss of
@@ -931,7 +907,7 @@ module.exports = (
         },
         response: {},
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailSecondaryResend', request);
 
         const sessionToken = request.auth.credentials;
@@ -959,7 +935,7 @@ module.exports = (
         const emails = await db.accountEmails(uid);
 
         // Get the secondary email code
-        const foundEmail = emails.find(userEmail =>
+        const foundEmail = emails.find((userEmail) =>
           emailsMatch(userEmail.normalizedEmail, email)
         );
 
@@ -1007,15 +983,11 @@ module.exports = (
         validate: {
           payload: {
             email: validators.email().required(),
-            code: isA
-              .string()
-              .max(32)
-              .regex(validators.DIGITS)
-              .required(),
+            code: isA.string().max(32).regex(validators.DIGITS).required(),
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RecoveryEmailSecondaryVerify', request);
 
         const sessionToken = request.auth.credentials;
@@ -1032,7 +1004,7 @@ module.exports = (
         const emails = await db.accountEmails(uid);
 
         // Get the secondary email code
-        const matchedEmail = emails.find(userEmail =>
+        const matchedEmail = emails.find((userEmail) =>
           emailsMatch(userEmail.normalizedEmail, email)
         );
 

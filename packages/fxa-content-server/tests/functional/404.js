@@ -10,7 +10,7 @@ const selectors = require('./lib/selectors');
 const { click, openPage } = require('./lib/helpers');
 
 registerSuite('404', {
-  'visit an invalid page': function() {
+  'visit an invalid page': function () {
     const url = `${intern._config.fxaContentRoot}/four-oh-four`;
 
     return this.remote

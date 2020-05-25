@@ -6,9 +6,9 @@ const assert = require('insist');
 const avatarShared = require('../../../lib/routes/avatar/_shared');
 const config = require('../../../lib/config').getProperties();
 
-describe('routes/avatar/_shared', function() {
-  describe('fxaUrl', function() {
-    it('creates a proper avatarUrl', function() {
+describe('routes/avatar/_shared', function () {
+  describe('fxaUrl', function () {
+    it('creates a proper avatarUrl', function () {
       const id = 'foo';
       assert.equal(avatarShared.fxaUrl(id), config.img.url.replace('{id}', id));
     });

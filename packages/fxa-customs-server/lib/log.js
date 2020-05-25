@@ -10,12 +10,12 @@ function Overdrive(options) {
 }
 util.inherits(Overdrive, Logger);
 
-Overdrive.prototype.stat = function(stats) {
+Overdrive.prototype.stat = function (stats) {
   stats.op = 'stat';
   this.info(stats);
 };
 
-module.exports = function(level, name) {
+module.exports = function (level, name) {
   var logStreams = [{ stream: process.stderr, level: level }];
   name = name || 'fxa-auth-server';
 
@@ -24,15 +24,15 @@ module.exports = function(level, name) {
     streams: logStreams,
   });
 
-  process.stdout.on('error', function(err) {
+  process.stdout.on('error', function (err) {
     if (err.code === 'EPIPE') {
       log.emit('error', err);
     }
   });
 
-  Object.keys(console).forEach(function(key) {
+  Object.keys(console).forEach(function (key) {
     // eslint-disable-next-line no-console
-    console[key] = function() {
+    console[key] = function () {
       var json = { op: 'console', message: util.format.apply(null, arguments) };
       if (log[key]) {
         log[key](json);

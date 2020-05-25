@@ -11,7 +11,7 @@ import ResumeToken from 'models/resume-token';
 import TestHelpers from '../../../lib/helpers';
 import WindowMock from '../../../mocks/window';
 
-describe('models/reliers/relier', function() {
+describe('models/reliers/relier', function () {
   var relier;
   var windowMock;
 
@@ -27,7 +27,7 @@ describe('models/reliers/relier', function() {
   var UTM_SOURCE = 'utm_source';
   var UTM_TERM = 'utm_term';
 
-  beforeEach(function() {
+  beforeEach(function () {
     windowMock = new WindowMock();
 
     relier = new Relier(
@@ -38,17 +38,17 @@ describe('models/reliers/relier', function() {
     );
   });
 
-  it('fetch with missing `resume` token is not a problem', function() {
+  it('fetch with missing `resume` token is not a problem', function () {
     windowMock.location.search = TestHelpers.toSearchString({
       utm_campaign: UTM_CAMPAIGN, //eslint-disable-line camelcase
     });
 
-    return relier.fetch().then(function() {
+    return relier.fetch().then(function () {
       assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
     });
   });
 
-  it('fetch populates expected fields from the search parameters, unexpected search parameters are ignored', function() {
+  it('fetch populates expected fields from the search parameters, unexpected search parameters are ignored', function () {
     windowMock.location.search = TestHelpers.toSearchString({
       coppa: 'false',
       email: EMAIL,
@@ -65,7 +65,7 @@ describe('models/reliers/relier', function() {
       utm_term: UTM_TERM, //eslint-disable-line camelcase
     });
 
-    return relier.fetch().then(function() {
+    return relier.fetch().then(function () {
       // Next two are not imported from the search parameters, but is set manually.
       assert.equal(relier.get('context'), Constants.CONTENT_SERVER_CONTEXT);
 
@@ -89,55 +89,55 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  it('entryPoint is correctly translated to `entrypoint` if `entrypoint` is not specified', function() {
+  it('entryPoint is correctly translated to `entrypoint` if `entrypoint` is not specified', function () {
     windowMock.location.search = TestHelpers.toSearchString({
       entryPoint: ENTRYPOINT,
     });
 
-    return relier.fetch().then(function() {
+    return relier.fetch().then(function () {
       assert.equal(relier.get('entrypoint'), ENTRYPOINT);
     });
   });
 
-  it('entryPoint is ignored if `entrypoint` is already specified', function() {
+  it('entryPoint is ignored if `entrypoint` is already specified', function () {
     windowMock.location.search = TestHelpers.toSearchString({
       entryPoint: 'ignored entrypoint',
       entrypoint: ENTRYPOINT,
     });
 
-    return relier.fetch().then(function() {
+    return relier.fetch().then(function () {
       assert.equal(relier.get('entrypoint'), ENTRYPOINT);
     });
   });
 
-  ['trailhead-1'].forEach(value => {
+  ['trailhead-1'].forEach((value) => {
     testInvalidQueryParam('style', value);
   });
 
   [undefined, 'email', 'signin', 'signup', 'force_auth', 'pairing'].forEach(
-    action => {
+    (action) => {
       describe(`valid action: ${action}`, () => {
         testValidQueryParam('action', action, 'action', action);
       });
     }
   );
 
-  ['', ' ', 'invalid'].forEach(action => {
+  ['', ' ', 'invalid'].forEach((action) => {
     describe(`invalid action: ${action}`, () => {
       testInvalidQueryParam('action', action);
     });
   });
 
-  describe('email non-verification flow', function() {
-    beforeEach(function() {
+  describe('email non-verification flow', function () {
+    beforeEach(function () {
       relier.set('isVerification', false);
     });
 
-    ['', ' ', 'invalid email'].forEach(function(email) {
+    ['', ' ', 'invalid email'].forEach(function (email) {
       testInvalidQueryParam('email', email);
     });
 
-    ['testuser@testuser.com', 'testuser@testuser.co.uk'].forEach(function(
+    ['testuser@testuser.com', 'testuser@testuser.co.uk'].forEach(function (
       value
     ) {
       testValidQueryParam('email', value, 'email', value);
@@ -145,7 +145,7 @@ describe('models/reliers/relier', function() {
   });
 
   describe('email first flow', () => {
-    [' '].forEach(function(email) {
+    [' '].forEach(function (email) {
       testInvalidQueryParam('email', email);
     });
 
@@ -154,15 +154,15 @@ describe('models/reliers/relier', function() {
       'invalid email',
       'testuser@testuser.com',
       'testuser@testuser.co.uk',
-    ].forEach(value => {
+    ].forEach((value) => {
       testValidQueryParam('email', value, 'email', value.trim(), {
         action: 'email',
       });
     });
   });
 
-  describe('email verification flow', function() {
-    beforeEach(function() {
+  describe('email verification flow', function () {
+    beforeEach(function () {
       relier = new Relier(
         {},
         {
@@ -180,27 +180,27 @@ describe('models/reliers/relier', function() {
       'invalid email',
       'testuser@testuser.com',
       'testuser@testuser.co.uk',
-    ].forEach(function(value) {
+    ].forEach(function (value) {
       testValidQueryParam('email', value, 'email', value.trim());
     });
   });
 
-  describe('uid non-verification flow', function() {
-    beforeEach(function() {
+  describe('uid non-verification flow', function () {
+    beforeEach(function () {
       relier.set('isVerification', false);
     });
 
-    ['', ' ', 'invalid uid'].forEach(function(uid) {
+    ['', ' ', 'invalid uid'].forEach(function (uid) {
       testInvalidQueryParam('uid', uid);
     });
 
-    [UID].forEach(function(value) {
+    [UID].forEach(function (value) {
       testValidQueryParam('uid', value, 'uid', value);
     });
   });
 
-  describe('uid verification flow', function() {
-    beforeEach(function() {
+  describe('uid verification flow', function () {
+    beforeEach(function () {
       relier = new Relier(
         {},
         {
@@ -217,22 +217,22 @@ describe('models/reliers/relier', function() {
       ' ',
       'invalid uid',
       UID,
-    ].forEach(function(value) {
+    ].forEach(function (value) {
       testValidQueryParam('uid', value, 'uid', value.trim());
     });
   });
 
-  it('isOAuth returns `false`', function() {
+  it('isOAuth returns `false`', function () {
     assert.isFalse(relier.isOAuth());
   });
 
-  it('isSync returns `false` by default', function() {
-    return relier.fetch().then(function() {
+  it('isSync returns `false` by default', function () {
+    return relier.fetch().then(function () {
       assert.isFalse(relier.isSync());
     });
   });
 
-  it('pickResumeTokenInfo returns an object with info to be passed along with email verification links', function() {
+  it('pickResumeTokenInfo returns an object with info to be passed along with email verification links', function () {
     var UTM_CAMPAIGN = 'campaign id';
     var ITEM = 'item';
     var ENTRYPOINT = 'entry point';
@@ -265,7 +265,7 @@ describe('models/reliers/relier', function() {
     });
   });
 
-  it('re-population from resume token parses the resume param into an object', function() {
+  it('re-population from resume token parses the resume param into an object', function () {
     var UTM_CAMPAIGN = 'campaign id';
     var ENTRYPOINT = 'entry point';
     var resumeData = {
@@ -280,7 +280,7 @@ describe('models/reliers/relier', function() {
       resume: resumeToken,
     });
 
-    return relier.fetch().then(function() {
+    return relier.fetch().then(function () {
       assert.equal(relier.get('utmCampaign'), UTM_CAMPAIGN);
       assert.equal(relier.get('entrypoint'), ENTRYPOINT);
       assert.isUndefined(
@@ -294,12 +294,12 @@ describe('models/reliers/relier', function() {
   function testInvalidQueryParam(paramName, value) {
     it(
       'invalid query param fails (' + paramName + ":'" + value + "')",
-      function() {
+      function () {
         var params = {};
         params[paramName] = value;
         windowMock.location.search = TestHelpers.toSearchString(params);
 
-        return relier.fetch().then(assert.fail, function(err) {
+        return relier.fetch().then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
           assert.equal(err.param, paramName);
         });
@@ -316,7 +316,7 @@ describe('models/reliers/relier', function() {
   ) {
     it(
       'valid query param succeeds (' + paramName + ':' + paramValue + ')',
-      function() {
+      function () {
         if (!_.isUndefined(paramValue)) {
           params[paramName] = paramValue;
         } else {
@@ -325,7 +325,7 @@ describe('models/reliers/relier', function() {
 
         windowMock.location.search = TestHelpers.toSearchString(params);
 
-        return relier.fetch().then(function() {
+        return relier.fetch().then(function () {
           if (_.isUndefined(expectedValue)) {
             assert.isFalse(relier.has(modelName));
           } else {

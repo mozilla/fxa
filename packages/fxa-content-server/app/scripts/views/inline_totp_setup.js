@@ -17,7 +17,7 @@ import VerificationReasonMixin from './mixins/verification-reason-mixin';
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const TOTP_SUPPORT_URL =
   'https://support.mozilla.org/kb/secure-firefox-account-two-step-authentication';
-const t = msg => msg;
+const t = (msg) => msg;
 
 import Template from 'templates/inline_totp_setup.mustache';
 
@@ -46,7 +46,7 @@ var View = FormView.extend({
       return Promise.resolve(this._totpToken);
     }
     const account = this.getSignedInAccount();
-    return account.createTotpToken().then(result => {
+    return account.createTotpToken().then((result) => {
       this._totpToken = result;
       this._recoveryCodes = result.recoveryCodes;
       this.model.set('secret', this._getFormattedCode(result.secret));
@@ -75,7 +75,7 @@ var View = FormView.extend({
     if (!account.get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
     }
-    return account.checkTotpTokenExists().then(result => {
+    return account.checkTotpTokenExists().then((result) => {
       if (result.exists && result.verified) {
         return this.onSubmitComplete();
       }
@@ -117,7 +117,7 @@ var View = FormView.extend({
   },
 
   renderQRImage() {
-    this.getTotpToken().then(token => {
+    this.getTotpToken().then((token) => {
       this.$('.qr-image').attr('src', token.qrCodeUrl);
       const qrImageAltText = t(
         'Use the code %(code)s to set up two-step authentication in supported applications.'
@@ -134,7 +134,7 @@ var View = FormView.extend({
     const secret = this.model.get('secret');
 
     //preverify code
-    return this.checkCode(secret, code).then(ok => {
+    return this.checkCode(secret, code).then((ok) => {
       if (!ok) {
         return this.showValidationError(
           this.$(CODE_INPUT_SELECTOR),

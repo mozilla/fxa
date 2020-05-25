@@ -3,7 +3,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 .header-page {
-  background: left 15% / cover no-repeat url('../../images/ff-branding-bg.svg') var(--color-primary);
+  background: left 15% / cover no-repeat url('../../images/ff-branding-bg.svg')
+    var(--color-primary);
   padding: var(--app-padding-x-min);
 
   h1 {

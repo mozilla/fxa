@@ -19,7 +19,7 @@ import View from 'views/reset_password';
 
 var wrapAssertion = TestHelpers.wrapAssertion;
 
-describe('views/reset_password', function() {
+describe('views/reset_password', function () {
   var broker;
   var formPrefill;
   var metrics;
@@ -44,7 +44,7 @@ describe('views/reset_password', function() {
     return new View(viewOptions);
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     formPrefill = new FormPrefill();
     notifier = new Notifier();
     sentryMetrics = new SentryMetrics();
@@ -56,12 +56,12 @@ describe('views/reset_password', function() {
     });
 
     view = createView();
-    return view.render().then(function() {
+    return view.render().then(function () {
       $('#container').html(view.el);
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
 
     view.remove();
@@ -80,12 +80,12 @@ describe('views/reset_password', function() {
     assert.isFunction(view.events['submit']);
   });
 
-  describe('render', function() {
-    it('renders template', function() {
+  describe('render', function () {
+    it('renders template', function () {
       assert.ok($('#fxa-reset-password-header').length);
     });
 
-    it('shows the remember password button', function() {
+    it('shows the remember password button', function () {
       view = createView();
 
       return view.render().then(() => {
@@ -93,13 +93,13 @@ describe('views/reset_password', function() {
       });
     });
 
-    it('shows serviceName from the relier', function() {
+    it('shows serviceName from the relier', function () {
       var serviceName = 'another awesome service by Mozilla';
       relier.set('serviceName', serviceName);
 
       // initialize a new view to set the service name
       view = createView();
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.include(
           view.$('#fxa-reset-password-header').text(),
           serviceName
@@ -133,28 +133,28 @@ describe('views/reset_password', function() {
     });
   });
 
-  describe('isValid', function() {
-    it('returns true if email address is entered', function() {
+  describe('isValid', function () {
+    it('returns true if email address is entered', function () {
       view.$('input[type=email]').val('testuser@testuser.com');
       assert.isTrue(view.isValid());
     });
 
-    it('returns false if email address is empty', function() {
+    it('returns false if email address is empty', function () {
       assert.isFalse(view.isValid());
     });
 
-    it('returns false if email address is invalid', function() {
+    it('returns false if email address is invalid', function () {
       view.$('input[type=email]').val('testuser');
       assert.isFalse(view.isValid());
     });
   });
 
-  describe('showValidationErrors', function() {
-    it('shows an error if the email is invalid', function(done) {
+  describe('showValidationErrors', function () {
+    it('shows an error if the email is invalid', function (done) {
       view.$('[type=email]').val('testuser');
 
-      view.on('validation_error', function(which, msg) {
-        wrapAssertion(function() {
+      view.on('validation_error', function (which, msg) {
+        wrapAssertion(function () {
           assert.ok(msg);
         }, done);
       });
@@ -163,10 +163,10 @@ describe('views/reset_password', function() {
     });
   });
 
-  describe('submit with valid input', function() {
+  describe('submit with valid input', function () {
     var email;
-    beforeEach(function() {
-      sinon.stub(view, 'resetPassword').callsFake(function() {
+    beforeEach(function () {
+      sinon.stub(view, 'resetPassword').callsFake(function () {
         return Promise.resolve({ passwordForgotToken: 'foo' });
       });
 
@@ -178,38 +178,38 @@ describe('views/reset_password', function() {
       return view.submit();
     });
 
-    it('submits the email address', function() {
+    it('submits the email address', function () {
       assert.isTrue(view.resetPassword.calledWith(email));
     });
   });
 
-  describe('submit with unknown email address', function() {
-    it('shows an error message', function() {
-      sinon.stub(view, 'resetPassword').callsFake(function() {
+  describe('submit with unknown email address', function () {
+    it('shows an error message', function () {
+      sinon.stub(view, 'resetPassword').callsFake(function () {
         return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
       });
 
       var email = TestHelpers.createEmail();
       view.$('input[type=email]').val(email);
 
-      return view.submit().then(function(msg) {
+      return view.submit().then(function (msg) {
         assert.include(msg, '/signup');
       });
     });
   });
 
-  describe('submit when user cancelled login', function() {
-    it('logs an error', function() {
-      sinon.stub(view, 'resetPassword').callsFake(function() {
+  describe('submit when user cancelled login', function () {
+    it('logs an error', function () {
+      sinon.stub(view, 'resetPassword').callsFake(function () {
         return Promise.reject(AuthErrors.toError('USER_CANCELED_LOGIN'));
       });
 
       return view
         .submit()
-        .then(null, function() {
+        .then(null, function () {
           assert.isTrue(false, 'unexpected failure');
         })
-        .then(function() {
+        .then(function () {
           assert.isFalse(view.isErrorVisible());
 
           assert.isTrue(TestHelpers.isEventLogged(metrics, 'login.canceled'));
@@ -217,29 +217,29 @@ describe('views/reset_password', function() {
     });
   });
 
-  describe('submit with other error', function() {
-    it('passes other errors along', function() {
-      sinon.stub(view, 'resetPassword').callsFake(function() {
+  describe('submit with other error', function () {
+    it('passes other errors along', function () {
+      sinon.stub(view, 'resetPassword').callsFake(function () {
         return Promise.reject(AuthErrors.toError('INVALID_JSON'));
       });
 
       return view
         .submit()
-        .then(null, function(err) {
+        .then(null, function (err) {
           // The errorback will not be called if the submit
           // succeeds, but the following callback always will
           // be. To ensure the errorback was called, pass
           // the error along and check its type.
           return err;
         })
-        .then(function(err) {
+        .then(function (err) {
           assert.isTrue(AuthErrors.is(err, 'INVALID_JSON'));
         });
     });
   });
 
-  describe('beforeDestroy', function() {
-    it('saves the form email to formPrefill if filled out', function() {
+  describe('beforeDestroy', function () {
+    it('saves the form email to formPrefill if filled out', function () {
       formPrefill.set('email', 'originalEmail@testuser.com');
       view.$('.email').val('');
       view.beforeDestroy();
@@ -376,13 +376,13 @@ describe('views/reset_password with `canGoBack: false`', () => {
   });
 });
 
-describe('views/reset_password with reset_password_confirm=false', function() {
+describe('views/reset_password with reset_password_confirm=false', function () {
   var view;
   var relier;
   var broker;
   var formPrefill;
 
-  beforeEach(function() {
+  beforeEach(function () {
     relier = new Relier();
     relier.set('email', 'testuser@testuser.com');
     relier.set('resetPasswordConfirm', false);
@@ -399,20 +399,20 @@ describe('views/reset_password with reset_password_confirm=false', function() {
       relier: relier,
     });
 
-    sinon.stub(view, 'resetPassword').callsFake(function() {
+    sinon.stub(view, 'resetPassword').callsFake(function () {
       return Promise.resolve();
     });
 
     return view.render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
     view = null;
     $('#container').empty();
   });
 
-  it('submits the email address automatically', function() {
+  it('submits the email address automatically', function () {
     assert.isTrue(view.resetPassword.calledWith('testuser@testuser.com'));
   });
 });

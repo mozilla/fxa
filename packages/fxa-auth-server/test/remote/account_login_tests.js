@@ -14,11 +14,11 @@ const config = require('../../config').getProperties();
 describe('remote account login', () => {
   let server;
 
-  before(function() {
+  before(function () {
     this.timeout(15000);
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -37,7 +37,7 @@ describe('remote account login', () => {
       })
       .then(
         () => assert(false),
-        err => {
+        (err) => {
           assert.equal(err.code, 400);
           assert.equal(err.errno, 103);
           assert.equal(err.email, email);
@@ -60,7 +60,7 @@ describe('remote account login', () => {
       })
       .then(
         () => assert(false),
-        err => {
+        (err) => {
           assert.equal(err.code, 400);
           assert.equal(err.errno, 120);
           assert.equal(err.email, signupEmail);
@@ -76,7 +76,7 @@ describe('remote account login', () => {
       () => {
         assert(false, 'account should not exist');
       },
-      err => {
+      (err) => {
         assert.equal(err.errno, 102, 'account does not exist');
       }
     );
@@ -91,10 +91,10 @@ describe('remote account login', () => {
       password,
       server.mailbox
     )
-      .then(c => {
+      .then((c) => {
         return Client.login(config.publicUrl, email, password, { keys: false });
       })
-      .then(c => {
+      .then((c) => {
         assert.equal(c.keyFetchToken, null, 'should not have keyFetchToken');
       });
   });
@@ -111,7 +111,7 @@ describe('remote account login', () => {
       .then(() => {
         return Client.login(config.publicUrl, email, password);
       })
-      .then(client => {
+      .then((client) => {
         assert.ok(client, 'logged in to account');
       });
   });
@@ -133,7 +133,7 @@ describe('remote account login', () => {
           },
         });
       })
-      .then(client => {
+      .then((client) => {
         assert.ok(client, 'logged in to account');
       });
   });
@@ -159,7 +159,7 @@ describe('remote account login', () => {
         () => {
           assert(false, 'account login should have failed');
         },
-        err => {
+        (err) => {
           assert.ok(err, 'account login failed');
         }
       );
@@ -186,7 +186,7 @@ describe('remote account login', () => {
         () => {
           assert(false, 'account login should have failed');
         },
-        err => {
+        (err) => {
           assert.ok(err, 'account login failed');
         }
       );
@@ -213,7 +213,7 @@ describe('remote account login', () => {
         () => {
           assert.fail('should not have succeed');
         },
-        err => {
+        (err) => {
           assert.equal(err.errno, 107, 'invalid parameter');
         }
       );
@@ -224,7 +224,7 @@ describe('remote account login', () => {
         verificationMethod: 'email',
         keys: true,
       })
-        .then(res => {
+        .then((res) => {
           client = res;
           assert.equal(
             res.verificationMethod,
@@ -233,7 +233,7 @@ describe('remote account login', () => {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(status.verified, false, 'account is not verified');
           assert.equal(status.emailVerified, true, 'email is verified');
           assert.equal(
@@ -243,17 +243,17 @@ describe('remote account login', () => {
           );
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verifyLogin');
           const code = emailData.headers['x-verify-code'];
           assert.ok(code, 'code is sent');
           return client.verifyEmail(code);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'verified successful response');
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(status.verified, true, 'account is verified');
           assert.equal(status.emailVerified, true, 'email is verified');
           assert.equal(status.sessionVerified, true, 'session is verified');
@@ -265,7 +265,7 @@ describe('remote account login', () => {
         verificationMethod: 'email-2fa',
         keys: true,
       })
-        .then(res => {
+        .then((res) => {
           client = res;
           assert.equal(
             res.verificationMethod,
@@ -274,7 +274,7 @@ describe('remote account login', () => {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(status.verified, false, 'account is not verified');
           assert.equal(status.emailVerified, true, 'email is verified');
           assert.equal(
@@ -284,7 +284,7 @@ describe('remote account login', () => {
           );
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
           const code = emailData.headers['x-signin-verify-code'];
           assert.ok(code, 'code is sent');
@@ -306,7 +306,7 @@ describe('remote account login', () => {
             keys: true,
           });
         })
-        .then(res => {
+        .then((res) => {
           client = res;
           assert.equal(
             res.verificationMethod,
@@ -315,7 +315,7 @@ describe('remote account login', () => {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(status.verified, false, 'account is not verified');
           assert.equal(status.emailVerified, true, 'email is verified');
           assert.equal(
@@ -331,7 +331,7 @@ describe('remote account login', () => {
         verificationMethod: 'email',
         keys: false,
       })
-        .then(res => {
+        .then((res) => {
           client = res;
           assert.equal(
             res.verificationMethod,
@@ -340,7 +340,7 @@ describe('remote account login', () => {
           );
           return client.emailStatus();
         })
-        .then(status => {
+        .then((status) => {
           assert.equal(status.verified, true, 'account is verified');
           assert.equal(status.emailVerified, true, 'email is verified');
           assert.equal(

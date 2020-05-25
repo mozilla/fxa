@@ -25,7 +25,7 @@ import SupportFormErrorTemplate from 'templates/partial/support-form-error.musta
 import SupportFormSuccessTemplate from 'templates/partial/support-form-success.mustache';
 import Template from 'templates/support.mustache';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const proto = BaseView.prototype;
 const SupportView = BaseView.extend({
@@ -75,7 +75,7 @@ const SupportView = BaseView.extend({
   beforeRender() {
     const account = this.getSignedInAccount();
 
-    return account.getSubscriptions().then(subscriptions => {
+    return account.getSubscriptions().then((subscriptions) => {
       if (subscriptions.length) {
         this.model.set('subscriptions', subscriptions);
 
@@ -110,13 +110,10 @@ const SupportView = BaseView.extend({
     this.topicEl.chosen({ disable_search: true, width: '100%' });
 
     // Have screen readers use the form label for the drop down
-    $('div.chosen-drop ul').each(function() {
+    $('div.chosen-drop ul').each(function () {
       $(this).attr(
         'aria-labelledby',
-        $(this)
-          .closest('.support-field')
-          .find('label')
-          .attr('id')
+        $(this).closest('.support-field').find('label').attr('id')
       );
     });
 
@@ -162,24 +159,24 @@ const SupportView = BaseView.extend({
     }
   },
 
-  findSubscription: function(productName) {
+  findSubscription: function (productName) {
     const subscriptions = this.model.get('subscriptions');
-    return subscriptions.find(sub => sub.product_name === productName);
+    return subscriptions.find((sub) => sub.product_name === productName);
   },
 
-  formatProductName: function(name) {
+  formatProductName: function (name) {
     const productNamePrefix = 'FxA - ';
     return `${productNamePrefix}${name}`;
   },
 
-  submitButtonUIToggle: function() {
+  submitButtonUIToggle: function () {
     this.submitText.toggleClass('hidden');
     this.submitSpinner.toggleClass('hidden');
     this.submitBtn.prop('disabled', !this.submitBtn.prop('disabled'));
     this.cancelBtn.prop('disabled', !this.cancelBtn.prop('disabled'));
   },
 
-  closeModalReset: function(button) {
+  closeModalReset: function (button) {
     this.submitBtn.prop('disabled', false);
     this.cancelBtn.prop('disabled', false);
 
@@ -188,7 +185,7 @@ const SupportView = BaseView.extend({
   },
 
   submitSupportForm: preventDefaultThen(
-    allowOnlyOneSubmit(function() {
+    allowOnlyOneSubmit(function () {
       const account = this.getSignedInAccount();
       const supportTicket = _.clone(this.supportForm.attributes);
       this.submitButtonUIToggle();

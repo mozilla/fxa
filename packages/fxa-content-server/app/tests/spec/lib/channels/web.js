@@ -97,7 +97,7 @@ describe('lib/channels/web', () => {
         window: windowMock,
       });
 
-      channel.send('after_render', {}).then(assert.fail, function(err) {
+      channel.send('after_render', {}).then(assert.fail, function (err) {
         assert.equal(err.message, 'Not supported');
       });
     });
@@ -109,7 +109,7 @@ describe('lib/channels/web', () => {
       channel.initialize({
         window: windowMock,
       });
-      sinon.stub(windowMock, 'dispatchEvent').callsFake(function(dispatched) {
+      sinon.stub(windowMock, 'dispatchEvent').callsFake(function (dispatched) {
         channel._receiver.trigger('message', {
           command: 'can_link_account',
           data: { ok: true },
@@ -119,7 +119,7 @@ describe('lib/channels/web', () => {
 
       return channel
         .request('can_link_account', { email: 'testuser@testuser.com' })
-        .then(function(response) {
+        .then(function (response) {
           assert.isTrue(response.ok);
         });
     });

@@ -32,7 +32,7 @@ test('Sentry emits error', async () => {
     addEventProcessor: sinon.fake(),
     setExtra: scopeExtraSpy,
   };
-  sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
+  sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
   const fullError = new Error('something went wrong');
   await server.events.emit({ name: 'request', channel: 'error' }, [
     {},

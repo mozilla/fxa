@@ -17,7 +17,7 @@ import Translator from '../../lib/translator';
 
 const translator = new Translator();
 
-const t = msg => translator.get(msg);
+const t = (msg) => translator.get(msg);
 
 function ChangePassword(props) {
   return (
@@ -63,19 +63,19 @@ export class ChangePasswordForm extends React.Component {
     };
   }
 
-  setOldPassword = event => {
+  setOldPassword = (event) => {
     this.setState({
       oldPass: event.target.value,
     });
   };
 
-  setNewPassword = event => {
+  setNewPassword = (event) => {
     this.setState({
       newPass: event.target.value,
     });
   };
 
-  setNewVPassword = event => {
+  setNewVPassword = (event) => {
     this.setState({
       newVPass: event.target.value,
     });
@@ -127,7 +127,7 @@ export class ChangePasswordForm extends React.Component {
     return true;
   }
 
-  handleSubmit = event => {
+  handleSubmit = (event) => {
     event.preventDefault();
     const areInputsValid =
       this.validateFormField('#old_password') &&
@@ -146,7 +146,7 @@ export class ChangePasswordForm extends React.Component {
         () => {
           this.resetInputValuesAndFocus();
         },
-        err => {
+        (err) => {
           if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
             return this.props.showValidationError('#old_password', err);
           } else if (AuthErrors.is(err, 'PASSWORDS_MUST_BE_DIFFERENT')) {
@@ -187,7 +187,7 @@ export class ChangePasswordForm extends React.Component {
               required
               pattern=".{8,}"
               value={this.state.oldPass}
-              ref={input => (this._input = input)}
+              ref={(input) => (this._input = input)}
             />
             <div className="input-help input-help-forgot-pw links centered">
               <a href="/reset_password" className="reset-password">
@@ -267,7 +267,7 @@ class ChangePasswordView extends FormView {
           submit={(oldPassword, newPassword) =>
             this.submit(oldPassword, newPassword)
           }
-          displayError={err => this.displayError(err)}
+          displayError={(err) => this.displayError(err)}
           isPanelOpen={this.isPanelOpen()}
           showValidationError={(id, err) =>
             this.showValidationError(this.$(id), err)

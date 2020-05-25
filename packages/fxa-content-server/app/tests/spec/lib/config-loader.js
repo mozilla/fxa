@@ -47,7 +47,7 @@ describe('lib/config-loader', () => {
   });
 
   it('_readConfigFromHTML returns a `MISSING_CONFIG` error', () => {
-    return configLoader._readConfigFromHTML().then(assert.fail, err => {
+    return configLoader._readConfigFromHTML().then(assert.fail, (err) => {
       assert.isTrue(ConfigLoaderErrors.is(err, 'MISSING_CONFIG'));
     });
   });
@@ -55,7 +55,7 @@ describe('lib/config-loader', () => {
   it('_parseHTMLConfig rejects with invalid encoding', () => {
     return configLoader
       ._parseHTMLConfig(INVALID_URI_COMPONENT_HTML_CONFIG)
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
       });
   });
@@ -63,7 +63,7 @@ describe('lib/config-loader', () => {
   it('_parseHTMLConfig rejects with invalid JSON', () => {
     return configLoader
       ._parseHTMLConfig(INVALID_JSON_HTML_CONFIG)
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.isTrue(ConfigLoaderErrors.is(err, 'INVALID_CONFIG'));
       });
   });
@@ -84,13 +84,13 @@ describe('lib/config-loader', () => {
     });
 
     it('_readConfigFromHTML returns the expected config', () => {
-      return configLoader._readConfigFromHTML().then(serializedHTMLConfig => {
+      return configLoader._readConfigFromHTML().then((serializedHTMLConfig) => {
         assert.equal(serializedHTMLConfig, VALID_HTML_CONFIG);
       });
     });
 
     it('_parseHTMLConfig parses the config', () => {
-      return configLoader._parseHTMLConfig(VALID_HTML_CONFIG).then(config => {
+      return configLoader._parseHTMLConfig(VALID_HTML_CONFIG).then((config) => {
         assert.equal(config.env, 'dev');
         assert.deepEqual(config.featureFlags, FEATURE_FLAGS);
       });
@@ -125,7 +125,7 @@ describe('lib/config-loader', () => {
       });
 
       it('fetch returns the config', () => {
-        return configLoader.fetch().then(config => {
+        return configLoader.fetch().then((config) => {
           assert.equal(config.env, 'dev');
           assert.equal(config.lang, 'db_LB');
           assert.deepEqual(config.featureFlags, FEATURE_FLAGS);

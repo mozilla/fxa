@@ -53,7 +53,7 @@ describe('lib/senders/index', () => {
         }),
         error,
         {}
-      ).then(sndrs => {
+      ).then((sndrs) => {
         const email = sndrs.email;
         email._ungatedMailer.mailer.sendMail = sinon.spy((opts, cb) => {
           cb(null, {});
@@ -68,7 +68,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.verifyEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.verifyEmail = sinon.spy(() => P.resolve({}));
             return email.sendVerifyEmail(EMAILS, acct, { code: code });
@@ -88,7 +88,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.verifyLoginEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.verifyLoginEmail = sinon.spy(() =>
               P.resolve({})
@@ -120,7 +120,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.recoveryEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.recoveryEmail = sinon.spy(() => P.resolve({}));
             return email.sendRecoveryEmail(EMAILS, acct, {
@@ -147,7 +147,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.passwordChangedEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.passwordChangedEmail = sinon.spy(() =>
               P.resolve({})
@@ -177,7 +177,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.passwordResetEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.passwordResetEmail = sinon.spy(() =>
               P.resolve({})
@@ -204,7 +204,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.newDeviceLoginEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.newDeviceLoginEmail = sinon.spy(() =>
               P.resolve({})
@@ -231,7 +231,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.postVerifyEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.postVerifyEmail = sinon.spy(() =>
               P.resolve({})
@@ -254,7 +254,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.unblockCodeEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.unblockCodeEmail = sinon.spy(() =>
               P.resolve({})
@@ -280,7 +280,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.postAddTwoStepAuthenticationEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.postAddTwoStepAuthenticationEmail = sinon.spy(
               () => P.resolve({})
@@ -315,7 +315,7 @@ describe('lib/senders/index', () => {
       it('should call mailer.postRemoveTwoStepAuthenticationEmail()', () => {
         let email;
         return createSender(config)
-          .then(e => {
+          .then((e) => {
             email = e;
             email._ungatedMailer.postRemoveTwoStepAuthenticationEmail = sinon.spy(
               () => P.resolve({})
@@ -366,7 +366,7 @@ describe('lib/senders/index', () => {
         assert.lengthOf(args, 1);
         assert.deepEqual(args[0], {
           acceptLanguage: 'wibble',
-          ccEmails: EMAILS.slice(1, 2).map(e => e.email),
+          ccEmails: EMAILS.slice(1, 2).map((e) => e.email),
           email: EMAIL,
           productId: 'blee',
           uid: UID,

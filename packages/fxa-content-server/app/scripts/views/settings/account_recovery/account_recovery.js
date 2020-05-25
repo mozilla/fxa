@@ -10,7 +10,7 @@ import showProgressIndicator from '../../decorators/progress_indicator';
 import LastCheckedTimeMixin from '../../mixins/last-checked-time-mixin';
 import UpgradeSessionMixin from '../../mixins/upgrade-session-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const CODE_REFRESH_SELECTOR = 'button.settings-button.refresh-status';
 const CODE_REFRESH_DELAY_MS = 350;
@@ -47,9 +47,9 @@ const View = BaseView.extend({
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    return this.setupSessionGateIfRequired().then(isEnabled => {
+    return this.setupSessionGateIfRequired().then((isEnabled) => {
       if (isEnabled) {
-        return account.checkRecoveryKeyExists().then(status => {
+        return account.checkRecoveryKeyExists().then((status) => {
           this.model.set('hasRecoveryKey', status.exists);
         });
       }
@@ -70,7 +70,7 @@ const View = BaseView.extend({
   },
 
   refresh: showProgressIndicator(
-    function() {
+    function () {
       this.setLastCheckedTime();
       this.logFlowEvent('refresh', this.viewName);
       return this.render();

@@ -58,18 +58,18 @@ const account2Mock = createAccount(
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
-describe('scripts/dump-users', function() {
+describe('scripts/dump-users', function () {
   this.timeout(10000);
 
   let db, server;
 
   before(() => {
     return TestServer.start(config)
-      .then(s => {
+      .then((s) => {
         server = s;
         return DB.connect(config[config.db.backend]);
       })
-      .then(_db => {
+      .then((_db) => {
         db = _db;
         return P.all([
           db.createAccount(account1Mock),
@@ -88,7 +88,7 @@ describe('scripts/dump-users', function() {
   it('fails if neither --emails nor --uids is specified', () => {
     return cp.execAsync('node scripts/dump-users', { cwd }).then(
       () => assert(false, 'script should have failed'),
-      err => {
+      (err) => {
         assert.include(err.message, 'Command failed');
       }
     );
@@ -99,7 +99,7 @@ describe('scripts/dump-users', function() {
       .execAsync('node scripts/dump-users --emails --uids', { cwd })
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -108,7 +108,7 @@ describe('scripts/dump-users', function() {
   it('fails if --emails specified w/o list of emails or --input', () => {
     return cp.execAsync('node scripts/dump-users --emails', { cwd }).then(
       () => assert(false, 'script should have failed'),
-      err => {
+      (err) => {
         assert.include(err.message, 'Command failed');
       }
     );
@@ -117,7 +117,7 @@ describe('scripts/dump-users', function() {
   it('fails if --uids specified w/o list of uids or --input', () => {
     return cp.execAsync('node scripts/dump-users --uids', { cwd }).then(
       () => assert(false, 'script should have failed'),
-      err => {
+      (err) => {
         assert.include(err.message, 'Command failed');
       }
     );
@@ -128,7 +128,7 @@ describe('scripts/dump-users', function() {
       .execAsync('node scripts/dump-users --uids deadbeef', { cwd })
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -137,7 +137,7 @@ describe('scripts/dump-users', function() {
   it('succeeds with --uids and 1 valid uid1', () => {
     return cp
       .execAsync(`node scripts/dump-users --uids ${account1Mock.uid}`, { cwd })
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -152,7 +152,7 @@ describe('scripts/dump-users', function() {
         `node scripts/dump-users --uids ${account1Mock.uid},${account2Mock.uid}`,
         { cwd }
       )
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
@@ -170,7 +170,7 @@ describe('scripts/dump-users', function() {
         'node scripts/dump-users --uids --input ../test/scripts/fixtures/one_uid.txt',
         { cwd }
       )
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -185,7 +185,7 @@ describe('scripts/dump-users', function() {
         'node scripts/dump-users --uids --input ../test/scripts/fixtures/two_uids.txt',
         { cwd }
       )
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
@@ -202,7 +202,7 @@ describe('scripts/dump-users', function() {
       .execAsync('node scripts/dump-users --emails user3@test.com', { cwd })
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -213,7 +213,7 @@ describe('scripts/dump-users', function() {
       .execAsync(`node scripts/dump-users --emails ${account1Mock.email}`, {
         cwd,
       })
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -228,7 +228,7 @@ describe('scripts/dump-users', function() {
         `node scripts/dump-users --emails ${account1Mock.email},${account2Mock.email}`,
         { cwd }
       )
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
@@ -246,7 +246,7 @@ describe('scripts/dump-users', function() {
         'node scripts/dump-users --emails --input ../test/scripts/fixtures/one_email.txt',
         { cwd }
       )
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
@@ -261,7 +261,7 @@ describe('scripts/dump-users', function() {
         'node scripts/dump-users --emails --input ../test/scripts/fixtures/two_emails.txt',
         { cwd }
       )
-      .then(output => {
+      .then((output) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 

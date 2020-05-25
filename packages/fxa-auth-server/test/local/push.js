@@ -74,7 +74,7 @@ describe('push', () => {
 
   it('sendPush does not reject on empty device array', () => {
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.success') {
           assert.fail('must not call push.success');
         }
@@ -88,7 +88,7 @@ describe('push', () => {
   it('sendPush sends notifications with a TTL of 0', () => {
     let successCalled = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.success') {
           // notification sent
           successCalled++;
@@ -98,7 +98,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           assert.equal(options.TTL, '0', 'sends the proper ttl header');
           return P.resolve();
         },
@@ -118,7 +118,7 @@ describe('push', () => {
   it('sendPush sends notifications with user-defined TTL', () => {
     let successCalled = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.success') {
           // notification sent
           successCalled++;
@@ -128,7 +128,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           assert.equal(options.TTL, TTL, 'sends the proper ttl header');
           return P.resolve();
         },
@@ -153,7 +153,7 @@ describe('push', () => {
     const data = { foo: 'bar' };
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           count++;
           assert.ok(sub.keys.p256dh);
           assert.ok(sub.keys.auth);
@@ -183,7 +183,7 @@ describe('push', () => {
     const endPoints = [];
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           endPoints.push(sub.endpoint);
           return P.resolve();
         },
@@ -213,7 +213,7 @@ describe('push', () => {
     const endPoints = [];
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           endPoints.push(sub.endpoint);
           return P.resolve();
         },
@@ -244,7 +244,7 @@ describe('push', () => {
     const endPoints = [];
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           endPoints.push(sub.endpoint);
           return P.resolve();
         },
@@ -275,7 +275,7 @@ describe('push', () => {
     const endPoints = [];
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           endPoints.push(sub.endpoint);
           return P.resolve();
         },
@@ -302,7 +302,7 @@ describe('push', () => {
     let endPoints = [];
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           endPoints.push(sub.endpoint);
           return P.resolve();
         },
@@ -375,7 +375,7 @@ describe('push', () => {
   it('push fails if data is present but both keys are not present', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.data_but_no_keys') {
           // data detected but device had no keys
           count++;
@@ -406,7 +406,7 @@ describe('push', () => {
   it('push catches devices with no push callback', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.no_push_callback') {
           // device had no push callback
           count++;
@@ -430,7 +430,7 @@ describe('push', () => {
   it('push catches devices with expired callback', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.push_callback_expired') {
           // device had expired callback
           count++;
@@ -455,7 +455,7 @@ describe('push', () => {
   it('push reports errors when web-push fails', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.failed') {
           // web-push failed
           count++;
@@ -465,7 +465,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.reject(new Error('Failed'));
         },
       },
@@ -495,7 +495,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           assert.equal(options.TTL, '0', 'sends the proper ttl header');
           return P.resolve();
         },
@@ -532,7 +532,7 @@ describe('push', () => {
   it('push resets device push data when push server responds with a 400 level error', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.reset_settings') {
           // web-push failed
           assert.equal(
@@ -554,7 +554,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           const err = new Error('Failed');
           err.statusCode = 410;
           return P.reject(err);
@@ -577,7 +577,7 @@ describe('push', () => {
   it('push resets device push data when a failure is caused by bad encryption keys', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.reset_settings') {
           // web-push failed
           assert.equal(
@@ -603,7 +603,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           const err = new Error('Failed');
           return P.reject(err);
         },
@@ -626,7 +626,7 @@ describe('push', () => {
   it('push does not reset device push data after an unexpected failure', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.failed') {
           // web-push failed
           assert.equal(
@@ -641,7 +641,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           const err = new Error('Failed');
           return P.reject(err);
         },
@@ -663,7 +663,7 @@ describe('push', () => {
   it('notifyCommandReceived calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -684,7 +684,7 @@ describe('push', () => {
         'http://fetch.url',
         42
       )
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -719,7 +719,7 @@ describe('push', () => {
   it('notifyDeviceConnected calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -740,7 +740,7 @@ describe('push', () => {
     };
     return push
       .notifyDeviceConnected(mockUid, mockDevices, deviceName)
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -761,7 +761,7 @@ describe('push', () => {
   it('notifyDeviceDisconnected calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -782,7 +782,7 @@ describe('push', () => {
     };
     return push
       .notifyDeviceDisconnected(mockUid, mockDevices, idToDisconnect)
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -804,7 +804,7 @@ describe('push', () => {
   it('notifyPasswordChanged calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -821,7 +821,7 @@ describe('push', () => {
     };
     return push
       .notifyPasswordChanged(mockUid, mockDevices)
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -842,7 +842,7 @@ describe('push', () => {
   it('notifyPasswordReset calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -859,7 +859,7 @@ describe('push', () => {
     };
     return push
       .notifyPasswordReset(mockUid, mockDevices)
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -880,7 +880,7 @@ describe('push', () => {
   it('notifyAccountUpdated calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -894,7 +894,7 @@ describe('push', () => {
 
     return push
       .notifyAccountUpdated(mockUid, mockDevices, 'deviceConnected')
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -910,7 +910,7 @@ describe('push', () => {
   it('notifyAccountDestroyed calls sendPush', () => {
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           return P.resolve();
         },
       },
@@ -930,7 +930,7 @@ describe('push', () => {
     };
     return push
       .notifyAccountDestroyed(mockUid, mockDevices)
-      .catch(err => {
+      .catch((err) => {
         assert.fail('must not throw');
         throw err;
       })
@@ -951,7 +951,7 @@ describe('push', () => {
   it('sendPush includes VAPID identification if it is configured', () => {
     let count = 0;
     const thisMockLog = mockLog({
-      info: function(op, log) {
+      info: function (op, log) {
         if (log.name === 'push.account_verify.success') {
           count++;
         }
@@ -965,7 +965,7 @@ describe('push', () => {
 
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           assert.ok(options.vapidDetails, 'sends the VAPID params object');
           assert.equal(
             options.vapidDetails.subject,
@@ -1002,7 +1002,7 @@ describe('push', () => {
     const mockConfig = {};
     const mocks = {
       'web-push': {
-        sendNotification: function(sub, payload, options) {
+        sendNotification: function (sub, payload, options) {
           assert.fail('should not have called sendNotification');
           return P.reject('Should not have called sendNotification');
         },
@@ -1018,7 +1018,7 @@ describe('push', () => {
       () => {
         assert(false, 'calling sendPush should have failed');
       },
-      err => {
+      (err) => {
         assert.equal(err, 'Unknown push reason: anUnknownReasonString');
       }
     );

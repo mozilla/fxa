@@ -23,14 +23,14 @@ config.ipBlocklist.logOnlyLists = ['./test/mocks/logOnlyList.netset'];
 
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
@@ -42,23 +42,23 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-ENDPOINTS.forEach(endpoint => {
-  test(`${endpoint} block ip from ip blocklist`, t => {
+ENDPOINTS.forEach((endpoint) => {
+  test(`${endpoint} block ip from ip blocklist`, (t) => {
     client.postAsync(
       endpoint,
       { ip: BLOCK_IP, email: TEST_EMAIL, action: ACTION },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked');
         t.end();
       }
     );
   });
 
-  test(`${endpoint} block ip in range of blocklist`, t => {
+  test(`${endpoint} block ip in range of blocklist`, (t) => {
     client.postAsync(
       endpoint,
       { ip: BLOCK_IP_INRANGE, email: TEST_EMAIL, action: ACTION },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked');
         t.equal(obj.blockReason, 'ip_in_blocklist', 'blockReason set');
         t.end();
@@ -66,33 +66,33 @@ ENDPOINTS.forEach(endpoint => {
     );
   });
 
-  test(`${endpoint} do not block ip not in range blocklist`, t => {
+  test(`${endpoint} do not block ip not in range blocklist`, (t) => {
     client.postAsync(
       endpoint,
       { ip: VALID_IP, email: TEST_EMAIL, action: ACTION },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is not blocked');
         t.end();
       }
     );
   });
 
-  test(`${endpoint} should log only on hit from logOnly list`, t => {
+  test(`${endpoint} should log only on hit from logOnly list`, (t) => {
     client.postAsync(
       endpoint,
       { ip: LOG_ONLY_IP, email: TEST_EMAIL, action: ACTION },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.equal(obj.block, false, 'request is not blocked');
         t.end();
       }
     );
   });
 
-  test(`${endpoint} should block request on hit from logOnly and blocklist`, t => {
+  test(`${endpoint} should block request on hit from logOnly and blocklist`, (t) => {
     client.postAsync(
       endpoint,
       { ip: LOG_ONLY_BOTH_LIST_IP, email: TEST_EMAIL, action: ACTION },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.equal(obj.block, true, 'request is blocked');
         t.end();
       }
@@ -100,7 +100,7 @@ ENDPOINTS.forEach(endpoint => {
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

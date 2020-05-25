@@ -66,8 +66,8 @@ export default class DeviceConnectedPoll extends Backbone.Model {
     // the check for sign-in code consumption and will examine it more
     // in a follow up PR.
     this._account.fetchDeviceList().then(
-      result => this._onStatusComplete(result),
-      err => this._onStatusError(err)
+      (result) => this._onStatusComplete(result),
+      (err) => this._onStatusError(err)
     );
   }
 
@@ -86,8 +86,8 @@ export default class DeviceConnectedPoll extends Backbone.Model {
     // or connected a previous device.
     //
     // A "new device" is considered new if and only if it exists in `currentDevices`.
-    const newDevice = currentDevices.filter(device => {
-      const found = this._previousDevices.find(item => item.id === device.id);
+    const newDevice = currentDevices.filter((device) => {
+      const found = this._previousDevices.find((item) => item.id === device.id);
       return found ? null : device;
     });
 

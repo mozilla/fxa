@@ -28,7 +28,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('verification reminders', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return (
       this.remote
@@ -38,7 +38,7 @@ registerSuite('verification reminders', {
             verificationMethod: 'email-otp',
           })
         )
-        .then(function(result) {
+        .then(function (result) {
           accountData = result;
           uid = accountData.uid;
         })
@@ -48,13 +48,13 @@ registerSuite('verification reminders', {
         .then(sendVerificationReminders())
         .then(getVerificationLink(email, 1))
 
-        .then(function(link) {
+        .then(function (link) {
           code = link.match(/code=([A-Za-z0-9]+)/)[1];
         })
     );
   },
   tests: {
-    'open verification link with malformed code': function() {
+    'open verification link with malformed code': function () {
       const code = createRandomHexString(Constants.CODE_LENGTH - 1);
       const uid = accountData.uid;
       const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
@@ -68,7 +68,7 @@ registerSuite('verification reminders', {
         );
     },
 
-    'open verification link with server reported bad code': function() {
+    'open verification link with server reported bad code': function () {
       const code = createRandomHexString(Constants.CODE_LENGTH);
       const uid = accountData.uid;
       const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
@@ -78,7 +78,7 @@ registerSuite('verification reminders', {
       );
     },
 
-    'open verification link with malformed uid': function() {
+    'open verification link with malformed uid': function () {
       const uid = createRandomHexString(Constants.UID_LENGTH - 1);
       const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
@@ -87,7 +87,7 @@ registerSuite('verification reminders', {
       );
     },
 
-    'open verification link with server reported bad uid': function() {
+    'open verification link with server reported bad uid': function () {
       const uid = createRandomHexString(Constants.UID_LENGTH);
       const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
@@ -96,7 +96,7 @@ registerSuite('verification reminders', {
       );
     },
 
-    'open valid email verification link': function() {
+    'open valid email verification link': function () {
       const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote.then(openPage(url, selectors.SIGNUP_COMPLETE.HEADER));
@@ -105,7 +105,7 @@ registerSuite('verification reminders', {
 });
 
 registerSuite('verification reminders - re-sign up after reminders are sent', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return (
       this.remote
@@ -115,7 +115,7 @@ registerSuite('verification reminders - re-sign up after reminders are sent', {
             verificationMethod: 'email-otp',
           })
         )
-        .then(function(result) {
+        .then(function (result) {
           accountData = result;
           uid = accountData.uid;
         })
@@ -124,7 +124,7 @@ registerSuite('verification reminders - re-sign up after reminders are sent', {
         // reminders which contain a link.
         .then(sendVerificationReminders())
         .then(getVerificationLink(email, 1))
-        .then(function(link) {
+        .then(function (link) {
           code = link.match(/code=([A-Za-z0-9]+)/)[1];
         })
         // re-sign up the same user with a different password, should expire
@@ -133,7 +133,7 @@ registerSuite('verification reminders - re-sign up after reminders are sent', {
     );
   },
   tests: {
-    'open expired email verification link': function() {
+    'open expired email verification link': function () {
       const url = CONFIRM_EMAIL_ROOT + '?uid=' + uid + '&code=' + code;
 
       return this.remote

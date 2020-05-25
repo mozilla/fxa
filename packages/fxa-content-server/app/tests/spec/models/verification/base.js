@@ -20,9 +20,9 @@ var Model = BaseModel.extend({
   },
 });
 
-describe('models/verification/base', function() {
-  describe('initialization cleanup', function() {
-    it('removes whitespace in values', function() {
+describe('models/verification/base', function () {
+  describe('initialization cleanup', function () {
+    it('removes whitespace in values', function () {
       var model = new Model({
         code: ' fad fade',
         uid: 'dead beef ',
@@ -32,7 +32,7 @@ describe('models/verification/base', function() {
       assert.equal(model.get('code'), 'fadfade');
     });
 
-    it('removes empty values', function() {
+    it('removes empty values', function () {
       var model = new Model({
         code: '',
         uid: '  ',
@@ -43,8 +43,8 @@ describe('models/verification/base', function() {
     });
   });
 
-  describe('isValid', function() {
-    it('returns false if model is marked as damaged', function() {
+  describe('isValid', function () {
+    it('returns false if model is marked as damaged', function () {
       var model = new Model({
         code: 'a-code',
         uid: 'a-uid',
@@ -53,7 +53,7 @@ describe('models/verification/base', function() {
       assert.isFalse(model.isValid());
     });
 
-    it('returns false if `validate` explodes', function() {
+    it('returns false if `validate` explodes', function () {
       var model = new Model({
         code: null,
         uid: 'a-uid',
@@ -61,7 +61,7 @@ describe('models/verification/base', function() {
       assert.isFalse(model.isValid());
     });
 
-    it('returns true otherwise', function() {
+    it('returns true otherwise', function () {
       var model = new Model({
         code: 'a-code',
         uid: 'a-uid',
@@ -70,8 +70,8 @@ describe('models/verification/base', function() {
     });
   });
 
-  describe('markExpired/isExpired', function() {
-    it('marks the link as expired', function() {
+  describe('markExpired/isExpired', function () {
+    it('marks the link as expired', function () {
       var model = new Model({
         code: 'a-code',
         uid: 'a-uid',
@@ -83,8 +83,8 @@ describe('models/verification/base', function() {
     });
   });
 
-  describe('markUsed/isUsed', function() {
-    it('marks the link as used', function() {
+  describe('markUsed/isUsed', function () {
+    it('marks the link as used', function () {
       var model = new Model({
         code: 'a-code',
         uid: 'a-uid',
@@ -96,8 +96,8 @@ describe('models/verification/base', function() {
     });
   });
 
-  describe('markDamaged/isDamaged', function() {
-    it('marks the link as damaged', function() {
+  describe('markDamaged/isDamaged', function () {
+    it('marks the link as damaged', function () {
       var model = new Model({
         code: 'a-code',
         uid: 'a-uid',

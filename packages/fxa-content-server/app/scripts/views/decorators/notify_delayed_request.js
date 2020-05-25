@@ -10,7 +10,7 @@
 import AuthErrors from '../../lib/auth-errors';
 
 function notifyDelayedRequest(handler) {
-  return function() {
+  return function () {
     var args = arguments;
     var workingText;
 
@@ -24,14 +24,14 @@ function notifyDelayedRequest(handler) {
     return Promise.resolve()
       .then(() => this.invokeHandler(handler, args))
       .then(
-        value => {
+        (value) => {
           this.clearTimeout(this._workingTimeout);
           if (workingText === this.$('.error').text()) {
             this.hideError();
           }
           return value;
         },
-        err => {
+        (err) => {
           this.clearTimeout(this._workingTimeout);
           throw err;
         }

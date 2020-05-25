@@ -63,7 +63,9 @@ const View = FormView.extend({
         this.logViewEvent('success');
         return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
       })
-      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch((err) =>
+        this.showValidationError(this.$(CODE_INPUT_SELECTOR), err)
+      );
   },
 
   resend() {

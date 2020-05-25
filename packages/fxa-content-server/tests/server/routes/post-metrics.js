@@ -10,7 +10,7 @@ const sinon = require('sinon');
 var mocks, route, instance, sandbox;
 
 registerSuite('routes/post-metrics', {
-  before: function() {
+  before: function () {
     sandbox = sinon.sandbox.create();
     mocks = {
       config: {
@@ -47,27 +47,27 @@ registerSuite('routes/post-metrics', {
       {
         '../flow-event': mocks.flowEvent,
         '../configuration': mocks.config,
-        '../metrics-collector-stderr': function() {
+        '../metrics-collector-stderr': function () {
           return mocks.metricsCollector;
         },
-        '../logging/log': function() {
+        '../logging/log': function () {
           return mocks.mozlog;
         },
       }
     );
   },
   tests: {
-    'route interface is correct': function() {
+    'route interface is correct': function () {
       assert.isFunction(route);
       assert.lengthOf(route, 0);
     },
 
     'initialise route': {
-      before: function() {
+      before: function () {
         instance = route();
       },
       tests: {
-        'instance interface is correct': function() {
+        'instance interface is correct': function () {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 5);
           assert.equal(instance.method, 'post');
@@ -83,8 +83,8 @@ registerSuite('routes/post-metrics', {
 
         'route.preProcess': {
           'route.preProcess with text/plain Content-Type': {
-            before: function() {
-              sinon.stub(Date, 'now').callsFake(function() {
+            before: function () {
+              sinon.stub(Date, 'now').callsFake(function () {
                 return 1000;
               });
               setupMetricsHandlerTests({
@@ -108,15 +108,15 @@ registerSuite('routes/post-metrics', {
               sandbox.resetHistory();
             },
             tests: {
-              'request.body was converted to an object': function() {
+              'request.body was converted to an object': function () {
                 assert.isObject(mocks.request.body);
               },
 
-              'response.json was called': function() {
+              'response.json was called': function () {
                 assert.equal(mocks.response.json.callCount, 1);
               },
 
-              'process.nextTick was called': function() {
+              'process.nextTick was called': function () {
                 assert.equal(mocks.nextTick.callCount, 1);
               },
             },
@@ -124,8 +124,8 @@ registerSuite('routes/post-metrics', {
         },
 
         'route.process': {
-          before: function() {
-            sinon.stub(Date, 'now').callsFake(function() {
+          before: function () {
+            sinon.stub(Date, 'now').callsFake(function () {
               return 1000;
             });
             setupMetricsHandlerTests({
@@ -145,13 +145,13 @@ registerSuite('routes/post-metrics', {
             });
           },
 
-          after: function() {
+          after: function () {
             Date.now.restore();
             sandbox.resetHistory();
           },
 
           tests: {
-            'response.json was called correctly': function() {
+            'response.json was called correctly': function () {
               assert.equal(mocks.response.json.callCount, 1);
               var args = mocks.response.json.args[0];
               assert.lengthOf(args, 1);
@@ -160,7 +160,7 @@ registerSuite('routes/post-metrics', {
               assert.strictEqual(args[0].success, true);
             },
 
-            'process.nextTick was called correctly': function() {
+            'process.nextTick was called correctly': function () {
               assert.equal(mocks.nextTick.callCount, 1);
               var args = mocks.nextTick.args[0];
               assert.lengthOf(args, 1);
@@ -168,15 +168,15 @@ registerSuite('routes/post-metrics', {
             },
 
             'process.nextTick callback': {
-              before: function() {
+              before: function () {
                 mocks.nextTick.args[0][0]();
               },
               tests: {
-                'mozlog.error was not called': function() {
+                'mozlog.error was not called': function () {
                   assert.strictEqual(mocks.mozlog.error.callCount, 0);
                 },
 
-                'metricsCollector.write was called correctly': function() {
+                'metricsCollector.write was called correctly': function () {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 1);
 
                   var args = mocks.metricsCollector.write.args[0];
@@ -197,7 +197,7 @@ registerSuite('routes/post-metrics', {
                   });
                 },
 
-                'flowEvent.metricsRequest was called correctly': function() {
+                'flowEvent.metricsRequest was called correctly': function () {
                   assert.strictEqual(
                     mocks.flowEvent.metricsRequest.callCount,
                     1
@@ -214,8 +214,8 @@ registerSuite('routes/post-metrics', {
         },
 
         'route.process with isSampledUser=false': {
-          before: function() {
-            sinon.stub(Date, 'now').callsFake(function() {
+          before: function () {
+            sinon.stub(Date, 'now').callsFake(function () {
               return 1000;
             });
             setupMetricsHandlerTests({
@@ -239,28 +239,28 @@ registerSuite('routes/post-metrics', {
             sandbox.resetHistory();
           },
           tests: {
-            'response.json was called': function() {
+            'response.json was called': function () {
               assert.equal(mocks.response.json.callCount, 1);
             },
 
-            'process.nextTick was called': function() {
+            'process.nextTick was called': function () {
               assert.equal(mocks.nextTick.callCount, 1);
             },
 
             'process.nextTick callback': {
-              before: function() {
+              before: function () {
                 mocks.nextTick.args[0][0]();
               },
               tests: {
-                'mozlog.error was not called': function() {
+                'mozlog.error was not called': function () {
                   assert.strictEqual(mocks.mozlog.error.callCount, 0);
                 },
 
-                'metricsCollector.write was not called': function() {
+                'metricsCollector.write was not called': function () {
                   assert.strictEqual(mocks.metricsCollector.write.callCount, 0);
                 },
 
-                'flowEvent was called': function() {
+                'flowEvent was called': function () {
                   assert.strictEqual(
                     mocks.flowEvent.metricsRequest.callCount,
                     1
@@ -279,7 +279,7 @@ function setupMetricsHandlerTests(options) {
   options = options || {};
   mocks.request = {
     body: {},
-    get: sandbox.spy(function(header) {
+    get: sandbox.spy(function (header) {
       switch (header.toLowerCase()) {
         case 'content-type':
           return options.contentType || 'application/json';

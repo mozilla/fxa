@@ -21,7 +21,7 @@ var log = mozlog({
 var isTestEnv = process.env.NODE_ENV === 'test' || process.env.CI;
 var isLogQuiet = process.env.LOG === 'quiet';
 
-var logHelper = function(type, message) {
+var logHelper = function (type, message) {
   'use strict';
 
   // log only if not in a test environment
@@ -31,10 +31,10 @@ var logHelper = function(type, message) {
   }
 };
 
-var MaxmindDbDownloader = function() {
+var MaxmindDbDownloader = function () {
   'use strict';
 
-  this.createTargetDir = function(targetDirName) {
+  this.createTargetDir = function (targetDirName) {
     targetDirName = targetDirName || DEFAULTS.TARGET_DIR_NAME;
     var targetDirPath = path.join(__dirname, '..', targetDirName);
     // create db directory
@@ -43,7 +43,7 @@ var MaxmindDbDownloader = function() {
     return createdTargetDirPath;
   };
 
-  this.setupDownloadList = function(sourceFilePath, targetDirPath) {
+  this.setupDownloadList = function (sourceFilePath, targetDirPath) {
     sourceFilePath = sourceFilePath || DEFAULTS.SOURCE_FILE_NAME;
     targetDirPath = targetDirPath || DEFAULTS.TARGET_DIR_PATH;
     // import the list of files to download
@@ -65,17 +65,17 @@ var MaxmindDbDownloader = function() {
     return downloadPromiseFunctions;
   };
 
-  this.createDownloadPromise = function(url, targetFilePath) {
+  this.createDownloadPromise = function (url, targetFilePath) {
     // closure to separate multiple file-download
-    return function() {
-      return new Promise(function(resolve, reject) {
+    return function () {
+      return new Promise(function (resolve, reject) {
         var stream = request(url);
         var targetFilePathTemp = targetFilePath + '-temp';
         // forces overwrite, even if file exists already
         stream
           .pipe(zlib.createGunzip())
           .pipe(fs.createWriteStream(targetFilePathTemp))
-          .on('finish', function(err) {
+          .on('finish', function (err) {
             if (err) {
               logHelper('error', err);
               reject(err);
@@ -112,26 +112,26 @@ var MaxmindDbDownloader = function() {
     };
   };
 
-  this.downloadAll = function(downloadPromiseFunctions) {
+  this.downloadAll = function (downloadPromiseFunctions) {
     var promises = [];
     // the array looks like this:
     // downloadPromiseFunctions = [fn1 returning a promise, fn2 returning a promise, etc.]
     // each element is a function returning a promise
-    promises = downloadPromiseFunctions.map(function(promiseFunction) {
+    promises = downloadPromiseFunctions.map(function (promiseFunction) {
       return promiseFunction();
     });
     return Promise.all(promises).then(
-      function() {
+      function () {
         logHelper('info', 'Downloads complete');
         logHelper('info', 'Last Update: ' + new Date());
       },
-      function(err) {
+      function (err) {
         logHelper('error', err);
       }
     );
   };
 
-  this.setupAutoUpdate = function(
+  this.setupAutoUpdate = function (
     cronTiming,
     downloadPromiseFunctions,
     timeZone
@@ -142,7 +142,7 @@ var MaxmindDbDownloader = function() {
     // by default run periodically on Wednesday at 01:30:30.
     this.cronjob = new CronJob(
       cronTiming,
-      function() {
+      function () {
         self.downloadAll(downloadPromiseFunctions);
       },
       null,
@@ -152,7 +152,7 @@ var MaxmindDbDownloader = function() {
     logHelper('info', 'Set up auto update with cronTiming: ' + cronTiming);
   };
 
-  this.stop = function() {
+  this.stop = function () {
     if (this.cronjob) {
       this.cronjob.stop();
     }

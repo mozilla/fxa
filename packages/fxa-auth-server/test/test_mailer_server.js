@@ -11,8 +11,8 @@ function TestServer(config) {
   this.server = null;
 }
 
-TestServer.start = function(config, printLogs) {
-  return createDBServer().then(db => {
+TestServer.start = function (config, printLogs) {
+  return createDBServer().then((db) => {
     db.listen(config.httpdb.url.split(':')[2]);
     db.on('error', () => {});
     const testServer = new TestServer(config);
@@ -21,7 +21,7 @@ TestServer.start = function(config, printLogs) {
   });
 };
 
-TestServer.prototype.stop = function() {
+TestServer.prototype.stop = function () {
   try {
     this.db.close();
   } catch (e) {}

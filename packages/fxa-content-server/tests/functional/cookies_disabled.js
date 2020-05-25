@@ -33,7 +33,7 @@ registerSuite('cookies_disabled', {
     return this.remote.then(clearBrowserState());
   },
 
-  'visit signup page with localStorage disabled': function() {
+  'visit signup page with localStorage disabled': function () {
     return (
       this.remote
         .then(
@@ -50,7 +50,7 @@ registerSuite('cookies_disabled', {
     );
   },
 
-  'synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again"': function() {
+  'synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again"': function () {
     // wd has no way of disabling/enabling cookies, so we have to
     // manually seed history.
     return (
@@ -72,7 +72,7 @@ registerSuite('cookies_disabled', {
     );
   },
 
-  'visit verify page with localStorage disabled': function() {
+  'visit verify page with localStorage disabled': function () {
     return this.remote.then(
       openPage(VERIFY_COOKIES_DISABLED_URL, selectors.COOKIES_DISABLED.HEADER)
     );

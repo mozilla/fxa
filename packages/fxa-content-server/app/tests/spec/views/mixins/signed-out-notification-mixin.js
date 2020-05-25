@@ -77,7 +77,7 @@ describe('views/mixins/signed-out-notification-mixin', () => {
 
     describe('clearSessionAndNavigateToSignIn with relier data', () => {
       beforeEach(() => {
-        view.relier.get = sinon.spy(key => `mock_${key}`);
+        view.relier.get = sinon.spy((key) => `mock_${key}`);
         notifier.on.args[0][1]();
       });
 

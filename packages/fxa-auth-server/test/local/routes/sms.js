@@ -73,7 +73,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+18885083401';
         return runTest(route, request).then(
-          _response => (response = _response)
+          (_response) => (response = _response)
         );
       });
 
@@ -132,7 +132,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+14168483114';
         return runTest(route, request).then(
-          _response => (response = _response)
+          (_response) => (response = _response)
         );
       });
 
@@ -168,7 +168,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+442078553000';
         return runTest(route, request).then(
-          _response => (response = _response)
+          (_response) => (response = _response)
         );
       });
 
@@ -204,7 +204,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+43676641643';
         return runTest(route, request).then(
-          _response => (response = _response)
+          (_response) => (response = _response)
         );
       });
 
@@ -228,7 +228,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
       beforeEach(() => {
         request.payload.phoneNumber = '+49015153563252';
         return runTest(route, request).then(
-          _response => (response = _response)
+          (_response) => (response = _response)
         );
       });
 
@@ -253,7 +253,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       beforeEach(() => {
         request.payload.phoneNumber = '+15551234567';
-        return runTest(route, request).catch(e => {
+        return runTest(route, request).catch((e) => {
           err = e;
         });
       });
@@ -290,7 +290,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       beforeEach(() => {
         request.payload.phoneNumber = '+886287861100';
-        return runTest(route, request).catch(e => {
+        return runTest(route, request).catch((e) => {
           err = e;
         });
       });
@@ -329,7 +329,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
 
       beforeEach(() => {
         request.payload.phoneNumber = '+18';
-        return runTest(route, request).catch(e => {
+        return runTest(route, request).catch((e) => {
           err = e;
         });
       });
@@ -370,7 +370,7 @@ describe('/sms with the signinCodes feature included in the payload', () => {
         P.reject(AppError.messageRejected('wibble', 7))
       );
       request.payload.phoneNumber = '+18885083401';
-      return runTest(route, request).catch(e => {
+      return runTest(route, request).catch((e) => {
         err = e;
       });
     });
@@ -517,7 +517,7 @@ describe('/sms/status', () => {
         },
         log: log,
       });
-      return runTest(route, request).then(r => (response = r));
+      return runTest(route, request).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -552,7 +552,7 @@ describe('/sms/status', () => {
         },
         log: log,
       });
-      return runTest(route, request).then(r => (response = r));
+      return runTest(route, request).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -579,7 +579,7 @@ describe('/sms/status', () => {
         },
         log: log,
       });
-      return runTest(route, request).then(r => (response = r));
+      return runTest(route, request).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -606,7 +606,7 @@ describe('/sms/status', () => {
         geo: {},
         log,
       });
-      return runTest(route, request).then(r => (response = r));
+      return runTest(route, request).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -641,7 +641,7 @@ describe('/sms/status', () => {
         },
         log: log,
       });
-      return runTest(route, request).then(r => (response = r));
+      return runTest(route, request).then((r) => (response = r));
     });
 
     it('returned the correct response', () => {
@@ -689,7 +689,7 @@ describe('/sms/status with disabled geo-ip lookup', () => {
       geo: {},
       log: log,
     });
-    return runTest(route, request).then(r => (response = r));
+    return runTest(route, request).then((r) => (response = r));
   });
 
   it('returned the correct response', () => {
@@ -747,7 +747,7 @@ describe('/sms/status with query param and enabled geo-ip lookup', () => {
       },
       log: log,
     });
-    return runTest(route, request).then(r => (response = r));
+    return runTest(route, request).then((r) => (response = r));
   });
 
   it('returned the correct response', () => {
@@ -795,7 +795,7 @@ describe('/sms/status with query param and disabled geo-ip lookup', () => {
       },
       log: log,
     });
-    return runTest(route, request).then(r => (response = r));
+    return runTest(route, request).then((r) => (response = r));
   });
 
   it('returned the correct response', () => {

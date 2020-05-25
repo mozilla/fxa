@@ -17,7 +17,7 @@ function simpleSMSRecord() {
   return new (smsRecord(limits, now))();
 }
 
-test('rate limit works', function(t) {
+test('rate limit works', function (t) {
   var sr = simpleSMSRecord();
 
   t.equal(sr.isRateLimited(), false, 'record is not rate limited');
@@ -28,7 +28,7 @@ test('rate limit works', function(t) {
   t.end();
 });
 
-test('retryAfter works', function(t) {
+test('retryAfter works', function (t) {
   var sr = simpleSMSRecord();
   var action = 'connectDeviceSms';
 
@@ -39,7 +39,7 @@ test('retryAfter works', function(t) {
   t.end();
 });
 
-test('parse works', function(t) {
+test('parse works', function (t) {
   var sr = simpleSMSRecord();
   var copy1 = smsRecord(limits, now).parse(sr);
 
@@ -51,14 +51,14 @@ test('parse works', function(t) {
   t.end();
 });
 
-test('no action update works', function(t) {
+test('no action update works', function (t) {
   var sr = simpleSMSRecord();
 
   t.equal(sr.update(), 0, 'update with no action does nothing');
   t.end();
 });
 
-test('getMinLifetimeMS works', function(t) {
+test('getMinLifetimeMS works', function (t) {
   var sr = simpleSMSRecord();
 
   t.equal(

@@ -109,7 +109,7 @@ describe('/session/status', () => {
   });
 
   it('returns status correctly', () => {
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(Object.keys(res).length, 2);
       assert.equal(res.uid, 'foo');
       assert.equal(res.state, 'unverified');
@@ -189,7 +189,7 @@ describe('/session/reauth', () => {
       email: TEST_EMAIL,
       uid: TEST_UID,
       createdAt: 12345678,
-    }).then(sessionToken => {
+    }).then((sessionToken) => {
       request.auth.credentials = sessionToken;
     });
   });
@@ -208,7 +208,7 @@ describe('/session/reauth', () => {
       verified: true,
     }));
     const testNow = Math.floor(Date.now() / 1000);
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         signinUtils.checkCustomsAndLoadAccount.callCount,
         1,
@@ -468,7 +468,7 @@ describe('/session/reauth', () => {
       'sessionToken starts off with no uaFormFactor'
     );
 
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         db.updateSessionToken.callCount,
         1,
@@ -526,7 +526,7 @@ describe('/session/reauth', () => {
       'sessionToken starts off with mustVerify=false'
     );
 
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         db.updateSessionToken.callCount,
         1,
@@ -551,7 +551,7 @@ describe('/session/reauth', () => {
     );
 
     request.payload.verificationMethod = 'email-2fa';
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         db.updateSessionToken.callCount,
         1,
@@ -576,7 +576,7 @@ describe('/session/reauth', () => {
       'sessionToken starts off with mustVerify=false'
     );
 
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         db.updateSessionToken.callCount,
         1,
@@ -599,7 +599,7 @@ describe('/session/reauth', () => {
     });
     request.query.keys = false;
 
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         signinUtils.createKeyFetchToken.callCount,
         0,
@@ -618,10 +618,10 @@ describe('/session/reauth', () => {
     });
 
     return runTest(route, request).then(
-      res => {
+      (res) => {
         assert.fail('request should have been rejected');
       },
-      err => {
+      (err) => {
         assert.equal(
           signinUtils.checkPassword.callCount,
           1,
@@ -647,7 +647,7 @@ describe('/session/reauth', () => {
     request.auth.credentials.tokenVerificationCodeExpiresAt =
       Date.now() + 10000;
     request.payload.verificationMethod = 'email-2fa';
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.ok(res);
       assert.equal(
         res.verified,
@@ -719,7 +719,7 @@ describe('/session/destroy', () => {
   });
 
   it('responds correctly when session is destroyed', () => {
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(Object.keys(res).length, 0);
     });
   });
@@ -741,7 +741,7 @@ describe('/session/destroy', () => {
       },
     });
 
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(Object.keys(res).length, 0);
     });
   });
@@ -763,7 +763,7 @@ describe('/session/destroy', () => {
       },
     });
 
-    return runTest(route, request).then(assert, err => {
+    return runTest(route, request).then(assert, (err) => {
       assert.equal(err.message, 'Invalid session token');
     });
   });
@@ -823,7 +823,7 @@ describe('/session/duplicate', () => {
   });
 
   it('correctly duplicates a session token', () => {
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
         4,
@@ -949,7 +949,7 @@ describe('/session/duplicate', () => {
     request.auth.credentials.tokenVerificationCode = 'myAwesomerCode';
     request.auth.credentials.tokenVerificationCodeExpiresAt =
       Date.now() + 10000;
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
         6,
@@ -1089,7 +1089,7 @@ describe('/session/duplicate', () => {
 
   it('correctly reports verification reason for unverified emails', () => {
     request.auth.credentials.emailVerified = false;
-    return runTest(route, request).then(res => {
+    return runTest(route, request).then((res) => {
       assert.equal(
         Object.keys(res).length,
         6,

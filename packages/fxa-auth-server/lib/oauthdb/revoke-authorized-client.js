@@ -7,7 +7,7 @@
 const Joi = require('@hapi/joi');
 const validators = require('../routes/validators');
 
-module.exports = config => {
+module.exports = (config) => {
   return {
     path: '/v1/authorized-clients/destroy',
     method: 'POST',

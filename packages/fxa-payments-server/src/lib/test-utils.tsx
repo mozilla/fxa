@@ -26,7 +26,7 @@ declare global {
 }
 
 export const wait = (delay: number) =>
-  new Promise(resolve => setTimeout(resolve, delay));
+  new Promise((resolve) => setTimeout(resolve, delay));
 
 export function expectNockScopesDone(scopes: nock.Scope[]) {
   for (const scope of scopes) {
@@ -109,7 +109,7 @@ const MockStripeElement = ({ testid }: { testid: string }) =>
       // Real react-stripe-elements stash a ref to their container in
       // this._ref, which we use for tooltip positioning
       this._ref = null;
-      this.setRef = el => (this._ref = el);
+      this.setRef = (el) => (this._ref = el);
     }
 
     render() {
@@ -204,8 +204,8 @@ export const defaultAppContextValue = (): AppContextType => ({
     flow_begin_time: Date.now(),
     flow_id: 'thisisanid',
   },
-  matchMedia: jest.fn().mockImplementation(query => false),
-  matchMediaDefault: jest.fn().mockImplementation(query => {
+  matchMedia: jest.fn().mockImplementation((query) => false),
+  matchMediaDefault: jest.fn().mockImplementation((query) => {
     return {
       matches: query.includes(': 0em'),
       media: query,

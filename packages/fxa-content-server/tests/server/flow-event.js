@@ -10,7 +10,7 @@ const sinon = require('sinon');
 var config, sandbox, mocks, flowEvent, flowMetricsValidateResult;
 
 registerSuite('flow-event', {
-  beforeEach: function() {
+  beforeEach: function () {
     config = {
       /*eslint-disable camelcase*/
       clientAddressDepth: 3,
@@ -55,7 +55,7 @@ registerSuite('flow-event', {
     }).metricsRequest;
   },
 
-  afterEach: function() {
+  afterEach: function () {
     sandbox.restore();
   },
 

@@ -16,10 +16,10 @@ var suite = {
 var mocks, route;
 
 suite.tests['get-fxa-client-configuration route function'] = {
-  beforeEach: function() {
+  beforeEach: function () {
     mocks = {
       config: {
-        get: sinon.spy(function(name) {
+        get: sinon.spy(function (name) {
           return mocks.config[name];
         }),
       },
@@ -40,12 +40,12 @@ suite.tests['get-fxa-client-configuration route function'] = {
     /*eslint-enable camelcase*/
   },
   tests: {
-    'module interface is correct': function() {
+    'module interface is correct': function () {
       assert.isFunction(getFxAClientConfig);
       assert.lengthOf(getFxAClientConfig, 1);
     },
 
-    'route interface is correct': function() {
+    'route interface is correct': function () {
       route = getFxAClientConfig(mocks.config);
       assert.equal(mocks.config.get.callCount, 6);
       assert.isObject(route);
@@ -56,7 +56,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.lengthOf(route.process, 2);
     },
 
-    'route.process strips trailing slashes and suffixes from URLs in config': function() {
+    'route.process strips trailing slashes and suffixes from URLs in config': function () {
       /*eslint-disable camelcase*/
       mocks.config.fxaccount_url += '//v1/';
       mocks.config.oauth_url += '/path/component/';
@@ -82,7 +82,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       );
     },
 
-    'route.process sets cache-control header from config': function() {
+    'route.process sets cache-control header from config': function () {
       mocks.config['fxa_client_configuration.max_age'] = 12345;
 
       route = getFxAClientConfig(mocks.config);
@@ -97,7 +97,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.equal(args[1], 'public, max-age=12');
     },
 
-    'route.process defaults cache-control header to one day': function() {
+    'route.process defaults cache-control header to one day': function () {
       mocks.config['fxa_client_configuration.max_age'] = null;
 
       route = getFxAClientConfig(mocks.config);
@@ -112,7 +112,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       assert.equal(args[1], 'public, max-age=86400');
     },
 
-    'route.process omits cache-control header when max_age is zero': function() {
+    'route.process omits cache-control header when max_age is zero': function () {
       mocks.config['fxa_client_configuration.max_age'] = 0;
 
       route = getFxAClientConfig(mocks.config);
@@ -127,11 +127,11 @@ suite.tests['get-fxa-client-configuration route function'] = {
 
 suite.tests[
   '#get /.well-known/fxa-client-configuration - returns a JSON doc with expected values'
-] = function() {
+] = function () {
   var dfd = this.async(intern._config.asyncTimeout);
 
   got(serverUrl + '/.well-known/fxa-client-configuration', {})
-    .then(function(res) {
+    .then(function (res) {
       assert.equal(res.statusCode, 200);
       assert.equal(
         res.headers['content-type'],

@@ -18,11 +18,11 @@ function resetPassword(client, code, newPassword, options) {
 describe('remote securityEvents', () => {
   let server;
 
-  before(function() {
+  before(function () {
     this.timeout(15000);
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -38,13 +38,13 @@ describe('remote securityEvents', () => {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.login().then(() => {
           return client.securityEvents();
         });
       })
-      .then(events => {
+      .then((events) => {
         assert.equal(events.length, 2);
         assert.equal(events[0].name, 'account.login');
         assert.isBelow(events[0].createdAt, new Date().getTime());
@@ -67,13 +67,13 @@ describe('remote securityEvents', () => {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.login().then(() => {
           return client.securityEvents();
         });
       })
-      .then(events => {
+      .then((events) => {
         assert.equal(events.length, 2);
         assert.equal(events[0].name, 'account.login');
         assert.isBelow(events[0].createdAt, new Date().getTime());
@@ -84,7 +84,7 @@ describe('remote securityEvents', () => {
         assert.equal(events[1].verified, true);
       })
       .then(() => client.deleteSecurityEvents())
-      .then(events => {
+      .then((events) => {
         assert.deepEqual(events, {});
       });
   });
@@ -101,7 +101,7 @@ describe('remote securityEvents', () => {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
       })
       .then(() => {
@@ -110,13 +110,13 @@ describe('remote securityEvents', () => {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(code => {
+      .then((code) => {
         assert.throws(() => {
           client.resetPassword(newPassword);
         });
         return resetPassword(client, code, newPassword);
       })
-      .then(response => {
+      .then((response) => {
         assert.ok(response.sessionToken, 'session token is in response');
         assert(
           !response.keyFetchToken,
@@ -127,7 +127,7 @@ describe('remote securityEvents', () => {
       .then(() => {
         return client.securityEvents();
       })
-      .then(events => {
+      .then((events) => {
         assert.equal(events.length, 2);
         assert.equal(events[0].name, 'account.reset');
         assert.isBelow(events[0].createdAt, new Date().getTime());

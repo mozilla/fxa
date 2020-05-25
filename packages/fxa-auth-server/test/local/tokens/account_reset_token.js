@@ -18,11 +18,11 @@ describe('account reset tokens', () => {
   it('should re-create from tokenData', () => {
     let token = null;
     return AccountResetToken.create(ACCOUNT)
-      .then(x => {
+      .then((x) => {
         token = x;
       })
       .then(() => AccountResetToken.fromHex(token.data, ACCOUNT))
-      .then(token2 => {
+      .then((token2) => {
         assert.deepEqual(token.data, token2.data);
         assert.deepEqual(token.id, token2.id);
         assert.deepEqual(token.authKey, token2.authKey);
@@ -35,7 +35,7 @@ describe('account reset tokens', () => {
     let token = null;
     const tokenData =
       'c0c1c2c3c4c5c6c7c8c9cacbcccdcecfd0d1d2d3d4d5d6d7d8d9dadbdcdddedf';
-    return AccountResetToken.fromHex(tokenData, ACCOUNT).then(x => {
+    return AccountResetToken.fromHex(tokenData, ACCOUNT).then((x) => {
       token = x;
       assert.equal(token.data.toString('hex'), tokenData);
       assert.equal(

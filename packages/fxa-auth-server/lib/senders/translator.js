@@ -38,7 +38,7 @@ async function parseLocale(locale) {
   return parsed;
 }
 
-module.exports = async function(locales, defaultLanguage) {
+module.exports = async function (locales, defaultLanguage) {
   const translations = await Promise.all(locales.map(parseLocale));
   const languageTranslations = {};
   const supportedLanguages = [];
@@ -62,7 +62,7 @@ module.exports = async function(locales, defaultLanguage) {
   }
 
   return {
-    getTranslator: function(acceptLanguage) {
+    getTranslator: function (acceptLanguage) {
       return languageTranslations[getLocale(acceptLanguage)];
     },
 

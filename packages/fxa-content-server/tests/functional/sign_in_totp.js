@@ -48,7 +48,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('TOTP', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return (
       this.remote
@@ -74,7 +74,7 @@ registerSuite('TOTP', {
         // Store the secret key to recalculate the code later
         .findByCssSelector(selectors.TOTP.MANUAL_CODE)
         .getVisibleText()
-        .then(secretKey => {
+        .then((secretKey) => {
           secret = secretKey;
         })
         .end()
@@ -83,7 +83,7 @@ registerSuite('TOTP', {
   },
 
   tests: {
-    'can add TOTP to account and confirm web signin': function() {
+    'can add TOTP to account and confirm web signin': function () {
       return (
         this.remote
           // Show's tool tip for invalid codes on setup
@@ -111,7 +111,7 @@ registerSuite('TOTP', {
       );
     },
 
-    'can add TOTP to account and confirm sync signin': function() {
+    'can add TOTP to account and confirm sync signin': function () {
       return this.remote
         .then(confirmTotpCode(secret))
 
@@ -132,7 +132,7 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
 
-    'can remove TOTP from account and skip confirmation': function() {
+    'can remove TOTP from account and skip confirmation': function () {
       return (
         this.remote
           .then(confirmTotpCode(secret))
@@ -150,7 +150,7 @@ registerSuite('TOTP', {
       );
     },
 
-    'can add TOTP to account and then delete it': function() {
+    'can add TOTP to account and then delete it': function () {
       return this.remote
         .then(confirmTotpCode(secret))
 
@@ -163,7 +163,7 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.ENTER_EMAIL.HEADER));
     },
 
-    'can navigate directly to recovery codes': function() {
+    'can navigate directly to recovery codes': function () {
       return this.remote
         .then(confirmTotpCode(secret))
         .then(
@@ -175,7 +175,7 @@ registerSuite('TOTP', {
         .then(click(selectors.TOTP.RECOVERY_CODES_DONE));
     },
 
-    'can reset password, prompt for TOTP and login - same browser same tab': function() {
+    'can reset password, prompt for TOTP and login - same browser same tab': function () {
       return (
         this.remote
           .then(confirmTotpCode(secret))
@@ -205,7 +205,7 @@ registerSuite('TOTP', {
       );
     },
 
-    'can reset password, prompt for TOTP and login - same browser different tab': function() {
+    'can reset password, prompt for TOTP and login - same browser different tab': function () {
       return this.remote
         .then(confirmTotpCode(secret))
 
@@ -233,7 +233,7 @@ registerSuite('TOTP', {
         .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
     },
 
-    'can reset password, prompt for TOTP and login - verify different browser': function() {
+    'can reset password, prompt for TOTP and login - verify different browser': function () {
       return (
         this.remote
           .then(confirmTotpCode(secret))
@@ -260,7 +260,7 @@ registerSuite('TOTP', {
 });
 
 registerSuite('TOTP - unverified session', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return this.remote
@@ -269,7 +269,7 @@ registerSuite('TOTP - unverified session', {
   },
 
   tests: {
-    'gated in unverified session open verification same tab': function() {
+    'gated in unverified session open verification same tab': function () {
       return (
         this.remote
           // when an account is created, the original session is verified
@@ -291,7 +291,7 @@ registerSuite('TOTP - unverified session', {
       );
     },
 
-    'gated in unverified session open verification new tab': function() {
+    'gated in unverified session open verification new tab': function () {
       return (
         this.remote
           // when an account is created, the original session is verified
@@ -324,7 +324,7 @@ registerSuite('TOTP - unverified session', {
       );
     },
 
-    'gated in unverified session open verification different browser': function() {
+    'gated in unverified session open verification different browser': function () {
       return (
         this.remote
           // when an account is created, the original session is verified

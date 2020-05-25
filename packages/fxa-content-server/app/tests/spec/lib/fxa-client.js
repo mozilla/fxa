@@ -34,8 +34,8 @@ function trim(str) {
   return $.trim(str);
 }
 
-describe('lib/fxa-client', function() {
-  beforeEach(function() {
+describe('lib/fxa-client', function () {
+  beforeEach(function () {
     email = ' ' + testHelpers.createEmail() + ' ';
     relier = new OAuthRelier();
     relier.set({
@@ -55,18 +55,18 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  it('initializes client from authServerUrl', function() {
+  it('initializes client from authServerUrl', function () {
     client = new FxaClientWrapper({
       authServerUrl: AUTH_SERVER_URL,
     });
   });
 
-  describe('errors', function() {
-    describe('realClient client returns a promise', function() {
-      it('are normalized to be AuthErrors based', function() {
+  describe('errors', function () {
+    describe('realClient client returns a promise', function () {
+      it('are normalized to be AuthErrors based', function () {
         // taken from the fxa-auth-server @
         // https://github.com/mozilla/fxa-auth-server/blob/9dcdcd9b142a2ed93fc55ac187a501a7a2005c6b/lib/error.js#L290-L308
-        sinon.stub(realClient, 'signUp').callsFake(function() {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return Promise.reject({
             code: 429,
             errno: 114,
@@ -76,7 +76,7 @@ describe('lib/fxa-client', function() {
           });
         });
 
-        return client.signUp(email, password, relier).catch(function(err) {
+        return client.signUp(email, password, relier).catch(function (err) {
           assert.equal(err.message, AuthErrors.toMessage(114));
           assert.equal(err.namespace, AuthErrors.NAMESPACE);
           assert.equal(err.code, 429);
@@ -87,33 +87,33 @@ describe('lib/fxa-client', function() {
       });
     });
 
-    describe('realClient does not return a promise', function() {
-      it('does not normalize', function() {
-        sinon.stub(realClient, 'signUp').callsFake(function() {
+    describe('realClient does not return a promise', function () {
+      it('does not normalize', function () {
+        sinon.stub(realClient, 'signUp').callsFake(function () {
           return true;
         });
 
-        return client._getClient().then(function(wrappedClient) {
+        return client._getClient().then(function (wrappedClient) {
           assert.isTrue(wrappedClient.signUp(email, password, relier));
         });
       });
     });
   });
 
-  describe('signUp', function() {
-    it('Sync signUp signs up a user with email/password and returns keys', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+  describe('signUp', function () {
+    it('Sync signUp signs up a user with email/password and returns keys', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.resolve({
           keyFetchToken: 'keyFetchToken',
           unwrapBKey: 'unwrapBKey',
         });
       });
 
-      sinon.stub(relier, 'wantsKeys').callsFake(function() {
+      sinon.stub(relier, 'wantsKeys').callsFake(function () {
         return true;
       });
 
-      sinon.stub(relier, 'isSync').callsFake(function() {
+      sinon.stub(relier, 'isSync').callsFake(function () {
         return true;
       });
 
@@ -121,7 +121,7 @@ describe('lib/fxa-client', function() {
         .signUp(email, password, relier, {
           resume: resumeToken,
         })
-        .then(function(sessionData) {
+        .then(function (sessionData) {
           assert.isTrue(
             realClient.signUp.calledWith(trim(email), password, {
               keys: true,
@@ -137,8 +137,8 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('non-Sync signUp signs up a user with email/password does not request keys', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+    it('non-Sync signUp signs up a user with email/password does not request keys', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.resolve({});
       });
 
@@ -148,7 +148,7 @@ describe('lib/fxa-client', function() {
         .signUp(email, password, relier, {
           resume: resumeToken,
         })
-        .then(function(sessionData) {
+        .then(function (sessionData) {
           assert.isTrue(
             realClient.signUp.calledWith(trim(email), password, {
               keys: false,
@@ -164,8 +164,8 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('non-Sync signUp requests keys if the relier explicitly wants them', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+    it('non-Sync signUp requests keys if the relier explicitly wants them', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.resolve({
           keyFetchToken: 'keyFetchToken',
           unwrapBKey: 'unwrapBKey',
@@ -178,7 +178,7 @@ describe('lib/fxa-client', function() {
         .signUp(email, password, relier, {
           resume: resumeToken,
         })
-        .then(function(sessionData) {
+        .then(function (sessionData) {
           assert.isTrue(
             realClient.signUp.calledWith(trim(email), password, {
               keys: true,
@@ -193,8 +193,8 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('a throttled signUp returns a THROTTLED error', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+    it('a throttled signUp returns a THROTTLED error', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.reject({
           code: 429,
           errno: 114,
@@ -205,13 +205,13 @@ describe('lib/fxa-client', function() {
 
       return client
         .signUp(email, password, relier)
-        .then(assert.fail, function(err) {
+        .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'THROTTLED'));
         });
     });
 
-    it('passes along an optional `metricsContext`', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+    it('passes along an optional `metricsContext`', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.resolve({});
       });
 
@@ -222,7 +222,7 @@ describe('lib/fxa-client', function() {
           metricsContext: { foo: 'bar' },
           resume: resumeToken,
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             realClient.signUp.calledWith(trim(email), password, {
               keys: false,
@@ -235,8 +235,8 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('passes along an optional `style`', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+    it('passes along an optional `style`', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.resolve({});
       });
 
@@ -246,7 +246,7 @@ describe('lib/fxa-client', function() {
         .signUp(email, password, relier, {
           resume: resumeToken,
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             realClient.signUp.calledWith(trim(email), password, {
               keys: false,
@@ -258,8 +258,8 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('passes along an optional `verificationMethod`', function() {
-      sinon.stub(realClient, 'signUp').callsFake(function() {
+    it('passes along an optional `verificationMethod`', function () {
+      sinon.stub(realClient, 'signUp').callsFake(function () {
         return Promise.resolve({});
       });
 
@@ -268,7 +268,7 @@ describe('lib/fxa-client', function() {
           resume: resumeToken,
           verificationMethod: 'email-otp',
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             realClient.signUp.calledWith(trim(email), password, {
               keys: false,
@@ -282,12 +282,12 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('recoveryEmailStatus', function() {
+  describe('recoveryEmailStatus', function () {
     var accountInfo;
     var clientMock;
     var err;
 
-    beforeEach(function() {
+    beforeEach(function () {
       clientMock = {
         accountStatus() {},
         recoveryEmailStatus() {},
@@ -295,32 +295,34 @@ describe('lib/fxa-client', function() {
 
       accountInfo = err = null;
 
-      sinon.stub(client, '_getClient').callsFake(function() {
+      sinon.stub(client, '_getClient').callsFake(function () {
         return Promise.resolve(clientMock);
       });
     });
 
-    describe('valid session', function() {
-      describe('verified', function() {
-        describe('with auth server that returns `emailVerified` and `sessionVerified`', function() {
-          beforeEach(function() {
-            sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function() {
-              return Promise.resolve({
-                email: 'testuser@testuser.com',
-                emailVerified: true,
-                sessionVerified: true,
-                verified: true,
+    describe('valid session', function () {
+      describe('verified', function () {
+        describe('with auth server that returns `emailVerified` and `sessionVerified`', function () {
+          beforeEach(function () {
+            sinon
+              .stub(clientMock, 'recoveryEmailStatus')
+              .callsFake(function () {
+                return Promise.resolve({
+                  email: 'testuser@testuser.com',
+                  emailVerified: true,
+                  sessionVerified: true,
+                  verified: true,
+                });
               });
-            });
 
             return client
               .recoveryEmailStatus('session token')
-              .then(function(_accountInfo) {
+              .then(function (_accountInfo) {
                 accountInfo = _accountInfo;
               });
           });
 
-          it('filters unexpected fields', function() {
+          it('filters unexpected fields', function () {
             assert.isTrue(
               clientMock.recoveryEmailStatus.calledWith('session token')
             );
@@ -332,25 +334,27 @@ describe('lib/fxa-client', function() {
         });
       });
 
-      describe('unverified', function() {
-        describe('with unverified email, unverified session', function() {
-          beforeEach(function() {
-            sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function() {
-              return Promise.resolve({
-                emailVerified: false,
-                sessionVerified: false,
-                verified: false,
+      describe('unverified', function () {
+        describe('with unverified email, unverified session', function () {
+          beforeEach(function () {
+            sinon
+              .stub(clientMock, 'recoveryEmailStatus')
+              .callsFake(function () {
+                return Promise.resolve({
+                  emailVerified: false,
+                  sessionVerified: false,
+                  verified: false,
+                });
               });
-            });
 
             return client
               .recoveryEmailStatus('session token')
-              .then(function(_accountInfo) {
+              .then(function (_accountInfo) {
                 accountInfo = _accountInfo;
               });
           });
 
-          it('sets correct `verifiedReason` and `verifiedMethod`', function() {
+          it('sets correct `verifiedReason` and `verifiedMethod`', function () {
             assert.isTrue(
               clientMock.recoveryEmailStatus.calledWith('session token')
             );
@@ -363,24 +367,26 @@ describe('lib/fxa-client', function() {
           });
         });
 
-        describe('with verified email, unverified session', function() {
-          beforeEach(function() {
-            sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function() {
-              return Promise.resolve({
-                emailVerified: true,
-                sessionVerified: false,
-                verified: false,
+        describe('with verified email, unverified session', function () {
+          beforeEach(function () {
+            sinon
+              .stub(clientMock, 'recoveryEmailStatus')
+              .callsFake(function () {
+                return Promise.resolve({
+                  emailVerified: true,
+                  sessionVerified: false,
+                  verified: false,
+                });
               });
-            });
 
             return client
               .recoveryEmailStatus('session token')
-              .then(function(_accountInfo) {
+              .then(function (_accountInfo) {
                 accountInfo = _accountInfo;
               });
           });
 
-          it('sets correct `verifiedReason` and `verifiedMethod`', function() {
+          it('sets correct `verifiedReason` and `verifiedMethod`', function () {
             assert.isTrue(
               clientMock.recoveryEmailStatus.calledWith('session token')
             );
@@ -395,9 +401,9 @@ describe('lib/fxa-client', function() {
       });
     });
 
-    describe('invalid session', function() {
-      beforeEach(function() {
-        sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function() {
+    describe('invalid session', function () {
+      beforeEach(function () {
+        sinon.stub(clientMock, 'recoveryEmailStatus').callsFake(function () {
           return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
         });
 
@@ -405,16 +411,16 @@ describe('lib/fxa-client', function() {
 
         return client
           .recoveryEmailStatus('session token')
-          .then(assert.fail, function(_err) {
+          .then(assert.fail, function (_err) {
             err = _err;
           });
       });
 
-      it('rejects with an INVALID_TOKEN error', function() {
+      it('rejects with an INVALID_TOKEN error', function () {
         assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
       });
 
-      it('does not call accountStatus', function() {
+      it('does not call accountStatus', function () {
         assert.isFalse(clientMock.accountStatus.called);
       });
     });
@@ -443,13 +449,13 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('verifyCode', function() {
-    it('can successfully complete', function() {
-      sinon.stub(realClient, 'verifyCode').callsFake(function() {
+  describe('verifyCode', function () {
+    it('can successfully complete', function () {
+      sinon.stub(realClient, 'verifyCode').callsFake(function () {
         return Promise.resolve({});
       });
 
-      return client.verifyCode('uid', 'code').then(function() {
+      return client.verifyCode('uid', 'code').then(function () {
         assert.isTrue(realClient.verifyCode.calledWith('uid', 'code'));
       });
     });
@@ -464,12 +470,12 @@ describe('lib/fxa-client', function() {
       });
     });
 
-    it('throws any errors', function() {
-      sinon.stub(realClient, 'verifyCode').callsFake(function() {
+    it('throws any errors', function () {
+      sinon.stub(realClient, 'verifyCode').callsFake(function () {
         return Promise.reject(AuthErrors.toError('INVALID_VERIFICATION_CODE'));
       });
 
-      return client.verifyCode('uid', 'code').then(assert.fail, function(err) {
+      return client.verifyCode('uid', 'code').then(assert.fail, function (err) {
         assert.isTrue(realClient.verifyCode.calledWith('uid', 'code'));
         assert.isTrue(AuthErrors.is(err, 'INVALID_VERIFICATION_CODE'));
       });
@@ -492,7 +498,7 @@ describe('lib/fxa-client', function() {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       });
 
-      return client.sessionDestroy('session').then(assert.fail, err => {
+      return client.sessionDestroy('session').then(assert.fail, (err) => {
         assert.isTrue(realClient.sessionDestroy.calledWith('session'));
         assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
       });
@@ -533,31 +539,31 @@ describe('lib/fxa-client', function() {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       });
 
-      return client.sessions('session').then(assert.fail, err => {
+      return client.sessions('session').then(assert.fail, (err) => {
         assert.isTrue(realClient.sessions.calledWith('session'));
         assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
       });
     });
   });
 
-  describe('signIn', function() {
-    it('signin with unknown user should fail', function() {
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+  describe('signIn', function () {
+    it('signin with unknown user should fail', function () {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
       });
 
       return client
         .signIn('unknown@unknown.com', 'password', relier)
-        .then(assert.fail, function(err) {
+        .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'UNKNOWN_ACCOUNT'));
         });
     });
 
-    describe('legacy unverified account responses', function() {
+    describe('legacy unverified account responses', function () {
       var sessionData;
 
-      beforeEach(function() {
-        sinon.stub(realClient, 'signIn').callsFake(function() {
+      beforeEach(function () {
+        sinon.stub(realClient, 'signIn').callsFake(function () {
           return Promise.resolve({
             verified: false,
           });
@@ -565,12 +571,12 @@ describe('lib/fxa-client', function() {
 
         return client
           .signIn(email, password, relier)
-          .then(function(_sessionData) {
+          .then(function (_sessionData) {
             sessionData = _sessionData;
           });
       });
 
-      it('are converted to contain a `verificationMethod` and `verificationReason`', function() {
+      it('are converted to contain a `verificationMethod` and `verificationReason`', function () {
         assert.isFalse(sessionData.verified);
         assert.equal(sessionData.verificationMethod, VerificationMethods.EMAIL);
         assert.equal(
@@ -580,8 +586,8 @@ describe('lib/fxa-client', function() {
       });
     });
 
-    it('signIn w/ relier that wants keys signs in a user with email/password and returns keys', function() {
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+    it('signIn w/ relier that wants keys signs in a user with email/password and returns keys', function () {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.resolve({
           keyFetchToken: 'keyFetchToken',
           unwrapBKey: 'unwrapBKey',
@@ -597,7 +603,7 @@ describe('lib/fxa-client', function() {
         .signIn(email, password, relier, {
           resume: resumeToken,
         })
-        .then(function(sessionData) {
+        .then(function (sessionData) {
           assert.isTrue(
             realClient.signIn.calledWith(trim(email), password, {
               keys: true,
@@ -622,34 +628,36 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('signIn w/ relier that does not want keys signs a user in with email/password and does not request keys', function() {
+    it('signIn w/ relier that does not want keys signs a user in with email/password and does not request keys', function () {
       sinon.stub(realClient, 'signIn').callsFake(() => Promise.resolve({}));
 
       relier.set('service', NON_SYNC_SERVICE);
       sinon.stub(relier, 'wantsKeys').callsFake(() => false);
 
-      return client.signIn(email, password, relier).then(function(sessionData) {
-        assert.isTrue(
-          realClient.signIn.calledWith(trim(email), password, {
-            keys: false,
-            reason: SignInReasons.SIGN_IN,
-            redirectTo: REDIRECT_TO,
-            service: NON_SYNC_SERVICE,
-          })
-        );
+      return client
+        .signIn(email, password, relier)
+        .then(function (sessionData) {
+          assert.isTrue(
+            realClient.signIn.calledWith(trim(email), password, {
+              keys: false,
+              reason: SignInReasons.SIGN_IN,
+              redirectTo: REDIRECT_TO,
+              service: NON_SYNC_SERVICE,
+            })
+          );
 
-        // These should not be returned by default
-        assert.isFalse('unwrapBKey' in sessionData);
-        assert.isFalse('keyFetchToken' in sessionData);
-      });
+          // These should not be returned by default
+          assert.isFalse('unwrapBKey' in sessionData);
+          assert.isFalse('keyFetchToken' in sessionData);
+        });
     });
 
-    it('passes along an optional `reason`', function() {
-      sinon.stub(relier, 'wantsKeys').callsFake(function() {
+    it('passes along an optional `reason`', function () {
+      sinon.stub(relier, 'wantsKeys').callsFake(function () {
         return true;
       });
 
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.resolve({});
       });
 
@@ -657,7 +665,7 @@ describe('lib/fxa-client', function() {
         .signIn(email, password, relier, {
           reason: SignInReasons.PASSWORD_CHANGE,
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             realClient.signIn.calledWith(trim(email), password, {
               keys: true,
@@ -669,14 +677,14 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('passes along an optional `resume`', function() {
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+    it('passes along an optional `resume`', function () {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.resolve({});
       });
 
       return client
         .signIn(email, password, relier, { resume: 'resume token' })
-        .then(function() {
+        .then(function () {
           assert.isTrue(
             realClient.signIn.calledWith(trim(email), password, {
               keys: false,
@@ -689,8 +697,8 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('passes along an optional `metricsContext`', function() {
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+    it('passes along an optional `metricsContext`', function () {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.resolve({});
       });
 
@@ -700,7 +708,7 @@ describe('lib/fxa-client', function() {
         .signIn(email, password, relier, {
           metricsContext: { foo: 'bar' },
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(realClient.signIn.calledWith(trim(email), password), {
             keys: false,
             metricsContext: { foo: 'bar' },
@@ -741,7 +749,7 @@ describe('lib/fxa-client', function() {
 
       return client
         .sessionReauth('badSessionToken', email, password, relier)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
         });
     });
@@ -763,7 +771,7 @@ describe('lib/fxa-client', function() {
         .sessionReauth(sessionToken, email, password, relier, {
           resume: resumeToken,
         })
-        .then(sessionData => {
+        .then((sessionData) => {
           assert.isTrue(
             realClient.sessionReauth.calledWith(
               sessionToken,
@@ -803,7 +811,7 @@ describe('lib/fxa-client', function() {
 
       return client
         .sessionReauth(sessionToken, email, password, relier)
-        .then(sessionData => {
+        .then((sessionData) => {
           assert.isTrue(
             realClient.sessionReauth.calledWith(
               sessionToken,
@@ -973,19 +981,19 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('passwordReset', function() {
-    beforeEach(function() {
-      sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function() {
+  describe('passwordReset', function () {
+    beforeEach(function () {
+      sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function () {
         return Promise.resolve({
           passwordForgotToken: 'token',
         });
       });
     });
 
-    it('requests a password reset', function() {
+    it('requests a password reset', function () {
       return client
         .passwordReset(email, relier, { resume: resumeToken })
-        .then(function() {
+        .then(function () {
           var params = {
             redirectTo: REDIRECT_TO,
             resume: resumeToken,
@@ -997,13 +1005,13 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('passes along an optional `metricsContext`', function() {
+    it('passes along an optional `metricsContext`', function () {
       return client
         .passwordReset(email, relier, {
           metricsContext: {},
           resume: resumeToken,
         })
-        .then(function() {
+        .then(function () {
           var params = {
             metricsContext: {},
             redirectTo: REDIRECT_TO,
@@ -1017,25 +1025,25 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('passwordResetResend', function() {
+  describe('passwordResetResend', function () {
     var passwordForgotToken = 'token';
 
-    beforeEach(function() {
-      sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function() {
+    beforeEach(function () {
+      sinon.stub(realClient, 'passwordForgotSendCode').callsFake(function () {
         return Promise.resolve({
           passwordForgotToken: passwordForgotToken,
         });
       });
 
-      sinon.stub(realClient, 'passwordForgotResendCode').callsFake(function() {
+      sinon.stub(realClient, 'passwordForgotResendCode').callsFake(function () {
         return Promise.resolve({});
       });
     });
 
-    it('resends the validation email', function() {
+    it('resends the validation email', function () {
       return client
         .passwordReset(email, relier, { resume: resumeToken })
-        .then(function() {
+        .then(function () {
           return client.passwordResetResend(
             email,
             passwordForgotToken,
@@ -1043,7 +1051,7 @@ describe('lib/fxa-client', function() {
             { resume: resumeToken }
           );
         })
-        .then(function() {
+        .then(function () {
           var params = {
             redirectTo: REDIRECT_TO,
             resume: resumeToken,
@@ -1060,7 +1068,7 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('completePasswordReset', function() {
+  describe('completePasswordReset', function () {
     var token = 'token';
     var code = 'code';
     var relier = {
@@ -1075,14 +1083,14 @@ describe('lib/fxa-client', function() {
       },
     };
 
-    beforeEach(function() {
-      sinon.stub(realClient, 'passwordForgotVerifyCode').callsFake(function() {
+    beforeEach(function () {
+      sinon.stub(realClient, 'passwordForgotVerifyCode').callsFake(function () {
         return Promise.resolve({
           accountResetToken: 'reset_token',
         });
       });
 
-      sinon.stub(realClient, 'accountReset').callsFake(function() {
+      sinon.stub(realClient, 'accountReset').callsFake(function () {
         return Promise.resolve({
           authAt: Date.now(),
           keyFetchToken: 'new keyFetchToken',
@@ -1094,10 +1102,10 @@ describe('lib/fxa-client', function() {
       });
     });
 
-    it('completes the password reset', function() {
+    it('completes the password reset', function () {
       return client
         .completePasswordReset(email, password, token, code, relier)
-        .then(function(sessionData) {
+        .then(function (sessionData) {
           assert.isTrue(
             realClient.passwordForgotVerifyCode.calledWith(code, token)
           );
@@ -1121,43 +1129,43 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('checkAccountExists', function() {
-    it('returns true if an account exists', function() {
-      sinon.stub(realClient, 'accountStatus').callsFake(function() {
+  describe('checkAccountExists', function () {
+    it('returns true if an account exists', function () {
+      sinon.stub(realClient, 'accountStatus').callsFake(function () {
         return Promise.resolve({ exists: true });
       });
 
-      return client.checkAccountExists('uid').then(function(accountExists) {
+      return client.checkAccountExists('uid').then(function (accountExists) {
         assert.isTrue(accountExists);
       });
     });
 
-    it('returns false if an account does not exist', function() {
-      sinon.stub(realClient, 'accountStatus').callsFake(function() {
+    it('returns false if an account does not exist', function () {
+      sinon.stub(realClient, 'accountStatus').callsFake(function () {
         return Promise.resolve({ exists: false });
       });
 
-      return client.checkAccountExists('uid').then(function(accountExists) {
+      return client.checkAccountExists('uid').then(function (accountExists) {
         assert.isFalse(accountExists);
       });
     });
 
-    it('throws other errors from the auth server', function() {
-      sinon.stub(realClient, 'accountStatus').callsFake(function() {
+    it('throws other errors from the auth server', function () {
+      sinon.stub(realClient, 'accountStatus').callsFake(function () {
         return Promise.reject(new Error('missing uid'));
       });
 
-      return client.checkAccountExists().then(assert.fail, function(err) {
+      return client.checkAccountExists().then(assert.fail, function (err) {
         assert.equal(err.message, 'missing uid');
       });
     });
   });
 
-  describe('checkPassword', function() {
-    it('returns error if password is incorrect', function() {
+  describe('checkPassword', function () {
+    it('returns error if password is incorrect', function () {
       email = trim(email);
 
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
       });
 
@@ -1165,7 +1173,7 @@ describe('lib/fxa-client', function() {
 
       return client
         .checkPassword(email, password)
-        .then(assert.fail, function(err) {
+        .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'INCORRECT_PASSWORD'));
           assert.isTrue(
             realClient.signIn.calledWith(email, password, {
@@ -1176,20 +1184,20 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('succeeds if password is correct', function() {
+    it('succeeds if password is correct', function () {
       email = trim(email);
 
-      sinon.stub(realClient, 'signIn').callsFake(function() {
+      sinon.stub(realClient, 'signIn').callsFake(function () {
         return Promise.resolve({
           sessionToken: 'session token',
         });
       });
 
-      sinon.stub(realClient, 'sessionDestroy').callsFake(function() {
+      sinon.stub(realClient, 'sessionDestroy').callsFake(function () {
         return Promise.resolve();
       });
 
-      return client.checkPassword(email, password).then(function() {
+      return client.checkPassword(email, password).then(function () {
         assert.isTrue(
           realClient.signIn.calledWith(email, password, {
             reason: SignInReasons.PASSWORD_CHECK,
@@ -1227,8 +1235,8 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('changePassword', function() {
-    it("changes the user's password", function() {
+  describe('changePassword', function () {
+    it("changes the user's password", function () {
       var trimmedEmail = trim(email);
 
       var relier = {
@@ -1243,7 +1251,7 @@ describe('lib/fxa-client', function() {
         },
       };
 
-      sinon.stub(realClient, 'passwordChange').callsFake(function() {
+      sinon.stub(realClient, 'passwordChange').callsFake(function () {
         return Promise.resolve({
           email: trimmedEmail,
           keyFetchToken: 'new keyFetchToken',
@@ -1264,7 +1272,7 @@ describe('lib/fxa-client', function() {
           'fx_desktop_v1',
           relier
         )
-        .then(function(sessionData) {
+        .then(function (sessionData) {
           assert.isTrue(
             realClient.passwordChange.calledWith(
               trim(email),
@@ -1288,7 +1296,7 @@ describe('lib/fxa-client', function() {
         });
     });
 
-    it('requests keys for any relier if sessionTokenContext indicates keys were needed previously', function() {
+    it('requests keys for any relier if sessionTokenContext indicates keys were needed previously', function () {
       var trimmedEmail = trim(email);
 
       var relier = {
@@ -1300,7 +1308,7 @@ describe('lib/fxa-client', function() {
         },
       };
 
-      sinon.stub(realClient, 'passwordChange').callsFake(function() {
+      sinon.stub(realClient, 'passwordChange').callsFake(function () {
         return Promise.resolve({
           email: trimmedEmail,
           keyFetchToken: 'new keyFetchToken',
@@ -1319,7 +1327,7 @@ describe('lib/fxa-client', function() {
           'fx_desktop_v1',
           relier
         )
-        .then(sessionData => {
+        .then((sessionData) => {
           assert.isTrue(
             realClient.passwordChange.calledWith(
               trimmedEmail,
@@ -1342,48 +1350,48 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('isPasswordResetComplete', function() {
-    it('password status incomplete', function() {
-      sinon.stub(realClient, 'passwordForgotStatus').callsFake(function() {
+  describe('isPasswordResetComplete', function () {
+    it('password status incomplete', function () {
+      sinon.stub(realClient, 'passwordForgotStatus').callsFake(function () {
         return Promise.resolve();
       });
 
-      return client.isPasswordResetComplete('token').then(function(complete) {
+      return client.isPasswordResetComplete('token').then(function (complete) {
         // cache the token so it's not cleared after the password change
         assert.isFalse(complete);
       });
     });
 
-    it('password status complete', function() {
-      sinon.stub(realClient, 'passwordForgotStatus').callsFake(function() {
+    it('password status complete', function () {
+      sinon.stub(realClient, 'passwordForgotStatus').callsFake(function () {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       });
 
-      return client.isPasswordResetComplete('token').then(function(complete) {
+      return client.isPasswordResetComplete('token').then(function (complete) {
         assert.isTrue(complete);
       });
     });
 
-    it('throws other errors', function() {
-      sinon.stub(realClient, 'passwordForgotStatus').callsFake(function() {
+    it('throws other errors', function () {
+      sinon.stub(realClient, 'passwordForgotStatus').callsFake(function () {
         return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       });
 
       return client
         .isPasswordResetComplete('token')
-        .then(assert.fail, function(err) {
+        .then(assert.fail, function (err) {
           assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
         });
     });
   });
 
-  describe('deleteAccount', function() {
-    it("deletes the user's account", function() {
-      sinon.stub(realClient, 'accountDestroy').callsFake(function() {
+  describe('deleteAccount', function () {
+    it("deletes the user's account", function () {
+      sinon.stub(realClient, 'accountDestroy').callsFake(function () {
         return Promise.resolve();
       });
 
-      return client.deleteAccount(email, password).then(null, function(err) {
+      return client.deleteAccount(email, password).then(null, function (err) {
         assert.isTrue(realClient.accountDestroy.calledWith(trim(email)));
         // this test is necessary because errors in deleteAccount
         // should not be propagated to the final done's error
@@ -1393,13 +1401,13 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('sessionStatus', function() {
-    it('checks sessionStatus', function() {
-      sinon.stub(realClient, 'sessionStatus').callsFake(function() {
+  describe('sessionStatus', function () {
+    it('checks sessionStatus', function () {
+      sinon.stub(realClient, 'sessionStatus').callsFake(function () {
         return Promise.resolve();
       });
 
-      return client.sessionStatus('sessiontoken').then(function() {
+      return client.sessionStatus('sessiontoken').then(function () {
         assert.isTrue(realClient.sessionStatus.calledWith('sessiontoken'));
       });
     });
@@ -1427,60 +1435,60 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('isSignedIn', function() {
-    it('resolves to false if no sessionToken passed in', function() {
-      return client.isSignedIn().then(function(isSignedIn) {
+  describe('isSignedIn', function () {
+    it('resolves to false if no sessionToken passed in', function () {
+      return client.isSignedIn().then(function (isSignedIn) {
         assert.isFalse(isSignedIn);
       });
     });
 
-    it('resolves to false if invalid sessionToken passed in', function() {
-      sinon.stub(realClient, 'sessionStatus').callsFake(function() {
+    it('resolves to false if invalid sessionToken passed in', function () {
+      sinon.stub(realClient, 'sessionStatus').callsFake(function () {
         return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
       });
 
-      return client.isSignedIn('not a real token').then(function(isSignedIn) {
+      return client.isSignedIn('not a real token').then(function (isSignedIn) {
         assert.isFalse(isSignedIn);
       });
     });
 
-    it('resolves to true with a valid sessionToken', function() {
-      sinon.stub(realClient, 'sessionStatus').callsFake(function() {
+    it('resolves to true with a valid sessionToken', function () {
+      sinon.stub(realClient, 'sessionStatus').callsFake(function () {
         return Promise.resolve({});
       });
 
-      return client.isSignedIn('token').then(function(isSignedIn) {
+      return client.isSignedIn('token').then(function (isSignedIn) {
         assert.isTrue(isSignedIn);
       });
     });
 
-    it('throws any other errors', function() {
-      sinon.stub(realClient, 'sessionStatus').callsFake(function() {
+    it('throws any other errors', function () {
+      sinon.stub(realClient, 'sessionStatus').callsFake(function () {
         return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
       });
 
-      return client.isSignedIn('token').then(assert.fail, function(err) {
+      return client.isSignedIn('token').then(assert.fail, function (err) {
         assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
       });
     });
   });
 
-  describe('getRandomBytes', function() {
-    it('snags some entropy from somewhere', function() {
-      sinon.stub(realClient, 'getRandomBytes').callsFake(function() {
+  describe('getRandomBytes', function () {
+    it('snags some entropy from somewhere', function () {
+      sinon.stub(realClient, 'getRandomBytes').callsFake(function () {
         return Promise.resolve('some random bytes');
       });
 
-      return client.getRandomBytes().then(function(bytes) {
+      return client.getRandomBytes().then(function (bytes) {
         assert.ok(bytes);
         assert.isTrue(realClient.getRandomBytes.called);
       });
     });
   });
 
-  describe('accountKeys', function() {
-    it('fetches account keys on request', function() {
-      sinon.stub(realClient, 'accountKeys').callsFake(function() {
+  describe('accountKeys', function () {
+    it('fetches account keys on request', function () {
+      sinon.stub(realClient, 'accountKeys').callsFake(function () {
         return Promise.resolve({
           kA: 'kA',
           kB: 'kB',
@@ -1489,7 +1497,7 @@ describe('lib/fxa-client', function() {
 
       return client
         .accountKeys('keyFetchToken', 'unwrapBKey')
-        .then(function(keys) {
+        .then(function (keys) {
           assert.isTrue(
             realClient.accountKeys.calledWith('keyFetchToken', 'unwrapBKey')
           );
@@ -1499,28 +1507,28 @@ describe('lib/fxa-client', function() {
     });
   });
 
-  describe('deviceList', function() {
-    beforeEach(function() {
-      sinon.stub(realClient, 'deviceList').callsFake(function() {
+  describe('deviceList', function () {
+    beforeEach(function () {
+      sinon.stub(realClient, 'deviceList').callsFake(function () {
         return Promise.resolve();
       });
       return client.deviceList('session token');
     });
 
-    it('calls `deviceList` of the realClient', function() {
+    it('calls `deviceList` of the realClient', function () {
       assert.isTrue(realClient.deviceList.calledWith('session token'));
     });
   });
 
-  describe('deviceDestroy', function() {
-    beforeEach(function() {
-      sinon.stub(realClient, 'deviceDestroy').callsFake(function() {
+  describe('deviceDestroy', function () {
+    beforeEach(function () {
+      sinon.stub(realClient, 'deviceDestroy').callsFake(function () {
         return Promise.resolve();
       });
       return client.deviceDestroy('session token', 'device id');
     });
 
-    it('calls `deviceDestroy` of the realClient', function() {
+    it('calls `deviceDestroy` of the realClient', function () {
       assert.isTrue(
         realClient.deviceDestroy.calledWith('session token', 'device id')
       );
@@ -1591,7 +1599,7 @@ describe('lib/fxa-client', function() {
         .sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {},
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'INVALID_PHONE_NUMBER'));
         });
     });
@@ -1609,7 +1617,7 @@ describe('lib/fxa-client', function() {
         .sendSms('sessionToken', '1234567890', 1, {
           metricsContext: {},
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'SMS_ID_INVALID'));
         });
     });
@@ -1634,7 +1642,7 @@ describe('lib/fxa-client', function() {
         return Promise.resolve(events);
       });
 
-      return client.securityEvents('sessionToken').then(res => {
+      return client.securityEvents('sessionToken').then((res) => {
         assert.isTrue(realClient.securityEvents.calledWith('sessionToken'));
         assert.isTrue(realClient.securityEvents.calledOnce);
 
@@ -1651,7 +1659,7 @@ describe('lib/fxa-client', function() {
         return Promise.resolve({});
       });
 
-      return client.deleteSecurityEvents('sessionToken').then(res => {
+      return client.deleteSecurityEvents('sessionToken').then((res) => {
         assert.isTrue(
           realClient.deleteSecurityEvents.calledWith('sessionToken')
         );
@@ -1672,7 +1680,7 @@ describe('lib/fxa-client', function() {
       );
 
       const smsStatusOptions = { country: 'GB ' };
-      return client.smsStatus('sessionToken', smsStatusOptions).then(resp => {
+      return client.smsStatus('sessionToken', smsStatusOptions).then((resp) => {
         assert.equal(resp.country, 'GB');
         assert.isTrue(resp.ok);
 
@@ -1693,7 +1701,7 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'consumeSigninCode')
         .callsFake(() => Promise.resolve(resp));
 
-      return client.consumeSigninCode('thecode').then(_resp => {
+      return client.consumeSigninCode('thecode').then((_resp) => {
         assert.strictEqual(_resp, resp);
 
         assert.isTrue(realClient.consumeSigninCode.calledOnce);
@@ -1712,7 +1720,7 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'createTotpToken')
         .callsFake(() => Promise.resolve(resp));
 
-      return client.createTotpToken().then(_resp => {
+      return client.createTotpToken().then((_resp) => {
         assert.strictEqual(_resp, resp);
         assert.isTrue(realClient.createTotpToken.calledOnce);
       });
@@ -1726,7 +1734,7 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'deleteTotpToken')
         .callsFake(() => Promise.resolve(resp));
 
-      return client.deleteTotpToken().then(_resp => {
+      return client.deleteTotpToken().then((_resp) => {
         assert.strictEqual(_resp, resp);
         assert.isTrue(realClient.deleteTotpToken.calledOnce);
       });
@@ -1742,7 +1750,7 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'checkTotpTokenExists')
         .callsFake(() => Promise.resolve(resp));
 
-      return client.checkTotpTokenExists().then(_resp => {
+      return client.checkTotpTokenExists().then((_resp) => {
         assert.strictEqual(_resp, resp);
         assert.isTrue(realClient.checkTotpTokenExists.calledOnce);
       });
@@ -1761,7 +1769,7 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'verifyTotpCode')
         .callsFake(() => Promise.resolve(resp));
 
-      return client.verifyTotpCode('code', options).then(_resp => {
+      return client.verifyTotpCode('code', options).then((_resp) => {
         assert.strictEqual(_resp, resp);
         assert.isTrue(realClient.verifyTotpCode.calledOnce);
         assert.isTrue(realClient.verifyTotpCode.calledWith('code', options));
@@ -1815,7 +1823,7 @@ describe('lib/fxa-client', function() {
 
       return client
         .createRecoveryBundle('email', 'password', 'sessionToken', uid, true)
-        .then(resp => {
+        .then((resp) => {
           assert.isTrue(
             realClient.sessionReauth.calledOnceWith(
               'sessionToken',
@@ -1856,7 +1864,7 @@ describe('lib/fxa-client', function() {
         .stub(realClient, 'verifyIdToken')
         .callsFake(() => Promise.resolve());
 
-      return client.verifyIdToken('sometoken', 'abcd1234', 100).then(resp => {
+      return client.verifyIdToken('sometoken', 'abcd1234', 100).then((resp) => {
         assert.isTrue(
           realClient.verifyIdToken.calledOnceWith('sometoken', 'abcd1234', 100)
         );

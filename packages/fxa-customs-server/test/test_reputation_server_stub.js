@@ -19,7 +19,7 @@ var mostRecentViolationByIp = {};
 // hashmap of ip -> reputation
 var reputationsByIp = {};
 
-server.put('/violations/type/ip/:ip', function(req, res, next) {
+server.put('/violations/type/ip/:ip', function (req, res, next) {
   var ip = req.params.ip;
   mostRecentViolationByIp[ip] = req.body.violation;
   console.log('put req', req.url);
@@ -28,7 +28,7 @@ server.put('/violations/type/ip/:ip', function(req, res, next) {
 });
 
 // This is not a real route in iprepd, and is only used by the tests
-server.get('/mostRecentViolation/:ip', function(req, res, next) {
+server.get('/mostRecentViolation/:ip', function (req, res, next) {
   var ip = req.params.ip;
   console.log('get req', req.url);
   res.send(200, mostRecentViolationByIp[ip] || {});
@@ -36,7 +36,7 @@ server.get('/mostRecentViolation/:ip', function(req, res, next) {
   next();
 });
 // This is not a real route in iprepd, and is only used by the tests
-server.del('/mostRecentViolation/:ip', function(req, res, next) {
+server.del('/mostRecentViolation/:ip', function (req, res, next) {
   var ip = req.params.ip;
   console.log('delete req', req.url);
   delete mostRecentViolationByIp[ip];
@@ -44,12 +44,12 @@ server.del('/mostRecentViolation/:ip', function(req, res, next) {
 
   next();
 });
-server.get('/heartbeat', function(req, res, next) {
+server.get('/heartbeat', function (req, res, next) {
   res.send(200);
   next();
 });
 
-server.get('/type/ip/:ip', function(req, res, next) {
+server.get('/type/ip/:ip', function (req, res, next) {
   var ip = req.params.ip;
   if (ip === '9.9.9.9') {
     res.send(500);
@@ -60,7 +60,7 @@ server.get('/type/ip/:ip', function(req, res, next) {
   }
   next();
 });
-server.del('/type/ip/:ip', function(req, res, next) {
+server.del('/type/ip/:ip', function (req, res, next) {
   var ip = req.params.ip;
   if (reputationsByIp.hasOwnProperty(ip)) {
     delete reputationsByIp[ip];
@@ -68,7 +68,7 @@ server.del('/type/ip/:ip', function(req, res, next) {
   res.send(200);
   next();
 });
-server.put('/type/ip/:ip', function(req, res, next) {
+server.put('/type/ip/:ip', function (req, res, next) {
   var ip = req.params.ip;
   reputationsByIp[ip] = req.body.reputation;
   res.send(200);

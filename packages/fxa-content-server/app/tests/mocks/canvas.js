@@ -26,7 +26,7 @@ CanvasMock.prototype = {
   },
   toBlob(cb) {
     this._args = arguments;
-    setTimeout(function() {
+    setTimeout(function () {
       cb({ type: 'image/jpeg' });
     }, 0);
   },

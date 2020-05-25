@@ -71,7 +71,7 @@ var COMMANDS = {
 var COMMAND_NAMES = {};
 var SCHEMATA = {};
 
-Object.keys(COMMANDS).forEach(function(key) {
+Object.keys(COMMANDS).forEach(function (key) {
   var command = COMMANDS[key];
   COMMAND_NAMES[key] = command.name;
   SCHEMATA[command.name] = command.schema;
@@ -143,11 +143,11 @@ var Notifer = Backbone.Model.extend(
       // internal:* messages are never sent outside of FxA. Ensure
       // only internal channels receive internal:* messages.
       if (/^internal:/.test(command)) {
-        this._internalChannels.forEach(function(channel) {
+        this._internalChannels.forEach(function (channel) {
           channel.send(command, data);
         });
       } else {
-        this._channels.forEach(function(channel) {
+        this._channels.forEach(function (channel) {
           channel.send(command, data);
         });
       }
@@ -155,7 +155,7 @@ var Notifer = Backbone.Model.extend(
 
     // Listen for notifications from other fxa tabs
     _listen(tabChannel) {
-      _.each(COMMAND_NAMES, name => {
+      _.each(COMMAND_NAMES, (name) => {
         tabChannel.on(name, this.trigger.bind(this, name));
       });
     },

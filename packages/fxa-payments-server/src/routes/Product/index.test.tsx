@@ -147,9 +147,7 @@ describe('routes/Product', () => {
   ];
 
   const initSubscribedApiMocks = (useDefaultIcon: boolean = false) => [
-    nock(profileServer)
-      .get('/v1/profile')
-      .reply(200, MOCK_PROFILE),
+    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
@@ -193,9 +191,7 @@ describe('routes/Product', () => {
 
   it('displays an error on failure to load profile', async () => {
     const apiMocks = [
-      nock(profileServer)
-        .get('/v1/profile')
-        .reply(400, MOCK_PROFILE),
+      nock(profileServer).get('/v1/profile').reply(400, MOCK_PROFILE),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS),
@@ -212,9 +208,7 @@ describe('routes/Product', () => {
 
   it('displays an error on failure to load plans', async () => {
     const apiMocks = [
-      nock(profileServer)
-        .get('/v1/profile')
-        .reply(200, MOCK_PROFILE),
+      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
         .reply(400, MOCK_PLANS),
@@ -231,9 +225,7 @@ describe('routes/Product', () => {
 
   it('displays an error on failure to load customer', async () => {
     const apiMocks = [
-      nock(profileServer)
-        .get('/v1/profile')
-        .reply(200, MOCK_PROFILE),
+      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS),
@@ -254,9 +246,7 @@ describe('routes/Product', () => {
   ) {
     const apiMocks = [
       ...initApiMocks(undefined, useDefaultIcon),
-      nock(authServer)
-        .post('/v1/oauth/subscriptions/active')
-        .reply(200, {}),
+      nock(authServer).post('/v1/oauth/subscriptions/active').reply(200, {}),
       nock(authServer)
         .get('/v1/oauth/subscriptions/active')
         .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION),
@@ -355,12 +345,10 @@ describe('routes/Product', () => {
   ) {
     const apiMocks = [
       ...initApiMocks(),
-      nock(authServer)
-        .post('/v1/oauth/subscriptions/active')
-        .reply(400, {
-          code,
-          message,
-        }),
+      nock(authServer).post('/v1/oauth/subscriptions/active').reply(400, {
+        code,
+        message,
+      }),
     ];
     const renderResult = render(<Subject />);
     const { getByTestId, findAllByText } = renderResult;

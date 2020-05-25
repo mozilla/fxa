@@ -17,7 +17,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "scripts/test-local.sh",
-    "format": "prettier '**' --write"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
     "@google-cloud/pubsub": "^1.1.5",

@@ -142,7 +142,7 @@ describe('lib/email-domain-validator', () => {
 
     return checkEmailDomain($el, view)
       .then(() => assert.fail('The promise should have rejected'))
-      .catch(err => {
+      .catch((err) => {
         assert.equal(err, REJECTION_CODE);
 
         return (
@@ -191,7 +191,7 @@ describe('lib/email-domain-validator', () => {
 
     return checkEmailDomain($el, view)
       .then(() => assert.fail('The promise should have rejected'))
-      .catch(err =>
+      .catch((err) =>
         p.delay(50).then(() => {
           assert.equal(err, REJECTION_CODE);
           assert.isTrue(

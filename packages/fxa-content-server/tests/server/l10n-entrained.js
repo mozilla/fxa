@@ -21,12 +21,12 @@ if (intern._config.fxaProduction) {
 }
 
 var dnsSuite = {
-  before: function() {
+  before: function () {
     if (hookDns) {
       dnshook('nxdomain.nxdomain.nxdomain', process.env.FXA_DNS_ALIAS);
     }
   },
-  after: function() {
+  after: function () {
     dnshook(false);
   },
   tests: {},
@@ -34,11 +34,11 @@ var dnsSuite = {
 
 dnsSuite.tests[
   '#https get ' + httpsUrl + '/signin fails if non-existent domain'
-] = function() {
+] = function () {
   var dfd = this.async(2000);
 
   makeRequest(httpsUrl + '/signin', {})
-    .then(res => {
+    .then((res) => {
       if (hookDns) {
         // If we've hooked dns, then this should fail. But `makeRequest`
         // squelches errors, so "failure" means `res` will be undefined.
@@ -59,12 +59,12 @@ registerSuite(
 );
 
 var suite = {
-  before: function() {
+  before: function () {
     if (hookDns) {
       dnshook(process.env.FXA_DNS_ELB, process.env.FXA_DNS_ALIAS);
     }
   },
-  after: function() {
+  after: function () {
     dnshook(false);
   },
   tests: {},
@@ -74,8 +74,8 @@ var routes = {
   '/signin': { statusCode: 200 },
 };
 
-Object.keys(routes).forEach(function(key) {
-  languages.forEach(function(lang) {
+Object.keys(routes).forEach(function (key) {
+  languages.forEach(function (lang) {
     var requestOptions = {
       headers: {
         Accept: routes[key].headerAccept || 'text/html',
@@ -90,14 +90,12 @@ Object.keys(routes).forEach(function(key) {
 registerSuite('check resources entrained by /signin in all locales', suite);
 
 function routeTest(route, expectedStatusCode, requestOptions) {
-  const testName = `#https get ${httpsUrl}${route} ${
-    requestOptions.headers['Accept-Language']
-  }`;
-  suite.tests[testName] = function() {
+  const testName = `#https get ${httpsUrl}${route} ${requestOptions.headers['Accept-Language']}`;
+  suite.tests[testName] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpsUrl + route, requestOptions)
-      .then(res => {
+      .then((res) => {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 

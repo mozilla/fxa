@@ -78,7 +78,7 @@ const View = FormView.extend({
 
     const account = this.getAccount();
     const token = verificationInfo.get('token');
-    return account.isPasswordResetComplete(token).then(isComplete => {
+    return account.isPasswordResetComplete(token).then((isComplete) => {
       if (this._accountRecoveryVerficationInfo || this.lostRecoveryKey) {
         return;
       }
@@ -93,7 +93,7 @@ const View = FormView.extend({
       // email, we should check to see if they have an account recovery key.
       // If so, navigate to the confirm recovery key view, else continue with
       // a regular password reset.
-      return account.checkRecoveryKeyExistsByEmail().then(result => {
+      return account.checkRecoveryKeyExistsByEmail().then((result) => {
         if (result.exists) {
           return this.navigate('account_recovery_confirm_key');
         }
@@ -187,7 +187,7 @@ const View = FormView.extend({
           emailToHashWith
         );
       })
-      .then(updatedAccount => {
+      .then((updatedAccount) => {
         // The password was reset, future attempts should ask confirmation.
         this.relier.set('resetPasswordConfirm', true);
         // See the above note about notifying the original tab.
@@ -208,7 +208,7 @@ const View = FormView.extend({
           this.navigate('reset_password_with_recovery_key_verified');
         }
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           this.logError(err);
           delete this._accountRecoveryVerficationInfo;

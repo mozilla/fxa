@@ -5,30 +5,30 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('misc', function() {
+describe('misc', function () {
   var respond;
   var client;
   var RequestMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     respond = env.respond;
     client = env.client;
     RequestMocks = env.RequestMocks;
   });
 
-  it('#getRandomBytes', function() {
+  it('#getRandomBytes', function () {
     return respond(client.getRandomBytes(), RequestMocks.getRandomBytes).then(
-      function(res) {
+      function (res) {
         assert.property(res, 'data');
       },
       assert.fail
     );
   });
 
-  it('_required', function() {
-    assert.doesNotThrow(function() {
+  it('_required', function () {
+    assert.doesNotThrow(function () {
       client._required(true, 'true_boolean');
       client._required(false, 'false_boolean');
       client._required('string', 'string');
@@ -37,15 +37,15 @@ describe('misc', function() {
       client._required(0, 'zero');
     });
 
-    assert.throws(function() {
+    assert.throws(function () {
       client._required('', 'empty_string');
     });
 
-    assert.throws(function() {
+    assert.throws(function () {
       client._required({}, 'empty_object');
     });
 
-    assert.throws(function() {
+    assert.throws(function () {
       client._required(null, 'null');
     });
   });

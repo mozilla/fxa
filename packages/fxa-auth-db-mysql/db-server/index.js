@@ -12,7 +12,7 @@ function createServer(db) {
   var implementation = db.constructor.name || '__anonymousconstructor__';
 
   function reply(fn) {
-    return function(req, res, next) {
+    return function (req, res, next) {
       fn(req.params, req.body, req.query)
         .then(
           handleSuccess.bind(null, req, res),
@@ -23,44 +23,44 @@ function createServer(db) {
   }
 
   function withIdAndBody(fn) {
-    return reply(function(params, body, query) {
+    return reply(function (params, body, query) {
       return fn.call(db, params.id, body);
     });
   }
 
   function withBodyAndQuery(fn) {
-    return reply(function(params, body, query) {
+    return reply(function (params, body, query) {
       return fn.call(db, body, query);
     });
   }
 
   function withParams(fn) {
-    return reply(function(params, body, query) {
+    return reply(function (params, body, query) {
       return fn.call(db, params);
     });
   }
 
   function withSpreadParams(fn) {
-    return reply(function(params, body, query) {
+    return reply(function (params, body, query) {
       return fn.apply(
         db,
-        Object.keys(params).map(k => params[k])
+        Object.keys(params).map((k) => params[k])
       );
     });
   }
 
   function withParamsAndBody(fn) {
-    return reply(function(params, body, query) {
+    return reply(function (params, body, query) {
       return fn.call(db, params, body);
     });
   }
 
   function withSpreadParamsAndBody(fn) {
-    return reply(function(params, body, query) {
+    return reply(function (params, body, query) {
       return fn.apply(
         db,
         Object.keys(params)
-          .map(k => params[k])
+          .map((k) => params[k])
           .concat([body])
       );
     });
@@ -120,7 +120,7 @@ function createServer(db) {
   api.post('/account/:id/resetTokens', withIdAndBody(db.resetAccountTokens));
   api.post(
     '/account/:id/verifyEmail/:emailCode',
-    op(function(req) {
+    op(function (req) {
       return db.verifyEmail(req.params.id, req.params.emailCode);
     })
   );
@@ -131,7 +131,7 @@ function createServer(db) {
   api.post('/account/:id/emails', withIdAndBody(db.createEmail));
   api.del(
     '/account/:id/emails/:email',
-    op(function(req) {
+    op(function (req) {
       return db.deleteEmail(
         req.params.id,
         bufferize.hexToUtf8(req.params.email)
@@ -141,19 +141,19 @@ function createServer(db) {
 
   api.get(
     '/email/:email',
-    op(function(req) {
+    op(function (req) {
       return db.getSecondaryEmail(bufferize.hexToUtf8(req.params.email));
     })
   );
   api.get(
     '/email/:email/account',
-    op(function(req) {
+    op(function (req) {
       return db.accountRecord(bufferize.hexToUtf8(req.params.email));
     })
   );
   api.post(
     '/email/:email/account/:id',
-    op(function(req) {
+    op(function (req) {
       return db.setPrimaryEmail(
         req.params.id,
         bufferize.hexToUtf8(req.params.email)
@@ -223,13 +223,13 @@ function createServer(db) {
   api.post('/securityEvents', withBodyAndQuery(db.createSecurityEvent));
   api.get(
     '/securityEvents/:id',
-    op(req => {
+    op((req) => {
       return db.securityEventsByUid(req.params.id);
     })
   );
   api.del(
     '/securityEvents/:id',
-    op(req => {
+    op((req) => {
       return db.deleteSecurityEventsByUid(req.params.id);
     })
   );
@@ -260,7 +260,7 @@ function createServer(db) {
   api.del('/account/:uid/device/:deviceId', withSpreadParams(db.deleteDevice));
 
   function op(fn) {
-    return function(req, res, next) {
+    return function (req, res, next) {
       fn.call(null, req)
         .then(
           handleSuccess.bind(null, req, res),
@@ -272,7 +272,7 @@ function createServer(db) {
 
   api.get(
     '/account/:uid/tokens/:tokenVerificationId/device',
-    op(function(req) {
+    op(function (req) {
       return db.deviceFromTokenVerificationId(
         req.params.uid,
         req.params.tokenVerificationId
@@ -282,21 +282,21 @@ function createServer(db) {
 
   api.put(
     '/account/:uid/unblock/:code',
-    op(function(req) {
+    op(function (req) {
       return db.createUnblockCode(req.params.uid, req.params.code);
     })
   );
 
   api.del(
     '/account/:uid/unblock/:code',
-    op(function(req) {
+    op(function (req) {
       return db.consumeUnblockCode(req.params.uid, req.params.code);
     })
   );
 
   api.put(
     '/signinCodes/:code',
-    op(req =>
+    op((req) =>
       db.createSigninCode(
         req.params.code,
         req.body.uid,
@@ -308,19 +308,19 @@ function createServer(db) {
 
   api.post(
     '/signinCodes/:code/consume',
-    op(req => db.consumeSigninCode(req.params.code))
+    op((req) => db.consumeSigninCode(req.params.code))
   );
 
   api.post(
     '/account/:id/recoveryCodes',
-    op(req => {
+    op((req) => {
       return db.replaceRecoveryCodes(req.params.id, req.body.count);
     })
   );
 
   api.post(
     '/account/:id/recoveryCodes/:code',
-    op(req => db.consumeRecoveryCode(req.params.id, req.params.code))
+    op((req) => db.consumeRecoveryCode(req.params.id, req.params.code))
   );
 
   api.get(
@@ -335,12 +335,12 @@ function createServer(db) {
     withIdAndBody(db.updateRecoveryKey)
   );
 
-  api.get('/', function(req, res, next) {
+  api.get('/', function (req, res, next) {
     res.send({ version: version, implementation: implementation });
     next();
   });
 
-  api.get('/__version__', function(req, res, next) {
+  api.get('/__version__', function (req, res, next) {
     res.send({ version: version, implementation: implementation });
     next();
   });
@@ -390,12 +390,12 @@ function createServer(db) {
     });
   }
 
-  var memInterval = setInterval(function() {
+  var memInterval = setInterval(function () {
     api.emit('mem', process.memoryUsage());
   }, 15000);
   memInterval.unref();
 
-  api.on('NotFound', function(req, res) {
+  api.on('NotFound', function (req, res) {
     handleError(req, res, errors.notFound());
   });
 

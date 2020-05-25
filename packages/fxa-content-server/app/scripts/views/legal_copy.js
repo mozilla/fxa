@@ -27,7 +27,7 @@ const View = BaseView.extend({
         dataType: 'text',
         url: this.copyUrl,
       })
-      .then(template => {
+      .then((template) => {
         this.$('#legal-copy').html(template);
         this.$('.hidden').removeClass('hidden');
 

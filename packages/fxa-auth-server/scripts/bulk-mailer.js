@@ -52,7 +52,7 @@ return bulkMailer(
     console.log('done');
     process.exit(0);
   },
-  err => {
+  (err) => {
     if (/InvalidMethodName/.test(err.message)) {
       console.error(program.method, 'is not a valid method. Can be one of:\n');
       console.error(` * ${err.validNames.sort().join('\n * ')}`);

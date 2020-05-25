@@ -21,7 +21,6 @@
   }
 
   .support-field {
-
     @include respond-to('small') {
       padding: 0;
     }

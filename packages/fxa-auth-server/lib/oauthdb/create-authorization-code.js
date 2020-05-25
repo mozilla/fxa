@@ -7,15 +7,13 @@
 const Joi = require('@hapi/joi');
 const validators = require('../routes/validators');
 
-module.exports = config => {
+module.exports = (config) => {
   return {
     path: '/v1/authorization',
     method: 'POST',
     validate: {
       payload: Joi.object({
-        response_type: Joi.string()
-          .valid('code')
-          .default('code'),
+        response_type: Joi.string().valid('code').default('code'),
         client_id: validators.clientId.required(),
         assertion: validators.assertion.required(),
         redirect_uri: Joi.string()
@@ -25,19 +23,12 @@ module.exports = config => {
           })
           .optional(),
         scope: validators.scope.optional(),
-        state: Joi.string()
-          .max(256)
-          .required(),
-        access_type: Joi.string()
-          .valid('offline', 'online')
-          .default('online'),
+        state: Joi.string().max(256).required(),
+        access_type: Joi.string().valid('offline', 'online').default('online'),
         code_challenge_method: validators.pkceCodeChallengeMethod.optional(),
         code_challenge: validators.pkceCodeChallenge.optional(),
         keys_jwe: validators.jwe.optional(),
-        acr_values: Joi.string()
-          .max(256)
-          .allow(null)
-          .optional(),
+        acr_values: Joi.string().max(256).allow(null).optional(),
       }).and('code_challenge', 'code_challenge_method'),
       response: Joi.object({
         redirect: Joi.string(),

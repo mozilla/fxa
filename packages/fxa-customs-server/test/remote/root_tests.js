@@ -13,7 +13,7 @@ var config = {
 };
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
@@ -23,8 +23,8 @@ var client = restifyClients.createJsonClient({
   url: 'http://localhost:' + config.listen.port,
 });
 
-test('version check', function(t) {
-  client.get('/', function(err, req, res, obj) {
+test('version check', function (t) {
+  client.get('/', function (err, req, res, obj) {
     t.notOk(err, 'good request is successful');
     t.equal(res.statusCode, 200, 'good request returns a 200');
     t.equal(
@@ -36,7 +36,7 @@ test('version check', function(t) {
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

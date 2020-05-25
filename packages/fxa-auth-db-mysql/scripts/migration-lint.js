@@ -84,11 +84,11 @@ if (PRODUCTION.test(process.env.NODE_ENV)) {
 
 Mysql(log, require('../db-server').errors)
   .connect(config)
-  .then(db => {
+  .then((db) => {
     return populateDatabase(db, 0).then(() => {
       const ignore = parseIgnoreFile();
       const procedures = getProcedureNames()
-        .map(procedure => ({
+        .map((procedure) => ({
           procedure,
           path: getPath(procedure),
         }))
@@ -98,14 +98,14 @@ Mysql(log, require('../db-server').errors)
     });
   })
   .then(({ errors, warnings }) => {
-    errors.forEach(error => console.error(error));
-    warnings.forEach(warning => console.log(warning));
+    errors.forEach((error) => console.error(error));
+    warnings.forEach((warning) => console.log(warning));
     console.log(
       `Found ${warnings.length} warnings and failed to explain ${errors.length} queries.`
     );
     process.exit(errors.length + warnings.length);
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error);
     process.exit(1);
   });
@@ -122,8 +122,8 @@ function populateDatabase(db, iteration) {
   // with a literal value, we want to make sure that value is in the table
   // without needing to parse the table name from the query.
   return createAccount(db)
-    .then(uid => {
-      return createSessionToken(db, uid).then(tokenId => {
+    .then((uid) => {
+      return createSessionToken(db, uid).then((tokenId) => {
         return createDevice(db, uid, tokenId)
           .then(() => createKeyFetchToken(db, uid, tokenId))
           .then(() => createPasswordChangeToken(db, uid, tokenId))
@@ -294,8 +294,8 @@ function getProcedureNames() {
       RETURN_STRING
     )
     .split('\n')
-    .map(procedure => procedure.trim())
-    .filter(procedure => !!procedure);
+    .map((procedure) => procedure.trim())
+    .filter((procedure) => !!procedure);
 }
 
 function getPath(procedure) {
@@ -331,7 +331,7 @@ async function getSmells(db, procedures, ignore) {
         foreignKeys: foreignKeys.concat(extractForeignKeys(lines, ignore)),
         rowCounts: rowCounts.concat(extractRowCounts(lines, procedure, ignore)),
         selects: selects.concat(
-          extractSelects(lines, procedure, ignore).map(select => ({
+          extractSelects(lines, procedure, ignore).map((select) => ({
             path,
             procedure,
             select,
@@ -343,17 +343,17 @@ async function getSmells(db, procedures, ignore) {
   );
 
   const warnings = encodingMismatches.map(
-    em =>
+    (em) =>
       `Warning: expected "${em.expected}" for ${em.arg} in ${em.procedure}!\n${em.line}\n`
   );
   warnings.push(
     ...foreignKeys.map(
-      fk => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`
+      (fk) => `Warning: foreign key in ${fk.from}!\n${fk.line}\n`
     )
   );
   warnings.push(
     ...rowCounts.map(
-      rc => `Warning: ROW_COUNT() in ${rc.procedure}!\n${rc.line}\n`
+      (rc) => `Warning: ROW_COUNT() in ${rc.procedure}!\n${rc.line}\n`
     )
   );
 
@@ -365,7 +365,7 @@ async function getSmells(db, procedures, ignore) {
       const explainResult = await explain(db, select);
       warnings.push(
         ...warn(explainResult).map(
-          warning =>
+          (warning) =>
             `Warning: ${warning} in ${query.procedure}!\nEXPLAIN ${select}\n`
         )
       );
@@ -509,7 +509,7 @@ function extractSelects(lines, procedureName, ignore) {
 
       return selects;
     }, [])
-    .map(select => purgeUnbalancedParentheses(select));
+    .map((select) => purgeUnbalancedParentheses(select));
 }
 
 function purgeUnbalancedParentheses(select) {

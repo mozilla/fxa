@@ -291,7 +291,7 @@ describe('views/sms_send', () => {
         sinon.spy(view, '_onSendSmsError');
         view.$('input[type=tel]').val('1234567890');
 
-        return view.submit().then(assert.fail, _err => {
+        return view.submit().then(assert.fail, (_err) => {
           assert.strictEqual(_err, err);
           assert.isTrue(account.sendSms.calledOnce);
           assert.isTrue(
@@ -468,10 +468,7 @@ describe('views/sms_send', () => {
     });
 
     it('logs a click in the phone number field', () => {
-      view
-        .$('input[type=tel]')
-        .val('1234')
-        .click();
+      view.$('input[type=tel]').val('1234').click();
       assert.isTrue(view.logFlowEventOnce.calledOnce);
       assert.isTrue(view.logFlowEventOnce.calledWith('engage'));
     });

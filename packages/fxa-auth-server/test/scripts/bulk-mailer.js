@@ -67,7 +67,7 @@ const account2Mock = createAccount(
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
-describe('scripts/bulk-mailer', function() {
+describe('scripts/bulk-mailer', function () {
   this.timeout(10000);
 
   let db, server;
@@ -77,11 +77,11 @@ describe('scripts/bulk-mailer', function() {
     mkdirp.sync(OUTPUT_DIRECTORY);
 
     return TestServer.start(config)
-      .then(s => {
+      .then((s) => {
         server = s;
         return DB.connect(config[config.db.backend]);
       })
-      .then(_db => {
+      .then((_db) => {
         db = _db;
         return P.all([
           db.createAccount(account1Mock),
@@ -110,7 +110,7 @@ describe('scripts/bulk-mailer', function() {
       .execAsync('node scripts/bulk-mailer --method sendVerifyEmail', { cwd })
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -124,7 +124,7 @@ describe('scripts/bulk-mailer', function() {
       )
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -135,7 +135,7 @@ describe('scripts/bulk-mailer', function() {
       .execAsync('node scripts/bulk-mailer --input ${USER_DUMP_PATH}', { cwd })
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -149,7 +149,7 @@ describe('scripts/bulk-mailer', function() {
       )
       .then(
         () => assert(false, 'script should have failed'),
-        err => {
+        (err) => {
           assert.include(err.message, 'Command failed');
         }
       );
@@ -210,7 +210,7 @@ describe('scripts/bulk-mailer', function() {
         `node scripts/bulk-mailer --input ${USER_DUMP_PATH} --method sendVerifyEmail`,
         { cwd }
       )
-      .then(result => {
+      .then((result) => {
         assert.include(result, account1Mock.uid);
         assert.include(result, account1Mock.email);
         assert.include(result, 'This is an automated email');

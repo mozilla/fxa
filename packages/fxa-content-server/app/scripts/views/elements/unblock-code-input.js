@@ -8,11 +8,11 @@ import Vat from '../../lib/vat';
 
 const element = Object.create(textInput);
 
-element.match = function($el) {
+element.match = function ($el) {
   return $el.attr('type') === 'text' && $el.hasClass('unblock-code');
 };
 
-element.val = function(val) {
+element.val = function (val) {
   if (arguments.length === 1) {
     return this.__val(val);
   }
@@ -20,7 +20,7 @@ element.val = function(val) {
   return this.__val().trim();
 };
 
-element.validate = function() {
+element.validate = function () {
   const isRequired = typeof this.attr('required') !== 'undefined';
   const value = this.val();
 

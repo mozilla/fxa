@@ -128,9 +128,9 @@ class SmsSendView extends FormView {
       .then(() => {
         this._userHasAttachedMobileDevice = this._attachedClients
           .toJSON()
-          .some(client => client.deviceType === 'mobile');
+          .some((client) => client.deviceType === 'mobile');
       })
-      .catch(err => {
+      .catch((err) => {
         this.model.set('error', err);
         this.logError(err);
       });
@@ -203,7 +203,7 @@ class SmsSendView extends FormView {
       .then(({ formattedPhoneNumber: serverPhoneNumber }) =>
         this._onSendSmsSuccess(serverPhoneNumber)
       )
-      .catch(err => this._onSendSmsError(err));
+      .catch((err) => this._onSendSmsError(err));
   }
 
   /**

@@ -32,7 +32,7 @@ const PASSWORD = 'password123456789';
 let email;
 
 registerSuite('oauth force_auth', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(
       clearBrowserState({
@@ -42,7 +42,7 @@ registerSuite('oauth force_auth', {
     );
   },
   tests: {
-    'with a registered email': function() {
+    'with a registered email': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -55,7 +55,7 @@ registerSuite('oauth force_auth', {
       );
     },
 
-    'with an unregistered email': function() {
+    'with an unregistered email': function () {
       // Test often times out waiting for emails, give it a bit more time.
       // See #5024
       this.timeout = 60 * 1000;
@@ -86,7 +86,7 @@ registerSuite('oauth force_auth', {
       );
     },
 
-    'verified, blocked': function() {
+    'verified, blocked': function () {
       email = createEmail('blocked{id}');
 
       return (

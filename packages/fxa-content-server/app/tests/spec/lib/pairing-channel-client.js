@@ -33,7 +33,7 @@ describe('lib/pairing-channel-client', () => {
     it('rejects if no channelServerUri', () => {
       return client
         .open(null, 'c05d62ed4e1445089e9e2a33d148f906')
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION')
           );
@@ -43,7 +43,7 @@ describe('lib/pairing-channel-client', () => {
     it('rejects if no channelId', () => {
       return client
         .open('wss://channel.server.url/', null)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION')
           );
@@ -53,7 +53,7 @@ describe('lib/pairing-channel-client', () => {
     it('rejects if no channelKey', () => {
       return client
         .open('wss://channel.server.url/', 'c05d62ed4e1445089e9e2a33d148f906')
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             PairingChannelClientErrors.is(err, 'INVALID_CONFIGURATION')
           );
@@ -89,7 +89,7 @@ describe('lib/pairing-channel-client', () => {
               'c05d62ed4e1445089e9e2a33d148f906',
               '1111'
             )
-            .then(assert.fail, err => {
+            .then(assert.fail, (err) => {
               assert.isTrue(
                 PairingChannelClientErrors.is(err, 'ALREADY_CONNECTED')
               );
@@ -110,7 +110,7 @@ describe('lib/pairing-channel-client', () => {
 
     it('rejects if no channel', () => {
       delete client.channel;
-      return client.close().then(assert.fail, err => {
+      return client.close().then(assert.fail, (err) => {
         assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
       });
     });
@@ -123,7 +123,7 @@ describe('lib/pairing-channel-client', () => {
         }),
       };
 
-      return client.close().then(assert.fail, err => {
+      return client.close().then(assert.fail, (err) => {
         assert.strictEqual(err, closeError);
       });
     });
@@ -157,7 +157,7 @@ describe('lib/pairing-channel-client', () => {
 
     it('rejects if no socket', () => {
       delete client.channel;
-      return client.send('message').then(assert.fail, err => {
+      return client.send('message').then(assert.fail, (err) => {
         assert.isTrue(PairingChannelClientErrors.is(err, 'NOT_CONNECTED'));
       });
     });
@@ -172,7 +172,7 @@ describe('lib/pairing-channel-client', () => {
         .then(() => {
           return client.send();
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             PairingChannelClientErrors.is(err, 'INVALID_OUTBOUND_MESSAGE')
           );

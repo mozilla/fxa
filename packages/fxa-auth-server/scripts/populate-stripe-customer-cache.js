@@ -86,8 +86,8 @@ async function init() {
 }
 
 init()
-  .catch(err => {
+  .catch((err) => {
     console.error(err.message);
     process.exit(1);
   })
-  .then(result => process.exit(result));
+  .then((result) => process.exit(result));

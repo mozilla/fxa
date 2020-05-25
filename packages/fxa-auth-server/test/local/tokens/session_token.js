@@ -36,7 +36,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   const SessionToken = tokens.SessionToken;
 
   it('interface is correct', () => {
-    return SessionToken.create(TOKEN).then(token => {
+    return SessionToken.create(TOKEN).then((token) => {
       assert.equal(
         typeof token.lastAuthAt,
         'function',
@@ -76,13 +76,13 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   it('re-creation from tokenData works', () => {
     let token = null;
     return SessionToken.create(TOKEN)
-      .then(x => {
+      .then((x) => {
         token = x;
       })
       .then(() => {
         return SessionToken.fromHex(token.data, token);
       })
-      .then(token2 => {
+      .then((token2) => {
         assert.deepEqual(token.data, token2.data);
         assert.deepEqual(token.id, token2.id);
         assert.deepEqual(token.authKey, token2.authKey);
@@ -130,13 +130,13 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
 
   it('SessionToken.fromHex creates expired token if deviceId is null and createdAt is too old', () => {
     return SessionToken.create(TOKEN)
-      .then(token =>
+      .then((token) =>
         SessionToken.fromHex(token.data, {
           createdAt: Date.now() - MAX_AGE_WITHOUT_DEVICE - 1,
           deviceId: null,
         })
       )
-      .then(token => {
+      .then((token) => {
         assert.equal(token.ttl(), 0);
         assert.equal(token.expired(), true);
       });
@@ -144,13 +144,13 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
 
   it('SessionToken.fromHex creates non-expired token if deviceId is null and createdAt is recent enough', () => {
     return SessionToken.create(TOKEN)
-      .then(token =>
+      .then((token) =>
         SessionToken.fromHex(token.data, {
           createdAt: Date.now() - MAX_AGE_WITHOUT_DEVICE + 10000,
           deviceId: null,
         })
       )
-      .then(token => {
+      .then((token) => {
         assert.equal(token.ttl() > 0, true);
         assert.equal(token.expired(), false);
       });
@@ -158,13 +158,13 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
 
   it('SessionToken.fromHex creates non-expired token if deviceId is set and createdAt is too old', () => {
     return SessionToken.create(TOKEN)
-      .then(token =>
+      .then((token) =>
         SessionToken.fromHex(token.data, {
           createdAt: Date.now() - MAX_AGE_WITHOUT_DEVICE - 1,
           deviceId: crypto.randomBytes(16),
         })
       )
-      .then(token => {
+      .then((token) => {
         assert.equal(token.ttl() > 0, true);
         assert.equal(token.expired(), false);
       });
@@ -175,7 +175,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
       createdAt: NaN,
       email: 'foo',
       uid: 'bar',
-    }).then(token => {
+    }).then((token) => {
       const now = Date.now();
       assert.ok(token.createdAt > now - 1000 && token.createdAt <= now);
     });
@@ -185,7 +185,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
     let token = null;
     const tokenData =
       'a0a1a2a3a4a5a6a7a8a9aaabacadaeafb0b1b2b3b4b5b6b7b8b9babbbcbdbebf';
-    return SessionToken.fromHex(tokenData, TOKEN).then(x => {
+    return SessionToken.fromHex(tokenData, TOKEN).then((x) => {
       token = x;
       assert.equal(token.data.toString('hex'), tokenData);
       assert.equal(
@@ -200,7 +200,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   });
 
   it('SessionToken.setUserAgentInfo', () => {
-    return SessionToken.create(TOKEN).then(token => {
+    return SessionToken.create(TOKEN).then((token) => {
       token.setUserAgentInfo({
         data: 'foo',
         id: 'foo',
@@ -258,7 +258,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
   });
 
   it('SessionToken.setUserAgentInfo without lastAccessTime', () => {
-    return SessionToken.create(TOKEN).then(token => {
+    return SessionToken.create(TOKEN).then((token) => {
       token.lastAccessTime = 'foo';
       token.setUserAgentInfo({
         uaBrowser: 'foo',
@@ -297,7 +297,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
           verificationMethod: null,
           verifiedAt: null,
         })
-      ).then(token => {
+      ).then((token) => {
         assert.deepEqual(Array.from(token.authenticationMethods).sort(), [
           'pwd',
         ]);
@@ -311,7 +311,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
           verificationMethod: null,
           verifiedAt: null,
         })
-      ).then(token => {
+      ).then((token) => {
         assert.deepEqual(Array.from(token.authenticationMethods).sort(), [
           'email',
           'pwd',
@@ -325,7 +325,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
           tokenVerificationId: null,
           verificationMethod: 1,
         })
-      ).then(token => {
+      ).then((token) => {
         assert.deepEqual(Array.from(token.authenticationMethods).sort(), [
           'email',
           'pwd',
@@ -338,7 +338,7 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice > 0', () => {
         Object.assign({}, TOKEN, {
           verificationMethod: 2,
         })
-      ).then(token => {
+      ).then((token) => {
         assert.deepEqual(Array.from(token.authenticationMethods).sort(), [
           'otp',
           'pwd',
@@ -360,13 +360,13 @@ describe('SessionToken, tokenLifetimes.sessionTokenWithoutDevice === 0', () => {
 
   it('SessionToken.fromHex creates non-expired token if deviceId is null and createdAt is too old', () => {
     return SessionToken.create(TOKEN)
-      .then(token =>
+      .then((token) =>
         SessionToken.fromHex(token.data, {
           createdAt: 1,
           deviceId: null,
         })
       )
-      .then(token => {
+      .then((token) => {
         assert.equal(token.ttl() > 0, true);
         assert.equal(token.expired(), false);
       });

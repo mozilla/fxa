@@ -29,7 +29,7 @@ class AddAccountRecovery extends FormView {
     }
 
     // An account can only support one recovery key at a time
-    return account.checkRecoveryKeyExists().then(status => {
+    return account.checkRecoveryKeyExists().then((status) => {
       if (status.exists) {
         return this.navigate(
           '/post_verify/account_recovery/verified_recovery_key'

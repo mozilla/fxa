@@ -7,24 +7,24 @@ import View from 'views/clear_storage';
 
 var assert = chai.assert;
 
-describe('views/clear_storage', function() {
+describe('views/clear_storage', function () {
   var view;
 
-  beforeEach(function() {
+  beforeEach(function () {
     view = new View({});
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.remove();
     view.destroy();
     view = null;
   });
 
-  it('clears localStorage and sessionStorage on render', function() {
+  it('clears localStorage and sessionStorage on render', function () {
     localStorage.setItem('hey', 'ho');
     sessionStorage.setItem("let's", 'go');
 
-    return view.render().then(function() {
+    return view.render().then(function () {
       assert.notOk(localStorage.length);
       assert.notOk(sessionStorage.length);
     });

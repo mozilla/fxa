@@ -10,47 +10,47 @@ import sinon from 'sinon';
 var assert = chai.assert;
 var progressIndicator;
 
-describe('views/progress_indicator', function() {
-  beforeEach(function() {
+describe('views/progress_indicator', function () {
+  beforeEach(function () {
     progressIndicator = new ProgressIndicator();
     $('#container').html('<button id="indicate">Button</button>');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     progressIndicator.destroy();
     progressIndicator = null;
   });
 
-  describe('start', function() {
-    it('shows the indicator', function() {
+  describe('start', function () {
+    it('shows the indicator', function () {
       progressIndicator.start('#indicate');
       assert.isTrue(progressIndicator.isVisible());
     });
 
-    it('works when waiting for the indicator', function() {
+    it('works when waiting for the indicator', function () {
       progressIndicator._removeIndicatorTimeout = true;
       progressIndicator.start('#indicate');
       assert.isTrue(progressIndicator.isVisible());
     });
 
-    it('calls showIndicator', function(done) {
-      sinon.stub(progressIndicator, 'showIndicator').callsFake(function() {
+    it('calls showIndicator', function (done) {
+      sinon.stub(progressIndicator, 'showIndicator').callsFake(function () {
         done();
       });
       progressIndicator.start('#indicate');
     });
   });
 
-  describe('done', function() {
-    it('hides the indicator', function() {
+  describe('done', function () {
+    it('hides the indicator', function () {
       progressIndicator.start('#indicate');
       progressIndicator.done();
       assert.isFalse(progressIndicator.isVisible());
     });
   });
 
-  describe('multiple starts', function() {
-    it('must be matched by same number of dones', function() {
+  describe('multiple starts', function () {
+    it('must be matched by same number of dones', function () {
       progressIndicator.start('#indicate');
       progressIndicator.start('#indicate');
       progressIndicator.done();
@@ -61,24 +61,24 @@ describe('views/progress_indicator', function() {
     });
   });
 
-  describe('showIndicator', function() {
-    it('replaces the button text with a spinner', function() {
+  describe('showIndicator', function () {
+    it('replaces the button text with a spinner', function () {
       progressIndicator.showIndicator('#indicate');
       assert.isTrue($('#indicate').prop('disabled'));
       assert.notEqual($('#indicate').text(), 'Button');
     });
   });
 
-  describe('removeIndicator', function() {
-    it('replaces the spinner with the original button text', function() {
+  describe('removeIndicator', function () {
+    it('replaces the spinner with the original button text', function () {
       progressIndicator.showIndicator('#indicate');
       progressIndicator.removeIndicator();
       assert.isFalse($('#indicate').prop('disabled'));
       assert.equal($('#indicate').text(), 'Button');
     });
 
-    it('calls removeIndicator', function(done) {
-      sinon.stub(progressIndicator, 'removeIndicator').callsFake(function() {
+    it('calls removeIndicator', function (done) {
+      sinon.stub(progressIndicator, 'removeIndicator').callsFake(function () {
         done();
       });
       progressIndicator.showIndicator('#indicate');

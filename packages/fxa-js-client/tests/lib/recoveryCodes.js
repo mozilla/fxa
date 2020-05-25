@@ -7,7 +7,7 @@ const Environment = require('../addons/environment');
 
 const sinon = require('sinon');
 const otplib = require('otplib');
-describe('recovery codes', function() {
+describe('recovery codes', function () {
   var account;
   var accountHelper;
   var respond;
@@ -20,7 +20,7 @@ describe('recovery codes', function() {
   var recoveryCodes;
   var metricsContext;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -34,14 +34,14 @@ describe('recovery codes', function() {
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(newAccount) {
+      .then(function (newAccount) {
         account = newAccount;
         return respond(
           client.createTotpToken(account.signIn.sessionToken),
           RequestMocks.createTotpToken
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.qrCodeUrl, 'should return QR code data encoded url');
         assert.ok(res.secret, 'should return secret that is encoded in url');
 
@@ -54,7 +54,7 @@ describe('recovery codes', function() {
           RequestMocks.verifyTotpCodeTrueEnableToken
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(
           res.recoveryCodes.length,
           3,
@@ -68,16 +68,16 @@ describe('recovery codes', function() {
       });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     xhrOpen.restore();
     xhrSend.restore();
   });
 
-  it('#consumeRecoveryCode - fails for invalid code', function() {
+  it('#consumeRecoveryCode - fails for invalid code', function () {
     return respond(
       client.consumeRecoveryCode(account.signIn.sessionToken, '00000000'),
       RequestMocks.consumeRecoveryCodeInvalidCode
-    ).then(assert.fail, function(err) {
+    ).then(assert.fail, function (err) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(
         xhrOpen.args[0][1],
@@ -88,14 +88,14 @@ describe('recovery codes', function() {
     });
   });
 
-  it('#consumeRecoveryCode - consumes valid code', function() {
+  it('#consumeRecoveryCode - consumes valid code', function () {
     var code = recoveryCodes[0];
     return respond(
       client.consumeRecoveryCode(account.signIn.sessionToken, code, {
         metricsContext: metricsContext,
       }),
       RequestMocks.consumeRecoveryCodeSuccess
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'POST', 'method is correct');
       assert.include(
         xhrOpen.args[0][1],
@@ -110,11 +110,11 @@ describe('recovery codes', function() {
     });
   });
 
-  it('#replaceRecoveryCodes - replaces current recovery codes', function() {
+  it('#replaceRecoveryCodes - replaces current recovery codes', function () {
     return respond(
       client.replaceRecoveryCodes(account.signIn.sessionToken),
       RequestMocks.replaceRecoveryCodesSuccessNew
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(xhrOpen.args[0][0], 'GET', 'method is correct');
       assert.include(xhrOpen.args[0][1], '/recoveryCodes', 'path is correct');
 

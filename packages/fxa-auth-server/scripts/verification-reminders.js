@@ -36,7 +36,7 @@ run()
     log.info('verificationReminders.done', {});
     process.exit(0);
   })
-  .catch(err => {
+  .catch((err) => {
     log.error('verificationReminders.fatal', { err });
     process.exit(1);
   });

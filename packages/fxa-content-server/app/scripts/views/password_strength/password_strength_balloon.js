@@ -75,9 +75,7 @@ class PasswordStrengthBalloonView extends BaseView {
   }
 
   show() {
-    this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR)
-      .show()
-      .css('opacity', '1');
+    this.$(PASSWORD_STRENGTH_BALLOON_SELECTOR).show().css('opacity', '1');
   }
 
   hide() {

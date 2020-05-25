@@ -10,7 +10,7 @@ module.exports = {
   createHashHex() {
     const hash = crypto.createHash('sha256');
     const args = [...arguments];
-    args.forEach(arg => {
+    args.forEach((arg) => {
       hash.update(arg + '\0');
     });
     return hash.digest().toString('hex');

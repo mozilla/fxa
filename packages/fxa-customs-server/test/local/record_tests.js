@@ -21,14 +21,14 @@ const config = {
   },
 };
 
-test('constructor', t => {
+test('constructor', (t) => {
   const record = new Record({}, config);
   t.equal(record.actions, config.actions, 'actions set');
   t.equal(record.limits, config.limits, 'limits set');
   t.end();
 });
 
-test('rate limit works', t => {
+test('rate limit works', (t) => {
   const record = new Record({}, config, now);
 
   t.equal(record.isRateLimited(), false, 'record is not rate limited');
@@ -39,7 +39,7 @@ test('rate limit works', t => {
   t.end();
 });
 
-test('updates rate limit with valid action', t => {
+test('updates rate limit with valid action', (t) => {
   const record = new Record({}, config);
 
   t.equal(record.isRateLimited(), false, 'record is not rate limited');
@@ -58,7 +58,7 @@ test('updates rate limit with valid action', t => {
   });
 });
 
-test('ignores rate limit with invalid action', t => {
+test('ignores rate limit with invalid action', (t) => {
   const record = new Record({}, config);
 
   t.equal(record.isRateLimited(), false, 'record is not rate limited');
@@ -71,7 +71,7 @@ test('ignores rate limit with invalid action', t => {
   t.end();
 });
 
-test('getMinLifetimeMS works', t => {
+test('getMinLifetimeMS works', (t) => {
   const record = new Record({}, config);
   t.equal(
     record.getMinLifetimeMS(),

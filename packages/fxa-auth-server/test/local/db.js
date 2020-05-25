@@ -29,7 +29,7 @@ describe('db, session tokens expire:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function() {
+      './pool': function () {
         return pool;
       },
     })(
@@ -38,7 +38,7 @@ describe('db, session tokens expire:', () => {
       tokens,
       {}
     );
-    return DB.connect({}).then(result => (db = result));
+    return DB.connect({}).then((result) => (db = result));
   });
 
   describe('sessions:', () => {
@@ -62,7 +62,7 @@ describe('db, session tokens expire:', () => {
           deviceId: 'wibble',
         },
       ];
-      return db.sessions().then(result => (sessions = result));
+      return db.sessions().then((result) => (sessions = result));
     });
 
     it('returned the correct result', () => {
@@ -92,7 +92,7 @@ describe('db, session tokens do not expire:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function() {
+      './pool': function () {
         return pool;
       },
     })(
@@ -101,7 +101,7 @@ describe('db, session tokens do not expire:', () => {
       tokens,
       {}
     );
-    return DB.connect({}).then(result => (db = result));
+    return DB.connect({}).then((result) => (db = result));
   });
 
   describe('sessions:', () => {
@@ -125,7 +125,7 @@ describe('db, session tokens do not expire:', () => {
           deviceId: 'wibble',
         },
       ];
-      return db.sessions().then(result => (sessions = result));
+      return db.sessions().then((result) => (sessions = result));
     });
 
     it('returned the correct result', () => {
@@ -156,17 +156,17 @@ describe('db with redis disabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function() {
+      './pool': function () {
         return pool;
       },
       './redis': () => {},
     })({ redis: {}, tokenLifetimes, tokenPruning: {} }, log, tokens, {});
-    return DB.connect({}).then(result => (db = result));
+    return DB.connect({}).then((result) => (db = result));
   });
 
   it('db.sessions succeeds without a redis instance', () => {
     results.pool = [];
-    return db.sessions('fakeUid').then(result => {
+    return db.sessions('fakeUid').then((result) => {
       assert.equal(pool.get.callCount, 1);
       const args = pool.get.args[0];
       assert.equal(args.length, 2);
@@ -179,7 +179,7 @@ describe('db with redis disabled:', () => {
 
   it('db.devices succeeds without a redis instance', () => {
     results.pool = [];
-    return db.devices('fakeUid').then(result => {
+    return db.devices('fakeUid').then((result) => {
       assert.equal(pool.get.callCount, 1);
       const args = pool.get.args[0];
       assert.equal(args.length, 2);
@@ -192,7 +192,7 @@ describe('db with redis disabled:', () => {
 
   it('db.device succeeds without a redis instance', () => {
     results.pool = { id: 'fakeDeviceId' };
-    return db.device('fakeUid', 'fakeDeviceId').then(result => {
+    return db.device('fakeUid', 'fakeDeviceId').then((result) => {
       assert.equal(pool.get.callCount, 1);
       const args = pool.get.args[0];
       assert.equal(args.length, 2);
@@ -312,7 +312,7 @@ describe('redis enabled, token-pruning enabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function() {
+      './pool': function () {
         return pool;
       },
       './redis': (...args) => {
@@ -361,17 +361,17 @@ describe('redis enabled, token-pruning enabled:', () => {
       tokens,
       {}
     );
-    return DB.connect({}).then(result => (db = result));
+    return DB.connect({}).then((result) => (db = result));
   });
 
   it('should not call redis or the db in db.devices if uid is falsey', () => {
     return db.devices('').then(
-      result =>
+      (result) =>
         assert.equal(
           result,
           'db.devices should reject with error.unknownAccount'
         ),
-      err => {
+      (err) => {
         assert.equal(pool.get.callCount, 0);
         assert.equal(redis.get.callCount, 0);
         assert.equal(err.errno, 102);
@@ -500,7 +500,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       });
 
       it('should call pruneSessionTokens in db.sessions', () => {
-        return db.sessions('foo').then(result => {
+        return db.sessions('foo').then((result) => {
           assert.equal(result.length, 1);
           assert.equal(result[0].id, 'unexpired');
 
@@ -530,7 +530,7 @@ describe('redis enabled, token-pruning enabled:', () => {
       });
 
       it('should not call pruneSessionTokens in db.sessions', () => {
-        return db.sessions('foo').then(result => {
+        return db.sessions('foo').then((result) => {
           assert.equal(result.length, 3);
           assert.equal(db.pruneSessionTokens.callCount, 0);
         });
@@ -561,7 +561,7 @@ describe('redis enabled, token-pruning disabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      './pool': function() {
+      './pool': function () {
         return pool;
       },
       './redis': (...args) => {
@@ -612,7 +612,7 @@ describe('redis enabled, token-pruning disabled:', () => {
       tokens,
       {}
     );
-    return DB.connect({}).then(result => (db = result));
+    return DB.connect({}).then((result) => (db = result));
   });
 
   it('should not call redis.pruneSessionTokens in db.pruneSessionTokens', () => {

@@ -25,7 +25,7 @@ const DB = require('../../lib/db')(
 
 let client, db, server;
 
-describe('remote verifier upgrade', function() {
+describe('remote verifier upgrade', function () {
   this.timeout(30000);
 
   before(async () => {

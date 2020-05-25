@@ -47,10 +47,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           payload: isA.object().keys({
             productName: isA.string().required(),
             topic: isA.string().required(),
-            subject: isA
-              .string()
-              .allow('')
-              .optional(),
+            subject: isA.string().allow('').optional(),
             message: isA.string().required(),
           }),
         },
@@ -62,7 +59,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           }),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('support.ticket', request);
         const { uid, email } = await handleAuth(request.auth, true);
         const { location } = request.app.geo;

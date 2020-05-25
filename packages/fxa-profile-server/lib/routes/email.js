@@ -33,7 +33,7 @@ module.exports = {
           strategy: 'oauth',
         },
       })
-      .then(res => {
+      .then((res) => {
         if (res.statusCode !== 200) {
           return res;
         }

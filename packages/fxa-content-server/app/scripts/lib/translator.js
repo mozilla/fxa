@@ -18,7 +18,7 @@ import xhr from './xhr';
  * @param {Object} [options.xhr=xhr] XHR module to use.
  * @constructor
  */
-const Translator = function(options = {}) {
+const Translator = function (options = {}) {
   if (options.forceEnglish) {
     this._forceEnglish = true;
   }
@@ -43,7 +43,7 @@ Translator.prototype = {
       if (this._forceEnglish || Object.keys(this.__translations__).length) {
         resolve();
       } else {
-        this._xhr.getJSON('/i18n/client.json').then(translations => {
+        this._xhr.getJSON('/i18n/client.json').then((translations) => {
           this.__translations__ = translations;
           resolve();
         }, reject);
@@ -122,7 +122,7 @@ Translator.prototype = {
    * @returns {Function}
    */
   translateInTemplate(forceText, context) {
-    return templateText => {
+    return (templateText) => {
       return this.get(forceText || templateText, context);
     };
   },

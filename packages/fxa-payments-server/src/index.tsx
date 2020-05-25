@@ -136,5 +136,5 @@ async function getVerifiedAccessToken({
 
 init().then(
   () => console.log('init success'),
-  err => console.log('init error', err)
+  (err) => console.log('init error', err)
 );

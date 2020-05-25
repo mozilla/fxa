@@ -44,7 +44,7 @@ class TestSettings extends Settings {
   }
 }
 
-test('refresh without pushOnMissing does not call push', t => {
+test('refresh without pushOnMissing does not call push', (t) => {
   let pushed;
   mc.getAsync = () => P.resolve(pushed);
   mc.setAsync = (key, val) => {
@@ -53,13 +53,13 @@ test('refresh without pushOnMissing does not call push', t => {
   };
   const settings = new TestSettings();
   settings.setAll({ testOption: true });
-  return settings.refresh().then(t.fail, err => {
+  return settings.refresh().then(t.fail, (err) => {
     t.equal(pushed, undefined);
     t.ok(err instanceof Settings.Missing);
   });
 });
 
-test('refresh pushOnMissing works on Missing error', t => {
+test('refresh pushOnMissing works on Missing error', (t) => {
   let pushed;
   mc.getAsync = () => P.resolve(pushed);
   mc.setAsync = (key, val) => {
@@ -73,7 +73,7 @@ test('refresh pushOnMissing works on Missing error', t => {
   }, t.fail);
 });
 
-test('refresh pushOnMissing returns other Errors', t => {
+test('refresh pushOnMissing returns other Errors', (t) => {
   const mcError = new Error('memcached error');
   mc.getAsync = () => P.reject(mcError);
   mc.setAsync = (key, val) => {
@@ -81,12 +81,12 @@ test('refresh pushOnMissing returns other Errors', t => {
   };
   const settings = new TestSettings();
   settings.setAll({ testOption: true });
-  return settings.refresh({ pushOnMissing: true }).then(t.fail, err => {
+  return settings.refresh({ pushOnMissing: true }).then(t.fail, (err) => {
     t.equal(err, mcError);
   });
 });
 
-test('limits.validate logs changes', t => {
+test('limits.validate logs changes', (t) => {
   const current = require('../../lib/settings/limits')(config, Settings, log);
   const future = require('../../lib/settings/limits')(config, Settings, log);
 
@@ -128,7 +128,7 @@ test('limits.validate logs changes', t => {
   t.end();
 });
 
-test('requestChecks.validate logs changes', t => {
+test('requestChecks.validate logs changes', (t) => {
   const current = require('../../lib/settings/requestChecks')(
     config,
     Settings,

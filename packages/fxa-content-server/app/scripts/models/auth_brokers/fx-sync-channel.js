@@ -104,7 +104,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
       // specific checks and dialogs. It throws an error with
       // message='USER_CANCELED_LOGIN' and errno=1001 if that's the case.
       return this.request(this.getCommand('CAN_LINK_ACCOUNT'), { email }).then(
-        response => {
+        (response) => {
           if (response && !response.ok) {
             throw AuthErrors.toError('USER_CANCELED_LOGIN');
           }
@@ -112,7 +112,7 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
           this._verifiedCanLinkEmail = email;
           return proto.beforeSignIn.call(this, account);
         },
-        err => {
+        (err) => {
           this._logger.error('beforeSignIn failed with', err);
           // If the browser doesn't implement this command, then it will
           // handle prompting the relink warning after sign in completes.

@@ -9,12 +9,12 @@ import Storage from 'lib/storage';
 
 var assert = chai.assert;
 
-describe('models/verification/same-browser', function() {
-  describe('_getUsersStorageId', function() {
+describe('models/verification/same-browser', function () {
+  describe('_getUsersStorageId', function () {
     var model;
 
-    describe('with a model that has a `uid', function() {
-      beforeEach(function() {
+    describe('with a model that has a `uid', function () {
+      beforeEach(function () {
         model = new SameBrowserVerificationModel(
           {},
           {
@@ -25,13 +25,13 @@ describe('models/verification/same-browser', function() {
         );
       });
 
-      it('returns the `uid`', function() {
+      it('returns the `uid`', function () {
         assert.equal(model._getUsersStorageId(), 'a-uid');
       });
     });
 
-    describe('with a model that has an `email`', function() {
-      beforeEach(function() {
+    describe('with a model that has an `email`', function () {
+      beforeEach(function () {
         model = new SameBrowserVerificationModel(
           {},
           {
@@ -42,17 +42,17 @@ describe('models/verification/same-browser', function() {
         );
       });
 
-      it('returns the `email`', function() {
+      it('returns the `email`', function () {
         assert.equal(model._getUsersStorageId(), 'testuser@testuser.com');
       });
     });
   });
 
-  describe('model persistence', function() {
+  describe('model persistence', function () {
     var model;
     var storage;
 
-    beforeEach(function() {
+    beforeEach(function () {
       storage = new Storage();
 
       model = new SameBrowserVerificationModel(
@@ -71,43 +71,43 @@ describe('models/verification/same-browser', function() {
       sinon.spy(storage, 'set');
     });
 
-    describe('persist', function() {
-      beforeEach(function() {
+    describe('persist', function () {
+      beforeEach(function () {
         model.persist();
       });
 
-      it('persists the verification info to loca lStorage', function() {
+      it('persists the verification info to loca lStorage', function () {
         assert.isTrue(storage.set.calledWith(model._STORAGE_KEY));
       });
     });
 
-    describe('clear', function() {
-      beforeEach(function() {
+    describe('clear', function () {
+      beforeEach(function () {
         model.persist();
         model.unset('context');
         model.clear();
         model.load();
       });
 
-      it('clears the verification info for the user/context combination from localStorage', function() {
+      it('clears the verification info for the user/context combination from localStorage', function () {
         assert.isTrue(storage.get.calledWith(model._STORAGE_KEY));
         assert.isTrue(storage.set.calledWith(model._STORAGE_KEY));
       });
 
-      it('does not reload erased data', function() {
+      it('does not reload erased data', function () {
         assert.isFalse(model.has('context'));
       });
     });
   });
 
-  describe('persist/load', function() {
+  describe('persist/load', function () {
     let storage;
 
     this.beforeEach(() => {
       storage = new Storage();
     });
 
-    it('signup, stores and loads verification keyed by uid', function() {
+    it('signup, stores and loads verification keyed by uid', function () {
       const persistModel = new SameBrowserVerificationModel(
         {
           context: 'fx_desktop_v3',
@@ -135,7 +135,7 @@ describe('models/verification/same-browser', function() {
       assert.equal(loadModel.get('context'), 'fx_desktop_v3');
     });
 
-    it('password reset, stores and loads verification keyed by email (pre-train-117)', function() {
+    it('password reset, stores and loads verification keyed by email (pre-train-117)', function () {
       const persistModel = new SameBrowserVerificationModel(
         {
           context: 'fx_desktop_v3',
@@ -162,7 +162,7 @@ describe('models/verification/same-browser', function() {
       assert.equal(loadModel.get('context'), 'fx_desktop_v3');
     });
 
-    it('password reset, stores and loads verification keyed by email, both uid and email specified in load (>= train-117)', function() {
+    it('password reset, stores and loads verification keyed by email, both uid and email specified in load (>= train-117)', function () {
       const persistModel = new SameBrowserVerificationModel(
         {
           context: 'fx_desktop_v3',

@@ -10,12 +10,12 @@ const Client = require('../client')();
 
 const config = require('../../config').getProperties();
 
-describe('remote account destroy', function() {
+describe('remote account destroy', function () {
   this.timeout(15000);
   let server;
 
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -30,21 +30,21 @@ describe('remote account destroy', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.sessionStatus();
       })
-      .then(status => {
+      .then((status) => {
         return client.destroyAccount();
       })
       .then(() => {
         return client.keys();
       })
       .then(
-        keys => {
+        (keys) => {
           assert(false, 'account not destroyed');
         },
-        err => {
+        (err) => {
           assert.equal(err.message, 'Unknown account', 'account destroyed');
         }
       );
@@ -59,7 +59,7 @@ describe('remote account destroy', function() {
       password,
       server.mailbox
     )
-      .then(c => {
+      .then((c) => {
         c.authPW = Buffer.from(
           '0000000000000000000000000000000000000000000000000000000000000000',
           'hex'
@@ -70,7 +70,7 @@ describe('remote account destroy', function() {
         () => {
           assert(false);
         },
-        err => {
+        (err) => {
           assert.equal(err.errno, 103);
         }
       );
@@ -87,14 +87,14 @@ describe('remote account destroy', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(res => {
+      .then((res) => {
         client = res;
 
         // Doesn't specify a sessionToken to use
         delete client.sessionToken;
         return client.destroyAccount();
       })
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 138, 'unverified session');
       });
   });
@@ -114,15 +114,15 @@ describe('remote account destroy', function() {
         // Create a new unverified session
         return Client.login(config.publicUrl, email, password);
       })
-      .then(response => {
+      .then((response) => {
         client = response;
         return client.emailStatus();
       })
-      .then(res =>
+      .then((res) =>
         assert.equal(res.sessionVerified, false, 'session not verified')
       )
       .then(() => client.destroyAccount())
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 138, 'unverified session');
       });
   });

@@ -7,12 +7,9 @@
 const crypto = require('crypto');
 const isA = require('@hapi/joi');
 
-const SCHEMA = isA
-  .array()
-  .items(isA.string())
-  .optional();
+const SCHEMA = isA.array().items(isA.string()).optional();
 
-module.exports = config => {
+module.exports = (config) => {
   const lastAccessTimeUpdates = config.lastAccessTimeUpdates || {};
 
   return {
@@ -50,9 +47,7 @@ const HASH_LENGTH = hash('', '').length;
 const MAX_SAFE_HEX = Number.MAX_SAFE_INTEGER.toString(16);
 const MAX_SAFE_HEX_LENGTH = MAX_SAFE_HEX.length - MAX_SAFE_HEX.indexOf('f');
 const COHORT_DIVISOR = parseInt(
-  Array(MAX_SAFE_HEX_LENGTH)
-    .fill('f')
-    .join(''),
+  Array(MAX_SAFE_HEX_LENGTH).fill('f').join(''),
   16
 );
 

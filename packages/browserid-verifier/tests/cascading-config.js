@@ -11,10 +11,10 @@ var Verifier = require('./lib/verifier.js'),
   temp = require('temp'),
   fs = require('fs');
 
-describe('cascading configuration files', function() {
+describe('cascading configuration files', function () {
   var verifier;
 
-  it('create a couple configuration files', function(done) {
+  it('create a couple configuration files', function (done) {
     var aPath = temp.path({ suffix: '.json' }),
       bPath = temp.path({ suffix: '.json' });
 
@@ -25,14 +25,14 @@ describe('cascading configuration files', function() {
 
     async.parallel(
       [
-        function(cb) {
+        function (cb) {
           fs.writeFile(
             aPath,
             JSON.stringify({ fallback: 'a.example.com' }),
             cb
           );
         },
-        function(cb) {
+        function (cb) {
           fs.writeFile(
             bPath,
             JSON.stringify({ fallback: 'b.example.com' }),
@@ -44,24 +44,18 @@ describe('cascading configuration files', function() {
     );
   });
 
-  it('test servers should start', function(done) {
+  it('test servers should start', function (done) {
     verifier.buffer(true);
     verifier.start(done);
   });
 
-  it('test servers should shutdown cleanly', function(done) {
+  it('test servers should shutdown cleanly', function (done) {
     verifier.stop(done);
   });
 
-  it('verifier should have determined proper configuration', function(done) {
-    verifier
-      .buffer()
-      .indexOf('a.example.com')
-      .should.equal(-1);
-    verifier
-      .buffer()
-      .indexOf('b.example.com')
-      .should.not.equal(-1);
+  it('verifier should have determined proper configuration', function (done) {
+    verifier.buffer().indexOf('a.example.com').should.equal(-1);
+    verifier.buffer().indexOf('b.example.com').should.not.equal(-1);
     done();
   });
 });

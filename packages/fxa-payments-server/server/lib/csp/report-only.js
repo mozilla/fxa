@@ -10,7 +10,7 @@
  * If no directives other than `reportUri` are declared, the CSP reportOnly
  * middleware will not be added.
  */
-module.exports = function(config) {
+module.exports = function (config) {
   return {
     directives: {
       reportUri: config.get('csp.reportOnlyUri'),

@@ -29,7 +29,7 @@ class AddSecondaryEmail extends FormView {
     // An account can support multiple emails, however this flow is specific
     // to adding the first secondary email. In these cases navigate to user's
     // settings page.
-    return account.recoveryEmails().then(emails => {
+    return account.recoveryEmails().then((emails) => {
       if (emails && emails.length > 1) {
         return this.navigate('/settings');
       }
@@ -61,7 +61,7 @@ class AddSecondaryEmail extends FormView {
           }
         );
       })
-      .catch(err =>
+      .catch((err) =>
         this.showValidationError(this.$(EMAIL_INPUT_SELECTOR), err)
       );
   }

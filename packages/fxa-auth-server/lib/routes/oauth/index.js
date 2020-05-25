@@ -53,7 +53,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           schema: oauthdb.api.getClientInfo.opts.validate.response,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         return oauthdb.getClientInfo(request.params.client_id);
       },
     },
@@ -75,7 +75,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           schema: oauthdb.api.getScopedKeyData.opts.validate.response,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         checkDisabledClientId(request.payload);
         const sessionToken = request.auth.credentials;
         return oauthdb.getScopedKeyData(sessionToken, request.payload);
@@ -100,9 +100,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
               aud: Joi.string().optional(),
               alg: Joi.string().optional(),
               at_hash: Joi.string().optional(),
-              amr: Joi.array()
-                .items(Joi.string())
-                .optional(),
+              amr: Joi.array().items(Joi.string()).optional(),
               exp: Joi.number().optional(),
               'fxa-aal': Joi.number().optional(),
               iat: Joi.number().optional(),
@@ -111,7 +109,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             }),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         const claims = await JWTIdToken.verify(
           request.payload.id_token,
           request.payload.client_id,
@@ -139,7 +137,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           schema: oauthdb.api.createAuthorizationCode.opts.validate.response,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         checkDisabledClientId(request.payload);
         const geoData = request.app.geo;
         const country = geoData.location && geoData.location.country;
@@ -199,7 +197,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           ),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         const sessionToken = request.auth.credentials;
         let grant;
         switch (request.payload.grant_type) {
@@ -298,14 +296,12 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             ),
             // The spec says we have to ignore invalid token_type_hint values,
             // but no way I'm going to accept an arbitrarily-long string here...
-            token_type_hint: Joi.string()
-              .max(64)
-              .optional(),
+            token_type_hint: Joi.string().max(64).optional(),
           },
         },
         response: {},
       },
-      handler: async function(request) {
+      handler: async function (request) {
         // This endpoint implements the API for token revocation from RFC7009,
         // which says that if we can't find the token using the provided token_type_hint
         // then we MUST search other possible types of token as well. So really

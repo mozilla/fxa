@@ -36,7 +36,7 @@ function MockSNS(options, config) {
     },
 
     publish(params) {
-      const promise = new P(resolve => {
+      const promise = new P((resolve) => {
         // HACK: Enable remote tests to see what was sent
         mailer.sendMail(
           {

@@ -213,7 +213,7 @@ describe('support', () => {
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
-          zendeskReq.custom_fields.map(field => field.value),
+          zendeskReq.custom_fields.map((field) => field.value),
           [
             'FxA - 123done Pro',
             requestOptions.payload.topic,
@@ -262,7 +262,7 @@ describe('support', () => {
         );
         assert.equal(zendeskReq.comment.body, requestOptions.payload.message);
         assert.deepEqual(
-          zendeskReq.custom_fields.map(field => field.value),
+          zendeskReq.custom_fields.map((field) => field.value),
           [
             'FxA - 123done Pro',
             requestOptions.payload.topic,

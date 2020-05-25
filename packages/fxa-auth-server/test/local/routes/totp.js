@@ -44,7 +44,7 @@ describe('totp', () => {
         {},
         '/totp/create',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.ok(response.qrCodeUrl);
         assert.ok(response.secret);
         assert.equal(
@@ -80,7 +80,7 @@ describe('totp', () => {
         {},
         '/totp/create',
         requestOptions
-      ).then(assert.fail, err => {
+      ).then(assert.fail, (err) => {
         assert.deepEqual(err.errno, 138, 'unverified session error');
       });
     });
@@ -94,7 +94,7 @@ describe('totp', () => {
         {},
         '/totp/destroy',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.ok(response);
         assert.equal(
           db.deleteTotpToken.callCount,
@@ -134,7 +134,7 @@ describe('totp', () => {
         {},
         '/totp/destroy',
         requestOptions
-      ).then(assert.fail, err => {
+      ).then(assert.fail, (err) => {
         assert.deepEqual(err.errno, 138, 'unverified session error');
         assert.equal(
           log.notifyAttachedServices.callCount,
@@ -152,7 +152,7 @@ describe('totp', () => {
         {},
         '/totp/exists',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.ok(response);
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
       });
@@ -165,7 +165,7 @@ describe('totp', () => {
         {},
         '/totp/exists',
         requestOptions
-      ).then(assert.fail, err => {
+      ).then(assert.fail, (err) => {
         assert.deepEqual(err.errno, 138, 'unverified session error');
       });
     });
@@ -189,7 +189,7 @@ describe('totp', () => {
         {},
         '/session/verify/totp',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.equal(response.success, true, 'should be valid code');
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
         assert.equal(db.updateTotpToken.callCount, 1, 'update TOTP token');
@@ -269,7 +269,7 @@ describe('totp', () => {
         {},
         '/session/verify/totp',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.equal(response.success, true, 'should be valid code');
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
         assert.equal(
@@ -336,7 +336,7 @@ describe('totp', () => {
         {},
         '/session/verify/totp',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.equal(response.success, true, 'should be valid code');
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
         assert.equal(
@@ -394,7 +394,7 @@ describe('totp', () => {
         {},
         '/session/verify/totp',
         requestOptions
-      ).then(response => {
+      ).then((response) => {
         assert.equal(response.success, false, 'should be valid code');
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
 

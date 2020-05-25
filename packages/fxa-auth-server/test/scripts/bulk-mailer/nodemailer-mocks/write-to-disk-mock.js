@@ -27,7 +27,7 @@ describe('stdout-mock', () => {
     rimraf.sync(OUTPUT_DIR);
   });
 
-  it('writes to the output directory', done => {
+  it('writes to the output directory', (done) => {
     writeToDiskMock.sendMail(
       {
         cc: [],

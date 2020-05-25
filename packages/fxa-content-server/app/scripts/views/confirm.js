@@ -99,7 +99,7 @@ const View = BaseView.extend({
       .retrySignUp(this.relier, {
         resume: this.getStringifiedResumeToken(account),
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INVALID_TOKEN')) {
           return this.navigate('signup', {
             error: err,

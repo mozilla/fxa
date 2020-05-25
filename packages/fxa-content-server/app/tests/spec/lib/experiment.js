@@ -143,13 +143,13 @@ describe('lib/experiment', () => {
     beforeEach(() => {
       sinon.spy(expInt, 'createExperiment');
       expInt._startupExperiments = {
-        experiment1: function() {
+        experiment1: function () {
           return mockExperiment;
         },
-        experiment2: function() {
+        experiment2: function () {
           return mockExperiment;
         },
-        experiment3: function() {
+        experiment3: function () {
           return mockExperiment;
         },
       };
@@ -174,7 +174,7 @@ describe('lib/experiment', () => {
 
     describe('user is part of at least one experiment', () => {
       it('creates the experiment', () => {
-        sinon.stub(expInt, 'getExperimentGroup').callsFake(choiceName => {
+        sinon.stub(expInt, 'getExperimentGroup').callsFake((choiceName) => {
           if (choiceName === 'experiment1') {
             return 'treatment';
           } else if (choiceName === 'experiment3') {

@@ -250,7 +250,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.get('wibble').catch(e => (error = e));
+        return redis.get('wibble').catch((e) => (error = e));
       });
 
       it('called dispose', () => {
@@ -266,7 +266,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.set('wibble', 'blee').catch(e => (error = e));
+        return redis.set('wibble', 'blee').catch((e) => (error = e));
       });
 
       it('called dispose', () => {
@@ -282,7 +282,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.del('wibble').catch(e => (error = e));
+        return redis.del('wibble').catch((e) => (error = e));
       });
 
       it('called dispose', () => {
@@ -298,7 +298,7 @@ describe('redis enabled:', () => {
       let error;
 
       beforeEach(() => {
-        return redis.update('wibble', 'blee').catch(e => (error = e));
+        return redis.update('wibble', 'blee').catch((e) => (error = e));
       });
 
       it('called dispose', () => {

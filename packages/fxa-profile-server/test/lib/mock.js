@@ -57,7 +57,7 @@ module.exports = async function mock(options) {
         return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
       })
       .post('/a/' + MOCK_ID)
-      .reply(200, function(uri, body) {
+      .reply(200, function (uri, body) {
         return inject(WORKER, {
           method: 'POST',
           url: path,
@@ -69,7 +69,7 @@ module.exports = async function mock(options) {
 
   function uploadAws() {
     var bucket = config.get('img.uploads.dest.public');
-    Object.keys(SIZES).forEach(function() {
+    Object.keys(SIZES).forEach(function () {
       var u = '/' + bucket + '/XXX';
       var id;
       nock('https://s3.amazonaws.com')
@@ -78,10 +78,10 @@ module.exports = async function mock(options) {
           return _path.replace(id, 'XXX');
         })
         .put(u)
-        .reply(200, function(uri, body) {
+        .reply(200, function (uri, body) {
           var s = through();
-          s.setEncoding = function() {};
-          local.upload(id, body).done(function() {
+          s.setEncoding = function () {};
+          local.upload(id, body).done(function () {
             s.end();
           });
           return s;
@@ -92,15 +92,15 @@ module.exports = async function mock(options) {
   function deleteAws() {
     var bucket = config.get('img.uploads.dest.public');
     var u = '/' + bucket + '?delete';
-    Object.keys(SIZES).forEach(function() {
+    Object.keys(SIZES).forEach(function () {
       nock('https://s3.amazonaws.com')
         .post(u)
-        .reply(200, function(uri, body) {
+        .reply(200, function (uri, body) {
           // eslint-disable-next-line no-useless-escape
           var id = body.match(/<Key>([0-9a-z-A-Z_\-]+)<\/Key>/)[1];
           var s = through();
-          s.setEncoding = function() {};
-          local.delete(id).done(function() {
+          s.setEncoding = function () {};
+          local.delete(id).done(function () {
             s.end();
           });
           return s;
@@ -110,7 +110,7 @@ module.exports = async function mock(options) {
 
   return {
     done: function done() {
-      outstandingMocks.forEach(function(mock) {
+      outstandingMocks.forEach(function (mock) {
         mock.done();
       });
       outstandingMocks = [];
@@ -217,7 +217,7 @@ module.exports = async function mock(options) {
           return _path.replace(/\/a\/[0-9a-f]{32}/g, '/a/' + MOCK_ID);
         })
         .delete('/a/' + MOCK_ID)
-        .reply(200, function() {
+        .reply(200, function () {
           return inject(WORKER, {
             method: 'DELETE',
             url: path,
@@ -235,7 +235,7 @@ module.exports = async function mock(options) {
       log.setLevel('verbose');
       var isDone = false;
       var filter = {
-        filter: function(record) {
+        filter: function (record) {
           if (cb(record)) {
             isDone = true;
             log.removeFilter(filter);

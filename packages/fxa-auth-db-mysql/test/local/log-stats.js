@@ -15,7 +15,7 @@ const log = Object.assign({}, require('../lib/log'));
 
 // monkeypatch log.info to hook into db/mysql.js:statInterval
 const dfd = P.defer();
-log.info = function(msg, stats) {
+log.info = function (msg, stats) {
   if (msg !== 'stats') {
     return;
   }
@@ -27,13 +27,13 @@ const DB = require('../../lib/db/mysql')(log, dbServer.errors);
 describe('DB statInterval', () => {
   let db;
   before(() => {
-    return DB.connect(config).then(db_ => {
+    return DB.connect(config).then((db_) => {
       db = db_;
     });
   });
 
   it('should log stats periodically', () => {
-    return dfd.promise.then(stats => {
+    return dfd.promise.then((stats) => {
       assert.isObject(stats);
       assert.equal(stats.stat, 'mysql');
       assert.equal(stats.errors, 0);

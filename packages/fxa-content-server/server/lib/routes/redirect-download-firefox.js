@@ -48,7 +48,7 @@ const QUERY_PARAM_SCHEMA = {
   utm_term: UTM_TYPE.optional(),
 };
 
-module.exports = function(config) {
+module.exports = function (config) {
   const DOWNLOAD_FIREFOX_FLOW_EVENT_NAME = 'flow.update-firefox.engage';
 
   return {
@@ -59,7 +59,7 @@ module.exports = function(config) {
       // ensure the query params are all well formed
       query: QUERY_PARAM_SCHEMA,
     },
-    process: function(req, res) {
+    process: function (req, res) {
       const metricsData = req.query;
 
       const flowBeginTime = parseInt(metricsData.flowBeginTime);

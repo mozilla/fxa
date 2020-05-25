@@ -4,6 +4,6 @@
 
 // Code coverage analysis test!
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask('coverage', ['blanket_mocha']);
 };

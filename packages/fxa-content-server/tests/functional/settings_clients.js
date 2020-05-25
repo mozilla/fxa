@@ -39,19 +39,19 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('settings clients', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     client = FunctionalHelpers.getFxaClient();
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-      .then(function(result) {
+      .then(function (result) {
         accountData = result;
       })
       .then(clearBrowserState());
   },
 
   tests: {
-    'sessions are listed in clients view': function() {
+    'sessions are listed in clients view': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -103,7 +103,7 @@ registerSuite('settings clients', {
       );
     },
 
-    'device and apps panel works with query param, same device': function() {
+    'device and apps panel works with query param, same device': function () {
       this.timeout = 90 * 1000;
       var testDeviceId;
 
@@ -116,7 +116,7 @@ registerSuite('settings clients', {
           .then(click(selectors.SETTINGS_CLIENTS.MENU_BUTTON))
 
           // add a device from the test runner
-          .then(function() {
+          .then(function () {
             return client.deviceRegister(
               accountData.sessionToken,
               TEST_DEVICE_NAME,
@@ -124,7 +124,7 @@ registerSuite('settings clients', {
             );
           })
 
-          .then(function(device) {
+          .then(function (device) {
             testDeviceId = device.id;
           })
 
@@ -145,7 +145,7 @@ registerSuite('settings clients', {
 
           // add a device using a session token from the browser
           .execute(
-            function(uid) {
+            function (uid) {
               var accounts = JSON.parse(
                 localStorage.getItem('__fxa_storage.accounts')
               );
@@ -154,7 +154,7 @@ registerSuite('settings clients', {
             },
             [accountData.uid]
           )
-          .then(function(browserAccount) {
+          .then(function (browserAccount) {
             return client.deviceRegister(
               browserAccount.sessionToken,
               BROWSER_DEVICE_NAME,
@@ -177,7 +177,7 @@ registerSuite('settings clients', {
           )
 
           // update external device from the test runner
-          .then(function() {
+          .then(function () {
             return client.deviceUpdate(
               accountData.sessionToken,
               testDeviceId,
@@ -200,7 +200,7 @@ registerSuite('settings clients', {
           // external text change is hard to track, use pollUntil
           .then(
             pollUntil(
-              function(newName) {
+              function (newName) {
                 var deviceName = document
                   .querySelectorAll(
                     '.client-device:nth-child(2) .client-name'

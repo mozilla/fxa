@@ -33,7 +33,7 @@ module.exports = {
         BROWSER: 'NONE',
         PORT: '3032',
         PATH: process.env.PATH.split(':')
-          .filter(p => !p.includes(process.env.TMPDIR))
+          .filter((p) => !p.includes(process.env.TMPDIR))
           .join(':'),
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],

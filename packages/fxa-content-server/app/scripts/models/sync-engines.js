@@ -13,7 +13,7 @@ import Cocktail from 'cocktail';
 import UrlMixin from '../lib/url-mixin';
 import UserAgentMixin from '../lib/user-agent-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 /**
  * Fields available in each engine:
@@ -75,7 +75,7 @@ class SyncEngines extends Backbone.Collection {
     this.window = options.window;
 
     const engines = options.engines || this.getSupportedEngineIds();
-    engines.forEach(engineId => this.addById(engineId));
+    engines.forEach((engineId) => this.addById(engineId));
   }
 
   /**
@@ -86,9 +86,9 @@ class SyncEngines extends Backbone.Collection {
   getSupportedEngineIds() {
     const userAgent = this.getUserAgent();
     const availableEngineIds = AVAILABLE_ENGINES.map(
-      syncEngine => syncEngine.id
+      (syncEngine) => syncEngine.id
     );
-    return _.filter(availableEngineIds, engineId =>
+    return _.filter(availableEngineIds, (engineId) =>
       this.isEngineSupportedByUA(engineId, userAgent)
     );
   }
@@ -126,7 +126,10 @@ class SyncEngines extends Backbone.Collection {
    * @returns {Object}
    */
   static getEngineConfig(engineId) {
-    return _.find(AVAILABLE_ENGINES, syncEngine => syncEngine.id === engineId);
+    return _.find(
+      AVAILABLE_ENGINES,
+      (syncEngine) => syncEngine.id === engineId
+    );
   }
 }
 

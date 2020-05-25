@@ -23,16 +23,15 @@
   --key-color: #20123a;
   --block-size: 16px;
   --highlight: #9059ff;
-  --wild-gradient:
-    repeating-linear-gradient(
-      -135deg,
-      #9059ff,
-      #d74cf0,
-      #ffd567,
-      #ffd567,
-      #d74cf0,
-      #9059ff
-    );
+  --wild-gradient: repeating-linear-gradient(
+    -135deg,
+    #9059ff,
+    #d74cf0,
+    #ffd567,
+    #ffd567,
+    #d74cf0,
+    #9059ff
+  );
 }
 
 *,

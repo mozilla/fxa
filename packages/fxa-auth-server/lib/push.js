@@ -51,7 +51,7 @@ const pushReasonsToEvents = (() => {
   ];
   const events = {};
   for (const reason of reasons) {
-    const id = reason.replace(/[A-Z]/, c => `_${c.toLowerCase()}`); // snake-cased.
+    const id = reason.replace(/[A-Z]/, (c) => `_${c.toLowerCase()}`); // snake-cased.
     events[reason] = {
       send: `push.${id}.send`,
       success: `push.${id}.success`,
@@ -71,7 +71,7 @@ const pushReasonsToEvents = (() => {
  * @typedef {Object} Device
  */
 
-module.exports = function(log, db, config) {
+module.exports = function (log, db, config) {
   let vapid;
   if (config.vapidKeysFile) {
     const vapidKeys = require(config.vapidKeysFile);
@@ -138,12 +138,12 @@ module.exports = function(log, db, config) {
         break;
       case 'fxaccounts:device_connected':
       case 'fxaccounts:device_disconnected':
-        canSendToIOSVersion = deviceVersion => deviceVersion >= 10.0;
+        canSendToIOSVersion = (deviceVersion) => deviceVersion >= 10.0;
         break;
       default:
         canSendToIOSVersion = () => false;
     }
-    return devices.filter(device => {
+    return devices.filter((device) => {
       const deviceOS = device.uaOS && device.uaOS.toLowerCase();
       if (deviceOS === 'ios') {
         const deviceVersion = device.uaBrowserVersion

@@ -22,19 +22,19 @@ const ENTER_EMAIL_URL = config.fxaContentRoot;
 const PASSWORD = 'password12345678';
 
 registerSuite('email_service', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'email_service works': function() {
+    'email_service works': function () {
       const email = createEmail('emailservice.{id}');
 
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignUp(email, PASSWORD))
         .then(getEmailHeaders(email, 0))
-        .then(headers => {
+        .then((headers) => {
           assert.equal(
             headers['x-email-service'],
             'fxa-email-service',

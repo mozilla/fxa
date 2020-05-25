@@ -9,7 +9,7 @@
 const helmet = require('helmet');
 const htmlOnly = require('./html-middleware');
 
-module.exports = function(config) {
+module.exports = function (config) {
   const cspMiddleware = helmet.contentSecurityPolicy(config.rules);
 
   return htmlOnly((req, res, next) => {

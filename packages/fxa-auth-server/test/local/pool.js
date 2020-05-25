@@ -19,7 +19,7 @@ describe('Pool', () => {
     SafeUrl = require(`${ROOT_DIR}/lib/safe-url`)(log);
     poolee = sinon.createStubInstance(require('poolee'));
     Pool = proxyquire(`${ROOT_DIR}/lib/pool`, {
-      poolee: function() {
+      poolee: function () {
         return poolee;
       },
     });
@@ -104,22 +104,18 @@ describe('Pool', () => {
 
   it('pool.request with string path', () => {
     const pool = new Pool('http://example.com/');
-    pool
-      .request(null, '/foo')
-      .then(
-        () => assert(false, 'request should have failed'),
-        err => assert(err instanceof Error)
-      );
+    pool.request(null, '/foo').then(
+      () => assert(false, 'request should have failed'),
+      (err) => assert(err instanceof Error)
+    );
   });
 
   it('pool.request with missing param', () => {
     const pool = new Pool('http://example.com/');
-    pool
-      .request(null, new SafeUrl('/:foo'), {})
-      .then(
-        () => assert(false, 'request should have failed'),
-        err => assert(err instanceof Error)
-      );
+    pool.request(null, new SafeUrl('/:foo'), {}).then(
+      () => assert(false, 'request should have failed'),
+      (err) => assert(err instanceof Error)
+    );
   });
 
   it('pool.request callback with error', () => {
@@ -128,7 +124,7 @@ describe('Pool', () => {
       () => {
         assert(false, 'request should have failed');
       },
-      error => {
+      (error) => {
         assert.equal(typeof error, 'string', 'error is string');
         assert.equal(error, 'foo', 'error is correct');
       }
@@ -146,7 +142,7 @@ describe('Pool', () => {
       () => {
         assert(false, 'request should have failed');
       },
-      error => {
+      (error) => {
         assert.ok(error instanceof Error, 'error is Error instance');
         assert.equal(error.statusCode, 404, 'error.statusCode is 404');
         assert.equal(error.message, 'wibble', 'error.message is correct');
@@ -165,7 +161,7 @@ describe('Pool', () => {
       () => {
         assert(false, 'request should have failed');
       },
-      error => {
+      (error) => {
         assert.equal(
           error instanceof Error,
           true,
@@ -185,7 +181,7 @@ describe('Pool', () => {
 
   it('pool.request callback with HTTP success response and empty body', () => {
     const pool = new Pool('http://example.com/');
-    const p = pool.request(null, new SafeUrl('')).then(result => {
+    const p = pool.request(null, new SafeUrl('')).then((result) => {
       assert.equal(result, undefined, 'result is undefined');
     });
 
@@ -197,7 +193,7 @@ describe('Pool', () => {
 
   it('pool.request callback with HTTP success response and valid JSON body', () => {
     const pool = new Pool('http://example.com/');
-    const p = pool.request(null, new SafeUrl('')).then(result => {
+    const p = pool.request(null, new SafeUrl('')).then((result) => {
       assert.equal(typeof result, 'object', 'result is object');
       assert.equal(Object.keys(result).length, 1, 'result has 1 property');
       assert.equal(result.foo, 'bar', 'result data is correct');
@@ -215,7 +211,7 @@ describe('Pool', () => {
       () => {
         assert(false, 'request should have failed');
       },
-      error => {
+      (error) => {
         assert.ok(error instanceof Error, 'error is Error instance');
         assert.equal(
           error.statusCode,

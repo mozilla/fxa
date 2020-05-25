@@ -22,7 +22,7 @@ import { PaymentForm, PaymentFormProps, PaymentFormStripeProps } from './index';
 import { getLocalizedCurrency } from '../../lib/formats';
 
 const findMockPlan = (planId: string): Plan => {
-  const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+  const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
   if (plan) {
     return plan;
   }

@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = config => {
+module.exports = (config) => {
   const EventEmitter = require('events').EventEmitter;
   const util = require('util');
 
@@ -12,7 +12,7 @@ module.exports = config => {
   const P = require('../../lib/promise');
   const request = require('request');
 
-  const tokens = require('../../lib/tokens')({ trace: function() {} }, config);
+  const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
 
   util.inherits(ClientApi, EventEmitter);
   function ClientApi(origin) {
@@ -38,7 +38,7 @@ module.exports = config => {
     return hawk.client.header(url, method, verify).header;
   }
 
-  ClientApi.prototype.doRequest = function(
+  ClientApi.prototype.doRequest = function (
     method,
     url,
     token,
@@ -99,7 +99,7 @@ module.exports = config => {
     return d.promise;
   };
 
-  ClientApi.prototype.doRequestWithBearerToken = function(
+  ClientApi.prototype.doRequestWithBearerToken = function (
     method,
     url,
     token,
@@ -112,7 +112,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.doRequestWithSecret = function(
+  ClientApi.prototype.doRequestWithSecret = function (
     method,
     url,
     secret,
@@ -144,7 +144,7 @@ module.exports = config => {
    *   {}
    *
    */
-  ClientApi.prototype.accountCreate = function(email, authPW, options = {}) {
+  ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
     const url = `${this.baseURL}/account/create${getQueryString(options)}`;
     return this.doRequest(
       'POST',
@@ -168,7 +168,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountLogin = function(email, authPW, options) {
+  ClientApi.prototype.accountLogin = function (email, authPW, options) {
     if (!options) {
       options = { keys: true };
     }
@@ -194,19 +194,19 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountKeys = function(keyFetchTokenHex) {
-    return tokens.KeyFetchToken.fromHex(keyFetchTokenHex).then(token => {
+  ClientApi.prototype.accountKeys = function (keyFetchTokenHex) {
+    return tokens.KeyFetchToken.fromHex(keyFetchTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/account/keys`, token);
     });
   };
 
-  ClientApi.prototype.accountDevices = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.accountDevices = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/account/devices`, token);
     });
   };
 
-  ClientApi.prototype.accountDevicesWithRefreshToken = function(
+  ClientApi.prototype.accountDevicesWithRefreshToken = function (
     refreshTokenHex
   ) {
     return this.doRequestWithBearerToken(
@@ -216,8 +216,8 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountDevice = function(sessionTokenHex, info) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.accountDevice = function (sessionTokenHex, info) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/account/device`,
@@ -227,7 +227,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.accountDeviceWithRefreshToken = function(
+  ClientApi.prototype.accountDeviceWithRefreshToken = function (
     refreshTokenHex,
     info
   ) {
@@ -239,8 +239,8 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.deviceDestroy = function(sessionTokenHex, id) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.deviceDestroy = function (sessionTokenHex, id) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/account/device/destroy`,
@@ -252,7 +252,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.deviceDestroyWithRefreshToken = function(
+  ClientApi.prototype.deviceDestroyWithRefreshToken = function (
     refreshTokenHex,
     id
   ) {
@@ -266,7 +266,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.deviceCommandsWithRefreshToken = function(
+  ClientApi.prototype.deviceCommandsWithRefreshToken = function (
     refreshTokenHex,
     index,
     limit
@@ -283,7 +283,7 @@ module.exports = config => {
     return this.doRequestWithBearerToken('GET', url, refreshTokenHex);
   };
 
-  ClientApi.prototype.devicesInvokeCommandWithRefreshToken = function(
+  ClientApi.prototype.devicesInvokeCommandWithRefreshToken = function (
     refreshTokenHex,
     target,
     command,
@@ -303,7 +303,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountDevicesNotifyWithRefreshToken = function(
+  ClientApi.prototype.accountDevicesNotifyWithRefreshToken = function (
     refreshTokenHex,
     notifyDeviceId
   ) {
@@ -317,7 +317,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountStatusByEmail = function(email) {
+  ClientApi.prototype.accountStatusByEmail = function (email) {
     if (email) {
       return this.doRequest('POST', `${this.baseURL}/account/status`, null, {
         email: email,
@@ -327,9 +327,9 @@ module.exports = config => {
     }
   };
 
-  ClientApi.prototype.accountStatus = function(uid, sessionTokenHex) {
+  ClientApi.prototype.accountStatus = function (uid, sessionTokenHex) {
     if (sessionTokenHex) {
-      return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+      return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
         return this.doRequest('GET', `${this.baseURL}/account/status`, token);
       });
     } else if (uid) {
@@ -340,7 +340,7 @@ module.exports = config => {
     }
   };
 
-  ClientApi.prototype.accountReset = function(
+  ClientApi.prototype.accountReset = function (
     accountResetTokenHex,
     authPW,
     headers,
@@ -354,7 +354,7 @@ module.exports = config => {
     }
 
     return tokens.AccountResetToken.fromHex(accountResetTokenHex).then(
-      token => {
+      (token) => {
         return this.doRequest(
           'POST',
           `${this.baseURL}/account/reset${qs}`,
@@ -369,7 +369,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountResetWithRecoveryKey = function(
+  ClientApi.prototype.accountResetWithRecoveryKey = function (
     accountResetTokenHex,
     authPW,
     wrapKb,
@@ -380,7 +380,7 @@ module.exports = config => {
     const qs = getQueryString(options);
 
     return tokens.AccountResetToken.fromHex(accountResetTokenHex).then(
-      token => {
+      (token) => {
         return this.doRequest(
           'POST',
           `${this.baseURL}/account/reset${qs}`,
@@ -397,19 +397,19 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountDestroy = function(email, authPW) {
+  ClientApi.prototype.accountDestroy = function (email, authPW) {
     return this.doRequest('POST', `${this.baseURL}/account/destroy`, null, {
       email: email,
       authPW: authPW.toString('hex'),
     });
   };
 
-  ClientApi.prototype.accountDestroyWithSessionToken = function(
+  ClientApi.prototype.accountDestroyWithSessionToken = function (
     email,
     authPW,
     sessionTokenHex
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('POST', `${this.baseURL}/account/destroy`, token, {
         email,
         authPW: authPW.toString('hex'),
@@ -417,8 +417,8 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.recoveryEmailStatus = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.recoveryEmailStatus = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'GET',
         `${this.baseURL}/recovery_email/status`,
@@ -427,11 +427,11 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.recoveryEmailResendCode = function(
+  ClientApi.prototype.recoveryEmailResendCode = function (
     sessionTokenHex,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/recovery_email/resend_code`,
@@ -447,7 +447,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.recoveryEmailVerifyCode = function(
+  ClientApi.prototype.recoveryEmailVerifyCode = function (
     uid,
     code,
     options = {}
@@ -471,7 +471,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.recoveryEmailSecondaryVerifyCode = async function(
+  ClientApi.prototype.recoveryEmailSecondaryVerifyCode = async function (
     sessionTokenHex,
     code,
     email
@@ -489,7 +489,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.recoveryEmailSecondaryResendCode = async function(
+  ClientApi.prototype.recoveryEmailSecondaryResendCode = async function (
     sessionTokenHex,
     email
   ) {
@@ -505,7 +505,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountCreateWithShortCode = async function(
+  ClientApi.prototype.accountCreateWithShortCode = async function (
     sessionTokenHex,
     code,
     options = {}
@@ -523,7 +523,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.resendAccountCreateWithShortCode = async function(
+  ClientApi.prototype.resendAccountCreateWithShortCode = async function (
     sessionTokenHex
   ) {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
@@ -535,14 +535,14 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.certificateSign = function(
+  ClientApi.prototype.certificateSign = function (
     sessionTokenHex,
     publicKey,
     duration,
     locale,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       let url = `${this.baseURL}/certificate/sign`;
       if (options.service) {
         url += `?service=${options.service}`;
@@ -562,11 +562,11 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.getRandomBytes = function() {
+  ClientApi.prototype.getRandomBytes = function () {
     return this.doRequest('POST', `${this.baseURL}/get_random_bytes`);
   };
 
-  ClientApi.prototype.passwordChangeStart = function(
+  ClientApi.prototype.passwordChangeStart = function (
     email,
     oldAuthPW,
     headers
@@ -583,7 +583,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.passwordChangeFinish = function(
+  ClientApi.prototype.passwordChangeFinish = function (
     passwordChangeTokenHex,
     authPW,
     wrapKb,
@@ -592,7 +592,7 @@ module.exports = config => {
   ) {
     const options = {};
     return tokens.PasswordChangeToken.fromHex(passwordChangeTokenHex).then(
-      token => {
+      (token) => {
         const requestData = {
           authPW: authPW.toString('hex'),
           wrapKb: wrapKb.toString('hex'),
@@ -615,7 +615,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.passwordForgotSendCode = function(
+  ClientApi.prototype.passwordForgotSendCode = function (
     email,
     options = {},
     lang
@@ -641,13 +641,13 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.passwordForgotResendCode = function(
+  ClientApi.prototype.passwordForgotResendCode = function (
     passwordForgotTokenHex,
     email,
     options = {}
   ) {
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex).then(
-      token => {
+      (token) => {
         return this.doRequest(
           'POST',
           `${this.baseURL}/password/forgot/resend_code${getQueryString(
@@ -665,7 +665,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.passwordForgotVerifyCode = function(
+  ClientApi.prototype.passwordForgotVerifyCode = function (
     passwordForgotTokenHex,
     code,
     headers,
@@ -676,7 +676,7 @@ module.exports = config => {
     }
 
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex).then(
-      token => {
+      (token) => {
         return this.doRequest(
           'POST',
           `${this.baseURL}/password/forgot/verify_code`,
@@ -692,9 +692,9 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.passwordForgotStatus = function(passwordForgotTokenHex) {
+  ClientApi.prototype.passwordForgotStatus = function (passwordForgotTokenHex) {
     return tokens.PasswordForgotToken.fromHex(passwordForgotTokenHex).then(
-      token => {
+      (token) => {
         return this.doRequest(
           'GET',
           `${this.baseURL}/password/forgot/status`,
@@ -704,14 +704,14 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountLock = function(email, authPW) {
+  ClientApi.prototype.accountLock = function (email, authPW) {
     return this.doRequest('POST', `${this.baseURL}/account/lock`, null, {
       email: email,
       authPW: authPW.toString('hex'),
     });
   };
 
-  ClientApi.prototype.accountUnlockResendCode = function(
+  ClientApi.prototype.accountUnlockResendCode = function (
     email,
     options = {},
     lang
@@ -736,7 +736,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountUnlockVerifyCode = function(uid, code) {
+  ClientApi.prototype.accountUnlockVerifyCode = function (uid, code) {
     return this.doRequest(
       'POST',
       `${this.baseURL}/account/unlock/verify_code`,
@@ -748,11 +748,11 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.attachedClientDestroy = function(
+  ClientApi.prototype.attachedClientDestroy = function (
     sessionTokenHex,
     clientData
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/account/attached_client/destroy`,
@@ -762,7 +762,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.sessionDestroy = function(sessionTokenHex, options) {
+  ClientApi.prototype.sessionDestroy = function (sessionTokenHex, options) {
     let data = null;
 
     if (options && options.customSessionToken) {
@@ -771,7 +771,7 @@ module.exports = config => {
       };
     }
 
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/session/destroy`,
@@ -781,13 +781,13 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.sessionReauth = function(
+  ClientApi.prototype.sessionReauth = function (
     sessionTokenHex,
     email,
     authPW,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/session/reauth${getQueryString(options)}`,
@@ -804,8 +804,8 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.sessionDuplicate = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.sessionDuplicate = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/session/duplicate`,
@@ -815,14 +815,14 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.sessions = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.sessions = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/account/sessions`, token);
     });
   };
 
-  ClientApi.prototype.attachedClients = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.attachedClients = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'GET',
         `${this.baseURL}/account/attached_clients`,
@@ -831,29 +831,29 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.sessionStatus = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.sessionStatus = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/session/status`, token);
     });
   };
 
-  ClientApi.prototype.securityEvents = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.securityEvents = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/securityEvents`, token);
     });
   };
 
-  ClientApi.prototype.deleteSecurityEvents = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.deleteSecurityEvents = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('DELETE', `${this.baseURL}/securityEvents`, token);
     });
   };
 
-  ClientApi.prototype.accountProfile = function(sessionTokenHex, headers) {
+  ClientApi.prototype.accountProfile = function (sessionTokenHex, headers) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
       : P.resolve(null);
-    return o.then(token => {
+    return o.then((token) => {
       return this.doRequest(
         'GET',
         `${this.baseURL}/account/profile`,
@@ -864,18 +864,18 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.account = async function(sessionTokenHex) {
+  ClientApi.prototype.account = async function (sessionTokenHex) {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return this.doRequest('GET', `${this.baseURL}/account`, token);
   };
 
-  ClientApi.prototype.smsSend = function(
+  ClientApi.prototype.smsSend = function (
     sessionTokenHex,
     phoneNumber,
     messageId,
     features
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token =>
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) =>
       this.doRequest('POST', `${this.baseURL}/sms`, token, {
         phoneNumber,
         messageId,
@@ -884,12 +884,12 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.smsStatus = function(
+  ClientApi.prototype.smsStatus = function (
     sessionTokenHex,
     country,
     clientIpAddress
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token =>
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) =>
       this.doRequest(
         'GET',
         `${this.baseURL}/sms/status${country ? `?country=${country}` : ''}`,
@@ -900,16 +900,16 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.accountEmails = function(sessionTokenHex) {
+  ClientApi.prototype.accountEmails = function (sessionTokenHex) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
       : P.resolve(null);
-    return o.then(token => {
+    return o.then((token) => {
       return this.doRequest('GET', `${this.baseURL}/recovery_emails`, token);
     });
   };
 
-  ClientApi.prototype.createEmail = function(
+  ClientApi.prototype.createEmail = function (
     sessionTokenHex,
     email,
     options = {}
@@ -917,7 +917,7 @@ module.exports = config => {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
       : P.resolve(null);
-    return o.then(token => {
+    return o.then((token) => {
       return this.doRequest('POST', `${this.baseURL}/recovery_email`, token, {
         email: email,
         verificationMethod: options.verificationMethod,
@@ -925,11 +925,11 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.deleteEmail = function(sessionTokenHex, email) {
+  ClientApi.prototype.deleteEmail = function (sessionTokenHex, email) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
       : P.resolve(null);
-    return o.then(token => {
+    return o.then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/recovery_email/destroy`,
@@ -941,11 +941,11 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.setPrimaryEmail = function(sessionTokenHex, email) {
+  ClientApi.prototype.setPrimaryEmail = function (sessionTokenHex, email) {
     const o = sessionTokenHex
       ? tokens.SessionToken.fromHex(sessionTokenHex)
       : P.resolve(null);
-    return o.then(token => {
+    return o.then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/recovery_email/set_primary`,
@@ -957,7 +957,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.sendUnblockCode = function(email) {
+  ClientApi.prototype.sendUnblockCode = function (email) {
     return this.doRequest(
       'POST',
       `${this.baseURL}/account/login/send_unblock_code`,
@@ -968,49 +968,49 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.consumeSigninCode = function(code, metricsContext) {
+  ClientApi.prototype.consumeSigninCode = function (code, metricsContext) {
     return this.doRequest('POST', `${this.baseURL}/signinCodes/consume`, null, {
       code,
       metricsContext,
     });
   };
 
-  ClientApi.prototype.createSigninCode = async function(sessionTokenHex) {
+  ClientApi.prototype.createSigninCode = async function (sessionTokenHex) {
     const token = await tokens.SessionToken.fromHex(sessionTokenHex);
     return this.doRequest('POST', `${this.baseURL}/signinCodes`, token, {});
   };
 
-  ClientApi.prototype.createTotpToken = function(
+  ClientApi.prototype.createTotpToken = function (
     sessionTokenHex,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('POST', `${this.baseURL}/totp/create`, token, {
         metricsContext: options.metricsContext,
       });
     });
   };
 
-  ClientApi.prototype.deleteTotpToken = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.deleteTotpToken = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('POST', `${this.baseURL}/totp/destroy`, token, {});
     });
   };
 
-  ClientApi.prototype.checkTotpTokenExists = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.checkTotpTokenExists = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/totp/exists`, token).bind(
         this
       );
     });
   };
 
-  ClientApi.prototype.verifyTotpCode = function(
+  ClientApi.prototype.verifyTotpCode = function (
     sessionTokenHex,
     code,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/session/verify/totp`,
@@ -1023,18 +1023,18 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.replaceRecoveryCodes = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.replaceRecoveryCodes = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('GET', `${this.baseURL}/recoveryCodes`, token);
     });
   };
 
-  ClientApi.prototype.consumeRecoveryCode = function(
+  ClientApi.prototype.consumeRecoveryCode = function (
     sessionTokenHex,
     code,
     options = {}
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/session/verify/recoveryCode`,
@@ -1046,13 +1046,13 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.createRecoveryKey = function(
+  ClientApi.prototype.createRecoveryKey = function (
     sessionTokenHex,
     recoveryKeyId,
     recoveryData,
     enabled = true
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('POST', `${this.baseURL}/recoveryKey`, token, {
         recoveryKeyId,
         recoveryData,
@@ -1061,12 +1061,12 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.getRecoveryKey = function(
+  ClientApi.prototype.getRecoveryKey = function (
     accountResetTokenHex,
     recoveryKeyId
   ) {
     return tokens.AccountResetToken.fromHex(accountResetTokenHex).then(
-      token => {
+      (token) => {
         return this.doRequest(
           'GET',
           `${this.baseURL}/recoveryKey/${recoveryKeyId}`,
@@ -1076,10 +1076,10 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.getRecoveryKeyExistsWithSession = function(
+  ClientApi.prototype.getRecoveryKeyExistsWithSession = function (
     sessionTokenHex
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/recoveryKey/exists`,
@@ -1089,7 +1089,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.getRecoveryKeyExistsWithEmail = function(email) {
+  ClientApi.prototype.getRecoveryKeyExistsWithEmail = function (email) {
     return this.doRequest(
       'POST',
       `${this.baseURL}/recoveryKey/exists`,
@@ -1098,17 +1098,17 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.deleteRecoveryKey = function(sessionTokenHex) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+  ClientApi.prototype.deleteRecoveryKey = function (sessionTokenHex) {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest('DELETE', `${this.baseURL}/recoveryKey`, token);
     });
   };
 
-  ClientApi.prototype.createAuthorizationCode = function(
+  ClientApi.prototype.createAuthorizationCode = function (
     sessionTokenHex,
     oauthParams
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/oauth/authorization`,
@@ -1118,11 +1118,11 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.grantOAuthTokensFromSessionToken = function(
+  ClientApi.prototype.grantOAuthTokensFromSessionToken = function (
     sessionTokenHex,
     oauthParams
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/oauth/token`,
@@ -1132,7 +1132,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.grantOAuthTokens = function(oauthParams) {
+  ClientApi.prototype.grantOAuthTokens = function (oauthParams) {
     return this.doRequest(
       'POST',
       `${this.baseURL}/oauth/token`,
@@ -1141,7 +1141,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.revokeOAuthToken = function(oauthParams) {
+  ClientApi.prototype.revokeOAuthToken = function (oauthParams) {
     return this.doRequest(
       'POST',
       `${this.baseURL}/oauth/destroy`,
@@ -1150,11 +1150,11 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.getScopedKeyData = function(
+  ClientApi.prototype.getScopedKeyData = function (
     sessionTokenHex,
     oauthParams
   ) {
-    return tokens.SessionToken.fromHex(sessionTokenHex).then(token => {
+    return tokens.SessionToken.fromHex(sessionTokenHex).then((token) => {
       return this.doRequest(
         'POST',
         `${this.baseURL}/account/scoped-key-data`,
@@ -1164,7 +1164,7 @@ module.exports = config => {
     });
   };
 
-  ClientApi.prototype.getSubscriptionClients = function(secret) {
+  ClientApi.prototype.getSubscriptionClients = function (secret) {
     return this.doRequestWithSecret(
       'GET',
       `${this.baseURL}/oauth/subscriptions/clients`,
@@ -1172,7 +1172,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.getSubscriptionPlans = function(refreshToken) {
+  ClientApi.prototype.getSubscriptionPlans = function (refreshToken) {
     return this.doRequestWithBearerToken(
       'GET',
       `${this.baseURL}/oauth/subscriptions/plans`,
@@ -1180,7 +1180,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.getActiveSubscriptions = function(refreshToken) {
+  ClientApi.prototype.getActiveSubscriptions = function (refreshToken) {
     return this.doRequestWithBearerToken(
       'GET',
       `${this.baseURL}/oauth/subscriptions/active`,
@@ -1188,7 +1188,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.createSubscription = function(
+  ClientApi.prototype.createSubscription = function (
     refreshToken,
     planId,
     paymentToken,
@@ -1208,7 +1208,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.updatePayment = function(refreshToken, paymentToken) {
+  ClientApi.prototype.updatePayment = function (refreshToken, paymentToken) {
     return this.doRequestWithBearerToken(
       'POST',
       `${this.baseURL}/oauth/subscriptions/updatePayment`,
@@ -1219,7 +1219,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.getCustomer = function(refreshToken) {
+  ClientApi.prototype.getCustomer = function (refreshToken) {
     return this.doRequestWithBearerToken(
       'GET',
       `${this.baseURL}/oauth/subscriptions/customer`,
@@ -1227,7 +1227,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.cancelSubscription = function(
+  ClientApi.prototype.cancelSubscription = function (
     refreshToken,
     subscriptionId
   ) {
@@ -1238,7 +1238,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.prototype.reactivateSubscription = function(
+  ClientApi.prototype.reactivateSubscription = function (
     refreshToken,
     subscriptionId
   ) {
@@ -1250,7 +1250,7 @@ module.exports = config => {
     );
   };
 
-  ClientApi.heartbeat = function(origin) {
+  ClientApi.heartbeat = function (origin) {
     return new ClientApi(origin).doRequest('GET', `${origin}/__heartbeat__`);
   };
 

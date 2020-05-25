@@ -10,14 +10,14 @@
  */
 var Promise = require('bluebird');
 
-module.exports = function(log, config) {
+module.exports = function (log, config) {
   var IPBlocklist = require('./ip_blocklist')(log, config);
 
   function IPBlocklistManager() {
     this.ipBlocklists = [];
   }
 
-  IPBlocklistManager.prototype.load = function(lists, logOnlyLists) {
+  IPBlocklistManager.prototype.load = function (lists, logOnlyLists) {
     var self = this;
 
     if (
@@ -28,7 +28,7 @@ module.exports = function(log, config) {
     }
 
     // Initialize and load a blocklist for each file path
-    var loadedLists = lists.map(function(listPath) {
+    var loadedLists = lists.map(function (listPath) {
       var blocklist = new IPBlocklist();
       self.ipBlocklists.push(blocklist);
       return blocklist.load(listPath);
@@ -36,7 +36,7 @@ module.exports = function(log, config) {
 
     if (logOnlyLists) {
       loadedLists = loadedLists.concat(
-        logOnlyLists.map(function(listPath) {
+        logOnlyLists.map(function (listPath) {
           var blocklist = new IPBlocklist();
           blocklist.logOnly = true;
           self.ipBlocklists.push(blocklist);
@@ -48,11 +48,11 @@ module.exports = function(log, config) {
     return Promise.all(loadedLists);
   };
 
-  IPBlocklistManager.prototype.clear = function() {
+  IPBlocklistManager.prototype.clear = function () {
     this.ipBlocklists = [];
   };
 
-  IPBlocklistManager.prototype.contains = function(ipAddress) {
+  IPBlocklistManager.prototype.contains = function (ipAddress) {
     var self = this;
     var startTime = Date.now();
     var endTime;
@@ -63,7 +63,7 @@ module.exports = function(log, config) {
     // we want to see all lists that hit for given ip address. If there
     // is a hit on a logOnlyList, it is considered not found.
     var listhitPaths = [];
-    self.ipBlocklists.forEach(function(blocklist) {
+    self.ipBlocklists.forEach(function (blocklist) {
       var containsIpAddress = blocklist.contains(ipAddress);
       if (containsIpAddress) {
         if (!found && !blocklist.logOnly) {
@@ -88,20 +88,20 @@ module.exports = function(log, config) {
     return found;
   };
 
-  IPBlocklistManager.prototype.pollForUpdates = function() {
+  IPBlocklistManager.prototype.pollForUpdates = function () {
     var self = this;
 
     self.stopPolling();
 
-    self.ipBlocklists.forEach(function(blocklist) {
+    self.ipBlocklists.forEach(function (blocklist) {
       blocklist.pollForUpdates();
     });
   };
 
-  IPBlocklistManager.prototype.stopPolling = function() {
+  IPBlocklistManager.prototype.stopPolling = function () {
     var self = this;
 
-    self.ipBlocklists.forEach(function(blocklist) {
+    self.ipBlocklists.forEach(function (blocklist) {
       blocklist.stopPolling();
     });
   };
