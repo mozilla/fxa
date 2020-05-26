@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "audit-filter": "^0.5.0",
-    "chai": "4.2.0",
+    "chai": "^4.2.0",
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "2.0.1",
     "fxa-shared": "workspace:*",
@@ -49,10 +49,10 @@
     "npmshrink": "1.0.1",
     "pm2": "^4.4.0",
     "prettier": "^2.0.5",
-    "proxyquire": "2.1.0",
+    "proxyquire": "^2.1.3",
     "request": "2.85.0",
     "restify-clients": "2.5.0",
-    "sinon": "7.2.3",
+    "sinon": "^9.0.2",
     "tap": "^14.6.1",
     "walk": "2.3.x"
   },
