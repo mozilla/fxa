@@ -12,6 +12,7 @@ import AuthErrors from '../lib/auth-errors';
 import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
+import ExperimentMixin from './mixins/experiment-mixin';
 import EmailMxValidationExperimentMixin from './mixins/email-mx-validation-experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
@@ -89,6 +90,11 @@ class IndexView extends FormView {
         AuthErrors.toError('SIGNUP_EMAIL_BOUNCE')
       );
     }
+
+    // The CAD via QR and newsletters experiment are mutally exclusive
+    // so a user can only be enrolled in one of them at a time. This
+    // select the experiment the user will belong to.
+    this.getAndReportExperimentGroup('newsletterCadChooser');
   }
 
   chooseEmailActionPage() {
@@ -235,6 +241,7 @@ Cocktail.mixin(
   CoppaMixin({}),
   EmailAutocompleteDomainsMixin,
   EmailMxValidationExperimentMixin,
+  ExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
   ServiceMixin,

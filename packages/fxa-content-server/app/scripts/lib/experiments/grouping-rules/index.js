@@ -18,6 +18,7 @@ const experimentGroupingRules = [
   require('./email-mx-validation'),
   require('./newsletter-sync'),
   require('./qr-code-cad'),
+  require('./newsletter-cad-chooser'),
 ].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
