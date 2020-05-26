@@ -1,14 +1,18 @@
 # Change history
 
+## 1.172.1
+
+No changes.
+
 ## 1.172.0
 
 ### New features
 
-* storybook: build static gh-pages site from storybook builds ([acf5c00ba](https://github.com/mozilla/fxa/commit/acf5c00ba))
+- storybook: build static gh-pages site from storybook builds ([acf5c00ba](https://github.com/mozilla/fxa/commit/acf5c00ba))
 
 ### Refactorings
 
-* shared components: Rename 'fxa-components' to 'fxa-react' ([e82eeebf0](https://github.com/mozilla/fxa/commit/e82eeebf0))
+- shared components: Rename 'fxa-components' to 'fxa-react' ([e82eeebf0](https://github.com/mozilla/fxa/commit/e82eeebf0))
 
 ## 1.171.1
 

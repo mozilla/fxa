@@ -1,10 +1,14 @@
 # Change history
 
+## 1.172.1
+
+No changes.
+
 ## 1.172.0
 
 ### New features
 
-* cad: Add metrics for the CAD via QR code ([2f9729154](https://github.com/mozilla/fxa/commit/2f9729154))
+- cad: Add metrics for the CAD via QR code ([2f9729154](https://github.com/mozilla/fxa/commit/2f9729154))
 
 ## 1.171.1
 
