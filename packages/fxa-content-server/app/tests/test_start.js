@@ -48,6 +48,7 @@ require('./spec/lib/experiments/grouping-rules/communication-prefs');
 require('./spec/lib/experiments/grouping-rules/email-mx-validation');
 require('./spec/lib/experiments/grouping-rules/index');
 require('./spec/lib/experiments/grouping-rules/is-sampled-user');
+require('./spec/lib/experiments/grouping-rules/newsletter-sync');
 require('./spec/lib/experiments/grouping-rules/send-sms-install-link');
 require('./spec/lib/experiments/grouping-rules/sentry');
 require('./spec/lib/fxa-client');
@@ -282,15 +283,15 @@ require('./spec/views/tooltip');
 require('./spec/views/tos');
 require('./spec/views/why_connect_another_device');
 
-const runTests = function () {
+const runTests = function() {
   /**
    * Ensure session state does not pollute other tests
    */
-  beforeEach(function () {
+  beforeEach(function() {
     Session.testClear();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     Session.testClear();
   });
 
@@ -303,14 +304,14 @@ const runTests = function () {
    * trace.
    */
   var _fail = runner.fail;
-  runner.fail = function (test, err) {
+  runner.fail = function(test, err) {
     if (err && err.stack) {
       err.stack = cleanErrorStack(err);
     }
     return _fail.apply(this, arguments);
   };
 
-  runner.on('end', function () {
+  runner.on('end', function() {
     // This is our hook to the Selenium tests that run
     // the $ tests as part of the CI build.
     // The selenium test will wait until the #total-failures element exists
@@ -337,7 +338,7 @@ function shouldFilterLine(line) {
 function cleanErrorStack(err) {
   return err.stack
     .split('\n')
-    .filter(function (line) {
+    .filter(function(line) {
       return !shouldFilterLine(line);
     })
     .join('\n');

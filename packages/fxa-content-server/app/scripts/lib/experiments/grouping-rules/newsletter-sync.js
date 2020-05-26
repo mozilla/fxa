@@ -37,21 +37,34 @@ module.exports = class NewsletterSync extends BaseGroupingRule {
    *
    * @param {Object} subject data used to decide
    *  @param {Boolean} isSync is this a sync signup?
+   *  @param {String} lang language of user
    * @returns {Any}
    */
   choose(subject = {}) {
-    let choice = false;
-
-    // Only enroll for sync users
-    if (!subject.isSync) {
+    if (
+      subject.experimentGroupingRules.choose('newsletterCadChooser') !==
+      this.name
+    ) {
       return false;
     }
 
-    // TODO Add restriction to `EN` locales
+    let choice = false;
+    const { isSync, lang } = subject;
+
+    // Only enroll for sync users
+    if (!isSync || !lang) {
+      return false;
+    }
+
+    // Only en users are eligible for experiment
+    if (lang.slice(0, 2) !== 'en') {
+      return false;
+    }
 
     if (this.bernoulliTrial(this.rolloutRate, subject.uniqueUserId)) {
       choice = this.uniformChoice(GROUPS, subject.uniqueUserId);
     }
+
     return choice;
   }
 };

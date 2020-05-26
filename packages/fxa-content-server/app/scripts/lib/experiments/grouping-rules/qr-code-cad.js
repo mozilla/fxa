@@ -17,7 +17,7 @@ const GROUPS = [
   'treatment-b', // Screen displayed in non-sms markets
 ];
 
-const ROLLOUT_RATE = 0.0;
+const ROLLOUT_RATE = 1.0;
 
 module.exports = class QrCodeCad extends BaseGroupingRule {
   constructor() {
@@ -41,6 +41,13 @@ module.exports = class QrCodeCad extends BaseGroupingRule {
       return false;
     }
 
+    if (
+      subject.experimentGroupingRules.choose('newsletterCadChooser') !==
+      this.name
+    ) {
+      return false;
+    }
+
     let telephoneInfo = CountryTelephoneInfo[subject.country];
     const { featureFlags } = subject;
     if (featureFlags && featureFlags.smsCountries) {
@@ -58,7 +65,7 @@ module.exports = class QrCodeCad extends BaseGroupingRule {
 
     if (this.isTestEmail(subject.account.get('email'))) {
       // Test users always get the new experience
-      choice = 'treatment-b';
+      choice = 'treatment-a';
     } else if (countryRollOut >= 1) {
       // This experiment should only be shown to countries that are fully
       // rolled out with sms

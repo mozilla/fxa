@@ -15,14 +15,35 @@ describe('lib/experiments/grouping-rules/newsletter-sync', () => {
   describe('choose', () => {
     it('returns false if not Sync', () => {
       assert.isFalse(
-        experiment.choose({ isSync: false, uniqueUserId: 'user-id' })
+        experiment.choose({
+          experimentGroupingRules: { choose: () => experiment.name },
+          isSync: false,
+          uniqueUserId: 'user-id',
+        })
+      );
+    });
+
+    it('returns false if not `en` locale', () => {
+      experiment.rolloutRate = 0;
+      assert.isFalse(
+        experiment.choose({
+          experimentGroupingRules: { choose: () => experiment.name },
+          isSync: true,
+          lang: 'de',
+          uniqueUserId: 'user-id',
+        })
       );
     });
 
     it('returns false if rollout 0%', () => {
       experiment.rolloutRate = 0;
       assert.isFalse(
-        experiment.choose({ isSync: true, uniqueUserId: 'user-id' })
+        experiment.choose({
+          experimentGroupingRules: { choose: () => experiment.name },
+          isSync: true,
+          lang: 'en',
+          uniqueUserId: 'user-id',
+        })
       );
     });
 
@@ -30,7 +51,12 @@ describe('lib/experiments/grouping-rules/newsletter-sync', () => {
       experiment.rolloutRate = 1;
       assert.isTrue(
         experiment.groups.includes(
-          experiment.choose({ isSync: true, uniqueUserId: 'user-id' })
+          experiment.choose({
+            experimentGroupingRules: { choose: () => experiment.name },
+            isSync: true,
+            lang: 'en',
+            uniqueUserId: 'user-id',
+          })
         )
       );
     });
