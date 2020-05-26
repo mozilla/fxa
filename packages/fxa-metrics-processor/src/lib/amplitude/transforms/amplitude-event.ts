@@ -7,7 +7,7 @@ import { createEventTypeMapper, createAmplitudeEventType } from './event-type';
 import { sha256Hmac, tee, mapLocation, prune, ServiceNameAndClientIdMapper } from './common';
 import { getVersion } from './version';
 import { mapOs, mapDeviceModel } from './user-agent';
-import { parse } from '../../../../../fxa-shared/metrics/user-agent';
+import { parse } from 'fxa-shared/metrics/user-agent';
 import { mapAmplitudeUserProperties } from './user-properties';
 import { createAmplitudeEventPropertiesMapper } from './event-properties';
 
@@ -67,7 +67,7 @@ export function createAmplitudeEventTransformer(
       ...mapOs(userAgent),
       ...mapDeviceModel(userAgent),
       event_properties: prune(mapAmplitudeEventProperties(event, context)),
-      user_properties: prune(mapAmplitudeUserProperties(event, context, userAgent))
+      user_properties: prune(mapAmplitudeUserProperties(event, context, userAgent)),
     };
   };
 }

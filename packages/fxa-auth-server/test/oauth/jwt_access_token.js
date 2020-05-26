@@ -6,7 +6,7 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const AppError = require('../../lib/oauth/error');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../lib/constants');
 const TOKEN_SERVER_URL = require('../../config').get('syncTokenserverUrl');
 

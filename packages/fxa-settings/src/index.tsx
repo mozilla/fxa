@@ -6,7 +6,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import './index.scss';
 import App from './components/App';
-import sentryMetrics from '@fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 import config from './lib/config';
 import { parseParams } from './lib/url-params';
 
@@ -25,7 +25,7 @@ export async function init() {
 
 init().then(
   () => {},
-  error => {
+  (error) => {
     console.log('Error initializing FXA Settings', error);
   }
 );

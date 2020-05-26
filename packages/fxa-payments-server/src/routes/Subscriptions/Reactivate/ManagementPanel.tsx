@@ -10,7 +10,7 @@ import {
   Subscription,
   Customer,
 } from '../../../store/types';
-import { useBooleanState } from '@fxa-react/lib/hooks';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import { getLocalizedDateString, getLocalizedDate } from '../../../lib/formats';
 import { ActionFunctions } from '../../../store/actions';
 import ReactivationConfirmationDialog from './ConfirmationDialog';

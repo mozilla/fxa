@@ -4,7 +4,7 @@
 
 import { Event, EventContext, Device } from './types';
 import { toSnakeCase } from './common';
-import { ParsedUserAgentProperties } from '../../../../../fxa-shared/metrics/user-agent';
+import { ParsedUserAgentProperties } from 'fxa-shared/metrics/user-agent';
 import { mapBrowser, BrowserProps } from './user-agent';
 
 const DAY = 1000 * 60 * 60 * 24;

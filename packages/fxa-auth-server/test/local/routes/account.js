@@ -17,7 +17,7 @@ const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
-const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 const TEST_EMAIL = 'foo@gmail.com';
 

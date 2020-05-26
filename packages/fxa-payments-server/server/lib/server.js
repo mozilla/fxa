@@ -28,7 +28,7 @@ module.exports = () => {
   const csp = require('../lib/csp');
   const cspRulesBlocking = require('../lib/csp/blocking')(config);
   const cspRulesReportOnly = require('../lib/csp/report-only')(config);
-  const { cors, routing } = require('../../../fxa-shared/express')();
+  const { cors, routing } = require('fxa-shared/express')();
 
   const NOOP = () => {};
   const StatsD = require('hot-shots');

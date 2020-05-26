@@ -11,7 +11,7 @@ You can import React components into this project. This is currently restricted 
 
 ```javascript
 // e.g. assuming the component HelloWorld exists
-import HelloWorld from '@fxa-react/components/HelloWorld';
+import HelloWorld from 'fxa-react/components/HelloWorld';
 ```
 
 ### Styling components

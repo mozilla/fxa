@@ -1,23 +1,12 @@
 {
-  "compileOnSave": true,
+  "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "lib": ["es2018", "ESNext.AsyncIterable"],
     "outDir": "./dist",
-    "sourceMap": true,
-    "noEmitOnError": true,
-    "inlineSources": true,
-    "strict": true,
-    "esModuleInterop": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "forceConsistentCasingInFileNames": true,
     "noEmitHelpers": true,
     "importHelpers": true,
-    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types"],
     "types": ["mocha", "mozlog", "node"]
   },
-  "include": ["./src"],
-  "exclude": ["node_modules"]
+  "include": ["./src"]
 }

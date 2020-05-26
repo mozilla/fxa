@@ -9,7 +9,7 @@ const buf = require('buf').hex;
 const generateRSAKeypair = require('keypair');
 const JWTool = require('fxa-jwtool');
 const testServer = require('../lib/server');
-const ScopeSet = require('../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 const { decodeJWT } = require('../lib/util');
 
 const db = require('../../lib/oauth/db');

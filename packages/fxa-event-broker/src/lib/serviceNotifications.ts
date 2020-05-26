@@ -19,7 +19,7 @@ export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
 const BASE_MESSAGE_SCHEMA = joi
   .object()
   .keys({
-    event: joi.string().required()
+    event: joi.string().required(),
   })
   .unknown(true)
   .required();
@@ -28,20 +28,14 @@ const LOGIN_SCHEMA = joi
   .object()
   .keys({
     clientId: joi.string().optional(),
-    deviceCount: joi
-      .number()
-      .integer()
-      .required(),
+    deviceCount: joi.number().integer().required(),
     email: joi.string().required(),
-    event: joi
-      .string()
-      .valid(LOGIN_EVENT)
-      .required(),
+    event: joi.string().valid(LOGIN_EVENT).required(),
     service: joi.string().optional(),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
     uid: joi.string().required(),
-    userAgent: joi.string().optional()
+    userAgent: joi.string().optional(),
   })
   .unknown(true)
   .required();
@@ -49,19 +43,10 @@ const LOGIN_SCHEMA = joi
 const SUBSCRIPTION_UPDATE_SCHEMA = joi
   .object()
   .keys({
-    event: joi
-      .string()
-      .valid(SUBSCRIPTION_UPDATE_EVENT)
-      .required(),
-    eventCreatedAt: joi
-      .number()
-      .integer()
-      .required(),
+    event: joi.string().valid(SUBSCRIPTION_UPDATE_EVENT).required(),
+    eventCreatedAt: joi.number().integer().required(),
     isActive: joi.bool().required(),
-    productCapabilities: joi
-      .array()
-      .items(joi.string())
-      .required(),
+    productCapabilities: joi.array().items(joi.string()).required(),
     productId: joi.string().optional(),
     // TODO: productName is the legacy name for productId, remove it
     //       in due course then make productId required again.
@@ -69,7 +54,7 @@ const SUBSCRIPTION_UPDATE_SCHEMA = joi
     subscriptionId: joi.string().required(),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
-    uid: joi.string().required()
+    uid: joi.string().required(),
   })
   .unknown(true)
   .required();
@@ -77,13 +62,10 @@ const SUBSCRIPTION_UPDATE_SCHEMA = joi
 const DELETE_SCHEMA = joi
   .object()
   .keys({
-    event: joi
-      .string()
-      .valid(DELETE_EVENT)
-      .required(),
+    event: joi.string().valid(DELETE_EVENT).required(),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
-    uid: joi.string().required()
+    uid: joi.string().required(),
   })
   .unknown(true)
   .required();
@@ -96,7 +78,7 @@ const PASSWORD_CHANGE_SCHEMA = joi
     event: joi.string().valid(PASSWORD_CHANGE_EVENT, PASSWORD_RESET_EVENT),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
-    uid: joi.string().required()
+    uid: joi.string().required(),
   })
   .unknown(true)
   .required();
@@ -109,7 +91,7 @@ const PROFILE_CHANGE_SCHEMA = joi
     event: joi.string().valid(PRIMARY_EMAIL_EVENT, PROFILE_CHANGE_EVENT),
     timestamp: joi.number().optional(),
     ts: joi.number().required(),
-    uid: joi.string().required()
+    uid: joi.string().required(),
   })
   .unknown(true)
   .required();
@@ -140,7 +122,7 @@ const eventSchemas = {
   [PROFILE_CHANGE_EVENT]: PROFILE_CHANGE_SCHEMA,
   [PRIMARY_EMAIL_EVENT]: PROFILE_CHANGE_SCHEMA,
   [PASSWORD_CHANGE_EVENT]: PASSWORD_CHANGE_SCHEMA,
-  [PASSWORD_RESET_EVENT]: PASSWORD_CHANGE_SCHEMA
+  [PASSWORD_RESET_EVENT]: PASSWORD_CHANGE_SCHEMA,
 };
 
 /**
@@ -161,6 +143,7 @@ function multiSchemaAttempt(
   if (schemaTable[message.event]) {
     return joi.attempt(message, schemaTable[message.event]);
   }
+  return;
 }
 
 export const ServiceNotification = {
@@ -175,5 +158,6 @@ export const ServiceNotification = {
       sentry.captureException(err);
       logger.error('from.sqsMessage', { message: 'Invalid message', err });
     }
-  }
+    return;
+  },
 };

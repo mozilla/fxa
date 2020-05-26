@@ -40,7 +40,7 @@ const validators = require('../validators');
 const { validateRequestedGrant, generateTokens } = require('../grant');
 const verifyAssertion = require('../assertion');
 const { authenticateClient, clientAuthValidators } = require('../client');
-const ScopeSet = require('../../../../fxa-shared').oauth.scopes;
+const ScopeSet = require('fxa-shared/oauth/scopes');
 
 const MAX_TTL_S = config.get('oauthServer.expiration.accessToken') / 1000;
 

@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "NODE_ENV=dev npm run gen-keys && tsc",
+    "build": "tsc --build",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",

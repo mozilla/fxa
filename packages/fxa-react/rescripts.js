@@ -5,8 +5,8 @@
 const { resolve } = require('path');
 
 const additionalJSImports = {
-  '@fxa-react': __dirname,
-  '@fxa-shared': resolve(__dirname, '../fxa-shared'),
+  'fxa-react': __dirname,
+  'fxa-shared': resolve(__dirname, '../fxa-shared'),
 };
 
 const permitAdditionalJSImports = (config) => {

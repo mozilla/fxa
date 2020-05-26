@@ -1,27 +1,16 @@
 {
+  "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "./dist",
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
-    "allowJs": true,
     "checkJs": false,
-    "target": "ES2019",
-    "module": "commonjs",
-    "strict": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "typeRoots": [
-      "./types",
-      "node_modules/@types",
-      "../../node_modules/@types",
-      "../fxa-shared/types"
-    ],
-    "types": ["accept-language", "mocha", "mozlog", "node"]
+    "types": ["accept-language", "mocha", "mozlog", "node"],
   },
-  "include": ["bin/*"],
-  "exclude": ["node_modules"]
+  "references": [
+    { "path": "../fxa-shared" }
+  ],
+  "include": [
+    "bin/*"
+  ]
 }

@@ -1,16 +1,8 @@
 {
-  "compileOnSave": true,
+  "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "allowJs": false,
-    "target": "es6",
-    "sourceMap": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "strict": true,
-    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types"],
-    "skipLibCheck": true
+    "allowJs": false
   },
   "include": [
     "./bin/**/*",
@@ -18,6 +10,5 @@
     "./lib/**/*",
     "./test/**/*",
     "./types/**/*"
-  ],
-  "exclude": ["node_modules"]
+  ]
 }

@@ -16,7 +16,7 @@ const nock = require('nock');
 const P = require('../../../lib/promise');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
-const { normalizeEmail } = require('../../../../fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared/email/helpers');
 
 const CUSTOMER_1 = require('../payments/fixtures/customer1.json');
 const CUSTOMER_1_UPDATED = require('../payments/fixtures/customer1_new_email.json');

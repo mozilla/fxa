@@ -17,7 +17,7 @@ import ResumeTokenMixin from './mixins/resume-token';
 import SignInReasons from '../lib/sign-in-reasons';
 import VerificationMethods from '../lib/verification-methods';
 import vat from '../lib/vat';
-import { emailsMatch } from '../../../../fxa-shared/email/helpers';
+import { emailsMatch } from 'fxa-shared/email/helpers';
 
 // Account attributes that can be persisted
 const PERSISTENT = {

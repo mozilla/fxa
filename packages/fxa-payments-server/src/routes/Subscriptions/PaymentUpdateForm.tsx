@@ -12,7 +12,7 @@ import {
   formatPlanPricing,
 } from '../../lib/formats';
 import { useNonce } from '../../lib/hooks';
-import { useBooleanState } from '@fxa-react/lib/hooks';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import { SelectorReturns } from '../../store/selectors';
 import {

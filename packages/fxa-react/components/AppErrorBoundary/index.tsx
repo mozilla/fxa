@@ -4,7 +4,7 @@
 
 import React from 'react';
 import AppErrorDialog from '../AppErrorDialog';
-import sentryMetrics from '@fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 
 class AppErrorBoundary extends React.Component {
   state: {

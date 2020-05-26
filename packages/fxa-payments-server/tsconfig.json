@@ -1,21 +1,25 @@
 {
+  "extends": "../../_dev/tsconfig.browser.json",
   "compilerOptions": {
-    "target": "es5",
-    "sourceMap": true,
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
+    "noEmit": true,
+    "types": [
+      "jest"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve"
+    "isolatedModules": true
   },
-  "include": ["src"],
-  "extends": "../fxa-react/tsconfig.common.json"
+  "include": [
+    "src"
+  ],
+  "references": [
+    {
+      "path": "../fxa-react"
+    }
+  ]
 }

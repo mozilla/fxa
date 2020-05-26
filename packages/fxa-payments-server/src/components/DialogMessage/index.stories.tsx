@@ -6,7 +6,7 @@ import React, { useCallback } from 'react';
 import { storiesOf } from '@storybook/react';
 import MockApp from '../../../.storybook/components/MockApp';
 import LoremIpsum from '../../../.storybook/components/LoremIpsum';
-import { useBooleanState } from '@fxa-react/lib/hooks';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import { SignInLayout } from '../AppLayout';
 import { DialogMessage } from './index';
 

@@ -11,11 +11,11 @@ const flowMetrics = require('../flow-metrics');
 const logFlowEvent = require('../flow-event').logFlowEvent;
 const logger = require('../logging/log')('server.get-metrics-flow');
 const geodbConfig = config.get('geodb');
-const geodb = require('../../../../fxa-geodb')(geodbConfig);
-const remoteAddress = require('../../../../fxa-shared/express/remote-address')(
+const geodb = require('fxa-geodb')(geodbConfig);
+const remoteAddress = require('fxa-shared/express/remote-address')(
   config.get('clientAddressDepth')
 );
-const geolocate = require('../../../../fxa-shared/express/geo-locate')(geodb)(
+const geolocate = require('fxa-shared/express/geo-locate')(geodb)(
   remoteAddress
 )(logger);
 const uuid = require('node-uuid');
