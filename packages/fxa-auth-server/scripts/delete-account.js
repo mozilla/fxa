@@ -25,7 +25,6 @@ const P = require('../lib/promise');
 const config = require('../config').getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
-const subhub = require('../lib/subhub/client').client(log, config);
 const mailer = null;
 
 const DB = require('../lib/db')(config, log, Token);
@@ -82,7 +81,6 @@ DB.connect(config[config.db.backend]).then((db) => {
     MockPassword,
     config,
     mockCustoms,
-    subhub,
     signinUtils,
     push,
     verificationReminders,
