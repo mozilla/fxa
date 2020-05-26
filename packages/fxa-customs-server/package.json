@@ -20,10 +20,10 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^1.1.5",
-    "@hapi/hapi": "^19.1.1",
-    "@hapi/hoek": "^9.0.4",
-    "@sentry/node": "^5.15.5",
+    "@google-cloud/pubsub": "1.7.3",
+    "@hapi/hapi": "19.1.1",
+    "@hapi/hoek": "9.0.4",
+    "@sentry/node": "5.15.5",
     "bl": "1.1.2",
     "bluebird": "3.3.4",
     "bunyan": "1.8.0",
@@ -36,25 +36,25 @@
     "memcached": "2.2.1"
   },
   "devDependencies": {
-    "audit-filter": "^0.5.0",
+    "audit-filter": "0.5.0",
     "chai": "4.2.0",
-    "eslint": "^6.8.0",
+    "eslint": "6.8.0",
     "eslint-plugin-fxa": "2.0.1",
     "fxa-shared": "workspace:*",
-    "grunt": "^1.1.0",
+    "grunt": "1.1.0",
     "grunt-cli": "1.2.0",
     "grunt-copyright": "0.3.0",
-    "grunt-eslint": "^22.0.0",
-    "load-grunt-tasks": "^5.1.0",
+    "grunt-eslint": "22.0.0",
+    "load-grunt-tasks": "5.1.0",
     "npmshrink": "1.0.1",
-    "pm2": "^4.4.0",
-    "prettier": "^2.0.5",
+    "pm2": "4.4.0",
+    "prettier": "2.0.5",
     "proxyquire": "2.1.0",
     "request": "2.85.0",
     "restify-clients": "2.5.0",
     "sinon": "7.2.3",
-    "tap": "^14.6.1",
-    "walk": "2.3.x"
+    "tap": "14.10.7",
+    "walk": "2.3.14"
   },
   "engines": {
     "node": ">=12"
