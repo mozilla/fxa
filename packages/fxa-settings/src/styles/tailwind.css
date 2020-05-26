@@ -4,6 +4,7 @@
 
 body {
   @apply text-base font-body;
+  @apply bg-grey-10;
 }
 
 @keyframes rotate {

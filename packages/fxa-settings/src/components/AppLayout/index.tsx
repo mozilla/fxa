@@ -3,13 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import HeaderLockup from '../HeaderLockup';
 
 type AppLayoutProps = {
   children: React.ReactNode;
 };
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  return <div>{children}</div>;
+  return (
+    <>
+      <HeaderLockup />
+      {children}
+    </>
+  );
 };
 
 export default AppLayout;

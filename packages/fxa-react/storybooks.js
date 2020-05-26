@@ -29,18 +29,27 @@ const customizeWebpackConfig = ({ config, mode }) => {
   });
   config.resolve.extensions.push('.scss', '.css');
 
+  let assetLoader;
   const assetRule = config.module.rules.find(({ test }) => test.test('.svg'));
   if (assetRule) {
-    const assetLoader = {
+    assetLoader = {
       loader: assetRule.loader,
       options: assetRule.options || assetRule.query,
     };
-    config.module.rules.unshift({
-      test: /\.svg$/,
-      use: ['@svgr/webpack', assetLoader],
-    });
-    config.module.rules = [{ oneOf: config.module.rules }];
+  } else {
+    assetLoader = {
+      loader: resolve(
+        __dirname,
+        '../../node_modules/@storybook/core/node_modules/file-loader/dist/cjs.js'
+      ),
+      options: { name: 'static/media/[name].[hash:8].[ext]' },
+    };
   }
+  config.module.rules.unshift({
+    test: /\.svg$/,
+    use: ['@svgr/webpack', assetLoader],
+  });
+  config.module.rules = [{ oneOf: config.module.rules }];
 
   config.resolve.alias = Object.assign(
     config.resolve.alias,
