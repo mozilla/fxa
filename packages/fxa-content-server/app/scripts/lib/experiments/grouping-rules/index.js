@@ -18,7 +18,8 @@ const experimentGroupingRules = [
   require('./email-mx-validation'),
   require('./newsletter-sync'),
   require('./qr-code-cad'),
-].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
+  require('./newsletter-cad-chooser'),
+].map(ExperimentGroupingRule => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
   constructor(options = {}) {
@@ -38,7 +39,7 @@ class ExperimentChoiceIndex {
   choose(name, subject = {}) {
     const experiment = _.find(
       this._experimentGroupingRules,
-      (experimentGroupingRule) => experimentGroupingRule.name === name
+      experimentGroupingRule => experimentGroupingRule.name === name
     );
     if (experiment) {
       if (!isExperimentAllowed(experiment, subject)) {
@@ -63,7 +64,7 @@ class ExperimentChoiceIndex {
 }
 
 ExperimentChoiceIndex.EXPERIMENT_NAMES = experimentGroupingRules.map(
-  (experimentGroupingRule) => experimentGroupingRule.name
+  experimentGroupingRule => experimentGroupingRule.name
 );
 
 module.exports = ExperimentChoiceIndex;
