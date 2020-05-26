@@ -30,7 +30,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('delete_account', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -39,7 +39,7 @@ registerSuite('delete_account', {
   },
 
   tests: {
-    'sign in, delete account': function() {
+    'sign in, delete account': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -54,7 +54,7 @@ registerSuite('delete_account', {
             )
           )
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
           .end()
 
           //enter incorrect password
@@ -84,7 +84,7 @@ registerSuite('delete_account', {
       );
     },
 
-    'sign in, cancel delete account': function() {
+    'sign in, cancel delete account': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -99,7 +99,7 @@ registerSuite('delete_account', {
           )
 
           .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-          .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+          .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
           .end()
           .then(
             type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)

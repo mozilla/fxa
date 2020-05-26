@@ -14,9 +14,7 @@ module.exports = {
   },
   response: {
     schema: {
-      subscriptions: Joi.array()
-        .items(Joi.string())
-        .required(),
+      subscriptions: Joi.array().items(Joi.string()).required(),
     },
   },
   handler: async function subscriptions(req) {

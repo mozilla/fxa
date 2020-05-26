@@ -20,8 +20,8 @@ import ConnectAnotherDeviceMixin from '../mixins/connect-another-device-mixin';
  *   for ConnectAnotherDevice
  * @returns {Function} behavior
  */
-export default function(defaultBehavior) {
-  const behavior = function(view, account) {
+export default function (defaultBehavior) {
+  const behavior = function (view, account) {
     return Promise.resolve()
       .then(() => {
         behavior.ensureConnectAnotherDeviceMixin(view);
@@ -42,7 +42,7 @@ export default function(defaultBehavior) {
       });
   };
 
-  behavior.ensureConnectAnotherDeviceMixin = function(view) {
+  behavior.ensureConnectAnotherDeviceMixin = function (view) {
     if (!Cocktail.isMixedIn(view, ConnectAnotherDeviceMixin)) {
       Cocktail.mixin(view, ConnectAnotherDeviceMixin);
     }

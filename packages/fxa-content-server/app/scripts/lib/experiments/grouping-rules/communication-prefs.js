@@ -25,7 +25,7 @@ const AVAILABLE_LANGUAGES_REGEX = generateRegex(
 );
 
 function generateRegex(langs, regions) {
-  const combined = langs.map(x => `${x}|${x}-[a-z]{2}`).concat(regions);
+  const combined = langs.map((x) => `${x}|${x}-[a-z]{2}`).concat(regions);
   return arrayToRegex(combined);
 }
 

@@ -34,7 +34,7 @@ class ConfirmSecondaryEmail extends FormView {
     // You shouldn't be landing on this page if you already have
     // a secondary email anyway, per the check in the previous page,
     // but just to be safe we'll make sure you're not maxed out.
-    return account.recoveryEmails().then(emails => {
+    return account.recoveryEmails().then((emails) => {
       if (emails && emails.length >= MAX_SECONDARY_EMAILS) {
         return this.navigate('/settings');
       }
@@ -76,7 +76,9 @@ class ConfirmSecondaryEmail extends FormView {
           }
         );
       })
-      .catch(err => this.showValidationError(this.$(CODE_INPUT_SELECTOR), err));
+      .catch((err) =>
+        this.showValidationError(this.$(CODE_INPUT_SELECTOR), err)
+      );
   }
 
   useDifferentEmail() {

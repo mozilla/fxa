@@ -42,7 +42,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Recovery key', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
     const remote = this.remote;
 
@@ -68,7 +68,7 @@ registerSuite('Recovery key', {
         // Store the key to be used later
         .findByCssSelector(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT)
         .getVisibleText()
-        .then(key => {
+        .then((key) => {
           recoveryKey = key;
           return remote.then(
             click(selectors.RECOVERY_KEY.RECOVERY_KEY_DONE_BUTTON)
@@ -80,7 +80,7 @@ registerSuite('Recovery key', {
   },
 
   tests: {
-    'can revoke recovery key': function() {
+    'can revoke recovery key': function () {
       const remote = this.remote;
       let secondKey;
       return (
@@ -99,7 +99,7 @@ registerSuite('Recovery key', {
           .then(testElementExists(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT))
           .findByCssSelector(selectors.RECOVERY_KEY.RECOVERY_KEY_TEXT)
           .getVisibleText()
-          .then(key => {
+          .then((key) => {
             secondKey = key;
             return remote.then(
               click(selectors.RECOVERY_KEY.RECOVERY_KEY_DONE_BUTTON)
@@ -144,7 +144,7 @@ registerSuite('Recovery key', {
       );
     },
 
-    'can reset password with recovery key': function() {
+    'can reset password with recovery key': function () {
       return (
         this.remote
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -193,7 +193,7 @@ registerSuite('Recovery key', {
       );
     },
 
-    'can reset password when forgot recovery key': function() {
+    'can reset password when forgot recovery key': function () {
       return (
         this.remote
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -224,7 +224,7 @@ registerSuite('Recovery key', {
       );
     },
 
-    'can not re-use recovery key': function() {
+    'can not re-use recovery key': function () {
       return (
         this.remote
           .then(openPage(RESET_PASSWORD_URL, selectors.RESET_PASSWORD.HEADER))
@@ -260,7 +260,7 @@ registerSuite('Recovery key', {
 });
 
 registerSuite('Recovery key - unverified session', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
 
     return (
@@ -278,7 +278,7 @@ registerSuite('Recovery key - unverified session', {
   },
 
   tests: {
-    'gated in unverified session open verification same tab': function() {
+    'gated in unverified session open verification same tab': function () {
       return (
         this.remote
           // send and open verification in same tab
@@ -290,7 +290,7 @@ registerSuite('Recovery key - unverified session', {
       );
     },
 
-    'gated in unverified session open verification new tab': function() {
+    'gated in unverified session open verification new tab': function () {
       return (
         this.remote
           // send and open verification in new tab
@@ -307,7 +307,7 @@ registerSuite('Recovery key - unverified session', {
       );
     },
 
-    'gated in unverified session open verification different browser': function() {
+    'gated in unverified session open verification different browser': function () {
       return (
         this.remote
           // send and open verification in different browser

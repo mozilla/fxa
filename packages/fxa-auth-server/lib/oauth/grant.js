@@ -48,7 +48,7 @@ const UNTRUSTED_CLIENT_ALLOWED_SCOPES = ScopeSet.fromArray([
   'profile:display_name',
 ]);
 let stripeHelper = null;
-module.exports.setStripeHelper = function(val) {
+module.exports.setStripeHelper = function (val) {
   stripeHelper = val;
 };
 

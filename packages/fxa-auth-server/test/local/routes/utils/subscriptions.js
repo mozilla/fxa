@@ -37,8 +37,8 @@ describe('routes/utils/subscriptions', () => {
 
   beforeEach(async () => {
     db = mocks.mockDB();
-    db.fetchAccountSubscriptions = sinon.spy(async uid =>
-      MOCK_SUBSCRIPTIONS.filter(s => s.uid === uid)
+    db.fetchAccountSubscriptions = sinon.spy(async (uid) =>
+      MOCK_SUBSCRIPTIONS.filter((s) => s.uid === uid)
     );
   });
 

@@ -314,12 +314,12 @@ describe('views/complete_reset_password', () => {
 
         sinon
           .stub(user, 'completeAccountPasswordReset')
-          .callsFake(function(account) {
+          .callsFake(function (account) {
             account.set('verified', true);
             return Promise.resolve(account);
           });
 
-        sinon.stub(user, 'setSignedInAccount').callsFake(function(newAccount) {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
           return Promise.resolve(newAccount);
         });
 
@@ -354,7 +354,7 @@ describe('views/complete_reset_password', () => {
 
         assert.isTrue(view.navigate.calledWith('reset_password_verified'));
 
-        return user.completeAccountPasswordReset.returnValues[0].then(function(
+        return user.completeAccountPasswordReset.returnValues[0].then(function (
           returnValue
         ) {
           assert.isTrue(
@@ -372,11 +372,11 @@ describe('views/complete_reset_password', () => {
 
         sinon
           .stub(user, 'completeAccountPasswordReset')
-          .callsFake(function(account) {
+          .callsFake(function (account) {
             return Promise.resolve(account);
           });
 
-        sinon.stub(user, 'setSignedInAccount').callsFake(function(newAccount) {
+        sinon.stub(user, 'setSignedInAccount').callsFake(function (newAccount) {
           return Promise.resolve(newAccount);
         });
 
@@ -436,7 +436,7 @@ describe('views/complete_reset_password', () => {
         return Promise.reject(new Error('server error'));
       });
 
-      return view.resend().then(assert.fail, err => {
+      return view.resend().then(assert.fail, (err) => {
         assert.equal(err.message, 'server error');
       });
     });

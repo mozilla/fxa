@@ -10,8 +10,8 @@ import _ from 'underscore';
 import AuthErrors from '../../lib/auth-errors';
 import NavigationBehavior from './navigate.js';
 
-const NavigateOrRedirectBehavior = function(endpoint, options = {}) {
-  const behavior = function(view, account) {
+const NavigateOrRedirectBehavior = function (endpoint, options = {}) {
+  const behavior = function (view, account) {
     let redirectTo = view.relier.get('redirectTo');
     if (redirectTo) {
       redirectTo = new URL(redirectTo, location.href);

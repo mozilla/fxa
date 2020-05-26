@@ -32,7 +32,7 @@ function withDriver() {
   } else {
     p = klass.connect();
   }
-  return p.then(function(store) {
+  return p.then(function (store) {
     store.id = unique;
     logger.debug('connected', config.get('img.driver'));
     return (driver = store); // eslint-disable-line no-return-assign
@@ -47,13 +47,13 @@ function proxy(method) {
         logger.verbose('proxied', { method: method, args: args.length });
         return driver[method].apply(driver, args);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         logger.error('proxied.error.' + method, err);
         throw err;
       });
   };
 }
-Object.keys(klass.prototype).forEach(function(key) {
+Object.keys(klass.prototype).forEach(function (key) {
   if (typeof klass.prototype[key] === 'function') {
     exports[key] = proxy(key);
   }

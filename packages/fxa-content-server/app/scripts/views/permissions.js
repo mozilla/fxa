@@ -14,7 +14,7 @@ import Strings from '../lib/strings';
 import Template from 'templates/permissions.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 // Reduce the number of strings to translate by interpolating
 // to create the required variant of a label.
@@ -91,7 +91,7 @@ var View = FormView.extend(
      * @param {String} requestedPermissionNames
      */
     _validatePermissions(requestedPermissionNames) {
-      requestedPermissionNames.forEach(function(permissionName) {
+      requestedPermissionNames.forEach(function (permissionName) {
         var permission = this._getPermissionConfig(permissionName);
         // log the invalid scope instead of throwing an error
         // to see if any reliers are specifying invalid scopes. We
@@ -136,7 +136,7 @@ var View = FormView.extend(
       );
 
       return permissionsWithValues
-        .map(permissionName => {
+        .map((permissionName) => {
           var permission = this._getPermissionConfig(permissionName);
 
           // filter out permissions we do not know about
@@ -146,7 +146,7 @@ var View = FormView.extend(
 
           return permissionName;
         })
-        .filter(function(permissionName) {
+        .filter(function (permissionName) {
           return permissionName !== null;
         });
     },
@@ -159,7 +159,7 @@ var View = FormView.extend(
      * @returns {Number} permission index if found, -1 otw.
      */
     _getPermissionIndex(permissionName) {
-      return _.findIndex(PERMISSIONS, function(permission) {
+      return _.findIndex(PERMISSIONS, function (permission) {
         return permission.name === permissionName;
       });
     },
@@ -192,7 +192,7 @@ var View = FormView.extend(
 
       // convert the permission names to HTML
       return sortedPermissionNames
-        .map(permissionName => {
+        .map((permissionName) => {
           var permission = this._getPermissionConfig(permissionName);
 
           permission.label = this.translate(permission.label);
@@ -246,7 +246,7 @@ var View = FormView.extend(
       var $permissionEls = this.$('.permission');
       var clientPermissions = {};
 
-      $permissionEls.each(function(index, el) {
+      $permissionEls.each(function (index, el) {
         clientPermissions[el.name] = !!el.checked;
       });
 

@@ -6,7 +6,7 @@
 
 const url = require('url');
 
-module.exports = function(
+module.exports = function (
   log,
   serverPublicKeys,
   signer,
@@ -193,18 +193,18 @@ module.exports = function(
     support,
     newsletters
   );
-  v1Routes.forEach(r => {
+  v1Routes.forEach((r) => {
     r.path = `${basePath}/v1${r.path}`;
   });
-  defaults.forEach(r => {
+  defaults.forEach((r) => {
     r.path = basePath + r.path;
   });
-  oauthServer.routes.forEach(r => {
+  oauthServer.routes.forEach((r) => {
     r.path = basePath + r.path;
   });
   const allRoutes = defaults.concat(idp, v1Routes, oauthServer.routes);
 
-  allRoutes.forEach(r => {
+  allRoutes.forEach((r) => {
     // Default auth.payload to 'optional' for all authenticated routes.
     // We'll validate the payload hash if the client provides it,
     // but allow them to skip it if they can't or don't want to.

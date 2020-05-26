@@ -30,7 +30,7 @@ describe('availableAuthenticationMethods', () => {
     });
     return authMethods
       .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
-      .then(amr => {
+      .then((amr) => {
         assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
         assert.deepEqual(Array.from(amr).sort(), ['email', 'pwd']);
       });
@@ -46,7 +46,7 @@ describe('availableAuthenticationMethods', () => {
     });
     return authMethods
       .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
-      .then(amr => {
+      .then((amr) => {
         assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
         assert.deepEqual(Array.from(amr).sort(), ['email', 'otp', 'pwd']);
       });
@@ -62,7 +62,7 @@ describe('availableAuthenticationMethods', () => {
     });
     return authMethods
       .availableAuthenticationMethods(mockDb, MOCK_ACCOUNT)
-      .then(amr => {
+      .then((amr) => {
         assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
         assert.deepEqual(Array.from(amr).sort(), ['email', 'pwd']);
       });
@@ -78,7 +78,7 @@ describe('availableAuthenticationMethods', () => {
         () => {
           assert.fail('error should have been re-thrown');
         },
-        err => {
+        (err) => {
           assert.calledWithExactly(mockDb.totpToken, MOCK_ACCOUNT.uid);
           assert.equal(err.errno, error.ERRNO.SERVER_BUSY);
         }

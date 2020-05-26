@@ -11,28 +11,28 @@ var IdP = require('browserid-local-verify/testing').IdP,
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('unverified email', function() {
+describe('unverified email', function () {
   var fallback = new IdP();
   var verifier = new Verifier();
   var client;
 
-  it('test idps should start up', function(done) {
-    fallback.start(function(e1) {
+  it('test idps should start up', function (done) {
+    fallback.start(function (e1) {
       verifier.setFallback(fallback);
-      verifier.start(function(e2) {
+      verifier.start(function (e2) {
         done(e1 || e2);
       });
     });
   });
 
-  it('(v1) assertion with unverified email address should fail to verify', function(done) {
+  it('(v1) assertion with unverified email address should fail to verify', function (done) {
     client = new Client({
       idp: fallback,
       principal: { 'unverified-email': 'bob@example.com' },
     });
     // clear email
     client.email(null);
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -46,7 +46,7 @@ describe('unverified email', function() {
             audience: 'http://example.com',
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.statusCode.should.equal(200);
           r.body.status.should.equal('failure');
@@ -58,12 +58,12 @@ describe('unverified email', function() {
     });
   });
 
-  it('(v1) assertion with unverified email address and forceIssuer should verify', function(done) {
+  it('(v1) assertion with unverified email address and forceIssuer should verify', function (done) {
     client = new Client({
       idp: fallback,
       principal: { 'unverified-email': 'bob@example.com' },
     });
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -78,7 +78,7 @@ describe('unverified email', function() {
             experimental_forceIssuer: fallback.domain(),
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.statusCode.should.equal(200);
           r.body.status.should.equal('okay');
@@ -92,13 +92,13 @@ describe('unverified email', function() {
     });
   });
 
-  it('(v1) allowUnverified causes extraction of unverified email addresses', function(done) {
+  it('(v1) allowUnverified causes extraction of unverified email addresses', function (done) {
     client = new Client({
       idp: fallback,
       principal: { 'unverified-email': 'bob@example.com' },
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -114,7 +114,7 @@ describe('unverified email', function() {
             experimental_allowUnverified: true,
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.statusCode.should.equal(200);
           r.body.status.should.equal('okay');
@@ -128,9 +128,9 @@ describe('unverified email', function() {
     });
   });
 
-  it('test idp should shut down', function(done) {
-    fallback.stop(function(e1) {
-      verifier.stop(function(e2) {
+  it('test idp should shut down', function (done) {
+    fallback.stop(function (e1) {
+      verifier.stop(function (e2) {
         done(e1 || e2);
       });
     });

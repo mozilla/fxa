@@ -12,7 +12,7 @@ import Notifier from 'lib/channels/notifier';
 import WindowMock from '../../mocks/window';
 import PaymentServer from 'lib/payment-server';
 
-describe('views/subscriptions_management_redirect', function() {
+describe('views/subscriptions_management_redirect', function () {
   let account;
   let user;
   let view;
@@ -24,7 +24,7 @@ describe('views/subscriptions_management_redirect', function() {
     return view.render().then(() => view.afterVisible());
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     user = new User();
     account = new Account();
     notifier = new Notifier();
@@ -57,7 +57,7 @@ describe('views/subscriptions_management_redirect', function() {
     return render();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     PaymentServer.navigateToPaymentServer.restore();
     $(view.el).remove();
     view.destroy();

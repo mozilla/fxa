@@ -34,13 +34,13 @@ function Verifier(args) {
     max_processes: config.get('computecluster.maxProcesses'),
     max_backlog: config.get('computecluster.maxBacklog'),
   })
-    .on('error', function(err) {
+    .on('error', function (err) {
       log.error('computeCluster.error', { err });
     })
-    .on('info', function(msg) {
+    .on('info', function (msg) {
       log.info('computeCluster.info', { message: msg });
     })
-    .on('debug', function(msg) {
+    .on('debug', function (msg) {
       log.debug('computeCluster.debug', { message: msg });
     });
 }
@@ -49,13 +49,13 @@ util.inherits(Verifier, events.EventEmitter);
 
 const testServiceFailure = config.get('testServiceFailure');
 
-Verifier.prototype.verify = function(args, cb) {
+Verifier.prototype.verify = function (args, cb) {
   if (!cb) {
     cb = args;
     args = {};
   }
   args = _.extend({}, this.args, args);
-  this.cc.enqueue({ args: args }, function(err, res) {
+  this.cc.enqueue({ args: args }, function (err, res) {
     if (err || testServiceFailure) {
       // An error from the cluster itself.
       return cb('compute cluster error: ' + err);
@@ -70,7 +70,7 @@ Verifier.prototype.verify = function(args, cb) {
   });
 };
 
-Verifier.prototype.shutdown = function() {
+Verifier.prototype.shutdown = function () {
   this.cc.exit();
 };
 

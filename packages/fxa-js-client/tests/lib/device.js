@@ -13,14 +13,14 @@ var DEVICE_NAME = PushTestConstants.DEVICE_NAME;
 var DEVICE_NAME_2 = PushTestConstants.DEVICE_NAME_2;
 var DEVICE_TYPE = PushTestConstants.DEVICE_TYPE;
 
-describe('device', function() {
+describe('device', function () {
   var accountHelper;
   var respond;
   var client;
   var RequestMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -28,10 +28,10 @@ describe('device', function() {
     RequestMocks = env.RequestMocks;
   });
 
-  it('#register', function() {
+  it('#register', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.deviceRegister(
             account.signIn.sessionToken,
@@ -47,7 +47,7 @@ describe('device', function() {
         );
       })
       .then(
-        function(res) {
+        function (res) {
           assert.ok(res.id);
           assert.equal(res.name, DEVICE_NAME);
           assert.equal(res.pushCallback, DEVICE_CALLBACK);
@@ -55,17 +55,17 @@ describe('device', function() {
           assert.equal(res.pushPublicKey, DEVICE_PUBLIC_KEY);
           assert.equal(res.type, DEVICE_TYPE);
         },
-        function(err) {
+        function (err) {
           console.log(err);
           assert.fail();
         }
       );
   });
 
-  it('#update', function() {
+  it('#update', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.deviceRegister(
             account.signIn.sessionToken,
@@ -78,7 +78,7 @@ describe('device', function() {
             }
           ),
           RequestMocks.deviceRegister
-        ).then(function(device) {
+        ).then(function (device) {
           return respond(
             client.deviceUpdate(
               account.signIn.sessionToken,
@@ -94,17 +94,17 @@ describe('device', function() {
           );
         });
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res.id);
         assert.equal(res.name, DEVICE_NAME_2);
         assert.equal(res.pushCallback, DEVICE_CALLBACK);
       }, assert.fail);
   });
 
-  it('#destroy', function() {
+  it('#destroy', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.deviceRegister(
             account.signIn.sessionToken,
@@ -117,20 +117,20 @@ describe('device', function() {
             }
           ),
           RequestMocks.deviceRegister
-        ).then(function(device) {
+        ).then(function (device) {
           return respond(
             client.deviceDestroy(account.signIn.sessionToken, device.id),
             RequestMocks.deviceDestroy
           );
         });
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(Object.keys(res), 0);
       }, assert.fail);
   });
 
-  it('#list', function() {
-    return accountHelper.newVerifiedAccount().then(function(account) {
+  it('#list', function () {
+    return accountHelper.newVerifiedAccount().then(function (account) {
       return respond(
         client.deviceRegister(
           account.signIn.sessionToken,
@@ -144,14 +144,14 @@ describe('device', function() {
         ),
         RequestMocks.deviceRegister
       )
-        .then(function(device) {
+        .then(function (device) {
           return respond(
             client.deviceList(account.signIn.sessionToken),
             RequestMocks.deviceList
           );
         })
 
-        .then(function(devices) {
+        .then(function (devices) {
           assert.equal(devices.length, 1);
 
           var device = devices[0];

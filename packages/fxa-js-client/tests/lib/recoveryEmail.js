@@ -5,7 +5,7 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('recoveryEmail', function() {
+describe('recoveryEmail', function () {
   var accountHelper;
   var respond;
   var mail;
@@ -13,7 +13,7 @@ describe('recoveryEmail', function() {
   var RequestMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -22,12 +22,12 @@ describe('recoveryEmail', function() {
     RequestMocks = env.RequestMocks;
   });
 
-  it('#recoveryEmail - recoveryEmailResendCode', function() {
+  it('#recoveryEmail - recoveryEmailResendCode', function () {
     var user;
 
     return accountHelper
       .newUnverifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         user = account.input.user;
 
         return respond(
@@ -35,7 +35,7 @@ describe('recoveryEmail', function() {
           RequestMocks.recoveryEmailResendCode
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -43,14 +43,14 @@ describe('recoveryEmail', function() {
           RequestMocks.resetMailrecoveryEmailResendCode
         );
       })
-      .then(function(emails) {
+      .then(function (emails) {
         // second email, the code is resent.
         var code = emails[2].html.match(/code=([A-Za-z0-9]+)/)[1];
         assert.ok(code, 'code is returned');
       }, assert.fail);
   });
 
-  it('#recoveryEmailResendCode with service, redirectTo, type and resume', function() {
+  it('#recoveryEmailResendCode with service, redirectTo, type and resume', function () {
     var user;
     var opts = {
       service: 'sync',
@@ -61,7 +61,7 @@ describe('recoveryEmail', function() {
 
     return accountHelper
       .newUnverifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         user = account.input.user;
 
         return respond(
@@ -69,7 +69,7 @@ describe('recoveryEmail', function() {
           RequestMocks.recoveryEmailResendCode
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -77,7 +77,7 @@ describe('recoveryEmail', function() {
           RequestMocks.resetMailWithServiceAndRedirectNoSignup
         );
       })
-      .then(function(emails) {
+      .then(function (emails) {
         // second email, the code is resent.
         var code = emails[2].html.match(/code=([A-Za-z0-9]+)/);
         assert.ok(code, 'code found');

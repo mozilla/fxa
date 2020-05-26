@@ -24,7 +24,7 @@ const {
 
 // okay, not remote so run these for real.
 registerSuite('communication preferences', {
-  beforeEach: function() {
+  beforeEach: function () {
     // The plus sign is to ensure the email address is URI-encoded when
     // passed to basket. See a43061d3
     email = createEmail('signup{id}+extra');
@@ -34,7 +34,7 @@ registerSuite('communication preferences', {
   },
 
   tests: {
-    'manage link': function() {
+    'manage link': function () {
       return (
         this.remote
           .then(openPage(PAGE_URL, selectors.ENTER_EMAIL.HEADER))

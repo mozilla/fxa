@@ -8,7 +8,7 @@ export function hexToUint8(str: string) {
     throw new Error(`invalid hex string: ${str}`);
   }
   const bytes = str.match(/[a-fA-F0-9]{2}/g) as RegExpMatchArray;
-  return new Uint8Array(bytes.map(byte => parseInt(byte, 16)));
+  return new Uint8Array(bytes.map((byte) => parseInt(byte, 16)));
 }
 
 export function uint8ToHex(array: Uint8Array) {

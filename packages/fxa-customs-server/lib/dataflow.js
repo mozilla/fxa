@@ -10,7 +10,10 @@
 const { PubSub } = require('@google-cloud/pubsub');
 
 const VALID_ACTIONS = new Set(['report', 'suspect', 'block', 'disable']);
-const TYPES = new Map([['email', 'email'], ['sourceaddress', 'ip']]);
+const TYPES = new Map([
+  ['email', 'email'],
+  ['sourceaddress', 'ip'],
+]);
 
 /**
  * Initialise the DataFlow handler.
@@ -45,7 +48,7 @@ module.exports = (config, log, fetchRecords, setRecords) => {
 
   const subscription = pubsub.subscription(subscriptionName);
   subscription.on('message', handleMessage);
-  subscription.on('error', error => {
+  subscription.on('error', (error) => {
     log.error({
       op: 'dataflow.subscription.error',
       error: String(error),

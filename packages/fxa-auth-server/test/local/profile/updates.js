@@ -22,7 +22,7 @@ function mockMessage(msg) {
 
 let pushShouldThrow = false;
 const mockPush = {
-  notifyProfileUpdated: sinon.spy(uid => {
+  notifyProfileUpdated: sinon.spy((uid) => {
     assert.ok(typeof uid === 'string');
     if (pushShouldThrow) {
       throw new Error('oops');

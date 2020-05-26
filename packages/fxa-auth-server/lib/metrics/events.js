@@ -159,7 +159,7 @@ module.exports = (log, config) => {
         status = `${status}.${errno || 999}`;
       }
 
-      return emitFlowEvent(`route.${path}.${status}`, request).then(data => {
+      return emitFlowEvent(`route.${path}.${status}`, request).then((data) => {
         if (status >= 200 && status < 300) {
           // Limit to success responses so that short-cut logic (e.g. errors, 304s)
           // doesn't skew distribution of the performance data
@@ -201,7 +201,7 @@ module.exports = (log, config) => {
         region: location && location.state,
         userAgent: request.headers['user-agent'],
       })
-      .then(data => {
+      .then((data) => {
         if (data.flow_id) {
           const uid = coalesceUid(optionalData, request);
           if (uid) {

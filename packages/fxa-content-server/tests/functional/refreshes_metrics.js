@@ -17,11 +17,11 @@ var testAreEventsLogged = FunctionalHelpers.testAreEventsLogged;
 var testElementExists = FunctionalHelpers.testElementExists;
 
 registerSuite('refreshing a screen logs a refresh event', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'refreshing the enter_email screen': function() {
+    'refreshing the enter_email screen': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))

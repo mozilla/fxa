@@ -47,7 +47,7 @@ class ScanCode extends FormView {
 
     return account
       .createSigninCode()
-      .then(resp => {
+      .then((resp) => {
         this.$(QR_IMG_SELECTOR).attr('src', resp.installQrCode);
       })
       .then(() => {

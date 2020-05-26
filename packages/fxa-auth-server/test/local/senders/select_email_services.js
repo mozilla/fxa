@@ -654,7 +654,7 @@ describe('selectEmailServices:', () => {
 });
 
 if (config.redis.email.enabled) {
-  describe('selectEmailServices with real redis:', function() {
+  describe('selectEmailServices with real redis:', function () {
     const emailAddress = 'foo@example.com';
 
     let emailService, selectEmailServices;

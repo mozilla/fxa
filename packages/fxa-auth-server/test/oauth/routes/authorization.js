@@ -18,7 +18,7 @@ const PKCE_CODE_CHALLENGE = 'iyW5ScKr22v_QL-rcW_EGlJrDSOymJvrlXlw4j7JBiQ';
 const PKCE_CODE_CHALLENGE_METHOD = 'S256';
 const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 
-describe('/authorization POST', function() {
+describe('/authorization POST', function () {
   describe('input validation', () => {
     const route = require(routeModulePath);
     const validation = route.validate.payload;
@@ -92,7 +92,7 @@ describe('/authorization POST', function() {
       );
     });
 
-    describe('PKCE params', function() {
+    describe('PKCE params', function () {
       it('accepts code_challenge and code_challenge_method', () => {
         Joi.assert(
           {

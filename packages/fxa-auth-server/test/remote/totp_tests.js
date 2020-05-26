@@ -11,7 +11,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');
 
-describe('remote totp', function() {
+describe('remote totp', function () {
   let server, client, email, totpToken, authenticator;
   const password = 'pssssst';
   const metricsContext = {
@@ -31,7 +31,7 @@ describe('remote totp', function() {
     config.securityHistory.ipProfiling = {};
     config.signinConfirmation.skipForNewAccounts.enabled = false;
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -39,7 +39,7 @@ describe('remote totp', function() {
   function verifyTOTP(client) {
     return client
       .createTotpToken({ metricsContext })
-      .then(result => {
+      .then((result) => {
         authenticator = new otplib.authenticator.Authenticator();
         authenticator.options = Object.assign(
           {},
@@ -57,11 +57,11 @@ describe('remote totp', function() {
         const code = authenticator.generate();
         return client.verifyTotpCode(code, { metricsContext, service: 'sync' });
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(response.success, true, 'totp codes match');
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(
           emailData.headers['x-template-name'],
           'postAddTwoStepAuthentication'
@@ -76,7 +76,7 @@ describe('remote totp', function() {
       email,
       password,
       server.mailbox
-    ).then(x => {
+    ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
       return verifyTOTP(client);
@@ -89,7 +89,7 @@ describe('remote totp', function() {
   });
 
   it('should check if totp token exists for user', () => {
-    return client.checkTotpTokenExists().then(response => {
+    return client.checkTotpTokenExists().then((response) => {
       assert.equal(response.exists, true, 'token exists');
     });
   });
@@ -99,17 +99,17 @@ describe('remote totp', function() {
     return client
       .login()
       .then(() => client.sessionStatus())
-      .then(result => {
+      .then((result) => {
         assert.equal(result.state, 'unverified', 'session is unverified');
         return client.checkTotpTokenExists();
       })
-      .then(assert.fail, err => {
+      .then(assert.fail, (err) => {
         assert.equal(err.errno, 138, 'correct unverified session errno');
       });
   });
 
   it('should fail to create second totp token for same user', () => {
-    return client.createTotpToken().then(assert.fail, err => {
+    return client.createTotpToken().then(assert.fail, (err) => {
       assert.equal(err.code, 400, 'correct error code');
       assert.equal(err.errno, 154, 'correct error errno');
     });
@@ -122,30 +122,30 @@ describe('remote totp', function() {
       email,
       password,
       server.mailbox
-    ).then(x => {
+    ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
       return client
         .deleteTotpToken()
-        .then(result => assert.ok(result, 'delete totp token successfully'));
+        .then((result) => assert.ok(result, 'delete totp token successfully'));
     });
   });
 
   it('should delete totp token', () => {
     return client
       .deleteTotpToken()
-      .then(result => {
+      .then((result) => {
         assert.ok(result, 'delete totp token successfully');
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(
           emailData.headers['x-template-name'],
           'postRemoveTwoStepAuthentication'
         );
 
         // Can create a new token
-        return client.checkTotpTokenExists().then(result => {
+        return client.checkTotpTokenExists().then((result) => {
           assert.equal(result.exists, false, 'token does not exist');
         });
       });
@@ -160,11 +160,11 @@ describe('remote totp', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.login({ keys: true });
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(
           response.verificationMethod,
           'email',
@@ -178,7 +178,7 @@ describe('remote totp', function() {
         assert.equal(response.verified, false, 'verified set to false');
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         code = emailData.headers['x-verify-code'];
         return client.verifyEmail(code);
       })
@@ -192,25 +192,25 @@ describe('remote totp', function() {
           { keys: true }
         );
       })
-      .then(x => {
+      .then((x) => {
         client2 = x;
         return verifyTOTP(client2);
       })
-      .then(res => {
+      .then((res) => {
         // Delete totp from original client that only was email verified
-        return client.deleteTotpToken().then(result => {
+        return client.deleteTotpToken().then((result) => {
           assert.ok(result, 'delete totp token successfully');
           return server.mailbox.waitForEmail(email);
         });
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(
           emailData.headers['x-template-name'],
           'postRemoveTwoStepAuthentication'
         );
 
         // Can create a new token
-        return client.checkTotpTokenExists().then(result => {
+        return client.checkTotpTokenExists().then((result) => {
           assert.equal(result.exists, false, 'token does not exist');
         });
       });
@@ -224,11 +224,11 @@ describe('remote totp', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.login({ keys: true });
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(
           response.verificationMethod,
           'email',
@@ -253,17 +253,17 @@ describe('remote totp', function() {
           { keys: true }
         );
       })
-      .then(client2 => verifyTOTP(client2))
-      .then(res => {
+      .then((client2) => verifyTOTP(client2))
+      .then((res) => {
         // Attempt to delete totp from original unverified session
-        return client.deleteTotpToken().then(assert.fail, err => {
+        return client.deleteTotpToken().then(assert.fail, (err) => {
           assert.equal(err.errno, 138, 'correct unverified session errno');
         });
       });
   });
 
   it('should request `totp-2fa` on login if user has verified totp token', () => {
-    return Client.login(config.publicUrl, email, password).then(response => {
+    return Client.login(config.publicUrl, email, password).then((response) => {
       assert.equal(
         response.verificationMethod,
         'totp-2fa',
@@ -282,7 +282,7 @@ describe('remote totp', function() {
       .deleteTotpToken()
       .then(() => client.createTotpToken())
       .then(() => Client.login(config.publicUrl, email, password))
-      .then(response => {
+      .then((response) => {
         assert.notEqual(
           response.verificationMethod,
           'totp-2fa',
@@ -297,7 +297,7 @@ describe('remote totp', function() {
   });
 
   it('should not bypass `totp-2fa` by resending sign-in confirmation code', () => {
-    return Client.login(config.publicUrl, email, password).then(response => {
+    return Client.login(config.publicUrl, email, password).then((response) => {
       client = response;
       assert.equal(
         response.verificationMethod,
@@ -310,7 +310,7 @@ describe('remote totp', function() {
         'verification reason set'
       );
 
-      return client.requestVerifyEmail().then(res => {
+      return client.requestVerifyEmail().then((res) => {
         assert.deepEqual(res, {}, 'returns empty response');
       });
     });
@@ -319,7 +319,7 @@ describe('remote totp', function() {
   it('should not bypass `totp-2fa` by signing a cert with an unverified session', () => {
     return Client.login(config.publicUrl, email, password, {
       keys: false,
-    }).then(response => {
+    }).then((response) => {
       client = response;
       assert.equal(
         response.verificationMethod,
@@ -343,7 +343,7 @@ describe('remote totp', function() {
         () => {
           assert.fail('should not have succeeded');
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             138,
@@ -355,7 +355,7 @@ describe('remote totp', function() {
   });
 
   it('should not bypass `totp-2fa` by when using session reauth', () => {
-    return Client.login(config.publicUrl, email, password).then(response => {
+    return Client.login(config.publicUrl, email, password).then((response) => {
       client = response;
       assert.equal(
         response.verificationMethod,
@@ -369,7 +369,7 @@ describe('remote totp', function() {
       );
 
       // Lets attempt to sign-in reusing session reauth
-      return client.reauth().then(response => {
+      return client.reauth().then((response) => {
         assert.equal(
           response.verificationMethod,
           'totp-2fa',
@@ -387,7 +387,7 @@ describe('remote totp', function() {
   it('should not create verified session after account reset with totp', () => {
     const newPassword = 'anotherPassword';
     return Client.login(config.publicUrl, email, password)
-      .then(response => {
+      .then((response) => {
         client = response;
         assert.equal(
           response.verificationMethod,
@@ -403,9 +403,9 @@ describe('remote totp', function() {
         return client.forgotPassword();
       })
       .then(() => server.mailbox.waitForCode(email))
-      .then(code => client.verifyPasswordResetCode(code))
+      .then((code) => client.verifyPasswordResetCode(code))
       .then(() => client.resetPassword(newPassword, {}, { keys: true }))
-      .then(res => {
+      .then((res) => {
         assert.equal(
           res.verificationMethod,
           'totp-2fa',
@@ -423,7 +423,7 @@ describe('remote totp', function() {
     beforeEach(() => {
       // Create a new unverified session to test totp codes
       return Client.login(config.publicUrl, email, password).then(
-        response => (client = response)
+        (response) => (client = response)
       );
     });
 
@@ -432,7 +432,7 @@ describe('remote totp', function() {
       const incorrectCode = code === '123456' ? '123455' : '123456';
       return client
         .verifyTotpCode(incorrectCode, { metricsContext, service: 'sync' })
-        .then(result => {
+        .then((result) => {
           assert.equal(result.success, false, 'failed');
         });
     });
@@ -440,7 +440,7 @@ describe('remote totp', function() {
     it('should reject non-numeric codes', () => {
       return client
         .verifyTotpCode('wrong', { metricsContext, service: 'sync' })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(err.errno, 107, 'correct error errno');
         });
@@ -453,12 +453,12 @@ describe('remote totp', function() {
         email,
         password,
         server.mailbox
-      ).then(x => {
+      ).then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
         return client
           .verifyTotpCode('123456', { metricsContext, service: 'sync' })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.equal(err.code, 400, 'correct error code');
             assert.equal(err.errno, 155, 'correct error errno');
           });
@@ -469,11 +469,11 @@ describe('remote totp', function() {
       const code = authenticator.generate();
       return client
         .verifyTotpCode(code, { metricsContext, service: 'sync' })
-        .then(response => {
+        .then((response) => {
           assert.equal(response.success, true, 'totp codes match');
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
         });
     });
@@ -486,11 +486,11 @@ describe('remote totp', function() {
       const code = futureAuthenticator.generate();
       return client
         .verifyTotpCode(code, { metricsContext, service: 'sync' })
-        .then(response => {
+        .then((response) => {
           assert.equal(response.success, true, 'totp codes match');
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
         });
     });
@@ -503,7 +503,7 @@ describe('remote totp', function() {
       const code = futureAuthenticator.generate();
       return client
         .verifyTotpCode(code, { metricsContext, service: 'sync' })
-        .then(response => {
+        .then((response) => {
           assert.equal(response.success, false, 'totp codes do not match');
         });
     });

@@ -13,7 +13,7 @@ const base64url = require('base64url');
 const P = require('../../lib/promise');
 const mocks = require('../mocks');
 
-describe('remote device', function() {
+describe('remote device', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -23,7 +23,7 @@ describe('remote device', function() {
       earliestSaneTimestamp: config.lastAccessTimeUpdates.earliestSaneTimestamp,
     };
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -31,7 +31,7 @@ describe('remote device', function() {
   it('device registration after account creation', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device 🍓🔥在𝌆',
         type: 'mobile',
@@ -42,11 +42,11 @@ describe('remote device', function() {
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.ok(device.createdAt > 0, 'device.createdAt was set');
           assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -80,7 +80,7 @@ describe('remote device', function() {
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 1, 'devices returned one item');
           assert.equal(
             devices[0].name,
@@ -125,18 +125,18 @@ describe('remote device', function() {
   it('device registration without optional parameters', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.ok(device.createdAt > 0, 'device.createdAt was set');
           assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -165,7 +165,7 @@ describe('remote device', function() {
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 1, 'devices returned one item');
           assert.equal(
             devices[0].name,
@@ -205,7 +205,7 @@ describe('remote device', function() {
   it('device registration with unicode characters in the name', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         // That's a beta, and a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298
         name: 'Firefox \u5728 \u03b2 test',
@@ -213,7 +213,7 @@ describe('remote device', function() {
       };
       return client
         .updateDevice(deviceInfo)
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.ok(device.createdAt > 0, 'device.createdAt was set');
           assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -221,7 +221,7 @@ describe('remote device', function() {
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 1, 'devices returned one item');
           assert.equal(
             devices[0].name,
@@ -235,8 +235,8 @@ describe('remote device', function() {
   it('device registration without required name parameter', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
-      return client.updateDevice({ type: 'mobile' }).then(device => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
+      return client.updateDevice({ type: 'mobile' }).then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
         assert.equal(device.name, '', 'device.name is empty');
@@ -249,8 +249,8 @@ describe('remote device', function() {
     const email = server.uniqueEmail();
     const deviceName = 'test device';
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
-      return client.updateDevice({ name: 'test device' }).then(device => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
+      return client.updateDevice({ name: 'test device' }).then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
         assert.equal(device.name, deviceName, 'device.name is correct');
@@ -272,13 +272,13 @@ describe('remote device', function() {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
-        .then(r => {
+        .then((r) => {
           assert(false, 'request should have failed');
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'err.code was 400');
           assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
           assert.equal(
@@ -304,13 +304,13 @@ describe('remote device', function() {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
-        .then(r => {
+        .then((r) => {
           assert(false, 'request should have failed');
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'err.code was 400');
           assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
           assert.equal(
@@ -326,7 +326,7 @@ describe('remote device', function() {
     const goodPushCallback = 'https://updates-autopush.stage.mozaws.net';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -337,11 +337,11 @@ describe('remote device', function() {
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.equal(
             device.pushCallback,
@@ -349,7 +349,7 @@ describe('remote device', function() {
             'device.pushCallback is correct'
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.fail(err, 'request should have worked');
         });
     });
@@ -359,7 +359,7 @@ describe('remote device', function() {
     const goodPushCallback = 'https://updates-autopush.dev.mozaws.net';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -369,11 +369,11 @@ describe('remote device', function() {
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.equal(
             device.pushCallback,
@@ -381,7 +381,7 @@ describe('remote device', function() {
             'device.pushCallback is correct'
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.fail(err, 'request should have worked');
         });
     });
@@ -393,7 +393,7 @@ describe('remote device', function() {
 
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -403,11 +403,11 @@ describe('remote device', function() {
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.equal(
             device.pushCallback,
@@ -415,7 +415,7 @@ describe('remote device', function() {
             'device.pushCallback is correct'
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.fail(err, 'request should have worked');
         });
     });
@@ -425,7 +425,7 @@ describe('remote device', function() {
     const goodPushCallback = 'https://updates.push.services.mozilla.com:4430';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -435,11 +435,11 @@ describe('remote device', function() {
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.equal(
             device.pushCallback,
@@ -447,7 +447,7 @@ describe('remote device', function() {
             'device.pushCallback is correct'
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.fail(err, 'request should have worked');
         });
     });
@@ -457,7 +457,7 @@ describe('remote device', function() {
     const goodPushCallback = 'https://updates.push.services.mozilla.com:10332';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -467,11 +467,11 @@ describe('remote device', function() {
       };
       return client
         .devices()
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 0, 'devices returned no items');
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.ok(device.id, 'device.id was set');
           assert.equal(
             device.pushCallback,
@@ -479,7 +479,7 @@ describe('remote device', function() {
             'device.pushCallback is correct'
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.fail(err, 'request should have worked');
         });
     });
@@ -497,13 +497,13 @@ describe('remote device', function() {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
-        .then(r => {
+        .then((r) => {
           assert(false, 'request should have failed');
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'err.code was 400');
           assert.equal(err.errno, 107, 'err.errno was 107, invalid parameter');
           assert.equal(
@@ -518,13 +518,13 @@ describe('remote device', function() {
   it('device registration ignores deprecated "capabilities" field', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'a very capable device',
         type: 'desktop',
         capabilities: [],
       };
-      return client.updateDevice(deviceInfo).then(device => {
+      return client.updateDevice(deviceInfo).then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
         assert.equal(device.name, deviceInfo.name, 'device.name is correct');
@@ -551,15 +551,15 @@ describe('remote device', function() {
       email,
       password,
       server.mailbox
-    ).then(client => {
+    ).then((client) => {
       return Client.login(config.publicUrl, email, password)
-        .then(secondClient => {
+        .then((secondClient) => {
           return secondClient.updateDevice(deviceInfo[0]);
         })
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 1, 'devices returned one item');
           assert.equal(
             devices[0].isCurrentDevice,
@@ -581,12 +581,12 @@ describe('remote device', function() {
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 2, 'devices returned two items');
           if (devices[0].name === deviceInfo[1].name) {
             // database results are unordered, swap them if necessary
             const swap = {};
-            Object.keys(devices[0]).forEach(key => {
+            Object.keys(devices[0]).forEach((key) => {
               swap[key] = devices[0][key];
               devices[0][key] = devices[1][key];
               devices[1][key] = swap[key];
@@ -640,13 +640,13 @@ describe('remote device', function() {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password).then(client => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(
             devices[0].pushCallback,
             deviceInfo.pushCallback,
@@ -672,7 +672,7 @@ describe('remote device', function() {
             pushCallback: 'https://updates.push.services.mozilla.com/foo',
           });
         })
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.equal(err.errno, 107);
           assert.equal(err.message, 'Invalid parameter in request body');
         });
@@ -696,7 +696,7 @@ describe('remote device', function() {
       email,
       password,
       server.mailbox
-    ).then(client => {
+    ).then((client) => {
       return (
         client
           .updateDevice(deviceInfo)
@@ -704,7 +704,7 @@ describe('remote device', function() {
             () => {
               assert(false, 'request should have failed');
             },
-            err => {
+            (err) => {
               assert.equal(err.code, 400, 'err.code was 400');
               assert.equal(err.errno, 107, 'err.errno was 107');
             }
@@ -723,7 +723,7 @@ describe('remote device', function() {
             };
             return client.sign(publicKey, 1000 * 60 * 5);
           })
-          .then(cert => {
+          .then((cert) => {
             assert.equal(typeof cert, 'string', 'cert was successfully signed');
           })
       );
@@ -738,7 +738,7 @@ describe('remote device', function() {
       email,
       password,
       server.mailbox
-    ).then(client => {
+    ).then((client) => {
       const deviceInfo = {
         name: 'test device',
       };
@@ -756,7 +756,7 @@ describe('remote device', function() {
         .then(() => {
           return client.devices();
         })
-        .then(devices => {
+        .then((devices) => {
           assert.equal(devices.length, 1, 'devices returned 1 item');
           assert.equal(
             devices[0].name,
@@ -773,7 +773,7 @@ describe('remote device', function() {
           deviceInfo.id = devices[0].id;
           return client.updateDevice(deviceInfo);
         })
-        .then(device => {
+        .then((device) => {
           assert.equal(device.id, deviceInfo.id, 'device.id was set correctly');
           assert.equal(
             device.name,

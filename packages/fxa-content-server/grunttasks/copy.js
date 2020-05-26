@@ -3,7 +3,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.config('copy', {
     dist: {
       files: [
@@ -57,7 +57,7 @@ module.exports = function(grunt) {
         },
       ],
       options: {
-        process: content => {
+        process: (content) => {
           return content.replace(
             'https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral',
             'https://www.firefox.com.cn/?utm_source=firefox-accounts&amp;utm_medium=Referral'
@@ -92,7 +92,7 @@ module.exports = function(grunt) {
           cwd: '<%= yeoman.tos_html_dest %>',
           dest: '<%= yeoman.tos_html_dest %>',
           src: 'es_ES.html',
-          rename: function(dest) {
+          rename: function (dest) {
             return dest + '/es.html';
           },
         },
@@ -101,7 +101,7 @@ module.exports = function(grunt) {
           cwd: '<%= yeoman.pp_html_dest %>',
           dest: '<%= yeoman.pp_html_dest %>',
           src: 'es_ES.html',
-          rename: function(dest) {
+          rename: function (dest) {
             return dest + '/es.html';
           },
         },

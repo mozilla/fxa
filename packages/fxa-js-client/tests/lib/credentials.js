@@ -5,8 +5,8 @@
 const assert = require('chai').assert;
 const sjcl = require('sjcl');
 const credentials = require('../../client/lib/credentials');
-describe('credentials', function() {
-  it('#client stretch-KDF vectors', function() {
+describe('credentials', function () {
+  it('#client stretch-KDF vectors', function () {
     var email = sjcl.codec.utf8String.fromBits(
       sjcl.codec.hex.toBits('616e6472c3a9406578616d706c652e6f7267')
     );
@@ -14,7 +14,7 @@ describe('credentials', function() {
       sjcl.codec.hex.toBits('70c3a4737377c3b67264')
     );
 
-    return credentials.setup(email, password).then(function(result) {
+    return credentials.setup(email, password).then(function (result) {
       var quickStretchedPW = sjcl.codec.hex.fromBits(result.quickStretchedPW);
       var authPW = sjcl.codec.hex.fromBits(result.authPW);
       var unwrapBKey = sjcl.codec.hex.fromBits(result.unwrapBKey);
@@ -37,7 +37,7 @@ describe('credentials', function() {
     }, assert.fail);
   });
 
-  it('#wrap', function() {
+  it('#wrap', function () {
     var bit1 = sjcl.codec.hex.toBits(
       'c347de41c8a409c17b5b88e4985e1cd10585bb79b4a80d5e576eaf97cd1277fc'
     );

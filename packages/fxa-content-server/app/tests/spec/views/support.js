@@ -18,7 +18,7 @@ import User from 'models/user';
 
 sinon.spy(AccountByUidMixin.getUidAndSetSignedInAccount);
 
-describe('views/support', function() {
+describe('views/support', function () {
   let account;
   let metrics;
   let notifier;
@@ -53,7 +53,7 @@ describe('views/support', function() {
     sinon.stub(view, 'checkAuthorization').returns(Promise.resolve(true));
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new Notifier();
     metrics = new Metrics({
       notifier,
@@ -102,7 +102,7 @@ describe('views/support', function() {
     createSupportView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     metrics = null;
     $(view.el).remove();
@@ -110,13 +110,13 @@ describe('views/support', function() {
     view = null;
   });
 
-  it('should have a header', function() {
+  it('should have a header', function () {
     return view
       .render()
-      .then(function() {
+      .then(function () {
         $('#container').append(view.el);
       })
-      .then(function() {
+      .then(function () {
         assert.ok(view.$('#fxa-settings-header').length);
         assert.ok(view.$('#fxa-settings-profile-header-wrapper').length);
         assert.equal(
@@ -126,15 +126,15 @@ describe('views/support', function() {
       });
   });
 
-  describe('product name', function() {
-    it('should be the prefixed "Firefox Account" when "Firefox Account" is selected', function() {
+  describe('product name', function () {
+    it('should be the prefixed "Firefox Account" when "Firefox Account" is selected', function () {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view
             .$('#product option:eq(1)')
             .prop('selected', true)
@@ -146,14 +146,14 @@ describe('views/support', function() {
         });
     });
 
-    it('should be the prefixed product name of the selected plan', function() {
+    it('should be the prefixed product name of the selected plan', function () {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view
             .$('#product option:eq(2)')
             .prop('selected', true)
@@ -168,11 +168,11 @@ describe('views/support', function() {
     it('emits subscription.initialize correctly', () => {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view
             .$('#product option:eq(2)')
             .prop('selected', true)
@@ -188,14 +188,14 @@ describe('views/support', function() {
         });
     });
 
-    it('should be prefixed "Other" when "Other" is selected', function() {
+    it('should be prefixed "Other" when "Other" is selected', function () {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view
             .$('#product option:eq(3)')
             .prop('selected', true)
@@ -209,11 +209,11 @@ describe('views/support', function() {
     it('logs the engage event (change)', () => {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           assert.isFalse(
             TestHelpers.isEventLogged(metrics, 'flow.support.engage')
           );
@@ -228,26 +228,26 @@ describe('views/support', function() {
     });
   });
 
-  describe('submit button', function() {
-    it('should be disabled by default', function() {
+  describe('submit button', function () {
+    it('should be disabled by default', function () {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           assert.ok(view.$('form button[type=submit]').prop('disabled'));
         });
     });
 
-    it('should be enabled once a product, a topic, and a message is entered', function() {
+    it('should be enabled once a product, a topic, and a message is entered', function () {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view
             .$('#product option:eq(1)')
             .prop('selected', true)
@@ -258,31 +258,25 @@ describe('views/support', function() {
             .prop('selected', true)
             .trigger('change');
           assert.ok(view.$('form button[type=submit]').prop('disabled'));
-          view
-            .$('#message')
-            .val(supportTicket.message)
-            .trigger('keyup');
+          view.$('#message').val(supportTicket.message).trigger('keyup');
           assert.isFalse(view.$('form button[type=submit]').prop('disabled'));
         });
     });
 
-    it('should disable buttons and show spinner on submit click', function() {
+    it('should disable buttons and show spinner on submit click', function () {
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view
-            .$('#message')
-            .val(supportTicket.message)
-            .trigger('keyup');
+          view.$('#message').val(supportTicket.message).trigger('keyup');
           view.$('form button[type=submit]').click();
         })
-        .then(function() {
+        .then(function () {
           assert.ok(view.$('form button[type=submit]').prop('disabled'));
           assert.ok(view.$('form button.cancel').prop('disabled'));
           assert.ok(view.$('.submit-content').hasClass('hidden'));
@@ -290,7 +284,7 @@ describe('views/support', function() {
         });
     });
 
-    it('should enable buttons and hide spinner on submit handle', function() {
+    it('should enable buttons and hide spinner on submit handle', function () {
       sinon.stub(view, 'navigateToSubscriptionsManagement');
       sinon
         .stub(account, 'createSupportTicket')
@@ -299,23 +293,20 @@ describe('views/support', function() {
 
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view.$('#product option:eq(1)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view
-            .$('#message')
-            .val(supportTicket.message)
-            .trigger('keyup');
+          view.$('#message').val(supportTicket.message).trigger('keyup');
 
           // calling this directly instead of clicking submit so we can have
           // a promise to await
           return view.submitSupportForm();
         })
-        .then(function() {
+        .then(function () {
           assert.isFalse(
             view.$('form button[type=submit]').hasClass('disabled')
           );
@@ -326,8 +317,8 @@ describe('views/support', function() {
     });
   });
 
-  describe('successful form submission', function() {
-    it('should display a success modal', function() {
+  describe('successful form submission', function () {
+    it('should display a success modal', function () {
       sinon.stub(view, 'navigateToSubscriptionsManagement');
       sinon
         .stub(account, 'createSupportTicket')
@@ -336,23 +327,20 @@ describe('views/support', function() {
 
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view.$('#product option:eq(2)').prop('selected', true);
           view.$('#topic option:eq(1)').prop('selected', true);
-          view
-            .$('#message')
-            .val(supportTicket.message)
-            .trigger('keyup');
+          view.$('#message').val(supportTicket.message).trigger('keyup');
 
           // calling this directly instead of clicking submit so we can have
           // a promise to await
           return view.submitSupportForm();
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(account.createSupportTicket.calledOnce);
           assert.deepEqual(
             account.createSupportTicket.firstCall.args[0],
@@ -376,8 +364,8 @@ describe('views/support', function() {
     });
   });
 
-  describe('failed form submission', function() {
-    it('should display an error modal', function() {
+  describe('failed form submission', function () {
+    it('should display an error modal', function () {
       sinon
         .stub(account, 'createSupportTicket')
         .returns(Promise.resolve({ success: false }));
@@ -385,11 +373,11 @@ describe('views/support', function() {
 
       return view
         .render()
-        .then(function() {
+        .then(function () {
           view.afterVisible();
           $('#container').append(view.el);
         })
-        .then(function() {
+        .then(function () {
           view.$('#topic option:eq(1)').prop('selected', true);
           view.$('#message').val(supportTicket.message);
 
@@ -397,7 +385,7 @@ describe('views/support', function() {
           // a promise to await
           return view.submitSupportForm();
         })
-        .then(function() {
+        .then(function () {
           assert.ok($('.dialog-error').length);
           assert.equal(view.logFlowEvent.callCount, 2);
           assert.deepEqual(view.logFlowEvent.getCall(0).args, [

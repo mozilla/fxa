@@ -30,19 +30,19 @@ var mockMetricsRequest = {
   body: {
     isSampledUser: true,
   },
-  get: function() {},
+  get: function () {},
 };
 var mockMetricsResponse = {
-  json: function() {},
+  json: function () {},
 };
 
-suite.tests['writes formatted data to stderr'] = function() {
+suite.tests['writes formatted data to stderr'] = function () {
   var dfd = this.async(1000);
 
   // process.stderr.write is overwritten because the 'data' message
   // is never received and the test times out.
   var _origWrite = process.stderr.write;
-  process.stderr.write = function(chunk) {
+  process.stderr.write = function (chunk) {
     var loggedMetrics = JSON.parse(String(chunk));
 
     if (loggedMetrics.op === 'client.metrics') {
@@ -132,21 +132,21 @@ suite.tests['writes formatted data to stderr'] = function() {
   });
 };
 
-suite.tests['it is enabled  with config options set to false'] = function() {
+suite.tests['it is enabled  with config options set to false'] = function () {
   var dfd = this.async(1000);
   var DISABLE_CLIENT_METRICS_STDERR = false;
   var mocks = {
     '../configuration': {
-      get: function() {
+      get: function () {
         return {
           max_event_offset: MAX_EVENT_OFFSET,
           stderr_collector_disabled: DISABLE_CLIENT_METRICS_STDERR,
         };
       },
     },
-    '../metrics-collector-stderr': function() {
+    '../metrics-collector-stderr': function () {
       return {
-        write: function(data) {
+        write: function (data) {
           assert.isTrue(data.isSampledUser);
           dfd.resolve();
         },
@@ -162,21 +162,21 @@ suite.tests['it is enabled  with config options set to false'] = function() {
   return dfd.promise;
 };
 
-suite.tests['it can be disabled with config options'] = function() {
+suite.tests['it can be disabled with config options'] = function () {
   var dfd = this.async(1000);
   var DISABLE_CLIENT_METRICS_STDERR = true;
   var mocks = {
     '../configuration': {
-      get: function() {
+      get: function () {
         return {
           max_event_offset: MAX_EVENT_OFFSET,
           stderr_collector_disabled: DISABLE_CLIENT_METRICS_STDERR,
         };
       },
     },
-    '../metrics-collector-stderr': function() {
+    '../metrics-collector-stderr': function () {
       return {
-        write: function() {
+        write: function () {
           assert.notOk(
             true,
             'this should not be called when stderr is disabled'
@@ -191,17 +191,17 @@ suite.tests['it can be disabled with config options'] = function() {
   )();
   postMetrics.process(mockMetricsRequest, mockMetricsResponse);
   // simulate request for metrics
-  setTimeout(function() {
+  setTimeout(function () {
     dfd.resolve();
   }, 150);
   return dfd.promise;
 };
 
-suite.tests['silenty drops missing screen dimensions'] = function() {
+suite.tests['silenty drops missing screen dimensions'] = function () {
   var dfd = this.async(1000);
 
   var _origWrite = process.stderr.write;
-  process.stderr.write = function(chunk) {
+  process.stderr.write = function (chunk) {
     var loggedMetrics = JSON.parse(String(chunk));
 
     if (loggedMetrics.op === 'client.metrics') {

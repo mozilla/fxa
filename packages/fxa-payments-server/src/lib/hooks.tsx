@@ -26,7 +26,9 @@ export function useCheckboxState(
   defaultState: boolean = false
 ): useCheckboxStateResult {
   const [state, setState] = useState(defaultState);
-  const onChanged = useCallback(ev => setState(ev.target.checked), [setState]);
+  const onChanged = useCallback((ev) => setState(ev.target.checked), [
+    setState,
+  ]);
   return [state, onChanged];
 }
 

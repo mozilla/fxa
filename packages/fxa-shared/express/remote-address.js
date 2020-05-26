@@ -8,18 +8,15 @@
 
 const joi = require('joi');
 
-const IP_ADDRESS = joi
-  .string()
-  .ip()
-  .required();
+const IP_ADDRESS = joi.string().ip().required();
 
-module.exports = clientIpAddressDepth => request => {
+module.exports = (clientIpAddressDepth) => (request) => {
   let ipAddresses = (request.headers['x-forwarded-for'] || '')
     .split(',')
-    .map(address => address.trim());
+    .map((address) => address.trim());
   ipAddresses.push(request.ip || request.connection.remoteAddress);
   ipAddresses = ipAddresses.filter(
-    ipAddress => !joi.validate(ipAddress, IP_ADDRESS).error
+    (ipAddress) => !joi.validate(ipAddress, IP_ADDRESS).error
   );
 
   let clientAddressIndex = ipAddresses.length - clientIpAddressDepth;

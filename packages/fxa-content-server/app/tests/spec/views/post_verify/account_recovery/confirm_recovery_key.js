@@ -73,7 +73,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
     return view.render().then(() => $('#container').html(view.$el));
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     view.remove();
     view.destroy();
@@ -186,7 +186,7 @@ describe('views/post_verify/account_recovery/confirm_recovery_key', () => {
         });
 
         it('should throw and handle in lower level', () => {
-          return view.submit().then(assert.fail, err => {
+          return view.submit().then(assert.fail, (err) => {
             assert.equal(err, error);
           });
         });

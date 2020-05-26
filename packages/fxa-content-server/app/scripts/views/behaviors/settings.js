@@ -8,7 +8,7 @@
  */
 
 import NavigateBehavior from '../behaviors/navigate';
-const t = msg => msg;
+const t = (msg) => msg;
 
 /**
  * Creates navigation behavior that displays a success message
@@ -19,9 +19,9 @@ const t = msg => msg;
  *   @param {String} [options.success] - success message when redirected
  * @return {Object} promise
  */
-export default function(defaultBehavior, options = {}) {
-  const behavior = function(view, account) {
-    return account.isSignedIn().then(isSignedIn => {
+export default function (defaultBehavior, options = {}) {
+  const behavior = function (view, account) {
+    return account.isSignedIn().then((isSignedIn) => {
       if (isSignedIn) {
         let success = t('Account verified successfully');
         let endpoint = 'settings';

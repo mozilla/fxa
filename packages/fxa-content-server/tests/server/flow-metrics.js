@@ -13,13 +13,13 @@ var suite = {
 
 var mockDateNow, mockRandomBytes, mockFlowIdKey, mockUserAgent;
 
-suite.beforeEach = function() {
+suite.beforeEach = function () {
   mockFlowIdKey = 'test hmac key';
   mockUserAgent = 'test user agent';
-  sinon.stub(Date, 'now').callsFake(function() {
+  sinon.stub(Date, 'now').callsFake(function () {
     return mockDateNow;
   });
-  sinon.stub(crypto, 'randomBytes').callsFake(function(size) {
+  sinon.stub(crypto, 'randomBytes').callsFake(function (size) {
     if (mockRandomBytes) {
       return Buffer.from(mockRandomBytes);
     } else {
@@ -32,7 +32,7 @@ suite.beforeEach = function() {
   mockRandomBytes = null;
 };
 
-suite.afterEach = function() {
+suite.afterEach = function () {
   mockDateNow = 0;
   mockRandomBytes = null;
   crypto.randomBytes.restore();

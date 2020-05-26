@@ -167,7 +167,7 @@ const CancelSubscriptionPanel = ({
   }, [engaged, plan]);
 
   const engagedOnHideCancel = useCallback(
-    evt => {
+    (evt) => {
       engage();
       onConfirmationChanged(evt);
       hideCancel();
@@ -176,7 +176,7 @@ const CancelSubscriptionPanel = ({
   );
 
   const engagedOnConfirmationChanged = useCallback(
-    evt => {
+    (evt) => {
       engage();
       onConfirmationChanged(evt);
     },

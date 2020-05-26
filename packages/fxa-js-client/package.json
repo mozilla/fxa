@@ -11,7 +11,7 @@
     "test": "npm run lint && mocha tests/lib --reporter dot --timeout 5000",
     "test-local": "AUTH_SERVER_URL=http://localhost:9000 npm test",
     "contributors": "git shortlog -s | cut -c8- | sort -f > CONTRIBUTORS.md",
-    "format": "prettier '**' --write"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "main": "node/index.js",
   "files": [

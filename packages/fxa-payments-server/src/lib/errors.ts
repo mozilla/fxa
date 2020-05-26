@@ -104,9 +104,9 @@ const paymentErrors2 = [
   'transaction_not_allowed',
 ];
 
-basicErrors.forEach(k => (errorMessageIndex[k] = BASIC_ERROR));
-paymentErrors1.forEach(k => (errorMessageIndex[k] = PAYMENT_ERROR_1));
-paymentErrors2.forEach(k => (errorMessageIndex[k] = PAYMENT_ERROR_2));
+basicErrors.forEach((k) => (errorMessageIndex[k] = BASIC_ERROR));
+paymentErrors1.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_1));
+paymentErrors2.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_2));
 
 function getErrorMessage(type: string) {
   return errorMessageIndex[type] ? errorMessageIndex[type] : BASIC_ERROR;

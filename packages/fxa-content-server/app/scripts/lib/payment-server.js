@@ -41,7 +41,7 @@ const PaymentServer = {
         scope: managementScopes,
         ttl: managementTokenTTL,
       })
-      .then(accessToken => {
+      .then((accessToken) => {
         const queryString = Url.objToSearchString({
           // device_id, flow_begin_time, and flow_id need to be propagated to
           // the payments server so that the user funnel can be traced from the RP,

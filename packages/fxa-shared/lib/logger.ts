@@ -29,7 +29,7 @@ interface ModuleError {
  *
  * @constructor
  */
-const Logger = (function(this: Logger, logWindow?: Window) {
+const Logger = (function (this: Logger, logWindow?: Window) {
   this._window = logWindow || window;
 } as any) as new (logWindow?: Window) => Logger;
 

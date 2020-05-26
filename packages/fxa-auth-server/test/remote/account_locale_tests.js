@@ -17,12 +17,12 @@ const key = {
   e: '65537',
 };
 
-describe('remote account locale', function() {
+describe('remote account locale', function () {
   this.timeout(15000);
 
   let server;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -37,11 +37,11 @@ describe('remote account locale', function() {
       password,
       server.mailbox
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return c.api.accountStatus(c.uid, c.sessionToken);
       })
-      .then(response => {
+      .then((response) => {
         assert.ok(!response.locale, 'account has no locale');
         return client.login();
       })
@@ -56,7 +56,7 @@ describe('remote account locale', function() {
       .then(() => {
         return client.api.accountStatus(client.uid, client.sessionToken);
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(response.locale, 'en-US', 'account has a locale');
       });
   });
@@ -67,10 +67,10 @@ describe('remote account locale', function() {
     return Client.create(config.publicUrl, email, password, {
       lang: Buffer.alloc(128).toString('hex'),
     })
-      .then(c => {
+      .then((c) => {
         return c.api.accountStatus(c.uid, c.sessionToken);
       })
-      .then(response => {
+      .then((response) => {
         assert.ok(!response.locale, 'account has no locale');
       });
   });
@@ -81,10 +81,10 @@ describe('remote account locale', function() {
     return Client.create(config.publicUrl, email, password, {
       lang: `en-US,en;q=0.8,${Buffer.alloc(128).toString('hex')}`,
     })
-      .then(c => {
+      .then((c) => {
         return c.api.accountStatus(c.uid, c.sessionToken);
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(
           response.locale,
           'en-US,en;q=0.8',

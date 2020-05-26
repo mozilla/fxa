@@ -4,7 +4,7 @@
 
 // const { dirname } = require('path');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   const TEMP_DIR = '.tmp';
   const TEMPLATE_ROOT = 'server/templates';
   const TOS_PP_REPO_ROOT = '../../node_modules/legal-docs'; //dirname(require.resolve('legal-docs'));

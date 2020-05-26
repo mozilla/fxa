@@ -13,7 +13,7 @@ import sinon from 'sinon';
 import SyncSuggestionMixin from 'views/mixins/sync-suggestion-mixin';
 
 const SyncView = BaseView.extend({
-  template: context => context.syncSuggestionHTML,
+  template: (context) => context.syncSuggestionHTML,
 });
 
 Cocktail.mixin(

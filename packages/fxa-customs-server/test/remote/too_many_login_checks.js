@@ -25,20 +25,20 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('/check `accountLogin` with different emails', function(t) {
+test('/check `accountLogin` with different emails', function (t) {
   // Send requests until throttled
   return (
     client
@@ -47,7 +47,7 @@ test('/check `accountLogin` with different emails', function(t) {
         email: 'test-fail1@example.com',
         action: ACCOUNT_LOGIN,
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'failed login 1');
 
         return client.postAsync('/failedLoginAttempt', {
@@ -56,7 +56,7 @@ test('/check `accountLogin` with different emails', function(t) {
           action: ACCOUNT_LOGIN,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'failed login 2');
 
         return client.postAsync('/check', {
@@ -65,7 +65,7 @@ test('/check `accountLogin` with different emails', function(t) {
           action: ACCOUNT_LOGIN,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, false, 'not rate limited');
 
@@ -75,7 +75,7 @@ test('/check `accountLogin` with different emails', function(t) {
           action: ACCOUNT_LOGIN,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'failed login 3');
 
         return client.postAsync('/check', {
@@ -84,7 +84,7 @@ test('/check `accountLogin` with different emails', function(t) {
           action: ACCOUNT_LOGIN,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'ip is now rate limited');
         t.ok(obj.retryAfter > 0, 'rate limit retry amount');
@@ -96,7 +96,7 @@ test('/check `accountLogin` with different emails', function(t) {
         });
       })
       // IP should be now blocked
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(obj.block, true, 'ip is still rate limited');
 
@@ -104,14 +104,14 @@ test('/check `accountLogin` with different emails', function(t) {
         return Promise.delay(5010);
       })
       // IP should be now unblocked
-      .then(function() {
+      .then(function () {
         return client.postAsync('/check', {
           ip: TEST_IP,
           email: 'test5@example.com',
           action: ACCOUNT_LOGIN,
         });
       })
-      .spread(function(req, res, obj) {
+      .spread(function (req, res, obj) {
         t.equal(res.statusCode, 200, 'returns a 200');
         t.equal(
           obj.block,
@@ -120,14 +120,14 @@ test('/check `accountLogin` with different emails', function(t) {
         );
         t.end();
       })
-      .catch(function(err) {
+      .catch(function (err) {
         t.fail(err);
         t.end();
       })
   );
 });
 
-test('/check `accountLogin` with different emails - bad logins extend retry limit', function(t) {
+test('/check `accountLogin` with different emails - bad logins extend retry limit', function (t) {
   // Send requests until throttled
   return client
     .postAsync('/failedLoginAttempt', {
@@ -135,67 +135,67 @@ test('/check `accountLogin` with different emails - bad logins extend retry limi
       email: 'test-fail1@example.com',
       action: ACCOUNT_LOGIN,
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       return client.postAsync('/failedLoginAttempt', {
         ip: TEST_IP,
         email: 'test-fail2@example.com',
         action: ACCOUNT_LOGIN,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       return client.postAsync('/failedLoginAttempt', {
         ip: TEST_IP,
         email: 'test-fail3@example.com',
         action: ACCOUNT_LOGIN,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       return client.postAsync('/check', {
         ip: TEST_IP,
         email: 'test2@example.com',
         action: ACCOUNT_LOGIN,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.retryAfter, 5, 'rate limit retry amount');
       t.equal(obj.block, true, 'ip is now rate limited');
       // delay by 1 second, do another action within rl interval
       return Promise.delay(1000);
     })
-    .then(function() {
+    .then(function () {
       return client.postAsync('/check', {
         ip: TEST_IP,
         email: 'test3@example.com',
         action: ACCOUNT_LOGIN,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'returns a 200');
       t.equal(obj.retryAfter, 5, 'rate limit duration is renewed');
       t.equal(obj.block, true, 'ip is still rate limited');
       // delay by 3 seconds, to escape the rl interval
       return Promise.delay(3000);
     })
-    .then(function() {
+    .then(function () {
       return client.postAsync('/check', {
         ip: TEST_IP,
         email: 'test4@example.com',
         action: ACCOUNT_LOGIN,
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.ok(obj.retryAfter < 3, 'rate limit duration is not renewed');
       t.equal(obj.block, true, 'ip is still rate limited');
       t.end();
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

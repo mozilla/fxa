@@ -94,7 +94,7 @@ async function create(
   };
 
   function makeCredentialFn(dbGetFn) {
-    return function(id) {
+    return function (id) {
       log.trace('DB.getToken', { id: id });
       if (!HEX_STRING.test(id)) {
         return null;
@@ -188,8 +188,10 @@ async function create(
       xff.push(request.info.remoteAddress);
 
       return xff
-        .map(address => address.trim())
-        .filter(address => !joi.validate(address, IP_ADDRESS.required()).error);
+        .map((address) => address.trim())
+        .filter(
+          (address) => !joi.validate(address, IP_ADDRESS.required()).error
+        );
     });
 
     defineLazyGetter(request.app, 'clientAddress', () => {
@@ -279,7 +281,7 @@ async function create(
   });
 
   const metricReporter = metricFactory(statsd);
-  server.events.on('response', request => {
+  server.events.on('response', (request) => {
     log.summary(request, request.response);
     metricReporter(request);
   });
@@ -309,7 +311,7 @@ async function create(
     metricsEvents.emitRouteFlowEvent
   );
 
-  server.stat = function() {
+  server.stat = function () {
     return {
       stat: 'mem',
       rss: server.load.rss,

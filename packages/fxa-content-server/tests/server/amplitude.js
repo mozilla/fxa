@@ -40,13 +40,13 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
 const APP_VERSION = /([0-9]+)\.([0-9])$/.exec(pkg.version)[0];
 
 registerSuite('amplitude', {
-  beforeEach: function() {
+  beforeEach: function () {
     amplitudeConfig.disabled = false;
     amplitudeConfig.rawEvents = false;
     sinon.stub(process.stderr, 'write').callsFake(() => {});
   },
 
-  afterEach: function() {
+  afterEach: function () {
     process.stderr.write.restore();
     logger.info.resetHistory();
     statsd.increment.resetHistory();

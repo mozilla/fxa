@@ -126,13 +126,9 @@ const Tooltip = BaseView.extend({
     invalidEl.one('change', this._destroy);
 
     // destroy the tooltip only if it's value has changed.
-    const originalValue = $(invalidEl)
-      .val()
-      .trim();
-    const closeIfInvalidElementValueHasChanged = function() {
-      const currValue = $(invalidEl)
-        .val()
-        .trim();
+    const originalValue = $(invalidEl).val().trim();
+    const closeIfInvalidElementValueHasChanged = function () {
+      const currValue = $(invalidEl).val().trim();
       if (currValue !== originalValue) {
         this._destroy();
       } else {
@@ -147,7 +143,7 @@ const Tooltip = BaseView.extend({
     // destroy when dismissed
     this.$el.find('.dismiss').one(
       'click keypress',
-      function(e) {
+      function (e) {
         if (e.type === 'click' || e.which === KeyCodes.ENTER) {
           const metricsEvent = 'tooltip.' + this.type + '-dismissed';
           this.logEvent(metricsEvent);

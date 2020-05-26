@@ -78,7 +78,9 @@ describe('views/mixins/service-mixin', () => {
   describe('render', () => {
     describe('broker modifies links', () => {
       beforeEach(() => {
-        sinon.stub(broker, 'transformLink').callsFake(link => `/oauth${link}`);
+        sinon
+          .stub(broker, 'transformLink')
+          .callsFake((link) => `/oauth${link}`);
         return view.render();
       });
 
@@ -108,7 +110,9 @@ describe('views/mixins/service-mixin', () => {
   describe('unsafeDisplayError', () => {
     describe('broker modifies links', () => {
       beforeEach(() => {
-        sinon.stub(broker, 'transformLink').callsFake(link => `/oauth${link}`);
+        sinon
+          .stub(broker, 'transformLink')
+          .callsFake((link) => `/oauth${link}`);
         return view.render();
       });
 

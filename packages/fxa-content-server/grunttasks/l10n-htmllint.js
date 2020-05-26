@@ -10,7 +10,7 @@ var path = require('path');
 //  3. The JSON files are then written out to temporary HTML files
 //  4. The HTML files are linted
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask('l10n-htmllint', 'Lint l10n files', [
     // grunt addition for htmllint
     'clean',
@@ -23,8 +23,8 @@ module.exports = function(grunt) {
   grunt.registerMultiTask(
     'l10n-json-to-html',
     'Convert l10n JSON files to HTML',
-    function() {
-      this.files.forEach(function(file) {
+    function () {
+      this.files.forEach(function (file) {
         var content = '';
         var src = file.src[0];
         var pathname = src.split('/');

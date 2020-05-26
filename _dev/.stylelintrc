@@ -2,7 +2,7 @@
   "ignoreFiles": [
     "../packages/fxa-content-server/**"
   ],
-  "extends": "stylelint-config-standard",
+  "extends": "stylelint-config-prettier",
   "rules": {
     "declaration-empty-line-before": "never",
     "selector-max-id": [

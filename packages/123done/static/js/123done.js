@@ -10,7 +10,7 @@
 
 const PRO_PRODUCT = '123donePro';
 
-$(document).ready(function() {
+$(document).ready(function () {
   window.loggedInEmail = null;
   window.loggedInSubscriptions = [];
 
@@ -33,7 +33,7 @@ $(document).ready(function() {
         '//localhost:3030/subscriptions/products/prod_GjeDrVtBRfiWjm';
       break;
   }
-  $('.btn-subscribe').each(function(index) {
+  $('.btn-subscribe').each(function (index) {
     $(this).attr('href', paymentURL);
   });
 
@@ -45,7 +45,7 @@ $(document).ready(function() {
   }
 
   // now check with the server to get our current login state
-  $.get('/api/auth_status', function(data) {
+  $.get('/api/auth_status', function (data) {
     loggedInState = JSON.parse(data);
     loggedInEmail = loggedInState.email;
     loggedInSubscriptions = loggedInState.subscriptions;
@@ -69,9 +69,7 @@ $(document).ready(function() {
         $('#splash').show();
         $('#lists').hide();
       }
-      $('button')
-        .removeAttr('disabled')
-        .css('opacity', '1');
+      $('button').removeAttr('disabled').css('opacity', '1');
       if (isSubscribed()) {
         $('body').addClass('is-subscribed');
       } else {
@@ -91,11 +89,11 @@ $(document).ready(function() {
       }
     }
 
-    var logout = function() {
+    var logout = function () {
       // upon logout, make an api request to tear the user's session down
       // then change the UI
       $.post('/api/logout')
-        .always(function() {
+        .always(function () {
           loggedInEmail = null;
           updateUI(loggedInEmail);
           updateListArea(loggedInEmail);
@@ -112,7 +110,7 @@ $(document).ready(function() {
           // makes a change to her tasks
           $('#dataState > div').css('display', 'none');
         })
-        .fail(function() {
+        .fail(function () {
           // this should never happen
           alert('Failed to logout');
         });
@@ -125,31 +123,31 @@ $(document).ready(function() {
       window.location.href = `/api/${endpoint}${window.location.search}`;
     }
 
-    $('button.signin').click(function(ev) {
+    $('button.signin').click(function (ev) {
       authenticate('login');
     });
 
-    $('button.signup').click(function(ev) {
+    $('button.signup').click(function (ev) {
       authenticate('signup');
     });
 
-    $('button.sign-choose').click(function(ev) {
+    $('button.sign-choose').click(function (ev) {
       authenticate('best_choice');
     });
 
-    $('button.sign-choose').click(function(ev) {
+    $('button.sign-choose').click(function (ev) {
       authenticate('best_choice');
     });
 
-    $('button.email-first').click(function(ev) {
+    $('button.email-first').click(function (ev) {
       authenticate('email_first');
     });
 
-    $('button.two-step-authentication').click(function(ev) {
+    $('button.two-step-authentication').click(function (ev) {
       authenticate('two_step_authentication');
     });
 
-    $('button.force-auth').click(function(ev) {
+    $('button.force-auth').click(function (ev) {
       if (
         !window.location.search.includes('email=') &&
         !window.location.search.includes('login_hint=') &&
@@ -161,7 +159,7 @@ $(document).ready(function() {
       authenticate('force_auth');
     });
 
-    $('button.prompt-none').click(function(ev) {
+    $('button.prompt-none').click(function (ev) {
       if (
         !window.location.search.includes('login_hint=') &&
         !navigator.userAgent.includes('FxATester')
@@ -173,7 +171,7 @@ $(document).ready(function() {
     });
 
     // upon click of logout link navigator.id.logout()
-    $('#logout').click(function(ev) {
+    $('#logout').click(function (ev) {
       ev.preventDefault();
       logout();
     });

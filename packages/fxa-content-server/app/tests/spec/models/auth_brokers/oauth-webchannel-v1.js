@@ -110,7 +110,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     assert.isTrue(broker.hasCapability('fxaStatus'));
   });
 
-  it('status capability - choose_what_to_sync: true with engines', done => {
+  it('status capability - choose_what_to_sync: true with engines', (done) => {
     channelMock.request = sinon.spy(() =>
       Promise.resolve({
         capabilities: {
@@ -130,7 +130,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     }, 5);
   });
 
-  it('status capability - choose_what_to_sync: false', done => {
+  it('status capability - choose_what_to_sync: false', (done) => {
     channelMock.request = sinon.spy(() =>
       Promise.resolve({
         capabilities: {

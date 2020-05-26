@@ -59,20 +59,20 @@ const SUBSCRIPTION_MGMT_URL = `${config.fxaContentRoot}subscriptions`;
  * @returns {function} that can be used in a promise
  */
 function thenify(callback, context) {
-  return function() {
+  return function () {
     var args = arguments;
-    return function() {
+    return function () {
       let capturedError;
       return callback
         .apply(context || this, args)
-        .then(null, err => {
+        .then(null, (err) => {
           // The error has to be swallowed before a screenshot
           // can be taken or else takeScreenshot is never called
           // because `this.parent` is a promise that has already
           // been rejected.
           capturedError = err;
         })
-        .then(function(result) {
+        .then(function (result) {
           if (capturedError) {
             if (!capturedError.screenshotTaken) {
               capturedError.screenshotTaken = true;
@@ -94,9 +94,9 @@ function thenify(callback, context) {
 /**
  * Take a screen shot, write a base64 encoded image to the console
  */
-const takeScreenshot = function() {
-  return function() {
-    return this.parent.takeScreenshot().then(function(buffer) {
+const takeScreenshot = function () {
+  return function () {
+    return this.parent.takeScreenshot().then(function (buffer) {
       if (process.env.CIRCLECI) {
         const rando = crypto.randomBytes(4).toString('hex');
         mkdirp.sync('/home/circleci/screenshots');
@@ -126,13 +126,13 @@ const takeScreenshot = function() {
  * @param {Object} options
  *        options include polling `timeout`
  */
-const visibleByQSA = thenify(function(selector, options = {}) {
+const visibleByQSA = thenify(function (selector, options = {}) {
   var timeout = options.timeout || config.pageLoadTimeout;
 
   return this.parent
     .then(
       pollUntil(
-        function(selector, options) {
+        function (selector, options) {
           var matchingEls = document.querySelectorAll(selector);
 
           if (matchingEls.length === 0) {
@@ -174,7 +174,7 @@ const visibleByQSA = thenify(function(selector, options = {}) {
         timeout
       )
     )
-    .then(null, function(err) {
+    .then(null, function (err) {
       if (/ScriptTimeout/.test(String(err))) {
         throw new Error(`ElementNotVisible - ${selector}`);
       } else {
@@ -189,7 +189,7 @@ const visibleByQSA = thenify(function(selector, options = {}) {
  * @param {string} selector
  * @returns {promise} rejects if element does not exist
  */
-const testElementExists = thenify(function(selector) {
+const testElementExists = thenify(function (selector) {
   return this.parent.findByCssSelector(selector).end();
 });
 
@@ -201,7 +201,7 @@ const testElementExists = thenify(function(selector) {
  * @param {string} [readySelector]
  * @returns {promise}
  */
-const click = thenify(function(selector, readySelector) {
+const click = thenify(function (selector, readySelector) {
   return (
     this.parent
       .findByCssSelector(selector)
@@ -209,7 +209,7 @@ const click = thenify(function(selector, readySelector) {
       // Sometimes clicks do not register if the element is in the middle of an animation.
       .then(visibleByQSA(selector))
       .click()
-      .then(null, err => {
+      .then(null, (err) => {
         // If element is obscured (possibly by a verification message covering it), attempt
         // to scroll to the top of page where it might be visible.
         if (/obscures it/.test(err.message)) {
@@ -219,7 +219,7 @@ const click = thenify(function(selector, readySelector) {
             })
             .findByCssSelector(selector)
             .click()
-            .then(null, err => {
+            .then(null, (err) => {
               // STILL obscured? There may be a status message
               // overlayed on top. Wait a few seconds and try
               // one final time.
@@ -249,7 +249,7 @@ const click = thenify(function(selector, readySelector) {
             .sleep(2000)
             .findByCssSelector(selector)
             .click()
-            .then(null, err => {
+            .then(null, (err) => {
               throw err;
             })
             .end();
@@ -259,7 +259,7 @@ const click = thenify(function(selector, readySelector) {
         throw err;
       })
       .end()
-      .then(function() {
+      .then(function () {
         if (readySelector) {
           return this.parent.then(testElementExists(readySelector));
         }
@@ -273,9 +273,9 @@ const click = thenify(function(selector, readySelector) {
  * @param {string} [selector] - selector of element - defaults to the window.
  * @returns {promise} - resolves when complete
  */
-const focus = thenify(function(selector) {
+const focus = thenify(function (selector) {
   return this.parent.execute(
-    function(selector) {
+    function (selector) {
       // The only way to reliably cause a Focus Event is to manually create
       // one. Just clicking or focusing the window does not work if the
       // Selenium window is not in focus. This does however. BAM! See the
@@ -300,7 +300,7 @@ const focus = thenify(function(selector) {
  *   typing. Defaults to true.
  * @returns {promise}
  */
-const type = thenify(function(selector, text, options = {}) {
+const type = thenify(function (selector, text, options = {}) {
   // always clear unless explicitly overridden
   var clearValue = options.clearValue !== false;
 
@@ -310,14 +310,14 @@ const type = thenify(function(selector, text, options = {}) {
     .then(click(selector))
     .findByCssSelector(selector)
 
-    .then(function() {
+    .then(function () {
       if (clearValue) {
         return this.parent.clearValue();
       }
     })
 
     .getAttribute('type')
-    .then(function(type) {
+    .then(function (type) {
       // xxx: bug in selenium 2.47.1, if firefox is out of
       // focus it will just type 1 number, split the type
       // commands for each character to avoid issues with the
@@ -328,7 +328,7 @@ const type = thenify(function(selector, text, options = {}) {
         var index = 0;
         var parent = this.parent;
 
-        var typeNext = function() {
+        var typeNext = function () {
           if (index >= text.length) {
             return;
           }
@@ -347,7 +347,7 @@ const type = thenify(function(selector, text, options = {}) {
     .end();
 });
 
-const clearContentServerState = thenify(function(options) {
+const clearContentServerState = thenify(function (options) {
   options = options || {};
   // clear localStorage to avoid polluting other tests.
   return (
@@ -358,7 +358,7 @@ const clearContentServerState = thenify(function(options) {
       .switchToFrame(null)
       .setFindTimeout(config.pageLoadTimeout)
       .getCurrentUrl()
-      .then(function(url) {
+      .then(function (url) {
         // only load up the content server if we aren't
         // already at the content server.
         if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
@@ -370,7 +370,7 @@ const clearContentServerState = thenify(function(options) {
       })
 
       .clearCookies()
-      .execute(function() {
+      .execute(function () {
         try {
           localStorage.clear();
           sessionStorage.clear();
@@ -383,7 +383,7 @@ const clearContentServerState = thenify(function(options) {
   );
 });
 
-const clear123DoneState = thenify(function(options) {
+const clear123DoneState = thenify(function (options) {
   options = options || {};
 
   var app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
@@ -410,9 +410,9 @@ const clear123DoneState = thenify(function(options) {
 
       .then(testElementExists('#footer-main'))
 
-      .execute(function() {
+      .execute(function () {
         /* global $ */
-        $.post('/api/logout/').always(function() {
+        $.post('/api/logout/').always(function () {
           $('body').append('<div id="loggedout">Logged out</div>');
         });
       })
@@ -427,8 +427,8 @@ const clear123DoneState = thenify(function(options) {
  *
  * @returns {Promise}
  */
-const closeAllButFirstWindow = thenify(function() {
-  return this.parent.getAllWindowHandles().then(function(handles) {
+const closeAllButFirstWindow = thenify(function () {
+  return this.parent.getAllWindowHandles().then(function (handles) {
     if (handles.length > 1) {
       return this.parent
         .switchToWindow(handles[1])
@@ -443,7 +443,7 @@ const closeAllButFirstWindow = thenify(function() {
  * Get some memory back
  *
  */
-const cleanMemory = thenify(function(selector, attributeName) {
+const cleanMemory = thenify(function (selector, attributeName) {
   return (
     this.parent
       .get('about:memory')
@@ -454,7 +454,7 @@ const cleanMemory = thenify(function(selector, attributeName) {
   );
 });
 
-const clearBrowserState = thenify(function(options) {
+const clearBrowserState = thenify(function (options) {
   options = options || {};
   if (!('contentServer' in options)) {
     options.contentServer = true;
@@ -469,17 +469,17 @@ const clearBrowserState = thenify(function(options) {
   }
 
   return this.parent
-    .then(function() {
+    .then(function () {
       if (options.contentServer) {
         return this.parent.then(clearContentServerState(options));
       }
     })
-    .then(function() {
+    .then(function () {
       if (options['123done']) {
         return this.parent.then(clear123DoneState());
       }
     })
-    .then(function() {
+    .then(function () {
       if (options['321done']) {
         return this.parent.then(clear123DoneState({ untrusted: true }));
       }
@@ -488,9 +488,9 @@ const clearBrowserState = thenify(function(options) {
     .then(closeAllButFirstWindow());
 });
 
-const clearSessionStorage = thenify(function() {
+const clearSessionStorage = thenify(function () {
   // clear sessionStorage to avoid polluting other tests.
-  return this.parent.execute(function() {
+  return this.parent.execute(function () {
     try {
       sessionStorage.clear();
     } catch (e) {
@@ -510,10 +510,10 @@ const clearSessionStorage = thenify(function() {
  * @param {String} selector
  *        QSA compatible selector string
  */
-const imageLoadedByQSA = thenify(function(selector, timeout = 10000) {
+const imageLoadedByQSA = thenify(function (selector, timeout = 10000) {
   return this.parent.then(
     pollUntil(
-      function(selector) {
+      function (selector) {
         var match = document.querySelectorAll(selector);
 
         if (match.length > 1) {
@@ -540,10 +540,10 @@ const imageLoadedByQSA = thenify(function(selector, timeout = 10000) {
  * @param {Number} [timeout]
  *        Timeout to wait until element is gone
  */
-const pollUntilGoneByQSA = thenify(function(selector, timeout = 10000) {
+const pollUntilGoneByQSA = thenify(function (selector, timeout = 10000) {
   return this.parent.then(
     pollUntil(
-      function(selector) {
+      function (selector) {
         return document.querySelectorAll(selector).length === 0 ? true : null;
       },
       [selector],
@@ -560,14 +560,14 @@ const pollUntilGoneByQSA = thenify(function(selector, timeout = 10000) {
  * @param {Number} [timeout=config.pageLoadTimeout]
  *        Timeout to wait until element is gone or hidden
  */
-const pollUntilHiddenByQSA = thenify(function(
+const pollUntilHiddenByQSA = thenify(function (
   selector,
   timeout = config.pageLoadTimeout
 ) {
   return this.parent
     .then(
       pollUntil(
-        function(selector) {
+        function (selector) {
           const matchingEls = document.querySelectorAll(selector);
 
           if (matchingEls.length === 0) {
@@ -609,7 +609,7 @@ const pollUntilHiddenByQSA = thenify(function(
         timeout
       )
     )
-    .then(null, function(err) {
+    .then(null, function (err) {
       if (/ScriptTimeout/.test(String(err))) {
         throw new Error(`ElementNotHidden - ${selector}`);
       } else {
@@ -625,16 +625,16 @@ const pollUntilHiddenByQSA = thenify(function(
  * @param   {number} [timeoutMS] number of ms to wait for the element. Defaults to 0.
  * @returns {promise} resolves when complete, fails if element exists.
  */
-const noSuchElement = thenify(function(selector, timeoutMS = 0) {
+const noSuchElement = thenify(function (selector, timeoutMS = 0) {
   return this.parent
     .setFindTimeout(timeoutMS)
 
     .findByCssSelector(selector)
     .then(
-      function() {
+      function () {
         throw new Error(selector + ' should not be present');
       },
-      function(err) {
+      function (err) {
         if (/NoSuchElement/.test(String(err))) {
           // swallow the error
           return;
@@ -665,8 +665,8 @@ function getFxaClient() {
  * @param {String} paramName
  * @returns {promise} that resolves to the query parameter's value
  */
-const getQueryParamValue = thenify(function(paramName) {
-  return this.parent.getCurrentUrl().then(function(url) {
+const getQueryParamValue = thenify(function (paramName) {
+  return this.parent.getCurrentUrl().then(function (url) {
     var parsedUrl = Url.parse(url);
     var parsedQueryString = Querystring.parse(parsedUrl.query);
     return parsedQueryString[paramName];
@@ -683,7 +683,7 @@ const getQueryParamValue = thenify(function(paramName) {
  *   to make. Defaults to 10.
  * @returns {promise} resolves with the email if email is found.
  */
-const getEmail = thenify(function(user, index, options) {
+const getEmail = thenify(function (user, index, options) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
@@ -691,7 +691,7 @@ const getEmail = thenify(function(user, index, options) {
   // restmail takes a count, not an index. Add 1.
   return this.parent
     .then(() => restmail.waitForEmail(user, index + 1, options))
-    .then(emails => emails[index]);
+    .then((emails) => emails[index]);
 });
 
 /**
@@ -700,7 +700,7 @@ const getEmail = thenify(function(user, index, options) {
  * @param {String} user - username or email address
  * @returns {Promise} resolves when complete
  */
-const deleteAllEmails = thenify(function(user) {
+const deleteAllEmails = thenify(function (user) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
@@ -718,7 +718,7 @@ const deleteAllEmails = thenify(function(user) {
  */
 function disableInProd(test) {
   if (intern._config.fxaProduction) {
-    return function() {};
+    return function () {};
   }
 
   return test;
@@ -734,10 +734,10 @@ function disableInProd(test) {
  *   to make. Defaults to 10.
  * @returns {Promise} resolves with the SMS, if found.
  */
-const getSms = thenify(function(phoneNumber, index, options) {
+const getSms = thenify(function (phoneNumber, index, options) {
   return this.parent
     .then(getEmail(phoneNumberToEmailAddress(phoneNumber), index, options))
-    .then(email => {
+    .then((email) => {
       return email.text.trim();
     });
 });
@@ -748,7 +748,7 @@ const getSms = thenify(function(phoneNumber, index, options) {
  * @param {String} phoneNumber
  * @returns {Promise} resolves when complete
  */
-const deleteAllSms = thenify(function(phoneNumber) {
+const deleteAllSms = thenify(function (phoneNumber) {
   return this.parent.then(
     deleteAllEmails(phoneNumberToEmailAddress(phoneNumber))
   );
@@ -772,8 +772,8 @@ function phoneNumberToEmailAddress(phoneNumber) {
  * @param {RegExp} smsFormatRegExp
  * @returns {Promise} resolves when complete
  */
-const testSmsFormat = thenify(function(phoneNumber, index, smsFormatRegExp) {
-  return this.parent.then(getSms(phoneNumber, index)).then(sms => {
+const testSmsFormat = thenify(function (phoneNumber, index, smsFormatRegExp) {
+  return this.parent.then(getSms(phoneNumber, index)).then((sms) => {
     assert.isTrue(smsFormatRegExp.test(sms));
   });
 });
@@ -788,11 +788,11 @@ const SIGNIN_CODE_SMS_FORMAT = /m\/([a-zA-Z0-9_-]{8,8})$/;
  * @param {RegExp} smsFormatRegExp
  * @returns {Promise} resolves with the signinCode when complete
  */
-const getSmsSigninCode = thenify(function(phoneNumber, index, options) {
+const getSmsSigninCode = thenify(function (phoneNumber, index, options) {
   return this.parent
     .then(testSmsFormat(phoneNumber, index, SIGNIN_CODE_SMS_FORMAT))
     .then(getSms(phoneNumber, index, options))
-    .then(sms => {
+    .then((sms) => {
       return SIGNIN_CODE_SMS_FORMAT.exec(sms)[1];
     });
 });
@@ -807,10 +807,10 @@ const getSmsSigninCode = thenify(function(phoneNumber, index, options) {
  *   to make. Defaults to 10.
  * @returns {promise} resolves with the email headers if email is found.
  */
-const getEmailHeaders = thenify(function(user, index, options) {
+const getEmailHeaders = thenify(function (user, index, options) {
   return this.parent
     .then(getEmail(user, index, options))
-    .then(email => email.headers);
+    .then((email) => email.headers);
 });
 
 /**
@@ -820,21 +820,23 @@ const getEmailHeaders = thenify(function(user, index, options) {
  * @param   {number} index email index
  * @returns {promise} resolves with verification link
  */
-const getVerificationLink = thenify(function(user, index) {
+const getVerificationLink = thenify(function (user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent.then(getEmailHeaders(user, index)).then(function(headers) {
-    const link = headers['x-link'];
-    if (!link) {
-      throw new Error(
-        'Email does not contain verification link: ' +
-          headers['x-template-name']
-      );
-    }
-    return link;
-  });
+  return this.parent
+    .then(getEmailHeaders(user, index))
+    .then(function (headers) {
+      const link = headers['x-link'];
+      if (!link) {
+        throw new Error(
+          'Email does not contain verification link: ' +
+            headers['x-template-name']
+        );
+      }
+      return link;
+    });
 });
 
 /**
@@ -845,24 +847,26 @@ const getVerificationLink = thenify(function(user, index) {
  * @returns {promise} that resolves with object containing
  * `code`, `uid`, and `reportSignInLink`
  */
-const getUnblockInfo = thenify(function(user, index) {
+const getUnblockInfo = thenify(function (user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent.then(getEmailHeaders(user, index)).then(function(headers) {
-    const unblockCode = headers['x-unblock-code'];
-    if (!unblockCode) {
-      throw new Error(
-        'Email does not contain unblock code: ' + headers['x-template-name']
-      );
-    }
-    return {
-      reportSignInLink: headers['x-report-signin-link'],
-      uid: headers['x-uid'],
-      unblockCode: unblockCode,
-    };
-  });
+  return this.parent
+    .then(getEmailHeaders(user, index))
+    .then(function (headers) {
+      const unblockCode = headers['x-unblock-code'];
+      if (!unblockCode) {
+        throw new Error(
+          'Email does not contain unblock code: ' + headers['x-template-name']
+        );
+      }
+      return {
+        reportSignInLink: headers['x-report-signin-link'],
+        uid: headers['x-uid'],
+        unblockCode: unblockCode,
+      };
+    });
 });
 
 /**
@@ -872,12 +876,12 @@ const getUnblockInfo = thenify(function(user, index) {
  * @param {number} index
  * @returns {promise} that resolves with token code  cc0
  */
-const getTokenCode = thenify(function(user, index) {
+const getTokenCode = thenify(function (user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent.then(getEmailHeaders(user, index)).then(headers => {
+  return this.parent.then(getEmailHeaders(user, index)).then((headers) => {
     const code =
       headers['x-signin-verify-code'] || headers['x-verify-short-code'];
     if (!code) {
@@ -896,12 +900,12 @@ const getTokenCode = thenify(function(user, index) {
  * @param {number} index
  * @returns {promise} that resolves with token code
  */
-const getSignupCode = thenify(function(user, index) {
+const getSignupCode = thenify(function (user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent.then(getEmailHeaders(user, index)).then(headers => {
+  return this.parent.then(getEmailHeaders(user, index)).then((headers) => {
     const code = headers['x-verify-short-code'];
     if (!code) {
       throw new Error(
@@ -919,12 +923,12 @@ const getSignupCode = thenify(function(user, index) {
  * @param {number} index
  * @returns {promise} that resolves with code
  */
-const getEmailCode = thenify(function(user, index) {
+const getEmailCode = thenify(function (user, index) {
   if (/@/.test(user)) {
     user = TestHelpers.emailToUser(user);
   }
 
-  return this.parent.then(getEmailHeaders(user, index)).then(headers => {
+  return this.parent.then(getEmailHeaders(user, index)).then((headers) => {
     const code = headers['x-verify-code'];
     if (!code) {
       throw new Error(
@@ -945,12 +949,12 @@ const getEmailCode = thenify(function(user, index) {
  *   Defaults to 10.
  * Defaults to 10.
  */
-const testEmailExpected = thenify(function(user, index, options) {
+const testEmailExpected = thenify(function (user, index, options) {
   return this.parent.then(getEmailHeaders(user, index, options)).then(
-    function() {
+    function () {
       return true;
     },
-    function(err) {
+    function (err) {
       if (/EmailTimeout/.test(String(err))) {
         throw new Error('EmailExpected');
       }
@@ -969,12 +973,12 @@ const testEmailExpected = thenify(function(user, index, options) {
  *   @param {number} [options.maxAttempts] - number of email fetch attempts
  *   to make. Defaults to 10.
  */
-const noEmailExpected = thenify(function(user, index, options) {
+const noEmailExpected = thenify(function (user, index, options) {
   return this.parent.then(getEmailHeaders(user, index, options)).then(
-    function() {
+    function () {
       throw new Error('NoEmailExpected');
     },
-    function(err) {
+    function (err) {
       if (/EmailTimeout/.test(String(err))) {
         return true;
       }
@@ -989,7 +993,7 @@ const noEmailExpected = thenify(function(user, index, options) {
  *
  * @returns {promise} resolves when complete
  */
-const openExternalSite = thenify(function() {
+const openExternalSite = thenify(function () {
   return this.parent
     .get(EXTERNAL_SITE_URL)
     .findByPartialLinkText(EXTERNAL_SITE_LINK_TEXT)
@@ -1004,7 +1008,7 @@ const openExternalSite = thenify(function() {
  *   @param {object} [options.query] extra query parameters to add to the verification link
  * @returns {promise} resolves when complete
  */
-const openVerificationLinkInNewTab = thenify(function(
+const openVerificationLinkInNewTab = thenify(function (
   email,
   index,
   options = {}
@@ -1013,7 +1017,7 @@ const openVerificationLinkInNewTab = thenify(function(
 
   return this.parent
     .then(getVerificationLink(user, index))
-    .then(function(verificationLink) {
+    .then(function (verificationLink) {
       const verificationLinkWithParams = addQueryParamsToLink(
         verificationLink,
         options.query
@@ -1022,7 +1026,7 @@ const openVerificationLinkInNewTab = thenify(function(
     });
 });
 
-const openVerificationLinkInSameTab = thenify(function(
+const openVerificationLinkInSameTab = thenify(function (
   email,
   index,
   options = {}
@@ -1031,7 +1035,7 @@ const openVerificationLinkInSameTab = thenify(function(
 
   return this.parent
     .then(getVerificationLink(user, index))
-    .then(function(verificationLink) {
+    .then(function (verificationLink) {
       const verificationLinkWithParams = addQueryParamsToLink(
         verificationLink,
         options.query
@@ -1046,7 +1050,7 @@ const openVerificationLinkInSameTab = thenify(function(
  * @param {String} url to open
  * @returns {Promise}
  */
-const openTab = thenify(function(url) {
+const openTab = thenify(function (url) {
   return this.parent.execute(openWindow, [url]);
 });
 
@@ -1056,11 +1060,11 @@ const openTab = thenify(function(url) {
  * @param {Number} which - tab index to switch to
  * @returns {Promise}
  */
-const switchToWindow = thenify(function(which) {
+const switchToWindow = thenify(function (which) {
   if (typeof which !== 'number') {
     throw new Error('`which` must be a number');
   }
-  return this.parent.getAllWindowHandles().then(function(handles) {
+  return this.parent.getAllWindowHandles().then(function (handles) {
     if (handles.length >= which && handles[which]) {
       return this.parent.switchToWindow(handles[which]);
     } else {
@@ -1079,12 +1083,15 @@ const switchToWindow = thenify(function(which) {
  * @param   {object} response response
  * @returns {promise} resolves when complete
  */
-const respondToWebChannelMessage = thenify(function(expectedCommand, response) {
+const respondToWebChannelMessage = thenify(function (
+  expectedCommand,
+  response
+) {
   var attachedId = Math.floor(Math.random() * 10000);
   return (
     this.parent
       .execute(
-        function(expectedCommand, response, attachedId) {
+        function (expectedCommand, response, attachedId) {
           function listener(e) {
             var command = e.detail.message.command;
             var messageId = e.detail.message.messageId;
@@ -1144,8 +1151,8 @@ const respondToWebChannelMessage = thenify(function(expectedCommand, response) {
  *    }
  * @returns {Promise}
  */
-const respondToWebChannelMessages = thenify(function(webChannelResponses) {
-  return this.parent.then(function() {
+const respondToWebChannelMessages = thenify(function (webChannelResponses) {
+  return this.parent.then(function () {
     if (webChannelResponses) {
       return Object.keys(webChannelResponses).reduce(
         (parent, webChannelMessage) => {
@@ -1168,9 +1175,9 @@ const respondToWebChannelMessages = thenify(function(webChannelResponses) {
  * @param {string} expectedCommand command to store data for.
  * @returns {promise}
  */
-const storeWebChannelMessageData = thenify(function(expectedCommand) {
+const storeWebChannelMessageData = thenify(function (expectedCommand) {
   return this.parent.executeAsync(
-    function(expectedCommand, callback) {
+    function (expectedCommand, callback) {
       function listener(e) {
         var command = e.detail.message.command;
         if (command === expectedCommand) {
@@ -1210,9 +1217,9 @@ const storeWebChannelMessageData = thenify(function(expectedCommand) {
  * @param {string} command
  * @returns {object}
  */
-const getWebChannelMessageData = thenify(function(command) {
+const getWebChannelMessageData = thenify(function (command) {
   return this.parent.execute(
-    function(command) {
+    function (command) {
       const storedEvents =
         JSON.parse(sessionStorage.getItem('webChannelEventData')) || {};
       return storedEvents[command];
@@ -1238,7 +1245,7 @@ function openWindow(url) {
   // the prerequisites, then attach.
   function startListening() {
     try {
-      newWindow.addEventListener('WebChannelMessageToChrome', function(e) {
+      newWindow.addEventListener('WebChannelMessageToChrome', function (e) {
         var command = e.detail.message.command;
         var data = e.detail.message.data;
 
@@ -1282,7 +1289,7 @@ function openWindow(url) {
  * @param   {number} [emailNumber] - email number with the verification link. Defaults to `0`.
  * @returns {promise} resolves when complete
  */
-const openVerificationLinkInDifferentBrowser = thenify(function(
+const openVerificationLinkInDifferentBrowser = thenify(function (
   email,
   emailNumber
 ) {
@@ -1291,7 +1298,7 @@ const openVerificationLinkInDifferentBrowser = thenify(function(
 
   return this.parent
     .then(getEmailHeaders(user, emailNumber || 0))
-    .then(function(headers) {
+    .then(function (headers) {
       var uid = headers['x-uid'];
       var code = headers['x-verify-code'];
       if (!code) {
@@ -1311,7 +1318,7 @@ const openVerificationLinkInDifferentBrowser = thenify(function(
  * @param {string} password - new password
  * @returns {promise} - resolves when complete
  */
-const openPasswordResetLinkInDifferentBrowser = thenify(function(
+const openPasswordResetLinkInDifferentBrowser = thenify(function (
   email,
   password,
   emailNumber = 0
@@ -1322,7 +1329,7 @@ const openPasswordResetLinkInDifferentBrowser = thenify(function(
 
   return this.parent
     .then(getEmailHeaders(user, emailNumber))
-    .then(function(headers) {
+    .then(function (headers) {
       var code = headers['x-recovery-code'];
       // there is no x-recovery-token header, so we have to parse it
       // out of the link.
@@ -1338,7 +1345,7 @@ const openPasswordResetLinkInDifferentBrowser = thenify(function(
       }
       return client.passwordForgotVerifyCode(code, token);
     })
-    .then(function(result) {
+    .then(function (result) {
       return client.accountReset(email, password, result.accountResetToken);
     });
 });
@@ -1349,7 +1356,7 @@ const openPasswordResetLinkInDifferentBrowser = thenify(function(
  * @param   {string} [panel] pathname of panel to open. Open `/settings` if not given.
  * @returns {promise} resolves when complete
  */
-const openSettingsInNewTab = thenify(function(panel) {
+const openSettingsInNewTab = thenify(function (panel) {
   var url = SETTINGS_URL;
   if (panel) {
     url += '/' + panel;
@@ -1362,7 +1369,7 @@ const openSettingsInNewTab = thenify(function(panel) {
  *
  * @returns {promise} resolves when complete
  */
-const openSignInInNewTab = thenify(function() {
+const openSignInInNewTab = thenify(function () {
   return this.parent.execute(openWindow, [SIGNIN_URL]);
 });
 
@@ -1371,7 +1378,7 @@ const openSignInInNewTab = thenify(function() {
  *
  * @returns {promise} resolves when complete
  */
-const openSignUpInNewTab = thenify(function() {
+const openSignUpInNewTab = thenify(function () {
   return this.parent.execute(openWindow, [SIGNUP_URL]);
 });
 
@@ -1384,7 +1391,7 @@ const openSignUpInNewTab = thenify(function() {
  *  @param {Object} [options.query] - extra query parameters to add
  * @returns {Promise} - resolves when complete
  */
-const openPage = thenify(function(url, readySelector, options = {}) {
+const openPage = thenify(function (url, readySelector, options = {}) {
   url = addQueryParamsToLink(url, options.query || {});
 
   function isWebChannelSync() {
@@ -1454,12 +1461,12 @@ const openPage = thenify(function(url, readySelector, options = {}) {
       .then(null, function errorOpenPage(err) {
         return this.parent
           .getCurrentUrl()
-          .then(function(resultUrl) {
+          .then(function (resultUrl) {
             console.log('Error fetching %s, now at %s', url, resultUrl);
           })
           .end()
 
-          .then(function() {
+          .then(function () {
             throw err;
           });
       })
@@ -1474,7 +1481,7 @@ const openPage = thenify(function(url, readySelector, options = {}) {
  *  "page is loaded". Defaults to `#fxa-force-auth-header`
  * @param {object} [options.query] - query strings to open page with
  */
-const openForceAuth = thenify(function(options) {
+const openForceAuth = thenify(function (options) {
   options = options || {};
 
   var urlToOpen =
@@ -1512,7 +1519,7 @@ function addQueryParamsToLink(link, query) {
  * @param {boolean} [options.untrusted] - if `true`, opens the Untrusted
  * relier. Defaults to `true`
  */
-const openFxaFromRp = thenify(function(page, options = {}) {
+const openFxaFromRp = thenify(function (page, options = {}) {
   const expectedHeader =
     options.header || `#fxa-${page.replace('_', '-')}-header`;
   let buttonSelector = `.ready .${page}`;
@@ -1561,7 +1568,7 @@ function openFxaFromUntrustedRp(page, options) {
  * @param {string} [options.header=selectors['123DONE'].BUTTON_SIGNIN] - element selector that indicates the page is loaded
  * @param {object} [options.query={}] - query parameters to open the page with
  */
-const openRP = thenify(function(options = {}) {
+const openRP = thenify(function (options = {}) {
   const app = options.untrusted ? UNTRUSTED_OAUTH_APP : OAUTH_APP;
   let queryString = '';
   if (options.query) {
@@ -1581,10 +1588,10 @@ const openRP = thenify(function(options = {}) {
   );
 });
 
-const fillOutSignIn = thenify(function(email, password, alwaysLoad) {
+const fillOutSignIn = thenify(function (email, password, alwaysLoad) {
   return this.parent
     .getCurrentUrl()
-    .then(function(currentUrl) {
+    .then(function (currentUrl) {
       // only load the signin page if not already at a signin page.
       if (!/\/signin(?:$|\?)/.test(currentUrl) || alwaysLoad) {
         return this.parent
@@ -1598,19 +1605,19 @@ const fillOutSignIn = thenify(function(email, password, alwaysLoad) {
     .then(click('button[type="submit"]'));
 });
 
-const fillOutSignInUnblock = thenify(function(email, number) {
+const fillOutSignInUnblock = thenify(function (email, number) {
   return this.parent
     .then(getUnblockInfo(email, number))
-    .then(function(unblockInfo) {
+    .then(function (unblockInfo) {
       return this.parent.then(type('#unblock_code', unblockInfo.unblockCode));
     })
     .then(click('button[type=submit]'));
 });
 
-const fillOutSignInTokenCode = thenify(function(email, number) {
+const fillOutSignInTokenCode = thenify(function (email, number) {
   return this.parent
     .then(getTokenCode(email, number))
-    .then(tokenCode => {
+    .then((tokenCode) => {
       return this.parent.then(
         type(selectors.SIGNIN_TOKEN_CODE.INPUT, tokenCode)
       );
@@ -1618,19 +1625,19 @@ const fillOutSignInTokenCode = thenify(function(email, number) {
     .then(click('button[type=submit]'));
 });
 
-const fillOutSignUpCode = thenify(function(email, number) {
+const fillOutSignUpCode = thenify(function (email, number) {
   return this.parent
     .then(getSignupCode(email, number))
-    .then(code => {
+    .then((code) => {
       return this.parent.then(type(selectors.SIGNIN_TOKEN_CODE.INPUT, code));
     })
     .then(click('button[type=submit]'));
 });
 
-const fillOutPostVerifySecondaryEmailCode = thenify(function(email, number) {
+const fillOutPostVerifySecondaryEmailCode = thenify(function (email, number) {
   return this.parent
     .then(getEmailCode(email, number))
-    .then(code => {
+    .then((code) => {
       return this.parent.then(
         type(selectors.POST_VERIFY_CONFIRM_SECONDARY_EMAIL.INPUT, code)
       );
@@ -1644,7 +1651,7 @@ const fillOutPostVerifySecondaryEmailCode = thenify(function(email, number) {
  * @param {String} email
  * @param {String} expectedHeader - selector of expected header after submit is pressed
  */
-const fillOutEmailFirstEmail = thenify(function(email, expectedHeader) {
+const fillOutEmailFirstEmail = thenify(function (email, expectedHeader) {
   return this.parent
     .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
     .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -1660,7 +1667,7 @@ const fillOutEmailFirstEmail = thenify(function(email, expectedHeader) {
  * @param {Object} [options]
  *   @param {boolean} [options.enterEmail=true] Set to false to only fill out the password screen.
  */
-const fillOutEmailFirstSignUp = thenify(function(
+const fillOutEmailFirstSignUp = thenify(function (
   email,
   password,
   options = {}
@@ -1688,7 +1695,7 @@ const fillOutEmailFirstSignUp = thenify(function(
     });
 });
 
-const fillOutSignUp = thenify(function(email, password, options) {
+const fillOutSignUp = thenify(function (email, password, options) {
   options = options || {};
 
   var enterEmail = options.enterEmail !== false;
@@ -1698,7 +1705,7 @@ const fillOutSignUp = thenify(function(email, password, options) {
 
   return this.parent
     .getCurrentUrl()
-    .then(function(currentUrl) {
+    .then(function (currentUrl) {
       // only load the signup page if not already at a signup page.
       if (!/\/signup(?:$|\?)/.test(currentUrl)) {
         return this.parent
@@ -1707,7 +1714,7 @@ const fillOutSignUp = thenify(function(email, password, options) {
       }
     })
 
-    .then(function() {
+    .then(function () {
       if (enterEmail) {
         return type(selectors.SIGNUP.EMAIL, email).call(this);
       }
@@ -1718,14 +1725,14 @@ const fillOutSignUp = thenify(function(email, password, options) {
     })
     .then(type(selectors.SIGNUP.AGE, age))
 
-    .then(function() {
+    .then(function () {
       if (submit) {
         return click(selectors.SIGNUP.SUBMIT).call(this);
       }
     });
 });
 
-const fillOutRecoveryKey = thenify(function(recoveryKey) {
+const fillOutRecoveryKey = thenify(function (recoveryKey) {
   return this.parent
     .then(
       testElementExists(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.HEADER)
@@ -1736,12 +1743,12 @@ const fillOutRecoveryKey = thenify(function(recoveryKey) {
     .then(click(selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.SUBMIT));
 });
 
-const fillOutResetPassword = thenify(function(email, options) {
+const fillOutResetPassword = thenify(function (email, options) {
   options = options || {};
 
   return this.parent
     .getCurrentUrl()
-    .then(function(currentUrl) {
+    .then(function (currentUrl) {
       // only load the reset_password page if not already at
       // the reset_password page.
       if (
@@ -1762,7 +1769,7 @@ const fillOutResetPassword = thenify(function(email, options) {
 /**
  * Fill out the email-first signin flow
  */
-const fillOutEmailFirstSignIn = thenify(function(email, password) {
+const fillOutEmailFirstSignIn = thenify(function (email, password) {
   return this.parent
     .then(fillOutEmailFirstEmail(email, selectors.SIGNIN_PASSWORD.HEADER))
     .then(type(selectors.SIGNIN_PASSWORD.PASSWORD, password))
@@ -1774,7 +1781,7 @@ const fillOutEmailFirstSignIn = thenify(function(email, password) {
  *
  * @param {string} password
  */
-const fillOutForceAuth = thenify(function(password) {
+const fillOutForceAuth = thenify(function (password) {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
     .then(testElementExists('#fxa-force-auth-header'))
@@ -1788,7 +1795,7 @@ const fillOutForceAuth = thenify(function(password) {
  * @param {String} vpassword - new verification password
  * @returns {promise}
  */
-const fillOutCompleteResetPassword = thenify(function(password, vpassword) {
+const fillOutCompleteResetPassword = thenify(function (password, vpassword) {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
 
@@ -1810,7 +1817,7 @@ const fillOutCompleteResetPassword = thenify(function(password, vpassword) {
  *     not specified, `newPassword` is used.
  * @returns {promise} resolves when complete
  */
-const fillOutChangePassword = thenify(function(
+const fillOutChangePassword = thenify(function (
   oldPassword,
   newPassword,
   options = {}
@@ -1827,7 +1834,7 @@ const fillOutChangePassword = thenify(function(
       )
     )
     .then(click(selectors.CHANGE_PASSWORD.SUBMIT))
-    .then(function() {
+    .then(function () {
       if (options.expectSuccess !== false) {
         return this.parent
           .then(pollUntilHiddenByQSA(selectors.CHANGE_PASSWORD.DETAILS))
@@ -1843,13 +1850,13 @@ const fillOutChangePassword = thenify(function(
  * @param   {string} password user's password
  * @returns {promise} resolves when complete
  */
-const fillOutDeleteAccount = thenify(function(password) {
+const fillOutDeleteAccount = thenify(function (password) {
   return (
     this.parent
       .setFindTimeout(intern._config.pageLoadTimeout)
       // check all required checkboxes
       .findAllByCssSelector(selectors.SETTINGS_DELETE_ACCOUNT.CHECKBOXES)
-      .then(checkboxes => checkboxes.map(checkbox => checkbox.click()))
+      .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
       .end()
       .then(type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, password))
       // delete account
@@ -1858,9 +1865,9 @@ const fillOutDeleteAccount = thenify(function(password) {
 });
 
 function mouseevent(eventType) {
-  return thenify(function(selector) {
+  return thenify(function (selector) {
     return this.parent.execute(
-      function(selector, eventType) {
+      function (selector, eventType) {
         var target = selector ? document.querySelector(selector) : window;
         var event = new MouseEvent(eventType, {
           bubbles: true,
@@ -1878,8 +1885,8 @@ var mousedown = mouseevent('mousedown');
 var mouseout = mouseevent('mouseout');
 var mouseup = mouseevent('mouseup');
 
-const clearBrowserNotifications = thenify(function() {
-  return this.parent.execute(function(command, done) {
+const clearBrowserNotifications = thenify(function () {
+  return this.parent.execute(function (command, done) {
     sessionStorage.removeItem('webChannelEvents');
     sessionStorage.removeItem('webChannelEventData');
   });
@@ -1895,7 +1902,7 @@ function waitForWebChannelCommand(command, done) {
       storedEvents = [];
     }
 
-    const event = storedEvents.find(event => event.command === command);
+    const event = storedEvents.find((event) => event.command === command);
     if (event) {
       done(event);
     } else {
@@ -1915,7 +1922,7 @@ function waitForWebChannelCommand(command, done) {
  *   perform additional tests.
  * @returns {promise} rejects if message has not been received.
  */
-const testIsBrowserNotified = thenify(function(
+const testIsBrowserNotified = thenify(function (
   command,
   additionalTests = null
 ) {
@@ -1924,7 +1931,7 @@ const testIsBrowserNotified = thenify(function(
       // Allow some time for the event to come through.
       .setExecuteAsyncTimeout(4000)
       .executeAsync(waitForWebChannelCommand, [command])
-      .then(additionalTests, function(err) {
+      .then(additionalTests, function (err) {
         if (/ScriptTimeout/.test(String(err))) {
           var noSuchNotificationError = new Error('NoSuchBrowserNotification');
           noSuchNotificationError.command = command;
@@ -1942,21 +1949,21 @@ const testIsBrowserNotified = thenify(function(
  * @param   {string} command command that should not be received.
  * @returns {promise} rejects if command has been received
  */
-const noSuchBrowserNotification = thenify(function(command) {
+const noSuchBrowserNotification = thenify(function (command) {
   return (
     this.parent
       // Allow some time for the event to come through.
       .setExecuteAsyncTimeout(4000)
       .executeAsync(waitForWebChannelCommand, [command])
       .then(
-        function() {
+        function () {
           var unexpectedNotificationError = new Error(
             'UnexpectedBrowserNotification'
           );
           unexpectedNotificationError.command = command;
           throw unexpectedNotificationError;
         },
-        function(err) {
+        function (err) {
           if (!/ScriptTimeout/.test(String(err))) {
             // script timeouts are expected here!
             throw err;
@@ -1974,7 +1981,7 @@ const noSuchBrowserNotification = thenify(function(command) {
  * @returns {promise} that resolves if the selector is found
  * before and after the timeout.
  */
-const noPageTransition = thenify(function(selector, timeout) {
+const noPageTransition = thenify(function (selector, timeout) {
   return this.parent
     .then(testElementExists(selector))
     .sleep(timeout || 5000)
@@ -1986,8 +1993,8 @@ const noPageTransition = thenify(function(selector, timeout) {
  *
  * @returns {promise} resolves with the logged metrics.
  */
-const fetchAllMetrics = thenify(function() {
-  return this.parent.execute(function() {
+const fetchAllMetrics = thenify(function () {
+  return this.parent.execute(function () {
     var key = '__fxa_storage.metrics_all';
     var item;
     try {
@@ -2003,23 +2010,23 @@ const fetchAllMetrics = thenify(function() {
  * @param   {string[]} eventsNames
  * @returns {promise} rejects if all events are not logged
  */
-const testAreEventsLogged = thenify(function(eventsNames) {
+const testAreEventsLogged = thenify(function (eventsNames) {
   return this.parent
     .then(fetchAllMetrics())
-    .then(function(metrics) {
-      var events = metrics.reduce(function(evts, metrics) {
-        var evtsNames = metrics.events.map(function(evt) {
+    .then(function (metrics) {
+      var events = metrics.reduce(function (evts, metrics) {
+        var evtsNames = metrics.events.map(function (evt) {
           return evt.type;
         });
         return evts.concat(evtsNames);
       }, []);
 
       return this.parent.execute(
-        function(eventsNames, events) {
+        function (eventsNames, events) {
           var toFindAll = eventsNames.slice().reverse();
           var toFind = toFindAll.pop();
 
-          events.forEach(function(event) {
+          events.forEach(function (event) {
             if (event === toFind) {
               toFind = toFindAll.pop();
             }
@@ -2030,7 +2037,7 @@ const testAreEventsLogged = thenify(function(eventsNames) {
         [eventsNames, events]
       );
     })
-    .then(function(found) {
+    .then(function (found) {
       assert.ok(found, 'found the events we were looking for');
     });
 });
@@ -2042,7 +2049,7 @@ const testAreEventsLogged = thenify(function(eventsNames) {
  * @param {string} selector
  * @returns {promise} rejects if fails
  */
-const testElementWasShown = thenify(function(selector, message) {
+const testElementWasShown = thenify(function (selector, message) {
   function messageCheck() {
     return message
       ? // eslint-disable-next-line no-use-before-define
@@ -2054,7 +2061,7 @@ const testElementWasShown = thenify(function(selector, message) {
     .then(testElementExists(selector))
     .then(messageCheck)
     .executeAsync(
-      function(selector, done) {
+      function (selector, done) {
         // remove the attribute so subsequent checks can be made
         // against the same element. displaySuccess and displayError
         // will re-add the 'data-shown' attribute.
@@ -2115,11 +2122,11 @@ function testErrorWasNotShown(selector) {
  * @param {string} selector
  * @returns {promise} rejects if test fails
  */
-const testElementDisabled = thenify(function(selector) {
+const testElementDisabled = thenify(function (selector) {
   return this.parent
     .findByCssSelector(selector)
     .getAttribute('disabled')
-    .then(function(disabledValue) {
+    .then(function (disabledValue) {
       // attribute value is null if it does not exist
       assert.notStrictEqual(disabledValue, null);
     })
@@ -2132,12 +2139,12 @@ const testElementDisabled = thenify(function(selector) {
  * @param {string} selector
  * @returns {promise} rejects if test fails
  */
-const testElementDisplayed = thenify(function(selector) {
+const testElementDisplayed = thenify(function (selector) {
   return this.parent
     .then(visibleByQSA(selector))
     .findByCssSelector(selector)
     .isDisplayed()
-    .then(function(isDisplayed) {
+    .then(function (isDisplayed) {
       assert.isTrue(isDisplayed);
     })
     .end();
@@ -2149,11 +2156,11 @@ const testElementDisplayed = thenify(function(selector) {
  * @param {string} selector
  * @returns {promise} rejects if element is displayed
  */
-const noSuchElementDisplayed = thenify(function(selector) {
+const noSuchElementDisplayed = thenify(function (selector) {
   return this.parent
     .findByCssSelector(selector)
     .isDisplayed()
-    .then(function(isDisplayed) {
+    .then(function (isDisplayed) {
       assert.isFalse(isDisplayed);
     })
     .end();
@@ -2167,12 +2174,12 @@ const noSuchElementDisplayed = thenify(function(selector) {
  * @param {string} expected
  * @returns {promise} rejects if test fails.
  */
-const testElementTextEquals = thenify(function(selector, expected) {
+const testElementTextEquals = thenify(function (selector, expected) {
   return this.parent
     .findByCssSelector(selector)
     .then(visibleByQSA(selector))
     .getVisibleText()
-    .then(function(resultText) {
+    .then(function (resultText) {
       assert.equal(resultText, expected);
     })
     .end();
@@ -2187,12 +2194,12 @@ const testElementTextEquals = thenify(function(selector, expected) {
  * @param {object} [options]
  * @returns {promise} rejects if test fails.
  */
-const testElementTextInclude = thenify(function(selector, expected) {
+const testElementTextInclude = thenify(function (selector, expected) {
   return this.parent
     .findByCssSelector(selector)
     .then(visibleByQSA(selector))
     .getVisibleText()
-    .then(function(resultText) {
+    .then(function (resultText) {
       assert.include(resultText.toLowerCase(), expected.toLowerCase());
     })
     .end();
@@ -2215,11 +2222,11 @@ function testErrorTextInclude(expected) {
  * @param {string} expected
  * @returns {promise} rejects if test fails.
  */
-const testElementValueEquals = thenify(function(selector, expected) {
+const testElementValueEquals = thenify(function (selector, expected) {
   return this.parent
     .findByCssSelector(selector)
     .getProperty('value')
-    .then(function(resultText) {
+    .then(function (resultText) {
       assert.equal(resultText, expected);
     })
     .end();
@@ -2233,12 +2240,12 @@ const testElementValueEquals = thenify(function(selector, expected) {
  * @param {object} [options]
  * @returns {promise} rejects if test fails.
  */
-const testElementTextNotEmpty = thenify(function(selector) {
+const testElementTextNotEmpty = thenify(function (selector) {
   return this.parent
     .findByCssSelector(selector)
     .then(visibleByQSA(selector))
     .getVisibleText()
-    .then(function(resultText) {
+    .then(function (resultText) {
       assert.notEqual(resultText, '');
     })
     .end();
@@ -2251,7 +2258,7 @@ const testElementTextNotEmpty = thenify(function(selector) {
  * @param {string} expected
  * @returns {promise} rejects if test fails.
  */
-const testHrefEquals = thenify(function(selector, expected) {
+const testHrefEquals = thenify(function (selector, expected) {
   return this.parent.then(testAttributeEquals(selector, 'href', expected));
 });
 
@@ -2261,10 +2268,10 @@ const testHrefEquals = thenify(function(selector, expected) {
  * @param {string} expected
  * @returns {promise} fails if url does not equal expected value
  */
-const testUrlEquals = thenify(function(expected) {
+const testUrlEquals = thenify(function (expected) {
   return this.parent
     .getCurrentUrl()
-    .then(function(url) {
+    .then(function (url) {
       assert.equal(url, expected);
     })
     .end();
@@ -2276,10 +2283,10 @@ const testUrlEquals = thenify(function(expected) {
  * @param {string} expected
  * @returns {promise} fails if url pathname does not equal expected value
  */
-const testUrlPathnameEquals = thenify(function(expected) {
+const testUrlPathnameEquals = thenify(function (expected) {
   return this.parent
     .getCurrentUrl()
-    .then(function(url) {
+    .then(function (url) {
       assert.equal(Url.parse(url).pathname, expected);
     })
     .end();
@@ -2291,10 +2298,10 @@ const testUrlPathnameEquals = thenify(function(expected) {
  * @param   {string} expected
  * @returns {promise} fails if url does not include expected value
  */
-const testUrlInclude = thenify(function(expected) {
+const testUrlInclude = thenify(function (expected) {
   return this.parent
     .getCurrentUrl()
-    .then(function(url) {
+    .then(function (url) {
       assert.include(url, expected);
     })
     .end();
@@ -2310,9 +2317,9 @@ const testUrlInclude = thenify(function(expected) {
  *   Defaults to false.
  * @returns {promise} resolves with account info when complete.
  */
-const createUser = thenify(function(email, password, options) {
+const createUser = thenify(function (email, password, options) {
   options = options || {};
-  return this.parent.then(function() {
+  return this.parent.then(function () {
     var client = getFxaClient();
 
     return client.signUp(email, password, {
@@ -2328,8 +2335,8 @@ const createUser = thenify(function(email, password, options) {
  *
  * @returns {promise}
  */
-const closeCurrentWindow = thenify(function() {
-  return this.parent.getAllWindowHandles().then(function(handles) {
+const closeCurrentWindow = thenify(function () {
+  return this.parent.getAllWindowHandles().then(function (handles) {
     if (handles.length <= 1) {
       throw new Error('LastWindowError');
     } else {
@@ -2347,7 +2354,7 @@ const closeCurrentWindow = thenify(function() {
  * @param {string} value Expected value of the attribute
  * @returns {promise}
  */
-const testAttribute = thenify(function(
+const testAttribute = thenify(function (
   selector,
   attributeName,
   assertion,
@@ -2356,7 +2363,7 @@ const testAttribute = thenify(function(
   return this.parent
     .findByCssSelector(selector)
     .getAttribute(attributeName)
-    .then(function(attributeValue) {
+    .then(function (attributeValue) {
       assert[assertion](attributeValue, value);
     })
     .end();
@@ -2403,11 +2410,11 @@ function testAttributeIncludes(selector, attributeName, needle) {
  * @param {string} attributeName Name of attribute
  * @returns {promise} resolves to true if attribute exists, false otw.
  */
-const testAttributeExists = thenify(function(selector, attributeName) {
+const testAttributeExists = thenify(function (selector, attributeName) {
   return this.parent
     .findByCssSelector(selector)
     .getAttribute(attributeName)
-    .then(function(attributeValue) {
+    .then(function (attributeValue) {
       assert.notStrictEqual(attributeValue, null);
     })
     .end();
@@ -2421,11 +2428,11 @@ const testAttributeExists = thenify(function(selector, attributeName) {
  * @param {string} attributeName Name of attribute
  * @returns {promise} resolves if attribute does not exist, rejects otherwise.
  */
-const noSuchAttribute = thenify(function(selector, attributeName) {
+const noSuchAttribute = thenify(function (selector, attributeName) {
   return this.parent
     .findByCssSelector(selector)
     .getAttribute(attributeName)
-    .then(function(attributeValue) {
+    .then(function (attributeValue) {
       // Older Firefoxes return an attribute value of `null`,
       // Newer Firefoxes return an attribute value of ''.
       assert.isTrue(attributeValue === '' || attributeValue === null);
@@ -2439,9 +2446,9 @@ const noSuchAttribute = thenify(function(selector, attributeName) {
  * @param   {string} email - email address to denormalize
  * @returns {promise}
  */
-const denormalizeStoredEmail = thenify(function(email) {
+const denormalizeStoredEmail = thenify(function (email) {
   return this.parent.execute(
-    email => {
+    (email) => {
       // synthesize the user signing in before the email normalization fix went in (#4470)
       var accounts = JSON.parse(localStorage.getItem('__fxa_storage.accounts'));
       console.log('looking for email', email);
@@ -2467,9 +2474,9 @@ const denormalizeStoredEmail = thenify(function(email) {
  *  resolves with `undefined` if not.
  */
 function getStoredAccountByEmail(email) {
-  return function() {
+  return function () {
     return this.parent.execute(
-      email => {
+      (email) => {
         // synthesize the user signing in before the email normalization fix went in (#4470)
         var accounts = JSON.parse(
           localStorage.getItem('__fxa_storage.accounts')
@@ -2495,8 +2502,8 @@ function getStoredAccountByEmail(email) {
  * @returns {promise} resolves if no account with `email`, rejects otherwise.
  */
 function noSuchStoredAccountByEmail(email) {
-  return function() {
-    return this.parent.then(getStoredAccountByEmail(email)).then(account => {
+  return function () {
+    return this.parent.then(getStoredAccountByEmail(email)).then((account) => {
       if (account) {
         throw new Error('Account data should have been removed: ' + email);
       }
@@ -2511,26 +2518,26 @@ function noSuchStoredAccountByEmail(email) {
  * @returns {promise} resolves when true
  */
 
-const waitForUrl = thenify(function(url) {
-  return this.parent.getCurrentUrl().then(function(currentUrl) {
+const waitForUrl = thenify(function (url) {
+  return this.parent.getCurrentUrl().then(function (currentUrl) {
     if (typeof url === 'function' ? url(currentUrl) : currentUrl !== url) {
       return this.parent.sleep(500).then(waitForUrl(url));
     }
   });
 });
 
-const generateTotpCode = secret => {
+const generateTotpCode = (secret) => {
   secret = secret.replace(/[- ]*/g, '');
   const authenticator = new otplib.authenticator.Authenticator();
   authenticator.options = otplib.authenticator.options;
   return authenticator.generate(secret);
 };
 
-const confirmRecoveryCode = thenify(function() {
+const confirmRecoveryCode = thenify(function () {
   return this.parent
     .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.FIRST_CODE)
     .getVisibleText()
-    .then(code => {
+    .then((code) => {
       return this.parent
         .then(click(selectors.TOTP.RECOVERY_CODES_DONE))
         .then(type(selectors.TOTP.CONFIRM_RECOVERY_INPUT, code))
@@ -2538,7 +2545,7 @@ const confirmRecoveryCode = thenify(function() {
     });
 });
 
-const confirmTotpCode = thenify(function(secret) {
+const confirmTotpCode = thenify(function (secret) {
   return this.parent
     .then(type(selectors.TOTP.CONFIRM_CODE_INPUT, generateTotpCode(secret)))
     .then(click(selectors.TOTP.CONFIRM_CODE_BUTTON))
@@ -2546,7 +2553,7 @@ const confirmTotpCode = thenify(function(secret) {
     .then(confirmRecoveryCode());
 });
 
-const enableTotp = thenify(function() {
+const enableTotp = thenify(function () {
   let secret;
 
   return (
@@ -2559,7 +2566,7 @@ const enableTotp = thenify(function() {
       // Store the secret key to recalculate the code later
       .findByCssSelector(selectors.TOTP.MANUAL_CODE)
       .getVisibleText()
-      .then(secretKey => {
+      .then((secretKey) => {
         secret = secretKey;
       })
       .then(() => this.parent.then(click(selectors.TOTP.KEY_OK_BUTTON)))
@@ -2575,7 +2582,7 @@ const enableTotp = thenify(function() {
  *
  * @returns {promise} resolves when complete
  */
-const enableTotpInline = thenify(function() {
+const enableTotpInline = thenify(function () {
   let secret, recoveryCode;
 
   return (
@@ -2591,7 +2598,7 @@ const enableTotpInline = thenify(function() {
       .then(visibleByQSA(selectors.INLINE_TOTP.TOTP_CODE_TEXT))
       .findByCssSelector(selectors.INLINE_TOTP.TOTP_CODE_TEXT)
       .getVisibleText()
-      .then(secretKey => {
+      .then((secretKey) => {
         secret = secretKey;
       })
       .end()
@@ -2610,7 +2617,7 @@ const enableTotpInline = thenify(function() {
       .then(visibleByQSA(selectors.INLINE_RECOVERY_CODES.RECOVERY_CODES))
       .findByCssSelector(selectors.INLINE_RECOVERY_CODES.RECOVERY_CODES)
       .getVisibleText()
-      .then(code => {
+      .then((code) => {
         recoveryCode = code;
         return this.parent.then(
           click(selectors.INLINE_RECOVERY_CODES.DONE_BUTTON)
@@ -2643,8 +2650,8 @@ const enableTotpInline = thenify(function() {
  * @param {string} email - email of the session to destroy.
  * @returns {promise} resolves when complete
  */
-const destroySessionForEmail = thenify(function(email) {
-  return this.parent.then(getStoredAccountByEmail(email)).then(account => {
+const destroySessionForEmail = thenify(function (email) {
+  return this.parent.then(getStoredAccountByEmail(email)).then((account) => {
     if (!account) {
       return false;
     }
@@ -2658,16 +2665,16 @@ const destroySessionForEmail = thenify(function(email) {
  *
  * @returns {promise} resolves when complete
  */
-const subscribeToTestProduct = thenify(function() {
+const subscribeToTestProduct = thenify(function () {
   const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
   return this.parent
     .then(openPage(TEST_PRODUCT_URL, 'div.product-payment'))
     .then(getQueryParamValue('device_id'))
-    .then(deviceId => assert.ok(deviceId))
+    .then((deviceId) => assert.ok(deviceId))
     .then(getQueryParamValue('flow_begin_time'))
-    .then(flowBeginTime => assert.ok(flowBeginTime))
+    .then((flowBeginTime) => assert.ok(flowBeginTime))
     .then(getQueryParamValue('flow_id'))
-    .then(flowId => assert.ok(flowId))
+    .then((flowId) => assert.ok(flowId))
     .then(type('input[name=name]', 'Testo McTestson'))
     .switchToFrame(2)
     .then(type('input[name=cardnumber]', '4242 4242 4242 4242'))
@@ -2692,7 +2699,7 @@ const subscribeToTestProduct = thenify(function() {
 /**
 + * Send verification reminder emails
 + */
-const sendVerificationReminders = thenify(function() {
+const sendVerificationReminders = thenify(function () {
   return this.parent.then(() => {
     const cwd = path.join(
       __dirname,

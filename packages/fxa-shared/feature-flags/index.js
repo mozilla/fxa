@@ -70,7 +70,7 @@ function initialise(config, log, defaults) {
         // eslint-disable-next-line require-atomic-updates
         cache = Promise.resolve(JSON.parse(result));
       } else {
-        cache = redis.get(FLAGS_KEY).then(result => JSON.parse(result));
+        cache = redis.get(FLAGS_KEY).then((result) => JSON.parse(result));
         // The positioning of `await` is deliberate here.
         // The initial value of `cache` must be a promise
         // so that callers can access it uniformly.

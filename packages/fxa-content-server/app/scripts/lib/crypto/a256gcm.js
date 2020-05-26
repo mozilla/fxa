@@ -43,7 +43,7 @@ export default {
    *   @param {String} [options.unsafeExplicitIV] - Initialization vector used to create bundle for testing purposes
    * @returns {Promise} A promise that will be fulfilled with the encrypted data
    */
-  encrypt: function(plaintext, keysJwk, options = {}) {
+  encrypt: function (plaintext, keysJwk, options = {}) {
     return importFxaCryptoDeriver().then(({ jose }) => {
       required(plaintext, 'plaintext');
       required(keysJwk, 'keysJwk');
@@ -81,7 +81,7 @@ export default {
    * @param {String} keysJwk keysJwk used to decrypt data
    * @returns {Promise} A promise that will be fulfilled with the ciphertext
    */
-  decrypt: function(ciphertext, keysJwk) {
+  decrypt: function (ciphertext, keysJwk) {
     return importFxaCryptoDeriver().then(({ jose }) => {
       required(ciphertext, 'ciphertext');
       required(keysJwk, 'keysJwk');
@@ -92,7 +92,7 @@ export default {
 
       return jose.JWE.createDecrypt(keysJwk, opts)
         .decrypt(ciphertext)
-        .then(result => result.plaintext.toString());
+        .then((result) => result.plaintext.toString());
     });
   },
 };

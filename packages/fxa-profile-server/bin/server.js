@@ -19,18 +19,18 @@ async function start() {
   const events = require('../lib/events')(server);
 
   db.ping().done(
-    async function() {
-        try {
-          await server.start();
-          logger.info('listening', server.info.uri);
-        } catch (err) {
-          logger.critical('server.start', err);
-          process.exit(1);
-        }
+    async function () {
+      try {
+        await server.start();
+        logger.info('listening', server.info.uri);
+      } catch (err) {
+        logger.critical('server.start', err);
+        process.exit(1);
+      }
 
       events.start();
     },
-    function(err) {
+    function (err) {
       logger.critical('db.ping', err);
       process.exit(2);
     }

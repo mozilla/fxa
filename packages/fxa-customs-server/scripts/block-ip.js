@@ -43,8 +43,8 @@ var IpRecord = require('../lib/ip_record')({
   ipRateLimitBanDurationMs: lifetime * 1000,
 });
 var log = {
-  error: function() {},
-  info: function() {},
+  error: function () {},
+  info: function () {},
 };
 var ban = require('../lib/bans/handler')(lifetime, mc, null, IpRecord, log);
 
@@ -54,7 +54,7 @@ ban(
       ip: process.argv[3],
     },
   },
-  function(err) {
+  function (err) {
     if (err) {
       console.error(err);
       return process.exit(1);

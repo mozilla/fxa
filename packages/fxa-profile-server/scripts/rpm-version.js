@@ -23,14 +23,14 @@ var util = require('util');
 var args = '{"hash":"%H","subject":"%s","committer date":"%ct"}';
 var cmd = util.format("git --no-pager log --format=format:'%s' -1", args);
 // eslint-disable-next-line handle-callback-err
-cp.exec(cmd, function(err, stdout) {
+cp.exec(cmd, function (err, stdout) {
   var info = {
     version: JSON.parse(stdout || '{}'),
   };
 
   var cmd = 'git config --get remote.origin.url';
   // eslint-disable-next-line handle-callback-err
-  cp.exec(cmd, function(err, stdout) {
+  cp.exec(cmd, function (err, stdout) {
     info.version.source = (stdout && stdout.trim()) || '';
     console.log(JSON.stringify(info, null, 2)); // eslint-disable-line no-console
   });

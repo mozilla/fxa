@@ -5,10 +5,10 @@
 import SupportForm from 'models/support-form';
 import { assert } from 'chai';
 
-describe('models/support-form', function() {
+describe('models/support-form', function () {
   let supportForm;
 
-  beforeEach(function() {
+  beforeEach(function () {
     supportForm = new SupportForm({
       plan: '123done',
       productName: 'FxA - Best Product Ever',
@@ -18,22 +18,22 @@ describe('models/support-form', function() {
     });
   });
 
-  it('requires a product name', function() {
+  it('requires a product name', function () {
     supportForm.set('productName', '');
     assert.isFalse(supportForm.isValid());
   });
 
-  it('requires a topic', function() {
+  it('requires a topic', function () {
     supportForm.set('topic', '');
     assert.isFalse(supportForm.isValid());
   });
 
-  it('requires a message', function() {
+  it('requires a message', function () {
     supportForm.set('message', '');
     assert.isFalse(supportForm.isValid());
   });
 
-  it('does not require a subject', function() {
+  it('does not require a subject', function () {
     assert.isTrue(supportForm.isValid());
   });
 });

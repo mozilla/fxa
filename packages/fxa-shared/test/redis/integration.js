@@ -34,7 +34,7 @@ describe('redis integration:', () => {
 
     it('get reads data', async () => {
       const results = await Promise.all([redis.get('foo'), redis.get('foo')]);
-      results.forEach(result => assert.equal(result, 'bar'));
+      results.forEach((result) => assert.equal(result, 'bar'));
     });
   });
 
@@ -61,7 +61,7 @@ describe('redis integration:', () => {
   describe('update:', () => {
     before(async () => {
       await redis.set('foo', 'bar');
-      await redis.update('foo', oldValue => `${oldValue}2`);
+      await redis.update('foo', (oldValue) => `${oldValue}2`);
     });
 
     it('data was set', async () => {
@@ -97,10 +97,10 @@ describe('redis integration:', () => {
     before(() => {
       let resolve,
         sum = 0;
-      const synchronisationPromise = new Promise(r => (resolve = r));
+      const synchronisationPromise = new Promise((r) => (resolve = r));
 
       return Promise.all(
-        [1, 2].map(async value => {
+        [1, 2].map(async (value) => {
           try {
             await redis.update('foo', createUpdateHandler(value));
             winner = value;
@@ -136,7 +136,7 @@ describe('redis integration:', () => {
     before(() => {
       let resolve,
         values = '';
-      const synchronisationPromise = new Promise(r => (resolve = r));
+      const synchronisationPromise = new Promise((r) => (resolve = r));
 
       return Promise.all([
         redis.update('foo', createUpdateHandler('bar')),
@@ -169,10 +169,10 @@ describe('redis integration:', () => {
 
     before(() => {
       redisPool = require(`${ROOT_DIR}/redis/pool`)(config, log).pool;
-      return Promise.using(redisPool.acquire(), connection =>
-        connection.update('foo', async oldFoo => {
+      return Promise.using(redisPool.acquire(), (connection) =>
+        connection.update('foo', async (oldFoo) => {
           try {
-            await connection.update('baz', oldBaz => `${oldBaz}2`);
+            await connection.update('baz', (oldBaz) => `${oldBaz}2`);
           } catch (e) {
             error = e;
           }

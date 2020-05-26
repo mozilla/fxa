@@ -35,7 +35,7 @@ const OUTPUT_DIRECTORY = path.join(__dirname, '..', '.mail_output');
 config.subscriptions.transactionalEmails.enabled = true;
 
 const mailSender = {
-  sendMail: function(emailConfig, done) {
+  sendMail: function (emailConfig, done) {
     const templateName = emailConfig.headers['X-Template-Name'];
     const htmlOutputPath = getEmailOutputPath(templateName, 'html');
     fs.writeFileSync(htmlOutputPath, emailConfig.html);
@@ -46,17 +46,17 @@ const mailSender = {
     done(null);
   },
 
-  close: function() {},
+  close: function () {},
 };
 
 require('../lib/senders/translator')(
   config.i18n.supportedLanguages,
   config.i18n.defaultLanguage
 )
-  .then(translator => {
+  .then((translator) => {
     return createSenders(log, config, error, translator, {}, {}, mailSender);
   })
-  .then(senders => {
+  .then((senders) => {
     const mailer = senders.email._ungatedMailer;
     checkMessageType(mailer);
 
@@ -68,7 +68,7 @@ require('../lib/senders/translator')(
     console.info('done');
     process.exit(0);
   })
-  .catch(err => {
+  .catch((err) => {
     console.error(err.stack);
     process.exit(1);
   });

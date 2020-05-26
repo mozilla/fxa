@@ -84,10 +84,7 @@ class Storage {
       } else {
         // HACK: Allows the functional tests to simulate disabled local storage.
         if (
-          Url.searchParam(
-            'disable_local_storage',
-            win.location.search
-          ) === '1'
+          Url.searchParam('disable_local_storage', win.location.search) === '1'
         ) {
           throw new Error('disabled for tests');
         }
@@ -156,10 +153,7 @@ class Storage {
     let storage;
     if (type === 'localStorage' && this.isLocalStorageEnabled(win)) {
       storage = new Storage(win.localStorage, 'local');
-    } else if (
-      type === 'sessionStorage' &&
-      this.isSessionStorageEnabled(win)
-    ) {
+    } else if (type === 'sessionStorage' && this.isSessionStorageEnabled(win)) {
       storage = new Storage(win.sessionStorage, 'session');
     } else {
       storage = new Storage(new NullStorage(), 'null');

@@ -40,7 +40,7 @@ describe('GET /securityEvents', () => {
       },
       method: 'GET',
     };
-    return setup('/securityEvents', requestOptions).then(res => {
+    return setup('/securityEvents', requestOptions).then((res) => {
       assert.equal(res.length, 3);
       assert.equal(res[0].name, 'account.create');
       assert.equal(res[0].verified, 1);
@@ -66,7 +66,7 @@ describe('DELETE /securityEvents', () => {
       },
       method: 'DELETE',
     };
-    return setup('/securityEvents', requestOptions).then(res => {
+    return setup('/securityEvents', requestOptions).then((res) => {
       assert.deepEqual(res, {});
     });
   });

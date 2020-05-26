@@ -22,7 +22,7 @@ mkdirp.sync(path.join(__dirname, '..', 'var', 'public'));
 var childStatic = cp.fork(path.join(__dirname, '..', 'bin', '_static.js'));
 childStatic.on('exit', process.exit);
 
-process.on('exit', function() {
+process.on('exit', function () {
   try {
     // if one of the child processes crashes or exits then we stop everything else.
     childServer.kill();

@@ -28,18 +28,20 @@ const View = BaseView.extend({
       return Promise.resolve(null);
     }
 
-    return this._createChildViewIfNeeded(ChildView, options).then(childView => {
-      if (childView) {
-        this._currentChildView = childView;
-        childView.openPanel();
+    return this._createChildViewIfNeeded(ChildView, options).then(
+      (childView) => {
+        if (childView) {
+          this._currentChildView = childView;
+          childView.openPanel();
 
-        return childView;
+          return childView;
+        }
       }
-    });
+    );
   },
 
   _childViewInstanceFromClass(ChildView) {
-    return this.childViews.filter(function(childView) {
+    return this.childViews.filter(function (childView) {
       if (childView instanceof ChildView) {
         return true;
       }
@@ -96,7 +98,7 @@ const View = BaseView.extend({
   },
 
   renderChildView(viewToShow) {
-    return viewToShow.render().then(function(shown) {
+    return viewToShow.render().then(function (shown) {
       if (!shown) {
         viewToShow.destroy(true);
         return;
@@ -110,12 +112,12 @@ const View = BaseView.extend({
 
   afterRender() {
     // Initial childViews to render; excludes modal views
-    var initialChildViews = this._panelViews.filter(ChildView => {
+    var initialChildViews = this._panelViews.filter((ChildView) => {
       return !this._isModalView(ChildView);
     });
 
     return Promise.all(
-      initialChildViews.map(ChildView => {
+      initialChildViews.map((ChildView) => {
         return this._createChildViewIfNeeded(ChildView);
       })
     ).then(proto.afterRender.bind(this));

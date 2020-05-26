@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(config, fetchRecord, setRecords) {
+module.exports = function (config, fetchRecord, setRecords) {
   const Record = require('./record');
   const utils = require('./utils');
 
@@ -10,8 +10,8 @@ module.exports = function(config, fetchRecord, setRecords) {
   // Pre compute user defined rules into a Map<action, array of rule name>
   const computedRules = new Map();
 
-  Object.keys(configuredRules).forEach(key => {
-    configuredRules[key].actions.forEach(action => {
+  Object.keys(configuredRules).forEach((key) => {
+    configuredRules[key].actions.forEach((action) => {
       const items = computedRules.get(action);
       if (!items) {
         computedRules.set(action, [key]);
@@ -37,11 +37,11 @@ module.exports = function(config, fetchRecord, setRecords) {
 
     const retries = [];
     await Promise.all(
-      checkRules.map(async ruleName => {
+      checkRules.map(async (ruleName) => {
         const recordKey = ruleName + ':' + utils.createHashHex(email, ip);
         const record = await fetchRecord(
           recordKey,
-          object => new Record(object, configuredRules[ruleName])
+          (object) => new Record(object, configuredRules[ruleName])
         );
         retries.push(record.update(action));
 

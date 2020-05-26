@@ -77,7 +77,7 @@ module.exports = (log, translator, templates, config, statsd) => {
         return sns
           .publish(params)
           .promise()
-          .then(result => {
+          .then((result) => {
             if (statsd) {
               statsd.timing('sms.send.success', Date.now() - startTime);
             }
@@ -87,7 +87,7 @@ module.exports = (log, translator, templates, config, statsd) => {
               messageId: result.MessageId,
             });
           })
-          .catch(sendError => {
+          .catch((sendError) => {
             if (statsd) {
               statsd.timing('sms.send.error', Date.now() - startTime);
             }
@@ -106,7 +106,7 @@ module.exports = (log, translator, templates, config, statsd) => {
     sns
       .getSMSAttributes({ attributes: ['MonthlySpendLimit'] })
       .promise()
-      .then(result => {
+      .then((result) => {
         limit = parseFloat(result.attributes.MonthlySpendLimit);
         if (isNaN(limit)) {
           throw new Error(
@@ -129,7 +129,7 @@ module.exports = (log, translator, templates, config, statsd) => {
           })
           .promise();
       })
-      .then(result => {
+      .then((result) => {
         let current;
 
         try {
@@ -153,7 +153,7 @@ module.exports = (log, translator, templates, config, statsd) => {
           threshold: CREDIT_THRESHOLD,
         });
       })
-      .catch(err => {
+      .catch((err) => {
         log.error('sms.budget.error', { err: err.message, result: err.result });
 
         // If we failed to query the data, assume current spend is fine

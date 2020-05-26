@@ -18,7 +18,7 @@ function getOrigin(link) {
  * blockingCspMiddleware is where to declare rules that will cause a resource
  * to be blocked if it runs afowl of a rule.
  */
-module.exports = function(config) {
+module.exports = function (config) {
   const AUTH_SERVER = getOrigin(config.get('fxaccount_url'));
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');

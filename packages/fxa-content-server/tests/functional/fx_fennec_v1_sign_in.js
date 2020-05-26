@@ -37,7 +37,7 @@ const {
   type,
 } = FunctionalHelpers;
 
-const setupTest = thenify(function(successSelector, options = {}) {
+const setupTest = thenify(function (successSelector, options = {}) {
   return this.parent
     .then(clearBrowserState())
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
@@ -51,11 +51,11 @@ const setupTest = thenify(function(successSelector, options = {}) {
 });
 
 registerSuite('Fx Fennec Sync v1 sign_in', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
   },
   tests: {
-    verified: function() {
+    verified: function () {
       return this.remote
         .then(
           setupTest(selectors.SIGNIN_TOKEN_CODE.HEADER, { preVerified: true })
@@ -67,7 +67,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    unverified: function() {
+    unverified: function () {
       return (
         this.remote
           .then(
@@ -86,7 +86,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
       );
     },
 
-    'blocked, valid code entered': function() {
+    'blocked, valid code entered': function () {
       email = createEmail('block{id}');
 
       return this.remote
@@ -107,7 +107,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
     },
 
     'signup in desktop, send an SMS, open deferred deeplink in Fennec': disableInProd(
-      function() {
+      function () {
         const testPhoneNumber = createPhoneNumber();
 
         return (
@@ -123,7 +123,7 @@ registerSuite('Fx Fennec Sync v1 sign_in', {
 
             .then(testElementExists(selectors.SMS_SENT.HEADER))
             .then(getSmsSigninCode(testPhoneNumber, 0))
-            .then(function(signinCode) {
+            .then(function (signinCode) {
               const signinUrlWithSigninCode = `${ENTER_EMAIL_URL}&signin=${signinCode}`;
               return this.parent
                 .then(clearBrowserState())

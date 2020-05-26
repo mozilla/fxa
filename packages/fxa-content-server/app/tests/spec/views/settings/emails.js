@@ -15,7 +15,7 @@ import User from 'models/user';
 import View from 'views/settings/emails';
 import WindowMock from '../../../mocks/window';
 
-describe('views/settings/emails', function() {
+describe('views/settings/emails', function () {
   let account;
   let emails;
   let broker;
@@ -117,7 +117,7 @@ describe('views/settings/emails', function() {
         assert.equal(view.$('.email-address .address').text(), email);
       });
 
-      it('does not log any enable/disable metrics', function() {
+      it('does not log any enable/disable metrics', function () {
         assert.isTrue(metrics.logUserPreferences.calledOnce);
       });
     });
@@ -133,16 +133,18 @@ describe('views/settings/emails', function() {
         return Promise.resolve({ sessionVerified: true });
       });
 
-      sinon.stub(account, 'recoveryEmailDestroy').callsFake(destroyedEmail => {
-        emails = emails.filter(email => email.email !== destroyedEmail);
-        return Promise.resolve();
-      });
+      sinon
+        .stub(account, 'recoveryEmailDestroy')
+        .callsFake((destroyedEmail) => {
+          emails = emails.filter((email) => email.email !== destroyedEmail);
+          return Promise.resolve();
+        });
 
       sinon.stub(account, 'resendEmailCode').callsFake(() => {
         return Promise.resolve();
       });
 
-      sinon.stub(account, 'setPrimaryEmail').callsFake(newEmail => {
+      sinon.stub(account, 'setPrimaryEmail').callsFake((newEmail) => {
         email = newEmail;
         return Promise.resolve();
       });
@@ -160,12 +162,12 @@ describe('views/settings/emails', function() {
         return initView();
       });
 
-      it('has email input field', function() {
+      it('has email input field', function () {
         assert.ok(view.$('input.new-email').length, 1);
         assert.ok(view.$('.email-add.primary-button').length, 1);
       });
 
-      it('logs `emails` disabled metric', function() {
+      it('logs `emails` disabled metric', function () {
         assert.isTrue(metrics.logUserPreferences.calledOnce);
         assert.isTrue(
           metrics.logUserPreferences.calledWith(view.className, false)
@@ -188,7 +190,7 @@ describe('views/settings/emails', function() {
           },
         ];
 
-        return initView().then(function() {
+        return initView().then(function () {
           // click events require the view to be in the DOM
           $('#container').html(view.el);
           sinon.spy(view, 'navigate');
@@ -222,11 +224,11 @@ describe('views/settings/emails', function() {
         );
       });
 
-      it('can disconnect email and navigate to /emails', done => {
+      it('can disconnect email and navigate to /emails', (done) => {
         $(
           '.email-address .email-address-row .settings-button.warning-button.email-disconnect'
         ).click();
-        setTimeout(function() {
+        setTimeout(function () {
           TestHelpers.wrapAssertion(() => {
             assert.isTrue(view.navigate.calledOnce);
             const args = view.navigate.args[0];
@@ -237,20 +239,20 @@ describe('views/settings/emails', function() {
         }, 150);
       });
 
-      it('calls `render` when refreshed', done => {
+      it('calls `render` when refreshed', (done) => {
         $('.email-refresh').click();
         sinon.spy(view, 'render');
-        setTimeout(function() {
+        setTimeout(function () {
           TestHelpers.wrapAssertion(() => {
             assert.isTrue(view.render.calledOnce);
           }, done);
         }, 450); // Delay is higher here because refresh has a min delay of 350
       });
 
-      it('calls `render` when resend and navigate to /emails', done => {
+      it('calls `render` when resend and navigate to /emails', (done) => {
         $('.resend').click();
         sinon.spy(view, 'render');
-        setTimeout(function() {
+        setTimeout(function () {
           TestHelpers.wrapAssertion(() => {
             assert.isTrue(view.navigate.calledOnce);
             const args = view.navigate.args[0];
@@ -264,7 +266,7 @@ describe('views/settings/emails', function() {
         assert.equal(view.isPanelOpen(), true);
       });
 
-      it('logs `emails` disabled metric', function() {
+      it('logs `emails` disabled metric', function () {
         assert.isTrue(metrics.logUserPreferences.calledOnce);
         assert.isTrue(
           metrics.logUserPreferences.calledWith(view.className, false)
@@ -287,7 +289,7 @@ describe('views/settings/emails', function() {
           },
         ];
 
-        return initView().then(function() {
+        return initView().then(function () {
           // click events require the view to be in the DOM
           $('#container').html(view.el);
           sinon.spy(view, 'navigate');
@@ -352,7 +354,7 @@ describe('views/settings/emails', function() {
           },
         ];
 
-        return initView().then(function() {
+        return initView().then(function () {
           // click events require the view to be in the DOM
           $('#container').html(view.el);
           sinon.spy(view, 'navigate');
@@ -389,13 +391,13 @@ describe('views/settings/emails', function() {
         });
       });
 
-      it('can disconnect email and navigate to /emails', done => {
+      it('can disconnect email and navigate to /emails', (done) => {
         $(
           '.email-address .email-address-row .settings-button.warning-button.email-disconnect'
         )
           .eq(0)
           .click();
-        setTimeout(function() {
+        setTimeout(function () {
           TestHelpers.wrapAssertion(() => {
             // panel should not close after destroy when
             // you have multiple secondary emails
@@ -433,7 +435,7 @@ describe('views/settings/emails', function() {
 
         sinon.spy(windowMock.history, 'replaceState');
 
-        return initView().then(function() {
+        return initView().then(function () {
           // click events require the view to be in the DOM
           $('#container').html(view.el);
         });
@@ -468,7 +470,7 @@ describe('views/settings/emails', function() {
         });
       });
 
-      it('can set primary email', done => {
+      it('can set primary email', (done) => {
         const spy = sinon.spy(view, 'translate');
         // Find the third email
         $('.email-address')

@@ -11,7 +11,7 @@ const TEMPLATE =
   '<input type="text" class="recovery-key"></input>' +
   '<input type="text" class="recovery-key"></input>';
 
-describe('views/elements/recovery-key-input', function() {
+describe('views/elements/recovery-key-input', function () {
   let $element;
   let $otherElement;
 

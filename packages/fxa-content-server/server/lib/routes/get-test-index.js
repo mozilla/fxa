@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-module.exports = function(config) {
+module.exports = function (config) {
   return {
     method: 'get',
     path: '/tests/index.html',

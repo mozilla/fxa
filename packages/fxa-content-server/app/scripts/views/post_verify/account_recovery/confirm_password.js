@@ -34,7 +34,7 @@ class ConfirmPassword extends FormView {
     }
 
     // An account can only support one recovery key at a time
-    return account.checkRecoveryKeyExists().then(status => {
+    return account.checkRecoveryKeyExists().then((status) => {
       if (status.exists) {
         this.navigate('/post_verify/account_recovery/verified_recovery_key');
       }
@@ -56,7 +56,7 @@ class ConfirmPassword extends FormView {
 
     return account
       .createRecoveryBundle(password, false)
-      .then(recoveryKey => {
+      .then((recoveryKey) => {
         this.model.set('recoveryKey', recoveryKey);
         this.model.set('recoveryKeyId', recoveryKey.recoveryKeyId);
         this.logFlowEvent('success', this.viewName);
@@ -65,7 +65,7 @@ class ConfirmPassword extends FormView {
           recoveryKey
         );
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
           return this.showValidationError(this.$(PASSWORD_SELECTOR), err);
         }

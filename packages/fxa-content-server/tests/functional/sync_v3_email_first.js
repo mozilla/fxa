@@ -45,7 +45,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
   },
 
   tests: {
-    'open directly to /signup page, refresh on the /signup page': function() {
+    'open directly to /signup page, refresh on the /signup page': function () {
       return (
         this.remote
           // redirected immediately to the / page
@@ -65,7 +65,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       );
     },
 
-    'open directly to /signin page, refresh on the /signin page': function() {
+    'open directly to /signin page, refresh on the /signin page': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -86,7 +86,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       );
     },
 
-    'enter a firefox.com address': function() {
+    'enter a firefox.com address': function () {
       return this.remote
         .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
         .then(visibleByQSA(selectors.ENTER_EMAIL.SUB_HEADER))
@@ -101,7 +101,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         );
     },
 
-    signup: function() {
+    signup: function () {
       return (
         this.remote
           .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
@@ -171,7 +171,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       );
     },
 
-    'COPPA disabled': function() {
+    'COPPA disabled': function () {
       return this.remote
         .then(
           openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER, {
@@ -197,7 +197,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         );
     },
 
-    'merge cancelled': function() {
+    'merge cancelled': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(INDEX_PAGE_URL, selectors.ENTER_EMAIL.HEADER))
@@ -209,7 +209,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'));
     },
 
-    'email specified by relier, invalid': function() {
+    'email specified by relier, invalid': function () {
       const invalidEmail = 'invalid@';
 
       return this.remote
@@ -230,7 +230,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         );
     },
 
-    'email specified by relier, empty string': function() {
+    'email specified by relier, empty string': function () {
       const emptyEmail = '';
 
       return this.remote
@@ -251,7 +251,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         );
     },
 
-    'email specified by relier, not registered': function() {
+    'email specified by relier, not registered': function () {
       return (
         this.remote
           .then(
@@ -274,7 +274,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       );
     },
 
-    'email specified by relier, registered': function() {
+    'email specified by relier, registered': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -298,7 +298,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
       );
     },
 
-    'email specified by relier, cancel merge': function() {
+    'email specified by relier, cancel merge': function () {
       return this.remote
         .then(
           openPage(INDEX_PAGE_URL, selectors['400'].HEADER, {
@@ -318,7 +318,7 @@ registerSuite('Firefox Desktop Sync v3 email first', {
         );
     },
 
-    'cached credentials': function() {
+    'cached credentials': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))

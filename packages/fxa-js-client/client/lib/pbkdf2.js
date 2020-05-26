@@ -17,7 +17,7 @@ var pbkdf2 = {
    * @param  {bitArray} salt The salt string buffer.
    * @return {int} iterations the derived key bit array.
    */
-  derive: function(input, salt, iterations, len) {
+  derive: function (input, salt, iterations, len) {
     var result = sjcl.misc.pbkdf2(input, salt, iterations, len, sjcl.misc.hmac);
     return Promise.resolve(result);
   },

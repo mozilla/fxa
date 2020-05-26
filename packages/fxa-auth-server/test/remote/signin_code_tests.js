@@ -13,7 +13,7 @@ const crypto = require('crypto');
 
 const SMS_SIGNIN_CODE = /https:\/\/accounts\.firefox\.com\/m\/([A-Za-z0-9_-]+)/;
 
-describe('remote signinCodes', function() {
+describe('remote signinCodes', function () {
   let server;
 
   this.timeout(10000);
@@ -23,7 +23,7 @@ describe('remote signinCodes', function() {
     config.sms.enabled = true;
     config.sms.useMock = true;
 
-    return TestServer.start(config).then(result => {
+    return TestServer.start(config).then((result) => {
       server = result;
     });
   });
@@ -46,8 +46,8 @@ describe('remote signinCodes', function() {
           },
         }
       )
-      .then(result => assert.fail('/signinCodes/consume should fail'))
-      .catch(err => {
+      .then((result) => assert.fail('/signinCodes/consume should fail'))
+      .catch((err) => {
         assert.ok(err);
         assert.equal(err.code, 400);
         assert.equal(err.errno, error.ERRNO.INVALID_SIGNIN_CODE);
@@ -57,10 +57,10 @@ describe('remote signinCodes', function() {
 
   it('POST /signinCodes/consume valid code', () => {
     const email = server.uniqueEmail();
-    return Client.create(config.publicUrl, email, 'wibble').then(client => {
+    return Client.create(config.publicUrl, email, 'wibble').then((client) => {
       return client
         .smsSend('+18885083401', 1, ['signinCodes'], server.mailbox)
-        .then(result => {
+        .then((result) => {
           return client.consumeSigninCode(
             SMS_SIGNIN_CODE.exec(result.text)[1],
             {
@@ -72,7 +72,7 @@ describe('remote signinCodes', function() {
             }
           );
         })
-        .then(result =>
+        .then((result) =>
           assert.deepEqual(
             result,
             { email },

@@ -13,7 +13,7 @@ const PATH_PREFIX = '/v1';
 // here other than that it didn't fail in error
 const DeleteCacheResponse = isA.any();
 
-module.exports = function(log, config, statsd) {
+module.exports = function (log, config, statsd) {
   const ProfileAPI = createBackendServiceAPI(
     log,
     config,

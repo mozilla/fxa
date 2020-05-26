@@ -8,11 +8,11 @@ import sinon from 'sinon';
 
 var assert = chai.assert;
 
-describe('lib/logger', function() {
+describe('lib/logger', function () {
   var logger;
 
-  describe('constructor', function() {
-    it('should create logger', function() {
+  describe('constructor', function () {
+    it('should create logger', function () {
       sinon.spy(window.console, 'info');
 
       var information = 'Hello Firefox!';
@@ -26,17 +26,17 @@ describe('lib/logger', function() {
     });
   });
 
-  describe('info', function() {
-    beforeEach(function() {
+  describe('info', function () {
+    beforeEach(function () {
       logger = new Logger(window);
       sinon.spy(window.console, 'info');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       window.console.info.restore();
     });
 
-    it('should log from string', function() {
+    it('should log from string', function () {
       var information = 'Information about stuff!';
       logger.info(information);
 
@@ -44,13 +44,13 @@ describe('lib/logger', function() {
       assert.isNotNull(window.console.info.thisValues[0]);
     });
 
-    it('should not throw when logging with undefined console', function() {
+    it('should not throw when logging with undefined console', function () {
       var tempConsole = window.console;
       window.console = undefined;
 
       logger = new Logger(window);
 
-      assert.doesNotThrow(function() {
+      assert.doesNotThrow(function () {
         logger.info('Hello Firefox!');
       });
 
@@ -58,30 +58,30 @@ describe('lib/logger', function() {
     });
   });
 
-  describe('trace', function() {
-    beforeEach(function() {
+  describe('trace', function () {
+    beforeEach(function () {
       logger = new Logger(window);
       sinon.spy(window.console, 'trace');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       window.console.trace.restore();
     });
 
-    it('should print trace', function() {
+    it('should print trace', function () {
       logger.trace();
 
       assert.equal(window.console.trace.calledOnce, true);
       assert.isNotNull(window.console.trace.thisValues[0]);
     });
 
-    it('should not throw when logging with undefined console', function() {
+    it('should not throw when logging with undefined console', function () {
       var tempConsole = window.console;
       window.console = undefined;
 
       logger = new Logger(window);
 
-      assert.doesNotThrow(function() {
+      assert.doesNotThrow(function () {
         logger.trace();
       });
 
@@ -89,17 +89,17 @@ describe('lib/logger', function() {
     });
   });
 
-  describe('warn', function() {
-    beforeEach(function() {
+  describe('warn', function () {
+    beforeEach(function () {
       logger = new Logger(window);
       sinon.spy(window.console, 'warn');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       window.console.warn.restore();
     });
 
-    it('should log from string', function() {
+    it('should log from string', function () {
       var warning = 'Warning about something!';
       logger.warn(warning);
 
@@ -107,13 +107,13 @@ describe('lib/logger', function() {
       assert.isNotNull(window.console.warn.thisValues[0]);
     });
 
-    it('should not throw when logging with undefined console', function() {
+    it('should not throw when logging with undefined console', function () {
       var tempConsole = window.console;
       window.console = undefined;
 
       logger = new Logger(window);
 
-      assert.doesNotThrow(function() {
+      assert.doesNotThrow(function () {
         logger.warn('Warning Firefox!');
       });
 
@@ -121,17 +121,17 @@ describe('lib/logger', function() {
     });
   });
 
-  describe('error', function() {
-    beforeEach(function() {
+  describe('error', function () {
+    beforeEach(function () {
       logger = new Logger(window);
       sinon.spy(window.console, 'error');
     });
 
-    afterEach(function() {
+    afterEach(function () {
       window.console.error.restore();
     });
 
-    it('should log from string', function() {
+    it('should log from string', function () {
       var error = 'Something went really wrong!';
       logger.error(error);
 
@@ -139,7 +139,7 @@ describe('lib/logger', function() {
       assert.isNotNull(window.console.error.thisValues[0]);
     });
 
-    it('should log from object', function() {
+    it('should log from object', function () {
       var error = new Error('Something went super wrong!');
       logger.error('Error %s', String(error));
 
@@ -148,13 +148,13 @@ describe('lib/logger', function() {
       assert.isNotNull(window.console.error.thisValues[0]);
     });
 
-    it('should not throw when logging with undefined console', function() {
+    it('should not throw when logging with undefined console', function () {
       var tempConsole = window.console;
       window.console = undefined;
 
       logger = new Logger(window);
 
-      assert.doesNotThrow(function() {
+      assert.doesNotThrow(function () {
         logger.error('Error Firefox!');
       });
 

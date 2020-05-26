@@ -17,9 +17,7 @@ const logger = require('./logging')('client');
 // These are some re-useable validators to assert that requirement.
 module.exports.clientAuthValidators = {
   headers: Joi.object({
-    authorization: Joi.string()
-      .regex(validators.BASIC_AUTH_HEADER)
-      .optional(),
+    authorization: Joi.string().regex(validators.BASIC_AUTH_HEADER).optional(),
   }).options({ allowUnknown: true, stripUnknown: false }),
 
   // The use of `$headers` here is Joi syntax for a "context reference"

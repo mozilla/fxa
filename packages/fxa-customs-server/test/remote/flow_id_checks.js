@@ -17,14 +17,14 @@ config.requestChecks.flowIdExemptUserAgentREs = ['Testo\\s+.?'];
 
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
@@ -35,7 +35,7 @@ var client = clients.createJsonClient({
 });
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('request with missing metricsContext is blocked', function(t) {
+test('request with missing metricsContext is blocked', function (t) {
   client.post(
     '/check',
     {
@@ -43,7 +43,7 @@ test('request with missing metricsContext is blocked', function(t) {
       email: TEST_EMAIL,
       action: 'accountLogin',
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, true, 'request was blocked');
       t.notOk(obj.retryAfter, 'there was no retry-after');
@@ -52,7 +52,7 @@ test('request with missing metricsContext is blocked', function(t) {
   );
 });
 
-test('request with missing flowId is blocked', function(t) {
+test('request with missing flowId is blocked', function (t) {
   client.post(
     '/check',
     {
@@ -65,7 +65,7 @@ test('request with missing flowId is blocked', function(t) {
         },
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, true, 'request was blocked');
       t.notOk(obj.retryAfter, 'there was no retry-after');
@@ -74,7 +74,7 @@ test('request with missing flowId is blocked', function(t) {
   );
 });
 
-test('request with flowId is not blocked', function(t) {
+test('request with flowId is not blocked', function (t) {
   client.post(
     '/check',
     {
@@ -88,7 +88,7 @@ test('request with flowId is not blocked', function(t) {
         },
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, false, 'request was not blocked');
       t.notOk(obj.retryAfter, 'there was no retry-after');
@@ -97,7 +97,7 @@ test('request with flowId is not blocked', function(t) {
   );
 });
 
-test('request without flowId for @restmail.net address is not blocked', function(t) {
+test('request without flowId for @restmail.net address is not blocked', function (t) {
   client.post(
     '/check',
     {
@@ -110,7 +110,7 @@ test('request without flowId for @restmail.net address is not blocked', function
         },
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, false, 'request was not blocked');
       t.notOk(obj.retryAfter, 'there was no retry-after');
@@ -119,7 +119,7 @@ test('request without flowId for @restmail.net address is not blocked', function
   );
 });
 
-test('requests without flowId from certain user-agents are not blocked', function(t) {
+test('requests without flowId from certain user-agents are not blocked', function (t) {
   return client.post(
     {
       path: '/check',
@@ -135,7 +135,7 @@ test('requests without flowId from certain user-agents are not blocked', functio
         something: 'irrelevant',
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, false, 'request was not blocked');
       t.notOk(obj.retryAfter, 'there was no retry-after');
@@ -144,7 +144,7 @@ test('requests without flowId from certain user-agents are not blocked', functio
   );
 });
 
-test('request with missing flowId and Android user-agent is blocked', function(t) {
+test('request with missing flowId and Android user-agent is blocked', function (t) {
   client.post(
     {
       path: '/check',
@@ -163,7 +163,7 @@ test('request with missing flowId and Android user-agent is blocked', function(t
         },
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, true, 'request was blocked');
       t.notOk(obj.retryAfter, 'there was no retry-after');
@@ -172,7 +172,7 @@ test('request with missing flowId and Android user-agent is blocked', function(t
   );
 });
 
-test('request with reason=signin is blocked', function(t) {
+test('request with reason=signin is blocked', function (t) {
   client.post(
     '/check',
     {
@@ -186,7 +186,7 @@ test('request with reason=signin is blocked', function(t) {
         },
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, true, 'request was blocked');
       t.end();
@@ -194,7 +194,7 @@ test('request with reason=signin is blocked', function(t) {
   );
 });
 
-test('request with reason=password_change is not blocked', function(t) {
+test('request with reason=password_change is not blocked', function (t) {
   client.post(
     '/check',
     {
@@ -208,7 +208,7 @@ test('request with reason=password_change is not blocked', function(t) {
         },
       },
     },
-    function(err, req, res, obj) {
+    function (err, req, res, obj) {
       t.equal(res.statusCode, 200, 'check worked');
       t.equal(obj.block, false, 'request was not blocked');
       t.end();
@@ -216,7 +216,7 @@ test('request with reason=password_change is not blocked', function(t) {
   );
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

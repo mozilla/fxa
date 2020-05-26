@@ -42,7 +42,7 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
           .authenticate({
             headers: {},
           })
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.isTrue(err instanceof AppError);
             assert.equal(err.output.statusCode, 401);
             assert.equal(err.output.payload.code, 401);
@@ -59,7 +59,7 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
 
     describe('when the Bearer token is invalid', () => {
       before(() => {
-        tokenStub.verify = token => {
+        tokenStub.verify = (token) => {
           return P.reject(OauthAppError.invalidToken());
         };
       });
@@ -68,7 +68,7 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
         return authOauth
           .strategy()
           .authenticate(mockRequest)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.isTrue(err instanceof AppError);
             assert.equal(err.output.statusCode, 401);
             assert.equal(err.output.payload.code, 401);
@@ -83,17 +83,17 @@ describe('lib/routes/auth-schemes/auth-oauth', () => {
     describe('when a valid Bearer token is provided', () => {
       let mockReply;
       before(() => {
-        mockReply = function(err) {
+        mockReply = function (err) {
           throw err;
         };
 
-        tokenStub.verify = token => {
+        tokenStub.verify = (token) => {
           return P.resolve(mockTokenInfo);
         };
       });
 
-      it('returns successfully with the credentials from the verified token', done => {
-        mockReply.authenticated = function(result) {
+      it('returns successfully with the credentials from the verified token', (done) => {
+        mockReply.authenticated = function (result) {
           assert.equal(result.credentials.user, 'testuser');
           done();
         };

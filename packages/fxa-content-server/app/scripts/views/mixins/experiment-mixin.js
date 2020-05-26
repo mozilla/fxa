@@ -66,8 +66,8 @@ const ExperimentMixin = {
   'getExperimentGroup',
   'isInExperiment',
   'isInExperimentGroup',
-].forEach(methodName => {
-  ExperimentMixin[methodName] = function(...args) {
+].forEach((methodName) => {
+  ExperimentMixin[methodName] = function (...args) {
     if (this.experiments) {
       return this.experiments[methodName](...args);
     }

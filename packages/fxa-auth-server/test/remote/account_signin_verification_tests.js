@@ -22,13 +22,13 @@ const publicKey = {
 
 const mocks = require('../mocks');
 
-describe('remote account signin verification', function() {
+describe('remote account signin verification', function () {
   this.timeout(30000);
   let server;
   before(() => {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = false;
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -43,20 +43,20 @@ describe('remote account signin verification', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
         return client.login({ keys: false });
       })
-      .then(response => {
+      .then((response) => {
         assert(!response.verificationMethod, 'no challenge method set');
         assert(!response.verificationReason, 'no challenge reason set');
         assert.equal(response.verified, true, 'verified set true');
@@ -73,20 +73,20 @@ describe('remote account signin verification', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       })
       .then(() => {
         return client.login({ keys: true });
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(
           response.verificationMethod,
           'email',
@@ -117,20 +117,20 @@ describe('remote account signin verification', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'new account is verified');
       })
       .then(() => {
         return client.login(loginOpts);
       })
-      .then(response => {
+      .then((response) => {
         assert.equal(
           response.verificationMethod,
           'email',
@@ -146,7 +146,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         uid = emailData.headers['x-uid'];
         code = emailData.headers['x-verify-code'];
         assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
@@ -167,7 +167,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(
           status.verified,
           false,
@@ -180,7 +180,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(
           status.verified,
           true,
@@ -197,13 +197,13 @@ describe('remote account signin verification', function() {
 
     // Create unverified account
     return Client.create(config.publicUrl, email, password)
-      .then(x => {
+      .then((x) => {
         client = x;
       })
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         // Ensure correct email sent
         assert.equal(emailData.subject, 'Finish creating your account');
         emailCode = emailData.headers['x-verify-code'];
@@ -217,7 +217,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         // Verify sign-confirm email
         uid = emailData.headers['x-uid'];
         tokenCode = emailData.headers['x-verify-code'];
@@ -232,7 +232,7 @@ describe('remote account signin verification', function() {
 
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         // Verify account is unverified because of sign-in attempt
         assert.equal(status.verified, false, 'account is not verified,');
         assert.equal(
@@ -263,7 +263,7 @@ describe('remote account signin verification', function() {
       server.mailbox,
       options
     )
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
@@ -272,7 +272,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.uid, 'uid is in link');
@@ -301,7 +301,7 @@ describe('remote account signin verification', function() {
       server.mailbox,
       options
     )
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
@@ -310,7 +310,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.uid, 'uid is in link');
@@ -329,7 +329,7 @@ describe('remote account signin verification', function() {
           options
         );
       })
-      .then(c => {
+      .then((c) => {
         client2 = c;
       })
       .then(() => {
@@ -338,14 +338,14 @@ describe('remote account signin verification', function() {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(code => {
+      .then((code) => {
         // Verify account from client2
         return client2.verifyEmail(code, options);
       })
       .then(() => {
         return client2.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -357,7 +357,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -380,11 +380,11 @@ describe('remote account signin verification', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -397,11 +397,11 @@ describe('remote account signin verification', function() {
         // Attempt to login from new location
         return client.login({ keys: true });
       })
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         // Ensure unverified session
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
@@ -419,7 +419,7 @@ describe('remote account signin verification', function() {
         () => {
           assert.fail('should not have succeeded');
         },
-        err => {
+        (err) => {
           assert.equal(err.errno, 138, 'Correct error number');
           assert.equal(err.code, 400, 'Correct error code');
           assert.equal(
@@ -444,11 +444,11 @@ describe('remote account signin verification', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -461,11 +461,11 @@ describe('remote account signin verification', function() {
         // Attempt a second login, but don't request keys
         return client.login({ keys: false });
       })
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         // Ensure unverified session
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
@@ -479,7 +479,7 @@ describe('remote account signin verification', function() {
         // Attempt to get signed cert
         return client.sign(publicKey, duration);
       })
-      .then(cert => {
+      .then((cert) => {
         assert.equal(typeof cert, 'string', 'cert exists');
         const payload = jwtool.verify(cert, pubSigKey.pem);
         assert.equal(payload.iss, config.domain, 'issuer is correct');
@@ -530,11 +530,11 @@ describe('remote account signin verification', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -547,7 +547,7 @@ describe('remote account signin verification', function() {
         // Attempt to get signed cert
         return client.sign(publicKey, duration);
       })
-      .then(cert => {
+      .then((cert) => {
         assert.equal(typeof cert, 'string', 'cert exists');
         const payload = jwtool.verify(cert, pubSigKey.pem);
         assert.equal(payload.iss, config.domain, 'issuer is correct');
@@ -593,11 +593,11 @@ describe('remote account signin verification', function() {
     let tokenCode;
 
     return Client.create(config.publicUrl, email, password, { keys: true })
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(
           status.emailVerified,
@@ -613,7 +613,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.subject, 'Finish creating your account');
         tokenCode = emailData.headers['x-verify-code'];
         assert.ok(tokenCode, 'sent verify code');
@@ -622,7 +622,7 @@ describe('remote account signin verification', function() {
         // Unverified accounts can not retrieve keys
         return client.keys();
       })
-      .catch(err => {
+      .catch((err) => {
         assert.equal(err.errno, 104, 'Correct error number');
         assert.equal(err.code, 400, 'Correct error code');
         assert.equal(
@@ -640,7 +640,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -653,7 +653,7 @@ describe('remote account signin verification', function() {
         // Once verified, keys can be returned
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.ok(keys.kA, 'has kA keys');
         assert.ok(keys.kB, 'has kB keys');
         assert.ok(keys.wrapKb, 'has wrapKb keys');
@@ -673,16 +673,16 @@ describe('remote account signin verification', function() {
       server.mailbox,
       { keys: true }
     )
-      .then(c => {
+      .then((c) => {
         // Trigger confirm sign-in
         client = c;
         return client.login({ keys: true });
       })
-      .then(c => {
+      .then((c) => {
         client = c;
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.subject, 'Confirm new sign-in to Firefox');
         tokenCode = emailData.headers['x-verify-code'];
         assert.ok(tokenCode, 'sent verify code');
@@ -692,7 +692,7 @@ describe('remote account signin verification', function() {
       })
       .then(
         () => assert(false),
-        err => {
+        (err) => {
           // Because of unverified sign-in, requests for keys will fail
           assert.equal(err.errno, 104, 'Correct error number');
           assert.equal(err.code, 400, 'Correct error code');
@@ -706,7 +706,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         // Verify status of account, only email should be verified
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
@@ -723,7 +723,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -736,7 +736,7 @@ describe('remote account signin verification', function() {
         // Can retrieve keys now that account tokens verified
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.ok(keys.kA, 'has kA keys');
         assert.ok(keys.kB, 'has kB keys');
         assert.ok(keys.wrapKb, 'has wrapKb keys');
@@ -752,11 +752,11 @@ describe('remote account signin verification', function() {
     return Client.create(config.publicUrl, email, password, server.mailbox, {
       keys: true,
     })
-      .then(c => {
+      .then((c) => {
         client = c;
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verify');
         tokenCode = emailData.headers['x-verify-code'];
         assert.ok(tokenCode, 'sent verify code');
@@ -764,11 +764,11 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.login({ keys: true });
       })
-      .then(c => {
+      .then((c) => {
         client = c;
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verify');
         const siginToken = emailData.headers['x-verify-code'];
         assert.notEqual(tokenCode, siginToken, 'login codes should not match');
@@ -778,7 +778,7 @@ describe('remote account signin verification', function() {
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'account email is verified');
         assert.equal(
@@ -791,7 +791,7 @@ describe('remote account signin verification', function() {
         // Can retrieve keys now that account tokens verified
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.ok(keys.kA, 'has kA keys');
         assert.ok(keys.kB, 'has kB keys');
         assert.ok(keys.wrapKb, 'has wrapKb keys');

@@ -4,8 +4,8 @@
 
 'use strict';
 
-module.exports = function(grunt) {
-  grunt.registerTask('eslint', 'Run eslint', function() {
+module.exports = function (grunt) {
+  grunt.registerTask('eslint', 'Run eslint', function () {
     var done = this.async();
     var child = grunt.util.spawn(
       {

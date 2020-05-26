@@ -54,18 +54,23 @@ const {
  * Programatically initiate a reset password using the
  * FxA Client. Saves the token and code.
  */
-const initiateResetPassword = thenify(function(emailAddress, emailNumber) {
+const initiateResetPassword = thenify(function (emailAddress, emailNumber) {
   return this.parent
     .then(() => client.passwordForgotSendCode(emailAddress))
     .then(getVerificationLink(emailAddress, emailNumber))
-    .then(link => {
+    .then((link) => {
       // token and code are hex values
       token = link.match(/token=([a-f\d]+)/)[1];
       code = link.match(/code=([a-f\d]+)/)[1];
     });
 });
 
-const openCompleteResetPassword = thenify(function(email, token, code, header) {
+const openCompleteResetPassword = thenify(function (
+  email,
+  token,
+  code,
+  header
+) {
   let url = COMPLETE_PAGE_URL_ROOT + '?';
 
   const queryParams = [];
@@ -85,7 +90,7 @@ const openCompleteResetPassword = thenify(function(email, token, code, header) {
   return this.parent.then(openPage(url, header));
 });
 
-const testAtSettingsWithVerifiedMessage = thenify(function() {
+const testAtSettingsWithVerifiedMessage = thenify(function () {
   return this.parent
     .setFindTimeout(intern._config.pageLoadTimeout)
     .sleep(1000)
@@ -95,20 +100,20 @@ const testAtSettingsWithVerifiedMessage = thenify(function() {
 });
 
 registerSuite('reset_password', {
-  beforeEach: function() {
+  beforeEach: function () {
     this.timeout = TIMEOUT;
 
     email = createEmail();
     return this.remote
       .then(() => getFxaClient())
-      .then(_client => {
+      .then((_client) => {
         client = _client;
       })
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState());
   },
   tests: {
-    'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function() {
+    'visit confirmation screen without initiating reset_password, user is redirected to /reset_password': function () {
       // user is immediately redirected to /reset_password if they have no
       // sessionToken.
       // Success is showing the screen
@@ -122,7 +127,7 @@ registerSuite('reset_password', {
       );
     },
 
-    'open /reset_password page from /signin': function() {
+    'open /reset_password page from /signin': function () {
       const updatedEmail = createEmail();
       return (
         this.remote
@@ -184,19 +189,19 @@ registerSuite('reset_password', {
       );
     },
 
-    'enter an email with leading whitespace': function() {
+    'enter an email with leading whitespace': function () {
       return this.remote
         .then(fillOutResetPassword('   ' + email))
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER));
     },
 
-    'enter an email with trailing whitespace': function() {
+    'enter an email with trailing whitespace': function () {
       return this.remote
         .then(fillOutResetPassword(email + '   '))
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER));
     },
 
-    'open confirm_reset_password page, click resend': function() {
+    'open confirm_reset_password page, click resend': function () {
       return (
         this.remote
           .then(fillOutResetPassword(email))
@@ -219,7 +224,7 @@ registerSuite('reset_password', {
       );
     },
 
-    'open complete page with missing token shows damaged screen': function() {
+    'open complete page with missing token shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -232,31 +237,35 @@ registerSuite('reset_password', {
         );
     },
 
-    'open complete page with malformed token shows damaged screen': function() {
-      return this.remote.then(initiateResetPassword(email, 0)).then(function() {
-        const malformedToken = createRandomHexString(token.length - 1);
-        return openCompleteResetPassword(
-          email,
-          malformedToken,
-          code,
-          selectors.COMPLETE_RESET_PASSWORD.DAMAGED_LINK_HEADER
-        ).call(this);
-      });
+    'open complete page with malformed token shows damaged screen': function () {
+      return this.remote
+        .then(initiateResetPassword(email, 0))
+        .then(function () {
+          const malformedToken = createRandomHexString(token.length - 1);
+          return openCompleteResetPassword(
+            email,
+            malformedToken,
+            code,
+            selectors.COMPLETE_RESET_PASSWORD.DAMAGED_LINK_HEADER
+          ).call(this);
+        });
     },
 
-    'open complete page with invalid token shows expired screen': function() {
-      return this.remote.then(initiateResetPassword(email, 0)).then(function() {
-        const invalidToken = createRandomHexString(token.length);
-        return openCompleteResetPassword(
-          email,
-          invalidToken,
-          code,
-          selectors.COMPLETE_RESET_PASSWORD.EXPIRED_LINK_HEADER
-        ).call(this);
-      });
+    'open complete page with invalid token shows expired screen': function () {
+      return this.remote
+        .then(initiateResetPassword(email, 0))
+        .then(function () {
+          const invalidToken = createRandomHexString(token.length);
+          return openCompleteResetPassword(
+            email,
+            invalidToken,
+            code,
+            selectors.COMPLETE_RESET_PASSWORD.EXPIRED_LINK_HEADER
+          ).call(this);
+        });
     },
 
-    'open complete page with empty token shows damaged screen': function() {
+    'open complete page with empty token shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -269,7 +278,7 @@ registerSuite('reset_password', {
         );
     },
 
-    'open complete page with missing code shows damaged screen': function() {
+    'open complete page with missing code shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -282,7 +291,7 @@ registerSuite('reset_password', {
         );
     },
 
-    'open complete page with empty code shows damaged screen': function() {
+    'open complete page with empty code shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -295,19 +304,21 @@ registerSuite('reset_password', {
         );
     },
 
-    'open complete page with malformed code shows damaged screen': function() {
-      return this.remote.then(initiateResetPassword(email, 0)).then(function() {
-        const malformedCode = createRandomHexString(code.length - 1);
-        return openCompleteResetPassword(
-          email,
-          token,
-          malformedCode,
-          selectors.COMPLETE_RESET_PASSWORD.DAMAGED_LINK_HEADER
-        ).call(this);
-      });
+    'open complete page with malformed code shows damaged screen': function () {
+      return this.remote
+        .then(initiateResetPassword(email, 0))
+        .then(function () {
+          const malformedCode = createRandomHexString(code.length - 1);
+          return openCompleteResetPassword(
+            email,
+            token,
+            malformedCode,
+            selectors.COMPLETE_RESET_PASSWORD.DAMAGED_LINK_HEADER
+          ).call(this);
+        });
     },
 
-    'open complete page with missing email shows damaged screen': function() {
+    'open complete page with missing email shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -320,7 +331,7 @@ registerSuite('reset_password', {
         );
     },
 
-    'open complete page with empty email shows damaged screen': function() {
+    'open complete page with empty email shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -333,7 +344,7 @@ registerSuite('reset_password', {
         );
     },
 
-    'open complete page with malformed email shows damaged screen': function() {
+    'open complete page with malformed email shows damaged screen': function () {
       return this.remote
         .then(initiateResetPassword(email, 0))
         .then(
@@ -346,7 +357,7 @@ registerSuite('reset_password', {
         );
     },
 
-    'reset password, verify same browser': function() {
+    'reset password, verify same browser': function () {
       this.timeout = TIMEOUT;
 
       return (
@@ -372,7 +383,7 @@ registerSuite('reset_password', {
       );
     },
 
-    'reset password, verify same browser with original tab closed': function() {
+    'reset password, verify same browser with original tab closed': function () {
       return (
         this.remote
           .then(fillOutResetPassword(email))
@@ -395,7 +406,7 @@ registerSuite('reset_password', {
       );
     },
 
-    'reset password, verify same browser by replacing the original tab': function() {
+    'reset password, verify same browser by replacing the original tab': function () {
       this.timeout = 90 * 1000;
 
       return (
@@ -414,7 +425,7 @@ registerSuite('reset_password', {
       );
     },
 
-    "reset password, verify in a different browser, from the original tab's P.O.V.": function() {
+    "reset password, verify in a different browser, from the original tab's P.O.V.": function () {
       this.timeout = 90 * 1000;
 
       return (
@@ -437,7 +448,7 @@ registerSuite('reset_password', {
       );
     },
 
-    "reset password, verify in a different browser, from the new browser's P.O.V.": function() {
+    "reset password, verify in a different browser, from the new browser's P.O.V.": function () {
       this.timeout = 90 * 1000;
       return (
         this.remote
@@ -460,7 +471,7 @@ registerSuite('reset_password', {
 });
 
 registerSuite('try to re-use a link', {
-  beforeEach: function() {
+  beforeEach: function () {
     this.timeout = TIMEOUT;
     email = createEmail();
 
@@ -470,7 +481,7 @@ registerSuite('try to re-use a link', {
       .then(clearBrowserState());
   },
   tests: {
-    'complete reset, then re-open verification link, click resend': function() {
+    'complete reset, then re-open verification link, click resend': function () {
       this.timeout = TIMEOUT;
 
       return this.remote
@@ -503,14 +514,14 @@ registerSuite('try to re-use a link', {
 });
 
 registerSuite('reset_password with email specified on URL', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(clearBrowserState());
   },
   tests: {
-    'browse directly to page with email on query params': function() {
+    'browse directly to page with email on query params': function () {
       const url = RESET_PAGE_URL + '?email=' + email;
       return (
         this.remote
@@ -530,27 +541,27 @@ registerSuite('reset_password with email specified on URL', {
 });
 
 registerSuite('password change while at confirm_reset_password screen', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
       .then(createUser(email, PASSWORD, { preVerified: true }))
       .then(() => getFxaClient())
-      .then(_client => {
+      .then((_client) => {
         client = _client;
       })
       .then(clearBrowserState());
   },
   tests: {
-    'original page transitions after completion': function() {
+    'original page transitions after completion': function () {
       return this.remote
         .then(fillOutResetPassword(email))
         .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
 
-        .then(function() {
+        .then(function () {
           return client.signIn(email, PASSWORD);
         })
-        .then(function(accountInfo) {
+        .then(function (accountInfo) {
           return client.passwordChange(email, PASSWORD, 'newpassword', {
             sessionToken: accountInfo.sessionToken,
           });
@@ -562,12 +573,12 @@ registerSuite('password change while at confirm_reset_password screen', {
 });
 
 registerSuite('reset_password with unknown email', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(clearBrowserState());
   },
   tests: {
-    'open /reset_password page, enter unknown email, wait for error': function() {
+    'open /reset_password page, enter unknown email, wait for error': function () {
       return (
         this.remote
           .then(fillOutResetPassword(email))

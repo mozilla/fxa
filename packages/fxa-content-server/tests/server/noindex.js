@@ -12,7 +12,7 @@ const noindex = proxyquire(
   path.join(process.cwd(), 'server', 'lib', 'noindex'),
   {
     // totally ignore the html-middleware
-    './html-middleware': callback => callback,
+    './html-middleware': (callback) => callback,
   }
 );
 

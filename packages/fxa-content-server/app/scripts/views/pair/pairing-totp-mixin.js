@@ -4,7 +4,7 @@
 
 import AuthErrors from '../../lib/auth-errors';
 
-export default function() {
+export default function () {
   return {
     hasTotpEnabledOnAccount(profile) {
       return (
@@ -26,7 +26,7 @@ export default function() {
         );
       }
 
-      return account.accountProfile().then(profile => {
+      return account.accountProfile().then((profile) => {
         if (this.model.get('totpComplete')) {
           // once the user with TOTP successfully verifies we stop at that
           return;

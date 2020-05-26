@@ -11,11 +11,11 @@ const P = require('../../lib/promise');
 
 const config = require('../../config').getProperties();
 
-describe('remote email validity', function() {
+describe('remote email validity', function () {
   this.timeout(15000);
   let server;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -39,7 +39,7 @@ describe('remote email validity', function() {
     emails.forEach((email, i) => {
       emails[i] = Client.create(config.publicUrl, email, pwd).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.code, 400, 'http 400 : malformed email is rejected');
         }
       );
@@ -61,10 +61,10 @@ describe('remote email validity', function() {
 
     emails.forEach((email, i) => {
       emails[i] = Client.create(config.publicUrl, email, pwd).then(
-        c => {
+        (c) => {
           return c.destroyAccount();
         },
-        _err => {
+        (_err) => {
           assert(
             false,
             `Email address ${email} should have been allowed, but it wasn't`

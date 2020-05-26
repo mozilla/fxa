@@ -311,19 +311,19 @@ describe('lib/country-telephone-info', () => {
     },
   };
 
-  Object.keys(testData).forEach(countryCode => {
+  Object.keys(testData).forEach((countryCode) => {
     describe(countryCode, () => {
       const { format, normalize, pattern } = CountryTelephoneInfo[countryCode];
       const countryTelephoneTestData = testData[countryCode];
 
       it('format formats correctly', () => {
-        Object.keys(countryTelephoneTestData.format).forEach(input => {
+        Object.keys(countryTelephoneTestData.format).forEach((input) => {
           assert.equal(format(input), countryTelephoneTestData.format[input]);
         });
       });
 
       it('normalize normalizes a number accepted by pattern correctly', () => {
-        Object.keys(countryTelephoneTestData.normalize).forEach(input => {
+        Object.keys(countryTelephoneTestData.normalize).forEach((input) => {
           assert.equal(
             normalize(input),
             countryTelephoneTestData.normalize[input]
@@ -332,13 +332,13 @@ describe('lib/country-telephone-info', () => {
       });
 
       it('accepts valid patterns', () => {
-        countryTelephoneTestData.validPatterns.forEach(input => {
+        countryTelephoneTestData.validPatterns.forEach((input) => {
           assert.isTrue(pattern.test(input));
         });
       });
 
       it('rejects invalid patterns', () => {
-        countryTelephoneTestData.invalidPatterns.forEach(input => {
+        countryTelephoneTestData.invalidPatterns.forEach((input) => {
           assert.isFalse(pattern.test(input));
         });
       });

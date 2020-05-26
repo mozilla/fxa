@@ -46,7 +46,7 @@
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "mocha --exit -t 5000 -R spec tests/*.js",
-    "format": "prettier '**' --write",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js"

@@ -27,13 +27,13 @@ var { fetchRecords, setRecords, setRecord } = require('../../lib/records')(
   recordLifetimeSeconds
 );
 
-test('fetchRecords', function(t) {
+test('fetchRecords', function (t) {
   return fetchRecords({
     ip: 'ip address',
     email: 'email address',
     phoneNumber: 'phone number',
     uid: 'uid',
-  }).then(records => {
+  }).then((records) => {
     assert.strictEqual(mc.getAsync.callCount, 5);
     assert.strictEqual(mc.getAsync.args[0][0], 'ip address');
     assert.strictEqual(mc.getAsync.args[1][0], 'email address');
@@ -63,14 +63,14 @@ test('fetchRecords', function(t) {
   });
 });
 
-test('setRecord', function(t) {
+test('setRecord', function (t) {
   const record = {
     key: 'key',
     getMinLifetimeMS: () => 5000,
     value: 'record',
   };
 
-  return setRecord(record).then(result => {
+  return setRecord(record).then((result) => {
     assert.strictEqual(mc.setAsync.callCount, 1);
     assert.strictEqual(mc.setAsync.args[0][0], 'key');
     assert.deepEqual(mc.setAsync.args[0][1], { value: 'record' });
@@ -79,7 +79,7 @@ test('setRecord', function(t) {
   });
 });
 
-test('setRecords', function(t) {
+test('setRecords', function (t) {
   const ipRecord = {
     key: 'ip address',
     getMinLifetimeMS: () => 5000,
@@ -118,7 +118,7 @@ test('setRecords', function(t) {
     ipEmailRecord,
     smsRecord,
     userDefinedRecord
-  ).then(records => {
+  ).then((records) => {
     assert.strictEqual(mc.setAsync.callCount, 5);
     assert.strictEqual(mc.setAsync.args[0][0], 'ip address');
     assert.deepEqual(mc.setAsync.args[0][1], { value: 'ip record' });

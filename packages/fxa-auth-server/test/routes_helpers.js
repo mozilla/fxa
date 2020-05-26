@@ -4,10 +4,10 @@
 
 'use strict';
 
-exports.getRoute = function(routes, path, method) {
+exports.getRoute = function (routes, path, method) {
   let route = null;
 
-  routes.some(r => {
+  routes.some((r) => {
     if (r.path === path) {
       route = r;
 

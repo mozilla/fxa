@@ -30,13 +30,9 @@ module.exports = {
       avatarDefault: Joi.boolean().allow(null),
       displayName: Joi.string().allow(null),
       locale: Joi.string().allow(null),
-      amrValues: Joi.array()
-        .items(Joi.string().required())
-        .allow(null),
+      amrValues: Joi.array().items(Joi.string().required()).allow(null),
       twoFactorAuthentication: Joi.boolean().allow(null),
-      subscriptions: Joi.array()
-        .items(Joi.string().required())
-        .optional(),
+      subscriptions: Joi.array().items(Joi.string().required()).optional(),
 
       //openid-connect
       sub: Joi.string().allow(null),
@@ -87,7 +83,7 @@ module.exports = {
       return rep.header('last-modified', lastModified.toUTCString());
     }
 
-    return server.methods.profileCache.get(req).then(response => {
+    return server.methods.profileCache.get(req).then((response) => {
       let result = response.value;
       if (response.value.result) {
         // safety check for several entries that were wrapped in an extra result.
@@ -100,7 +96,7 @@ module.exports = {
       if (result.profileChangedAt < creds.profile_changed_at) {
         return server.methods.profileCache.drop(creds.user).then(() => {
           logger.info('profileChangedAt:cacheCleared', { uid: creds.user });
-          return server.methods.profileCache.get(req).then(response => {
+          return server.methods.profileCache.get(req).then((response) => {
             return createResponse(response);
           });
         });

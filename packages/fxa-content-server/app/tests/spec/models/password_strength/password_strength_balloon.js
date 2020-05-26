@@ -68,7 +68,7 @@ describe('models/password_strength/password_strength_balloon', () => {
       'TESTUSER@testuser', // substring of email at the beginning
       '123TESTUSER', // local part comprises over 50% of password
       '12345678TESTUSER', // local part is 50% of password
-    ].forEach(password => {
+    ].forEach((password) => {
       it(`catches ${password} as too similar to email`, () => {
         testPasswordCausesValidationError(password, 'PASSWORD_SAME_AS_EMAIL');
       });
@@ -77,7 +77,7 @@ describe('models/password_strength/password_strength_balloon', () => {
     [
       'tes12345', // local part < 50%, at the beginning
       '123456789TESTUSER', // local part < 50%, not at the beginning
-    ].forEach(password => {
+    ].forEach((password) => {
       it(`allows ${password}, not similar enough to email`, () => {
         assert.isUndefined(model.validate({ password }));
       });
@@ -100,7 +100,7 @@ describe('models/password_strength/password_strength_balloon', () => {
       'fxaccounts',
       'addonsMozilla',
       'SUMOFirefox',
-    ].forEach(password => {
+    ].forEach((password) => {
       it(`considers '${password}' common`, () => {
         testPasswordCausesValidationError(password, 'PASSWORD_TOO_COMMON');
       });

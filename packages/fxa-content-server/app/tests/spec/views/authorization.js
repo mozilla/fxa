@@ -17,7 +17,7 @@ import sinon from 'sinon';
 import View from 'views/authorization';
 import WindowMock from '../../mocks/window';
 
-describe('views/authorization', function() {
+describe('views/authorization', function () {
   let broker;
   let metrics;
   let notifier;
@@ -53,7 +53,7 @@ describe('views/authorization', function() {
     initView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 
@@ -76,7 +76,7 @@ describe('views/authorization', function() {
       relier.set('prompt', 'none');
       sinon.stub(view, '_doPromptNone').callsFake(() => Promise.resolve());
 
-      return view.render().then(result => {
+      return view.render().then((result) => {
         assert.isFalse(result);
         assert.isTrue(view._doPromptNone.calledOnce);
       });
@@ -245,7 +245,7 @@ describe('views/authorization', function() {
     it('re-throws errors if RP does not allow returnOnError', () => {
       relier.set('returnOnError', false);
 
-      return view._handlePromptNoneError(oauthErr).then(assert.fail, _err => {
+      return view._handlePromptNoneError(oauthErr).then(assert.fail, (_err) => {
         assert.strictEqual(_err, oauthErr);
       });
     });
@@ -254,7 +254,7 @@ describe('views/authorization', function() {
       // This error lacks an error_response_code, so it should not redirect.
       const authErr = AuthErrors.toError('USER_CANCELED_LOGIN');
 
-      return view._handlePromptNoneError(authErr).then(assert.fail, _err => {
+      return view._handlePromptNoneError(authErr).then(assert.fail, (_err) => {
         assert.strictEqual(_err, authErr);
       });
     });

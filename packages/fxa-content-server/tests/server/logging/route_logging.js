@@ -37,7 +37,7 @@ function requireTestFile() {
       '../configuration': {
         getProperties: configSpy,
       },
-      './log': function() {
+      './log': function () {
         return {
           info: loggerSpy,
         };

@@ -12,12 +12,12 @@ const jwtool = require('fxa-jwtool');
 
 const config = require('../../config').getProperties();
 
-describe('remote account reset', function() {
+describe('remote account reset', function () {
   this.timeout(15000);
   let server;
   config.signinConfirmation.skipForNewAccounts.enabled = true;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });

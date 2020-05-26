@@ -18,10 +18,10 @@ var View = BaseView.extend({
 
 Cocktail.mixin(View, LoadingMixin);
 
-describe('views/mixins/loading-mixin', function() {
+describe('views/mixins/loading-mixin', function () {
   var windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     $('#container').html('<div id="stage"></div>');
 
     windowMock = new WindowMock();
@@ -32,7 +32,7 @@ describe('views/mixins/loading-mixin', function() {
     });
   });
 
-  it('renders the loading template into the #stage element before the view is rendered', function() {
+  it('renders the loading template into the #stage element before the view is rendered', function () {
     assert.equal($('#stage #loading-template').length, 1);
   });
 });

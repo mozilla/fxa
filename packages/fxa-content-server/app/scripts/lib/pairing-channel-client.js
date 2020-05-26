@@ -53,7 +53,7 @@ export default class PairingChannelClient extends Model {
     channelId = this.get('channelId'),
     channelKey = this.get('channelKey')
   ) {
-    return this._importPairingChannel().then(FxAccountsPairingChannel => {
+    return this._importPairingChannel().then((FxAccountsPairingChannel) => {
       if (this.channel) {
         // to avoid opening a duplicate connection, say the client is connected
         // if a socket exists but isn't yet connected.
@@ -70,7 +70,7 @@ export default class PairingChannelClient extends Model {
         channelId,
         psk
       )
-        .then(channel => {
+        .then((channel) => {
           this.channel = channel;
           this.trigger('connected');
 
@@ -81,7 +81,7 @@ export default class PairingChannelClient extends Model {
           this.channel.addEventListener('error', this._errorHandler.bind(this));
           this.channel.addEventListener('close', this._closeHandler.bind(this));
         })
-        .catch(err => {
+        .catch((err) => {
           this.sentryMetrics.captureException(err);
           this.trigger('error', err);
         });
@@ -103,7 +103,7 @@ export default class PairingChannelClient extends Model {
         () => {
           this.channel = null;
         },
-        err => {
+        (err) => {
           this.channel = null;
           this.sentryMetrics.captureException(err);
         }

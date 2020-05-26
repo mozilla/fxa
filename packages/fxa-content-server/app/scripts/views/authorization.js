@@ -43,7 +43,7 @@ class AuthorizationView extends BaseView {
         .then(() => this.signIn(account, null))
         // Both validatePromptNoneRequest and signIn can
         // reject, .catch handles both cases.
-        .catch(err => {
+        .catch((err) => {
           const normalizedErr = this._normalizePromptNoneError(err);
           return this._handlePromptNoneError(normalizedErr);
         })

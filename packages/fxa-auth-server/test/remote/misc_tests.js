@@ -14,11 +14,11 @@ const request = P.promisify(require('request'), { multiArgs: true });
 
 const config = require('../../config').getProperties();
 
-describe('remote misc', function() {
+describe('remote misc', function () {
   this.timeout(15000);
   let server;
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -72,19 +72,19 @@ describe('remote misc', function() {
   }
 
   it('unsupported api version', () => {
-    return request(`${config.publicUrl}/v0/account/create`).spread(res => {
+    return request(`${config.publicUrl}/v0/account/create`).spread((res) => {
       assert.equal(res.statusCode, 410, 'http gone');
     });
   });
 
   it('/__heartbeat__ returns a 200 OK', () => {
-    return request(`${config.publicUrl}/__heartbeat__`).spread(res => {
+    return request(`${config.publicUrl}/__heartbeat__`).spread((res) => {
       assert.equal(res.statusCode, 200, 'http ok');
     });
   });
 
   it('/__lbheartbeat__ returns a 200 OK', () => {
-    return request(`${config.publicUrl}/__lbheartbeat__`).spread(res => {
+    return request(`${config.publicUrl}/__lbheartbeat__`).spread((res) => {
       assert.equal(res.statusCode, 200, 'http ok');
     });
   });
@@ -144,7 +144,7 @@ describe('remote misc', function() {
       password,
       server.mailbox
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.login();
       })
@@ -152,7 +152,7 @@ describe('remote misc', function() {
         url = `${client.api.baseURL}/account/keys`;
         return client.api.Token.KeyFetchToken.fromHex(client.keyFetchToken);
       })
-      .then(token => {
+      .then((token) => {
         const method = 'GET';
         const verify = {
           credentials: token,
@@ -196,10 +196,10 @@ describe('remote misc', function() {
         { big: Buffer.alloc(8192).toString('hex') }
       )
       .then(
-        body => {
+        (body) => {
           assert(false, 'request should have failed');
         },
-        err => {
+        (err) => {
           if (err.errno) {
             assert.equal(err.errno, 113, 'payload too large');
           } else {
@@ -215,7 +215,7 @@ describe('remote misc', function() {
 
   it('random bytes', () => {
     const client = new Client(config.publicUrl);
-    return client.api.getRandomBytes().then(x => {
+    return client.api.getRandomBytes().then((x) => {
       assert.equal(x.data.length, 64);
     });
   });
@@ -225,7 +225,7 @@ describe('remote misc', function() {
     function fetch(url) {
       return client.api.doRequest('GET', config.publicUrl + url);
     }
-    return fetch('/.well-known/browserid').then(doc => {
+    return fetch('/.well-known/browserid').then((doc) => {
       assert.ok(doc.hasOwnProperty('public-key'), 'doc has public key');
       assert.ok(/^[0-9]+$/.test(doc['public-key'].n), 'n is base 10');
       assert.ok(/^[0-9]+$/.test(doc['public-key'].e), 'e is base 10');
@@ -250,11 +250,11 @@ describe('remote misc', function() {
       password,
       server.mailbox
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.api.Token.SessionToken.fromHex(client.sessionToken);
       })
-      .then(token => {
+      .then((token) => {
         url = `${client.api.baseURL}/account/device`;
         const method = 'POST';
         const payload = {
@@ -275,7 +275,7 @@ describe('remote misc', function() {
           url: url,
           headers: headers,
           body: JSON.stringify(payload),
-        }).spread(res => {
+        }).spread((res) => {
           const body = JSON.parse(res.body);
           assert.equal(res.statusCode, 401, 'the request was rejected');
           assert.equal(

@@ -70,7 +70,7 @@ describe('views/pair/auth_totp', () => {
     initView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 

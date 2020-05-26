@@ -16,7 +16,7 @@ beforeEach(() => {
 
 afterEach(() => {
   const possiblyOverridden = ['ajax', 'get', 'post', 'getJSON'];
-  _.each(possiblyOverridden, function(funcNameToRestore) {
+  _.each(possiblyOverridden, function (funcNameToRestore) {
     if ($[funcNameToRestore].restore) {
       $[funcNameToRestore].restore();
     }
@@ -38,7 +38,7 @@ describe('lib/xhr', () => {
         .ajax({
           url: '/fake_endpoint',
         })
-        .then(function(resp) {
+        .then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue($.ajax.calledWith({ url: '/fake_endpoint' }));
         });
@@ -62,7 +62,7 @@ describe('lib/xhr', () => {
           processData: false,
           url: '/fake_endpoint',
         })
-        .then(function(resp) {
+        .then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue(
             $.ajax.calledWith({
@@ -101,14 +101,14 @@ describe('lib/xhr', () => {
           processData: false,
           url: '/error_endpoint',
         })
-        .catch(jqXHR => {
+        .catch((jqXHR) => {
           // a .fail that throws followed by a .then(null, errback)
           // does not correctly propagate the error unless the
           // jQuery promise is converted to an internal promise
           assert.strictEqual(jqXHR, errResponse);
           throw jqXHR;
         })
-        .then(null, jqXHR => {
+        .then(null, (jqXHR) => {
           assert.strictEqual(jqXHR, errResponse);
         });
     });
@@ -204,7 +204,7 @@ describe('lib/xhr', () => {
 
       deferred.resolve('mocked_response');
 
-      return xhr.get('/fake_endpoint').then(function(resp) {
+      return xhr.get('/fake_endpoint').then(function (resp) {
         assert.equal(resp, 'mocked_response');
 
         assert.isTrue(
@@ -232,7 +232,7 @@ describe('lib/xhr', () => {
 
       return xhr
         .get('/fake_endpoint', { key: 'value' }, null, 'text')
-        .then(function(resp) {
+        .then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue(
             $.ajax.calledWith({
@@ -257,7 +257,7 @@ describe('lib/xhr', () => {
 
       deferred.resolve('mocked_response');
 
-      return xhr.post('/fake_endpoint', { foo: 'bar' }).then(function(resp) {
+      return xhr.post('/fake_endpoint', { foo: 'bar' }).then(function (resp) {
         assert.equal(resp, 'mocked_response');
         assert.isTrue(
           $.ajax.calledWith({
@@ -284,7 +284,7 @@ describe('lib/xhr', () => {
 
       return xhr
         .post('/fake_endpoint', { key: 'value' }, null, 'text')
-        .then(function(resp) {
+        .then(function (resp) {
           assert.equal(resp, 'mocked_response');
           assert.isTrue(
             $.ajax.calledWith({
@@ -309,7 +309,7 @@ describe('lib/xhr', () => {
 
       deferred.resolve({ key: 'value' });
 
-      return xhr.getJSON('/fake_endpoint').then(function(resp) {
+      return xhr.getJSON('/fake_endpoint').then(function (resp) {
         assert.deepEqual(resp, { key: 'value' });
         assert.isTrue($.getJSON.calledWith('/fake_endpoint'));
       });
@@ -335,11 +335,11 @@ describe('lib/xhr', () => {
           // a .fail that throws followed by a .then(null, errback)
           // does not correctly propagate the error unless the
           // jQuery promise is converted to an internal promise
-          .catch(jqXHR => {
+          .catch((jqXHR) => {
             assert.strictEqual(jqXHR, errResponse);
             throw jqXHR;
           })
-          .then(null, jqXHR => {
+          .then(null, (jqXHR) => {
             assert.strictEqual(jqXHR, errResponse);
           })
       );

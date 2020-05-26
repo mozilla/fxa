@@ -13,8 +13,8 @@ const hex = require('buf').to.hex;
 const scriptNames = readdirSync(resolve(__dirname, 'luaScripts'), {
   withFileTypes: true,
 })
-  .filter(dirent => dirent.isFile() && extname(dirent.name) === '.lua')
-  .map(dirent => basename(dirent.name, '.lua'));
+  .filter((dirent) => dirent.isFile() && extname(dirent.name) === '.lua')
+  .map((dirent) => basename(dirent.name, '.lua'));
 
 function readScript(name) {
   return readFileSync(resolve(__dirname, 'luaScripts', `${name}.lua`), {
@@ -23,7 +23,7 @@ function readScript(name) {
 }
 
 function resolveInMs(ms, value) {
-  return new Promise(resolve => setTimeout(() => resolve(value), ms));
+  return new Promise((resolve) => setTimeout(() => resolve(value), ms));
 }
 
 function rejectInMs(ms, err = new Error('redis timeout')) {
@@ -38,7 +38,7 @@ class FxaRedis {
     this.log = log;
     this.redis = new Redis(config);
     this.timeoutMs = config.timeoutMs || 1000;
-    scriptNames.forEach(name => this.defineCommand(name));
+    scriptNames.forEach((name) => this.defineCommand(name));
   }
 
   defineCommand(scriptName) {
@@ -104,7 +104,7 @@ class FxaRedis {
   async getAccessTokens(uid) {
     try {
       const values = await this.redis.getAccessTokens(hex(uid));
-      return values.map(v => AccessToken.parse(v));
+      return values.map((v) => AccessToken.parse(v));
     } catch (e) {
       this.log.error('redis', e);
       return [];

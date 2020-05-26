@@ -23,11 +23,11 @@ var babelCmd =
   'npx babel --plugins=@babel/plugin-syntax-dynamic-import,dynamic-import-webpack,@babel/plugin-proposal-class-properties --presets @babel/preset-react,@babel/env,@babel/preset-typescript app/scripts --out-dir .es5';
 var templateCmd = 'cp -r app/scripts/templates .es5/templates/';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.registerTask(
     'jsxextract',
     'Do not call directly, see l10n-extract.',
-    function() {
+    function () {
       var done = this.async();
 
       if (!fs.existsSync(messagesOutputPath)) {
@@ -61,7 +61,7 @@ module.exports = function(grunt) {
         },
       });
 
-      clientWalker.on('end', function() {
+      clientWalker.on('end', function () {
         var authWalker = extract({
           exclude: /pages\/dist/,
           'input-dir': path.join(__dirname, '..', 'server'),
@@ -77,7 +77,7 @@ module.exports = function(grunt) {
           parserOptions: '{"ecmaVersion":"2018"}',
         });
 
-        authWalker.on('end', function() {
+        authWalker.on('end', function () {
           done();
         });
       });

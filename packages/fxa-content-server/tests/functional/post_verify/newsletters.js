@@ -28,7 +28,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('post_verify_newsletters', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -37,7 +37,7 @@ registerSuite('post_verify_newsletters', {
   },
 
   tests: {
-    'subscribe to newsletters': function() {
+    'subscribe to newsletters': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -79,7 +79,7 @@ registerSuite('post_verify_newsletters', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'treatment new copy': function() {
+    'treatment new copy': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, PASSWORD))

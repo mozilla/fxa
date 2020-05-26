@@ -17,7 +17,7 @@ describe('views/mixins/email-autocomplete-domains-mixin', () => {
   let view;
 
   const EmailDatalistView = FormView.extend({
-    template: context => context.unsafeEmailAutocompleteDomainsHTML,
+    template: (context) => context.unsafeEmailAutocompleteDomainsHTML,
   });
 
   Cocktail.mixin(EmailDatalistView, EmailAutocompleteDomainsMixin);
@@ -49,10 +49,7 @@ describe('views/mixins/email-autocomplete-domains-mixin', () => {
 
   describe('_toggleDomainAutocomplete', () => {
     it('renders datalist with options from domains list on keyup when "@" is present', () => {
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo@')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo@').trigger('keyup');
       assert.isTrue(
         view.$(EMAIL_SELECTOR).attr('list') === 'autocomplete-domain'
       );
@@ -70,28 +67,16 @@ describe('views/mixins/email-autocomplete-domains-mixin', () => {
 
     it('does nothing if conditions are not met,', () => {
       // input is too short
-      view
-        .$(EMAIL_SELECTOR)
-        .val('a')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('a').trigger('keyup');
       assert.isTrue(view.$(EMAIL_SELECTOR).attr('list') === undefined);
 
       // "@" is not present
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo').trigger('keyup');
       assert.isTrue(view.$(EMAIL_SELECTOR).attr('list') === undefined);
 
       // username doesn't change but user keeps typing
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo@')
-        .trigger('keyup');
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo@gmail')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo@').trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo@gmail').trigger('keyup');
       assert.isTrue(
         view.$(DATALIST_OPTIONS_SELECTOR)[0].getAttribute('value') ===
           `foo@${DOMAINS[0]}`
@@ -99,21 +84,12 @@ describe('views/mixins/email-autocomplete-domains-mixin', () => {
     });
 
     it('updates options on username change when "@" sign is present', () => {
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo').trigger('keyup');
       assert.isTrue(
         view.$(DATALIST_OPTIONS_SELECTOR)[0].getAttribute('value') === null
       );
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo@')
-        .trigger('keyup');
-      view
-        .$(EMAIL_SELECTOR)
-        .val('fo@')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo@').trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('fo@').trigger('keyup');
       assert.isTrue(
         view.$(DATALIST_OPTIONS_SELECTOR)[0].getAttribute('value') ===
           `fo@${DOMAINS[0]}`
@@ -121,14 +97,8 @@ describe('views/mixins/email-autocomplete-domains-mixin', () => {
     });
 
     it('clears options when "@" is present and then removed', () => {
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo@')
-        .trigger('keyup');
-      view
-        .$(EMAIL_SELECTOR)
-        .val('foo')
-        .trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo@').trigger('keyup');
+      view.$(EMAIL_SELECTOR).val('foo').trigger('keyup');
       assert.isTrue(view.$(EMAIL_SELECTOR).attr('list') === undefined);
       assert.isTrue(
         view.$(DATALIST_OPTIONS_SELECTOR)[0].getAttribute('value') === null

@@ -38,7 +38,7 @@ function waitForEmail(user, number, options) {
     }
 
     return request(uri, 'GET', null).then(
-      function(result) {
+      function (result) {
         requestAttempts++;
 
         if (result.length >= number) {
@@ -46,14 +46,14 @@ function waitForEmail(user, number, options) {
         } else if (requestAttempts >= maxAttempts) {
           return Promise.reject(new Error('EmailTimeout'));
         } else {
-          return new Promise(function(resolve, reject) {
-            setTimeout(function() {
+          return new Promise(function (resolve, reject) {
+            setTimeout(function () {
               checkIt().then(resolve, reject);
             }, 1000);
           });
         }
       },
-      err => {
+      (err) => {
         console.log('error', err);
       }
     );
@@ -64,7 +64,7 @@ function waitForEmail(user, number, options) {
 
 function deleteAllEmails(user) {
   // restmail returns an empty response, which causes a blowup. Ignore the error.
-  return request(getUserUri(user), 'DELETE', null).then(null, err => {});
+  return request(getUserUri(user), 'DELETE', null).then(null, (err) => {});
 }
 
 function getUserUri(user) {

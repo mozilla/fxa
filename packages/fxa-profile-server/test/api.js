@@ -45,7 +45,7 @@ const SIZES = require('../lib/img').SIZES;
 var imagePath = path.join(__dirname, 'lib', 'firefox.png');
 var imageData = fs.readFileSync(imagePath);
 
-const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
+const SIZE_SUFFIXES = Object.keys(SIZES).map(function (val) {
   if (val === 'default') {
     return '';
   }
@@ -55,50 +55,50 @@ const SIZE_SUFFIXES = Object.keys(SIZES).map(function(val) {
 const GRAVATAR =
   'https://secure.gravatar.com/avatar/00000000000000000000000000000000';
 
-describe('api', function() {
+describe('api', function () {
   let Server;
   let mock;
 
-  before(async function() {
+  before(async function () {
     Server = await testServer.create();
     mock = await require('./lib/mock')({ userid: USERID });
 
     return Server;
   });
 
-  after(async function() {
+  after(async function () {
     await db._teardown();
     return Server.server.stop();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     mock.done();
   });
 
-  describe('/cache/{uid}', function() {
+  describe('/cache/{uid}', function () {
     const EXPECTED_UID = '8675309';
     const EXPECTED_TOKEN = 'thisisnotthedefault';
 
     let origSecretBearerToken = null;
     let mockProfileCacheDrop = null;
 
-    before(function() {
+    before(function () {
       origSecretBearerToken = config.get('secretBearerToken');
       config.set('secretBearerToken', EXPECTED_TOKEN);
       mockProfileCacheDrop = sinon
         .stub(Server.server.methods.profileCache, 'drop')
-        .callsFake(uid => P.resolve([]));
+        .callsFake((uid) => P.resolve([]));
     });
 
-    afterEach(function() {
+    afterEach(function () {
       mockProfileCacheDrop.resetHistory();
     });
 
-    after(function() {
+    after(function () {
       config.set('secretBearerToken', origSecretBearerToken);
     });
 
-    it('should invalidate cache for a user with valid bearer token', function() {
+    it('should invalidate cache for a user with valid bearer token', function () {
       return Server.api
         .delete({
           url: `/cache/${EXPECTED_UID}`,
@@ -106,14 +106,14 @@ describe('api', function() {
             authorization: 'Bearer ' + EXPECTED_TOKEN,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.equal(mockProfileCacheDrop.called, true);
           assert.equal(mockProfileCacheDrop.args[0][0], EXPECTED_UID);
         });
     });
 
-    it('should respond with 401 unauthorized for invalid bearer token', function() {
+    it('should respond with 401 unauthorized for invalid bearer token', function () {
       return Server.api
         .delete({
           url: `/cache/${EXPECTED_UID}`,
@@ -121,18 +121,18 @@ describe('api', function() {
             authorization: 'Bearer abadtoken',
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 401);
           assert.equal(mockProfileCacheDrop.called, false);
         });
     });
   });
 
-  describe('/profile', function() {
+  describe('/profile', function () {
     var tok = token();
     var user = uid();
 
-    it('should return all of a profile', function() {
+    it('should return all of a profile', function () {
       mock.tokenGood();
       mock.email('user@example.domain');
       return Server.api
@@ -142,7 +142,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.equal(Object.keys(res.result).length, 4);
           assert.equal(res.result.uid, USERID);
@@ -168,7 +168,7 @@ describe('api', function() {
       });
       mock.emailFailure();
 
-      mock.log('server', rec => {
+      mock.log('server', (rec) => {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'summary' &&
@@ -176,13 +176,13 @@ describe('api', function() {
         );
       });
 
-      mock.log('batch', rec => {
+      mock.log('batch', (rec) => {
         return (
           rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:503'
         );
       });
 
-      mock.log('server', rec => {
+      mock.log('server', (rec) => {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'summary' &&
@@ -190,7 +190,7 @@ describe('api', function() {
         );
       });
 
-      mock.log('routes._core_profile', rec => {
+      mock.log('routes._core_profile', (rec) => {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'request.auth_server.fail'
@@ -204,7 +204,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 503);
           assert.equal(res.result.errno, 105);
           assertSecurityHeaders(res);
@@ -218,13 +218,13 @@ describe('api', function() {
       });
       mock.emailFailure({ code: 400, errno: 102 });
 
-      mock.log('batch', rec => {
+      mock.log('batch', (rec) => {
         return (
           rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:401'
         );
       });
 
-      mock.log('routes._core_profile', rec => {
+      mock.log('routes._core_profile', (rec) => {
         return (
           rec.levelname === 'INFO' &&
           rec.args[0] === 'request.auth_server.fail' &&
@@ -239,7 +239,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 401);
           assert.equal(res.result.errno, 100);
           assertSecurityHeaders(res);
@@ -253,13 +253,13 @@ describe('api', function() {
       });
       mock.emailFailure({ code: 401 });
 
-      mock.log('batch', rec => {
+      mock.log('batch', (rec) => {
         return (
           rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:401'
         );
       });
 
-      mock.log('routes._core_profile', rec => {
+      mock.log('routes._core_profile', (rec) => {
         return (
           rec.levelname === 'INFO' &&
           rec.args[0] === 'request.auth_server.fail' &&
@@ -274,7 +274,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 401);
           assert.equal(res.result.errno, 100);
           assertSecurityHeaders(res);
@@ -288,13 +288,13 @@ describe('api', function() {
       });
       mock.emailFailure({ code: 400, errno: 107 });
 
-      mock.log('batch', rec => {
+      mock.log('batch', (rec) => {
         return (
           rec.levelname === 'ERROR' && rec.args[0] === '/v1/_core_profile:500'
         );
       });
 
-      mock.log('routes._core_profile', rec => {
+      mock.log('routes._core_profile', (rec) => {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'request.auth_server.fail' &&
@@ -302,7 +302,7 @@ describe('api', function() {
         );
       });
 
-      mock.log('server', function(rec) {
+      mock.log('server', function (rec) {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'summary' &&
@@ -310,7 +310,7 @@ describe('api', function() {
         );
       });
 
-      mock.log('server', function(rec) {
+      mock.log('server', function (rec) {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'summary' &&
@@ -325,17 +325,17 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 500);
           assert.equal(res.result.errno, 999);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should handle oauth server failure', function() {
+    it('should handle oauth server failure', function () {
       mock.tokenFailure();
 
-      mock.log('server', function(rec) {
+      mock.log('server', function (rec) {
         return (
           rec.levelname === 'ERROR' &&
           rec.args[0] === 'summary' &&
@@ -350,14 +350,14 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 503);
           assert.equal(res.result.errno, 104);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should return an avatar if selected', function() {
+    it('should return an avatar if selected', function () {
       mock.token({
         user: user,
         scope: ['profile'],
@@ -365,7 +365,7 @@ describe('api', function() {
       mock.email('user@example.domain');
       var aid = avatarId();
       var PROVIDER = 'gravatar';
-      return db.addAvatar(aid, user, GRAVATAR, PROVIDER).then(function() {
+      return db.addAvatar(aid, user, GRAVATAR, PROVIDER).then(function () {
         return Server.api
           .get({
             url: '/profile',
@@ -373,7 +373,7 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assert.equal(res.result.avatar, GRAVATAR);
             assertSecurityHeaders(res);
@@ -381,13 +381,13 @@ describe('api', function() {
       });
     });
 
-    it('should return a display name if set', function() {
+    it('should return a display name if set', function () {
       mock.token({
         user: user,
         scope: ['profile'],
       });
       mock.email('user@example.domain');
-      return db.setDisplayName(user, 'Spock').then(function() {
+      return db.setDisplayName(user, 'Spock').then(function () {
         return Server.api
           .get({
             url: '/profile',
@@ -395,7 +395,7 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assert.equal(res.result.displayName, 'Spock');
             assertSecurityHeaders(res);
@@ -403,7 +403,7 @@ describe('api', function() {
       });
     });
 
-    it('should return filtered profile if smaller scope', function() {
+    it('should return filtered profile if smaller scope', function () {
       mock.token({
         user: USERID,
         scope: ['profile:email'],
@@ -416,7 +416,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.equal(res.result.email, 'user@example.domain');
           assert.equal(Object.keys(res.result).length, 1);
@@ -424,7 +424,7 @@ describe('api', function() {
         });
     });
 
-    it('should require a profile:* scope', function() {
+    it('should require a profile:* scope', function () {
       mock.token({
         user: USERID,
         scope: ['some:other:scope'],
@@ -436,19 +436,19 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 403);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should include an etag in the http response', function() {
+    it('should include an etag in the http response', function () {
       mock.token({
         user: user,
         scope: ['profile'],
       });
       mock.email('user@example.domain');
-      return db.setDisplayName(user, 'Spock').then(function() {
+      return db.setDisplayName(user, 'Spock').then(function () {
         return Server.api
           .get({
             url: '/profile',
@@ -456,7 +456,7 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             var etag = res.headers.etag.substr(1, 40);
             var expectedEtag = checksum(JSON.stringify(res.result));
@@ -466,7 +466,7 @@ describe('api', function() {
       });
     });
 
-    it('should support openid-connect "email" scope', function() {
+    it('should support openid-connect "email" scope', function () {
       mock.token({
         user: USERID,
         scope: ['openid', 'email'],
@@ -479,7 +479,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.equal(res.result.email, 'user@example.domain');
           assert.equal(res.result.sub, USERID);
@@ -489,10 +489,10 @@ describe('api', function() {
     });
   });
 
-  describe('/email', function() {
+  describe('/email', function () {
     var tok = token();
 
-    it('should return an email', function() {
+    it('should return an email', function () {
       mock.tokenGood();
       mock.email('user@example.domain');
       return Server.api
@@ -502,14 +502,14 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(res.payload).email, 'user@example.domain');
           assertSecurityHeaders(res);
         });
     });
 
-    it('should NOT return email if wrong scope', function() {
+    it('should NOT return email if wrong scope', function () {
       mock.token({
         user: USERID,
         scope: ['profile:uid'],
@@ -521,17 +521,17 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 403);
           assertSecurityHeaders(res);
         });
     });
   });
 
-  describe('/subscriptions', function() {
+  describe('/subscriptions', function () {
     var tok = token();
 
-    it('should return subscriptions if auth server includes them', function() {
+    it('should return subscriptions if auth server includes them', function () {
       const expected = ['MechaMozilla', 'FirefoxPro'];
       mock.token({
         user: USERID,
@@ -545,14 +545,14 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.deepEqual(JSON.parse(res.payload).subscriptions, expected);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should return subscriptions as empty list if missing from auth server', function() {
+    it('should return subscriptions as empty list if missing from auth server', function () {
       mock.token({
         user: USERID,
         scope: ['profile:subscriptions'],
@@ -565,14 +565,14 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.deepEqual(JSON.parse(res.payload).subscriptions, []);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should NOT return subscriptions if not profile:subscriptions scope', function() {
+    it('should NOT return subscriptions if not profile:subscriptions scope', function () {
       mock.token({
         user: USERID,
         scope: ['profile:email'],
@@ -584,7 +584,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 403);
           assertSecurityHeaders(res);
         });
@@ -602,7 +602,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 404);
         });
     });
@@ -624,7 +624,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
           assert.equal(Object.keys(body).length, 5);
@@ -656,7 +656,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
           assert.deepEqual(body.subscriptions, expected);
@@ -679,7 +679,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
           assert.equal(Object.keys(body).length, 3);
@@ -705,7 +705,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
           assert.equal(Object.keys(body).length, 3);
@@ -730,7 +730,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
           assert.equal(Object.keys(body).length, 2);
@@ -756,7 +756,7 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.statusCode, 200);
           const body = JSON.parse(res.payload);
           assert.equal(Object.keys(body).length, 4);
@@ -789,10 +789,10 @@ describe('api', function() {
     });
   });
 
-  describe('/uid', function() {
+  describe('/uid', function () {
     var tok = token();
 
-    it('should return an uid', function() {
+    it('should return an uid', function () {
       mock.tokenGood();
       return Server.api
         .get({
@@ -801,14 +801,14 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 200);
           assert.equal(JSON.parse(res.payload).uid, USERID);
           assertSecurityHeaders(res);
         });
     });
 
-    it('should NOT return a uid if wrong scope', function() {
+    it('should NOT return a uid if wrong scope', function () {
       mock.token({
         user: USERID,
         scope: ['profile:email'],
@@ -820,29 +820,29 @@ describe('api', function() {
             authorization: 'Bearer ' + tok,
           },
         })
-        .then(function(res) {
+        .then(function (res) {
           assert.equal(res.statusCode, 403);
           assertSecurityHeaders(res);
         });
     });
   });
 
-  describe('/avatar', function() {
+  describe('/avatar', function () {
     var tok = token();
     var PROVIDER = 'gravatar';
     var user = uid();
     var id1 = avatarId();
     var id2 = avatarId();
 
-    describe('GET', function() {
-      before(function() {
+    describe('GET', function () {
+      before(function () {
         var grav1 = GRAVATAR.slice(0, -1) + '1';
-        return db.addAvatar(id1, user, grav1, PROVIDER).then(function() {
+        return db.addAvatar(id1, user, grav1, PROVIDER).then(function () {
           // replace grav1 as selected
           return db.addAvatar(id2, user, GRAVATAR, PROVIDER);
         });
       });
-      it('should return selected avatar', function() {
+      it('should return selected avatar', function () {
         mock.token({
           user: user,
           scope: ['profile:avatar'],
@@ -854,7 +854,7 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assert.equal(Object.keys(res.result).length, 3);
             assert.equal(res.result.avatar, GRAVATAR);
@@ -863,7 +863,7 @@ describe('api', function() {
             assertSecurityHeaders(res);
           });
       });
-      it('should include an etag in the http response', function() {
+      it('should include an etag in the http response', function () {
         mock.token({
           user: user,
           scope: ['profile:avatar'],
@@ -875,7 +875,7 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assert.equal(res.result.avatar, GRAVATAR);
             assert.equal(res.result.id, id2);
@@ -886,13 +886,13 @@ describe('api', function() {
           });
       });
 
-      it('should log an avatar.get activity event', function(done) {
+      it('should log an avatar.get activity event', function (done) {
         mock.token({
           user: user,
           scope: ['profile:avatar'],
         });
 
-        mock.log('routes.avatar.get', function(rec) {
+        mock.log('routes.avatar.get', function (rec) {
           if (rec.levelname === 'INFO') {
             assert.equal(rec.args[0], 'activityEvent');
             assert.equal(rec.args[1].event, 'avatar.get');
@@ -911,8 +911,8 @@ describe('api', function() {
       });
     });
 
-    describe('upload', function() {
-      it('should upload a new avatar', function() {
+    describe('upload', function () {
+      it('should upload a new avatar', function () {
         this.slow(5000);
         this.timeout(10000);
         mock.token({
@@ -930,27 +930,27 @@ describe('api', function() {
               'content-length': imageData.length,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 201);
             assert(res.result.url);
             assert(res.result.id);
             assertSecurityHeaders(res);
             return res.result.url;
           })
-          .then(function(s3url) {
-            return P.all(SIZE_SUFFIXES).map(function(suffix) {
+          .then(function (s3url) {
+            return P.all(SIZE_SUFFIXES).map(function (suffix) {
               return Static.get(s3url + suffix);
             });
           })
-          .then(function(responses) {
+          .then(function (responses) {
             assert.equal(responses.length, SIZE_SUFFIXES.length);
-            responses.forEach(function(res) {
+            responses.forEach(function (res) {
               assert.equal(res.statusCode, 200);
             });
           });
       });
 
-      it('should fail with an error if image cannot be identified', function() {
+      it('should fail with an error if image cannot be identified', function () {
         this.slow(5000);
         this.timeout(10000);
 
@@ -960,12 +960,12 @@ describe('api', function() {
           email: 'user@example.domain',
           scope: ['profile:avatar:write'],
         });
-        mock.log('img_workers', function(rec) {
+        mock.log('img_workers', function (rec) {
           if (rec.levelname === 'ERROR') {
             return true;
           }
         });
-        mock.log('server', function(rec) {
+        mock.log('server', function (rec) {
           if (rec.levelname === 'ERROR') {
             return true;
           }
@@ -981,26 +981,26 @@ describe('api', function() {
               'content-length': dataLength,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 500);
             assert.equal(res.result.message, 'Image processing error');
             assertSecurityHeaders(res);
           });
       });
 
-      it('should gracefully handle and report upload failures', function() {
+      it('should gracefully handle and report upload failures', function () {
         mock.token({
           user: USERID,
           scope: ['profile:avatar:write'],
         });
         mock.workerFailure('post', imageData.length, [{ error: 'wibble' }]);
-        mock.log('img_workers', function(rec) {
+        mock.log('img_workers', function (rec) {
           if (rec.levelname === 'ERROR') {
             assert.equal(rec.message, 'upload.worker.error wibble');
             return true;
           }
         });
-        mock.log('server', function(rec) {
+        mock.log('server', function (rec) {
           if (rec.levelname === 'ERROR') {
             assert.equal(rec.args[0], 'summary');
             return true;
@@ -1016,13 +1016,13 @@ describe('api', function() {
               'content-length': imageData.length,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 500);
             assertSecurityHeaders(res);
           });
       });
 
-      it('should require :write scope', function() {
+      it('should require :write scope', function () {
         mock.token({
           user: USERID,
           scope: ['profile', 'profile:avatar'],
@@ -1037,17 +1037,17 @@ describe('api', function() {
               'content-length': imageData.length,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 403);
             assertSecurityHeaders(res);
           });
       });
     });
 
-    describe('DELETE', function() {
+    describe('DELETE', function () {
       var user = uid();
 
-      it('should require :write scope', function() {
+      it('should require :write scope', function () {
         mock.token({
           user: user,
           scope: ['profile', 'profile:avatar'],
@@ -1060,19 +1060,19 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 403);
             assertSecurityHeaders(res);
           });
       });
 
-      describe('gravatar', function() {
+      describe('gravatar', function () {
         var id = avatarId();
-        before(function() {
+        before(function () {
           return db.addAvatar(id, user, GRAVATAR, PROVIDER);
         });
 
-        it('should fail if not owned by user', function() {
+        it('should fail if not owned by user', function () {
           mock.token({
             user: uid(),
             scope: ['profile:avatar:write'],
@@ -1084,13 +1084,13 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 401);
               assertSecurityHeaders(res);
             });
         });
 
-        it('should remove avatar from user', function() {
+        it('should remove avatar from user', function () {
           mock.token({
             user: user,
             scope: ['profile:avatar:write'],
@@ -1102,21 +1102,21 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return db.getAvatar(id);
             })
-            .then(function(avatar) {
+            .then(function (avatar) {
               assert.equal(avatar, undefined);
             });
         });
       });
 
-      describe('uploaded', function() {
+      describe('uploaded', function () {
         var s3url;
         var id;
-        beforeEach(function() {
+        beforeEach(function () {
           mock.token({
             user: user,
             scope: ['profile:avatar:write'],
@@ -1132,7 +1132,7 @@ describe('api', function() {
                 'content-length': imageData.length,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 201);
               assertSecurityHeaders(res);
               s3url = res.result.url;
@@ -1140,7 +1140,7 @@ describe('api', function() {
             });
         });
 
-        it('should remove avatar from db and s3', function() {
+        it('should remove avatar from db and s3', function () {
           mock.token({
             user: user,
             scope: ['profile:avatar:write'],
@@ -1153,24 +1153,24 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return db.getAvatar(id);
             })
-            .then(function(avatar) {
+            .then(function (avatar) {
               assert.equal(avatar, undefined);
               return P.all(SIZE_SUFFIXES)
-                .map(function(suffix) {
+                .map(function (suffix) {
                   return Static.get(s3url + suffix);
                 })
-                .map(function(res) {
+                .map(function (res) {
                   assert.equal(res.statusCode, 404, res.raw.req.url);
                 });
             });
         });
 
-        it('should be able to delete without id parameter', function() {
+        it('should be able to delete without id parameter', function () {
           mock.token({
             user: user,
             scope: ['profile:avatar:write'],
@@ -1183,18 +1183,18 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               return db.getAvatar(id);
             })
-            .then(function(avatar) {
+            .then(function (avatar) {
               assert.equal(avatar, undefined);
               return P.all(SIZE_SUFFIXES)
-                .map(function(suffix) {
+                .map(function (suffix) {
                   return Static.get(s3url + suffix);
                 })
-                .map(function(res) {
+                .map(function (res) {
                   assert.equal(res.statusCode, 404, res.raw.req.url);
                 });
             });
@@ -1203,17 +1203,17 @@ describe('api', function() {
     });
   });
 
-  describe('/display_name', function() {
+  describe('/display_name', function () {
     var tok = token();
 
-    describe('GET', function() {
-      it('should return a displayName', function() {
+    describe('GET', function () {
+      it('should return a displayName', function () {
         mock.token({
           user: USERID,
           scope: ['profile:display_name'],
         });
 
-        return db.setDisplayName(USERID, 'Spock').then(function() {
+        return db.setDisplayName(USERID, 'Spock').then(function () {
           return Server.api
             .get({
               url: '/display_name',
@@ -1221,7 +1221,7 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assert.equal(JSON.parse(res.payload).displayName, 'Spock');
               assertSecurityHeaders(res);
@@ -1229,7 +1229,7 @@ describe('api', function() {
         });
       });
 
-      it('should return 204 if not set', function() {
+      it('should return 204 if not set', function () {
         var userId = uid();
         mock.token({
           user: userId,
@@ -1243,14 +1243,14 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 204);
             assert(!res.payload);
             assertSecurityHeaders(res);
           });
       });
 
-      it('should NOT return a display_name if wrong scope', function() {
+      it('should NOT return a display_name if wrong scope', function () {
         mock.token({
           user: USERID,
           scope: ['profile:email'],
@@ -1262,15 +1262,15 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 403);
             assertSecurityHeaders(res);
           });
       });
     });
 
-    describe('POST', function() {
-      it('should post a new display name', function() {
+    describe('POST', function () {
+      it('should post a new display name', function () {
         var NAME = 'Spock';
         mock.token({
           user: USERID,
@@ -1286,17 +1286,17 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             return db.getDisplayName(USERID);
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.displayName, NAME);
           });
       });
 
-      it('should fail post if display name longer than 256 chars', function() {
+      it('should fail post if display name longer than 256 chars', function () {
         var NAME = Array.from('x'.repeat('257')).join('');
         mock.token({
           user: USERID,
@@ -1312,13 +1312,13 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 400);
             assertSecurityHeaders(res);
           });
       });
 
-      it('should require :write scope', function() {
+      it('should require :write scope', function () {
         var NAME = 'Spock';
         mock.token({
           user: USERID,
@@ -1334,17 +1334,17 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 403);
             assertSecurityHeaders(res);
             return db.getDisplayName(USERID);
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.displayName, NAME);
           });
       });
 
-      it('should unset the display name if given an empty string', function() {
+      it('should unset the display name if given an empty string', function () {
         var NAME = 'Spock';
         mock.token({
           user: USERID,
@@ -1360,7 +1360,7 @@ describe('api', function() {
               authorization: 'Bearer ' + tok,
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             mock.token({
@@ -1377,7 +1377,7 @@ describe('api', function() {
               },
             });
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 200);
             assertSecurityHeaders(res);
             mock.token({
@@ -1391,13 +1391,13 @@ describe('api', function() {
               },
             });
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 204);
             assertSecurityHeaders(res);
           });
       });
 
-      it('should accept a variety of unicode characters', function() {
+      it('should accept a variety of unicode characters', function () {
         var NAMES = [
           'André Citroën',
           'the unblinking ಠ_ಠ of ckarlof',
@@ -1410,7 +1410,7 @@ describe('api', function() {
           '☃ 👍 André Citroën ಠ_ಠ',
           'astral symbol 𝌆 🙀',
         ];
-        return P.resolve(NAMES).each(function(NAME) {
+        return P.resolve(NAMES).each(function (NAME) {
           mock.token({
             user: USERID,
             scope: ['profile:display_name:write'],
@@ -1425,7 +1425,7 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
               mock.token({
@@ -1439,7 +1439,7 @@ describe('api', function() {
                 },
               });
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 200);
               assert.equal(JSON.parse(res.payload).displayName, NAME);
               assert.equal(res.result.displayName, NAME);
@@ -1448,7 +1448,7 @@ describe('api', function() {
         });
       });
 
-      it('should reject unicode control characters', function() {
+      it('should reject unicode control characters', function () {
         var NAMES = [
           'null\0terminator',
           'ring\u0007my\u0007bell',
@@ -1459,7 +1459,7 @@ describe('api', function() {
           'private \uE005 use \uF8FF block',
           'specials \uFFFB annotation terminator',
         ];
-        return P.resolve(NAMES).each(function(NAME) {
+        return P.resolve(NAMES).each(function (NAME) {
           mock.token({
             user: USERID,
             scope: ['profile:display_name:write'],
@@ -1474,7 +1474,7 @@ describe('api', function() {
                 authorization: 'Bearer ' + tok,
               },
             })
-            .then(function(res) {
+            .then(function (res) {
               assert.equal(res.statusCode, 400);
               assert.equal(res.result.errno, 101);
               assertSecurityHeaders(res);
@@ -1484,13 +1484,13 @@ describe('api', function() {
     });
   });
 
-  describe('/ecosystem_anon_id', function() {
+  describe('/ecosystem_anon_id', function () {
     var tok = token();
 
-    describe('GET', function() {
-      xit('should return an ecosystem_anon_id', function() {});
+    describe('GET', function () {
+      xit('should return an ecosystem_anon_id', function () {});
 
-      it('should return 204 if not set', async function() {
+      it('should return 204 if not set', async function () {
         mock.token({
           user: USERID,
           scope: ['profile:ecosystem_anon_id'],
@@ -1508,7 +1508,7 @@ describe('api', function() {
         assertSecurityHeaders(res);
       });
 
-      it('should NOT return an ecosystem_anon_id if wrong scope', async function() {
+      it('should NOT return an ecosystem_anon_id if wrong scope', async function () {
         mock.token({
           user: USERID,
           scope: ['profile:email'],
@@ -1526,10 +1526,10 @@ describe('api', function() {
       });
     });
 
-    describe('POST', function() {
-      xit('should post a new ecosystem_anon_id', function() {});
+    describe('POST', function () {
+      xit('should post a new ecosystem_anon_id', function () {});
 
-      it('should fail post if the ecosystem_anon_id is not a string', async function() {
+      it('should fail post if the ecosystem_anon_id is not a string', async function () {
         mock.token({
           user: USERID,
           scope: ['profile:ecosystem_anon_id:write'],
@@ -1549,7 +1549,7 @@ describe('api', function() {
         assertSecurityHeaders(res);
       });
 
-      it('should fail post if the ecosystem_anon_id is empty', async function() {
+      it('should fail post if the ecosystem_anon_id is empty', async function () {
         mock.token({
           user: USERID,
           scope: ['profile:ecosystem_anon_id:write'],
@@ -1569,9 +1569,9 @@ describe('api', function() {
         assertSecurityHeaders(res);
       });
 
-      xit('should fail post with 412 error if the If-Match header does not match the ETag', function() {});
+      xit('should fail post with 412 error if the If-Match header does not match the ETag', function () {});
 
-      it('should require :write scope', async function() {
+      it('should require :write scope', async function () {
         mock.token({
           user: USERID,
           scope: ['profile:ecosystem_anon_id'],
@@ -1591,9 +1591,9 @@ describe('api', function() {
         assertSecurityHeaders(res);
       });
 
-      xit('should allow base64url characters as used in JWTs', function() {});
+      xit('should allow base64url characters as used in JWTs', function () {});
 
-      xit('should reject non-base64url characters', function() {});
+      xit('should reject non-base64url characters', function () {});
     });
   });
 });

@@ -6,8 +6,8 @@ const assert = require('chai').assert;
 const sjcl = require('sjcl');
 const credentials = require('../../client/lib/credentials');
 
-describe('unbundle', function() {
-  it('#vector 1', function() {
+describe('unbundle', function () {
+  it('#vector 1', function () {
     // credentials.unbundleKeyFetchResponse(bundleKey, 'account/keys', payload.bundle);
     // Vectors generated from fxa-auth-server
     var bundleKey =
@@ -19,7 +19,7 @@ describe('unbundle', function() {
 
     return credentials
       .deriveBundleKeys(bundleKey, keyInfo)
-      .then(function(keys) {
+      .then(function (keys) {
         assert.equal(
           sjcl.codec.hex.fromBits(keys.hmacKey),
           '17ab463653a94c9a6419b48781930edefe500395e3b4e7879a2be15999757022',
@@ -51,7 +51,7 @@ describe('unbundle', function() {
 
         return keyObj;
       })
-      .then(function(result) {
+      .then(function (result) {
         assert.equal(
           result.kA,
           '61a0a7bd69f4a62d5a1f0f94e9a0ed86b358b1c3d67c98a352ad72da1b434da6',
@@ -65,14 +65,14 @@ describe('unbundle', function() {
       });
   });
 
-  it('#vector 2', function() {
+  it('#vector 2', function () {
     var bundleKey =
       'dedd009a8275a4f672bb4b41e14a117812c0b2f400c85fa058e0293f3f45726a';
     var bundle =
       'df4717238a738501bd2ad8f7114ef193ea69751a40108149bfb88a5643a8d683a1e75b705d4db135130f0896dbac0819ab7d54334e0cd4f9c945e0a7ada91899756cedf4384be404844050270310bc2b396f100eeda0c7b428cfe77c40a873ae';
     return credentials
       .unbundleKeyFetchResponse(bundleKey, bundle)
-      .then(function(result) {
+      .then(function (result) {
         assert.equal(
           result.kA,
           '939282904b808c6003ea31aeb14bc766d2ab70ba7dcaa54f820efcf4762b9619',

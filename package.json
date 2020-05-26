@@ -74,19 +74,19 @@
   "lint-staged": {
     "*.js": [
       "eslint -c _dev/.eslintrc",
-      "prettier --write"
+      "prettier --config _dev/.prettierrc --write"
     ],
     "*.{ts,tsx}": [
-      "prettier --write"
+      "prettier --config _dev/.prettierrc --write"
     ],
     "*.css": [
-      "prettier --write"
+      "prettier --config _dev/.prettierrc --write"
     ],
     "*.scss": [
       "stylelint --config _dev/.stylelintrc"
     ],
     "*.md": [
-      "prettier --write"
+      "prettier --config _dev/.prettierrc --write"
     ]
   },
   "devDependencies": {
@@ -96,7 +96,7 @@
     "eslint-plugin-react": "^7.19.0",
     "json": "^9.0.6",
     "stylelint": "^13.4.0",
-    "stylelint-config-standard": "^20.0.0"
+    "stylelint-config-prettier": "^8.0.1"
   },
   "workspaces": [
     "packages/*"

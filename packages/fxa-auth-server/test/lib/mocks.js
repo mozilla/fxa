@@ -30,7 +30,7 @@ module.exports = {
 function requireDependencies(dependencies, modulePath, basePath) {
   var result = {};
 
-  dependencies.forEach(function(dependency) {
+  dependencies.forEach(function (dependency) {
     result[dependency.path] = requireDependency(
       dependency,
       modulePath,
@@ -60,7 +60,7 @@ function mockLog(logger, cb) {
   var root = require('../../lib/oauth/logging')();
   var log = require('../../lib/oauth/logging')(logger);
   var filter = {
-    filter: function(record) {
+    filter: function (record) {
       if (cb(record)) {
         log.removeFilter(filter);
         log.setLevel(root.getEffectiveLevel());

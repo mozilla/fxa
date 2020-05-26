@@ -58,7 +58,7 @@ function WindowMock() {
           var nav = this;
           this._opts = options;
 
-          setTimeout(function() {
+          setTimeout(function () {
             var stream = {
               stop() {},
             };
@@ -67,7 +67,7 @@ function WindowMock() {
             } else {
               resolve(stream);
             }
-            setTimeout(function() {
+            setTimeout(function () {
               win.trigger('stream');
             }, 0);
           }, 0);
@@ -141,7 +141,7 @@ _.extend(WindowMock.prototype, Backbone.Events, {
 
   // Cannot be converted to object shorthand notation
   // because it's used as a constructor.
-  CustomEvent: function(command, data) {
+  CustomEvent: function (command, data) {
     return data;
   },
 

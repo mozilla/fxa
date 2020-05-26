@@ -25,7 +25,7 @@ const {
 const PASSWORD = 'passwordzxcv';
 let email;
 
-const setupTest = thenify(function(options) {
+const setupTest = thenify(function (options) {
   options = options || {};
 
   const successSelector = options.blocked
@@ -56,11 +56,11 @@ const setupTest = thenify(function(options) {
 });
 
 registerSuite('Fx Fennec Sync v1 force_auth', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('sync{id}');
   },
   tests: {
-    'verified, verify same browser': function() {
+    'verified, verify same browser': function () {
       return this.remote
         .then(setupTest({ preVerified: true }))
 
@@ -70,7 +70,7 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
         .then(testIsBrowserNotified('fxaccounts:login'));
     },
 
-    unverified: function() {
+    unverified: function () {
       return (
         this.remote
           .then(setupTest({ preVerified: false }))
@@ -84,7 +84,7 @@ registerSuite('Fx Fennec Sync v1 force_auth', {
       );
     },
 
-    'verified, blocked': function() {
+    'verified, blocked': function () {
       email = createEmail('blocked{id}');
 
       return this.remote

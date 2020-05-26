@@ -21,7 +21,7 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
-module.exports = function(log, config, oauthdb) {
+module.exports = function (log, config, oauthdb) {
   const oauthClientInfo = require('./oauth_client_info')(log, config, oauthdb);
   const verificationReminders = require('../verification-reminders')(
     log,
@@ -228,15 +228,15 @@ module.exports = function(log, config, oauthdb) {
     this.verifyPrimaryEmailUrl = mailerConfig.verifyPrimaryEmailUrl;
   }
 
-  Mailer.prototype.stop = function() {
+  Mailer.prototype.stop = function () {
     this.mailer.close();
   };
 
-  Mailer.prototype._supportLinkAttributes = function(templateName) {
+  Mailer.prototype._supportLinkAttributes = function (templateName) {
     return linkAttributes(this.createSupportLink(templateName));
   };
 
-  Mailer.prototype._passwordResetLinkAttributes = function(
+  Mailer.prototype._passwordResetLinkAttributes = function (
     email,
     templateName,
     emailToHashWith
@@ -246,14 +246,14 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype._passwordChangeLinkAttributes = function(
+  Mailer.prototype._passwordChangeLinkAttributes = function (
     email,
     templateName
   ) {
     return linkAttributes(this.createPasswordChangeLink(email, templateName));
   };
 
-  Mailer.prototype._formatUserAgentInfo = function(message) {
+  Mailer.prototype._formatUserAgentInfo = function (message) {
     // Build a first cut at a device description,
     // without using any new strings.
     // Future iterations can localize this better.
@@ -288,7 +288,7 @@ module.exports = function(log, config, oauthdb) {
     }
   };
 
-  Mailer.prototype._constructLocationString = function(message) {
+  Mailer.prototype._constructLocationString = function (message) {
     const translator = this.translator(message.acceptLanguage);
     const location = message.location;
     // construct the location string from the location object
@@ -320,7 +320,7 @@ module.exports = function(log, config, oauthdb) {
     return '';
   };
 
-  Mailer.prototype._constructLocalTimeString = function(
+  Mailer.prototype._constructLocalTimeString = function (
     timeZone,
     acceptLanguage
   ) {
@@ -328,7 +328,7 @@ module.exports = function(log, config, oauthdb) {
     return constructLocalTimeString(timeZone, translator.language);
   };
 
-  Mailer.prototype._constructLocalDateString = function(
+  Mailer.prototype._constructLocalDateString = function (
     timeZone,
     acceptLanguage,
     date
@@ -337,7 +337,7 @@ module.exports = function(log, config, oauthdb) {
     return constructLocalDateString(timeZone, translator.language, date);
   };
 
-  Mailer.prototype.localize = function(message) {
+  Mailer.prototype.localize = function (message) {
     const translator = this.translator(message.acceptLanguage);
 
     const templateValues = {
@@ -367,7 +367,7 @@ module.exports = function(log, config, oauthdb) {
     };
   };
 
-  Mailer.prototype.send = function(message) {
+  Mailer.prototype.send = function (message) {
     log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,
@@ -382,9 +382,9 @@ module.exports = function(log, config, oauthdb) {
     }
     message.templateVersion = templateVersion;
 
-    return this.selectEmailServices(message).then(services => {
+    return this.selectEmailServices(message).then((services) => {
       return P.all(
-        services.map(service => {
+        services.map((service) => {
           const headers = {
             'Content-Language': localized.language,
             'X-Template-Name': template,
@@ -477,7 +477,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifyEmail = async function(message) {
+  Mailer.prototype.verifyEmail = async function (message) {
     log.trace('mailer.verifyEmail', { email: message.email, uid: message.uid });
 
     const templateName = 'verify';
@@ -540,7 +540,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifyShortCodeEmail = async function(message) {
+  Mailer.prototype.verifyShortCodeEmail = async function (message) {
     log.trace('mailer.verifyShortCodeEmail', {
       email: message.email,
       uid: message.uid,
@@ -598,7 +598,7 @@ module.exports = function(log, config, oauthdb) {
     templateNameToCampaignMap[template] = `${key}-verification-reminder`;
     templateNameToContentMap[template] = 'confirm-email';
 
-    Mailer.prototype[`${template}Email`] = async function(message) {
+    Mailer.prototype[`${template}Email`] = async function (message) {
       const { code, email, uid } = message;
 
       log.trace(`mailer.${template}`, { code, email, uid });
@@ -635,7 +635,7 @@ module.exports = function(log, config, oauthdb) {
     };
   });
 
-  Mailer.prototype.unblockCodeEmail = function(message) {
+  Mailer.prototype.unblockCodeEmail = function (message) {
     log.trace('mailer.unblockCodeEmail', {
       email: message.email,
       uid: message.uid,
@@ -679,7 +679,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifyLoginEmail = function(message) {
+  Mailer.prototype.verifyLoginEmail = function (message) {
     log.trace('mailer.verifyLoginEmail', {
       email: message.email,
       uid: message.uid,
@@ -714,7 +714,7 @@ module.exports = function(log, config, oauthdb) {
       'X-Verify-Code': message.code,
     };
 
-    return oauthClientInfo.fetch(message.service).then(clientInfo => {
+    return oauthClientInfo.fetch(message.service).then((clientInfo) => {
       const clientName = clientInfo.name;
       const subject = translator.gettext(
         'Confirm new sign-in to %(clientName)s'
@@ -750,7 +750,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifyLoginCodeEmail = async function(message) {
+  Mailer.prototype.verifyLoginCodeEmail = async function (message) {
     log.trace('mailer.verifyLoginCodeEmail', {
       email: message.email,
       uid: message.uid,
@@ -813,7 +813,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifyPrimaryEmail = function(message) {
+  Mailer.prototype.verifyPrimaryEmail = function (message) {
     log.trace('mailer.verifyPrimaryEmail', {
       email: message.email,
       uid: message.uid,
@@ -878,7 +878,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifySecondaryEmail = function(message) {
+  Mailer.prototype.verifySecondaryEmail = function (message) {
     log.trace('mailer.verifySecondaryEmail', {
       email: message.email,
       uid: message.uid,
@@ -946,7 +946,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.verifySecondaryCodeEmail = function(message) {
+  Mailer.prototype.verifySecondaryCodeEmail = function (message) {
     log.trace('mailer.verifySecondaryCodeEmail', {
       email: message.email,
       uid: message.uid,
@@ -989,7 +989,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.recoveryEmail = function(message) {
+  Mailer.prototype.recoveryEmail = function (message) {
     const templateName = 'recovery';
     const query = {
       uid: message.uid,
@@ -1049,7 +1049,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.passwordChangedEmail = function(message) {
+  Mailer.prototype.passwordChangedEmail = function (message) {
     const templateName = 'passwordChanged';
     const subject = gettext('Password updated');
 
@@ -1087,7 +1087,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.passwordResetEmail = function(message) {
+  Mailer.prototype.passwordResetEmail = function (message) {
     const templateName = 'passwordReset';
     const subject = gettext('Password updated');
     const links = this._generateLinks(
@@ -1117,7 +1117,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.passwordResetRequiredEmail = function(message) {
+  Mailer.prototype.passwordResetRequiredEmail = function (message) {
     const templateName = 'passwordResetRequired';
     const subject = gettext('Suspicious activity detected');
     const links = this._generateLinks(
@@ -1145,7 +1145,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.newDeviceLoginEmail = function(message) {
+  Mailer.prototype.newDeviceLoginEmail = function (message) {
     log.trace('mailer.newDeviceLoginEmail', {
       email: message.email,
       uid: message.uid,
@@ -1158,7 +1158,7 @@ module.exports = function(log, config, oauthdb) {
       'X-Link': links.passwordChangeLink,
     };
 
-    return oauthClientInfo.fetch(message.service).then(clientInfo => {
+    return oauthClientInfo.fetch(message.service).then((clientInfo) => {
       const clientName = clientInfo.name;
       const subject = translator.gettext('New sign-in to %(clientName)s');
       const action = gettext('Manage account');
@@ -1190,7 +1190,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postVerifyEmail = function(message) {
+  Mailer.prototype.postVerifyEmail = function (message) {
     log.trace('mailer.postVerifyEmail', {
       email: message.email,
       uid: message.uid,
@@ -1234,7 +1234,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postVerifySecondaryEmail = function(message) {
+  Mailer.prototype.postVerifySecondaryEmail = function (message) {
     log.trace('mailer.postVerifySecondaryEmail', {
       email: message.email,
       uid: message.uid,
@@ -1270,7 +1270,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postChangePrimaryEmail = function(message) {
+  Mailer.prototype.postChangePrimaryEmail = function (message) {
     log.trace('mailer.postChangePrimaryEmail', {
       email: message.email,
       uid: message.uid,
@@ -1306,7 +1306,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postRemoveSecondaryEmail = function(message) {
+  Mailer.prototype.postRemoveSecondaryEmail = function (message) {
     log.trace('mailer.postRemoveSecondaryEmail', {
       email: message.email,
       uid: message.uid,
@@ -1340,7 +1340,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postAddTwoStepAuthenticationEmail = function(message) {
+  Mailer.prototype.postAddTwoStepAuthenticationEmail = function (message) {
     log.trace('mailer.postAddTwoStepAuthenticationEmail', {
       email: message.email,
       uid: message.uid,
@@ -1383,7 +1383,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function(message) {
+  Mailer.prototype.postRemoveTwoStepAuthenticationEmail = function (message) {
     log.trace('mailer.postRemoveTwoStepAuthenticationEmail', {
       email: message.email,
       uid: message.uid,
@@ -1426,7 +1426,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postNewRecoveryCodesEmail = function(message) {
+  Mailer.prototype.postNewRecoveryCodesEmail = function (message) {
     log.trace('mailer.postNewRecoveryCodesEmail', {
       email: message.email,
       uid: message.uid,
@@ -1469,7 +1469,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postConsumeRecoveryCodeEmail = function(message) {
+  Mailer.prototype.postConsumeRecoveryCodeEmail = function (message) {
     log.trace('mailer.postConsumeRecoveryCodeEmail', {
       email: message.email,
       uid: message.uid,
@@ -1512,7 +1512,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.lowRecoveryCodesEmail = function(message) {
+  Mailer.prototype.lowRecoveryCodesEmail = function (message) {
     const { numberRemaining } = message;
 
     log.trace('mailer.lowRecoveryCodesEmail', {
@@ -1559,7 +1559,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postAddAccountRecoveryEmail = function(message) {
+  Mailer.prototype.postAddAccountRecoveryEmail = function (message) {
     log.trace('mailer.postAddAccountRecoveryEmail', {
       email: message.email,
       uid: message.uid,
@@ -1605,7 +1605,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postRemoveAccountRecoveryEmail = function(message) {
+  Mailer.prototype.postRemoveAccountRecoveryEmail = function (message) {
     log.trace('mailer.postRemoveAccountRecoveryEmail', {
       email: message.email,
       uid: message.uid,
@@ -1648,7 +1648,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.passwordResetAccountRecoveryEmail = function(message) {
+  Mailer.prototype.passwordResetAccountRecoveryEmail = function (message) {
     log.trace('mailer.passwordResetAccountRecoveryEmail', {
       email: message.email,
       uid: message.uid,
@@ -1694,7 +1694,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionUpgradeEmail = async function(message) {
+  Mailer.prototype.subscriptionUpgradeEmail = async function (message) {
     const {
       email,
       uid,
@@ -1752,7 +1752,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionDowngradeEmail = async function(message) {
+  Mailer.prototype.subscriptionDowngradeEmail = async function (message) {
     const {
       email,
       uid,
@@ -1815,7 +1815,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionPaymentExpiredEmail = async function(message) {
+  Mailer.prototype.subscriptionPaymentExpiredEmail = async function (message) {
     const {
       email,
       uid,
@@ -1865,7 +1865,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionPaymentFailedEmail = async function(message) {
+  Mailer.prototype.subscriptionPaymentFailedEmail = async function (message) {
     const {
       email,
       uid,
@@ -1913,7 +1913,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionAccountDeletionEmail = async function(message) {
+  Mailer.prototype.subscriptionAccountDeletionEmail = async function (message) {
     const {
       email,
       uid,
@@ -1972,7 +1972,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionCancellationEmail = async function(message) {
+  Mailer.prototype.subscriptionCancellationEmail = async function (message) {
     const {
       email,
       uid,
@@ -2037,7 +2037,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionReactivationEmail = async function(message) {
+  Mailer.prototype.subscriptionReactivationEmail = async function (message) {
     const {
       email,
       uid,
@@ -2100,7 +2100,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionSubsequentInvoiceEmail = async function(
+  Mailer.prototype.subscriptionSubsequentInvoiceEmail = async function (
     message
   ) {
     const {
@@ -2175,7 +2175,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.subscriptionFirstInvoiceEmail = async function(message) {
+  Mailer.prototype.subscriptionFirstInvoiceEmail = async function (message) {
     const {
       email,
       uid,
@@ -2245,7 +2245,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.downloadSubscriptionEmail = async function(message) {
+  Mailer.prototype.downloadSubscriptionEmail = async function (message) {
     const {
       email,
       productId,
@@ -2296,7 +2296,7 @@ module.exports = function(log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype._generateUTMLink = function(
+  Mailer.prototype._generateUTMLink = function (
     link,
     query,
     templateName,
@@ -2304,7 +2304,7 @@ module.exports = function(log, config, oauthdb) {
   ) {
     const parsedLink = new URL(link);
 
-    Object.keys(query).forEach(key => {
+    Object.keys(query).forEach((key) => {
       const value = typeof query[key] !== 'undefined' ? query[key] : '';
       parsedLink.searchParams.set(key, value);
     });
@@ -2332,7 +2332,7 @@ module.exports = function(log, config, oauthdb) {
     return parsedLink.toString();
   };
 
-  Mailer.prototype._generateLinks = function(
+  Mailer.prototype._generateLinks = function (
     primaryLink,
     { email, uid },
     query,
@@ -2496,7 +2496,7 @@ module.exports = function(log, config, oauthdb) {
     return links;
   };
 
-  Mailer.prototype._generateSettingLinks = function(
+  Mailer.prototype._generateSettingLinks = function (
     message,
     templateName,
     link = this.accountSettingsUrl
@@ -2513,7 +2513,7 @@ module.exports = function(log, config, oauthdb) {
     return this._generateLinks(link, message, query, templateName);
   };
 
-  Mailer.prototype._generateLowRecoveryCodesLinks = function(
+  Mailer.prototype._generateLowRecoveryCodesLinks = function (
     message,
     templateName
   ) {
@@ -2534,7 +2534,7 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype._generateCreateAccountRecoveryLinks = function(
+  Mailer.prototype._generateCreateAccountRecoveryLinks = function (
     message,
     templateName
   ) {
@@ -2555,7 +2555,7 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype.createPasswordResetLink = function(
+  Mailer.prototype.createPasswordResetLink = function (
     email,
     templateName,
     emailToHashWith
@@ -2576,7 +2576,7 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype.createPasswordChangeLink = function(email, templateName) {
+  Mailer.prototype.createPasswordChangeLink = function (email, templateName) {
     const query = { email: email };
 
     return this._generateUTMLink(
@@ -2587,7 +2587,7 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype.createReportSignInLink = function(templateName, data) {
+  Mailer.prototype.createReportSignInLink = function (templateName, data) {
     const query = {
       uid: data.uid,
       unblockCode: data.unblockCode,
@@ -2600,7 +2600,7 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype._reportSignInLinkAttributes = function(
+  Mailer.prototype._reportSignInLinkAttributes = function (
     email,
     templateName,
     query
@@ -2608,15 +2608,15 @@ module.exports = function(log, config, oauthdb) {
     return linkAttributes(this.createReportSignInLink(templateName, query));
   };
 
-  Mailer.prototype.createSupportLink = function(templateName) {
+  Mailer.prototype.createSupportLink = function (templateName) {
     return this._generateUTMLink(this.supportUrl, {}, templateName, 'support');
   };
 
-  Mailer.prototype.createPrivacyLink = function(templateName) {
+  Mailer.prototype.createPrivacyLink = function (templateName) {
     return this._generateUTMLink(this.privacyUrl, {}, templateName, 'privacy');
   };
 
-  Mailer.prototype.createRevokeAccountRecoveryLink = function(templateName) {
+  Mailer.prototype.createRevokeAccountRecoveryLink = function (templateName) {
     return this._generateUTMLink(
       this.revokeAccountRecoveryUrl,
       {},
@@ -2625,13 +2625,13 @@ module.exports = function(log, config, oauthdb) {
     );
   };
 
-  Mailer.prototype._revokeAccountRecoveryLinkAttributes = function(
+  Mailer.prototype._revokeAccountRecoveryLinkAttributes = function (
     templateName
   ) {
     return linkAttributes(this.createRevokeAccountRecoveryLink(templateName));
   };
 
-  Mailer.prototype.createAccountRecoveryLink = function(templateName) {
+  Mailer.prototype.createAccountRecoveryLink = function (templateName) {
     return this._generateUTMLink(
       this.createAccountRecoveryUrl,
       {},

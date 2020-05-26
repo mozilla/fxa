@@ -16,7 +16,7 @@ import ProgressIndicator from '../progress_indicator';
 
 // Return a promise delayed by ms
 function delay(progressIndicator, ms) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     progressIndicator.setTimeout(resolve, ms);
   });
 }
@@ -26,7 +26,7 @@ function showProgressIndicator(
   el = 'button[type=submit]',
   delayHandlerByMills = 0
 ) {
-  return function(...args) {
+  return function (...args) {
     const target = this.$(el);
     const RADIX = 10;
     const minProgressIndicatorMs = parseInt(
@@ -41,7 +41,7 @@ function showProgressIndicator(
     return delay(progressIndicator, delayHandlerByMills)
       .then(() => this.invokeHandler(handler, args))
       .then(
-        value => {
+        (value) => {
           // calculate the artificial delay time, if one is set.
           // If the handler took longer than the artificial delay,
           // or if no artificial delay is set, the extra delay is 0.
@@ -55,7 +55,7 @@ function showProgressIndicator(
             return value;
           });
         },
-        err => {
+        (err) => {
           progressIndicator.done();
           throw err;
         }

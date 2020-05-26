@@ -77,7 +77,7 @@ const View = FormView.extend({
       () => {
         this.navigate('settings');
       },
-      err => {
+      (err) => {
         this.displayError(err);
         throw err;
       }
@@ -95,7 +95,7 @@ const View = FormView.extend({
       const account = this.getAccount();
       this.logAccountImageChange(account);
 
-      const imgOnError = e => {
+      const imgOnError = (e) => {
         const error = e && e.errno ? e : 'UNUSABLE_IMAGE';
         const msg = AuthErrors.toMessage(error);
         this.displayError(msg);
@@ -105,11 +105,11 @@ const View = FormView.extend({
       if (file.type.match('image.*')) {
         const reader = new this.FileReader();
 
-        reader.onload = event => {
+        reader.onload = (event) => {
           const src = event.target.result;
 
           ImageLoader.load(src)
-            .then(img => {
+            .then((img) => {
               this.logFlowEvent(`timing.avatar.load.${Date.now() - start}`);
               const cropImg = new CropperImage({
                 height: img.height,

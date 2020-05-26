@@ -16,14 +16,14 @@ function TestServer(configUpdates) {
   };
 }
 
-TestServer.prototype.start = async function() {
+TestServer.prototype.start = async function () {
   if (!this.server) {
     this.server = await Server(this.config, this.log);
     await this.server.start();
   }
 };
 
-TestServer.prototype.stop = async function() {
+TestServer.prototype.stop = async function () {
   if (this.server) {
     await this.server.stop();
     this.server = null;

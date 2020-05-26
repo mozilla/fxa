@@ -14,8 +14,8 @@ function disableLogs() {
   // the following is done to make sure
   // not to pollute the testing logs with server output.
   // it disables fxa-oauth-server logs and others in the future
-  process.stdout.write = (function() {
-    return function(string, encoding, fd) {
+  process.stdout.write = (function () {
+    return function (string, encoding, fd) {
       const args = Array.prototype.slice.call(arguments);
       if (args[0] && LOGS_REGEX.test(args[0])) {
         args[0] = '';
@@ -46,7 +46,7 @@ function assertSecurityHeaders(res, expect = {}) {
     ...expect,
   };
 
-  Object.keys(expect).forEach(function(header) {
+  Object.keys(expect).forEach(function (header) {
     assert.equal(res.headers[header], expect[header]);
   });
 }

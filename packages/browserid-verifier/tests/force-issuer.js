@@ -11,31 +11,31 @@ var IdP = require('browserid-local-verify/testing').IdP,
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('force issuer', function() {
+describe('force issuer', function () {
   var idp = new IdP();
   var fallback = new IdP();
   var client;
   var verifier = new Verifier();
 
-  it('test idps should start up', function(done) {
-    idp.start(function(e) {
-      fallback.start(function(e1) {
+  it('test idps should start up', function (done) {
+    idp.start(function (e) {
+      fallback.start(function (e1) {
         verifier.setFallback(idp);
-        verifier.start(function(e2) {
+        verifier.start(function (e2) {
           done(e || e1 || e2);
         });
       });
     });
   });
 
-  it('assertion by fallback when primary support is present should fail', function(done) {
+  it('assertion by fallback when primary support is present should fail', function (done) {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
       email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -49,7 +49,7 @@ describe('force issuer', function() {
             audience: 'http://example.com',
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.statusCode.should.equal(200);
           r.body.status.should.equal('failure');
@@ -61,14 +61,14 @@ describe('force issuer', function() {
     });
   });
 
-  it('(v1) forceIssuer should over-ride authority discovery', function(done) {
+  it('(v1) forceIssuer should over-ride authority discovery', function (done) {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
       email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -83,7 +83,7 @@ describe('force issuer', function() {
             experimental_forceIssuer: fallback.domain(),
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.statusCode.should.equal(200);
           r.body.status.should.equal('okay');
@@ -94,14 +94,14 @@ describe('force issuer', function() {
     });
   });
 
-  it('(v2) trustedIssuers should over-ride authority discovery', function(done) {
+  it('(v2) trustedIssuers should over-ride authority discovery', function (done) {
     // user has an email from idp, but fallback will be used for certificate
     client = new Client({
       idp: fallback,
       email: 'user@' + idp.domain(),
     });
 
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -116,7 +116,7 @@ describe('force issuer', function() {
             trustedIssuers: [fallback.domain()],
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.statusCode.should.equal(200);
           r.body.status.should.equal('okay');
@@ -127,10 +127,10 @@ describe('force issuer', function() {
     });
   });
 
-  it('test idp should shut down', function(done) {
-    idp.stop(function(e) {
-      fallback.stop(function(e1) {
-        verifier.stop(function(e2) {
+  it('test idp should shut down', function (done) {
+    idp.stop(function (e) {
+      fallback.stop(function (e1) {
+        verifier.stop(function (e2) {
           done(e || e1 || e2);
         });
       });

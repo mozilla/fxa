@@ -38,11 +38,11 @@ function AppError(options, extra, headers) {
 }
 util.inherits(AppError, Error);
 
-AppError.prototype.toString = function() {
+AppError.prototype.toString = function () {
   return 'Error: ' + this.message;
 };
 
-AppError.prototype.header = function(name, value) {
+AppError.prototype.header = function (name, value) {
   this.output.headers[name] = value;
 };
 
@@ -132,7 +132,7 @@ AppError.unsupportedProvider = function unsupportedProvider(url) {
   );
 };
 
-AppError.requestBlocked = function() {
+AppError.requestBlocked = function () {
   return new AppError({
     code: 400,
     error: 'Request blocked',
@@ -141,7 +141,7 @@ AppError.requestBlocked = function() {
   });
 };
 
-AppError.tooManyRequests = function(retryAfter) {
+AppError.tooManyRequests = function (retryAfter) {
   if (!retryAfter) {
     retryAfter = 30;
   }

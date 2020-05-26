@@ -22,7 +22,7 @@ const DEFAULT_AVATAR_SMALL = path.resolve(
   'default-profile_small.png'
 );
 
-exports.create = async function() {
+exports.create = async function () {
   var server = new Hapi.Server({
     debug: false,
     host: config.server.host,
@@ -35,7 +35,7 @@ exports.create = async function() {
   server.route({
     method: 'GET',
     path: '/a/' + DEFAULT_AVATAR_ID + '{type?}',
-    handler: async function(request, h) {
+    handler: async function (request, h) {
       switch (request.params.type) {
         case '':
           return h.file(DEFAULT_AVATAR);

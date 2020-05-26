@@ -82,7 +82,7 @@ function testConflict(err) {
 // Returns a promise to be resolved with failure event
 // when one is emitted by the server.
 function captureFailureEvent(server) {
-  return new P(function(resolve, reject) {
+  return new P(function (resolve, reject) {
     server.once('failure', resolve);
   });
 }
@@ -92,7 +92,7 @@ function captureFailureEvent(server) {
 // Takes the client, and a route, either '/' or '/__version__'.
 //
 function testVersionResponse(client, route) {
-  return client.getThen(route).then(function(r) {
+  return client.getThen(route).then(function (r) {
     assert.equal(r.res.statusCode, 200, 'version returns 200 OK');
     assert.match(r.obj.version, /\d+\.\d+\.\d+/);
     assert.include(['MySql'], r.obj.implementation);
@@ -103,19 +103,19 @@ function testVersionResponse(client, route) {
 // and pass the config containing the connection params to this function. The tests
 // will run against that server. Second argument is the restify server object, for
 // testing of events via `server.on`.
-module.exports = function(cfg, makeServer) {
+module.exports = function (cfg, makeServer) {
   describe('remote', () => {
     let client;
     let server;
     before(() => {
-      return makeServer().then(s => {
+      return makeServer().then((s) => {
         server = s;
         client = clientThen({ url: 'http://' + cfg.hostname + ':' + cfg.port });
       });
     });
 
     it('heartbeat', () => {
-      return client.getThen('/__heartbeat__').then(function(r) {
+      return client.getThen('/__heartbeat__').then(function (r) {
         assert.deepEqual(
           r.obj,
           {},
@@ -129,13 +129,13 @@ module.exports = function(cfg, makeServer) {
 
     it('account not found', () => {
       return client.getThen('/account/0123456789ABCDEF0123456789ABCDEF').then(
-        function(r) {
+        function (r) {
           assert(
             false,
             'This request should have failed (instead it suceeded)'
           );
         },
-        function(err) {
+        function (err) {
           testNotFound(err);
         }
       );
@@ -304,7 +304,7 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       return client
         .putThen('/account/' + user.accountId, user.account)
-        .then(function(r) {
+        .then(function (r) {
           respOkEmpty(r);
           var randomPassword = Buffer.from(crypto.randomBytes(32)).toString(
             'hex'
@@ -314,10 +314,10 @@ module.exports = function(cfg, makeServer) {
               verifyHash: randomPassword,
             })
             .then(
-              function(r) {
+              function (r) {
                 assert(false, "should not be here, password isn't valid");
               },
-              function(err) {
+              function (err) {
                 assert(err, 'incorrect password produces an error');
                 return client.postThen(
                   '/account/' + user.accountId + '/checkPassword',
@@ -326,20 +326,20 @@ module.exports = function(cfg, makeServer) {
               }
             );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var account = r.obj;
           assert.equal(account.uid, user.accountId);
           return client.getThen('/account/' + user.accountId);
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
 
           var account = r.obj;
           var fields = 'accountId,email,emailCode,kA,verifierVersion,authSalt'.split(
             ','
           );
-          fields.forEach(function(f) {
+          fields.forEach(function (f) {
             assert.equal(
               user.account[f],
               account[f],
@@ -353,24 +353,24 @@ module.exports = function(cfg, makeServer) {
           );
           assert(!account.verifyHash, 'verifyHash field should be absent');
         })
-        .then(function() {
+        .then(function () {
           return client.headThen(
             '/emailRecord/' + emailToHex(user.account.email)
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOkEmpty(r);
           return client.getThen(
             '/emailRecord/' + emailToHex(user.account.email)
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var account = r.obj;
           var fields = 'accountId,email,emailCode,kA,verifierVersion,authSalt'.split(
             ','
           );
-          fields.forEach(function(f) {
+          fields.forEach(function (f) {
             assert.equal(
               user.account[f],
               account[f],
@@ -384,22 +384,22 @@ module.exports = function(cfg, makeServer) {
           );
           assert(!account.verifyHash, 'verifyHash field should be absent');
         })
-        .then(function() {
+        .then(function () {
           return client.delThen('/account/' + user.accountId);
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // now make sure this record no longer exists
           return client
             .headThen('/emailRecord/' + emailToHex(user.account.email))
             .then(
-              function(r) {
+              function (r) {
                 assert(
                   false,
                   'Should not be here, since this account no longer exists'
                 );
               },
-              function(err) {
+              function (err) {
                 assert.equal(
                   err.toString(),
                   'NotFoundError',
@@ -424,7 +424,7 @@ module.exports = function(cfg, makeServer) {
       // Fetch all of the session tokens for the account
       return client
         .getThen('/account/' + user.accountId + '/sessions')
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.isArray(r.obj);
           assert.lengthOf(r.obj, 0);
@@ -438,40 +438,40 @@ module.exports = function(cfg, makeServer) {
             ),
           ]);
         })
-        .then(function() {
+        .then(function () {
           // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions');
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.lengthOf(r.obj, 0);
 
           // Attempt to fetch a non-existent session token
           return client.getThen('/sessionToken/' + user.sessionTokenId).then(
-            function() {
+            function () {
               assert(
                 false,
                 'A non-existent session token should not have returned anything'
               );
             },
-            function(err) {
+            function (err) {
               testNotFound(err);
             }
           );
         })
-        .then(function() {
+        .then(function () {
           // Create a session token
           return client.putThen(
             '/sessionToken/' + user.sessionTokenId,
             user.sessionToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
 
           // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var sessions = r.obj;
           assert.lengthOf(sessions, 1);
@@ -535,7 +535,7 @@ module.exports = function(cfg, makeServer) {
           // Fetch the session token
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           assert.deepEqual(
@@ -623,13 +623,13 @@ module.exports = function(cfg, makeServer) {
             verifiedUser.sessionToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
 
           // Fetch the verified session token
           return client.getThen('/sessionToken/' + verifiedUser.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           assert.deepEqual(
@@ -716,15 +716,15 @@ module.exports = function(cfg, makeServer) {
               }
             )
             .then(
-              function() {
+              function () {
                 assert(false, 'Verifying a non-existent token should fail');
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           // Attempt to verify a session token with the wrong uid
           return client
             .postThen(
@@ -734,15 +734,15 @@ module.exports = function(cfg, makeServer) {
               }
             )
             .then(
-              function() {
+              function () {
                 assert(false, 'Verifying a non-existent token should fail');
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           // Verify the unverified session token
           return client.postThen(
             '/tokens/' + user.sessionToken.tokenVerificationId + '/verify',
@@ -751,11 +751,11 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function() {
+        .then(function () {
           // Fetch the newly verified session token
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.equal(!!r.obj.mustVerify, true, 'mustVerify is true');
           assert.isNull(r.obj.tokenVerificationId);
 
@@ -768,15 +768,15 @@ module.exports = function(cfg, makeServer) {
               }
             )
             .then(
-              function() {
+              function () {
                 assert(false, 'Verifying a verified token should have failed');
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           // Update the newly verified session token
           return client.postThen(
             '/sessionToken/' + user.sessionTokenId + '/update',
@@ -791,13 +791,13 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
 
           // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var sessions = r.obj;
           assert.lengthOf(sessions, 1);
@@ -843,7 +843,7 @@ module.exports = function(cfg, makeServer) {
           // Fetch the newly verified session token
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           assert.deepEqual(
@@ -891,20 +891,20 @@ module.exports = function(cfg, makeServer) {
             user.device
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
 
           // Fetch devices for the account
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.lengthOf(r.obj, 1);
 
           // Fetch the session again to make sure device info is included
           return client.getThen('/account/' + user.accountId + '/sessions');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var sessions = r.obj;
           assert.lengthOf(sessions, 1);
@@ -933,23 +933,23 @@ module.exports = function(cfg, makeServer) {
             client.delThen('/sessionToken/' + verifiedUser.sessionTokenId),
           ]);
         })
-        .then(function(results) {
+        .then(function (results) {
           assert.lengthOf(results, 2);
-          results.forEach(function(result) {
+          results.forEach(function (result) {
             respOk(result);
           });
 
           // Fetch devices for the account
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.lengthOf(r.obj, 0);
 
           // Fetch all of the session tokens for the account
           return client.getThen('/account/' + user.accountId + '/sessions');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.lengthOf(r.obj, 0);
 
@@ -960,7 +960,7 @@ module.exports = function(cfg, makeServer) {
                 false,
                 'Fetching the non-existant sessionToken should have failed'
               ),
-            err => testNotFound(err)
+            (err) => testNotFound(err)
           );
         });
     });
@@ -970,32 +970,32 @@ module.exports = function(cfg, makeServer) {
       const zombieUser = fake.newUserDataHex();
       return client
         .getThen('/account/' + user.accountId + '/devices')
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.isArray(r.obj);
           assert.lengthOf(r.obj, 0);
           return client.putThen('/account/' + user.accountId, user.account);
         })
-        .then(function() {
+        .then(function () {
           return client.putThen(
             '/sessionToken/' + user.sessionTokenId,
             user.sessionToken
           );
         })
-        .then(function() {
+        .then(function () {
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.lengthOf(r.obj, 0);
           return client.putThen(
             '/account/' + user.accountId + '/device/' + user.deviceId,
             user.device
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 1);
@@ -1080,12 +1080,12 @@ module.exports = function(cfg, makeServer) {
             'lastAccessTime is correct'
           );
         })
-        .then(function() {
+        .then(function () {
           return client.getThen(
             '/account/' + user.accountId + '/device/' + user.deviceId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var device = r.obj;
           assert.equal(device.id, user.deviceId, 'id is correct');
@@ -1122,7 +1122,7 @@ module.exports = function(cfg, makeServer) {
             'availableCommands is correct'
           );
         })
-        .then(function() {
+        .then(function () {
           return client.getThen(
             '/account/' +
               user.accountId +
@@ -1131,7 +1131,7 @@ module.exports = function(cfg, makeServer) {
               '/device'
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var device = r.obj;
           assert.equal(device.id, user.deviceId, 'id is correct');
@@ -1185,11 +1185,11 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 1);
@@ -1275,11 +1275,11 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 0);
@@ -1295,11 +1295,11 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 1);
@@ -1315,11 +1315,11 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 1);
@@ -1334,15 +1334,15 @@ module.exports = function(cfg, makeServer) {
             user.oauthDevice
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 2);
-          const sessionDevice = devices.find(d => d.sessionTokenId);
-          const oauthDevice = devices.find(d => d.refreshTokenId);
+          const sessionDevice = devices.find((d) => d.sessionTokenId);
+          const oauthDevice = devices.find((d) => d.refreshTokenId);
 
           assert.equal(sessionDevice.uid, user.accountId, 'uid is correct');
           assert.equal(
@@ -1428,15 +1428,15 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var devices = r.obj;
           assert.lengthOf(devices, 2);
-          const sessionDevice = devices.find(d => d.sessionTokenId);
-          const oauthDevice = devices.find(d => d.refreshTokenId);
+          const sessionDevice = devices.find((d) => d.sessionTokenId);
+          const oauthDevice = devices.find((d) => d.refreshTokenId);
 
           assert.equal(
             sessionDevice.sessionTokenId,
@@ -1461,7 +1461,7 @@ module.exports = function(cfg, makeServer) {
             '/account/' + user.accountId + '/device/' + user.oauthDeviceId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.deepEqual(r.obj, {
             sessionTokenId: null,
@@ -1472,7 +1472,7 @@ module.exports = function(cfg, makeServer) {
             '/account/' + user.accountId + '/device/' + user.deviceId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.deepEqual(r.obj, {
             sessionTokenId: user.sessionTokenId,
@@ -1480,20 +1480,20 @@ module.exports = function(cfg, makeServer) {
           });
           return client.getThen('/account/' + user.accountId + '/devices');
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.lengthOf(r.obj, 0);
 
           return client
             .getThen('/account/' + user.accountId + '/device' + user.deviceId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'A non-existent deviceId should not have returned anything'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
@@ -1515,37 +1515,37 @@ module.exports = function(cfg, makeServer) {
           verifiedUser.account
         ),
       ])
-        .then(function() {
+        .then(function () {
           // Attempt to fetch a non-existent key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId).then(
-            function() {
+            function () {
               assert(
                 false,
                 'A non-existent keyFetchToken should not have returned anything'
               );
             },
-            function(err) {
+            function (err) {
               testNotFound(err);
             }
           );
         })
-        .then(function() {
+        .then(function () {
           // Attempt to fetch a non-existent key fetch token with its verification state
           return client
             .getThen('/keyFetchToken/' + user.keyFetchTokenId + '/verified')
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'A non-existent keyFetchToken should not have returned anything'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           // Create a session token and a key fetch token
           return P.all([
             client.putThen(
@@ -1558,14 +1558,14 @@ module.exports = function(cfg, makeServer) {
             ),
           ]);
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r[0]);
           respOk(r[1]);
 
           // Fetch the key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           // tokenId is not returned from db.keyFetchToken()
@@ -1594,7 +1594,7 @@ module.exports = function(cfg, makeServer) {
             '/keyFetchToken/' + user.keyFetchTokenId + '/verified'
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           assert.deepEqual(
@@ -1624,7 +1624,7 @@ module.exports = function(cfg, makeServer) {
           // Fetch the session token with its verification state
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.equal(
             r.obj.tokenVerificationId,
             user.sessionToken.tokenVerificationId,
@@ -1640,15 +1640,15 @@ module.exports = function(cfg, makeServer) {
               }
             )
             .then(
-              function() {
+              function () {
                 assert(false, 'Verifying a non-existent token should fail');
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function(r) {
+        .then(function (r) {
           // Attempt to verify a key fetch token with the wrong uid
           return client
             .postThen(
@@ -1658,15 +1658,15 @@ module.exports = function(cfg, makeServer) {
               }
             )
             .then(
-              function() {
+              function () {
                 assert(false, 'Verifying a non-existent token should fail');
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function(r) {
+        .then(function (r) {
           // Verify the key fetch token
           return client.postThen(
             '/tokens/' + user.keyFetchToken.tokenVerificationId + '/verify',
@@ -1675,11 +1675,11 @@ module.exports = function(cfg, makeServer) {
             }
           );
         })
-        .then(function() {
+        .then(function () {
           // Fetch the key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.isUndefined(r.obj.tokenVerificationId);
 
           // Fetch the key fetch token with its verification state
@@ -1687,13 +1687,13 @@ module.exports = function(cfg, makeServer) {
             '/keyFetchToken/' + user.keyFetchTokenId + '/verified'
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.isNull(r.obj.tokenVerificationId);
 
           // Fetch the session token with its verification state
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.isNull(r.obj.tokenVerificationId);
 
           // Attempt to verify the key fetch token again
@@ -1705,28 +1705,28 @@ module.exports = function(cfg, makeServer) {
               }
             )
             .then(
-              function() {
+              function () {
                 assert(false, 'Verifying a verified token should have failed');
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           // Create a verified key fetch token
           return client.putThen(
             '/keyFetchToken/' + verifiedUser.keyFetchTokenId,
             verifiedUser.keyFetchToken
           );
         })
-        .then(function() {
+        .then(function () {
           // Fetch the verified key fetch token
           return client.getThen(
             '/keyFetchToken/' + verifiedUser.keyFetchTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.isUndefined(r.obj.tokenVerificationId);
 
           // Fetch the verified key fetch token with its verification state
@@ -1734,7 +1734,7 @@ module.exports = function(cfg, makeServer) {
             '/keyFetchToken/' + verifiedUser.keyFetchTokenId + '/verified'
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           assert.isNull(r.obj.tokenVerificationId);
           // Delete both key fetch tokens
           return P.all([
@@ -1742,21 +1742,21 @@ module.exports = function(cfg, makeServer) {
             client.delThen('/keyFetchToken/' + verifiedUser.keyFetchTokenId),
           ]);
         })
-        .then(function(results) {
+        .then(function (results) {
           assert.lengthOf(results, 2);
-          results.forEach(function(result) {
+          results.forEach(function (result) {
             respOk(result);
           });
 
           // Attempt to fetch a deleted key fetch token
           return client.getThen('/keyFetchToken/' + user.keyFetchTokenId).then(
-            function() {
+            function () {
               assert(
                 false,
                 'Fetching the non-existant keyFetchToken should have failed'
               );
             },
-            function(err) {
+            function (err) {
               testNotFound(err);
             }
           );
@@ -1767,28 +1767,28 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       return client
         .putThen('/account/' + user.accountId, user.account)
-        .then(function() {
+        .then(function () {
           return client
             .getThen('/accountResetToken/' + user.accountResetTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'A non-existant session token should not have returned anything'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           return client.putThen(
             '/passwordForgotToken/' + user.passwordForgotTokenId,
             user.passwordForgotToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // now, verify the password (which inserts the accountResetToken)
           return client.postThen(
@@ -1796,20 +1796,20 @@ module.exports = function(cfg, makeServer) {
             user.accountResetToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // check the accountResetToken exists
           return client.getThen(
             '/accountResetToken/' + user.accountResetTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen(
             '/accountResetToken/' + user.accountResetTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           // tokenId is not returned from db.accountResetToken()
@@ -1831,19 +1831,19 @@ module.exports = function(cfg, makeServer) {
             '/accountResetToken/' + user.accountResetTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // now make sure the token no longer exists
           return client
             .getThen('/accountResetToken/' + user.accountResetTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'Fetching the non-existant accountResetToken should have failed'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
@@ -1854,34 +1854,34 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       return client
         .putThen('/account/' + user.accountId, user.account)
-        .then(function() {
+        .then(function () {
           return client
             .getThen('/passwordChangeToken/' + user.passwordChangeTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'A non-existant session token should not have returned anything'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function(r) {
+        .then(function (r) {
           return client.putThen(
             '/passwordChangeToken/' + user.passwordChangeTokenId,
             user.passwordChangeToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen(
             '/passwordChangeToken/' + user.passwordChangeTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           // tokenId is not returned from db.passwordChangeToken()
@@ -1903,19 +1903,19 @@ module.exports = function(cfg, makeServer) {
             '/passwordChangeToken/' + user.passwordChangeTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // now make sure the token no longer exists
           return client
             .getThen('/passwordChangeToken/' + user.passwordChangeTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'Fetching the non-existant passwordChangeToken should have failed'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
@@ -1926,34 +1926,34 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       return client
         .putThen('/account/' + user.accountId, user.account)
-        .then(function() {
+        .then(function () {
           return client
             .getThen('/passwordForgotToken/' + user.passwordForgotTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'A non-existant session token should not have returned anything'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           return client.putThen(
             '/passwordForgotToken/' + user.passwordForgotTokenId,
             user.passwordForgotToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen(
             '/passwordForgotToken/' + user.passwordForgotTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           // tokenId is not returned from db.passwordForgotToken()
@@ -1984,7 +1984,7 @@ module.exports = function(cfg, makeServer) {
             user.passwordForgotToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
 
           // re-fetch this token
@@ -1992,7 +1992,7 @@ module.exports = function(cfg, makeServer) {
             '/passwordForgotToken/' + user.passwordForgotTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           // tokenId is not returned from db.passwordForgotToken()
@@ -2021,19 +2021,19 @@ module.exports = function(cfg, makeServer) {
             '/passwordForgotToken/' + user.passwordForgotTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // now make sure the token no longer exists
           return client
             .getThen('/passwordForgotToken/' + user.passwordForgotTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'Fetching the non-existant passwordForgotToken should have failed'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
@@ -2044,14 +2044,14 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       return client
         .putThen('/account/' + user.accountId, user.account)
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.putThen(
             '/passwordForgotToken/' + user.passwordForgotTokenId,
             user.passwordForgotToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // now, verify the password (which inserts the accountResetToken)
           return client.postThen(
@@ -2059,14 +2059,14 @@ module.exports = function(cfg, makeServer) {
             user.accountResetToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           // check the accountResetToken exists
           return client.getThen(
             '/accountResetToken/' + user.accountResetTokenId
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           var token = r.obj;
 
           // tokenId is not returned from db.accountResetToken()
@@ -2087,24 +2087,24 @@ module.exports = function(cfg, makeServer) {
           return client
             .getThen('/passwordForgotToken/' + user.passwordForgotTokenId)
             .then(
-              function() {
+              function () {
                 assert(
                   false,
                   'Fetching the non-existant passwordForgotToken should have failed'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
         })
-        .then(function() {
+        .then(function () {
           //check that the account has been verified
           return client.getThen(
             '/emailRecord/' + emailToHex(user.account.email)
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           var account = r.obj;
           assert.equal(
@@ -2119,24 +2119,24 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       return client
         .putThen('/account/' + user.accountId, user.account)
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.putThen(
             '/sessionToken/' + user.sessionTokenId,
             user.sessionToken
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.postThen('/account/' + user.accountId + '/locale', {
             locale: 'en-US',
           });
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           return client.getThen('/sessionToken/' + user.sessionTokenId);
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.equal('en-US', r.obj.locale, 'locale was set properly');
         });
@@ -2148,23 +2148,23 @@ module.exports = function(cfg, makeServer) {
       var unblockCode = crypto.randomBytes(4).toString('hex');
       return client
         .putThen('/account/' + uid + '/unblock/' + unblockCode)
-        .then(function(r) {
+        .then(function (r) {
           respOkEmpty(r);
           return client.delThen('/account/' + uid + '/unblock/' + unblockCode);
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.isAtMost(r.obj.createdAt, Date.now());
           return client
             .delThen('/account/' + uid + '/unblock/' + unblockCode)
             .then(
-              function(r) {
+              function (r) {
                 assert(
                   false,
                   'This request should have failed (instead it suceeded)'
                 );
               },
-              function(err) {
+              function (err) {
                 testNotFound(err);
               }
             );
@@ -2179,13 +2179,13 @@ module.exports = function(cfg, makeServer) {
           bounceType: 'Permanent',
           bounceSubType: 'NoEmail',
         })
-        .then(function(r) {
+        .then(function (r) {
           respOkEmpty(r);
           return client.getThen(
             '/emailBounces/' + Buffer.from(email).toString('hex')
           );
         })
-        .then(function(r) {
+        .then(function (r) {
           respOk(r);
           assert.lengthOf(r.obj, 1);
           assert.equal(r.obj[0].email, email);
@@ -2212,7 +2212,7 @@ module.exports = function(cfg, makeServer) {
             flowId,
           });
         })
-        .then(r => {
+        .then((r) => {
           respOkEmpty(r);
 
           // Attempt to create a duplicate sign-in code
@@ -2225,14 +2225,14 @@ module.exports = function(cfg, makeServer) {
             .then(
               () =>
                 assert(false, 'creating a duplicate sign-in code should fail'),
-              err => testConflict(err)
+              (err) => testConflict(err)
             );
         })
         .then(() => {
           // Consume the sign-in code
           return client.postThen(`/signinCodes/${signinCode}/consume`);
         })
-        .then(r => {
+        .then((r) => {
           respOk(r);
           assert.deepEqual(
             r.obj,
@@ -2247,7 +2247,7 @@ module.exports = function(cfg, makeServer) {
           return client.postThen(`/signinCodes/${signinCode}/consume`).then(
             () =>
               assert(false, 'consuming a consumed sign-in code should fail'),
-            err => testNotFound(err)
+            (err) => testNotFound(err)
           );
         })
         .then(() => {
@@ -2257,14 +2257,14 @@ module.exports = function(cfg, makeServer) {
             createdAt: badTimestamp,
           });
         })
-        .then(r => {
+        .then((r) => {
           respOkEmpty(r);
 
           // Attempt to consume the expired sign-in code
           return client.postThen(`/signinCodes/${signinCode}/consume`).then(
             () =>
               assert(false, 'consuming an expired sign-in code should fail'),
-            err => testNotFound(err)
+            (err) => testNotFound(err)
           );
         });
     });
@@ -2282,11 +2282,11 @@ module.exports = function(cfg, makeServer) {
             '/passwordForgotToken/' + user.passwordForgotTokenId,
             user.passwordForgotToken
           )
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return client.postThen(`/account/${user.accountId}/resetTokens`);
           })
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return client
               .getThen('/passwordForgotToken/' + user.passwordForgotTokenId)
@@ -2297,7 +2297,7 @@ module.exports = function(cfg, makeServer) {
                     'This request should have failed (instead it succeeded)'
                   );
                 },
-                err => {
+                (err) => {
                   testNotFound(err);
                 }
               );
@@ -2310,11 +2310,11 @@ module.exports = function(cfg, makeServer) {
             '/passwordChangeToken/' + user.passwordChangeTokenId,
             user.passwordChangeToken
           )
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return client.postThen(`/account/${user.accountId}/resetTokens`);
           })
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return client
               .getThen('/passwordChangeToken/' + user.passwordChangeTokenId)
@@ -2325,7 +2325,7 @@ module.exports = function(cfg, makeServer) {
                     'This request should have failed (instead it succeeded)'
                   );
                 },
-                err => {
+                (err) => {
                   testNotFound(err);
                 }
               );
@@ -2338,7 +2338,7 @@ module.exports = function(cfg, makeServer) {
             '/passwordForgotToken/' + user.passwordForgotTokenId,
             user.passwordForgotToken
           )
-          .then(r => {
+          .then((r) => {
             respOk(r);
             // now, verify the password (which inserts the accountResetToken)
             return client.postThen(
@@ -2348,18 +2348,18 @@ module.exports = function(cfg, makeServer) {
               user.accountResetToken
             );
           })
-          .then(function(r) {
+          .then(function (r) {
             respOk(r);
             // check the accountResetToken exists
             return client.getThen(
               '/accountResetToken/' + user.accountResetTokenId
             );
           })
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return client.postThen(`/account/${user.accountId}/resetTokens`);
           })
-          .then(function(r) {
+          .then(function (r) {
             respOk(r);
             // check the accountResetToken exists
             return client
@@ -2371,7 +2371,7 @@ module.exports = function(cfg, makeServer) {
                     'This request should have failed (instead it succeeded)'
                   );
                 },
-                err => {
+                (err) => {
                   testNotFound(err);
                 }
               );
@@ -2384,18 +2384,18 @@ module.exports = function(cfg, makeServer) {
       return client
         .getThen('/foo')
         .then(
-          function(r) {
+          function (r) {
             assert(
               false,
               'This request should have failed (instead it suceeded)'
             );
           },
-          function(err) {
+          function (err) {
             testNotFound(err);
             return p;
           }
         )
-        .then(function() {
+        .then(function () {
           assert('server emitted a failure event');
         });
     });
@@ -2405,18 +2405,18 @@ module.exports = function(cfg, makeServer) {
       return client
         .putThen('/bar', {})
         .then(
-          function(r) {
+          function (r) {
             assert(
               false,
               'This request should have failed (instead it suceeded)'
             );
           },
-          function(err) {
+          function (err) {
             testNotFound(err);
             return p;
           }
         )
-        .then(function() {
+        .then(function () {
           assert('server emitted a failure event');
         });
     });
@@ -2424,13 +2424,13 @@ module.exports = function(cfg, makeServer) {
     it('POST an unknown path', () => {
       var p = captureFailureEvent(server);
       return client.postThen('/baz', {}).then(
-        function(r) {
+        function (r) {
           assert(
             false,
             'This request should have failed (instead it suceeded)'
           );
         },
-        function(err) {
+        function (err) {
           testNotFound(err);
           return p;
         }
@@ -2440,13 +2440,13 @@ module.exports = function(cfg, makeServer) {
     it('DELETE an unknown path', () => {
       var p = captureFailureEvent(server);
       return client.delThen('/qux').then(
-        function(r) {
+        function (r) {
           assert(
             false,
             'This request should have failed (instead it suceeded)'
           );
         },
-        function(err) {
+        function (err) {
           testNotFound(err);
           return p;
         }
@@ -2456,13 +2456,13 @@ module.exports = function(cfg, makeServer) {
     it('HEAD an unknown path', () => {
       var p = captureFailureEvent(server);
       return client.headThen('/wibble').then(
-        function(r) {
+        function (r) {
           assert(
             false,
             'This request should have failed (instead it suceeded)'
           );
         },
-        function(err) {
+        function (err) {
           assert.deepEqual(
             err.body,
             {},
@@ -2477,10 +2477,10 @@ module.exports = function(cfg, makeServer) {
       var user = fake.newUserDataHex();
       user.account.kA = 'invalid-hex-data';
       return client.putThen('/account/' + user.accountId, user.account).then(
-        function() {
+        function () {
           assert(false, 'Invalid hex data should cause the request to fail');
         },
-        function(err) {
+        function (err) {
           assert.equal(err.statusCode, 400, 'returns a 400');
         }
       );
@@ -2496,7 +2496,7 @@ module.exports = function(cfg, makeServer) {
         // Create account
         return client
           .putThen('/account/' + user.accountId, user.account)
-          .then(function(r) {
+          .then(function (r) {
             respOkEmpty(r);
             // Create secondary email
             return client.postThen(
@@ -2504,7 +2504,7 @@ module.exports = function(cfg, makeServer) {
               user.email
             );
           })
-          .then(function(r) {
+          .then(function (r) {
             respOk(r);
             const emailCodeHex = secondEmailRecord.emailCode.toString('hex');
             // Verify secondary email
@@ -2512,11 +2512,11 @@ module.exports = function(cfg, makeServer) {
               '/account/' + user.accountId + '/verifyEmail/' + emailCodeHex
             );
           })
-          .then(function(r) {
+          .then(function (r) {
             respOkEmpty(r);
             return client.getThen('/account/' + user.accountId + '/emails');
           })
-          .then(function(r) {
+          .then(function (r) {
             respOk(r);
             const result = r.obj;
             assert.equal(
@@ -2561,11 +2561,11 @@ module.exports = function(cfg, makeServer) {
               '/account/' +
               user.accountId
           )
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
             return client.getThen('/account/' + user.accountId + '/emails');
           })
-          .then(function(r) {
+          .then(function (r) {
             respOk(r);
             const result = r.obj;
 
@@ -2612,7 +2612,7 @@ module.exports = function(cfg, makeServer) {
 
         return client
           .putThen('/account/' + user.accountId, user.account)
-          .then(function(r) {
+          .then(function (r) {
             respOkEmpty(r);
           });
       });
@@ -2633,7 +2633,7 @@ module.exports = function(cfg, makeServer) {
             respOkEmpty(keyFetchToken);
             return client.getThen('/sessionToken/' + user.sessionTokenId);
           })
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return client.postThen(
               '/tokens/' +
@@ -2644,7 +2644,7 @@ module.exports = function(cfg, makeServer) {
               }
             );
           })
-          .then(r => {
+          .then((r) => {
             respOk(r);
             return P.all([
               client.getThen('/sessionToken/' + user.sessionTokenId),
@@ -2672,15 +2672,15 @@ module.exports = function(cfg, makeServer) {
         user = fake.newUserDataHex();
         return client
           .putThen('/account/' + user.accountId, user.account)
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
             return client.putThen('/totp/' + user.accountId, user.totp);
           })
-          .then(r => respOkEmpty(r));
+          .then((r) => respOkEmpty(r));
       });
 
       it('should get totp token', () => {
-        return client.getThen('/totp/' + user.accountId).then(r => {
+        return client.getThen('/totp/' + user.accountId).then((r) => {
           const result = r.obj;
           assert.equal(
             result.sharedSecret,
@@ -2694,11 +2694,11 @@ module.exports = function(cfg, makeServer) {
       });
 
       it('should delete totp token', () => {
-        return client.delThen('/totp/' + user.accountId).then(r => {
+        return client.delThen('/totp/' + user.accountId).then((r) => {
           respOkEmpty(r);
           return client
             .getThen('/totp/' + user.accountId)
-            .then(assert.fail, err => testNotFound(err));
+            .then(assert.fail, (err) => testNotFound(err));
         });
       });
 
@@ -2709,9 +2709,9 @@ module.exports = function(cfg, makeServer) {
         };
         return client
           .postThen('/totp/' + user.accountId + '/update', totpOptions)
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
-            return client.getThen('/totp/' + user.accountId).then(r => {
+            return client.getThen('/totp/' + user.accountId).then((r) => {
               const result = r.obj;
               assert.equal(
                 result.sharedSecret,
@@ -2736,18 +2736,18 @@ module.exports = function(cfg, makeServer) {
         user = fake.newUserDataHex();
         return client
           .putThen('/account/' + user.accountId, user.account)
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
             return client.putThen('/totp/' + user.accountId, user.totp);
           })
-          .then(r => respOkEmpty(r))
+          .then((r) => respOkEmpty(r))
           .then(() =>
             client.putThen(
               '/sessionToken/' + user.sessionTokenId,
               user.sessionToken
             )
           )
-          .then(res => respOkEmpty(res));
+          .then((res) => respOkEmpty(res));
       });
 
       it('set session verification method - totp-2fa', () => {
@@ -2759,11 +2759,11 @@ module.exports = function(cfg, makeServer) {
             '/tokens/' + user.sessionTokenId + '/verifyWithMethod',
             verifyOptions
           )
-          .then(res => {
+          .then((res) => {
             respOkEmpty(res);
             return client.getThen('/sessionToken/' + user.sessionTokenId);
           })
-          .then(sessionToken => {
+          .then((sessionToken) => {
             sessionToken = sessionToken.obj;
             assert.equal(
               sessionToken.verificationMethod,
@@ -2783,11 +2783,11 @@ module.exports = function(cfg, makeServer) {
             '/tokens/' + user.sessionTokenId + '/verifyWithMethod',
             verifyOptions
           )
-          .then(res => {
+          .then((res) => {
             respOkEmpty(res);
             return client.getThen('/sessionToken/' + user.sessionTokenId);
           })
-          .then(sessionToken => {
+          .then((sessionToken) => {
             sessionToken = sessionToken.obj;
             assert.equal(
               sessionToken.verificationMethod,
@@ -2799,7 +2799,7 @@ module.exports = function(cfg, makeServer) {
       });
     });
 
-    describe('recovery codes', function() {
+    describe('recovery codes', function () {
       // Consuming recovery codes is more time intensive since the scrypt hashes need
       // to be compared. Let set timeout higher than 2s default.
       this.timeout(12000);
@@ -2809,7 +2809,7 @@ module.exports = function(cfg, makeServer) {
         user = fake.newUserDataHex();
         return client
           .putThen('/account/' + user.accountId, user.account)
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
           });
       });
@@ -2819,7 +2819,7 @@ module.exports = function(cfg, makeServer) {
           .postThen('/account/' + user.accountId + '/recoveryCodes', {
             count: 8,
           })
-          .then(res => {
+          .then((res) => {
             const codes = res.obj;
             assert.lengthOf(codes, 8);
           });
@@ -2830,7 +2830,7 @@ module.exports = function(cfg, makeServer) {
           .postThen(
             '/account/' + user.accountId + '/recoveryCodes/' + '12345678'
           )
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             testNotFound(err);
           });
       });
@@ -2840,14 +2840,14 @@ module.exports = function(cfg, makeServer) {
           .postThen('/account/' + user.accountId + '/recoveryCodes', {
             count: 8,
           })
-          .then(res => {
+          .then((res) => {
             const codes = res.obj;
             assert.lengthOf(codes, 8);
             return client.postThen(
               '/account/' + user.accountId + '/recoveryCodes/' + codes[0]
             );
           })
-          .then(res => {
+          .then((res) => {
             const result = res.obj;
             assert.equal(
               result.remaining,
@@ -2858,13 +2858,13 @@ module.exports = function(cfg, makeServer) {
       });
     });
 
-    describe('recovery key', function() {
+    describe('recovery key', function () {
       let user, recoveryKey;
       beforeEach(() => {
         user = fake.newUserDataHex();
         return client
           .putThen('/account/' + user.accountId, user.account)
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
             recoveryKey = {
               recoveryKeyId: crypto.randomBytes(16).toString('hex'),
@@ -2876,7 +2876,7 @@ module.exports = function(cfg, makeServer) {
               recoveryKey
             );
           })
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
           });
       });
@@ -2893,7 +2893,7 @@ module.exports = function(cfg, makeServer) {
               '/recoveryKey/' +
               recoveryKey.recoveryKeyId
           )
-          .then(res => {
+          .then((res) => {
             const recoveryKeyResult = res.obj;
             assert.equal(
               recoveryKeyResult.recoveryData,
@@ -2908,7 +2908,7 @@ module.exports = function(cfg, makeServer) {
       it('should delete a recovery key', () => {
         return client
           .delThen('/account/' + user.accountId + '/recoveryKey')
-          .then(r => {
+          .then((r) => {
             respOkEmpty(r);
           });
       });
@@ -2916,7 +2916,7 @@ module.exports = function(cfg, makeServer) {
       it('should check if recovery key exists', () => {
         return client
           .getThen('/account/' + user.accountId + '/recoveryKey')
-          .then(res => {
+          .then((res) => {
             const result = res.obj;
             assert.isTrue(result.exists);
           });

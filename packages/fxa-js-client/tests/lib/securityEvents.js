@@ -6,7 +6,7 @@ const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
 const sinon = require('sinon');
-describe('securityEvents', function() {
+describe('securityEvents', function () {
   let account;
   let accountHelper;
   let env;
@@ -24,7 +24,7 @@ describe('securityEvents', function() {
     client = env.client;
     RequestMocks = env.RequestMocks;
 
-    return accountHelper.newVerifiedAccount().then(newAccount => {
+    return accountHelper.newVerifiedAccount().then((newAccount) => {
       account = newAccount;
       xhr = env.xhr;
       xhrOpen = sinon.spy(xhr.prototype, 'open');
@@ -37,11 +37,11 @@ describe('securityEvents', function() {
     xhrSend.restore();
   });
 
-  it('#securityEvents', function() {
+  it('#securityEvents', function () {
     return respond(
       client.securityEvents(account.signIn.sessionToken),
       RequestMocks.securityEvents
-    ).then(res => {
+    ).then((res) => {
       assert.equal(xhrOpen.args[0][0], 'GET', 'method is correct');
       assert.include(xhrOpen.args[0][1], '/securityEvents', 'path is correct');
       assert.ok(res, 'got response');
@@ -57,11 +57,11 @@ describe('securityEvents', function() {
     }, assert.fail);
   });
 
-  it('#deleteSecurityEvents', function() {
+  it('#deleteSecurityEvents', function () {
     return respond(
       client.deleteSecurityEvents(account.signIn.sessionToken),
       RequestMocks.deleteSecurityEvents
-    ).then(res => {
+    ).then((res) => {
       assert.equal(xhrOpen.args[0][0], 'DELETE', 'method is correct');
       assert.include(xhrOpen.args[0][1], '/securityEvents', 'path is correct');
       assert.ok(res, 'got response');
@@ -70,7 +70,7 @@ describe('securityEvents', function() {
       return respond(
         client.securityEvents(account.signIn.sessionToken),
         RequestMocks.securityEventsEmptyResponse
-      ).then(res => {
+      ).then((res) => {
         assert.equal(xhrOpen.args[1][0], 'GET', 'method is correct');
         assert.include(
           xhrOpen.args[1][1],

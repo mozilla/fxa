@@ -128,10 +128,7 @@ describe('views/sign_up_password', () => {
       return view.render().then(() => {
         view.afterVisible();
         assert.include(
-          view
-            .$(Selectors.ERROR)
-            .text()
-            .toLowerCase(),
+          view.$(Selectors.ERROR).text().toLowerCase(),
           'recreate'
         );
       });

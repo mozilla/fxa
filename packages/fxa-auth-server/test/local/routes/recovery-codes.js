@@ -65,7 +65,7 @@ describe('recovery codes', () => {
   describe('/recoveryCodes', () => {
     it('should replace recovery codes in TOTP session', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 2;
-      return runTest('/recoveryCodes', requestOptions).then(res => {
+      return runTest('/recoveryCodes', requestOptions).then((res) => {
         assert.equal(res.recoveryCodes.length, 2, 'correct default code count');
 
         assert.equal(db.replaceRecoveryCodes.callCount, 1);
@@ -79,7 +79,7 @@ describe('recovery codes', () => {
       requestOptions.credentials.authenticatorAssuranceLevel = 1;
       return runTest('/recoveryCodes', requestOptions).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.errno, error.ERRNO.SESSION_UNVERIFIED);
         }
       );
@@ -88,7 +88,7 @@ describe('recovery codes', () => {
 
   describe('/session/verify/recoveryCode', () => {
     it('sends email if recovery codes are low', async () => {
-      db.consumeRecoveryCode = sinon.spy(code => {
+      db.consumeRecoveryCode = sinon.spy((code) => {
         return P.resolve({ remaining: 1 });
       });
       await runTest('/session/verify/recoveryCode', requestOptions);
@@ -100,12 +100,12 @@ describe('recovery codes', () => {
 
     it('should rate-limit attempts to use a recovery code via customs', () => {
       requestOptions.payload.code = '1234567890';
-      db.consumeRecoveryCode = sinon.spy(code => {
+      db.consumeRecoveryCode = sinon.spy((code) => {
         throw error.recoveryCodeNotFound();
       });
       return runTest('/session/verify/recoveryCode', requestOptions).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.errno, error.ERRNO.RECOVERY_CODE_NOT_FOUND);
           assert.calledWithExactly(
             customs.check,

@@ -90,7 +90,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
       });
 
       it('resolves to object with `ok: false`', () => {
-        return view._isEligibleForSms(account).then(resp => {
+        return view._isEligibleForSms(account).then((resp) => {
           assert.isFalse(resp.ok);
           assert.isTrue(view._areSmsRequirementsMet.calledOnce);
           assert.isTrue(view._areSmsRequirementsMet.calledWith(account));
@@ -106,7 +106,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
       });
 
       it('resolves to object with `ok: false`', () => {
-        return view._isEligibleForSms(account).then(resp => {
+        return view._isEligibleForSms(account).then((resp) => {
           assert.isFalse(resp.ok);
 
           assert.isTrue(view._areSmsRequirementsMet.calledOnce);
@@ -124,7 +124,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
       });
 
       it('resolves to object with `ok: true, country: GB`', () => {
-        return view._isEligibleForSms(account).then(resp => {
+        return view._isEligibleForSms(account).then((resp) => {
           assert.isTrue(resp.ok);
           assert.equal(resp.country, 'GB');
 
@@ -249,7 +249,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
         .callsFake(() => Promise.resolve({ country: 'GB', ok: true }));
       sinon.stub(view, 'isInExperiment').callsFake(() => true);
 
-      return view._smsCountry(account).then(country => {
+      return view._smsCountry(account).then((country) => {
         assert.equal(country, 'GB');
 
         assert.isTrue(view.logFlowEvent.calledOnce);
@@ -262,7 +262,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
         .stub(account, 'smsStatus')
         .callsFake(() => Promise.resolve({ country: 'AZ', ok: false }));
 
-      return view._smsCountry(account).then(country => {
+      return view._smsCountry(account).then((country) => {
         assert.isUndefined(country);
 
         assert.isTrue(view.logFlowEvent.calledTwice);
@@ -279,7 +279,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
       sinon.stub(account, 'smsStatus').callsFake(() => Promise.reject(err));
       sinon.stub(view, 'logError').callsFake(() => {});
 
-      return view._smsCountry(account).then(country => {
+      return view._smsCountry(account).then((country) => {
         assert.isUndefined(country);
 
         assert.isTrue(view.logError.calledOnce);
@@ -299,7 +299,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
           .callsFake(() => false);
         return view
           .navigateToConnectAnotherDeviceScreen(account)
-          .then(assert.fail, err => {
+          .then(assert.fail, (err) => {
             assert.ok(err);
           });
       });
@@ -343,7 +343,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
             sinon
               .stub(view, 'getAndReportExperimentGroup')
               .callsFake(() => false);
-            return view.getEligibleSmsCountry(account).then(country => {
+            return view.getEligibleSmsCountry(account).then((country) => {
               assert.isUndefined(country);
 
               assert.isTrue(notifier.trigger.calledOnce);
@@ -362,7 +362,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
             sinon
               .stub(view, 'getAndReportExperimentGroup')
               .callsFake(() => true);
-            return view.getEligibleSmsCountry(account).then(country => {
+            return view.getEligibleSmsCountry(account).then((country) => {
               assert.equal(country, 'GB');
 
               assert.isFalse(view.logFlowEvent.called);
@@ -375,7 +375,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
             sinon
               .stub(view, 'getAndReportExperimentGroup')
               .callsFake(() => 'treatment');
-            return view.getEligibleSmsCountry(account).then(country => {
+            return view.getEligibleSmsCountry(account).then((country) => {
               assert.equal(country, 'GB');
             });
           });
@@ -386,7 +386,7 @@ describe('views/mixins/connect-another-device-mixin', () => {
             sinon
               .stub(view, 'getAndReportExperimentGroup')
               .callsFake(() => 'control');
-            return view.getEligibleSmsCountry(account).then(country => {
+            return view.getEligibleSmsCountry(account).then((country) => {
               assert.isUndefined(country);
 
               assert.isTrue(view.logFlowEvent.calledOnce);

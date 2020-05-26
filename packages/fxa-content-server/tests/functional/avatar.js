@@ -47,7 +47,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('settings/avatar', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -60,7 +60,7 @@ registerSuite('settings/avatar', {
   },
 
   tests: {
-    'go to settings then avatar change': function() {
+    'go to settings then avatar change': function () {
       return (
         this.remote
           .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
@@ -73,19 +73,19 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'keyboard focus changes to the modal': function() {
+    'keyboard focus changes to the modal': function () {
       return this.remote
         .then(openPage(AVATAR_CHANGE_URL_AUTOMATED, '#camera'))
         .getActiveElement()
-        .then(function(element) {
-          element.getAttribute('class').then(function(className) {
+        .then(function (element) {
+          element.getAttribute('class').then(function (className) {
             // active element should be the modal, not the body
             assert.isTrue(className.includes('modal'));
           });
         });
     },
 
-    'go to settings with an email selected to see change link then click on avatar to change': function() {
+    'go to settings with an email selected to see change link then click on avatar to change': function () {
       return (
         this.remote
           .then(openPage(SETTINGS_URL, selectors.SETTINGS.HEADER))
@@ -97,7 +97,7 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'attempt to use webcam for avatar': function() {
+    'attempt to use webcam for avatar': function () {
       return (
         this.remote
           .then(
@@ -117,7 +117,7 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'attempt to use webcam for avatar, then cancel': function() {
+    'attempt to use webcam for avatar, then cancel': function () {
       return (
         this.remote
           .then(
@@ -138,7 +138,7 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'upload a profile image': function() {
+    'upload a profile image': function () {
       return (
         this.remote
           .then(
@@ -172,7 +172,7 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'cancel uploading a profile image': function() {
+    'cancel uploading a profile image': function () {
       return (
         this.remote
           .then(
@@ -196,7 +196,7 @@ registerSuite('settings/avatar', {
       );
     },
 
-    'avatar panel removed on iOS 10': function() {
+    'avatar panel removed on iOS 10': function () {
       return (
         this.remote
           .then(openPage(SETTINGS_URL_IOS10, selectors.SETTINGS.HEADER))

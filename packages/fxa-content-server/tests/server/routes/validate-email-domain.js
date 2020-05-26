@@ -14,7 +14,7 @@ const ERROR_CODES = {
   SERVFAIL: 'ESERVFAIL',
 };
 
-const proxyquireWithDns = dns =>
+const proxyquireWithDns = (dns) =>
   proxyquire(
     path.join(
       process.cwd(),
@@ -41,7 +41,7 @@ registerSuite('routes/validate-email-domain', {
         const dns = {
           ...ERROR_CODES,
           promises: {
-            Resolver: function() {
+            Resolver: function () {
               this.resolveMx = resolveMxStub;
             },
           },
@@ -64,7 +64,7 @@ registerSuite('routes/validate-email-domain', {
         const dns = {
           ...ERROR_CODES,
           promises: {
-            Resolver: function() {
+            Resolver: function () {
               this.resolveMx = resolveMxStub;
               this.resolve4 = resolve4Stub;
             },
@@ -89,7 +89,7 @@ registerSuite('routes/validate-email-domain', {
         const dns = {
           ...ERROR_CODES,
           promises: {
-            Resolver: function() {
+            Resolver: function () {
               this.resolveMx = resolveMxStub;
               this.resolve4 = resolve4Stub;
             },
@@ -118,7 +118,7 @@ registerSuite('routes/validate-email-domain', {
         const dns = {
           ...ERROR_CODES,
           promises: {
-            Resolver: function() {
+            Resolver: function () {
               this.resolveMx = resolveMxStub;
               this.resolve4 = resolve4Stub;
             },
@@ -144,7 +144,7 @@ registerSuite('routes/validate-email-domain', {
         const dns = {
           ...ERROR_CODES,
           promises: {
-            Resolver: function() {
+            Resolver: function () {
               this.resolveMx = resolveMxStub;
               this.resolve4 = resolve4Stub;
             },
@@ -171,7 +171,7 @@ registerSuite('routes/validate-email-domain', {
         const dns = {
           ...ERROR_CODES,
           promises: {
-            Resolver: function() {
+            Resolver: function () {
               this.resolveMx = resolveMxStub;
               this.resolve4 = resolve4Stub;
             },

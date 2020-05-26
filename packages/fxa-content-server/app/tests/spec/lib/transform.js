@@ -9,12 +9,12 @@ import Vat from 'lib/vat';
 
 var assert = chai.assert;
 
-describe('lib/transform', function() {
-  describe('transformUsingSchema', function() {
-    describe('with a missing parameter', function() {
+describe('lib/transform', function () {
+  describe('transformUsingSchema', function () {
+    describe('with a missing parameter', function () {
       var err;
 
-      before(function() {
+      before(function () {
         var schema = {
           optional: Vat.any(),
           required: Vat.any().required(),
@@ -27,16 +27,16 @@ describe('lib/transform', function() {
         }
       });
 
-      it('throws a `MISSING_PARAMETER` error', function() {
+      it('throws a `MISSING_PARAMETER` error', function () {
         assert.isTrue(AuthErrors.is(err, 'MISSING_PARAMETER'));
         assert.equal(err.param, 'required');
       });
     });
 
-    describe('with an invalid parameter', function() {
+    describe('with an invalid parameter', function () {
       var err;
 
-      before(function() {
+      before(function () {
         var schema = {
           numeric: Vat.number(),
         };
@@ -54,16 +54,16 @@ describe('lib/transform', function() {
         }
       });
 
-      it('throws a `INVALID_PARAMETER` error', function() {
+      it('throws a `INVALID_PARAMETER` error', function () {
         assert.isTrue(AuthErrors.is(err, 'INVALID_PARAMETER'));
         assert.equal(err.param, 'numeric');
       });
     });
 
-    describe('valid', function() {
+    describe('valid', function () {
       var result;
 
-      before(function() {
+      before(function () {
         var schema = {
           numeric: Vat.number(),
           optional: Vat.any(),
@@ -80,7 +80,7 @@ describe('lib/transform', function() {
         );
       });
 
-      it('succeeds', function() {
+      it('succeeds', function () {
         assert.deepEqual(result, {
           numeric: 123,
           required: true,

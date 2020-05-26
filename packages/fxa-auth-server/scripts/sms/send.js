@@ -15,16 +15,16 @@ require('../../lib/senders/translator')(
   config.i18n.supportedLanguages,
   config.i18n.defaultLanguage
 )
-  .then(translator => {
+  .then((translator) => {
     return require('../../lib/senders')(log, config, {}, null, translator);
   })
-  .then(senders => {
+  .then((senders) => {
     return senders.sms.send.apply(null, args);
   })
   .then(() => {
     console.log('SENT!');
   })
-  .catch(error => {
+  .catch((error) => {
     let message = error.message;
     if (error.reason && error.reasonCode) {
       message = `${message}: ${error.reasonCode} ${error.reason}`;

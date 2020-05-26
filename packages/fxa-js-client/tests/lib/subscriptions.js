@@ -5,7 +5,7 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('subscriptions', function() {
+describe('subscriptions', function () {
   var accountHelper;
   var respond;
   var client;
@@ -13,7 +13,7 @@ describe('subscriptions', function() {
   let env;
   let remoteServer;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -22,109 +22,109 @@ describe('subscriptions', function() {
     remoteServer = env.useRemoteServer;
   });
 
-  it('#getSubscriptionPlans - missing token', function() {
+  it('#getSubscriptionPlans - missing token', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getSubscriptionPlans(),
           RequestMocks.getSubscriptionPlans
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing token');
       });
   });
 
-  it('#getSubscriptionPlans', function() {
+  it('#getSubscriptionPlans', function () {
     if (remoteServer) {
       return this.skip();
     }
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getSubscriptionPlans('saynomore'),
           RequestMocks.getSubscriptionPlans
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });
 
-  it('#getActiveSubscriptions - missing token', function() {
+  it('#getActiveSubscriptions - missing token', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getActiveSubscriptions(),
           RequestMocks.getActiveSubscriptions
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing token');
       });
   });
 
   // This test is intended to run against a mock auth-server. To test
   // against a local auth-server, we'd need to know a valid subscription.
-  it('#getActiveSubscriptions', function() {
+  it('#getActiveSubscriptions', function () {
     if (remoteServer) {
       return this.skip();
     }
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getActiveSubscriptions('saynomore'),
           RequestMocks.getActiveSubscriptions
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });
 
-  it('#createSupportTicket - missing token', function() {
+  it('#createSupportTicket - missing token', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createSupportTicket(),
           RequestMocks.createSupportTicket
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing token');
       });
   });
-  it('#createSupportTicket - missing supportTicket', function() {
+  it('#createSupportTicket - missing supportTicket', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createSupportTicket('redpandas'),
           RequestMocks.createSupportTicket
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing supportTicket');
       });
   });
 
   // This test is intended to run against a mock auth-server. To test
   // against a local auth-server, we'd need to know a valid subscription.
-  it('#createSupportTicket', function() {
+  it('#createSupportTicket', function () {
     if (remoteServer) {
       return this.skip();
     }
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createSupportTicket('redpandas', {
             topic: 'Species',
@@ -134,7 +134,7 @@ describe('subscriptions', function() {
           RequestMocks.createSupportTicket
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       });
   });

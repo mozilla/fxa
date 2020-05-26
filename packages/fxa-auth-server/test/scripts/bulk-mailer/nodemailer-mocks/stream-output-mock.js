@@ -23,7 +23,7 @@ describe('stdout-mock', () => {
     });
   });
 
-  it('writes to the stream', done => {
+  it('writes to the stream', (done) => {
     stdoutMock.sendMail(
       {
         to: 'testuser@testuser.com',

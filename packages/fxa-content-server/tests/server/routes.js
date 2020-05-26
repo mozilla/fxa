@@ -132,7 +132,7 @@ var redirectedRoutes = {
   },
 };
 
-Object.keys(routes).forEach(function(key) {
+Object.keys(routes).forEach(function (key) {
   var requestOptions = {
     headers: {
       Accept: routes[key].headerAccept || 'text/html',
@@ -148,11 +148,11 @@ registerSuite('front end routes', suite.tests);
 
 function routeTest(route, expectedStatusCode, requestOptions) {
   const testName = `#https get ${httpsUrl}${route}`;
-  suite.tests[testName] = function() {
+  suite.tests[testName] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpsUrl + route, requestOptions)
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.statusCode, expectedStatusCode);
         checkHeaders(routes, route, res);
 
@@ -164,11 +164,11 @@ function routeTest(route, expectedStatusCode, requestOptions) {
   };
 
   // test to ensure http->https redirection works as expected.
-  suite['#http get ' + httpUrl + route] = function() {
+  suite['#http get ' + httpUrl + route] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     makeRequest(httpUrl + route, requestOptions)
-      .then(function(res) {
+      .then(function (res) {
         checkHeaders(routes, route, res);
         assert.equal(res.statusCode, expectedStatusCode);
       })
@@ -177,7 +177,7 @@ function routeTest(route, expectedStatusCode, requestOptions) {
 }
 
 function redirectTest(route) {
-  suite['https get ' + httpsUrl + route] = function() {
+  suite['https get ' + httpsUrl + route] = function () {
     var dfd = this.async(intern._config.asyncTimeout);
 
     var routeConfig = redirectedRoutes[route];
@@ -190,7 +190,7 @@ function redirectTest(route) {
     };
 
     makeRequest(httpsUrl + route, requestOptions)
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.statusCode, routeConfig.statusCode);
         assert.equal(res.headers.location, routeConfig.location);
 

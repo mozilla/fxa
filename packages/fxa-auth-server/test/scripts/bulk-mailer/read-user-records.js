@@ -10,7 +10,7 @@ const readUserRecords = require('../../../scripts/bulk-mailer/read-user-records'
 
 describe('read-user-records', () => {
   it('throws if user records file not found', () => {
-    return readUserRecords('not-found.json').then(assert.fail, err => {
+    return readUserRecords('not-found.json').then(assert.fail, (err) => {
       assert.ok(/Cannot find module/.test(err.message));
     });
   });
@@ -18,7 +18,7 @@ describe('read-user-records', () => {
   it('throws if user records file is empty', () => {
     return readUserRecords(
       path.resolve(__dirname, './fixtures/empty.json')
-    ).then(assert.fail, err => {
+    ).then(assert.fail, (err) => {
       assert.include(err.message, 'Unexpected end of JSON input');
     });
   });
@@ -26,7 +26,7 @@ describe('read-user-records', () => {
   it('throws if user records array is empty', () => {
     return readUserRecords(
       path.resolve(__dirname, './fixtures/empty-array.json')
-    ).then(assert.fail, err => {
+    ).then(assert.fail, (err) => {
       assert.equal(err.message, 'No records found');
     });
   });
@@ -34,7 +34,7 @@ describe('read-user-records', () => {
   it('returns the records otherwise', () => {
     return readUserRecords(
       path.resolve(__dirname, './fixtures/good-input.json')
-    ).then(records => {
+    ).then((records) => {
       assert.lengthOf(records, 2);
     });
   });

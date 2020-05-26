@@ -66,9 +66,7 @@ var AppView = BaseView.extend({
     event.preventDefault();
 
     // Remove leading slashes
-    const url = $(event.currentTarget)
-      .attr('href')
-      .replace(/^\//, '');
+    const url = $(event.currentTarget).attr('href').replace(/^\//, '');
     this.navigate(url);
   },
 
@@ -110,7 +108,7 @@ var AppView = BaseView.extend({
         var viewToShow = this._createView(View, options);
         this._currentView = viewToShow;
 
-        return viewToShow.render().then(isShown => {
+        return viewToShow.render().then((isShown) => {
           // render will return false if the view could not be
           // rendered for any reason, including if the view was
           // automatically redirected.
@@ -171,7 +169,7 @@ var AppView = BaseView.extend({
         }
       })
       .then(() => this._currentView.showChildView(ChildView, options))
-      .then(childView => {
+      .then((childView) => {
         // Use the super view's title as the base title
         var title = childView.titleFromView(this._currentView.titleFromView());
         this.setTitle(title);

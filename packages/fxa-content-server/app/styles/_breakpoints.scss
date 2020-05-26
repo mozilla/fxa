@@ -7,7 +7,7 @@ $media-queries: (
   balloonBig: '(min-width: 960px)',
   balloonSmallSettings: '(max-width: 1180px)',
   balloonBigSettings: '(min-width: 1181px)',
-  simpleSmall: '(max-width: 520px)'
+  simpleSmall: '(max-width: 520px)',
 );
 
 @mixin respond-to($breakpoint) {
@@ -26,7 +26,7 @@ $breakpoints: (
   mobileLandscape: 480,
   tablet: 768,
   desktop: 1024,
-  desktopXl: 1441
+  desktopXl: 1441,
 );
 
 @mixin breakpoint-error-check($breakpoint, $map: $breakpoints) {
@@ -40,11 +40,13 @@ $breakpoints: (
 @mixin min-width($breakpoint) {
   @include breakpoint-error-check($breakpoint) {
     @if $breakpoint == 'tablet' {
-      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) and (min-height: (#{map-get($breakpoints, 'mobileLandscape') + 1px})) { // sass-lint:disable-line zero-unit
+      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) and (min-height: (#{map-get($breakpoints, 'mobileLandscape') + 1px})) {
+        // sass-lint:disable-line zero-unit
         @content;
       }
     } @else {
-      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) { // sass-lint:disable-line zero-unit
+      @media (min-width: #{map-get($breakpoints, $breakpoint) + 0px}) {
+        // sass-lint:disable-line zero-unit
         @content;
       }
     }

@@ -5,7 +5,7 @@
 const AWS = require('aws-sdk');
 const P = require('./promise');
 
-module.exports = function(logger) {
+module.exports = function (logger) {
   function SQSSender(region, queueURL) {
     if (region === '' || queueURL === '') {
       logger.error(
@@ -18,21 +18,21 @@ module.exports = function(logger) {
     this.queueUrl = queueURL;
   }
 
-  SQSSender.prototype.send = function(body) {
+  SQSSender.prototype.send = function (body) {
     if (!this.sqs) {
       return;
     }
     return new P(
-      function(resolve, reject) {
+      function (resolve, reject) {
         var params = {
           MessageBody: JSON.stringify({ Message: JSON.stringify(body) }),
           QueueUrl: this.queueUrl,
         };
-        this.sqs.sendMessage(params, function(err, data) {
+        this.sqs.sendMessage(params, function (err, data) {
           err ? reject(err) : resolve(data);
         });
       }.bind(this)
-    ).catch(function(err) {
+    ).catch(function (err) {
       logger.error('SQSSender.send', { op: 'send', body: body, err: err });
     });
   };

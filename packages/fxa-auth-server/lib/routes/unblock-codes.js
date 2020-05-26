@@ -25,7 +25,7 @@ module.exports = (log, db, mailer, config, customs) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.SendUnblockCode', request);
 
         const { email } = request.payload;
@@ -77,11 +77,7 @@ module.exports = (log, db, mailer, config, customs) => {
       options: {
         validate: {
           payload: {
-            uid: isA
-              .string()
-              .max(32)
-              .regex(HEX_STRING)
-              .required(),
+            uid: isA.string().max(32).regex(HEX_STRING).required(),
             unblockCode: isA
               .string()
               .regex(BASE_36)
@@ -90,7 +86,7 @@ module.exports = (log, db, mailer, config, customs) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.RejectUnblockCode', request);
 
         const uid = request.payload.uid;

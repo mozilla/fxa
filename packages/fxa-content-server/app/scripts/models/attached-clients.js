@@ -18,7 +18,7 @@ var AttachedClients = Backbone.Collection.extend({
 
   fetchClients(user) {
     const account = user.getSignedInAccount();
-    return user.fetchAccountAttachedClients(account).then(clients => {
+    return user.fetchAccountAttachedClients(account).then((clients) => {
       this.reset(clients);
     });
   },

@@ -4,7 +4,7 @@
 
 const zendesk = require('node-zendesk');
 
-module.exports = config => {
+module.exports = (config) => {
   const zendeskClient = zendesk.createClient({
     username: config.zendesk.username,
     token: config.zendesk.token,
@@ -14,14 +14,14 @@ module.exports = config => {
 
   // Promisify our callback functions, note bluebird.promisify can't be used
   // and a generic promisify failed due to odd `this` manipulation, so here we are.
-  zendeskClient.createRequest = t =>
+  zendeskClient.createRequest = (t) =>
     new Promise((resolve, reject) =>
       zendeskClient.requests.create(t, (err, req, result) =>
         err ? reject(err) : resolve({ req, result })
       )
     );
 
-  zendeskClient.showUser = id =>
+  zendeskClient.showUser = (id) =>
     new Promise((resolve, reject) =>
       zendeskClient.users.show(id, (err, req, result) =>
         err ? reject(err) : resolve({ req, result })
@@ -35,14 +35,14 @@ module.exports = config => {
       )
     );
 
-  zendeskClient.searchQueryAll = query =>
+  zendeskClient.searchQueryAll = (query) =>
     new Promise((resolve, reject) =>
       zendeskClient.search.queryAll(query, (err, req, result) =>
         err ? reject(err) : resolve({ req, result })
       )
     );
 
-  zendeskClient.listIdentities = userId =>
+  zendeskClient.listIdentities = (userId) =>
     new Promise((resolve, reject) =>
       zendeskClient.useridentities.list(userId, (err, req, result) =>
         err ? reject(err) : resolve({ req, result })

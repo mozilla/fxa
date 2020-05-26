@@ -13,7 +13,7 @@ function expectValueNotToBeUnknown(value: string) {
 
 describe('Test simple server routes', () => {
   test('__version__ should have correct structure', () => {
-    return new Promise(async done => {
+    return new Promise(async (done) => {
       const response = await request(app).get('/__version__');
       expect(response.status).toStrictEqual(200);
       expect(response.header['content-type']).toStrictEqual(
@@ -36,7 +36,7 @@ describe('Test simple server routes', () => {
   });
 
   test('__lbheartbeat__ should return as expected', () => {
-    return new Promise(async done => {
+    return new Promise(async (done) => {
       const response = await request(app).get('/__lbheartbeat__');
       expect(response.status).toStrictEqual(200);
       expect(response.header['content-type']).toStrictEqual(

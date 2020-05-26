@@ -25,7 +25,7 @@ const UID = TestHelpers.createUid();
 const SettingsView = BaseView.extend({});
 Cocktail.mixin(SettingsView, AvatarMixin);
 
-describe('views/mixins/avatar-mixin', function() {
+describe('views/mixins/avatar-mixin', function () {
   let account;
   let metrics;
   let notifier;
@@ -35,7 +35,7 @@ describe('views/mixins/avatar-mixin', function() {
   let view;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     account = new Account();
     relier = new Relier();
     tabChannelMock = new NullChannel();
@@ -56,14 +56,14 @@ describe('views/mixins/avatar-mixin', function() {
       user: user,
       window: windowMock,
     });
-    sinon.stub(view, 'getSignedInAccount').callsFake(function() {
+    sinon.stub(view, 'getSignedInAccount').callsFake(function () {
       return account;
     });
 
     sinon.spy(notifier, 'trigger');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
 
     view.remove();
@@ -72,22 +72,22 @@ describe('views/mixins/avatar-mixin', function() {
     view = metrics = null;
   });
 
-  describe('displayAccountProfileImage', function() {
-    it('does not log an error for a non-authenticated account', function() {
-      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function() {
+  describe('displayAccountProfileImage', function () {
+    it('does not log an error for a non-authenticated account', function () {
+      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
         return Promise.reject(ProfileErrors.toError('UNAUTHORIZED'));
       });
-      return view.displayAccountProfileImage(account).then(function() {
+      return view.displayAccountProfileImage(account).then(function () {
         const err = view._normalizeError(ProfileErrors.toError('UNAUTHORIZED'));
         assert.isFalse(TestHelpers.isErrorLogged(metrics, err));
       });
     });
 
-    it('does not log an error for an unverified account', function() {
-      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function() {
+    it('does not log an error for an unverified account', function () {
+      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
         return Promise.reject(AuthErrors.toError('UNVERIFIED_ACCOUNT'));
       });
-      return view.displayAccountProfileImage(account).then(function() {
+      return view.displayAccountProfileImage(account).then(function () {
         var err = view._normalizeError(
           AuthErrors.toError('UNVERIFIED_ACCOUNT')
         );
@@ -95,11 +95,11 @@ describe('views/mixins/avatar-mixin', function() {
       });
     });
 
-    it('logs other kind of errors', function() {
-      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function() {
+    it('logs other kind of errors', function () {
+      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
         return Promise.reject(ProfileErrors.toError('SERVICE_UNAVAILABLE'));
       });
-      return view.displayAccountProfileImage(account).then(function() {
+      return view.displayAccountProfileImage(account).then(function () {
         var err = view._normalizeError(
           ProfileErrors.toError('SERVICE_UNAVAILABLE')
         );
@@ -224,7 +224,7 @@ describe('views/mixins/avatar-mixin', function() {
 
     it('resolves and removes the spinner after a timeout, if the transition somehow never ends', () => {
       this.timeout(900); // Should be greater than the spinner timeout
-      sinon.stub(spinnerView, 'setTimeout').callsFake(callback => {
+      sinon.stub(spinnerView, 'setTimeout').callsFake((callback) => {
         callback();
       });
 
@@ -238,7 +238,7 @@ describe('views/mixins/avatar-mixin', function() {
         'expected to find a spinner'
       );
 
-      return displayPromise.then(function() {
+      return displayPromise.then(function () {
         assert.equal(spinnerEl.parents('.avatar-wrapper').length, 0);
       });
     });
@@ -281,25 +281,25 @@ describe('views/mixins/avatar-mixin', function() {
     });
   });
 
-  it('displayAccountProfileImage updates the cached account data', function() {
+  it('displayAccountProfileImage updates the cached account data', function () {
     const image = new ProfileImage({ id: 'foo', img: new Image(), url: 'url' });
 
     sinon.spy(account, 'setProfileImage');
-    sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function() {
+    sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
       return Promise.resolve(image);
     });
 
-    return view.displayAccountProfileImage(account).then(function() {
+    return view.displayAccountProfileImage(account).then(function () {
       assert.isTrue(account.fetchCurrentProfileImage.called);
       assert.isTrue(account.setProfileImage.calledWith(image));
     });
   });
 
-  describe('updateProfileImage', function() {
-    it('stores the url', function() {
+  describe('updateProfileImage', function () {
+    it('stores the url', function () {
       return view
         .updateProfileImage(new ProfileImage({ url: 'url' }), account)
-        .then(function() {
+        .then(function () {
           assert.equal(account.get('profileImageUrl'), 'url');
           assert.isTrue(
             notifier.trigger.calledWith(Notifier.PROFILE_CHANGE, { uid: UID })
@@ -307,21 +307,21 @@ describe('views/mixins/avatar-mixin', function() {
         });
     });
 
-    it('deletes the url if null', function() {
-      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function() {
+    it('deletes the url if null', function () {
+      sinon.stub(account, 'fetchCurrentProfileImage').callsFake(function () {
         return Promise.resolve(new ProfileImage({ id: 'foo', url: 'url' }));
       });
-      sinon.stub(account, 'deleteAvatar').callsFake(function() {
+      sinon.stub(account, 'deleteAvatar').callsFake(function () {
         return Promise.resolve();
       });
 
       return view
         .displayAccountProfileImage(account)
-        .then(function() {
+        .then(function () {
           assert.isTrue(account.fetchCurrentProfileImage.called);
           return view.deleteDisplayedAccountProfileImage(account);
         })
-        .then(function() {
+        .then(function () {
           assert.isTrue(account.deleteAvatar.calledWith('foo'));
           assert.isFalse(account.has('profileImageUrl'));
           assert.isTrue(
@@ -331,9 +331,9 @@ describe('views/mixins/avatar-mixin', function() {
     });
   });
 
-  describe('updateDisplayName', function() {
-    it('stores the name', function() {
-      return view.updateDisplayName('joe').then(function() {
+  describe('updateDisplayName', function () {
+    it('stores the name', function () {
+      return view.updateDisplayName('joe').then(function () {
         assert.equal(account.get('displayName'), 'joe');
         assert.isTrue(view.getSignedInAccount.called);
         assert.isTrue(
@@ -343,9 +343,9 @@ describe('views/mixins/avatar-mixin', function() {
     });
   });
 
-  describe('on profile update', function() {
+  describe('on profile update', function () {
     var spy;
-    beforeEach(function() {
+    beforeEach(function () {
       spy = sinon.spy(SettingsView.prototype, 'onProfileUpdate');
       view = new SettingsView({
         metrics: metrics,
@@ -355,19 +355,19 @@ describe('views/mixins/avatar-mixin', function() {
       });
     });
 
-    afterEach(function() {
+    afterEach(function () {
       SettingsView.prototype.onProfileUpdate.restore();
     });
 
-    it('call onProfileUpdate after notification', function() {
+    it('call onProfileUpdate after notification', function () {
       notifier.trigger(notifier.COMMANDS.PROFILE_CHANGE, {});
       assert.isTrue(spy.called);
     });
   });
 
-  describe('avatar upload', function() {
-    describe('disabled for iOS =< 10', function() {
-      beforeEach(function() {
+  describe('avatar upload', function () {
+    describe('disabled for iOS =< 10', function () {
+      beforeEach(function () {
         windowMock.navigator.userAgent =
           'Mozilla/5.0 (iPhone; CPU iPhone OS 10_0 like Mac OS X) AppleWebKit/604.1.34 ' +
           '(KHTML, like Gecko) FxiOS/8.0b1 Mobile/15A5341e Safari/604.1.34';
@@ -380,13 +380,13 @@ describe('views/mixins/avatar-mixin', function() {
         });
       });
 
-      it('is disabled', function() {
+      it('is disabled', function () {
         assert.isFalse(view.supportsAvatarUpload());
       });
     });
 
-    describe('enabled for iOS > 10', function() {
-      beforeEach(function() {
+    describe('enabled for iOS > 10', function () {
+      beforeEach(function () {
         windowMock.navigator.userAgent =
           'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.34 ' +
           '(KHTML, like Gecko) FxiOS/8.0b1 Mobile/15A5341e Safari/604.1.34';
@@ -399,7 +399,7 @@ describe('views/mixins/avatar-mixin', function() {
         });
       });
 
-      it('is enabled', function() {
+      it('is enabled', function () {
         assert.isTrue(view.supportsAvatarUpload());
       });
     });

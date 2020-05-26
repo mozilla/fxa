@@ -12,7 +12,7 @@ const config = require('../config');
 const logger = require('../logging')('compute');
 const P = require('../promise');
 
-const FILE_SIGS = (function() {
+const FILE_SIGS = (function () {
   var types = config.get('img.uploads.types');
   var sigs = [];
   for (var type in types) {
@@ -34,21 +34,21 @@ if (MAX_PROCESSES > 0) {
   });
 
   imageCc
-    .on('error', function(e) {
+    .on('error', function (e) {
       logger.critical('image-cc.error', e);
       process.exit(1);
     })
-    .on('info', function(msg) {
+    .on('info', function (msg) {
       logger.info('image-cc', msg);
     })
-    .on('debug', function(msg) {
+    .on('debug', function (msg) {
       logger.debug('image-cc', msg);
     });
 } else {
   logger.info('compute-cluster.disabled');
   imageCc = {
     enqueue: function sameProcessEnqueue(msg, callback) {
-      require('./image-cc').compute(msg, function(res) {
+      require('./image-cc').compute(msg, function (res) {
         callback(null, res);
       });
     },
@@ -57,7 +57,7 @@ if (MAX_PROCESSES > 0) {
 
 function enqueue(msg) {
   return new P(function enqueuePromise(resolve, reject) {
-    imageCc.enqueue(msg, function(err, res) {
+    imageCc.enqueue(msg, function (err, res) {
       if (err) {
         logger.error('process.error', err);
         reject(AppError.processingError(err));
@@ -69,8 +69,8 @@ function enqueue(msg) {
 }
 
 exports.image = function image(id, payload) {
-  return new P(function(resolve, reject) {
-    toArray(payload, function(err, arr) {
+  return new P(function (resolve, reject) {
+    toArray(payload, function (err, arr) {
       if (err) {
         return reject(err);
       }
@@ -100,7 +100,7 @@ exports.image = function image(id, payload) {
 
       resolve(
         P.all(
-          Object.keys(SIZES).map(function(variant) {
+          Object.keys(SIZES).map(function (variant) {
             var size = SIZES[variant];
             return enqueue({
               id: id,

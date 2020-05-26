@@ -138,7 +138,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
         return Promise.resolve({ data: {} });
       });
 
-      return broker.beforeSignIn(account).then(assert.fail, function(err) {
+      return broker.beforeSignIn(account).then(assert.fail, function (err) {
         assert.isTrue(AuthErrors.is(err, 'USER_CANCELED_LOGIN'));
         assert.isTrue(channelMock.request.calledWith('can_link_account'));
       });
@@ -165,7 +165,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
       'verified'
     );
 
-    requiredAccountFields.forEach(function(fieldName) {
+    requiredAccountFields.forEach(function (fieldName) {
       it(`does not send a \`login\` message if the account does not have \`${fieldName}\``, () => {
         account.unset(fieldName);
         return broker._notifyRelierOfLogin(account).then(() => {
@@ -204,7 +204,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
     });
 
     it('tells the window not to re-verify if the user can link accounts if the question has already been asked', () => {
-      channelMock.send = sinon.spy(function(message) {
+      channelMock.send = sinon.spy(function (message) {
         if (message === 'can_link_account') {
           return Promise.resolve({ ok: true });
         } else if (message === 'login') {
@@ -231,7 +231,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
       // set account as verified
       account.set('verified', true);
 
-      channelMock.send = sinon.spy(function(message) {
+      channelMock.send = sinon.spy(function (message) {
         if (message === 'can_link_account') {
           return Promise.resolve({ ok: true });
         } else if (message === 'login') {
@@ -263,7 +263,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
         verified: true,
       });
 
-      return broker.afterSignIn(account).then(function(result) {
+      return broker.afterSignIn(account).then(function (result) {
         const args = channelMock.send.args[0];
         assert.equal(args[0], 'login');
         assert.deepEqual(args[1].declinedSyncEngines, [
@@ -284,7 +284,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
 
   describe('beforeSignUpConfirmationPoll', () => {
     it('notifies the channel of login, does not halt the flow by default', () => {
-      return broker.beforeSignUpConfirmationPoll(account).then(result => {
+      return broker.beforeSignUpConfirmationPoll(account).then((result) => {
         assert.isTrue(channelMock.send.calledOnce);
         assert.isTrue(channelMock.send.calledWith('login'));
         assert.isUndefined(result.halt);
@@ -296,7 +296,7 @@ describe('models/auth_brokers/fx-sync-channel', () => {
     it('notifies the channel of login, does not halt the flow by default', () => {
       broker.setCapability('sendAfterSignUpConfirmationPollNotice', false);
 
-      return broker.afterSignUpConfirmationPoll(account).then(result => {
+      return broker.afterSignUpConfirmationPoll(account).then((result) => {
         assert.ok(result);
         assert.isTrue(channelMock.send.calledOnce);
         assert.isTrue(channelMock.send.calledWith('login'));

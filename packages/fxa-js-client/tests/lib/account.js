@@ -5,7 +5,7 @@
 const assert = require('chai').assert;
 const Environment = require('../addons/environment');
 
-describe('account', function() {
+describe('account', function () {
   var accountHelper;
   var respond;
   var mail;
@@ -14,7 +14,7 @@ describe('account', function() {
   var ErrorMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -24,13 +24,13 @@ describe('account', function() {
     ErrorMocks = env.ErrorMocks;
   });
 
-  it('#destroy', function() {
+  it('#destroy', function () {
     var email;
     var password;
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         email = account.input.email;
         password = account.input.password;
 
@@ -39,7 +39,7 @@ describe('account', function() {
           RequestMocks.accountDestroy
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res, 'got response');
 
         return respond(
@@ -48,23 +48,23 @@ describe('account', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(error) {
+        function (error) {
           assert.equal(error.errno, 102, 'Account is gone');
           assert.equal(error.code, 400, 'Correct status code');
         }
       );
   });
 
-  it('#destroy with sessionToken', function() {
+  it('#destroy with sessionToken', function () {
     var email;
     var password;
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         email = account.input.email;
         password = account.input.password;
 
@@ -78,7 +78,7 @@ describe('account', function() {
           RequestMocks.accountDestroy
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res, 'got response');
 
         return respond(
@@ -87,22 +87,22 @@ describe('account', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(error) {
+        function (error) {
           assert.equal(error.errno, 102, 'Account is gone');
           assert.equal(error.code, 400, 'Correct status code');
         }
       );
   });
 
-  it('#destroy with sessionToken, incorrect case', function() {
+  it('#destroy with sessionToken, incorrect case', function () {
     var account;
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(acc) {
+      .then(function (acc) {
         account = acc;
         var incorrectCaseEmail =
           account.input.email.charAt(0).toUpperCase() +
@@ -118,7 +118,7 @@ describe('account', function() {
           RequestMocks.accountDestroy
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -132,10 +132,10 @@ describe('account', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(error) {
+        function (error) {
           assert.ok(error);
           assert.equal(error.errno, 102);
           assert.equal(error.code, 400, 'Correct status code');
@@ -143,12 +143,12 @@ describe('account', function() {
       );
   });
 
-  it('#destroy with sessionToken, incorrect case with skipCaseError', function() {
+  it('#destroy with sessionToken, incorrect case with skipCaseError', function () {
     var account;
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(acc) {
+      .then(function (acc) {
         account = acc;
         var incorrectCaseEmail =
           account.input.email.charAt(0).toUpperCase() +
@@ -165,20 +165,20 @@ describe('account', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(res) {
+        function (res) {
           assert.equal(res.code, 400);
           assert.equal(res.errno, 120);
         }
       );
   });
 
-  it('#keys', function() {
+  it('#keys', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.accountKeys(
             account.signIn.keyFetchToken,
@@ -187,18 +187,18 @@ describe('account', function() {
           RequestMocks.accountKeys
         );
       })
-      .then(function(keys) {
+      .then(function (keys) {
         assert.property(keys, 'kA');
         assert.property(keys, 'kB');
       }, assert.fail);
   });
 
-  it('#destroy with incorrect case', function() {
+  it('#destroy with incorrect case', function () {
     var account;
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(acc) {
+      .then(function (acc) {
         account = acc;
         var incorrectCaseEmail =
           account.input.email.charAt(0).toUpperCase() +
@@ -209,7 +209,7 @@ describe('account', function() {
           RequestMocks.accountDestroy
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.ok(res);
 
         return respond(
@@ -218,10 +218,10 @@ describe('account', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(error) {
+        function (error) {
           assert.ok(error);
           assert.equal(error.errno, 102);
           assert.equal(error.code, 400, 'Correct status code');
@@ -229,12 +229,12 @@ describe('account', function() {
       );
   });
 
-  it('#destroy with incorrect case with skipCaseError', function() {
+  it('#destroy with incorrect case with skipCaseError', function () {
     var account;
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(acc) {
+      .then(function (acc) {
         account = acc;
         var incorrectCaseEmail =
           account.input.email.charAt(0).toUpperCase() +
@@ -248,10 +248,10 @@ describe('account', function() {
         );
       })
       .then(
-        function() {
+        function () {
           assert.fail();
         },
-        function(res) {
+        function (res) {
           assert.equal(res.code, 400);
           assert.equal(res.errno, 120);
         }
@@ -261,7 +261,7 @@ describe('account', function() {
   /**
    * Password Reset
    */
-  it('#reset password', function() {
+  it('#reset password', function () {
     var user = 'test5' + new Date().getTime();
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
@@ -270,7 +270,7 @@ describe('account', function() {
     var accountResetToken;
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function(result) {
+      .then(function (result) {
         uid = result.uid;
         assert.ok(uid, 'uid is returned');
 
@@ -279,7 +279,7 @@ describe('account', function() {
           RequestMocks.passwordForgotSendCode
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         passwordForgotToken = result.passwordForgotToken;
         assert.ok(passwordForgotToken, 'passwordForgotToken is returned');
 
@@ -288,7 +288,7 @@ describe('account', function() {
           RequestMocks.resetMailpasswordForgotresetMail
         );
       })
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
         assert.ok(code, 'code is returned: ' + code);
 
@@ -297,7 +297,7 @@ describe('account', function() {
           RequestMocks.passwordForgotVerifyCode
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         accountResetToken = result.accountResetToken;
         var newPassword = 'newturles';
         assert.ok(accountResetToken, 'accountResetToken is returned');
@@ -324,7 +324,7 @@ describe('account', function() {
           RequestMocks.accountReset
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         assert.ok(result.keyFetchToken);
         assert.ok(result.sessionToken);
         assert.ok(result.unwrapBKey);
@@ -332,7 +332,7 @@ describe('account', function() {
       }, assert.fail);
   });
 
-  it('#passwordForgotSendCode with service, redirectTo, and resume', function() {
+  it('#passwordForgotSendCode with service, redirectTo, and resume', function () {
     var account;
     var opts = {
       service: 'sync',
@@ -342,7 +342,7 @@ describe('account', function() {
 
     return accountHelper
       .newVerifiedAccount()
-      .then(function(acc) {
+      .then(function (acc) {
         account = acc;
 
         return respond(
@@ -350,7 +350,7 @@ describe('account', function() {
           RequestMocks.passwordForgotSendCode
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         assert.ok(result.passwordForgotToken);
 
         return respond(
@@ -358,7 +358,7 @@ describe('account', function() {
           RequestMocks.resetMailWithServiceAndRedirect
         );
       })
-      .then(function(emails) {
+      .then(function (emails) {
         var code = emails[2].html.match(/code=([A-Za-z0-9]+)/);
         assert.ok(code, 'code found');
         var service = emails[2].html.match(/service=([A-Za-z0-9]+)/);
@@ -375,37 +375,37 @@ describe('account', function() {
       });
   });
 
-  it('#passwordForgotStatus', function() {
+  it('#passwordForgotStatus', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(result) {
+      .then(function (result) {
         return respond(
           client.passwordForgotSendCode(result.input.email),
           RequestMocks.passwordForgotSendCode
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         return respond(
           client.passwordForgotStatus(result.passwordForgotToken),
           RequestMocks.passwordForgotStatus
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         assert.equal(result.tries, 3);
         assert.property(result, 'ttl');
       }, assert.fail);
   });
 
-  it('#passwordForgotStatus error with a false token', function() {
+  it('#passwordForgotStatus error with a false token', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(result) {
+      .then(function (result) {
         return respond(
           client.passwordForgotSendCode(result.input.email),
           RequestMocks.passwordForgotSendCode
         );
       })
-      .then(function() {
+      .then(function () {
         var fakeToken =
           'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
 
@@ -414,109 +414,109 @@ describe('account', function() {
           ErrorMocks.invalidAuthToken
         );
       })
-      .then(assert.fail, function(err) {
+      .then(assert.fail, function (err) {
         assert.equal(err.code, 401);
         assert.equal(err.errno, 110);
       });
   });
 
-  it('#accountStatus', function() {
+  it('#accountStatus', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(result) {
+      .then(function (result) {
         return respond(
           client.accountStatus(result.signIn.uid),
           RequestMocks.accountStatus
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.exists, true);
       }, assert.fail);
   });
 
-  it('#accountProfile', function() {
+  it('#accountProfile', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.accountProfile(account.signIn.sessionToken),
           RequestMocks.accountProfile
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.isNotNull(res);
       }, assert.fail);
   });
 
-  it('#accountStatus with wrong uid', function() {
+  it('#accountStatus with wrong uid', function () {
     return respond(
       client.accountStatus('00047f01e387498e8ccc7fede1a74000'),
       RequestMocks.accountStatusFalse
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(res.exists, false);
     }, assert.fail);
   });
 
-  it('#accountStatus with no uid', function() {
+  it('#accountStatus with no uid', function () {
     return client.accountStatus().then(
-      function() {
+      function () {
         assert.fail('client.accountStatus should reject if uid is missing');
       },
-      function(err) {
+      function (err) {
         assert.equal(err.message, 'Missing uid');
       }
     );
   });
 
-  it('#accountStatusByEmail', function() {
+  it('#accountStatusByEmail', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(result) {
+      .then(function (result) {
         return respond(
           client.accountStatusByEmail(result.input.email),
           RequestMocks.accountStatus
         );
       })
-      .then(function(res) {
+      .then(function (res) {
         assert.equal(res.exists, true);
       }, assert.fail);
   });
 
-  it('#accountStatusByEmail with wrong email', function() {
+  it('#accountStatusByEmail with wrong email', function () {
     return respond(
       client.accountStatusByEmail('invalid@email.com'),
       RequestMocks.accountStatusFalse
-    ).then(function(res) {
+    ).then(function (res) {
       assert.equal(res.exists, false);
     }, assert.fail);
   });
 
-  it('#accountStatusByEmail with no email', function() {
+  it('#accountStatusByEmail with no email', function () {
     return client.accountStatusByEmail().then(
-      function() {
+      function () {
         assert.fail(
           'client.accountStatusByEmail should reject if email is missing'
         );
       },
-      function(err) {
+      function (err) {
         assert.equal(err.message, 'Missing email');
       }
     );
   });
 
-  it('#login unblock accept', function() {
+  it('#login unblock accept', function () {
     var user = 'block.' + new Date().getTime();
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function(result) {
+      .then(function (result) {
         return respond(
           client.signIn(email, password, { context: 'fx_desktop_v3' }),
           ErrorMocks.signInBlocked
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.equal(error.errno, 125);
         assert.equal(error.verificationMethod, 'email-captcha');
         assert.equal(error.verificationReason, 'login');
@@ -526,10 +526,10 @@ describe('account', function() {
           RequestMocks.sendUnblockCode
         );
       })
-      .then(function() {
+      .then(function () {
         return respond(mail.wait(user, 2), RequestMocks.unblockEmail);
       })
-      .then(function(emails) {
+      .then(function (emails) {
         var unblockCode = emails[1].headers['x-unblock-code'];
         assert.ok(unblockCode, 'unblockCode is returned');
 
@@ -541,12 +541,12 @@ describe('account', function() {
           RequestMocks.signIn
         );
       })
-      .then(function(result) {
+      .then(function (result) {
         assert.ok(result.uid);
       }, assert.fail);
   });
 
-  it('#login unblock reject', function() {
+  it('#login unblock reject', function () {
     var user = 'block.' + new Date().getTime();
     var email = user + '@restmail.net';
     var password = 'iliketurtles';
@@ -554,14 +554,14 @@ describe('account', function() {
     var unblockCode;
 
     return respond(client.signUp(email, password), RequestMocks.signUp)
-      .then(function(result) {
+      .then(function (result) {
         uid = result.uid;
         return respond(
           client.signIn(email, password, { context: 'fx_desktop_v3' }),
           ErrorMocks.signInBlocked
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.equal(error.errno, 125);
         assert.equal(error.verificationMethod, 'email-captcha');
         assert.equal(error.verificationReason, 'login');
@@ -571,10 +571,10 @@ describe('account', function() {
           RequestMocks.sendUnblockCode
         );
       })
-      .then(function() {
+      .then(function () {
         return respond(mail.wait(user, 2), RequestMocks.unblockEmail);
       })
-      .then(function(emails) {
+      .then(function (emails) {
         unblockCode = emails[1].headers['x-unblock-code'];
         assert.ok(unblockCode, 'unblockCode is returned');
 
@@ -583,7 +583,7 @@ describe('account', function() {
           RequestMocks.rejectUnblockCode
         );
       })
-      .then(function() {
+      .then(function () {
         return respond(
           client.signIn(email, password, {
             unblockCode: unblockCode,
@@ -592,7 +592,7 @@ describe('account', function() {
           ErrorMocks.signInInvalidUnblockCode
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.equal(error.errno, 127);
       });
   });

@@ -10,7 +10,7 @@ import Errors from './errors';
 import Logger from './logger';
 var logger = new Logger();
 import Strings from './strings';
-const t = msg => msg;
+const t = (msg) => msg;
 
 var UNEXPECTED_ERROR = t('Unexpected error');
 

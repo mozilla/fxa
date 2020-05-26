@@ -22,13 +22,13 @@ const key = {
 };
 
 function bindApply(fn, args) {
-  return function() {
+  return function () {
     return fn.apply(null, args);
   };
 }
 
 function times(fn, n) {
-  return function() {
+  return function () {
     const args = arguments;
     let p = fn.apply(null, args);
     for (let i = 1; i < n; i++) {
@@ -57,7 +57,7 @@ function run(c) {
       () => {
         return c.destroyAccount();
       },
-      err => {
+      (err) => {
         console.error('Error during run:', err.message);
         return c.destroyAccount();
       }
@@ -77,7 +77,7 @@ client.setupCredentials(config.email, config.password).then(() => {
           loop(ms);
         }
       },
-      err => {
+      (err) => {
         console.error('Error during cleanup:', err.message);
       }
     );

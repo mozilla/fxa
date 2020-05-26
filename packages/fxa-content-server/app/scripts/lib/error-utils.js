@@ -89,7 +89,7 @@ export default {
    */
   captureAndFlushError(error, sentryMetrics, metrics, win) {
     this.captureError(error, sentryMetrics, metrics, win);
-    return Promise.resolve().then(function() {
+    return Promise.resolve().then(function () {
       if (metrics) {
         return metrics.flush();
       }
@@ -158,8 +158,8 @@ function getTranslationHelper(translator) {
   }
 
   // create the standin helper.
-  return function() {
-    return function(msg) {
+  return function () {
+    return function (msg) {
       return msg;
     };
   };

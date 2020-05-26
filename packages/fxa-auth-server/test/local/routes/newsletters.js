@@ -50,7 +50,7 @@ describe('/newsletters should emit newsletters update message', () => {
       },
     });
 
-    return runTest(route, request).then(result => (response = result));
+    return runTest(route, request).then((result) => (response = result));
   });
 
   it('returns correct response', () => {

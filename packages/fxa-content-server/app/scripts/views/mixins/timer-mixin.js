@@ -47,7 +47,7 @@ const Mixin = {
 function clearAllTimeouts() {
   const win = this.window || window;
 
-  each(this._timeouts, function(timeout) {
+  each(this._timeouts, function (timeout) {
     win.clearTimeout(timeout);
   });
 

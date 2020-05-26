@@ -5,7 +5,7 @@
 var actions = require('./actions');
 
 // Keep track of events tied to just email addresses
-module.exports = function(limits, now) {
+module.exports = function (limits, now) {
   now = now || Date.now;
 
   function EmailRecord() {
@@ -15,7 +15,7 @@ module.exports = function(limits, now) {
     this.ub = [];
   }
 
-  EmailRecord.parse = function(object) {
+  EmailRecord.parse = function (object) {
     var rec = new EmailRecord();
     object = object || {};
     rec.bk = object.bk; // timestamp when the account was blocked
@@ -30,16 +30,16 @@ module.exports = function(limits, now) {
     return rec;
   };
 
-  EmailRecord.prototype.getMinLifetimeMS = function() {
+  EmailRecord.prototype.getMinLifetimeMS = function () {
     return Math.max(limits.rateLimitIntervalMs, limits.blockIntervalMs);
   };
 
-  EmailRecord.prototype.isOverEmailLimit = function() {
+  EmailRecord.prototype.isOverEmailLimit = function () {
     this.trimHits(now());
     return this.xs.length > limits.maxEmails;
   };
 
-  EmailRecord.prototype.trimHits = function(now) {
+  EmailRecord.prototype.trimHits = function (now) {
     if (this.xs.length === 0) {
       return;
     }
@@ -56,16 +56,16 @@ module.exports = function(limits, now) {
     this.xs = this.xs.slice(i + 1);
   };
 
-  EmailRecord.prototype.addHit = function() {
+  EmailRecord.prototype.addHit = function () {
     this.xs.push(now());
   };
 
-  EmailRecord.prototype.isOverVerifyCodes = function() {
+  EmailRecord.prototype.isOverVerifyCodes = function () {
     this.trimVerifyCodes(now());
     return this.vc.length > limits.maxVerifyCodes;
   };
 
-  EmailRecord.prototype.trimVerifyCodes = function(now) {
+  EmailRecord.prototype.trimVerifyCodes = function (now) {
     if (this.vc.length === 0) {
       return;
     }
@@ -85,16 +85,16 @@ module.exports = function(limits, now) {
     this.vc = this.vc.slice(i + 1);
   };
 
-  EmailRecord.prototype.addVerifyCode = function() {
+  EmailRecord.prototype.addVerifyCode = function () {
     this.vc.push(now());
   };
 
-  EmailRecord.prototype.isOverSmsLimit = function() {
+  EmailRecord.prototype.isOverSmsLimit = function () {
     this.trimSmsRequests(now());
     return this.sms.length > limits.maxSms;
   };
 
-  EmailRecord.prototype.trimSmsRequests = function(now) {
+  EmailRecord.prototype.trimSmsRequests = function (now) {
     if (this.sms.length === 0) {
       return;
     }
@@ -111,21 +111,21 @@ module.exports = function(limits, now) {
     this.sms = this.sms.slice(i + 1);
   };
 
-  EmailRecord.prototype.addSmsRequest = function() {
+  EmailRecord.prototype.addSmsRequest = function () {
     this.sms.push(now());
   };
 
-  EmailRecord.prototype.addUnblock = function() {
+  EmailRecord.prototype.addUnblock = function () {
     this.ub.push(now());
   };
 
-  EmailRecord.prototype.canUnblock = function() {
+  EmailRecord.prototype.canUnblock = function () {
     this.trimUnblocks(now());
 
     return this.ub.length <= limits.maxUnblockAttempts;
   };
 
-  EmailRecord.prototype.trimUnblocks = function(now) {
+  EmailRecord.prototype.trimUnblocks = function (now) {
     if (this.ub.length === 0) {
       return;
     }
@@ -145,49 +145,49 @@ module.exports = function(limits, now) {
     this.ub = this.ub.slice(i + 1);
   };
 
-  EmailRecord.prototype.shouldBlock = function() {
+  EmailRecord.prototype.shouldBlock = function () {
     return this.isRateLimited() || this.isBlocked() || this.isDisabled();
   };
 
-  EmailRecord.prototype.isRateLimited = function() {
+  EmailRecord.prototype.isRateLimited = function () {
     return !!(this.rl && now() - this.rl < limits.rateLimitIntervalMs);
   };
 
-  EmailRecord.prototype.isBlocked = function() {
+  EmailRecord.prototype.isBlocked = function () {
     return !!(this.bk && now() - this.bk < limits.blockIntervalMs);
   };
 
-  EmailRecord.prototype.isSuspected = function() {
+  EmailRecord.prototype.isSuspected = function () {
     return !!(this.su && now() - this.su < limits.suspectIntervalMs);
   };
 
-  EmailRecord.prototype.isDisabled = function() {
+  EmailRecord.prototype.isDisabled = function () {
     return !!(this.di && now() - this.di < limits.disableIntervalMs);
   };
 
-  EmailRecord.prototype.block = function() {
+  EmailRecord.prototype.block = function () {
     this.bk = now();
   };
 
-  EmailRecord.prototype.suspect = function() {
+  EmailRecord.prototype.suspect = function () {
     this.su = now();
   };
 
-  EmailRecord.prototype.disable = function() {
+  EmailRecord.prototype.disable = function () {
     this.di = now();
   };
 
-  EmailRecord.prototype.rateLimit = function() {
+  EmailRecord.prototype.rateLimit = function () {
     this.rl = now();
     this.xs = [];
     this.sms = [];
   };
 
-  EmailRecord.prototype.passwordReset = function() {
+  EmailRecord.prototype.passwordReset = function () {
     this.pr = now();
   };
 
-  EmailRecord.prototype.retryAfter = function() {
+  EmailRecord.prototype.retryAfter = function () {
     var rateLimitAfter = Math.ceil(
       ((this.rl || 0) + limits.rateLimitIntervalMs - now()) / 1000
     );
@@ -197,7 +197,7 @@ module.exports = function(limits, now) {
     return Math.max(0, rateLimitAfter, banAfter);
   };
 
-  EmailRecord.prototype.update = function(action, unblock) {
+  EmailRecord.prototype.update = function (action, unblock) {
     // Reject immediately if they've been explicitly blocked.
     if (this.isBlocked()) {
       return this.retryAfter();

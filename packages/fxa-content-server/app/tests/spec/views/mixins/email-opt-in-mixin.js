@@ -11,7 +11,7 @@ import BaseView from 'views/base';
 
 class View extends BaseView {
   template(context) {
-    const newsletters = context.newsletters.map(newsletter => {
+    const newsletters = context.newsletters.map((newsletter) => {
       //eslint-disable-next-line max-len
       return `<input type="checkbox" id="${newsletter.slug}" class="marketing-email-optin" value="${newsletter.slug}" /><label for="${newsletter.slug}" >${newsletter.label}</label>`;
     });

@@ -13,7 +13,7 @@ const { decodeJWT } = require('../lib/util');
 async function assertThrowsAsync(fn, errorLike, errMsgMatcher, message) {
   let threw = null;
   return fn()
-    .catch(err => {
+    .catch((err) => {
       threw = err;
     })
     .then(() => {

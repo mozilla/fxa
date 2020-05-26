@@ -22,7 +22,7 @@ import {
   RESET_PASSWORD_COMPLETE,
 } from '../../../../tests/functional/lib/selectors';
 
-describe('views/ready', function() {
+describe('views/ready', function () {
   let broker;
   let fxaClient;
   let metrics;
@@ -78,12 +78,12 @@ describe('views/ready', function() {
     sinon.stub(view, 'getSignedInAccount').callsFake(() => {});
   }
 
-  describe('render', function() {
-    beforeEach(function() {
+  describe('render', function () {
+    beforeEach(function () {
       createDeps();
     });
 
-    afterEach(function() {
+    afterEach(function () {
       view.remove();
       view.destroy();
     });
@@ -99,19 +99,19 @@ describe('views/ready', function() {
     for (var type in expectedHeadersForSyncViews) {
       it(
         'renders the correct header for `' + type + '`',
-        function(type) {
+        function (type) {
           createView(VerificationReasons[type]);
-          return view.render().then(function() {
+          return view.render().then(function () {
             assert.ok(view.$(expectedHeadersForSyncViews[type]).length);
           });
         }.bind(null, type)
       );
     }
 
-    it('shows service name if set by the relier', function() {
+    it('shows service name if set by the relier', function () {
       createView(VerificationReasons.SIGN_UP);
       relier.set('serviceName', 'Firefox Sync');
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.equal(
           view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
           'You are now ready to use Firefox Sync'
@@ -152,18 +152,18 @@ describe('views/ready', function() {
     });
 
     // regression test for #1216
-    it('does not show service name if service is defined but serviceName is not', function() {
+    it('does not show service name if service is defined but serviceName is not', function () {
       createView(VerificationReasons.SIGN_UP);
-      sinon.stub(view, 'setInitialContext').callsFake(context => {
+      sinon.stub(view, 'setInitialContext').callsFake((context) => {
         context.set('service', 'sync');
       });
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.ok(view.$('.account-ready-generic').length);
       });
     });
 
-    it('shows the marketing campaign if supported by broker', function() {
+    it('shows the marketing campaign if supported by broker', function () {
       broker.setCapability('emailVerificationMarketingSnippet', true);
 
       relier.set('service', 'sync');
@@ -171,7 +171,7 @@ describe('views/ready', function() {
 
       sinon.spy(view, 'logFlowEvent');
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.lengthOf(view.$('.marketing-link'), 2);
 
         // ensure clicks on the marketing links work as expected.
@@ -201,12 +201,12 @@ describe('views/ready', function() {
       });
     });
 
-    it('does not show marketing if the broker does not support it', function() {
+    it('does not show marketing if the broker does not support it', function () {
       broker.setCapability('emailVerificationMarketingSnippet', false);
 
       createView(VerificationReasons.SIGN_UP);
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.equal(view.$('.marketing').length, 0);
         assert.equal(view.$('.os-general').length, 0);
       });
@@ -284,7 +284,7 @@ describe('views/ready', function() {
       user.isSignedInAccount.restore();
       sinon.stub(user, 'isSignedInAccount').callsFake(() => false);
 
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.equal(
           view.$('.account-ready-generic').text(),
           'Your account is ready!'

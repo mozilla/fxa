@@ -13,7 +13,7 @@ import Template from 'templates/settings/delete_account.mustache';
 import AttachedClients from '../../models/attached-clients';
 import { CLIENT_TYPE_WEB_SESSION } from '../../lib/constants';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const LOADING_INDICATOR_BUTTON = '.settings-button.settings-unit-loading';
 const DELETE_ACCOUNT_BUTTON = '.delete-account-button';
@@ -73,7 +73,7 @@ var View = FormView.extend({
           this._hasTwoColumnProductList = numberOfProducts >= 4;
         }
       })
-      .catch(err => {
+      .catch((err) => {
         this.model.set('error', err);
         this.logError(err);
         this._hideProductContainer = true;
@@ -86,7 +86,7 @@ var View = FormView.extend({
     const start = Date.now();
     return account.settingsData().then(({ subscriptions = [] } = {}) => {
       this.logFlowEvent(`timing.settings.fetch.${Date.now() - start}`);
-      this._activeSubscriptions = subscriptions.filter(subscription =>
+      this._activeSubscriptions = subscriptions.filter((subscription) =>
         ['trialing', 'active', 'past_due'].includes(subscription.status)
       );
     });
@@ -108,14 +108,14 @@ var View = FormView.extend({
         this._attachedClients
           .toJSON()
           .filter(
-            client =>
+            (client) =>
               client.clientType &&
               client.clientType === CLIENT_TYPE_WEB_SESSION &&
               client.userAgent
           )
           .map(({ userAgent }) => userAgent.replace(/[0-9]+/g, 'browser'))
       ),
-    ].map(userAgent => ({
+    ].map((userAgent) => ({
       name: userAgent,
     }));
   },
@@ -177,7 +177,7 @@ var View = FormView.extend({
           }
         );
       })
-      .catch(err => {
+      .catch((err) => {
         if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
           return this.showValidationError(this.$('#password'), err);
         }

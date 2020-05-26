@@ -11,7 +11,7 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const otplib = require('otplib');
 
-describe('remote account create with sign-up code', function() {
+describe('remote account create with sign-up code', function () {
   this.timeout(15000);
   const password = '4L6prUdlLNfxGIoj';
   let server, client, email, emailStatus, emailData;

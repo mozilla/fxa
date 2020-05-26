@@ -22,7 +22,7 @@ describe('views/mixins/coppa-mixin', () => {
   let windowMock;
 
   const CoppaView = FormView.extend({
-    template: context => context.coppaHTML,
+    template: (context) => context.coppaHTML,
   });
 
   Cocktail.mixin(CoppaView, CoppaMixin({ required: true }));

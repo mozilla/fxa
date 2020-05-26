@@ -30,16 +30,16 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Fx Fennec Sync v1 sign_up', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
 
-  afterEach: function() {
+  afterEach: function () {
     return this.remote.then(FunctionalHelpers.clearBrowserState());
   },
   tests: {
-    'sign up': function() {
+    'sign up': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))

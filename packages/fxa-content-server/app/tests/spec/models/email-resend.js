@@ -9,22 +9,22 @@ import sinon from 'sinon';
 
 var assert = chai.assert;
 
-describe('models/email-resend', function() {
+describe('models/email-resend', function () {
   var emailResend;
 
-  afterEach(function() {
+  afterEach(function () {
     emailResend = null;
   });
 
-  describe('incrementRequestCount', function() {
-    it('increments the number of tries', function() {
+  describe('incrementRequestCount', function () {
+    it('increments the number of tries', function () {
       emailResend = new EmailResend();
       assert.equal(emailResend.get('tries'), 0);
       emailResend.incrementRequestCount();
       assert.equal(emailResend.get('tries'), 1);
     });
 
-    it('calls onMaxTriesReached when max tries reached', function() {
+    it('calls onMaxTriesReached when max tries reached', function () {
       var onMaxTriesReached = sinon.spy();
 
       emailResend = new EmailResend();
@@ -42,7 +42,7 @@ describe('models/email-resend', function() {
       assert.equal(onMaxTriesReached.callCount, 11);
     });
 
-    it('calls onMaxTriesReached according to the number of maxTries', function() {
+    it('calls onMaxTriesReached according to the number of maxTries', function () {
       var onMaxTriesReached = sinon.spy();
 
       emailResend = new EmailResend({
@@ -61,8 +61,8 @@ describe('models/email-resend', function() {
     });
   });
 
-  describe('reset', function() {
-    it('resets the number of tries', function() {
+  describe('reset', function () {
+    it('resets the number of tries', function () {
       emailResend = new EmailResend();
       emailResend.incrementRequestCount();
       emailResend.incrementRequestCount();
@@ -74,8 +74,8 @@ describe('models/email-resend', function() {
     });
   });
 
-  describe('shouldResend', function() {
-    it('it returns true to the first 4 tries only', function() {
+  describe('shouldResend', function () {
+    it('it returns true to the first 4 tries only', function () {
       emailResend = new EmailResend();
       assert.isTrue(emailResend.shouldResend());
       emailResend.incrementRequestCount();

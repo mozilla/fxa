@@ -25,8 +25,7 @@
       "days_until_due": null,
       "default_payment_method": null,
       "default_source": null,
-      "default_tax_rates": [
-      ],
+      "default_tax_rates": [],
       "discount": null,
       "ended_at": null,
       "items": {
@@ -37,8 +36,7 @@
             "object": "subscription_item",
             "billing_thresholds": null,
             "created": 1583260500,
-            "metadata": {
-            },
+            "metadata": {},
             "plan": {
               "id": "plan_00000000000000",
               "object": "plan",
@@ -52,8 +50,7 @@
               "interval": "month",
               "interval_count": 1,
               "livemode": false,
-              "metadata": {
-              },
+              "metadata": {},
               "nickname": "123Done Pro Monthly",
               "product": "prod_00000000000000",
               "tiers": null,
@@ -64,8 +61,7 @@
             },
             "quantity": 1,
             "subscription": "sub_00000000000000",
-            "tax_rates": [
-            ]
+            "tax_rates": []
           }
         ],
         "has_more": false,
@@ -73,8 +69,7 @@
       },
       "latest_invoice": "in_1GTuM8BVqmGyQTMakbwYj2tv",
       "livemode": false,
-      "metadata": {
-      },
+      "metadata": {},
       "next_pending_invoice_item_invoice": null,
       "pause_collection": null,
       "pending_invoice_item_interval": null,

@@ -10,7 +10,7 @@ const { execFileSync } = require('child_process');
 const crypto = require('crypto');
 const rimraf = require('rimraf');
 
-describe('the signing-key management scripts', function() {
+describe('the signing-key management scripts', function () {
   let runScript;
   let workDir, keyFile, newKeyFile, oldKeyFile;
 
@@ -23,7 +23,7 @@ describe('the signing-key management scripts', function() {
     keyFile = path.join(workDir, 'key.json');
     newKeyFile = path.join(workDir, 'newKey.json');
     oldKeyFile = path.join(workDir, 'oldKey.json');
-    runScript = name => {
+    runScript = (name) => {
       const base = path.resolve(__dirname, '../../scripts');
       return execFileSync(
         process.execPath,

@@ -23,11 +23,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
         response: {
           schema: isA.array().items(
             isA.object({
-              clientId: isA
-                .string()
-                .regex(HEX_STRING)
-                .allow(null)
-                .required(),
+              clientId: isA.string().regex(HEX_STRING).allow(null).required(),
               deviceId: DEVICES_SCHEMA.id.allow(null).required(),
               sessionTokenId: isA
                 .string()
@@ -45,53 +41,24 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
                 .allow('')
                 .allow(null)
                 .required(),
-              createdTime: isA
-                .number()
-                .min(0)
-                .required()
-                .allow(null),
-              createdTimeFormatted: isA
-                .string()
-                .optional()
-                .allow(''),
-              lastAccessTime: isA
-                .number()
-                .min(0)
-                .required()
-                .allow(null),
-              lastAccessTimeFormatted: isA
-                .string()
-                .optional()
-                .allow(''),
-              approximateLastAccessTime: isA
-                .number()
-                .min(0)
-                .optional(),
+              createdTime: isA.number().min(0).required().allow(null),
+              createdTimeFormatted: isA.string().optional().allow(''),
+              lastAccessTime: isA.number().min(0).required().allow(null),
+              lastAccessTimeFormatted: isA.string().optional().allow(''),
+              approximateLastAccessTime: isA.number().min(0).optional(),
               approximateLastAccessTimeFormatted: isA
                 .string()
                 .optional()
                 .allow(''),
-              scope: isA
-                .array()
-                .items(validators.scope)
-                .required()
-                .allow(null),
+              scope: isA.array().items(validators.scope).required().allow(null),
               location: DEVICES_SCHEMA.location,
-              userAgent: isA
-                .string()
-                .max(255)
-                .required()
-                .allow(''),
-              os: isA
-                .string()
-                .max(255)
-                .allow('')
-                .allow(null),
+              userAgent: isA.string().max(255).required().allow(''),
+              os: isA.string().max(255).allow('').allow(null),
             })
           ),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.attachedClients', request);
 
         const uid = request.auth.credentials.uid;
@@ -265,7 +232,7 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
           schema: {},
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Account.attachedClientDestroy', request);
 
         const credentials = request.auth.credentials;

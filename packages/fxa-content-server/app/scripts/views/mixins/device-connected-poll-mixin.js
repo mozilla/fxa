@@ -24,7 +24,7 @@ export default {
     const deviceConnectedPoll = this.getDeviceConnectedPoll(account);
 
     this.listenTo(deviceConnectedPoll, 'device-connected', onConnected);
-    this.listenTo(deviceConnectedPoll, 'error', err =>
+    this.listenTo(deviceConnectedPoll, 'error', (err) =>
       this._handlePollErrors(account, err)
     );
 

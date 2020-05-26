@@ -14,13 +14,13 @@ const base64url = require('base64url');
 const config = require('../../config').getProperties();
 const mocks = require('../mocks');
 
-describe('remote password forgot', function() {
+describe('remote password forgot', function () {
   this.timeout(15000);
   let server;
   before(() => {
     config.securityHistory.ipProfiling.allowedRecency = 0;
     config.signinConfirmation.skipForNewAccounts.enabled = true;
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -43,11 +43,11 @@ describe('remote password forgot', function() {
       server.mailbox,
       opts
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         wrapKb = keys.wrapKb;
         kA = keys.kA;
         return client.forgotPassword();
@@ -55,7 +55,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(
           emailData.html.indexOf('IP address') > -1,
           true,
@@ -74,7 +74,7 @@ describe('remote password forgot', function() {
         assert.equal(emailData.headers['x-template-name'], 'recovery');
         return emailData.headers['x-recovery-code'];
       })
-      .then(code => {
+      .then((code) => {
         assert.throws(() => {
           client.resetPassword(newPassword);
         });
@@ -83,7 +83,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.email, 'email is in the link');
@@ -108,11 +108,11 @@ describe('remote password forgot', function() {
           });
         }
       )
-      .then(x => {
+      .then((x) => {
         client = x;
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.equal(typeof keys.wrapKb, 'string', 'yep, wrapKb');
         assert.notEqual(wrapKb, keys.wrapKb, 'wrapKb was reset');
         assert.equal(kA, keys.kA, 'kA was not reset');
@@ -140,7 +140,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(c => {
+      .then((c) => {
         code = c;
       })
       .then(() => {
@@ -149,7 +149,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(c => {
+      .then((c) => {
         assert.equal(code, c, 'same code as before');
       })
       .then(() => {
@@ -163,7 +163,7 @@ describe('remote password forgot', function() {
         () => {
           assert(false, 'reset password with bad code');
         },
-        err => {
+        (err) => {
           assert.equal(err.tries, 2, 'used a try');
           assert.equal(
             err.message,
@@ -183,7 +183,7 @@ describe('remote password forgot', function() {
         () => {
           assert(false, 'reset password with bad code');
         },
-        err => {
+        (err) => {
           assert.equal(err.tries, 1, 'used a try');
           assert.equal(
             err.message,
@@ -203,7 +203,7 @@ describe('remote password forgot', function() {
         () => {
           assert(false, 'reset password with bad code');
         },
-        err => {
+        (err) => {
           assert.equal(err.tries, 0, 'used a try');
           assert.equal(
             err.message,
@@ -223,7 +223,7 @@ describe('remote password forgot', function() {
         () => {
           assert(false, 'reset password with invalid token');
         },
-        err => {
+        (err) => {
           assert.equal(
             err.message,
             'The authentication token could not be found',
@@ -242,7 +242,7 @@ describe('remote password forgot', function() {
       service: 'sync',
     };
     return Client.create(config.publicUrl, email, password, options)
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
@@ -254,7 +254,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.ok(query.token, 'uid is in link');
@@ -272,13 +272,13 @@ describe('remote password forgot', function() {
   it('password forgot status with valid token', () => {
     const email = server.uniqueEmail();
     const password = 'something';
-    return Client.create(config.publicUrl, email, password).then(c => {
+    return Client.create(config.publicUrl, email, password).then((c) => {
       return c
         .forgotPassword()
         .then(() => {
           return c.api.passwordForgotStatus(c.passwordForgotToken);
         })
-        .then(x => {
+        .then((x) => {
           assert.equal(x.tries, 3, 'three tries remaining');
           assert.ok(x.ttl > 0 && x.ttl <= 60 * 60, 'ttl is ok');
         });
@@ -293,7 +293,7 @@ describe('remote password forgot', function() {
       )
       .then(
         () => assert(false),
-        err => {
+        (err) => {
           assert.equal(err.errno, 110, 'invalid token');
         }
       );
@@ -304,13 +304,13 @@ describe('remote password forgot', function() {
     const password = 'something';
     let client = null;
     return Client.create(config.publicUrl, email, password)
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'email unverified');
       })
       .then(() => {
@@ -322,13 +322,13 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(code => {
+      .then((code) => {
         return client.verifyPasswordResetCode(code);
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account unverified');
       });
   });
@@ -341,7 +341,7 @@ describe('remote password forgot', function() {
     };
     let client;
     return Client.create(config.publicUrl, email, 'wibble', options)
-      .then(c => {
+      .then((c) => {
         client = c;
       })
       .then(() => {
@@ -353,7 +353,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         const link = emailData.headers['x-link'];
         const query = url.parse(link, true).query;
         assert.equal(query.service, options.serviceQuery, 'service is in link');
@@ -370,7 +370,7 @@ describe('remote password forgot', function() {
       'bar',
       server.mailbox
     )
-      .then(c => {
+      .then((c) => {
         client = c;
         return client.updateDevice({
           name: 'baz',
@@ -383,7 +383,7 @@ describe('remote password forgot', function() {
       .then(() => {
         return client.devices();
       })
-      .then(devices => {
+      .then((devices) => {
         assert.equal(devices.length, 1, 'devices list contains 1 item');
       })
       .then(() => {
@@ -392,16 +392,16 @@ describe('remote password forgot', function() {
       .then(() => {
         return server.mailbox.waitForCode(email);
       })
-      .then(code => {
+      .then((code) => {
         return resetPassword(client, code, newPassword);
       })
       .then(() => {
         return Client.login(config.publicUrl, email, newPassword);
       })
-      .then(client => {
+      .then((client) => {
         return client.devices();
       })
-      .then(devices => {
+      .then((devices) => {
         assert.equal(devices.length, 0, 'devices list is empty');
       });
   });

@@ -21,7 +21,7 @@ class WaitForAuthorizations extends State {
     this.listenTo(this.notifier, 'pair:supp:authorize', () => {
       this.gotoState(WaitForAuthorityAuthorize);
     });
-    this.listenTo(this.notifier, 'pair:auth:authorize', result => {
+    this.listenTo(this.notifier, 'pair:auth:authorize', (result) => {
       this.gotoState(WaitForSupplicantAuthorize, result);
     });
   }

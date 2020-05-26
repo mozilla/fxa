@@ -16,7 +16,7 @@ import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 
-describe('lib/error-utils', function() {
+describe('lib/error-utils', function () {
   var err;
   var metrics;
   var sentry;
@@ -24,7 +24,7 @@ describe('lib/error-utils', function() {
   var translator;
   var windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     sandbox = sinon.sandbox.create();
 
     sandbox.spy(domWriter, 'write');
@@ -44,11 +44,11 @@ describe('lib/error-utils', function() {
     sandbox.spy(windowMock.console, 'error');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     sandbox.restore();
   });
 
-  describe('getErrorPageTemplate', function() {
+  describe('getErrorPageTemplate', function () {
     var badRequestPageErrors = [
       AuthErrors.toInvalidParameterError('paramName'),
       AuthErrors.toMissingParameterError('paramName'),
@@ -71,14 +71,14 @@ describe('lib/error-utils', function() {
       OAuthErrors.toError('PROMPT_NONE_UNVERIFIED'),
     ];
 
-    badRequestPageErrors.forEach(function(err) {
-      it('400 template returned for ' + err.message, function() {
+    badRequestPageErrors.forEach(function (err) {
+      it('400 template returned for ' + err.message, function () {
         var errorPageTemplate = ErrorUtils.getErrorPageTemplate(err);
         assert.strictEqual(errorPageTemplate, FourHundredTemplate);
       });
     });
 
-    it('500 template returned by default', function() {
+    it('500 template returned by default', function () {
       var errorPageTemplate = ErrorUtils.getErrorPageTemplate(
         OAuthErrors.toError('INVALID_ASSERTION')
       );
@@ -86,35 +86,35 @@ describe('lib/error-utils', function() {
     });
   });
 
-  describe('captureError', function() {
+  describe('captureError', function () {
     var origMessage;
 
-    beforeEach(function() {
+    beforeEach(function () {
       err = AuthErrors.toMissingParameterError('email');
       origMessage = err.message;
       return ErrorUtils.captureError(err, sentry, metrics, windowMock);
     });
 
-    it('logs the error to both metrics', function() {
+    it('logs the error to both metrics', function () {
       assert.isTrue(sentry.captureException.calledWith(err));
       assert.isTrue(metrics.logError.calledWith(err));
     });
 
-    it('writes an error message to the console', function() {
+    it('writes an error message to the console', function () {
       assert.isTrue(windowMock.console.error.called);
     });
 
-    it('interpolates errors before sending to Sentry', function() {
+    it('interpolates errors before sending to Sentry', function () {
       assert.notEqual(origMessage, err.message);
       assert.equal(err.message, 'Missing parameter: email');
     });
   });
 
-  describe('captureError gets error from getErrorMessage', function() {
+  describe('captureError gets error from getErrorMessage', function () {
     var origMessage;
 
-    beforeEach(function() {
-      sandbox.stub(ErrorUtils, 'getErrorMessage').callsFake(function() {
+    beforeEach(function () {
+      sandbox.stub(ErrorUtils, 'getErrorMessage').callsFake(function () {
         throw new Error('Not able to interpolate');
       });
 
@@ -122,7 +122,7 @@ describe('lib/error-utils', function() {
       origMessage = err.message;
     });
 
-    it("doesn't change error message", function() {
+    it("doesn't change error message", function () {
       ErrorUtils.captureError(err, sentry, metrics, windowMock);
 
       assert.equal(origMessage, err.message);
@@ -130,15 +130,15 @@ describe('lib/error-utils', function() {
     });
   });
 
-  describe('getErrorMessage', function() {
-    describe('from a module that can interpolate', function() {
+  describe('getErrorMessage', function () {
+    describe('from a module that can interpolate', function () {
       var err;
 
-      before(function() {
+      before(function () {
         err = AuthErrors.toMissingParameterError('email');
       });
 
-      it('interpolates the message', function() {
+      it('interpolates the message', function () {
         assert.equal(
           ErrorUtils.getErrorMessage(err),
           'Missing parameter: email'
@@ -146,79 +146,75 @@ describe('lib/error-utils', function() {
       });
     });
 
-    describe('from a module that cannot interpolate', function() {
+    describe('from a module that cannot interpolate', function () {
       var err;
 
-      before(function() {
+      before(function () {
         err = new Error('uh oh');
       });
 
-      it('does not interpolate the message', function() {
+      it('does not interpolate the message', function () {
         assert.equal(ErrorUtils.getErrorMessage(err), 'uh oh');
       });
     });
   });
 
-  describe('captureAndFlushError', function() {
-    beforeEach(function() {
+  describe('captureAndFlushError', function () {
+    beforeEach(function () {
       err = AuthErrors.toError('UNEXPECTED_ERROR');
       return ErrorUtils.captureAndFlushError(err, sentry, metrics, windowMock);
     });
 
-    it('logs the error to both metrics', function() {
+    it('logs the error to both metrics', function () {
       assert.isTrue(sentry.captureException.calledWith(err));
       assert.isTrue(metrics.logError.calledWith(err));
     });
 
-    it('writes an error message to the console', function() {
+    it('writes an error message to the console', function () {
       assert.isTrue(windowMock.console.error.called);
     });
 
-    it('flushes metrics', function() {
+    it('flushes metrics', function () {
       assert.isTrue(metrics.flush.called);
     });
   });
 
-  describe('renderError', function() {
-    describe('with a translator', function() {
-      beforeEach(function() {
+  describe('renderError', function () {
+    describe('with a translator', function () {
+      beforeEach(function () {
         $('#container').html('<div id="stage"></div>');
         err = AuthErrors.toInvalidParameterError('email');
         ErrorUtils.renderError(err, windowMock, translator);
       });
 
-      it('renders an error message to the DOM', function() {
+      it('renders an error message to the DOM', function () {
         assert.isTrue(domWriter.write.called);
         assert.include(
-          $('#stage')
-            .text()
-            .toLowerCase(),
+          $('#stage').text().toLowerCase(),
           'invalid parameter: email'
         );
       });
     });
 
-    describe('without a translator', function() {
-      beforeEach(function() {
+    describe('without a translator', function () {
+      beforeEach(function () {
         $('#container').html('<div id="stage"></div>');
         err = AuthErrors.toInvalidParameterError('email');
         ErrorUtils.renderError(err, windowMock);
       });
 
-      it('renders an error message to the DOM', function() {
+      it('renders an error message to the DOM', function () {
         assert.isTrue(domWriter.write.called);
         assert.include(
-          $('#stage')
-            .text()
-            .toLowerCase(),
+          $('#stage').text().toLowerCase(),
           'invalid parameter: email'
         );
       });
     });
   });
 
-  describe('fatalError', function() {
-    beforeEach(function() {
+  describe('fatalError', function () {
+    beforeEach(function () {
       $('#container').html('<div id="stage"></div>');
       err = AuthErrors.toInvalidParameterError('email');
 
@@ -231,25 +227,23 @@ describe('lib/error-utils', function() {
       );
     });
 
-    it('logs the error to both metrics', function() {
+    it('logs the error to both metrics', function () {
       assert.isTrue(sentry.captureException.calledWith(err));
       assert.isTrue(metrics.logError.calledWith(err));
     });
 
-    it('writes an error message to the console', function() {
+    it('writes an error message to the console', function () {
       assert.isTrue(windowMock.console.error.called);
     });
 
-    it('flushes metrics', function() {
+    it('flushes metrics', function () {
       assert.isTrue(metrics.flush.called);
     });
 
-    it('renders the error', function() {
+    it('renders the error', function () {
       assert.isTrue(domWriter.write.called);
       assert.include(
-        $('#stage')
-          .text()
-          .toLowerCase(),
+        $('#stage').text().toLowerCase(),
         'invalid parameter: email'
       );
     });

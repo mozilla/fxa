@@ -42,9 +42,7 @@ module.exports = {
   },
   response: {
     schema: {
-      id: Joi.string()
-        .regex(validate.hex)
-        .length(32),
+      id: Joi.string().regex(validate.hex).length(32),
       url: Joi.string().required(),
     },
   },

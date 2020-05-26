@@ -7,7 +7,7 @@
 const Joi = require('@hapi/joi');
 const validators = require('../routes/validators');
 
-module.exports = config => {
+module.exports = (config) => {
   return {
     path: '/v1/authorized-clients',
     method: 'POST',
@@ -23,16 +23,9 @@ module.exports = config => {
             .max(255)
             .regex(validators.DISPLAY_SAFE_UNICODE)
             .required(),
-          created_time: Joi.number()
-            .min(0)
-            .required(),
-          last_access_time: Joi.number()
-            .min(0)
-            .required()
-            .allow(null),
-          scope: Joi.array()
-            .items(validators.scope)
-            .required(),
+          created_time: Joi.number().min(0).required(),
+          last_access_time: Joi.number().min(0).required().allow(null),
+          scope: Joi.array().items(validators.scope).required(),
         })
       ),
     },

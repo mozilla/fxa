@@ -11,23 +11,23 @@ var IdP = require('browserid-local-verify/testing').IdP,
   shouldReturnSecurityHeaders = require('./lib/should-return-security-headers.js'),
   request = require('request');
 
-describe('basic verifier test', function() {
+describe('basic verifier test', function () {
   var idp = new IdP();
   var verifier = new Verifier();
 
-  it('test servers should start', function(done) {
-    idp.start(function(e) {
+  it('test servers should start', function (done) {
+    idp.start(function (e) {
       verifier.setFallback(idp);
-      verifier.start(function(e1) {
+      verifier.start(function (e1) {
         done(e || e1);
       });
     });
   });
 
-  it('should verify an assertion', function(done) {
+  it('should verify an assertion', function (done) {
     var client = new Client({ idp: idp });
 
-    client.assertion({ audience: 'http://example.com' }, function(
+    client.assertion({ audience: 'http://example.com' }, function (
       err,
       assertion
     ) {
@@ -42,7 +42,7 @@ describe('basic verifier test', function() {
             audience: 'http://example.com',
           },
         },
-        function(err, r) {
+        function (err, r) {
           should.not.exist(err);
           r.body.email.should.equal(client.email());
           r.body.issuer.should.equal(idp.domain());
@@ -56,13 +56,13 @@ describe('basic verifier test', function() {
     });
   });
 
-  it('should return 405 for GET requests', function(done) {
+  it('should return 405 for GET requests', function (done) {
     request(
       {
         method: 'get',
         url: verifier.url(),
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(405);
         shouldReturnSecurityHeaders(r);
@@ -71,7 +71,7 @@ describe('basic verifier test', function() {
     );
   });
 
-  it('should handle any errors', function(done) {
+  it('should handle any errors', function (done) {
     request(
       {
         method: 'post',
@@ -79,7 +79,7 @@ describe('basic verifier test', function() {
         body: "{ 'a' }",
         headers: { 'content-type': 'application/json' },
       },
-      function(err, r) {
+      function (err, r) {
         should.not.exist(err);
         r.statusCode.should.equal(400);
         shouldReturnSecurityHeaders(r);
@@ -88,9 +88,9 @@ describe('basic verifier test', function() {
     );
   });
 
-  it('test servers should stop', function(done) {
-    idp.stop(function(e) {
-      verifier.stop(function(e1) {
+  it('test servers should stop', function (done) {
+    idp.stop(function (e) {
+      verifier.stop(function (e1) {
         done(e || e1);
       });
     });

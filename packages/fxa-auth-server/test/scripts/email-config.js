@@ -37,11 +37,11 @@ describe('scripts/email-config:', () => {
   beforeEach(() => {
     return redis
       .get(KEYS.current)
-      .then(result => {
+      .then((result) => {
         current = result;
         return redis.get(KEYS.previous);
       })
-      .then(result => {
+      .then((result) => {
         previous = result;
         return redis.del(KEYS.current);
       })

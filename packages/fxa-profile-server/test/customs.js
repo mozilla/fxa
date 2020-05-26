@@ -16,8 +16,8 @@ var customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
 
-describe('avatarUpload /checkAuthenticated', function(t) {
-  it('should rate limit', function() {
+describe('avatarUpload /checkAuthenticated', function (t) {
+  it('should rate limit', function () {
     var request = newRequest();
     var action = 'avatarUpload';
     var ip = request.app.clientAddress;
@@ -53,7 +53,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
     return customs
       .checkAuthenticated(action, ip, uid)
       .then(
-        function(result) {
+        function (result) {
           assert.equal(
             result,
             undefined,
@@ -61,7 +61,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
           );
           return customs.checkAuthenticated(action, ip, uid);
         },
-        function(error) {
+        function (error) {
           assert.fail(
             'We should not have failed here for /checkAuthenticated : err=' +
               error
@@ -69,7 +69,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
         }
       )
       .then(
-        function(result) {
+        function (result) {
           assert.equal(
             result,
             undefined,
@@ -77,7 +77,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
           );
           return customs.checkAuthenticated(action, ip, uid);
         },
-        function(error) {
+        function (error) {
           assert.fail(
             'We should not have failed here for /checkAuthenticated : err=' +
               error
@@ -85,7 +85,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
         }
       )
       .then(
-        function(result) {
+        function (result) {
           assert.equal(
             result,
             undefined,
@@ -93,7 +93,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
           );
           return customs.checkAuthenticated(action, ip, uid);
         },
-        function(error) {
+        function (error) {
           assert.fail(
             'We should not have failed here for /checkAuthenticated : err=' +
               error
@@ -101,7 +101,7 @@ describe('avatarUpload /checkAuthenticated', function(t) {
         }
       )
       .then(
-        function(result) {
+        function (result) {
           assert.equal(
             result,
             undefined,
@@ -109,24 +109,24 @@ describe('avatarUpload /checkAuthenticated', function(t) {
           );
           return customs.checkAuthenticated(action, ip, uid);
         },
-        function(error) {
+        function (error) {
           assert.fail(
             'We should not have failed here for /checkAuthenticated : err=' +
               error
           );
         }
       )
-      .then(function() {
+      .then(function () {
         // request is blocked
         return customs.checkAuthenticated(action, ip, uid);
       })
       .then(
-        function(result) {
+        function (result) {
           assert.fail(
             'This should have failed the check since it should be blocked'
           );
         },
-        function(error) {
+        function (error) {
           assert.ok('Since we faked a block, we should have arrived here');
           assert.equal(error.errno, 114, 'Error number is correct');
           assert.equal(

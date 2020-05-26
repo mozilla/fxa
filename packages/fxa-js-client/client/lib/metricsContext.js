@@ -5,7 +5,7 @@
 'use strict';
 
 module.exports = {
-  marshall: function(data) {
+  marshall: function (data) {
     return {
       deviceId: data.deviceId,
       entrypoint: data.entrypoint,

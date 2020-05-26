@@ -43,8 +43,8 @@ export class Validator {
 
   allValid() {
     return Object.values(this.state.fields)
-      .filter(field => field.required)
-      .every(field => field.valid === true);
+      .filter((field) => field.required)
+      .every((field) => field.valid === true);
   }
 
   registerField({
@@ -162,7 +162,7 @@ export const mainReducer: ActionReducer = (state, action) => {
   switch (action.type) {
     case 'registerField': {
       const { name, fieldType, required, initialValue } = action;
-      return setFieldState(state, name, field => ({
+      return setFieldState(state, name, (field) => ({
         value: initialValue,
         valid: null,
         error: null,
@@ -173,7 +173,7 @@ export const mainReducer: ActionReducer = (state, action) => {
     }
     case 'updateField': {
       const { name, value, valid, error } = action;
-      return setFieldState(state, name, field => ({
+      return setFieldState(state, name, (field) => ({
         ...field,
         value,
         valid,

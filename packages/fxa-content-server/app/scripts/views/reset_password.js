@@ -13,7 +13,7 @@ import ServiceMixin from './mixins/service-mixin';
 import Session from '../lib/session';
 import Template from 'templates/reset_password.mustache';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const ResetPasswordView = FormView.extend({
   events: {
@@ -45,7 +45,7 @@ const ResetPasswordView = FormView.extend({
     if (canSkip && email) {
       return this._resetPassword(email)
         .then(() => false)
-        .catch(err => {
+        .catch((err) => {
           this.model.set('error', err);
         });
     }
@@ -83,7 +83,7 @@ const ResetPasswordView = FormView.extend({
   },
 
   _resetPassword(email) {
-    return this.resetPassword(email).catch(err => {
+    return this.resetPassword(email).catch((err) => {
       // clear oauth session
       Session.clear('oauth');
       if (AuthErrors.is(err, 'UNKNOWN_ACCOUNT')) {

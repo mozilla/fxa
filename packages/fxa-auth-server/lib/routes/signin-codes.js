@@ -25,10 +25,7 @@ module.exports = (log, db, customs, config) => {
       options: {
         validate: {
           payload: {
-            code: isA
-              .string()
-              .regex(validators.URL_SAFE_BASE_64)
-              .required(),
+            code: isA.string().regex(validators.URL_SAFE_BASE_64).required(),
             metricsContext: METRICS_CONTEXT_SCHEMA,
           },
         },
@@ -38,7 +35,7 @@ module.exports = (log, db, customs, config) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('signinCodes.consume', request);
         request.validateMetricsContext();
 
@@ -78,7 +75,7 @@ module.exports = (log, db, customs, config) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('signinCodes', request);
 
         const sessionToken = request.auth.credentials;

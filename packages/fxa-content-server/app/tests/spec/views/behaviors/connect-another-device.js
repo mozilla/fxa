@@ -41,7 +41,7 @@ describe('views/behaviors/connect-another-device', () => {
         .stub(view, 'navigateToConnectAnotherDeviceScreen')
         .callsFake(() => {});
 
-      return cadBehavior(view, account).then(behavior => {
+      return cadBehavior(view, account).then((behavior) => {
         assert.strictEqual(behavior, defaultBehavior);
 
         assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);
@@ -73,7 +73,7 @@ describe('views/behaviors/connect-another-device', () => {
         .stub(view, 'navigateToConnectAnotherDeviceScreen')
         .callsFake(() => {});
 
-      return cadBehavior(view, account).then(behavior => {
+      return cadBehavior(view, account).then((behavior) => {
         assert.strictEqual(behavior, defaultBehavior);
 
         assert.isTrue(view.isEligibleForConnectAnotherDevice.calledOnce);

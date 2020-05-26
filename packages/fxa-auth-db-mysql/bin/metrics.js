@@ -94,7 +94,7 @@ function run(config, now) {
       },
       patchKey: 'schema-patch-level',
     })
-    .then(function(result) {
+    .then(function (result) {
       db = result;
       return db.readMultiple(
         [
@@ -109,7 +109,7 @@ function run(config, now) {
         { sql: 'COMMIT' }
       );
     })
-    .then(function(results) {
+    .then(function (results) {
       assertResults(results, 2, 6);
       fs.appendFileSync(
         '/media/ephemeral0/fxa-admin/basic_metrics.log',
@@ -128,7 +128,7 @@ function run(config, now) {
       );
       db.close();
     })
-    .catch(function(error) {
+    .catch(function (error) {
       log.error('metrics.run', error);
       db.close();
     });
@@ -140,7 +140,7 @@ function run(config, now) {
 
 function assertResults(results, firstIndex, lastIndex) {
   results
-    .filter(function(result, index) {
+    .filter(function (result, index) {
       return index >= firstIndex && index <= lastIndex;
     })
     .forEach(assertResult);

@@ -117,7 +117,7 @@ if (profile) {
 
   myProfile.updatePreferences();
 
-  myProfile.encoded(function(err, encodedProfile) {
+  myProfile.encoded(function (err, encodedProfile) {
     // output the generated encoded profile as stdout
     // NOTE: if an error occurs with the encodedProfile then the default Firefox settings will be used in your tests
     process.stdout.write(encodedProfile);

@@ -16,7 +16,7 @@ function makeRoutes(options = {}, requireMocks) {
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
   const customs = options.customs || {
-    check: function() {
+    check: function () {
       return P.resolve(true);
     },
   };
@@ -72,7 +72,7 @@ describe('/account/login/send_unblock_code', () => {
   });
 
   it('signin unblock enabled', () => {
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.ok(!(response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 
@@ -113,7 +113,7 @@ describe('/account/login/send_unblock_code', () => {
   it('uses normalized email address for feature flag', () => {
     mockRequest.payload.email = 'UNBLOCK@example.com';
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.ok(!(response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 
@@ -149,7 +149,7 @@ describe('/account/login/reject_unblock_code', () => {
     });
     const route = getRoute(accountRoutes, '/account/login/reject_unblock_code');
 
-    return runTest(route, mockRequest, response => {
+    return runTest(route, mockRequest, (response) => {
       assert.ok(!(response instanceof Error), response.stack);
       assert.deepEqual(response, {}, 'response has no keys');
 

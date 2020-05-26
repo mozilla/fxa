@@ -24,7 +24,7 @@ module.exports = {
 
     return db
       .getDeveloper(email)
-      .then(function(developer) {
+      .then(function (developer) {
         if (developer) {
           return developer;
         } else {

@@ -11,7 +11,7 @@ const TEMPLATE =
   '<input type="text" pattern="d*" class="otp-code"></input>' +
   '<input type="text" pattern="d*" class="not-code"></input>';
 
-describe('views/elements/otp-code-input', function() {
+describe('views/elements/otp-code-input', function () {
   let $element;
   let $otherElement;
 

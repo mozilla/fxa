@@ -10,11 +10,11 @@ const DEFAULT_COUNTRY = 'US';
 
 const element = Object.create(textInput);
 
-element.match = function($el) {
+element.match = function ($el) {
   return $el.attr('type') === 'tel';
 };
 
-element.val = function(val) {
+element.val = function (val) {
   if (arguments.length === 1) {
     return this.__val(val);
   }
@@ -22,7 +22,7 @@ element.val = function(val) {
   return this.__val().replace(/[.,()\s-]/g, '');
 };
 
-element.validate = function() {
+element.validate = function () {
   const isRequired = typeof this.attr('required') !== 'undefined';
   const value = this.val();
   const len = value.length;

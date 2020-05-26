@@ -30,23 +30,23 @@ const {
   thenify,
 } = FunctionalHelpers;
 
-var openPageWithQueryParams = thenify(function(query, expectedHeader) {
+var openPageWithQueryParams = thenify(function (query, expectedHeader) {
   return this.parent.then(openPage(ENTER_EMAIL_URL, expectedHeader, { query }));
 });
 
-var openEmailFirstExpect200 = thenify(function(queryParams) {
+var openEmailFirstExpect200 = thenify(function (queryParams) {
   return this.parent.then(
     openPageWithQueryParams(queryParams, selectors.ENTER_EMAIL.HEADER)
   );
 });
 
-var openEmailFirstExpect400 = thenify(function(queryParams) {
+var openEmailFirstExpect400 = thenify(function (queryParams) {
   return this.parent.then(
     openPageWithQueryParams(queryParams, selectors['400'].HEADER)
   );
 });
 
-const openAuthorizationWithQueryParams = thenify(function(
+const openAuthorizationWithQueryParams = thenify(function (
   query,
   expectedHeader
 ) {
@@ -55,13 +55,13 @@ const openAuthorizationWithQueryParams = thenify(function(
   );
 });
 
-var testErrorInclude = function(expected) {
+var testErrorInclude = function (expected) {
   return testElementTextInclude('.error', expected);
 };
 
 /*eslint-disable camelcase */
 registerSuite('oauth query parameter validation', {
-  beforeEach: function() {
+  beforeEach: function () {
     return this.remote
       .then(
         clearBrowserState({
@@ -70,17 +70,17 @@ registerSuite('oauth query parameter validation', {
       )
       .then(openFxaFromRp('enter-email'))
       .then(getQueryParamValue('client_id'))
-      .then(function(clientId) {
+      .then(function (clientId) {
         TRUSTED_CLIENT_ID = clientId;
       })
       .then(openFxaFromUntrustedRp('enter-email'))
       .then(getQueryParamValue('client_id'))
-      .then(function(clientId) {
+      .then(function (clientId) {
         UNTRUSTED_CLIENT_ID = clientId;
       });
   },
   tests: {
-    'service specified': function() {
+    'service specified': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -94,7 +94,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('service'));
     },
 
-    'invalid access_type': function() {
+    'invalid access_type': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -108,7 +108,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('access_type'));
     },
 
-    'valid access_type (offline)': function() {
+    'valid access_type (offline)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           access_type: 'offline',
@@ -119,7 +119,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'valid access_type (online)': function() {
+    'valid access_type (online)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           access_type: 'online',
@@ -130,7 +130,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'missing client_id': function() {
+    'missing client_id': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -141,7 +141,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('client_id'));
     },
 
-    'empty client_id': function() {
+    'empty client_id': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -153,7 +153,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('client_id'));
     },
 
-    'space client_id': function() {
+    'space client_id': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -165,7 +165,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('client_id'));
     },
 
-    'invalid client_id': function() {
+    'invalid client_id': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -177,7 +177,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('client_id'));
     },
 
-    'unknown client_id': function() {
+    'unknown client_id': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -188,7 +188,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('unknown client'));
     },
 
-    'empty prompt': function() {
+    'empty prompt': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -201,7 +201,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('prompt'));
     },
 
-    'space prompt': function() {
+    'space prompt': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -214,7 +214,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('prompt'));
     },
 
-    'invalid prompt': function() {
+    'invalid prompt': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -228,7 +228,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('prompt'));
     },
 
-    'valid prompt (consent)': function() {
+    'valid prompt (consent)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           client_id: TRUSTED_CLIENT_ID,
@@ -239,7 +239,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'invalid redirectTo (url)': function() {
+    'invalid redirectTo (url)': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -252,7 +252,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('redirectTo'));
     },
 
-    'valid redirectTo (url)': function() {
+    'valid redirectTo (url)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           client_id: TRUSTED_CLIENT_ID,
@@ -263,7 +263,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'invalid redirect_uri (url)': function() {
+    'invalid redirect_uri (url)': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -276,7 +276,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('redirect_uri'));
     },
 
-    'valid redirect_uri (url)': function() {
+    'valid redirect_uri (url)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           client_id: TRUSTED_CLIENT_ID,
@@ -286,7 +286,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'missing scope': function() {
+    'missing scope': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -297,7 +297,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('scope'));
     },
 
-    'empty scope': function() {
+    'empty scope': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -309,7 +309,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('scope'));
     },
 
-    'space scope': function() {
+    'space scope': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -321,7 +321,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('scope'));
     },
 
-    'no valid scopes (untrusted)': function() {
+    'no valid scopes (untrusted)': function () {
       return this.remote
         .then(
           openEmailFirstExpect400({
@@ -334,7 +334,7 @@ registerSuite('oauth query parameter validation', {
         .then(testErrorInclude('scope'));
     },
 
-    'valid scope (trusted)': function() {
+    'valid scope (trusted)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           client_id: TRUSTED_CLIENT_ID,
@@ -344,7 +344,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'valid scope (untrusted)': function() {
+    'valid scope (untrusted)': function () {
       return this.remote.then(
         openEmailFirstExpect200({
           client_id: UNTRUSTED_CLIENT_ID,
@@ -354,7 +354,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'authorization with no action (trusted)': function() {
+    'authorization with no action (trusted)': function () {
       return this.remote.then(
         openAuthorizationWithQueryParams(
           {
@@ -367,7 +367,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'authorization with force_auth with no email (trusted)': function() {
+    'authorization with force_auth with no email (trusted)': function () {
       return (
         this.remote
           // 400s because there is no email set
@@ -385,7 +385,7 @@ registerSuite('oauth query parameter validation', {
       );
     },
 
-    'authorization with unknown action (trusted)': function() {
+    'authorization with unknown action (trusted)': function () {
       return (
         this.remote
           // 400s because there is no email set

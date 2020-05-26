@@ -10,8 +10,8 @@ import Relier from 'models/reliers/relier';
 import SignUpMixin from 'views/mixins/signup-mixin';
 import sinon from 'sinon';
 
-describe('views/mixins/signup-mixin', function() {
-  it('exports correct interface', function() {
+describe('views/mixins/signup-mixin', function () {
+  it('exports correct interface', function () {
     assert.isObject(SignUpMixin);
     assert.lengthOf(Object.keys(SignUpMixin), 5);
     assert.isFunction(SignUpMixin.signUp);
@@ -19,14 +19,14 @@ describe('views/mixins/signup-mixin', function() {
     assert.isArray(SignUpMixin.dependsOn);
   });
 
-  describe('signUp', function() {
+  describe('signUp', function () {
     let account;
     let broker;
     let relier;
     let user;
     let view;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = new Account({
         email: 'testuser@testuser.com',
       });
@@ -34,7 +34,7 @@ describe('views/mixins/signup-mixin', function() {
       broker = new Broker();
       relier = new Relier();
       user = {
-        signUpAccount: sinon.spy(account => Promise.resolve(account)),
+        signUpAccount: sinon.spy((account) => Promise.resolve(account)),
       };
 
       view = {
@@ -43,7 +43,7 @@ describe('views/mixins/signup-mixin', function() {
           clear: sinon.spy(),
         },
         getStringifiedResumeToken: sinon.spy(() => 'resume token'),
-        invokeBrokerMethod: sinon.spy(function() {
+        invokeBrokerMethod: sinon.spy(function () {
           return Promise.resolve();
         }),
         logEvent: sinon.spy(),
@@ -62,9 +62,9 @@ describe('views/mixins/signup-mixin', function() {
       };
     });
 
-    describe('account needs permissions', function() {
-      beforeEach(function() {
-        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function() {
+    describe('account needs permissions', function () {
+      beforeEach(function () {
+        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
           return true;
         });
 
@@ -88,7 +88,7 @@ describe('views/mixins/signup-mixin', function() {
         assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
       });
 
-      it('redirects to the `signup_permissions` screen', function() {
+      it('redirects to the `signup_permissions` screen', function () {
         assert.isTrue(view.navigate.calledOnce);
 
         var args = view.navigate.args[0];
@@ -97,13 +97,13 @@ describe('views/mixins/signup-mixin', function() {
         assert.isFunction(args[1].onSubmitComplete);
       });
 
-      it('does not log any events', function() {
+      it('does not log any events', function () {
         assert.isFalse(view.logViewEvent.called);
       });
     });
 
     describe('choose what to sync displayed when entering the password', () => {
-      beforeEach(function() {
+      beforeEach(function () {
         broker.set('chooseWhatToSyncWebV1Engines', new Model());
         sinon.stub(view, 'onSignUpSuccess').callsFake(() => Promise.resolve());
         // use a direct assignment rather than a stub because
@@ -119,8 +119,8 @@ describe('views/mixins/signup-mixin', function() {
       });
     });
 
-    describe('choose what to sync not displayed when entering password', function() {
-      beforeEach(function() {
+    describe('choose what to sync not displayed when entering password', function () {
+      beforeEach(function () {
         broker.set('chooseWhatToSyncWebV1Engines', new Model());
         broker.setCapability('syncOptional', true);
 
@@ -140,7 +140,7 @@ describe('views/mixins/signup-mixin', function() {
         assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
       });
 
-      it('redirects to the `choose_what_to_sync` screen', function() {
+      it('redirects to the `choose_what_to_sync` screen', function () {
         assert.isTrue(view.navigate.calledOnce);
 
         var args = view.navigate.args[0];
@@ -150,13 +150,13 @@ describe('views/mixins/signup-mixin', function() {
         assert.isFunction(args[1].onSubmitComplete);
       });
 
-      it('does not log any events', function() {
+      it('does not log any events', function () {
         assert.isFalse(view.logViewEvent.called);
       });
     });
 
-    describe('everyone else', function() {
-      beforeEach(function() {
+    describe('everyone else', function () {
+      beforeEach(function () {
         account.set('verified', false);
         sinon.stub(view, 'onSignUpSuccess').callsFake(() => Promise.resolve());
 
@@ -176,12 +176,12 @@ describe('views/mixins/signup-mixin', function() {
         assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
       });
 
-      it('calls view.formPrefill.clear correctly', function() {
+      it('calls view.formPrefill.clear correctly', function () {
         assert.equal(view.formPrefill.clear.callCount, 1);
         assert.lengthOf(view.formPrefill.clear.args[0], 0);
       });
 
-      it('calls view.invokeBrokerMethod correctly', function() {
+      it('calls view.invokeBrokerMethod correctly', function () {
         assert.equal(view.invokeBrokerMethod.callCount, 1);
 
         var args = view.invokeBrokerMethod.args[0];
@@ -196,13 +196,13 @@ describe('views/mixins/signup-mixin', function() {
       });
     });
 
-    describe('formPrefill undefined', function() {
-      beforeEach(function() {
+    describe('formPrefill undefined', function () {
+      beforeEach(function () {
         view.formPrefill = undefined;
       });
 
-      it('does not throw', function() {
-        assert.doesNotThrow(function() {
+      it('does not throw', function () {
+        assert.doesNotThrow(function () {
           return view.signUp(account);
         });
       });

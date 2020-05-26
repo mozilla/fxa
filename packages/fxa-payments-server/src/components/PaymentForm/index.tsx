@@ -105,7 +105,7 @@ export const PaymentForm = ({
   const showProgressSpinner = nonceMatch || inProgress;
 
   const onSubmit = useCallback(
-    ev => {
+    (ev) => {
       ev.preventDefault();
       if (!shouldAllowSubmit) {
         return;
@@ -118,7 +118,7 @@ export const PaymentForm = ({
           .then((tokenResponse: stripe.TokenResponse) => {
             onPayment(tokenResponse, name, submitNonce);
           })
-          .catch(err => {
+          .catch((err) => {
             onPaymentError(err);
           });
       }

@@ -44,7 +44,7 @@ module.exports = {
     }
 
     function getVersion() {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         // figure it out from .git
         const gitDir = path.resolve(__dirname, '..', '..', '..', '..', '.git');
         // eslint-disable-next-line handle-callback-err

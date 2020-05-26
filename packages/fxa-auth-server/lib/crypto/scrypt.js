@@ -19,7 +19,7 @@ const DEFAULT_MAXMEM = MAXMEM_MULTIPLIER * DEFAULT_N * DEFAULT_R;
 // exported object, or by setting the `scrypt.maxPending` config option.
 const DEFAULT_MAX_PENDING = 100;
 
-module.exports = function(log, config) {
+module.exports = function (log, config) {
   const scrypt = {
     hash: hash,
     // The current number of hash operations in progress.

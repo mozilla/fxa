@@ -14,7 +14,7 @@ const ERRNO = {
   HARD_BOUNCE: 108,
 };
 
-module.exports = config => {
+module.exports = (config) => {
   function sendMail(emailConfig, cb) {
     // Email service requires that all headers are strings.
     const headers = {};

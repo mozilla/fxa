@@ -32,7 +32,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     account.emails = await this.accountEmails(account.uid);
 
     // Set primary email on account object
-    account.emails.forEach(item => {
+    account.emails.forEach((item) => {
       item.isVerified = !!item.isVerified;
       item.isPrimary = !!item.isPrimary;
 
@@ -59,11 +59,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       );
   }
 
-  DB.connect = async function(options) {
+  DB.connect = async function (options) {
     return new DB(options);
   };
 
-  DB.prototype.close = async function() {
+  DB.prototype.close = async function () {
     const promises = [this.pool.close()];
     if (this.redis) {
       promises.push(this.redis.close());
@@ -72,14 +72,14 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.ping = new SafeUrl('/__heartbeat__', 'db.ping');
-  DB.prototype.ping = async function() {
+  DB.prototype.ping = async function () {
     return this.pool.get(SAFE_URLS.ping);
   };
 
   // CREATE
 
   SAFE_URLS.createAccount = new SafeUrl('/account/:uid', 'db.createAccount');
-  DB.prototype.createAccount = async function(data) {
+  DB.prototype.createAccount = async function (data) {
     const { uid, email } = data;
     log.trace('DB.createAccount', { uid, email });
     data.createdAt = data.verifierSetAt = Date.now();
@@ -99,7 +99,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/sessionToken/:id',
     'db.createSessionToken'
   );
-  DB.prototype.createSessionToken = async function(authToken) {
+  DB.prototype.createSessionToken = async function (authToken) {
     const { uid } = authToken;
 
     log.trace('DB.createSessionToken', { uid });
@@ -133,7 +133,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/keyFetchToken/:id',
     'db.createKeyFetchToken'
   );
-  DB.prototype.createKeyFetchToken = async function(authToken) {
+  DB.prototype.createKeyFetchToken = async function (authToken) {
     log.trace('DB.createKeyFetchToken', { uid: authToken && authToken.uid });
     const keyFetchToken = await KeyFetchToken.create(authToken);
     const { id } = keyFetchToken;
@@ -156,7 +156,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordForgotToken/:id',
     'db.createPasswordForgotToken'
   );
-  DB.prototype.createPasswordForgotToken = async function(emailRecord) {
+  DB.prototype.createPasswordForgotToken = async function (emailRecord) {
     log.trace('DB.createPasswordForgotToken', {
       uid: emailRecord && emailRecord.uid,
     });
@@ -181,7 +181,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordChangeToken/:id',
     'db.createPasswordChangeToken'
   );
-  DB.prototype.createPasswordChangeToken = async function(data) {
+  DB.prototype.createPasswordChangeToken = async function (data) {
     log.trace('DB.createPasswordChangeToken', { uid: data.uid });
     const passwordChangeToken = await PasswordChangeToken.create(data);
     const { id } = passwordChangeToken;
@@ -204,7 +204,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/checkPassword',
     'db.checkPassword'
   );
-  DB.prototype.checkPassword = async function(uid, verifyHash) {
+  DB.prototype.checkPassword = async function (uid, verifyHash) {
     log.trace('DB.checkPassword', { uid, verifyHash });
     try {
       await this.pool.post(
@@ -223,7 +223,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
   };
 
-  DB.prototype.accountExists = async function(email) {
+  DB.prototype.accountExists = async function (email) {
     log.trace('DB.accountExists', { email: email });
     try {
       await this.accountRecord(email);
@@ -237,7 +237,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.sessions = new SafeUrl('/account/:uid/sessions', 'db.sessions');
-  DB.prototype.sessions = async function(uid) {
+  DB.prototype.sessions = async function (uid) {
     log.trace('DB.sessions', { uid });
     const getMysqlSessionTokens = async () => {
       let sessionTokens = await this.pool.get(SAFE_URLS.sessions, { uid });
@@ -248,7 +248,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       const expiredSessionTokens = [];
 
       // Filter out any expired sessions
-      sessionTokens = sessionTokens.filter(sessionToken => {
+      sessionTokens = sessionTokens.filter((sessionToken) => {
         if (sessionToken.deviceId) {
           return true;
         }
@@ -291,7 +291,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     // for each db session token, if there is a matching redis token
     // overwrite the properties of the db token with the redis token values
     const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(uid);
-    const sessions = mysqlSessionTokens.map(sessionToken => {
+    const sessions = mysqlSessionTokens.map((sessionToken) => {
       const id = sessionToken.tokenId;
       const redisToken = redisSessionTokens[id];
       const mergedToken = Object.assign({}, sessionToken, redisToken, {
@@ -316,7 +316,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/keyFetchToken/:id',
     'db.keyFetchToken'
   );
-  DB.prototype.keyFetchToken = async function(id) {
+  DB.prototype.keyFetchToken = async function (id) {
     log.trace('DB.keyFetchToken', { id });
     let data;
     try {
@@ -331,7 +331,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/keyFetchToken/:id/verified',
     'db.keyFetchTokenWithVerificationStatus'
   );
-  DB.prototype.keyFetchTokenWithVerificationStatus = async function(id) {
+  DB.prototype.keyFetchTokenWithVerificationStatus = async function (id) {
     log.trace('DB.keyFetchTokenWithVerificationStatus', { id });
     let data;
     try {
@@ -349,7 +349,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/accountResetToken/:id',
     'db.accountResetToken'
   );
-  DB.prototype.accountResetToken = async function(id) {
+  DB.prototype.accountResetToken = async function (id) {
     log.trace('DB.accountResetToken', { id });
     let data;
     try {
@@ -364,7 +364,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordForgotToken/:id',
     'db.passwordForgotToken'
   );
-  DB.prototype.passwordForgotToken = async function(id) {
+  DB.prototype.passwordForgotToken = async function (id) {
     let data;
     log.trace('DB.passwordForgotToken', { id });
     try {
@@ -379,7 +379,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordChangeToken/:id',
     'db.passwordChangeToken'
   );
-  DB.prototype.passwordChangeToken = async function(id) {
+  DB.prototype.passwordChangeToken = async function (id) {
     log.trace('DB.passwordChangeToken', { id });
     let data;
     try {
@@ -395,7 +395,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
    * for all other uses.
    */
   SAFE_URLS.emailRecord = new SafeUrl('/emailRecord/:email', 'db.emailRecord');
-  DB.prototype.emailRecord = async function(email) {
+  DB.prototype.emailRecord = async function (email) {
     log.trace('DB.emailRecord', { email });
     let body;
     try {
@@ -415,7 +415,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/email/:email/account',
     'db.accountRecord'
   );
-  DB.prototype.accountRecord = async function(email) {
+  DB.prototype.accountRecord = async function (email) {
     log.trace('DB.accountRecord', { email });
     let body;
     try {
@@ -437,7 +437,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/email/:email/account/:uid',
     'db.setPrimaryEmail'
   );
-  DB.prototype.setPrimaryEmail = async function(uid, email) {
+  DB.prototype.setPrimaryEmail = async function (uid, email) {
     log.trace('DB.setPrimaryEmail', { email });
     try {
       return await this.pool.post(SAFE_URLS.setPrimaryEmail, {
@@ -453,7 +453,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.account = new SafeUrl('/account/:uid', 'db.account');
-  DB.prototype.account = async function(uid) {
+  DB.prototype.account = async function (uid) {
     log.trace('DB.account', { uid });
     let body;
     try {
@@ -469,7 +469,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.devices = new SafeUrl('/account/:uid/devices', 'db.devices');
-  DB.prototype.devices = async function(uid) {
+  DB.prototype.devices = async function (uid) {
     log.trace('DB.devices', { uid });
 
     if (!uid) {
@@ -487,7 +487,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       const lastAccessTimeEnabled = features.isLastAccessTimeEnabledForUser(
         uid
       );
-      return devices.map(device => {
+      return devices.map((device) => {
         return mergeDeviceInfoFromRedis(
           device,
           redisSessionTokens,
@@ -503,7 +503,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.sessionToken = new SafeUrl('/sessionToken/:id', 'db.sessionToken');
-  DB.prototype.sessionToken = async function(id) {
+  DB.prototype.sessionToken = async function (id) {
     log.trace('DB.sessionToken', { id });
     let data;
     try {
@@ -520,7 +520,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordForgotToken/:id/update',
     'db.updatePasswordForgotToken'
   );
-  DB.prototype.updatePasswordForgotToken = async function(token) {
+  DB.prototype.updatePasswordForgotToken = async function (token) {
     log.trace('DB.udatePasswordForgotToken', { uid: token && token.uid });
     const { id } = token;
     return this.pool.post(
@@ -541,7 +541,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
    * To do a more expensive write that flushes to the underlying
    * DB, use updateSessionToken instead.
    */
-  DB.prototype.touchSessionToken = async function(token, geo) {
+  DB.prototype.touchSessionToken = async function (token, geo) {
     const { id, uid } = token;
 
     log.trace('DB.touchSessionToken', { id, uid });
@@ -589,7 +589,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/sessionToken/:id/update',
     'db.updateSessionToken'
   );
-  DB.prototype.updateSessionToken = async function(sessionToken, geo) {
+  DB.prototype.updateSessionToken = async function (sessionToken, geo) {
     const { id, uid } = sessionToken;
 
     log.trace('DB.updateSessionToken', { id, uid });
@@ -612,7 +612,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     );
   };
 
-  DB.prototype.pruneSessionTokens = async function(uid, sessionTokens) {
+  DB.prototype.pruneSessionTokens = async function (uid, sessionTokens) {
     log.trace('DB.pruneSessionTokens', {
       uid,
       tokenCount: sessionTokens.length,
@@ -627,8 +627,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
 
     const tokenIds = sessionTokens
-      .filter(token => token.createdAt <= Date.now() - TOKEN_PRUNING_MAX_AGE)
-      .map(token => token.id);
+      .filter((token) => token.createdAt <= Date.now() - TOKEN_PRUNING_MAX_AGE)
+      .map((token) => token.id);
 
     if (tokenIds.length === 0) {
       return;
@@ -638,7 +638,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.device = new SafeUrl('/account/:uid/device/:deviceId', 'db.device');
-  DB.prototype.device = async function(uid, deviceId) {
+  DB.prototype.device = async function (uid, deviceId) {
     log.trace('DB.device', { uid: uid, id: deviceId });
 
     const promises = [this.pool.get(SAFE_URLS.device, { uid, deviceId })];
@@ -668,7 +668,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/device/:id',
     'db.createDevice'
   );
-  DB.prototype.createDevice = async function(uid, deviceInfo) {
+  DB.prototype.createDevice = async function (uid, deviceInfo) {
     log.trace('DB.createDevice', { uid: uid, id: deviceInfo.id });
     const sessionTokenId = deviceInfo.sessionTokenId;
     const refreshTokenId = deviceInfo.refreshTokenId;
@@ -733,7 +733,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/device/:id/update',
     'db.updateDevice'
   );
-  DB.prototype.updateDevice = async function(uid, deviceInfo) {
+  DB.prototype.updateDevice = async function (uid, deviceInfo) {
     const { id } = deviceInfo;
     const sessionTokenId = deviceInfo.sessionTokenId;
     const refreshTokenId = deviceInfo.refreshTokenId;
@@ -764,7 +764,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
         // to save a server round-trip for the client.
         const devices = await this.devices(uid);
         let conflictingDeviceId;
-        devices.some(device => {
+        devices.some((device) => {
           if (device.sessionTokenId === sessionTokenId) {
             conflictingDeviceId = device.id;
             return true;
@@ -780,7 +780,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   // DELETE
 
   SAFE_URLS.deleteAccount = new SafeUrl('/account/:uid', 'db.deleteAccount');
-  DB.prototype.deleteAccount = async function(authToken) {
+  DB.prototype.deleteAccount = async function (authToken) {
     const { uid } = authToken;
 
     log.trace('DB.deleteAccount', { uid });
@@ -794,7 +794,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/sessionToken/:id',
     'db.deleteSessionToken'
   );
-  DB.prototype.deleteSessionToken = async function(sessionToken) {
+  DB.prototype.deleteSessionToken = async function (sessionToken) {
     const { id, uid } = sessionToken;
 
     log.trace('DB.deleteSessionToken', { id, uid });
@@ -807,7 +807,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/keyFetchToken/:id',
     'db.deleteKeyFetchToken'
   );
-  DB.prototype.deleteKeyFetchToken = async function(keyFetchToken) {
+  DB.prototype.deleteKeyFetchToken = async function (keyFetchToken) {
     const { id, uid } = keyFetchToken;
     log.trace('DB.deleteKeyFetchToken', { id, uid });
     return this.pool.del(SAFE_URLS.deleteKeyFetchToken, { id });
@@ -817,7 +817,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/accountResetToken/:id',
     'db.deleteAccountResetToken'
   );
-  DB.prototype.deleteAccountResetToken = async function(accountResetToken) {
+  DB.prototype.deleteAccountResetToken = async function (accountResetToken) {
     const { id, uid } = accountResetToken;
     log.trace('DB.deleteAccountResetToken', { id, uid });
     return this.pool.del(SAFE_URLS.deleteAccountResetToken, { id });
@@ -827,7 +827,9 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordForgotToken/:id',
     'db.deletePasswordForgotToken'
   );
-  DB.prototype.deletePasswordForgotToken = async function(passwordForgotToken) {
+  DB.prototype.deletePasswordForgotToken = async function (
+    passwordForgotToken
+  ) {
     const { id, uid } = passwordForgotToken;
     log.trace('DB.deletePasswordForgotToken', { id, uid });
     return this.pool.del(SAFE_URLS.deletePasswordForgotToken, { id });
@@ -837,7 +839,9 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordChangeToken/:id',
     'db.deletePasswordChangeToken'
   );
-  DB.prototype.deletePasswordChangeToken = async function(passwordChangeToken) {
+  DB.prototype.deletePasswordChangeToken = async function (
+    passwordChangeToken
+  ) {
     const { id, uid } = passwordChangeToken;
     log.trace('DB.deletePasswordChangeToken', { id, uid });
     return this.pool.del(SAFE_URLS.deletePasswordChangeToken, { id });
@@ -847,7 +851,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/device/:deviceId',
     'db.deleteDevice'
   );
-  DB.prototype.deleteDevice = async function(uid, deviceId) {
+  DB.prototype.deleteDevice = async function (uid, deviceId) {
     log.trace('DB.deleteDevice', { uid, id: deviceId });
 
     try {
@@ -869,7 +873,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/tokens/:tokenVerificationId/device',
     'db.deviceFromTokenVerificationId'
   );
-  DB.prototype.deviceFromTokenVerificationId = async function(
+  DB.prototype.deviceFromTokenVerificationId = async function (
     uid,
     tokenVerificationId
   ) {
@@ -893,7 +897,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/reset',
     'db.resetAccount'
   );
-  DB.prototype.resetAccount = async function(accountResetToken, data) {
+  DB.prototype.resetAccount = async function (accountResetToken, data) {
     const { uid } = accountResetToken;
 
     log.trace('DB.resetAccount', { uid });
@@ -908,7 +912,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/verifyEmail/:emailCode',
     'db.verifyEmail'
   );
-  DB.prototype.verifyEmail = async function(account, emailCode) {
+  DB.prototype.verifyEmail = async function (account, emailCode) {
     const { uid } = account;
     log.trace('DB.verifyEmail', { uid, emailCode });
     return this.pool.post(SAFE_URLS.verifyEmail, { uid, emailCode });
@@ -918,7 +922,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/tokens/:tokenVerificationId/verify',
     'db.verifyTokens'
   );
-  DB.prototype.verifyTokens = async function(tokenVerificationId, accountData) {
+  DB.prototype.verifyTokens = async function (
+    tokenVerificationId,
+    accountData
+  ) {
     log.trace('DB.verifyTokens', { tokenVerificationId });
     try {
       return await this.pool.post(
@@ -938,7 +945,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/tokens/:tokenId/verifyWithMethod',
     'db.verifyTokensWithMethod'
   );
-  DB.prototype.verifyTokensWithMethod = async function(
+  DB.prototype.verifyTokensWithMethod = async function (
     tokenId,
     verificationMethod
   ) {
@@ -954,7 +961,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/tokens/:code/verifyCode',
     'db.verifyTokenCode'
   );
-  DB.prototype.verifyTokenCode = async function(code, accountData) {
+  DB.prototype.verifyTokenCode = async function (code, accountData) {
     log.trace('DB.verifyTokenCode', { code });
     try {
       return await this.pool.post(
@@ -976,7 +983,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/passwordForgotToken/:id/verified',
     'db.forgotPasswordVerified'
   );
-  DB.prototype.forgotPasswordVerified = async function(passwordForgotToken) {
+  DB.prototype.forgotPasswordVerified = async function (passwordForgotToken) {
     const { id, uid } = passwordForgotToken;
     log.trace('DB.forgotPasswordVerified', { uid });
     const accountResetToken = await AccountResetToken.create({ uid });
@@ -997,13 +1004,13 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/locale',
     'db.updateLocale'
   );
-  DB.prototype.updateLocale = async function(uid, locale) {
+  DB.prototype.updateLocale = async function (uid, locale) {
     log.trace('DB.updateLocale', { uid, locale });
     return this.pool.post(SAFE_URLS.updateLocale, { uid }, { locale: locale });
   };
 
   SAFE_URLS.securityEvent = new SafeUrl('/securityEvents', 'db.securityEvent');
-  DB.prototype.securityEvent = async function(event) {
+  DB.prototype.securityEvent = async function (event) {
     log.trace('DB.securityEvent', {
       securityEvent: event,
     });
@@ -1015,7 +1022,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/securityEvents/:uid/ip/:ipAddr',
     'db.securityEvents'
   );
-  DB.prototype.securityEvents = async function(params) {
+  DB.prototype.securityEvents = async function (params) {
     log.trace('DB.securityEvents', {
       params: params,
     });
@@ -1027,7 +1034,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/securityEvents/:uid',
     'db.securityEventsByUid'
   );
-  DB.prototype.securityEventsByUid = async function(params) {
+  DB.prototype.securityEventsByUid = async function (params) {
     log.trace('DB.securityEventsByUid', {
       params: params,
     });
@@ -1039,7 +1046,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/securityEvents/:uid',
     'db.deleteSecurityEventsByUid'
   );
-  DB.prototype.deleteSecurityEvents = async function(params) {
+  DB.prototype.deleteSecurityEvents = async function (params) {
     log.trace('DB.deleteSecurityEvents', {
       params: params,
     });
@@ -1051,7 +1058,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/unblock/:unblock',
     'db.createUnblockCode'
   );
-  DB.prototype.createUnblockCode = async function(uid) {
+  DB.prototype.createUnblockCode = async function (uid) {
     if (!UnblockCode) {
       return Promise.reject(new Error('Unblock has not been configured'));
     }
@@ -1078,7 +1085,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/unblock/:code',
     'db.consumeUnblockCode'
   );
-  DB.prototype.consumeUnblockCode = async function(uid, code) {
+  DB.prototype.consumeUnblockCode = async function (uid, code) {
     log.trace('DB.consumeUnblockCode', { uid });
     try {
       return await this.pool.del(SAFE_URLS.consumeUnblockCode, { uid, code });
@@ -1094,7 +1101,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/emailBounces',
     'db.createEmailBounce'
   );
-  DB.prototype.createEmailBounce = async function(bounceData) {
+  DB.prototype.createEmailBounce = async function (bounceData) {
     log.trace('DB.createEmailBounce', {
       bouceData: bounceData,
     });
@@ -1106,7 +1113,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/emailBounces/:email',
     'db.emailBounces'
   );
-  DB.prototype.emailBounces = async function(email) {
+  DB.prototype.emailBounces = async function (email) {
     log.trace('DB.emailBounces', { email });
 
     return this.pool.get(SAFE_URLS.emailBounces, {
@@ -1118,7 +1125,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/emails',
     'db.accountEmails'
   );
-  DB.prototype.accountEmails = async function(uid) {
+  DB.prototype.accountEmails = async function (uid) {
     log.trace('DB.accountEmails', { uid });
 
     return this.pool.get(SAFE_URLS.accountEmails, { uid });
@@ -1128,7 +1135,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/email/:email',
     'db.getSecondaryEmail'
   );
-  DB.prototype.getSecondaryEmail = async function(email) {
+  DB.prototype.getSecondaryEmail = async function (email) {
     log.trace('DB.getSecondaryEmail', { email });
 
     try {
@@ -1144,7 +1151,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.createEmail = new SafeUrl('/account/:uid/emails', 'db.createEmail');
-  DB.prototype.createEmail = async function(uid, emailData) {
+  DB.prototype.createEmail = async function (uid, emailData) {
     log.trace('DB.createEmail', {
       email: emailData.email,
       uid,
@@ -1164,7 +1171,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/emails/:email',
     'db.deleteEmail'
   );
-  DB.prototype.deleteEmail = async function(uid, email) {
+  DB.prototype.deleteEmail = async function (uid, email) {
     log.trace('DB.deleteEmail', { uid });
 
     try {
@@ -1184,7 +1191,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/signinCodes/:code',
     'db.createSigninCode'
   );
-  DB.prototype.createSigninCode = async function(uid, flowId) {
+  DB.prototype.createSigninCode = async function (uid, flowId) {
     log.trace('DB.createSigninCode');
 
     const code = await random.hex(config.signinCodeSize);
@@ -1205,7 +1212,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/signinCodes/:code/consume',
     'db.consumeSigninCode'
   );
-  DB.prototype.consumeSigninCode = async function(code) {
+  DB.prototype.consumeSigninCode = async function (code) {
     log.trace('DB.consumeSigninCode', { code });
 
     try {
@@ -1223,14 +1230,14 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/resetTokens',
     'db.resetAccountTokens'
   );
-  DB.prototype.resetAccountTokens = async function(uid) {
+  DB.prototype.resetAccountTokens = async function (uid) {
     log.trace('DB.resetAccountTokens', { uid });
 
     return this.pool.post(SAFE_URLS.resetAccountTokens, { uid });
   };
 
   SAFE_URLS.createTotpToken = new SafeUrl('/totp/:uid', 'db.createTotpToken');
-  DB.prototype.createTotpToken = async function(uid, sharedSecret, epoch) {
+  DB.prototype.createTotpToken = async function (uid, sharedSecret, epoch) {
     log.trace('DB.createTotpToken', { uid });
 
     try {
@@ -1251,7 +1258,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.totpToken = new SafeUrl('/totp/:uid', 'db.totpToken');
-  DB.prototype.totpToken = async function(uid) {
+  DB.prototype.totpToken = async function (uid) {
     log.trace('DB.totpToken', { uid });
 
     try {
@@ -1265,7 +1272,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.deleteTotpToken = new SafeUrl('/totp/:uid', 'db.deleteTotpToken');
-  DB.prototype.deleteTotpToken = async function(uid) {
+  DB.prototype.deleteTotpToken = async function (uid) {
     log.trace('DB.deleteTotpToken', { uid });
 
     try {
@@ -1282,7 +1289,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/totp/:uid/update',
     'db.updateTotpToken'
   );
-  DB.prototype.updateTotpToken = async function(uid, data) {
+  DB.prototype.updateTotpToken = async function (uid, data) {
     log.trace('DB.updateTotpToken', { uid, data });
 
     try {
@@ -1306,7 +1313,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryCodes',
     'db.replaceRecoveryCodes'
   );
-  DB.prototype.replaceRecoveryCodes = async function(uid, count) {
+  DB.prototype.replaceRecoveryCodes = async function (uid, count) {
     log.trace('DB.replaceRecoveryCodes', { uid });
 
     return this.pool.post(SAFE_URLS.replaceRecoveryCodes, { uid }, { count });
@@ -1316,7 +1323,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryCodes/:code',
     'db.consumeRecoveryCode'
   );
-  DB.prototype.consumeRecoveryCode = async function(uid, code) {
+  DB.prototype.consumeRecoveryCode = async function (uid, code) {
     log.trace('DB.consumeRecoveryCode', { uid });
 
     try {
@@ -1333,7 +1340,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryKey',
     'db.createRecoveryKey'
   );
-  DB.prototype.createRecoveryKey = async function(
+  DB.prototype.createRecoveryKey = async function (
     uid,
     recoveryKeyId,
     recoveryData,
@@ -1359,7 +1366,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryKey/:recoveryKeyId',
     'db.getRecoveryKey'
   );
-  DB.prototype.getRecoveryKey = async function(uid, recoveryKeyId) {
+  DB.prototype.getRecoveryKey = async function (uid, recoveryKeyId) {
     log.trace('DB.getRecoveryKey', { uid });
 
     try {
@@ -1383,7 +1390,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryKey',
     'db.recoveryKeyExists'
   );
-  DB.prototype.recoveryKeyExists = async function(uid) {
+  DB.prototype.recoveryKeyExists = async function (uid) {
     log.trace('DB.recoveryKeyExists', { uid });
 
     return this.pool.get(SAFE_URLS.recoveryKeyExists, { uid });
@@ -1393,7 +1400,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryKey',
     'db.deleteRecoveryKey'
   );
-  DB.prototype.deleteRecoveryKey = async function(uid) {
+  DB.prototype.deleteRecoveryKey = async function (uid) {
     log.trace('DB.deleteRecoveryKey', { uid });
 
     return this.pool.del(SAFE_URLS.deleteRecoveryKey, { uid });
@@ -1403,7 +1410,11 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     '/account/:uid/recoveryKey/update',
     'db.updateRecoveryKey'
   );
-  DB.prototype.updateRecoveryKey = async function(uid, recoveryKeyId, enabled) {
+  DB.prototype.updateRecoveryKey = async function (
+    uid,
+    recoveryKeyId,
+    enabled
+  ) {
     log.trace('DB.updateRecoveryKey', { uid });
 
     return this.pool.post(
@@ -1416,7 +1427,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     );
   };
 
-  DB.prototype.deleteSessionTokenFromRedis = async function(uid, id) {
+  DB.prototype.deleteSessionTokenFromRedis = async function (uid, id) {
     if (!this.redis) {
       return;
     }

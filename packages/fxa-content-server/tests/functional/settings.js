@@ -42,19 +42,19 @@ var email;
 var accountData;
 
 registerSuite('settings', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
       .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
-      .then(function(result) {
+      .then(function (result) {
         accountData = result;
       })
       .then(clearBrowserState());
   },
 
   tests: {
-    'with an invalid email': function() {
+    'with an invalid email': function () {
       return this.remote
         .then(
           openPage(SETTINGS_URL + '?email=invalid', selectors['400'].HEADER)
@@ -63,28 +63,28 @@ registerSuite('settings', {
         .then(testErrorTextInclude('email'));
     },
 
-    'with an empty email': function() {
+    'with an empty email': function () {
       return this.remote
         .then(openPage(SETTINGS_URL + '?email=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('email'));
     },
 
-    'with an invalid uid': function() {
+    'with an invalid uid': function () {
       return this.remote
         .then(openPage(SETTINGS_URL + '?uid=invalid', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('uid'));
     },
 
-    'with an empty uid': function() {
+    'with an empty uid': function () {
       return this.remote
         .then(openPage(SETTINGS_URL + '?uid=', selectors['400'].HEADER))
         .then(testErrorTextInclude('invalid'))
         .then(testErrorTextInclude('uid'));
     },
 
-    'sign in, go to settings, sign out': function() {
+    'sign in, go to settings, sign out': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -99,7 +99,7 @@ registerSuite('settings', {
       );
     },
 
-    'sign in with incorrect email case, go to settings, canonical email form is used': function() {
+    'sign in with incorrect email case, go to settings, canonical email form is used': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email.toUpperCase(), FIRST_PASSWORD))
@@ -108,7 +108,7 @@ registerSuite('settings', {
         .then(testElementTextEquals('.card-header', email));
     },
 
-    'sign in with incorrect email case before normalization fix, go to settings, canonical email form is used': function() {
+    'sign in with incorrect email case before normalization fix, go to settings, canonical email form is used': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -126,7 +126,7 @@ registerSuite('settings', {
       );
     },
 
-    'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function() {
+    'sign in, go to settings with setting param set to avatar redirects to avatar change page ': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -142,7 +142,7 @@ registerSuite('settings', {
       );
     },
 
-    'sign in, go to settings with setting param and additional params redirects to avatar change page ': function() {
+    'sign in, go to settings with setting param and additional params redirects to avatar change page ': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -163,7 +163,7 @@ registerSuite('settings', {
       );
     },
 
-    'sign in with setting param set to avatar redirects to avatar change page ': function() {
+    'sign in with setting param set to avatar redirects to avatar change page ': function () {
       return this.remote
         .then(
           openPage(
@@ -175,7 +175,7 @@ registerSuite('settings', {
         .then(testElementExists('#avatar-options'));
     },
 
-    'sign in with setting param and additional params redirects to avatar change page ': function() {
+    'sign in with setting param and additional params redirects to avatar change page ': function () {
       return this.remote
         .then(
           openPage(
@@ -187,7 +187,7 @@ registerSuite('settings', {
         .then(testElementExists('#avatar-options'));
     },
 
-    'sign in, go to settings and opening display_name panel autofocuses the first input element': function() {
+    'sign in, go to settings and opening display_name panel autofocuses the first input element': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -197,8 +197,8 @@ registerSuite('settings', {
 
           // first element is focused
           .getActiveElement()
-          .then(function(element) {
-            element.getAttribute('class').then(function(className) {
+          .then(function (element) {
+            element.getAttribute('class').then(function (className) {
               assert.isTrue(className.includes('display-name'));
             });
           })
@@ -206,7 +206,7 @@ registerSuite('settings', {
       );
     },
 
-    'sign in, open settings and add a display name': function() {
+    'sign in, open settings and add a display name': function () {
       var name = 'joe';
       return (
         this.remote
@@ -247,7 +247,7 @@ registerSuite('settings', {
       );
     },
 
-    'sign in, open settings in a second tab, sign out': function() {
+    'sign in, open settings in a second tab, sign out': function () {
       return (
         this.remote
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -271,7 +271,7 @@ registerSuite('settings', {
 });
 
 registerSuite('settings with expired session', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -284,12 +284,12 @@ registerSuite('settings with expired session', {
       .then(destroySessionForEmail(email));
   },
 
-  afterEach: function() {
+  afterEach: function () {
     // browser state must be cleared or the tests that follow fail.
     return this.remote.then(clearBrowserState({ force: true }));
   },
   tests: {
-    'a focus on the settings page after session expires redirects to signin': function() {
+    'a focus on the settings page after session expires redirects to signin': function () {
       return this.remote
         .then(focus())
 
@@ -299,7 +299,7 @@ registerSuite('settings with expired session', {
 });
 
 registerSuite('settings with recent activity link', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -308,7 +308,7 @@ registerSuite('settings with recent activity link', {
   },
 
   tests: {
-    'gets recent activity link with ?security_events query param': function() {
+    'gets recent activity link with ?security_events query param': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))
@@ -318,7 +318,7 @@ registerSuite('settings with recent activity link', {
         .then(testElementExists('#recent-activity-link'));
     },
 
-    'does not get recent activity link without ?security_events query param': function() {
+    'does not get recent activity link without ?security_events query param': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(fillOutEmailFirstSignIn(email, FIRST_PASSWORD))

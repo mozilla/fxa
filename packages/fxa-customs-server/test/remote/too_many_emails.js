@@ -21,27 +21,27 @@ var client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
 });
 
-test('too many sent emails', function(t) {
+test('too many sent emails', function (t) {
   return client
     .postAsync('/check', {
       email: TEST_EMAIL,
       ip: TEST_IP,
       action: 'recoveryEmailResendCode',
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'first email attempt');
       t.equal(obj.block, false, 'resending the code');
 
@@ -51,7 +51,7 @@ test('too many sent emails', function(t) {
         action: 'recoveryEmailResendCode',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'second email attempt');
       t.equal(obj.block, false, 'resending the code');
 
@@ -61,7 +61,7 @@ test('too many sent emails', function(t) {
         action: 'recoveryEmailResendCode',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'third email attempt');
       t.equal(obj.block, false, 'resending the code');
 
@@ -71,33 +71,33 @@ test('too many sent emails', function(t) {
         action: 'recoveryEmailResendCode',
       });
     })
-    .spread(function(req, res, obj) {
+    .spread(function (req, res, obj) {
       t.equal(res.statusCode, 200, 'fourth email attempt');
       t.equal(obj.block, true, 'operation blocked');
 
-      return new Promise(function(resolve, reject) {
-        mcHelper.blockedEmailCheck(function(isBlocked) {
+      return new Promise(function (resolve, reject) {
+        mcHelper.blockedEmailCheck(function (isBlocked) {
           t.equal(isBlocked, true, 'account is blocked');
           resolve();
         });
       });
     })
-    .catch(function(err) {
+    .catch(function (err) {
       t.fail(err);
       t.end();
     });
 });
 
-test('failed logins expire', function(t) {
-  setTimeout(function() {
-    mcHelper.blockedEmailCheck(function(isBlocked) {
+test('failed logins expire', function (t) {
+  setTimeout(function () {
+    mcHelper.blockedEmailCheck(function (isBlocked) {
       t.equal(isBlocked, false, 'account no longer blocked');
       t.end();
     });
   }, config.limits.rateLimitIntervalSeconds * 1000);
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

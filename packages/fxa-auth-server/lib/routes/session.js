@@ -12,7 +12,7 @@ const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 const validators = require('./validators');
 const HEX_STRING = validators.HEX_STRING;
 
-module.exports = function(
+module.exports = function (
   log,
   db,
   Password,
@@ -51,7 +51,7 @@ module.exports = function(
             .allow(null),
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Session.destroy', request);
 
         let sessionToken = request.auth.credentials;
@@ -108,10 +108,7 @@ module.exports = function(
               .redirectTo(config.smtp.redirectDomain)
               .optional(),
             resume: isA.string().optional(),
-            reason: isA
-              .string()
-              .max(16)
-              .optional(),
+            reason: isA.string().max(16).optional(),
             unblockCode: signinUtils.validators.UNBLOCK_CODE,
             metricsContext: METRICS_CONTEXT_SCHEMA,
             originalLoginEmail: validators.email().optional(),
@@ -120,14 +117,8 @@ module.exports = function(
         },
         response: {
           schema: {
-            uid: isA
-              .string()
-              .regex(HEX_STRING)
-              .required(),
-            keyFetchToken: isA
-              .string()
-              .regex(HEX_STRING)
-              .optional(),
+            uid: isA.string().regex(HEX_STRING).required(),
+            keyFetchToken: isA.string().regex(HEX_STRING).optional(),
             verificationMethod: isA.string().optional(),
             verificationReason: isA.string().optional(),
             verified: isA.boolean().required(),
@@ -135,7 +126,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Session.reauth', request);
 
         const sessionToken = request.auth.credentials;
@@ -249,14 +240,11 @@ module.exports = function(
         response: {
           schema: {
             state: isA.string().required(),
-            uid: isA
-              .string()
-              .regex(HEX_STRING)
-              .required(),
+            uid: isA.string().regex(HEX_STRING).required(),
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Session.status', request);
         const sessionToken = request.auth.credentials;
         return {
@@ -274,14 +262,11 @@ module.exports = function(
         },
         validate: {
           payload: {
-            reason: isA
-              .string()
-              .max(16)
-              .optional(),
+            reason: isA.string().max(16).optional(),
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Session.duplicate', request);
 
         const origSessionToken = request.auth.credentials;
@@ -350,7 +335,7 @@ module.exports = function(
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Session.verify_code', request);
         const options = request.payload;
         const sessionToken = request.auth.credentials;
@@ -397,7 +382,7 @@ module.exports = function(
           strategy: 'sessionToken',
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('Session.resend_code', request);
         const sessionToken = request.auth.credentials;
         const ip = request.app.clientAddress;

@@ -22,7 +22,7 @@ module.exports = (config, Settings, log) => {
         this.flowIdExemptUserAgentCompiledREs = [];
       } else {
         this.flowIdExemptUserAgentCompiledREs = this.flowIdExemptUserAgentREs.map(
-          function(re) {
+          function (re) {
             // Log the regex at startup to check that we have correct values.
             const regex = new RegExp(re);
             log.info({

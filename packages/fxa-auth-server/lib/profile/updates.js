@@ -4,7 +4,7 @@
 
 'use strict';
 
-module.exports = function(log) {
+module.exports = function (log) {
   return function start(messageQueue, push, db) {
     async function handleProfileUpdated(message) {
       const uid = message && message.uid;

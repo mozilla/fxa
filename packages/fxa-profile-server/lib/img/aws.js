@@ -31,7 +31,7 @@ AwsDriver.prototype = {
   upload: function awsUpload(key, buf, contentType) {
     var s3 = this._s3;
     var bucket = PUBLIC_BUCKET;
-    return new P(function(resolve, reject) {
+    return new P(function (resolve, reject) {
       logger.debug('upload.start', { bucket: bucket, key: key });
       s3.putObject(
         {
@@ -41,7 +41,7 @@ AwsDriver.prototype = {
           CacheControl: CACHE_CONTROL_HEADER,
           ContentType: contentType || CONTENT_TYPE_PNG,
         },
-        function(err, data) {
+        function (err, data) {
           if (err) {
             reject(err);
           } else {
@@ -56,7 +56,7 @@ AwsDriver.prototype = {
   delete: function awsDelete(key) {
     var s3 = this._s3;
     var bucket = PUBLIC_BUCKET;
-    return new P(function(resolve, reject) {
+    return new P(function (resolve, reject) {
       logger.debug('delete.start', { bucket: bucket, key: key });
       s3.deleteObjects(
         {
@@ -65,7 +65,7 @@ AwsDriver.prototype = {
             Objects: [{ Key: key }],
           },
         },
-        function(err, data) {
+        function (err, data) {
           if (err) {
             reject(err);
           } else {

@@ -34,16 +34,10 @@ module.exports = {
       ecosystemAnonId: Joi.string().optional(),
       email: Joi.string().optional(),
       locale: Joi.string().optional(),
-      amrValues: Joi.array()
-        .items(Joi.string().required())
-        .optional(),
+      amrValues: Joi.array().items(Joi.string().required()).optional(),
       twoFactorAuthentication: Joi.boolean().optional(),
-      subscriptions: Joi.array()
-        .items(Joi.string().required())
-        .optional(),
-      subscriptionsByClientId: Joi.object()
-        .unknown(true)
-        .optional(),
+      subscriptions: Joi.array().items(Joi.string().required()).optional(),
+      subscriptionsByClientId: Joi.object().unknown(true).optional(),
       profileChangedAt: Joi.number().optional(),
     },
   },

@@ -6,7 +6,7 @@ import onHeaders from 'on-headers';
 import { Request, Response, NextFunction } from 'express';
 const noOp = () => {};
 
-export default function(middleware: Function): Function {
+export default function (middleware: Function): Function {
   return (req: Request, res: Response, next: NextFunction) => {
     onHeaders(res, () => {
       const contentType = res.getHeader('content-type') || 'html';

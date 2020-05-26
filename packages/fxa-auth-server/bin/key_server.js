@@ -13,7 +13,7 @@ async function run(config) {
   const statsd = config.statsd.enabled
     ? new StatsD({
         ...config.statsd,
-        errorHandler: err => {
+        errorHandler: (err) => {
           // eslint-disable-next-line no-use-before-define
           log.error('statsd.error', err);
         },
@@ -154,7 +154,7 @@ async function main() {
   const config = require('../config');
   try {
     const server = await run(config.getProperties());
-    process.on('uncaughtException', err => {
+    process.on('uncaughtException', (err) => {
       server.log.fatal('uncaughtException', err);
       process.exit(8);
     });

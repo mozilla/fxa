@@ -26,7 +26,7 @@ var res;
 var next;
 
 registerSuite('html-middleware', {
-  beforeEach: function() {
+  beforeEach: function () {
     originalMiddleware = sinon.spy();
     wrappedMiddleware = htmlMiddlware(originalMiddleware);
 
@@ -37,7 +37,7 @@ registerSuite('html-middleware', {
     next = sinon.spy();
   },
   tests: {
-    'it calls middleware if an html response type': function() {
+    'it calls middleware if an html response type': function () {
       sinon.stub(res, 'getHeader').callsFake(() => 'text/html; charset=UTF-8');
       wrappedMiddleware(req, res, next);
 
@@ -46,7 +46,7 @@ registerSuite('html-middleware', {
       assert.isTrue(next.calledOnce);
     },
 
-    'it does not call middleware if a non-html response type': function() {
+    'it does not call middleware if a non-html response type': function () {
       sinon
         .stub(res, 'getHeader')
         .callsFake(() => 'application/json; charset=UTF-8');

@@ -24,7 +24,7 @@ var pngSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAACZJREFUeNrtwQEBAAAAgiD' +
   '/r25IQAEAAAAAAAAAAAAAAAAAAADvBkCAAAEehacTAAAAAElFTkSuQmCC';
 
-describe('views/settings/avatar/crop', function() {
+describe('views/settings/avatar/crop', function () {
   var account;
   var broker;
   var metrics;
@@ -35,7 +35,7 @@ describe('views/settings/avatar/crop', function() {
   var user;
   var view;
 
-  beforeEach(function() {
+  beforeEach(function () {
     model = new Backbone.Model();
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
@@ -55,7 +55,7 @@ describe('views/settings/avatar/crop', function() {
     });
   });
 
-  afterEach(function() {
+  afterEach(function () {
     $(view.el).remove();
     view.destroy();
     metrics.destroy();
@@ -64,9 +64,9 @@ describe('views/settings/avatar/crop', function() {
     metrics = null;
   });
 
-  describe('with session', function() {
-    beforeEach(function() {
-      sinon.stub(view, 'checkAuthorization').callsFake(function() {
+  describe('with session', function () {
+    beforeEach(function () {
+      sinon.stub(view, 'checkAuthorization').callsFake(function () {
         return Promise.resolve(true);
       });
       account = user.initAccount({
@@ -74,14 +74,14 @@ describe('views/settings/avatar/crop', function() {
         email: 'a@a.com',
         verified: true,
       });
-      sinon.stub(view, 'getSignedInAccount').callsFake(function() {
+      sinon.stub(view, 'getSignedInAccount').callsFake(function () {
         return account;
       });
     });
 
-    it('has no cropper image', function() {
+    it('has no cropper image', function () {
       sinon.spy(view, 'navigate');
-      return view.render().then(function() {
+      return view.render().then(function () {
         assert.isTrue(view.navigate.calledWith('settings/avatar/change'));
         assert.equal(
           view.navigate.args[0][1].error,
@@ -90,8 +90,8 @@ describe('views/settings/avatar/crop', function() {
       });
     });
 
-    describe('with an image', function() {
-      beforeEach(function() {
+    describe('with an image', function () {
+      beforeEach(function () {
         var cropImg = new CropperImage({
           height: 100,
           src: pngSrc,
@@ -111,22 +111,22 @@ describe('views/settings/avatar/crop', function() {
           relier: relier,
           user: user,
         });
-        view.isUserAuthorized = function() {
+        view.isUserAuthorized = function () {
           return Promise.resolve(true);
         };
-        sinon.stub(view, 'getSignedInAccount').callsFake(function() {
+        sinon.stub(view, 'getSignedInAccount').callsFake(function () {
           return account;
         });
-        sinon.stub(account, 'profileClient').callsFake(function() {
+        sinon.stub(account, 'profileClient').callsFake(function () {
           return Promise.resolve(profileClientMock);
         });
-        sinon.stub(view, 'updateProfileImage').callsFake(function() {
+        sinon.stub(view, 'updateProfileImage').callsFake(function () {
           return Promise.resolve();
         });
       });
 
-      it('has a cropper image', function() {
-        return view.render().then(function(rendered) {
+      it('has a cropper image', function () {
+        return view.render().then(function (rendered) {
           assert.isTrue(rendered);
 
           view.afterVisible();
@@ -135,8 +135,8 @@ describe('views/settings/avatar/crop', function() {
         });
       });
 
-      it('submits an image', function() {
-        sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function() {
+      it('submits an image', function () {
+        sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
           return Promise.resolve({
             id: 'foo',
             url: 'test',
@@ -148,14 +148,14 @@ describe('views/settings/avatar/crop', function() {
 
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             assert.equal(view.logFlowEvent.callCount, 0);
             return view.submit();
           })
-          .then(function(result) {
+          .then(function (result) {
             assert.equal(
               view.updateProfileImage.args[0][0].get('url'),
               result.url
@@ -183,10 +183,10 @@ describe('views/settings/avatar/crop', function() {
           });
       });
 
-      it('properly tracks avatar change events', function() {
+      it('properly tracks avatar change events', function () {
         // set the account to have an existing profile image id
         account.set('hadProfileImageSetBefore', true);
-        sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function() {
+        sinon.stub(profileClientMock, 'uploadAvatar').callsFake(function () {
           return Promise.resolve({
             id: 'foo',
           });
@@ -194,13 +194,13 @@ describe('views/settings/avatar/crop', function() {
 
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             return view.submit();
           })
-          .then(function() {
+          .then(function () {
             assert.isTrue(
               TestHelpers.isEventLogged(
                 metrics,
@@ -216,13 +216,13 @@ describe('views/settings/avatar/crop', function() {
           });
       });
 
-      it('logs a metric event on rotation', function() {
+      it('logs a metric event on rotation', function () {
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             view.$('.controls > .rotate').click();
             assert.isTrue(
               TestHelpers.isEventLogged(
@@ -233,13 +233,13 @@ describe('views/settings/avatar/crop', function() {
           });
       });
 
-      it('logs a metric event on translation', function() {
+      it('logs a metric event on translation', function () {
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             view
               .$('.cropper .ui-draggable')
               .simulate('drag', { dx: 50, dy: 50 });
@@ -252,13 +252,13 @@ describe('views/settings/avatar/crop', function() {
           });
       });
 
-      it('logs a metric event on zoom in', function() {
+      it('logs a metric event on zoom in', function () {
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             view.$('.controls > .zoom-in').click();
             assert.isTrue(
               TestHelpers.isEventLogged(metrics, 'settings.avatar.crop.zoom.in')
@@ -266,13 +266,13 @@ describe('views/settings/avatar/crop', function() {
           });
       });
 
-      it('logs a metric event on zoom out', function() {
+      it('logs a metric event on zoom out', function () {
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             view.$('.controls > .zoom-out').click();
             assert.isTrue(
               TestHelpers.isEventLogged(
@@ -283,13 +283,13 @@ describe('views/settings/avatar/crop', function() {
           });
       });
 
-      it('logs a metric event on zoom range change', function() {
+      it('logs a metric event on zoom range change', function () {
         return view
           .render()
-          .then(function() {
+          .then(function () {
             return view.afterVisible();
           })
-          .then(function() {
+          .then(function () {
             view.$('.controls > .slider').change();
             assert.isTrue(
               TestHelpers.isEventLogged(

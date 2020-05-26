@@ -18,7 +18,7 @@ module.exports = class WriteToDiskMock extends NodemailerMock {
 
   sendMail(emailConfig, callback) {
     const targets = [emailConfig.to].concat(emailConfig.cc || []);
-    targets.forEach(email => {
+    targets.forEach((email) => {
       const outputPath = path.join(this.outputDir, email);
 
       const textPath = `${outputPath}.txt`;

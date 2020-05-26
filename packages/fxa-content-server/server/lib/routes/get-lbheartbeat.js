@@ -3,13 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
-module.exports = function() {
+module.exports = function () {
   const route = {};
 
   route.method = 'get';
   route.path = '/__lbheartbeat__';
 
-  route.process = function(req, res) {
+  route.process = function (req, res) {
     res.status(200).json({});
   };
 

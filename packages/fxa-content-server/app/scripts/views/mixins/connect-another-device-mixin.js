@@ -177,7 +177,7 @@ export default {
   _isEligibleForSms(account) {
     return Promise.resolve(
       this._areSmsRequirementsMet(account) && this._smsCountry(account)
-    ).then(country => {
+    ).then((country) => {
       return {
         country,
         ok: !!country,
@@ -242,7 +242,7 @@ export default {
           this.logFlowEvent(REASON_UNSUPPORTED_COUNTRY);
         }
       },
-      err => {
+      (err) => {
         // Add `.smsStatus` to the context so we can differentiate between errors
         // checking smsStatus from other XHR errors that occur in the consumer modules.
         err.context = `${this.getViewName()}.smsStatus`;

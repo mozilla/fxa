@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   var path = require('path');
 
   grunt.registerTask(
     'l10n-use-localized-js',
     'Update HTML to point to localized JavasScript',
-    function() {
+    function () {
       // server config is set in the selectconfig task
       var supportedLanguages = grunt.config.get(
         'server.i18n.supportedLanguages'
@@ -17,7 +17,7 @@ module.exports = function(grunt) {
 
       var templateDest = grunt.config.get('yeoman.page_template_dist');
 
-      supportedLanguages.forEach(language => {
+      supportedLanguages.forEach((language) => {
         var locale = i18n.localeFrom(language);
         var templatePath = path.join(templateDest, locale, 'index.html');
 

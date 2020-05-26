@@ -10,10 +10,10 @@ function expectValueNotToBeUnknown(value) {
 
 describe('Test simple server routes', () => {
   test('__version__ should have correct structure', () => {
-    return new Promise(done => {
+    return new Promise((done) => {
       request(app)
         .get('/__version__')
-        .then(response => {
+        .then((response) => {
           expect(response.statusCode).toStrictEqual(200);
           expect(response.headers['content-type']).toStrictEqual(
             'application/json; charset=utf-8'
@@ -40,10 +40,10 @@ describe('Test simple server routes', () => {
   });
 
   test('__lbheartbeat__ should return as expected', () => {
-    return new Promise(done => {
+    return new Promise((done) => {
       request(app)
         .get('/__lbheartbeat__')
-        .then(response => {
+        .then((response) => {
           expect(response.statusCode).toStrictEqual(200);
           expect(response.headers['content-type']).toStrictEqual(
             'text/plain; charset=utf-8'
@@ -59,7 +59,7 @@ describe('Test simple server routes', () => {
 describe('Test route dependencies', () => {
   test('server.js should pass the correct dependencies to routes', () => {
     const mockStatsdInstance = {};
-    const mockStatsd = function() {
+    const mockStatsd = function () {
       return mockStatsdInstance;
     };
     const mockRoutes = jest.fn().mockReturnValue([]);
@@ -70,7 +70,7 @@ describe('Test route dependencies', () => {
     const mockConfig = jest.requireActual('../config');
 
     jest.mock('../config', () => ({
-      get: key => {
+      get: (key) => {
         switch (key) {
           case 'statsd':
             return { enabled: true };

@@ -15,10 +15,7 @@ var crypto = require('crypto');
 
 var id = crypto.randomBytes(8).toString('hex');
 var secret = crypto.randomBytes(32);
-var hashedSecret = crypto
-  .createHash('sha256')
-  .update(secret)
-  .digest('hex');
+var hashedSecret = crypto.createHash('sha256').update(secret).digest('hex');
 secret = secret.toString('hex');
 
 var client = {

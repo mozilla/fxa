@@ -39,19 +39,19 @@ describe('lib/crypto/scoped-keys', () => {
         keys.kB,
         uid,
         clientKeyData[scope]
-      ).then(derivedObject => {
+      ).then((derivedObject) => {
         assert.deepEqual(derivedObject, derivedKey);
       });
     });
 
     it('throws if no inputKey', () => {
-      return ScopedKeys._deriveScopedKeys().then(assert.fail, err => {
+      return ScopedKeys._deriveScopedKeys().then(assert.fail, (err) => {
         assert.equal(err.message, 'input key is required');
       });
     });
 
     it('throws if no uid', () => {
-      return ScopedKeys._deriveScopedKeys(keys.kB).then(assert.fail, err => {
+      return ScopedKeys._deriveScopedKeys(keys.kB).then(assert.fail, (err) => {
         assert.equal(err.message, 'uid is required');
       });
     });
@@ -59,7 +59,7 @@ describe('lib/crypto/scoped-keys', () => {
     it('throws if no client data', () => {
       return ScopedKeys._deriveScopedKeys(keys.kB, uid).then(
         assert.fail,
-        err => {
+        (err) => {
           assert.equal(err.message, 'key data is required');
         }
       );
@@ -83,7 +83,7 @@ describe('lib/crypto/scoped-keys', () => {
         uid,
         clientKeyData,
         keysJwk
-      ).then(bundle => {
+      ).then((bundle) => {
         assert.match(
           bundle,
           /^[A-Za-z0-9-_]+\.[A-Za-z0-9-_]*\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+\.[A-Za-z0-9-_]+$/
@@ -117,7 +117,7 @@ describe('lib/crypto/scoped-keys', () => {
         uid,
         multiKeyData,
         keysJwk
-      ).then(bundle => {
+      ).then((bundle) => {
         const jsonArgs = JSON.stringify.args[0];
         assert.match(
           bundle,
@@ -155,7 +155,7 @@ describe('lib/crypto/scoped-keys', () => {
         uid,
         multiKeyData,
         keysJwk
-      ).then(bundle => {
+      ).then((bundle) => {
         const jsonArgs = JSON.stringify.args[0];
         assert.match(
           bundle,

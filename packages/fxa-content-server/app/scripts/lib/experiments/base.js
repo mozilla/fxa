@@ -159,8 +159,8 @@ _.extend(BaseExperiment.prototype, Backbone.Events, {
  * @returns {Function}
  * @static
  */
-BaseExperiment.createSaveStateDelegate = stateName => {
-  return function() {
+BaseExperiment.createSaveStateDelegate = (stateName) => {
+  return function () {
     this.saveState(stateName);
   };
 };

@@ -109,7 +109,7 @@ describe('cache:', () => {
       let result;
 
       beforeEach(() => {
-        return cache.get(digest).then(r => (result = r));
+        return cache.get(digest).then((r) => (result = r));
       });
 
       it('returns the correct result', () => {
@@ -146,7 +146,7 @@ describe('cache:', () => {
       let error;
 
       beforeEach(() => {
-        return cache.add(digest, 'wibble').catch(e => (error = e));
+        return cache.add(digest, 'wibble').catch((e) => (error = e));
       });
 
       it('propagates the error', () => {
@@ -158,7 +158,7 @@ describe('cache:', () => {
       let error;
 
       beforeEach(() => {
-        return cache.del(digest).catch(e => (error = e));
+        return cache.del(digest).catch((e) => (error = e));
       });
 
       it('propagates the error', () => {
@@ -170,7 +170,7 @@ describe('cache:', () => {
       let error;
 
       beforeEach(() => {
-        return cache.get(digest).catch(e => (error = e));
+        return cache.get(digest).catch((e) => (error = e));
       });
 
       it('propagates the error', () => {

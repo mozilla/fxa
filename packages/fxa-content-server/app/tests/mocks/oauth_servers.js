@@ -16,7 +16,7 @@ function MockOAuthServers() {
   this.fakeServer.autoRespond = true;
 
   // not strictly an OAuth server, but needed to complete.
-  this.fakeServer.respondWith('/config', function(xhr) {
+  this.fakeServer.respondWith('/config', function (xhr) {
     xhr.respond(
       200,
       {
@@ -34,7 +34,7 @@ function MockOAuthServers() {
 
   this.fakeServer.respondWith(
     /http:\/\/127\.0\.0\.1:9000\/v1\/client\/.*/,
-    function(xhr) {
+    function (xhr) {
       xhr.respond(
         200,
         {

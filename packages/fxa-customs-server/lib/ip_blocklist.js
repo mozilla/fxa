@@ -17,7 +17,7 @@ var statFile = Promise.promisify(require('fs').stat);
 var path = require('path');
 var ip = require('ip');
 
-module.exports = function(log, config) {
+module.exports = function (log, config) {
   function getBaseIp(addr, prefixLength) {
     return ip.mask(addr, ip.fromPrefixLen(prefixLength));
   }
@@ -52,7 +52,7 @@ module.exports = function(log, config) {
     this.pollInterval = null;
   }
 
-  IPBlocklist.prototype.load = function(listPath) {
+  IPBlocklist.prototype.load = function (listPath) {
     var self = this;
 
     var newIpsByPrefixLength = {};
@@ -67,24 +67,24 @@ module.exports = function(log, config) {
 
     var startTime = Date.now();
     return statFile(filePath)
-      .then(function(fileStats) {
+      .then(function (fileStats) {
         self.fileLastModified = fileStats.mtime.getTime();
         self.fileSize = fileStats.size;
         return readFile(filePath, 'utf8');
       })
-      .then(function(data) {
+      .then(function (data) {
         // split into rows, filter out any comments, i.e., rows starting with #
         return data
           .toString()
           .split('\n')
-          .map(line => line.trim())
-          .filter(line => {
+          .map((line) => line.trim())
+          .filter((line) => {
             // eslint-disable-next-line space-unary-ops
             return line.length && !/^#/.test(line);
           });
       })
-      .then(function(rows) {
-        return Promise.each(rows, function(row, idx) {
+      .then(function (rows) {
+        return Promise.each(rows, function (row, idx) {
           var parsedData = parseRow(row);
 
           if (parsedData) {
@@ -99,13 +99,13 @@ module.exports = function(log, config) {
 
           // Every 1000 rows, yield process
           if (idx % 1000 === 0) {
-            return new Promise(resolve => {
+            return new Promise((resolve) => {
               setImmediate(resolve);
             });
           }
         });
       })
-      .then(function() {
+      .then(function () {
         // Update map to new values
         self.ipsByPrefixLength = newIpsByPrefixLength;
         self.prefixLengths = newPrefixLengths;
@@ -120,12 +120,12 @@ module.exports = function(log, config) {
       });
   };
 
-  IPBlocklist.prototype.clear = function() {
+  IPBlocklist.prototype.clear = function () {
     this.prefixLengths = [];
     this.ipsByPrefixLength = {};
   };
 
-  IPBlocklist.prototype.contains = function(ipAddress) {
+  IPBlocklist.prototype.contains = function (ipAddress) {
     var self = this;
 
     var startTime = Date.now();
@@ -139,7 +139,7 @@ module.exports = function(log, config) {
     });
 
     try {
-      return self.prefixLengths.some(function(prefixLength) {
+      return self.prefixLengths.some(function (prefixLength) {
         var result =
           getBaseIp(ipAddress, prefixLength) in
           self.ipsByPrefixLength[prefixLength];
@@ -172,7 +172,7 @@ module.exports = function(log, config) {
     }
   };
 
-  IPBlocklist.prototype.pollForUpdates = function() {
+  IPBlocklist.prototype.pollForUpdates = function () {
     this.stopPolling();
     this.pollInterval = setInterval(
       this.refresh.bind(this),
@@ -181,11 +181,11 @@ module.exports = function(log, config) {
     this.pollInterval.unref();
   };
 
-  IPBlocklist.prototype.stopPolling = function() {
+  IPBlocklist.prototype.stopPolling = function () {
     clearInterval(this.pollInterval);
   };
 
-  IPBlocklist.prototype.refresh = function() {
+  IPBlocklist.prototype.refresh = function () {
     var self = this;
 
     log.trace({
@@ -195,13 +195,13 @@ module.exports = function(log, config) {
     });
 
     return statFile(self.filePath)
-      .then(function(fileStats) {
+      .then(function (fileStats) {
         var mtime = fileStats.mtime.getTime();
         if (mtime > self.fileLastModified) {
           return self.load(self.filePath);
         }
       })
-      .catch(function(err) {
+      .catch(function (err) {
         log.error(err);
       });
   };

@@ -13,7 +13,7 @@ const error = require(`${ROOT_DIR}/lib/error`);
 const testServerFactory = require('../test_server');
 
 const validClients = config.oauthServer.clients.filter(
-  client => client.trusted && client.canGrant && client.publicClient
+  (client) => client.trusted && client.canGrant && client.publicClient
 );
 const CLIENT_ID = validClients.pop().id;
 const CLIENT_ID_FOR_DEFAULT = validClients.pop().id;
@@ -21,7 +21,7 @@ const PLAN_ID = 'allDoneProMonthly';
 const PRODUCT_ID = 'megaProductHooray';
 const PRODUCT_NAME = 'All Done Pro';
 
-describe('remote subscriptions:', function() {
+describe('remote subscriptions:', function () {
   this.timeout(10000);
 
   before(async () => {
@@ -31,7 +31,7 @@ describe('remote subscriptions:', function() {
     };
   });
 
-  describe('config.subscriptions.enabled = true and direct stripe access:', function() {
+  describe('config.subscriptions.enabled = true and direct stripe access:', function () {
     this.timeout(15000);
 
     let client, server, tokens;
@@ -146,7 +146,7 @@ describe('remote subscriptions:', function() {
         mockStripeHelper.customer = async (uid, email) => ({
           subscriptions: { data: [] },
         });
-        mockStripeHelper.subscriptionsToResponse = async subscriptions => [];
+        mockStripeHelper.subscriptionsToResponse = async (subscriptions) => [];
       });
 
       it('should not return any subscription capabilities by default with session token', async () => {
@@ -192,7 +192,7 @@ describe('remote subscriptions:', function() {
             ],
           },
         });
-        mockStripeHelper.subscriptionsToResponse = async subscriptions => [
+        mockStripeHelper.subscriptionsToResponse = async (subscriptions) => [
           {
             subscription_id: subscriptionId,
             plan_id: PLAN_ID,

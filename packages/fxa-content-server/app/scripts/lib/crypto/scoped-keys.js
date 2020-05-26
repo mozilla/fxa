@@ -19,7 +19,7 @@ import required from '../required';
  *   The key is represented as a JWK object.
  */
 function _deriveScopedKeys(inputKey, uid, keyData) {
-  return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
+  return importFxaCryptoDeriver().then((fxaCryptoDeriver) => {
     required(inputKey, 'input key');
     required(uid, 'uid');
     required(keyData, 'key data');
@@ -46,18 +46,18 @@ function _deriveScopedKeys(inputKey, uid, keyData) {
  * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
  */
 function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
-  const deriveKeys = Object.keys(scopedKeyData).map(key =>
+  const deriveKeys = Object.keys(scopedKeyData).map((key) =>
     _deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key])
   );
 
-  return Promise.all(deriveKeys).then(derivedKeys => {
+  return Promise.all(deriveKeys).then((derivedKeys) => {
     const bundleObject = {};
 
-    derivedKeys.forEach(derivedKey => {
+    derivedKeys.forEach((derivedKey) => {
       bundleObject[derivedKey.scope] = derivedKey;
     });
 
-    return importFxaCryptoDeriver().then(fxaCryptoDeriver => {
+    return importFxaCryptoDeriver().then((fxaCryptoDeriver) => {
       const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
       return fxaDeriverUtils.encryptBundle(
         keysJwk,

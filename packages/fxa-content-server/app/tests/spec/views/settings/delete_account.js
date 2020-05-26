@@ -22,7 +22,7 @@ import BaseView from '../../../../scripts/views/base';
 var assert = chai.assert;
 var wrapAssertion = TestHelpers.wrapAssertion;
 
-describe('views/settings/delete_account', function() {
+describe('views/settings/delete_account', function () {
   const UID = '123';
   const password = 'password';
   let account;
@@ -146,7 +146,7 @@ describe('views/settings/delete_account', function() {
     return initView();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     metrics.destroy();
     metrics = null;
 
@@ -174,7 +174,7 @@ describe('views/settings/delete_account', function() {
     });
   });
 
-  describe('with session', function() {
+  describe('with session', function () {
     beforeEach(() => {
       email = TestHelpers.createEmail();
 
@@ -259,7 +259,7 @@ describe('views/settings/delete_account', function() {
       });
 
       it('enables the submit button if all checkboxes are checked', () => {
-        view.$('.delete-account-checkbox').each(function() {
+        view.$('.delete-account-checkbox').each(function () {
           $(this).prop('checked', true);
         });
         view._toggleEnableSubmit();
@@ -268,15 +268,12 @@ describe('views/settings/delete_account', function() {
       });
 
       it('disables the submit button if all checkboxes are checked and one is unchecked', () => {
-        view.$('.delete-account-checkbox').each(function() {
+        view.$('.delete-account-checkbox').each(function () {
           $(this).prop('checked', true);
         });
         view._toggleEnableSubmit();
 
-        view
-          .$('.delete-account-checkbox')
-          .first()
-          .prop('checked', false);
+        view.$('.delete-account-checkbox').first().prop('checked', false);
         view._toggleEnableSubmit();
 
         assert.isTrue(view.$('.delete-account-button').is(':disabled'));
@@ -395,17 +392,11 @@ describe('views/settings/delete_account', function() {
 
       it('renders client title attributes', () => {
         assert.equal(
-          view
-            .$('.delete-account-product-client')
-            .eq(0)
-            .attr('title'),
+          view.$('.delete-account-product-client').eq(0).attr('title'),
           'beta'
         );
         assert.equal(
-          view
-            .$('.delete-account-product-client')
-            .eq(1)
-            .attr('title'),
+          view.$('.delete-account-product-client').eq(1).attr('title'),
           'Pocket'
         );
       });
@@ -533,24 +524,24 @@ describe('views/settings/delete_account', function() {
         });
       });
 
-      describe('isValid', function() {
-        it('returns true if all checkboxes are checked and password is filled out', function() {
+      describe('isValid', function () {
+        it('returns true if all checkboxes are checked and password is filled out', function () {
           $('form input[type=password]').val(password);
-          $('.delete-account-checkbox').each(function() {
+          $('.delete-account-checkbox').each(function () {
             $(this).prop('checked', true);
           });
 
           assert.equal(view.isValid(), true);
         });
 
-        it('returns false if password is too short', function() {
+        it('returns false if password is too short', function () {
           $('form input[type=password]').val('passwor');
 
           assert.equal(view.isValid(), false);
         });
 
-        it('returns false if all 3 checkboxes are not checked', function() {
-          $('.delete-account-checkbox').each(function(i) {
+        it('returns false if all 3 checkboxes are not checked', function () {
+          $('.delete-account-checkbox').each(function (i) {
             if (i !== 0) {
               // leave the first one unchecked
               $(this).prop('checked', true);
@@ -561,13 +552,13 @@ describe('views/settings/delete_account', function() {
         });
       });
 
-      describe('showValidationErrors', function() {
-        it('shows an error if the password is invalid', function(done) {
+      describe('showValidationErrors', function () {
+        it('shows an error if the password is invalid', function (done) {
           view.$('[type=email]').val('testuser@testuser.com');
           view.$('[type=password]').val('passwor');
 
-          view.on('validation_error', function(which, msg) {
-            wrapAssertion(function() {
+          view.on('validation_error', function (which, msg) {
+            wrapAssertion(function () {
               assert.ok(msg);
             }, done);
           });
@@ -576,15 +567,15 @@ describe('views/settings/delete_account', function() {
         });
       });
 
-      describe('submit', function() {
-        beforeEach(function() {
+      describe('submit', function () {
+        beforeEach(function () {
           $('form input[type=email]').val(email);
           $('form input[type=password]').val(password);
         });
 
-        describe('success', function() {
-          beforeEach(function() {
-            sinon.stub(user, 'deleteAccount').callsFake(function() {
+        describe('success', function () {
+          beforeEach(function () {
+            sinon.stub(user, 'deleteAccount').callsFake(function () {
               return Promise.resolve();
             });
 
@@ -600,11 +591,11 @@ describe('views/settings/delete_account', function() {
             return view.submit();
           });
 
-          it('delegates to the user model', function() {
+          it('delegates to the user model', function () {
             assert.isTrue(user.deleteAccount.calledOnceWith(account, password));
           });
 
-          it('notifies the broker', function() {
+          it('notifies the broker', function () {
             assert.isTrue(broker.afterDeleteAccount.calledOnceWith(account));
           });
 
@@ -614,44 +605,44 @@ describe('views/settings/delete_account', function() {
             assert.isFalse(relier.has('uid'));
           });
 
-          it('redirects to /, clearing query params', function() {
+          it('redirects to /, clearing query params', function () {
             assert.equal(view.navigate.args[0][0], '/');
 
             assert.ok(view.navigate.args[0][1].success);
             assert.isTrue(view.navigate.args[0][2].clearQueryParams);
           });
 
-          it('logs success', function() {
+          it('logs success', function () {
             assert.isTrue(view.logViewEvent.calledOnceWith('deleted'));
           });
         });
 
-        describe('error', function() {
-          beforeEach(function() {
+        describe('error', function () {
+          beforeEach(function () {
             view.$('#password').val('bad_password');
 
-            sinon.stub(user, 'deleteAccount').callsFake(function() {
+            sinon.stub(user, 'deleteAccount').callsFake(function () {
               return Promise.reject(AuthErrors.toError('INCORRECT_PASSWORD'));
             });
 
-            sinon.stub(view, 'showValidationError').callsFake(function() {});
+            sinon.stub(view, 'showValidationError').callsFake(function () {});
             return view.submit();
           });
 
-          it('display an error message', function() {
+          it('display an error message', function () {
             assert.isTrue(view.showValidationError.called);
           });
         });
 
-        describe('other errors', function() {
-          beforeEach(function() {
-            sinon.stub(user, 'deleteAccount').callsFake(function() {
+        describe('other errors', function () {
+          beforeEach(function () {
+            sinon.stub(user, 'deleteAccount').callsFake(function () {
               return Promise.reject(AuthErrors.toError('UNEXPECTED_ERROR'));
             });
           });
 
-          it('are re-thrown', function() {
-            return view.submit().then(assert.fail, function(err) {
+          it('are re-thrown', function () {
+            return view.submit().then(assert.fail, function (err) {
               assert.isTrue(AuthErrors.is(err, 'UNEXPECTED_ERROR'));
             });
           });

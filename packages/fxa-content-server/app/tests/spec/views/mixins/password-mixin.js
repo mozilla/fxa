@@ -21,13 +21,13 @@ const PasswordView = BaseView.extend({
 
 Cocktail.mixin(PasswordView, PasswordMixin);
 
-describe('views/mixins/password-mixin', function() {
+describe('views/mixins/password-mixin', function () {
   let metrics;
   let notifier;
   let view;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     notifier = new Notifier();
     metrics = new Metrics({ notifier });
     windowMock = new WindowMock();
@@ -41,7 +41,7 @@ describe('views/mixins/password-mixin', function() {
     return view.render();
   });
 
-  describe('onShowPasswordMouseDown', function() {
+  describe('onShowPasswordMouseDown', function () {
     it('shows the password', () => {
       sinon.spy(view, 'showPassword');
 
@@ -126,7 +126,7 @@ describe('views/mixins/password-mixin', function() {
         assert.equal(view.$('#password').attr('type'), 'password');
       });
 
-      it('logs whether the password is shown or hidden', function() {
+      it('logs whether the password is shown or hidden', function () {
         view.$('#password ~ .show-password-label').trigger('mousedown');
         assert.isTrue(
           TestHelpers.isEventLogged(metrics, 'password-view.password.visible')
@@ -172,7 +172,7 @@ describe('views/mixins/password-mixin', function() {
         assert.isFalse($showPasswordEl.is(':checked'));
       });
 
-      it('getAffectedPasswordInputs - gets all affected inputs', function() {
+      it('getAffectedPasswordInputs - gets all affected inputs', function () {
         $('#container').html(view.$el);
         let targets = view.getAffectedPasswordInputs('#show-password');
         assert.lengthOf(targets, 1);

@@ -72,7 +72,7 @@ export default {
     const pairs = str.split('&');
     const terms = {};
 
-    _.each(pairs, pair => {
+    _.each(pairs, (pair) => {
       const [key, value] = pair.split('=');
       terms[key] = decodeURIComponent(value).trim();
     });

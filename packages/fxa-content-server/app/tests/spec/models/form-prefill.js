@@ -7,8 +7,8 @@ import FormPrefill from 'models/form-prefill';
 
 var assert = chai.assert;
 
-describe('models/form-prefill', function() {
-  it('can be instantiated', function() {
+describe('models/form-prefill', function () {
+  it('can be instantiated', function () {
     var form = new FormPrefill();
     assert.isDefined(form);
   });

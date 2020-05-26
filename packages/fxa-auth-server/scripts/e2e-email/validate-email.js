@@ -113,7 +113,7 @@ function checkContent(mail, idx) {
   ensureSubjectLang(lang, mail.subject, contentChecks.subject);
 
   const missing = [];
-  contentChecks.xheaders.forEach(xheader => {
+  contentChecks.xheaders.forEach((xheader) => {
     if (!mail.headers[xheader]) {
       missing.push(xheader);
     }
@@ -171,7 +171,7 @@ function verifyMailbox(mbox) {
     ];
 
     const lang = langFromEmail(mail.headers.to);
-    requiredHeaders.forEach(key => {
+    requiredHeaders.forEach((key) => {
       ensureHeader(mail.headers, key, lang);
     });
 
@@ -197,7 +197,7 @@ function verifyMailbox(mbox) {
 }
 
 module.exports = function validateEmail(messages) {
-  Object.keys(messages).forEach(key => {
+  Object.keys(messages).forEach((key) => {
     verifyMailbox(messages[key]);
   });
   return errors;

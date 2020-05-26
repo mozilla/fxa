@@ -32,42 +32,24 @@ const SCHEMA = isA
     // that is entirely separate to the devices table in our db.
     // All clients can generate a metrics context device id, whereas
     // only Sync creates records in the devices table.
-    deviceId: isA
-      .string()
-      .length(32)
-      .regex(HEX_STRING)
-      .optional(),
+    deviceId: isA.string().length(32).regex(HEX_STRING).optional(),
     entrypoint: ENTRYPOINT_SCHEMA.optional(),
     entrypointExperiment: ENTRYPOINT_SCHEMA.optional(),
     entrypointVariation: ENTRYPOINT_SCHEMA.optional(),
-    flowId: isA
-      .string()
-      .length(64)
-      .regex(HEX_STRING)
-      .optional(),
-    flowBeginTime: isA
-      .number()
-      .integer()
-      .positive()
-      .optional(),
+    flowId: isA.string().length(64).regex(HEX_STRING).optional(),
+    flowBeginTime: isA.number().integer().positive().optional(),
     utmCampaign: UTM_CAMPAIGN_SCHEMA.optional(),
     utmContent: UTM_SCHEMA.optional(),
     utmMedium: UTM_SCHEMA.optional(),
     utmSource: UTM_SCHEMA.optional(),
     utmTerm: UTM_SCHEMA.optional(),
-    productId: isA
-      .string()
-      .max(128)
-      .optional(),
-    planId: isA
-      .string()
-      .max(128)
-      .optional(),
+    productId: isA.string().max(128).optional(),
+    planId: isA.string().max(128).optional(),
   })
   .unknown(false)
   .and('flowId', 'flowBeginTime');
 
-module.exports = function(log, config) {
+module.exports = function (log, config) {
   const cache = require('../cache')(log, config, 'fxa-metrics~');
 
   return {

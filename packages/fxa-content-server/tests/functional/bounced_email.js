@@ -39,7 +39,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('signup with an email that bounces', {
-  beforeEach: function() {
+  beforeEach: function () {
     bouncedEmail = createEmail();
     deliveredEmail = createEmail();
     return (
@@ -53,7 +53,7 @@ registerSuite('signup with an email that bounces', {
   },
 
   tests: {
-    'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function() {
+    'sign up, bounce email at /choose_what_to_sync, allow user to restart flow but force a different email': function () {
       const client = getFxaClient();
 
       return (
@@ -104,7 +104,7 @@ registerSuite('signup with an email that bounces', {
   },
 });
 
-const setUpBouncedSignIn = thenify(function(email) {
+const setUpBouncedSignIn = thenify(function (email) {
   const client = getFxaClient();
   email = email || createEmail('sync{id}');
 
@@ -124,7 +124,7 @@ const setUpBouncedSignIn = thenify(function(email) {
 
 registerSuite('signin with an email that bounces', {
   tests: {
-    'click create-account': function() {
+    'click create-account': function () {
       return this.remote
         .then(setUpBouncedSignIn())
         .then(click(selectors.SIGNIN_BOUNCED.CREATE_ACCOUNT))
@@ -132,7 +132,7 @@ registerSuite('signin with an email that bounces', {
         .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, ''));
     },
 
-    'click back': function() {
+    'click back': function () {
       const email = createEmail('sync{id}');
       return this.remote
         .then(setUpBouncedSignIn(email))
@@ -144,7 +144,7 @@ registerSuite('signin with an email that bounces', {
         );
     },
 
-    'click support': function() {
+    'click support': function () {
       return this.remote
         .then(setUpBouncedSignIn())
         .then(click(selectors.SIGNIN_BOUNCED.SUPPORT))
@@ -157,7 +157,7 @@ registerSuite('signin with an email that bounces', {
         .then(closeCurrentWindow());
     },
 
-    refresh: function() {
+    refresh: function () {
       return this.remote
         .then(setUpBouncedSignIn())
         .refresh()

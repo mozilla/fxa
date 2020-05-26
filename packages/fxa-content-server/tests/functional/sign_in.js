@@ -34,14 +34,14 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('signin', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'signin verified with incorrect password, click `forgot password?`': function() {
+    'signin verified with incorrect password, click `forgot password?`': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -56,7 +56,7 @@ registerSuite('signin', {
       );
     },
 
-    'signin with email with leading space strips space': function() {
+    'signin with email with leading space strips space': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -64,7 +64,7 @@ registerSuite('signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signin with email with trailing space strips space': function() {
+    'signin with email with trailing space strips space': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -72,7 +72,7 @@ registerSuite('signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signin verified with password that incorrectly has leading whitespace': function() {
+    'signin verified with password that incorrectly has leading whitespace': function () {
       return (
         this.remote
           .then(createUser(email, PASSWORD, { preVerified: true }))
@@ -89,7 +89,7 @@ registerSuite('signin', {
       );
     },
 
-    'signin from second tab while at /': function() {
+    'signin from second tab while at /': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -106,7 +106,7 @@ registerSuite('signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signin from second tab while at /signin': function() {
+    'signin from second tab while at /signin': function () {
       return this.remote
         .then(createUser(email, PASSWORD, { preVerified: true }))
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -128,7 +128,7 @@ registerSuite('signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'signin from second tab while at /signup': function() {
+    'signin from second tab while at /signup': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
@@ -152,7 +152,7 @@ registerSuite('signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
-    'data-flow-begin attribute is set': function() {
+    'data-flow-begin attribute is set': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(
@@ -160,12 +160,12 @@ registerSuite('signin', {
         );
     },
 
-    'integrity attribute is set on scripts and css': function() {
+    'integrity attribute is set on scripts and css': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
         .then(testAttributeMatches('script', 'integrity', /^sha512-/))
         .then(testAttributeMatches('link', 'integrity', /^sha512-/))
-        .catch(function(err) {
+        .catch(function (err) {
           // this tests only in production
           if (fxaProduction || err.name !== 'AssertionError') {
             throw err;

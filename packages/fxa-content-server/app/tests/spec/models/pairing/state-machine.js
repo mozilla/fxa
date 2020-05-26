@@ -7,9 +7,9 @@ import sinon from 'sinon';
 import { State } from 'models/pairing/state';
 import PairingFlowStateMachine from 'models/pairing/state-machine';
 
-describe('models/auth_brokers/pairing/state-machine', function() {
+describe('models/auth_brokers/pairing/state-machine', function () {
   let machine;
-  beforeEach(function() {
+  beforeEach(function () {
     machine = new PairingFlowStateMachine();
   });
 

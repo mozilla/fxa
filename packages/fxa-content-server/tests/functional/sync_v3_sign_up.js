@@ -32,13 +32,13 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('Firefox Desktop Sync v3 signup', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(clearBrowserState({ force: true }));
   },
 
   tests: {
-    'verify with signup code and CWTS': function() {
+    'verify with signup code and CWTS': function () {
       email = createEmail();
       return (
         this.remote
@@ -101,7 +101,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       );
     },
-    'verify at CWTS': function() {
+    'verify at CWTS': function () {
       return (
         this.remote
           .then(
@@ -148,7 +148,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'verify at /confirm_signup_code, force SMS': function() {
+    'verify at /confirm_signup_code, force SMS': function () {
       return (
         this.remote
           .then(
@@ -186,7 +186,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'verify at /confirm_signup_code, SMS not supported': function() {
+    'verify at /confirm_signup_code, SMS not supported': function () {
       return (
         this.remote
           .then(
@@ -219,7 +219,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'engines not supported': function() {
+    'engines not supported': function () {
       return (
         this.remote
           .then(
@@ -245,7 +245,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    'neither `creditcards` nor `addresses` supported': function() {
+    'neither `creditcards` nor `addresses` supported': function () {
       return (
         this.remote
           .then(
@@ -274,7 +274,7 @@ registerSuite('Firefox Desktop Sync v3 signup', {
       );
     },
 
-    '`creditcards` and `addresses` supported': function() {
+    '`creditcards` and `addresses` supported': function () {
       return (
         this.remote
           .then(

@@ -17,7 +17,7 @@ function simpleIpEmailRecord() {
   return new (ipEmailRecord(limits, now))();
 }
 
-test('shouldBlock works', function(t) {
+test('shouldBlock works', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.shouldBlock(), false, 'record has never been blocked');
@@ -36,7 +36,7 @@ test('shouldBlock works', function(t) {
   t.end();
 });
 
-test('addBadLogin works', function(t) {
+test('addBadLogin works', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.lf.length, 0, 'record has never had a bad login');
@@ -48,7 +48,7 @@ test('addBadLogin works', function(t) {
   t.end();
 });
 
-test('rateLimit works', function(t) {
+test('rateLimit works', function (t) {
   var ier = simpleIpEmailRecord();
 
   ier.addBadLogin();
@@ -60,7 +60,7 @@ test('rateLimit works', function(t) {
   t.end();
 });
 
-test('trimBadLogins enforces the bad login limit', function(t) {
+test('trimBadLogins enforces the bad login limit', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.lf.length, 0, 'record has nothing to trim');
@@ -74,7 +74,7 @@ test('trimBadLogins enforces the bad login limit', function(t) {
   t.end();
 });
 
-test('trimBadLogins evicts expired entries', function(t) {
+test('trimBadLogins evicts expired entries', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.lf.length, 0, 'record has nothing to trim');
@@ -89,7 +89,7 @@ test('trimBadLogins evicts expired entries', function(t) {
   t.end();
 });
 
-test('isOverBadLogins works', function(t) {
+test('isOverBadLogins works', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.isOverBadLogins(), false, 'record has never seen bad logins');
@@ -109,9 +109,9 @@ test('isOverBadLogins works', function(t) {
   t.end();
 });
 
-test('retryAfter works', function(t) {
+test('retryAfter works', function (t) {
   var ier = simpleIpEmailRecord();
-  ier.now = function() {
+  ier.now = function () {
     return 10000;
   };
 
@@ -133,7 +133,7 @@ test('retryAfter works', function(t) {
   t.end();
 });
 
-test('unblockIfReset works', function(t) {
+test('unblockIfReset works', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.lf.length, 0, 'record does not have any bad logins');
@@ -170,7 +170,7 @@ test('unblockIfReset works', function(t) {
   t.end();
 });
 
-test('parse works', function(t) {
+test('parse works', function (t) {
   var ier = simpleIpEmailRecord();
   t.equal(ier.shouldBlock(), false, 'original object is not blocked');
   t.equal(ier.lf.length, 0, 'original object has no bad logins');
@@ -193,7 +193,7 @@ test('parse works', function(t) {
   t.end();
 });
 
-test('update works', function(t) {
+test('update works', function (t) {
   var ier = simpleIpEmailRecord();
 
   t.equal(ier.update(), 0, 'undefined action does nothing');
@@ -209,7 +209,7 @@ test('update works', function(t) {
   t.end();
 });
 
-test('getMinLifetimeMS works', function(t) {
+test('getMinLifetimeMS works', function (t) {
   var limits = {
     rateLimitIntervalMs: 10,
     maxBadLogins: 2,

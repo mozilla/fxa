@@ -179,7 +179,7 @@ function makeApp() {
   routes.forEach(routeHelpers.addRoute);
 
   if (!config.get('settings.enableBeta')) {
-    app.use('/beta/*', function(req, res) {
+    app.use('/beta/*', function (req, res) {
       res.status(403);
       res.send('<h1>403 Forbidden</h1>');
     });
@@ -269,7 +269,7 @@ function makeHttpRedirectApp() {
   const redirectPort = port === 443 ? '' : ':' + port;
 
   const httpApp = express();
-  httpApp.get('*', function(req, res) {
+  httpApp.get('*', function (req, res) {
     const redirectTo = redirectProtocol + req.host + redirectPort + req.url;
 
     res.redirect(301, redirectTo);

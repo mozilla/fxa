@@ -62,7 +62,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
   let emitPerformanceEvents = false;
   const events = metrics.events || [];
   const { initialView } = metrics;
-  events.forEach(event => {
+  events.forEach((event) => {
     if (event.type === FLOW_BEGIN_EVENT) {
       event.time = metrics.flowBeginTime;
       event.flowTime = 0;
@@ -109,7 +109,7 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
 
   const navigationTiming = metrics.navigationTiming;
   if (emitPerformanceEvents && navigationTiming) {
-    PERFORMANCE_TIMINGS.forEach(item => {
+    PERFORMANCE_TIMINGS.forEach((item) => {
       const relativeTime = item.timings.reduce((sum, timing) => {
         const from = navigationTiming[timing.from];
         const until = navigationTiming[timing.until];
@@ -150,7 +150,7 @@ function isValidFlowData(metrics, requestReceivedTime) {
   }
 
   if (
-    !VALID_FLOW_EVENT_PROPERTIES.every(p =>
+    !VALID_FLOW_EVENT_PROPERTIES.every((p) =>
       isValidProperty(metrics[p.key], p.pattern)
     )
   ) {
@@ -208,7 +208,7 @@ function logFlowEvent(event, data, request) {
 function logStatsdPerfEvent(eventData) {
   // See https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/metrics-events.md#success-event-names
   if (eventData.event.startsWith('flow.performance.')) {
-    const navTimingMetricNames = PERFORMANCE_TIMINGS.map(x => x.event);
+    const navTimingMetricNames = PERFORMANCE_TIMINGS.map((x) => x.event);
     const perfMetricNameParts = eventData.event.split('.');
     const view = perfMetricNameParts[2];
     if (perfMetricNameParts.length === 3) {

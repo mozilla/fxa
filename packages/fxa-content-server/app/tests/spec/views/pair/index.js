@@ -59,7 +59,7 @@ describe('views/pair/index', () => {
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
   });
 
-  afterEach(function() {
+  afterEach(function () {
     view.destroy();
   });
 

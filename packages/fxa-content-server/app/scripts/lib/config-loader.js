@@ -28,7 +28,7 @@ ConfigLoader.prototype = {
 
     return this._readConfigFromHTML()
       .then(this._parseHTMLConfig)
-      .then(config => {
+      .then((config) => {
         config.lang = document.querySelector('html').getAttribute('lang');
         this._setWebpackPublicPath(config.webpackPublicPath);
         return config;
@@ -86,7 +86,7 @@ ConfigLoader.prototype = {
   },
 };
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 ConfigLoader.Errors = _.extend({}, Errors, {
   ERRORS: {

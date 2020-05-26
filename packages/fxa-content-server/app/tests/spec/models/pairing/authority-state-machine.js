@@ -15,7 +15,7 @@ import {
   AuthorityStateMachine,
 } from 'models/pairing/authority-state-machine';
 
-describe('models/auth_brokers/pairing/authority-state-machine', function() {
+describe('models/auth_brokers/pairing/authority-state-machine', function () {
   let state;
   let notifier;
 
@@ -24,7 +24,7 @@ describe('models/auth_brokers/pairing/authority-state-machine', function() {
   });
 
   describe('WaitForAuthorizations', () => {
-    it('transitions to WaitForAuthorityAuthorize', done => {
+    it('transitions to WaitForAuthorityAuthorize', (done) => {
       state = new WaitForAuthorizations(
         {},
         {
@@ -43,7 +43,7 @@ describe('models/auth_brokers/pairing/authority-state-machine', function() {
       }, 1);
     });
 
-    it('transitions to WaitForSupplicantAuthorize', done => {
+    it('transitions to WaitForSupplicantAuthorize', (done) => {
       state = new WaitForAuthorizations(
         {},
         {
@@ -64,7 +64,7 @@ describe('models/auth_brokers/pairing/authority-state-machine', function() {
   });
 
   describe('WaitForSupplicantAuthorize', () => {
-    it('transitions to PairAuthComplete', done => {
+    it('transitions to PairAuthComplete', (done) => {
       state = new WaitForSupplicantAuthorize(
         {},
         {

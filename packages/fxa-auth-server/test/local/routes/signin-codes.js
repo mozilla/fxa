@@ -13,7 +13,7 @@ describe('/signinCodes/consume:', () => {
 
   describe('success, db does not return flowId:', () => {
     beforeEach(() =>
-      setup({ db: { email: 'foo@bar' } }).then(r => (response = r))
+      setup({ db: { email: 'foo@bar' } }).then((r) => (response = r))
     );
 
     it('returned the correct response', () => {
@@ -62,7 +62,7 @@ describe('/signinCodes/consume:', () => {
   describe('success, db returns flowId:', () => {
     beforeEach(() =>
       setup({ db: { email: 'foo@bar', flowId: 'baz' } }).then(
-        r => (response = r)
+        (r) => (response = r)
       )
     );
 
@@ -104,7 +104,7 @@ describe('/signinCodes/consume:', () => {
   describe('db error:', () => {
     beforeEach(() =>
       setup(null, { db: { consumeSigninCode: new Error('foo') } }).catch(
-        err => {
+        (err) => {
           assert(err.message, 'foo');
         }
       )
@@ -133,9 +133,11 @@ describe('/signinCodes/consume:', () => {
 
   describe('customs error:', () => {
     beforeEach(() =>
-      setup(null, { customs: { checkIpOnly: new Error('foo') } }).catch(err => {
-        assert(err.message, 'foo');
-      })
+      setup(null, { customs: { checkIpOnly: new Error('foo') } }).catch(
+        (err) => {
+          assert(err.message, 'foo');
+        }
+      )
     );
 
     it('called log.begin', () => {

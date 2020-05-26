@@ -36,15 +36,15 @@ requiredOptions.forEach(checkRequiredOption);
 
 const DB = require('../lib/db')(config, log, Token);
 
-DB.connect(config[config.db.backend]).then(db => {
+DB.connect(config[config.db.backend]).then((db) => {
   const json = require(path.resolve(commandLineOptions.input));
 
-  const uids = json.map(entry => {
+  const uids = json.map((entry) => {
     return entry.uid;
   });
 
   return P.all(
-    uids.map(uid => {
+    uids.map((uid) => {
       return db
         .resetAccount(
           { uid: uid },
@@ -55,7 +55,7 @@ DB.connect(config[config.db.backend]).then(db => {
             verifierVersion: 1,
           }
         )
-        .catch(err => {
+        .catch((err) => {
           log.error({ op: 'reset.failed', uid: uid, err: err });
           process.exit(1);
         });
@@ -65,7 +65,7 @@ DB.connect(config[config.db.backend]).then(db => {
       () => {
         log.info({ complete: true, uidsReset: uids.length });
       },
-      err => {
+      (err) => {
         log.error(err);
       }
     )

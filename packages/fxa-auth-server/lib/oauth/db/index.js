@@ -34,7 +34,7 @@ const POCKET_IDS = getPocketIds(
 class OauthDB {
   constructor() {
     this.mysql = mysql.connect(config.get('oauthServer.mysql'));
-    this.mysql.then(async db => {
+    this.mysql.then(async (db) => {
       await preClients();
       await scopes();
     });
@@ -46,9 +46,9 @@ class OauthDB {
       },
       logger
     );
-    Object.keys(mysql.prototype).forEach(key => {
+    Object.keys(mysql.prototype).forEach((key) => {
       const self = this;
-      this[key] = async function() {
+      this[key] = async function () {
         const db = await self.mysql;
         return db[key].apply(db, Array.from(arguments));
       };
@@ -184,7 +184,7 @@ function preClients() {
   if (clients && clients.length) {
     logger.debug('predefined.loading', { clients: clients });
     return P.all(
-      clients.map(function(c) {
+      clients.map(function (c) {
         if (c.secret) {
           // eslint-disable-next-line no-console
           console.error(
@@ -211,7 +211,7 @@ function preClients() {
           'trusted',
           'canGrant',
         ];
-        REQUIRED_CLIENTS_KEYS.forEach(function(key) {
+        REQUIRED_CLIENTS_KEYS.forEach(function (key) {
           if (!(key in c)) {
             var data = { key: key, name: c.name || 'unknown' };
             logger.error('client.missing.keys', data);
@@ -233,7 +233,7 @@ function preClients() {
           return P.resolve();
         }
 
-        return module.exports.getClient(c.id).then(function(client) {
+        return module.exports.getClient(c.id).then(function (client) {
           if (client) {
             client = convertClientToConfigFormat(client);
             logger.info('client.compare', { id: c.id });
@@ -267,8 +267,8 @@ function scopes() {
     logger.debug('scopes.loading', JSON.stringify(scopes));
 
     return P.all(
-      scopes.map(function(s) {
-        return module.exports.getScope(s.scope).then(function(existing) {
+      scopes.map(function (s) {
+        return module.exports.getScope(s.scope).then(function (existing) {
           if (existing) {
             logger.verbose('scopes.existing', s);
             return;

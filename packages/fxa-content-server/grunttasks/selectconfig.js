@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   var path = require('path');
 
   var CONFIG_ROOT = path.join(__dirname, '..', 'server', 'config');
@@ -15,7 +15,7 @@ module.exports = function(grunt) {
   grunt.registerTask(
     'selectconfig',
     'Select configuration files for the running environment.',
-    function(target) {
+    function (target) {
       if (!target) {
         target = 'app';
       }

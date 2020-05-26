@@ -62,7 +62,7 @@ export default class PasswordStrengthBalloonModel extends Model {
   }
 
   fetch() {
-    return this._getCommonPasswordList().then(commonPasswordList => {
+    return this._getCommonPasswordList().then((commonPasswordList) => {
       this.commonPasswordList = commonPasswordList;
     });
   }
@@ -98,7 +98,7 @@ export default class PasswordStrengthBalloonModel extends Model {
   }
 
   isPasswordMostlyCommonServiceName(lowercasePassword) {
-    const matchingService = find(BANNED_SERVICE_NAMES, serviceName => {
+    const matchingService = find(BANNED_SERVICE_NAMES, (serviceName) => {
       return lowercasePassword.indexOf(serviceName) !== -1;
     });
 

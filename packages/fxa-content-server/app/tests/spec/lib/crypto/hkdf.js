@@ -68,7 +68,7 @@ describe('lib/crypto/hkdf', () => {
   it('throws if no ikmBuffer', () => {
     const { info, length, salt } = TEST_VECTORS.a1;
 
-    return hkdf(undefined, salt, info, length).then(assert.fail, err => {
+    return hkdf(undefined, salt, info, length).then(assert.fail, (err) => {
       assert.equal(err.message, 'ikmBuffer is required');
     });
   });
@@ -80,11 +80,11 @@ describe('lib/crypto/hkdf', () => {
     'a3a - no salt',
     'a3b - no info',
     'a3c - no salt or info',
-  ].forEach(vectorName => {
+  ].forEach((vectorName) => {
     it(`success ${vectorName}`, () => {
       const { ikm, info, length, output, salt } = TEST_VECTORS[vectorName];
 
-      return hkdf(ikm, salt, info, length).then(result => {
+      return hkdf(ikm, salt, info, length).then((result) => {
         assert.equal(result.length, length);
         assert.equal(result.toString('hex'), output);
       });

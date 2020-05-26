@@ -71,7 +71,7 @@ export const SubscriptionUpgrade = ({
   }, [selectedPlan]);
 
   const onSubmit = useCallback(
-    ev => {
+    (ev) => {
       ev.preventDefault();
       if (validator.allValid()) {
         updateSubscriptionPlanAndRefresh(

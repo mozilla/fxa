@@ -13,7 +13,7 @@ const constantTimeCompare = (subject, object) => {
   );
 };
 
-exports.strategy = secret => (server, options) => ({
+exports.strategy = (secret) => (server, options) => ({
   authenticate: (request, h) => {
     if (constantTimeCompare(request.headers.authorization, secret)) {
       return h.authenticated({ credentials: {} });

@@ -9,7 +9,7 @@ const { assert } = require('chai');
 require('../../../lib/senders/translator')(
   ['en', 'pt_br', 'DE', 'ES_AR', 'ES_cl'],
   'en'
-).then(translator => {
+).then((translator) => {
   it('returns the correct interface', () => {
     assert.equal(typeof translator, 'object');
     assert.equal(Object.keys(translator).length, 2);

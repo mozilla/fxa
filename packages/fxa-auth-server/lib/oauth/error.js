@@ -45,17 +45,17 @@ function AppError(options, extra, headers) {
 }
 util.inherits(AppError, Error);
 
-AppError.prototype.toString = function() {
+AppError.prototype.toString = function () {
   return 'Error: ' + this.message;
 };
 
-AppError.prototype.header = function(name, value) {
+AppError.prototype.header = function (name, value) {
   this.output.headers[name] = value;
 };
 
 AppError.isOauthRoute = function isOauthRoute(path) {
   const routes = require('./routes').routes;
-  return routes.findIndex(r => r.path === path) > -1;
+  return routes.findIndex((r) => r.path === path) > -1;
 };
 
 AppError.translate = function translate(response) {
@@ -82,7 +82,7 @@ AppError.translate = function translate(response) {
   return error;
 };
 
-AppError.prototype.backtrace = function(traced) {
+AppError.prototype.backtrace = function (traced) {
   this.output.payload.log = traced;
 };
 

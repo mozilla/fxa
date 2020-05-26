@@ -7,7 +7,7 @@ var ERRORS = require('./errors');
 var maxmind = require('maxmind');
 var Location = require('./location');
 
-module.exports = function(options) {
+module.exports = function (options) {
   'use strict';
 
   options = options || {};

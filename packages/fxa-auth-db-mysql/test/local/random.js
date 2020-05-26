@@ -9,7 +9,7 @@ const base32 = require('../../lib/db/random');
 
 describe('random', () => {
   it('should generate random code', () => {
-    return base32(10).then(code => {
+    return base32(10).then((code) => {
       assert.lengthOf(code, 10);
       assert.notInclude(code, 'i');
       assert.notInclude(code, 'l');

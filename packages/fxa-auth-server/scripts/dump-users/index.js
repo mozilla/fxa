@@ -9,9 +9,9 @@ const pick = require('lodash.pick');
 module.exports = function dumpUsers(keys, dbFunc, usePretty) {
   const config = require('../../config').getProperties();
   const log = {
-    error: msg => {},
-    info: msg => {},
-    trace: msg => {},
+    error: (msg) => {},
+    info: (msg) => {},
+    trace: (msg) => {},
   };
 
   const Token = require('../../lib/tokens')(log, config);
@@ -25,17 +25,17 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
   let db;
 
   DB.connect(config[config.db.backend])
-    .then(_db => {
+    .then((_db) => {
       db = _db;
-      return P.mapSeries(keys, item =>
-        db[dbFunc](item).catch(err => {
+      return P.mapSeries(keys, (item) =>
+        db[dbFunc](item).catch((err) => {
           console.error(`${String(err)} - ${item}`);
           process.exit(1);
         })
       );
     })
     .then(marshallUserRecords)
-    .then(records => {
+    .then((records) => {
       if (usePretty) {
         console.log(JSON.stringify(records, null, 2));
       } else {
@@ -50,7 +50,7 @@ module.exports = function dumpUsers(keys, dbFunc, usePretty) {
 };
 
 function marshallUserRecords(userRecords) {
-  return userRecords.map(userRecord => {
+  return userRecords.map((userRecord) => {
     const filteredRecord = pick(
       userRecord,
       'createdAt',
@@ -66,7 +66,7 @@ function marshallUserRecords(userRecords) {
     );
 
     if (filteredRecord.devices) {
-      Object.keys(filteredRecord.devices).forEach(id => {
+      Object.keys(filteredRecord.devices).forEach((id) => {
         filteredRecord.devices[id] = pick(
           userRecord.devices[id],
           'callbackIsExpired',

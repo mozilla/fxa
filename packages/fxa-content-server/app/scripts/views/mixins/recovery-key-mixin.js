@@ -7,7 +7,7 @@
  *
  * @mixin RecoveryKeyMixin
  */
-const t = msg => msg;
+const t = (msg) => msg;
 
 const Mixin = {
   formatRecoveryKey(key) {

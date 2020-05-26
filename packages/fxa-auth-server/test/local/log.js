@@ -13,7 +13,7 @@ const mockAmplitudeConfig = { schemaValidation: true };
 
 let sentryScope;
 const mockSentry = {
-  withScope: sinon.stub().callsFake(cb => {
+  withScope: sinon.stub().callsFake((cb) => {
     sentryScope = { setContext: sinon.stub() };
     cb(sentryScope);
   }),
@@ -80,11 +80,11 @@ describe('log', () => {
       // These need to be `function` functions, not arrow functions,
       // otherwise proxyquire gets confused and errors out.
       // eslint-disable-next-line prefer-arrow-callback
-      mozlog: sinon.spy(function() {
+      mozlog: sinon.spy(function () {
         return sinon.spy(() => logger);
       }),
       // eslint-disable-next-line prefer-arrow-callback
-      './notifier': function() {
+      './notifier': function () {
         return { send: sinon.spy() };
       },
       '@sentry/node': mockSentry,
@@ -338,7 +338,11 @@ describe('log', () => {
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
-    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
+    assert.equal(
+      logger.critical.callCount,
+      0,
+      'logger.critical was not called'
+    );
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -352,7 +356,11 @@ describe('log', () => {
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
-    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
+    assert.equal(
+      logger.critical.callCount,
+      0,
+      'logger.critical was not called'
+    );
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -366,7 +374,11 @@ describe('log', () => {
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
-    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
+    assert.equal(
+      logger.critical.callCount,
+      0,
+      'logger.critical was not called'
+    );
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -380,7 +392,11 @@ describe('log', () => {
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
-    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
+    assert.equal(
+      logger.critical.callCount,
+      0,
+      'logger.critical was not called'
+    );
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 
@@ -394,7 +410,11 @@ describe('log', () => {
     assert.equal(logger.info.callCount, 0, 'logger.info was not called');
     assert.equal(logger.debug.callCount, 0, 'logger.debug was not called');
     assert.equal(logger.error.callCount, 0, 'logger.error was not called');
-    assert.equal(logger.critical.callCount, 0, 'logger.critical was not called');
+    assert.equal(
+      logger.critical.callCount,
+      0,
+      'logger.critical was not called'
+    );
     assert.equal(logger.warn.callCount, 0, 'logger.warn was not called');
   });
 

@@ -13,7 +13,7 @@ const testConfig = config.getProperties();
 function wrapServer(server, close) {
   var wrap = {};
   function request(options) {
-    return new P(resolve => {
+    return new P((resolve) => {
       resolve(server.inject(options));
     });
   }
@@ -44,7 +44,7 @@ function wrapServer(server, close) {
   };
 
   var api = {};
-  Object.keys(wrap).forEach(function(key) {
+  Object.keys(wrap).forEach(function (key) {
     api[key] = function api(options) {
       options = opts(options);
       options.url = '/v' + version + options.url;
@@ -58,7 +58,7 @@ function wrapServer(server, close) {
   return wrap;
 }
 
-module.exports.start = async function() {
+module.exports.start = async function () {
   const { server, close } = await createServer(testConfig);
   return wrapServer(server, close);
 };

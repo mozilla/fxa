@@ -34,7 +34,7 @@ const {
 var email;
 
 registerSuite('oauth settings clients', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote.then(
@@ -45,7 +45,7 @@ registerSuite('oauth settings clients', {
     );
   },
   tests: {
-    'rp listed in apps, can be deleted': function() {
+    'rp listed in apps, can be deleted': function () {
       var self = this;
       self.timeout = 90 * 1000;
 

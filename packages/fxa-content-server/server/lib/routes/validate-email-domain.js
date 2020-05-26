@@ -44,7 +44,7 @@ const WrappedErrorCodes = [
   dns.CANCELLED,
 ];
 
-const tryResolveWith = resolveFunc => async domain => {
+const tryResolveWith = (resolveFunc) => async (domain) => {
   try {
     const records = await resolveFunc(domain);
     // We don't do anything with the records
@@ -57,19 +57,16 @@ const tryResolveWith = resolveFunc => async domain => {
   }
 };
 
-module.exports = function() {
+module.exports = function () {
   return {
     method: 'get',
     path: '/validate-email-domain',
     validate: {
       query: {
-        domain: joi
-          .string()
-          .hostname()
-          .required(),
+        domain: joi.string().hostname().required(),
       },
     },
-    process: async function(req, res, next) {
+    process: async function (req, res, next) {
       const { domain } = req.query;
 
       try {

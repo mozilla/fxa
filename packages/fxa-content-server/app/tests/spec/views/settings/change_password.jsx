@@ -1,6 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
-* License, v. 2.0. If a copy of the MPL was not distributed with this
-* file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import $ from 'jquery';
 import { assert } from 'chai';
@@ -13,7 +13,10 @@ import React from 'react';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import User from 'models/user';
-import {ChangePasswordHeader, ChangePasswordForm} from 'views/settings/change_password';
+import {
+  ChangePasswordHeader,
+  ChangePasswordForm,
+} from 'views/settings/change_password';
 import View from 'views/settings/change_password';
 import {
   render,
@@ -27,7 +30,7 @@ const { isEventLogged } = helpers;
 
 const EMAIL = 'a@a.com';
 
-describe('views/settings/change_password', function() {
+describe('views/settings/change_password', function () {
   var account;
   var broker;
   var metrics;
@@ -46,7 +49,7 @@ describe('views/settings/change_password', function() {
     relier = new Relier();
 
     broker = new Broker({
-      relier: relier
+      relier: relier,
     });
 
     user = new User({});
@@ -56,7 +59,7 @@ describe('views/settings/change_password', function() {
       metrics: metrics,
       notifier,
       relier: relier,
-      user: user
+      user: user,
     });
   });
 
@@ -65,7 +68,7 @@ describe('views/settings/change_password', function() {
   });
 
   describe('ChangePasswordHeader Component', () => {
-    function renderChangePassword(){
+    function renderChangePassword() {
       render(<ChangePasswordHeader />);
     }
     it('renders the password header correctly', () => {
@@ -84,7 +87,7 @@ describe('views/settings/change_password', function() {
       account = user.initAccount({
         email: EMAIL,
         sessionToken: 'abc123',
-        verified: true
+        verified: true,
       });
       sinon.stub(account, 'isSignedIn').callsFake(function () {
         return Promise.resolve(true);
@@ -95,9 +98,14 @@ describe('views/settings/change_password', function() {
       });
 
       render(
-        <ChangePasswordForm account={account}
-        submit={(oldPassword, newPassword)=>view.submit(oldPassword, newPassword)}
-        showValidationError={(id,err)=>view.showValidationError(this.$(id),err)}
+        <ChangePasswordForm
+          account={account}
+          submit={(oldPassword, newPassword) =>
+            view.submit(oldPassword, newPassword)
+          }
+          showValidationError={(id, err) =>
+            view.showValidationError(this.$(id), err)
+          }
         />
       );
     });
@@ -112,7 +120,7 @@ describe('views/settings/change_password', function() {
         assert.lengthOf($('#new_vpassword'), 1);
         assert.lengthOf($('.input-help'), 1);
         assert.lengthOf($('.input-help-forgot-pw'), 1);
-        assert.lengthOf(inputMail,1);
+        assert.lengthOf(inputMail, 1);
         assert.equal(inputMail[0].value, EMAIL);
       });
     });
@@ -123,13 +131,12 @@ describe('views/settings/change_password', function() {
         var newPassword = 'password123123';
 
         beforeEach(function () {
-
           sinon.stub(user, 'changeAccountPassword').callsFake(function () {
             return Promise.resolve({});
           });
 
-          sinon.stub(view, 'navigate').callsFake(function () { });
-          sinon.stub(view, 'displaySuccess').callsFake(function () { });
+          sinon.stub(view, 'navigate').callsFake(function () {});
+          sinon.stub(view, 'displaySuccess').callsFake(function () {});
 
           sinon.spy(broker, 'afterChangePassword');
 
@@ -137,8 +144,14 @@ describe('views/settings/change_password', function() {
         });
 
         it('delegates to the user to change the password', function () {
-          assert.isTrue(user.changeAccountPassword.calledWith(
-            account, oldPassword, newPassword, relier));
+          assert.isTrue(
+            user.changeAccountPassword.calledWith(
+              account,
+              oldPassword,
+              newPassword,
+              relier
+            )
+          );
         });
 
         it('informs the broker', function () {
@@ -151,12 +164,11 @@ describe('views/settings/change_password', function() {
 
         it('displays a success message', function () {
           assert.isTrue(view.displaySuccess.called);
-          assert.isTrue(isEventLogged(metrics, 'settings.change-password.success'));
+          assert.isTrue(
+            isEventLogged(metrics, 'settings.change-password.success')
+          );
         });
       });
     });
-
-
   });
-
 });

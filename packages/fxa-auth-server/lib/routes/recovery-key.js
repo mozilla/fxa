@@ -25,7 +25,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('createRecoveryKey', request);
 
         const sessionToken = request.auth.credentials;
@@ -102,7 +102,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('verifyRecoveryKey', request);
 
         const sessionToken = request.auth.credentials;
@@ -165,7 +165,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           },
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('getRecoveryKey', request);
 
         const { uid } = request.auth.credentials;

@@ -9,7 +9,11 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
-    "typeRoots": ["./types", "node_modules/@types", "../../node_modules/@types"],
+    "typeRoots": [
+      "./types",
+      "node_modules/@types",
+      "../../node_modules/@types"
+    ],
     "skipLibCheck": true
   },
   "include": ["./**/*", "./*"],

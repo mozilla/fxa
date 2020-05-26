@@ -84,7 +84,7 @@ describe('PaymentConfirmation', () => {
     const yearBasedId = 'payment-confirmation-amount-year';
 
     const findMockPlan = (planId: string): Plan => {
-      const plan = MOCK_PLANS.find(x => x.plan_id === planId);
+      const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
       if (plan) {
         return plan;
       }

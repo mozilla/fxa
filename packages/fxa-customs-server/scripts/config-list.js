@@ -44,7 +44,7 @@ var output = {
 };
 
 mc.getAsync('limits')
-  .then(function(data) {
+  .then(function (data) {
     if (!data) {
       console.error('no limits set');
     } else {
@@ -52,7 +52,7 @@ mc.getAsync('limits')
     }
     return mc.getAsync('allowedIPs');
   })
-  .then(function(data) {
+  .then(function (data) {
     if (!data) {
       console.error('no allowedIPs set');
     } else {
@@ -60,7 +60,7 @@ mc.getAsync('limits')
     }
     return mc.getAsync('allowedEmailDomains');
   })
-  .then(function(data) {
+  .then(function (data) {
     if (!data) {
       console.error('no allowedEmailDomains set');
     } else {
@@ -68,7 +68,7 @@ mc.getAsync('limits')
     }
     return mc.getAsync('allowedPhoneNumbers');
   })
-  .then(function(data) {
+  .then(function (data) {
     if (!data) {
       console.error('no allowedPhoneNumbers set');
     } else {
@@ -76,14 +76,14 @@ mc.getAsync('limits')
     }
     return mc.getAsync('requestChecks');
   })
-  .then(function(data) {
+  .then(function (data) {
     if (!data) {
       console.error('no requestChecks set');
     } else {
       output.requestChecks = data;
     }
   })
-  .then(function() {
+  .then(function () {
     mc.end();
     console.log(JSON.stringify(output, null, 2));
   });

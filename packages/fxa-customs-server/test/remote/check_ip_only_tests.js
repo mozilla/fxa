@@ -23,20 +23,20 @@ const client = restifyClients.createJsonClient({
   url: 'http://localhost:' + config.listen.port,
 });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', t => {
-  memcached.clearEverything(err => {
+test('clear everything', (t) => {
+  memcached.clearEverything((err) => {
     t.notOk(err, 'memcached.clearEverything should not return an error');
     t.end();
   });
 });
 
-test('with ip and action', t => {
+test('with ip and action', (t) => {
   client.post(
     '/checkIpOnly',
     { ip: IP, action: ACTION },
@@ -49,21 +49,21 @@ test('with ip and action', t => {
   );
 });
 
-test('missing action', t => {
+test('missing action', (t) => {
   client.post('/checkIpOnly', { ip: IP }, (err, req, res, obj) => {
     t.equal(res.statusCode, 400, '/checkIpOnly should return a 400 response');
     t.end();
   });
 });
 
-test('missing ip', t => {
+test('missing ip', (t) => {
   client.post('/checkIpOnly', { action: ACTION }, (err, req, res, obj) => {
     t.equal(res.statusCode, 400, '/checkIpOnly should return a 400 response');
     t.end();
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

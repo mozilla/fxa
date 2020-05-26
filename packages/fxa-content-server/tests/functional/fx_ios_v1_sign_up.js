@@ -31,13 +31,13 @@ const {
 const { listenForFxaCommands, testIsBrowserNotifiedOfLogin } = FxDesktopHelpers;
 
 registerSuite('FxiOS v1 sign_up', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     return this.remote.then(clearBrowserState());
   },
 
   tests: {
-    'open directly to /signup page': function() {
+    'open directly to /signup page': function () {
       return (
         this.remote
           // redirected immediately to the / page
@@ -45,7 +45,7 @@ registerSuite('FxiOS v1 sign_up', {
       );
     },
 
-    'sign up + CWTS, verify same browser': function() {
+    'sign up + CWTS, verify same browser': function () {
       return (
         this.remote
           .then(

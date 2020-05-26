@@ -23,7 +23,7 @@ function MysqlStore(options) {
   } else {
     options.charset = REQUIRED_CHARSET;
   }
-  options.typeCast = function(field, next) {
+  options.typeCast = function (field, next) {
     if (field.type === 'TINY' && field.length === 1) {
       return field.string() === '1';
     }
@@ -39,7 +39,7 @@ function updateDbSchema(patcher) {
   logger.verbose('updateDbSchema', patcher.options);
 
   var d = P.defer();
-  patcher.patch(function(err) {
+  patcher.patch(function (err) {
     if (err) {
       logger.error('updateDbSchema', err);
       return d.reject(err);
@@ -57,7 +57,7 @@ function checkDbPatchLevel(patcher) {
 
   var d = P.defer();
 
-  patcher.readDbPatchLevel(function(err) {
+  patcher.readDbPatchLevel(function (err) {
     if (err) {
       logger.error('checkDbPatchLevel', err);
       return d.reject(err);
@@ -88,18 +88,18 @@ MysqlStore.connect = function mysqlConnect(options) {
   var patcher = new MysqlPatcher(options);
 
   return P.promisify(patcher.connect, { context: patcher })()
-    .then(function() {
+    .then(function () {
       if (options.createSchema) {
         return updateDbSchema(patcher);
       }
     })
-    .then(function() {
+    .then(function () {
       return checkDbPatchLevel(patcher);
     })
-    .then(function() {
+    .then(function () {
       return P.promisify(patcher.end, { context: patcher })();
     })
-    .then(function() {
+    .then(function () {
       return new MysqlStore(options);
     });
 };
@@ -141,9 +141,9 @@ MysqlStore.prototype = {
     logger.debug('ping');
     // see bluebird.using():
     // https://github.com/petkaantonov/bluebird/blob/master/API.md#resource-management
-    return P.using(this._getConnection(), function(conn) {
-      return new P(function(resolve, reject) {
-        conn.ping(function(err) {
+    return P.using(this._getConnection(), function (conn) {
+      return new P(function (resolve, reject) {
+        conn.ping(function (err) {
           if (err) {
             logger.error('ping', err);
             reject(err);
@@ -159,14 +159,14 @@ MysqlStore.prototype = {
     id = buf(id);
     uid = buf(uid);
     var store = this;
-    return this.getProviderByName(provider).then(function(prov) {
+    return this.getProviderByName(provider).then(function (prov) {
       if (!prov) {
         throw AppError.unsupportedProvider(url);
       }
 
       return store
         ._write(Q_AVATAR_INSERT, [id, url, uid, prov.id])
-        .then(function() {
+        .then(function () {
           // always select the newly uploaded avatar
           return store._write(Q_AVATAR_UPDATE, [uid, id]);
         });
@@ -229,8 +229,8 @@ MysqlStore.prototype = {
     // ALWAYS be called at the end of the promise stack, regardless of
     // various errors thrown. So this should ALWAYS release the connection.
     var pool = this._pool;
-    return new P(function(resolve, reject) {
-      pool.getConnection(function(err, conn) {
+    return new P(function (resolve, reject) {
+      pool.getConnection(function (err, conn) {
         if (err) {
           return reject(err);
         }
@@ -274,9 +274,9 @@ MysqlStore.prototype = {
   },
 
   _query: function _query(sql, params) {
-    return P.using(this._getConnection(), function(conn) {
-      return new P(function(resolve, reject) {
-        conn.query(sql, params || [], function(err, results) {
+    return P.using(this._getConnection(), function (conn) {
+      return new P(function (resolve, reject) {
+        conn.query(sql, params || [], function (err, results) {
           if (err) {
             reject(err);
           } else {
@@ -289,7 +289,7 @@ MysqlStore.prototype = {
 
   disconnect: function disconnect() {
     return new P((resolve, reject) => {
-      this._pool.end(err => {
+      this._pool.end((err) => {
         if (err) {
           return reject(err);
         }
@@ -303,10 +303,10 @@ if (config.get('env') === 'test') {
   MysqlStore.prototype._clear = function clear() {
     var store = this;
     return this._write('DELETE FROM avatar_selected;')
-      .then(function() {
+      .then(function () {
         return store._write('DELETE FROM avatars;');
       })
-      .then(function() {
+      .then(function () {
         return store._write('DELETE FROM avatar_providers;');
       });
   };

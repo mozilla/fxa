@@ -44,8 +44,9 @@ var AttachedClient = Backbone.Model.extend({
     // for our internal use by backbone's collection infrastructure.
     this.set(
       'id',
-      `${attrs.clientId || ''}-${attrs.deviceId || ''}-${attrs.refreshTokenId ||
-        ''}-${attrs.sessionTokenId || ''}`
+      `${attrs.clientId || ''}-${attrs.deviceId || ''}-${
+        attrs.refreshTokenId || ''
+      }-${attrs.sessionTokenId || ''}`
     );
     this.set('genericOS', UserAgent.toGenericOSName(attrs.os));
     // Intuit additional type flags based on what IDs are present.

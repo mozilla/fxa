@@ -30,7 +30,7 @@ const init = async () => {
   }
 };
 
-process.on('unhandledRejection', err => {
+process.on('unhandledRejection', (err) => {
   console.log(err);
   process.exit(1);
 });

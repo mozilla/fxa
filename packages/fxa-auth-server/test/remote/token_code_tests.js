@@ -10,14 +10,14 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const error = require('../../lib/error');
 
-describe('remote tokenCodes', function() {
+describe('remote tokenCodes', function () {
   let server, client, email, code;
   const password = 'pssssst';
 
   this.timeout(10000);
 
   before(() => {
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -29,7 +29,7 @@ describe('remote tokenCodes', function() {
       email,
       password,
       server.mailbox
-    ).then(x => {
+    ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
     });
@@ -40,7 +40,7 @@ describe('remote tokenCodes', function() {
       verificationMethod: 'email-2fa',
       keys: true,
     })
-      .then(res => {
+      .then((res) => {
         client = res;
         assert.equal(
           res.verificationMethod,
@@ -53,7 +53,7 @@ describe('remote tokenCodes', function() {
         () => {
           assert.fail('consumed invalid code');
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             error.ERRNO.INVALID_EXPIRED_OTP_CODE,
@@ -62,7 +62,7 @@ describe('remote tokenCodes', function() {
           return client.emailStatus();
         }
       )
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'email is verified');
         assert.equal(status.sessionVerified, false, 'session is not verified');
@@ -74,7 +74,7 @@ describe('remote tokenCodes', function() {
       verificationMethod: 'email-2fa',
       keys: true,
     })
-      .then(res => {
+      .then((res) => {
         client = res;
         assert.equal(
           res.verificationMethod,
@@ -87,7 +87,7 @@ describe('remote tokenCodes', function() {
         () => {
           assert.fail('consumed invalid code');
         },
-        err => {
+        (err) => {
           assert.equal(
             err.errno,
             error.ERRNO.INVALID_PARAMETER,
@@ -96,7 +96,7 @@ describe('remote tokenCodes', function() {
           return client.emailStatus();
         }
       )
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'email is verified');
         assert.equal(status.sessionVerified, false, 'session is not verified');
@@ -108,7 +108,7 @@ describe('remote tokenCodes', function() {
       verificationMethod: 'email-2fa',
       keys: true,
     })
-      .then(res => {
+      .then((res) => {
         client = res;
         assert.equal(
           res.verificationMethod,
@@ -117,23 +117,23 @@ describe('remote tokenCodes', function() {
         );
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, false, 'account is not verified');
         assert.equal(status.emailVerified, true, 'email is verified');
         assert.equal(status.sessionVerified, false, 'session is not verified');
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyShortCodeEmail(code);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res, 'verified successful response');
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'email is verified');
         assert.equal(status.sessionVerified, true, 'session is verified');
@@ -145,21 +145,21 @@ describe('remote tokenCodes', function() {
       verificationMethod: 'email-2fa',
       keys: true,
     })
-      .then(res => {
+      .then((res) => {
         client = res;
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyShortCodeEmail(code, { uid: client.uid });
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res, 'verified successful response');
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
         assert.equal(status.emailVerified, true, 'email is verified');
         assert.equal(status.sessionVerified, true, 'session is verified');
@@ -171,22 +171,22 @@ describe('remote tokenCodes', function() {
       verificationMethod: 'email-2fa',
       keys: true,
     })
-      .then(res => {
+      .then((res) => {
         client = res;
         return server.mailbox.waitForEmail(email);
       })
-      .then(emailData => {
+      .then((emailData) => {
         assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
         code = emailData.headers['x-signin-verify-code'];
         assert.ok(code, 'code is sent');
         return client.verifyShortCodeEmail(code);
       })
-      .then(res => {
+      .then((res) => {
         assert.ok(res, 'verified successful response');
 
         return client.keys();
       })
-      .then(keys => {
+      .then((keys) => {
         assert.ok(keys.kA, 'has kA keys');
         assert.ok(keys.kB, 'has kB keys');
         assert.ok(keys.wrapKb, 'has wrapKb keys');

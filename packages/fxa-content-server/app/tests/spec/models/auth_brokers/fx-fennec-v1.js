@@ -11,7 +11,7 @@ import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
-describe('models/auth_brokers/fx-fennec-v1', function() {
+describe('models/auth_brokers/fx-fennec-v1', function () {
   let account;
   let broker;
   let channel;
@@ -20,7 +20,7 @@ describe('models/auth_brokers/fx-fennec-v1', function() {
   let user;
   let windowMock;
 
-  beforeEach(function() {
+  beforeEach(function () {
     channel = new NullChannel();
     metrics = {
       flush: sinon.stub().resolves({}),
@@ -59,39 +59,39 @@ describe('models/auth_brokers/fx-fennec-v1', function() {
     );
   });
 
-  describe('afterForceAuth', function() {
-    it('notifies the channel of `login`', function() {
-      return broker.afterForceAuth(account).then(function(behavior) {
+  describe('afterForceAuth', function () {
+    it('notifies the channel of `login`', function () {
+      return broker.afterForceAuth(account).then(function (behavior) {
         assert.isTrue(broker.send.calledWith('fxaccounts:login'));
       });
     });
   });
 
-  describe('afterSignIn', function() {
-    it('notifies the channel of `login`, redirects to `/signin_confirmed`', function() {
-      return broker.afterSignIn(account).then(function(behavior) {
+  describe('afterSignIn', function () {
+    it('notifies the channel of `login`, redirects to `/signin_confirmed`', function () {
+      return broker.afterSignIn(account).then(function (behavior) {
         assert.isTrue(broker.send.calledWith('fxaccounts:login'));
         assert.equal(behavior.type, 'connect-another-device');
       });
     });
   });
 
-  describe('beforeSignUpConfirmationPoll', function() {
-    it('notifies the channel of `login`, does not halt the flow', function() {
+  describe('beforeSignUpConfirmationPoll', function () {
+    it('notifies the channel of `login`, does not halt the flow', function () {
       return broker
         .beforeSignUpConfirmationPoll(account)
-        .then(function(behavior) {
+        .then(function (behavior) {
           assert.isTrue(broker.send.calledWith('fxaccounts:login'));
           assert.isUndefined(behavior.halt);
         });
     });
   });
 
-  describe('afterSignUpConfirmationPoll', function() {
-    it('redirects to `/connect_another_device`', function() {
+  describe('afterSignUpConfirmationPoll', function () {
+    it('redirects to `/connect_another_device`', function () {
       return broker
         .afterSignUpConfirmationPoll(account)
-        .then(function(behavior) {
+        .then(function (behavior) {
           assert.isTrue(metrics.setViewNamePrefix.calledOnce);
           assert.isTrue(metrics.setViewNamePrefix.calledWith('signup'));
           assert.equal(behavior.type, 'connect-another-device');
@@ -99,11 +99,11 @@ describe('models/auth_brokers/fx-fennec-v1', function() {
     });
   });
 
-  describe('afterSignInConfirmationPoll', function() {
-    it('redirects to `/connect_another_device`', function() {
+  describe('afterSignInConfirmationPoll', function () {
+    it('redirects to `/connect_another_device`', function () {
       return broker
         .afterSignInConfirmationPoll(account)
-        .then(function(behavior) {
+        .then(function (behavior) {
           assert.isTrue(metrics.setViewNamePrefix.calledOnce);
           assert.isTrue(metrics.setViewNamePrefix.calledWith('signin'));
           assert.equal(behavior.type, 'connect-another-device');

@@ -9,14 +9,14 @@ const config = require('../../../server/lib/configuration');
 var instance, request, response;
 
 registerSuite('routes/get-index', {
-  'route interface is correct': function() {
+  'route interface is correct': function () {
     assert.isFunction(route);
     assert.lengthOf(route, 1);
   },
 
   tests: {
     'initialise route': {
-      before: function() {
+      before: function () {
         instance = route(config);
       },
 
@@ -25,7 +25,7 @@ registerSuite('routes/get-index', {
       },
 
       tests: {
-        'instance interface is correct': function() {
+        'instance interface is correct': function () {
           assert.isObject(instance);
           assert.lengthOf(Object.keys(instance), 4);
           assert.equal(instance.method, 'get');
@@ -35,7 +35,7 @@ registerSuite('routes/get-index', {
         },
 
         'route.process with no context': {
-          before: function() {
+          before: function () {
             request = {
               headers: {},
               query: {},
@@ -45,7 +45,7 @@ registerSuite('routes/get-index', {
           },
 
           tests: {
-            'response.render was called correctly': function() {
+            'response.render was called correctly': function () {
               assert.equal(response.render.callCount, 1);
 
               var args = response.render.args[0];
@@ -119,7 +119,7 @@ registerSuite('routes/get-index', {
         },
 
         'route.process with context=fx_desktop_v1': {
-          before: function() {
+          before: function () {
             request = {
               headers: {},
               originalUrl:
@@ -134,7 +134,7 @@ registerSuite('routes/get-index', {
           },
 
           tests: {
-            'response.redirect was called correctly': function() {
+            'response.redirect was called correctly': function () {
               assert.isTrue(
                 response.redirect.calledOnceWith(
                   '/update_firefox?context=fx_desktop_v1&service=sync'
@@ -145,7 +145,7 @@ registerSuite('routes/get-index', {
         },
 
         'route.process with context=fx_desktop_v2': {
-          before: function() {
+          before: function () {
             request = {
               headers: {},
               originalUrl:
@@ -160,7 +160,7 @@ registerSuite('routes/get-index', {
           },
 
           tests: {
-            'response.redirect was called correctly': function() {
+            'response.redirect was called correctly': function () {
               assert.isTrue(
                 response.redirect.calledOnceWith(
                   '/update_firefox?context=fx_desktop_v2&service=sync'
@@ -171,7 +171,7 @@ registerSuite('routes/get-index', {
         },
 
         'route.process with context=fx_desktop_v3': {
-          before: function() {
+          before: function () {
             request = {
               headers: {},
               originalUrl:
@@ -186,7 +186,7 @@ registerSuite('routes/get-index', {
           },
 
           tests: {
-            'response.render was called correctly': function() {
+            'response.render was called correctly': function () {
               assert.isTrue(response.render.calledOnceWith('index'));
             },
           },

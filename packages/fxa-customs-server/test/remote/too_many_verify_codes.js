@@ -24,7 +24,7 @@ const client = restifyClients.createJsonClient({
 
 Promise.promisifyAll(client, { multiArgs: true });
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
@@ -36,15 +36,15 @@ const VERIFY_CODE_ACTIONS = [
   'verifyRecoveryCode',
 ];
 
-VERIFY_CODE_ACTIONS.forEach(action => {
-  test('clear everything', t => {
-    mcHelper.clearEverything(err => {
+VERIFY_CODE_ACTIONS.forEach((action) => {
+  test('clear everything', (t) => {
+    mcHelper.clearEverything((err) => {
       t.notOk(err, 'no errors were returned');
       t.end();
     });
   });
 
-  test('/check `' + action + '` by email', t => {
+  test('/check `' + action + '` by email', (t) => {
     // Send requests until throttled
     const email = testUtils.randomEmail();
     const ip = testUtils.randomIp();
@@ -79,21 +79,21 @@ VERIFY_CODE_ACTIONS.forEach(action => {
           t.equal(obj.block, false, 'not rate limited');
           t.end();
         })
-        .catch(err => {
+        .catch((err) => {
           t.fail(err);
           t.end();
         })
     );
   });
 
-  test('clear everything', t => {
-    mcHelper.clearEverything(err => {
+  test('clear everything', (t) => {
+    mcHelper.clearEverything((err) => {
       t.notOk(err, 'no errors were returned');
       t.end();
     });
   });
 
-  test('/check `' + action + '` by ip', t => {
+  test('/check `' + action + '` by ip', (t) => {
     // Send requests until throttled
     return (
       client
@@ -152,7 +152,7 @@ VERIFY_CODE_ACTIONS.forEach(action => {
           t.equal(obj.block, false, 'not rate limited');
           t.end();
         })
-        .catch(err => {
+        .catch((err) => {
           t.fail(err);
           t.end();
         })
@@ -160,7 +160,7 @@ VERIFY_CODE_ACTIONS.forEach(action => {
   });
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

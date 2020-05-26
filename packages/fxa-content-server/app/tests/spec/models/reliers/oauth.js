@@ -142,7 +142,7 @@ describe('models/reliers/oauth', () => {
           state: STATE,
         });
 
-        return relier.fetch().then(assert.fail, err => {
+        return relier.fetch().then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
         });
       });
@@ -159,7 +159,7 @@ describe('models/reliers/oauth', () => {
           state: STATE,
         });
 
-        return relier.fetch().then(assert.fail, err => {
+        return relier.fetch().then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
           assert.equal(err.param, 'code_challenge');
         });
@@ -177,7 +177,7 @@ describe('models/reliers/oauth', () => {
           state: STATE,
         });
 
-        return relier.fetch().then(assert.fail, err => {
+        return relier.fetch().then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'INVALID_PARAMETER'));
           assert.equal(err.param, 'code_challenge_method');
         });
@@ -754,7 +754,7 @@ describe('models/reliers/oauth', () => {
       assert.isFalse(relier._validateKeyScopeRequest());
     });
 
-    it('throws if a client requests a scope that does not belong to it', done => {
+    it('throws if a client requests a scope that does not belong to it', (done) => {
       relier.set('keysJwk', 'jwk');
       relier.set('scope', scopeApp1);
       relier.set('redirectUri', scopeApp2Redirect);
@@ -783,7 +783,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_NOT_ENABLED'));
         });
     });
@@ -794,7 +794,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             OAuthErrors.is(err, 'PROMPT_NONE_NOT_ENABLED_FOR_CLIENT')
           );
@@ -806,7 +806,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_WITH_KEYS'));
         });
     });
@@ -821,7 +821,7 @@ describe('models/reliers/oauth', () => {
       });
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
           assert.equal(err.param, 'login_hint');
         });
@@ -830,7 +830,7 @@ describe('models/reliers/oauth', () => {
     it('rejects if no user is signed in', () => {
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_NOT_SIGNED_IN'));
         });
     });
@@ -843,7 +843,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_NOT_SIGNED_IN'));
         });
     });
@@ -859,7 +859,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             OAuthErrors.is(err, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
           );
@@ -879,7 +879,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(AuthErrors.is(err, 'INVALID_TOKEN'));
         });
     });
@@ -899,7 +899,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(OAuthErrors.is(err, 'PROMPT_NONE_UNVERIFIED'));
         });
     });
@@ -920,7 +920,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             OAuthErrors.is(err, 'PROMPT_NONE_INVALID_ID_TOKEN_HINT')
           );
@@ -947,7 +947,7 @@ describe('models/reliers/oauth', () => {
 
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, err => {
+        .then(assert.fail, (err) => {
           assert.isTrue(
             OAuthErrors.is(err, 'PROMPT_NONE_DIFFERENT_USER_SIGNED_IN')
           );
@@ -1144,18 +1144,18 @@ describe('models/reliers/oauth', () => {
   });
 
   describe('scopeStrToArray', () => {
-    it('handles empty scopes', function() {
+    it('handles empty scopes', function () {
       assert.deepEqual(relier.scopeStrToArray(), []);
     });
 
-    it('handles scopes with +', function() {
+    it('handles scopes with +', function () {
       assert.deepEqual(relier.scopeStrToArray('profile+openid'), [
         'profile',
         'openid',
       ]);
     });
 
-    it('handles scopes with %20', function() {
+    it('handles scopes with %20', function () {
       assert.deepEqual(relier.scopeStrToArray('profile openid'), [
         'profile',
         'openid',
@@ -1191,7 +1191,7 @@ describe('models/reliers/oauth', () => {
   function fetchExpectError(params) {
     windowMock.location.search = toSearchString(params);
 
-    return relier.fetch().then(assert.fail, function(_err) {
+    return relier.fetch().then(assert.fail, function (_err) {
       err = _err;
     });
   }
@@ -1204,7 +1204,7 @@ describe('models/reliers/oauth', () => {
 
   function testInvalidQueryParams(paramName, values) {
     describe('invalid', () => {
-      values.forEach(function(value) {
+      values.forEach(function (value) {
         var description = 'is ' + getValueLabel(value);
         describe(description, () => {
           testInvalidQueryParam(paramName, value);
@@ -1259,7 +1259,7 @@ describe('models/reliers/oauth', () => {
 
   function testValidQueryParams(paramName, values, modelName, expectedValues) {
     describe('valid', () => {
-      values.forEach(function(value, index) {
+      values.forEach(function (value, index) {
         var description = 'is ' + getValueLabel(value);
         describe(description, () => {
           var expectedValue = expectedValues[index];
@@ -1317,7 +1317,7 @@ describe('models/reliers/oauth', () => {
   }
 
   function testInvalidClientInfoValues(paramName, values) {
-    values.forEach(function(value) {
+    values.forEach(function (value) {
       var description = 'is ' + getValueLabel(value);
       describe(description, () => {
         testInvalidClientInfoValue(paramName, value);
@@ -1372,7 +1372,7 @@ describe('models/reliers/oauth', () => {
     modelName,
     expectedValues
   ) {
-    values.forEach(function(value, index) {
+    values.forEach(function (value, index) {
       var description = 'is ' + getValueLabel(value);
       describe(description, () => {
         var expectedValue = expectedValues[index];

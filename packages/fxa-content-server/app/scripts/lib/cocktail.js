@@ -49,7 +49,7 @@ function getAllMixins(mixins) {
  * @returns {Boolean}
  */
 function isMixedIn(target, mixin) {
-  return _.every(Object.keys(mixin), key => key in target);
+  return _.every(Object.keys(mixin), (key) => key in target);
 }
 
 export default {

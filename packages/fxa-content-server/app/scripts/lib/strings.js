@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const HTML_CHAR_CODE = /&(\D+|#\d+);/i;
 const HTML_TAG = /<.*>/;
@@ -58,7 +58,7 @@ t('Sign in');
  */
 function interpolate(string, context = []) {
   return string
-    .replace(UNNAMED_VARIABLE, match => {
+    .replace(UNNAMED_VARIABLE, (match) => {
       // boot out non arrays and arrays with not enough items.
       if (!(context.shift && context.length > 0)) {
         return match;

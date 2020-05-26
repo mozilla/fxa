@@ -79,7 +79,7 @@ const View = FormView.extend({
   },
 
   toBlob() {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       this.cropper.toBlob(
         resolve,
         this._cropImg.get('type'),
@@ -95,11 +95,11 @@ const View = FormView.extend({
     this.logAccountImageChange(account);
 
     return this.toBlob()
-      .then(data => {
+      .then((data) => {
         start = Date.now();
         return account.uploadAvatar(data);
       })
-      .then(result => {
+      .then((result) => {
         this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
         this.updateProfileImage(new ProfileImage(result), account);
         this.navigate('settings');

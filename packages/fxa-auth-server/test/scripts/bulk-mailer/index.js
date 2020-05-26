@@ -20,7 +20,7 @@ describe('bulk-mailer', () => {
     normalize: sinon.spy(() => normalizedUserRecords),
   };
 
-  const UserRecordNormalizerMock = function() {
+  const UserRecordNormalizerMock = function () {
     return normalizerStub;
   };
   const readUserRecordsSpy = sinon.spy(() => userRecords);

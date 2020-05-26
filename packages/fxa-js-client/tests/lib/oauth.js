@@ -10,14 +10,14 @@ const ID_TOKEN =
   '001122334455.66778899aabbccddeeff00112233445566778899.aabbccddeeff';
 const PUBLIC_CLIENT_ID = 'a2270f727f45f648';
 
-describe('oauth', function() {
+describe('oauth', function () {
   var accountHelper;
   var respond;
   var client;
   var RequestMocks;
   let env;
 
-  beforeEach(function() {
+  beforeEach(function () {
     env = new Environment();
     accountHelper = env.accountHelper;
     respond = env.respond;
@@ -25,52 +25,52 @@ describe('oauth', function() {
     RequestMocks = env.RequestMocks;
   });
 
-  it('#createOAuthCode - missing sessionToken', function() {
+  it('#createOAuthCode - missing sessionToken', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthCode(null, CLIENT_ID, 'state'),
           RequestMocks.createOAuthCode
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing sessionToken');
       });
   });
 
-  it('#createOAuthCode - missing clientId', function() {
+  it('#createOAuthCode - missing clientId', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthCode(account.signIn.sessionToken, null, 'state'),
           RequestMocks.createOAuthCode
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing clientId');
       });
   });
 
-  it('#createOAuthCode - missing state', function() {
+  it('#createOAuthCode - missing state', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthCode(account.signIn.sessionToken, CLIENT_ID, null),
           RequestMocks.createOAuthCode
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing state');
       });
   });
 
-  it('#createOAuthCode', function() {
+  it('#createOAuthCode', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthCode(
             account.signIn.sessionToken,
@@ -80,43 +80,43 @@ describe('oauth', function() {
           RequestMocks.createOAuthCode
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });
 
-  it('#createOAuthToken - missing sessionToken', function() {
+  it('#createOAuthToken - missing sessionToken', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthToken(null, CLIENT_ID),
           RequestMocks.createOAuthToken
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing sessionToken');
       });
   });
 
-  it('#createOAuthToken - missing clientId', function() {
+  it('#createOAuthToken - missing clientId', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthToken(account.signIn.sessionToken, null),
           RequestMocks.createOAuthToken
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing clientId');
       });
   });
 
-  it('#createOAuthToken', function() {
+  it('#createOAuthToken', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.createOAuthToken(
             account.signIn.sessionToken,
@@ -125,29 +125,29 @@ describe('oauth', function() {
           RequestMocks.createOAuthToken
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });
 
-  it('#getOAuthScopedKeyData - missing sessionToken', function() {
+  it('#getOAuthScopedKeyData - missing sessionToken', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getOAuthScopedKeyData(null, CLIENT_ID, 'profile'),
           RequestMocks.getOAuthScopedKeyData
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing sessionToken');
       });
   });
 
-  it('#getOAuthScopedKeyData - missing clientId', function() {
+  it('#getOAuthScopedKeyData - missing clientId', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getOAuthScopedKeyData(
             account.signIn.sessionToken,
@@ -157,15 +157,15 @@ describe('oauth', function() {
           RequestMocks.getOAuthScopedKeyData
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing clientId');
       });
   });
 
-  it('#getOAuthScopedKeyData - missing scope', function() {
+  it('#getOAuthScopedKeyData - missing scope', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getOAuthScopedKeyData(
             account.signIn.sessionToken,
@@ -175,15 +175,15 @@ describe('oauth', function() {
           RequestMocks.getOAuthScopedKeyData
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing scope');
       });
   });
 
-  it('#getOAuthScopedKeyData', function() {
+  it('#getOAuthScopedKeyData', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.getOAuthScopedKeyData(
             account.signIn.sessionToken,
@@ -193,49 +193,49 @@ describe('oauth', function() {
           RequestMocks.getOAuthScopedKeyData
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });
 
-  it('#verifyIdToken - missing idToken', function() {
+  it('#verifyIdToken - missing idToken', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.verifyIdToken(null, CLIENT_ID),
           RequestMocks.verifyIdToken
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing idToken');
       });
   });
 
-  it('#verifyIdToken - missing clientId', function() {
+  it('#verifyIdToken - missing clientId', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.verifyIdToken(ID_TOKEN, null),
           RequestMocks.verifyIdToken
         );
       })
-      .then(assert.fail, function(error) {
+      .then(assert.fail, function (error) {
         assert.include(error.message, 'Missing clientId');
       });
   });
 
-  it('#verifyIdToken', function() {
+  it('#verifyIdToken', function () {
     return accountHelper
       .newVerifiedAccount()
-      .then(function(account) {
+      .then(function (account) {
         return respond(
           client.verifyIdToken(ID_TOKEN, CLIENT_ID),
           RequestMocks.verifyIdToken
         );
       })
-      .then(function(resp) {
+      .then(function (resp) {
         assert.ok(resp);
       }, assert.fail);
   });

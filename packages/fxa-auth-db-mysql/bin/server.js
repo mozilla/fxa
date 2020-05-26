@@ -28,51 +28,51 @@ function logCharsetInfo(db, poolName) {
   // Record some information about mysql connection configuration and
   // charset at startup.
   db._showVariables(poolName)
-    .then(function(variables) {
+    .then(function (variables) {
       logger.info(['variables', poolName].join('.'), variables);
     })
-    .then(function() {
+    .then(function () {
       return db._connectionConfig(poolName);
     })
-    .then(function(config) {
+    .then(function (config) {
       logger.info(['connectionConfig', poolName].join('.'), config);
     })
-    .catch(function(err) {
+    .catch(function (err) {
       logger.error('error', { error: err });
     });
 }
 
-DB.connect(config).done(function(db) {
+DB.connect(config).done(function (db) {
   // Serve the HTTP API.
   var server = dbServer.createServer(db);
-  server.listen(config.port, config.hostname, function() {
+  server.listen(config.port, config.hostname, function () {
     logger.info('start', { port: config.port });
   });
 
-  server.on('uncaughtException', function(req, res, route, err) {
+  server.on('uncaughtException', function (req, res, route, err) {
     if (sentryDsn) {
       Raven.captureException(err);
     }
     res.send(new restify.errors.InternalServerError('Server Error'));
   });
 
-  server.on('error', function(err) {
+  server.on('error', function (err) {
     if (sentryDsn) {
       Raven.captureException(err);
     }
     logger.error('start', { message: err.message });
   });
-  server.on('success', function(d) {
+  server.on('success', function (d) {
     logger.info('summary', d);
   });
-  server.on('failure', function(err) {
+  server.on('failure', function (err) {
     if (err.statusCode >= 500) {
       logger.error('summary', err);
     } else {
       logger.warn('summary', err);
     }
   });
-  server.on('mem', function(stats) {
+  server.on('mem', function (stats) {
     logger.info('mem', stats);
   });
 

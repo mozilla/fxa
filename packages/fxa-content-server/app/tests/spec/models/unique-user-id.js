@@ -11,7 +11,7 @@ import WindowMock from '../../mocks/window';
 
 var assert = chai.assert;
 
-describe('models/unique-user-id', function() {
+describe('models/unique-user-id', function () {
   var uniqueUserId;
   var windowMock;
 
@@ -21,15 +21,15 @@ describe('models/unique-user-id', function() {
     });
   }
 
-  beforeEach(function() {
+  beforeEach(function () {
     windowMock = new WindowMock();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     uniqueUserId = null;
   });
 
-  it('fetches from the `resume` search parameter, if available', function() {
+  it('fetches from the `resume` search parameter, if available', function () {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({
         uniqueUserId: 'uniqueUserId from resume token',
@@ -44,7 +44,7 @@ describe('models/unique-user-id', function() {
     );
   });
 
-  it('fetches from localStorage if not available in the `resume` token', function() {
+  it('fetches from localStorage if not available in the `resume` token', function () {
     windowMock.location.search = Url.objToSearchString({
       resume: ResumeToken.stringify({ campaign: 'spring2015' }),
     });
@@ -60,13 +60,13 @@ describe('models/unique-user-id', function() {
     );
   });
 
-  it('falls back to creating a new token otherwise', function() {
+  it('falls back to creating a new token otherwise', function () {
     createUniqueUserId();
 
     assert.ok(uniqueUserId.get('uniqueUserId'), 'fallback to creating an id');
   });
 
-  it('persists to & loads from localStorage', function() {
+  it('persists to & loads from localStorage', function () {
     var storage = Storage.factory('localStorage', windowMock);
     createUniqueUserId();
 
@@ -80,7 +80,7 @@ describe('models/unique-user-id', function() {
     assert.equal(uniqueUserId.get('uniqueUserId'), 'stored in uniqueUserId');
   });
 
-  it('does not migrates data stored in `localStorage.uuid` to `localStorage.uniqueUserId`', function() {
+  it('does not migrates data stored in `localStorage.uuid` to `localStorage.uniqueUserId`', function () {
     var storage = Storage.factory('localStorage', windowMock);
     var uniqueUserId = 'originally stored in uuid';
     storage.set('uuid', uniqueUserId);

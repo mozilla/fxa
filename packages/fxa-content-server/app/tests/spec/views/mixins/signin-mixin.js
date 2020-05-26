@@ -18,8 +18,8 @@ import VerificationReasons from 'lib/verification-reasons';
 
 const RESUME_TOKEN = 'a big hairy resume token';
 
-describe('views/mixins/signin-mixin', function() {
-  it('exports correct interface', function() {
+describe('views/mixins/signin-mixin', function () {
+  it('exports correct interface', function () {
     assert.isObject(SignInMixin);
     assert.lengthOf(Object.keys(SignInMixin), 4);
     assert.isFunction(SignInMixin.signIn);
@@ -28,7 +28,7 @@ describe('views/mixins/signin-mixin', function() {
     assert.isArray(SignInMixin.dependsOn);
   });
 
-  describe('signIn', function() {
+  describe('signIn', function () {
     let account;
     let broker;
     let model;
@@ -36,7 +36,7 @@ describe('views/mixins/signin-mixin', function() {
     let user;
     let view;
 
-    beforeEach(function() {
+    beforeEach(function () {
       account = new Account({
         email: 'testuser@testuser.com',
         verified: true,
@@ -46,7 +46,7 @@ describe('views/mixins/signin-mixin', function() {
       user = new User();
       sinon
         .stub(user, 'signInAccount')
-        .callsFake(account => Promise.resolve(account));
+        .callsFake((account) => Promise.resolve(account));
 
       relier = new Relier();
       view = {
@@ -76,22 +76,22 @@ describe('views/mixins/signin-mixin', function() {
       };
     });
 
-    describe('account needs permissions', function() {
-      beforeEach(function() {
-        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function() {
+    describe('account needs permissions', function () {
+      beforeEach(function () {
+        sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
           return true;
         });
 
         return view.signIn(account, 'password');
       });
 
-      it('invokes the correct broker method', function() {
+      it('invokes the correct broker method', function () {
         assert.isTrue(
           view.invokeBrokerMethod.calledWith('beforeSignIn', account)
         );
       });
 
-      it('signs in the user', function() {
+      it('signs in the user', function () {
         assert.isTrue(view.getStringifiedResumeToken.calledOnce);
         assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         assert.isTrue(
@@ -100,7 +100,7 @@ describe('views/mixins/signin-mixin', function() {
         assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
       });
 
-      it('redirects to the `signin_permissions` screen', function() {
+      it('redirects to the `signin_permissions` screen', function () {
         assert.isTrue(view.navigate.calledOnce);
 
         var args = view.navigate.args[0];
@@ -109,13 +109,13 @@ describe('views/mixins/signin-mixin', function() {
         assert.isFunction(args[1].onSubmitComplete);
       });
 
-      it('does not log any events', function() {
+      it('does not log any events', function () {
         assert.isFalse(view.logViewEvent.called);
       });
     });
 
-    describe('offers to Sync', function() {
-      it('navigates to the correct view', function() {
+    describe('offers to Sync', function () {
+      it('navigates to the correct view', function () {
         view.relier = new BrowserRelier();
         sinon.spy(view.relier, 'shouldOfferToSync');
 
@@ -130,7 +130,7 @@ describe('views/mixins/signin-mixin', function() {
         });
       });
 
-      it('skips if relier does not support it', function() {
+      it('skips if relier does not support it', function () {
         sinon.spy(view.relier, 'shouldOfferToSync');
 
         return view.signIn(account, 'password').then(() => {
@@ -139,7 +139,7 @@ describe('views/mixins/signin-mixin', function() {
         });
       });
 
-      it('skips if service is sync already', function() {
+      it('skips if service is sync already', function () {
         view.relier = new BrowserRelier();
         view.relier.set('service', 'sync');
         sinon.spy(view.relier, 'shouldOfferToSync');
@@ -150,7 +150,7 @@ describe('views/mixins/signin-mixin', function() {
         });
       });
 
-      it('skips if viewName is force-auth', function() {
+      it('skips if viewName is force-auth', function () {
         view.relier = new BrowserRelier();
         sinon.spy(view.relier, 'shouldOfferToSync');
 
@@ -161,21 +161,21 @@ describe('views/mixins/signin-mixin', function() {
       });
     });
 
-    describe('verified account', function() {
-      describe('with `redirectTo` specified', function() {
-        beforeEach(function() {
+    describe('verified account', function () {
+      describe('with `redirectTo` specified', function () {
+        beforeEach(function () {
           relier.set('redirectTo', 'settings/avatar');
           sinon.spy(broker, 'setBehavior');
 
           return view.signIn(account, 'password');
         });
 
-        it('calls view.logViewEvent correctly', function() {
+        it('calls view.logViewEvent correctly', function () {
           assert.equal(view.logViewEvent.callCount, 1);
           assert.isTrue(view.logViewEvent.calledWith('signin.success'));
         });
 
-        it('calls view.logEvent correctly', function() {
+        it('calls view.logEvent correctly', function () {
           assert.equal(view.logEvent.callCount, 2);
           assert.isTrue(view.logEvent.calledWith('signin.success'));
           assert.isTrue(
@@ -183,7 +183,7 @@ describe('views/mixins/signin-mixin', function() {
           );
         });
 
-        it('calls view.formPrefill.clear correctly', function() {
+        it('calls view.formPrefill.clear correctly', function () {
           assert.equal(view.formPrefill.clear.callCount, 1);
           assert.lengthOf(view.formPrefill.clear.args[0], 0);
         });
@@ -197,7 +197,7 @@ describe('views/mixins/signin-mixin', function() {
           assert.isTrue(broker.setBehavior.calledWith('afterSignIn', behavior));
         });
 
-        it('calls view.invokeBrokerMethod correctly', function() {
+        it('calls view.invokeBrokerMethod correctly', function () {
           assert.equal(view.invokeBrokerMethod.callCount, 2);
 
           var args = view.invokeBrokerMethod.args[0];
@@ -212,8 +212,8 @@ describe('views/mixins/signin-mixin', function() {
         });
       });
 
-      describe('without `redirectTo` specified', function() {
-        beforeEach(function() {
+      describe('without `redirectTo` specified', function () {
+        beforeEach(function () {
           model.unset('redirectTo');
           sinon.spy(broker, 'setBehavior');
 
@@ -240,8 +240,8 @@ describe('views/mixins/signin-mixin', function() {
       });
     });
 
-    describe('unverified account', function() {
-      beforeEach(function() {
+    describe('unverified account', function () {
+      beforeEach(function () {
         account.set({
           verificationMethod: VerificationMethods.EMAIL,
           verificationReason: VerificationReasons.SIGN_UP,
@@ -251,7 +251,7 @@ describe('views/mixins/signin-mixin', function() {
         return view.signIn(account, 'password');
       });
 
-      it('signs in the user', function() {
+      it('signs in the user', function () {
         assert.isTrue(view.getStringifiedResumeToken.calledOnce);
         assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         assert.isTrue(
@@ -260,7 +260,7 @@ describe('views/mixins/signin-mixin', function() {
         assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
       });
 
-      it('calls view.navigate correctly', function() {
+      it('calls view.navigate correctly', function () {
         assert.equal(view.navigate.callCount, 1);
         var args = view.navigate.args[0];
         assert.lengthOf(args, 2);
@@ -276,8 +276,8 @@ describe('views/mixins/signin-mixin', function() {
       });
     });
 
-    describe('unverified session', function() {
-      beforeEach(function() {
+    describe('unverified session', function () {
+      beforeEach(function () {
         account.set({
           verificationMethod: VerificationMethods.EMAIL,
           verificationReason: VerificationReasons.SIGN_IN,
@@ -287,7 +287,7 @@ describe('views/mixins/signin-mixin', function() {
         return view.signIn(account, 'password');
       });
 
-      it('signs in the user', function() {
+      it('signs in the user', function () {
         assert.isTrue(view.getStringifiedResumeToken.calledOnce);
         assert.isTrue(view.getStringifiedResumeToken.calledWith(account));
         assert.isTrue(
@@ -296,7 +296,7 @@ describe('views/mixins/signin-mixin', function() {
         assert.equal(user.signInAccount.args[0][3].resume, RESUME_TOKEN);
       });
 
-      it('calls view.navigate correctly', function() {
+      it('calls view.navigate correctly', function () {
         assert.equal(view.navigate.callCount, 1);
         var args = view.navigate.args[0];
         assert.lengthOf(args, 2);
@@ -372,7 +372,7 @@ describe('views/mixins/signin-mixin', function() {
         beforeEach(() => {
           return view
             .signIn(account, 'password')
-            .then(assert.fail, _err => (err = _err));
+            .then(assert.fail, (_err) => (err = _err));
         });
 
         it('re-throws the error for display at a lower level', () => {
@@ -418,7 +418,7 @@ describe('views/mixins/signin-mixin', function() {
 
             return view
               .signIn(account, 'password')
-              .then(assert.fail, _err => (thrownErr = _err));
+              .then(assert.fail, (_err) => (thrownErr = _err));
           });
 
           it('re-throws the error for display', () => {
@@ -483,7 +483,7 @@ describe('views/mixins/signin-mixin', function() {
 
         return view.signIn(account, 'password').then(
           () => (succeeded = true),
-          e => (err = e)
+          (e) => (err = e)
         );
       });
 
@@ -508,7 +508,7 @@ describe('views/mixins/signin-mixin', function() {
 
         return view.signIn(account, 'password').then(
           () => (succeeded = true),
-          e => (failed = true)
+          (e) => (failed = true)
         );
       });
 
@@ -526,13 +526,13 @@ describe('views/mixins/signin-mixin', function() {
       });
     });
 
-    describe('formPrefill undefined', function() {
-      beforeEach(function() {
+    describe('formPrefill undefined', function () {
+      beforeEach(function () {
         view.formPrefill = undefined;
       });
 
-      it('does not throw', function() {
-        assert.doesNotThrow(function() {
+      it('does not throw', function () {
+        assert.doesNotThrow(function () {
           return view.signIn(account);
         });
       });
@@ -554,7 +554,7 @@ describe('views/mixins/signin-mixin', function() {
         account.set('email', 'a@a.com');
         relier.set('uid', 'bar');
         relier.set('email', 'b@b.com');
-        broker.hasCapability(cap => cap === 'allowUidChange');
+        broker.hasCapability((cap) => cap === 'allowUidChange');
         view.onSignInSuccess(account);
         assert.equal(relier.get('uid'), account.get('uid'));
         assert.equal(relier.get('email'), account.get('email'));
@@ -574,7 +574,7 @@ describe('views/mixins/signin-mixin', function() {
 
         return view.signIn(account, 'password').then(
           () => (succeeded = true),
-          e => (failed = true)
+          (e) => (failed = true)
         );
       });
 
@@ -602,7 +602,7 @@ describe('views/mixins/signin-mixin', function() {
 
         return view.signIn(account, 'password').then(
           () => (succeeded = true),
-          e => (failed = true)
+          (e) => (failed = true)
         );
       });
 

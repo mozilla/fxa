@@ -17,7 +17,7 @@ exports.AUTH_SCHEME = authName;
 
 exports.SCOPE_CLIENT_WRITE = authOAuthScope;
 
-exports.strategy = function() {
+exports.strategy = function () {
   return {
     authenticate: async function authBearerStrategy(req, h) {
       var auth = req.headers.authorization;

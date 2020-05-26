@@ -30,7 +30,7 @@ import xhr from './xhr';
 
 // Speed trap is a singleton, convert it
 // to an instantiable function.
-const SpeedTrap = function() {};
+const SpeedTrap = function () {};
 SpeedTrap.prototype = speedTrap;
 
 // Some integrations, such as Fx for iOS, close the WebView
@@ -88,9 +88,9 @@ var UNKNOWN_CAMPAIGN_ID = 'unknown';
 function flattenHashIntoArrayOfObjects(hashTable) {
   return _.reduce(
     hashTable,
-    function(memo, key) {
+    function (memo, key) {
       return memo.concat(
-        _.map(key, function(value) {
+        _.map(key, function (value) {
           return value;
         })
       );
@@ -334,7 +334,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     return (
       send()
         // Retry once in case of failure, then give up
-        .then(sent => sent || send())
+        .then((sent) => sent || send())
     );
   },
 
@@ -460,7 +460,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
 
         this._navigationTimingFlushed =
           allowedData.events &&
-          allowedData.events.some(x => x.type === 'loaded');
+          allowedData.events.some((x) => x.type === 'loaded');
 
         // return false until the first true,
         // once true, the if above will return false.
@@ -537,7 +537,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
    *
    * @param {String} eventName
    */
-  markEventLogged: function(eventName) {
+  markEventLogged: function (eventName) {
     this._eventMemory[eventName] = true;
   },
 

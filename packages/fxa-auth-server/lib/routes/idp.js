@@ -31,7 +31,7 @@ function browseridFormat(keys) {
   };
 }
 
-module.exports = function(log, serverPublicKeys) {
+module.exports = function (log, serverPublicKeys) {
   const keys = [serverPublicKeys.primary];
   if (serverPublicKeys.secondary) {
     keys.push(serverPublicKeys.secondary);
@@ -49,7 +49,7 @@ module.exports = function(log, serverPublicKeys) {
           expiresIn: 10000,
         },
       },
-      handler: async function(request) {
+      handler: async function (request) {
         log.begin('browserid', request);
         return browserid;
       },
@@ -57,7 +57,7 @@ module.exports = function(log, serverPublicKeys) {
     {
       method: 'GET',
       path: '/.well-known/public-keys',
-      handler: async function(request) {
+      handler: async function (request) {
         // FOR DEV PURPOSES ONLY
         return {
           keys: keys,

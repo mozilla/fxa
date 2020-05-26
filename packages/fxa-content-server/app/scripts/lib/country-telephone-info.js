@@ -56,7 +56,7 @@
  * @returns {Function}
  */
 function formatter(format) {
-  return serverPhoneNumber =>
+  return (serverPhoneNumber) =>
     format.replace(/\$\{serverPhoneNumber\}/, serverPhoneNumber);
 }
 
@@ -65,7 +65,7 @@ function hasPrefix(num, prefix) {
 }
 
 function ensurePrefix(prefix) {
-  return function(num) {
+  return function (num) {
     if (hasPrefix(num, prefix)) {
       return num;
     }
@@ -201,7 +201,7 @@ module.exports = {
   US: {
     // Americans don't use country codes, just return the number
     // as formatted by the backend.
-    format: formattedNumber => formattedNumber,
+    format: (formattedNumber) => formattedNumber,
     normalize(num) {
       if (/^\+1/.test(num)) {
         return num;

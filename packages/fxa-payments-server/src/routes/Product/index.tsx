@@ -81,7 +81,7 @@ export const Product = ({
 
   // Figure out a selected plan for product, either from query param or first plan.
   const productPlans = plansByProductId(productId);
-  let selectedPlan = productPlans.filter(plan => plan.plan_id === planId)[0];
+  let selectedPlan = productPlans.filter((plan) => plan.plan_id === planId)[0];
   if (!selectedPlan) {
     selectedPlan = productPlans[0];
   }
@@ -249,8 +249,8 @@ const customerIsSubscribedToProduct = (
   productPlans: Plan[]
 ) =>
   customerSubscriptions &&
-  customerSubscriptions.some(customerSubscription =>
-    productPlans.some(plan => plan.plan_id === customerSubscription.plan_id)
+  customerSubscriptions.some((customerSubscription) =>
+    productPlans.some((plan) => plan.plan_id === customerSubscription.plan_id)
   );
 
 // If the customer has any subscribed plan that matches the productSet

@@ -199,7 +199,7 @@ class IndexView extends FormView {
     // that accounts can be merged.
     return this.invokeBrokerMethod('beforeSignIn', account)
       .then(() => this.user.checkAccountEmailExists(account))
-      .then(exists => {
+      .then((exists) => {
         const nextEndpoint = exists ? 'signin' : 'signup';
         if (exists) {
           // If the account exists, use the stored account
@@ -219,7 +219,7 @@ class IndexView extends FormView {
                 .then(() => this.navigate(nextEndpoint, { account }))
                 // checkEmailDomain will display the appropriate error
                 // messsage/tooltip; we don't need additional error handling here.
-                .catch(e => {})
+                .catch((e) => {})
             );
           } else {
             this.navigate(nextEndpoint, { account });

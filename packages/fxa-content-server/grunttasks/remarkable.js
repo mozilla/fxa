@@ -5,7 +5,7 @@
 var path = require('path');
 var i18n = require('i18n-abide');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   // convert localized TOS/PP agreements from markdown to html partials.
 
   function rename(destPath, destFile) {

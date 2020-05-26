@@ -51,7 +51,7 @@ describe('models/reliers/pairing/authority', () => {
     );
   });
 
-  describe('fetch', function() {
+  describe('fetch', function () {
     it('throws without channel_id', () => {
       windowMock.location.search = TestHelpers.toSearchString({
         client_id: CLIENT_ID, // eslint-disable-line camelcase
@@ -60,7 +60,7 @@ describe('models/reliers/pairing/authority', () => {
       });
       Session.set('oauth', RESUME_INFO);
 
-      return relier.fetch().then(assert.fail, err => {
+      return relier.fetch().then(assert.fail, (err) => {
         assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
         assert.equal(err.param, 'channel_id');
       });

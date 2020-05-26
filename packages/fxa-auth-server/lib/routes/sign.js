@@ -27,10 +27,7 @@ module.exports = (log, signer, db, domain, devices) => {
           payload: {
             publicKey: isA
               .object({
-                algorithm: isA
-                  .string()
-                  .valid('RS', 'DS')
-                  .required(),
+                algorithm: isA.string().valid('RS', 'DS').required(),
                 n: isA.string(),
                 e: isA.string(),
                 y: isA.string(),

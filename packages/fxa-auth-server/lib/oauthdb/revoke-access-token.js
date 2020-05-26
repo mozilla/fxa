@@ -6,7 +6,7 @@
 
 const validators = require('../routes/validators');
 
-module.exports = config => {
+module.exports = (config) => {
   return {
     path: '/v1/destroy',
     method: 'POST',

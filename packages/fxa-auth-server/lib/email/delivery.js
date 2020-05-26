@@ -6,7 +6,7 @@
 
 const utils = require('./utils/helpers');
 
-module.exports = function(log) {
+module.exports = function (log) {
   return function start(deliveryQueue) {
     async function handleDelivery(message) {
       utils.logErrorIfHeadersAreWeirdOrMissing(log, message, 'delivery');

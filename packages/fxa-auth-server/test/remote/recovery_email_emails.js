@@ -16,7 +16,7 @@ function includes(haystack, needle) {
   return haystack.indexOf(needle) > -1;
 }
 
-describe('remote emails', function() {
+describe('remote emails', function () {
   this.timeout(30000);
 
   before(() => {
@@ -24,7 +24,7 @@ describe('remote emails', function() {
     config.securityHistory.ipProfiling = {};
     config.signinConfirmation.skipForNewAccounts.enabled = false;
 
-    return TestServer.start(config).then(s => {
+    return TestServer.start(config).then((s) => {
       server = s;
     });
   });
@@ -37,14 +37,14 @@ describe('remote emails', function() {
       password,
       server.mailbox
     )
-      .then(x => {
+      .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
       })
       .then(() => {
         return client.emailStatus();
       })
-      .then(status => {
+      .then((status) => {
         assert.equal(status.verified, true, 'account is verified');
       });
   });
@@ -55,35 +55,35 @@ describe('remote emails', function() {
       const thirdEmail = server.uniqueEmail();
       return client
         .accountEmails()
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 1, 'returns number of emails');
           assert.equal(res[0].email, email, 'returns correct email');
           assert.equal(res[0].isPrimary, true, 'returns correct isPrimary');
           assert.equal(res[0].verified, true, 'returns correct verified');
           return client.createEmail(secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
           assert.equal(res[1].verified, false, 'returns correct verified');
           return client.createEmail(thirdEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 3, 'returns number of emails');
           assert.equal(res[2].email, thirdEmail, 'returns correct email');
           assert.equal(res[2].isPrimary, false, 'returns correct isPrimary');
           assert.equal(res[2].verified, false, 'returns correct verified');
         })
-        .catch(err => {
+        .catch((err) => {
           assert.fail(err);
         });
     });
@@ -94,14 +94,14 @@ describe('remote emails', function() {
       const secondEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(secondEmail);
         })
         .then(() => {
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -113,7 +113,7 @@ describe('remote emails', function() {
             server.mailbox
           ).catch(assert.fail);
         })
-        .then(x => {
+        .then((x) => {
           client2 = x;
           assert.equal(
             client2.email,
@@ -122,11 +122,11 @@ describe('remote emails', function() {
           );
           return client2.createEmail(secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           // Secondary email on first account should have been deleted
           assert.equal(res.length, 1, 'returns number of emails');
           assert.equal(res[0].email, client.email, 'returns correct email');
@@ -134,7 +134,7 @@ describe('remote emails', function() {
           assert.equal(res[0].verified, true, 'returns correct verified');
           return client2.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           // Secondary email should be on the second account
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
@@ -147,7 +147,7 @@ describe('remote emails', function() {
       return client
         .createEmail(email)
         .then(assert.fail)
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 139, 'email already exists errno');
           assert.equal(err.code, 400, 'email already exists code');
           assert.equal(
@@ -162,12 +162,12 @@ describe('remote emails', function() {
       const secondEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.createEmail(secondEmail);
         })
         .then(assert.fail)
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 189, 'email already exists errno');
           assert.equal(err.code, 400, 'email already exists code');
           assert.equal(
@@ -188,7 +188,7 @@ describe('remote emails', function() {
         password,
         server.mailbox
       )
-        .then(x => {
+        .then((x) => {
           anotherClient = x;
           assert.ok(client.authAt, 'authAt was set');
           return anotherClient.createEmail(anotherUserSecondEmail);
@@ -196,18 +196,18 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(anotherUserSecondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const emailCode = emailData['headers']['x-verify-code'];
           return anotherClient.verifySecondaryEmail(
             emailCode,
             anotherUserSecondEmail
           );
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.createEmail(anotherUserSecondEmail).then(assert.fail);
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 136, 'email already exists errno');
           assert.equal(err.code, 400, 'email already exists code');
           assert.equal(
@@ -225,7 +225,7 @@ describe('remote emails', function() {
         .then(() => {
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 1, 'returns number of emails');
           assert.equal(res[0].email, email, 'returns correct email');
           assert.equal(res[0].isPrimary, true, 'returns correct isPrimary');
@@ -234,7 +234,7 @@ describe('remote emails', function() {
             assert.fail(new Error('Should not have created email'));
           });
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(
             err.errno,
@@ -256,7 +256,7 @@ describe('remote emails', function() {
           return client.createEmail(anotherUserEmail);
         })
         .then(assert.fail)
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 140, 'email already exists errno');
           assert.equal(err.code, 400, 'email already exists code');
           assert.equal(
@@ -274,11 +274,11 @@ describe('remote emails', function() {
       secondEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -289,7 +289,7 @@ describe('remote emails', function() {
     it('can verify', () => {
       return server.mailbox
         .waitForEmail(secondEmail)
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
           const verifyLink = emailData['headers']['x-link'];
@@ -312,18 +312,18 @@ describe('remote emails', function() {
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
           assert.equal(res[1].verified, true, 'returns correct verified');
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'postVerifySecondary');
         });
@@ -332,7 +332,7 @@ describe('remote emails', function() {
     it('does not verify on random email code', () => {
       return server.mailbox
         .waitForEmail(secondEmail)
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifySecondary');
@@ -343,7 +343,7 @@ describe('remote emails', function() {
           );
         })
         .then(assert.fail)
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 105, 'correct error errno');
           assert.equal(err.code, 400, 'correct error code');
         });
@@ -353,7 +353,7 @@ describe('remote emails', function() {
       let emailCode;
       return server.mailbox
         .waitForEmail(secondEmail)
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           emailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifySecondary');
@@ -361,22 +361,22 @@ describe('remote emails', function() {
           client.options.email = secondEmail;
           return client.requestVerifyEmail();
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const resendEmailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifySecondary');
           assert.equal(resendEmailCode, emailCode, 'emailCode matches');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -394,17 +394,17 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifySecondary');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -413,7 +413,7 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'postVerifySecondary');
         });
@@ -422,11 +422,11 @@ describe('remote emails', function() {
     it('can delete', () => {
       return client
         .deleteEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 1, 'returns number of emails');
           assert.equal(res[0].email, email, 'returns correct email');
           assert.equal(res[0].isPrimary, true, 'returns correct isPrimary');
@@ -435,7 +435,7 @@ describe('remote emails', function() {
           // Primary account is notified that secondary email has been removed
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'postRemoveSecondary');
         });
@@ -448,18 +448,18 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           code = emailData.headers['x-recovery-code'];
           assert.ok(code, 'recovery code was sent the secondary email');
         })
-        .then(res => {
+        .then((res) => {
           return client.deleteEmail(secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 1, 'the secondary email was deleted');
           return client.verifyPasswordResetCode(code);
         })
@@ -467,7 +467,7 @@ describe('remote emails', function() {
           () => {
             assert.fail('password recovery code shoud not have been accepted');
           },
-          err => {
+          (err) => {
             assert.equal(
               err.errno,
               ERRNO.INVALID_TOKEN,
@@ -478,7 +478,7 @@ describe('remote emails', function() {
     });
 
     it('silient fail on delete non-existent email', () => {
-      return client.deleteEmail('fill@yourboots.com').then(res => {
+      return client.deleteEmail('fill@yourboots.com').then((res) => {
         // User is attempting to delete an email that doesn't exist, make sure nothing blew up
         assert.ok(res, 'ok response');
       });
@@ -488,7 +488,7 @@ describe('remote emails', function() {
       return client
         .deleteEmail(email)
         .then(assert.fail)
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.errno, 137, 'correct error errno');
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(
@@ -505,7 +505,7 @@ describe('remote emails', function() {
         .then(() => {
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -514,7 +514,7 @@ describe('remote emails', function() {
             () => {
               assert.fail(new Error('Should not have deleted email'));
             },
-            err => {
+            (err) => {
               assert.equal(err.code, 400, 'correct error code');
               assert.equal(
                 err.errno,
@@ -535,29 +535,29 @@ describe('remote emails', function() {
       thirdEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifySecondary');
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
           assert.equal(res[1].verified, true, 'returns correct verified');
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'postVerifySecondary');
 
@@ -570,11 +570,11 @@ describe('remote emails', function() {
       let emailCode;
       return client
         .login({ keys: true })
-        .then(res => {
+        .then((res) => {
           assert.ok(res);
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           emailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifyLogin');
@@ -583,11 +583,11 @@ describe('remote emails', function() {
           assert.equal(emailData.cc[0].address, secondEmail);
           return client.requestVerifyEmail();
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res);
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const anotherEmailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifyLogin');
@@ -604,7 +604,7 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           unblockCode = emailData['headers']['x-unblock-code'];
           assert.equal(templateName, 'unblockCode');
@@ -613,11 +613,11 @@ describe('remote emails', function() {
           assert.equal(emailData.cc[0].address, secondEmail);
           return client.sendUnblockCode(email);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res);
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const anotherUnblockCode = emailData['headers']['x-unblock-code'];
           assert.equal(templateName, 'unblockCode');
@@ -633,7 +633,7 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'recovery');
           assert.equal(emailData.cc.length, 1);
@@ -645,11 +645,11 @@ describe('remote emails', function() {
     it('receives change password notification', () => {
       return client
         .changePassword('password1', undefined)
-        .then(res => {
+        .then((res) => {
           assert.ok(res);
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'passwordChanged');
           assert.equal(emailData.cc.length, 1);
@@ -663,28 +663,28 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           return emailData.headers['x-recovery-code'];
         })
-        .then(code => {
+        .then((code) => {
           return resetPassword(client, code, 'password1', undefined, undefined);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res);
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'passwordReset');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
           return client.login({ keys: true });
         })
-        .then(x => {
+        .then((x) => {
           client = x;
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           // Emails maintain there verification status through the password reset
           assert.equal(res.length, 3, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
@@ -700,11 +700,11 @@ describe('remote emails', function() {
       const fourthEmail = server.uniqueEmail();
       return client
         .createEmail(fourthEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(fourthEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const emailCode = emailData['headers']['x-verify-code'];
           return client.verifySecondaryEmail(emailCode, fourthEmail);
         })
@@ -718,7 +718,7 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'postRemoveSecondary');
           assert.equal(emailData.cc.length, 1);
@@ -729,7 +729,7 @@ describe('remote emails', function() {
     it('receives new device sign-in email', () => {
       config.signinConfirmation.skipForNewAccounts.enabled = true;
       return TestServer.start(config)
-        .then(s => {
+        .then((s) => {
           server = s;
           email = server.uniqueEmail();
           secondEmail = server.uniqueEmail();
@@ -741,14 +741,14 @@ describe('remote emails', function() {
             server.mailbox
           );
         })
-        .then(x => {
+        .then((x) => {
           client = x;
           return client.createEmail(secondEmail);
         })
         .then(() => {
           return server.mailbox.waitForCode(secondEmail);
         })
-        .then(code => {
+        .then((code) => {
           return client.verifySecondaryEmail(code, secondEmail).then(() => {
             // Clear add secondary email notification
             return server.mailbox.waitForEmail(email);
@@ -764,7 +764,7 @@ describe('remote emails', function() {
         .then(() => {
           return server.mailbox.waitForEmail(email);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           assert.equal(templateName, 'newDeviceLogin');
           assert.equal(emailData.cc.length, 1);
@@ -779,11 +779,11 @@ describe('remote emails', function() {
       secondEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const emailCode = emailData['headers']['x-verify-code'];
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(emailCode, secondEmail);
@@ -799,7 +799,7 @@ describe('remote emails', function() {
             new Error('should not have been able to initiate reset password')
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(err.errno, 145, 'correct errno code');
         });
@@ -814,7 +814,7 @@ describe('remote emails', function() {
             new Error('should not have been able to initiate reset password')
           );
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(err.errno, 102, 'correct errno code');
         });
@@ -827,22 +827,22 @@ describe('remote emails', function() {
       secondEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           const templateName = emailData['headers']['x-template-name'];
           const emailCode = emailData['headers']['x-verify-code'];
           assert.equal(templateName, 'verifySecondary');
           assert.ok(emailCode, 'emailCode set');
           return client.verifySecondaryEmail(emailCode, secondEmail);
         })
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -856,7 +856,7 @@ describe('remote emails', function() {
         .then(() => {
           assert.fail(new Error('should not have been able to login'));
         })
-        .catch(err => {
+        .catch((err) => {
           assert.equal(err.code, 400, 'correct error code');
           assert.equal(err.errno, 142, 'correct errno code');
         });
@@ -871,11 +871,11 @@ describe('remote emails', function() {
       secondEmail = server.uniqueEmail();
       return client
         .createEmail(secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return server.mailbox.waitForEmail(secondEmail);
         })
-        .then(emailData => {
+        .then((emailData) => {
           emailCode = emailData['headers']['x-verify-code'];
         });
     });
@@ -883,11 +883,11 @@ describe('remote emails', function() {
     it('fails to create account using verified secondary email', () => {
       return client
         .verifySecondaryEmail(emailCode, secondEmail)
-        .then(res => {
+        .then((res) => {
           assert.ok(res, 'ok response');
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -897,7 +897,7 @@ describe('remote emails', function() {
         .then(() => {
           return Client.create(config.publicUrl, secondEmail, password, {})
             .then(assert.fail)
-            .catch(err => {
+            .catch((err) => {
               assert.equal(err.errno, 144, 'return correct errno');
               assert.equal(err.code, 400, 'return correct code');
             });
@@ -908,7 +908,7 @@ describe('remote emails', function() {
       let client2;
       return client
         .accountEmails()
-        .then(res => {
+        .then((res) => {
           assert.equal(res.length, 2, 'returns number of emails');
           assert.equal(res[1].email, secondEmail, 'returns correct email');
           assert.equal(res[1].isPrimary, false, 'returns correct isPrimary');
@@ -920,7 +920,7 @@ describe('remote emails', function() {
             server.mailbox
           ).catch(assert.fail);
         })
-        .then(x => {
+        .then((x) => {
           client2 = x;
           assert.equal(
             client2.email,
@@ -929,7 +929,7 @@ describe('remote emails', function() {
           );
           return client.accountEmails();
         })
-        .then(res => {
+        .then((res) => {
           // Secondary email on first account should have been deleted
           assert.equal(res.length, 1, 'returns number of emails');
           assert.equal(res[0].email, client.email, 'returns correct email');

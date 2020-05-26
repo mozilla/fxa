@@ -49,7 +49,7 @@ function create() {
 
   return db
     .createAccount(uid, account)
-    .then(function(result) {
+    .then(function (result) {
       assert.deepEqual(
         result,
         {},
@@ -57,7 +57,7 @@ function create() {
       );
       return db.emailRecord(account.email);
     })
-    .then(function(result) {
+    .then(function (result) {
       assert.equal(result.createdAt, account.createdAt, 'createdAt set');
       assert.equal(result.email, account.email, 'email set');
       assert.equal(result.emailVerified, 0, 'emailVerified set');
@@ -80,7 +80,7 @@ function create() {
 }
 
 function init() {
-  return DB.connect(config).then(db_ => {
+  return DB.connect(config).then((db_) => {
     db = db_;
     return db.ping();
   });
@@ -94,7 +94,7 @@ function createAccount() {
         process.exit(0);
       }
     })
-    .catch(err => console.error(err)); //eslint-disable-line no-console
+    .catch((err) => console.error(err)); //eslint-disable-line no-console
 }
 
 init().then(() => {

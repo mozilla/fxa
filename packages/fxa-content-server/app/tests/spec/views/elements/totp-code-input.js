@@ -11,7 +11,7 @@ const TEMPLATE =
   '<input type="number" pattern="d*" class="totp-code"></input>' +
   '<input type="number" pattern="d*" class="not-code"></input>';
 
-describe('views/elements/totp-code-input', function() {
+describe('views/elements/totp-code-input', function () {
   let $element;
   let $otherElement;
 

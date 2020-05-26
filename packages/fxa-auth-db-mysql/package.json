@@ -19,7 +19,7 @@
     "test-mysql": "node ./bin/db_patcher.js >/dev/null && ./scripts/mocha-coverage.js test/backend test/local --exit",
     "test-server": "./scripts/mocha-coverage.js db-server/test/local --exit",
     "migration-lint": "node scripts/migration-lint",
-    "format": "prettier '**' --write"
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "author": "Mozilla (https://mozilla.org/)",
   "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-db-mysql",

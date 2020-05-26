@@ -124,13 +124,9 @@ describe('features', () => {
   });
 
   it('isSampledUser', () => {
-    let uid = Array(64)
-      .fill('f')
-      .join('');
+    let uid = Array(64).fill('f').join('');
     let sampleRate = 1;
-    hashResult = Array(40)
-      .fill('f')
-      .join('');
+    hashResult = Array(40).fill('f').join('');
 
     assert.equal(
       features.isSampledUser(sampleRate, uid, 'foo'),
@@ -155,9 +151,7 @@ describe('features', () => {
     );
 
     sampleRate = 0;
-    hashResult = Array(40)
-      .fill('0')
-      .join('');
+    hashResult = Array(40).fill('0').join('');
 
     assert.equal(
       features.isSampledUser(sampleRate, uid, 'foo'),
@@ -303,9 +297,7 @@ describe('features', () => {
     hash.update.resetHistory();
     hash.digest.resetHistory();
 
-    uid = Array(64)
-      .fill('7')
-      .join('');
+    uid = Array(64).fill('7').join('');
     sampleRate = 0.03;
     // First 27 characters are ignored, last 13 are 0.02 * 0xfffffffffffff
     hashResult = '000000000000000000000000000051eb851eb852';

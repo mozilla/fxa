@@ -51,13 +51,13 @@ const Mixin = {
     return account
       .fetchCurrentProfileImage()
       .then(
-        profileImage => {
+        (profileImage) => {
           // Cache the result to make sure we don't flash the default
           // image while fetching the latest profile image
           this._updateCachedProfileImage(profileImage, account);
           return profileImage;
         },
-        err => {
+        (err) => {
           if (
             !ProfileErrors.is(err, 'UNAUTHORIZED') &&
             !AuthErrors.is(err, 'UNVERIFIED_ACCOUNT')
@@ -69,10 +69,10 @@ const Mixin = {
           return new ProfileImage();
         }
       )
-      .then(profileImage => {
+      .then((profileImage) => {
         return this._completeLoadingSpinner(spinnerEl).then(() => profileImage);
       })
-      .then(profileImage => {
+      .then((profileImage) => {
         const isAvatarSettingsView = avatarWrapperEl.hasClass(
           'avatar-settings-view'
         );
@@ -131,7 +131,7 @@ const Mixin = {
       return Promise.resolve();
     }
 
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // Always resolve and remove the spinner after MAX_SPINNER_COMPLETE_TIME,
       // in case we don't receive the expected transitionend events, such as in
       // the case of IE.
@@ -140,7 +140,7 @@ const Mixin = {
         spinnerEl.remove();
       }, MAX_SPINNER_COMPLETE_TIME);
 
-      spinnerEl.addClass('completed').on('transitionend', function(event) {
+      spinnerEl.addClass('completed').on('transitionend', function (event) {
         // The first transitionend event will resolve the promise, but the spinner will have
         // subsequent transitions, so we'll also hook on the transitionend event of the
         // ::after pseudoelement, which "expands" to hide the spinner.
@@ -178,7 +178,7 @@ const Mixin = {
       Promise.resolve()
         .then(() => {
           if (!account.get('profileImageId')) {
-            return account.fetchCurrentProfileImage().then(profileImage => {
+            return account.fetchCurrentProfileImage().then((profileImage) => {
               // Cache the result to make sure we don't flash the default
               // image while fetching the latest profile image
               this._updateCachedProfileImage(profileImage, account);
@@ -188,7 +188,7 @@ const Mixin = {
           // if we reach here, the account has a profile image ID already.
         })
         // if we reach here, the account will have an avatar and a profileImageId
-        .then(profileImage =>
+        .then((profileImage) =>
           account.deleteAvatar(account.get('profileImageId'))
         )
         .then(() => {

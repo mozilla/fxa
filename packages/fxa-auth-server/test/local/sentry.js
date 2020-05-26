@@ -73,7 +73,7 @@ describe('Sentry', () => {
       setContext: scopeContextSpy,
       setExtra: sinon.fake(),
     };
-    sandbox.replace(Sentry, 'withScope', fn => fn(scopeSpy));
+    sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
     const fullError = new verror.WError(endError, 'Something bad happened');
     await server.events.emit({ name: 'request', channel: 'error' }, [
       {},

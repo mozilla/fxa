@@ -9,7 +9,7 @@
 var path = require('path');
 var i18n = require('i18n-abide');
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
   grunt.config('po2json', {
     all: {
       dest: '<%= yeoman.app %>/i18n',
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
     options: {
       format: 'raw',
       fuzzy: false,
-      output_filename: function(file) {
+      output_filename: function (file) {
         //eslint-disable-line camelcase
         /**
          * the files are stored in the locale subdirectory with a directory
@@ -45,10 +45,10 @@ module.exports = function(grunt) {
         }
         return locale + '/' + filename;
       },
-      output_transform: function(data) {
+      output_transform: function (data) {
         //eslint-disable-line camelcase
         // write the first translation only, ignore pluralization.
-        var isArray = function(item) {
+        var isArray = function (item) {
           return Object.prototype.toString.call(item) === '[object Array]';
         };
         var transformed = {};

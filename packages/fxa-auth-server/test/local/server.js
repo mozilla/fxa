@@ -36,7 +36,7 @@ describe('lib/server', () => {
       reason: reason,
     };
 
-    it('logs an endpoint error', done => {
+    it('logs an endpoint error', (done) => {
       const mockLog = {
         error: (op, err) => {
           assert.equal(op, 'server.EndpointError');
@@ -48,7 +48,7 @@ describe('lib/server', () => {
       assert.equal(server._logEndpointErrors(response, mockLog));
     });
 
-    it('logs an endpoint error with a method', done => {
+    it('logs an endpoint error with a method', (done) => {
       response.attempt = {
         method: 'PUT',
       };
@@ -113,7 +113,7 @@ describe('lib/server', () => {
             statsd,
             Token
           )
-          .then(s => {
+          .then((s) => {
             instance = s;
           });
       });
@@ -181,7 +181,7 @@ describe('lib/server', () => {
                 },
                 remoteAddress: knownIpLocation.ip,
               })
-              .then(response => (request = response.request));
+              .then((response) => (request = response.request));
           });
 
           it('called log.begin correctly', () => {
@@ -280,7 +280,7 @@ describe('lib/server', () => {
             assert.equal(db.devices.callCount, 1);
             assert.equal(db.devices.args[0].length, 1);
             assert.equal(db.devices.args[0][0], 'fake uid');
-            return request.app.devices.then(devices => {
+            return request.app.devices.then((devices) => {
               assert.deepEqual(devices, [{ id: 'fake device id' }]);
             });
           });
@@ -306,7 +306,7 @@ describe('lib/server', () => {
                   },
                   remoteAddress: knownIpLocation.ip,
                 })
-                .then(response => (secondRequest = response.request));
+                .then((response) => (secondRequest = response.request));
             });
 
             it('second request has its own remote address chain', () => {
@@ -382,7 +382,7 @@ describe('lib/server', () => {
               assert.equal(db.devices.callCount, 2);
               assert.equal(db.devices.args[1].length, 1);
               assert.equal(db.devices.args[1][0], 'another fake uid');
-              return request.app.devices.then(devices => {
+              return request.app.devices.then((devices) => {
                 assert.deepEqual(devices, [{ id: 'fake device id' }]);
               });
             });
@@ -406,7 +406,7 @@ describe('lib/server', () => {
                 payload: {},
                 remoteAddress: 'this is not an ip address',
               })
-              .then(response => (request = response.request));
+              .then((response) => (request = response.request));
           });
 
           it('called log.begin correctly', () => {
@@ -576,7 +576,7 @@ describe('lib/server', () => {
             statsd,
             Token
           )
-          .then(s => {
+          .then((s) => {
             instance = s;
             return instance.start().then(() => {
               const auth = hawk.client.header(

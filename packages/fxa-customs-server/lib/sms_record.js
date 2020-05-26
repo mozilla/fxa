@@ -5,14 +5,14 @@
 var actions = require('./actions');
 
 // Keep track of events tied to specific sms number
-module.exports = function(limits, now) {
+module.exports = function (limits, now) {
   now = now || Date.now;
 
   function SMSRecord() {
     this.sms = [];
   }
 
-  SMSRecord.parse = function(object) {
+  SMSRecord.parse = function (object) {
     var rec = new SMSRecord();
     object = object || {};
     rec.rl = object.rl; // timestamp when the account was rate-limited
@@ -20,16 +20,16 @@ module.exports = function(limits, now) {
     return rec;
   };
 
-  SMSRecord.prototype.getMinLifetimeMS = function() {
+  SMSRecord.prototype.getMinLifetimeMS = function () {
     return limits.smsRateLimitIntervalMs;
   };
 
-  SMSRecord.prototype.isOverSmsLimit = function() {
+  SMSRecord.prototype.isOverSmsLimit = function () {
     this.trimHits(now());
     return this.sms.length > limits.maxSms;
   };
 
-  SMSRecord.prototype.trimHits = function(now) {
+  SMSRecord.prototype.trimHits = function (now) {
     if (this.sms.length === 0) {
       return;
     }
@@ -46,27 +46,27 @@ module.exports = function(limits, now) {
     this.sms = this.sms.slice(i + 1);
   };
 
-  SMSRecord.prototype.addHit = function() {
+  SMSRecord.prototype.addHit = function () {
     this.sms.push(now());
   };
 
-  SMSRecord.prototype.isRateLimited = function() {
+  SMSRecord.prototype.isRateLimited = function () {
     return !!(this.rl && now() - this.rl < limits.smsRateLimitIntervalMs);
   };
 
-  SMSRecord.prototype.rateLimit = function() {
+  SMSRecord.prototype.rateLimit = function () {
     this.rl = now();
     this.sms = [];
   };
 
-  SMSRecord.prototype.retryAfter = function() {
+  SMSRecord.prototype.retryAfter = function () {
     var rateLimitAfter = Math.ceil(
       ((this.rl || 0) + limits.smsRateLimitIntervalMs - now()) / 1000
     );
     return Math.max(0, rateLimitAfter);
   };
 
-  SMSRecord.prototype.update = function(action) {
+  SMSRecord.prototype.update = function (action) {
     if (actions.isSmsSendingAction(action)) {
       if (this.isRateLimited()) {
         return this.retryAfter();

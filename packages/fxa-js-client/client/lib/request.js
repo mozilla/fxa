@@ -68,10 +68,10 @@ Request.prototype.send = function request(
     });
   }
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     xhr.timeout = self.timeout;
     // eslint-disable-next-line complexity
-    xhr.onreadystatechange = function() {
+    xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         var result = xhr.responseText;
         try {

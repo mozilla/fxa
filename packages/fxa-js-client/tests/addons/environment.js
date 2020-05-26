@@ -26,17 +26,17 @@ function Environment() {
     this.responses = [];
     // switch to the fake XHR
     this.xhr = Sinon.useFakeXMLHttpRequest();
-    this.xhr.onCreate = function(xhr) {
+    this.xhr.onCreate = function (xhr) {
       if (self.requests.length < self.responses.length) {
         var mock = self.responses[self.requests.length];
-        setTimeout(function() {
+        setTimeout(function () {
           xhr.respond(mock.status, mock.headers, mock.body);
         }, 0);
       }
       self.requests.push(xhr);
     };
     // respond calls a fake XHR response using SinonJS
-    this.respond = function(returnValue, mock) {
+    this.respond = function (returnValue, mock) {
       if (arguments.length < 2) {
         mock = returnValue;
         returnValue = null;
@@ -45,7 +45,7 @@ function Environment() {
         console.log('Mock does not exist!');
       }
       // this has to be here to work in IE
-      setTimeout(function() {
+      setTimeout(function () {
         if (self.responses.length < self.requests.length) {
           try {
             self.requests[self.responses.length].respond(

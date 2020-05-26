@@ -63,7 +63,7 @@ class ConnectAnotherDeviceView extends FormView {
         // and we handle sending users to the correct place.
         // See https://github.com/mozilla/fxa-content-server/issues/5737 and
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1418466
-        return this.getEligibleSmsCountry(account).then(country => {
+        return this.getEligibleSmsCountry(account).then((country) => {
           if (country) {
             return this.replaceCurrentPageWithSmsScreen(
               account,

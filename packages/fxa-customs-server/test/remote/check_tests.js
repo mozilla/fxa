@@ -25,14 +25,14 @@ config.limits.maxVerifyCodes = 1;
 
 var testServer = new TestServer(config);
 
-test('startup', async function(t) {
+test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
 });
 
-test('clear everything', function(t) {
-  mcHelper.clearEverything(function(err) {
+test('clear everything', function (t) {
+  mcHelper.clearEverything(function (err) {
     t.notOk(err, 'no errors were returned');
     t.end();
   });
@@ -44,12 +44,12 @@ var client = restifyClients.createJsonClient({
 Promise.promisifyAll(client, { multiArgs: true });
 
 // NOTE: Leading semi-colon because ASI is funny.
-['accountCreate', 'accountLogin', 'passwordChange'].forEach(function(action) {
-  test('normal ' + action, function(t) {
+['accountCreate', 'accountLogin', 'passwordChange'].forEach(function (action) {
+  test('normal ' + action, function (t) {
     client.post(
       '/check',
       { email: TEST_EMAIL, ip: TEST_IP, action: action },
-      function(err, req, res, obj) {
+      function (err, req, res, obj) {
         t.notOk(err, 'good request is successful');
         t.equal(res.statusCode, 200, 'good request returns a 200');
         t.ok(obj, 'got an obj, make jshint happy');
@@ -59,8 +59,8 @@ Promise.promisifyAll(client, { multiArgs: true });
   });
 });
 
-test('missing action', function(t) {
-  client.post('/check', { email: TEST_EMAIL, ip: TEST_IP }, function(
+test('missing action', function (t) {
+  client.post('/check', { email: TEST_EMAIL, ip: TEST_IP }, function (
     err,
     req,
     res,
@@ -73,8 +73,8 @@ test('missing action', function(t) {
   });
 });
 
-test('missing email, ip and action', function(t) {
-  client.post('/check', {}, function(err, req, res, obj) {
+test('missing email, ip and action', function (t) {
+  client.post('/check', {}, function (err, req, res, obj) {
     t.equal(res.statusCode, 400, 'bad request returns a 400');
     t.type(obj.code, 'string', 'bad request returns an error code');
     t.type(obj.message, 'string', 'bad request returns an error message');
@@ -82,7 +82,7 @@ test('missing email, ip and action', function(t) {
   });
 });
 
-test('allowed email addresses in /check do not block subsequent requests to /checkIpOnly', t => {
+test('allowed email addresses in /check do not block subsequent requests to /checkIpOnly', (t) => {
   return client
     .postAsync('/check', {
       email: ALLOWED_EMAILS[0],
@@ -122,11 +122,11 @@ test('allowed email addresses in /check do not block subsequent requests to /che
       t.equal(res.statusCode, 200, '/checkIpOnly succeeded');
       t.equal(obj.block, false, 'request was not blocked');
     })
-    .catch(err => t.fail(err))
+    .catch((err) => t.fail(err))
     .then(() => t.end());
 });
 
-test('disallowed email addresses in /check do not block subsequent requests to /checkIpOnly', t => {
+test('disallowed email addresses in /check do not block subsequent requests to /checkIpOnly', (t) => {
   return client
     .postAsync('/check', {
       email: DISALLOWED_EMAILS[0],
@@ -155,11 +155,11 @@ test('disallowed email addresses in /check do not block subsequent requests to /
       t.equal(res.statusCode, 200, '/checkIpOnly succeeded');
       t.equal(obj.block, false, 'request was not blocked');
     })
-    .catch(err => t.fail(err))
+    .catch((err) => t.fail(err))
     .then(() => t.end());
 });
 
-test('teardown', async function(t) {
+test('teardown', async function (t) {
   await testServer.stop();
   t.end();
 });

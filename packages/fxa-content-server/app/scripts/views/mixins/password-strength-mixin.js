@@ -19,7 +19,7 @@ const DELAY_BEFORE_LOG_REASON_MS = 1500;
  *   @param {Number} [config.delayBeforeLogReasonMS] delay in MS before logging model changes. Defaults to 1500ms.
  * @returns {Object} the mixin
  */
-export default function(config = {}) {
+export default function (config = {}) {
   const delayBeforeLogReasonMS =
     config.delayBeforeLogReasonMS || DELAY_BEFORE_LOG_REASON_MS;
   const { balloonEl, passwordEl } = config;

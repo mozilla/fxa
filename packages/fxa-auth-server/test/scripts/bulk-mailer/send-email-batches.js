@@ -9,7 +9,10 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
 describe('send-email-batches', () => {
-  const batches = [['a', 'b'], ['c', 'd']];
+  const batches = [
+    ['a', 'b'],
+    ['c', 'd'],
+  ];
 
   const log = {
     error: sinon.spy(),
@@ -23,7 +26,7 @@ describe('send-email-batches', () => {
   const DELAY_BETWEEN_BATCHES_MS = 100;
 
   before(() => {
-    sendEmailBatchSpy = sinon.spy(batch => {
+    sendEmailBatchSpy = sinon.spy((batch) => {
       if (batch.indexOf('c') > -1) {
         return Promise.resolve({
           errorCount: 1,

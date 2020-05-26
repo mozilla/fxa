@@ -19,10 +19,10 @@ geodb(knownIp);
  * and catch errors. On success, returns an object with
  * `location` data. On failure, returns an empty object
  **/
-module.exports = log => {
+module.exports = (log) => {
   log.info('geodb.start', { enabled: config.enabled, dbPath: config.dbPath });
 
-  return ip => {
+  return (ip) => {
     if (config.enabled === false) {
       return {};
     }

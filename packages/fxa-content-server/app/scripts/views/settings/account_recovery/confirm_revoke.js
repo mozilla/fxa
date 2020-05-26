@@ -11,7 +11,7 @@ import preventDefaultThen from '../../decorators/prevent_default_then';
 import ModalSettingsPanelMixin from '../../mixins/modal-settings-panel-mixin';
 import Template from 'templates/settings/account_recovery/confirm_revoke.mustache';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 const View = FormView.extend({
   template: Template,
@@ -24,7 +24,7 @@ const View = FormView.extend({
 
   beforeRender() {
     const account = this.getSignedInAccount();
-    return account.checkRecoveryKeyExists().then(status => {
+    return account.checkRecoveryKeyExists().then((status) => {
       if (!status.exists) {
         this.navigate('/settings/account_recovery');
       }

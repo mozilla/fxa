@@ -38,13 +38,13 @@ describe('lib/experiments/grouping-rules/communication-prefs', () => {
     'ru',
     'ru-MO',
     'zh-TW',
-  ].forEach(lang => {
+  ].forEach((lang) => {
     it(`choose returns true for ${lang}`, () => {
       assert.isTrue(experiment.choose({ lang }));
     });
   });
 
-  ['pt', 'pt-PT', 'zh'].forEach(lang => {
+  ['pt', 'pt-PT', 'zh'].forEach((lang) => {
     it(`choose returns false for ${lang}`, () => {
       assert.isFalse(experiment.choose({ lang }));
     });

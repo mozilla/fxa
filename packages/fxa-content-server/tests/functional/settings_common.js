@@ -42,7 +42,7 @@ const SETTINGS_PAGES = {
 };
 
 const unverifiedSuite = {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
@@ -55,7 +55,7 @@ const unverifiedSuite = {
 function unverifiedAccountTest(suite, page) {
   suite[
     'visit settings' + page + ' with an unverified account redirects to confirm'
-  ] = function() {
+  ] = function () {
     const url = SETTINGS_URL + page;
 
     return this.remote
@@ -80,13 +80,13 @@ function unverifiedAccountTest(suite, page) {
 }
 
 const verifiedSuite = {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
 
     return this.remote
       .then(clearBrowserState({ force: true }))
       .then(createUser(email, PASSWORD, { preVerified: true }))
-      .then(function(result) {
+      .then(function (result) {
         accountData = result;
       });
   },
@@ -99,7 +99,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
     'visit settings' +
       page +
       ' without a session requires authentication, back to page after authentication'
-  ] = function() {
+  ] = function () {
     return (
       this.remote
         // Expect to have to authenticate
@@ -123,7 +123,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
     'visit settings' +
       page +
       ' with an invalid session requires authentication, back to page after authentication'
-  ] = function() {
+  ] = function () {
     return (
       this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -154,7 +154,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
     'visit settings' +
       page +
       ' with an unknown uid parameter redirects to enter email'
-  ] = function() {
+  ] = function () {
     return (
       this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
@@ -175,7 +175,7 @@ function verifiedAccountTest(suite, page, pageHeader) {
 
   suite[
     'visit settings' + page + ' with a known uid does not redirect'
-  ] = function() {
+  ] = function () {
     return this.remote
       .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
       .then(fillOutEmailFirstSignIn(email, PASSWORD))
@@ -186,11 +186,11 @@ function verifiedAccountTest(suite, page, pageHeader) {
   };
 }
 
-Object.keys(SETTINGS_PAGES).forEach(function(page) {
+Object.keys(SETTINGS_PAGES).forEach(function (page) {
   unverifiedAccountTest(unverifiedSuite.tests, page);
 });
 
-Object.keys(SETTINGS_PAGES).forEach(function(page) {
+Object.keys(SETTINGS_PAGES).forEach(function (page) {
   verifiedAccountTest(verifiedSuite.tests, page, SETTINGS_PAGES[page]);
 });
 

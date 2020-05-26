@@ -37,7 +37,7 @@ const {
 } = FunctionalHelpers;
 
 registerSuite('recovery code', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail();
     const self = this;
     return (
@@ -64,7 +64,7 @@ registerSuite('recovery code', {
         // Store the secret key to recalculate the code later
         .findByCssSelector(selectors.TOTP.MANUAL_CODE)
         .getVisibleText()
-        .then(secretKey => {
+        .then((secretKey) => {
           secret = secretKey;
           return (
             self.remote
@@ -81,12 +81,12 @@ registerSuite('recovery code', {
               // Store a recovery code
               .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.FIRST_CODE)
               .getVisibleText()
-              .then(code => {
+              .then((code) => {
                 recoveryCode = code;
                 return self.remote
                   .findByCssSelector(selectors.SIGNIN_RECOVERY_CODE.SECOND_CODE)
                   .getVisibleText()
-                  .then(code => (recoveryCode2 = code));
+                  .then((code) => (recoveryCode2 = code));
               })
               .then(() => {
                 return self.remote
@@ -103,7 +103,7 @@ registerSuite('recovery code', {
   },
 
   tests: {
-    'can sign-in with recovery code - sync': function() {
+    'can sign-in with recovery code - sync': function () {
       return (
         this.remote
           .then(click(selectors.SETTINGS.SIGNOUT))
@@ -131,7 +131,7 @@ registerSuite('recovery code', {
       );
     },
 
-    'can regenerate recovery code when low': function() {
+    'can regenerate recovery code when low': function () {
       return (
         this.remote
           .then(click(selectors.SETTINGS.SIGNOUT))

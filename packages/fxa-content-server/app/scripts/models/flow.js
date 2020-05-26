@@ -97,7 +97,7 @@ var Model = Backbone.Model.extend({
 
   resumeTokenSchema: {
     deviceId: vat.hex().len(32),
-    flowBegin: vat.number().test(function(value) {
+    flowBegin: vat.number().test(function (value) {
       // Integers only
       return value === Math.round(value);
     }),

@@ -139,7 +139,7 @@ describe('views/sign_in_recovery_code', () => {
       RECOVERY_CODE + '   ',
       '   ' + RECOVERY_CODE + '   ',
     ];
-    validCodes.forEach(code => {
+    validCodes.forEach((code) => {
       describe(`with a valid code: '${code}'`, () => {
         beforeEach(() => {
           view.$('.recovery-code').val(code);

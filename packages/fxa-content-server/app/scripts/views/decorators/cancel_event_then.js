@@ -9,7 +9,7 @@
  */
 
 function cancelEventThen(handler) {
-  return function(event) {
+  return function (event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();

@@ -64,7 +64,7 @@ import WhyConnectAnotherDeviceView from '../views/why_connect_another_device';
 
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
-    return import(`../views/${ViewOrPath}`).then(result => {
+    return import(`../views/${ViewOrPath}`).then((result) => {
       if (result.default) {
         return result.default;
       }
@@ -76,15 +76,15 @@ function getView(ViewOrPath) {
 }
 
 function createViewHandler(ViewOrPath, options) {
-  return function() {
-    return getView(ViewOrPath).then(View => {
+  return function () {
+    return getView(ViewOrPath).then((View) => {
       return this.showView(View, options);
     });
   };
 }
 
 function createChildViewHandler(ChildViewOrPath, ParentViewOrPath, options) {
-  return function() {
+  return function () {
     return Promise.all([
       getView(ChildViewOrPath),
       getView(ParentViewOrPath),

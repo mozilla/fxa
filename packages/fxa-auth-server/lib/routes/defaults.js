@@ -12,10 +12,7 @@ module.exports = (log, db) => {
   async function versionHandler(request, h) {
     log.begin('Defaults.root', request);
     const versionData = await getVersion();
-    return h
-      .response(versionData)
-      .spaces(2)
-      .suffix('\n');
+    return h.response(versionData).spaces(2).suffix('\n');
   }
 
   const routes = [

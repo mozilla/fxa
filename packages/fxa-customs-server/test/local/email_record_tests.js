@@ -21,7 +21,7 @@ function simpleEmailRecord() {
   return new (emailRecord(limits, now))();
 }
 
-test('shouldBlock works', function(t) {
+test('shouldBlock works', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.shouldBlock(), false, 'record has never been blocked');
@@ -57,7 +57,7 @@ test('shouldBlock works', function(t) {
   t.end();
 });
 
-test('suspect', t => {
+test('suspect', (t) => {
   const record = simpleEmailRecord();
   t.equal(record.isSuspected(), false);
 
@@ -67,7 +67,7 @@ test('suspect', t => {
   t.end();
 });
 
-test('block', t => {
+test('block', (t) => {
   const record = simpleEmailRecord();
   t.equal(record.isBlocked(), false);
 
@@ -77,7 +77,7 @@ test('block', t => {
   t.end();
 });
 
-test('disable', t => {
+test('disable', (t) => {
   const record = simpleEmailRecord();
   t.equal(record.isDisabled(), false);
 
@@ -87,7 +87,7 @@ test('disable', t => {
   t.end();
 });
 
-test('addHit works', function(t) {
+test('addHit works', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.xs.length, 0, 'record has never been emailed');
@@ -99,7 +99,7 @@ test('addHit works', function(t) {
   t.end();
 });
 
-test('rateLimit works', function(t) {
+test('rateLimit works', function (t) {
   var er = simpleEmailRecord();
 
   er.addHit();
@@ -111,7 +111,7 @@ test('rateLimit works', function(t) {
   t.end();
 });
 
-test('trimHits enforces the email limit', function(t) {
+test('trimHits enforces the email limit', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.xs.length, 0, 'record has nothing to trim');
@@ -125,7 +125,7 @@ test('trimHits enforces the email limit', function(t) {
   t.end();
 });
 
-test('trimHits evicts expired entries', function(t) {
+test('trimHits evicts expired entries', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.xs.length, 0, 'record has nothing to trim');
@@ -140,7 +140,7 @@ test('trimHits evicts expired entries', function(t) {
   t.end();
 });
 
-test('isOverEmailLimit works', function(t) {
+test('isOverEmailLimit works', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.isOverEmailLimit(), false, 'record has never been emailed');
@@ -156,13 +156,13 @@ test('isOverEmailLimit works', function(t) {
   t.end();
 });
 
-test('retryAfter works', function(t) {
+test('retryAfter works', function (t) {
   var limits = {
     rateLimitIntervalMs: 5000,
     blockIntervalMs: 8000,
     maxEmails: 2,
   };
-  var er = new (emailRecord(limits, function() {
+  var er = new (emailRecord(limits, function () {
     return 10000;
   }))();
 
@@ -185,7 +185,7 @@ test('retryAfter works', function(t) {
   t.end();
 });
 
-test('passwordReset works', function(t) {
+test('passwordReset works', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.pr, undefined, 'password is not marked as reset yet');
@@ -194,7 +194,7 @@ test('passwordReset works', function(t) {
   t.end();
 });
 
-test('unblock', function(t) {
+test('unblock', function (t) {
   var er = simpleEmailRecord();
   er.addUnblock();
   t.ok(er.canUnblock(), 'unblock limit is not reached');
@@ -205,7 +205,7 @@ test('unblock', function(t) {
   t.end();
 });
 
-test('parse works', function(t) {
+test('parse works', function (t) {
   var er = simpleEmailRecord();
   t.equal(er.shouldBlock(), false, 'original object is not blocked');
   t.equal(er.xs.length, 0, 'original object has no hits');
@@ -229,7 +229,7 @@ test('parse works', function(t) {
   t.end();
 });
 
-test('update works', function(t) {
+test('update works', function (t) {
   var er = simpleEmailRecord();
 
   t.equal(er.update('bogusAction'), 0, 'bogus email actions does nothing');
@@ -267,7 +267,7 @@ test('update works', function(t) {
   t.end();
 });
 
-test('getMinLifetimeMS works', function(t) {
+test('getMinLifetimeMS works', function (t) {
   var limits = {
     rateLimitIntervalMs: 11,
     blockIntervalMs: 21,
