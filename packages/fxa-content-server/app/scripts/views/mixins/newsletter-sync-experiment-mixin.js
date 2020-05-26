@@ -18,6 +18,7 @@ export default {
   isInNewsletterSyncExperimentTrailheadCopy() {
     const experimentGroup = this.getAndReportExperimentGroup(EXPERIMENT_NAME, {
       isSync: this.relier.isSync(),
+      lang: this.navigator.language,
     });
 
     return experimentGroup === 'trailhead-copy';
@@ -26,6 +27,7 @@ export default {
   isInNewsletterSyncExperimentNewCopy() {
     const experimentGroup = this.getAndReportExperimentGroup(EXPERIMENT_NAME, {
       isSync: this.relier.isSync(),
+      lang: this.navigator.language,
     });
 
     return experimentGroup === 'new-copy';
