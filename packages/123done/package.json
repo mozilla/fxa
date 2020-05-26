@@ -20,9 +20,9 @@
   },
   "private": true,
   "dependencies": {
-    "client-sessions": "0.6.x",
+    "client-sessions": "0.6.0",
     "express": "4.16.4",
-    "fxa-jwtool": "0.7.x",
+    "fxa-jwtool": "0.7.2",
     "morgan": "1.9.1",
     "node-rsa": "1.0.5",
     "redis": "0.7.1",
@@ -34,11 +34,11 @@
   },
   "devDependencies": {
     "audit-filter": "0.5.0",
-    "eslint": "^6.8.0",
+    "eslint": "6.8.0",
     "eslint-plugin-fxa": "2.0.1",
     "fxa-shared": "workspace:*",
-    "pm2": "^4.4.0",
-    "prettier": "^2.0.5"
+    "pm2": "4.4.0",
+    "prettier": "2.0.5"
   },
   "scripts": {
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",

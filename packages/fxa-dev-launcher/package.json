@@ -19,7 +19,7 @@
     "foxfire": "^2.0.0"
   },
   "devDependencies": {
-    "audit-filter": "^0.5.0"
+    "audit-filter": "0.5.0"
   },
   "engines": {
     "node": ">=12"
