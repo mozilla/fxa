@@ -15,7 +15,7 @@ module.exports = {
         NODE_ENV: 'development',
         NODE_OPTIONS: '--inspect=9170',
         PROXY_STATIC_RESOURCES_FROM: 'http://localhost:3032',
-        CONFIG_FILES: 'config/secrets.json',
+        CONFIG_FILES: 'server/config/secrets.json',
         PORT: '3031',
       },
       filter_env: ['npm_'],
