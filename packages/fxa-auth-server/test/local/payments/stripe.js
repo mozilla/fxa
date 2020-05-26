@@ -2130,7 +2130,8 @@ describe('StripeHelper', () => {
       productDownloadURLNew:
         eventCustomerSubscriptionUpdated.data.object.plan.metadata.downloadURL,
       planIdNew: planId,
-      planAmountNew: 500,
+      paymentAmountNew:
+        eventCustomerSubscriptionUpdated.data.object.plan.amount / 100,
       productPaymentCycle: 'month',
       closeDate: 1326853478,
     };
@@ -2296,10 +2297,10 @@ describe('StripeHelper', () => {
           productNameOld,
           productIconURLOld,
           productDownloadURLOld,
-          planAmountOld: event.data.previous_attributes.plan.amount,
+          paymentAmountOld: event.data.previous_attributes.plan.amount / 100,
           invoiceNumber: mockInvoice.number,
           invoiceId: mockInvoice.id,
-          paymentProrated: mockInvoiceUpcoming.amount_due,
+          paymentProrated: mockInvoiceUpcoming.amount_due / 100,
         });
       };
 

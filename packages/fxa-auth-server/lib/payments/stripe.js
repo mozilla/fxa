@@ -1129,7 +1129,7 @@ class StripeHelper {
     const cancelAtPeriodEndOld = previousAttributes.cancel_at_period_end;
 
     const abbrevProductNew = await this.expandAbbrevProductForPlan(planNew);
-    const { interval: productPaymentCycle, amount: planAmountNew } = planNew;
+    const { interval: productPaymentCycle, amount: paymentAmountNew } = planNew;
     const {
       product_id: productIdNew,
       product_name: productNameNew,
@@ -1150,7 +1150,7 @@ class StripeHelper {
       productIconURLNew,
       productDownloadURLNew,
       planIdNew,
-      planAmountNew,
+      paymentAmountNew: paymentAmountNew / 100,
       productPaymentCycle,
       closeDate: event.created,
     };
@@ -1306,7 +1306,7 @@ class StripeHelper {
 
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
-    const { amount: planAmountOld } = planOld;
+    const { amount: paymentAmountOld } = planOld;
     const {
       product_id: productIdOld,
       product_name: productNameOld,
@@ -1329,10 +1329,10 @@ class StripeHelper {
       productNameOld,
       productIconURLOld,
       productDownloadURLOld,
-      planAmountOld,
+      paymentAmountOld: paymentAmountOld / 100,
       invoiceNumber,
       invoiceId,
-      paymentProrated,
+      paymentProrated: paymentProrated / 100,
     };
   }
 
