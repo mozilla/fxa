@@ -1,3 +1,9 @@
+## 1.172.2
+
+### New features
+
+- experiments: Fix qr code experiment grouping undefined bug ([a5e85d580](https://github.com/mozilla/fxa/commit/a5e85d580))
+
 ## 1.172.1
 
 ### New features
