@@ -24,7 +24,7 @@ module.exports = function (
   redis
 ) {
   // Various extra helpers.
-  const push = require('../push')(log, db, config);
+  const push = require('../push')(log, db, config, statsd);
   const pushbox = require('../pushbox')(log, config, statsd);
   const devicesImpl = require('../devices')(log, db, oauthdb, push);
   const signinUtils = require('./utils/signin')(

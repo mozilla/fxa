@@ -26,13 +26,13 @@ describe('e2e/push', () => {
       let count = 0;
       const thisSpyLog = mockLog({
         info(op, log) {
-          if (log.name === 'push.account_verify.success') {
+          if (op === 'push.send.success') {
             count++;
           }
         },
       });
 
-      const push = require('../../lib/push')(thisSpyLog, mockDB(), config);
+      const push = require('../../lib/push')(thisSpyLog, mockDB(), config, { increment: () => {} });
       const options = {
         data: Buffer.from('foodata'),
       };
@@ -65,7 +65,7 @@ describe('e2e/push', () => {
           assert.equal(
             count,
             1,
-            'log.info::push.account_verify.success was called once'
+            'log.info::push.send.success was called once'
           );
         });
     });

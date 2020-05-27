@@ -8,13 +8,6 @@ const crypto = require('crypto');
 const base64url = require('base64url');
 const webpush = require('web-push');
 
-const ERR_NO_PUSH_CALLBACK = 'No Push Callback';
-const ERR_PUSH_CALLBACK_EXPIRED = 'Push Callback expired';
-const ERR_DATA_BUT_NO_KEYS = 'Data payload present but missing key(s)';
-const ERR_TOO_MANY_DEVICES = 'Too many devices connected to account';
-
-const LOG_OP_PUSH_TO_DEVICES = 'push.sendPush';
-
 const PUSH_PAYLOAD_SCHEMA_VERSION = 1;
 const PUSH_COMMANDS = {
   DEVICE_CONNECTED: 'fxaccounts:device_connected',
@@ -26,6 +19,49 @@ const PUSH_COMMANDS = {
   COMMAND_RECEIVED: 'fxaccounts:command_received',
 };
 
+const PUSH_REASONS = new Set([
+ 'accountVerify',
+ 'accountConfirm',
+ 'passwordReset',
+ 'passwordChange',
+ 'deviceConnected',
+ 'deviceDisconnected',
+ 'profileUpdated',
+ 'devicesNotify',
+ 'accountDestroyed',
+ 'commandReceived',
+]);
+
+const PUSH_ERRORS = new Set([
+  "noCallback",
+  "noKeys",
+  "expiredCallback",
+  "resetCallback",
+  "serverError",
+  "unknown",
+]);
+
+const PUSH_ERROR_MESSAGES = {
+  "noCallback": "No push callback",
+  "noKeys": "Data payload preset but missing keys",
+  "expiredCallback": "Push callback expired",
+  "resetCallback": "Push callback indicated it should be reset",
+  "unknown": "Unknown push error",
+};
+
+const ERR_NO_PUSH_CALLBACK = "noCallback";
+const ERR_DATA_BUT_NO_KEYS = "noKeys";
+const ERR_PUSH_CALLBACK_EXPIRED = "expiredCallback";
+const ERR_PUSH_CALLBACK_RESET = "resetCallback";
+const ERR_PUSH_UNKNOWN = "unknown";
+
+const LOG_OP_PUSH_SEND_ATTEMPT = "push.send.attempt";
+const LOG_OP_PUSH_SEND_FAILURE = "push.send.failure";
+const LOG_OP_PUSH_SEND_SUCCESS = "push.send.success";
+const LOG_OP_PUSH_UNEXPECTED_ERROR = "push.sendPush.unexpectedError";
+const LOG_OP_TOO_MANY_DEVICES = "push.sendPush.tooManyDevices";
+const LOG_OP_DEVICE_UPDATE_FAILED = "push.sendPush.deviceUpdateFailed";
+
 const TTL_DEVICE_DISCONNECTED = 5 * 3600; // 5 hours
 const TTL_PASSWORD_CHANGED = 6 * 3600; // 6 hours
 const TTL_PASSWORD_RESET = TTL_PASSWORD_CHANGED;
@@ -36,42 +72,13 @@ const TTL_COMMAND_RECEIVED = TTL_PASSWORD_CHANGED;
 // Currently only for metrics purposes, not enforced.
 const MAX_ACTIVE_DEVICES = 200;
 
-const pushReasonsToEvents = (() => {
-  const reasons = [
-    'accountVerify',
-    'accountConfirm',
-    'passwordReset',
-    'passwordChange',
-    'deviceConnected',
-    'deviceDisconnected',
-    'profileUpdated',
-    'devicesNotify',
-    'accountDestroyed',
-    'commandReceived',
-  ];
-  const events = {};
-  for (const reason of reasons) {
-    const id = reason.replace(/[A-Z]/, (c) => `_${c.toLowerCase()}`); // snake-cased.
-    events[reason] = {
-      send: `push.${id}.send`,
-      success: `push.${id}.success`,
-      resetSettings: `push.${id}.reset_settings`,
-      failed: `push.${id}.failed`,
-      callbackExpired: `push.${id}.push_callback_expired`,
-      noCallback: `push.${id}.no_push_callback`,
-      noKeys: `push.${id}.data_but_no_keys`,
-    };
-  }
-  return events;
-})();
-
 /**
  * A device object returned by the db,
  * typically obtained by calling db.devices(uid).
  * @typedef {Object} Device
  */
 
-module.exports = function (log, db, config) {
+module.exports = function (log, db, config, statsd) {
   let vapid;
   if (config.vapidKeysFile) {
     const vapidKeys = require(config.vapidKeysFile);
@@ -80,34 +87,6 @@ module.exports = function (log, db, config) {
       publicKey: vapidKeys.publicKey,
       subject: config.publicUrl,
     };
-  }
-
-  /**
-   * Reports push errors to logs
-   *
-   * @param {Error} err
-   * @param {String} uid
-   * @param {String} deviceId
-   */
-  function reportPushError(err, uid, deviceId) {
-    log.error(LOG_OP_PUSH_TO_DEVICES, {
-      uid: uid,
-      deviceId: deviceId,
-      err: err,
-    });
-  }
-
-  /**
-   * Reports push increment actions to logs
-   *
-   * @param {String} name
-   */
-  function incrementPushAction(name) {
-    if (name) {
-      log.info(LOG_OP_PUSH_TO_DEVICES, {
-        name: name,
-      });
-    }
   }
 
   /**
@@ -208,7 +187,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyCommandReceived(uid, device, command, sender, index, url, ttl) {
-      if (typeof ttl === 'undefined') {
+      if (typeof ttl === "undefined") {
         ttl = TTL_COMMAND_RECEIVED;
       }
       const options = {
@@ -224,7 +203,7 @@ module.exports = function (log, db, config) {
         },
         TTL: ttl,
       };
-      return this.sendPush(uid, [device], 'commandReceived', options);
+      return this.sendPush(uid, [device], "commandReceived", options);
     },
 
     /**
@@ -236,7 +215,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyDeviceConnected(uid, devices, deviceName) {
-      return this.sendPush(uid, devices, 'deviceConnected', {
+      return this.sendPush(uid, devices, "deviceConnected", {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_CONNECTED,
@@ -256,7 +235,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyDeviceDisconnected(uid, devices, idToDisconnect) {
-      return this.sendPush(uid, devices, 'deviceDisconnected', {
+      return this.sendPush(uid, devices, "deviceDisconnected", {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
@@ -276,7 +255,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyProfileUpdated(uid, devices) {
-      return this.sendPush(uid, devices, 'profileUpdated', {
+      return this.sendPush(uid, devices, "profileUpdated", {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PROFILE_UPDATED,
@@ -292,7 +271,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyPasswordChanged(uid, devices) {
-      return this.sendPush(uid, devices, 'passwordChange', {
+      return this.sendPush(uid, devices, "passwordChange", {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PASSWORD_CHANGED,
@@ -309,7 +288,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyPasswordReset(uid, devices) {
-      return this.sendPush(uid, devices, 'passwordReset', {
+      return this.sendPush(uid, devices, "passwordReset", {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PASSWORD_RESET,
@@ -338,7 +317,7 @@ module.exports = function (log, db, config) {
      * @promise
      */
     notifyAccountDestroyed(uid, devices) {
-      return this.sendPush(uid, devices, 'accountDestroyed', {
+      return this.sendPush(uid, devices, "accountDestroyed", {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
@@ -363,93 +342,131 @@ module.exports = function (log, db, config) {
      */
     async sendPush(uid, devices, reason, options = {}) {
       devices = filterSupportedDevices(options.data, devices);
-      const events = pushReasonsToEvents[reason];
-      if (!events) {
+      if (!PUSH_REASONS.has(reason)) {
         throw `Unknown push reason: ${reason}`;
       }
       // There's no spec-compliant way to error out as a result of having
       // too many devices to notify.  For now, just log metrics about it.
       if (devices.length > MAX_ACTIVE_DEVICES) {
-        reportPushError(new Error(ERR_TOO_MANY_DEVICES), uid, null);
+        log.warn(LOG_OP_TOO_MANY_DEVICES, { uid });
       }
       for (const device of devices) {
         const deviceId = device.id;
 
-        log.trace(LOG_OP_PUSH_TO_DEVICES, {
-          uid: uid,
-          deviceId: deviceId,
-          pushCallback: device.pushCallback,
-        });
+        // Details that we might want to include in logs.
+        const metricsTags = {
+          reason,
+          uid,
+          deviceId,
+          uaOS: device.uaOS,
+          uaOSVersion: device.uaOSVersion,
+          uaBrowser: device.uaBrowser,
+          uaBrowserVersion: device.uaBrowserVersion,
+        };
+        this.reportPushAttempt(device.pushCallback, metricsTags);
 
+        if (!device.pushCallback) {
+          this.reportPushFailure(ERR_NO_PUSH_CALLBACK, metricsTags);
+          continue;
+        }
         if (device.pushEndpointExpired) {
-          reportPushError(new Error(ERR_PUSH_CALLBACK_EXPIRED), uid, deviceId);
-          incrementPushAction(events.callbackExpired);
-        } else if (!device.pushCallback) {
-          // keep track if there are any devices with no push urls.
-          reportPushError(new Error(ERR_NO_PUSH_CALLBACK), uid, deviceId);
-          incrementPushAction(events.noCallback);
-        } else {
-          // send the push notification
-          incrementPushAction(events.send);
-          const pushSubscription = { endpoint: device.pushCallback };
-          let pushPayload = null;
-          const pushOptions = { TTL: options.TTL || '0' };
-          if (options.data) {
-            if (!device.pushPublicKey || !device.pushAuthKey) {
-              reportPushError(new Error(ERR_DATA_BUT_NO_KEYS), uid, deviceId);
-              incrementPushAction(events.noKeys);
-              continue;
-            }
-            pushSubscription.keys = {
-              p256dh: device.pushPublicKey,
-              auth: device.pushAuthKey,
-            };
-            pushPayload = Buffer.from(JSON.stringify(options.data));
+          this.reportPushFailure(ERR_PUSH_CALLBACK_EXPIRED, metricsTags);
+          continue;
+        }
+        const pushSubscription = { endpoint: device.pushCallback };
+        let pushPayload = null;
+        const pushOptions = { TTL: options.TTL || "0" };
+        if (options.data) {
+          if (!device.pushPublicKey || !device.pushAuthKey) {
+            this.reportPushFailure(ERR_DATA_BUT_NO_KEYS, metricsTags);
+            continue;
           }
-          if (vapid) {
-            pushOptions.vapidDetails = vapid;
+          pushSubscription.keys = {
+            p256dh: device.pushPublicKey,
+            auth: device.pushAuthKey,
+          };
+          pushPayload = Buffer.from(JSON.stringify(options.data));
+        }
+        if (vapid) {
+          pushOptions.vapidDetails = vapid;
+        }
+        try {
+          await webpush.sendNotification(
+            pushSubscription,
+            pushPayload,
+            pushOptions
+          );
+          this.reportPushSuccess(metricsTags);
+        } catch (err) {
+          // If we've stored an invalid key in the db for some reason, then we
+          // might get an encryption failure here.  Check the key, which also
+          // happens to work around bugginess in node's handling of said failures.
+          let keyWasInvalid = false;
+          if (!err.statusCode && device.pushPublicKey) {
+            if (!isValidPublicKey(device.pushPublicKey)) {
+              keyWasInvalid = true;
+            }
           }
-          try {
-            await webpush.sendNotification(
-              pushSubscription,
-              pushPayload,
-              pushOptions
-            );
-            incrementPushAction(events.success);
-          } catch (err) {
-            // If we've stored an invalid key in the db for some reason, then we
-            // might get an encryption failure here.  Check the key, which also
-            // happens to work around bugginess in node's handling of said failures.
-            let keyWasInvalid = false;
-            if (!err.statusCode && device.pushPublicKey) {
-              if (!isValidPublicKey(device.pushPublicKey)) {
-                keyWasInvalid = true;
-              }
+          // 404 or 410 error from the push servers means
+          // the push settings need to be reset.
+          // the clients will check this and re-register push endpoints
+          if (
+            err.statusCode === 404 ||
+            err.statusCode === 410 ||
+            keyWasInvalid
+          ) {
+            this.reportPushFailure(ERR_PUSH_CALLBACK_RESET, metricsTags);
+            // set the push endpoint expired flag
+            // Warning: this method is called without any session tokens or auth validation.
+            device.pushEndpointExpired = true;
+            try {
+              await db.updateDevice(uid, device);
+            } catch (err) {
+              log.warn(LOG_OP_DEVICE_UPDATE_FAILED, { uid, deviceId, err });
             }
-            // 404 or 410 error from the push servers means
-            // the push settings need to be reset.
-            // the clients will check this and re-register push endpoints
-            if (
-              err.statusCode === 404 ||
-              err.statusCode === 410 ||
-              keyWasInvalid
-            ) {
-              // set the push endpoint expired flag
-              // Warning: this method is called without any session tokens or auth validation.
-              device.pushEndpointExpired = true;
-              try {
-                await db.updateDevice(uid, device);
-              } catch (err) {
-                reportPushError(err, uid, deviceId);
-              }
-              incrementPushAction(events.resetSettings);
-            } else {
-              reportPushError(err, uid, deviceId);
-              incrementPushAction(events.failed);
-            }
+          } else {
+            log.error(LOG_OP_PUSH_UNEXPECTED_ERROR, { err });
+            this.reportPushFailure(err, metricsTags);
           }
         }
       }
     },
+
+    reportPushAttempt(pushCallback, metricsTags) {
+      this.incrementPushMetric(LOG_OP_PUSH_SEND_ATTEMPT, metricsTags);
+      log.info(LOG_OP_PUSH_SEND_ATTEMPT, metricsTags);
+      // Log the full callback URL for debugging purposes.
+      log.trace(LOG_OP_PUSH_SEND_ATTEMPT, {
+        pushCallback,
+        ...metricsTags
+      });
+    },
+
+    reportPushFailure(err, metricsTags) {
+      let errCode;
+      if (PUSH_ERRORS.has(err)) {
+        errCode = err;
+        err = new Error(PUSH_ERROR_MESSAGES[errCode]);
+      } else {
+        errCode = ERR_PUSH_UNKNOWN;
+      }
+      metricsTags = { errCode, err, ...metricsTags };
+      this.incrementPushMetric(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
+      log.warn(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
+    },
+
+    reportPushSuccess(metricsTags) {
+      this.incrementPushMetric(LOG_OP_PUSH_SEND_SUCCESS, metricsTags);
+      log.info(LOG_OP_PUSH_SEND_SUCCESS, metricsTags);
+    },
+
+    incrementPushMetric(name, tags) {
+      // StatsD can't cope with high-cardinality tags, filter them out.
+      statsd.increment(name, {
+        reason: tags.reason,
+        uaOS: tags.uaOS,
+        errCode: tags.errCode,
+      })
+    }
   };
 };
