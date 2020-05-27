@@ -71,13 +71,13 @@ module.exports = {
       }
       const lastModified = cached ? new Date(cached.stored) : new Date();
       if (cached) {
-        logger.info('batch.cached', {
+        logger.verbose('batch.cached', {
           storedAt: cached.stored,
           error: report && report.error,
           ttl: cached.ttl,
         });
       } else {
-        logger.info('batch.db');
+        logger.verbose('batch.db');
       }
 
       return rep.header('last-modified', lastModified.toUTCString());
