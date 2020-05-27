@@ -14,6 +14,7 @@ import { actions } from './store/actions';
 
 async function init() {
   readConfigFromMeta(headQuerySelector);
+
   sentryMetrics.configure(config.sentry.dsn, config.version);
 
   const store = createAppStore();
