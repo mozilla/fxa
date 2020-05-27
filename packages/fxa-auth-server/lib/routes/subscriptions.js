@@ -1159,7 +1159,7 @@ const directRoutes = (
         response: {
           schema: isA
             .array()
-            .items(validators.subscriptionsSubscriptionValidator),
+            .items(validators.subscriptionsSubscriptionSupportValidator),
         },
         validate: {
           query: {
@@ -1179,11 +1179,6 @@ const directRoutes = (
         auth: {
           payload: false,
           strategy: 'oauthToken',
-        },
-        response: {
-          schema: isA
-            .array()
-            .items(validators.subscriptionsSubscriptionSupportValidator),
         },
         validate: {
           params: {
