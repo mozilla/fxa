@@ -29,6 +29,11 @@ describe('views/index', () => {
   let user;
   let view;
   let windowMock;
+  let viewOptions;
+
+  const createView = (options = viewOptions) => {
+    view = new IndexView(options);
+  };
 
   beforeEach(() => {
     broker = new AuthBroker();
@@ -40,7 +45,7 @@ describe('views/index', () => {
 
     user = new User();
 
-    view = new IndexView({
+    viewOptions = {
       broker,
       formPrefill,
       model,
@@ -48,7 +53,8 @@ describe('views/index', () => {
       relier,
       user,
       window: windowMock,
-    });
+    };
+    createView(viewOptions);
 
     $('body').attr(
       'data-flow-id',
@@ -335,38 +341,12 @@ describe('views/index', () => {
     });
 
     describe('email is not registered', () => {
-      it('navigates to signup when not in email domain MX record validation experiment', () => {
+      it('navigates to signup with email domain MX record validation', () => {
         sinon
           .stub(user, 'checkAccountEmailExists')
           .callsFake(() => Promise.resolve(false));
-        sinon
-          .stub(view, 'isInEmailMxValidationExperimentTreatment')
-          .returns(false);
-        return view.checkEmail(EMAIL).then(() => {
-          assert.isTrue(
-            view.isInEmailMxValidationExperimentTreatment.calledOnce
-          );
-          assert.isTrue(view.navigate.calledOnceWith('signup'));
-          const { account } = view.navigate.args[0][1];
-          assert.equal(account.get('email'), EMAIL);
-
-          assert.isTrue(broker.beforeSignIn.calledOnce);
-          assert.isTrue(broker.beforeSignIn.calledWith(account));
-        });
-      });
-
-      it('navigates to signup when in email domain MX record validation experiment', () => {
-        sinon
-          .stub(user, 'checkAccountEmailExists')
-          .callsFake(() => Promise.resolve(false));
-        sinon
-          .stub(view, 'isInEmailMxValidationExperimentTreatment')
-          .returns(true);
         sinon.stub(view, '_validateEmailDomain').resolves();
         return view.checkEmail(EMAIL).then(() => {
-          assert.isTrue(
-            view.isInEmailMxValidationExperimentTreatment.calledOnce
-          );
           assert.isTrue(view.navigate.calledOnceWith('signup'));
           const { account } = view.navigate.args[0][1];
           assert.equal(account.get('email'), EMAIL);
@@ -375,13 +355,52 @@ describe('views/index', () => {
 
       it('does not navigate away if checkEmailDomain rejects', () => {
         sinon.stub(user, 'checkAccountEmailExists').resolves(false);
-        sinon
-          .stub(view, 'isInEmailMxValidationExperimentTreatment')
-          .returns(true);
         sinon.stub(view, '_validateEmailDomain').rejects();
         return view.checkEmail(EMAIL).then(() => {
           assert.isFalse(view.navigate.called);
         });
+      });
+    });
+
+    describe('MX record validation configurations', () => {
+      const email = 'test@example.com';
+      it('accepts configurations', () => {
+        const config = { mxRecordValidation: { enabled: true } };
+        const options = { ...viewOptions, config };
+        createView(options);
+        assert.deepEqual(view.config, config);
+      });
+
+      it('allows email domain with no MX record when the feature is disabled', () => {
+        const config = { mxRecordValidation: { enabled: false } };
+        const options = { ...viewOptions, config };
+        createView(options);
+        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.spy(view, 'navigate');
+        return view.checkEmail(email).then(() => {
+          assert.isTrue(view.navigate.calledOnceWith('signup'));
+          const { account } = view.navigate.args[0][1];
+          assert.equal(account.get('email'), email);
+        });
+      });
+
+      it('allows email domain with no MX record through exclusions', () => {
+        const config = {
+          mxRecordValidation: { enabled: true, exclusions: ['example.com'] },
+        };
+        const options = { ...viewOptions, config };
+        createView(options);
+        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.spy(view, 'navigate');
+        return view
+          .render()
+          .then(() => view.$('input[type=email]').val(email))
+          .then(() => view.checkEmail(email))
+          .then(() => {
+            assert.isTrue(view.navigate.calledOnceWith('signup'));
+            const { account } = view.navigate.args[0][1];
+            assert.equal(account.get('email'), email);
+          });
       });
     });
   });

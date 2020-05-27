@@ -338,6 +338,7 @@ const Router = Backbone.Router.extend({
 
   initialize(options = {}) {
     this.broker = options.broker;
+    this.config = options.config;
     this.metrics = options.metrics;
     this.notifier = options.notifier;
     this.relier = options.relier;

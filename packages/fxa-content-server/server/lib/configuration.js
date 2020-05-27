@@ -387,6 +387,20 @@ const conf = (module.exports = convict({
       format: 'url',
     },
   },
+  mxRecordValidation: {
+    enabled: {
+      default: true,
+      doc: 'Feature flag for MX record validation',
+      env: 'FXA_MX_RECORD_VALIDATION',
+      format: Boolean,
+    },
+    exclusions: {
+      default: [],
+      doc: 'List of domains that we will not perform MX record validation on',
+      format: Array,
+      env: 'FXA_MX_RECORD_EXCLUSIONS',
+    },
+  },
   oauth_client_id: {
     default: 'ea3ca969f8c6bb0d',
     doc: 'The client_id of the content server',

@@ -502,6 +502,7 @@ Start.prototype = {
     if (!this._router) {
       this._router = new Router({
         broker: this._authenticationBroker,
+        config: this._config,
         createView: this.createView.bind(this),
         metrics: this._metrics,
         notifier: this._notifier,

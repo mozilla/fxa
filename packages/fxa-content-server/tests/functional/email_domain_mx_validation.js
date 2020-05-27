@@ -8,12 +8,7 @@ const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
 
-const EMAIL_FORM_TREATMENT_URL =
-  intern._config.fxaContentRoot +
-  '?action=email&forceExperiment=emailMxValidation&forceExperimentGroup=treatment';
-const EMAIL_FORM_CONTROL_URL =
-  intern._config.fxaContentRoot +
-  '?action=email&forceExperiment=emailMxValidation&forceExperimentGroup=control';
+const EMAIL_FIRST_FORM_URL = intern._config.fxaContentRoot + '?action=email';
 
 const INVALID_EMAIL = 'nofxauser@asdfafexample.xyz.gd';
 
@@ -35,7 +30,7 @@ registerSuite('email domain mx record validation', {
       const email = 'coolfxauser@gmail.com';
 
       return this.remote
-        .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(
           click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
@@ -44,7 +39,7 @@ registerSuite('email domain mx record validation', {
 
     'show validation error on invalid domain': function () {
       return this.remote
-        .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, INVALID_EMAIL))
         .then(
           click(selectors.ENTER_EMAIL.SUBMIT, '.email.tooltip-below.invalid')
@@ -60,7 +55,7 @@ registerSuite('email domain mx record validation', {
     'show tooltip on domain with an A record': function () {
       const email = 'coolfxauser@mail.google.com';
       return this.remote
-        .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
         .then(
           click(
@@ -82,17 +77,8 @@ registerSuite('email domain mx record validation', {
     'allow submission on domain with an MX record': function () {
       const email = 'testfxauser@mozilla.com';
       return this.remote
-        .then(openPage(EMAIL_FORM_TREATMENT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(openPage(EMAIL_FIRST_FORM_URL, selectors.ENTER_EMAIL.HEADER))
         .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(
-          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
-        );
-    },
-
-    'user in control group of experiement proceeds to sign up password page': function () {
-      return this.remote
-        .then(openPage(EMAIL_FORM_CONTROL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(type(selectors.ENTER_EMAIL.EMAIL, INVALID_EMAIL))
         .then(
           click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
         );

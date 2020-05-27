@@ -13,7 +13,6 @@ import CachedCredentialsMixin from './mixins/cached-credentials-mixin';
 import Cocktail from 'cocktail';
 import CoppaMixin from './mixins/coppa-mixin';
 import ExperimentMixin from './mixins/experiment-mixin';
-import EmailMxValidationExperimentMixin from './mixins/email-mx-validation-experiment-mixin';
 import FirefoxFamilyServicesTemplate from '../templates/partial/firefox-family-services.mustache';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
@@ -33,6 +32,11 @@ class IndexView extends FormView {
   partialTemplates = {
     unsafeFirefoxFamilyHTML: FirefoxFamilyServicesTemplate,
   };
+
+  constructor(options) {
+    super(options);
+    this.config = options.config || {};
+  }
 
   get viewName() {
     return 'enter-email';
@@ -186,7 +190,22 @@ class IndexView extends FormView {
   // This way we can stub out the call to checkEmailDomain in tests; there is no
   // way to stub the actual function with sinon since we are using ES Modules.
   _validateEmailDomain() {
-    return checkEmailDomain(this.$(EMAIL_SELECTOR), this);
+    const $emailInputEl = this.$(EMAIL_SELECTOR);
+
+    if (this.config.mxRecordValidation) {
+      if (this.config.mxRecordValidation.enabled === false) {
+        return Promise.resolve(true);
+      }
+
+      if ($emailInputEl && this.config.mxRecordValidation.exclusions.length) {
+        const [, domain] = $emailInputEl.val().split('@');
+        if (this.config.mxRecordValidation.exclusions.includes(domain)) {
+          return Promise.resolve(true);
+        }
+      }
+    }
+
+    return checkEmailDomain($emailInputEl, this);
   }
 
   /**
@@ -205,7 +224,7 @@ class IndexView extends FormView {
     // that accounts can be merged.
     return this.invokeBrokerMethod('beforeSignIn', account)
       .then(() => this.user.checkAccountEmailExists(account))
-      .then(exists => {
+      .then((exists) => {
         const nextEndpoint = exists ? 'signin' : 'signup';
         if (exists) {
           // If the account exists, use the stored account
@@ -219,17 +238,13 @@ class IndexView extends FormView {
         } else {
           // The email address does not belong to a current user. Validate its
           // domain name.
-          if (this.isInEmailMxValidationExperimentTreatment()) {
-            return (
-              this._validateEmailDomain()
-                .then(() => this.navigate(nextEndpoint, { account }))
-                // checkEmailDomain will display the appropriate error
-                // messsage/tooltip; we don't need additional error handling here.
-                .catch(e => {})
-            );
-          } else {
-            this.navigate(nextEndpoint, { account });
-          }
+          return (
+            this._validateEmailDomain()
+              .then(() => this.navigate(nextEndpoint, { account }))
+              // checkEmailDomain will display the appropriate error
+              // messsage/tooltip; we don't need additional error handling here.
+              .catch((e) => {})
+          );
         }
       });
   }
@@ -240,7 +255,6 @@ Cocktail.mixin(
   CachedCredentialsMixin,
   CoppaMixin({}),
   EmailAutocompleteDomainsMixin,
-  EmailMxValidationExperimentMixin,
   ExperimentMixin,
   FlowBeginMixin,
   FormPrefillMixin,
