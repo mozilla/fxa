@@ -83,7 +83,7 @@ exports.verify = async function verify(accessToken) {
     // Log a warning if reliers are using access tokens that are more
     // than 24 hours old.  Eventually we will shorten the expiry time
     // on access tokens and such old tokens won't be allowed.
-    logger.warn('token.verify.expiring_soon', {
+    logger.verbose('token.verify.expiring_soon', {
       user: token.userId.toString('hex'),
       client_id: token.clientId.toString('hex'),
       scope: token.scope,
