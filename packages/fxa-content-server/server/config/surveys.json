@@ -1,0 +1,10 @@
+[
+  {
+    "id": "password-reset",
+    "conditions": {
+      "browser": "firefox"
+    },
+    "view": "settings",
+    "url": "https://www.surveygizmo.com/s3/5622367/Password-Reset-1"
+  }
+]

@@ -45,12 +45,15 @@ describe('lib/app-start', () => {
       featureFlags: {
         foo: 'bar',
       },
+      surveyFeature: {
+        enabled: true,
+        doNotBotherSpan: 2592000000,
+      },
       surveys: [
         {
-          id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
+          id: 'password-reset',
           conditions: {},
           view: 'settings',
-          rate: 0.1,
           url: 'https://www.surveygizmo.com/s3/5541940/pizza',
         },
       ],
@@ -151,7 +154,11 @@ describe('lib/app-start', () => {
   it('initializeSurveyTargeter creates targeter', () => {
     appStart.initializeSurveyTargeter();
     assert.isDefined(appStart._surveyTargeter);
-    assert.isFunction(appStart._surveyTargeter.getSurvey);
+    assert.deepEqual(appStart._surveyTargeter.config, config.surveyFeature);
+    assert.deepEqual(appStart._surveyTargeter.surveys, config.surveys);
+    assert.deepEqual(appStart._surveyTargeter.relier, appStart._relier);
+    assert.deepEqual(appStart._surveyTargeter.user, userMock);
+    assert.deepEqual(appStart._surveyTargeter.window, windowMock);
   });
 
   it('initializeRouter creates a router', () => {

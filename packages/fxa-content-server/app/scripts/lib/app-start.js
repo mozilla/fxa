@@ -87,7 +87,7 @@ Start.prototype = {
       .then(() => this.initializeDeps())
       .then(() => this.testLocalStorage())
       .then(() => this.allResourcesReady())
-      .catch((err) => this.fatalError(err));
+      .catch(err => this.fatalError(err));
   },
 
   initializeInterTabChannel() {
@@ -110,7 +110,6 @@ Start.prototype = {
         .then(() => this.initializeInterTabChannel())
         .then(() => this.initializeExperimentGroupingRules())
         .then(() => this.initializeErrorMetrics())
-        .then(() => this.initializeSurveyTargeter())
         .then(() => this.initializeOAuthClient())
         // both the metrics and router depend on the language
         // fetched from config.
@@ -132,6 +131,8 @@ Start.prototype = {
         // user depends on the auth broker, profileClient, oAuthClient,
         // and notifier.
         .then(() => this.initializeUser())
+        // depends on relier, user, and window
+        .then(() => this.initializeSurveyTargeter())
         // depends on nothing
         .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
@@ -409,7 +410,7 @@ Start.prototype = {
           return user.mergeBrowserAccount(browserAccountData);
         }
       })
-      .then((browserAccount) => {
+      .then(browserAccount => {
         const isPairing =
           this.isDevicePairingAsAuthority() || this.isStartingPairing();
 
@@ -516,11 +517,17 @@ Start.prototype = {
   },
 
   initializeSurveyTargeter() {
-    if (this._config &&
-        this._config.surveys &&
-        this._config.surveys.length &&
-        !this._surveyTargeter) {
+    if (
+      this._config &&
+      this._config.surveyFeature &&
+      this._config.surveyFeature.enabled &&
+      this._config.surveys.length &&
+      !this._surveyTargeter
+    ) {
       this._surveyTargeter = new SurveyTargeter({
+        config: this._config.surveyFeature,
+        relier: this._relier,
+        user: this._user,
         surveys: this._config.surveys,
         window: this._window,
       });
@@ -560,7 +567,7 @@ Start.prototype = {
           this._storage.testLocalStorage(this._window);
         }
       })
-      .catch((err) => this.captureError(err));
+      .catch(err => this.captureError(err));
   },
 
   /**

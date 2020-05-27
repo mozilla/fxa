@@ -35,7 +35,7 @@ export const CreateHandleIframeTask = (
 
 export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
   const [inProp, setInProp] = useState(false);
-  const emoji = `✅&nbsp;👍&nbsp;💖`;
+  const emoji = `✅ 👍 💖`;
 
   const surveyCompleteElement = (
     <div className="survey-complete-msg" data-testid="survey-complete-msg">

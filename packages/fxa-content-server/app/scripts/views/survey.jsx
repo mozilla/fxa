@@ -15,7 +15,7 @@ import Survey, {
 /*eslint-enable no-unused-vars*/
 
 /*eslint-disable no-unused-vars*/
-const SurveyView = props => {
+const SurveyView = (props) => {
   const { surveyURL } = props;
   /*eslint-enable no-unused-vars*/
   const [showSurvey, setShowSurvey] = useState(true);
@@ -28,19 +28,13 @@ const SurveyView = props => {
       setSurveyComplete(true);
       setTimeout(() => {
         setShowSurvey(false);
-      }, 300);
+      }, 3000);
     });
     window.addEventListener('message', handleIframeTask, false);
     return () => window.removeEventListener('message', handleIframeTask);
   }, [setShowSurvey, setSurveyComplete, setTimeout]);
 
-  return (
-    <>
-      {showSurvey && (
-        <Survey {...{ surveyComplete, surveyURL }} />
-      )}
-    </>
-  );
+  return <>{showSurvey && <Survey {...{ surveyComplete, surveyURL }} />}</>;
 };
 
 const SurveyWrapperView = BaseView.extend({

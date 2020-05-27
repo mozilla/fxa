@@ -705,25 +705,19 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
-  surveys: {
-    default: [
-      // Example survey:
-      // {
-      //   id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
-      //   conditions: {
-      //     platform: 'mobile',
-      //     region: 'southernHemisphere',
-      //     lang: 'pt',
-      //     relier: 'email',
-      //   },
-      //   view: 'settings',
-      //   rate: 0.1,
-      //   url: 'https://www.surveygizmo.com/s3/5541940/pizza',
-      // },
-    ],
-    doc: 'list of active surveys',
-    env: 'SURVEYS',
-    format: Array,
+  surveyFeature: {
+    enabled: {
+      default: false,
+      env: 'SURVEYS_ENABLED',
+      doc: 'Enable integrated surveys feature',
+      format: Boolean,
+    },
+    doNotBotherSpan: {
+      default: 2592000000,
+      env: 'SURVEY_DONT_BOTHER_MS',
+      doc: 'Minimum time span in milliseconds between surveys for a user',
+      format: 'integer',
+    },
   },
   sync_tokenserver_url: {
     default: 'http://localhost:5000/token',
@@ -834,7 +828,7 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
 // Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
 const staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
 const missingLangs = [];
-supportedLanguages.forEach(function (l) {
+supportedLanguages.forEach(function(l) {
   if (staticallyGeneratedLanguages.indexOf(l) === -1) {
     missingLangs.push(l);
   }

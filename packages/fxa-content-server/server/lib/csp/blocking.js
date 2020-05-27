@@ -8,6 +8,7 @@
 // tests.
 
 const url = require('url');
+const surveyList = require('../../config/surveys.json');
 
 function getOrigin(link) {
   const parsed = url.parse(link);
@@ -18,7 +19,7 @@ function getOrigin(link) {
  * blockingCspMiddleware is where to declare rules that will cause a resource
  * to be blocked if it runs afowl of a rule.
  */
-module.exports = function (config) {
+module.exports = function(config) {
   const AUTH_SERVER = getOrigin(config.get('fxaccount_url'));
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
@@ -38,8 +39,9 @@ module.exports = function (config) {
   const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
   // create a unique array of origins from survey urls
   const SURVEYS = [
-    ...new Set(config.get('surveys').map(s => getOrigin(s.url))),
+    ...new Set(surveyList.map(s => getOrigin(s.url))),
   ];
+  const surveysEnabledAndSet = (config.get('surveyFeature.enabled') && SURVEYS.length);
   //
   // Double quoted values
   //
@@ -70,7 +72,7 @@ module.exports = function (config) {
       ],
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
-      frameSrc: addCdnRuleIfRequired(SURVEYS.length ? SURVEYS : [NONE]),
+      frameSrc: addCdnRuleIfRequired(surveysEnabledAndSet ? SURVEYS : [NONE]),
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,

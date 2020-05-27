@@ -13,11 +13,19 @@ NullStorage.prototype.getItem = function (key) {
   return key ? this._storage[key] : null;
 };
 
+NullStorage.prototype.get = function (key) {
+  return this.getItem(key);
+};
+
 NullStorage.prototype.setItem = function (key, val) {
   if (!key) {
     return;
   }
   this._storage[key] = val;
+};
+
+NullStorage.prototype.set = function (key, val) {
+  return this.setItem(key, val);
 };
 
 NullStorage.prototype.removeItem = function (key) {

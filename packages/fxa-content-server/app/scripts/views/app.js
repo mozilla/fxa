@@ -198,12 +198,13 @@ var AppView = BaseView.extend({
    * @param {Object} options the option for the view to be displayed
    */
   _showSurvey(view, options) {
-    const survey =
-      this._surveyTargeter && this._surveyTargeter.getSurvey(options.viewName);
-
-    if (survey) {
-      survey.render();
-      view.$el.append(survey.el);
+    if (this._surveyTargeter) {
+      this._surveyTargeter.getSurvey(options.viewName).then((survey) => {
+        if (survey) {
+          survey.render();
+          view.$el.append(survey.el);
+        }
+      });
     }
   },
 
