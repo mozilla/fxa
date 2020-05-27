@@ -47,8 +47,21 @@
   }
 
   .subheading {
-    color: $grey-50;
+    color: #008787;
+    display: flex;
     font-size: 15px;
-    margin-bottom: 48px;
+    justify-content: center;
+    margin-bottom: 32px;
+  }
+
+  &:not(.product-upgrade) .subheading::before {
+      background-image: url('./check.svg');
+      background-position: center 2px;
+      background-repeat: no-repeat;
+      content: '';
+      display: inline-block;
+      height: 24px;
+      margin-right: 2px;
+      width: 24px;
   }
 }

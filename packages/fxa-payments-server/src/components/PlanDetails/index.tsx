@@ -76,17 +76,18 @@ export const PlanDetails = ({
                   {product_name}
                 </h3>
                 <p className="plan-details-description">
-                  {productDetails.subtitle}
+                  <Localized
+                    id={`plan-price-${interval}`}
+                    $amount={getLocalizedCurrency(amount, currency)}
+                    $intervalCount={interval_count}
+                  >
+                    {planPrice}
+                  </Localized>
+                  &nbsp;&bull;&nbsp;
+                  <span className="plan-details-subtitle">{productDetails.subtitle}</span>
                 </p>
               </div>
             </div>
-            <Localized
-              id={`plan-price-${interval}`}
-              $amount={getLocalizedCurrency(amount, currency)}
-              $intervalCount={interval_count}
-            >
-              <p>{planPrice}</p>
-            </Localized>
           </div>
           {!detailsHidden && productDetails.details ? (
             <div className="plan-details-list" data-testid="list">
