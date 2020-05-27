@@ -105,11 +105,12 @@ if [[ ! -z $CI_PULL_REQUEST ]]; then
     PR_NUMBER=$(echo $CI_PULL_REQUEST | cut -d/ -f7);
     PR_URL="$STORYBOOKS_URL/pulls/$PR_NUMBER/";
     COMMIT_URL="$STORYBOOKS_URL/commits/$COMMIT_HASH/";
+
     curl \
         -H'Content-Type: application/json' \
         -H"Authorization: token $STORYBOOKS_GITHUB_TOKEN" \
-        --data "{\"body\":\"# Storybook Deployment\\nPull Request: $PR_URL\\nCommit: $COMMIT_URL\"}" \
-        https://api.github.com/repos/${PROJECT_REPO}/issues/${PR_NUMBER}/comments;
+        --data "{\"state\":\"success\",\"target_url\":\"$PR_URL\",\"context\":\"storybooks: pull request\",\"description\":\"Storybook deployment for Pull Request\"}" \
+        https://api.github.com/repos/${PROJECT_REPO}/statuses/${COMMIT_HASH};
 fi
 
 echo "Cleaning up $PUBLISH_ROOT"
