@@ -3,11 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import {
-  render,
-  cleanup,
-  fireEvent,
-} from '@testing-library/react';
+import { render, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import Modal from './index';
@@ -17,7 +13,7 @@ afterEach(cleanup);
 it('renders as expected', () => {
   const onDismiss = jest.fn();
   const { queryByTestId } = render(
-    <Modal {...{ onDismiss }}>
+    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
@@ -27,7 +23,12 @@ it('renders as expected', () => {
 it('accepts an alternate className', () => {
   const onDismiss = jest.fn();
   const { queryByTestId } = render(
-    <Modal {...{onDismiss }} className="barquux">
+    <Modal
+      headerId="some-header"
+      descId="some-description"
+      {...{ onDismiss }}
+      className="barquux"
+    >
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
@@ -37,7 +38,7 @@ it('accepts an alternate className', () => {
 it('calls onDismiss on click outside', () => {
   const onDismiss = jest.fn();
   const { container, getByTestId } = render(
-    <Modal {...{onDismiss }}>
+    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
@@ -47,11 +48,23 @@ it('calls onDismiss on click outside', () => {
   expect(onDismiss).toHaveBeenCalled();
 });
 
-it('hides the close button when onDismiss is not supplied', () => {
-  const { queryByTestId } = render(
-    <Modal>
+it('calls onDismiss on esc key press', () => {
+  const onDismiss = jest.fn();
+  render(
+    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
-  expect(queryByTestId('modal-dismiss')).not.toBeInTheDocument();
+  fireEvent.keyDown(window, { key: 'Escape' });
+  expect(onDismiss).toHaveBeenCalled();
+});
+
+it('shifts focus to the tab fence when opened', () => {
+  const onDismiss = jest.fn();
+  const { getByTestId } = render(
+    <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
+      <div data-testid="children">Hi mom</div>
+    </Modal>
+  );
+  expect(document.activeElement).toBe(getByTestId('tab-fence'));
 });
