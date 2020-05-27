@@ -36,12 +36,12 @@ function beforeSend(data) {
     }
 
     if (data.tags) {
-      // if this is a known errno, then use grouping with fingerprints
-      // Docs: https://docs.sentry.io/hosted/learn/rollups/#fallback-grouping
-      if (data.tags.errno) {
-        data.fingerprint = ['errno' + data.tags.errno];
-        // if it is a known error change the error level to info.
-        data.level = 'info';
+      const errno = data.tags.errno;
+      if (errno && _.isNumber(errno)) {
+        // if the 'errno' is a Number, then it is a known error.
+        // In the future this could log the errors into StatsD or somewhere else.
+        // See https://github.com/mozilla/fxa/issues/2298 for details.
+        return null;
       }
     }
 

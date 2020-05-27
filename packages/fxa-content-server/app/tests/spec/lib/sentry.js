@@ -38,8 +38,8 @@ describe('lib/sentry', function () {
       assert.equal(data, resultData);
     });
 
-    it('fingerprints errno', function () {
-      var data = {
+    it('does not return data for known errno', function () {
+      const data = {
         key: 'value',
         request: {
           url: 'foo',
@@ -48,15 +48,24 @@ describe('lib/sentry', function () {
           errno: 100,
         },
       };
-      var sentry = new SentryMetrics(dsn);
-      var resultData = sentry.__beforeSend(data);
+      const sentry = new SentryMetrics(dsn);
+      assert.equal(sentry.__beforeSend(data), null, 'empty data');
+    });
 
-      assert.equal(
-        resultData.fingerprint[0],
-        'errno100',
-        'correct fingerprint'
-      );
-      assert.equal(resultData.level, 'info', 'correct known error level');
+    it('does not return data for bad errno', function () {
+      const data = {
+        key: 'value',
+        request: {
+          url: 'foo',
+        },
+        tags: {
+          errno: new Error('something is wrong'),
+        },
+      };
+      const sentry = new SentryMetrics(dsn);
+      const resultData = sentry.__beforeSend(data);
+
+      assert.equal(resultData.key, 'value', 'correct key');
     });
 
     it('properly erases sensitive information from url', function () {

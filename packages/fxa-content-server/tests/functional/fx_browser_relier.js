@@ -152,7 +152,7 @@ registerSuite('Firefox Desktop non-sync', {
 });
 
 registerSuite('Firefox Desktop non-sync - CWTS on signup', {
-  beforeEach: function() {
+  beforeEach: function () {
     email = createEmail('signuppasswordcwts.{id}');
     return this.remote.then(clearBrowserState());
   },
