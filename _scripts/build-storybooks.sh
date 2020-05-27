@@ -108,8 +108,8 @@ if [[ ! -z $CI_PULL_REQUEST ]]; then
     curl \
         -H'Content-Type: application/json' \
         -H"Authorization: token $STORYBOOKS_GITHUB_TOKEN" \
-        --data "{\"body\":\"# Storybook Deployment\\nPull Request: $PR_URL\\nCommit: $COMMIT_URL\"}" \
-        https://api.github.com/repos/${PROJECT_REPO}/issues/${PR_NUMBER}/comments;
+        --data "{\"state\":\"success\",\"target_url\":\"$COMMIT_URL\",\"context\":\"storybooks\",\"description\":\"Storybook Deployment\"}" \
+        https://api.github.com/repos/${PROJECT_REPO}/statuses/${COMMIT_HASH};
 fi
 
 echo "Cleaning up $PUBLISH_ROOT"
