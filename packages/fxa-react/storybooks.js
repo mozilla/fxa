@@ -29,6 +29,17 @@ const customizeWebpackConfig = ({ config, mode }) => {
   });
   config.resolve.extensions.push('.scss', '.css');
 
+  const assetRule = config.module.rules.find(({ test }) => test.test('.svg'));
+  const assetLoader = {
+    loader: assetRule.loader,
+    options: assetRule.options || assetRule.query,
+  };
+  config.module.rules.unshift({
+    test: /\.svg$/,
+    use: ['@svgr/webpack', assetLoader],
+  });
+  config.module.rules = [{ oneOf: config.module.rules }];
+
   config.resolve.alias = Object.assign(
     config.resolve.alias,
     additionalJSImports

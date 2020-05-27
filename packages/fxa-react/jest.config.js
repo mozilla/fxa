@@ -5,6 +5,7 @@ module.exports = {
   },
   moduleNameMapper: {
     '\\.(css|scss)$': 'identity-obj-proxy',
+    '^.+\\.svg$': '<rootDir>/svg-transform.js',
   },
   testPathIgnorePatterns: ['/dist/', '/node_modules/'],
 };

@@ -1,6 +1,14 @@
 module.exports = {
   purge: {
-    content: ['./src/**/*.tsx', './public/index.html'],
+    content: [
+      './src/**/*.tsx',
+      './public/index.html',
+      // TODO: This will scan for classes used in all shared
+      // components and include them in the output. This should
+      // really only be scanning in the components being used
+      // in this settings project.
+      '../fxa-react/components/**/*.tsx',
+    ],
     whitelist: [],
   },
   theme: {
