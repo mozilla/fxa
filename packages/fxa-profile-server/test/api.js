@@ -1488,9 +1488,43 @@ describe('api', function () {
     var tok = token();
 
     describe('GET', function () {
-      xit('should return an ecosystem_anon_id', function () {});
+      it('should return an ecosystem_anon_id if set', async function () {
+        const ECOSYSTEM_ANON_ID = 'foo.barzzy.123';
+        mock.coreProfile({
+          email: 'user@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+          ecosystemAnonId: ECOSYSTEM_ANON_ID,
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id'],
+        });
+
+        const res = await Server.api.get({
+          url: '/ecosystem_anon_id',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+
+        assert.equal(res.statusCode, 200);
+        assert.equal(
+          JSON.parse(res.payload).ecosystemAnonId,
+          ECOSYSTEM_ANON_ID
+        );
+        assertSecurityHeaders(res);
+      });
 
       it('should return 204 if not set', async function () {
+        // Note that ecosystemAnonId is not set in the coreProfile:
+        mock.coreProfile({
+          email: 'user@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+        });
         mock.token({
           user: USERID,
           scope: ['profile:ecosystem_anon_id'],
