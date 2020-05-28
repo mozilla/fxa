@@ -20,9 +20,6 @@ npm ci
 cd ../fxa-payments-server
 npm ci
 
-# hack to get the npm run build to not fail
-npm i @babel/preset-env@7.9.0
-
 # TODO rm the CI=false
 PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false npm run build
 CI=yes npm test
