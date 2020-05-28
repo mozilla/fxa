@@ -1,5 +1,11 @@
 # Change history
 
+## 1.172.3
+
+### Bug fixes
+
+- payments: hack to get 1.172.2 to build ([16a962a39](https://github.com/mozilla/fxa/commit/16a962a39))
+
 ## 1.172.2
 
 No changes.
