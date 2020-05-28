@@ -19,8 +19,6 @@ export const App = ({ queryParams }: AppProps) => {
   return (
     <AppErrorBoundary>
       <AppLayout>
-        <p>Hello, world!</p>
-
         <Settings />
       </AppLayout>
     </AppErrorBoundary>

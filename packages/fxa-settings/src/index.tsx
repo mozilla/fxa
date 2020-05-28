@@ -4,28 +4,54 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import './index.scss';
+import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 import App from './components/App';
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import config from './lib/config';
-import { parseParams } from './lib/url-params';
+import config, { readConfigMeta } from './lib/config';
+import { searchParams } from './lib/utilities';
+import Storage from './lib/storage';
+import './index.scss';
 
-export async function init() {
+const storage = Storage.factory('localStorage');
+
+function getSessionToken(): string {
+  const storedAccounts = storage.get('accounts');
+  const currentAccountUid = storage.get('currentAccountUid');
+  return storedAccounts[currentAccountUid].sessionToken;
+}
+
+try {
   sentryMetrics.configure(config.sentry.dsn, config.version);
+  readConfigMeta((name: string) => {
+    return document.head.querySelector(name);
+  });
 
-  const queryParams = parseParams(window.location.search);
+  if (!config.servers.gql.url) {
+    throw new Error('GraphQL API URL not set');
+  }
+
+  // TODO: due to the nature and specificity of the requests we need to talk
+  // directly to the auth server, not the GQL server, for the following routes:
+  // - POST /password/change/start
+  // - POST /password/change/finish
+  // - POST /account/destroy
+  const apolloClient = new ApolloClient({
+    cache: new InMemoryCache(),
+    uri: `${config.servers.gql.url}/graphql`,
+    headers: {
+      authorization: getSessionToken(),
+    },
+  });
+  const queryParams = searchParams(window.location.search);
 
   render(
     <React.StrictMode>
-      <App {...{ queryParams }} />
+      <ApolloProvider client={apolloClient}>
+        <App {...{ queryParams }} />
+      </ApolloProvider>
     </React.StrictMode>,
     document.getElementById('root')
   );
+} catch (error) {
+  console.log('Error initializing FXA Settings', error);
 }
-
-init().then(
-  () => {},
-  (error) => {
-    console.log('Error initializing FXA Settings', error);
-  }
-);

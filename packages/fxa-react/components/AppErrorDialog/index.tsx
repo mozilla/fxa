@@ -4,11 +4,20 @@
 
 import React from 'react';
 
-const AppErrorDialog = ({ error: { message } }: { error: Error }) => {
+const AppErrorDialog = ({ error }: { error: Error }) => {
   return (
-    <div>
-      <h2 data-testid="error-loading-app">General application error</h2>
-      <p>Something went wrong. Please try again later.</p>
+    <div className="bg-grey-20 flex items-center flex-col justify-center h-screen">
+      <div className="text-center max-w-lg">
+        <h2
+          className="text-grey-600 font-header text-lg font-bold mb-3"
+          data-testid="error-loading-app"
+        >
+          General application error
+        </h2>
+        <p className="text-grey-400">
+          Something went wrong. Please try again later.
+        </p>
+      </div>
     </div>
   );
 };

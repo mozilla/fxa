@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, act } from '@testing-library/react';
+import { MockedProvider } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
 import App from '.';
 import FlowEvent from '../../lib/flow-event';
@@ -16,12 +17,24 @@ beforeEach(() => {
   window.location.replace = jest.fn();
 });
 
-it('renders', () => {
-  render(<App {...appProps} />);
+it('renders', async () => {
+  await act(async () => {
+    render(
+      <MockedProvider mocks={[]}>
+        <App {...appProps} />
+      </MockedProvider>
+    );
+  });
 });
 
-it('redirects to /get_flow when flow data is not present', () => {
-  render(<App {...appProps} />);
+it('redirects to /get_flow when flow data is not present', async () => {
+  await act(async () => {
+    render(
+      <MockedProvider mocks={[]}>
+        <App {...appProps} />
+      </MockedProvider>
+    );
+  });
 
   expect(window.location.replace).toHaveBeenCalledWith(
     `${window.location.origin}/get_flow?redirect_to=${encodeURIComponent(
@@ -30,7 +43,7 @@ it('redirects to /get_flow when flow data is not present', () => {
   );
 });
 
-it('redirects to /get_flow when flow data is not present', () => {
+it('redirects to /get_flow when flow data is not present', async () => {
   const DEVICE_ID = 'yoyo';
   const BEGIN_TIME = 123456;
   const FLOW_ID = 'abc123';
@@ -43,7 +56,13 @@ it('redirects to /get_flow when flow data is not present', () => {
     },
   });
 
-  render(<App {...updatedAppProps} />);
+  await act(async () => {
+    render(
+      <MockedProvider mocks={[]}>
+        <App {...updatedAppProps} />
+      </MockedProvider>
+    );
+  });
 
   expect(flowInit).toHaveBeenCalledWith({
     device_id: DEVICE_ID,

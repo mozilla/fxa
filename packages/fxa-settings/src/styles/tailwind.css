@@ -5,3 +5,29 @@
 body {
   @apply text-base font-body;
 }
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-timing-linear {
+  animation-timing-function: linear;
+}
+
+.animate-duration-800 {
+  animation-duration: 800ms;
+}
+
+.animate-repeat-infinite {
+  animation-iteration-count: infinite;
+}
+
+.animate-rotate {
+  animation-name: rotate;
+}
