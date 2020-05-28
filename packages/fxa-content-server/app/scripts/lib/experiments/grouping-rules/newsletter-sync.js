@@ -20,7 +20,7 @@ const GROUPS = [
 // This experiment is disabled by default. If you would like to go through
 // the flow, load email-first screen and append query params
 // `?forceExperiment=newsletterSync&forceExperimentGroup=new-copy`
-const ROLLOUT_RATE = 0.0;
+const ROLLOUT_RATE = 1.0;
 
 module.exports = class NewsletterSync extends BaseGroupingRule {
   constructor() {
