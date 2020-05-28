@@ -20,7 +20,8 @@
           "if",
           "each",
           "include",
-          "mixin"
+          "mixin",
+          "screen"
         ]
       }
     ]

@@ -8,11 +8,12 @@ import '@testing-library/jest-dom/extend-expect';
 import AppLayout from '.';
 
 it('renders the children', () => {
-  const rendered = render(
+  const { getByTestId } = render(
     <AppLayout>
       <p data-testid="test-child">Hello, world!</p>
     </AppLayout>
   );
 
-  expect(rendered.getByTestId('test-child')).toBeInTheDocument();
+  expect(getByTestId('main')).toBeInTheDocument();
+  expect(getByTestId('test-child')).toBeInTheDocument();
 });

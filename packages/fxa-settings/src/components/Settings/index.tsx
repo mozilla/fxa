@@ -8,7 +8,7 @@ import { useQuery } from '@apollo/client';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import UnitRow from '../UnitRow';
-import UnitRowWithImage from '../UnitRowWithImage';
+import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Modal from '../Modal';
 import { GET_ACCOUNT, accountData } from './gql';
 
@@ -38,69 +38,89 @@ export const Settings = () => {
   // const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
 
   return (
-    <main data-testid="settings-container" className="bg-grey-20 min-h-screen">
-      <h2>Settings</h2>
-      <section>
-        <h3>Profile</h3>
+    <>
+      <section className="mt-11" data-testid="settings-profile">
+        <h2 className="font-bold ml-4 mb-4">Profile</h2>
 
-        <UnitRowWithImage
-          header="Picture"
-          imageUrl={account.avatarUrl}
-          alt="Your avatar"
-          route="#"
-        />
+        <div className="bg-white tablet:rounded-xl shadow">
+          <UnitRowWithAvatar avatarUrl={account.avatarUrl} />
 
-        {account.displayName && (
+          <hr className="unit-row-hr" />
+
           <UnitRow
             header="Display name"
             headerValue={account.displayName}
             route="#"
           />
-        )}
 
-        <UnitRow header="Password" headerValue="********" route="#">
-          <p>Created {account.passwordCreated}</p>
-        </UnitRow>
+          <hr className="unit-row-hr" />
 
-        {/*
-        /* TO DO: primary/secondary email section with
-        /* verified status and number of secondary emails
-        /* taken into account
-        */}
-        <UnitRow header="Primary email" headerValue={primaryEmail.email} />
+          <UnitRow
+            header="Password"
+            headerValueClassName="tracking-wider"
+            headerValue="••••••••••••••••••"
+            route="#"
+          >
+            <p className="text-grey-400 text-xs mobileLandscape:mt-3">
+              Created {account.passwordCreated}
+            </p>
+          </UnitRow>
 
-        <UnitRow
-          header="Secondary email"
-          headerValue={null}
-          {...{
-            revealModal,
-            modalRevealed,
-          }}
-        >
-          <p>Access your account if you can't log in to your primary email.</p>
-          <p>
-            Note: a secondary email won't restore your information—you'll need a{' '}
-            <a href="#recovery-key">recovery key</a> for that.
-          </p>
+          <hr className="unit-row-hr" />
 
-          {modalRevealed && (
-            <Modal
-              onDismiss={hideModal}
-              onConfirm={onSecondaryEmailConfirm}
-              headerId={modalHeaderId}
-              descId={modalDescId}
-            >
-              <h2 id={modalHeaderId}>Verify primary email first</h2>
-              <p id={modalDescId}>
-                Before you can add a secondary email, you must verify your
-                primary email. To do this, you'll need access to{' '}
-                {primaryEmail.email}
-              </p>
-            </Modal>
-          )}
-        </UnitRow>
+          {/*
+          /* TO DO: primary/secondary email section with
+          /* verified status and number of secondary emails
+          /* taken into account
+          */}
+          <UnitRow header="Primary email" headerValue={primaryEmail.email} />
+
+          <hr className="unit-row-hr" />
+
+          <UnitRow
+            header="Secondary email"
+            headerValue={null}
+            {...{
+              revealModal,
+              modalRevealed,
+            }}
+          >
+            <p className="text-sm mt-3">
+              Access your account if you can't log in to your primary email.
+            </p>
+            <p className="text-grey-400 text-xs mt-2">
+              Note: a secondary email won't restore your information—you'll need
+              a{' '}
+              <a className="link-blue" href="#recovery-key">
+                recovery key
+              </a>{' '}
+              for that.
+            </p>
+
+            {modalRevealed && (
+              <Modal
+                onDismiss={hideModal}
+                onConfirm={onSecondaryEmailConfirm}
+                headerId={modalHeaderId}
+                descId={modalDescId}
+              >
+                <h2
+                  id={modalHeaderId}
+                  className="font-bold text-xl text-center mb-2"
+                >
+                  Verify primary email first
+                </h2>
+                <p className="text-center" id={modalDescId}>
+                  Before you can add a secondary email, you must verify your
+                  primary email. To do this, you'll need access to{' '}
+                  {primaryEmail.email}
+                </p>
+              </Modal>
+            )}
+          </UnitRow>
+        </div>
       </section>
-    </main>
+    </>
   );
 };
 

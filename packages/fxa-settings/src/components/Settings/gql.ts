@@ -35,8 +35,8 @@ export const GET_ACCOUNT = gql`
 
 export interface accountData {
   uid: string;
-  displayName: string | undefined;
-  avatarUrl: string;
+  displayName: string | null;
+  avatarUrl: string | null;
   accountCreated: number;
   passwordCreated: number;
   recoveryKey: boolean;

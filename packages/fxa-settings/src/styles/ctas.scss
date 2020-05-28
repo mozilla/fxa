@@ -1,0 +1,45 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.cta-neutral {
+  @apply block w-full py-2 text-center mt-6 bg-grey-10 border border-grey-200 transition duration-150 rounded;
+
+  &:hover {
+    @apply border-grey-200 bg-grey-100 text-grey-400 transition duration-150;
+  }
+
+  &:active {
+    @apply border-grey-400 bg-grey-100 text-grey-400 transition duration-150;
+  }
+}
+
+@screen mobileLandscape {
+  .cta-neutral {
+    @apply text-xs py-1 px-5 mt-0 rounded-sm;
+  }
+}
+
+.cta-neutral-lg {
+  @apply block w-full text-center bg-grey-10 border border-grey-200 text-base mr-4 rounded mt-0 py-2 transition duration-150;
+
+  &:hover {
+    @apply border-grey-200 bg-grey-100 text-grey-400 transition duration-150;
+  }
+
+  &:active {
+    @apply border-grey-400 bg-grey-100 text-grey-400 transition duration-150;
+  }
+}
+
+.cta-primary {
+  @apply bg-blue-500 py-2 text-white border border-blue-600 rounded transition duration-150;
+
+  &:hover {
+    @apply bg-blue-600 border-blue-600 transition duration-150;
+  }
+
+  &:active {
+    @apply bg-blue-800 border-blue-800 transition duration-150;
+  }
+}
