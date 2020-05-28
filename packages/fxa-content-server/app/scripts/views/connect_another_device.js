@@ -49,7 +49,7 @@ class ConnectAnotherDeviceView extends FormView {
             }
             case 'treatment-a': {
               // New updated CAD via QR code experience
-              return this.replaceCurrentPageWithQrCadScreen(account, country);
+              return this.replaceCurrentPageWithQrCadScreen(account);
             }
             case 'treatment-b': {
               // Current non-SMS experience

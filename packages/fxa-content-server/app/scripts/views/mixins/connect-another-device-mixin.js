@@ -92,14 +92,10 @@ export default {
    * Replace the current page with the new CAD via QR screen.
    *
    * @param {Object} account
-   * @param {String} country
    */
-  replaceCurrentPageWithQrCadScreen(account, country) {
-    const type = this.model.get('type');
+  replaceCurrentPageWithQrCadScreen(account) {
     this.replaceCurrentPage('/post_verify/cad_qr/get_started', {
       account,
-      country,
-      type,
     });
   },
 
@@ -153,7 +149,10 @@ export default {
     return this._isEligibleForSms(account).then(({ country }) => {
       if (!country) {
         // If no country is returned, the reason is already logged.
-        return;
+        return {
+          group: undefined,
+          country,
+        };
       }
       return {
         group: this.getAndReportExperimentGroup('qrCodeCad', {
