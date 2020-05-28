@@ -180,6 +180,20 @@ describe('lib/error-utils', function () {
   });
 
   describe('renderError', function () {
+    it('renders stack details into the details tag in the DOM', function () {
+      $('#container').html('<div id="stage"></div>');
+      err = new Error('myError');
+      ErrorUtils.renderError(err, windowMock);
+
+      assert.isTrue(domWriter.write.called);
+      // Stack log is different in different browser engines, we just
+      // check for length below.
+      assert.isTrue(
+        $('#stage').find('#fxa-500-error-context').text().length > 0,
+        'includes stack information'
+      );
+    });
+
     describe('with a translator', function () {
       beforeEach(function () {
         $('#container').html('<div id="stage"></div>');
