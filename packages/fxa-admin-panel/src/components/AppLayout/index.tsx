@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import Header from '../../components/Header';
-import LogoLockup from '../../components/LogoLockup';
+import Header from 'fxa-react/components/Header';
+import LogoLockup from 'fxa-react/components/LogoLockup';
 import LinkAbout from '../../components/LinkAbout';
 import Nav from '../../components/Nav';
 import Footer from '../../components/Footer';
@@ -15,13 +15,7 @@ type AppLayoutProps = {
 };
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
-  const logoLockup = (
-    <LogoLockup
-      src="ff-logo.svg"
-      alt="Firefox logo"
-      text="Firefox Accounts Admin Panel"
-    />
-  );
+  const logoLockup = <LogoLockup>Firefox Accounts Admin Panel</LogoLockup>;
 
   return (
     <div data-testid="app" className="app">

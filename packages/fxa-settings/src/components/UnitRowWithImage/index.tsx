@@ -35,6 +35,7 @@ export const UnitRowWithImage = ({
             data-testid="unit-row-with-image-default"
             role="img"
             aria-label={alt}
+            className="w-16"
           />
         )}
       </div>

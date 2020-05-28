@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactElement } from 'react';
-import './index.scss';
 
 type HeaderProps = {
   left: ReactElement;
@@ -12,8 +11,8 @@ type HeaderProps = {
 
 export const Header = (props: HeaderProps) => {
   return (
-    <header role="banner" className="header-page">
-      <div className="container flex justify-space-between">
+    <header role="banner" className="header-page sticky top-0 bg-grey-10">
+      <div className="px-6 tablet:px-8 py-4 flex justify-between">
         <div className="flex">{props.left}</div>
         <div className="flex">{props.right}</div>
       </div>
