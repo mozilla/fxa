@@ -25,7 +25,6 @@ module.exports = {
       user: Joi.string().required(),
       client_id: Joi.string().required(),
       scope: Joi.array(),
-      email: Joi.string(),
       generation: Joi.number().min(0),
       profile_changed_at: Joi.number().min(0),
     },
@@ -33,7 +32,6 @@ module.exports = {
   handler: async function verify(req) {
     const info = await token.verify(req.payload.token);
     info.scope = info.scope.getScopeValues();
-    delete info.email;
     logger.info('verify.success', {
       client_id: info.client_id,
       scope: info.scope,
