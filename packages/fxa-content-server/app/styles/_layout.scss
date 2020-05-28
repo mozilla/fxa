@@ -116,3 +116,11 @@
     display: block;
   }
 }
+
+.error-500-page {
+  summary {
+    // Override summary for 500 error's details field to show an arrow anchor ">"
+    // See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/summary#Usage_notes
+    display: list-item;
+  }
+}

@@ -1,10 +1,13 @@
-<div id="main-content" class="card">
+<div id="main-content" class="card error-500-page">
   <header>
     <h1 id="fxa-500-header">{{#t}}500 Error{{/t}}</h1>
   </header>
 
   <section>
-    {{#t}}Oh dear, something went wrong there. We've been notified and will get working on a fix.{{/t}}
+    <details>
+      <summary>{{#t}}Oh dear, something went wrong there. We've been notified and will get working on a fix.{{/t}}</summary>
+      <pre id="fxa-500-error-context">{{stack}}</pre>
+    </details>
   </section>
 </div>
 

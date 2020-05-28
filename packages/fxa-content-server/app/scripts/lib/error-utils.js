@@ -104,10 +104,11 @@ export default {
    * @param {Object} translator
    */
   renderError(error, win, translator) {
-    var errorPageTemplate = this.getErrorPageTemplate(error);
-    var errorMessage = this.getErrorMessage(error, translator);
-    var errorHtml = errorPageTemplate({
+    const errorPageTemplate = this.getErrorPageTemplate(error);
+    const errorMessage = this.getErrorMessage(error, translator);
+    const errorHtml = errorPageTemplate({
       message: errorMessage,
+      stack: error.stack,
       t: getTranslationHelper(translator),
     });
 
