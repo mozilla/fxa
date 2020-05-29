@@ -8,38 +8,44 @@ import { AttachedClient } from './attachedClient';
 import { Totp } from './totp';
 import { Subscription } from './subscription';
 
-@ObjectType()
+@ObjectType({
+  description: "The current authenticated user's Firefox Account record.",
+})
 export class Account {
-  @Field(type => ID)
+  @Field((type) => ID, { description: 'Firefox Account User ID.' })
   public uid!: string;
 
-  @Field()
+  @Field({ description: 'Timestamp when the account was created.' })
   public accountCreated!: number;
 
-  @Field()
+  @Field({ description: 'Timestamp the password was created or last changed.' })
   public passwordCreated!: number;
 
-  @Field({ nullable: true })
+  @Field({ nullable: true, description: 'Display name the user has set.' })
   public displayName!: string;
 
-  @Field({ nullable: true })
+  @Field({ nullable: true, description: "URL for the user's avatar." })
   public avatarUrl!: string;
 
-  @Field({ nullable: true })
+  @Field({ nullable: true, description: 'User locale.' })
   public locale!: string;
 
-  @Field(type => [Subscription])
+  @Field((type) => [Subscription], {
+    description: 'Active subscriptions for the user.',
+  })
   public subscriptions!: Subscription[];
 
-  @Field(type => Totp)
+  @Field((type) => Totp)
   public totp!: Totp;
 
-  @Field()
+  @Field({ description: 'Whether the user has had a recovery key issued.' })
   public recoveryKey!: boolean;
 
-  @Field(type => [Email])
+  @Field((type) => [Email], { description: 'Email addresses for the user.' })
   public emails!: Email[];
 
-  @Field(type => [AttachedClient])
+  @Field((type) => [AttachedClient], {
+    description: 'Client sessions attached to the user.',
+  })
   public attachedClients!: AttachedClient;
 }

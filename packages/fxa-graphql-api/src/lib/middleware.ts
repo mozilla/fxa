@@ -10,7 +10,9 @@ export type HealthExtras = {
   [key: string]: string | number | boolean | HealthExtras;
 };
 
-export function loadBalancerRoutes(healthExtras?: () => Promise<HealthExtras>): Router {
+export function loadBalancerRoutes(
+  healthExtras?: () => Promise<HealthExtras>
+): Router {
   const router = Router();
 
   router.get('/__version__', (_: Request, res: Response) => {
@@ -30,7 +32,9 @@ export function loadBalancerRoutes(healthExtras?: () => Promise<HealthExtras>): 
       status = 500;
       healthExtra = typeof err.healthExtra === 'object' ? err.healthExtra : {};
     }
-    res.json({ status: status === 200 ? 'ok' : 'error', ...healthExtra }).status(status);
+    res
+      .json({ status: status === 200 ? 'ok' : 'error', ...healthExtra })
+      .status(status);
   });
 
   return router;

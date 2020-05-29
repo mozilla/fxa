@@ -1,21 +1,22 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+import 'mocha';
 import 'reflect-metadata';
 
+import { DataSourceConfig } from 'apollo-datasource';
 import { assert } from 'chai';
 import Chance from 'chance';
-import { Container } from 'typedi';
-import 'mocha';
 import sinon, { stubInterface } from 'ts-sinon';
+import { Container } from 'typedi';
 
-import { mockContext } from '../mocks';
-
-import { AuthServerSource, snakeToCamelObject } from '../../../lib/datasources/authServer';
 import { fxAccountClientToken } from '../../../lib/constants';
-import { DataSourceConfig } from 'apollo-datasource';
+import {
+  AuthServerSource,
+  snakeToCamelObject,
+} from '../../../lib/datasources/authServer';
 import { Context } from '../../../lib/server';
+import { mockContext } from '../mocks';
 
 const sandbox = sinon.createSandbox();
 
@@ -77,6 +78,10 @@ describe('AuthServerSource', () => {
       checkTotpTokenExists: sandbox.stub(),
       recoveryKeyExists: sandbox.stub(),
       sessionStatus: sandbox.stub(),
+      recoveryEmailCreate: sandbox.stub(),
+      recoveryEmailDestroy: sandbox.stub(),
+      recoveryEmailSetPrimaryEmail: sandbox.stub(),
+      recoveryEmailSecondaryResendCode: sandbox.stub(),
     };
     Container.set(fxAccountClientToken, authClient);
     context = mockContext();
@@ -141,4 +146,19 @@ describe('AuthServerSource', () => {
       assert.isTrue(result);
     });
   });
+
+  for (const name of [
+    'recoveryEmailCreate',
+    'recoveryEmailDestroy',
+    'recoveryEmailSetPrimaryEmail',
+    'recoveryEmailSecondaryResendCode',
+  ]) {
+    describe(name, () => {
+      it('returns', async () => {
+        authClient[name].resolves(true);
+        const result = await (authSource as any)[name]();
+        assert.isTrue(result);
+      });
+    });
+  }
 });

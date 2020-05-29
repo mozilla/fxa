@@ -4877,6 +4877,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/get-stream@npm:3.0.2":
+  version: 3.0.2
+  resolution: "@types/get-stream@npm:3.0.2"
+  dependencies:
+    get-stream: "*"
+  checksum: 3/fe6c5383671dd005fe5146032030af73d44e2d351498e11f174489be58710ba3dd5c37a9bf6d3c1b433ef3279bc562c168ea4e529d63e46700c80807c5f3a2bd
+  languageName: node
+  linkType: hard
+
 "@types/glob@npm:^7.1.1":
   version: 7.1.1
   resolution: "@types/glob@npm:7.1.1"
@@ -4897,7 +4906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graphql-upload@npm:^8.0.0":
+"@types/graphql-upload@npm:8.0.3, @types/graphql-upload@npm:^8.0.0":
   version: 8.0.3
   resolution: "@types/graphql-upload@npm:8.0.3"
   dependencies:
@@ -5730,7 +5739,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/superagent@npm:*":
+"@types/superagent@npm:*, @types/superagent@npm:4.1.7":
   version: 4.1.7
   resolution: "@types/superagent@npm:4.1.7"
   dependencies:
@@ -11392,7 +11401,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"component-emitter@npm:^1.2.0, component-emitter@npm:^1.2.1":
+"component-emitter@npm:^1.2.0, component-emitter@npm:^1.2.1, component-emitter@npm:^1.3.0":
   version: 1.3.0
   resolution: "component-emitter@npm:1.3.0"
   checksum: 3/fc4edbf1014f0aed88dcec33ca02d2938734e428423f640d8a3f94975615b8e8c506c19e29b93949637c5a281353e75fa79e299e0d57732f42a9fe346cb2cad6
@@ -11819,7 +11828,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookiejar@npm:^2.1.0":
+"cookiejar@npm:^2.1.0, cookiejar@npm:^2.1.2":
   version: 2.1.2
   resolution: "cookiejar@npm:2.1.2"
   checksum: 3/4c733c15c190798bc1fb724f3044959cabc1565dee7dfc00f99219c7a4189b21cc243ccab52e0708994923f684189a4afa6b01b6b157f8c99273f1001602ac6f
@@ -16214,6 +16223,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-capacitor@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "fs-capacitor@npm:6.1.0"
+  checksum: 3/f6f3c3735babfc8e237dfc69e8820c935d0d33bfcc46d5979d8753555514c78b3bea22fa0b9a2806f2879fe2b41f60820c4594ff6ce60d86b2afea11a43a9d5a
+  languageName: node
+  linkType: hard
+
 "fs-constants@npm:^1.0.0":
   version: 1.0.0
   resolution: "fs-constants@npm:1.0.0"
@@ -17038,12 +17054,15 @@ fsevents@^1.2.7:
     "@types/chance": ^1.1.0
     "@types/convict": ^5.2.1
     "@types/eslint": 6.8.1
+    "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
+    "@types/graphql-upload": 8.0.3
     "@types/ioredis": ^4.16.2
     "@types/mocha": ^7.0.2
     "@types/node": ^12.x
     "@types/proxyquire": ^1.3.28
     "@types/sinon": ^9.0.0
+    "@types/superagent": 4.1.7
     "@types/supertest": ^2.0.9
     "@types/yargs": ^15.0.5
     apollo-datasource: ^0.7.0
@@ -17056,13 +17075,16 @@ fsevents@^1.2.7:
     eslint: ^6.8.0
     fxa-js-client: ^1.0.25
     fxa-shared: "workspace:*"
+    get-stream: ^5.1.0
     graphql: ^14.0.0
     graphql-parse-resolve-info: ^4.7.0
+    graphql-upload: ^10.0.0
     ioredis: ^4.16.3
     knex: ^0.21.1
     mocha: ^7.1.2
     mozlog: ^2.2.0
     mysql: ^2.18.1
+    nock: ^12.0.3
     nodemon: ^2.0.4
     objection: ^2.1.3
     pm2: ^4.4.0
@@ -17070,6 +17092,7 @@ fsevents@^1.2.7:
     proxyquire: ^2.1.3
     reflect-metadata: ^0.1.13
     sinon: ^9.0.2
+    superagent: ^5.2.2
     supertest: ^4.0.2
     ts-node: ^8.10.1
     ts-sinon: ^1.2.0
@@ -17654,6 +17677,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"get-stream@npm:*, get-stream@npm:^5.0.0, get-stream@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "get-stream@npm:5.1.0"
+  dependencies:
+    pump: ^3.0.0
+  checksum: 3/599dad0b6b9e41602c5a383d218e929209774e66bd3345d5ba6b87e305a16e5d4263936cab974804a30cfeebb1d9e6082f0dba4a463fcce0ba75b922b7c9d861
+  languageName: node
+  linkType: hard
+
 "get-stream@npm:^2.2.0":
   version: 2.3.1
   resolution: "get-stream@npm:2.3.1"
@@ -17677,15 +17709,6 @@ fsevents@^1.2.7:
   dependencies:
     pump: ^3.0.0
   checksum: 3/f41bb3c74de09d1dbe1e9d0b6d12520875d99b7ecd32c71ee21eea26d32ca74110e2406922ca64ed8cd6f10076c5f59e4fd128f10cc292eae3b669379e5f18ed
-  languageName: node
-  linkType: hard
-
-"get-stream@npm:^5.0.0, get-stream@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "get-stream@npm:5.1.0"
-  dependencies:
-    pump: ^3.0.0
-  checksum: 3/599dad0b6b9e41602c5a383d218e929209774e66bd3345d5ba6b87e305a16e5d4263936cab974804a30cfeebb1d9e6082f0dba4a463fcce0ba75b922b7c9d861
   languageName: node
   linkType: hard
 
@@ -18269,6 +18292,21 @@ fsevents@^1.2.7:
   peerDependencies:
     graphql: ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 3/93f62ea9b1d66c5a9a5b43ef510be462b4d64e0e469e9d49b42f9b1343a445902096170f6c58b35988495ae628fd456666254cb2cbf14ea2814bb053c9c84057
+  languageName: node
+  linkType: hard
+
+"graphql-upload@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "graphql-upload@npm:10.0.0"
+  dependencies:
+    busboy: ^0.3.1
+    fs-capacitor: ^6.1.0
+    http-errors: ^1.7.3
+    isobject: ^4.0.0
+    object-path: ^0.11.4
+  peerDependencies:
+    graphql: 0.13.1 - 14
+  checksum: 3/8f76642c235b77aa48b9caddc5bc0b64d42bd993a8cb50e4b726ac458fc7eeed58340e9ef99331b0b87a5ad9222fae69b28868aaa8f0eaf69e5d1a533af4fce4
   languageName: node
   linkType: hard
 
@@ -29622,7 +29660,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.4.0, qs@npm:^6.5.1, qs@npm:^6.6.0, qs@npm:^6.7.0, qs@npm:^6.9.3":
+"qs@npm:^6.4.0, qs@npm:^6.5.1, qs@npm:^6.6.0, qs@npm:^6.7.0, qs@npm:^6.9.1, qs@npm:^6.9.3":
   version: 6.9.4
   resolution: "qs@npm:6.9.4"
   checksum: 3/beba62d1e1c66e9888cc08a488eb95771c252a92289a96bff4b767a49e4e7afe9487d7ee3269b856292d8281b855ac5eac927c2e77f845e407ee4fe54743fea7
@@ -34349,6 +34387,25 @@ resolve@~1.11.1:
     qs: ^6.5.1
     readable-stream: ^2.3.5
   checksum: 3/6a2151f7c41356083834ec1d4ba93b9e43b76d1691f7172c01e61c33755967d9f2fa664198988cc8e3de6cee8b63351585ba2d6161cd5e54f26003c818e5d5fc
+  languageName: node
+  linkType: hard
+
+"superagent@npm:^5.2.2":
+  version: 5.2.2
+  resolution: "superagent@npm:5.2.2"
+  dependencies:
+    component-emitter: ^1.3.0
+    cookiejar: ^2.1.2
+    debug: ^4.1.1
+    fast-safe-stringify: ^2.0.7
+    form-data: ^3.0.0
+    formidable: ^1.2.1
+    methods: ^1.1.2
+    mime: ^2.4.4
+    qs: ^6.9.1
+    readable-stream: ^3.4.0
+    semver: ^6.3.0
+  checksum: 3/263b3afd40ab7d7639e26a4cb104eaafc66d8bed05b51c6ea238f83480e17540e5d30d7b8c74684ab39e0014fafbf8017fb528a53fb9dac3a674a4fcca387a2f
   languageName: node
   linkType: hard
 

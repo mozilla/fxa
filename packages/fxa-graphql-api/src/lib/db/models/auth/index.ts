@@ -20,7 +20,9 @@ export function accountByUid(uid: string, options?: AccountOptions) {
 
   let query = Account.query();
   if (options?.include?.includes('emails')) {
-    query = query.withGraphJoined('emails').where({ 'accounts.uid': uidBuffer });
+    query = query
+      .withGraphJoined('emails')
+      .where({ 'accounts.uid': uidBuffer });
   } else {
     query = query.where({ uid: uidBuffer });
   }

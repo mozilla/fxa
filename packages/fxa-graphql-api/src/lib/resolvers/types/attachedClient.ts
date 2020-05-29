@@ -47,7 +47,7 @@ export class AttachedClient {
   @Field({ nullable: true })
   public approximateLastAccessTimeFormatted!: string;
 
-  @Field(type => [String], { nullable: true })
+  @Field((type) => [String], { nullable: true })
   public scope!: string[];
 
   @Field({ nullable: true })
