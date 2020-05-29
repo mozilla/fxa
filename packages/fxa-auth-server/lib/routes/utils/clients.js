@@ -11,12 +11,10 @@ module.exports = (log, config) => {
     config.lastAccessTimeUpdates.earliestSaneTimestamp;
   const { supportedLanguages, defaultLanguage } = config.i18n;
 
-  const localizeTimestamp = require('fxa-shared/l10n/localizeTimestamp').localizeTimestamp(
-    {
-      supportedLanguages,
-      defaultLanguage,
-    }
-  );
+  const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+    supportedLanguages,
+    defaultLanguage,
+  });
 
   return {
     formatLocation(client, request) {

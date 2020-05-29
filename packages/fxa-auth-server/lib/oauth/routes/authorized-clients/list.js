@@ -8,7 +8,7 @@ const Joi = require('@hapi/joi');
 const db = require('../../db');
 const validators = require('../../validators');
 const verifyAssertion = require('../../assertion');
-const ScopeSet = require('fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // Helper function to render each returned record in the expected form.
 function serialize(clientIdHex, token, acceptLanguage) {

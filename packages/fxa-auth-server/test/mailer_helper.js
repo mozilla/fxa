@@ -7,7 +7,7 @@
 'use strict';
 
 const uuid = require('uuid');
-const { normalizeEmail } = require('fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',

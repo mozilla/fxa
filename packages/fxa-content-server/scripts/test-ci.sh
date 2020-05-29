@@ -4,7 +4,7 @@ DIR=$(dirname "$0")
 
 function test_suite() {
   local suite=$1
-  local numGroups=6
+  local numGroups=$2
 
   for i in $(seq $numGroups)
   do
@@ -44,12 +44,12 @@ _scripts/check-url.sh localhost:3030/bundle/app.bundle.js
 
 cd packages/fxa-content-server
 mozinstall /firefox.tar.bz2
-test_suite circle
+test_suite circle 6
 
 # node 5 currently has the least work to do in the above tests
 if [[ "${CIRCLE_NODE_INDEX}" == "5" ]]; then
-  test_suite server
+  test_suite server 1
 
   mozinstall /7f10c7614e9fa46-target.tar.bz2
-  test_suite pairing
+  test_suite pairing 1
 fi

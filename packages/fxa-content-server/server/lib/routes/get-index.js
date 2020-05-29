@@ -11,7 +11,7 @@ module.exports = function (config) {
   let featureFlags;
   const featureFlagConfig = config.get('featureFlags');
   if (featureFlagConfig.enabled) {
-    featureFlags = require('fxa-shared/feature-flags')(
+    featureFlags = require('fxa-shared').featureFlags(
       featureFlagConfig,
       logger
     );

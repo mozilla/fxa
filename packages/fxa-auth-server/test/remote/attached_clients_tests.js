@@ -10,7 +10,7 @@ const Client = require('../client')();
 const config = require('../../config').getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
-const ScopeSet = require('fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 const buf = require('buf').hex;
 const hashRefreshToken = require('../../lib/oauth/encrypt').hash;
 

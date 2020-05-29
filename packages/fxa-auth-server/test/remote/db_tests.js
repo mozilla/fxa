@@ -15,7 +15,7 @@ const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
 const uuid = require('uuid');
-const { normalizeEmail } = require('fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 const log = { trace() {}, info() {}, error() {} };
 

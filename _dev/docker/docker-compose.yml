@@ -23,7 +23,7 @@ services:
   authdb:
     image: fxa-auth-db-mysql:build
     entrypoint: /bin/bash -c
-    command: ["./check-mysql.sh 3306 mysql && node bin/db_patcher.js && node bin/server.js"]
+    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/db_patcher.js && node bin/server.js"]
     environment:
       - HOST=0.0.0.0
       - PORT=8000
@@ -38,7 +38,7 @@ services:
   auth:
     image: fxa-auth-server:build
     entrypoint: /bin/bash -c
-    command: ["./check-mysql.sh 3306 mysql && node bin/key_server.js"]
+    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/key_server.js"]
     environment:
       - PORT=9000
       - NODE_ENV=dev
@@ -78,7 +78,7 @@ services:
   profile:
     image: fxa-profile-server:build
     entrypoint: /bin/bash -c
-    command: ["./check-mysql.sh 3306 mysql && node bin/server.js"]
+    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/server.js"]
     environment:
       - HOST=0.0.0.0
       - PORT=1111
@@ -99,7 +99,7 @@ services:
   profile-worker:
     image: fxa-profile-server:build
     entrypoint: /bin/bash -c
-    command: ["./check-mysql.sh 3306 mysql && node bin/worker.js"]
+    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/worker.js"]
     environment:
       - WORKER_HOST=0.0.0.0
       - WORKER_PORT=1113
@@ -118,7 +118,7 @@ services:
   profile-static:
     image: fxa-profile-server:build
     entrypoint: /bin/bash -c
-    command: ["./check-mysql.sh 3306 mysql && node bin/_static.js"]
+    command: ["/fxa/_scripts/check-mysql.sh 3306 mysql && node bin/_static.js"]
     environment:
       - HOST=0.0.0.0
       # yes, port is intentionally set to 1111

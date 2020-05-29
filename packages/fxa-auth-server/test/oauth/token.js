@@ -5,7 +5,7 @@
 const { assert } = require('chai');
 const token = require('../../lib/oauth/token');
 const JWTAccessToken = require('../../lib/oauth/jwt_access_token');
-const ScopeSet = require('fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 describe('token', function () {
   describe('verify', function () {

@@ -13,7 +13,7 @@ const {
   mapOs,
   toSnakeCase,
   validate,
-} = require('fxa-shared/metrics/amplitude.js');
+} = require('fxa-shared/metrics/amplitude');
 const config = require('../config');
 const amplitude = config.get('amplitude');
 const log = require('./logging/log')();

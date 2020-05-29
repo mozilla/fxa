@@ -10,7 +10,7 @@ const validators = require('../validators');
 const P = require('../../promise');
 const butil = require('../../crypto/butil');
 const error = require('../../error');
-const { emailsMatch } = require('fxa-shared/email/helpers');
+const { emailsMatch } = require('fxa-shared').email.helpers;
 
 const BASE_36 = validators.BASE_36;
 

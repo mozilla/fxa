@@ -11,7 +11,7 @@ const isA = require('@hapi/joi');
 const random = require('../crypto/random');
 const Sentry = require('@sentry/node');
 const validators = require('./validators');
-const { emailsMatch, normalizeEmail } = require('fxa-shared/email/helpers');
+const { emailsMatch, normalizeEmail } = require('fxa-shared').email.helpers;
 
 const HEX_STRING = validators.HEX_STRING;
 const MAX_SECONDARY_EMAILS = 3;
