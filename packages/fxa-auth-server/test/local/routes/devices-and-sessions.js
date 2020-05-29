@@ -1604,110 +1604,110 @@ describe('/account/sessions', () => {
     return runTest(route, request, (result) => {
       assert.ok(Array.isArray(result));
       assert.equal(result.length, 4);
-      assert.deepEqual(result, [
-        {
-          deviceId: null,
-          deviceName: 'Firefox 50, Windows 10',
-          deviceType: 'desktop',
-          deviceAvailableCommands: { foo: 'bar' },
-          deviceCallbackURL: 'callback',
-          deviceCallbackPublicKey: 'publicKey',
-          deviceCallbackAuthKey: 'authKey',
-          deviceCallbackIsExpired: false,
-          id: 'foo',
-          isCurrentDevice: true,
-          isDevice: false,
-          lastAccessTime: times[1],
-          lastAccessTimeFormatted: moment(times[1]).locale('en').fromNow(),
-          createdTime: times[0],
-          createdTimeFormatted: 'a few seconds ago',
-          os: 'Windows',
-          userAgent: 'Firefox 50',
-          location: {
-            city: 'Toronto',
-            country: 'Canada',
-            state: 'Ontario',
-            stateCode: 'ON',
+      const noFormattedTime = ({ createdTimeFormatted, ...rest }) => rest;
+      assert.deepEqual(
+        result.map((x) => noFormattedTime(x)),
+        [
+          {
+            deviceId: null,
+            deviceName: 'Firefox 50, Windows 10',
+            deviceType: 'desktop',
+            deviceAvailableCommands: { foo: 'bar' },
+            deviceCallbackURL: 'callback',
+            deviceCallbackPublicKey: 'publicKey',
+            deviceCallbackAuthKey: 'authKey',
+            deviceCallbackIsExpired: false,
+            id: 'foo',
+            isCurrentDevice: true,
+            isDevice: false,
+            lastAccessTime: times[1],
+            lastAccessTimeFormatted: moment(times[1]).locale('en').fromNow(),
+            createdTime: times[0],
+            os: 'Windows',
+            userAgent: 'Firefox 50',
+            location: {
+              city: 'Toronto',
+              country: 'Canada',
+              state: 'Ontario',
+              stateCode: 'ON',
+            },
           },
-        },
-        {
-          deviceId: 'deviceId',
-          deviceName: 'Nightly, Android 6',
-          deviceType: 'mobile',
-          deviceAvailableCommands: { foo: 'bar' },
-          deviceCallbackURL: null,
-          deviceCallbackPublicKey: null,
-          deviceCallbackAuthKey: null,
-          deviceCallbackIsExpired: false,
-          id: 'bar',
-          isCurrentDevice: false,
-          isDevice: true,
-          lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
-          lastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP - 1)
-            .locale('en')
-            .fromNow(),
-          approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
-          approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
-            .locale('en')
-            .fromNow(),
-          createdTime: times[3],
-          createdTimeFormatted: 'a few seconds ago',
-          os: 'Android',
-          userAgent: 'Nightly',
-          location: {
-            city: 'Bournemouth',
-            country: 'United Kingdom',
-            state: 'England',
-            stateCode: 'EN',
+          {
+            deviceId: 'deviceId',
+            deviceName: 'Nightly, Android 6',
+            deviceType: 'mobile',
+            deviceAvailableCommands: { foo: 'bar' },
+            deviceCallbackURL: null,
+            deviceCallbackPublicKey: null,
+            deviceCallbackAuthKey: null,
+            deviceCallbackIsExpired: false,
+            id: 'bar',
+            isCurrentDevice: false,
+            isDevice: true,
+            lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
+            lastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP - 1)
+              .locale('en')
+              .fromNow(),
+            approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
+            approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
+              .locale('en')
+              .fromNow(),
+            createdTime: times[3],
+            os: 'Android',
+            userAgent: 'Nightly',
+            location: {
+              city: 'Bournemouth',
+              country: 'United Kingdom',
+              state: 'England',
+              stateCode: 'EN',
+            },
           },
-        },
-        {
-          deviceId: 'deviceId',
-          deviceName: '',
-          deviceType: 'tablet',
-          deviceAvailableCommands: {},
-          deviceCallbackURL: 'callback',
-          deviceCallbackPublicKey: 'publicKey',
-          deviceCallbackAuthKey: 'authKey',
-          deviceCallbackIsExpired: false,
-          id: 'baz',
-          isCurrentDevice: false,
-          isDevice: true,
-          lastAccessTime: EARLIEST_SANE_TIMESTAMP,
-          lastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
-            .locale('en')
-            .fromNow(),
-          createdTime: times[5],
-          createdTimeFormatted: 'a few seconds ago',
-          os: null,
-          userAgent: '',
-          location: {},
-        },
-        {
-          deviceId: 'deviceId',
-          deviceName: '',
-          deviceType: 'tablet',
-          deviceAvailableCommands: null,
-          deviceCallbackURL: 'callback',
-          deviceCallbackPublicKey: 'publicKey',
-          deviceCallbackAuthKey: 'authKey',
-          deviceCallbackIsExpired: false,
-          id: 'qux',
-          isCurrentDevice: false,
-          isDevice: true,
-          lastAccessTime: 1,
-          lastAccessTimeFormatted: moment(1).locale('en').fromNow(),
-          approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
-          approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
-            .locale('en')
-            .fromNow(),
-          createdTime: times[7],
-          createdTimeFormatted: 'a few seconds ago',
-          os: null,
-          userAgent: '',
-          location: {},
-        },
-      ]);
+          {
+            deviceId: 'deviceId',
+            deviceName: '',
+            deviceType: 'tablet',
+            deviceAvailableCommands: {},
+            deviceCallbackURL: 'callback',
+            deviceCallbackPublicKey: 'publicKey',
+            deviceCallbackAuthKey: 'authKey',
+            deviceCallbackIsExpired: false,
+            id: 'baz',
+            isCurrentDevice: false,
+            isDevice: true,
+            lastAccessTime: EARLIEST_SANE_TIMESTAMP,
+            lastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
+              .locale('en')
+              .fromNow(),
+            createdTime: times[5],
+            os: null,
+            userAgent: '',
+            location: {},
+          },
+          {
+            deviceId: 'deviceId',
+            deviceName: '',
+            deviceType: 'tablet',
+            deviceAvailableCommands: null,
+            deviceCallbackURL: 'callback',
+            deviceCallbackPublicKey: 'publicKey',
+            deviceCallbackAuthKey: 'authKey',
+            deviceCallbackIsExpired: false,
+            id: 'qux',
+            isCurrentDevice: false,
+            isDevice: true,
+            lastAccessTime: 1,
+            lastAccessTimeFormatted: moment(1).locale('en').fromNow(),
+            approximateLastAccessTime: EARLIEST_SANE_TIMESTAMP,
+            approximateLastAccessTimeFormatted: moment(EARLIEST_SANE_TIMESTAMP)
+              .locale('en')
+              .fromNow(),
+            createdTime: times[7],
+            os: null,
+            userAgent: '',
+            location: {},
+          },
+        ]
+      );
     });
   });
 });

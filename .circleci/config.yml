@@ -17,7 +17,6 @@ executors:
           RUST_BACKTRACE: 1
     environment:
       FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
-      SKIP_PACKAGES: false
 
 commands:
   base-install:
@@ -68,8 +67,6 @@ jobs:
     parameters:
       package:
         type: string
-    environment:
-      SKIP_PACKAGES: true
     steps:
       - base-install:
           package: << parameters.package >>
@@ -85,8 +82,6 @@ jobs:
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
-    environment:
-      SKIP_PACKAGES: true
     steps:
       - base-install
       - run:
@@ -166,8 +161,6 @@ jobs:
           - MYSQL_ALLOW_EMPTY_PASSWORD: yes
           - MYSQL_ROOT_PASSWORD: ''
       - image: redis
-    environment:
-      SKIP_PACKAGES: true
     steps:
       - base-install:
           package: fxa-email-service
@@ -181,7 +174,6 @@ jobs:
     docker:
       - image: circleci/node:12
     environment:
-      SKIP_PACKAGES: true
       DOCKER_BUILDKIT: 1
     steps:
       - base-install
@@ -203,7 +195,6 @@ jobs:
     docker:
       - image: circleci/node:12
     environment:
-      SKIP_PACKAGES: true
       DOCKER_BUILDKIT: 1
     steps:
       - setup_remote_docker:
@@ -220,8 +211,6 @@ jobs:
     resource_class: small
     docker:
       - image: circleci/node:12
-    environment:
-      SKIP_PACKAGES: true
     steps:
       - base-install
       - run:
