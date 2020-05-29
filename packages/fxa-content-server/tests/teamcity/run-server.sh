@@ -73,7 +73,9 @@ export npm_config_tmp=~/fxatemp
 
 set -o xtrace # echo the following commands
 
-npx yarn workspaces focus fxa-content-server
+npx yarn install
+# sacrifice a chicken, a.k.a., dunno why this didn't already happen
+(cd ../fxa-shared; ../../node_modules/.bin/tsc --build)
 
 FXA_TEST_CONFIG=${FXA_TEST_CONFIG:-tests/intern_server}
 
