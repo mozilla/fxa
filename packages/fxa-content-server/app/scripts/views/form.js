@@ -383,26 +383,29 @@ var FormView = BaseView.extend({
     const message = AuthErrors.toMessage(err);
 
     const markElementInvalidAndMaybeFocus = (describedById) => {
-      this.markElementInvalid($invalidEl, describedById);
-      // used for testing
-      this.trigger('validation_error', el, message);
+      return new Promise((resolve) => {
+        this.markElementInvalid($invalidEl, describedById);
 
-      if (shouldFocusEl) {
-        // wait to focus otherwise
-        // on screen keyboard may cover message
-        setTimeout(
-          () => {
-            try {
-              $invalidEl.get(0).focus();
-            } catch (e) {
-              // IE can blow up if the element is not visible.
-            }
-          },
-          // Create account page needs a bit more time than next tick
-          // for some unknown reason. Maybe investigate later...
-          200
-        );
-      }
+        if (shouldFocusEl) {
+          // wait to focus otherwise
+          // on screen keyboard may cover message
+          setTimeout(
+            () => {
+              try {
+                $invalidEl.get(0).focus();
+              } catch (e) {
+                // IE can blow up if the element is not visible.
+              }
+              resolve();
+            },
+            // Create account page needs a bit more time than next tick
+            // for some unknown reason. Maybe investigate later...
+            200
+          );
+        } else {
+          resolve();
+        }
+      });
     };
 
     if (err.describedById) {
@@ -419,15 +422,20 @@ var FormView = BaseView.extend({
         translator: this.translator,
       });
 
-      tooltip
-        .on('destroyed', () => {
-          this.markElementValid($invalidEl);
-          this.trigger('validation_error_removed', el);
-        })
-        .render()
-        .then(() => markElementInvalidAndMaybeFocus(tooltipId));
+      markElementInvalidAndMaybeFocus(tooltipId).then(() => {
+        tooltip
+          .on('destroyed', () => {
+            this.markElementValid($invalidEl);
+            this.trigger('validation_error_removed', el);
+          })
+          .render()
+          .then(() => {
+            // used for testing
+            this.trigger('validation_error', el, message);
+          });
 
-      this.trackChildView(tooltip);
+        this.trackChildView(tooltip);
+      });
     }
 
     return message;
