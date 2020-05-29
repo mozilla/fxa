@@ -23,7 +23,7 @@ const {
   PERFORMANCE_TIMINGS,
   limitLength,
   isValidTime,
-} = require('fxa-shared/metrics/flow-performance');
+} = require('fxa-shared').metrics.flowPerformance;
 
 const VALIDATION_PATTERNS = require('./validation').PATTERNS;
 const DNT_ALLOWED_DATA = ['context', 'entrypoint', 'service'];

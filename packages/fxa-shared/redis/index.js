@@ -10,7 +10,7 @@
 //
 // Basic usage:
 //
-//   const redis = require('fxa-shared/redis');
+//   const redis = require('fxa-shared').redis;
 //
 //   redis.get(key)
 //     .then(value => {

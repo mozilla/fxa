@@ -40,7 +40,7 @@ const cp = require('child_process');
 const fs = require('fs');
 const Mysql = require('../lib/db/mysql');
 const Promise = require('../lib/promise');
-const { normalizeEmail } = require('fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 const log = {
   error: () => {},

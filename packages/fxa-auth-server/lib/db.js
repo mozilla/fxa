@@ -7,7 +7,7 @@
 const error = require('./error');
 const Pool = require('./pool');
 const random = require('./crypto/random');
-const { normalizeEmail } = require('fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 module.exports = (config, log, Token, UnblockCode = null) => {
   const features = require('./features')(config);

@@ -7,12 +7,10 @@
 const Joi = require('@hapi/joi');
 const createBackendServiceAPI = require('./backendService');
 const config = require('../config');
-const localizeTimestamp = require('fxa-shared/l10n/localizeTimestamp').localizeTimestamp(
-  {
-    supportedLanguages: config.get('i18n').supportedLanguages,
-    defaultLanguage: config.get('i18n').defaultLanguage,
-  }
-);
+const localizeTimestamp = require('fxa-shared').l10n.localizeTimestamp({
+  supportedLanguages: config.get('i18n').supportedLanguages,
+  defaultLanguage: config.get('i18n').defaultLanguage,
+});
 const serviceName = 'customs';
 
 module.exports = function (log, error, statsd) {

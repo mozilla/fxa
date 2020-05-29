@@ -6,7 +6,7 @@
 
 const encrypt = require('../../../lib/oauth/encrypt');
 const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
-const ScopeSet = require('fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // right now we only care about notifications for the following scopes
 // if not a match, then we don't notify

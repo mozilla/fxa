@@ -6,7 +6,7 @@ const unique = require('../unique');
 const encrypt = require('../encrypt');
 const config = require('../../../config');
 const MAX_TTL = config.get('oauthServer.expiration.accessToken');
-const ScopeSet = require('fxa-shared/oauth/scopes');
+const ScopeSet = require('fxa-shared').oauth.scopes;
 
 class AccessToken {
   constructor(

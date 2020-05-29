@@ -23,7 +23,7 @@ var log = {
 var DB = require('../lib/db/mysql')(log, require('../db-server').errors);
 var config = require('../config');
 var crypto = require('crypto');
-const { normalizeEmail } = require('fxa-shared/email/helpers');
+const { normalizeEmail } = require('fxa-shared').email.helpers;
 
 var zeroBuffer16 = Buffer.from('00000000000000000000000000000000', 'hex');
 var zeroBuffer32 = Buffer.from(

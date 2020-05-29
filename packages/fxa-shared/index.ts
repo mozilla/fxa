@@ -9,20 +9,28 @@ import amplitude from './metrics/amplitude';
 import scopes from './oauth/scopes';
 import promise from './promise';
 import redis from './redis';
+import emailHelpers from './email/helpers';
+import userAgent from './metrics/user-agent';
+import flowPerformance from './metrics/flow-performance';
+import featureFlags from './feature-flags';
 
 module.exports = {
   email: {
+    helpers: emailHelpers,
     popularDomains,
   },
   experiments: {
     BaseGroupingRule,
   },
+  featureFlags,
   l10n: {
     localizeTimestamp,
     supportedLanguages,
   },
   metrics: {
     amplitude,
+    flowPerformance,
+    userAgent,
   },
   oauth: {
     scopes,

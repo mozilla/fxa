@@ -21,7 +21,7 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
     time (< Dockerfile docker build --progress=plain -t "${MODULE}:build" - &> "../../artifacts/${MODULE}.log")
   elif [[ -r pm2.config.js ]]; then
     # Build a default image with the contents of MODULE at /app
-    time (echo -e "FROM fxa-node:latest\nCOPY --from=fxa-builder:latest --chown=app:app /fxa/packages/${MODULE} /app" | \
+    time (echo -e "FROM fxa-node:latest\nUSER root\nRUN ln -sF /fxa/packages/${MODULE} /app\nUSER app\nWORKDIR /app" | \
     docker build --progress=plain -t "${MODULE}:build" - &> "../../artifacts/${MODULE}.log")
   fi
 
