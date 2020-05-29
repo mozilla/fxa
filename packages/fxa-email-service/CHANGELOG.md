@@ -1,3 +1,9 @@
+## 1.173.0
+
+### Refactorings
+
+- packages: use workspace references ([81575019a](https://github.com/mozilla/fxa/commit/81575019a))
+
 ## 1.172.2
 
 No changes.

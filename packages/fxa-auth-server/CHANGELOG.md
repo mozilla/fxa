@@ -1,3 +1,32 @@
+## 1.173.0
+
+### New features
+
+- aet: add ecosystem_anon_id field to auth server core profile data ([2ee5be5a6](https://github.com/mozilla/fxa/commit/2ee5be5a6))
+
+### Bug fixes
+
+- build: fix paths to fxa-shared ([21fe09b72](https://github.com/mozilla/fxa/commit/21fe09b72))
+- oauth: quiet logging on >24 hour tokens ([ea80a138f](https://github.com/mozilla/fxa/commit/ea80a138f))
+- auth-server: fix incorrect response validation on subscription upgrade route ([5578ac306](https://github.com/mozilla/fxa/commit/5578ac306))
+- docker: removed need for fxa-shared postinstall script ([b3b3d2c0e](https://github.com/mozilla/fxa/commit/b3b3d2c0e))
+- auth-server: fix parameter name mismatches in subscription upgrade email templates ([59a96a242](https://github.com/mozilla/fxa/commit/59a96a242))
+- auth-server: remove subhub references from delete-account script ([f7917060a](https://github.com/mozilla/fxa/commit/f7917060a))
+- docker: need to specify types in some tsconfigs ([ad6ea3982](https://github.com/mozilla/fxa/commit/ad6ea3982))
+
+### Refactorings
+
+- tsconfig: consolidate common tsconfig options ([e565285b7](https://github.com/mozilla/fxa/commit/e565285b7))
+- packages: use workspace references ([81575019a](https://github.com/mozilla/fxa/commit/81575019a))
+- oauth: update inserts for codes, refreshTokens, tokens. Allow null email ([26df51060](https://github.com/mozilla/fxa/commit/26df51060))
+
+### Other changes
+
+- deps: update some dependencies ([fec460f6d](https://github.com/mozilla/fxa/commit/fec460f6d))
+- format: mass reformat with prettier 2 and single config ([cc595fc2b](https://github.com/mozilla/fxa/commit/cc595fc2b))
+- tests: clean up old Stripe customers after functional tests ([c0ca747a1](https://github.com/mozilla/fxa/commit/c0ca747a1))
+- deps: updated mocha to 7.1.2 ([a5c1a339c](https://github.com/mozilla/fxa/commit/a5c1a339c))
+
 ## 1.172.2
 
 No changes.
