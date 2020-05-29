@@ -236,38 +236,7 @@ describe('push', () => {
       });
   });
 
-  it('sendPush pushes to all ios devices if it is triggered with a "collection changed" command', () => {
-    const data = {
-      command: 'sync:collection_changed',
-      data: { collection: 'clients' },
-    };
-    const endPoints = [];
-    const mocks = {
-      'web-push': {
-        sendNotification: function (sub, payload, options) {
-          endPoints.push(sub.endpoint);
-          return P.resolve();
-        },
-      },
-    };
-
-    const push = proxyquire(pushModulePath, mocks)(
-      mockLog(),
-      mockDb,
-      mockConfig
-    );
-    const options = { data: data };
-    return push
-      .sendPush(mockUid, mockDevices, 'devicesNotify', options)
-      .then(() => {
-        assert.equal(endPoints.length, 3);
-        assert.equal(endPoints[0], mockDevices[0].pushCallback);
-        assert.equal(endPoints[1], mockDevices[1].pushCallback);
-        assert.equal(endPoints[2], mockDevices[2].pushCallback);
-      });
-  });
-
-  it('sendPush does not push to ios devices if "collection changed" reason is "firstsync"', () => {
+  it('sendPush does not push to ios devices if triggered with a "collection changed" command', () => {
     const data = {
       command: 'sync:collection_changed',
       data: { collection: 'clients', reason: 'firstsync' },
@@ -297,9 +266,9 @@ describe('push', () => {
       });
   });
 
-  it('sendPush pushes to ios >=10.0 devices if it is triggered with a "device connected" command', () => {
+  it('sendPush pushes to ios devices if it is triggered with a "device connected" command', async () => {
     const data = { command: 'fxaccounts:device_connected' };
-    let endPoints = [];
+    const endPoints = [];
     const mocks = {
       'web-push': {
         sendNotification: function (sub, payload, options) {
@@ -315,61 +284,11 @@ describe('push', () => {
       mockConfig
     );
     const options = { data: data };
-    return push
-      .sendPush(mockUid, mockDevices, 'devicesNotify', options)
-      .then(() => {
-        assert.equal(endPoints.length, 2);
-        assert.equal(endPoints[0], mockDevices[0].pushCallback);
-        assert.equal(endPoints[1], mockDevices[1].pushCallback);
-        // iOS not notified due to unknown browser version
-      })
-      .then(() => {
-        endPoints = [];
-        mockDevices[2].uaBrowserVersion = '8.2';
-        return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
-      })
-      .then(() => {
-        assert.equal(endPoints.length, 2);
-        assert.equal(endPoints[0], mockDevices[0].pushCallback);
-        assert.equal(endPoints[1], mockDevices[1].pushCallback);
-        // iOS not notified due to unsupported browser version
-      })
-      .then(() => {
-        endPoints = [];
-        mockDevices[2].uaBrowserVersion = '10.0';
-        return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
-      })
-      .then(() => {
-        assert.equal(endPoints.length, 3);
-        assert.equal(endPoints[0], mockDevices[0].pushCallback);
-        assert.equal(endPoints[1], mockDevices[1].pushCallback);
-        assert.equal(endPoints[2], mockDevices[2].pushCallback);
-      })
-      .then(() => {
-        endPoints = [];
-        mockDevices[2].uaBrowserVersion = '10.1';
-        return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
-      })
-      .then(() => {
-        assert.equal(endPoints.length, 3);
-        assert.equal(endPoints[0], mockDevices[0].pushCallback);
-        assert.equal(endPoints[1], mockDevices[1].pushCallback);
-        assert.equal(endPoints[2], mockDevices[2].pushCallback);
-      })
-      .then(() => {
-        endPoints = [];
-        mockDevices[2].uaBrowserVersion = '11.2';
-        return push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
-      })
-      .then(() => {
-        assert.equal(endPoints.length, 3);
-        assert.equal(endPoints[0], mockDevices[0].pushCallback);
-        assert.equal(endPoints[1], mockDevices[1].pushCallback);
-        assert.equal(endPoints[2], mockDevices[2].pushCallback);
-      })
-      .finally(() => {
-        delete mockDevices[2].uaBrowserVersion;
-      });
+    await push.sendPush(mockUid, mockDevices, 'devicesNotify', options);
+    assert.equal(endPoints.length, 3);
+    assert.equal(endPoints[0], mockDevices[0].pushCallback);
+    assert.equal(endPoints[1], mockDevices[1].pushCallback);
+    assert.equal(endPoints[2], mockDevices[2].pushCallback);
   });
 
   it('push fails if data is present but both keys are not present', () => {

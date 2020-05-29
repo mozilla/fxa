@@ -116,6 +116,25 @@ module.exports = function (log, db, config) {
    * if they receive an unsupported message type.  Filter out
    * devices that we know won't respond well to the given command.
    *
+   * @param {String} command
+   */
+  function canSendToIOS(command) {
+    switch (command) {
+      case 'fxaccounts:command_received':
+      case 'fxaccounts:device_connected':
+      case 'fxaccounts:device_disconnected':
+        return true;
+      case 'sync:collection_changed': // Used by legacy Send Tab unsupported on iOS.
+      case null: // In the null case this is an account verification push message but iOS uses the OAuth flow nowadays.
+        return false;
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Some clients don't support all Push messages, filter them out.
+   *
    * @param {Object} payload
    * The push message payload
    * @param {Device[]} devices
@@ -123,41 +142,14 @@ module.exports = function (log, db, config) {
    */
   function filterSupportedDevices(payload, devices) {
     const command = (payload && payload.command) || null;
-    let canSendToIOSVersion; /* ({Number} version) => bool */
-    switch (command) {
-      case 'fxaccounts:command_received':
-        canSendToIOSVersion = () => true;
-        break;
-      case 'sync:collection_changed':
-        canSendToIOSVersion = () => payload.data.reason !== 'firstsync';
-        break;
-      case null: // In the null case this is an account verification push message
-        canSendToIOSVersion = (deviceVersion, deviceBrowser) => {
-          return deviceVersion >= 10.0 && deviceBrowser === 'Firefox Beta';
-        };
-        break;
-      case 'fxaccounts:device_connected':
-      case 'fxaccounts:device_disconnected':
-        canSendToIOSVersion = (deviceVersion) => deviceVersion >= 10.0;
-        break;
-      default:
-        canSendToIOSVersion = () => false;
-    }
     return devices.filter((device) => {
       const deviceOS = device.uaOS && device.uaOS.toLowerCase();
-      if (deviceOS === 'ios') {
-        const deviceVersion = device.uaBrowserVersion
-          ? parseFloat(device.uaBrowserVersion)
-          : 0;
-        const deviceBrowserName = device.uaBrowser;
-        if (!canSendToIOSVersion(deviceVersion, deviceBrowserName)) {
-          log.info('push.filteredUnsupportedDevice', {
-            command: command,
-            uaOS: device.uaOS,
-            uaBrowserVersion: device.uaBrowserVersion,
-          });
-          return false;
-        }
+      if (deviceOS === 'ios' && !canSendToIOS(command)) {
+        log.info('push.filteredUnsupportedDevice', {
+          command: command,
+          uaOS: device.uaOS,
+        });
+        return false;
       }
       return true;
     });
