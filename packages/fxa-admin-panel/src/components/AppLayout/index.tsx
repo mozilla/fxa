@@ -19,7 +19,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div data-testid="app" className="app">
-      <Header left={logoLockup} right={<LinkAbout />} />
+      <Header left={logoLockup} right={<LinkAbout />} className="header-page" />
       <div className="container content-wrapper">
         <Nav />
         <main>

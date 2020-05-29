@@ -31,6 +31,7 @@ secrets.json
 .eslintcache
 storybooks-publish
 tsconfig.tsbuildinfo
+tailwind.out.css
 
 # Dependencies
 **/node_modules
@@ -127,6 +128,3 @@ packages/fxa-profile-server/BUCKET_NAME
 packages/fxa-react/**/*.js
 packages/fxa-react/**/*.d.ts
 !packages/fxa-react/pm2.config.js
-
-# fxa-settings
-packages/fxa-settings/src/styles/tailwind.out.css

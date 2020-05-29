@@ -31,39 +31,13 @@ main {
   flex: 4;
 }
 
-// TODO: Setup Tailwind in admin-panel and remove these custom styles.
-// This is leftover from when Header lived in this package; it has since been
-// pulled into `fxa-react` and the styles were placed here.
 .header-page {
   background: left 15% / cover no-repeat url('../../images/ff-branding-bg.svg')
     var(--color-primary);
 
-  .justify-between {
-    justify-content: space-between;
-  }
-
-  .px-6 {
-    padding-left: 32px;
-    padding-right: 32px;
-  }
-
-  .py-4 {
-    padding-bottom: 16px;
-    padding-top: 16px;
-  }
-
   h1 {
-    align-self: center;
     color: var(--color-white);
-    font-size: var(--header-font-size-lg);
     font-weight: var(--font-weight-semi-bold);
-    margin: 0;
     text-shadow: 1px 1px 3px var(--color-black);
-  }
-
-  svg {
-    height: auto;
-    margin-right: 16px;
-    width: 50px;
   }
 }

@@ -7,11 +7,15 @@ import React, { ReactElement } from 'react';
 type HeaderProps = {
   left: ReactElement;
   right: ReactElement;
+  className?: string;
 };
 
 export const Header = (props: HeaderProps) => {
   return (
-    <header role="banner" className="header-page sticky top-0 bg-grey-10">
+    <header
+      role="banner"
+      className={props.className || 'sticky top-0 bg-grey-10'}
+    >
       <div className="px-6 tablet:px-8 py-4 flex justify-between">
         <div className="flex">{props.left}</div>
         <div className="flex">{props.right}</div>

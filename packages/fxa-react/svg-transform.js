@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // This transformer was lifted directly from create-react-app and is
 // needed so we can write components that import SVGs as ReactComponents
 // https://github.com/facebook/create-react-app/blob/master/packages/react-scripts/config/jest/fileTransform.js
