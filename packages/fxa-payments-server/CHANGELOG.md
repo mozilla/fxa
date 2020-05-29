@@ -1,5 +1,30 @@
 # Change history
 
+## 1.173.0
+
+### New features
+
+- storybooks: Switch Storybook notification from comment post to commit status check ([705833d3a](https://github.com/mozilla/fxa/commit/705833d3a))
+- storybooks: build storybooks for CI and deploy to mozilla-fxa/storybooks ([a71aa0cb7](https://github.com/mozilla/fxa/commit/a71aa0cb7))
+- settings: Add modal and UnitRow components ([5273861d5](https://github.com/mozilla/fxa/commit/5273861d5))
+
+### Bug fixes
+
+- build: fix paths to fxa-shared ([21fe09b72](https://github.com/mozilla/fxa/commit/21fe09b72))
+- payments-server: correct location for secrets.json alongside config ([b19124ad3](https://github.com/mozilla/fxa/commit/b19124ad3))
+
+### Refactorings
+
+- tsconfig: consolidate common tsconfig options ([e565285b7](https://github.com/mozilla/fxa/commit/e565285b7))
+- lint-staged: replace sass-lint with stylelint ([9e1104c05](https://github.com/mozilla/fxa/commit/9e1104c05))
+- packages: use workspace references ([81575019a](https://github.com/mozilla/fxa/commit/81575019a))
+
+### Other changes
+
+- build: updated payments-server test-ci.sh ([b2a456ac1](https://github.com/mozilla/fxa/commit/b2a456ac1))
+- deps: update some dependencies ([fec460f6d](https://github.com/mozilla/fxa/commit/fec460f6d))
+- format: mass reformat with prettier 2 and single config ([cc595fc2b](https://github.com/mozilla/fxa/commit/cc595fc2b))
+
 ## 1.172.2
 
 No changes.

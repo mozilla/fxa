@@ -1,3 +1,35 @@
+## 1.173.0
+
+### New features
+
+- errors: add a details section for content-server 500 errors ([e6bc1c9cd](https://github.com/mozilla/fxa/commit/e6bc1c9cd))
+- experiments: Enable newsletter sync experiment ([abb9696d8](https://github.com/mozilla/fxa/commit/abb9696d8))
+- sentry: reduce Sentry 'info' logging from the content-server ([dfc355e28](https://github.com/mozilla/fxa/commit/dfc355e28))
+
+### Bug fixes
+
+- build: fix paths to fxa-shared ([21fe09b72](https://github.com/mozilla/fxa/commit/21fe09b72))
+- tests: teamcity run.sh npx yarn workspaces focus fxa-content-server fxa-js-client ([8a4bb4414](https://github.com/mozilla/fxa/commit/8a4bb4414))
+- support: don't exit the form when you hit enter ([9824349fe](https://github.com/mozilla/fxa/commit/9824349fe))
+- tests: avoid case-matching issue in email ([58ce387e2](https://github.com/mozilla/fxa/commit/58ce387e2))
+- tests: support optional --suites ([3f3877b84](https://github.com/mozilla/fxa/commit/3f3877b84))
+- test: grep teamcity intern.js for pattern ([288e9868b](https://github.com/mozilla/fxa/commit/288e9868b))
+- jquery: updated jquery to 3.5 ([55436a2be](https://github.com/mozilla/fxa/commit/55436a2be))
+
+### Refactorings
+
+- tsconfig: consolidate common tsconfig options ([e565285b7](https://github.com/mozilla/fxa/commit/e565285b7))
+- lint-staged: replace sass-lint with stylelint ([9e1104c05](https://github.com/mozilla/fxa/commit/9e1104c05))
+- packages: use workspace references ([81575019a](https://github.com/mozilla/fxa/commit/81575019a))
+
+### Other changes
+
+- deps: update some dependencies ([fec460f6d](https://github.com/mozilla/fxa/commit/fec460f6d))
+- content server: fix support form success message Because: \* the support form success message is missing the product value ([93538542f](https://github.com/mozilla/fxa/commit/93538542f))
+- format: mass reformat with prettier 2 and single config ([cc595fc2b](https://github.com/mozilla/fxa/commit/cc595fc2b))
+- content-server: remove 'Getting Started' from support form ([8ac8defcd](https://github.com/mozilla/fxa/commit/8ac8defcd))
+- deps: updated mocha to 7.1.2 ([a5c1a339c](https://github.com/mozilla/fxa/commit/a5c1a339c))
+
 ## 1.172.2
 
 ### New features
