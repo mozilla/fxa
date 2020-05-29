@@ -178,7 +178,7 @@ $
 ## Software Architecture
 
 The event-broker [architecture document](./architecture.md) describes the overall flow of data
-from fxa-auth-server via SQS into event-broker and back out to relying parties (RPs). The [mermaid] diagrams
+from fxa-auth-server via SQS into event-broker and back out to relying parties (RPs). The [mermaid](https://mermaid-js.github.io/mermaid/#/) diagrams
 found there can be copied into the [mermaid live editor] to view. Extensions
 [are available for VS Code](https://marketplace.visualstudio.com/items?itemName=bpruitt-goddard.mermaid-markdown-syntax-highlighting) and other editors that allow local previews
 of the diagrams.

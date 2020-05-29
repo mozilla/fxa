@@ -4,22 +4,6 @@ This project is used by the [Firefox Accounts Auth Server](https://github.com/mo
 
 ## Development
 
-Clone the git repository and install dependencies:
-
-    git clone git://github.com/mozilla/fxa-customs-server.git
-    cd fxa-customs-server
-    npm install
-
-Install memcached
-
-    You'll need to [install memcached](http://www.memcached.org/downloads),
-    otherwise all requests will be blocked.
-    By default, the customs server tries to connect to memcached
-    using port `11211` on `localhost`.
-    You can specify a different port and IP address
-    using the `memcache.address` configuration setting
-    or the `MEMCACHE_ADDRESS` environment variable.
-
 To start the server, run:
 
     npm start
@@ -58,7 +42,7 @@ Here are the main components of this project:
 
 ### API
 
-See our [detailed API spec](/docs/api.md).
+See our [detailed API spec](https://github.com/mozilla/fxa/blob/master/packages/fxa-customs-server/docs/api.md).
 
 ### Policies
 

@@ -39,9 +39,6 @@ See the [API documentation][apidocs].
 Backend implementers should also read
 the [database documentation][dbdocs].
 
-For example usage,
-see the [readme][server-readme].
-
 To run the server tests:
 
 ```sh
