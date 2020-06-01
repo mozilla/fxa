@@ -17,6 +17,7 @@ function simpleEmailRecord() {
     disableIntervalMs: 900,
     maxEmails: 2,
     maxUnblockAttempts: 2,
+    maxBadLoginsPerEmail: 2,
   };
   return new (emailRecord(limits, now))();
 }
@@ -282,5 +283,54 @@ test('getMinLifetimeMS works', function (t) {
   };
   er = new (emailRecord(limits, now))();
   t.equal(er.getMinLifetimeMS(), 22, 'lifetime >= rate limit internal');
+  t.end();
+});
+
+test('trimBadLogins enforces the bad login limit', (t) => {
+  const record = simpleEmailRecord();
+
+  t.equal(record.lf.length, 0, 'record has nothing to trim');
+  record.addBadLogin();
+  record.addBadLogin();
+  record.addBadLogin();
+  record.addBadLogin();
+  t.equal(record.lf.length, 4, 'record contains too many bad logins');
+  record.trimBadLogins(now());
+  t.equal(record.lf.length, 3, 'record has trimmed excess bad logins');
+  t.end();
+});
+
+test('trimBadLogins evicts expired entries', (t) => {
+  var record = simpleEmailRecord();
+
+  t.equal(record.lf.length, 0, 'record has nothing to trim');
+  record.trimBadLogins(now());
+  t.equal(record.lf.length, 0, 'trimming did not do anything');
+  record.lf.push(400);
+  record.lf.push(400);
+  record.lf.push(now());
+  t.equal(record.lf.length, 3, 'record contains expired and fresh logins');
+  record.trimBadLogins(now());
+  t.equal(record.lf.length, 1, 'record has trimmed expired bad logins');
+  t.end();
+});
+
+test('isOverBadLogins works', (t) => {
+  var record = simpleEmailRecord();
+
+  t.equal(record.isOverBadLogins(), false, 'record has never seen bad logins');
+  record.addBadLogin();
+  t.equal(
+    record.isOverBadLogins(),
+    false,
+    'record has not reached the bad login limit'
+  );
+  record.addBadLogin();
+  record.addBadLogin();
+  t.equal(
+    record.isOverBadLogins(),
+    true,
+    'record has reached the bad login limit'
+  );
   t.end();
 });
