@@ -1,3 +1,9 @@
+## 1.172.3
+
+### Bug fixes
+
+- customs: Fix undefined errors when blocking a request from ip service ([b19fd947a](https://github.com/mozilla/fxa/commit/b19fd947a))
+
 ## 1.172.2
 
 No changes.

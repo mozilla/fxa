@@ -1,3 +1,9 @@
+## 1.172.3
+
+### Bug fixes
+
+- customs: Uncomment build ci for payments and email service ([e15035fc3](https://github.com/mozilla/fxa/commit/e15035fc3))
+
 ## 1.172.2
 
 No changes.
