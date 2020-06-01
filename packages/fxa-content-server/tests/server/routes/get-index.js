@@ -6,6 +6,8 @@ const assert = intern.getPlugin('chai').assert;
 const sinon = require('sinon');
 const route = require('../../../server/lib/routes/get-index');
 const config = require('../../../server/lib/configuration');
+const surveysFromFile = require('../../../server/config/surveys.json');
+
 var instance, request, response;
 
 registerSuite('routes/get-index', {
@@ -107,6 +109,8 @@ registerSuite('routes/get-index', {
                 sentConfig.subscriptions,
                 config.get('subscriptions')
               );
+              assert.deepEqual(sentConfig.surveyFeature, config.get('surveyFeature'));
+              assert.deepEqual(sentConfig.surveys, surveysFromFile);
               assert.equal(
                 sentConfig.webpackPublicPath,
                 `${config.get('static_resource_url')}/${config.get(

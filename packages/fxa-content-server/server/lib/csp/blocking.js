@@ -8,6 +8,7 @@
 // tests.
 
 const url = require('url');
+const surveyList = require('../../config/surveys.json');
 
 function getOrigin(link) {
   const parsed = url.parse(link);
@@ -18,7 +19,7 @@ function getOrigin(link) {
  * blockingCspMiddleware is where to declare rules that will cause a resource
  * to be blocked if it runs afowl of a rule.
  */
-module.exports = function (config) {
+module.exports = function(config) {
   const AUTH_SERVER = getOrigin(config.get('fxaccount_url'));
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
@@ -36,7 +37,11 @@ module.exports = function (config) {
   );
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
   const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
-  const SURVEY_GIZMO = 'https://qsurvey.mozilla.com';
+  // create a unique array of origins from survey urls
+  const SURVEYS = [
+    ...new Set(surveyList.map(s => getOrigin(s.url))),
+  ];
+  const surveysEnabledAndSet = (config.get('surveyFeature.enabled') && SURVEYS.length);
   //
   // Double quoted values
   //
@@ -67,7 +72,7 @@ module.exports = function (config) {
       ],
       defaultSrc: [SELF],
       fontSrc: addCdnRuleIfRequired([SELF]),
-      frameSrc: addCdnRuleIfRequired([SURVEY_GIZMO]),
+      frameSrc: addCdnRuleIfRequired(surveysEnabledAndSet ? SURVEYS : [NONE]),
       imgSrc: addCdnRuleIfRequired([
         SELF,
         DATA,
@@ -101,7 +106,6 @@ module.exports = function (config) {
       PUBLIC_URL,
       SELF,
       SENTRY_SERVER,
-      SURVEY_GIZMO,
     },
   };
 

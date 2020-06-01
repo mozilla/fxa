@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "./dist",
     "composite": true,
-    "types": ["jest", "testing-library__jest-dom"]
+    "types": ["jest", "testing-library__jest-dom"],
+    "jsx": "react"
   },
   "include": [
     "./components",

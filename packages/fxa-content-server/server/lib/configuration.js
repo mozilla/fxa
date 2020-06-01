@@ -719,6 +719,20 @@ const conf = (module.exports = convict({
       format: String,
     },
   },
+  surveyFeature: {
+    enabled: {
+      default: false,
+      env: 'SURVEYS_ENABLED',
+      doc: 'Enable integrated surveys feature',
+      format: Boolean,
+    },
+    doNotBotherSpan: {
+      default: 2592000000,
+      env: 'SURVEY_DONT_BOTHER_MS',
+      doc: 'Minimum time span in milliseconds between surveys for a user',
+      format: 'integer',
+    },
+  },
   sync_tokenserver_url: {
     default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',
@@ -828,7 +842,7 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
 // Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
 const staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
 const missingLangs = [];
-supportedLanguages.forEach(function (l) {
+supportedLanguages.forEach(function(l) {
   if (staticallyGeneratedLanguages.indexOf(l) === -1) {
     missingLangs.push(l);
   }

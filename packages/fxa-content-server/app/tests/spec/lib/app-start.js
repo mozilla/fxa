@@ -45,6 +45,18 @@ describe('lib/app-start', () => {
       featureFlags: {
         foo: 'bar',
       },
+      surveyFeature: {
+        enabled: true,
+        doNotBotherSpan: 2592000000,
+      },
+      surveys: [
+        {
+          id: 'password-reset',
+          conditions: {},
+          view: 'settings',
+          url: 'https://www.surveygizmo.com/s3/5541940/pizza',
+        },
+      ],
     };
     notifier = new Notifier();
     routerMock = { navigate: sinon.spy() };
@@ -139,6 +151,16 @@ describe('lib/app-start', () => {
     assert.isDefined(appStart._getUniqueUserId());
   });
 
+  it('initializeSurveyTargeter creates targeter', () => {
+    appStart.initializeSurveyTargeter();
+    assert.isDefined(appStart._surveyTargeter);
+    assert.deepEqual(appStart._surveyTargeter.config, config.surveyFeature);
+    assert.deepEqual(appStart._surveyTargeter.surveys, config.surveys);
+    assert.deepEqual(appStart._surveyTargeter.relier, appStart._relier);
+    assert.deepEqual(appStart._surveyTargeter.user, userMock);
+    assert.deepEqual(appStart._surveyTargeter.window, windowMock);
+  });
+
   it('initializeRouter creates a router', () => {
     appStart.initializeRouter();
     assert.isDefined(appStart._router);
@@ -177,6 +199,11 @@ describe('lib/app-start', () => {
 
       appStart.initializeErrorMetrics();
       assert.isUndefined(appStart._sentryMetrics);
+    });
+
+    it('initializeSurveyTargeter _surveyTargeter should be undefined', () => {
+      appStart.initializeSurveyTargeter();
+      assert.isUndefined(appStart._surveyTargeter);
     });
   });
 

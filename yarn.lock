@@ -16850,6 +16850,7 @@ fsevents@^1.2.7:
     proxyquire: ^2.1.3
     react: ^16.8.6
     react-dom: ^16.8.6
+    regenerator-runtime: ^0.13.5
     request: 2.88.0
     request-promise: 4.2.0
     sass-loader: ^8.0.2
@@ -16865,6 +16866,7 @@ fsevents@^1.2.7:
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.10.2
     upng-js: 2.1.0
+    url-loader: 4.1.0
     verror: 1.10.0
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
     webpack: ^4.41.2
@@ -24855,7 +24857,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mime-types@npm:^2.1.12, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
+"mime-types@npm:^2.1.12, mime-types@npm:^2.1.26, mime-types@npm:~2.1.17, mime-types@npm:~2.1.19, mime-types@npm:~2.1.24":
   version: 2.1.27
   resolution: "mime-types@npm:2.1.27"
   dependencies:
@@ -30942,7 +30944,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"regenerator-runtime@npm:0.13.5, regenerator-runtime@npm:^0.13.2, regenerator-runtime@npm:^0.13.3, regenerator-runtime@npm:^0.13.4":
+"regenerator-runtime@npm:0.13.5, regenerator-runtime@npm:^0.13.2, regenerator-runtime@npm:^0.13.3, regenerator-runtime@npm:^0.13.4, regenerator-runtime@npm:^0.13.5":
   version: 0.13.5
   resolution: "regenerator-runtime@npm:0.13.5"
   checksum: 3/8d8ee0eca26e0491085033caf2b1b95379c4db21e38d79cde52bbd4014a3865eee26ec0f4f958682e8600f185f2f5dbcd8c6685b9b9261639767929c19b5bcd2
@@ -36298,6 +36300,23 @@ typescript@3.8.3:
     file-loader:
       optional: true
   checksum: 3/c24821b422c2057b6e8adc57f2855851c12a4449c5cbcc6ca7317d44185cfd11d8bea70cd7c8cca84032eb0ee033b24ed26ba0ad2a19fe2f58c5a9f47b31d14f
+  languageName: node
+  linkType: hard
+
+"url-loader@npm:4.1.0":
+  version: 4.1.0
+  resolution: "url-loader@npm:4.1.0"
+  dependencies:
+    loader-utils: ^2.0.0
+    mime-types: ^2.1.26
+    schema-utils: ^2.6.5
+  peerDependencies:
+    file-loader: "*"
+    webpack: ^4.0.0 || ^5.0.0
+  peerDependenciesMeta:
+    file-loader:
+      optional: true
+  checksum: 3/5870b969687458608c7cb7fc4e7f46a15478f506724828af3ddbe957318485b428f0fd9f08f01c413e8b556b08d7eb9520d5863e871b0bc279762a47d300a0b5
   languageName: node
   linkType: hard
 

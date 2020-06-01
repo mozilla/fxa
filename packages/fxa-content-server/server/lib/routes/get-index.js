@@ -6,6 +6,7 @@
 
 const flowMetrics = require('../flow-metrics');
 const logger = require('../logging/log')('routes.index');
+const surveys = require('../../config/surveys.json');
 
 module.exports = function (config) {
   let featureFlags;
@@ -38,6 +39,7 @@ module.exports = function (config) {
   const SCOPED_KEYS_ENABLED = config.get('scopedKeys.enabled');
   const SCOPED_KEYS_VALIDATION = config.get('scopedKeys.validation');
   const SUBSCRIPTIONS = config.get('subscriptions');
+  const SURVEY_FEATURE = config.get('surveyFeature');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
     config.get('oauth.prompt_none.enabled_client_ids')
@@ -68,6 +70,8 @@ module.exports = function (config) {
     sentryDsn: SENTRY_CLIENT_DSN,
     staticResourceUrl: STATIC_RESOURCE_URL,
     subscriptions: SUBSCRIPTIONS,
+    surveys,
+    surveyFeature: SURVEY_FEATURE,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
   };
 

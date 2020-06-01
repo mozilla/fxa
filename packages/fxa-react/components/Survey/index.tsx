@@ -5,7 +5,8 @@
 import React, { useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
 
-import './index.scss';
+// TODO: Fix style inports so they work everywhere they are imported
+// import './index.scss';
 
 type SurveyProps = {
   surveyURL: string;
@@ -34,10 +35,11 @@ export const CreateHandleIframeTask = (
 
 export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
   const [inProp, setInProp] = useState(false);
+  const emoji = `✅ 👍 💖`;
 
   const surveyCompleteElement = (
     <div className="survey-complete-msg" data-testid="survey-complete-msg">
-      <p className="emoji">✅&nbsp;👍&nbsp;💖</p>
+      <p className="emoji">{emoji}</p>
       <p>Thank you for your input.</p>
       <p className="small">This survey will close automatically.</p>
     </div>

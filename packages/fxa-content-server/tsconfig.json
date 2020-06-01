@@ -3,13 +3,16 @@
   "include": ["**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"],
   "compilerOptions": {
+    "jsx": "react",
     "outDir": "./.tscompiled/",
     "rootDir": "./app/scripts/",
+    "rootDirs": ["./app/scripts/", "../fxa-react/"],
     "baseUrl": "./app/scripts",
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true
   },
   "references": [
-    { "path": "../fxa-shared" }
+    { "path": "../fxa-shared" },
+    {"@fxa-react": "../fxa-react"}
   ]
 }

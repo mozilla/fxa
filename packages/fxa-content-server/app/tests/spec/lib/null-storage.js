@@ -13,7 +13,8 @@ describe('lib/null-storage', function () {
   beforeEach(function () {
     storage = new NullStorage();
   });
-  describe('get/set', function () {
+
+  describe('getItem/setItem', function () {
     it('can take a key value pair', function () {
       storage.setItem('key', 'value');
       assert.equal(storage.getItem('key'), 'value');
@@ -26,6 +27,22 @@ describe('lib/null-storage', function () {
 
     it('set without a key does nothing', function () {
       assert.isUndefined(storage.setItem());
+    });
+  });
+
+  describe('get/set', function () {
+    it('can take a key value pair', function () {
+      storage.set('key', 'value');
+      assert.equal(storage.get('key'), 'value');
+    });
+
+    it('can take object values', function () {
+      storage.set('key', { foo: 'bar' });
+      assert.equal(storage.get('key').foo, 'bar');
+    });
+
+    it('set without a key does nothing', function () {
+      assert.isUndefined(storage.set());
     });
   });
 
