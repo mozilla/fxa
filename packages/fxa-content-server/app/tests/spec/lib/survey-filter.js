@@ -4,18 +4,17 @@
 
 /* eslint-disable camelcase */
 import * as SurveyFilter from 'lib/survey-filter';
+import UserAgent from 'lib/user-agent';
 import { assert } from 'chai';
 import sinon from 'sinon';
 
 describe('lib/survey-filter', () => {
   const sandbox = sinon.createSandbox();
   const falseFn = sandbox.stub().returns(false);
-  const trueFn = sandbox.stub().returns(true);
   const falsyComparator = sandbox.stub().returns(falseFn);
-  // we need to hold references to certain objects but allow their properties
-  // to be overwritten as needed
   const mockAccount = {};
   const mockUser = {};
+  const mockSubscriptions = [{ plan_id: 'level9001' }, { plan_id: 'quuz' }];
   const mockDeviceList = [
     {
       clientId: 'level9001',
@@ -44,18 +43,15 @@ describe('lib/survey-filter', () => {
       userAgent: uaString,
     },
   };
-  const junkWindow = {
-    navigator: {
-      userAgent: 'it does not matter',
-    },
-  };
+  const goodAgent = new UserAgent(uaString);
+  const fetchGoodUaStub = sandbox.stub().returns(goodAgent);
+  const badAgent = new UserAgent('it does not matter');
+  const fetchBadUaStub = sandbox.stub().returns(badAgent);
   const mockRelier = { get: sinon.stub().returns('Relying Party!!!') };
 
   beforeEach(() => {
     sandbox.resetHistory();
-    mockAccount.getSubscriptions = sinon
-      .stub()
-      .resolves([{ plan_id: 'level9001' }, { plan_id: 'quuz' }]);
+    mockAccount.getSubscriptions = sinon.stub().resolves(mockSubscriptions);
     mockAccount.fetchDeviceList = sinon.stub().resolves(mockDeviceList);
     mockAccount.fetchCurrentProfileImage = sinon
       .stub()
@@ -164,35 +160,218 @@ describe('lib/survey-filter', () => {
     });
   });
 
-  describe('checkConditionInUa', () => {
-    it('should return a () => false when the window object is not passed', () => {
-      const actual = SurveyFilter.checkConditionInUa()(trueFn)();
-      assert.isFalse(actual);
+  describe('createFetchUaFn', () => {
+    it('should be undefined when the window object is falsy', () => {
+      const f = SurveyFilter.createFetchUaFn(null);
+      const actual = f();
+      assert.isUndefined(actual);
     });
 
-    it('should return a () => false when the window.navigator is not defined', () => {
-      const actual = SurveyFilter.checkConditionInUa({})(trueFn)();
-      assert.isFalse(actual);
+    it('should be undefined when the window.navigator is falsy', () => {
+      const f = SurveyFilter.createFetchUaFn({ navigator: null });
+      const actual = f();
+      assert.isUndefined(actual);
     });
 
-    it('should return a () => false when the window.navigator.userAgent is not defined', () => {
-      const actual = SurveyFilter.checkConditionInUa({ navigator: {} })(
-        trueFn
-      )();
-      assert.isFalse(actual);
+    it('should be undefined when the window.navigator.userAgent is falsy', () => {
+      const f = SurveyFilter.createFetchUaFn({
+        navigator: { userAgent: null },
+      });
+      const actual = f();
+      assert.isUndefined(actual);
     });
 
-    it('should parse the useragent string and call the comparator with the result', () => {
-      const condCheck = SurveyFilter.checkConditionInUa(mockWindow)(
-        falsyComparator
+    it('should return a UserAgent', () => {
+      const f = SurveyFilter.createFetchUaFn({
+        navigator: { userAgent: 'ELinks/0.12pre6 (textmode; Linux; 80x24-2)' },
+      });
+      const actual = f();
+      assert.equal(actual.ua, 'ELinks/0.12pre6 (textmode; Linux; 80x24-2)');
+    });
+  });
+
+  describe('createFetchAccountFn', () => {
+    it('should be undefined when user is falsy', () => {
+      const f = SurveyFilter.createFetchAccountFn(null);
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when account is falsy', () => {
+      const accountFn = sinon.stub().returns(null);
+      const user = { getSignedInAccount: accountFn };
+      const f = SurveyFilter.createFetchAccountFn(user);
+      const actual = f();
+      assert.isUndefined(actual);
+      assert.isTrue(accountFn.calledOnce);
+    });
+
+    it('should return the account', () => {
+      const accountFn = sinon.stub().returns(mockAccount);
+      const user = { getSignedInAccount: accountFn };
+      const f = SurveyFilter.createFetchAccountFn(user);
+      const actual = f();
+      assert.deepEqual(actual, mockAccount);
+      assert.isTrue(accountFn.calledOnce);
+    });
+
+    it('should cache the account', () => {
+      const accountFn = sinon.stub().returns(mockAccount);
+      const user = { getSignedInAccount: accountFn };
+      const f = SurveyFilter.createFetchAccountFn(user);
+      f();
+      f();
+      f();
+      assert.isTrue(accountFn.calledOnce);
+    });
+  });
+
+  describe('createAsyncGetModelPropertyFn', () => {
+    it('should be undefined when the model object is undefined', async () => {
+      const fetchFn = sinon.stub().resolves(undefined);
+      const f = SurveyFilter.createAsyncGetModelPropertyFn('something')(
+        fetchFn
       );
-      const actual = condCheck();
-      // Because sinon cannot spy ES modules, the tests are a bit lacking.
-      // Also see the TODO in the function under test.
+      const actual = await f();
+      assert.isUndefined(actual);
+      assert.isTrue(fetchFn.calledOnce);
+    });
+
+    it('should be undefined when error is thrown while fetch the model object', async () => {
+      const fetchFn = sinon.stub().rejects();
+      const f = SurveyFilter.createAsyncGetModelPropertyFn('something')(
+        fetchFn
+      );
+      const actual = await f();
+      assert.isUndefined(actual);
+      assert.isTrue(fetchFn.calledOnce);
+    });
+
+    it('should return the value of the property', async () => {
+      const propFn = sinon.stub().resolves('Kanada');
+      const fetchFn = sinon.stub().resolves({ locate: propFn });
+      const f = SurveyFilter.createAsyncGetModelPropertyFn('locate')(fetchFn);
+      const actual = await f();
+      assert.equal(actual, 'Kanada');
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isTrue(propFn.calledOnce);
+    });
+
+    it('should cache the value of the property', async () => {
+      const propFn = sinon.stub().resolves('Kanada');
+      const fetchFn = sinon.stub().resolves({ locate: propFn });
+      const f = SurveyFilter.createAsyncGetModelPropertyFn('locate')(fetchFn);
+      await f();
+      await f();
+      await f();
+      assert.isTrue(propFn.calledOnce);
+    });
+  });
+
+  describe('createFetchSubscriptionsFn', () => {
+    it('should call createFetchSubscriptionsFn on the model object', async () => {
+      const fetchAccountFn = sinon.stub().returns(mockAccount);
+      const fetchSubsFn = SurveyFilter.createFetchSubscriptionsFn(
+        fetchAccountFn
+      );
+      await fetchSubsFn();
+      assert.isTrue(fetchAccountFn.calledOnce);
+      assert.isTrue(mockAccount.getSubscriptions.calledOnce);
+    });
+  });
+
+  describe('createFetchDeviceListFn', () => {
+    it('should call createFetchDeviceListFn on the model object', async () => {
+      const fetchAccountFn = sinon.stub().returns(mockAccount);
+      const fetchDevicesFn = SurveyFilter.createFetchDeviceListFn(
+        fetchAccountFn
+      );
+      await fetchDevicesFn();
+      assert.isTrue(fetchAccountFn.calledOnce);
+      assert.isTrue(mockAccount.fetchDeviceList.calledOnce);
+    });
+  });
+
+  describe('createFetchProfileImageFn', () => {
+    it('should call fetchCurrenProfileImage on the model object', async () => {
+      const fetchAccountFn = sinon.stub().returns(mockAccount);
+      const fetchAvatarFn = SurveyFilter.createFetchProfileImageFn(
+        fetchAccountFn
+      );
+      await fetchAvatarFn();
+      assert.isTrue(fetchAccountFn.calledOnce);
+      assert.isTrue(mockAccount.fetchCurrentProfileImage.calledOnce);
+    });
+  });
+
+  describe('applySourceVal', () => {
+    const comparator = sandbox.stub().returns(() => {});
+
+    it('should return () => false when an undefined is fetched', () => {
+      const fetchFn = sinon.stub().returns(undefined);
+      const f = SurveyFilter.fetchAndApplySourceVal(fetchFn)(comparator);
+      const actual = f();
       assert.isFalse(actual);
-      assert.isTrue(falsyComparator.calledOnce);
-      assert.equal(falsyComparator.args[0][0].ua, uaString);
-      assert.isTrue(falseFn.calledOnce);
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isFalse(comparator.called);
+    });
+
+    it('should apply the fetched value to the comparator', () => {
+      const fetchFn = sinon.stub().returns('bingo!');
+      const f = SurveyFilter.fetchAndApplySourceVal(fetchFn)(comparator);
+      assert.isFunction(f);
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isTrue(comparator.calledOnceWithExactly('bingo!'));
+    });
+  });
+
+  describe('fetchAndApplySourceVal', () => {
+    const comparator = sandbox.stub().returns(() => {});
+
+    it('should return () => false when an undefined is fetched', async () => {
+      const fetchFn = sinon.stub().resolves(undefined);
+      const f = await SurveyFilter.asyncFetchAndApplySourceVal(fetchFn)(
+        comparator
+      );
+      const actual = f();
+      assert.isFalse(actual);
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isFalse(comparator.called);
+    });
+
+    it('should apply the fetched value to the comparator', async () => {
+      const fetchFn = sinon.stub().resolves('bingo!');
+      const f = await SurveyFilter.asyncFetchAndApplySourceVal(fetchFn)(
+        comparator
+      );
+      assert.isFunction(f);
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isTrue(comparator.calledOnceWithExactly('bingo!'));
+    });
+  });
+
+  describe('asyncFetchAndApplySourceVal', () => {
+    const comparator = sandbox.stub().returns(() => true);
+
+    it('should return () => false when an undefined is fetched', async () => {
+      const fetchFn = sinon.stub().returns(undefined);
+      const f = await SurveyFilter.asyncFetchAndApplySourceVal(fetchFn)(
+        comparator
+      );
+      const actual = f();
+      assert.isFalse(actual);
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isFalse(comparator.called);
+    });
+
+    it('should apply the fetched value to the comparator', async () => {
+      const fetchFn = sinon.stub().resolves('bingo!');
+      const f = await SurveyFilter.asyncFetchAndApplySourceVal(fetchFn)(
+        comparator
+      );
+      assert.isFunction(f);
+      assert.isTrue(fetchFn.calledOnce);
+      assert.isTrue(comparator.calledOnceWithExactly('bingo!'));
     });
   });
 
@@ -234,38 +413,40 @@ describe('lib/survey-filter', () => {
     });
   });
 
-  // The following four `describe`s work the way they do because the useragent
-  // was already parsed in one of the tests for `checkConditionInUa`
-  // IMPORTANT This also means that if you use the grep feature to run them
-  // individually they will fail.
-
   describe('hasDesiredDeviceType', () => {
     it('should be true when the values match', () => {
       const actual = SurveyFilter.hasDesiredDeviceType(
         { deviceType: 'deskTOP' },
-        junkWindow
+        fetchGoodUaStub
       );
       assert.isTrue(actual);
+      assert.isTrue(fetchGoodUaStub.calledOnce);
     });
 
     it('should be false when the values do not match', () => {
       const actual = SurveyFilter.hasDesiredDeviceType(
         { deviceType: 'tablet' },
-        junkWindow
+        fetchBadUaStub
       );
       assert.isFalse(actual);
+      assert.isTrue(fetchBadUaStub.calledOnce);
     });
   });
 
   describe('hasDesiredOs', () => {
     it('should be true when the values match', () => {
-      const actual = SurveyFilter.hasDesiredOs({ os: 'Windows' }, junkWindow);
+      const actual = SurveyFilter.hasDesiredOs(
+        { os: 'Windows' },
+        fetchGoodUaStub
+      );
       assert.isTrue(actual);
+      assert.isTrue(fetchGoodUaStub.calledOnce);
     });
 
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.hasDesiredOs({ os: 'macOS' }, junkWindow);
+      const actual = SurveyFilter.hasDesiredOs({ os: 'macOS' }, fetchBadUaStub);
       assert.isFalse(actual);
+      assert.isTrue(fetchBadUaStub.calledOnce);
     });
   });
 
@@ -273,17 +454,19 @@ describe('lib/survey-filter', () => {
     it('should be true when the values match', () => {
       const actual = SurveyFilter.hasDesiredBrowser(
         { browser: 'Firefox' },
-        junkWindow
+        fetchGoodUaStub
       );
       assert.isTrue(actual);
+      assert.isTrue(fetchGoodUaStub.calledOnce);
     });
 
     it('should be false when the values do not match', () => {
       const actual = SurveyFilter.hasDesiredBrowser(
         { browser: 'Brave' },
-        junkWindow
+        fetchBadUaStub
       );
       assert.isFalse(actual);
+      assert.isTrue(fetchBadUaStub.calledOnce);
     });
   });
 
@@ -291,9 +474,10 @@ describe('lib/survey-filter', () => {
     it('should be true when all three conditions are met', () => {
       const actual = SurveyFilter.userAgentChecks(
         { deviceType: 'desktop', os: 'windows', browser: 'firefox' },
-        junkWindow
+        fetchGoodUaStub
       );
       assert.isTrue(actual);
+      assert.isTrue(fetchGoodUaStub.calledThrice);
     });
 
     it('should be false when any condition is false', () => {
@@ -305,21 +489,18 @@ describe('lib/survey-filter', () => {
         { deviceType: 'webos', os: 'windows', browser: 'spacetuna' },
         { deviceType: 'desktop', os: 'beOS', browser: 'navigator' },
       ].forEach((conds) => {
-        const actual = SurveyFilter.userAgentChecks(conds, junkWindow);
+        const actual = SurveyFilter.userAgentChecks(conds, fetchBadUaStub);
         assert.isFalse(actual);
+        assert.isTrue(fetchBadUaStub.calledOnce);
+        fetchBadUaStub.resetHistory();
       });
     });
   });
 
   describe('checkRelierClientId', () => {
-    it('should be true when both values are null', () => {
-      const mockRelier = { get: sinon.stub().returns(null) };
-      const actual = SurveyFilter.checkRelierClientId(mockRelier)(null);
-      assert.isTrue(actual);
-    });
+    const mockRelier = { get: sandbox.stub().returns('galaxy quest') };
 
     it('should be true when matched exactly', () => {
-      const mockRelier = { get: sinon.stub().returns('galaxy quest') };
       const actual = SurveyFilter.checkRelierClientId(mockRelier)(
         'galaxy quest'
       );
@@ -327,7 +508,6 @@ describe('lib/survey-filter', () => {
     });
 
     it('should be false when the values do not match', () => {
-      const mockRelier = { get: sinon.stub().returns('galaxy quest') };
       const actual = SurveyFilter.checkRelierClientId(mockRelier)(
         'Galaxy Quest'
       );
@@ -336,71 +516,33 @@ describe('lib/survey-filter', () => {
   });
 
   describe('relierClientIdCheck', () => {
+    const mockRelier = { get: sandbox.stub().returns('Relying Party!!!') };
+
+    it('should be true when relier is not in the conditions', () => {
+      const actual = SurveyFilter.relierClientIdCheck(
+        { noRelierForUs: 'No Parties' },
+        mockRelier
+      );
+      assert.isTrue(actual);
+      assert.isFalse(mockRelier.get.called);
+    });
+
     it('should be true when client id matches configured condition', () => {
-      const mockRelier = { get: sinon.stub().returns('Relying Party!!!') };
       const actual = SurveyFilter.relierClientIdCheck(
         { relier: 'Relying Party!!!' },
         mockRelier
       );
       assert.isTrue(actual);
+      assert.isTrue(mockRelier.get.calledOnce);
     });
 
     it('should be false when client id does not match configured condition', () => {
-      const mockRelier = { get: sinon.stub().returns('Relying Party!!!') };
       const actual = SurveyFilter.relierClientIdCheck(
         { relier: 'Relier...?' },
         mockRelier
       );
       assert.isFalse(actual);
-    });
-  });
-
-  describe('checkAccountSubscriptions', () => {
-    it('should be false when there is no user', async () => {
-      const actual = (
-        await SurveyFilter.checkAccountSubscriptions()(() => {})
-      )();
-      assert.isFalse(actual);
-    });
-
-    it('should be false when the user has no account', async () => {
-      mockUser.getSignedInAccount = sinon.stub().returns(null);
-      const actual = (
-        await SurveyFilter.checkAccountSubscriptions(mockUser)(() => {})
-      )();
-      assert.isFalse(actual);
-      assert.isTrue(mockUser.getSignedInAccount.calledOnce);
-    });
-
-    it('should be false when an error is thrown while getting subscriptions', async () => {
-      mockAccount.getSubscriptions = sinon.stub().rejects();
-      const actual = (
-        await SurveyFilter.checkAccountSubscriptions(mockUser)(() => {})
-      )();
-      assert.isFalse(actual);
-      assert.isTrue(mockUser.getSignedInAccount.calledOnce);
-      assert.isTrue(mockAccount.getSubscriptions.calledOnce);
-    });
-
-    it('should be false when subscriptions are missing', async () => {
-      mockAccount.getSubscriptions = sinon.stub().resolves(null);
-      const actual = (
-        await SurveyFilter.checkAccountSubscriptions(mockUser)(() => {})
-      )();
-      assert.isFalse(actual);
-      // account is cached at this point
-      assert.isFalse(mockUser.getSignedInAccount.called);
-      assert.isTrue(mockAccount.getSubscriptions.calledOnce);
-    });
-
-    it('should return the result of the comparator when there are subscriptions', async () => {
-      const actual = (
-        await SurveyFilter.checkAccountSubscriptions(mockUser)(falsyComparator)
-      )();
-      assert.isFalse(actual);
-      assert.isTrue(mockAccount.getSubscriptions.calledOnce);
-      assert.isTrue(falsyComparator.calledOnce);
-      assert.isTrue(falseFn.calledOnce);
+      assert.isTrue(mockRelier.get.calledOnce);
     });
   });
 
@@ -436,13 +578,15 @@ describe('lib/survey-filter', () => {
   });
 
   describe('subscriptionsCheck', () => {
+    const fetchSubscriptionsStub = sandbox.stub().returns(mockSubscriptions);
+
     it('should be true when "subscriptions" is not in the conditions', async () => {
       const actual = await SurveyFilter.subscriptionsCheck(
         { NOSUB: 'yes' },
-        mockUser
+        fetchSubscriptionsStub
       );
       assert.isTrue(actual);
-      assert.isFalse(mockAccount.getSubscriptions.called);
+      assert.isFalse(fetchSubscriptionsStub.called);
     });
 
     it('should be false when subscription not found', async () => {
@@ -450,10 +594,10 @@ describe('lib/survey-filter', () => {
         {
           subscriptions: ['nope'],
         },
-        mockUser
+        fetchSubscriptionsStub
       );
       assert.isFalse(actual);
-      assert.isFalse(mockAccount.getSubscriptions.called);
+      assert.isTrue(fetchSubscriptionsStub.calledOnce);
     });
 
     it('should be false when only some of the subscriptions are found', async () => {
@@ -461,10 +605,10 @@ describe('lib/survey-filter', () => {
         {
           subscriptions: ['nope', 'level9001'],
         },
-        mockUser
+        fetchSubscriptionsStub
       );
       assert.isFalse(actual);
-      assert.isFalse(mockAccount.getSubscriptions.called);
+      assert.isTrue(fetchSubscriptionsStub.calledOnce);
     });
 
     it('should be true when subscriptions are found', async () => {
@@ -472,38 +616,10 @@ describe('lib/survey-filter', () => {
         {
           subscriptions: ['quuz', 'level9001'],
         },
-        mockUser
+        fetchSubscriptionsStub
       );
       assert.isTrue(actual);
-      assert.isFalse(mockAccount.getSubscriptions.called);
-    });
-  });
-
-  describe('checkAccountDevices', () => {
-    it('should be false when there is no user', async () => {
-      const actual = (await SurveyFilter.checkAccountDevices()(() => {}))();
-      assert.isFalse(actual);
-    });
-
-    it('should be false when an error is thrown while fetching device list', async () => {
-      mockAccount.fetchDeviceList = sinon.stub().rejects();
-      const actual = (
-        await SurveyFilter.checkAccountDevices(mockUser)(() => {})
-      )();
-      assert.isFalse(actual);
-      assert.isFalse(mockUser.getSignedInAccount.called);
-      assert.isTrue(mockAccount.fetchDeviceList.calledOnce);
-    });
-
-    it('should return the result of the comparator when device list exist', async () => {
-      const actual = (
-        await SurveyFilter.checkAccountDevices(mockUser)(falsyComparator)
-      )();
-      assert.isFalse(actual);
-      assert.isFalse(mockUser.getSignedInAccount.called);
-      assert.isTrue(mockAccount.fetchDeviceList.calledOnce);
-      assert.isTrue(falsyComparator.calledOnce);
-      assert.isTrue(falseFn.calledOnce);
+      assert.isTrue(fetchSubscriptionsStub.calledOnce);
     });
   });
 
@@ -550,12 +666,26 @@ describe('lib/survey-filter', () => {
   });
 
   describe('geoLocationCheck', () => {
+    const getDevicesStub = sandbox.stub().returns(mockDeviceList);
+
+    it('should be true when the condition is not in the config', async () => {
+      const actual = await SurveyFilter.geoLocationCheck(
+        { bleep: 'bloop' },
+        getDevicesStub
+      );
+      assert.isTrue(actual);
+      assert.isFalse(getDevicesStub.called);
+    });
+
     it('should be false when location property is not found', async () => {
-      const actual = await SurveyFilter.geoLocationCheck({
-        location: { city: 'Babylon' },
-        mockUser,
-      });
+      const actual = await SurveyFilter.geoLocationCheck(
+        {
+          location: { city: 'Babylon' },
+        },
+        getDevicesStub
+      );
       assert.isFalse(actual);
+      assert.isTrue(getDevicesStub.calledOnce);
     });
 
     it('should be false when only some location properties are found', async () => {
@@ -563,9 +693,10 @@ describe('lib/survey-filter', () => {
         {
           location: { city: 'Heapolandia', countryCode: 'UVN' },
         },
-        mockUser
+        getDevicesStub
       );
       assert.isFalse(actual);
+      assert.isTrue(getDevicesStub.calledOnce);
     });
 
     it('should be true when all location properties are found', async () => {
@@ -576,9 +707,10 @@ describe('lib/survey-filter', () => {
             country: 'United Devices of von Neumann',
           },
         },
-        mockUser
+        getDevicesStub
       );
       assert.isTrue(actual);
+      assert.isTrue(getDevicesStub.calledOnce);
     });
   });
 
@@ -614,12 +746,15 @@ describe('lib/survey-filter', () => {
   });
 
   describe('signedInReliersCheck', () => {
+    const getDevicesStub = sandbox.stub().returns(mockDeviceList);
+
     it('should be true when the condition is not in the config', async () => {
       const actual = await SurveyFilter.signedInReliersCheck(
         { noReliersForMe: true },
-        mockUser
+        getDevicesStub
       );
       assert.isTrue(actual);
+      assert.isFalse(getDevicesStub.called);
     });
 
     it('should be false when the client id is not in the list', async () => {
@@ -627,9 +762,10 @@ describe('lib/survey-filter', () => {
         {
           reliersList: ['wibble'],
         },
-        mockUser
+        getDevicesStub
       );
       assert.isFalse(actual);
+      assert.isTrue(getDevicesStub.calledOnce);
     });
 
     it('should be false when only some client ids are in the list', async () => {
@@ -637,9 +773,10 @@ describe('lib/survey-filter', () => {
         {
           reliersList: [null, 'BMO'],
         },
-        mockUser
+        getDevicesStub
       );
       assert.isFalse(actual);
+      assert.isTrue(getDevicesStub.calledOnce);
     });
 
     it('should be true when all client ids are in the list', async () => {
@@ -647,39 +784,10 @@ describe('lib/survey-filter', () => {
         {
           reliersList: ['level9001', null],
         },
-        mockUser
+        getDevicesStub
       );
       assert.isTrue(actual);
-    });
-  });
-
-  describe('checkAccountProfileImage', () => {
-    it('should be false when there is no user', async () => {
-      const actual = (
-        await SurveyFilter.checkAccountProfileImage()(() => {})
-      )();
-      assert.isFalse(actual);
-    });
-
-    it('should be false when an error is thrown while fetching the profile image', async () => {
-      mockAccount.fetchCurrentProfileImage = sinon.stub().rejects();
-      const actual = (
-        await SurveyFilter.checkAccountProfileImage(mockUser)(() => {})
-      )();
-      assert.isFalse(actual);
-      assert.isFalse(mockUser.getSignedInAccount.called);
-      assert.isTrue(mockAccount.fetchCurrentProfileImage.calledOnce);
-    });
-
-    it('should return the result of the comparator when the profile image exists', async () => {
-      const actual = (
-        await SurveyFilter.checkAccountProfileImage(mockUser)(falsyComparator)
-      )();
-      assert.isFalse(actual);
-      assert.isFalse(mockUser.getSignedInAccount.called);
-      assert.isTrue(mockAccount.fetchCurrentProfileImage.calledOnce);
-      assert.isTrue(falsyComparator.calledOnce);
-      assert.isTrue(falseFn.calledOnce);
+      assert.isTrue(getDevicesStub.calledOnce);
     });
   });
 
@@ -719,31 +827,52 @@ describe('lib/survey-filter', () => {
 
   describe('nonDefaultAvatarCheck', () => {
     it('should be true when hasNonDefaultAvatar is not in the config', async () => {
+      const mockProfileImage = createMockProfileImage(true);
       const actual = await SurveyFilter.nonDefaultAvatarCheck(
         { bleepBloop: true },
-        mockUser
+        () => mockProfileImage
       );
       assert.isTrue(actual);
       assert.isFalse(mockProfileImage.isDefault.called);
     });
 
-    // Since the profile image is cached we can only test scenarios when it is a non-default here.
-
     it('should be true when condition is true and the avatar is non-default', async () => {
+      const mockProfileImage = createMockProfileImage(false);
       const actual = await SurveyFilter.nonDefaultAvatarCheck(
         { hasNonDefaultAvatar: true },
-        mockUser
+        () => mockProfileImage
       );
       assert.isTrue(actual);
       assert.isTrue(mockProfileImage.isDefault.calledOnce);
     });
 
     it('should be false when condition is false and the avatar is non default', async () => {
+      const mockProfileImage = createMockProfileImage(false);
       const actual = await SurveyFilter.nonDefaultAvatarCheck(
         { hasNonDefaultAvatar: false },
-        mockUser
+        () => mockProfileImage
       );
       assert.isFalse(actual);
+      assert.isTrue(mockProfileImage.isDefault.calledOnce);
+    });
+
+    it('should be false when condition is true and the avatar is the default', async () => {
+      const mockProfileImage = createMockProfileImage(true);
+      const actual = await SurveyFilter.nonDefaultAvatarCheck(
+        { hasNonDefaultAvatar: true },
+        () => mockProfileImage
+      );
+      assert.isFalse(actual);
+      assert.isTrue(mockProfileImage.isDefault.calledOnce);
+    });
+
+    it('should be true when condition is false and the avatar is the default', async () => {
+      const mockProfileImage = createMockProfileImage(true);
+      const actual = await SurveyFilter.nonDefaultAvatarCheck(
+        { hasNonDefaultAvatar: false },
+        () => mockProfileImage
+      );
+      assert.isTrue(actual);
       assert.isTrue(mockProfileImage.isDefault.calledOnce);
     });
   });

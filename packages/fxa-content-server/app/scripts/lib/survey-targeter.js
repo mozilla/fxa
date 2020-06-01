@@ -12,10 +12,34 @@ export default class SurveyTargeter {
     this.user = options.user;
     this.window = options.window;
     this.surveys = options.surveys;
+
+    this._buildSurveysByViewPathMap();
   }
 
-  async surveyMap() {
-    if (this._surveyMap) return this._surveyMap;
+  /**
+   * Construct a view path to surveys map.  This is the first thing to be
+   * checked upon navigation/view rendering.
+   */
+  _buildSurveysByViewPathMap() {
+    this._surveysByViewNameMap = this.surveys.reduce((acc, s) => {
+      acc[s.view] ? acc[s.view].push(s) : (acc[s.view] = [s]);
+      return acc;
+    }, {});
+  }
+
+  _selectSurvey(surveys) {
+    return surveys[Math.floor(Math.random() * surveys.length)];
+  }
+
+  /**
+   * Get a survey with a filter based on the current state of the dependencies.
+   * It takes into account whether any surveys are configured for the current
+   * view and whether the user has taken a survey recently.
+   */
+  async getSurvey(viewName) {
+    if (!this._surveysByViewNameMap[viewName]) {
+      return false;
+    }
 
     const filter = createSurveyFilter(
       this.window,
@@ -25,35 +49,23 @@ export default class SurveyTargeter {
       this.config.doNotBotherSpan
     );
 
-    this._surveyMap = this.surveys.reduce(async (acc, s) => {
-      const satsifiedAllConditions = await filter(s);
-      if (satsifiedAllConditions) {
-        if (acc[s.view]) {
-          acc[s.view].push(s);
-        } else {
-          acc[s.view] = [s];
-        }
+    try {
+      const surveys = await Promise.all(
+        this._surveysByViewNameMap[viewName].map(async (s) =>
+          (await filter(s)) ? s : null
+        )
+      );
+
+      const qualifiedSurveys = surveys.filter((s) => !!s);
+
+      if (qualifiedSurveys.length === 0) {
+        return false;
       }
-      return acc;
-    }, {});
 
-    return this._surveyMap;
-  }
-
-  async getSurvey(view) {
-    if (!this.config.enabled) {
-      return false;
-    }
-
-    const surveyMap = await this.surveyMap();
-    const surveysForView = surveyMap[view];
-    if (surveysForView) {
-      // Randomly select a survey that matches the view
-      const survey =
-        surveysForView[Math.floor(Math.random() * surveysForView.length)];
+      const selectedSurvey = this._selectSurvey(qualifiedSurveys);
       this._storage.set(lastSurveyKey, Date.now());
-      return new SurveyWrapperView({ surveyURL: survey.url });
-    } else {
+      return new SurveyWrapperView({ surveyURL: selectedSurvey.url });
+    } catch {
       return false;
     }
   }
