@@ -26,12 +26,12 @@ tapTest('dataflow', async () => {
     warn: sandbox.spy(),
   };
   const records = {
-    email: {
+    emailRecord: {
       suspect: sandbox.spy(),
       block: sandbox.spy(),
       disable: sandbox.spy(),
     },
-    ip: {
+    ipRecord: {
       suspect: sandbox.spy(),
       block: sandbox.spy(),
       disable: sandbox.spy(),
@@ -45,7 +45,7 @@ tapTest('dataflow', async () => {
   const pubsub = {
     subscription: sandbox.spy(() => subscription),
   };
-  const PubSub = sandbox.spy(function() {
+  const PubSub = sandbox.spy(function () {
     return pubsub;
   });
   const dataflow = proxyquire('../../lib/dataflow', {
@@ -432,14 +432,14 @@ tapTest('dataflow', async () => {
         email: 'pb@example.com',
       });
 
-      assert.equal(records.email.suspect.callCount, 1);
-      assert.lengthOf(records.email.suspect.args[0], 0);
+      assert.equal(records.emailRecord.suspect.callCount, 1);
+      assert.lengthOf(records.emailRecord.suspect.args[0], 0);
 
       assert.equal(setRecords.callCount, 1);
       args = setRecords.args[0];
       assert.lengthOf(args, 1);
       assert.equal(args[0], records);
-      assert.isTrue(setRecords.calledAfter(records.email.suspect));
+      assert.isTrue(setRecords.calledAfter(records.emailRecord.suspect));
 
       assert.equal(message.ack.callCount, 1);
 
@@ -463,11 +463,11 @@ tapTest('dataflow', async () => {
       assert.equal(message.nack.callCount, 0);
       assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
-      assert.equal(records.email.block.callCount, 0);
-      assert.equal(records.email.disable.callCount, 0);
-      assert.equal(records.ip.suspect.callCount, 0);
-      assert.equal(records.ip.block.callCount, 0);
-      assert.equal(records.ip.disable.callCount, 0);
+      assert.equal(records.emailRecord.block.callCount, 0);
+      assert.equal(records.emailRecord.disable.callCount, 0);
+      assert.equal(records.ipRecord.suspect.callCount, 0);
+      assert.equal(records.ipRecord.block.callCount, 0);
+      assert.equal(records.ipRecord.disable.callCount, 0);
     });
 
     test('suspect sourceaddress', async () => {
@@ -490,12 +490,12 @@ tapTest('dataflow', async () => {
         ip: '1.1.1.1',
       });
 
-      assert.equal(records.ip.suspect.callCount, 1);
-      assert.lengthOf(records.ip.suspect.args[0], 0);
+      assert.equal(records.ipRecord.suspect.callCount, 1);
+      assert.lengthOf(records.ipRecord.suspect.args[0], 0);
 
       assert.equal(setRecords.callCount, 1);
       assert.equal(setRecords.args[0][0], records);
-      assert.isTrue(setRecords.calledAfter(records.ip.suspect));
+      assert.isTrue(setRecords.calledAfter(records.ipRecord.suspect));
 
       assert.equal(message.ack.callCount, 1);
 
@@ -505,11 +505,11 @@ tapTest('dataflow', async () => {
       assert.equal(message.nack.callCount, 0);
       assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
-      assert.equal(records.email.suspect.callCount, 0);
-      assert.equal(records.email.block.callCount, 0);
-      assert.equal(records.email.disable.callCount, 0);
-      assert.equal(records.ip.block.callCount, 0);
-      assert.equal(records.ip.disable.callCount, 0);
+      assert.equal(records.emailRecord.suspect.callCount, 0);
+      assert.equal(records.emailRecord.block.callCount, 0);
+      assert.equal(records.emailRecord.disable.callCount, 0);
+      assert.equal(records.ipRecord.block.callCount, 0);
+      assert.equal(records.ipRecord.disable.callCount, 0);
     });
 
     test('block', async () => {
@@ -528,12 +528,12 @@ tapTest('dataflow', async () => {
 
       assert.equal(fetchRecords.callCount, 1);
 
-      assert.equal(records.email.block.callCount, 1);
-      assert.lengthOf(records.email.block.args[0], 0);
+      assert.equal(records.emailRecord.block.callCount, 1);
+      assert.lengthOf(records.emailRecord.block.args[0], 0);
 
       assert.equal(setRecords.callCount, 1);
       assert.equal(setRecords.args[0][0], records);
-      assert.isTrue(setRecords.calledAfter(records.email.block));
+      assert.isTrue(setRecords.calledAfter(records.emailRecord.block));
 
       assert.equal(message.ack.callCount, 1);
 
@@ -543,11 +543,11 @@ tapTest('dataflow', async () => {
       assert.equal(message.nack.callCount, 0);
       assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
-      assert.equal(records.email.suspect.callCount, 0);
-      assert.equal(records.email.disable.callCount, 0);
-      assert.equal(records.ip.suspect.callCount, 0);
-      assert.equal(records.ip.block.callCount, 0);
-      assert.equal(records.ip.disable.callCount, 0);
+      assert.equal(records.emailRecord.suspect.callCount, 0);
+      assert.equal(records.emailRecord.disable.callCount, 0);
+      assert.equal(records.ipRecord.suspect.callCount, 0);
+      assert.equal(records.ipRecord.block.callCount, 0);
+      assert.equal(records.ipRecord.disable.callCount, 0);
     });
 
     test('disable', async () => {
@@ -566,12 +566,12 @@ tapTest('dataflow', async () => {
 
       assert.equal(fetchRecords.callCount, 1);
 
-      assert.equal(records.email.disable.callCount, 1);
-      assert.lengthOf(records.email.disable.args[0], 0);
+      assert.equal(records.emailRecord.disable.callCount, 1);
+      assert.lengthOf(records.emailRecord.disable.args[0], 0);
 
       assert.equal(setRecords.callCount, 1);
       assert.equal(setRecords.args[0][0], records);
-      assert.isTrue(setRecords.calledAfter(records.email.disable));
+      assert.isTrue(setRecords.calledAfter(records.emailRecord.disable));
 
       assert.equal(message.ack.callCount, 1);
 
@@ -581,11 +581,11 @@ tapTest('dataflow', async () => {
       assert.equal(message.nack.callCount, 0);
       assert.equal(log.warn.callCount, 0);
       assert.equal(log.error.callCount, 0);
-      assert.equal(records.email.suspect.callCount, 0);
-      assert.equal(records.email.block.callCount, 0);
-      assert.equal(records.ip.suspect.callCount, 0);
-      assert.equal(records.ip.block.callCount, 0);
-      assert.equal(records.ip.disable.callCount, 0);
+      assert.equal(records.emailRecord.suspect.callCount, 0);
+      assert.equal(records.emailRecord.block.callCount, 0);
+      assert.equal(records.ipRecord.suspect.callCount, 0);
+      assert.equal(records.ipRecord.block.callCount, 0);
+      assert.equal(records.ipRecord.disable.callCount, 0);
     });
 
     test('error handler', () => {
