@@ -28,6 +28,7 @@ module.exports = function (config) {
   const MARKETING_EMAIL_PREFERENCES_URL = config.get(
     'marketing_email.preferences_url'
   );
+  const MX_RECORD_VALIDATION = config.get('mxRecordValidation');
   const SENTRY_CLIENT_DSN = config.get('sentry')['client_errors_dsn'];
   const OAUTH_SERVER_URL = config.get('oauth_url');
   const PAIRING_CHANNEL_URI = config.get('pairing.server_base_uri');
@@ -55,6 +56,7 @@ module.exports = function (config) {
     isPromptNoneEnabled: PROMPT_NONE_ENABLED,
     marketingEmailEnabled: MARKETING_EMAIL_ENABLED,
     marketingEmailPreferencesUrl: MARKETING_EMAIL_PREFERENCES_URL,
+    mxRecordValidation: MX_RECORD_VALIDATION,
     oAuthClientId: CLIENT_ID,
     oAuthUrl: OAUTH_SERVER_URL,
     pairingChannelServerUri: PAIRING_CHANNEL_URI,

@@ -16,6 +16,7 @@ executors:
           FXA_EMAIL_LOG_LEVEL: debug
           RUST_BACKTRACE: 1
     environment:
+      FXA_MX_RECORD_EXCLUSIONS: restmail.dev.lcip.org
       SKIP_PACKAGES: false
 
 commands:
