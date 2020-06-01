@@ -54,7 +54,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.notify]: NOP,
   [GROUPS.registration]: mapDomainValidationResult,
   [GROUPS.rp]: NOP,
-  [GROUPS.settings]: mapDisconnectReason,
+  [GROUPS.settings]: mapSettingsEventProperties,
   [GROUPS.sms]: NOP,
   [GROUPS.sub]: NOP,
   [GROUPS.subCancel]: NOP,
@@ -100,6 +100,19 @@ function mapEmailType(eventType, eventCategory, eventTarget, data) {
     }
 
     return result;
+  }
+}
+
+function mapSettingsEventProperties(...args) {
+  return {
+    ...mapDisconnectReason(...args),
+    ...mapSettingsVersion(...args),
+  };
+}
+
+function mapSettingsVersion(eventType, eventCategory, eventTarget, data) {
+  if (data && data.settings_version) {
+    return { settings_version: data.settings_version };
   }
 }
 

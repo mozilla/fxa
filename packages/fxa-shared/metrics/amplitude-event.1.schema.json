@@ -87,6 +87,10 @@
           "description": "Product ID of a subscription.",
           "type": "string",
           "maxLength": 128
+        },
+        "settings_version": {
+          "description": "Settings app version (e.g. v2)",
+          "type": "string"
         }
       }
     },

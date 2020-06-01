@@ -61,6 +61,10 @@ describe('metrics/amplitude:', () => {
             group: amplitude.GROUPS.sms,
             event: 'blee',
           },
+          'settings.change-password.success': {
+            group: amplitude.GROUPS.settings,
+            event: 'password',
+          },
         },
         new Map([
           [
@@ -360,6 +364,24 @@ describe('metrics/amplitude:', () => {
       it('returned the correct event data', () => {
         assert.equal(result.event_type, 'fxa_pref - disconnect_device');
         assert.deepEqual(result.event_properties, { reason: 'wibble' });
+      });
+    });
+
+    describe('transform an event with settings_version properties:', () => {
+      let result;
+
+      before(() => {
+        result = transform(
+          { type: 'settings.change-password.success' },
+          { settings_version: 'v2' }
+        );
+      });
+
+      it('returned the correct event data', () => {
+        assert.equal(result.event_type, 'fxa_pref - password');
+        assert.deepEqual(result.event_properties, {
+          settings_version: 'v2',
+        });
       });
     });
 
