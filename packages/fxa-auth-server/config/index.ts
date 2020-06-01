@@ -1334,6 +1334,12 @@ const conf = convict({
         env: 'SIGNIN_TOKEN_CODE_LIFETIME',
       },
     },
+    forceGlobally: {
+      doc: 'Force sign-in confirmation for all accounts',
+      format: Boolean,
+      default: false,
+      env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',
+    },
   },
   securityHistory: {
     ipProfiling: {
