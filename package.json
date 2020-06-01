@@ -75,8 +75,8 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint -c _dev/.eslintrc",
-      "prettier --config _dev/.prettierrc --write"
+      "prettier --config _dev/.prettierrc --write",
+      "eslint -c _dev/.eslintrc"
     ],
     "*.{ts,tsx}": [
       "prettier --config _dev/.prettierrc --write"
