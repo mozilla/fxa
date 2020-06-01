@@ -1,5 +1,11 @@
 # Change history
 
+## 1.172.4
+
+### Bug fixes
+
+- customs: Skip payments build ([96aed14ff](https://github.com/mozilla/fxa/commit/96aed14ff))
+
 ## 1.172.3
 
 ### Bug fixes
