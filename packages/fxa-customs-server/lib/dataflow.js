@@ -15,15 +15,20 @@ const TYPES = new Map([
   ['sourceaddress', 'ip'],
 ]);
 
+const RECORD_TYPES = new Map([
+  ['email', 'emailRecord'],
+  ['sourceaddress', 'ipRecord'],
+]);
+
 /**
  * Initialise the DataFlow handler.
  *
  * @param {Object} config
  * @param {Object} log
  * @param {Function} fetchRecords
- * @param {Function} setRecords
+ * @param {Function} setRecord
  */
-module.exports = (config, log, fetchRecords, setRecords) => {
+module.exports = (config, log, fetchRecords, setRecord) => {
   if (!config.dataflow.enabled) {
     // no-op if not enabled
     return;
@@ -64,6 +69,7 @@ module.exports = (config, log, fetchRecords, setRecords) => {
     try {
       const action = parseMessage(message);
       const type = TYPES.get(action.indicator_type);
+      const recordType = RECORD_TYPES.get(action.indicator_type);
 
       let level, op;
 
@@ -75,12 +81,16 @@ module.exports = (config, log, fetchRecords, setRecords) => {
           [type]: action.indicator,
         });
 
-        records[type][action.suggested_action]();
+        if (recordType) {
+          records[recordType][action.suggested_action]();
+          await setRecord(records[recordType]);
 
-        await setRecords(records);
-
-        level = 'info';
-        op = 'dataflow.message.success';
+          level = 'info';
+          op = 'dataflow.message.success';
+        } else {
+          level = 'warn';
+          op = 'dataflow.message.ignore';
+        }
       } else {
         level = 'warn';
         op = 'dataflow.message.ignore';

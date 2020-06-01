@@ -79,11 +79,18 @@ module.exports = function (
    * @returns
    */
   function setRecord(record) {
-    const lifetime = Math.max(
-      recordLifetimeSeconds,
-      record.getMinLifetimeMS() / 1000
-    );
-    return mc.setAsync(record.key, marshallRecordForStorage(record), lifetime);
+    // don't set 'reputations' from reputationSevice
+    if (record && record.getMinLifetimeMS) {
+      const lifetime = Math.max(
+        recordLifetimeSeconds,
+        record.getMinLifetimeMS() / 1000
+      );
+      return mc.setAsync(
+        record.key,
+        marshallRecordForStorage(record),
+        lifetime
+      );
+    }
   }
 
   /**

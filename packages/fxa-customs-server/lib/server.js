@@ -60,7 +60,12 @@ module.exports = async function createServer(config, log) {
     log
   );
 
-  const { fetchRecord, fetchRecords, setRecords } = require('./records')(
+  const {
+    fetchRecord,
+    fetchRecords,
+    setRecords,
+    setRecord,
+  } = require('./records')(
     mc,
     reputationService,
     limits,
@@ -73,7 +78,7 @@ module.exports = async function createServer(config, log) {
     setRecords
   );
 
-  dataflow(config, log, fetchRecords, setRecords);
+  dataflow(config, log, fetchRecords, setRecord);
 
   if (config.updatePollIntervalSeconds) {
     [
@@ -553,6 +558,7 @@ module.exports = async function createServer(config, log) {
         .then(function ({ ipRecord, emailRecord, ipEmailRecord }) {
           ipRecord.addBadLogin({ email: email, errno: errno });
           ipEmailRecord.addBadLogin();
+          emailRecord.addBadLogin();
 
           if (ipRecord.isOverBadLogins()) {
             reputationService.report(

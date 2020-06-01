@@ -24,6 +24,7 @@ module.exports = (config, Settings, log) => {
       this.maxEmails = settings.maxEmails;
       this.maxBadLogins = settings.maxBadLogins;
       this.maxBadLoginsPerIp = settings.maxBadLoginsPerIp;
+      this.maxBadLoginsPerEmail = settings.maxBadLoginsPerEmail;
       this.maxUnblockAttempts = settings.maxUnblockAttempts;
       this.maxVerifyCodes = settings.maxVerifyCodes;
       this.ipRateLimitIntervalSeconds = settings.ipRateLimitIntervalSeconds;
