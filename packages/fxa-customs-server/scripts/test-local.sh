@@ -6,4 +6,4 @@
 
 npm run lint || exit 1
 
-tap test/local test/remote --coverage-report=lcov
+tap test/local test/remote test/scripts --coverage-report=lcov

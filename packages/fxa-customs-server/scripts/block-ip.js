@@ -16,6 +16,8 @@ $ ./block-ip.js localhost:11211 127.0.0.1 600
 /* eslint-disable no-console */
 var net = require('net');
 var Memcached = require('memcached');
+const P = require('bluebird');
+P.promisifyAll(Memcached.prototype);
 
 if (process.argv.length < 5) {
   var usage = 'Usage: block-ip.js <memcacheHost:port> <ip> <seconds>';
@@ -37,28 +39,36 @@ if (!lifetime || lifetime < 0) {
 }
 
 var mc = new Memcached(process.argv[2], { namespace: 'fxa~' });
+
 var IpRecord = require('../lib/ip_record')({
   blockIntervalMs: lifetime * 1000,
   ipRateLimitIntervalMs: lifetime * 1000,
   ipRateLimitBanDurationMs: lifetime * 1000,
 });
-var log = {
-  error: function () {},
-  info: function () {},
-};
-var ban = require('../lib/bans/handler')(lifetime, mc, null, IpRecord, log);
 
-ban(
-  {
-    ban: {
-      ip: process.argv[3],
-    },
-  },
-  function (err) {
-    if (err) {
-      console.error(err);
-      return process.exit(1);
-    }
-    mc.end();
-  }
+const { fetchRecord, setRecord } = require('../lib/records')(
+  mc,
+  {},
+  {},
+  lifetime
 );
+
+async function main() {
+  const ip = process.argv[3];
+
+  try {
+    const ipRecord = await fetchRecord(ip, IpRecord.parse);
+    ipRecord.block();
+
+    await setRecord(ipRecord);
+
+    console.log('successfully blocked', ipRecord, lifetime);
+  } catch (err) {
+    console.error(err);
+    return process.exit(1);
+  }
+
+  mc.end();
+}
+
+main();
