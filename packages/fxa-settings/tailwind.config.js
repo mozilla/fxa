@@ -12,6 +12,21 @@ module.exports = {
     whitelist: [],
   },
   theme: {
+    extend: {
+      padding: {
+        7: '1.75rem',
+      },
+      margin: {
+        11: '2.75rem',
+      },
+      borderRadius: {
+        xl: '.75rem',
+      },
+      flex: {
+        2: '2',
+        4: '4',
+      },
+    },
     screens: {
       mobileLandscape: '480px',
       tablet: { raw: '(min-width: 768px) and (min-height: 481px)' },

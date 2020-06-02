@@ -11,8 +11,15 @@
   background: #1d1133;
   color: #fff;
 
-  svg.close g path {
-    fill: #fff;
+  .close-alert-bar {
+    cursor: pointer;
+    display: inline-block;
+    position: absolute;
+    right: 20px;
+
+    path {
+      fill: #fff;
+    }
   }
 }
 
@@ -32,13 +39,4 @@
   margin: 0 auto;
   position: relative;
   width: 80%;
-}
-
-.close {
-  cursor: pointer;
-  display: inline-block;
-  height: 16px;
-  position: absolute;
-  right: 20px;
-  width: 16px;
 }

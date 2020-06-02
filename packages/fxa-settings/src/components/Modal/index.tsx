@@ -18,7 +18,7 @@ type ModalProps = {
   'data-testid'?: string;
 };
 
-const Modal = ({
+export const Modal = ({
   className = '',
   onDismiss,
   onConfirm,
@@ -50,32 +50,60 @@ const Modal = ({
 
   return (
     <Portal id="modal" {...{ headerId, descId }}>
-      <div data-testid={testid}>
-        <div tabIndex={0} ref={tabFenceRef} data-testid="tab-fence"></div>
+      <div
+        data-testid={testid}
+        className="flex flex-col justify-center fixed inset-0 w-full px-2 h-full bg-black bg-opacity-75"
+      >
         <div
           data-testid="modal-content-container"
-          className={classNames('modal-content-container', className)}
+          className={classNames(
+            'max-w-lg bg-white mx-auto rounded-xl',
+            className
+          )}
           ref={modalInsideRef}
         >
-          <button
-            data-testid="modal-dismiss"
-            className="dismiss"
-            aria-label="Close modal"
-            onClick={onDismiss as () => void}
-          >
-            <CloseIcon role="img" aria-label="close" />
-          </button>
-          <div className="modal-content">{children}</div>
-
-          <button data-testid="modal-cancel" onClick={onDismiss as () => void}>
-            Cancel
-          </button>
-
-          {onConfirm && (
-            <button data-testid="modal-confirm" onClick={onConfirm}>
-              Confirm
+          <div
+            tabIndex={0}
+            ref={tabFenceRef}
+            data-testid="tab-fence"
+            className="w-px"
+          ></div>
+          <div className="flex justify-end pr-2 pt-2">
+            <button
+              data-testid="modal-dismiss"
+              onClick={onDismiss as () => void}
+            >
+              <CloseIcon
+                className="w-2 h-2 m-3"
+                role="img"
+                aria-label="Close modal"
+              />
             </button>
-          )}
+          </div>
+
+          <div className="px-4 tablet:px-12 pb-10">
+            <div>{children}</div>
+
+            <div className="flex mt-6">
+              <button
+                className="cta-neutral-lg flex-1"
+                data-testid="modal-cancel"
+                onClick={onDismiss as () => void}
+              >
+                Cancel
+              </button>
+
+              {onConfirm && (
+                <button
+                  className="cta-primary flex-1"
+                  data-testid="modal-confirm"
+                  onClick={onConfirm}
+                >
+                  Confirm
+                </button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </Portal>

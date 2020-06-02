@@ -17440,6 +17440,7 @@ fsevents@^1.2.7:
     npm-run-all: ^4.1.5
     pm2: ^4.4.0
     postcss-cli: ^7.1.1
+    postcss-import: ^12.0.1
     react: ^16.13.1
     react-dom: ^16.13.1
     react-scripts: ^3.4.1
@@ -28339,6 +28340,18 @@ fsevents@^1.2.7:
     postcss: ^7.0.2
     postcss-values-parser: ^2.0.0
   checksum: 3/e5612a60755963cd8270c8d793fcc246ec02e2387d5e8faf8ee4e871b65aea3625ebf7d3382db826e8ed44b0922d3f53a9a3b317fe4187e837ae045d6721eb49
+  languageName: node
+  linkType: hard
+
+"postcss-import@npm:^12.0.1":
+  version: 12.0.1
+  resolution: "postcss-import@npm:12.0.1"
+  dependencies:
+    postcss: ^7.0.1
+    postcss-value-parser: ^3.2.3
+    read-cache: ^1.0.0
+    resolve: ^1.1.7
+  checksum: 3/4495dba0682e7d92b176bfbb4d8d0dee8292592fff46665d7c5275fdd23ad4351c2f0151c6ec4f47edbaaac4def5d0eb7ca82e123337bb091b00a18b4c813689
   languageName: node
   linkType: hard
 

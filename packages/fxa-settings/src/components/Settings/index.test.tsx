@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, fireEvent, act, wait } from '@testing-library/react';
+import { render, act, wait } from '@testing-library/react';
 import { MockedProvider, MockedResponse } from '@apollo/client/testing';
 import Settings from './index';
 import { GET_ACCOUNT, accountData } from './gql';
@@ -49,7 +49,7 @@ it('renders without imploding', async () => {
 
   await wait();
 
-  expect(getByTestId('settings-container')).toBeInTheDocument();
+  expect(getByTestId('settings-profile')).toBeInTheDocument();
 });
 
 it('renders the loading spinner on initial load', async () => {

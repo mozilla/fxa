@@ -1,0 +1,47 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+.unit-row {
+  @apply flex flex-wrap px-4 pt-7 pb-8;
+
+  &-header {
+    @apply w-full mb-1;
+  }
+
+  &-content {
+    @apply w-full;
+  }
+
+  &-actions {
+    @apply w-full;
+  }
+
+  &-hr {
+    @apply mx-5 border-grey-100;
+  }
+}
+
+@screen mobileLandscape {
+  .unit-row {
+    @apply flex-no-wrap px-6;
+
+    &-header {
+      @apply flex-1 mb-0 mr-2;
+    }
+
+    &-content {
+      @apply flex-2;
+    }
+
+    &-actions {
+      @apply flex-1 flex justify-end;
+    }
+  }
+}
+
+@screen desktop {
+  .unit-row-content {
+    @apply flex-4;
+  }
+}

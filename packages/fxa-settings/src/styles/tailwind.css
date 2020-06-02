@@ -1,34 +1,26 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+@import './animations.scss';
+@import './ctas.scss';
+@import './unit-row.scss';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  @apply text-base font-body;
-  @apply bg-grey-10;
+  @apply text-base font-body bg-grey-10;
 }
 
-@keyframes rotate {
-  0% {
-    transform: rotate(0);
+.link-blue {
+  @apply underline text-blue-500;
+
+  &:hover {
+    @apply text-blue-600;
   }
 
-  100% {
-    transform: rotate(360deg);
+  &:active {
+    @apply text-blue-800;
   }
-}
-
-.animate-timing-linear {
-  animation-timing-function: linear;
-}
-
-.animate-duration-800 {
-  animation-duration: 800ms;
-}
-
-.animate-repeat-infinite {
-  animation-iteration-count: infinite;
-}
-
-.animate-rotate {
-  animation-name: rotate;
 }

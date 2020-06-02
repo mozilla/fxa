@@ -4,6 +4,7 @@
 
 import React from 'react';
 import HeaderLockup from '../HeaderLockup';
+import Nav from '../Nav';
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -13,7 +14,16 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
   return (
     <>
       <HeaderLockup />
-      {children}
+      <div className="max-w-screen-desktopXl mx-auto flex flex-1 tablet:px-20 desktop:px-12">
+        <Nav />
+        <main className="flex-grow" data-testid="main">
+          {children}
+        </main>
+      </div>
+
+      {/*TO DO: pull `Footer` in from `fxa-admin-panel` into
+      `fxa-react` and replace this*/}
+      <footer></footer>
     </>
   );
 };

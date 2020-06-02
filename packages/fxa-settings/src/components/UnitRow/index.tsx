@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useRef } from 'react';
+import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
 
 type UnitRowProps = {
@@ -11,6 +12,7 @@ type UnitRowProps = {
   noHeaderValueText?: string;
   noHeaderValueCtaText?: string;
   children?: React.ReactNode;
+  headerValueClassName?: string;
   route?: string;
   revealModal?: () => void;
   modalRevealed?: boolean;
@@ -25,6 +27,7 @@ export const UnitRow = ({
   headerValue,
   route,
   children,
+  headerValueClassName,
   noHeaderValueText = 'None',
   noHeaderValueCtaText = 'Add',
   revealModal,
@@ -36,31 +39,43 @@ export const UnitRow = ({
   useFocusOnTriggeringElementOnClose(modalRevealed, modalTriggerElement);
 
   return (
-    <div>
-      <h4 data-testid="unit-row-header">{header}</h4>
-      <div>
-        <p data-testid="unit-row-header-value">
+    <div className="unit-row">
+      <div className="unit-row-header">
+        <h3 data-testid="unit-row-header">{header}</h3>
+      </div>
+      <div className="unit-row-content">
+        <p
+          className={classNames('font-bold', headerValueClassName)}
+          data-testid="unit-row-header-value"
+        >
           {headerValue || noHeaderValueText}
         </p>
         {children}
       </div>
 
-      <div>
-        {route && (
-          <a data-testid="unit-row-route" href={route}>
-            {ctaText}
-          </a>
-        )}
+      <div className="unit-row-actions">
+        <div>
+          {route && (
+            <a
+              className="cta-neutral"
+              data-testid="unit-row-route"
+              href={route}
+            >
+              {ctaText}
+            </a>
+          )}
 
-        {revealModal && (
-          <button
-            data-testid="unit-row-modal"
-            ref={modalTriggerElement}
-            onClick={revealModal}
-          >
-            {ctaText}
-          </button>
-        )}
+          {revealModal && (
+            <button
+              className="cta-neutral"
+              data-testid="unit-row-modal"
+              ref={modalTriggerElement}
+              onClick={revealModal}
+            >
+              {ctaText}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
