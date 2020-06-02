@@ -1,10 +1,9 @@
 {
   "extends": "../../_dev/tsconfig.browser.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "allowJs": false,
     "composite": true,
-    "types": ["jest", "testing-library__jest-dom"],
-    "jsx": "react"
+    "types": ["jest", "testing-library__jest-dom"]
   },
   "include": [
     "./components",

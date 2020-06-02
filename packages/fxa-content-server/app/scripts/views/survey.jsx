@@ -11,7 +11,7 @@ import BaseView from './base';
 /*eslint-disable no-unused-vars*/
 import Survey, {
   CreateHandleIframeTask,
-} from '@fxa-react/components/Survey/index.tsx';
+} from 'fxa-react/components/Survey';
 /*eslint-enable no-unused-vars*/
 
 /*eslint-disable no-unused-vars*/

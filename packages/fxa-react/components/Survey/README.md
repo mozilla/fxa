@@ -2,7 +2,7 @@
 
 ```javascript
 
-  import Survey, { CreateHandleIframeTask } from '@fxa-react/components/Survey';
+  import Survey, { CreateHandleIframeTask } from 'fxa-react/components/Survey';
 
   const [showSurvey, setShowSurvey] = useState(true);
   const [surveyComplete, setSurveyComplete] = useState(false);

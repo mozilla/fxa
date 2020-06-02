@@ -18,6 +18,7 @@
     "node": ">=12"
   },
   "scripts": {
+    "build": "tsc --build",
     "test": "jest",
     "storybook": "start-storybook -p 6007",
     "build-storybook": "build-storybook",
