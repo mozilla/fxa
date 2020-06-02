@@ -77,7 +77,7 @@ const SUBSCRIPTION_UPDATE_TYPES = {
  * @param {AbbrevProduct['product_metadata']} newMetadata New product metadata
  * @returns {boolean} Whether the new product is an upgrade.
  */
-function validateProductUpgrade(oldMetadata, newMetadata) {
+function validateProductUpdate(oldMetadata, newMetadata) {
   if (!oldMetadata || !newMetadata) {
     throw error.unknownSubscriptionPlan();
   }
@@ -93,7 +93,7 @@ function validateProductUpgrade(oldMetadata, newMetadata) {
   if (isNaN(oldOrder) || isNaN(newOrder)) {
     throw error.unknownSubscriptionPlan();
   }
-  return oldOrder < newOrder;
+  return oldOrder !== newOrder;
 }
 
 class StripeHelper {
@@ -572,7 +572,7 @@ class StripeHelper {
    * @param {string} newPlanId
    * @returns {Promise<void>}
    */
-  async verifyPlanUpgradeForSubscription(currentPlanId, newPlanId) {
+  async verifyPlanUpdateForSubscription(currentPlanId, newPlanId) {
     const allPlans = await this.allPlans();
     const currentPlan = allPlans
       .filter((plan) => plan.plan_id === currentPlanId)
@@ -590,12 +590,12 @@ class StripeHelper {
     }
 
     if (
-      !validateProductUpgrade(
+      !validateProductUpdate(
         currentPlan.product_metadata,
         newPlan.product_metadata
       )
     ) {
-      throw error.invalidPlanUpgrade();
+      throw error.invalidPlanUpdate();
     }
   }
 
