@@ -16787,6 +16787,7 @@ fsevents@^1.2.7:
     fxa-geodb: "workspace:*"
     fxa-mustache-loader: 0.0.2
     fxa-pairing-channel: 1.0.1
+    fxa-react: "workspace:*"
     fxa-settings: "workspace:*"
     fxa-shared: "workspace:*"
     got: 6.7.1
