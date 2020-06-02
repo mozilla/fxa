@@ -13,7 +13,6 @@ it('renders the children', () => {
       <p data-testid="test-child">Hello, world!</p>
     </AppLayout>
   );
-
   expect(getByTestId('main')).toBeInTheDocument();
   expect(getByTestId('test-child')).toBeInTheDocument();
 });

@@ -6,12 +6,33 @@ import React from 'react';
 import LogoLockup from 'fxa-react/components/LogoLockup';
 import Header from 'fxa-react/components/Header';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import Avatar from '../Avatar';
 import { ReactComponent as Help } from './help.svg';
 import { ReactComponent as Bento } from './bento.svg';
-import { ReactComponent as DefaultAvatar } from '../../images/avatar-default.svg';
 import { ReactComponent as Menu } from './menu.svg';
 
-const leftHeaderContent = (
+type HeaderLockupProps = {
+  avatarUrl: string | null;
+  primaryEmail: string;
+};
+
+export const HeaderLockup = ({
+  avatarUrl,
+  primaryEmail,
+}: HeaderLockupProps) => {
+  const right = (
+    <HeaderContentRight
+      {...{
+        avatarUrl,
+        primaryEmail,
+      }}
+    />
+  );
+
+  return <Header {...{ left: HeaderContentLeft, right }} />;
+};
+
+const HeaderContentLeft = (
   <>
     <button
       className="desktop:hidden mr-6 w-8 h-6 self-center"
@@ -29,7 +50,7 @@ const leftHeaderContent = (
   </>
 );
 
-const rightHeaderContent = (
+const HeaderContentRight = ({ avatarUrl, primaryEmail }: HeaderLockupProps) => (
   <>
     <LinkExternal
       href="https://support.mozilla.org"
@@ -51,17 +72,9 @@ const rightHeaderContent = (
       className="w-6 mx-6 desktop:mx-8"
       data-testid="header-bento"
     />
-    <DefaultAvatar
-      aria-label="Default avatar"
-      role="img"
-      className="w-10"
-      data-testid="header-avatar-default"
-    />
+    {console.log(`TODO display ${primaryEmail} in the header in FXA-1575`)}
+    <Avatar {...{ avatarUrl }} className="w-10" />
   </>
-);
-
-export const HeaderLockup = () => (
-  <Header left={leftHeaderContent} right={rightHeaderContent} />
 );
 
 export default HeaderLockup;

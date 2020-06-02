@@ -4,7 +4,11 @@
 
 import React from 'react';
 
-export const Nav = () => (
+type NavProps = {
+  hasSubscription: boolean;
+};
+
+export const Nav = ({ hasSubscription }: NavProps) => (
   <nav className="mr-24 hidden desktop:block">
     <h2>Settings</h2>
   </nav>

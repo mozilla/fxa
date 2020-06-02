@@ -3,28 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import HeaderLockup from '.';
-
-afterEach(cleanup);
 
 // TO DO: functional test for `data-testid="header-menu"` to be visible in
 // mobile & tablet but hidden at desktop
 
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
-    const { getByTestId } = render(<HeaderLockup />);
+    render(<HeaderLockup avatarUrl={null} primaryEmail="user@example.com" />);
 
-    expect(getByTestId('header-sumo-link')).toHaveAttribute(
+    expect(screen.getByTestId('header-sumo-link')).toHaveAttribute(
       'href',
       'https://support.mozilla.org'
     );
-    expect(getByTestId('header-help')).toBeInTheDocument();
-    expect(getByTestId('header-bento')).toBeInTheDocument();
-    expect(getByTestId('header-avatar-default')).toBeInTheDocument();
+    expect(screen.getByTestId('header-help')).toBeInTheDocument();
+    expect(screen.getByTestId('header-bento')).toBeInTheDocument();
+    expect(screen.getByTestId('avatar-default')).toBeInTheDocument();
 
-    expect(getByTestId('header-menu')).toBeInTheDocument();
-    expect(getByTestId('back-to-top')).toHaveAttribute('title', 'Back to top');
+    expect(screen.getByTestId('header-menu')).toBeInTheDocument();
+    expect(screen.getByTestId('back-to-top')).toHaveAttribute(
+      'title',
+      'Back to top'
+    );
   });
 });

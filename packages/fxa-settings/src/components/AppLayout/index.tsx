@@ -7,25 +7,36 @@ import HeaderLockup from '../HeaderLockup';
 import Nav from '../Nav';
 
 type AppLayoutProps = {
+  avatarUrl: string | null;
+  primaryEmail: string;
+  hasSubscription: boolean;
   children: React.ReactNode;
 };
 
-export const AppLayout = ({ children }: AppLayoutProps) => {
-  return (
-    <>
-      <HeaderLockup />
-      <div className="max-w-screen-desktopXl mx-auto flex flex-1 tablet:px-20 desktop:px-12">
-        <Nav />
-        <main className="flex-grow" data-testid="main">
-          {children}
-        </main>
-      </div>
+export const AppLayout = ({
+  avatarUrl,
+  primaryEmail,
+  hasSubscription,
+  children,
+}: AppLayoutProps) => (
+  <>
+    <HeaderLockup
+      {...{
+        avatarUrl,
+        primaryEmail,
+      }}
+    />
+    <div className="max-w-screen-desktopXl mx-auto flex flex-1 tablet:px-20 desktop:px-12">
+      <Nav {...{ hasSubscription }} />
+      <main className="flex-grow" data-testid="main">
+        {children}
+      </main>
+    </div>
 
-      {/*TO DO: pull `Footer` in from `fxa-admin-panel` into
-      `fxa-react` and replace this*/}
-      <footer></footer>
-    </>
-  );
-};
+    {/*TODO: pull `Footer` in from `fxa-admin-panel` into
+    `fxa-react` and replace this*/}
+    <footer></footer>
+  </>
+);
 
 export default AppLayout;

@@ -6,6 +6,13 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { HeaderLockup } from '.';
 
-storiesOf('components/HeaderLockup', module).add('basic', () => (
-  <HeaderLockup />
-));
+storiesOf('components/HeaderLockup', module)
+  .add('with default avatar', () => (
+    <HeaderLockup avatarUrl={null} primaryEmail="user@example.com" />
+  ))
+  .add('with non-default avatar', () => (
+    <HeaderLockup
+      avatarUrl="http://placekitten.com/256/256"
+      primaryEmail="user@example.com"
+    />
+  ));
