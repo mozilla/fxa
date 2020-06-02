@@ -114,6 +114,8 @@ payment-confirm-year = { $intervalCount ->
 }
 
 payment-confirm = I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${ $amount } per { $interval }</strong>, according to payment terms, until I cancel my subscription.
+
+##
 payment-cancel-btn = Cancel
 payment-update-btn = Update
 payment-pay-btn = Pay now
@@ -162,6 +164,7 @@ sub-update-confirm-year = { $intervalCount ->
   *[other] I authorize { -brand-name-mozilla }, maker of { -brand-name-firefox } products, to charge my payment method <strong>{ $amount } every { $intervalCount } years</strong>, according to payment terms, until I cancel my subscription.
 }
 
+##
 sub-update-submit = Confirm upgrade
 sub-update-indicator =
   .aria-label = upgrade indicator
@@ -217,6 +220,7 @@ pay-update-billing-description-year = { $intervalCount ->
   *[other] You are billed { $amount } every { $intervalCount } years for { $name }. Your next payment occurs on { $date }.
 }
 
+##
 pay-update-card-exp = Expires { $expirationDate }
 pay-update-change-btn = Change
 
