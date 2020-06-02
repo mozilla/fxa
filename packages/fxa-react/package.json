@@ -25,7 +25,6 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
-    "fxa-content-server": "workspace:*",
     "fxa-shared": "workspace:*",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
