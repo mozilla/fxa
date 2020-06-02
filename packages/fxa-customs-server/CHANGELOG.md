@@ -1,3 +1,9 @@
+## 1.172.5
+
+### Bug fixes
+
+- customs: don't try to write records from reputationService to memcache ([8580d1d6a](https://github.com/mozilla/fxa/commit/8580d1d6a))
+
 ## 1.172.4
 
 No changes.
