@@ -4886,7 +4886,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/glob@npm:^7.1.1":
+"@types/glob@npm:*, @types/glob@npm:^7.1.1":
   version: 7.1.1
   resolution: "@types/glob@npm:7.1.1"
   dependencies:
@@ -5625,6 +5625,16 @@ __metadata:
   version: 0.12.0
   resolution: "@types/retry@npm:0.12.0"
   checksum: 3/0755164f2c8d615a0385609c478aaa20b17e55bc8b16d5d56ffe6a5d30b0a9845d49452a2e8903ec7c43fa361f19daf5e68c60e7381ad10a95dd3d0bb5c9f7fd
+  languageName: node
+  linkType: hard
+
+"@types/rimraf@npm:3.0.0":
+  version: 3.0.0
+  resolution: "@types/rimraf@npm:3.0.0"
+  dependencies:
+    "@types/glob": "*"
+    "@types/node": "*"
+  checksum: 3/00a00a430f838ddafdbc17386f08d928b1ae7aeada84d112f4369a7a89b4d47c1bb6849688f1d6ee404a08338ab52a80c742f0c3040d63ccc2aaec04bd1009f5
   languageName: node
   linkType: hard
 
@@ -16705,7 +16715,7 @@ fsevents@^1.2.7:
     qrcode: ^1.4.4
     read: 1.0.7
     request: 2.88.0
-    rimraf: 2.6.2
+    rimraf: ^3.0.2
     safe-regex: ^1.1.0
     safe-url-assembler: 1.3.5
     sandboxed-regexp: ^0.3.0
@@ -17042,7 +17052,7 @@ fsevents@^1.2.7:
     nyc: ^15.0.1
     prettier: ^2.0.5
     request: 2.88.0
-    rimraf: 2.6.2
+    rimraf: ^3.0.2
     sinon: ^9.0.2
   languageName: unknown
   linkType: soft
@@ -17355,7 +17365,7 @@ fsevents@^1.2.7:
     prettier: ^2.0.5
     raven: 2.1.2
     request: 2.83.0
-    rimraf: 2.5.3
+    rimraf: ^3.0.2
     sinon: ^9.0.2
     stream-to-array: 2.3.0
     through: 2.3.8
@@ -17382,6 +17392,7 @@ fsevents@^1.2.7:
     "@types/react": ^16.9.34
     "@types/react-dom": ^16.9.6
     "@types/react-transition-group": ^4.2.4
+    "@types/rimraf": 3.0.0
     babel-eslint: ^10.1.0
     babel-loader: ^8.1.0
     babel-preset-react-app: ^9.1.2
@@ -17390,10 +17401,12 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
     jest: ^25.3.0
+    pm2: ^4.4.0
     prettier: ^2.0.5
     react: ^16.13.1
     react-dom: ^16.13.1
     react-transition-group: ^4.3.0
+    rimraf: ^3.0.2
     sass: ^1.26.5
     sass-loader: ^8.0.2
     ts-jest: ^25.4.0
@@ -17480,6 +17493,7 @@ fsevents@^1.2.7:
     moment: ^2.24.0
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.0.1
+    pm2: ^4.4.0
     prettier: ^2.0.5
     proxyquire: ^2.1.3
     redis: ^2.8.0
@@ -31886,28 +31900,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"rimraf@npm:2.5.3":
-  version: 2.5.3
-  resolution: "rimraf@npm:2.5.3"
-  dependencies:
-    glob: ^7.0.5
-  bin:
-    rimraf: ./bin.js
-  checksum: 3/68aecad3239a92e2a7990066f06c0d5e9062e0e946f1486f3eb9a8e2913a743710dfea0e75ebff228696b0e2c41119987d93f034bf3b8d8e39ed816e13747ee2
-  languageName: node
-  linkType: hard
-
-"rimraf@npm:2.6.2, rimraf@npm:^2.5.1, rimraf@npm:^2.5.2, rimraf@npm:~2.6.2":
-  version: 2.6.2
-  resolution: "rimraf@npm:2.6.2"
-  dependencies:
-    glob: ^7.0.5
-  bin:
-    rimraf: ./bin.js
-  checksum: 3/81b4c086c1bdcffcbc972ca784d4f34ded3151a468c7449e308cfcf4b669ab9489e62140500dd00ee586e15ce823abcae76c550cc265b5eda6525fe1b99d30bc
-  languageName: node
-  linkType: hard
-
 "rimraf@npm:2.6.3":
   version: 2.6.3
   resolution: "rimraf@npm:2.6.3"
@@ -31919,7 +31911,18 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"rimraf@npm:^3.0.0":
+"rimraf@npm:^2.5.1, rimraf@npm:^2.5.2, rimraf@npm:~2.6.2":
+  version: 2.6.2
+  resolution: "rimraf@npm:2.6.2"
+  dependencies:
+    glob: ^7.0.5
+  bin:
+    rimraf: ./bin.js
+  checksum: 3/81b4c086c1bdcffcbc972ca784d4f34ded3151a468c7449e308cfcf4b669ab9489e62140500dd00ee586e15ce823abcae76c550cc265b5eda6525fe1b99d30bc
+  languageName: node
+  linkType: hard
+
+"rimraf@npm:^3.0.0, rimraf@npm:^3.0.2":
   version: 3.0.2
   resolution: "rimraf@npm:3.0.2"
   dependencies:

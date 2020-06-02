@@ -76,6 +76,7 @@ jobs:
           command: bash <(curl -s https://codecov.io/bash) -X gcov
 
   test-many:
+    resource_class: medium+
     docker:
       - image: circleci/node:12
       - image: circleci/mysql:5.7.27
@@ -88,25 +89,25 @@ jobs:
           name: Testing...
           command: |
             PACKAGES=(\
+            'fxa-shared' \
+            'fxa-react' \
+            'fxa-admin-server' \
+            'fxa-graphql-api' \
+            'fxa-settings' \
+            'fxa-admin-panel' \
+            'fxa-payments-server' \
+            'fxa-support-panel' \
+            'fxa-event-broker' \
+            'fxa-auth-db-mysql' \
+            'fxa-profile-server' \
+            'fxa-metrics-processor' \
             '123done' \
             'browserid-verifier' \
             'fortress' \
-            'fxa-admin-panel' \
-            'fxa-admin-server' \
-            'fxa-auth-db-mysql' \
-            'fxa-react' \
-            'fxa-customs-server' \
-            'fxa-email-event-proxy' \
-            'fxa-event-broker' \
-            'fxa-geodb' \
-            'fxa-graphql-api' \
             'fxa-js-client' \
-            'fxa-metrics-processor' \
-            'fxa-payments-server' \
-            'fxa-profile-server' \
-            'fxa-settings' \
-            'fxa-shared' \
-            'fxa-support-panel' \
+            'fxa-geodb' \
+            'fxa-email-event-proxy' \
+            'fxa-customs-server' \
             )
             for p in "${PACKAGES[@]}"; do
               ./.circleci/test-package.sh $p

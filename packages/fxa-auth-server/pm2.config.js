@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const PATH = process.env.PATH.split(':')
+  .filter((p) => !p.includes(process.env.TMPDIR))
+  .join(':');
+
 module.exports = {
   apps: [
     {
@@ -19,6 +23,7 @@ module.exports = {
         SIGNIN_CONFIRMATION_FORCE_EMAIL_REGEX: '^sync.*@restmail\\.net$',
         CONFIG_FILES: 'config/secrets.json',
         PORT: '9000',
+        PATH,
       },
       filter_env: ['npm_'],
       watch: ['bin', 'config', 'lib'],
@@ -32,6 +37,7 @@ module.exports = {
       env: {
         NODE_ENV: 'dev',
         MAILER_PORT: '9001',
+        PATH,
       },
       filter_env: ['npm_'],
       max_restarts: '1',

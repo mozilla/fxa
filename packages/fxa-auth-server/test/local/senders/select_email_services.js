@@ -705,7 +705,7 @@ function redisWrite(emailConfig) {
   return cp.execAsync(
     `echo '${JSON.stringify(
       emailConfig
-    )}' | npx ts-node scripts/email-config write`,
+    )}' | node -r ts-node/register scripts/email-config write`,
     {
       cwd: path.resolve(__dirname, '../../..'),
     }
@@ -713,7 +713,7 @@ function redisWrite(emailConfig) {
 }
 
 function redisRevert() {
-  return cp.execAsync('npx ts-node scripts/email-config revert', {
+  return cp.execAsync('node -r ts-node/register scripts/email-config revert', {
     cwd: path.resolve(__dirname, '../../..'),
   });
 }

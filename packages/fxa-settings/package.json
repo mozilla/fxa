@@ -10,8 +10,8 @@
     "eject": "react-scripts eject",
     "lint:eslint": "eslint .",
     "lint": "npm-run-all --parallel lint:eslint lint:sass",
-    "restart": "tsc --build ../fxa-react && npm run build-postcss && pm2 restart pm2.config.js",
-    "start": "tsc --build ../fxa-react && npm run build-postcss && pm2 start pm2.config.js",
+    "restart": "npm run build-postcss && pm2 restart pm2.config.js",
+    "start": "npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "storybook": "start-storybook -p 6008",
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
