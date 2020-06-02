@@ -16,6 +16,7 @@ const config = require('../../config').getProperties();
 const TestServer = require('../test_server');
 const Token = require('../../lib/tokens')(log);
 const DB = require('../../lib/db')(config, log, Token);
+const mockStatsD = { increment: () => {} };
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -42,6 +43,7 @@ const ACCOUNT = {
 };
 const mockLog = {
   error: function () {},
+  warn: function () {},
   increment: function () {},
   trace: function () {},
   info: function () {},
@@ -125,7 +127,7 @@ describe('remote push db', function () {
         const pushWithUnknown400 = proxyquire(
           '../../lib/push',
           mocksUnknown400
-        )(mockLog, db, {});
+        )(mockLog, db, {}, mockStatsD);
         return pushWithUnknown400.sendPush(
           ACCOUNT.uid,
           devices,
@@ -155,10 +157,11 @@ describe('remote push db', function () {
           'device.pushEndpointExpired is correct'
         );
 
-        const pushWithKnown400 = proxyquire('../../lib/push', mocksKnown400)(
+        const pushWithKnown400 = proxyquire("../../lib/push", mocksKnown400)(
           mockLog,
           db,
-          {}
+          {},
+          mockStatsD,
         );
         return pushWithKnown400.sendPush(ACCOUNT.uid, devices, 'accountVerify');
       })
