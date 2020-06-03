@@ -80,7 +80,7 @@ describe('views/mixins/account-reset-mixin', function () {
   describe('sendAccountResetEmail', function () {
     describe('with a registered account', function () {
       beforeEach(function () {
-        sinon.stub(view, 'resetPassword').callsFake(function () {
+        sinon.stub(account, 'resetPassword').callsFake(function () {
           return Promise.resolve();
         });
 
@@ -89,13 +89,13 @@ describe('views/mixins/account-reset-mixin', function () {
       });
 
       it('sends a reset email', function () {
-        assert.isTrue(view.resetPassword.calledWith(EMAIL));
+        assert.isTrue(account.resetPassword.calledWith(relier));
       });
     });
 
     describe('with an error', function () {
       beforeEach(function () {
-        sinon.stub(view, 'resetPassword').callsFake(function () {
+        sinon.stub(account, 'resetPassword').callsFake(function () {
           return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 

@@ -17,14 +17,19 @@
 
 'use strict';
 
+// HACK: Prevent config falling over due to missing secrets
+process.env.NODE_ENV = 'dev';
+
 const butil = require('../lib/crypto/butil');
 const commandLineOptions = require('commander');
 const config = require('../config').getProperties();
 const crypto = require('crypto');
-const log = require('../lib/log')(config.log.level);
+const log = require('../lib/log')({});
 const P = require('../lib/promise');
 const path = require('path');
 const Token = require('../lib/tokens')(log, config);
+const AuthDB = require('../lib/db')(config, log, Token);
+const oauth = require('../lib/oauth/db');
 
 commandLineOptions
   .option('-i, --input <filename>', 'JSON input file')
@@ -32,49 +37,51 @@ commandLineOptions
 
 const requiredOptions = ['input'];
 
-requiredOptions.forEach(checkRequiredOption);
-
-const DB = require('../lib/db')(config, log, Token);
-
-DB.connect(config[config.db.backend]).then((db) => {
-  const json = require(path.resolve(commandLineOptions.input));
-
-  const uids = json.map((entry) => {
-    return entry.uid;
-  });
-
-  return P.all(
-    uids.map((uid) => {
-      return db
-        .resetAccount(
-          { uid: uid },
-          {
-            authSalt: butil.ONES.toString('hex'),
-            verifyHash: butil.ONES.toString('hex'),
-            wrapWrapKb: crypto.randomBytes(32).toString('hex'),
-            verifierVersion: 1,
-          }
-        )
-        .catch((err) => {
-          log.error({ op: 'reset.failed', uid: uid, err: err });
-          process.exit(1);
-        });
-    })
-  )
-    .then(
-      () => {
-        log.info({ complete: true, uidsReset: uids.length });
-      },
-      (err) => {
-        log.error(err);
-      }
-    )
-    .then(db.close.bind(db));
-});
-
 function checkRequiredOption(optionName) {
   if (!commandLineOptions[optionName]) {
     console.error(`--${optionName} required`);
     process.exit(1);
   }
 }
+
+requiredOptions.forEach(checkRequiredOption);
+
+async function main() {
+  const db = await AuthDB.connect(config[config.db.backend]);
+
+  const json = require(path.resolve(commandLineOptions.input));
+
+  const uids = json.map((entry) => {
+    return entry.uid;
+  });
+
+  await P.all(
+    uids.map(async (uid) => {
+      try {
+        // Removes all session tokens,
+        await db.resetAccount(
+          { uid },
+          {
+            authSalt: butil.ONES.toString('hex'),
+            verifyHash: butil.ONES.toString('hex'),
+            wrapWrapKb: crypto.randomBytes(32).toString('hex'),
+            verifierVersion: 1,
+          }
+        );
+
+        // Removes oauth related tokens
+        await oauth.removeUser(uid);
+        console.info('account reset', uid);
+      } catch (err) {
+        console.error('failed', uid, err);
+        process.exit(1);
+      }
+    })
+  );
+
+  console.info('%s accounts reset', uids.length);
+  await db.close();
+  process.exit();
+}
+
+main();
