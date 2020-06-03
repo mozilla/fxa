@@ -10,7 +10,7 @@
 @tailwind utilities;
 
 body {
-  @apply text-base font-body bg-grey-10;
+  @apply text-base font-body bg-grey-10 text-grey-600;
 }
 
 .link-blue {

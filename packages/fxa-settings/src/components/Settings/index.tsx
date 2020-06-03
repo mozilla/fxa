@@ -23,8 +23,8 @@ export const Settings = ({ account }: { account: AccountData }) => {
 
   return (
     <>
-      <section className="mt-11" data-testid="settings-profile">
-        <h2 className="font-bold ml-4 mb-4">Profile</h2>
+      <section className="mt-11" id="profile" data-testid="settings-profile">
+        <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
 
         <div className="bg-white tablet:rounded-xl shadow">
           <UnitRowWithAvatar avatarUrl={account.avatarUrl} />
