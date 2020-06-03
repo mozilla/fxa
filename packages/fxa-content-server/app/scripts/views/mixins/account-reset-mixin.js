@@ -11,7 +11,7 @@
 import AuthErrors from '../../lib/auth-errors';
 import preventDefaultThen from '../decorators/prevent_default_then';
 
-const t = msg => msg;
+const t = (msg) => msg;
 
 var AccountResetMixin = {
   initialize(options) {
@@ -53,10 +53,16 @@ var AccountResetMixin = {
    * @returns {Promise} - resolves when complete
    */
   sendAccountResetEmail() {
-    return this.resetPassword(this._resetAccount.get('email')).catch(err => {
-      this._session.clear('oauth');
-      this.displayError(err);
-    });
+    const account = this._resetAccount;
+    return account
+      .resetPassword(this.relier)
+      .then(() => {
+        this.hideError();
+      })
+      .catch((err) => {
+        this._session.clear('oauth');
+        this.displayError(err);
+      });
   },
 };
 

@@ -27,7 +27,7 @@ var AccountResetView = BaseView.extend({
 });
 Cocktail.mixin(AccountResetView, AccountResetMixin);
 
-describe('views/mixins/account-reset-mixin', function() {
+describe('views/mixins/account-reset-mixin', function () {
   var account;
   var fxaClient;
   var metrics;
@@ -36,7 +36,7 @@ describe('views/mixins/account-reset-mixin', function() {
   var session;
   var view;
 
-  beforeEach(function() {
+  beforeEach(function () {
     account = new User().initAccount({
       email: EMAIL,
     });
@@ -61,14 +61,14 @@ describe('views/mixins/account-reset-mixin', function() {
     return view.render();
   });
 
-  describe('notifyOfResetAccount', function() {
-    beforeEach(function() {
+  describe('notifyOfResetAccount', function () {
+    beforeEach(function () {
       sinon.spy(view, 'unsafeDisplayError');
 
       view.notifyOfResetAccount(account);
     });
 
-    it('displays an error with a `send reset email` link', function() {
+    it('displays an error with a `send reset email` link', function () {
       assert.isTrue(view.unsafeDisplayError.called);
       var err = view.unsafeDisplayError.args[0][0];
       assert.isTrue(AuthErrors.is(err, 'ACCOUNT_RESET'));
@@ -77,10 +77,10 @@ describe('views/mixins/account-reset-mixin', function() {
     });
   });
 
-  describe('sendAccountResetEmail', function() {
-    describe('with a registered account', function() {
-      beforeEach(function() {
-        sinon.stub(view, 'resetPassword').callsFake(function() {
+  describe('sendAccountResetEmail', function () {
+    describe('with a registered account', function () {
+      beforeEach(function () {
+        sinon.stub(account, 'resetPassword').callsFake(function () {
           return Promise.resolve();
         });
 
@@ -88,14 +88,14 @@ describe('views/mixins/account-reset-mixin', function() {
         return view.sendAccountResetEmail();
       });
 
-      it('sends a reset email', function() {
-        assert.isTrue(view.resetPassword.calledWith(EMAIL));
+      it('sends a reset email', function () {
+        assert.isTrue(account.resetPassword.calledWith(relier));
       });
     });
 
-    describe('with an error', function() {
-      beforeEach(function() {
-        sinon.stub(view, 'resetPassword').callsFake(function() {
+    describe('with an error', function () {
+      beforeEach(function () {
+        sinon.stub(account, 'resetPassword').callsFake(function () {
           return Promise.reject(AuthErrors.toError('UNKNOWN_ACCOUNT'));
         });
 
@@ -103,11 +103,11 @@ describe('views/mixins/account-reset-mixin', function() {
         return view.sendAccountResetEmail();
       });
 
-      it('displays the error', function() {
+      it('displays the error', function () {
         assert.isTrue(view.isErrorVisible());
       });
 
-      it('clears session.oauth', function() {
+      it('clears session.oauth', function () {
         assert.isTrue(session.clear.calledWith('oauth'));
       });
     });
