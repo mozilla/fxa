@@ -7,7 +7,6 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "build": "tsc",
     "lint": "eslint *",
-    "start": "echo \"Error: no start script specified\" && exit 1",
     "test": "mocha -r ts-node/register 'src/test/**/*.spec.ts'",
     "start-prod": "npm run build && node ./dist/bin/queueWorker.js",
     "watch": "tsc -w"

@@ -6,10 +6,10 @@ function test_suite() {
   local suite=$1
   local numGroups=$2
 
-  for i in $(seq $numGroups)
+  for i in $(seq "$numGroups")
   do
-    node tests/intern.js --suites="${suite}" --groupsCount=${numGroups} --groupNum="${i}" --firefoxBinary=./firefox/firefox || \
-    node tests/intern.js --suites="${suite}" --groupsCount=${numGroups} --groupNum="${i}" --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
+    node tests/intern.js --suites="${suite}" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox || \
+    node tests/intern.js --suites="${suite}" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
   done
 }
 
@@ -22,8 +22,10 @@ cp ../version.json config
 yarn lint
 
 cd ../../
-yarn workspace fxa-shared run build
+mkdir -p ~/.pm2/logs
 yarn workspaces foreach \
+    --verbose \
+    --topological-dev \
     --include 123done \
     --include browserid-verifier \
     --include fxa-auth-db-mysql \
@@ -31,10 +33,11 @@ yarn workspaces foreach \
     --include fxa-content-server \
     --include fxa-payments-server \
     --include fxa-profile-server \
-    --include "fxa-react" \
-    --include fxa-support-panel \
+    --include fxa-react \
     --include fxa-settings \
-    run start > /dev/null
+    --include fxa-shared \
+    --include fxa-support-panel \
+    run start > ~/.pm2/logs/startup.log
 
 npx pm2 ls
 # ensure email-service is ready

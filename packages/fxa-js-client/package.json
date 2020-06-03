@@ -5,7 +5,6 @@
   "author": "Mozilla",
   "license": "MPL-2.0",
   "scripts": {
-    "start": "grunt",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "npm run lint && mocha tests/lib --reporter dot --timeout 5000",

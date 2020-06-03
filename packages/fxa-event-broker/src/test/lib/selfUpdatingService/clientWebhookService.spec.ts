@@ -18,7 +18,10 @@ const sandbox = sinon.createSandbox();
 
 const baseClients = [
   { capabilities: ['testCapability1'], clientId: 'testClient1' },
-  { clientId: 'testClient2', capabilities: ['testCapability2', 'testCapability3'] }
+  {
+    clientId: 'testClient2',
+    capabilities: ['testCapability2', 'testCapability3'],
+  },
 ];
 
 describe('Client Webhook Service', () => {
@@ -29,7 +32,7 @@ describe('Client Webhook Service', () => {
   before(() => {
     logger = stubInterface<Logger>();
     db = stubInterface<Datastore>({
-      fetchClientIdWebhooks: { testClient1: 'http://localhost/webhook' }
+      fetchClientIdWebhooks: { testClient1: 'http://localhost/webhook' },
     });
     service = new ClientWebhookService(logger, 600, db);
   });
@@ -49,20 +52,23 @@ describe('Client Webhook Service', () => {
 
   it('updates the service data', async () => {
     service = new ClientWebhookService(logger, 0.0001, db);
-    ((db.fetchClientIdWebhooks as unknown) as sinon.SinonStub).onCall(1).returns({
-      testClient1: 'http://localhost/webhook',
-      testClient2: 'http://localhost/webhooks'
-    });
+    ((db.fetchClientIdWebhooks as unknown) as sinon.SinonStub)
+      .onCall(1)
+      .returns({
+        testClient1: 'http://localhost/webhook',
+        testClient2: 'http://localhost/webhooks',
+      });
     await service.start();
     await service.stop();
     assert.called(logger.debug as SinonSpy);
     const data = service.serviceData();
     cassert.deepEqual(data, {
       testClient1: 'http://localhost/webhook',
-      testClient2: 'http://localhost/webhooks'
+      testClient2: 'http://localhost/webhooks',
     });
   });
-
+  // see https://github.com/mozilla/fxa/issues/5037
+  /*
   describe('using local Firestore', () => {
     before(async () => {
       const fs = new Firestore({
@@ -95,4 +101,5 @@ describe('Client Webhook Service', () => {
       cassert.deepEqual(service.serviceData(), {});
     });
   });
+  */
 });

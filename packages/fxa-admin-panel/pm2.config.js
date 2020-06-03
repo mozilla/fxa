@@ -3,6 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { resolve } = require('path');
+const PATH = process.env.PATH.split(':')
+  .filter((p) => !p.includes(process.env.TMPDIR))
+  .join(':');
 
 module.exports = {
   apps: [
@@ -19,6 +22,7 @@ module.exports = {
         PROXY_STATIC_RESOURCES_FROM: 'http://localhost:8092',
         CONFIG_FILES: '../config/secrets.json',
         PORT: '8091',
+        PATH,
       },
       filter_env: ['npm_'],
     },
@@ -34,9 +38,7 @@ module.exports = {
         PUBLIC_URL: 'http://localhost:8091',
         BROWSER: 'NONE',
         PORT: '8092',
-        PATH: process.env.PATH.split(':')
-          .filter((p) => !p.includes(process.env.TMPDIR))
-          .join(':'),
+        PATH,
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
     },

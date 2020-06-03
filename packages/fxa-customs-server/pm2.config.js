@@ -9,21 +9,18 @@ const PATH = process.env.PATH.split(':')
 module.exports = {
   apps: [
     {
-      name: 'admin-server',
-      script: 'node -r ts-node/register src/bin/main.ts',
+      name: 'customs',
+      script: 'node bin/customs_server.js',
       cwd: __dirname,
       max_restarts: '1',
-      min_uptime: '2m',
       env: {
+        NODE_ENV: 'dev',
+        PORT: 7000,
         PATH,
-        NODE_ENV: 'development',
-        NODE_OPTIONS: '--inspect=9150',
-        TS_NODE_TRANSPILE_ONLY: 'true',
-        TS_NODE_FILES: 'true',
-        PORT: '8090', // TODO: this needs to get added to src/config.ts
       },
       filter_env: ['npm_'],
-      watch: ['src'],
+      watch: ['bin', 'lib'],
+      min_uptime: '2m',
     },
   ],
 };

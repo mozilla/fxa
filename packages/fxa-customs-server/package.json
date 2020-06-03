@@ -13,7 +13,9 @@
   "bugs": "https://github.com/mozilla/fxa/issues/",
   "scripts": {
     "outdated": "npm outdated --depth 0 || exit 0",
-    "start": "node bin/customs_server.js",
+    "start": "pm2 start pm2.config.js",
+    "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "test": "scripts/test-local.sh",

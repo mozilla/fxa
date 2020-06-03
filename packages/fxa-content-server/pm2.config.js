@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const PATH = process.env.PATH.split(':')
+  .filter((p) => !p.includes(process.env.TMPDIR))
+  .join(':');
+
 module.exports = {
   apps: [
     {
@@ -12,6 +16,7 @@ module.exports = {
         NODE_ENV: 'development',
         CONFIG_FILES: 'server/config/local.json',
         PORT: 3030,
+        PATH,
       },
       filter_env: ['npm_'],
       watch: ['server'],

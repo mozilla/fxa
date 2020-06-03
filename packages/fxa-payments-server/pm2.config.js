@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const PATH = process.env.PATH.split(':')
+  .filter((p) => !p.includes(process.env.TMPDIR))
+  .join(':');
+
 module.exports = {
   apps: [
     {
       name: 'payments',
       cwd: __dirname,
-      script: 'server/bin/fxa-payments-server.js',
+      script: 'node server/bin/fxa-payments-server.js',
       max_restarts: '1',
       min_uptime: '2m',
       env: {
@@ -17,6 +21,7 @@ module.exports = {
         PROXY_STATIC_RESOURCES_FROM: 'http://localhost:3032',
         CONFIG_FILES: 'server/config/secrets.json',
         PORT: '3031',
+        PATH,
       },
       filter_env: ['npm_'],
     },
@@ -32,9 +37,7 @@ module.exports = {
         PUBLIC_URL: 'http://localhost:3031',
         BROWSER: 'NONE',
         PORT: '3032',
-        PATH: process.env.PATH.split(':')
-          .filter((p) => !p.includes(process.env.TMPDIR))
-          .join(':'),
+        PATH,
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
     },
