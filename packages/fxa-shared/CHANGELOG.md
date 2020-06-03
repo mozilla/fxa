@@ -1,5 +1,11 @@
 # Change history
 
+## 1.172.6
+
+### Refactorings
+
+- update supported languages Because: ([090ad5f64](https://github.com/mozilla/fxa/commit/090ad5f64))
+
 ## 1.172.5
 
 No changes.

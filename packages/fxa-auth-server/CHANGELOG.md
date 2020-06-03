@@ -1,3 +1,9 @@
+## 1.172.6
+
+### Bug fixes
+
+- scripts: Fix the account reset script ([afc3b55d0](https://github.com/mozilla/fxa/commit/afc3b55d0))
+
 ## 1.172.5
 
 No changes.
