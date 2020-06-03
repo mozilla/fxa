@@ -1319,7 +1319,7 @@ describe('DirectStripeRoutes', () => {
         directStripeRoutesInstance.stripeHelper.subscriptionForCustomer.resolves(
           subscription2
         );
-        directStripeRoutesInstance.stripeHelper.verifyPlanUpgradeForSubscription.resolves();
+        directStripeRoutesInstance.stripeHelper.verifyPlanUpdateForSubscription.resolves();
         directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
 
         sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();

@@ -356,27 +356,33 @@ describe('StripeHelper', () => {
     });
   });
 
-  describe('verifyPlanUpgradeForSubscription', () => {
-    it('does nothing for valid upgrade', async () => {
+  describe('verifyPlanUpdateForSubscription', () => {
+    it('does nothing for valid upgrade or downgrade', async () => {
       assert.isUndefined(
-        await stripeHelper.verifyPlanUpgradeForSubscription(
+        await stripeHelper.verifyPlanUpdateForSubscription(
           'plan_G93lTs8hfK7NNG',
           'plan_G93mMKnIFCjZek'
+        )
+      );
+      assert.isUndefined(
+        await stripeHelper.verifyPlanUpdateForSubscription(
+          'plan_G93mMKnIFCjZek',
+          'plan_G93lTs8hfK7NNG'
         )
       );
     });
 
     describe('when the upgrade is invalid', () => {
-      it('throws an invalidPlanUpgrade error', async () => {
+      it('throws an invalidPlanUpdate error', async () => {
         return stripeHelper
-          .verifyPlanUpgradeForSubscription(
+          .verifyPlanUpdateForSubscription(
             'plan_G93lTs8hfK7NNG',
             'plan_F4G9jB3x5i6Dpj'
           )
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
             (err) => {
-              assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPGRADE);
+              assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPDATE);
             }
           );
       });
@@ -385,7 +391,7 @@ describe('StripeHelper', () => {
     describe('when the current plan specified does not exist', () => {
       it('thows an unknownSubscriptionPlan error', async () => {
         return stripeHelper
-          .verifyPlanUpgradeForSubscription('plan_bad', 'plan_F4G9jB3x5i6Dpj')
+          .verifyPlanUpdateForSubscription('plan_bad', 'plan_F4G9jB3x5i6Dpj')
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
             (err) => {
@@ -398,7 +404,7 @@ describe('StripeHelper', () => {
     describe('when the new plan specified does not exist', () => {
       it('thows an unknownSubscriptionPlan error', async () => {
         return stripeHelper
-          .verifyPlanUpgradeForSubscription('plan_F4G9jB3x5i6Dpj', 'plan_bad')
+          .verifyPlanUpdateForSubscription('plan_F4G9jB3x5i6Dpj', 'plan_bad')
           .then(
             () => Promise.reject(new Error('Method expected to reject')),
             (err) => {
@@ -411,7 +417,7 @@ describe('StripeHelper', () => {
     describe('when the current plan and the new plan are the same', () => {
       it('thows a subscriptionAlreadyChanged error', async () => {
         return stripeHelper
-          .verifyPlanUpgradeForSubscription(
+          .verifyPlanUpdateForSubscription(
             'plan_G93lTs8hfK7NNG',
             'plan_G93lTs8hfK7NNG'
           )

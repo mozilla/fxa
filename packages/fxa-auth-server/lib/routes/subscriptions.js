@@ -468,13 +468,13 @@ class DirectStripeRoutes {
 
     const currentPlanId = subscription.plan.id;
 
-    // Verify the plan is a valid upgrade for this subscription.
-    await this.stripeHelper.verifyPlanUpgradeForSubscription(
+    // Verify the plan is a valid update for this subscription.
+    await this.stripeHelper.verifyPlanUpdateForSubscription(
       currentPlanId,
       planId
     );
 
-    // Upgrade the plan
+    // Update the plan
     await this.stripeHelper.changeSubscriptionPlan(subscriptionId, planId);
 
     await this.customerChanged(request, uid, email);

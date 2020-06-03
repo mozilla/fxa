@@ -98,7 +98,7 @@ const ERRNO = {
   REFRESH_TOKEN_UNKNOWN: 182,
   INVALID_EXPIRED_OTP_CODE: 183,
   SUBSCRIPTION_ALREADY_CHANGED: 184,
-  INVALID_PLAN_UPGRADE: 185,
+  INVALID_PLAN_UPDATE: 185,
   PAYMENT_FAILED: 186,
   SUBSCRIPTION_ALREADY_EXISTS: 187,
   UNKNOWN_SUBSCRIPTION_FOR_SOURCE: 188,
@@ -1232,12 +1232,12 @@ AppError.subscriptionAlreadyCancelled = () => {
   });
 };
 
-AppError.invalidPlanUpgrade = () => {
+AppError.invalidPlanUpdate = () => {
   return new AppError({
     code: 400,
     error: 'Bad Request',
-    errno: ERRNO.INVALID_PLAN_UPGRADE,
-    message: 'Subscription plan is not a valid upgrade',
+    errno: ERRNO.INVALID_PLAN_UPDATE,
+    message: 'Subscription plan is not a valid update',
   });
 };
 
