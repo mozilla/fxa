@@ -1,3 +1,10 @@
+## 1.174.0
+
+### Bug fixes
+
+- local-dev: added fxa-shared and fxa-react to pm2 ([c3780546b](https://github.com/mozilla/fxa/commit/c3780546b))
+- scripts: Fix the borked block-ip custom server script ([f1d645bb1](https://github.com/mozilla/fxa/commit/f1d645bb1))
+
 ## 1.173.0
 
 ### Bug fixes

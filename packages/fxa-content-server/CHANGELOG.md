@@ -1,3 +1,26 @@
+## 1.174.0
+
+### New features
+
+- surveys: evaluate survey conditions for the rendering view only ([139ddb1fe](https://github.com/mozilla/fxa/commit/139ddb1fe))
+- surveys: filter surveys based on config conditions ([8a271e2fa](https://github.com/mozilla/fxa/commit/8a271e2fa))
+- content-server: integrating survey targetter into content server ([ee3b63106](https://github.com/mozilla/fxa/commit/ee3b63106))
+- content-server: Integrate interruptive surveys ([3dd42bceb](https://github.com/mozilla/fxa/commit/3dd42bceb))
+
+### Bug fixes
+
+- local-dev: added fxa-shared and fxa-react to pm2 ([c3780546b](https://github.com/mozilla/fxa/commit/c3780546b))
+- scripts: Fix the account reset script ([380ec72b4](https://github.com/mozilla/fxa/commit/380ec72b4))
+- content-server: fixed content-server build ([17f231127](https://github.com/mozilla/fxa/commit/17f231127))
+- strings: Updated CAD QR strings ([6c1b7c894](https://github.com/mozilla/fxa/commit/6c1b7c894))
+- tests: run-server npx yarn and then fxa-shared tsc --build ([4856a2895](https://github.com/mozilla/fxa/commit/4856a2895))
+- content-server: change tooltip render order ([5781483f4](https://github.com/mozilla/fxa/commit/5781483f4))
+
+### Other changes
+
+- surveys: update test survey view config to reset-password ([2de2da5d5](https://github.com/mozilla/fxa/commit/2de2da5d5))
+- content-server: promote MX record validation to a feature ([6b0a23e7a](https://github.com/mozilla/fxa/commit/6b0a23e7a))
+
 ## 1.173.0
 
 ### New features
