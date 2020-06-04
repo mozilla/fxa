@@ -176,37 +176,37 @@ bump() {
         if [ "$FEAT_SUMMARY" = "" ]; then
           FEAT_SUMMARY="### New features\n"
         fi
-        FEAT_SUMMARY="$FEAT_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
+        FEAT_SUMMARY="$FEAT_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "fix")
         if [ "$FIX_SUMMARY" = "" ]; then
           FIX_SUMMARY="### Bug fixes\n"
         fi
-        FIX_SUMMARY="$FIX_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
+        FIX_SUMMARY="$FIX_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "perf")
         if [ "$PERF_SUMMARY" = "" ]; then
           PERF_SUMMARY="### Performance improvements\n"
         fi
-        PERF_SUMMARY="$PERF_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
+        PERF_SUMMARY="$PERF_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "refactor")
         if [ "$REFACTOR_SUMMARY" = "" ]; then
           REFACTOR_SUMMARY="### Refactorings\n"
         fi
-        REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
+        REFACTOR_SUMMARY="$REFACTOR_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       "revert")
         if [ "$REVERT_SUMMARY" = "" ]; then
           REVERT_SUMMARY="### Reverted changes\n"
         fi
-        REVERT_SUMMARY="$REVERT_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
+        REVERT_SUMMARY="$REVERT_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
       *)
         if [ "$OTHER_SUMMARY" = "" ]; then
           OTHER_SUMMARY="### Other changes\n"
         fi
-        OTHER_SUMMARY="$OTHER_SUMMARY\n* $AREA$MESSAGE ($COMMIT_LINK)"
+        OTHER_SUMMARY="$OTHER_SUMMARY\n- $AREA$MESSAGE ($COMMIT_LINK)"
         ;;
     esac
   done
