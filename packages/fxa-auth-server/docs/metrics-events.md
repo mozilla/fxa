@@ -1,7 +1,7 @@
 # Auth server metrics events
 
 The auth server emits three types of event
-that are imported to redshift
+that are imported to bigquery
 and made available to
 metrics queries in redash:
 
@@ -18,6 +18,15 @@ metrics queries in redash:
 - [Email events](#email-events),
   which represent significant actions
   for a user that involves email deliverability.
+
+- [Device Command events](#device-command-events),
+  which represent signficiant actions for a user
+  when sending a command (such opening a new tab)
+  from one of their devices to another.
+
+---
+
+## Table of Contents
 
 - [Flow events](#flow-events)
   - [`flow_metadata`](#flow_metadata)
@@ -39,6 +48,11 @@ metrics queries in redash:
   - [Event names](#event-names)
 - [Email events](#email-events)
   - [`email_events`](#email_events)
+- [Device Command events](#device-command-events)
+  - [Device Command event fields](#device-command-event-fields)
+  - [Device Command event type names](#device-command-event-type-names)
+  - [Device Command names](#device-command-names)
+  - [Device Type names](#device-type-names)
 - [Sampled data sets](#sampled-data-sets)
 - [Significant changes](#significant-changes)
 
@@ -439,6 +453,63 @@ Possible values for `${type}` include
 Possible values for `${locale}` include
 any valid parsed locale via auth-server
 [translator](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/lib/senders/translator.js).
+
+## Device Command events
+
+Device-command events are used for analysing deliverability when the user
+sends a command from one of their connected devices to another, for example
+when using Firefox's "send tab" feature to instruct one device to open a tab
+that is currently open on another.
+
+### Device Command event fields
+
+Each device-command event is emitted by the FxA server as a JSON log line
+and exported into bigquery as a table row with the following fields:
+
+| Name         | Description                                                              |
+| ------------ | ------------------------------------------------------------------------ |
+| `timestamp`  | The time at which the event occurred.                                    |
+| `type`       | The name of the event.                                                   |
+| `uid`        | The user id (HMACed on export to avoid correlation back to FxA user db). |
+| `target`     | The id of the device to receive the command (HMACed as above).           |
+| `sender`     | The id of the device sending the command (HMACed as above).              |
+| `index`      | An id unique to this attempt to send a command (HMACed as above).        |
+| `command`    | The name of the command being invokved on the target device.             |
+| `targetOS`   | The name of operating system of the target device.                       |
+| `targetType` | The device-type string for the target device.                            |
+| `senderOS`   | The name of operating system of the sending device.                      |
+| `senderType` | The device-type string for the sending device.                           |
+
+### Device Command event type names
+
+The possible values for `${type}` include:
+
+| Event type                   | Description                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `device.command.invoked`     | Emitted then the sending device attempts to invoke the command.             |
+| `device.command.notified`    | Emitted when a push notification is successfully sent to the target device. |
+| `device.command.notifyError` | Emitted when a push notification is could be sent to the target device.     |
+| `device.command.retrieved`   | Emitted when the command is successfully retreived by the target device.    |
+
+### Device Command names
+
+The possible values for `${command}` include:
+
+| Command name                                | Description                                                 |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| `https://identity.mozilla.com/cmd/open-uri` | Request the target device to open a given URL in a new tab. |
+
+### Device type names
+
+The possible values for `${targetType}` and `${senderType}` include:
+
+| Device type | Description                                                     |
+| ----------- | --------------------------------------------------------------- |
+| `desktop`   | The device is Desktop firefox.                                  |
+| `mobile`    | The device is a mobile Firefox browser on a phone form-factor.  |
+| `tablet`    | The device is a mobile Firefox browser on a tablet form-factor. |
+| `vr`        | The device is a Firefox browser on a VR headset.                |
+| `tv`        | The device is mobile Firefox browser on TV.                     |
 
 ## Sampled data sets
 

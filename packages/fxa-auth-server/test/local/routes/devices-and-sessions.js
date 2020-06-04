@@ -853,6 +853,62 @@ describe('/account/device/commands', () => {
     );
   });
 
+  it('emits a `retrieved` event for each command fetched', () => {
+    const mockResponse = {
+      last: true,
+      index: 4,
+      messages: [
+        { index: 3, data: { sender: 'sender1', command: 'three' } },
+        { index: 4, data: { sender: 'sender2', command: 'four' } },
+      ],
+    };
+    const mockPushbox = mocks.mockPushbox();
+    mockPushbox.retrieve = sinon.spy(() => P.resolve(mockResponse));
+
+    mockRequest.query = {
+      index: 2,
+    };
+    const route = getRoute(
+      makeRoutes({
+        customs: mockCustoms,
+        log: mockLog,
+        pushbox: mockPushbox,
+      }),
+      '/account/device/commands'
+    );
+
+    mockRequest.query = isA.validate(
+      mockRequest.query,
+      route.options.validate.query
+    ).value;
+    assert.ok(mockRequest.query);
+    return runTest(route, mockRequest).then((response) => {
+      assert.callCount(mockLog.info, 2);
+      assert.calledWithExactly(
+        mockLog.info.getCall(0),
+        'device.command.retrieved',
+        {
+          uid,
+          target: deviceId,
+          index: 3,
+          sender: 'sender1',
+          command: 'three',
+        }
+      );
+      assert.calledWithExactly(
+        mockLog.info.getCall(1),
+        'device.command.retrieved',
+        {
+          uid,
+          target: deviceId,
+          index: 4,
+          sender: 'sender2',
+          command: 'four',
+        }
+      );
+    });
+  });
+
   it('supports feature-flag for oauth devices', async () => {
     const mockPushbox = mocks.mockPushbox();
     const route = getRoute(
@@ -1148,6 +1204,111 @@ describe('/account/devices/invoke_command', () => {
         );
       }
     );
+  });
+
+  it('emits `invoked` and `notified` events when successfully accepting a command', () => {
+    const commandSendTab = 'https://identity.mozilla.com/cmd/open-uri';
+    const mockPushbox = mocks.mockPushbox({
+      store: sinon.spy(async () => ({ index: 15 })),
+    });
+    const target = 'bogusid1';
+    const sender = 'bogusid2';
+    const payload = { bogus: 'payload' };
+    mockRequest.payload = {
+      target,
+      command: commandSendTab,
+      payload,
+    };
+    const route = getRoute(
+      makeRoutes({
+        customs: mockCustoms,
+        log: mockLog,
+        push: mockPush,
+        pushbox: mockPushbox,
+        db: mockDB,
+      }),
+      '/account/devices/invoke_command'
+    );
+
+    return runTest(route, mockRequest).then(() => {
+      assert.callCount(mockLog.info, 2);
+      const expectedMetricsTags = {
+        uid,
+        target,
+        index: 15,
+        sender,
+        command: commandSendTab,
+        senderOS: undefined,
+        senderType: undefined,
+        targetOS: undefined,
+        targetType: 'mobile',
+      };
+      assert.calledWithExactly(
+        mockLog.info.getCall(0),
+        'device.command.invoked',
+        expectedMetricsTags
+      );
+      assert.calledWithExactly(
+        mockLog.info.getCall(1),
+        'device.command.notified',
+        expectedMetricsTags
+      );
+    });
+  });
+
+  it('emits `invoked` and `notifyError` events when push fails', () => {
+    const commandSendTab = 'https://identity.mozilla.com/cmd/open-uri';
+    const mockPushbox = mocks.mockPushbox({
+      store: sinon.spy(async () => ({ index: 15 })),
+    });
+    const target = 'bogusid1';
+    const sender = 'bogusid2';
+    const payload = { bogus: 'payload' };
+    mockRequest.payload = {
+      target,
+      command: commandSendTab,
+      payload,
+    };
+    const mockPushError = new Error('a push failure');
+    mockPush.notifyCommandReceived = sinon.spy(async () => {
+      throw mockPushError;
+    });
+    const route = getRoute(
+      makeRoutes({
+        customs: mockCustoms,
+        log: mockLog,
+        push: mockPush,
+        pushbox: mockPushbox,
+        db: mockDB,
+      }),
+      '/account/devices/invoke_command'
+    );
+
+    return runTest(route, mockRequest).then(() => {
+      assert.callCount(mockPush.notifyCommandReceived, 1);
+      assert.callCount(mockLog.info, 2);
+      const expectedMetricsTags = {
+        uid,
+        target,
+        index: 15,
+        sender,
+        command: commandSendTab,
+        senderOS: undefined,
+        senderType: undefined,
+        targetOS: undefined,
+        targetType: 'mobile',
+      };
+      assert.calledWithExactly(
+        mockLog.info.getCall(0),
+        'device.command.invoked',
+        expectedMetricsTags
+      );
+      assert.calledWithExactly(
+        mockLog.info.getCall(1),
+        'device.command.notifyError',
+        { err: mockPushError, ...expectedMetricsTags }
+      );
+    });
   });
 
   it('supports feature-flag for oauth devices', async () => {

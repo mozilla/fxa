@@ -180,13 +180,14 @@ module.exports = function (log, db, config, statsd) {
      *
      * @param {String} uid
      * @param {Device} device
-     * @param {Number} index - index of the newly-enqueued command
+     * @param {String} command - the name of the command that was received.
+     * @param {String} sender - the id of the device that sent the command.
+     * @param {Number} index - index of the newly-enqueued command.
      * @param {String} url - url to retrieve the command details.
-     * @param {String} topic
-     * @param {String} reason
+     * @param {Number} ttl - how long the command will remain in the queue, in seconds.
      * @promise
      */
-    notifyCommandReceived(uid, device, command, sender, index, url, ttl) {
+    async notifyCommandReceived(uid, device, command, sender, index, url, ttl) {
       if (typeof ttl === 'undefined') {
         ttl = TTL_COMMAND_RECEIVED;
       }
@@ -203,7 +204,15 @@ module.exports = function (log, db, config, statsd) {
         },
         TTL: ttl,
       };
-      return this.sendPush(uid, [device], 'commandReceived', options);
+      const sendErrors = await this.sendPush(
+        uid,
+        [device],
+        'commandReceived',
+        options
+      );
+      if (sendErrors[device.id]) {
+        throw sendErrors[device.id];
+      }
     },
 
     /**
@@ -338,7 +347,7 @@ module.exports = function (log, db, config, statsd) {
      * @param {Object} [options]
      * @param {Object} [options.data]
      * @param {Number} [options.TTL] (in seconds)
-     * @promise
+     * @promise {Object} A map of device ids to errors encountered, if any.
      */
     async sendPush(uid, devices, reason, options = {}) {
       devices = filterSupportedDevices(options.data, devices);
@@ -350,6 +359,7 @@ module.exports = function (log, db, config, statsd) {
       if (devices.length > MAX_ACTIVE_DEVICES) {
         log.warn(LOG_OP_TOO_MANY_DEVICES, { uid });
       }
+      const sendErrors = {};
       for (const device of devices) {
         const deviceId = device.id;
 
@@ -366,11 +376,17 @@ module.exports = function (log, db, config, statsd) {
         this.reportPushAttempt(device.pushCallback, metricsTags);
 
         if (!device.pushCallback) {
-          this.reportPushFailure(ERR_NO_PUSH_CALLBACK, metricsTags);
+          sendErrors[deviceId] = this.reportPushFailure(
+            ERR_NO_PUSH_CALLBACK,
+            metricsTags
+          );
           continue;
         }
         if (device.pushEndpointExpired) {
-          this.reportPushFailure(ERR_PUSH_CALLBACK_EXPIRED, metricsTags);
+          sendErrors[deviceId] = this.reportPushFailure(
+            ERR_PUSH_CALLBACK_EXPIRED,
+            metricsTags
+          );
           continue;
         }
         const pushSubscription = { endpoint: device.pushCallback };
@@ -378,7 +394,10 @@ module.exports = function (log, db, config, statsd) {
         const pushOptions = { TTL: options.TTL || '0' };
         if (options.data) {
           if (!device.pushPublicKey || !device.pushAuthKey) {
-            this.reportPushFailure(ERR_DATA_BUT_NO_KEYS, metricsTags);
+            sendErrors[deviceId] = this.reportPushFailure(
+              ERR_DATA_BUT_NO_KEYS,
+              metricsTags
+            );
             continue;
           }
           pushSubscription.keys = {
@@ -415,7 +434,10 @@ module.exports = function (log, db, config, statsd) {
             err.statusCode === 410 ||
             keyWasInvalid
           ) {
-            this.reportPushFailure(ERR_PUSH_CALLBACK_RESET, metricsTags);
+            sendErrors[deviceId] = this.reportPushFailure(
+              ERR_PUSH_CALLBACK_RESET,
+              metricsTags
+            );
             // set the push endpoint expired flag
             // Warning: this method is called without any session tokens or auth validation.
             device.pushEndpointExpired = true;
@@ -426,10 +448,11 @@ module.exports = function (log, db, config, statsd) {
             }
           } else {
             log.error(LOG_OP_PUSH_UNEXPECTED_ERROR, { err });
-            this.reportPushFailure(err, metricsTags);
+            sendErrors[deviceId] = this.reportPushFailure(err, metricsTags);
           }
         }
       }
+      return sendErrors;
     },
 
     reportPushAttempt(pushCallback, metricsTags) {
@@ -453,6 +476,7 @@ module.exports = function (log, db, config, statsd) {
       metricsTags = { errCode, err, ...metricsTags };
       this.incrementPushMetric(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
       log.warn(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
+      return err;
     },
 
     reportPushSuccess(metricsTags) {

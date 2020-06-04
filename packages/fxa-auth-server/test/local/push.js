@@ -121,7 +121,12 @@ describe('push', () => {
 
   it('sendPush logs metrics about successful sends', async () => {
     const push = loadMockedPushModule();
-    await push.sendPush(mockUid, mockDevices, 'accountVerify');
+    const sendErrors = await push.sendPush(
+      mockUid,
+      mockDevices,
+      'accountVerify'
+    );
+    assert.deepEqual(sendErrors, {});
     assert.callCount(mockSendNotification, 2);
 
     assert.callCount(mockLog.info, 5);
@@ -217,7 +222,12 @@ describe('push', () => {
       }
     });
     const push = loadMockedPushModule();
-    await push.sendPush(mockUid, mockDevices, 'accountVerify');
+    const sendErrors = await push.sendPush(
+      mockUid,
+      mockDevices,
+      'accountVerify'
+    );
+    sinon.assert.match(sendErrors, match.has(mockDevices[1].id, match.any));
     assert.callCount(mockSendNotification, 2);
 
     assert.callCount(mockLog.info, 4);
@@ -607,6 +617,30 @@ describe('push', () => {
         TTL: 42,
       }
     );
+  });
+
+  it('notifyCommandReceived re-throws errors', async () => {
+    mockSendNotification = sinon.spy(async () => {
+      throw new Error('Failed with a nasty error');
+    });
+    const push = loadMockedPushModule();
+    try {
+      await push.notifyCommandReceived(
+        mockUid,
+        mockDevices[0],
+        'commandName',
+        'sendingDevice',
+        12,
+        'http://fetch.url',
+        42
+      );
+      assert.fail('should have thrown');
+    } catch (err) {
+      sinon.assert.match(
+        err,
+        match.has('message', 'Failed with a nasty error')
+      );
+    }
   });
 
   it('notifyDeviceConnected calls sendPush', async () => {

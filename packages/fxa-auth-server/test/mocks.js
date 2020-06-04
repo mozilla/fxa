@@ -581,6 +581,16 @@ function mockPush(methods) {
 
 function mockPushbox(methods) {
   const pushbox = Object.assign({}, methods);
+  if (!pushbox.retrieve) {
+    // Route code expects the `retrieve` method to return a properly-structured object.
+    pushbox.retrieve = sinon.spy(() =>
+      P.resolve({
+        last: true,
+        index: 0,
+        messages: [],
+      })
+    );
+  }
   PUSHBOX_METHOD_NAMES.forEach((name) => {
     if (!pushbox[name]) {
       pushbox[name] = sinon.spy(() => P.resolve());
