@@ -1,10 +1,10 @@
-{{t "Welcome to the Firefox family" }}
+{{{t "Firefox Account verified. You're almost there." }}}
 
-{{{t "You're signed in and ready to start exploring safely and securely." }}}
+{{{t "Next sync between your devices!" }}}
 
-{{t "Now get the most of Firefox by signing in everywhere you browse." }}
+{{t "Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices." }}
 
-{{t "Connect another device:"}}
+{{t "Setup next device"}}
 {{{ link }}}
 
 {{> automatedEmailNoAction}}

@@ -1197,10 +1197,12 @@ module.exports = function (log, config, oauthdb) {
     });
 
     const templateName = 'postVerify';
-    const subject = gettext('Account confirmed');
+    const subject = gettext(
+      'Account verified. Next, sync another device to finish setup'
+    );
     const query = {};
 
-    const action = gettext('Connect another device');
+    const action = gettext('Setup next device');
 
     const links = this._generateLinks(
       this.syncUrl,
@@ -1222,6 +1224,7 @@ module.exports = function (log, config, oauthdb) {
         action,
         androidLinkAttributes: linkAttributes(links.androidLink),
         androidUrl: links.androidLink,
+        cadLinkAttributes: linkAttributes(links.link),
         iosLinkAttributes: linkAttributes(links.iosLink),
         iosUrl: links.iosLink,
         link: links.link,
