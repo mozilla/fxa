@@ -1,5 +1,11 @@
 # Change history
 
+## 1.174.0
+
+### Bug fixes
+
+- local-dev: added fxa-shared and fxa-react to pm2 ([c3780546b](https://github.com/mozilla/fxa/commit/c3780546b))
+
 ## 1.173.0
 
 ### Refactorings

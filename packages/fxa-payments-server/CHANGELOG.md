@@ -1,5 +1,23 @@
 # Change history
 
+## 1.174.0
+
+### New features
+
+- admin-panel+settings+react: set up storybook and tailwind for admin-panel, share tailwind config across all projects, config movement ([7cd796a3f](https://github.com/mozilla/fxa/commit/7cd796a3f))
+
+### Bug fixes
+
+- local-dev: added fxa-shared and fxa-react to pm2 ([c3780546b](https://github.com/mozilla/fxa/commit/c3780546b))
+
+### Refactorings
+
+- clean up the fluent file ([a0be82a2d](https://github.com/mozilla/fxa/commit/a0be82a2d))
+
+### Other changes
+
+- settings: UnitRow, UnitRowWithAvatar, ## 1.173.0 Modal styles + Storybook, allow postcss imports ([d22db34b4](https://github.com/mozilla/fxa/commit/d22db34b4))
+
 ## 1.173.0
 
 ### New features
