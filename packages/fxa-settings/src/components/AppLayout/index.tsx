@@ -4,6 +4,7 @@
 
 import React from 'react';
 import HeaderLockup from '../HeaderLockup';
+import ContentSkip from '../ContentSkip';
 import Nav from '../Nav';
 
 type AppLayoutProps = {
@@ -20,6 +21,7 @@ export const AppLayout = ({
   children,
 }: AppLayoutProps) => (
   <>
+    <ContentSkip />
     <HeaderLockup
       {...{
         avatarUrl,
@@ -27,8 +29,10 @@ export const AppLayout = ({
       }}
     />
     <div className="max-w-screen-desktopXl mx-auto flex flex-1 tablet:px-20 desktop:px-12">
-      <Nav {...{ hasSubscription }} />
-      <main className="flex-grow" data-testid="main">
+      <div className="hidden desktop:block desktop:flex-2">
+        <Nav {...{ hasSubscription, primaryEmail }} />
+      </div>
+      <main id="main" data-testid="main" className="desktop:flex-7">
         {children}
       </main>
     </div>

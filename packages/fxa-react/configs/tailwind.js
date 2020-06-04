@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const plugin = require('tailwindcss/plugin');
+
 module.exports = {
   purge: {
     // The default here targets a standard CRA
@@ -16,6 +18,7 @@ module.exports = {
       },
       margin: {
         11: '2.75rem',
+        18: '4.5rem',
       },
       borderRadius: {
         xl: '.75rem',
@@ -23,6 +26,7 @@ module.exports = {
       flex: {
         2: '2',
         4: '4',
+        7: '7',
       },
     },
     screens: {
@@ -84,6 +88,7 @@ module.exports = {
     // slightly different. They can be viewed here:
     // https://bit.ly/fxa-settings-colors
     colors: {
+      transparent: 'transparent',
       black: '#000',
       white: '#fff',
       grey: {
@@ -194,6 +199,19 @@ module.exports = {
       },
     },
   },
-  variants: {},
-  plugins: [],
+  variants: {
+    width: ['responsive', 'hover', 'focus'],
+    height: ['responsive', 'hover', 'focus'],
+  },
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      const customUtilities = {
+        '.clip-auto': {
+          clip: 'auto',
+        },
+      };
+
+      addUtilities(customUtilities, ['responsive', 'hover', 'focus']);
+    }),
+  ],
 };

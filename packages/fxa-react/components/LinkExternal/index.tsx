@@ -30,6 +30,7 @@ export const LinkExternal = ({
     }}
   >
     {children}
+    <span className="sr-only">Opens in new window</span>
   </a>
 );
 
