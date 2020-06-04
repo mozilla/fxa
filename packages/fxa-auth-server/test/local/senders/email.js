@@ -762,7 +762,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['postVerifyEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Account confirmed' }],
+    ['subject', { test: 'equal', expected: 'Account verified. Next, sync another device to finish setup' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'account-verified', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('postVerify') }],
@@ -770,18 +770,22 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.postVerify }],
     ])],
     ['html', [
-      { test: 'include', expected: 'You&#x27;re signed in and ready to start exploring safely and securely.' },
-      { test: 'notInclude', expected: config.smtp.androidUrl },
-      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'include', expected: 'Firefox Account verified. You&#x27;re almost there.' },
+      { test: 'include', expected: 'Next sync between your devices!' },
+      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
+      { test: 'include', expected: configHref('syncUrl', 'account-verified', 'connect-device') },
+      { test: 'include', expected: config.smtp.androidUrl },
+      { test: 'include', expected: config.smtp.iosUrl },
       { test: 'include', expected: configHref('privacyUrl', 'account-verified', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'account-verified', 'support') },
-      { test: 'include', expected: configHref('syncUrl', 'account-verified', 'connect-device') },
     ]],
     ['text', [
-      { test: 'include', expected: 'You\'re signed in and ready to start exploring safely and securely.' },
+      { test: 'include', expected: 'Firefox Account verified. You\'re almost there.' },
+      { test: 'include', expected: 'Next sync between your devices!' },
+      { test: 'include', expected: 'Sync privately keeps your bookmarks, passwords and other Firefox data the same across all your devices.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'account-verified', 'privacy')}` },
       { test: 'include', expected: `Have questions? Visit ${configUrl('supportUrl', 'account-verified', 'support')}` },
-      { test: 'include', expected: `Connect another device:\n${configUrl('syncUrl', 'account-verified', 'connect-device')}` },
+      { test: 'include', expected: config.smtp.syncUrl },
       { test: 'notInclude', expected: config.smtp.androidUrl },
       { test: 'notInclude', expected: config.smtp.iosUrl },
       { test: 'notInclude', expected: 'utm_source=email' },
@@ -1698,12 +1702,11 @@ describe('email translations', () => {
       );
       // NOTE: translation might change, but we use the subject, we don't change that often.
       // TODO: switch back to testing the subject when translations have caught up
-      assert.include(emailConfig.text, 'سياسة موزيلا للخصوصيّة');
-      // Ensure the "Connect another device" action button is translated
-      assert.include(emailConfig.html, 'صِلْ جهاز آخر');
+      assert.include(emailConfig.text, 'أُضيفَ البريد الثانوي');
+      // assert.include(emailConfig.html, 'صِلْ جهاز آخر');
     });
 
-    return mailer.postVerifyEmail(message);
+    return mailer.postVerifySecondaryEmail(message);
   });
 
   it('russian emails are translated', async () => {
@@ -1714,12 +1717,11 @@ describe('email translations', () => {
         'ru',
         'language header is correct'
       );
-      assert.include(emailConfig.subject, 'Аккаунт подтверждён');
-      // Ensure the "Connect another device" action button is translated
-      assert.include(emailConfig.html, 'Подсоединить другое устройство');
+      assert.include(emailConfig.subject, 'Добавлена альтернативная эл. почта');
+      // assert.include(emailConfig.html, 'Подсоединить другое устройство');
     });
 
-    return mailer.postVerifyEmail(message);
+    return mailer.postVerifySecondaryEmail(message);
   });
 });
 
