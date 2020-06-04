@@ -33,7 +33,7 @@ export const GET_ACCOUNT = gql`
   }
 `;
 
-export interface accountData {
+export interface AccountData {
   uid: string;
   displayName: string | null;
   avatarUrl: string | null;

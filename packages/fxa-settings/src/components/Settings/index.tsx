@@ -4,16 +4,12 @@
 
 import React, { useCallback } from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useQuery } from '@apollo/client';
-import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Modal from '../Modal';
-import { GET_ACCOUNT, accountData } from './gql';
+import { AccountData } from '../AccountDataHOC/gql';
 
-export const Settings = () => {
-  const { loading, error, data } = useQuery(GET_ACCOUNT);
+export const Settings = ({ account }: { account: AccountData }) => {
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const onSecondaryEmailConfirm = useCallback(() => {
     console.log('confirmed - resend verification code');
@@ -23,19 +19,7 @@ export const Settings = () => {
   const modalHeaderId = 'modal-header-verify-email';
   const modalDescId = 'modal-desc-verify-email';
 
-  if (loading) {
-    return (
-      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
-    );
-  }
-
-  if (error) {
-    return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
-  }
-
-  const account: accountData = data.account;
   const primaryEmail = account.emails.find((email) => email.isPrimary)!;
-  // const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
 
   return (
     <>

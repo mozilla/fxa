@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import AccountDataHOC from '../AccountDataHOC';
+import { AccountData } from '../AccountDataHOC/gql';
 import AppLayout from '../AppLayout';
 import Settings from '../Settings';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
@@ -18,9 +20,19 @@ export const App = ({ queryParams }: AppProps) => {
 
   return (
     <AppErrorBoundary>
-      <AppLayout>
-        <Settings />
-      </AppLayout>
+      <AccountDataHOC>
+        {({ account }: { account: AccountData }) => (
+          <AppLayout
+            avatarUrl={account.avatarUrl}
+            primaryEmail={
+              account.emails.find((email) => email.isPrimary)!.email
+            }
+            hasSubscription={Boolean(account.subscriptions.length)}
+          >
+            <Settings {...{ account }} />
+          </AppLayout>
+        )}
+      </AccountDataHOC>
     </AppErrorBoundary>
   );
 };
