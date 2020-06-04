@@ -42,5 +42,23 @@ module.exports = {
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
     },
+    {
+      name: 'admin-css',
+      script: 'yarn build-postcss',
+      cwd: __dirname,
+      env: {
+        PATH,
+      },
+      filter_env: ['npm_'],
+      autorestart: false,
+      watch: [
+        'postcss.config.js',
+        'tailwind.config.js',
+        'src/styles',
+        'src/components/**/*.scss',
+        require.resolve('fxa-react/configs/tailwind.js'),
+      ],
+      ignore_watch: ['src/styles/tailwind.out.css'],
+    },
   ],
 };
