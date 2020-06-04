@@ -1,3 +1,21 @@
+## 1.174.0
+
+### New features
+
+* email: Update email template ([de7b9770a](https://github.com/mozilla/fxa/commit/de7b9770a))
+* metrics: Emit statsd metrics around push message sending. ([dae87b3cc](https://github.com/mozilla/fxa/commit/dae87b3cc))
+
+### Bug fixes
+
+* local-dev: added fxa-shared and fxa-react to pm2 ([c3780546b](https://github.com/mozilla/fxa/commit/c3780546b))
+* scripts: Fix the account reset script ([380ec72b4](https://github.com/mozilla/fxa/commit/380ec72b4))
+* payments: Allow subscription downgrades ([4f83df33d](https://github.com/mozilla/fxa/commit/4f83df33d))
+* auth: fixed test-local.sh in fxa-auth-server ([99385e89a](https://github.com/mozilla/fxa/commit/99385e89a))
+
+### Other changes
+
+* db9ab0581 Filter out collection_changed commands for iOS ([db9ab0581](https://github.com/mozilla/fxa/commit/db9ab0581))
+
 ## 1.173.0
 
 ### New features

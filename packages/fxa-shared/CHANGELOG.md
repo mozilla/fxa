@@ -1,5 +1,19 @@
 # Change history
 
+## 1.174.0
+
+### New features
+
+* settings-redesign: add settings_version event property for fxa_pref amplitude events ([06a02d586](https://github.com/mozilla/fxa/commit/06a02d586))
+
+### Bug fixes
+
+* local-dev: added fxa-shared and fxa-react to pm2 ([c3780546b](https://github.com/mozilla/fxa/commit/c3780546b))
+
+### Refactorings
+
+* update supported languages Because: ([2d0e5ba21](https://github.com/mozilla/fxa/commit/2d0e5ba21))
+
 ## 1.173.0
 
 ### Bug fixes
