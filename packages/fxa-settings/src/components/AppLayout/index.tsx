@@ -6,6 +6,7 @@ import React from 'react';
 import HeaderLockup from '../HeaderLockup';
 import ContentSkip from '../ContentSkip';
 import Nav from '../Nav';
+import Footer from 'fxa-react/components/Footer';
 
 type AppLayoutProps = {
   avatarUrl: string | null;
@@ -20,7 +21,7 @@ export const AppLayout = ({
   hasSubscription,
   children,
 }: AppLayoutProps) => (
-  <>
+  <div className="flex flex-col min-h-screen" data-testid="app">
     <ContentSkip />
     <HeaderLockup
       {...{
@@ -36,11 +37,8 @@ export const AppLayout = ({
         {children}
       </main>
     </div>
-
-    {/*TODO: pull `Footer` in from `fxa-admin-panel` into
-    `fxa-react` and replace this*/}
-    <footer></footer>
-  </>
+    <Footer />
+  </div>
 );
 
 export default AppLayout;

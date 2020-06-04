@@ -26,7 +26,7 @@ export const UnitRowWithAvatar = ({ avatarUrl }: UnitRowWithAvatarProps) => {
       <div className="unit-row-actions">
         <div>
           <a
-            className="cta-neutral"
+            className="cta-neutral transition-standard"
             data-testid="unit-row-with-avatar-route"
             href="#"
           >

@@ -28,6 +28,9 @@ module.exports = {
         4: '4',
         7: '7',
       },
+      width: {
+        18: '4.5rem',
+      },
     },
     screens: {
       mobileLandscape: '480px',
