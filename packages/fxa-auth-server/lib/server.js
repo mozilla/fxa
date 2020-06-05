@@ -426,6 +426,11 @@ function metricFactory(statsdClient) {
       ? request.response.output.statusCode
       : request.response.statusCode;
 
+    const errno =
+      request.response.errno ||
+      (request.response.source && request.response.source.errno) ||
+      0;
+
     let path = request._route.path;
     const specials = request._core.router.specials;
 
@@ -448,6 +453,7 @@ function metricFactory(statsdClient) {
         path: normalizePath(path),
         method: request.method.toUpperCase(),
         statusCode,
+        errno,
       }
     );
   }
