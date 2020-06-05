@@ -2292,6 +2292,15 @@ describe('StripeHelper', () => {
           event.data.previous_attributes.plan
         );
 
+        // issue #5546: ensure we're looking for the upcoming invoice for this specific subscription
+        assert.deepEqual(mockStripe.invoices.retrieveUpcoming.args, [
+          [
+            {
+              subscription: event.data.object.id,
+            },
+          ],
+        ]);
+
         assert.deepEqual(result, {
           ...baseDetails,
           productIdNew,
