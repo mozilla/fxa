@@ -1,3 +1,10 @@
+## 1.172.8
+
+### Bug fixes
+
+- logs: Emit statsd errnos ([d41a92fba](https://github.com/mozilla/fxa/commit/d41a92fba))
+- l10n: on train-172, temporarily disable two failing tests (ar ## 1.172.7 ru) ([87850f532](https://github.com/mozilla/fxa/commit/87850f532))
+
 ## 1.172.7
 
 No changes.
