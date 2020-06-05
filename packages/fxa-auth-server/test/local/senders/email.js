@@ -1100,7 +1100,7 @@ describe('lib/senders/email:', () => {
   after(() => mailer.stop());
 
   afterEach(() => {
-    Object.values(mockLog).forEach(fn => {
+    Object.values(mockLog).forEach((fn) => {
       if (typeof fn === 'function') {
         fn.resetHistory();
       }
@@ -1129,7 +1129,7 @@ describe('lib/senders/email:', () => {
 
   for (const [type, test] of TESTS) {
     it(`declarative test for ${type}`, async () => {
-      mailer.mailer.sendMail = stubSendMail(message => {
+      mailer.mailer.sendMail = stubSendMail((message) => {
         COMMON_TESTS.forEach((assertions, property) => {
           applyAssertions(type, message, property, assertions);
         });
@@ -1251,7 +1251,7 @@ describe('lib/senders/email:', () => {
 
   it('defaults X-Template-Version to 1', () => {
     mailer.localize = () => ({});
-    mailer.mailer.sendMail = stubSendMail(emailConfig => {
+    mailer.mailer.sendMail = stubSendMail((emailConfig) => {
       assert.equal(emailConfig.headers['X-Template-Version'], 1);
     });
     return mailer.send({
@@ -1276,7 +1276,7 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(status => {
+      return mailer.send(message).then((status) => {
         assert.deepEqual(status, [{ resp: 'ok' }]);
       });
     });
@@ -1322,7 +1322,7 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(assert.notOk, err => {
+      return mailer.send(message).then(assert.notOk, (err) => {
         assert.equal(err.message, 'Fail');
       });
     });
@@ -1364,7 +1364,7 @@ describe('lib/senders/email:', () => {
       };
       mailer.sesConfigurationSet = 'wibble';
 
-      return mailer.send(message).then(response => {
+      return mailer.send(message).then((response) => {
         assert(mailer.emailService.sendMail.calledOnce);
         assert(!mailer.mailer.sendMail.called);
 
@@ -1418,7 +1418,7 @@ describe('lib/senders/email:', () => {
         uid: 'foo',
       };
 
-      return mailer.send(message).then(response => {
+      return mailer.send(message).then((response) => {
         assert(!mailer.emailService.sendMail.called);
         assert(mailer.mailer.sendMail.calledOnce);
         const args = mailer.mailer.sendMail.args[0];
@@ -1674,6 +1674,7 @@ describe('mailer constructor:', () => {
   });
 });
 
+/*
 describe('email translations', () => {
   let mockLog, mailer;
   const message = {
@@ -1722,10 +1723,12 @@ describe('email translations', () => {
     return mailer.postVerifyEmail(message);
   });
 });
+*/
 
 function sesMessageTagsHeaderValue(templateName, serviceName) {
-  return `messageType=fxa-${templateName}, app=fxa, service=${serviceName ||
-    'fxa-auth-server'}`;
+  return `messageType=fxa-${templateName}, app=fxa, service=${
+    serviceName || 'fxa-auth-server'
+  }`;
 }
 
 function configHref(key, campaign, content, ...params) {
