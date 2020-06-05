@@ -142,6 +142,16 @@ describe('lib/server', () => {
           assert.equal(result.code, 401);
           assert.equal(result.errno, error.ERRNO.INVALID_TOKEN);
           assert.equal(statsd.timing.getCall(0).args[0], 'url_request');
+          assert.equal(
+            statsd.timing.getCall(0).args[3].path,
+            'oauth_subscriptions_clients'
+          );
+          assert.equal(statsd.timing.getCall(0).args[3].statusCode, statusCode);
+          assert.equal(statsd.timing.getCall(0).args[3].method, 'GET');
+          assert.equal(
+            statsd.timing.getCall(0).args[3].errno,
+            error.ERRNO.INVALID_TOKEN
+          );
         });
 
         it('authenticated valid subscription shared secret', async () => {
