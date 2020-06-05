@@ -1,3 +1,9 @@
+## 1.172.7
+
+### Bug fixes
+
+- customs: Call setRecord instead of setRecords ([127666927](https://github.com/mozilla/fxa/commit/127666927))
+
 ## 1.172.6
 
 No changes.
