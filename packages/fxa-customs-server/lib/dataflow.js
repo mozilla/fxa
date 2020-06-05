@@ -26,9 +26,9 @@ const RECORD_TYPES = new Map([
  * @param {Object} config
  * @param {Object} log
  * @param {Function} fetchRecords
- * @param {Function} setRecords
+ * @param {Function} setRecord
  */
-module.exports = (config, log, fetchRecords, setRecords) => {
+module.exports = (config, log, fetchRecords, setRecord) => {
   if (!config.dataflow.enabled) {
     // no-op if not enabled
     return;
@@ -83,7 +83,7 @@ module.exports = (config, log, fetchRecords, setRecords) => {
 
         if (recordType) {
           records[recordType][action.suggested_action]();
-          await setRecords(records);
+          await setRecord(records[recordType]);
 
           level = 'info';
           op = 'dataflow.message.success';
