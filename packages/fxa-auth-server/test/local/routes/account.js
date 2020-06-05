@@ -1099,7 +1099,7 @@ describe('/account/login', () => {
     metricsContext: mockMetricsContext,
     payload: {
       authPW: hexString(32),
-      email: 'test@mozilla.com',
+      email: TEST_EMAIL,
       service: 'dcdb5ae7add825d2',
       reason: 'signin',
       metricsContext: {
@@ -1111,6 +1111,27 @@ describe('/account/login', () => {
       },
     },
     query: {},
+  });
+  const mockRequestSuspect = mocks.mockRequest({
+    log: mockLog,
+    metricsContext: mockMetricsContext,
+    payload: {
+      authPW: hexString(32),
+      email: TEST_EMAIL,
+      service: 'dcdb5ae7add825d2',
+      reason: 'signin',
+      metricsContext: {
+        deviceId: 'blee',
+        flowBeginTime: Date.now(),
+        flowId:
+          'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+        service: 'dcdb5ae7add825d2',
+      },
+    },
+    query: {},
+    app: {
+      isSuspiciousRequest: true,
+    },
   });
   const mockRequestWithUnblockCode = mocks.mockRequest({
     log: mockLog,
@@ -1633,13 +1654,83 @@ describe('/account/login', () => {
       });
     });
 
-    it('does not require verification when keys are not requested', () => {
-      const email = 'test@mozilla.com';
+    it('requires verification when the request is suspicious, even with no keys', () => {
+      const email = TEST_EMAIL;
       mockDB.accountRecord = function() {
         return P.resolve({
           authSalt: hexString(32),
           data: hexString(32),
-          email: 'test@mozilla.com',
+          email: email,
+          emailVerified: true,
+          primaryEmail: {
+            normalizedEmail: normalizeEmail(email),
+            email: email,
+            isVerified: true,
+            isPrimary: true,
+          },
+          kA: hexString(32),
+          lastAuthAt: function() {
+            return Date.now();
+          },
+          uid: uid,
+          wrapWrapKb: hexString(32),
+        });
+      };
+
+      return runTest(route, mockRequestSuspect, response => {
+        assert.equal(
+          mockDB.createSessionToken.callCount,
+          1,
+          'db.createSessionToken was called'
+        );
+        const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+        assert.ok(tokenData.mustVerify, 'sessionToken must be verified');
+        assert.ok(
+          tokenData.tokenVerificationId,
+          'sessionToken was created unverified'
+        );
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(
+          mockMailer.sendVerifyLoginEmail.callCount,
+          1,
+          'mailer.sendVerifyLoginEmail was called'
+        );
+
+        assert.equal(
+          mockMetricsContext.setFlowCompleteSignal.callCount,
+          1,
+          'metricsContext.setFlowCompleteSignal was called once'
+        );
+        assert.deepEqual(
+          mockMetricsContext.setFlowCompleteSignal.args[0][0],
+          'account.confirmed',
+          'argument was event name'
+        );
+
+        assert.ok(
+          !response.verified,
+          'response indicates session is not verified'
+        );
+        assert.equal(
+          response.verificationMethod,
+          'email',
+          'verificationMethod is email'
+        );
+        assert.equal(
+          response.verificationReason,
+          'login',
+          'verificationReason is login'
+        );
+      });
+    });
+
+    it('does not require verification when keys are not requested', () => {
+      const email = TEST_EMAIL;
+      mockDB.accountRecord = function() {
+        return P.resolve({
+          authSalt: hexString(32),
+          data: hexString(32),
+          email: email,
           emailVerified: true,
           primaryEmail: {
             normalizedEmail: normalizeEmail(email),
