@@ -339,12 +339,12 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
-          requires:
-            - test-many
-            - test-auth-server
-            - test-content-server-0
-            - test-content-server-1
-            - test-content-server-2
-            - test-content-server-3
-            - test-content-server-4
-            - test-content-server-5
+#          requires:
+#            - test-many
+#            - test-auth-server
+#            - test-content-server-0
+#            - test-content-server-1
+#            - test-content-server-2
+#            - test-content-server-3
+#            - test-content-server-4
+#            - test-content-server-5
