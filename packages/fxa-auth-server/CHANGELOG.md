@@ -1,3 +1,9 @@
+## 1.172.9
+
+### New features
+
+- auth: changed handling of logins ([1df84e308](https://github.com/mozilla/fxa/commit/1df84e308))
+
 ## 1.172.8
 
 ### Bug fixes
