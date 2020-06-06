@@ -13,6 +13,7 @@ module.exports = function(limits, now) {
     this.xs = [];
     this.sms = [];
     this.ub = [];
+    this.lf = [];
   }
 
   EmailRecord.parse = function(object) {
@@ -25,6 +26,7 @@ module.exports = function(limits, now) {
     rec.vc = object.vc || rec.vc; // timestamps when code verifications happened
     rec.xs = object.xs || rec.xs; // timestamps when emails were sent
     rec.sms = object.sms || rec.sms; // timestamps when sms were sent
+    rec.lf = object.lf || rec.lf; // timestamps of when login failed
     rec.pr = object.pr; // timestamp of the last password reset
     rec.ub = object.ub || rec.ub;
     return rec;
@@ -197,6 +199,36 @@ module.exports = function(limits, now) {
     return Math.max(0, rateLimitAfter, banAfter);
   };
 
+  EmailRecord.prototype.isOverBadLogins = function() {
+    this.trimBadLogins(now());
+    return this.lf.length > limits.maxBadLoginsPerEmail;
+  };
+
+  EmailRecord.prototype.addBadLogin = function() {
+    this.trimBadLogins(now());
+    this.lf.push(now());
+  };
+
+  EmailRecord.prototype.trimBadLogins = function(now) {
+    if (this.lf.length === 0) {
+      return;
+    }
+    // lf is naturally ordered from oldest to newest
+    // and we only need to keep up to limits.maxBadLoginsPerEmail + 1
+
+    var i = this.lf.length - 1;
+    var n = 0;
+    var login = this.lf[i];
+    while (
+      login > now - limits.rateLimitIntervalMs &&
+      n <= limits.maxBadLoginsPerEmail
+    ) {
+      login = this.lf[--i];
+      n++;
+    }
+    this.lf = this.lf.slice(i + 1);
+  };
+
   EmailRecord.prototype.update = function(action, unblock) {
     // Reject immediately if they've been explicitly blocked.
     if (this.isBlocked()) {
@@ -250,6 +282,12 @@ module.exports = function(limits, now) {
         this.rateLimit();
         return this.retryAfter();
       }
+    }
+
+    // if over the bad logins, rate limit them and return the block
+    if (this.isOverBadLogins()) {
+      this.rateLimit();
+      return this.retryAfter();
     }
 
     // Everything else is allowed through.

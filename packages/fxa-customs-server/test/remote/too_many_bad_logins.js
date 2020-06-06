@@ -101,6 +101,82 @@ test('clear everything', function(t) {
   });
 });
 
+test('too many failed logins from the same email', async t => {
+  const IP0 = '192.0.2.10';
+  const IP1 = '192.0.2.11';
+  const IP2 = '192.0.2.12';
+  const IP3 = '192.0.2.13';
+
+  // eslint-disable-next-line no-unused-vars
+  let [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+    email: TEST_EMAIL,
+    ip: IP0,
+  });
+  t.equal(res.statusCode, 200, 'login attempt noted');
+  [req, res, obj] = await client.postAsync('/check', {
+    email: TEST_EMAIL,
+    ip: IP0,
+    action: 'accountLogin',
+  });
+  t.equal(obj.block, false, 'not blocked');
+
+  [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+    email: TEST_EMAIL,
+    ip: IP1,
+  });
+  t.equal(res.statusCode, 200, 'login attempt noted');
+  [req, res, obj] = await client.postAsync('/check', {
+    email: TEST_EMAIL,
+    ip: IP1,
+    action: 'accountLogin',
+  });
+  t.equal(obj.block, false, 'not blocked');
+
+  [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+    email: TEST_EMAIL,
+    ip: IP2,
+  });
+  t.equal(res.statusCode, 200, 'login attempt noted');
+  [req, res, obj] = await client.postAsync('/check', {
+    email: TEST_EMAIL,
+    ip: IP2,
+    action: 'accountLogin',
+  });
+  t.equal(obj.block, false, 'not blocked');
+
+  [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+    email: TEST_EMAIL,
+    ip: IP3,
+  });
+  t.equal(res.statusCode, 200, 'login attempt noted');
+  [req, res, obj] = await client.postAsync('/check', {
+    email: TEST_EMAIL,
+    ip: IP3,
+    action: 'accountLogin',
+  });
+  t.equal(obj.block, true, 'blocked');
+  t.equal(obj.retryAfter, 1, 'blocked');
+  t.equal(obj.blockReason, 'other');
+
+  // Delay 1s for rate limit to go away
+  await Promise.delay(1000);
+
+  // Attempt to login again, not rate limited
+  [req, res, obj] = await client.postAsync('/check', {
+    email: TEST_EMAIL,
+    ip: IP0,
+    action: 'accountLogin',
+  });
+  t.equal(obj.block, false, 'not blocked');
+});
+
+test('clear everything', function(t) {
+  mcHelper.clearEverything(function(err) {
+    t.notOk(err, 'no errors were returned');
+    t.end();
+  });
+});
+
 test('teardown', async function(t) {
   await testServer.stop();
   t.end();

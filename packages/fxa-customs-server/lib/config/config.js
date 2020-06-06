@@ -89,6 +89,13 @@ module.exports = function(fs, path, url, convict) {
         format: 'nat',
         env: 'MAX_BAD_LOGINS_PER_IP',
       },
+      maxBadLoginsPerEmail: {
+        doc:
+          'Number failed login attempts within rateLimitIntervalSeconds on a single email before throttling',
+        default: 3,
+        format: 'nat',
+        env: 'MAX_BAD_LOGINS_PER_EMAIL',
+      },
       maxUnblockAttempts: {
         doc: 'Number of login attempts that can be unblocked',
         default: 5,
