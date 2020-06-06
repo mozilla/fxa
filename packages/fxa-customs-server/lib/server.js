@@ -87,7 +87,7 @@ module.exports = async function createServer(config, log) {
       allowedPhoneNumbers,
       limits,
       requestChecks,
-    ].forEach((settings) => {
+    ].forEach(settings => {
       settings.refresh({ pushOnMissing: true }).catch(() => {});
       settings.pollForUpdates();
     });
@@ -256,7 +256,7 @@ module.exports = async function createServer(config, log) {
             var isExemptUA = false;
             var userAgent = headers['user-agent'];
             isExemptUA = requestChecks.flowIdExemptUserAgentCompiledREs.some(
-              function (re) {
+              function(re) {
                 return re.test(userAgent);
               }
             );
@@ -300,7 +300,7 @@ module.exports = async function createServer(config, log) {
           emailRecord,
           ipEmailRecord,
           smsRecord,
-        ].filter((record) => !!record);
+        ].filter(record => !!record);
         await setRecords(...recordsToSave);
         return {
           block,
@@ -361,7 +361,7 @@ module.exports = async function createServer(config, log) {
 
       return fetchRecords({ ip, email, phoneNumber })
         .then(checkRecords)
-        .then((result) =>
+        .then(result =>
           checkUserDefinedRateLimitRules(result, action, email, ip)
         )
         .then(createResponse, handleError);
@@ -394,7 +394,7 @@ module.exports = async function createServer(config, log) {
       return fetchRecords({ uid })
         .then(({ uidRecord }) => {
           var retryAfter = uidRecord.addCount(action, uid);
-          return setRecords(uidRecord).then(function () {
+          return setRecords(uidRecord).then(function() {
             return {
               block: retryAfter > 0,
               retryAfter: retryAfter,
@@ -402,7 +402,7 @@ module.exports = async function createServer(config, log) {
           });
         })
         .then(
-          function (result) {
+          function(result) {
             log.info({ op: 'request.checkAuthenticated', block: result.block });
 
             if (result.block) {
@@ -414,7 +414,7 @@ module.exports = async function createServer(config, log) {
 
             return result;
           },
-          function (err) {
+          function(err) {
             log.error({ op: 'request.checkAuthenticated', err: err });
             // Default is to block request on any server based error
 
@@ -490,7 +490,7 @@ module.exports = async function createServer(config, log) {
           }));
         })
         .then(
-          (result) => {
+          result => {
             allowWhitelisted(result, ip);
 
             log.info({
@@ -516,7 +516,7 @@ module.exports = async function createServer(config, log) {
 
             return response;
           },
-          (err) => {
+          err => {
             log.error({
               op: 'request.checkIpOnly',
               ip: ip,
@@ -555,9 +555,10 @@ module.exports = async function createServer(config, log) {
       email = normalizedEmail(email);
 
       return fetchRecords({ ip, email })
-        .then(function ({ ipRecord, emailRecord, ipEmailRecord }) {
+        .then(function({ ipRecord, emailRecord, ipEmailRecord }) {
           ipRecord.addBadLogin({ email: email, errno: errno });
           ipEmailRecord.addBadLogin();
+          emailRecord.addBadLogin();
 
           if (ipRecord.isOverBadLogins()) {
             reputationService.report(
@@ -567,13 +568,13 @@ module.exports = async function createServer(config, log) {
           }
 
           return setRecords(ipRecord, emailRecord, ipEmailRecord).then(
-            function () {
+            function() {
               return {};
             }
           );
         })
         .then(
-          function (result) {
+          function(result) {
             log.info({
               op: 'request.failedLoginAttempt',
               email: email,
@@ -582,7 +583,7 @@ module.exports = async function createServer(config, log) {
             });
             return result;
           },
-          function (err) {
+          function(err) {
             log.error({
               op: 'request.failedLoginAttempt',
               email: email,
@@ -633,11 +634,11 @@ module.exports = async function createServer(config, log) {
       email = normalizedEmail(email);
 
       return handleBan({ ban: { email: email } })
-        .then(function () {
+        .then(function() {
           log.info({ op: 'request.blockEmail', email: email });
           return {};
         })
-        .catch(function (err) {
+        .catch(function(err) {
           log.error({ op: 'request.blockEmail', email: email, err: err });
           return h.response(err).code(500);
         });
@@ -707,7 +708,7 @@ module.exports = async function createServer(config, log) {
     },
   });
 
-  return P.all(startupDefers).then(function () {
+  return P.all(startupDefers).then(function() {
     return api;
   });
 };

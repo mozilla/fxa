@@ -18,6 +18,7 @@ var config = {
     maxAccountStatusCheck: Number(process.env.MAX_ACCOUNT_STATUS_CHECK) || 5,
     maxEmails: 3,
     maxBadLogins: 2,
+    maxBadLoginsPerEmail: 3,
     maxBadLoginsPerIp: Number(process.env.MAX_BAD_LOGINS_PER_IP) || 3,
     ipRateLimitIntervalSeconds:
       Number(process.env.IP_RATE_LIMIT_INTERVAL_SECONDS) || 60 * 15,
