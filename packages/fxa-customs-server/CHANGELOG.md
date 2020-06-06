@@ -1,3 +1,9 @@
+## 1.172.10
+
+### Bug fixes
+
+- customs: flag emails in customs server blocking ([2624fa194](https://github.com/mozilla/fxa/commit/2624fa194))
+
 ## 1.172.9
 
 No changes.
