@@ -9539,7 +9539,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:9.0.0":
+"bignumber.js@npm:9.0.0, bignumber.js@npm:^9.0.0":
   version: 9.0.0
   resolution: "bignumber.js@npm:9.0.0"
   checksum: 3/5968a936fbd801d591d35756078c4c3755887346b703f7e77eb2a5506fe900ca7c48baa253c21ed42b45d1d5c7012b69ac57c3936295d16924b7fc257f22bb80
@@ -10893,6 +10893,16 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: 3/147f48bff9bebf029d7050e2335da3f8d295f26d157edf08d8c3282c804dae04a462c4cd6efa8179755686aa3aeaca5c28f3e7f3559698bc0484c65e46c36c5b
+  languageName: node
+  linkType: hard
+
+"cbor@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "cbor@npm:5.0.2"
+  dependencies:
+    bignumber.js: ^9.0.0
+    nofilter: ^1.0.3
+  checksum: 3/243a084048e7097bc27d34ed5dcb6e1419c1d858613a433ec6d8e39e7cadff11657a1c4a2af6707624b3eb372637f51b634552a5efd9d2b2dbd2640fc6f8be4c
   languageName: node
   linkType: hard
 
@@ -17069,6 +17079,7 @@ fsevents@^1.2.7:
     bluebird: 3.5.2
     buf: 0.1.0
     buffer-equal-constant-time: 1.0.1
+    cbor: ^5.0.2
     chai: ^4.2.0
     cldr-core: 31.0.1
     cldr-localenames-full: 31.0.1
@@ -26546,6 +26557,13 @@ fsevents@^1.2.7:
   bin:
     nodemon: bin/nodemon.js
   checksum: 3/b5f32e7feea11cc2e3ae6603f2ed9229f3d13d01e0d7d54aab47d0dac3b5759b07a0f00d0a46de7379a8ca8e5705940508dee6d06e4a22b3f31c57ce52faa936
+  languageName: node
+  linkType: hard
+
+"nofilter@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "nofilter@npm:1.0.3"
+  checksum: 3/675ec4545362be0ce335dca7dfe2c2f8ce9016075b5ef538ff32d6d841ece5847409f00bd13ff4c557536a988029d756fc74b38ab8c26cc90529ea606af1c6f8
   languageName: node
   linkType: hard
 
