@@ -4,3 +4,6 @@
 export { BasicPayload } from './basic';
 export { UpdateAvatarPayload } from './update-avatar';
 export { UpdateDisplayNamePayload } from './update-display-name';
+export { ChangeRecoveryCodesPayload } from './change-recovery-codes';
+export { CreateTotpPayload } from './create-totp';
+export { VerifyTotpPayload } from './verify-totp';
