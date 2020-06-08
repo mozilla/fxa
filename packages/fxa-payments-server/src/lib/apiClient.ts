@@ -143,7 +143,10 @@ export async function apiCreateSubscription(params: {
         }),
       }
     );
-    Amplitude.createSubscription_FULFILLED(metricsOptions);
+    Amplitude.createSubscription_FULFILLED({
+      ...metricsOptions,
+      sourceCountry: result.sourceCountry,
+    });
     return result;
   } catch (error) {
     Amplitude.createSubscription_REJECTED({
