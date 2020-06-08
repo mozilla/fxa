@@ -24,19 +24,96 @@ import { CatchGatewayError } from '../error';
 import { Context } from '../server';
 import { Account as AccountType } from './types/account';
 import {
+  AttachedClientDisconnectInput,
+  ChangeRecoveryCodesInput,
+  CreateTotpInput,
+  DeleteTotpInput,
   EmailInput,
   UpdateAvatarInput,
   UpdateDisplayNameInput,
+  VerifyTotpInput,
 } from './types/input';
 import {
   BasicPayload,
+  ChangeRecoveryCodesPayload,
+  CreateTotpPayload,
   UpdateAvatarPayload,
   UpdateDisplayNamePayload,
+  VerifyTotpPayload,
 } from './types/payload';
-import { AttachedClientDisconnectInput } from './types/input/attached-client-disconnect';
 
 @Resolver((of) => AccountType)
 export class AccountResolver {
+  @Mutation((returns) => CreateTotpPayload, {
+    description:
+      'Create a new randomly generated TOTP token for a user if they do not currently have one.',
+  })
+  @CatchGatewayError
+  public async createTotp(
+    @Ctx() context: Context,
+    @Arg('input', (type) => CreateTotpInput)
+    input: CreateTotpInput
+  ): Promise<CreateTotpPayload> {
+    const result = await context.dataSources.authAPI.createTotpToken(
+      input.metricsContext
+    );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
+  }
+
+  @Mutation((returns) => VerifyTotpPayload, {
+    description:
+      'Verifies the current session if the passed TOTP code is valid.',
+  })
+  @CatchGatewayError
+  public async verifyTotp(
+    @Ctx() context: Context,
+    @Arg('input', (type) => VerifyTotpInput)
+    input: VerifyTotpInput
+  ): Promise<VerifyTotpPayload> {
+    const result = await context.dataSources.authAPI.verifyTotp(
+      input.code,
+      input.service ? { service: input.service } : undefined
+    );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Deletes the current TOTP token for the user.',
+  })
+  @CatchGatewayError
+  public async deleteTotp(
+    @Ctx() context: Context,
+    @Arg('input', (type) => DeleteTotpInput)
+    input: DeleteTotpInput
+  ): Promise<BasicPayload> {
+    await context.dataSources.authAPI.destroyTotpToken();
+    return {
+      clientMutationId: input.clientMutationId,
+    };
+  }
+
+  @Mutation((returns) => ChangeRecoveryCodesPayload, {
+    description: 'Return new recovery codes while removing old ones.',
+  })
+  @CatchGatewayError
+  public async changeRecoveryCodes(
+    @Ctx() context: Context,
+    @Arg('input', (type) => ChangeRecoveryCodesInput)
+    input: ChangeRecoveryCodesInput
+  ): Promise<ChangeRecoveryCodesPayload> {
+    const result = await context.dataSources.authAPI.replaceRecoveryCodes();
+    return {
+      clientMutationId: input.clientMutationId,
+      recoveryCodes: result.recoveryCodes,
+    };
+  }
+
   @Mutation((returns) => UpdateDisplayNamePayload, {
     description: 'Update the display name.',
   })

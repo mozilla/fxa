@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Client } from 'fxa-js-client';
+import { Client, MetricContext } from 'fxa-js-client';
 import { Container } from 'typedi';
 
 import { fxAccountClientToken } from '../constants';
@@ -49,6 +49,16 @@ export class AuthServerSource extends DataSource {
     return this.authClient.attachedClientDestroy(this.token, clientInfo);
   }
 
+  public createTotpToken(
+    options: MetricContext
+  ): ReturnType<Client['createTotpToken']> {
+    return this.authClient.createTotpToken(this.token, options);
+  }
+
+  public destroyTotpToken(): Promise<any> {
+    return this.authClient.deleteTotpToken(this.token);
+  }
+
   public totp(): Promise<any> {
     return this.authClient.checkTotpTokenExists(this.token);
   }
@@ -72,5 +82,13 @@ export class AuthServerSource extends DataSource {
 
   public recoveryEmailSecondaryResendCode(email: string): Promise<any> {
     return this.authClient.recoveryEmailSecondaryResendCode(this.token, email);
+  }
+
+  public replaceRecoveryCodes() {
+    return this.authClient.replaceRecoveryCodes(this.token);
+  }
+
+  public verifyTotp(code: string, options?: { service: string }) {
+    return this.authClient.verifyTotpCode(this.token, code, options);
   }
 }

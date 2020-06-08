@@ -4,3 +4,8 @@
 export { EmailInput } from './email';
 export { UpdateAvatarInput } from './update-avatar';
 export { UpdateDisplayNameInput } from './update-display-name';
+export { CreateTotpInput } from './create-totp';
+export { AttachedClientDisconnectInput } from './attached-client-disconnect';
+export { ChangeRecoveryCodesInput } from './change-recovery-codes';
+export { DeleteTotpInput } from './delete-totp';
+export { VerifyTotpInput } from './verify-totp';
