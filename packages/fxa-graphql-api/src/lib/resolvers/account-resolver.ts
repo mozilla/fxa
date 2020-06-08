@@ -33,6 +33,7 @@ import {
   UpdateAvatarPayload,
   UpdateDisplayNamePayload,
 } from './types/payload';
+import { AttachedClientDisconnectInput } from './types/input/attached-client-disconnect';
 
 @Resolver((of) => AccountType)
 export class AccountResolver {
@@ -119,6 +120,19 @@ export class AccountResolver {
     await context.dataSources.authAPI.recoveryEmailSecondaryResendCode(
       input.email
     );
+    return { clientMutationId: input.clientMutationId };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description:
+      "Destroy all tokens held by a connected client, disconnecting it from the user's account.",
+  })
+  public async attachedClientDisconnect(
+    @Ctx() context: Context,
+    @Arg('input', (type) => AttachedClientDisconnectInput)
+    input: AttachedClientDisconnectInput
+  ) {
+    await context.dataSources.authAPI.attachedClientDestroy(input);
     return { clientMutationId: input.clientMutationId };
   }
 

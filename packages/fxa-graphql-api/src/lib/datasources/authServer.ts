@@ -45,6 +45,10 @@ export class AuthServerSource extends DataSource {
     return this.authClient.attachedClients(this.token);
   }
 
+  public attachedClientDestroy(clientInfo: any): Promise<any> {
+    return this.authClient.attachedClientDestroy(this.token, clientInfo);
+  }
+
   public totp(): Promise<any> {
     return this.authClient.checkTotpTokenExists(this.token);
   }
