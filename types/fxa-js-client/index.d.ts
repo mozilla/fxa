@@ -13,6 +13,7 @@ declare namespace FxAccountClient {
       sessionToken: string
     ): Promise<{ state: string; uid: string }>;
     attachedClients(sessionToken: string): Promise<any[]>;
+    attachedClientDestroy(sessionToken: string, clientInfo: any): Promise<any>;
     checkTotpTokenExists(
       sessionToken: string
     ): Promise<{ exists: boolean; verified: boolean }>;
@@ -21,7 +22,11 @@ declare namespace FxAccountClient {
     createOAuthToken(
       sessionToken: string,
       clientId: string,
-      options?: { scope?: string; ttl?: number; access_type?: 'online' | 'offline' }
+      options?: {
+        scope?: string;
+        ttl?: number;
+        access_type?: 'online' | 'offline';
+      }
     ): Promise<{
       access_token: string;
       refresh_token?: string;
@@ -33,7 +38,13 @@ declare namespace FxAccountClient {
     }>;
     recoveryEmailCreate(sessionToken: string, email: string): Promise<any>;
     recoveryEmailDestroy(sessionToken: string, email: string): Promise<any>;
-    recoveryEmailSetPrimaryEmail(sessionToken: string, email: string): Promise<any>;
-    recoveryEmailSecondaryResendCode(sessionToken: string, email: string): Promise<any>;
+    recoveryEmailSetPrimaryEmail(
+      sessionToken: string,
+      email: string
+    ): Promise<any>;
+    recoveryEmailSecondaryResendCode(
+      sessionToken: string,
+      email: string
+    ): Promise<any>;
   }
 }

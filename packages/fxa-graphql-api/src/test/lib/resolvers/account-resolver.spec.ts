@@ -31,6 +31,7 @@ describe('accountResolver', () => {
     await (Account as any).query().insertGraph({ ...USER_1 });
     schema = await buildSchema({
       resolvers: [AccountResolver],
+      validate: false,
     });
   });
 
@@ -92,6 +93,29 @@ describe('accountResolver', () => {
   });
 
   describe('mutation', () => {
+    describe('attachedClientDisconnect', () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.attachedClientDestroy.resolves(true);
+        const query = `mutation {
+          attachedClientDisconnect(input: {clientMutationId: "testid", clientId: "client1234", sessionTokenId: "sesssion1234", refreshTokenId: "refresh1234", deviceId: "device1234"}) {
+            clientMutationId
+          }
+        }`;
+        context.authUser = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.attachedClientDisconnect);
+        assert.deepEqual(result.data.attachedClientDisconnect, {
+          clientMutationId: 'testid',
+        });
+      });
+    });
+
     describe('updateDisplayName', () => {
       it('succeeds', async () => {
         context.dataSources.profileAPI.updateDisplayName.resolves(true);
