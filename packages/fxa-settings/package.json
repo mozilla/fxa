@@ -4,7 +4,7 @@
   "homepage": "https://accounts.firefox.com/beta/settings",
   "private": true,
   "scripts": {
-    "build-postcss": "postcss src/styles/tailwind.css -o src/styles/tailwind.out.css",
+    "build-postcss": "postcss src/styles/tailwind.scss -o src/styles/tailwind.out.scss",
     "build-storybook": "NODE_ENV=production npm run build-postcss && build-storybook",
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-postcss && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
     "eject": "react-scripts eject",

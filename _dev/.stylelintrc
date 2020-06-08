@@ -16,6 +16,7 @@
       true,
       {
         "ignoreAtRules": [
+          "tailwind",
           "function",
           "if",
           "each",
