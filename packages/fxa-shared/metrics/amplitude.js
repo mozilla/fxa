@@ -60,7 +60,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subCancel]: NOP,
   [GROUPS.subManage]: NOP,
   [GROUPS.subPayManage]: NOP,
-  [GROUPS.subPaySetup]: NOP,
+  [GROUPS.subPaySetup]: mapSubscriptionPaymentEventProperties,
   [GROUPS.subPayUpgrade]: NOP,
   [GROUPS.subSupport]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
@@ -132,6 +132,17 @@ function mapDomainValidationResult(
   // properties for the results pertaining to domain_validation_result.
   if (eventType === 'domain_validation_result' && eventCategory) {
     return { validation_result: eventCategory };
+  }
+}
+
+function mapSubscriptionPaymentEventProperties(
+  eventType,
+  eventCategory,
+  eventTarget,
+  data
+) {
+  if (data && data.sourceCountry) {
+    return { source_country: data.sourceCountry };
   }
 }
 
