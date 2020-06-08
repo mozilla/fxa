@@ -38,6 +38,7 @@ const subscriptionCreatedIncomplete = require('../payments/fixtures/subscription
 const subscriptionDeleted = require('../payments/fixtures/subscription_deleted.json');
 const subscriptionUpdated = require('../payments/fixtures/subscription_updated.json');
 const subscriptionUpdatedFromIncomplete = require('../payments/fixtures/subscription_updated_from_incomplete.json');
+const subscriptionCreatedInvoice = require('../payments/fixtures/invoice_payment_succeeded_subscription_create.json');
 const eventInvoicePaymentSucceeded = require('../payments/fixtures/event_invoice_payment_succeeded.json');
 const eventInvoicePaymentFailed = require('../payments/fixtures/event_invoice_payment_failed.json');
 const eventCustomerSubscriptionUpdated = require('../payments/fixtures/event_customer_subscription_updated.json');
@@ -597,8 +598,12 @@ describe('DirectStripeRoutes', () => {
     };
 
     beforeEach(() => {
-      const subscription = deepCopy(subscription2);
-      expected = { subscriptionId: subscription.id };
+      const latest_invoice = {
+        ...subscriptionCreatedInvoice,
+        payment_intent: closedPaymementIntent,
+      };
+      const subscription = { ...subscription2, latest_invoice };
+      expected = { subscriptionId: subscription.id, sourceCountry: 'US' };
 
       createForNewStub = sandbox
         .stub(directStripeRoutesInstance, 'createSubscriptionNewCustomer')

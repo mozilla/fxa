@@ -195,6 +195,22 @@ class DirectStripeRoutes {
       );
     }
 
+    // Get the country from the payment details.
+    // There's only one charge (the latest), per Stripe's docs.
+    let sourceCountry;
+    const paymentMethodDetails =
+      subscription.latest_invoice.payment_intent.charges.data[0]
+        .payment_method_details;
+
+    if (
+      paymentMethodDetails &&
+      paymentMethodDetails.type &&
+      paymentMethodDetails[paymentMethodDetails.type] &&
+      paymentMethodDetails[paymentMethodDetails.type].country
+    ) {
+      sourceCountry = paymentMethodDetails[paymentMethodDetails.type].country;
+    }
+
     await this.customerChanged(request, uid, email);
 
     const account = await this.db.account(uid);
@@ -215,6 +231,7 @@ class DirectStripeRoutes {
     });
     return {
       subscriptionId: subscription.id,
+      sourceCountry,
     };
   }
 
@@ -1113,6 +1130,7 @@ const directRoutes = (
         response: {
           schema: isA.object().keys({
             subscriptionId: validators.subscriptionsSubscriptionId.required(),
+            sourceCountry: validators.subscriptionPaymentCountryCode.required(),
           }),
         },
       },
