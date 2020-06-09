@@ -1297,7 +1297,7 @@ class StripeHelper {
     planOld
   ) {
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
-      customer: customer.id,
+      subscription: subscription.id,
     });
 
     const { id: invoiceId, number: invoiceNumber } = invoice;
