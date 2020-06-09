@@ -224,9 +224,9 @@ workflows:
       - deploy-packages:
           filters:
             branches:
-              ignore: /.*/
+              ignore: master
             tags:
-              only: /.*/
+              ignore: /.*/
   deploy_master:
     jobs:
       - deploy-packages:
