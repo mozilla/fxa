@@ -288,6 +288,10 @@ module.exports = (
         if (ttl === undefined && DEFAULT_COMMAND_TTL.has(command)) {
           ttl = DEFAULT_COMMAND_TTL.get(command);
         }
+        // WOO 429...
+        if (Math.random() >= 0.5) {
+          throw error.tooManyRequests(1337, 'retry after 1337 seconds');
+        }
 
         const data = { command, payload, sender };
         const { index } = await pushbox.store(uid, device.id, data, ttl);
