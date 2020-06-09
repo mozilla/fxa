@@ -1,3 +1,9 @@
+## 1.174.1
+
+### Bug fixes
+
+- customs: Update customs to better handle email records ([b1499dd37](https://github.com/mozilla/fxa/commit/b1499dd37))
+
 ## 1.174.0
 
 ### Bug fixes
