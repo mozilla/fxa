@@ -28,6 +28,7 @@ const DEFAULT_COMMAND_TTL = new Map([
 module.exports = (
   log,
   db,
+  oauthdb,
   config,
   customs,
   push,
@@ -478,10 +479,6 @@ module.exports = (
         log.begin('Account.devices', request);
         const credentials = request.auth.credentials;
 
-        // XXX: Ideally, we would call oauthdb.listAuthorizedClients here, and perform a similar merging
-        // to what we do in /account/attached_clients. That's awkward to do because this route can be called
-        // with a refreshToken, but oauthdb currently requires a sessionToken. Let's defer that to followup.
-
         // The only reason a device calls this endpoint is to get a list of other devices
         // it can send commands to, so feature-flag it as part of that feature.
         if (
@@ -491,9 +488,18 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        const deviceArray = await request.app.devices;
+        const [deviceArray, oauthClients] = await Promise.all([
+          request.app.devices,
+          oauthdb.listAuthorizedClients(request.auth.credentials),
+        ]);
+
+        const clientByRefreshTokenId = new Map();
+        for (const client of oauthClients) {
+          clientByRefreshTokenId.set(client.refresh_token_id, client);
+        }
 
         return deviceArray.map((device) => {
+          const client = clientByRefreshTokenId.get(device.refreshTokenId); // null for session-token based devices.
           const formattedDevice = {
             id: device.id,
             isCurrentDevice: !!(
@@ -501,7 +507,11 @@ module.exports = (
               (credentials.refreshTokenId &&
                 credentials.refreshTokenId === device.refreshTokenId)
             ),
-            lastAccessTime: device.lastAccessTime,
+            // The devices table `lastAccessTime` column is not updated for OAuth-based
+            // FxA devices, so we get this information in the OAuth db.
+            lastAccessTime: client
+              ? Math.max(device.lastAccessTime, client.last_access_time)
+              : device.lastAccessTime,
             location: device.location,
             name: device.name || devices.synthesizeName(device),
             // For now we assume that all oauth clients that register a device record are mobile apps.

@@ -76,6 +76,7 @@ module.exports = function (
   const devicesSessions = require('./devices-and-sessions')(
     log,
     db,
+    oauthdb,
     config,
     customs,
     push,
