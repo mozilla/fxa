@@ -221,73 +221,12 @@ jobs:
 workflows:
   test_pull_request:
     jobs:
-      - test-many:
+      - deploy-packages:
           filters:
             branches:
-              ignore: master
-            tags:
               ignore: /.*/
-      - test-package:
-          name: test-auth-server
-          package: fxa-auth-server
-          filters:
-            branches:
-              ignore: master
             tags:
-              ignore: /.*/
-      - test-content-server-0:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - test-content-server-1:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - test-content-server-2:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - test-content-server-3:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - test-content-server-4:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - test-content-server-5:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
-      - test-email-service:
-          # since email-service is expensive
-          # to build and rarely changes
-          # we only run it on branches
-          # starting with "email-service-"
-          filters:
-            branches:
-              only:
-                - /^email-service-.*/
-            tags:
-              ignore: /.*/
-      - build-and-deploy-storybooks:
-          filters:
-            branches:
-              ignore: master
-            tags:
-              ignore: /.*/
+              only: /.*/
   deploy_master:
     jobs:
       - deploy-packages:
@@ -355,5 +294,17 @@ workflows:
             tags:
               only: /.*/
       - deploy-packages:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
+            - test-many
             - test-auth-server
+            - test-content-server-0
+            - test-content-server-1
+            - test-content-server-2
+            - test-content-server-3
+            - test-content-server-4
+            - test-content-server-5
