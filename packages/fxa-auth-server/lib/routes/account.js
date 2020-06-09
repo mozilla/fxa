@@ -483,6 +483,7 @@ module.exports = (
 
         let accountRecord,
           password,
+          passwordChangeRequired,
           sessionToken,
           keyFetchToken,
           didSigninUnblock;
@@ -639,6 +640,13 @@ module.exports = (
           if (verificationMethod === 'totp-2fa') {
             mustVerifySession = true;
             needsVerificationId = true;
+          }
+
+          if (accountRecord.lockedAt > 0) {
+            passwordChangeRequired = true;
+            needsVerificationId = true;
+            mustVerifySession = true;
+            verificationMethod = verificationMethod || 'email-otp';
           }
 
           const [
@@ -826,14 +834,19 @@ module.exports = (
           if (keyFetchToken) {
             response.keyFetchToken = keyFetchToken.data;
           }
-
-          Object.assign(
-            response,
-            signinUtils.getSessionVerificationStatus(
-              sessionToken,
-              verificationMethod
-            )
-          );
+          if (passwordChangeRequired) {
+            response.verified = false;
+            response.verificationReason = 'password-change';
+            response.verificationMethod = verificationMethod;
+          } else {
+            Object.assign(
+              response,
+              signinUtils.getSessionVerificationStatus(
+                sessionToken,
+                verificationMethod
+              )
+            );
+          }
 
           return response;
         }

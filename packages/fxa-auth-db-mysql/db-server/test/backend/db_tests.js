@@ -2424,6 +2424,7 @@ module.exports = function (config, DB) {
               account.verifierSetAt,
               'profileChangedAt matches verifierSetAt'
             );
+            assert.isNull(account.lockedAt);
           });
       });
 

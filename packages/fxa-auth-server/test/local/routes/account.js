@@ -1191,6 +1191,7 @@ describe('/account/login', () => {
     mockLog.flowEvent.resetHistory();
     mockMailer.sendNewDeviceLoginEmail = sinon.spy(() => P.resolve([]));
     mockMailer.sendVerifyLoginEmail = sinon.spy(() => P.resolve());
+    mockMailer.sendVerifyLoginCodeEmail = sinon.spy(() => P.resolve());
     mockMailer.sendVerifyEmail.resetHistory();
     mockDB.createSessionToken.resetHistory();
     mockDB.sessions.resetHistory();
@@ -1790,6 +1791,78 @@ describe('/account/login', () => {
         assert.ok(
           !response.verificationReason,
           "verificationReason doesn't exist"
+        );
+      });
+    });
+
+    it('requires verification when the lockedAt field is set', () => {
+      const email = 'test@mozilla.com';
+      mockDB.accountRecord = function () {
+        return P.resolve({
+          authSalt: hexString(32),
+          data: hexString(32),
+          email: email,
+          emailVerified: true,
+          primaryEmail: {
+            normalizedEmail: normalizeEmail(email),
+            email: email,
+            emailCode: 'ab12cd34',
+            isVerified: true,
+            isPrimary: true,
+          },
+          kA: hexString(32),
+          lastAuthAt: function () {
+            return Date.now();
+          },
+          uid: uid,
+          wrapWrapKb: hexString(32),
+          lockedAt: Date.now(),
+        });
+      };
+
+      return runTest(route, mockRequestNoKeys, (response) => {
+        assert.equal(
+          mockDB.createSessionToken.callCount,
+          1,
+          'db.createSessionToken was called'
+        );
+        const tokenData = mockDB.createSessionToken.getCall(0).args[0];
+        assert.ok(tokenData.mustVerify, 'sessionToken must be verified');
+        assert.ok(
+          tokenData.tokenVerificationId,
+          'sessionToken was created unverified'
+        );
+        assert.equal(mockMailer.sendNewDeviceLoginEmail.callCount, 0);
+        assert.equal(
+          mockMailer.sendVerifyLoginCodeEmail.callCount,
+          1,
+          'mailer.sendVerifyLoginEmail was called'
+        );
+
+        assert.equal(
+          mockMetricsContext.setFlowCompleteSignal.callCount,
+          1,
+          'metricsContext.setFlowCompleteSignal was called once'
+        );
+        assert.deepEqual(
+          mockMetricsContext.setFlowCompleteSignal.args[0][0],
+          'account.confirmed',
+          'argument was event name'
+        );
+
+        assert.ok(
+          !response.verified,
+          'response indicates session is not verified'
+        );
+        assert.equal(
+          response.verificationMethod,
+          'email-otp',
+          'verificationMethod is email-otp'
+        );
+        assert.equal(
+          response.verificationReason,
+          'password-change',
+          'verificationReason is password-change'
         );
       });
     });
