@@ -37,7 +37,9 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   './logging/log': () => logger,
   './statsd': statsd,
 });
-const APP_VERSION = /([0-9]+)\.([0-9])$/.exec(pkg.version)[0];
+
+const APP_VERSION_RE = /([0-9]+)\.([0-9]{1,2})$/;
+const APP_VERSION = APP_VERSION_RE.exec(pkg.version)[0];
 
 registerSuite('amplitude', {
   beforeEach: function () {
@@ -55,7 +57,7 @@ registerSuite('amplitude', {
   tests: {
     'app version seems sane': () => {
       assert.typeOf(APP_VERSION, 'string');
-      assert.match(APP_VERSION, /([0-9]+)\.([0-9])$/);
+      assert.match(APP_VERSION, APP_VERSION_RE);
     },
 
     'interface is correct': () => {
