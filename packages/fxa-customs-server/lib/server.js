@@ -124,7 +124,7 @@ module.exports = async function createServer(config, log) {
     );
   }
 
-  function allowWhitelisted(result, ip, email, phoneNumber) {
+  function checkAllowlist(result, ip, email, phoneNumber) {
     // Regardless of any preceding checks, there are some IPs, emails,
     // and phone numbers that we won't block. These are typically for
     // Mozilla QA purposes. They should be checked after everything
@@ -314,7 +314,7 @@ module.exports = async function createServer(config, log) {
       function createResponse(result) {
         const { block, unblock, suspect, blockReason } = result;
 
-        allowWhitelisted(result, ip, email, phoneNumber);
+        checkAllowlist(result, ip, email, phoneNumber);
 
         log.info({
           op: 'request.check',
@@ -491,7 +491,7 @@ module.exports = async function createServer(config, log) {
         })
         .then(
           (result) => {
-            allowWhitelisted(result, ip);
+            checkAllowlist(result, ip);
 
             log.info({
               op: 'request.checkIpOnly',
