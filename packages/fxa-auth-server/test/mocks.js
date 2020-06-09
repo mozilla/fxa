@@ -737,7 +737,7 @@ function mockRequest(data, errors) {
   if (!metricsContextData) {
     metricsContextData = {};
   }
-
+  const app = data.app || {};
   return {
     app: {
       acceptLanguage: data.acceptLanguage || 'en-US',
@@ -755,6 +755,7 @@ function mockRequest(data, errors) {
         deviceType: data.uaDeviceType || null,
         formFactor: data.uaFormFactor || null,
       },
+      ...app,
     },
     auth: {
       credentials: data.credentials,

@@ -610,7 +610,11 @@ module.exports = (
           // decide whether to consider the session pre-verified.  Some accounts
           // get excluded from this process, e.g. testing accounts where we want
           // to know for sure what flow they're going to see.
-          if (!forceTokenVerification(request, accountRecord)) {
+          const verificationForced = forceTokenVerification(
+            request,
+            accountRecord
+          );
+          if (!verificationForced) {
             if (skipTokenVerification(request, accountRecord)) {
               needsVerificationId = false;
             }
@@ -626,7 +630,10 @@ module.exports = (
           // use it. Otherwise, they don't *have* to verify their session. All sessions are created
           // unverified because it prevents them from being used for sync.
           let mustVerifySession =
-            needsVerificationId && requestHelper.wantsKeys(request);
+            needsVerificationId &&
+            (verificationForced === 'suspect' ||
+              verificationForced === 'global' ||
+              requestHelper.wantsKeys(request));
 
           // For accounts with TOTP, we always force verifying a session.
           if (verificationMethod === 'totp-2fa') {
@@ -674,18 +681,21 @@ module.exports = (
           // If there was anything suspicious about the request,
           // we should force token verification.
           if (request.app.isSuspiciousRequest) {
-            return true;
+            return 'suspect';
           }
-          // If it's an email address used for testing etc,
-          // we should force token verification.
           if (config.signinConfirmation) {
+            if (config.signinConfirmation.forceGlobally) {
+              return 'global';
+            }
+            // If it's an email address used for testing etc,
+            // we should force token verification.
             if (config.signinConfirmation.forcedEmailAddresses) {
               if (
                 config.signinConfirmation.forcedEmailAddresses.test(
                   account.primaryEmail.email
                 )
               ) {
-                return true;
+                return 'email';
               }
             }
           }
