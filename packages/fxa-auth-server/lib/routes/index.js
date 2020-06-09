@@ -51,6 +51,7 @@ module.exports = function (
   const idp = require('./idp')(log, serverPublicKeys);
   const oauthServer = require('../oauth/routes');
   const grant = require('../oauth/grant');
+  const oauthRawDB = require('../oauth/db');
   grant.setStripeHelper(stripeHelper);
   const account = require('./account')(
     log,
@@ -62,7 +63,7 @@ module.exports = function (
     signinUtils,
     push,
     verificationReminders,
-    require('../oauth/db'),
+    oauthRawDB,
     stripeHelper
   );
   const oauth = require('./oauth')(
@@ -76,6 +77,7 @@ module.exports = function (
   const devicesSessions = require('./devices-and-sessions')(
     log,
     db,
+    oauthRawDB,
     config,
     customs,
     push,
@@ -114,7 +116,7 @@ module.exports = function (
     signinUtils,
     push,
     config,
-    require('../oauth/db')
+    oauthRawDB
   );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(

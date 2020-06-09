@@ -46,6 +46,7 @@ module.exports = function schemeRefreshTokenScheme(config, db, oauthdb) {
 
         const credentials = {
           uid: refreshTokenInfo.sub,
+          emailVerified: true,
           tokenVerified: true,
           refreshTokenId: refreshTokenInfo.jti,
         };

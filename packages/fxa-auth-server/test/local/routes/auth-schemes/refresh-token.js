@@ -133,6 +133,7 @@ describe('lib/routes/auth-schemes/refresh-token', () => {
     assert.deepEqual(response.authenticated.args[0][0].credentials, {
       uid: '620203b5773b4c1d968e1fd4505a6885',
       tokenVerified: true,
+      emailVerified: true,
       deviceId: '5eb89097bab6551de3614facaea59cab',
       deviceName: 'first device',
       deviceType: 'mobile',
