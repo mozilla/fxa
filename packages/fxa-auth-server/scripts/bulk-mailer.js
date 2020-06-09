@@ -6,6 +6,9 @@
 
 'use strict';
 
+// HACK: Prevent config falling over due to missing secrets
+process.env.NODE_ENV = 'dev';
+
 const program = require('commander');
 const path = require('path');
 

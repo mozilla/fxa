@@ -12,6 +12,7 @@
   "lowRecoveryCodes": 5,
   "newDeviceLogin": 5,
   "passwordChanged": 4,
+  "passwordChangeRequired": 1,
   "passwordReset": 4,
   "passwordResetRequired": 4,
   "postChangePrimary": 4,
