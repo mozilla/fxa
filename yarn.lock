@@ -17492,6 +17492,7 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     chai: ^4.2.0
     chance: ^1.1.5
+    commander: ^5.1.0
     convict: ^6.0.0
     eslint: ^6.8.0
     fxa-js-client: ^1.0.25

@@ -95,6 +95,7 @@ const conf = convict({
     mysql: {
       auth: makeMySQLConfig('AUTH', 'fxa'),
       profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
+      oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
     },
     redis: {},
   },
