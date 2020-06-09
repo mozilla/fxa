@@ -17,6 +17,7 @@ const storage = Storage.factory('localStorage');
 function getSessionToken(): string {
   const storedAccounts = storage.get('accounts');
   const currentAccountUid = storage.get('currentAccountUid');
+  // TODO: protect from if user doesn't have sessionToken (probably redirect them back to login)
   return storedAccounts[currentAccountUid].sessionToken;
 }
 

@@ -19,7 +19,7 @@ const activeClasses = 'bg-grey-100 font-bold text-blue-500 rounded-sm';
 // `nav ul`: px-6 py-7 tablet:px-8 desktop:p-0
 
 export const Nav = ({ hasSubscription, primaryEmail }: NavProps) => (
-  <nav className="font-header fixed mt-11 w-auto">
+  <nav className="font-header fixed mt-11 w-auto" data-testid="nav">
     <ul>
       <li className="mb-5">
         <h2 className="font-bold">Settings</h2>

@@ -7,7 +7,7 @@ import Header from 'fxa-react/components/Header';
 import LogoLockup from 'fxa-react/components/LogoLockup';
 import LinkAbout from '../../components/LinkAbout';
 import Nav from '../../components/Nav';
-import Footer from '../../components/Footer';
+import Footer from 'fxa-react/components/Footer';
 import './index.scss';
 
 type AppLayoutProps = {

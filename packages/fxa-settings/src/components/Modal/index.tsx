@@ -86,7 +86,7 @@ export const Modal = ({
 
             <div className="flex mt-6">
               <button
-                className="cta-neutral-lg flex-1"
+                className="cta-neutral-lg transition-standard flex-1"
                 data-testid="modal-cancel"
                 onClick={onDismiss as () => void}
               >
@@ -95,7 +95,7 @@ export const Modal = ({
 
               {onConfirm && (
                 <button
-                  className="cta-primary flex-1"
+                  className="cta-primary transition-standard flex-1"
                   data-testid="modal-confirm"
                   onClick={onConfirm}
                 >

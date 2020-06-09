@@ -13,6 +13,7 @@ type HeaderProps = {
 export const Header = (props: HeaderProps) => {
   return (
     <header
+      data-testid="header"
       role="banner"
       className={props.className || 'sticky top-0 bg-grey-10'}
     >

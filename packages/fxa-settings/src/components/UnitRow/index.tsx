@@ -57,7 +57,7 @@ export const UnitRow = ({
         <div>
           {route && (
             <a
-              className="cta-neutral"
+              className="cta-neutral transition-standard"
               data-testid="unit-row-route"
               href={route}
             >
@@ -67,7 +67,7 @@ export const UnitRow = ({
 
           {revealModal && (
             <button
-              className="cta-neutral"
+              className="cta-neutral transition-standard"
               data-testid="unit-row-modal"
               ref={modalTriggerElement}
               onClick={revealModal}

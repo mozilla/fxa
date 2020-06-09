@@ -24,3 +24,15 @@ body {
     @apply text-blue-800;
   }
 }
+
+.transition-standard {
+  @apply transition duration-150;
+
+  &:hover {
+    @apply transition duration-150;
+  }
+
+  &:active {
+    @apply transition duration-150;
+  }
+}

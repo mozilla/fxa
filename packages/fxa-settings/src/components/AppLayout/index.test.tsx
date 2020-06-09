@@ -7,12 +7,21 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import AppLayout from '.';
 
-it('renders the children', () => {
+it('renders the app with children', () => {
   const { getByTestId } = render(
-    <AppLayout>
+    <AppLayout
+      avatarUrl={null}
+      primaryEmail="user@example.com"
+      hasSubscription={false}
+    >
       <p data-testid="test-child">Hello, world!</p>
     </AppLayout>
   );
+  expect(getByTestId('app')).toBeInTheDocument();
+  expect(getByTestId('content-skip')).toBeInTheDocument();
+  expect(getByTestId('header')).toBeInTheDocument();
+  expect(getByTestId('footer')).toBeInTheDocument();
+  expect(getByTestId('nav')).toBeInTheDocument();
   expect(getByTestId('main')).toBeInTheDocument();
-  expect(getByTestId('test-child')).toBeInTheDocument();
+  expect(getByTestId('main')).toContainElement(getByTestId('test-child'));
 });
