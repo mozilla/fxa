@@ -39,7 +39,7 @@ module.exports = {
         'src/components/**/*.scss',
         require.resolve('fxa-react/configs/tailwind.js'),
       ],
-      ignore_watch: ['src/styles/tailwind.out.css'],
+      ignore_watch: ['src/styles/tailwind.out.*'],
     },
   ],
 };
