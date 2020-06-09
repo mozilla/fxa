@@ -9,7 +9,7 @@
 'use strict';
 
 const BaseGroupingRule = require('./base');
-const GROUPS = ['newsletterSync', 'qrCodeCad'];
+const GROUPS = ['qrCodeCad'];
 
 module.exports = class ExperimentChooser extends BaseGroupingRule {
   constructor() {
