@@ -20,47 +20,47 @@ const PUSH_COMMANDS = {
 };
 
 const PUSH_REASONS = new Set([
- 'accountVerify',
- 'accountConfirm',
- 'passwordReset',
- 'passwordChange',
- 'deviceConnected',
- 'deviceDisconnected',
- 'profileUpdated',
- 'devicesNotify',
- 'accountDestroyed',
- 'commandReceived',
+  'accountVerify',
+  'accountConfirm',
+  'passwordReset',
+  'passwordChange',
+  'deviceConnected',
+  'deviceDisconnected',
+  'profileUpdated',
+  'devicesNotify',
+  'accountDestroyed',
+  'commandReceived',
 ]);
 
 const PUSH_ERRORS = new Set([
-  "noCallback",
-  "noKeys",
-  "expiredCallback",
-  "resetCallback",
-  "serverError",
-  "unknown",
+  'noCallback',
+  'noKeys',
+  'expiredCallback',
+  'resetCallback',
+  'serverError',
+  'unknown',
 ]);
 
 const PUSH_ERROR_MESSAGES = {
-  "noCallback": "No push callback",
-  "noKeys": "Data payload preset but missing keys",
-  "expiredCallback": "Push callback expired",
-  "resetCallback": "Push callback indicated it should be reset",
-  "unknown": "Unknown push error",
+  noCallback: 'No push callback',
+  noKeys: 'Data payload preset but missing keys',
+  expiredCallback: 'Push callback expired',
+  resetCallback: 'Push callback indicated it should be reset',
+  unknown: 'Unknown push error',
 };
 
-const ERR_NO_PUSH_CALLBACK = "noCallback";
-const ERR_DATA_BUT_NO_KEYS = "noKeys";
-const ERR_PUSH_CALLBACK_EXPIRED = "expiredCallback";
-const ERR_PUSH_CALLBACK_RESET = "resetCallback";
-const ERR_PUSH_UNKNOWN = "unknown";
+const ERR_NO_PUSH_CALLBACK = 'noCallback';
+const ERR_DATA_BUT_NO_KEYS = 'noKeys';
+const ERR_PUSH_CALLBACK_EXPIRED = 'expiredCallback';
+const ERR_PUSH_CALLBACK_RESET = 'resetCallback';
+const ERR_PUSH_UNKNOWN = 'unknown';
 
-const LOG_OP_PUSH_SEND_ATTEMPT = "push.send.attempt";
-const LOG_OP_PUSH_SEND_FAILURE = "push.send.failure";
-const LOG_OP_PUSH_SEND_SUCCESS = "push.send.success";
-const LOG_OP_PUSH_UNEXPECTED_ERROR = "push.sendPush.unexpectedError";
-const LOG_OP_TOO_MANY_DEVICES = "push.sendPush.tooManyDevices";
-const LOG_OP_DEVICE_UPDATE_FAILED = "push.sendPush.deviceUpdateFailed";
+const LOG_OP_PUSH_SEND_ATTEMPT = 'push.send.attempt';
+const LOG_OP_PUSH_SEND_FAILURE = 'push.send.failure';
+const LOG_OP_PUSH_SEND_SUCCESS = 'push.send.success';
+const LOG_OP_PUSH_UNEXPECTED_ERROR = 'push.sendPush.unexpectedError';
+const LOG_OP_TOO_MANY_DEVICES = 'push.sendPush.tooManyDevices';
+const LOG_OP_DEVICE_UPDATE_FAILED = 'push.sendPush.deviceUpdateFailed';
 
 const TTL_DEVICE_DISCONNECTED = 5 * 3600; // 5 hours
 const TTL_PASSWORD_CHANGED = 6 * 3600; // 6 hours
@@ -187,7 +187,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyCommandReceived(uid, device, command, sender, index, url, ttl) {
-      if (typeof ttl === "undefined") {
+      if (typeof ttl === 'undefined') {
         ttl = TTL_COMMAND_RECEIVED;
       }
       const options = {
@@ -203,7 +203,7 @@ module.exports = function (log, db, config, statsd) {
         },
         TTL: ttl,
       };
-      return this.sendPush(uid, [device], "commandReceived", options);
+      return this.sendPush(uid, [device], 'commandReceived', options);
     },
 
     /**
@@ -215,7 +215,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyDeviceConnected(uid, devices, deviceName) {
-      return this.sendPush(uid, devices, "deviceConnected", {
+      return this.sendPush(uid, devices, 'deviceConnected', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_CONNECTED,
@@ -235,7 +235,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyDeviceDisconnected(uid, devices, idToDisconnect) {
-      return this.sendPush(uid, devices, "deviceDisconnected", {
+      return this.sendPush(uid, devices, 'deviceDisconnected', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.DEVICE_DISCONNECTED,
@@ -255,7 +255,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyProfileUpdated(uid, devices) {
-      return this.sendPush(uid, devices, "profileUpdated", {
+      return this.sendPush(uid, devices, 'profileUpdated', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PROFILE_UPDATED,
@@ -271,7 +271,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyPasswordChanged(uid, devices) {
-      return this.sendPush(uid, devices, "passwordChange", {
+      return this.sendPush(uid, devices, 'passwordChange', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PASSWORD_CHANGED,
@@ -288,7 +288,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyPasswordReset(uid, devices) {
-      return this.sendPush(uid, devices, "passwordReset", {
+      return this.sendPush(uid, devices, 'passwordReset', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.PASSWORD_RESET,
@@ -317,7 +317,7 @@ module.exports = function (log, db, config, statsd) {
      * @promise
      */
     notifyAccountDestroyed(uid, devices) {
-      return this.sendPush(uid, devices, "accountDestroyed", {
+      return this.sendPush(uid, devices, 'accountDestroyed', {
         data: {
           version: PUSH_PAYLOAD_SCHEMA_VERSION,
           command: PUSH_COMMANDS.ACCOUNT_DESTROYED,
@@ -375,7 +375,7 @@ module.exports = function (log, db, config, statsd) {
         }
         const pushSubscription = { endpoint: device.pushCallback };
         let pushPayload = null;
-        const pushOptions = { TTL: options.TTL || "0" };
+        const pushOptions = { TTL: options.TTL || '0' };
         if (options.data) {
           if (!device.pushPublicKey || !device.pushAuthKey) {
             this.reportPushFailure(ERR_DATA_BUT_NO_KEYS, metricsTags);
@@ -438,7 +438,7 @@ module.exports = function (log, db, config, statsd) {
       // Log the full callback URL for debugging purposes.
       log.trace(LOG_OP_PUSH_SEND_ATTEMPT, {
         pushCallback,
-        ...metricsTags
+        ...metricsTags,
       });
     },
 
@@ -466,7 +466,7 @@ module.exports = function (log, db, config, statsd) {
         reason: tags.reason,
         uaOS: tags.uaOS,
         errCode: tags.errCode,
-      })
-    }
+      });
+    },
   };
 };
