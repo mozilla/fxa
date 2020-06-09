@@ -1815,6 +1815,7 @@ describe('StripeHelper', () => {
       charge: chargeId,
       default_source: { id: sourceId },
       total: 1234,
+      currency: 'usd',
       period_end: 1587426018,
       lines: {
         data: [
@@ -1828,7 +1829,7 @@ describe('StripeHelper', () => {
     const mockInvoiceUpcoming = {
       ...mockInvoice,
       id: 'inv_upcoming',
-      amount_due: 299,
+      amount_due: 299000,
     };
 
     const mockCharge = {
@@ -1918,7 +1919,8 @@ describe('StripeHelper', () => {
         cardType: 'visa',
         lastFour: '5309',
         invoiceNumber: 'AAF2CECC-0001',
-        invoiceTotal: 5,
+        invoiceTotalCurrency: 'usd',
+        invoiceTotalInCents: 500,
         invoiceDate: new Date('2020-03-24T22:23:40.000Z'),
         nextInvoiceDate: new Date('2020-04-24T22:23:40.000Z'),
         productId,
@@ -2136,8 +2138,10 @@ describe('StripeHelper', () => {
       productDownloadURLNew:
         eventCustomerSubscriptionUpdated.data.object.plan.metadata.downloadURL,
       planIdNew: planId,
-      paymentAmountNew:
-        eventCustomerSubscriptionUpdated.data.object.plan.amount / 100,
+      paymentAmountNewCurrency:
+        eventCustomerSubscriptionUpdated.data.object.plan.currency,
+      paymentAmountNewInCents:
+        eventCustomerSubscriptionUpdated.data.object.plan.amount,
       productPaymentCycle: 'month',
       closeDate: 1326853478,
     };
@@ -2303,10 +2307,13 @@ describe('StripeHelper', () => {
           productNameOld,
           productIconURLOld,
           productDownloadURLOld,
-          paymentAmountOld: event.data.previous_attributes.plan.amount / 100,
+          paymentAmountOldCurrency:
+            event.data.previous_attributes.plan.currency,
+          paymentAmountOldInCents: event.data.previous_attributes.plan.amount,
+          paymentProratedCurrency: mockInvoiceUpcoming.currency,
+          paymentProratedInCents: mockInvoiceUpcoming.amount_due,
           invoiceNumber: mockInvoice.number,
           invoiceId: mockInvoice.id,
-          paymentProrated: mockInvoiceUpcoming.amount_due / 100,
         });
       };
 
@@ -2337,7 +2344,8 @@ describe('StripeHelper', () => {
           planId,
           planEmailIconURL: productIconURLNew,
           productName,
-          invoiceTotal: mockInvoice.total / 100.0,
+          invoiceTotalInCents: mockInvoice.total,
+          invoiceTotalCurrency: mockInvoice.currency,
           cardType: card.brand,
           lastFour: card.last4,
           nextInvoiceDate: new Date(
@@ -2365,7 +2373,8 @@ describe('StripeHelper', () => {
           planEmailIconURL: productIconURLNew,
           productName,
           invoiceDate: new Date(mockInvoice.created * 1000),
-          invoiceTotal: mockInvoice.total / 100.0,
+          invoiceTotalInCents: mockInvoice.total,
+          invoiceTotalCurrency: mockInvoice.currency,
           serviceLastActiveDate: new Date(
             subscription.current_period_end * 1000
           ),

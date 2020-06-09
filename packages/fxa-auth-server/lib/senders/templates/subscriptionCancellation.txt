@@ -2,7 +2,7 @@
 
 {{{t "Sorry to see you go" }}}
 
-{{{t "We've cancelled your %(productName)s subscription. Your final payment of $%(invoiceTotal)s was paid on %(invoiceDateOnly)s. Your service will continue until the end of your current billing period, which is %(serviceLastActiveDateOnly)s." }}}
+{{{t "We've cancelled your %(productName)s subscription. Your final payment of %(invoiceTotal)s was paid on %(invoiceDateOnly)s. Your service will continue until the end of your current billing period, which is %(serviceLastActiveDateOnly)s." }}}
 
 {{{t "Please help us improve our services by taking this short survey:" }}}
 
