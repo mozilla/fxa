@@ -23,11 +23,12 @@ describe('lib/SurveyTargeter', () => {
       id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
       conditions: { relier: null },
       view: 'settings',
-      rate: 0.1,
+      rate: 1,
       url: 'https://www.surveygizmo.com/s3/5541940/pizza',
     },
     {
       conditions: { browser: 'Firefox' },
+      rate: 1,
       view: 'settings',
       url: 'https://www.surveygizmo.com/s3/5541940/pizza',
     },
@@ -82,10 +83,12 @@ describe('lib/SurveyTargeter', () => {
     const surveys = [
       {
         conditions: { relier: 'Boring, Oregon' },
+        rate: 1,
         view: 'settings',
       },
       {
         conditions: { browser: 'Dull, Perth and Kinross' },
+        rate: 1,
         view: 'settings',
       },
     ];

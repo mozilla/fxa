@@ -26,6 +26,15 @@ export const participatedRecently = (
   return Date.now() - previousParticipationTime < doNotBotherSpan;
 };
 
+export const withinRate = (rate) => {
+  if (rate === 0) {
+    return false;
+  }
+
+  const r = Math.random();
+  return r <= rate;
+};
+
 export const getConditionWithKey = (conditions, key) => {
   // It is not something we need to check.
   if (!Object.keys(conditions).includes(key)) {
@@ -304,6 +313,8 @@ export const createSurveyFilter = (
   return async (surveyConfig) =>
     !!(
       surveyConfig &&
+      surveyConfig.rate &&
+      withinRate(surveyConfig.rate) &&
       surveyConfig.conditions &&
       Object.keys(surveyConfig.conditions).length > 0 &&
       !participatedRecently(previousParticipationTime, doNotBotherSpan) &&
