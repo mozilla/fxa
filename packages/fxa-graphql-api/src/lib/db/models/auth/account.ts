@@ -19,6 +19,7 @@ export class Account extends AuthBaseModel {
   public emailVerified!: boolean;
   public normalizedEmail!: string;
   public verifierSetAt!: number;
+  public lockedAt!: number;
 
   public static relationMappings = {
     emails: {

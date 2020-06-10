@@ -29,4 +29,25 @@ export function accountByUid(uid: string, options?: AccountOptions) {
   return query.first();
 }
 
+// TODO: Find a better home for this.
+/**
+ * Type machinery to filter an Objection model class down to its direct
+ * properties. This is useful for restricting input to object properties
+ * of an Objection Model.
+ */
+type NonFunctionPropertyNames<T> = {
+  [K in keyof T]: T[K] extends Function ? never : K;
+}[keyof T];
+type NonFunctionProperties<T> = Pick<T, NonFunctionPropertyNames<T>>;
+type ObjectionModelProperties<T> = Omit<
+  NonFunctionProperties<T>,
+  'QueryBuilderType'
+>;
+
+type Accountish = Partial<ObjectionModelProperties<Account>>;
+
+export function batchAccountUpdate(uids: Buffer[], updateFields: Accountish) {
+  return Account.query().whereIn('uid', uids).update(updateFields);
+}
+
 export { Account, AuthBaseModel };

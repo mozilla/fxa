@@ -33,6 +33,7 @@
     "apollo-datasource": "^0.7.0",
     "apollo-server": "^2.13.1",
     "apollo-server-express": "^2.13.1",
+    "commander": "^5.1.0",
     "convict": "^6.0.0",
     "fxa-js-client": "^1.0.25",
     "get-stream": "^5.1.0",
