@@ -4,9 +4,9 @@
 
 {{{t "Invoice Number: %(invoiceNumber)s" }}}
 
-{{#showProratedAmount}}{{{t "Plan change: $%(proratedAmount)s" }}}{{/showProratedAmount}}
+{{#showProratedAmount}}{{{t "Plan change: %(paymentProrated)s" }}}{{/showProratedAmount}}
 
-{{{t "Charged $%(invoiceTotal)s on %(invoiceDateOnly)s" }}}
+{{{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}}
 
 {{{t "%(cardType)s card ending in %(lastFour)s" }}}
 

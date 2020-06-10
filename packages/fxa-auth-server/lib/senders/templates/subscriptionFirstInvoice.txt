@@ -8,7 +8,7 @@
 
 {{{t "Invoice Number: %(invoiceNumber)s" }}}
 
-{{{t "Charged $%(invoiceTotal)s on %(invoiceDateOnly)s" }}}
+{{{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}}
 
 {{{t "%(cardType)s card ending in %(lastFour)s" }}}
 

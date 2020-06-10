@@ -155,6 +155,34 @@ module.exports = function (log, config, oauthdb) {
     return time.format('L');
   }
 
+  // Borrowed from fxa-payments-server/src/lib/formats.ts
+  // TODO: Would be nice to share this if/when TypeScript conversion reaches here.
+  const baseCurrencyOptions = {
+    style: 'currency',
+    currencyDisplay: 'symbol',
+  };
+
+  /**
+   * This returns a string that is formatted according to the given locale.
+   *
+   * Borrowed from fxa-payments-server/src/lib/formats.ts
+   * TODO: Would be nice to share this if/when TypeScript conversion reaches here.
+   *
+   * @param {number} amountInCents
+   * @param {string} currency
+   * @param {string} locale
+   */
+  function getLocalizedCurrencyString(
+    amountInCents,
+    currency = 'usd',
+    locale = 'en-US'
+  ) {
+    const decimal = amountInCents / 100;
+    const options = { ...baseCurrencyOptions, currency };
+
+    return new Intl.NumberFormat(locale, options).format(decimal);
+  }
+
   function sesMessageTagsHeaderValue(templateName, serviceName) {
     return `messageType=fxa-${templateName}, app=fxa, service=${serviceName}`;
   }
@@ -335,6 +363,19 @@ module.exports = function (log, config, oauthdb) {
   ) {
     const translator = this.translator(acceptLanguage);
     return constructLocalDateString(timeZone, translator.language, date);
+  };
+
+  Mailer.prototype._getLocalizedCurrencyString = function (
+    amountInCents,
+    currency,
+    acceptLanguage
+  ) {
+    const translator = this.translator(acceptLanguage);
+    return getLocalizedCurrencyString(
+      amountInCents,
+      currency,
+      translator.language
+    );
   };
 
   Mailer.prototype.localize = function (message) {
@@ -1707,9 +1748,12 @@ module.exports = function (log, config, oauthdb) {
       productIconURLOld,
       productNameOld,
       productNameNew,
-      paymentAmountOld,
-      paymentAmountNew,
-      paymentProrated,
+      paymentAmountOldInCents,
+      paymentAmountOldCurrency,
+      paymentAmountNewInCents,
+      paymentAmountNewCurrency,
+      paymentProratedInCents,
+      paymentProratedCurrency,
       productPaymentCycle,
     } = message;
 
@@ -1744,9 +1788,21 @@ module.exports = function (log, config, oauthdb) {
         productIconURLNew,
         productIconURLOld,
         productNameOld,
-        paymentAmountOld,
-        paymentAmountNew,
-        paymentProrated,
+        paymentAmountOld: this._getLocalizedCurrencyString(
+          paymentAmountOldInCents,
+          paymentAmountOldCurrency,
+          message.acceptLanguage
+        ),
+        paymentAmountNew: this._getLocalizedCurrencyString(
+          paymentAmountNewInCents,
+          paymentAmountNewCurrency,
+          message.acceptLanguage
+        ),
+        paymentProrated: this._getLocalizedCurrencyString(
+          paymentProratedInCents,
+          paymentProratedCurrency,
+          message.acceptLanguage
+        ),
         productPaymentCycle,
         icon: productIconURLNew,
         product: productNameNew,
@@ -1765,9 +1821,12 @@ module.exports = function (log, config, oauthdb) {
       productIconURLOld,
       productNameOld,
       productNameNew,
-      paymentAmountOld,
-      paymentAmountNew,
-      paymentProrated,
+      paymentAmountOldInCents,
+      paymentAmountOldCurrency,
+      paymentAmountNewInCents,
+      paymentAmountNewCurrency,
+      paymentProratedInCents,
+      paymentProratedCurrency,
       productPaymentCycle,
     } = message;
 
@@ -1807,9 +1866,21 @@ module.exports = function (log, config, oauthdb) {
         productIconURLNew,
         productIconURLOld,
         productNameOld,
-        paymentAmountOld,
-        paymentAmountNew,
-        paymentProrated,
+        paymentAmountOld: this._getLocalizedCurrencyString(
+          paymentAmountOldInCents,
+          paymentAmountOldCurrency,
+          message.acceptLanguage
+        ),
+        paymentAmountNew: this._getLocalizedCurrencyString(
+          paymentAmountNewInCents,
+          paymentAmountNewCurrency,
+          message.acceptLanguage
+        ),
+        paymentProrated: this._getLocalizedCurrencyString(
+          paymentProratedInCents,
+          paymentProratedCurrency,
+          message.acceptLanguage
+        ),
         productPaymentCycle,
         icon: productIconURLNew,
         product: productNameNew,
@@ -1925,7 +1996,8 @@ module.exports = function (log, config, oauthdb) {
       planEmailIconURL,
       productName,
       invoiceDate,
-      invoiceTotal,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -1970,7 +2042,11 @@ module.exports = function (log, config, oauthdb) {
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
-        invoiceTotal,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
       },
     });
   };
@@ -1984,7 +2060,8 @@ module.exports = function (log, config, oauthdb) {
       planEmailIconURL,
       productName,
       invoiceDate,
-      invoiceTotal,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       serviceLastActiveDate,
     } = message;
 
@@ -2035,7 +2112,11 @@ module.exports = function (log, config, oauthdb) {
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
-        invoiceTotal,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
       },
     });
   };
@@ -2048,7 +2129,8 @@ module.exports = function (log, config, oauthdb) {
       planId,
       planEmailIconURL,
       productName,
-      invoiceTotal,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       cardType,
       lastFour,
       nextInvoiceDate,
@@ -2095,7 +2177,11 @@ module.exports = function (log, config, oauthdb) {
         icon: planEmailIconURL,
         product: productName,
         subject: translator.format(subject, translatorParams),
-        invoiceTotal,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
@@ -2115,11 +2201,13 @@ module.exports = function (log, config, oauthdb) {
       productName,
       invoiceNumber,
       invoiceDate,
-      invoiceTotal,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       cardType,
       lastFour,
       nextInvoiceDate,
-      proratedAmount,
+      paymentProratedInCents,
+      paymentProratedCurrency,
     } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
@@ -2141,6 +2229,17 @@ module.exports = function (log, config, oauthdb) {
     const headers = {};
     const translatorParams = { productName };
     const subject = translator.gettext('%(productName)s payment received');
+
+    let paymentProrated;
+    let showProratedAmount = false;
+    if (typeof paymentProratedInCents !== 'undefined') {
+      showProratedAmount = true;
+      paymentProrated = this._getLocalizedCurrencyString(
+        paymentProratedInCents,
+        paymentProratedCurrency,
+        message.acceptLanguage
+      );
+    }
 
     return this.send({
       ...message,
@@ -2168,12 +2267,16 @@ module.exports = function (log, config, oauthdb) {
         subject: translator.format(subject, translatorParams),
         invoiceNumber,
         invoiceDate,
-        invoiceTotal,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
-        proratedAmount,
-        showProratedAmount: !!proratedAmount,
+        paymentProrated,
+        showProratedAmount,
       },
     });
   };
@@ -2188,7 +2291,8 @@ module.exports = function (log, config, oauthdb) {
       productName,
       invoiceNumber,
       invoiceDate,
-      invoiceTotal,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       cardType,
       lastFour,
       nextInvoiceDate,
@@ -2240,7 +2344,11 @@ module.exports = function (log, config, oauthdb) {
         subject: translator.format(subject, translatorParams),
         invoiceNumber,
         invoiceDate,
-        invoiceTotal,
+        invoiceTotal: this._getLocalizedCurrencyString(
+          invoiceTotalInCents,
+          invoiceTotalCurrency,
+          message.acceptLanguage
+        ),
         cardType: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
