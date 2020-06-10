@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useEffect, useRef } from 'react';
+import React, { ReactNode } from 'react';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import { useEscKeydownEffect, useChangeFocusEffect } from '../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
@@ -28,25 +29,8 @@ export const Modal = ({
   'data-testid': testid = 'modal',
 }: ModalProps) => {
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
-
-  // direct tab focus to the modal when opened for screenreaders
-  const tabFenceRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (tabFenceRef.current) {
-      tabFenceRef.current.focus();
-    }
-  }, []);
-
-  // close on esc keydown
-  useEffect(() => {
-    const handler = ({ key }: KeyboardEvent) => {
-      if (key === 'Escape') {
-        onDismiss();
-      }
-    };
-    window.addEventListener('keydown', handler);
-    return () => window.removeEventListener('keydown', handler);
-  }, [onDismiss]);
+  const tabFenceRef = useChangeFocusEffect();
+  useEscKeydownEffect(onDismiss);
 
   return (
     <Portal id="modal" {...{ headerId, descId }}>
@@ -65,19 +49,16 @@ export const Modal = ({
           <div
             tabIndex={0}
             ref={tabFenceRef}
-            data-testid="tab-fence"
-            className="w-px"
-          ></div>
+            data-testid="modal-tab-fence"
+            className="outline-none"
+          />
           <div className="flex justify-end pr-2 pt-2">
             <button
               data-testid="modal-dismiss"
               onClick={onDismiss as () => void}
+              title="Close modal"
             >
-              <CloseIcon
-                className="w-2 h-2 m-3"
-                role="img"
-                aria-label="Close modal"
-              />
+              <CloseIcon className="w-2 h-2 m-3" role="img" />
             </button>
           </div>
 

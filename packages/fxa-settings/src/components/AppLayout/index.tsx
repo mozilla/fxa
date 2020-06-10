@@ -30,8 +30,7 @@ export const AppLayout = ({
       }}
     />
     <div className="max-w-screen-desktopXl w-full mx-auto flex flex-1 tablet:px-20 desktop:px-12">
-      {/* `desktop:transform` forces the `position: fixed` child to inherit the width */}
-      <div className="hidden desktop:block desktop:flex-2 desktop:transform">
+      <div className="hidden desktop:block desktop:flex-2">
         <Nav {...{ hasSubscription, primaryEmail }} />
       </div>
       <main id="main" data-testid="main" className="desktop:flex-7">

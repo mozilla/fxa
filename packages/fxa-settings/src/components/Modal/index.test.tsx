@@ -3,21 +3,23 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import Modal from './index';
 
-afterEach(cleanup);
-
 it('renders as expected', () => {
   const onDismiss = jest.fn();
-  const { queryByTestId } = render(
+  render(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
-  expect(queryByTestId('children')).toBeInTheDocument();
+  expect(screen.queryByTestId('children')).toBeInTheDocument();
+  expect(screen.queryByTestId('modal-dismiss')).toHaveAttribute(
+    'title',
+    'Close modal'
+  );
 });
 
 it('accepts an alternate className', () => {
@@ -66,5 +68,5 @@ it('shifts focus to the tab fence when opened', () => {
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
-  expect(document.activeElement).toBe(getByTestId('tab-fence'));
+  expect(document.activeElement).toBe(getByTestId('modal-tab-fence'));
 });

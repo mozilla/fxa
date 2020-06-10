@@ -3,10 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useRef } from 'react';
-import { render } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { useFocusOnTriggeringElementOnClose } from './hooks';
+import {
+  useFocusOnTriggeringElementOnClose,
+  useEscKeydownEffect,
+  useChangeFocusEffect,
+} from './hooks';
 
 describe('useFocusOnTriggeringElementOnClose', () => {
   const Subject = ({ revealed }: { revealed?: boolean }) => {
@@ -32,5 +36,36 @@ describe('useFocusOnTriggeringElementOnClose', () => {
     rerender(<Subject />);
 
     expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
+  });
+});
+
+describe('useEscKeydownEffect', () => {
+  const onEscKeydown = jest.fn();
+  const Subject = () => {
+    useEscKeydownEffect(onEscKeydown);
+    return <div>Hi mom</div>;
+  };
+  it('calls onEscKeydown on esc key press', () => {
+    render(<Subject />);
+    expect(onEscKeydown).not.toHaveBeenCalled();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(onEscKeydown).toHaveBeenCalled();
+  });
+});
+
+describe('useChangeFocusEffect', () => {
+  const Subject = () => {
+    const elToFocusRef = useChangeFocusEffect();
+    return (
+      <div>
+        <a href="#">some other focusable thing</a>
+        <div ref={elToFocusRef} tabIndex={0} data-testid="el-to-focus" />
+      </div>
+    );
+  };
+
+  it('changes focus as expected', () => {
+    render(<Subject />);
+    expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
   });
 });

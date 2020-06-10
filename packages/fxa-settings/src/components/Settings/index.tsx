@@ -7,14 +7,18 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Modal from '../Modal';
+import AlertBar from '../AlertBar';
 import { AccountData } from '../AccountDataHOC/gql';
 
 export const Settings = ({ account }: { account: AccountData }) => {
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
+  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
+
   const onSecondaryEmailConfirm = useCallback(() => {
     console.log('confirmed - resend verification code');
     hideModal();
-  }, [hideModal]);
+    revealAlertBar();
+  }, [hideModal, revealAlertBar]);
 
   const modalHeaderId = 'modal-header-verify-email';
   const modalDescId = 'modal-desc-verify-email';
@@ -23,6 +27,21 @@ export const Settings = ({ account }: { account: AccountData }) => {
 
   return (
     <>
+      {/*
+       * While this is where the AlertBar needs to be in the DOM, it won't be composed here
+       * like this. We likely need some sort of alert bar root element and then AlertBar
+       * can return a React.Portal hooking into this element via a ref so that we can freely
+       * use <AlertBar> with content where needed while its placement in the DOM remains
+       * here. Details will be worked out in FXA-1628.
+       */}
+      {alertBarRevealed && (
+        <AlertBar onDismiss={hideAlertBar}>
+          <p>
+            Check the inbox for {primaryEmail.email} to verify your primary
+            email.
+          </p>
+        </AlertBar>
+      )}
       <section className="mt-11" id="profile" data-testid="settings-profile">
         <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
 
