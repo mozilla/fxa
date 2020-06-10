@@ -31,7 +31,7 @@ function getSurveyTargeter() {
       id: 'portugese-speaking-mobile-users-in-southern-hemisphere',
       conditions: { relier: null },
       view: 'settings',
-      rate: 0.1,
+      rate: 1,
       url: 'https://www.surveygizmo.com/s3/5541940/pizza',
     },
   ];
@@ -441,7 +441,6 @@ describe('views/app', function () {
           return 'the title';
         },
       });
-
 
       before(function () {
         createDeps();
