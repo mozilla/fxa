@@ -31,8 +31,7 @@ export function getDefault() {
     },
     servers: {
       gql: {
-        // JODY - remove this
-        url: 'http://localhost:8290',
+        url: '',
       },
       auth: {
         url: '',

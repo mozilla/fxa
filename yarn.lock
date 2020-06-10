@@ -17859,6 +17859,7 @@ fsevents@^1.2.7:
     eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^23.8.2
     eslint-plugin-react: ^7.19.0
+    fxa-content-server: "workspace:*"
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     graphql: 14.5.8
