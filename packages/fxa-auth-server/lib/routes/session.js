@@ -20,7 +20,8 @@ module.exports = function (
   signinUtils,
   signupUtils,
   mailer,
-  push
+  push,
+  customs
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
@@ -340,8 +341,10 @@ module.exports = function (
         const options = request.payload;
         const sessionToken = request.auth.credentials;
         const { code } = options;
-        const { uid } = sessionToken;
+        const { uid, email } = sessionToken;
         const devices = await request.app.devices;
+
+        await customs.check(request, email, 'verifySessionCode');
 
         request.emitMetricsEvent('session.verify_code');
 

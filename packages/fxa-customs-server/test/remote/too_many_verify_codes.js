@@ -34,6 +34,7 @@ const VERIFY_CODE_ACTIONS = [
   'recoveryEmailVerifyCode',
   'passwordForgotVerifyCode',
   'verifyRecoveryCode',
+  'verifySessionCode',
 ];
 
 VERIFY_CODE_ACTIONS.forEach((action) => {

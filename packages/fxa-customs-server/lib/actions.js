@@ -18,6 +18,7 @@ const CODE_VERIFYING_ACTION = {
   recoveryEmailVerifyCode: true,
   passwordForgotVerifyCode: true,
   verifyRecoveryCode: true,
+  verifySessionCode: true,
 };
 
 // Actions that, if allowed, would allow an attacker
