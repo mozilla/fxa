@@ -1,3 +1,10 @@
+## 1.174.2
+
+### Bug fixes
+
+- experiments: Enabled QR cad, disable newsletters experiment ([e5a1c88f6](https://github.com/mozilla/fxa/commit/e5a1c88f6))
+- customs: Update customs to better handle email records ([92e304456](https://github.com/mozilla/fxa/commit/92e304456))
+
 ## 1.174.1
 
 ### Bug fixes

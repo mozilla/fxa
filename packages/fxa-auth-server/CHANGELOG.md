@@ -1,3 +1,14 @@
+## 1.174.2
+
+### New features
+
+- email: Update email template ([2ad237e21](https://github.com/mozilla/fxa/commit/2ad237e21))
+
+### Bug fixes
+
+- customs: Update customs rules for session verify code ([c5eb726cb](https://github.com/mozilla/fxa/commit/c5eb726cb))
+- customs: Update customs to better handle email records ([92e304456](https://github.com/mozilla/fxa/commit/92e304456))
+
 ## 1.174.1
 
 ### Bug fixes
