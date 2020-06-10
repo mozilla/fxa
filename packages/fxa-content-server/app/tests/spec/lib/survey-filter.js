@@ -40,6 +40,7 @@ describe('lib/survey-filter', () => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0';
   const mockWindow = {
     navigator: {
+      languages: ['en-CA', 'es-MX', 'fr'],
       userAgent: uaString,
     },
   };
@@ -183,6 +184,37 @@ describe('lib/survey-filter', () => {
       assert.deepEqual(comparator.args[0], ['meow']);
       assert.isTrue(resultFn.called);
       assert.isFalse(falseFn.called);
+    });
+  });
+
+  describe('createFetchLanguagesFn', () => {
+    it('should be undefined when the window object is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn(null);
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when the window.navigator is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn({ navigator: null });
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when the window.navigator.languages is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn({
+        navigator: { languages: null },
+      });
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should return a list of language tags', () => {
+      const langs = ['en', 'en-US', 'gd', 'de'];
+      const f = SurveyFilter.createFetchLanguagesFn({
+        navigator: { languages: langs },
+      });
+      const actual = f();
+      assert.deepEqual(actual, langs);
     });
   });
 
@@ -398,6 +430,55 @@ describe('lib/survey-filter', () => {
       assert.isFunction(f);
       assert.isTrue(fetchFn.calledOnce);
       assert.isTrue(comparator.calledOnceWithExactly('bingo!'));
+    });
+  });
+
+  describe('checkLanguages', () => {
+    it('should be case insensitive', () => {
+      const actual = SurveyFilter.checkLanguages(['en'])(['EN']);
+      assert.isTrue(actual);
+    });
+
+    it('should be false when there is no match', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])([
+        'es-MX',
+      ]);
+      assert.isFalse(actual);
+    });
+
+    it('should be true when a language condition matches the language portion of a tag', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])(['zh']);
+      assert.isTrue(actual);
+    });
+
+    it('should be true when an exact match is found', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])([
+        'es',
+        'zh-CN',
+      ]);
+      assert.isTrue(actual);
+    });
+  });
+
+  describe('languagesCheck', () => {
+    const fetchLangs = sandbox.stub().returns(['en', 'es-MX', 'gd']);
+
+    it('should be true when any language tag is matched', () => {
+      const actual = SurveyFilter.languagesCheck(
+        { languages: ['zh', 'es'] },
+        fetchLangs
+      );
+      assert.isTrue(actual);
+      assert.isTrue(fetchLangs.calledOnce);
+    });
+
+    it('should be false when there is no match', () => {
+      const actual = SurveyFilter.languagesCheck(
+        { languages: ['zh', 'de'] },
+        fetchLangs
+      );
+      assert.isFalse(actual);
+      assert.isTrue(fetchLangs.calledOnce);
     });
   });
 
@@ -908,6 +989,7 @@ describe('lib/survey-filter', () => {
         browser: 'firefox',
         deviceType: 'desktop',
         hasNonDefaultAvatar: true,
+        languages: ['es'],
         location: { city: 'Heapolandia' },
         os: 'windows',
         relier: 'Relying Party!!!',
@@ -1028,6 +1110,30 @@ describe('lib/survey-filter', () => {
       assert.isFalse(actual);
     });
 
+    it('should be false when the language is not found', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: { ...config.conditions, languages: ['zh'] },
+        rate: config.rate,
+      });
+      assert.isFalse(actual);
+    });
+
+    it.skip('should be true when the language is found', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: { ...config.conditions, languages: ['es'] },
+        rate: config.rate,
+      });
+      assert.isTrue(actual);
+    });
+
     it('should be false when the browser does not match', async () => {
       const filter = SurveyFilter.createSurveyFilter.apply(
         null,
@@ -1035,6 +1141,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, browser: 'elinks' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1046,6 +1153,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, deviceType: 'XR' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1057,6 +1165,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, os: 'TempleOS' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1068,6 +1177,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, relier: 'FPN' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1079,6 +1189,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, subscriptions: ['fpn_id'] },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1090,6 +1201,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, location: { city: 'Lisbon' } },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1101,6 +1213,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, reliersList: ['wibble', 'wubble'] },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1112,6 +1225,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, hasNonDefaultAvatar: false },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
