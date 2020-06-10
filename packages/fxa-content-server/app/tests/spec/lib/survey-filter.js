@@ -186,6 +186,37 @@ describe('lib/survey-filter', () => {
     });
   });
 
+  describe('createFetchLanguagesFn', () => {
+    it('should be undefined when the window object is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn(null);
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when the window.navigator is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn({ navigator: null });
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when the window.navigator.languages is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn({
+        navigator: { languages: null },
+      });
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should return a list of language tags', () => {
+      const langs = ['en', 'en-US', 'gd', 'de'];
+      const f = SurveyFilter.createFetchLanguagesFn({
+        navigator: { languages: langs },
+      });
+      const actual = f();
+      assert.deepEqual(actual, langs);
+    });
+  });
+
   describe('createFetchUaFn', () => {
     it('should be undefined when the window object is falsy', () => {
       const f = SurveyFilter.createFetchUaFn(null);
@@ -398,6 +429,55 @@ describe('lib/survey-filter', () => {
       assert.isFunction(f);
       assert.isTrue(fetchFn.calledOnce);
       assert.isTrue(comparator.calledOnceWithExactly('bingo!'));
+    });
+  });
+
+  describe('checkLanguages', () => {
+    it('should be case insensitive', () => {
+      const actual = SurveyFilter.checkLanguages(['en'])(['EN']);
+      assert.isTrue(actual);
+    });
+
+    it('should be false when there is no match', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])([
+        'es-MX',
+      ]);
+      assert.isFalse(actual);
+    });
+
+    it('should be true when a language condition matches the language portion of a tag', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])(['zh']);
+      assert.isTrue(actual);
+    });
+
+    it('should be true when an exact match is found', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])([
+        'es',
+        'zh-CN',
+      ]);
+      assert.isTrue(actual);
+    });
+  });
+
+  describe('languagesCheck', () => {
+    const fetchLangs = sandbox.stub().returns(['en', 'es-MX', 'gd']);
+
+    it('should be true when any language tag is matched', () => {
+      const actual = SurveyFilter.languagesCheck(
+        { languages: ['zh', 'es'] },
+        fetchLangs
+      );
+      assert.isTrue(actual);
+      assert.isTrue(fetchLangs.calledOnce);
+    });
+
+    it('should be false when there is no match', () => {
+      const actual = SurveyFilter.languagesCheck(
+        { languages: ['zh', 'de'] },
+        fetchLangs
+      );
+      assert.isFalse(actual);
+      assert.isTrue(fetchLangs.calledOnce);
     });
   });
 
