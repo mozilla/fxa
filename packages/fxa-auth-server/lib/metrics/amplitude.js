@@ -33,6 +33,7 @@ const EMAIL_TYPES = {
   lowRecoveryCodes: '2fa',
   newDeviceLogin: 'login',
   passwordChanged: 'change_password',
+  passwordChangeRequired: 'change_password',
   passwordReset: 'reset_password',
   passwordResetAccountRecovery: 'account_recovery',
   passwordResetRequired: 'reset_password',

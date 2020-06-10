@@ -19,7 +19,7 @@ module.exports = class UserRecordNormalizer {
     return (
       userRecords
         // no email can be sent if the record does not contain an email
-        .filter((record) => !!record.email)
+        .filter((record) => !!record.primaryEmail)
         .map((userRecord) => this.normalizeUserRecord(userRecord, translator))
     );
   }
