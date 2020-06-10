@@ -1,3 +1,9 @@
+## 1.174.2
+
+### Bug fixes
+
+- customs: Update customs rules for session verify code ([c5eb726cb](https://github.com/mozilla/fxa/commit/c5eb726cb))
+
 ## 1.174.1
 
 ### Bug fixes
