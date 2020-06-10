@@ -40,6 +40,7 @@ describe('lib/survey-filter', () => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0';
   const mockWindow = {
     navigator: {
+      languages: ['en-CA', 'es-MX', 'fr'],
       userAgent: uaString,
     },
   };
@@ -988,6 +989,7 @@ describe('lib/survey-filter', () => {
         browser: 'firefox',
         deviceType: 'desktop',
         hasNonDefaultAvatar: true,
+        languages: ['es'],
         location: { city: 'Heapolandia' },
         os: 'windows',
         relier: 'Relying Party!!!',
@@ -1108,6 +1110,30 @@ describe('lib/survey-filter', () => {
       assert.isFalse(actual);
     });
 
+    it('should be false when the language is not found', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: { ...config.conditions, languages: ['zh'] },
+        rate: config.rate,
+      });
+      assert.isFalse(actual);
+    });
+
+    it.skip('should be true when the language is found', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: { ...config.conditions, languages: ['es'] },
+        rate: config.rate,
+      });
+      assert.isTrue(actual);
+    });
+
     it('should be false when the browser does not match', async () => {
       const filter = SurveyFilter.createSurveyFilter.apply(
         null,
@@ -1115,6 +1141,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, browser: 'elinks' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1126,6 +1153,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, deviceType: 'XR' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1137,6 +1165,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, os: 'TempleOS' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1148,6 +1177,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, relier: 'FPN' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1159,6 +1189,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, subscriptions: ['fpn_id'] },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1170,6 +1201,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, location: { city: 'Lisbon' } },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1181,6 +1213,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, reliersList: ['wibble', 'wubble'] },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
@@ -1192,6 +1225,7 @@ describe('lib/survey-filter', () => {
       );
       const actual = await filter({
         conditions: { ...config.conditions, hasNonDefaultAvatar: false },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
