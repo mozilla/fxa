@@ -31,7 +31,7 @@ secrets.json
 .eslintcache
 storybooks-publish
 tsconfig.tsbuildinfo
-tailwind.out.css
+tailwind.out.*
 
 # Dependencies
 **/node_modules

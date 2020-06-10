@@ -973,7 +973,8 @@ class StripeHelper {
     const {
       number: invoiceNumber,
       created: invoiceDate,
-      total: invoiceTotal,
+      currency: invoiceTotalCurrency,
+      total: invoiceTotalInCents,
       lines: {
         data: [
           {
@@ -998,7 +999,8 @@ class StripeHelper {
       cardType,
       lastFour,
       invoiceNumber,
-      invoiceTotal: invoiceTotal / 100.0,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       invoiceDate: new Date(invoiceDate * 1000),
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
       productId,
@@ -1129,7 +1131,11 @@ class StripeHelper {
     const cancelAtPeriodEndOld = previousAttributes.cancel_at_period_end;
 
     const abbrevProductNew = await this.expandAbbrevProductForPlan(planNew);
-    const { interval: productPaymentCycle, amount: paymentAmountNew } = planNew;
+    const {
+      interval: productPaymentCycle,
+      amount: paymentAmountNewInCents,
+      currency: paymentAmountNewCurrency,
+    } = planNew;
     const {
       product_id: productIdNew,
       product_name: productNameNew,
@@ -1150,7 +1156,8 @@ class StripeHelper {
       productIconURLNew,
       productDownloadURLNew,
       planIdNew,
-      paymentAmountNew: paymentAmountNew / 100,
+      paymentAmountNewInCents,
+      paymentAmountNewCurrency,
       productPaymentCycle,
       closeDate: event.created,
     };
@@ -1206,7 +1213,11 @@ class StripeHelper {
       productIconURLNew: planEmailIconURL,
     } = baseDetails;
 
-    const { total: invoiceTotal, created: invoiceDate } = invoice;
+    const {
+      total: invoiceTotalInCents,
+      currency: invoiceTotalCurrency,
+      created: invoiceDate,
+    } = invoice;
 
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
@@ -1217,7 +1228,8 @@ class StripeHelper {
       planEmailIconURL,
       productName,
       invoiceDate: new Date(invoiceDate * 1000),
-      invoiceTotal: invoiceTotal / 100.0,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
     };
   }
@@ -1238,7 +1250,8 @@ class StripeHelper {
     const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
 
     const {
-      total: invoiceTotal,
+      total: invoiceTotalInCents,
+      currency: invoiceTotalCurrency,
       lines: {
         data: [
           {
@@ -1270,7 +1283,8 @@ class StripeHelper {
       planId,
       planEmailIconURL,
       productName,
-      invoiceTotal: invoiceTotal / 100.0,
+      invoiceTotalInCents,
+      invoiceTotalCurrency,
       cardType,
       lastFour,
       nextInvoiceDate: new Date(nextInvoiceDate * 1000),
@@ -1297,16 +1311,22 @@ class StripeHelper {
     planOld
   ) {
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
-      customer: customer.id,
+      subscription: subscription.id,
     });
 
     const { id: invoiceId, number: invoiceNumber } = invoice;
 
-    const { amount_due: paymentProrated } = upcomingInvoice;
+    const {
+      currency: paymentProratedCurrency,
+      amount_due: paymentProratedInCents,
+    } = upcomingInvoice;
 
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
-    const { amount: paymentAmountOld } = planOld;
+    const {
+      amount: paymentAmountOldInCents,
+      currency: paymentAmountOldCurrency,
+    } = planOld;
     const {
       product_id: productIdOld,
       product_name: productNameOld,
@@ -1329,10 +1349,12 @@ class StripeHelper {
       productNameOld,
       productIconURLOld,
       productDownloadURLOld,
-      paymentAmountOld: paymentAmountOld / 100,
+      paymentAmountOldInCents,
+      paymentAmountOldCurrency,
       invoiceNumber,
       invoiceId,
-      paymentProrated: paymentProrated / 100,
+      paymentProratedInCents,
+      paymentProratedCurrency,
     };
   }
 

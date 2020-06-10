@@ -33,6 +33,10 @@ type EventProperties = GlobalEventProperties & {
   error?: Error;
 };
 
+type SuccessfulSubscriptionEventProperties = EventProperties & {
+  sourceCountry?: string;
+};
+
 type Error = { message?: string } | null;
 
 // These can still be overwritten in the event logging function.
@@ -133,7 +137,9 @@ export function createSubscription_PENDING(eventProperties: EventProperties) {
   );
 }
 
-export function createSubscription_FULFILLED(eventProperties: EventProperties) {
+export function createSubscription_FULFILLED(
+  eventProperties: SuccessfulSubscriptionEventProperties
+) {
   safeLogAmplitudeEvent(
     eventGroupNames.createSubscription,
     eventTypeNames.success,

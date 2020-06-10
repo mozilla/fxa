@@ -19,7 +19,7 @@ const activeClasses = 'bg-grey-100 font-bold text-blue-500 rounded-sm';
 // `nav ul`: px-6 py-7 tablet:px-8 desktop:p-0
 
 export const Nav = ({ hasSubscription, primaryEmail }: NavProps) => (
-  <nav className="font-header fixed mt-11 w-auto">
+  <nav className="font-header fixed mt-11" data-testid="nav">
     <ul>
       <li className="mb-5">
         <h2 className="font-bold">Settings</h2>
@@ -28,7 +28,7 @@ export const Nav = ({ hasSubscription, primaryEmail }: NavProps) => (
             <a
               data-testid="nav-link-profile"
               href="#profile"
-              className={classNames(activeClasses, 'py-1 px-2')}
+              className={classNames(activeClasses, 'inline-block py-1 px-2')}
             >
               Profile
             </a>
@@ -37,7 +37,7 @@ export const Nav = ({ hasSubscription, primaryEmail }: NavProps) => (
             <a
               href="#security"
               data-testid="nav-link-security"
-              className="py-1 px-2"
+              className="inline-block py-1 px-2"
             >
               Security
             </a>
@@ -46,7 +46,7 @@ export const Nav = ({ hasSubscription, primaryEmail }: NavProps) => (
             <a
               href="#connected-services"
               data-testid="nav-link-connected-services"
-              className="py-1 px-2"
+              className="inline-block py-1 px-2"
             >
               Connected Services
             </a>

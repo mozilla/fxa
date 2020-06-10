@@ -18,5 +18,22 @@ module.exports = {
       },
       filter_env: ['npm_'],
     },
+    {
+      name: 'react-css',
+      script: 'yarn build-postcss',
+      cwd: __dirname,
+      env: {
+        PATH,
+      },
+      filter_env: ['npm_'],
+      autorestart: false,
+      watch: [
+        'postcss.config.js',
+        'tailwind.config.js',
+        'configs/tailwind.js',
+        'styles',
+      ],
+      ignore_watch: ['styles/tailwind.out.css'],
+    },
   ],
 };

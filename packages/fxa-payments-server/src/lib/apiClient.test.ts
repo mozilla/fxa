@@ -165,14 +165,21 @@ describe('API requests', () => {
     const metricsOptions = {
       planId: params.planId,
       productId: params.productId,
+      sourceCountry: 'GD',
     };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active', async () => {
-      const requestMock = nock(AUTH_BASE_URL).post(path, params).reply(200, {});
-      expect(await apiCreateSubscription(params)).toEqual({});
-      expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith(
-        metricsOptions
-      );
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path, params)
+        .reply(200, { subscriptionId: 'asdf', sourceCountry: 'GD' });
+      expect(await apiCreateSubscription(params)).toEqual({
+        subscriptionId: 'asdf',
+        sourceCountry: 'GD',
+      });
+      expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith({
+        planId: params.planId,
+        productId: params.productId,
+      });
       expect(<jest.Mock>createSubscription_FULFILLED).toBeCalledWith(
         metricsOptions
       );
@@ -190,11 +197,13 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith(
-        metricsOptions
-      );
+      expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith({
+        planId: params.planId,
+        productId: params.productId,
+      });
       expect(<jest.Mock>createSubscription_REJECTED).toBeCalledWith({
-        ...metricsOptions,
+        planId: params.planId,
+        productId: params.productId,
         error,
       });
       requestMock.done();

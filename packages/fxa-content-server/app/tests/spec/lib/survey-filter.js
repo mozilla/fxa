@@ -40,6 +40,7 @@ describe('lib/survey-filter', () => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0';
   const mockWindow = {
     navigator: {
+      languages: ['en-CA', 'es-MX', 'fr'],
       userAgent: uaString,
     },
   };
@@ -74,6 +75,32 @@ describe('lib/survey-filter', () => {
         5000999000
       );
       assert.isTrue(acutal);
+    });
+  });
+
+  describe('withinRate', () => {
+    it('should return false when the rate is 0', () => {
+      const actual = SurveyFilter.withinRate(0);
+      assert.isFalse(actual);
+    });
+
+    it('should return true when the rate is 1', () => {
+      const actual = SurveyFilter.withinRate(1);
+      assert.isTrue(actual);
+    });
+
+    it('should return true when the rate is between 0 and a pseudorandom number', () => {
+      sinon.stub(Math, 'random').returns(0.3);
+      const actual = SurveyFilter.withinRate(0.33);
+      assert.isTrue(actual);
+      Math.random.restore();
+    });
+
+    it('should return false when the rate is not between 0 and a pseudorandom number', () => {
+      sinon.stub(Math, 'random').returns(0.3);
+      const actual = SurveyFilter.withinRate(0.05);
+      assert.isFalse(actual);
+      Math.random.restore();
     });
   });
 
@@ -157,6 +184,37 @@ describe('lib/survey-filter', () => {
       assert.deepEqual(comparator.args[0], ['meow']);
       assert.isTrue(resultFn.called);
       assert.isFalse(falseFn.called);
+    });
+  });
+
+  describe('createFetchLanguagesFn', () => {
+    it('should be undefined when the window object is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn(null);
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when the window.navigator is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn({ navigator: null });
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should be undefined when the window.navigator.languages is falsy', () => {
+      const f = SurveyFilter.createFetchLanguagesFn({
+        navigator: { languages: null },
+      });
+      const actual = f();
+      assert.isUndefined(actual);
+    });
+
+    it('should return a list of language tags', () => {
+      const langs = ['en', 'en-US', 'gd', 'de'];
+      const f = SurveyFilter.createFetchLanguagesFn({
+        navigator: { languages: langs },
+      });
+      const actual = f();
+      assert.deepEqual(actual, langs);
     });
   });
 
@@ -372,6 +430,55 @@ describe('lib/survey-filter', () => {
       assert.isFunction(f);
       assert.isTrue(fetchFn.calledOnce);
       assert.isTrue(comparator.calledOnceWithExactly('bingo!'));
+    });
+  });
+
+  describe('checkLanguages', () => {
+    it('should be case insensitive', () => {
+      const actual = SurveyFilter.checkLanguages(['en'])(['EN']);
+      assert.isTrue(actual);
+    });
+
+    it('should be false when there is no match', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])([
+        'es-MX',
+      ]);
+      assert.isFalse(actual);
+    });
+
+    it('should be true when a language condition matches the language portion of a tag', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])(['zh']);
+      assert.isTrue(actual);
+    });
+
+    it('should be true when an exact match is found', () => {
+      const actual = SurveyFilter.checkLanguages(['en', 'zh-CN', 'gd'])([
+        'es',
+        'zh-CN',
+      ]);
+      assert.isTrue(actual);
+    });
+  });
+
+  describe('languagesCheck', () => {
+    const fetchLangs = sandbox.stub().returns(['en', 'es-MX', 'gd']);
+
+    it('should be true when any language tag is matched', () => {
+      const actual = SurveyFilter.languagesCheck(
+        { languages: ['zh', 'es'] },
+        fetchLangs
+      );
+      assert.isTrue(actual);
+      assert.isTrue(fetchLangs.calledOnce);
+    });
+
+    it('should be false when there is no match', () => {
+      const actual = SurveyFilter.languagesCheck(
+        { languages: ['zh', 'de'] },
+        fetchLangs
+      );
+      assert.isFalse(actual);
+      assert.isTrue(fetchLangs.calledOnce);
     });
   });
 
@@ -698,7 +805,6 @@ describe('lib/survey-filter', () => {
       assert.isFalse(actual);
       assert.isTrue(getDevicesStub.calledOnce);
     });
-
     it('should be true when all location properties are found', async () => {
       const actual = await SurveyFilter.geoLocationCheck(
         {
@@ -883,57 +989,98 @@ describe('lib/survey-filter', () => {
         browser: 'firefox',
         deviceType: 'desktop',
         hasNonDefaultAvatar: true,
+        languages: ['es'],
         location: { city: 'Heapolandia' },
         os: 'windows',
         relier: 'Relying Party!!!',
         reliersList: [null],
         subscriptions: ['quuz'],
       },
+      rate: 1,
     };
 
+    const trueDefaultArgs = [mockWindow, mockUser, mockRelier, null, 5000000];
+
     it('should be false when the config is missing', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        5000000
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter();
       assert.isFalse(actual);
     });
 
     it('should be false when the conditions are missing', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        5000000
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({ noConds: 'yes' });
       assert.isFalse(actual);
     });
 
     it('should be false when the conditions is an empty object', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        5000000
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({ conditions: {} });
       assert.isFalse(actual);
     });
 
-    it('should be true when previous survey time is null', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
+    it('should be false when rate is not defined', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
         null,
-        5000000000
+        trueDefaultArgs
+      );
+      const actual = await filter({ ...config, rate: undefined });
+      assert.isFalse(actual);
+    });
+
+    it('should be false when rate is 0', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({ ...config, rate: 0 });
+      assert.isFalse(actual);
+    });
+
+    it('should be true when rate is 1', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter(config);
+      assert.isTrue(actual);
+    });
+
+    it('should be false when rate is not between 0 and a pseudorandom number', async () => {
+      sinon.stub(Math, 'random').returns(0.3);
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({ ...config, rate: 0.2 });
+      assert.isFalse(actual);
+      Math.random.restore();
+    });
+
+    it('should be true when rate is between 0 and a pseudorandom number', async () => {
+      sinon.stub(Math, 'random').returns(0.1);
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({ ...config, rate: 0.2 });
+      assert.isTrue(actual);
+      Math.random.restore();
+    });
+
+    it('should be true when previous survey time is null', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter(config);
       assert.isTrue(actual);
@@ -963,114 +1110,122 @@ describe('lib/survey-filter', () => {
       assert.isFalse(actual);
     });
 
+    it('should be false when the language is not found', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: { ...config.conditions, languages: ['zh'] },
+        rate: config.rate,
+      });
+      assert.isFalse(actual);
+    });
+
+    it.skip('should be true when the language is found', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: { ...config.conditions, languages: ['es'] },
+        rate: config.rate,
+      });
+      assert.isTrue(actual);
+    });
+
     it('should be false when the browser does not match', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, browser: 'elinks' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when the device type does not match', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, deviceType: 'XR' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when the OS does not match', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, os: 'TempleOS' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when the relier client id does not match', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, relier: 'FPN' },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when a subscription is not found', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, subscriptions: ['fpn_id'] },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when the location does not match', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, location: { city: 'Lisbon' } },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when the signed in RP client ids are not found', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, reliersList: ['wibble', 'wubble'] },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });
 
     it('should be false when the avatar is not matching the configured condition', async () => {
-      const filter = SurveyFilter.createSurveyFilter(
-        mockWindow,
-        mockUser,
-        mockRelier,
-        Date.now(),
-        0
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
       );
       const actual = await filter({
         conditions: { ...config.conditions, hasNonDefaultAvatar: false },
+        rate: config.rate,
       });
       assert.isFalse(actual);
     });

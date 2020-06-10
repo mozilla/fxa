@@ -2,8 +2,9 @@
   {
     "id": "password-reset",
     "conditions": {
-      "browser": "firefox"
+      "languages": ["en"]
     },
+    "rate": 0.05,
     "view": "reset-password",
     "url": "https://www.surveygizmo.com/s3/5622367/Password-Reset-1"
   }

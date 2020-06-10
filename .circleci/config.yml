@@ -288,12 +288,15 @@ workflows:
               ignore: master
             tags:
               ignore: /.*/
-  deploy_master:
+  deploy_branch:
     jobs:
       - deploy-packages:
           filters:
             branches:
-              only: master
+              only:
+                - master
+                - /^feature.*/
+                - /^dockerpush.*/
             tags:
               ignore: /.*/
       - build-and-deploy-storybooks:

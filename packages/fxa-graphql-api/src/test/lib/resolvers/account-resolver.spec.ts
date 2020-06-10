@@ -31,6 +31,7 @@ describe('accountResolver', () => {
     await (Account as any).query().insertGraph({ ...USER_1 });
     schema = await buildSchema({
       resolvers: [AccountResolver],
+      validate: false,
     });
   });
 
@@ -92,6 +93,29 @@ describe('accountResolver', () => {
   });
 
   describe('mutation', () => {
+    describe('attachedClientDisconnect', () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.attachedClientDestroy.resolves(true);
+        const query = `mutation {
+          attachedClientDisconnect(input: {clientMutationId: "testid", clientId: "client1234", sessionTokenId: "sesssion1234", refreshTokenId: "refresh1234", deviceId: "device1234"}) {
+            clientMutationId
+          }
+        }`;
+        context.authUser = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.attachedClientDisconnect);
+        assert.deepEqual(result.data.attachedClientDisconnect, {
+          clientMutationId: 'testid',
+        });
+      });
+    });
+
     describe('updateDisplayName', () => {
       it('succeeds', async () => {
         context.dataSources.profileAPI.updateDisplayName.resolves(true);
@@ -141,6 +165,119 @@ describe('accountResolver', () => {
         assert.isDefined(result.data);
         assert.isDefined(result.data.createSecondaryEmail);
         assert.deepEqual(result.data.createSecondaryEmail, {
+          clientMutationId: 'testid',
+        });
+      });
+    });
+
+    describe('createTotp', async () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.createTotpToken.resolves({
+          qrCodeUrl: 'testurl',
+          recoveryCodes: ['test1', 'test2'],
+          secret: 'secretData',
+        });
+        const query = `mutation {
+          createTotp(input: {clientMutationId: "testid", metricsContext: {
+            deviceId: "device1",
+            flowBeginTime: 4238248
+          }}) {
+            clientMutationId
+            qrCodeUrl
+            secret
+            recoveryCodes
+          }
+        }`;
+        context.authUser = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.createTotp);
+        assert.deepEqual(result.data.createTotp, {
+          clientMutationId: 'testid',
+          qrCodeUrl: 'testurl',
+          recoveryCodes: ['test1', 'test2'],
+          secret: 'secretData',
+        });
+      });
+    });
+
+    describe('changeRecoveryCodes', async () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.replaceRecoveryCodes.resolves({
+          recoveryCodes: ['test1', 'test2'],
+        });
+        const query = `mutation {
+          changeRecoveryCodes(input: {clientMutationId: "testid"}) {
+            clientMutationId
+            recoveryCodes
+          }
+        }`;
+        context.authUser = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.changeRecoveryCodes);
+        assert.deepEqual(result.data.changeRecoveryCodes, {
+          clientMutationId: 'testid',
+          recoveryCodes: ['test1', 'test2'],
+        });
+      });
+    });
+
+    describe('verifyTotp', async () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.verifyTotp.resolves({
+          success: true,
+        });
+        const query = `mutation {
+          verifyTotp(input: {clientMutationId: "testid", code: "code1234"}) {
+            clientMutationId
+            success
+          }
+        }`;
+        context.authUser = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.verifyTotp);
+        assert.deepEqual(result.data.verifyTotp, {
+          clientMutationId: 'testid',
+          success: true,
+        });
+      });
+    });
+
+    describe('deleteTotp', async () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.destroyTotpToken.resolves(true);
+        const query = `mutation {
+          deleteTotp(input: {clientMutationId: "testid"}) {
+            clientMutationId
+          }
+        }`;
+        context.authUser = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.deleteTotp);
+        assert.deepEqual(result.data.deleteTotp, {
           clientMutationId: 'testid',
         });
       });

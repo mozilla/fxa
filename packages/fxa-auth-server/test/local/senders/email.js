@@ -28,7 +28,8 @@ config.subscriptions.transactionalEmails.enabled = true;
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
 
 const MESSAGE = {
-  acceptLanguage: 'en',
+  // Note: acceptLanguage is not just a single locale
+  acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
   appStoreLink: 'https://example.com/app-store',
   code: 'abc123',
   deviceId: 'foo',
@@ -51,8 +52,6 @@ const MESSAGE = {
   planDownloadURL: 'http://getfirefox.com/',
   playStoreLink: 'https://example.com/play-store',
   invoiceNumber: '8675309',
-  invoiceTotal: 99.99,
-  proratedAmount: 5.23,
   cardType: 'mastercard',
   lastFour: '5309',
   invoiceDate: new Date(1584747098816),
@@ -62,9 +61,14 @@ const MESSAGE = {
   productIconURLOld: 'http://placekitten.com/512/512?image=1',
   productNameOld: 'Product A',
   productNameNew: 'Product B',
-  paymentAmountOld: 99.99,
-  paymentAmountNew: 123.12,
-  paymentProrated: 5.23,
+  invoiceTotalInCents: 999999.9,
+  invoiceTotalCurrency: 'eur',
+  paymentAmountOldInCents: 9999099.9,
+  paymentAmountOldCurrency: 'jpy',
+  paymentAmountNewInCents: 12312099.9,
+  paymentAmountNewCurrency: 'gbp',
+  paymentProratedInCents: 523099.9,
+  paymentProratedCurrency: 'usd',
   productPaymentCycle: 'month',
   service: 'sync',
   timeZone: 'America/Los_Angeles',
@@ -76,6 +80,14 @@ const MESSAGE = {
   uaOSVersion: '10',
   uid: 'uid',
   unblockCode: 'AS6334PK',
+};
+
+const MESSAGE_FORMATTED = {
+  // Note: Intl.NumberFormat rounds 1/10 cent up
+  invoiceTotal: '€10,000.00',
+  paymentAmountOld: '¥99,991',
+  paymentAmountNew: '£123,121.00',
+  paymentProrated: '$5,231.00',
 };
 
 // key = query param name, value = MESSAGE property name
@@ -201,7 +213,7 @@ const TESTS = new Map([
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `MasterCard card ending in 5309` },
-      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -210,7 +222,7 @@ const TESTS = new Map([
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
       { test: 'include', expected: `MasterCard card ending in 5309` },
-      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -229,9 +241,9 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support') },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
-      { test: 'include', expected: `Plan change: $${MESSAGE.proratedAmount}` },
+      { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
       { test: 'include', expected: `MasterCard card ending in 5309` },
-      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
@@ -239,9 +251,9 @@ const TESTS = new Map([
       { test: 'include', expected: `${MESSAGE.productName} payment received` },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
       { test: 'include', expected: `Invoice Number: ${MESSAGE.invoiceNumber}` },
-      { test: 'include', expected: `Plan change: $${MESSAGE.proratedAmount}` },
+      { test: 'include', expected: `Plan change: ${MESSAGE_FORMATTED.paymentProrated}` },
       { test: 'include', expected: `MasterCard card ending in 5309` },
-      { test: 'include', expected: `Charged $${MESSAGE.invoiceTotal} on 03/20/2020` },
+      { test: 'include', expected: `Charged ${MESSAGE_FORMATTED.invoiceTotal} on 03/20/2020` },
       { test: 'include', expected: `Next Invoice: 04/19/2020` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -258,14 +270,14 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'include', expected: `billing period, which is 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'include', expected: `billing period, which is 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -282,12 +294,12 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `be $${MESSAGE.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
+      { test: 'include', expected: `be ${MESSAGE_FORMATTED.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `be $${MESSAGE.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
+      { test: 'include', expected: `be ${MESSAGE_FORMATTED.invoiceTotal} to the MasterCard card ending in ${MESSAGE.lastFour} on 04/19/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -303,13 +315,13 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `Your ${MESSAGE.productName} subscription has been cancelled` },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
-      { test: 'include', expected: `final payment of $${MESSAGE.invoiceTotal} was paid on 03/20/2020.` },
+      { test: 'include', expected: `final payment of ${MESSAGE_FORMATTED.invoiceTotal} was paid on 03/20/2020.` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
@@ -365,15 +377,15 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms') },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
-      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
-      { test: 'include', expected: `one-time fee of $${MESSAGE.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
-      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
-      { test: 'include', expected: `one-time fee of $${MESSAGE.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time fee of ${MESSAGE_FORMATTED.paymentProrated} to reflect the higher charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -390,15 +402,15 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
-      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
-      { test: 'include', expected: `one-time credit of $${MESSAGE.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
-      { test: 'include', expected: `from $${MESSAGE.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to $${MESSAGE.paymentAmountNew}.` },
-      { test: 'include', expected: `one-time credit of $${MESSAGE.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
+      { test: 'include', expected: `from ${MESSAGE_FORMATTED.paymentAmountOld} per ${MESSAGE.productPaymentCycle} to ${MESSAGE_FORMATTED.paymentAmountNew}.` },
+      { test: 'include', expected: `one-time credit of ${MESSAGE_FORMATTED.paymentProrated} to reflect the lower charge for the remainder of this ${MESSAGE.productPaymentCycle}.` },
       { test: 'include', expected: `to use ${MESSAGE.productNameNew},` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
@@ -476,6 +488,24 @@ const TESTS = new Map([
       { test: 'include', expected: `IP address: ${MESSAGE.ip}` },
       { test: 'include', expected: `${MESSAGE.location.city}, ${MESSAGE.location.stateCode}, ${MESSAGE.location.country} (estimated)` },
       { test: 'include', expected: `${MESSAGE.uaBrowser} on ${MESSAGE.uaOS} ${MESSAGE.uaOSVersion}` },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['passwordChangeRequiredEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Suspicious activity detected' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordChangeRequired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordChangeRequired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordChangeRequired }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'change your password as a precaution' },
+      { test: 'include', expected: configHref('privacyUrl', 'password-change-required', 'privacy') },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'change your password as a precaution' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'password-change-required', 'privacy')}` },
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],

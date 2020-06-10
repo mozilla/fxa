@@ -26,6 +26,15 @@ export const participatedRecently = (
   return Date.now() - previousParticipationTime < doNotBotherSpan;
 };
 
+export const withinRate = (rate) => {
+  if (rate === 0) {
+    return false;
+  }
+
+  const r = Math.random();
+  return r <= rate;
+};
+
 export const getConditionWithKey = (conditions, key) => {
   // It is not something we need to check.
   if (!Object.keys(conditions).includes(key)) {
@@ -68,6 +77,16 @@ export const createAsyncConditionCheckFn = (valSource) => (comparator) => (
     return true;
   }
   return (await valSource(fetchFn)(comparator))(condVal);
+};
+
+export const createFetchLanguagesFn = (window) => {
+  return () => {
+    if (!window || !window.navigator || !window.navigator.languages) {
+      return;
+    }
+
+    return window.navigator.languages;
+  };
 };
 
 /**
@@ -190,6 +209,32 @@ export const asyncFetchAndApplySourceVal = (fetchFn) => async (checkFn) => {
   return checkFn(x);
 };
 
+// Comparator
+export const checkLanguages = (browserLanguages) => (val) => {
+  // True if _any_ of the languages from the condition matches a configured language in the browser.
+  // The language tags in the conditions can be in two forms:
+  //  - just the language, e.g. "en", or
+  //  - language followed by extlang, script, region, etc. e.g. ("en-CA")
+  // The first form will get a loose match of any tag for that language, while
+  // the second will be an exact match.
+
+  const separator = '-';
+
+  return val.some((lang) => {
+    lang = lang.toLowerCase();
+
+    return browserLanguages.some((browserLang) =>
+      lang.includes(separator)
+        ? lang === browserLang.toLowerCase()
+        : browserLang.toLowerCase().startsWith(lang)
+    );
+  });
+};
+
+export const languagesCheck = createConditionCheckFn(fetchAndApplySourceVal)(
+  checkLanguages
+)('languages');
+
 const createUaConditionCheckFn = createConditionCheckFn(fetchAndApplySourceVal);
 
 // Comparator
@@ -296,6 +341,7 @@ export const createSurveyFilter = (
   doNotBotherSpan
 ) => {
   const fetchUa = createFetchUaFn(window);
+  const fetchLangs = createFetchLanguagesFn(window);
   const fetchAccount = createFetchAccountFn(user);
   const fetchSubscriptions = createFetchSubscriptionsFn(fetchAccount);
   const fetchDeviceList = createFetchDeviceListFn(fetchAccount);
@@ -304,9 +350,12 @@ export const createSurveyFilter = (
   return async (surveyConfig) =>
     !!(
       surveyConfig &&
+      surveyConfig.rate &&
+      withinRate(surveyConfig.rate) &&
       surveyConfig.conditions &&
       Object.keys(surveyConfig.conditions).length > 0 &&
       !participatedRecently(previousParticipationTime, doNotBotherSpan) &&
+      languagesCheck(surveyConfig.conditions, fetchLangs) &&
       // User agent related checks
       userAgentChecks(surveyConfig.conditions, fetchUa) &&
       // Relying party (relier) check

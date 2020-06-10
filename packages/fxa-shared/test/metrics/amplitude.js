@@ -127,6 +127,13 @@ describe('metrics/amplitude:', () => {
               event: 'newsletters',
             },
           ],
+          [
+            /^(fxa_pay_setup)\.([\w-]+)/,
+            {
+              group: amplitude.GROUPS.subPaySetup,
+              event: 'payment',
+            },
+          ],
         ])
       );
     });
@@ -452,6 +459,29 @@ describe('metrics/amplitude:', () => {
       it('returned the correct event data', () => {
         assert.deepEqual(result.event_properties, {});
         assert.deepEqual(result.user_properties, {});
+      });
+    });
+
+    describe('transform an event with sourceCountry:', () => {
+      it('did not include the source country in event properties when the event was not in the fxa_pay_setup group', () => {
+        const actual = transform(
+          { type: 'wibble.blee' },
+          { sourceCountry: 'GD' }
+        );
+        assert.deepEqual(actual.event_properties, {});
+      });
+
+      it('did not include the source country in event properties when none was found', () => {
+        const actual = transform({ type: 'fxa_pay_setup.blee.quuz' }, {});
+        assert.deepEqual(actual.event_properties, {});
+      });
+
+      it('returned the correct source country event properties', () => {
+        const actual = transform(
+          { type: 'fxa_pay_setup.blee.quuz' },
+          { sourceCountry: 'GD' }
+        );
+        assert.deepEqual(actual.event_properties, { source_country: 'GD' });
       });
     });
   });

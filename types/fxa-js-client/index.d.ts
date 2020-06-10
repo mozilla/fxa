@@ -8,11 +8,28 @@ declare function FxAccountClient(
 ): FxAccountClient.Client;
 
 declare namespace FxAccountClient {
+  export type MetricContext = {
+    deviceId?: string;
+    entrypoint?: string;
+    entrypointExperiment?: string;
+    entrypointVariation?: string;
+    flowId?: string;
+    flowBeginTime?: number;
+    productId?: string;
+    planId?: string;
+    utmCampaign?: number;
+    utmContent?: number;
+    utmMedium?: number;
+    utmSource?: number;
+    utmTerm?: number;
+  };
+
   export interface Client {
     sessionStatus(
       sessionToken: string
     ): Promise<{ state: string; uid: string }>;
     attachedClients(sessionToken: string): Promise<any[]>;
+    attachedClientDestroy(sessionToken: string, clientInfo: any): Promise<any>;
     checkTotpTokenExists(
       sessionToken: string
     ): Promise<{ exists: boolean; verified: boolean }>;
@@ -21,7 +38,11 @@ declare namespace FxAccountClient {
     createOAuthToken(
       sessionToken: string,
       clientId: string,
-      options?: { scope?: string; ttl?: number; access_type?: 'online' | 'offline' }
+      options?: {
+        scope?: string;
+        ttl?: number;
+        access_type?: 'online' | 'offline';
+      }
     ): Promise<{
       access_token: string;
       refresh_token?: string;
@@ -31,9 +52,28 @@ declare namespace FxAccountClient {
       token_type: string;
       expires_in: number;
     }>;
+    createTotpToken(
+      sessionToken: string,
+      metricOptions: MetricContext
+    ): Promise<{ qrCodeUrl: string; secret: string; recoveryCodes: string[] }>;
+    deleteTotpToken(sessionToken: string): Promise<any>;
     recoveryEmailCreate(sessionToken: string, email: string): Promise<any>;
     recoveryEmailDestroy(sessionToken: string, email: string): Promise<any>;
-    recoveryEmailSetPrimaryEmail(sessionToken: string, email: string): Promise<any>;
-    recoveryEmailSecondaryResendCode(sessionToken: string, email: string): Promise<any>;
+    recoveryEmailSetPrimaryEmail(
+      sessionToken: string,
+      email: string
+    ): Promise<any>;
+    recoveryEmailSecondaryResendCode(
+      sessionToken: string,
+      email: string
+    ): Promise<any>;
+    replaceRecoveryCodes(
+      sessionToken: string
+    ): Promise<{ recoveryCodes: string[] }>;
+    verifyTotpCode(
+      sessionToken: string,
+      code: string,
+      options?: { service: string }
+    ): Promise<{ success: boolean }>;
   }
 }
