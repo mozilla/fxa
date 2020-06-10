@@ -642,10 +642,14 @@ module.exports = (
             needsVerificationId = true;
           }
 
-          if (accountRecord.lockedAt > 0) {
+          if (forcePasswordChange(accountRecord)) {
             passwordChangeRequired = true;
             needsVerificationId = true;
             mustVerifySession = true;
+
+            // Users that are forced to change their passwords, **MUST**
+            // also confirm they have access to the inbox and do
+            // a confirmation loop.
             verificationMethod = verificationMethod || 'email-otp';
           }
 
@@ -683,6 +687,23 @@ module.exports = (
           };
 
           sessionToken = await db.createSessionToken(sessionTokenOptions);
+        }
+
+        function forcePasswordChange(account) {
+          // If it's an email address used for testing etc,
+          // we should force password change.
+          if (
+            config.forcePasswordChange &&
+            config.forcePasswordChange.forcedEmailAddresses &&
+            config.forcePasswordChange.forcedEmailAddresses.test(
+              account.primaryEmail.email
+            )
+          ) {
+            return true;
+          }
+
+          // otw only force if account lockAt flag set
+          return accountRecord.lockedAt > 0;
         }
 
         function forceTokenVerification(request, account) {
@@ -836,7 +857,7 @@ module.exports = (
           }
           if (passwordChangeRequired) {
             response.verified = false;
-            response.verificationReason = 'password-change';
+            response.verificationReason = 'change_password';
             response.verificationMethod = verificationMethod;
           } else {
             Object.assign(

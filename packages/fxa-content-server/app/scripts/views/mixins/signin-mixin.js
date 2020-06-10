@@ -166,33 +166,32 @@ export default {
 
   onSignInSuccess(account) {
     if (!account.get('verified')) {
-      var verificationMethod = account.get('verificationMethod');
-      var verificationReason = account.get('verificationReason');
+      const verificationMethod = account.get('verificationMethod');
+      const verificationReason = account.get('verificationReason');
 
       if (
-        verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.EMAIL
+        (verificationReason === VerificationReasons.SIGN_IN &&
+          verificationMethod === VerificationMethods.EMAIL) ||
+        (verificationReason === VerificationReasons.CHANGE_PASSWORD &&
+          verificationMethod === VerificationMethods.EMAIL)
       ) {
         return this.navigate('confirm_signin', { account });
       }
 
       if (
-        verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.EMAIL_2FA
+        (verificationReason === VerificationReasons.SIGN_IN &&
+          verificationMethod === VerificationMethods.EMAIL_OTP) ||
+        (verificationReason === VerificationReasons.CHANGE_PASSWORD &&
+          verificationMethod === VerificationMethods.EMAIL_OTP)
       ) {
         return this.navigate('signin_token_code', { account });
       }
 
       if (
-        verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.EMAIL_OTP
-      ) {
-        return this.navigate('signin_token_code', { account });
-      }
-
-      if (
-        verificationReason === VerificationReasons.SIGN_IN &&
-        verificationMethod === VerificationMethods.TOTP_2FA
+        (verificationReason === VerificationReasons.SIGN_IN &&
+          verificationMethod === VerificationMethods.TOTP_2FA) ||
+        (verificationReason === VerificationReasons.CHANGE_PASSWORD &&
+          verificationMethod === VerificationMethods.TOTP_2FA)
       ) {
         return this.navigate('signin_totp_code', { account });
       }

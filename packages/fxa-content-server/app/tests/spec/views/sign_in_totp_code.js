@@ -12,6 +12,7 @@ import BaseBroker from 'models/auth_brokers/base';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
+import VerificationReasons from 'lib/verification-reasons';
 import View from 'views/sign_in_totp_code';
 import WindowMock from '../../mocks/window';
 
@@ -206,6 +207,34 @@ describe('views/sign_in_totp_code', () => {
           view.showValidationError.args[0][1].errno,
           1054,
           'correct error thrown'
+        );
+      });
+    });
+
+    describe('redirect to force change password', () => {
+      beforeEach(() => {
+        account.set('verificationReason', VerificationReasons.CHANGE_PASSWORD);
+        sinon
+          .stub(account, 'verifyTotpCode')
+          .callsFake(() => Promise.resolve({ success: true }));
+        sinon
+          .stub(view, 'invokeBrokerMethod')
+          .callsFake(() => Promise.resolve());
+        view.$('.totp-code').val(TOTP_CODE);
+
+        return view.submit();
+      });
+
+      it('calls correct broker methods', () => {
+        assert.isTrue(
+          account.verifyTotpCode.calledWith(TOTP_CODE),
+          'verify with correct code'
+        );
+        assert.isTrue(
+          view.invokeBrokerMethod.calledWith(
+            'beforeForcePasswordChange',
+            account
+          )
         );
       });
     });

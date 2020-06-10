@@ -134,6 +134,12 @@ const FxSyncChannelAuthenticationBroker = FxSyncAuthenticationBroker.extend(
       );
     },
 
+    beforeForcePasswordChange(account) {
+      return this._notifyRelierOfLogin(account).then(() =>
+        proto.beforeForcePasswordChange.call(this, account)
+      );
+    },
+
     beforeSignUpConfirmationPoll(account) {
       // The Sync broker notifies the browser of an unverified login
       // before the user has verified their email. This allows the user

@@ -315,6 +315,14 @@ module.exports = {
     SUBMIT: 'button[type="submit"]',
     NEWSLETTERS,
   },
+  POST_VERIFY_FORCE_PASSWORD_CHANGE: {
+    DESCRIPTION: '.description',
+    HEADER: '#fxa-force-password-change-header',
+    OPASSWORD: '#opassword',
+    PASSWORD: '#password',
+    VPASSWORD: '#vpassword',
+    SUBMIT: 'button[type="submit"]',
+  },
   POST_VERIFY_CAD_QR_GET_STARTED: {
     HEADER: '#fxa-cad-qr-get-started-header',
     SUBMIT: 'button[type="submit"]',

@@ -64,6 +64,12 @@ export default {
     );
   },
 
+  isForcePasswordChange(account) {
+    return (
+      account.get('verificationReason') === VerificationReasons.CHANGE_PASSWORD
+    );
+  },
+
   /**
    * Get the key in VerificationReasons for the given verification reason
    *

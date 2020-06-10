@@ -325,6 +325,11 @@ const Account = Backbone.Model.extend(
             // The session info may have changed since when it was last stored.
             // Store the server's view of the world. This will update the model
             // with the canonicalized email.
+
+            if (this.get('verificationReason')) {
+              resp.verificationReason = this.get('verificationReason');
+            }
+
             this.set(resp);
             return resp;
           },

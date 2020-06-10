@@ -36,6 +36,14 @@ const View = FormView.extend({
       .then((result) => {
         if (result.success) {
           this.logFlowEvent('success', this.viewName);
+
+          if (this.isForcePasswordChange(account)) {
+            return this.invokeBrokerMethod(
+              'beforeForcePasswordChange',
+              account
+            );
+          }
+
           return this.invokeBrokerMethod(
             'afterCompleteSignInWithCode',
             account

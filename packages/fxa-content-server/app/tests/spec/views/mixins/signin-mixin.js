@@ -538,6 +538,38 @@ describe('views/mixins/signin-mixin', function () {
       });
     });
 
+    describe('requires password change', function () {
+      it('redirect to confirm_signin', () => {
+        account.set('verificationReason', VerificationReasons.CHANGE_PASSWORD);
+        account.set('verificationMethod', VerificationMethods.EMAIL);
+        account.set('verified', false);
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('confirm_signin'));
+        });
+      });
+
+      it('redirect to signin_token_code', () => {
+        account.set('verificationReason', VerificationReasons.CHANGE_PASSWORD);
+        account.set('verificationMethod', VerificationMethods.EMAIL_OTP);
+        account.set('verified', false);
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('signin_token_code'));
+        });
+      });
+
+      it('redirect to signin_totp_code', () => {
+        account.set('verificationReason', VerificationReasons.CHANGE_PASSWORD);
+        account.set('verificationMethod', VerificationMethods.TOTP_2FA);
+        account.set('verified', false);
+        return view.signIn(account, 'password').then(() => {
+          assert.isTrue(view.navigate.calledOnce);
+          assert.isTrue(view.navigate.calledWith('signin_totp_code'));
+        });
+      });
+    });
+
     describe('onSignInSuccess', () => {
       it('updates relier email and uid from account', () => {
         account.set('uid', 'foo');

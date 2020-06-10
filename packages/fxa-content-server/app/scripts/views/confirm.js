@@ -14,6 +14,7 @@ import ResendMixin from './mixins/resend-mixin';
 import ResumeTokenMixin from './mixins/resume-token-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
+import VerificationReasonMixin from './mixins/verification-reason-mixin';
 import Template from 'templates/confirm.mustache';
 
 const proto = BaseView.prototype;
@@ -85,6 +86,12 @@ const View = BaseView.extend({
       this.logViewEvent('verification.success');
       this.notifier.trigger('verification.success');
 
+      if (this.isForcePasswordChange(account)) {
+        return this.navigate('/post_verify/password/force_password_change', {
+          account,
+        });
+      }
+
       var brokerMethod = this.isSignUp()
         ? 'afterSignUpConfirmationPoll'
         : 'afterSignInConfirmationPoll';
@@ -120,6 +127,7 @@ Cocktail.mixin(
   PulseGraphicMixin,
   ResendMixin(),
   ResumeTokenMixin,
+  VerificationReasonMixin,
   ServiceMixin,
   SessionVerificationPollMixin
 );

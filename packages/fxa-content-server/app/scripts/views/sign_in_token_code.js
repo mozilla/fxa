@@ -11,6 +11,7 @@ import Constants from '../lib/constants';
 import FormView from './form';
 import Template from 'templates/sign_in_token_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
+import VerificationReasonMixin from './mixins/verification-reason-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 
 const CODE_INPUT_SELECTOR = 'input.otp-code';
@@ -61,6 +62,11 @@ const View = FormView.extend({
       .verifyAccountSessionCode(account, code)
       .then(() => {
         this.logViewEvent('success');
+
+        if (this.isForcePasswordChange(account)) {
+          return this.invokeBrokerMethod('beforeForcePasswordChange', account);
+        }
+
         return this.invokeBrokerMethod('afterCompleteSignInWithCode', account);
       })
       .catch((err) =>
@@ -86,6 +92,11 @@ const View = FormView.extend({
   },
 });
 
-Cocktail.mixin(View, ResendMixin(), SessionVerificationPollMixin);
+Cocktail.mixin(
+  View,
+  ResendMixin(),
+  SessionVerificationPollMixin,
+  VerificationReasonMixin
+);
 
 export default View;

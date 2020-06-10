@@ -1795,7 +1795,7 @@ describe('/account/login', () => {
       });
     });
 
-    it('requires verification when the lockedAt field is set', () => {
+    it('requires change password verification when the lockedAt field is set', () => {
       const email = 'test@mozilla.com';
       mockDB.accountRecord = function () {
         return P.resolve({
@@ -1861,8 +1861,55 @@ describe('/account/login', () => {
         );
         assert.equal(
           response.verificationReason,
-          'password-change',
-          'verificationReason is password-change'
+          'change_password',
+          'verificationReason is change_password'
+        );
+      });
+    });
+
+    it('requires verification when config.forcePasswordChange.forcedEmailAddresses match', () => {
+      config.forcePasswordChange = {
+        forcedEmailAddresses: /.+@forcepwdchange\.com$/,
+      };
+      const email = 'u5osi@forcepwdchange.com';
+      mockDB.accountRecord = function () {
+        return P.resolve({
+          authSalt: hexString(32),
+          data: hexString(32),
+          email: email,
+          emailVerified: true,
+          primaryEmail: {
+            normalizedEmail: normalizeEmail(email),
+            email: email,
+            emailCode: 'ab12cd34',
+            isVerified: true,
+            isPrimary: true,
+          },
+          kA: hexString(32),
+          lastAuthAt: function () {
+            return Date.now();
+          },
+          uid: uid,
+          wrapWrapKb: hexString(32),
+          lockedAt: Date.now(),
+        });
+      };
+      mockRequestNoKeys.payload.email = email;
+
+      return runTest(route, mockRequestNoKeys, (response) => {
+        assert.ok(
+          !response.verified,
+          'response indicates session is not verified'
+        );
+        assert.equal(
+          response.verificationMethod,
+          'email-otp',
+          'verificationMethod is email-otp'
+        );
+        assert.equal(
+          response.verificationReason,
+          'change_password',
+          'verificationReason is change_password'
         );
       });
     });
