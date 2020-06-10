@@ -70,7 +70,8 @@ function makeRoutes(options = {}) {
     signinUtils,
     signupUtils,
     mailer,
-    push
+    push,
+    customs
   );
 }
 
@@ -1126,15 +1127,17 @@ describe('/session/duplicate', () => {
 });
 
 describe('/session/verify_code', () => {
-  let route, request, log, db, mailer, push;
+  let route, request, log, db, mailer, push, customs;
 
   function setup(options = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
     log = mocks.mockLog();
     mailer = mocks.mockMailer();
     push = mocks.mockPush();
+    customs = mocks.mockCustoms();
+    customs.check = sinon.spy(() => P.resolve(true));
     const config = {};
-    const routes = makeRoutes({ log, config, db, mailer, push });
+    const routes = makeRoutes({ log, config, db, mailer, push, customs });
     route = getRoute(routes, '/session/verify_code');
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
@@ -1163,6 +1166,13 @@ describe('/session/verify_code', () => {
   it('should verify the account and session with a valid code', async () => {
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
+    assert.calledOnce(customs.check);
+    assert.calledWithExactly(
+      customs.check,
+      request,
+      signupCodeAccount.email,
+      'verifySessionCode'
+    );
     assert.calledOnce(db.account);
     assert.calledWithExactly(db.account, signupCodeAccount.uid);
     assert.calledOnce(db.verifyEmail);

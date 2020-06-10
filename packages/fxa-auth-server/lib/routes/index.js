@@ -125,7 +125,8 @@ module.exports = function (
     signinUtils,
     signupUtils,
     mailer,
-    push
+    push,
+    customs
   );
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
   const signinCodes = require('./signin-codes')(log, db, customs, config);
