@@ -250,10 +250,82 @@ describe('remote change email', function () {
             })
             .catch((err) => {
               assert.equal(err.errno, 102, 'unknown account error code');
-              assert.equal(err.email, email, 'returns correct email');
+              assert.equal(err.email, secondEmail, 'returns correct email');
             });
         });
     });
+  });
+
+  it('change primary email with multiple accounts', async () => {
+    /**
+     * Below tests the following scenario:
+     *
+     * User A with Email A (primary) and Email A1 (secondary)
+     * User B with Email B (primary) and Email B1 (secondary)
+     *
+     * with changing primary emails etc transform to ==>
+     *
+     * User A with Email B (primary)
+     * User B with Email A (primary)
+     *
+     * and can successfully login
+     */
+    let emailData, emailCode;
+    const password2 = 'asdf';
+    const client1Email = server.uniqueEmail();
+    const client1SecondEmail = server.uniqueEmail();
+    const client2Email = server.uniqueEmail();
+    const client2SecondEmail = server.uniqueEmail();
+
+    const client1 = await Client.createAndVerify(
+      config.publicUrl,
+      client1Email,
+      password,
+      server.mailbox
+    );
+
+    const client2 = await Client.createAndVerify(
+      config.publicUrl,
+      client2Email,
+      password2,
+      server.mailbox
+    );
+
+    await client1.createEmail(client1SecondEmail);
+    emailData = await server.mailbox.waitForEmail(client1SecondEmail);
+    emailCode = emailData['headers']['x-verify-code'];
+    await client1.verifySecondaryEmail(emailCode, client1SecondEmail);
+
+    await client2.createEmail(client2SecondEmail);
+    emailData = await server.mailbox.waitForEmail(client2SecondEmail);
+    emailCode = emailData['headers']['x-verify-code'];
+    await client2.verifySecondaryEmail(emailCode, client2SecondEmail);
+
+    await client1.setPrimaryEmail(client1SecondEmail);
+    await client1.deleteEmail(client1Email);
+
+    await client2.setPrimaryEmail(client2SecondEmail);
+    await client2.deleteEmail(client2Email);
+
+    await client1.createEmail(client2Email);
+    emailData = await server.mailbox.waitForEmail(client2Email);
+    emailCode = emailData[2]['headers']['x-verify-code'];
+    await client1.verifySecondaryEmail(emailCode, client2Email);
+    await client1.setPrimaryEmail(client2Email);
+    await client1.deleteEmail(client1SecondEmail);
+
+    await client2.createEmail(client1Email);
+    emailData = await server.mailbox.waitForEmail(client1Email);
+    emailCode = emailData[2]['headers']['x-verify-code'];
+    await client2.verifySecondaryEmail(emailCode, client1Email);
+    await client2.setPrimaryEmail(client1Email);
+    await client2.deleteEmail(client2SecondEmail);
+
+    const res = await Client.login(config.publicUrl, client1Email, password, {
+      originalLoginEmail: client2Email,
+    });
+
+    assert.ok(res, 'ok response');
   });
 
   describe('change primary email, deletes old primary', () => {
@@ -372,7 +444,7 @@ describe('remote change email', function () {
           })
           .catch((err) => {
             assert.equal(err.errno, 102, 'unknown account error code');
-            assert.equal(err.email, email, 'returns correct email');
+            assert.equal(err.email, secondEmail, 'returns correct email');
           });
       });
     });

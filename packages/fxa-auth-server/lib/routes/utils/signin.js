@@ -178,6 +178,18 @@ module.exports = (log, config, customs, db, mailer, cadReminders) => {
           // If we didn't load it above while checking unblock codes,
           // it's now safe to load the account record from the db.
           if (!accountRecord) {
+            // If `originalLoginEmail` is specified, we need to fetch the account record tied
+            // to that email. In the case where a user has changed their primary email, the `email`
+            // value here is really the value used to hash the password and has no guarantee to
+            // belong to the user.
+            if (request.payload.originalLoginEmail) {
+              return db
+                .accountRecord(request.payload.originalLoginEmail)
+                .then((result) => {
+                  accountRecord = result;
+                });
+            }
+
             return db.accountRecord(email).then((result) => {
               accountRecord = result;
             });
