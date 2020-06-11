@@ -20,3 +20,5 @@ for t in "${TESTS[@]}"; do
   echo "testing $t"
   ./scripts/mocha-coverage.js $DEFAULT_ARGS --reporter-options mochaFile="../../artifacts/tests/$t/test-results.xml" "test/$t"
 done
+
+yarn run clean-up-old-ci-stripe-customers
