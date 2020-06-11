@@ -1,3 +1,13 @@
+## 1.175.0
+
+### New features
+
+- auth: handle a password change requirement in login ([c495177e8](https://github.com/mozilla/fxa/commit/c495177e8))
+
+### Other changes
+
+- README files: Fix dead links in READMEs ([38624143e](https://github.com/mozilla/fxa/commit/38624143e))
+
 ## 1.174.2
 
 No changes.

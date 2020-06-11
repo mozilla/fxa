@@ -1,3 +1,23 @@
+## 1.175.0
+
+### New features
+
+- auth: handle a password change requirement in login ([c495177e8](https://github.com/mozilla/fxa/commit/c495177e8))
+- emails: Add password change required email ([d1c14bcb3](https://github.com/mozilla/fxa/commit/d1c14bcb3))
+- payments: revise currency formatting in subplat emails for l10n ([d2632a77a](https://github.com/mozilla/fxa/commit/d2632a77a))
+- email: Update email template ([de7b9770a](https://github.com/mozilla/fxa/commit/de7b9770a))
+
+### Bug fixes
+
+- customs: Update customs to better handle email records ([b1499dd37](https://github.com/mozilla/fxa/commit/b1499dd37))
+- customs: Update customs to better handle email records ([77df83c45](https://github.com/mozilla/fxa/commit/77df83c45))
+- payments: use upcoming subscription invoice for one-time prorated charge ([a86c7c5ea](https://github.com/mozilla/fxa/commit/a86c7c5ea))
+
+### Other changes
+
+- format: Apply automated formatting to push-related code. ([81bf01d41](https://github.com/mozilla/fxa/commit/81bf01d41))
+- subscriptions: get the country code from payment details ([c225b6c5a](https://github.com/mozilla/fxa/commit/c225b6c5a))
+
 ## 1.174.2
 
 ### Bug fixes
