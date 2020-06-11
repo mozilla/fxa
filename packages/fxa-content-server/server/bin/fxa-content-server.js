@@ -27,7 +27,6 @@ const https = require('https');
 const path = require('path');
 const serveStatic = require('serve-static');
 
-const { settingsMiddleware } = require('../lib/beta-settings');
 const config = require('../lib/configuration');
 const sentry = require('../lib/sentry');
 const { cors, routing } = require('fxa-shared/express')();
@@ -90,7 +89,11 @@ function makeApp() {
         writeToDisk: true,
       })
     );
-    app.use('/beta/settings', settingsMiddleware);
+    const { createProxyMiddleware } = require('http-proxy-middleware');
+    app.use(
+      '/beta/settings',
+      createProxyMiddleware({ target: 'http://localhost:3000', ws: true })
+    );
   }
 
   app.engine('html', consolidate.handlebars);
