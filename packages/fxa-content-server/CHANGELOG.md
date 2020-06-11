@@ -1,3 +1,26 @@
+## 1.175.0
+
+### New features
+
+- surveys: add the "languages" condition ([cec1fc8da](https://github.com/mozilla/fxa/commit/cec1fc8da))
+- settings: start injecting server config into beta settings ([41fb60f63](https://github.com/mozilla/fxa/commit/41fb60f63))
+- surveys: add "rate" configuration ([00cfaa181](https://github.com/mozilla/fxa/commit/00cfaa181))
+
+### Bug fixes
+
+- surveys: display the survey above other content ([6b6f2d086](https://github.com/mozilla/fxa/commit/6b6f2d086))
+- content server: make http-proxy-middleware a proper dep ([71639d8c9](https://github.com/mozilla/fxa/commit/71639d8c9))
+- experiments: Enabled QR cad, disable newsletters experiment ([dffde3260](https://github.com/mozilla/fxa/commit/dffde3260))
+- tests: fix test regex used in amplitude test ([ee8e69d25](https://github.com/mozilla/fxa/commit/ee8e69d25))
+- customs: Update customs to better handle email records ([b1499dd37](https://github.com/mozilla/fxa/commit/b1499dd37))
+- customs: Update customs to better handle email records ([77df83c45](https://github.com/mozilla/fxa/commit/77df83c45))
+
+### Other changes
+
+- settings: start injecting server config into beta settings" ([52771fe3b](https://github.com/mozilla/fxa/commit/52771fe3b))
+- README files: Fix dead links in READMEs ([38624143e](https://github.com/mozilla/fxa/commit/38624143e))
+- 8d85e09bf add and update tests ([8d85e09bf](https://github.com/mozilla/fxa/commit/8d85e09bf))
+
 ## 1.174.2
 
 No changes.

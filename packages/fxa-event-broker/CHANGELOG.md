@@ -1,5 +1,11 @@
 # Change history
 
+## 1.175.0
+
+### Other changes
+
+- README files: Fix dead links in READMEs ([38624143e](https://github.com/mozilla/fxa/commit/38624143e))
+
 ## 1.174.2
 
 No changes.

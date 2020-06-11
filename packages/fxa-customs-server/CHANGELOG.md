@@ -1,3 +1,17 @@
+## 1.175.0
+
+### Bug fixes
+
+- customs: Update customs to better handle email records ([b1499dd37](https://github.com/mozilla/fxa/commit/b1499dd37))
+
+### Refactorings
+
+- customs: Update vars to `checkAllowlist` ([bf0133e1a](https://github.com/mozilla/fxa/commit/bf0133e1a))
+
+### Other changes
+
+- README files: Fix dead links in READMEs ([38624143e](https://github.com/mozilla/fxa/commit/38624143e))
+
 ## 1.174.2
 
 ### Bug fixes

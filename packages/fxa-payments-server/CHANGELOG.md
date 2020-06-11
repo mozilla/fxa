@@ -1,5 +1,11 @@
 # Change history
 
+## 1.175.0
+
+### New features
+
+- metrics: add subscription payment source country to Amplitude events ([f60887595](https://github.com/mozilla/fxa/commit/f60887595))
+
 ## 1.174.2
 
 No changes.
