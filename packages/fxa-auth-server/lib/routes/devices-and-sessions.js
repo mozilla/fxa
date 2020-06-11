@@ -290,7 +290,7 @@ module.exports = (
         }
         // WOO 429...
         if (Math.random() >= 0.5) {
-          throw error.tooManyRequests(1337, 'retry after 1337 seconds');
+          throw error.tooManyRequests(20, 'retry after 20 seconds');
         }
 
         const data = { command, payload, sender };
