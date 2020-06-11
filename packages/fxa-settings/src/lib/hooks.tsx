@@ -22,3 +22,29 @@ export function useFocusOnTriggeringElementOnClose(
     }
   }, [revealed, triggerElement, prevRevealed]);
 }
+
+// Run a function on 'Escape' keydown.
+export function useEscKeydownEffect(onEscKeydown: Function) {
+  useEffect(() => {
+    const handler = ({ key }: KeyboardEvent) => {
+      if (key === 'Escape') {
+        onEscKeydown();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onEscKeydown]);
+}
+
+// Direct focus to this element on first render for tabbing or screenreaders.
+export function useChangeFocusEffect() {
+  const elToFocus = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (elToFocus.current) {
+      elToFocus.current.focus();
+    }
+  }, []);
+
+  return elToFocus;
+}

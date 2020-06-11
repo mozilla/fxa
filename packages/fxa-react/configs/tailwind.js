@@ -31,6 +31,9 @@ module.exports = {
       width: {
         18: '4.5rem',
       },
+      minWidth: {
+        sm: '27rem',
+      },
     },
     screens: {
       mobileLandscape: '480px',
