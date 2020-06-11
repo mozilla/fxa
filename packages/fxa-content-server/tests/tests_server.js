@@ -8,7 +8,6 @@ module.exports = [
   'tests/server/ver.json.js',
   'tests/server/amplitude.js',
   'tests/server/amplitude-schema-validation.js',
-  'tests/server/beta-settings.js',
   'tests/server/csp.js',
   'tests/server/flow-event.js',
   'tests/server/flow-metrics.js',
