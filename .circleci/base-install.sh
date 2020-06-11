@@ -12,7 +12,5 @@ node .circleci/modules-to-test.js | tee packages/test.list
 
 sudo apt-get install -y graphicsmagick
 
-# only run a full npm install if required
-if [[ "$MODULE" == "all" ]]; then
-  yarn install --immutable
-fi
+yarn install --immutable
+yarn workspace fxa-shared run build
