@@ -10,7 +10,6 @@ export interface Config {
   env: string;
   version: string;
   sentry: {
-    url: string;
     dsn: string;
   };
   servers: {
@@ -27,12 +26,11 @@ export function getDefault() {
   return {
     env: 'development',
     sentry: {
-      url: 'https://sentry.prod.mozaws.net',
+      dsn: '',
     },
     servers: {
       gql: {
-        // JODY - remove this
-        url: 'http://localhost:8290',
+        url: '',
       },
       auth: {
         url: '',

@@ -104,18 +104,18 @@ describe('decode', () => {
 
 describe('update', () => {
   it('recursively updates the config', () => {
-    expect(config.sentry.url).toBeDefined();
-    const oldSentryUrl = config.sentry.url;
+    expect(config.sentry.dsn).toBeDefined();
+    const oldSentryDsn = config.sentry.dsn;
 
     const newData = {
       sentry: {
-        url: 'http://sentry-rulez.net',
+        dsn: 'http://sentry-rulez.net',
       },
     };
     update(newData);
 
-    expect(config.sentry.url).not.toStrictEqual(oldSentryUrl);
-    expect(config.sentry.url).toStrictEqual(newData.sentry.url);
+    expect(config.sentry.dsn).not.toStrictEqual(oldSentryDsn);
+    expect(config.sentry.dsn).toStrictEqual(newData.sentry.dsn);
   });
 
   it('can add new items', () => {
@@ -136,12 +136,12 @@ describe('reset', () => {
     const initialConfig = getDefault();
     expect(config).toStrictEqual(initialConfig);
 
-    const newSentryUrl = 'http://sentry-rulez.net';
-    update({ sentry: { url: newSentryUrl } });
-    expect(config.sentry.url).toStrictEqual(newSentryUrl);
+    const newSentryDsn = 'http://sentry-rulez.net';
+    update({ sentry: { dsn: newSentryDsn } });
+    expect(config.sentry.dsn).toStrictEqual(newSentryDsn);
 
     reset();
-    expect(config.sentry.url).not.toStrictEqual(newSentryUrl);
+    expect(config.sentry.dsn).not.toStrictEqual(newSentryDsn);
     expect(config).toStrictEqual(initialConfig);
   });
 
