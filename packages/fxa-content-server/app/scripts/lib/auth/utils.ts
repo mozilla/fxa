@@ -13,7 +13,7 @@ export function hexToUint8(str: string) {
 
 export function uint8ToHex(array: Uint8Array) {
   return array.reduce(
-    (str, byte) => str + byte.toString(16).padStart(2, '0'),
+    (str, byte) => str + ('00' + byte.toString(16)).slice(-2),
     ''
   );
 }
