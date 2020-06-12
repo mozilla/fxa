@@ -7,6 +7,7 @@
 const { URL } = require('url');
 const Ajv = require('ajv');
 const ajv = new Ajv();
+const hex = require('buf').to.hex;
 const error = require('../error');
 const fs = require('fs');
 const isA = require('@hapi/joi');
@@ -28,7 +29,7 @@ const DEFAULT_COMMAND_TTL = new Map([
 module.exports = (
   log,
   db,
-  oauthdb,
+  oauth,
   config,
   customs,
   push,
@@ -488,18 +489,25 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        const [deviceArray, oauthClients] = await Promise.all([
-          request.app.devices,
-          oauthdb.listAuthorizedClients(request.auth.credentials),
-        ]);
+        const deviceArray = await request.app.devices;
 
-        const clientByRefreshTokenId = new Map();
-        for (const client of oauthClients) {
-          clientByRefreshTokenId.set(client.refresh_token_id, client);
+        // If the user has oauth clients that register a device record,
+        // then the oauth DB may have more up-to-date information about them.
+        // Since it's an additional request, only make it if necessary.
+        const oauthRefreshTokensById = new Map();
+        if (deviceArray.some((d) => d.refreshTokenId)) {
+          for (const token of await oauth.getRefreshTokensByUid(
+            credentials.uid
+          )) {
+            // OAuth annoyingly returns buffers rather than hex strings.
+            oauthRefreshTokensById.set(hex(token.refreshTokenId), token);
+          }
         }
 
         return deviceArray.map((device) => {
-          const client = clientByRefreshTokenId.get(device.refreshTokenId); // null for session-token based devices.
+          const refreshToken = oauthRefreshTokensById.get(
+            device.refreshTokenId
+          ); // null for session-token based devices.
           const formattedDevice = {
             id: device.id,
             isCurrentDevice: !!(
@@ -509,8 +517,11 @@ module.exports = (
             ),
             // The devices table `lastAccessTime` column is not updated for OAuth-based
             // FxA devices, so we get this information in the OAuth db.
-            lastAccessTime: client
-              ? Math.max(device.lastAccessTime, client.last_access_time)
+            lastAccessTime: refreshToken
+              ? Math.max(
+                  device.lastAccessTime,
+                  refreshToken.lastUsedAt.getTime()
+                )
               : device.lastAccessTime,
             location: device.location,
             name: device.name || devices.synthesizeName(device),

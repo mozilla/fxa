@@ -41,11 +41,9 @@ function makeRoutes(options = {}, requireMocks) {
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
-  const oauthdb =
-    options.oauthdb ||
-    mocks.mockOAuthDB({
-      listAuthorizedClients: sinon.spy(async () => []),
-    });
+  const oauth = options.oauth || {
+    getRefreshTokensByUid: sinon.spy(async () => []),
+  };
   const customs = options.customs || {
     check: function () {
       return P.resolve(true);
@@ -63,12 +61,12 @@ function makeRoutes(options = {}, requireMocks) {
   )(
     log,
     db,
-    oauthdb,
+    oauth,
     config,
     customs,
     push,
     pushbox,
-    options.devices || require('../../../lib/devices')(log, db, oauthdb, push),
+    options.devices || require('../../../lib/devices')(log, db, oauth, push),
     clientUtils,
     redis
   );
@@ -1487,20 +1485,26 @@ describe('/account/devices', () => {
       ],
       payload: {},
     });
-    const config = {};
     const db = mocks.mockDB();
     const log = mocks.mockLog();
-    const oauthdb = mocks.mockOAuthDB(log, config);
-    oauthdb.listAuthorizedClients = sinon.spy(async () => {
-      return [
-        {
-          refresh_token_id: refreshTokenId,
-          last_access_time: now,
-        },
-      ];
-    });
+    const oauth = {
+      getRefreshTokensByUid: sinon.spy(async () => {
+        return [
+          {
+            refreshTokenId: Buffer.from(refreshTokenId, 'hex'),
+            lastUsedAt: new Date(now),
+          },
+          // This extra refreshToken should be ignored when listing devices,
+          // since it doesn't have a corresponding device record.
+          {
+            refreshTokenId: crypto.randomBytes(16),
+            lastUsedAt: new Date(now),
+          },
+        ];
+      }),
+    };
     const devices = mocks.mockDevices();
-    const accountRoutes = makeRoutes({ db, oauthdb, devices, log });
+    const accountRoutes = makeRoutes({ db, oauth, devices, log });
     const route = getRoute(accountRoutes, '/account/devices');
 
     return runTest(route, request, (response) => {
