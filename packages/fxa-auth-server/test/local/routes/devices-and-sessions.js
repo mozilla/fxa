@@ -41,7 +41,9 @@ function makeRoutes(options = {}, requireMocks) {
 
   const log = options.log || mocks.mockLog();
   const db = options.db || mocks.mockDB();
-  const oauthdb = options.oauthdb || mocks.mockOAuthDB(log, config);
+  const oauth = options.oauth || {
+    getRefreshTokensByUid: sinon.spy(async () => []),
+  };
   const customs = options.customs || {
     check: function () {
       return P.resolve(true);
@@ -59,11 +61,12 @@ function makeRoutes(options = {}, requireMocks) {
   )(
     log,
     db,
+    oauth,
     config,
     customs,
     push,
     pushbox,
-    options.devices || require('../../../lib/devices')(log, db, oauthdb, push),
+    options.devices || require('../../../lib/devices')(log, db, oauth, push),
     clientUtils,
     redis
   );
@@ -1459,6 +1462,54 @@ describe('/account/devices', () => {
         route.config.response.schema
       )
     );
+  });
+
+  it('should improve the lastAccessTime accuracy using OAuth data', () => {
+    const credentials = {
+      uid: crypto.randomBytes(16).toString('hex'),
+      id: crypto.randomBytes(16).toString('hex'),
+    };
+    const now = Date.now();
+    const yesterday = now - 864e5;
+    const refreshTokenId = hexString(32);
+    const request = mocks.mockRequest({
+      acceptLanguage: 'en-US,en;q=0.5',
+      credentials,
+      devices: [
+        {
+          name: 'wibble',
+          sessionTokenId: credentials.id,
+          lastAccessTime: yesterday,
+          refreshTokenId,
+        },
+      ],
+      payload: {},
+    });
+    const db = mocks.mockDB();
+    const log = mocks.mockLog();
+    const oauth = {
+      getRefreshTokensByUid: sinon.spy(async () => {
+        return [
+          {
+            refreshTokenId: Buffer.from(refreshTokenId, 'hex'),
+            lastUsedAt: new Date(now),
+          },
+          // This extra refreshToken should be ignored when listing devices,
+          // since it doesn't have a corresponding device record.
+          {
+            refreshTokenId: crypto.randomBytes(16),
+            lastUsedAt: new Date(now),
+          },
+        ];
+      }),
+    };
+    const devices = mocks.mockDevices();
+    const accountRoutes = makeRoutes({ db, oauth, devices, log });
+    const route = getRoute(accountRoutes, '/account/devices');
+
+    return runTest(route, request, (response) => {
+      assert.equal(response[0].lastAccessTime, now);
+    });
   });
 
   it('supports feature-flag for oauth devices', async () => {

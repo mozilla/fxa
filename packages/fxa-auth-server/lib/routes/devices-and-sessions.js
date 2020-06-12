@@ -7,6 +7,7 @@
 const { URL } = require('url');
 const Ajv = require('ajv');
 const ajv = new Ajv();
+const hex = require('buf').to.hex;
 const error = require('../error');
 const fs = require('fs');
 const isA = require('@hapi/joi');
@@ -28,6 +29,7 @@ const DEFAULT_COMMAND_TTL = new Map([
 module.exports = (
   log,
   db,
+  oauth,
   config,
   customs,
   push,
@@ -478,10 +480,6 @@ module.exports = (
         log.begin('Account.devices', request);
         const credentials = request.auth.credentials;
 
-        // XXX: Ideally, we would call oauthdb.listAuthorizedClients here, and perform a similar merging
-        // to what we do in /account/attached_clients. That's awkward to do because this route can be called
-        // with a refreshToken, but oauthdb currently requires a sessionToken. Let's defer that to followup.
-
         // The only reason a device calls this endpoint is to get a list of other devices
         // it can send commands to, so feature-flag it as part of that feature.
         if (
@@ -493,7 +491,23 @@ module.exports = (
 
         const deviceArray = await request.app.devices;
 
+        // If the user has oauth clients that register a device record,
+        // then the oauth DB may have more up-to-date information about them.
+        // Since it's an additional request, only make it if necessary.
+        const oauthRefreshTokensById = new Map();
+        if (deviceArray.some((d) => d.refreshTokenId)) {
+          for (const token of await oauth.getRefreshTokensByUid(
+            credentials.uid
+          )) {
+            // OAuth annoyingly returns buffers rather than hex strings.
+            oauthRefreshTokensById.set(hex(token.refreshTokenId), token);
+          }
+        }
+
         return deviceArray.map((device) => {
+          const refreshToken = oauthRefreshTokensById.get(
+            device.refreshTokenId
+          ); // null for session-token based devices.
           const formattedDevice = {
             id: device.id,
             isCurrentDevice: !!(
@@ -501,7 +515,14 @@ module.exports = (
               (credentials.refreshTokenId &&
                 credentials.refreshTokenId === device.refreshTokenId)
             ),
-            lastAccessTime: device.lastAccessTime,
+            // The devices table `lastAccessTime` column is not updated for OAuth-based
+            // FxA devices, so we get this information in the OAuth db.
+            lastAccessTime: refreshToken
+              ? Math.max(
+                  device.lastAccessTime,
+                  refreshToken.lastUsedAt.getTime()
+                )
+              : device.lastAccessTime,
             location: device.location,
             name: device.name || devices.synthesizeName(device),
             // For now we assume that all oauth clients that register a device record are mobile apps.
