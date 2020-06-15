@@ -415,6 +415,22 @@ describe('views/form', function () {
       // element is required, has no value
       view.showValidationError('#focusMe', 'Field is required');
     });
+
+    it('marks the element invalid, even if tooltip error is already displayed on form', function (done) {
+      view.markElementInvalid = sinon.spy();
+      view.markElementValid = sinon.spy();
+
+      view.showValidationError('#focusMe', 'Field is required');
+      view.showValidationError('#focusMe', 'Field is required');
+
+      p.delay(200).then(() => {
+        TestHelpers.wrapAssertion(function () {
+          assert.isTrue(
+            view.markElementInvalid.calledAfter(view.markElementValid)
+          );
+        }, done);
+      });
+    });
   });
 
   it('markElementInvalid adds the invalid class, aria-invalid attribute, and aria-described-by', () => {

@@ -382,10 +382,8 @@ var FormView = BaseView.extend({
     const $invalidEl = this.$(el);
     const message = AuthErrors.toMessage(err);
 
-    const markElementInvalidAndMaybeFocus = (describedById) => {
+    const maybeFocus = () => {
       return new Promise((resolve) => {
-        this.markElementInvalid($invalidEl, describedById);
-
         if (shouldFocusEl) {
           // wait to focus otherwise
           // on screen keyboard may cover message
@@ -409,7 +407,8 @@ var FormView = BaseView.extend({
     };
 
     if (err.describedById) {
-      markElementInvalidAndMaybeFocus(err.describedById);
+      this.markElementInvalid($invalidEl, err.describedById);
+      maybeFocus();
     } else {
       // tooltipId is used to bind the invalid element
       // with the tooltip using `aria-described-by`
@@ -422,7 +421,7 @@ var FormView = BaseView.extend({
         translator: this.translator,
       });
 
-      markElementInvalidAndMaybeFocus(tooltipId).then(() => {
+      maybeFocus().then(() => {
         tooltip
           .on('destroyed', () => {
             this.markElementValid($invalidEl);
@@ -430,6 +429,7 @@ var FormView = BaseView.extend({
           })
           .render()
           .then(() => {
+            this.markElementInvalid($invalidEl, tooltipId);
             // used for testing
             this.trigger('validation_error', el, message);
           });
