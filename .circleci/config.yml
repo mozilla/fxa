@@ -70,7 +70,11 @@ jobs:
     steps:
       - base-install:
           package: << parameters.package >>
-      - run: ./.circleci/test-package.sh << parameters.package >>
+      - run:
+          name: Testing << parameters.package >>
+          command: ./.circleci/test-package.sh << parameters.package >>
+      - store_test_results:
+          path: artifacts/tests
       - run:
           name: Reporting code coverage...
           command: bash <(curl -s https://codecov.io/bash) -X gcov
