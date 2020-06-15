@@ -49,6 +49,8 @@ commands:
           command: |
             cd packages/fxa-auth-server && \
             yarn run clean-up-old-ci-stripe-customers
+      - store_test_results:
+          path: artifacts/tests
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
