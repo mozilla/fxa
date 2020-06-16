@@ -18,6 +18,8 @@ const zeroBuffer32 = Buffer.from(
   'hex'
 );
 const now = Date.now();
+const anonId =
+  'eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA';
 
 describe('MySQL', () => {
   let db;
@@ -359,6 +361,7 @@ describe('MySQL', () => {
       verifierSetAt: now,
       createdAt: now,
       locale: 'en_US',
+      ecosystemAnonId: anonId,
     };
     account.normalizedEmail = normalizeEmail(account.email);
 
@@ -390,6 +393,11 @@ describe('MySQL', () => {
           result.verifierVersion,
           account.verifierVersion,
           'verifierVersion set'
+        );
+        assert.equal(
+          result.ecosystemAnonId,
+          account.ecosystemAnonId,
+          'ecosystemAnonId set'
         );
       });
   });

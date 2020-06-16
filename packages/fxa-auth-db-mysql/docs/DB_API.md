@@ -16,6 +16,7 @@ There are a number of methods that a DB storage backend should implement:
   - .createEmail(uid, data)
   - .deleteEmail(uid, email)
   - .resetTokens(uid)
+  - .updateEcosystemAnonId(uid, ecosystemAnonId)
 - Accounts (using `email`)
   - .emailRecord(emailBuffer)
   - .accountRecord(emailBuffer)
@@ -158,6 +159,7 @@ Returns:
   - verifierSetAt - (number) an epoch, such as that created with `Date.now()`
   - verifierVersion - (number) currently always set to 1, may be 2 or more in the future
   - profileChangedAt - (number) an epoch, such as that created with `Date.now()`
+  - ecosystemAnonId - (string) user's anonymized Account Ecosystem Telemetry identifier, a JWE in urlsafe-base64 format.
 
 - error (can be either):
   - a `error.notFound()` if this account does not exist
@@ -348,6 +350,22 @@ Returns:
     * rejects with:
         * any errors from the underlying storage engine
 
+## .updateEcosystemAnonId(uid, ecosystemAnonId)
+
+    Inserts or updates the `ecosystemAnonId` for the user's account.
+
+    Parameters:
+
+    * `uid` - (Buffer16) the uid of the account to update
+    * `ecosystemAnonId` - (string) user's anonymized Account Ecosystem Telemetry identifier, a JWE in urlsafe-base64 format.
+
+    Returns:
+
+    * resolves with:
+        * an empty object `{}`
+    * rejects with:
+        * error `{ code: 404, errno: 116 }` if the `uid` was not found in the database
+
 ## .emailRecord(emailBuffer)
 
 Gets the account record related to this (normalized) email address. The email is provided in a Buffer.
@@ -372,6 +390,7 @@ Returns:
     - verifyHash - (Buffer32)
     - authSalt - (Buffer32)
     - verifierSetAt - (number) an epoch
+    - ecosystemAnonId - (string) user's anonymized Account Ecosystem Telemetry identifier, a JWE in urlsafe-base64 format.
 - rejects: with one of:
   - `error.notFound()` if no account exists for this email address
   - any error from the underlying storage engine
@@ -403,6 +422,7 @@ Returns:
     - verifierSetAt - (number) an epoch
     - primaryEmail - (string)
     - profileChangedAt = (number) an epoch
+    - ecosystemAnonId - (string) user's anonymized Account Ecosystem Telemetry identifier, a JWE in urlsafe-base64 format.
 - rejects: with one of:
   - `error.notFound()` if no account exists for this email address
   - any error from the underlying storage engine

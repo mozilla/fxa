@@ -198,9 +198,9 @@ module.exports = function (log, error) {
   // CREATE
 
   // Insert : accounts
-  // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
+  // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13, ecosystemAnonId = $14
   var CREATE_ACCOUNT =
-    'CALL createAccount_7(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    'CALL createAccount_8(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(CREATE_ACCOUNT, [
@@ -217,6 +217,7 @@ module.exports = function (log, error) {
       data.verifierSetAt,
       data.createdAt,
       data.locale,
+      data.ecosystemAnonId,
     ]);
   };
 
@@ -598,9 +599,9 @@ module.exports = function (log, error) {
   };
 
   // Select : accounts
-  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt
+  // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt, ecosystemAnonId
   // Where  : accounts.normalizedEmail = LOWER($1)
-  var EMAIL_RECORD = 'CALL emailRecord_4(?)';
+  var EMAIL_RECORD = 'CALL emailRecord_5(?)';
 
   MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')]);
@@ -608,9 +609,9 @@ module.exports = function (log, error) {
 
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt,
-  //          verifierSetAt, createdAt, locale, lockedAt, profileChangedAt, keysChangedAt
+  //          verifierSetAt, createdAt, locale, lockedAt, profileChangedAt, keysChangedAt, ecosystemAnonId
   // Where  : accounts.uid = $1
-  var ACCOUNT = 'CALL account_7(?)';
+  var ACCOUNT = 'CALL account_8(?)';
 
   // Note: `fxa-support-panel` has grants to allow execute for this
   // specific stored procedure name. If this procedure name changes in the
@@ -654,6 +655,22 @@ module.exports = function (log, error) {
       token.authAt,
       token.mustVerify,
     ]);
+  };
+
+  // Update : ecosystemAnonId
+  // Set    : ecosystemAnonId = $2
+  // Where  : uid = $1
+  var UPDATE_ECOSYSTEM_ANON_ID = `CALL updateEcosystemAnonId_1(?, ?)`;
+  MySql.prototype.updateEcosystemAnonId = function (uid, data) {
+    return this.write(
+      UPDATE_ECOSYSTEM_ANON_ID,
+      [uid, data.ecosystemAnonId],
+      (result) => {
+        if (result.affectedRows === 0) {
+          throw error.notFound();
+        }
+      }
+    );
   };
 
   // DELETE
@@ -964,10 +981,10 @@ module.exports = function (log, error) {
 
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt,
-  //          verifierSetAt, createdAt, lockedAt, primaryEmail, profileChangedAt, keysChangedAt
+  //          verifierSetAt, createdAt, lockedAt, primaryEmail, profileChangedAt, keysChangedAt, ecosystemAnonId
   // Where  : emails.normalizedEmail = LOWER($1)
   //
-  var GET_ACCOUNT_RECORD = 'CALL accountRecord_6(?)';
+  var GET_ACCOUNT_RECORD = 'CALL accountRecord_7(?)';
   MySql.prototype.accountRecord = function (email) {
     return this.readFirstResult(GET_ACCOUNT_RECORD, [email]);
   };

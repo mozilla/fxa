@@ -21,6 +21,8 @@ const zeroBuffer32 = Buffer.from(
   '0000000000000000000000000000000000000000000000000000000000000000',
   'hex'
 );
+const anonId =
+  'eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA';
 
 describe('DB metrics', () => {
   let db;
@@ -583,6 +585,7 @@ describe('DB metrics', () => {
       verifierSetAt: time,
       createdAt: time,
       locale: 'en_US',
+      ecosystemAnonId: anonId,
     });
   }
 
