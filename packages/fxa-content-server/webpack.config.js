@@ -140,7 +140,14 @@ const webpackConfig = {
               cacheDirectory: true,
               presets: [
                 ['@babel/preset-react', {}],
-                '@babel/preset-env',
+                [
+                  '@babel/preset-env',
+                  {
+                    targets: {
+                      firefox: '60',
+                    },
+                  },
+                ],
                 '@babel/preset-typescript',
               ],
               plugins: [

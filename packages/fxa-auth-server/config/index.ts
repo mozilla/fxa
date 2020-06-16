@@ -10,6 +10,9 @@ const url = require('url');
 const convict = require('convict');
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 
+convict.addFormats(require('convict-format-with-moment'));
+convict.addFormats(require('convict-format-with-validator'));
+
 const conf = convict({
   env: {
     doc: 'The current node.js environment',

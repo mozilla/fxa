@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 var convict = require('convict');
+convict.addFormats(require('convict-format-with-moment'));
+convict.addFormats(require('convict-format-with-validator'));
 
 function loadConf() {
   var conf = convict({

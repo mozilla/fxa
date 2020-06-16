@@ -5,6 +5,9 @@ import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
 
+convict.addFormats(require('convict-format-with-moment'));
+convict.addFormats(require('convict-format-with-validator'));
+
 export interface MySQLConfig {
   database: string;
   host: string;

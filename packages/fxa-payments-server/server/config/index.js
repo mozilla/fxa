@@ -8,6 +8,9 @@ const fs = require('fs');
 const path = require('path');
 const convict = require('convict');
 
+convict.addFormats(require('convict-format-with-moment'));
+convict.addFormats(require('convict-format-with-validator'));
+
 const conf = convict({
   amplitude: {
     enabled: {

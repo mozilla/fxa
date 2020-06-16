@@ -6,6 +6,9 @@ import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
 
+convict.addFormats(require('convict-format-with-moment'));
+convict.addFormats(require('convict-format-with-validator'));
+
 const conf = convict({
   authHeader: {
     default: 'oidc-claim-id-token-email',

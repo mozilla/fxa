@@ -7,20 +7,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Local Nodemon",
-      "preLaunchTask": "tsc-watch",
-      "protocol": "auto",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "debug"],
-      "restart": true,
-      "port": 5858,
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Mocha All",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [

@@ -4,25 +4,6 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Local Nodemon",
-      "preLaunchTask": "tsc-watch",
-      "protocol": "auto",
-      "runtimeExecutable": "node",
-      "runtimeArgs": [
-        "--inspect=9200",
-        "-r",
-        "ts-node/register",
-        "src/bin/main.ts"
-      ],
-      "restart": true,
-      "port": 9200,
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
-    },
-    {
-      "type": "node",
-      "request": "launch",
       "name": "Mocha All",
       "program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
       "args": [

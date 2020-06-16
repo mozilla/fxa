@@ -23,7 +23,7 @@
     "client-sessions": "0.6.x",
     "ejs": "^3.1.2",
     "express": "4.16.4",
-    "morgan": "1.9.1"
+    "morgan": "^1.10.0"
   },
   "engines": {
     "node": ">=12",
@@ -33,9 +33,8 @@
     "audit-filter": "0.5.0",
     "browser-sync": "^2.26.7",
     "eslint": "^6.8.0",
-    "eslint-plugin-fxa": "2.0.1",
+    "eslint-plugin-fxa": "^2.0.2",
     "fxa-shared": "workspace:*",
-    "nodemon": "^2.0.3",
     "npm-run-all": "4.1.5",
     "pm2": "^4.4.0",
     "prettier": "^2.0.5",
@@ -52,7 +51,6 @@
     "restart": "pm2 restart pm2.config.js",
     "test": "npm run lint",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "dev": "nodemon server.js",
     "ui": "browser-sync start --proxy='localhost:9292' --files='**/*.css, **/*.ejs, **/*.js' --ignore=node_modules --port=5000 --no-open --serveStatic='static'"
   }
 }

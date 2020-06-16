@@ -14,11 +14,13 @@ var logger = require('../lib/logging')('bin.server');
 var DB = require('../lib/db/mysql')(logger, error);
 var restify = require('restify');
 // configure Sentry
-var Raven = require('raven');
+var Sentry = require('@sentry/node');
 const sentryDsn = config.sentryDsn;
 
 if (sentryDsn) {
-  Raven.config(sentryDsn, {});
+  Sentry.init({
+    dsn: sentryDsn,
+  });
   logger.info('sentryEnabled');
 } else {
   logger.info('sentryDisabled');
@@ -51,14 +53,14 @@ DB.connect(config).done(function (db) {
 
   server.on('uncaughtException', function (req, res, route, err) {
     if (sentryDsn) {
-      Raven.captureException(err);
+      Sentry.captureException(err);
     }
     res.send(new restify.errors.InternalServerError('Server Error'));
   });
 
   server.on('error', function (err) {
     if (sentryDsn) {
-      Raven.captureException(err);
+      Sentry.captureException(err);
     }
     logger.error('start', { message: err.message });
   });
