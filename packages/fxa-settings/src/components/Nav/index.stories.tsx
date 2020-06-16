@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Nav } from '.';
 
-storiesOf('components/Nav', module)
+storiesOf('Components|Nav', module)
   .add('basic', () => (
     <Nav hasSubscription={false} primaryEmail="user@xample.com" />
   ))

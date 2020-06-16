@@ -7,7 +7,7 @@ import { storiesOf } from '@storybook/react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { AlertBar } from '.';
 
-storiesOf('components/AlertBar', module)
+storiesOf('Components|AlertBar', module)
   .add('with a short message', () => (
     <AlertBarToggle>
       {({ alertBarRevealed, hideAlertBar }) =>

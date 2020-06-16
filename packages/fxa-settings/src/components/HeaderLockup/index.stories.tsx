@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { HeaderLockup } from '.';
 
-storiesOf('components/HeaderLockup', module)
+storiesOf('Components|HeaderLockup', module)
   .add('with default avatar', () => (
     <HeaderLockup avatarUrl={null} primaryEmail="user@example.com" />
   ))

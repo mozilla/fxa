@@ -3,7 +3,7 @@ import { storiesOf } from '@storybook/react';
 import { Header } from './index';
 import { LogoLockup } from '../LogoLockup';
 
-storiesOf('components/Header', module)
+storiesOf('Components|Header', module)
   .add('basic', () => (
     <Header left={<div>left content</div>} right={<div>right content</div>} />
   ))

@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { UnitRowWithAvatar } from '.';
 
-storiesOf('components/UnitRowWithAvatar', module)
+storiesOf('Components|UnitRowWithAvatar', module)
   .add('with default avatar', () => <UnitRowWithAvatar avatarUrl={null} />)
   .add('with non-default avatar', () => (
     <UnitRowWithAvatar avatarUrl="http://placekitten.com/256/256" />

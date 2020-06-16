@@ -7,7 +7,7 @@ import { storiesOf } from '@storybook/react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '.';
 
-storiesOf('components/Modal', module)
+storiesOf('Components|Modal', module)
   .add('basic', () => (
     <ModalToggle>
       {({ modalRevealed, hideModal }) =>

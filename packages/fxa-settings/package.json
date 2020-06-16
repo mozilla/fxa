@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build-postcss": "postcss src/styles/tailwind.scss -o src/styles/tailwind.out.scss",
-    "build-storybook": "NODE_ENV=production npm run build-postcss && build-storybook",
+    "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 npm run build-postcss && build-storybook -s .storybook/design-guide",
     "build": "tsc --build ../fxa-react && NODE_ENV=production npm run build-postcss && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false rescripts build",
     "eject": "react-scripts eject",
     "lint:eslint": "eslint .",
@@ -13,7 +13,7 @@
     "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "start": "npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
-    "storybook": "npm run build-postcss && start-storybook -p 6008",
+    "storybook": "npm run build-postcss && start-storybook -p 6008 -s .storybook/design-guide",
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
   },
   "eslintConfig": {

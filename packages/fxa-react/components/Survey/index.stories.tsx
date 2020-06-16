@@ -4,6 +4,6 @@ import Survey from './index';
 
 const surveyURL = 'https://www.surveygizmo.com/s3/5541940/pizza';
 
-storiesOf('components/Survey', module)
+storiesOf('Components|Survey', module)
   .add('default', () => <Survey {...{ surveyURL }} />)
   .add('complete', () => <Survey {...{ surveyURL }} surveyComplete />);

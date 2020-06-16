@@ -8,7 +8,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { UnitRow } from '.';
 import { Modal } from '../Modal';
 
-storiesOf('components/UnitRow', module)
+storiesOf('Components|UnitRow', module)
   .add('basic, with falsey headerValue', () => (
     <UnitRow header="Some header" headerValue={null} />
   ))

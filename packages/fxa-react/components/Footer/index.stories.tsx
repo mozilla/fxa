@@ -6,4 +6,4 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Footer } from './index';
 
-storiesOf('components/Footer', module).add('default', () => <Footer />);
+storiesOf('Components|Footer', module).add('default', () => <Footer />);
