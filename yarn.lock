@@ -17110,6 +17110,7 @@ fsevents@^1.2.7:
     memcached: 2.2.2
     mkdirp: 0.5.1
     mocha: ^7.1.2
+    mocha-junit-reporter: ^2.0.0
     moment: ^2.24.0
     moment-timezone: 0.5.11
     mozlog: 2.2.0
@@ -25006,7 +25007,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"md5@npm:^2.2.1":
+"md5@npm:^2.1.0, md5@npm:^2.2.1":
   version: 2.2.1
   resolution: "md5@npm:2.2.1"
   dependencies:
@@ -25620,6 +25621,21 @@ fsevents@^1.2.7:
   bin:
     mkdirp: bin/cmd.js
   checksum: 3/1aa3a6a2d7514f094a91329ec09994f5d32d2955a4985ecbb3d86f2aaeafc4aa11521f98d606144c1d49cd9835004d9a73342709b8c692c92e59eacf37412468
+  languageName: node
+  linkType: hard
+
+"mocha-junit-reporter@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "mocha-junit-reporter@npm:2.0.0"
+  dependencies:
+    debug: ^2.2.0
+    md5: ^2.1.0
+    mkdirp: ~0.5.1
+    strip-ansi: ^4.0.0
+    xml: ^1.0.0
+  peerDependencies:
+    mocha: ">=2.2.5"
+  checksum: 3/7a7e7b482a6a1d94a001c82429a930f4fe876fec939cd95a3e7e332f977cdab286f9c6ed901d5558a69acd2638d0a779c21096a1a13bb3bec8220dc0390f6660
   languageName: node
   linkType: hard
 
@@ -38306,6 +38322,13 @@ typescript@3.8.3:
     sax: ">=0.6.0"
     xmlbuilder: ~11.0.0
   checksum: 3/5e6e53955714a9d094c9f39ac7509706d136a3dae76684059019ca949e131775f69715715879df86b1a49519ffea3805ff2e930596e229c5f6228ce027e8a80e
+  languageName: node
+  linkType: hard
+
+"xml@npm:^1.0.0":
+  version: 1.0.1
+  resolution: "xml@npm:1.0.1"
+  checksum: 3/adde7652a6f6010d28079586e7f608d616138bcb6c44bbc9174292b5cc2fab09b351d6c5f009e9304df2e0030888198225dd2e9ccbf51b776c8928479bfea4cb
   languageName: node
   linkType: hard
 

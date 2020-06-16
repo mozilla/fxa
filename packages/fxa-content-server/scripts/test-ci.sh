@@ -8,8 +8,8 @@ function test_suite() {
 
   for i in $(seq "$numGroups")
   do
-    node tests/intern.js --suites="${suite}" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox || \
-    node tests/intern.js --suites="${suite}" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
+    node tests/intern.js --suites="${suite}" --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox || \
+    node tests/intern.js --suites="${suite}" --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" --groupsCount="${numGroups}" --groupNum="${i}" --firefoxBinary=./firefox/firefox --grep="$(<rerun.txt)"
   done
 }
 
@@ -23,6 +23,7 @@ yarn lint
 
 cd ../../
 mkdir -p ~/.pm2/logs
+mkdir -p artifacts/tests
 yarn workspaces foreach \
     --verbose \
     --topological-dev \

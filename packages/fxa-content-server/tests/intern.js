@@ -28,6 +28,7 @@ const fxaOAuthApp = args.fxaOAuthApp || 'http://localhost:8080/';
 const fxaUntrustedOauthApp =
   args.fxaUntrustedOauthApp || 'http://localhost:10139/';
 const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://localhost:3031/';
+const output = args.output || 'test-results.xml';
 
 // "fxaProduction" is a little overloaded in how it is used in the tests.
 // Sometimes it means real "stage" or real production configuration, but
@@ -104,6 +105,15 @@ if (args.suites) {
       break;
     case 'circle':
       config.functionalSuites = testsCircleCi;
+      config.reporters = [
+        {
+          name: 'junit',
+          options: {
+            filename: output,
+          },
+        },
+        'runner',
+      ];
       console.log('Running tests:', config.functionalSuites);
       break;
     case 'server':

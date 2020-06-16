@@ -25,7 +25,6 @@ const argv = [
   '--cache',
   '--no-clean',
   '--reporter=lcov',
-  '--reporter=text',
   '--report-dir=coverage',
   MOCHA_BIN,
 ];
