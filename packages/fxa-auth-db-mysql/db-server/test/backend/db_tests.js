@@ -16,6 +16,8 @@ const zeroBuffer32 = Buffer.from(
   'hex'
 );
 const now = Date.now();
+const anonId =
+  'eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA';
 
 function newUuid() {
   return crypto.randomBytes(16);
@@ -39,6 +41,7 @@ function createAccount() {
     verifierSetAt: now,
     createdAt: now,
     locale: 'en_US',
+    ecosystemAnonId: anonId,
   };
   account.normalizedEmail = normalizeEmail(account.email);
   account.emailBuffer = Buffer.from(account.email);
@@ -295,6 +298,11 @@ module.exports = function (config, DB) {
             account.createdAt,
             'profileChangedAt set to createdAt'
           );
+          assert.equal(
+            account.ecosystemAnonId,
+            accountData.ecosystemAnonId,
+            'ecosystemAnonId'
+          );
         });
       });
 
@@ -335,6 +343,11 @@ module.exports = function (config, DB) {
             false,
             'locale not returned'
           );
+          assert.equal(
+            account.ecosystemAnonId,
+            accountData.ecosystemAnonId,
+            'ecosystemAnonId'
+          );
         });
       });
     });
@@ -363,6 +376,33 @@ module.exports = function (config, DB) {
           .then((account) => {
             assert.deepEqual(account.uid, account.uid, 'uid');
             assert.lengthOf(Object.keys(account), 1);
+          });
+      });
+    });
+
+    describe('db.updateEcosystemAnonId', () => {
+      const newAnonId =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkdWRlbmVzc0Bmb28uYmFyIiwibmFtZSI6IkZvbyBCYXJtYW4iLCJpYXQiOjE1MTYyMzkwMjJ9.hVQ6sj219nUiwN8B5uClxcVpoq-SmRLQdZmXjS0w3CA';
+      it('should update ecosystemAnonId', () => {
+        return db
+          .updateEcosystemAnonId(accountData.uid, newAnonId)
+          .then(() => db.account(accountData.uid))
+          .then((result) => {
+            assert.equal(
+              result.ecosystemAnonId,
+              newAnonId,
+              'ecosystemAnonId was updated'
+            );
+          });
+      });
+
+      it('should return not found error if the uid is not in the database', () => {
+        const randomUid = newUuid();
+        return db
+          .updateEcosystemAnonId(randomUid, newAnonId)
+          .then(assert.fail, (err) => {
+            assert.equal(err.errno, 116, 'should return not found errno');
+            assert.equal(err.code, 404, 'should return not found code');
           });
       });
     });

@@ -45,28 +45,6 @@ To run the server tests:
 npm run test-server
 ```
 
-## Memory-store backend
-
-Implements the [backend API][dbdocs]
-as a memory store.
-
-This is the backend store
-that is loaded by the default export
-from the npm package,
-so the following call to `require`
-will return a server
-that uses the memory-store backend:
-
-```js
-var fxadb = require('fxa-auth-db-mysql');
-```
-
-To run the memory-store tests:
-
-```sh
-npm run test-mem
-```
-
 ## MySQL backend
 
 Implements the [backend API][dbdocs]
