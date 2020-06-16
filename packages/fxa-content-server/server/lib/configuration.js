@@ -261,6 +261,12 @@ const conf = (module.exports = convict({
     env: 'FXA_URL',
     format: 'url',
   },
+  settings_gql_url: {
+    default: 'http://localhost:8290',
+    doc: 'The URL of the Firefox Account settings GraphQL server',
+    env: 'FXA_GQL_URL',
+    format: 'url',
+  },
   geodb: {
     dbPath: {
       default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
@@ -842,7 +848,7 @@ if (supportedLanguages.indexOf(defaultLang) === -1) {
 // Static resources are generated for each language in the default supported languages list, at least until issue #1434 is fixed
 const staticallyGeneratedLanguages = conf.default('i18n.supportedLanguages');
 const missingLangs = [];
-supportedLanguages.forEach(function(l) {
+supportedLanguages.forEach(function (l) {
   if (staticallyGeneratedLanguages.indexOf(l) === -1) {
     missingLangs.push(l);
   }

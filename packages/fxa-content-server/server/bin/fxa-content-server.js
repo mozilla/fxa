@@ -30,6 +30,10 @@ const serveStatic = require('serve-static');
 const config = require('../lib/configuration');
 const sentry = require('../lib/sentry');
 const { cors, routing } = require('fxa-shared/express')();
+const {
+  useSettingsProxy,
+  modifySettingsStatic,
+} = require('../lib/beta-settings');
 
 const userAgent = require('fxa-shared/metrics/user-agent');
 if (!userAgent.isToVersionStringSupported()) {
@@ -76,6 +80,7 @@ logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
 function makeApp() {
   const app = express();
+  const betaSettingsPath = '/beta/settings';
 
   if (config.get('env') === 'development') {
     const webpack = require('webpack');
@@ -89,11 +94,9 @@ function makeApp() {
         writeToDisk: true,
       })
     );
-    const { createProxyMiddleware } = require('http-proxy-middleware');
-    app.use(
-      '/beta/settings',
-      createProxyMiddleware({ target: 'http://localhost:3000', ws: true })
-    );
+    app.use(betaSettingsPath, useSettingsProxy);
+  } else {
+    app.get(betaSettingsPath, modifySettingsStatic);
   }
 
   app.engine('html', consolidate.handlebars);
