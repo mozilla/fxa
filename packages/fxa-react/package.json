@@ -27,7 +27,7 @@
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6007",
-    "test": "yarn clean && jest"
+    "test": "yarn clean && jest --env=jsdom-fourteen"
   },
   "dependencies": {
     "fxa-shared": "workspace:*",
@@ -62,6 +62,7 @@
     "file-loader": "4.2.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
+    "jest-environment-jsdom-fourteen": "1.0.1",
     "pm2": "^4.4.0",
     "postcss-cli": "^7.1.1",
     "prettier": "^2.0.5",
