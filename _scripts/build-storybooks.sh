@@ -102,14 +102,11 @@ git push -q origin gh-pages
 
 # If this is a pull request, post a comment to the PR linking to the storybooks
 if [[ ! -z $CI_PULL_REQUEST ]]; then
-    PR_NUMBER=$(echo $CI_PULL_REQUEST | cut -d/ -f7);
-    PR_URL="$STORYBOOKS_URL/pulls/$PR_NUMBER/";
     COMMIT_URL="$STORYBOOKS_URL/commits/$COMMIT_HASH/";
-
     curl \
         -H'Content-Type: application/json' \
         -H"Authorization: token $STORYBOOKS_GITHUB_TOKEN" \
-        --data "{\"state\":\"success\",\"target_url\":\"$PR_URL\",\"context\":\"storybooks: pull request\",\"description\":\"Storybook deployment for Pull Request\"}" \
+        --data "{\"state\":\"success\",\"target_url\":\"$COMMIT_URL\",\"context\":\"storybooks: pull request\",\"description\":\"Storybook deployment for $COMMIT_HASH\"}" \
         https://api.github.com/repos/${PROJECT_REPO}/statuses/${COMMIT_HASH};
 fi
 
