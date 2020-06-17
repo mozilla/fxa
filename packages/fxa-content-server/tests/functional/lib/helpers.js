@@ -2736,6 +2736,20 @@ const sendVerificationReminders = thenify(function () {
   });
 });
 
+const fillOutForceChangePassword = thenify(function (oldPassword, newPassword) {
+  return this.parent
+    .then(
+      type(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.OPASSWORD, oldPassword)
+    )
+    .then(
+      type(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.PASSWORD, newPassword)
+    )
+    .then(
+      type(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.VPASSWORD, newPassword)
+    )
+    .then(click(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.SUBMIT));
+});
+
 module.exports = {
   ...TestHelpers,
   cleanMemory,
@@ -2762,6 +2776,7 @@ module.exports = {
   fillOutEmailFirstSignIn,
   fillOutEmailFirstSignUp,
   fillOutForceAuth,
+  fillOutForceChangePassword,
   fillOutPostVerifySecondaryEmailCode,
   fillOutRecoveryKey,
   fillOutResetPassword,

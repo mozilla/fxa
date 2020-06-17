@@ -1341,6 +1341,16 @@ const conf = convict({
       env: 'SIGNIN_CONFIRMATION_FORCE_GLOBALLY',
     },
   },
+  forcePasswordChange: {
+    forcedEmailAddresses: {
+      doc:
+        'Force sign-in confirmation for email addresses matching this regex.',
+      format: RegExp,
+      default: '^$', // default is no one
+
+      env: 'FORCE_PASSWORD_CHANGE_EMAIL_REGEX',
+    },
+  },
   securityHistory: {
     ipProfiling: {
       allowedRecency: {

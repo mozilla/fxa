@@ -43,6 +43,7 @@ module.exports = function () {
     'post_verify/cad_qr/scan_code',
     'post_verify/cad_qr/connected',
     'post_verify/newsletters/add_newsletters',
+    'post_verify/password/force_password_change',
     'post_verify/secondary_email/add_secondary_email',
     'post_verify/secondary_email/confirm_secondary_email',
     'post_verify/secondary_email/verified_secondary_email',

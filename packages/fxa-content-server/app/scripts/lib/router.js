@@ -187,6 +187,9 @@ const Router = Backbone.Router.extend({
     'post_verify/newsletters/add_newsletters': createViewHandler(
       'post_verify/newsletters/add_newsletters'
     ),
+    'post_verify/password/force_password_change': createViewHandler(
+      'post_verify/password/force_password_change'
+    ),
     'post_verify/secondary_email/add_secondary_email': createViewHandler(
       'post_verify/secondary_email/add_secondary_email'
     ),

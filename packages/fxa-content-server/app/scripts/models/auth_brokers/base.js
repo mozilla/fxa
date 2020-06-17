@@ -111,6 +111,9 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     ),
     afterSignUpRequireTOTP: new NavigateBehavior('signin'),
     beforeSignIn: new NullBehavior(),
+    beforeForcePasswordChange: new NavigateBehavior(
+      '/post_verify/password/force_password_change'
+    ),
     beforeSignUpConfirmationPoll: new NullBehavior(),
   },
 
@@ -519,6 +522,18 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
    */
   afterDeleteAccount(/* account */) {
     return Promise.resolve(this.getBehavior('afterDeleteAccount'));
+  },
+
+  /**
+   * Called before the user is redirected to the force password change screen.
+   *
+   * @param {Object} account
+   * @return {Promise}
+   */
+  beforeForcePasswordChange(account) {
+    return Promise.resolve(
+      this.getBehavior('beforeForcePasswordChange', { account })
+    );
   },
 
   /**

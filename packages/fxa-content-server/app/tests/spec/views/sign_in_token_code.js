@@ -15,6 +15,7 @@ import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/sign_in_token_code';
+import VerificationReasons from 'lib/verification-reasons';
 import WindowMock from '../../mocks/window';
 
 const { createRandomString } = helpers;
@@ -173,6 +174,33 @@ describe('views/sign_in_token_code', () => {
         assert.isTrue(
           view.invokeBrokerMethod.calledWith(
             'afterCompleteSignInWithCode',
+            account
+          )
+        );
+      });
+    });
+
+    describe('redirect to force change password', () => {
+      beforeEach(() => {
+        account.set('verificationReason', VerificationReasons.CHANGE_PASSWORD);
+        sinon
+          .stub(user, 'verifyAccountSessionCode')
+          .callsFake(() => Promise.resolve());
+        sinon
+          .stub(view, 'invokeBrokerMethod')
+          .callsFake(() => Promise.resolve());
+        view.$('input.otp-code').val(TOKEN_CODE);
+        return view.submit();
+      });
+
+      it('calls correct broker methods', () => {
+        assert.isTrue(
+          user.verifyAccountSessionCode.calledWith(account, TOKEN_CODE),
+          'verify with correct code'
+        );
+        assert.isTrue(
+          view.invokeBrokerMethod.calledWith(
+            'beforeForcePasswordChange',
             account
           )
         );

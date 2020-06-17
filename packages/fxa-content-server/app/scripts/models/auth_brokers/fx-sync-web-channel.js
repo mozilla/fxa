@@ -67,6 +67,12 @@ const FxSyncWebChannelAuthenticationBroker = FxSyncChannelAuthenticationBroker.e
         proto.afterSignInConfirmationPoll.call(this, account)
       );
     },
+
+    beforeForcePasswordChange(account) {
+      return this._notifyRelierOfLogin(account).then(() =>
+        proto.beforeForcePasswordChange.call(this, account)
+      );
+    },
   }
 );
 
