@@ -5,21 +5,13 @@
 'use strict';
 
 const { URL } = require('url');
-const Ajv = require('ajv');
-const ajv = new Ajv();
 const hex = require('buf').to.hex;
 const error = require('../error');
-const fs = require('fs');
 const isA = require('@hapi/joi');
-const path = require('path');
 const validators = require('./validators');
 
 const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
-const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(
-  __dirname,
-  '../../docs/pushpayloads.schema.json'
-);
 
 // Assign a default TTL for well-known commands if a request didn't specify it.
 const DEFAULT_COMMAND_TTL = new Map([
@@ -38,28 +30,6 @@ module.exports = (
   clientUtils,
   redis
 ) => {
-  // Loads and compiles a json validator for the payloads received
-  // in /account/devices/notify
-  const validatePushSchema = JSON.parse(
-    fs.readFileSync(PUSH_PAYLOADS_SCHEMA_PATH)
-  );
-  const validatePushPayloadAjv = ajv.compile(validatePushSchema);
-
-  function validatePushPayload(payload, endpoint) {
-    if (endpoint === 'accountVerify') {
-      if (isEmpty(payload)) {
-        return true;
-      }
-      return false;
-    }
-
-    return validatePushPayloadAjv(payload);
-  }
-
-  function isEmpty(payload) {
-    return payload && Object.keys(payload).length === 0;
-  }
-
   // Creates a "full" device response, provided a credentials object and an optional
   // updated DB device record.
   function buildDeviceResponse(credentials, device = {}) {
@@ -318,124 +288,14 @@ module.exports = (
         auth: {
           strategies: ['sessionToken', 'refreshToken'],
         },
-        validate: {
-          payload: isA.alternatives().try(
-            isA.object({
-              to: isA.string().valid('all').required(),
-              _endpointAction: isA.string().valid('accountVerify').optional(),
-              excluded: isA
-                .array()
-                .items(isA.string().length(32).regex(HEX_STRING))
-                .optional(),
-              payload: isA.object().when('_endpointAction', {
-                is: 'accountVerify',
-                then: isA.required(),
-                otherwise: isA.required(),
-              }),
-              TTL: isA.number().integer().min(0).optional(),
-            }),
-            isA.object({
-              to: isA
-                .array()
-                .items(isA.string().length(32).regex(HEX_STRING))
-                .required(),
-              _endpointAction: isA.string().valid('accountVerify').optional(),
-              payload: isA.object().when('_endpointAction', {
-                is: 'accountVerify',
-                then: isA.required(),
-                otherwise: isA.required(),
-              }),
-              TTL: isA.number().integer().min(0).optional(),
-            })
-          ),
-        },
         response: {
           schema: {},
         },
       },
       handler: async function (request) {
         log.begin('Account.devicesNotify', request);
-
-        // We reserve the right to disable notifications until
-        // we're confident clients are behaving correctly.
-        if (config.deviceNotificationsEnabled === false) {
-          throw error.featureNotEnabled();
-        }
-
-        const body = request.payload;
-        const sessionToken = request.auth.credentials;
-        const uid = sessionToken.uid;
-        const payload = body.payload;
-        const endpointAction = body._endpointAction || 'devicesNotify';
-
-        if (!validatePushPayload(payload, endpointAction)) {
-          throw error.invalidRequestParameter('invalid payload');
-        }
-
-        const pushOptions = {
-          data: payload,
-        };
-
-        if (body.TTL) {
-          pushOptions.TTL = body.TTL;
-        }
-
-        let [, deviceArray] = await Promise.all([
-          customs.checkAuthenticated(request, uid, endpointAction),
-          request.app.devices,
-        ]);
-
-        if (body.to !== 'all') {
-          const include = new Set(body.to);
-          deviceArray = deviceArray.filter((device) => include.has(device.id));
-
-          if (deviceArray.length === 0) {
-            log.error('Account.devicesNotify', {
-              uid: uid,
-              error: 'devices empty',
-            });
-          }
-        } else if (body.excluded) {
-          const exclude = new Set(body.excluded);
-          deviceArray = deviceArray.filter((device) => !exclude.has(device.id));
-        }
-
-        if (deviceArray.length !== 0) {
-          try {
-            await push.sendPush(uid, deviceArray, endpointAction, pushOptions);
-          } catch (err) {
-            // push may fail due to not found devices or a bad push action
-            // log the error but still respond with a 200
-            log.error('Account.devicesNotify', {
-              uid: uid,
-              error: err,
-            });
-          }
-        }
-
-        // Emit a metrics event for when a user sends tabs between devices.
-        // In the future we will aim to get this event directly from sync telemetry,
-        // but we're doing it here for now as a quick way to get metrics on the feature.
-        if (
-          payload &&
-          payload.command === 'sync:collection_changed' &&
-          // Note that payload schema validation ensures that these properties exist.
-          payload.data.collections.length === 1 &&
-          payload.data.collections[0] === 'clients'
-        ) {
-          let deviceId;
-
-          if (sessionToken.deviceId) {
-            deviceId = sessionToken.deviceId;
-          }
-
-          await request.emitMetricsEvent('sync.sentTabToDevice', {
-            device_id: deviceId,
-            service: 'sync',
-            uid: uid,
-          });
-        }
-
+        // This route is a no-op and will be removed once Firefox Desktop
+        // drops support for it.
         return {};
       },
     },

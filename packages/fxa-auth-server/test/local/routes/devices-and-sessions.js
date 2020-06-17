@@ -323,426 +323,51 @@ describe('/account/device', () => {
 });
 
 describe('/account/devices/notify', () => {
-  const config = {};
-  const uid = uuid.v4('binary').toString('hex');
-  const deviceId = crypto.randomBytes(16).toString('hex');
-  const mockLog = mocks.mockLog();
-  const mockRequest = mocks.mockRequest({
-    log: mockLog,
-    devices: [
-      {
-        id: 'bogusid1',
-        type: 'mobile',
-      },
-      {
-        id: 'bogusid2',
-        type: 'desktop',
-      },
-    ],
-    credentials: {
-      uid: uid,
-      deviceId: deviceId,
-    },
-  });
-  const pushPayload = {
-    version: 1,
-    command: 'sync:collection_changed',
-    data: {
-      collections: ['clients'],
-    },
-  };
-  const mockPush = mocks.mockPush();
-  const mockCustoms = mocks.mockCustoms();
-  const accountRoutes = makeRoutes({
-    config: config,
-    customs: mockCustoms,
-    push: mockPush,
-  });
-  let route = getRoute(accountRoutes, '/account/devices/notify');
-
-  it('bad payload', () => {
-    mockRequest.payload = {
-      to: ['bogusid1'],
-      payload: {
-        bogus: 'payload',
-      },
-    };
-    return runTest(route, mockRequest, () => {
-      assert(false, 'should have thrown');
-    }).then(
-      () => assert(false),
-      (err) => {
-        assert.equal(
-          mockPush.sendPush.callCount,
-          0,
-          'mockPush.sendPush was not called'
-        );
-        assert.equal(err.errno, 107, 'Correct errno for invalid push payload');
-      }
-    );
-  });
-
-  it('all devices', () => {
-    mockRequest.payload = {
-      to: 'all',
-      excluded: ['bogusid'],
-      TTL: 60,
-      payload: pushPayload,
-    };
-    // We don't wait on sendPush in the request handler, that's why
-    // we have to wait on it manually by spying.
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return P.resolve();
-    });
-    return runTest(route, mockRequest, (response) => {
-      return sendPushPromise.promise.then(() => {
-        assert.equal(
-          mockCustoms.checkAuthenticated.callCount,
-          1,
-          'mockCustoms.checkAuthenticated was called once'
-        );
-        assert.equal(
-          mockPush.sendPush.callCount,
-          1,
-          'mockPush.sendPush was called once'
-        );
-        const args = mockPush.sendPush.args[0];
-        assert.equal(
-          args.length,
-          4,
-          'mockPush.sendPush was passed four arguments'
-        );
-        assert.equal(args[0], uid, 'first argument was the device uid');
-        assert.ok(Array.isArray(args[1]), 'second argument was devices array');
-        assert.equal(
-          args[2],
-          'devicesNotify',
-          'second argument was the devicesNotify reason'
-        );
-        assert.deepEqual(
-          args[3],
-          {
-            data: pushPayload,
-            TTL: 60,
-          },
-          'third argument was the push options'
-        );
-      });
-    });
-  });
-
-  it('extra push payload properties are rejected', () => {
-    const extraPropsPayload = JSON.parse(JSON.stringify(pushPayload));
-    extraPropsPayload.extra = true;
-    extraPropsPayload.data.extra = true;
-    mockRequest.payload = {
-      to: 'all',
-      excluded: ['bogusid'],
-      TTL: 60,
-      payload: extraPropsPayload,
-    };
-    // We don't wait on sendPush in the request handler, that's why
-    // we have to wait on it manually by spying.
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return Promise.resolve();
-    });
-    return runTest(route, mockRequest, () => {
-      assert(false, 'should have thrown');
-    }).then(
-      () => assert.ok(false),
-      (err) => {
-        assert.equal(
-          err.output.statusCode,
-          400,
-          'correct status code is returned'
-        );
-        assert.equal(
-          err.errno,
-          error.ERRNO.INVALID_PARAMETER,
-          'correct errno is returned'
-        );
-      }
-    );
-  });
-
-  it('specific devices', () => {
-    mockCustoms.checkAuthenticated.resetHistory();
-    mockLog.activityEvent.resetHistory();
-    mockLog.error.resetHistory();
-    mockRequest.payload = {
-      to: ['bogusid1', 'bogusid2'],
-      TTL: 60,
-      payload: pushPayload,
-    };
-    // We don't wait on sendPush in the request handler, that's why
-    // we have to wait on it manually by spying.
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return P.resolve();
-    });
-    return runTest(route, mockRequest, (response) => {
-      return sendPushPromise.promise.then(() => {
-        assert.equal(
-          mockCustoms.checkAuthenticated.callCount,
-          1,
-          'mockCustoms.checkAuthenticated was called once'
-        );
-        assert.equal(
-          mockPush.sendPush.callCount,
-          1,
-          'mockPush.sendPush was called once'
-        );
-        let args = mockPush.sendPush.args[0];
-        assert.equal(
-          args.length,
-          4,
-          'mockPush.sendPush was passed four arguments'
-        );
-        assert.equal(args[0], uid, 'first argument was the device uid');
-        assert.ok(Array.isArray(args[1]), 'second argument was devices array');
-        assert.equal(
-          args[2],
-          'devicesNotify',
-          'third argument was the devicesNotify reason'
-        );
-        assert.deepEqual(
-          args[3],
-          {
-            data: pushPayload,
-            TTL: 60,
-          },
-          'fourth argument was the push options'
-        );
-        assert.equal(
-          mockLog.activityEvent.callCount,
-          1,
-          'log.activityEvent was called once'
-        );
-        args = mockLog.activityEvent.args[0];
-        assert.equal(
-          args.length,
-          1,
-          'log.activityEvent was passed one argument'
-        );
-        assert.deepEqual(
-          args[0],
-          {
-            country: 'United States',
-            event: 'sync.sentTabToDevice',
-            region: 'California',
-            service: 'sync',
-            userAgent: 'test user-agent',
-            uid: uid.toString('hex'),
-            device_id: deviceId.toString('hex'),
-          },
-          'event data was correct'
-        );
-        assert.equal(mockLog.error.callCount, 0, 'log.error was not called');
-      });
-    });
-  });
-
-  it('does not log activity event for non-send-tab-related notifications', () => {
-    mockPush.sendPush.resetHistory();
-    mockLog.activityEvent.resetHistory();
-    mockLog.error.resetHistory();
-    mockRequest.payload = {
-      to: ['bogusid1', 'bogusid2'],
-      TTL: 60,
-      payload: {
-        version: 1,
-        command: 'fxaccounts:password_reset',
-      },
-    };
-    return runTest(route, mockRequest, (response) => {
-      assert.equal(
-        mockPush.sendPush.callCount,
-        1,
-        'mockPush.sendPush was called once'
-      );
-      assert.equal(
-        mockLog.activityEvent.callCount,
-        0,
-        'log.activityEvent was not called'
-      );
-      assert.equal(mockLog.error.callCount, 0, 'log.error was not called');
-    });
-  });
-
-  it('device driven notifications disabled', () => {
-    config.deviceNotificationsEnabled = false;
-    mockRequest.payload = {
-      to: 'all',
-      excluded: ['bogusid'],
-      TTL: 60,
-      payload: pushPayload,
-    };
-
-    return runTest(route, mockRequest, () => {
-      assert(false, 'should have thrown');
-    }).then(
-      () => assert.ok(false),
-      (err) => {
-        assert.equal(
-          err.output.statusCode,
-          503,
-          'correct status code is returned'
-        );
-        assert.equal(
-          err.errno,
-          error.ERRNO.FEATURE_NOT_ENABLED,
-          'correct errno is returned'
-        );
-      }
-    );
-  });
-
-  it('throws error if customs blocked the request', () => {
-    mockRequest.payload = {
-      to: 'all',
-      excluded: ['bogusid'],
-      TTL: 60,
-      payload: pushPayload,
-    };
-    config.deviceNotificationsEnabled = true;
-
-    const mockCustoms = mocks.mockCustoms({
-      checkAuthenticated: error.tooManyRequests(1),
-    });
-    route = getRoute(
-      makeRoutes({ customs: mockCustoms }),
-      '/account/devices/notify'
-    );
-
-    return runTest(route, mockRequest, (response) => {
-      assert(false, 'should have thrown');
-    }).then(
-      () => assert(false),
-      (err) => {
-        assert.equal(
-          mockCustoms.checkAuthenticated.callCount,
-          1,
-          'mockCustoms.checkAuthenticated was called once'
-        );
-        assert.equal(err.message, 'Client has sent too many requests');
-      }
-    );
-  });
-
-  it('logs error if no devices found', () => {
-    mockRequest.payload = {
-      to: ['bogusid1', 'bogusid2'],
-      TTL: 60,
-      payload: pushPayload,
-    };
-
+  it('is a no-op route', async () => {
+    const config = {};
+    const uid = uuid.v4('binary').toString('hex');
+    const deviceId = crypto.randomBytes(16).toString('hex');
     const mockLog = mocks.mockLog();
-    const mockPush = mocks.mockPush({
-      sendPush: () => P.reject('devices empty'),
-    });
-    const mockCustoms = {
-      checkAuthenticated: () => P.resolve(),
-    };
-
-    route = getRoute(
-      makeRoutes({
-        customs: mockCustoms,
-        log: mockLog,
-        push: mockPush,
-      }),
-      '/account/devices/notify'
-    );
-
-    return runTest(route, mockRequest, (response) => {
-      assert.equal(
-        JSON.stringify(response),
-        '{}',
-        'response should not throw push errors'
-      );
-    });
-  });
-
-  it('can send account verification message with empty payload', () => {
-    mockRequest.payload = {
-      to: 'all',
-      _endpointAction: 'accountVerify',
-      payload: {},
-    };
-    const sendPushPromise = P.defer();
-    mockPush.sendPush = sinon.spy(() => {
-      sendPushPromise.resolve();
-      return P.resolve();
-    });
-    const mockCustoms = {
-      checkAuthenticated: () => P.resolve(),
-    };
-    route = getRoute(
-      makeRoutes({
-        customs: mockCustoms,
-        log: mockLog,
-        push: mockPush,
-      }),
-      '/account/devices/notify'
-    );
-
-    return runTest(route, mockRequest, () => {
-      return sendPushPromise.promise.then(() => {
-        assert.equal(
-          mockPush.sendPush.callCount,
-          1,
-          'mockPush.sendPush was called once'
-        );
-        const args = mockPush.sendPush.args[0];
-        assert.equal(
-          args.length,
-          4,
-          'mockPush.sendPush was passed four arguments'
-        );
-        assert.equal(args[0], uid, 'first argument was the device uid');
-        assert.ok(Array.isArray(args[1]), 'second argument was devices array');
-        assert.equal(
-          args[2],
-          'accountVerify',
-          'second argument was the accountVerify reason'
-        );
-        assert.deepEqual(
-          args[3],
-          {
-            data: {},
+    const mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        to: 'all',
+        excluded: ['bogusid'],
+        TTL: 60,
+        payload: {
+          version: 1,
+          command: 'sync:collection_changed',
+          data: {
+            collections: ['clients'],
           },
-          'third argument was the push options'
-        );
-      });
-    });
-  });
-
-  it('reject account verification message with non-empty payload', () => {
-    mockRequest.payload = {
-      to: 'all',
-      _endpointAction: 'accountVerify',
-      payload: pushPayload,
-    };
-    route = getRoute(
-      makeRoutes({
-        customs: mockCustoms,
-        log: mockLog,
-        push: mockPush,
-      }),
-      '/account/devices/notify'
-    );
-
-    return runTest(route, mockRequest).then(
-      () => {
-        assert.fail('should not have succeed');
+        },
       },
-      (err) => {
-        assert.equal(err.errno, 107, 'invalid parameter in request body');
-      }
+      devices: [
+        {
+          id: 'bogusid1',
+          type: 'mobile',
+        },
+        {
+          id: 'bogusid2',
+          type: 'desktop',
+        },
+      ],
+      credentials: {
+        uid: uid,
+        deviceId: deviceId,
+      },
+    });
+    const mockPush = mocks.mockPush();
+    const accountRoutes = makeRoutes({
+      config: config,
+      push: mockPush,
+    });
+    const route = getRoute(accountRoutes, '/account/devices/notify');
+    const response = await runTest(route, mockRequest);
+    assert.equal(response, {});
+    assert.isFalse(
+      mockPush.sendPush.calledOnce,
+      'mockPush.sendPush was never called'
     );
   });
 });
