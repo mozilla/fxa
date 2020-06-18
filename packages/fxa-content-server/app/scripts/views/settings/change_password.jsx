@@ -183,7 +183,7 @@ export class ChangePasswordForm extends React.Component {
               id="old_password"
               placeholder={t('Old password')}
               onChange={this.setOldPassword}
-              autocomplete="current-password"
+              autoComplete="current-password"
               required
               pattern=".{8,}"
               value={this.state.oldPass}

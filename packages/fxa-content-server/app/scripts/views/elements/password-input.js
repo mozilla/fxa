@@ -16,7 +16,12 @@ export default {
 
     if (!value) {
       throw AuthErrors.toError('PASSWORD_REQUIRED');
-    } else if (Vat.password().validate(value).error) {
+    } else if (
+      // Don't check password length on an old password in case the user
+      // created their password before the 8 character minimum requirement.
+      Vat.password().validate(value).error &&
+      !this.is('#old_password')
+    ) {
       throw AuthErrors.toError('PASSWORD_TOO_SHORT');
     }
   },
