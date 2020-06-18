@@ -1,3 +1,19 @@
+## 1.176.0
+
+### New features
+
+- password: Add force password screens ([14b0c2960](https://github.com/mozilla/fxa/commit/14b0c2960))
+- ci: use store_test_results in circleci for content-server ([eb03d818a](https://github.com/mozilla/fxa/commit/eb03d818a))
+- settings | content server: inject server config into settings requests ([e06b3f5b3](https://github.com/mozilla/fxa/commit/e06b3f5b3))
+
+### Bug fixes
+
+- password-input: Avoid 'password too short' check on current password ([72dc9a8b2](https://github.com/mozilla/fxa/commit/72dc9a8b2))
+- experiment: Fix attempt for qr code cad enrollment ([2babb8908](https://github.com/mozilla/fxa/commit/2babb8908))
+- validation: Allow for optional deviceIds ([e9d372ed7](https://github.com/mozilla/fxa/commit/e9d372ed7))
+- content-server: mark the element as invalid. ([c13ff2867](https://github.com/mozilla/fxa/commit/c13ff2867))
+- content: stop using padStart ([bef50ba09](https://github.com/mozilla/fxa/commit/bef50ba09))
+
 ## 1.175.0
 
 ### New features
