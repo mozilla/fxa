@@ -9,10 +9,15 @@ import { uuidTransformer } from '../db/transformers';
 import { Context } from '../server';
 import { Account as AccountType } from './types/account';
 
-@Resolver(of => AccountType)
+const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
+
+@Resolver((of) => AccountType)
 export class AccountResolver {
-  @Query(returns => AccountType, { nullable: true })
-  public accountByUid(@Arg('uid', { nullable: false }) uid: string, @Ctx() context: Context) {
+  @Query((returns) => AccountType, { nullable: true })
+  public accountByUid(
+    @Arg('uid', { nullable: false }) uid: string,
+    @Ctx() context: Context
+  ) {
     let uidBuffer;
     try {
       uidBuffer = uuidTransformer.to(uid);
@@ -20,13 +25,17 @@ export class AccountResolver {
       return;
     }
     context.logAction('accountByUid', { uid });
-    return Account.query().findOne({ uid: uidBuffer });
+    return Account.query().select(ACCOUNT_COLUMNS).findOne({ uid: uidBuffer });
   }
 
-  @Query(returns => AccountType, { nullable: true })
-  public accountByEmail(@Arg('email', { nullable: false }) email: string, @Ctx() context: Context) {
+  @Query((returns) => AccountType, { nullable: true })
+  public accountByEmail(
+    @Arg('email', { nullable: false }) email: string,
+    @Ctx() context: Context
+  ) {
     context.logAction('accountByEmail', { email });
     return Account.query()
+      .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
       .innerJoin('emails', 'emails.uid', 'accounts.uid')
       .where('emails.normalizedEmail', email)
       .first();
