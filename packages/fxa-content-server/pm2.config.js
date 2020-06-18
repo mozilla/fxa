@@ -22,6 +22,7 @@ module.exports = {
       watch: ['server'],
       max_restarts: '1',
       min_uptime: '2m',
+      time: true,
     },
   ],
 };

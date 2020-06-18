@@ -20,6 +20,7 @@ module.exports = {
       filter_env: ['npm_'],
       max_restarts: '2',
       min_uptime: '2m',
+      time: true,
     },
   ],
 };

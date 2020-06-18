@@ -17,6 +17,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_'],
+      time: true,
     },
     {
       name: 'react-css',
@@ -34,6 +35,7 @@ module.exports = {
         'styles',
       ],
       ignore_watch: ['styles/tailwind.out.css'],
+      time: true,
     },
   ],
 };

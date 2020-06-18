@@ -24,6 +24,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_'],
+      time: true,
     },
     {
       name: 'payments-react',
@@ -40,6 +41,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
+      time: true,
     },
   ],
 };

@@ -24,6 +24,7 @@ module.exports = {
       },
       filter_env: ['npm_'],
       watch: ['src'],
+      time: true,
     },
   ],
 };
