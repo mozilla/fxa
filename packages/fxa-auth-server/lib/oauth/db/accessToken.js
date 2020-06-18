@@ -16,7 +16,6 @@ class AccessToken {
     canGrant,
     publicClient,
     userId,
-    email,
     scope,
     createdAt,
     profileChangedAt,
@@ -35,8 +34,6 @@ class AccessToken {
     this.publicClient = publicClient;
     /** @type {Buffer} */
     this.userId = userId;
-    /** @type {string} */
-    this.email = email;
     /** @type {ScopeSet} */
     this.scope = scope;
     /** @type {Date} */
@@ -45,7 +42,7 @@ class AccessToken {
     this.profileChangedAt = profileChangedAt;
     /** @type {Date} */
     this.expiresAt = expiresAt;
-    /** @type {Buffer} this won't be proided unless we're creating a brand new token */
+    /** @type {Buffer} this won't be provided unless we're creating a brand new token */
     this.token = token || null;
     this.type = 'bearer';
   }
@@ -78,7 +75,6 @@ class AccessToken {
       canGrant: this.canGrant,
       publicClient: this.publicClient,
       userId: this.userId.toString('hex'),
-      email: this.email,
       scope: this.scope.toString(),
       createdAt: this.createdAt.getTime(),
       profileChangedAt: this.profileChangedAt,
@@ -92,7 +88,6 @@ class AccessToken {
     canGrant,
     publicClient,
     userId,
-    email,
     scope,
     profileChangedAt,
     expiresAt,
@@ -107,7 +102,6 @@ class AccessToken {
       canGrant,
       publicClient,
       userId,
-      email,
       scope,
       // Truncated createdAt to the second to match mysql
       new Date(new Date().setMilliseconds(0)),
@@ -140,7 +134,6 @@ class AccessToken {
       json.canGrant,
       json.publicClient,
       Buffer.from(json.userId, 'hex'),
-      json.email,
       ScopeSet.fromString(json.scope),
       new Date(json.createdAt),
       json.profileChangedAt,
@@ -160,7 +153,6 @@ class AccessToken {
       row.clientCanGrant,
       row.publicClient,
       row.userId,
-      row.email,
       ScopeSet.fromString(row.scope),
       row.createdAt,
       row.profileChangedAt,
