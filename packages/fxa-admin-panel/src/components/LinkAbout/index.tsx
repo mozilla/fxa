@@ -9,7 +9,7 @@ import './index.scss';
 export const LinkAbout = () => (
   <LinkExternal
     className="about-link inline-flex align-self-center"
-    href="https://github.com/mozilla/fxa/blob/master/packages/fxa-admin-panel/README.md"
+    href="https://github.com/mozilla/fxa/blob/main/packages/fxa-admin-panel/README.md"
   >
     <span>About</span>{' '}
     <img

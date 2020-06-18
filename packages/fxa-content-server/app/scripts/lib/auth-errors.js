@@ -624,7 +624,7 @@ export default _.extend({}, Errors, {
    */
   toInterpolationContext(err) {
     // For data returned by backend, see
-    // https://github.com/mozilla/fxa-auth-server/blob/master/error.js
+    // https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/lib/error.js
     try {
       if (this.is(err, 'INVALID_PARAMETER')) {
         return {

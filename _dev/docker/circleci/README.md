@@ -13,4 +13,4 @@ curl -u $CIRCLECI_API_TOKEN \
 ```
 
 - `$CIRCLECI_API_TOKEN` is your personal API token from https://app.circleci.com/settings/user/tokens
-- `$GITHUB_BRANCH` is the branch you'd like to build & deploy to docker hub (this may be `master`)
+- `$GITHUB_BRANCH` is the branch you'd like to build & deploy to docker hub (this may be `main`)

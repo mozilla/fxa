@@ -6,13 +6,13 @@
 
 ## Context and Problem Statement
 
-Firefox Accounts is introducing a new visual design for Settings (the interface that exists at the address `https://accounts.firefox.com/settings`). The changes involved are significant enough such that it [has been decided](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md) that an entirely new React App will be built more or less independent of the existing Settings web app. With this we can beta test and roll out the new design with minimal disruption.
+Firefox Accounts is introducing a new visual design for Settings (the interface that exists at the address `https://accounts.firefox.com/settings`). The changes involved are significant enough such that it [has been decided](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md) that an entirely new React App will be built more or less independent of the existing Settings web app. With this we can beta test and roll out the new design with minimal disruption.
 
 As there are a multitude of ways a React App can be set up and configured, this decision has introduced the question, "What [toolchain](https://en.wikipedia.org/wiki/Toolchain) should we set up a new React App with?". This ADR serves to answer that question by going over the various approaches we can take to set up a new React App and how it might integrate with our existing FxA ecosystem.
 
 It's important to note that we are not deciding the languages, libraries, or other tools that we will use within the React development environment, but rather, the system that will be used to develop the React App with.
 
-Finally, we are not making decisions about the App's production server here. We'll be using [fxa-content-server](https://github.com/mozilla/fxa/tree/master/packages/fxa-content-server/server)'s Express server for the production build.
+Finally, we are not making decisions about the App's production server here. We'll be using [fxa-content-server](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/server)'s Express server for the production build.
 
 ## Decision Drivers
 
@@ -112,7 +112,7 @@ There is no shortage of options when it comes to creating a toolchain for your R
 
 ## Additional Links
 
-- [ADR "Create a New React Application for the Settings Redesign Project"](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
-- [ADR "Transition FxA from Backbone to React"](https://github.com/mozilla/fxa/blob/master/docs/adr/0010-transition-fxa-from-backbone-to-react.md)
+- [ADR "Create a New React Application for the Settings Redesign Project"](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
+- [ADR "Transition FxA from Backbone to React"](https://github.com/mozilla/fxa/blob/main/docs/adr/0010-transition-fxa-from-backbone-to-react.md)
 - [Settings Product Requirement Document](https://docs.google.com/document/d/18zu7JCYIsUp8tUMJqb2uErNlzL9f6CQvefLy9HFZ4UY/edit?pli=1)
 - [Official React toolchain recommendations](https://reactjs.org/docs/create-a-new-react-app.html)

@@ -64,7 +64,7 @@
     "url": "https://github.com/mozilla/fxa.git"
   },
   "bugs": "https://github.com/mozilla/fxa/issues",
-  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-profile-server",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-profile-server",
   "author": "Sean McArthur <sean.monstar@gmail.com>",
   "engines": {
     "node": ">=12"

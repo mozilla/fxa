@@ -11,7 +11,7 @@
 `oauth.scopes` provides shared logic for validating and checking OAuth scopes.
 
 Detailed documentation on the details of FxA OAuth scope values
-is available from the [fxa-oauth-server](https://github.com/mozilla/fxa-oauth-server/tree/master/docs/scopes.md).
+is available from the [fxa-oauth-server](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/scopes.md).
 This library provides some convenient APIs for working with them
 according to the rules described there.
 

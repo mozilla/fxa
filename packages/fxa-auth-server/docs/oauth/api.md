@@ -401,7 +401,7 @@ The following types of grant are possible:
 
 - `ppid_seed`: (optional) Seed used in `sub` claim generation of
   JWT access tokens/ID tokens for clients with [Pseudonymous Pairwise
-  Identifiers (PPID)](https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md)
+  Identifiers (PPID)](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pairwise-pseudonymous-identifiers.md)
   enabled. Used to forcibly rotate the `sub` claim. Must be an integer in the range 0-1024.
   Defaults to 0.
 - `resource`: (optional) Indicates the target service or resource at which access is being
@@ -850,4 +850,4 @@ A valid 200 response will return an empty JSON object.
 [introspect]: #post-v1introspect
 [client-tokens]: #get-v1client-tokens
 [client-tokens-delete]: #delete-v1client-tokensid
-[prompt-none]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/prompt-none.md
+[prompt-none]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/prompt-none.md

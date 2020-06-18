@@ -5,7 +5,7 @@
 
 ## Context and Problem Statement
 
-The [Settings Redesign project](https://jira.mozilla.com/browse/FXA-840) will be created [as a new React application](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md) and in turn, has opened the door to assess certain pieces of our technology stack.
+The [Settings Redesign project](https://jira.mozilla.com/browse/FXA-840) will be created [as a new React application](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md) and in turn, has opened the door to assess certain pieces of our technology stack.
 
 [GraphQL](https://graphql.org/), or GQL, is not a database query language, but is instead a query language for APIs. It _describes_ data requirements, and is a powerful alternative to REST. Some benefits can be gained by using it on top of existing REST architecture.
 
@@ -133,7 +133,7 @@ While GraphQL will be novel tech to the FxA stack, it's not entirely novel to th
 ## Additional Links
 
 - [Settings Redesign project](https://jira.mozilla.com/browse/FXA-840) (Jira)
-- [ADR for Settings Redesign as a new React App](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
+- [ADR for Settings Redesign as a new React App](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
 - [GraphQL docs](https://graphql.org/learn/)
 - [Apollo docs](https://www.apollographql.com/docs/intro/platform/)
 - [GraphQL subscriptions](https://www.apollographql.com/docs/react/data/subscriptions/)

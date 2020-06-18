@@ -206,7 +206,7 @@ function logFlowEvent(event, data, request) {
 }
 
 function logStatsdPerfEvent(eventData) {
-  // See https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/metrics-events.md#success-event-names
+  // See https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/metrics-events.md#success-event-names
   if (eventData.event.startsWith('flow.performance.')) {
     const navTimingMetricNames = PERFORMANCE_TIMINGS.map((x) => x.event);
     const perfMetricNameParts = eventData.event.split('.');

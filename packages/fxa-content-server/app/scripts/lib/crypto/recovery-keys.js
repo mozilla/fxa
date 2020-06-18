@@ -7,7 +7,7 @@
  * recovery key data.
  *
  * For more encryption details, check out
- + https://github.com/mozilla/fxa-auth-server/blob/master/docs/recovery_keys.md
+ * https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/recovery_keys.md
  */
 import a256gcm from './a256gcm';
 import Base32 from './base32';

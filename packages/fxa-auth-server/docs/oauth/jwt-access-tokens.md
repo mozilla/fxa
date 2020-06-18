@@ -129,10 +129,10 @@ tokens when their OAuth credentials are being provisioned.
 [#ietf-jws-spec]: https://tools.ietf.org/html/rfc7515
 [#ietf-jwt-spec]: https://tools.ietf.org/html/rfc7519
 [#ietf-resource-indicator-draft-spec]: https://tools.ietf.org/html/draft-ietf-oauth-resource-indicators-08
-[#ppid-doc]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md
-[#why-fxa-subscriptions-claim]: https://github.com/mozilla/fxa/blob/master/docs/adr/0007-subscription-claim-jwt-access-token.md
-[#fxa-introspect-endpoint-api-docs]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1introspect
-[#fxa-verify-endpoint-api-docs]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1verify
+[#ppid-doc]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pairwise-pseudonymous-identifiers.md
+[#why-fxa-subscriptions-claim]: https://github.com/mozilla/fxa/blob/main/docs/adr/0007-subscription-claim-jwt-access-token.md
+[#fxa-introspect-endpoint-api-docs]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#post-v1introspect
+[#fxa-verify-endpoint-api-docs]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#post-v1verify
 [#node-jsonwebtoken]: https://github.com/auth0/node-jsonwebtoken/
 [#notify-sp-on-token-revocation]: https://github.com/mozilla/fxa/issues/2246
 [#github-jwt-token-size]: https://github.com/mozilla/fxa/issues/1797

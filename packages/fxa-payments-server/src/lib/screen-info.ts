@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This is a port to TypeScript of this fxa-content-server library:
-// https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/scripts/lib/screen-info.js
+// https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/screen-info.js
 
 // module to calculate screen dimentions given a window.
 

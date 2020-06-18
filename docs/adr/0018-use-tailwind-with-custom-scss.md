@@ -8,7 +8,7 @@
 
 The [Settings Redesign project](https://github.com/mozilla/fxa/issues/3740) provides us with an opportunity to review how FxA approaches and employs CSS, both while building out new components for this project and for FxA going forward.
 
-Historically, the Firefox Accounts codebase has not adhered to a formal CSS structure. This ADR serves to determine how we'll approach our CSS architecture in the Settings Redesign project, evaluating libraries and frameworks to determine which if any will be the best option for the FxA ecosystem. It is part 2 of two [Settings Redesign CSS ADRs](https://github.com/mozilla/fxa/issues/5087); part 1, detailing how we'll approach build conventions and variables, [can be found here](https://github.com/mozilla/fxa/blob/master/docs/adr/0015-use-css-variables-and-scss.md).
+Historically, the Firefox Accounts codebase has not adhered to a formal CSS structure. This ADR serves to determine how we'll approach our CSS architecture in the Settings Redesign project, evaluating libraries and frameworks to determine which if any will be the best option for the FxA ecosystem. It is part 2 of two [Settings Redesign CSS ADRs](https://github.com/mozilla/fxa/issues/5087); part 1, detailing how we'll approach build conventions and variables, [can be found here](https://github.com/mozilla/fxa/blob/main/docs/adr/0015-use-css-variables-and-scss.md).
 
 Considerations around class naming conventions, color and measurement standards, interoperability across shared components, and custom configuration options offered by each library to meet Settings Redesign design standards are taken into account. Notably, the new design uses space measurements in increments of 8px and [colors](https://protocol.mozilla.org/fundamentals/color.html) are based in Mozilla Protocol's design system, where a hue's brightness scales in increments of 10.
 
@@ -90,7 +90,7 @@ Cons:
 
 Out of the utility library options, the team has reached a consensus that Tailwind would be the best option for FxA, which has several pros over other options:
 
-- While most libraries offer some level of configuration, many require working in SASS to override variables and maps, and the resulting output may not always be predictable. Additionally, SASS-level configuration forces us to use SASS variables, and yet in [CSS ADR part 1](https://github.com/mozilla/fxa/blob/master/docs/adr/0015-use-css-variables-and-scss.md), we determined we would like to avoid SASS variables in favor of CSS variables. Tailwind mitigates these inconveniences by offering a root-level JS configuration file which is a better option for organization, clarity, and ease-of-use. Furthermore, Tailwind's configuration options are vast and allow us to set our own incremental spacing, custom font-sizes, determine class name conventions, set custom breakpoints, etc. as we see fit to align with the Settings Redesign visual designs.
+- While most libraries offer some level of configuration, many require working in SASS to override variables and maps, and the resulting output may not always be predictable. Additionally, SASS-level configuration forces us to use SASS variables, and yet in [CSS ADR part 1](https://github.com/mozilla/fxa/blob/main/docs/adr/0015-use-css-variables-and-scss.md), we determined we would like to avoid SASS variables in favor of CSS variables. Tailwind mitigates these inconveniences by offering a root-level JS configuration file which is a better option for organization, clarity, and ease-of-use. Furthermore, Tailwind's configuration options are vast and allow us to set our own incremental spacing, custom font-sizes, determine class name conventions, set custom breakpoints, etc. as we see fit to align with the Settings Redesign visual designs.
 - We can use CSS variables to share stored values with any additional custom SCSS when applicable and for future theming options.
 - Several engineers on our team have prior experience with Tailwind and like it.
 - As of writing, Tailwind is significantly more popular than our other considered options, with nearly 10x the number of downloads (274k) and more than 2x the number of GitHub stars (22k) than its closest competitor Tachyons. This data was gathered from [npm trends](https://www.npmtrends.com/tachyons-vs-tailwindcss-vs-basscss).
@@ -139,7 +139,7 @@ Cons:
 ## Links
 
 - [Settings Redesign project](https://github.com/mozilla/fxa/issues/3740)
-- [CSS ADR part 1](https://github.com/mozilla/fxa/blob/master/docs/adr/0015-use-css-variables-and-scss.md)
+- [CSS ADR part 1](https://github.com/mozilla/fxa/blob/main/docs/adr/0015-use-css-variables-and-scss.md)
 - [Protocol colors](https://protocol.mozilla.org/fundamentals/color.html)
 - Non-Atomic CSS libraries/frameworks: [Semantic UI](https://semantic-ui.com/), [Tailwind UI](https://tailwindui.com/), [Bootstrap](https://getbootstrap.com/), [Bulma](https://bulma.io/), [Pure.css]- (https://purecss.io/)
 - Atomic CSS libraries: [Tailwind](https://tailwindcss.com/), [Tachyons](http://tachyons.io/), and [Basscss](https://basscss.com/)

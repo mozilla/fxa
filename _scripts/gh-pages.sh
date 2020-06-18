@@ -2,7 +2,7 @@
 
 echo "Branch: $CIRCLE_BRANCH    Pull request: $CIRCLE_PULL_REQUEST"
 
-if [ "$CIRCLE_BRANCH" != "master" ] || [ "$CIRCLE_PULL_REQUEST" != "" ]; then
+if [ "$CIRCLE_BRANCH" != "main" ] || [ "$CIRCLE_PULL_REQUEST" != "" ]; then
   echo "Not building docs."
   exit 0
 fi

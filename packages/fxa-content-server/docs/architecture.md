@@ -58,35 +58,35 @@ Firefox Sync is a one-off integration that is documented for completeness. Like 
 
 ### High Level Web Client Components
 
-#### [Brokers](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/models/auth_brokers)
+#### [Brokers](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/models/auth_brokers)
 
 Brokers mediate communication between Firefox Accounts and the relier. A single broker is created per Firefox Accounts window. A broker communicates with the relier via the URL or a Channel.
 
-#### [Channels](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/lib/channels)
+#### [Channels](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/lib/channels)
 
 A channel is a two way communication mechanism between the relier and Firefox Accounts. The method of communication is channel specific.
 
-#### [Reliers](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/models/reliers)
+#### [Reliers](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/models/reliers)
 
 The relier model holds and fetches data about the current relier.
 
-#### [User](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/models/user.js)
+#### [User](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/models/user.js)
 
 A User holds and persists data about the current user interacting with Firefox Accounts. A user can have one or more Accounts.
 
-#### [Account](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/models/account.js)
+#### [Account](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/models/account.js)
 
 An Account abstracts interaction between the user's account and the profile server.
 
-#### [Router](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/router.js)
+#### [Router](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/router.js)
 
 The Router is responsible for reacting to URL changes and displaying the Views.
 
-#### [Views](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/views)
+#### [Views](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/views)
 
 Views represent either an entire screen or a portion of a screen. Users enter data into Views.
 
-#### [Templates](https://github.com/mozilla/fxa-content-server/tree/master/app/scripts/templates)
+#### [Templates](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/templates)
 
 A templates is a serialized HTML representation of a View. A view renders a template using data available to it and writes the rendered template to the DOM. Templates use the [mustache](http://mustache.github.io/) templating library.
 
@@ -96,21 +96,21 @@ Communication with external servers are done via client libraries.
 
 ##### [fxa-js-client](https://github.com/mozilla/fxa-js-client)
 
-The fxa-js-client communicates with the Firefox Accounts [Auth Server](https://github.com/mozilla/fxa-auth-server/). The fxa-js-client is used for all aspects of authenticating a user - sign up, sign in, password reset, etc.
+The fxa-js-client communicates with the Firefox Accounts [Auth Server](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/). The fxa-js-client is used for all aspects of authenticating a user - sign up, sign in, password reset, etc.
 
-##### [oauth-client](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/oauth-client.js)
+##### [oauth-client](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/oauth-client.js)
 
-The oauth-client communicates with the Firefox Accounts [OAuth Server](https://github.com/mozilla/fxa-oauth-server/). The OAuth client is used to fetch OAuth codes and tokens to send to the RP.
+The oauth-client communicates with the Firefox Accounts [OAuth Server](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/README.md). The OAuth client is used to fetch OAuth codes and tokens to send to the RP.
 
-##### [profile-client](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/profile-client.js)
+##### [profile-client](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/profile-client.js)
 
-The profile-client communicates with the Firefox Accounts [Profile Server](https://github.com/mozilla/fxa-profile-server/). This client allows a user to interact with their profile data.
+The profile-client communicates with the Firefox Accounts [Profile Server](https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/). This client allows a user to interact with their profile data.
 
 ### Layers/Tiers
 
 The content server web client is made up of many layers. An item is only allowed to interact with a layer below it, but not with ancestors or siblings.
 
-[app-start.js](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/app-start.js) is where the fun begins. It creates several models and a router. The router is passed a reference to several models. The router creates views. Only views are allowed to interact with templates. Models and Views use functionality provided by lib modules. vendor are external components and should be fully self contained. The full application lifecycle is described in the section `Application lifecycle`.
+[app-start.js](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/app-start.js) is where the fun begins. It creates several models and a router. The router is passed a reference to several models. The router creates views. Only views are allowed to interact with templates. Models and Views use functionality provided by lib modules. vendor are external components and should be fully self contained. The full application lifecycle is described in the section `Application lifecycle`.
 
 ```
    app-start            |
@@ -123,7 +123,7 @@ The content server web client is made up of many layers. An item is only allowed
 
 ### Application lifecycle
 
-When the application starts, [app-start.js](https://github.com/mozilla/fxa-content-server/blob/master/app/scripts/lib/app-start.js) takes care of setting up system-wide dependencies. app-start immediately determines the integration type and creates the appropriate [Broker](https://github.com/mozilla/fxa-content-server/blob/8561ec3c1d06763f454f4ac7cb8ef142eb0c01b0/app/scripts/lib/app-start.js#L234) and [Relier](https://github.com/mozilla/fxa-content-server/blob/8561ec3c1d06763f454f4ac7cb8ef142eb0c01b0/app/scripts/lib/app-start.js#L199). The broker is queried to check support of the current integration. If the integration is supported, other models and the [router](https://github.com/mozilla/fxa-content-server/blob/8561ec3c1d06763f454f4ac7cb8ef142eb0c01b0/app/scripts/lib/app-start.js#L315) are created. The router takes over and determines the initial View to display, based upon the browser's URL. The View writes a Template to the DOM. The user interacts with the View, either by filling out a form or clicking on links and buttons. A view can communicate with external servers using clients. A view that communicates with an external server determines the appropriate next step based on the server's response. A view can redirect to another view, display a status message, or send a command to the broker. Upon successful authentication with Firefox Accounts, the broker is notified, which in turn notifies the relier. The relier is responsible for the final fate of the Firefox Accounts window. It can either close the window or leave the window to be closed by the user.
+When the application starts, [app-start.js](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/app-start.js) takes care of setting up system-wide dependencies. app-start immediately determines the integration type and creates the appropriate [Broker](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/app-start.js#L3024) and [Relier](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/app-start.js#L224). The broker is queried to check support of the current integration. If the integration is supported, other models and the [router](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/app-start.js#L504) are created. The router takes over and determines the initial View to display, based upon the browser's URL. The View writes a Template to the DOM. The user interacts with the View, either by filling out a form or clicking on links and buttons. A view can communicate with external servers using clients. A view that communicates with an external server determines the appropriate next step based on the server's response. A view can redirect to another view, display a status message, or send a command to the broker. Upon successful authentication with Firefox Accounts, the broker is notified, which in turn notifies the relier. The relier is responsible for the final fate of the Firefox Accounts window. It can either close the window or leave the window to be closed by the user.
 
 ### Deeper View of Components
 
@@ -230,11 +230,11 @@ Communication between the FxA and the RP is done via [postMessage](https://devel
 
 #### Application
 
-The content server is a simple [NodeJS](http://nodejs.org/)/[Express](http://expressjs.com/) based application. The content server's primary responsibility is to deliver the web client, [Terms Of Service](https://github.com/mozilla/fxa-content-server/blob/master/server/templates/pages/src/terms.html), and [Privacy Policy](https://github.com/mozilla/fxa-content-server/blob/master/server/templates/pages/src/privacy.html) to users in their preferred locale. The content server's entry point is in [./server/bin/fxa-content-server.js](https://github.com/mozilla/fxa-content-server/blob/master/server/bin/fxa-content-server.js).
+The content server is a simple [NodeJS](http://nodejs.org/)/[Express](http://expressjs.com/) based application. The content server's primary responsibility is to deliver the web client, [Terms Of Service](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/server/templates/pages/src/terms.html), and [Privacy Policy](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/server/templates/pages/src/privacy.html) to users in their preferred locale. The content server's entry point is in [./server/bin/fxa-content-server.js](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/server/bin/fxa-content-server.js).
 
 ##### Additional Templates
 
-Additional [handlebars](http://handlebarsjs.com/) templates are rendered by the server to serve [static pages](https://github.com/mozilla/fxa-content-server/tree/master/server/templates/pages/src) and [send email](https://github.com/mozilla/fxa-content-server/tree/master/server/templates/email). While the content server holds the templates for the emails, emails are delivered by the [fxa-auth-mailer](https://github.com/mozilla/fxa-auth-mailer/). The content server contains the email templates to make L10n simpler.
+Additional [handlebars](http://handlebarsjs.com/) templates are rendered by the server to serve [static pages](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/server/templates/pages/src) and send email. While the content server holds the templates for the emails, emails are delivered by the [fxa-auth-mailer](https://github.com/mozilla/fxa-auth-mailer/). The content server contains the email templates to make L10n simpler.
 
 ## UX/User flows
 
@@ -242,7 +242,7 @@ An up to date [flow diagram](http://is.gd/Sync_FxA_Latest_Desktop_UX_PDF) flow d
 
 ## L10n/I18n
 
-Mozilla's L10n community has done an incredible job of translating Firefox Accounts into over 20 languages. More information on how L10n works can be found in this [README](https://github.com/mozilla/fxa-content-server-l10n/blob/master/locale/README.md) in the [fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n) repo.
+Mozilla's L10n community has done an incredible job of translating Firefox Accounts into over 20 languages. More information on how L10n works can be found in this [README](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/locale/README.md) and in the [fxa-content-server-l10n](https://github.com/mozilla/fxa-content-server-l10n) repo.
 
 ## Contact
 
@@ -254,11 +254,11 @@ UPDATE: On March 2020, Mozilla moved from IRC to Matrix. For more information on
 ## Additional Resources
 
 - [APIs attached to Firefox Accounts](https://developer.mozilla.org/docs/Mozilla/APIs_attached_to_Firefox_Accounts)
-- [Firefox Accounts Auth Server API](https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md)
-- [Firefox Acocunts Auth Server Codebase](https://github.com/mozilla/fxa-auth-server/)
-- [Firefox Accounts OAuth Server API](https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md)
-- [Firefox Accounts OAuth Server Codebase](https://github.com/mozilla/fxa-oauth-server/)
-- [Firefox Accounts Profile Server API](https://github.com/mozilla/fxa-profile-server/blob/master/docs/API.md)
-- [Firefox Accounts Profile Server Codebase](https://github.com/mozilla/fxa-profile-server/)
+- [Firefox Accounts Auth Server API](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md)
+- [Firefox Acocunts Auth Server Codebase](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-server/)
+- [Firefox Accounts OAuth Server API](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md)
+- [Firefox Accounts OAuth Server Codebase](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-server/lib/oauth)
+- [Firefox Accounts Profile Server API](https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md)
+- [Firefox Accounts Profile Server Codebase](https://github.com/mozilla/fxa/tree/main/packages/fxa-profile-server)
 - [OAuth 2.0 RFC 6749](http://tools.ietf.org/html/rfc6749)
 - [Firefox Accounts Pairing Flow](pairing-architecture.md)

@@ -339,4 +339,4 @@ if they perform a reset password.
 
 - /settings/emails
 
-[#prompt-none]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/prompt-none.md
+[#prompt-none]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/prompt-none.md

@@ -225,7 +225,7 @@ workflows:
       - test-many:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-package:
@@ -233,43 +233,43 @@ workflows:
           package: fxa-auth-server
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-content-server-0:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-content-server-1:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-content-server-2:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-content-server-3:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-content-server-4:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-content-server-5:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
       - test-email-service:
@@ -286,7 +286,7 @@ workflows:
       - build-and-deploy-storybooks:
           filters:
             branches:
-              ignore: master
+              ignore: main
             tags:
               ignore: /.*/
   deploy_branch:
@@ -295,7 +295,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
                 - /^feature.*/
                 - /^dockerpush.*/
             tags:
@@ -303,7 +303,7 @@ workflows:
       - build-and-deploy-storybooks:
           filters:
             branches:
-              only: master
+              only: main
             tags:
               ignore: /.*/
   test_and_deploy_tag:

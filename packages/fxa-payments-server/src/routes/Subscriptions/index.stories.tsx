@@ -155,7 +155,7 @@ function init() {
               errno: 181,
               error: 'Bad Request',
               info:
-                'https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format',
+                'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
             }),
           },
         }}

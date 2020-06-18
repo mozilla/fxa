@@ -19,7 +19,7 @@
     "LICENSE"
   ],
   "readmeFilename": "README.md",
-  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-js-client",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-js-client",
   "engines": {
     "node": ">=12"
   },

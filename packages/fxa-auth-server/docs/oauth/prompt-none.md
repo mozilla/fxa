@@ -103,9 +103,9 @@ Now that FxA accepts the id_token_hint query parameter, support for `prompt=none
 
 Support for [OIDC RP Initiated Logout][#oidc-rp-initiated-logout-github-issue] may go some way to reducing user confusion on what it means to sign out of an RP and whether they should have to enter their password again. Upon signing out of the RP, RPs that support the OIDC RP Initiated Logout protocol will redirect the user to FxA where they are given the option to destroy their FxA session as well.
 
-[#authorization-api-doc]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#get-v1authorization
+[#authorization-api-doc]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#get-v1authorization
 [#fxa-devices-and-apps]: https://accounts.firefox.com/settings/clients
-[#oauth-server-api-destroy]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1destroy
+[#oauth-server-api-destroy]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1destroy
 [#oidc-error-codes]: https://openid.net/specs/openid-connect-core-1_0.html#AuthError
 [#oidc-id-token-hint-discussion-issue]: https://github.com/mozilla/fxa/issues/4963
 [#oidc-id-token]: https://openid.net/specs/openid-connect-core-1_0.html#IDToken

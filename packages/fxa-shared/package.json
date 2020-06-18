@@ -28,7 +28,7 @@
   "engines": {
     "node": ">=12"
   },
-  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-shared#readme",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/generic-pool": "^3.1.9",

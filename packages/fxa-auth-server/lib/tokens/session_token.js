@@ -12,7 +12,7 @@ module.exports = (log, Token, config) => {
     config.tokenLifetimes.sessionTokenWithoutDevice;
 
   // Convert verificationMethod to a more readable format. Maps to
-  // https://github.com/mozilla/fxa-auth-db-mysql/blob/master/lib/db/util.js#L34
+  // https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-db-mysql/lib/db/util.js#L55
   const VERIFICATION_METHODS = new Map([
     [0, 'email'],
     [1, 'email-2fa'],

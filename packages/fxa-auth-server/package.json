@@ -35,7 +35,7 @@
     "node": ">=12"
   },
   "bugs": "https://github.com/mozilla/fxa/issues/",
-  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-server",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-server",
   "license": "MPL-2.0",
   "author": "Mozilla (https://mozilla.org/)",
   "readmeFilename": "README.md",

@@ -109,10 +109,12 @@ async function main() {
     for (const mod of toRun) {
       console.log(mod);
     }
-  } else if (branch === 'master') {
+  }
+  else if (branch === 'main') {
     console.log('all');
-  } else {
-    //TODO diff master..branch
+  }
+  else {
+    //TODO diff main..branch
     console.log('all');
   }
 }

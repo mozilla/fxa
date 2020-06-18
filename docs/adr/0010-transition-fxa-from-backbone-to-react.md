@@ -5,7 +5,7 @@
 
 ## Context and Problem Statement
 
-When Firefox Accounts was created some 6-7 years ago, the front-end Javascript framework and HTML templating options were limited significantly to those available at the time. This ADR details the pros and cons of various FE libraries and frameworks, and why it is desirable for FxA to move to a different technology. It does not cover _how_ we will begin the conversion which can be [read about here](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md).
+When Firefox Accounts was created some 6-7 years ago, the front-end Javascript framework and HTML templating options were limited significantly to those available at the time. This ADR details the pros and cons of various FE libraries and frameworks, and why it is desirable for FxA to move to a different technology. It does not cover _how_ we will begin the conversion which can be [read about here](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md).
 
 While Backbone and Mustache have served their purposes for FxA thus far, other modern libraries and frameworks not only offer more appealing architecture and developer conveniences, but also offer better data predictability, potential performance boosts, and a strong community of online support.
 
@@ -54,7 +54,7 @@ In the end, it is recognized that Vue _may_ have been a good option for FxA, but
   - As Backbone's popularity continues to wane, we will likely be presented with challenges in the future around support, documentation, features, and developer knowledge or experience with the framework.
   - We'd be giving a hard pass on all of the benefits we would gain from another library or framework - i.e. modern approaches, better data clarity and typing, performance optimizations, etc.
 
-Note: also see pros/cons listed on Backbone in general [in this ADR](https://github.com/mozilla/fxa/blob/master/docs/adr/0002-use-react-redux-and-typescript-for-subscription-management-pages.md)
+Note: also see pros/cons listed on Backbone in general [in this ADR](https://github.com/mozilla/fxa/blob/main/docs/adr/0002-use-react-redux-and-typescript-for-subscription-management-pages.md)
 
 ### Options B - E - Common Pros & Cons
 
@@ -149,8 +149,8 @@ Using web components with the [Polymer Project](https://www.polymer-project.org/
 
 ## Links
 
-- [Create a new React app for Settings Redesign](https://github.com/mozilla/fxa/blob/master/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
-- Other Backbone pros/cons: [subscription management stack ADR](https://github.com/mozilla/fxa/blob/master/docs/adr/0002-use-react-redux-and-typescript-for-subscription-management-pages.md)
+- [Create a new React app for Settings Redesign](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
+- Other Backbone pros/cons: [subscription management stack ADR](https://github.com/mozilla/fxa/blob/main/docs/adr/0002-use-react-redux-and-typescript-for-subscription-management-pages.md)
 - [Facebook switches licensing](https://www.freecodecamp.org/news/facebook-just-changed-the-license-on-react-heres-a-2-minute-explanation-why-5878478913b2/)
 - [Banana, monkey, jungle problem](http://rcardin.github.io/design/programming/oop/fp/2018/07/27/the-secret-life-of-objects-part-2.html#the-banana-monkey-jungle-problem)
 - [React](https://github.com/facebook/react)

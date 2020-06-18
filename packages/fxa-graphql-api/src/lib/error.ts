@@ -4,7 +4,7 @@
 import { ApolloError } from 'apollo-server';
 
 export const PROFILE_INFO_URL =
-  'https://github.com/mozilla/fxa/blob/master/packages/fxa-profile-server/docs/API.md#errors';
+  'https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md#errors';
 
 export function CatchGatewayError(
   target: any,

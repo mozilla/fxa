@@ -2,7 +2,7 @@
 
 echo ""
 echo "Usage:"
-echo "  Checkout HEAD of master of https://github.com/mozilla/fxa, and from"
+echo "  Checkout HEAD of main of https://github.com/mozilla/fxa, and from"
 echo "  ./fxa, run ./_scripts/upload-assets-to-cdn.sh."
 echo ""
 echo "Your current branch is $(git branch --show-current)"
