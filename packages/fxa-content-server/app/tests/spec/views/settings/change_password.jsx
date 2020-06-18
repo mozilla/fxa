@@ -125,6 +125,12 @@ describe('views/settings/change_password', function () {
       });
     });
 
+    describe('handleSubmit', () => {
+      it('allows an old password to be less than 8 characters', () => {
+        assert.doesNotThrow(() => $('#old_password').val('pass').validate());
+      })
+    });
+
     describe('submit', function () {
       describe('success', function () {
         var oldPassword = 'password';
