@@ -22,6 +22,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
+      time: true,
     },
     {
       name: 'settings-css',
@@ -40,6 +41,7 @@ module.exports = {
         require.resolve('fxa-react/configs/tailwind.js'),
       ],
       ignore_watch: ['src/styles/tailwind.out.*'],
+      time: true,
     },
   ],
 };

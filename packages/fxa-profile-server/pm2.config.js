@@ -22,6 +22,7 @@ module.exports = {
       },
       filter_env: ['npm_'],
       min_uptime: '2m',
+      time: true,
     },
     {
       name: 'profile-worker',
@@ -36,6 +37,7 @@ module.exports = {
       },
       filter_env: ['npm_'],
       min_uptime: '2m',
+      time: true,
     },
     {
       name: 'profile-static',
@@ -50,6 +52,7 @@ module.exports = {
       },
       filter_env: ['npm_'],
       min_uptime: '2m',
+      time: true,
     },
   ],
 };

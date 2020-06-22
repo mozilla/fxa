@@ -21,6 +21,7 @@ module.exports = {
       },
       filter_env: ['npm_'],
       min_uptime: '2m',
+      time: true,
     },
   ],
 };

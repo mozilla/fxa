@@ -25,6 +25,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_'],
+      time: true,
     },
     {
       name: 'admin-react',
@@ -41,6 +42,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_', 'BERRY_BIN_FOLDER'],
+      time: true,
     },
     {
       name: 'admin-css',
@@ -59,6 +61,7 @@ module.exports = {
         require.resolve('fxa-react/configs/tailwind.js'),
       ],
       ignore_watch: ['src/styles/tailwind.out.css'],
+      time: true,
     },
   ],
 };

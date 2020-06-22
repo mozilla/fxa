@@ -21,6 +21,7 @@ module.exports = {
       filter_env: ['npm_'],
       watch: ['bin', 'lib'],
       min_uptime: '2m',
+      time: true,
     },
   ],
 };

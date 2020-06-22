@@ -25,6 +25,7 @@ module.exports = {
       },
       filter_env: ['npm_'],
       watch: ['bin', 'config', 'lib'],
+      time: true,
     },
   ],
 };

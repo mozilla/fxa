@@ -17,6 +17,7 @@ module.exports = {
         PATH,
       },
       filter_env: ['npm_'],
+      time: true,
     },
   ],
 };
