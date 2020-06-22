@@ -1,0 +1,9 @@
+# copied l10n files
+/public/fxa-content-server-l10n
+/public/locales/git-head.txt
+/public/locales/**/*.ftl
+
+# must exclude the original that's copied _into_ fxa-content-server-l10n
+!/public/locales/en-US/*.ftl
+
+/server/lib/fxa-content-server-l10n

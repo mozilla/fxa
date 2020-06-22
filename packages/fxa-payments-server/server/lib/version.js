@@ -23,6 +23,7 @@
 // TODO - Make this shared code
 
 const cp = require('child_process');
+const fs = require('fs');
 const path = require('path');
 
 const UNKNOWN = 'unknown';
@@ -74,6 +75,19 @@ function getSourceRepo() {
   return stdout && stdout.toString().trim();
 }
 
+function getL10nVersion() {
+  try {
+    const gitShaPath = path.join(
+      __dirname,
+      'fxa-content-server-l10n',
+      'git-head.txt'
+    );
+    return fs.readFileSync(gitShaPath, 'utf8').trim();
+  } catch (e) {
+    /* ignore */
+  }
+}
+
 let version = null;
 function getVersionInfo() {
   if (!version) {
@@ -81,6 +95,7 @@ function getVersionInfo() {
     version = {
       commit: getCommitHash(),
       version: require('../../package.json').version,
+      l10n: getL10nVersion(),
       source: getSourceRepo(),
     };
   }

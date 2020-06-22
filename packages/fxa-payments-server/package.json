@@ -3,6 +3,7 @@
   "version": "1.176.0",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
+    "postinstall": "scripts/download_l10n.sh",
     "lint": "npm-run-all --parallel lint:eslint lint:sass",
     "lint:eslint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",

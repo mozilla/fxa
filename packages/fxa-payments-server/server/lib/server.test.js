@@ -22,11 +22,13 @@ describe('Test simple server routes', () => {
           const body = response.body;
           expect(Object.keys(body).sort()).toStrictEqual([
             'commit',
+            'l10n',
             'source',
             'version',
           ]);
 
           expectValueNotToBeUnknown(body.commit);
+          expectValueNotToBeUnknown(body.l10n);
           expectValueNotToBeUnknown(body.source);
           expectValueNotToBeUnknown(body.version);
 
