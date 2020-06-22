@@ -209,6 +209,11 @@ export const asyncFetchAndApplySourceVal = (fetchFn) => async (checkFn) => {
   return checkFn(x);
 };
 
+export checkBrowsers = (browsers) => (val) => {
+  // True if _any_ of the browsers from the condition matches user's the browser.
+  return browsers.some(checkUaBrowser);
+}
+
 // Comparator
 export const checkLanguages = (browserLanguages) => (val) => {
   // True if _any_ of the languages from the condition matches a configured language in the browser.
@@ -238,38 +243,38 @@ export const languagesCheck = createConditionCheckFn(fetchAndApplySourceVal)(
 const createUaConditionCheckFn = createConditionCheckFn(fetchAndApplySourceVal);
 
 // Comparator
-export const checkUaDeviceType = (ua) => (val) => {
+export const checkUaDeviceTypes = (ua) => (val) => {
   return !!(
     ua &&
     ua.genericDeviceType &&
-    ua.genericDeviceType().toLowerCase() === val.toLowerCase()
+    val.some((v) => ua.genericDeviceType().toLowerCase() === v.toLowerCase())
   );
 };
 
 // Comparator
-export const checkUaOsName = (ua) => (val) =>
+export const checkUaOsNames = (ua) => (val) =>
   !!(
     ua &&
     ua.os &&
     ua.os.name &&
-    ua.os.name.toLowerCase() === val.toLowerCase()
+    val.some((v) => ua.os.name.toLowerCase() === v.toLowerCase())
   );
 
 // Comparator
-export const checkUaBrowser = (ua) => (val) =>
+export const checkUaBrowsers = (ua) => (val) =>
   !!(
     ua &&
     ua.browser &&
     ua.browser.name &&
-    ua.browser.name.toLowerCase() === val.toLowerCase()
+    val.some((v) => ua.browser.name.toLowerCase() === v.toLowerCase())
   );
 
 // Ref: https://github.com/mozilla/fxa/blob/9b2d9d1/packages/fxa-content-server/app/scripts/lib/user-agent.js#L182
-export const hasDesiredDeviceType = createUaConditionCheckFn(checkUaDeviceType)(
+export const hasDesiredDeviceType = createUaConditionCheckFn(checkUaDeviceTypes)(
   'deviceType'
 );
-export const hasDesiredOs = createUaConditionCheckFn(checkUaOsName)('os');
-export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowser)(
+export const hasDesiredOs = createUaConditionCheckFn(checkUaOsNames)('os');
+export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowsers)(
   'browser'
 );
 

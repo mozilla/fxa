@@ -1,6 +1,7 @@
 import SurveyWrapperView from '../views/survey';
 import Storage from './storage';
 import createSurveyFilter from './survey-filter';
+import { func } from 'joi';
 
 const lastSurveyKey = 'lastSurvey';
 

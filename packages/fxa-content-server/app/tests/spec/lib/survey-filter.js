@@ -32,9 +32,9 @@ describe('lib/survey-filter', () => {
   });
   const mockProfileImage = createMockProfileImage(false);
   const mockUa = {
-    genericDeviceType: sandbox.stub().returns('MOBile'),
-    os: { name: 'WINNING' },
-    browser: { name: 'SPACETUNA' },
+    genericDeviceType: [sandbox.stub().returns('MOBile'), sandbox.stub().returns('WATch')],
+    os: [{ name: 'WINNING' }, {name: 'LOSING'}],
+    browser: [{ name: 'SPACETUNA' }, { name: 'DRZ400S-ONBOARD' }],
   };
   const uaString =
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0';
@@ -482,48 +482,48 @@ describe('lib/survey-filter', () => {
     });
   });
 
-  describe('checkUaDeviceType', () => {
+  describe('checkUaDeviceTypes', () => {
     it('should be case insensitive', () => {
-      const actual = SurveyFilter.checkUaDeviceType(mockUa)('mObile');
+      const actual = SurveyFilter.checkUaDeviceTypes(mockUa)(['mObile']);
       assert.isTrue(actual);
       assert.isTrue(mockUa.genericDeviceType.calledOnce);
     });
 
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.checkUaDeviceType(mockUa)('DESKTOP');
+      const actual = SurveyFilter.checkUaDeviceTypes(mockUa)(['DESKTOP']);
       assert.isFalse(actual);
       assert.isTrue(mockUa.genericDeviceType.calledOnce);
     });
   });
 
-  describe('checkUaOsName', () => {
+  describe('checkUaOsNames', () => {
     it('should be case insensitive', () => {
-      const actual = SurveyFilter.checkUaOsName(mockUa)('Winning');
+      const actual = SurveyFilter.checkUaOsNames(mockUa)(['Winning']);
       assert.isTrue(actual);
     });
 
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.checkUaOsName(mockUa)('Windows');
+      const actual = SurveyFilter.checkUaOsNames(mockUa)(['Windows']);
       assert.isFalse(actual);
     });
   });
 
-  describe('checkUaBrowser', () => {
+  describe('checkUaBrowsers', () => {
     it('should be case insensitive', () => {
-      const actual = SurveyFilter.checkUaBrowser(mockUa)('spacetuna');
+      const actual = SurveyFilter.checkUaBrowsers(mockUa)(['spacetuna']);
       assert.isTrue(actual);
     });
 
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.checkUaBrowser(mockUa)('Firefox');
+      const actual = SurveyFilter.checkUaBrowsers(mockUa)(['Firefox']);
       assert.isFalse(actual);
     });
   });
 
-  describe('hasDesiredDeviceType', () => {
+  describe('hasDesiredDeviceTypes', () => {
     it('should be true when the values match', () => {
       const actual = SurveyFilter.hasDesiredDeviceType(
-        { deviceType: 'deskTOP' },
+        [{ deviceType: 'deskTOP' }],
         fetchGoodUaStub
       );
       assert.isTrue(actual);
@@ -531,8 +531,8 @@ describe('lib/survey-filter', () => {
     });
 
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.hasDesiredDeviceType(
-        { deviceType: 'tablet' },
+      const actual = SurveyFilter.hasDesiredDeviceTypes(
+        [{ deviceType: 'tablet' }],
         fetchBadUaStub
       );
       assert.isFalse(actual);
@@ -543,7 +543,7 @@ describe('lib/survey-filter', () => {
   describe('hasDesiredOs', () => {
     it('should be true when the values match', () => {
       const actual = SurveyFilter.hasDesiredOs(
-        { os: 'Windows' },
+        [{ os: 'Windows' }],
         fetchGoodUaStub
       );
       assert.isTrue(actual);
@@ -551,7 +551,7 @@ describe('lib/survey-filter', () => {
     });
 
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.hasDesiredOs({ os: 'macOS' }, fetchBadUaStub);
+      const actual = SurveyFilter.hasDesiredOs([{ os: 'macOS' }], fetchBadUaStub);
       assert.isFalse(actual);
       assert.isTrue(fetchBadUaStub.calledOnce);
     });
