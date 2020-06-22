@@ -1,3 +1,18 @@
+## 1.176.0
+
+### New features
+
+- password: Add force password screens ([14b0c2960](https://github.com/mozilla/fxa/commit/14b0c2960))
+- ci: use store_test_results in circleci for auth-server ([4aab0ce02](https://github.com/mozilla/fxa/commit/4aab0ce02))
+
+### Bug fixes
+
+- devices: improve lastAccessTime accuracy for OAuth devices ([6bee0dfc1](https://github.com/mozilla/fxa/commit/6bee0dfc1))
+
+### Refactorings
+
+- oauth: drop the email column from codes, tokens and refreshTokens tables ([f51341d78](https://github.com/mozilla/fxa/commit/f51341d78))
+
 ## 1.175.0
 
 ### New features
