@@ -285,7 +285,7 @@ export const PaymentForm = ({
       )}
 
       <PaymentLegalBlurb />
-      <TermsAndPrivacy />
+      <TermsAndPrivacy plan={plan} />
     </Form>
   );
 };
