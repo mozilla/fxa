@@ -152,6 +152,34 @@ registerSuite('signin', {
         .then(testElementExists(selectors.SETTINGS.HEADER));
     },
 
+    'signin as an existing user': function () {
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+
+          // success is seeing the error message.
+          .then(visibleByQSA(selectors.SETTINGS.HEADER))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
+
+          // signin as existing user
+          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
+          .then(type(selectors.SIGNIN.PASSWORD, PASSWORD))
+          .then(click(selectors.SIGNIN.SUBMIT))
+
+          // success is seeing the existing user logged in
+          .then(visibleByQSA(selectors.SETTINGS.HEADER))
+      );
+    },
+
     'data-flow-begin attribute is set': function () {
       return this.remote
         .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
