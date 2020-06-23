@@ -34,6 +34,10 @@ import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
 import { Plan, PlanInterval } from '../../store/types';
+import {
+  DEFAULT_PRODUCT_DETAILS,
+  productDetailsFromPlan,
+} from '../../store/utils';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 // Define a minimal type for what we use from the Stripe API, which makes
@@ -133,10 +137,16 @@ export const PaymentForm = ({
     ]
   );
 
-  const { matchMedia } = useContext(AppContext);
+  const { matchMedia, navigatorLanguages } = useContext(AppContext);
   const stripeElementStyles = mkStripeElementStyles(
     matchMedia(SMALL_DEVICE_RULE)
   );
+  // TODO: if a plan is not supplied, fall back to default details
+  // This mainly happens in ProductUpdateForm where we're updating payment
+  // details across *all* plans - are there better URLs to pick in that case?
+  const { termsOfServiceURL, privacyNoticeURL } = plan
+    ? productDetailsFromPlan(plan, navigatorLanguages)
+    : DEFAULT_PRODUCT_DETAILS;
 
   return (
     <Form
@@ -215,10 +225,12 @@ export const PaymentForm = ({
 
       {confirm && plan && (
         <Localized
-          id={`payment-confirm-${plan.interval}`}
+          id={`payment-confirm-with-legal-links-${plan.interval}`}
           $intervalCount={plan.interval_count}
           $amount={getLocalizedCurrency(plan.amount, plan.currency)}
           strong={<strong></strong>}
+          termsOfServiceLink={<a href={termsOfServiceURL}></a>}
+          privacyNoticeLink={<a href={privacyNoticeURL}></a>}
         >
           <Checkbox data-testid="confirm" name="confirm" required>
             {getDefaultPaymentConfirmText(
