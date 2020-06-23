@@ -1,4 +1,4 @@
-import { Profile, Plan, Customer } from '../../../store/types';
+import { Profile, Plan, Customer } from '../store/types';
 
 export const PROFILE: Profile = {
   amrValues: [],
@@ -54,6 +54,14 @@ export const SELECTED_PLAN: Plan = {
     'product:details:1:xx-pirate': 'Device-level encryption arr',
     'product:details:2:xx-pirate': 'Servers is 30+ countries matey',
     'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
+    'product:termsOfServiceURL':
+      'https://www.mozilla.org/en-US/about/legal/terms/services/',
+    'product:termsOfServiceURL:fr':
+      'https://www.mozilla.org/fr/about/legal/terms/services/',
+    'product:privacyNoticeURL':
+      'https://www.mozilla.org/en-US/privacy/websites/',
+    'product:privacyNoticeURL:fr':
+      'https://www.mozilla.org/fr/privacy/websites/',
   },
 };
 

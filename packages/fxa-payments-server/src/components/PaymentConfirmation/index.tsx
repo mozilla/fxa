@@ -114,7 +114,7 @@ export const PaymentConfirmation = ({
             Continue to download
           </a>
         </Localized>
-        <TermsAndPrivacy />
+        <TermsAndPrivacy plan={selectedPlan} />
       </div>
     </section>
   );

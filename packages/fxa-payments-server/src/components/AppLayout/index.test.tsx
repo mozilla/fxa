@@ -6,24 +6,16 @@ import { AppContext, defaultAppContext } from '../../lib/AppContext';
 
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
+import { DEFAULT_PRODUCT_DETAILS } from '../../store/utils';
 
 afterEach(cleanup);
 
+const { termsOfServiceURL, privacyNoticeURL } = DEFAULT_PRODUCT_DETAILS;
+
 describe('AppLayout', () => {
   const subject = () => {
-    const appContextValue = {
-      ...defaultAppContext,
-      config: {
-        ...config,
-        legalDocLinks: {
-          privacyNotice: 'https://example.me/privacy',
-          termsOfService: 'https://example.me/terms',
-        },
-      },
-    };
-
     return render(
-      <AppContext.Provider value={appContextValue}>
+      <AppContext.Provider value={defaultAppContext}>
         <AppLayout>
           <div data-testid="children">
             <TermsAndPrivacy />
@@ -41,9 +33,9 @@ describe('AppLayout', () => {
     }
 
     const tosLink = getByText('Terms of Service');
-    expect(tosLink).toHaveAttribute('href', 'https://example.me/terms');
+    expect(tosLink).toHaveAttribute('href', termsOfServiceURL);
     const privacyLink = getByText('Privacy Notice');
-    expect(privacyLink).toHaveAttribute('href', 'https://example.me/privacy');
+    expect(privacyLink).toHaveAttribute('href', privacyNoticeURL);
   });
 });
 

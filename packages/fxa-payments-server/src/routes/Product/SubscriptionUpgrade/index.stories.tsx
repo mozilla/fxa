@@ -8,7 +8,12 @@ import { defaultAppContext, AppContextType } from '../../../lib/AppContext';
 
 import { SignInLayout } from '../../../components/AppLayout';
 
-import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN, PROFILE } from './mocks';
+import {
+  CUSTOMER,
+  SELECTED_PLAN,
+  UPGRADE_FROM_PLAN,
+  PROFILE,
+} from '../../../lib/mock-data';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
 

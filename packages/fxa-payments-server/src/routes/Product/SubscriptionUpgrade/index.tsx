@@ -8,7 +8,6 @@ import {
   Profile,
 } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
-import { metadataFromPlan } from '../../../store/utils';
 
 import * as Amplitude from '../../../lib/amplitude';
 
@@ -220,7 +219,7 @@ export const SubscriptionUpgrade = ({
             </div>
 
             <PaymentLegalBlurb />
-            <TermsAndPrivacy />
+            <TermsAndPrivacy plan={selectedPlan} />
           </Form>
         </div>
         <PlanUpgradeDetails

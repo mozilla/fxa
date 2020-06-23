@@ -1,15 +1,30 @@
-import { Plan, ProductMetadata, ProductDetails } from './types';
+import {
+  Plan,
+  ProductMetadata,
+  ProductDetails,
+  ProductDetailsStringProperties,
+  ProductDetailsStringProperty,
+  ProductDetailsListProperties,
+  ProductDetailsListProperty,
+} from './types';
 
 const DEFAULT_LOCALE = 'en-US';
 
 // Fallback to matches what was previously hardcoded in templates and FTL
-const DEFAULT_SUBTITLE = 'Full-device VPN';
-const DEFAULT_DETAILS = [
-  'Device-level encryption',
-  'Servers in 30+ countries',
-  'Connect 5 devices with one subscription',
-  'Available for Windows, iOS and Android',
-];
+// TODO: Do we need per-locale defaults here? (i.e. when plan/product is
+// not applicable during payment update and we need legal URLs?)
+export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
+  subtitle: 'Full-device VPN',
+  details: [
+    'Device-level encryption',
+    'Servers in 30+ countries',
+    'Connect 5 devices with one subscription',
+    'Available for Windows, iOS and Android',
+  ],
+  termsOfServiceURL:
+    'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+  privacyNoticeURL: 'https://www.mozilla.org/privacy/firefox-private-network',
+};
 
 // Support some default null values for product / plan metadata and
 // allow plan metadata to override product metadata
@@ -91,30 +106,22 @@ export const productDetailsFromPlan = (
       continue;
     }
 
-    switch (propName) {
-      // Single string detail properties (just subtitle for now)
-      case 'subtitle': {
-        const [locale = DEFAULT_LOCALE] = otherKeyParts;
-        detailsForLocale(locale)[propName] = propValue;
-        break;
-      }
-      // List detail properties (just detail for now)
-      case 'details': {
-        const [_, locale = DEFAULT_LOCALE] = otherKeyParts;
-        detailsForLocale(locale)[propName] = [
-          ...(detailsForLocale(locale)[propName] || []),
-          propValue,
-        ];
-        break;
-      }
+    if (propName in ProductDetailsListProperties) {
+      const listPropName = propName as ProductDetailsListProperty;
+      const [_, locale = DEFAULT_LOCALE] = otherKeyParts;
+      detailsForLocale(locale)[listPropName] = [
+        ...(detailsForLocale(locale)[listPropName] || []),
+        propValue,
+      ];
+    } else if (propName in ProductDetailsStringProperties) {
+      const stringPropName = propName as ProductDetailsStringProperty;
+      const [locale = DEFAULT_LOCALE] = otherKeyParts;
+      detailsForLocale(locale)[stringPropName] = propValue;
     }
   }
 
   return {
-    ...{
-      subtitle: DEFAULT_SUBTITLE,
-      details: DEFAULT_DETAILS,
-    },
+    ...DEFAULT_PRODUCT_DETAILS,
     ...details.default,
     ...details.selected,
   };

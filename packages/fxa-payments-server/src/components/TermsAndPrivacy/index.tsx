@@ -1,11 +1,25 @@
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 import { AppContext } from '../../lib/AppContext';
+import { productDetailsFromPlan } from '../../store/utils';
+import { Plan } from '../../store/types';
+import { DEFAULT_PRODUCT_DETAILS } from '../../store/utils';
 
 import './index.scss';
 
-export const TermsAndPrivacy = () => {
-  const { config } = useContext(AppContext);
+export type TermsAndPrivacyProps = {
+  plan?: Plan;
+};
+
+export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
+  const { navigatorLanguages } = useContext(AppContext);
+
+  // TODO: if a plan is not supplied, fall back to default details
+  // This mainly happens in ProductUpdateForm where we're updating payment
+  // details across *all* plans - are there better URLs to pick in that case?
+  const { termsOfServiceURL, privacyNoticeURL } = plan
+    ? productDetailsFromPlan(plan, navigatorLanguages)
+    : DEFAULT_PRODUCT_DETAILS;
 
   return (
     <div>
@@ -15,7 +29,7 @@ export const TermsAndPrivacy = () => {
             rel="noopener noreferrer"
             target="_blank"
             data-testid="terms"
-            href={config.legalDocLinks.termsOfService}
+            href={termsOfServiceURL}
           >
             Terms of Service
           </a>
@@ -27,7 +41,7 @@ export const TermsAndPrivacy = () => {
             rel="noopener noreferrer"
             target="_blank"
             data-testid="privacy"
-            href={config.legalDocLinks.privacyNotice}
+            href={privacyNoticeURL}
           >
             Privacy Notice
           </a>

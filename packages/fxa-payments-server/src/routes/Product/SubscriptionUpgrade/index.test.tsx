@@ -22,7 +22,12 @@ import {
   getLocalizedMessage,
 } from '../../../lib/test-utils';
 
-import { CUSTOMER, SELECTED_PLAN, UPGRADE_FROM_PLAN, PROFILE } from './mocks';
+import {
+  CUSTOMER,
+  SELECTED_PLAN,
+  UPGRADE_FROM_PLAN,
+  PROFILE,
+} from '../../../lib/mock-data';
 
 import { SignInLayout } from '../../../components/AppLayout';
 

@@ -68,10 +68,22 @@ export interface ProductMetadata {
   // capabilities:{clientID}: string // filtered out or ignored for now
 }
 
-export interface ProductDetails {
-  subtitle?: string;
-  details?: string[];
+// The ProductDetails type is exploded out into enums describing keys to
+// make Stripe metadata parsing & validation easier.
+export enum ProductDetailsStringProperties {
+  'subtitle',
+  'termsOfServiceURL',
+  'privacyNoticeURL',
 }
+export enum ProductDetailsListProperties {
+  'details',
+}
+export type ProductDetailsStringProperty = keyof typeof ProductDetailsStringProperties;
+export type ProductDetailsListProperty = keyof typeof ProductDetailsListProperties;
+export type ProductDetails = {
+  [key in ProductDetailsStringProperty]?: string;
+} &
+  { [key in ProductDetailsListProperty]?: string[] };
 
 export interface Subscription {
   subscriptionId: string;
