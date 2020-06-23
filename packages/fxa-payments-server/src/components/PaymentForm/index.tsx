@@ -37,7 +37,7 @@ import { Plan, PlanInterval } from '../../store/types';
 import {
   DEFAULT_PRODUCT_DETAILS,
   productDetailsFromPlan,
-} from '../../store/utils';
+} from 'fxa-shared/subscriptions/metadata';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
 // Define a minimal type for what we use from the Stripe API, which makes

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Plan } from '../../../store/types';
-import { metadataFromPlan } from '../../../store/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Localized } from '@fluent/react';

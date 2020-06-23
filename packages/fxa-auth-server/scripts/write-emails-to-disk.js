@@ -87,6 +87,13 @@ function sendMail(mailer, messageToSend) {
   const messageType = parts[0];
   const messageSubType = parts[1];
 
+  const productMetadata = {
+    'product:termsOfServiceURL':
+      'https://example.com/subscription-product/terms',
+    'product:privacyNoticeURL':
+      'https://example.com/subscription-product/privacy',
+  };
+
   const message = {
     acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
     appStoreLink: 'https://example.com/app-store',
@@ -140,6 +147,7 @@ function sendMail(mailer, messageToSend) {
     unblockCode: '1ILO0Z5P',
     tokenCode: 'LIT12345',
     uid: '6510cb04abd742c6b3e4abefc7e39c9f',
+    productMetadata,
   };
 
   return mailer[messageType](message);

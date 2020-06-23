@@ -21,7 +21,7 @@ import {
   Plan,
   PlanInterval,
 } from '../../store/types';
-import { metadataFromPlan } from '../../store/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
 import { SubscriptionsProps } from './index';

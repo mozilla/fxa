@@ -27,6 +27,14 @@ config.subscriptions.transactionalEmails.enabled = true;
 
 const TEMPLATE_VERSIONS = require(`${ROOT_DIR}/lib/senders/templates/_versions.json`);
 
+const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
+const SUBSCRIPTION_PRIVACY_URL =
+  'https://example.com/subscription-product/privacy';
+const productMetadata = {
+  'product:termsOfServiceURL': SUBSCRIPTION_TERMS_URL,
+  'product:privacyNoticeURL': SUBSCRIPTION_PRIVACY_URL,
+};
+
 const MESSAGE = {
   // Note: acceptLanguage is not just a single locale
   acceptLanguage: 'en;q=0.8,en-US;q=0.5,en;q=0.3"',
@@ -70,6 +78,7 @@ const MESSAGE = {
   paymentProratedInCents: 523099.9,
   paymentProratedCurrency: 'usd',
   productPaymentCycle: 'month',
+  productMetadata,
   service: 'sync',
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
@@ -174,7 +183,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.downloadSubscription }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'new-subscription', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy') },
       { test: 'include', expected: MESSAGE.planDownloadURL },
       { test: 'include', expected: MESSAGE.appStoreLink },
       { test: 'include', expected: MESSAGE.playStoreLink },
@@ -187,7 +196,7 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
     ['text', [
-      { test: 'include', expected: `Privacy notice:\n${configUrl('privacyUrl', 'new-subscription', 'privacy')}` },
+      { test: 'include', expected: `Privacy notice:\n${configUrl('subscriptionPrivacyUrl', 'new-subscription', 'subscription-privacy')}` },
       { test: 'include', expected: MESSAGE.planDownloadURL },
       { test: 'include', expected: configUrl('subscriptionSettingsUrl', 'new-subscription', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configUrl('subscriptionTermsUrl', 'new-subscription', 'subscription-terms') },
@@ -205,7 +214,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionFirstInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-first-invoice', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-first-invoice', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support') },
@@ -235,7 +244,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionSubsequentInvoice }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-subsequent-invoice', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-subsequent-invoice', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-subsequent-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-subsequent-invoice', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-subsequent-invoice', 'subscription-support') },
@@ -266,7 +275,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionCancellation }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-cancellation', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-cancellation', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-cancellation', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-cancellation', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
@@ -290,7 +299,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionReactivation }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-reactivation', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-reactivation', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-reactivation', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-reactivation', 'subscription-terms') },
       { test: 'include', expected: `reactivating your ${MESSAGE.productName} subscription` },
@@ -311,7 +320,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionAccountDeletion }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-account-deletion', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-account-deletion', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-account-deletion', 'reactivate-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-account-deletion', 'subscription-terms') },
       { test: 'include', expected: `cancelled your ${MESSAGE.productName} subscription` },
@@ -333,7 +342,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentFailed }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-payment-failed', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-payment-failed', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-failed', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-failed', 'subscription-terms') },
       { test: 'include', expected: `latest payment for ${MESSAGE.productName}.` },
@@ -354,7 +363,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-payment-expired', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-payment-expired', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-payment-expired', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-payment-expired', 'subscription-terms') },
       { test: 'include', expected: `for ${MESSAGE.productName} is about to expire.` },
@@ -373,7 +382,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionUpgrade }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-upgrade', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-upgrade', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-upgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-upgrade', 'subscription-terms') },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
@@ -398,7 +407,7 @@ const TESTS = new Map([
       ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionDowngrade }],
     ])],
     ['html', [
-      { test: 'include', expected: configHref('privacyUrl', 'subscription-downgrade', 'privacy') },
+      { test: 'include', expected: configHref('subscriptionPrivacyUrl', 'subscription-downgrade', 'subscription-privacy') },
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-downgrade', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-downgrade', 'subscription-terms') },
       { test: 'include', expected: `from ${MESSAGE.productNameOld} to ${MESSAGE.productNameNew}.` },
@@ -1766,7 +1775,14 @@ function configHref(key, campaign, content, ...params) {
 }
 
 function configUrl(key, campaign, content, ...params) {
-  let baseUri = config.smtp[key];
+  let baseUri;
+  if (key === 'subscriptionTermsUrl') {
+    baseUri = SUBSCRIPTION_TERMS_URL;
+  } else if (key === 'subscriptionPrivacyUrl') {
+    baseUri = SUBSCRIPTION_PRIVACY_URL;
+  } else {
+    baseUri = config.smtp[key];
+  }
 
   if (key === 'verificationUrl' || key === 'verifyLoginUrl') {
     baseUri = baseUri.replace(

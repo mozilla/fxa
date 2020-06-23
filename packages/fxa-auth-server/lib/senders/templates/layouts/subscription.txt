@@ -6,7 +6,7 @@
 {{{subscriptionTermsUrl}}}
 
 {{{t "Privacy notice:"}}}
-{{{privacyUrl}}}
+{{{subscriptionPrivacyUrl}}}
 
 {{{t "Cancel subscription:"}}}
 {{{cancelSubscriptionUrl}}}

@@ -1,7 +1,10 @@
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 import { getLocalizedCurrency, formatPlanPricing } from '../../../lib/formats';
-import { metadataFromPlan, productDetailsFromPlan } from '../../../store/utils';
+import {
+  metadataFromPlan,
+  productDetailsFromPlan,
+} from 'fxa-shared/subscriptions/metadata';
 import { AppContext } from '../../../lib/AppContext';
 
 import ffLogo from '../../../images/firefox-logo.svg';

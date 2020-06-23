@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import { MOCK_PLANS } from '../../lib/test-utils';
 import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
-import { DEFAULT_PRODUCT_DETAILS } from '../../store/utils';
+import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 
 const enTermsOfServiceURL =
   'https://www.mozilla.org/en-US/about/legal/terms/services/';

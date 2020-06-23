@@ -1789,19 +1789,27 @@ describe('StripeHelper', () => {
     const planDownloadURL = 'http://example.com/download';
     const sourceId = eventCustomerSourceExpiring.data.object.id;
     const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
+    const privacyNoticeURL =
+      'https://www.mozilla.org/privacy/firefox-private-network';
+    const termsOfServiceURL =
+      'https://www.mozilla.org/about/legal/terms/firefox-private-network';
 
     const mockPlan = {
       id: planId,
       nickname: planName,
       product: productId,
+      metadata: {
+        emailIconURL: planEmailIconURL,
+        downloadURL: planDownloadURL,
+      },
     };
 
     const mockProduct = {
       id: productId,
       name: productName,
       metadata: {
-        emailIconURL: planEmailIconURL,
-        downloadURL: planDownloadURL,
+        'product:termsOfServiceURL': termsOfServiceURL,
+        'product:privacyNoticeURL': privacyNoticeURL,
       },
     };
 
@@ -1910,6 +1918,7 @@ describe('StripeHelper', () => {
           id: planId,
           nickname: planName,
           product: productId,
+          metadata: mockPlan.metadata,
         },
       };
 
@@ -1929,6 +1938,12 @@ describe('StripeHelper', () => {
         planName,
         planEmailIconURL,
         planDownloadURL,
+        productMetadata: {
+          downloadURL: planDownloadURL,
+          emailIconURL: planEmailIconURL,
+          'product:privacyNoticeURL': privacyNoticeURL,
+          'product:termsOfServiceURL': termsOfServiceURL,
+        },
       };
 
       it('extracts expected details from an invoice that requires requests to expand', async () => {
@@ -1963,9 +1978,7 @@ describe('StripeHelper', () => {
         fixture.lines.data[0].plan = {
           id: planId,
           nickname: planName,
-          metadata: {
-            emailIconURL: 'http://example.com/icon',
-          },
+          metadata: mockPlan.metadata,
           product: mockProduct,
         };
         fixture.customer = mockCustomer;
@@ -2054,6 +2067,12 @@ describe('StripeHelper', () => {
         planName,
         planEmailIconURL,
         planDownloadURL,
+        productMetadata: {
+          downloadURL: planDownloadURL,
+          emailIconURL: planEmailIconURL,
+          'product:privacyNoticeURL': privacyNoticeURL,
+          'product:termsOfServiceURL': termsOfServiceURL,
+        },
       };
 
       it('extracts expected details from a source that requires requests to expand', async () => {
@@ -2144,6 +2163,17 @@ describe('StripeHelper', () => {
         eventCustomerSubscriptionUpdated.data.object.plan.amount,
       productPaymentCycle: 'month',
       closeDate: 1326853478,
+      productMetadata: {
+        emailIconURL:
+          eventCustomerSubscriptionUpdated.data.object.plan.metadata
+            .emailIconURL,
+        downloadURL:
+          eventCustomerSubscriptionUpdated.data.object.plan.metadata
+            .downloadURL,
+        'product:termsOfServiceURL': termsOfServiceURL,
+        'product:privacyNoticeURL': privacyNoticeURL,
+        productOrder: 0,
+      },
     };
 
     describe('extractSubscriptionUpdateEventDetailsForEmail', () => {
@@ -2259,6 +2289,11 @@ describe('StripeHelper', () => {
           productNameNew,
           productIconURLNew,
           productDownloadURLNew,
+          productMetadata: {
+            ...expectedBaseUpdateDetails.productMetadata,
+            emailIconURL: productIconURLNew,
+            downloadURL: productDownloadURLNew,
+          },
         };
 
         mockAllProducts.push(

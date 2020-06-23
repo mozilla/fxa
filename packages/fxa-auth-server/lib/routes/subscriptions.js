@@ -9,11 +9,9 @@ const error = require('../error');
 const isA = require('@hapi/joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('./validators');
-const {
-  metadataFromPlan,
-  splitCapabilities,
-} = require('./utils/subscriptions');
+const { splitCapabilities } = require('./utils/subscriptions');
 const { SUBSCRIPTION_UPDATE_TYPES } = require('../payments/stripe');
+const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
@@ -169,7 +167,7 @@ class DirectStripeRoutes {
     // Find the selected plan and get its product ID
     const selectedPlan = await this.stripeHelper.findPlanById(planId);
     const productId = selectedPlan.product_id;
-    const planMetadata = metadataFromPlan(selectedPlan);
+    const productMetadata = metadataFromPlan(selectedPlan);
 
     const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
@@ -220,10 +218,11 @@ class DirectStripeRoutes {
       planId,
       planName: selectedPlan.plan_name,
       productName: selectedPlan.product_name,
-      planEmailIconURL: planMetadata.emailIconURL,
-      planDownloadURL: planMetadata.downloadURL,
-      appStoreLink: planMetadata.appStoreLink,
-      playStoreLink: planMetadata.playStoreLink,
+      planEmailIconURL: productMetadata.emailIconURL,
+      planDownloadURL: productMetadata.downloadURL,
+      appStoreLink: productMetadata.appStoreLink,
+      playStoreLink: productMetadata.playStoreLink,
+      productMetadata,
     });
     this.log.info('subscriptions.createSubscription.success', {
       uid,

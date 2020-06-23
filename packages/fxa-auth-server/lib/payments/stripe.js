@@ -983,10 +983,11 @@ class StripeHelper {
       },
     } = invoice;
     const { id: planId, nickname: planName } = plan;
+    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const {
       emailIconURL: planEmailIconURL = '',
       downloadURL: planDownloadURL = '',
-    } = this.mergeMetadata(plan, abbrevProduct);
+    } = productMetadata;
     const {
       brand: cardType,
       last4: lastFour,
@@ -1008,6 +1009,7 @@ class StripeHelper {
       planName,
       planEmailIconURL,
       planDownloadURL,
+      productMetadata,
     };
   }
 
@@ -1068,10 +1070,11 @@ class StripeHelper {
     } = customer;
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const { id: planId, nickname: planName } = plan;
+    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const {
       emailIconURL: planEmailIconURL = '',
       downloadURL: planDownloadURL = '',
-    } = this.mergeMetadata(plan, abbrevProduct);
+    } = productMetadata;
 
     return {
       uid,
@@ -1082,6 +1085,7 @@ class StripeHelper {
       planName,
       planEmailIconURL,
       planDownloadURL,
+      productMetadata,
     };
   }
 
@@ -1139,11 +1143,12 @@ class StripeHelper {
       product_id: productIdNew,
       product_name: productNameNew,
     } = abbrevProductNew;
+    const productNewMetadata = this.mergeMetadata(planNew, abbrevProductNew);
     const {
       productOrder: productOrderNew,
       emailIconURL: productIconURLNew = '',
       downloadURL: productDownloadURLNew = '',
-    } = this.mergeMetadata(planNew, abbrevProductNew);
+    } = productNewMetadata;
 
     const baseDetails = {
       uid,
@@ -1159,6 +1164,7 @@ class StripeHelper {
       paymentAmountNewCurrency,
       productPaymentCycle,
       closeDate: event.created,
+      productMetadata: productNewMetadata,
     };
 
     if (!cancelAtPeriodEndOld && cancelAtPeriodEndNew && !planOld) {

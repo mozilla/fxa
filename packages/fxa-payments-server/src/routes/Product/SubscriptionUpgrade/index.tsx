@@ -30,7 +30,7 @@ import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
 import PlanUpgradeDetails from './PlanUpgradeDetails';
 import Header from '../../../components/Header';
 import { AppContext } from '../../../lib/AppContext';
-import { productDetailsFromPlan } from '../../../store/utils';
+import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
 
