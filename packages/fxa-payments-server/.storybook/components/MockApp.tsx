@@ -18,6 +18,7 @@ type MockAppProps = {
   appContextValue?: AppContextType;
   stripeApiKey?: string;
   applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe;
+  languages?: readonly string[];
 };
 
 export const defaultAppContextValue: AppContextType = {
@@ -62,6 +63,7 @@ export const MockApp = ({
   stripeApiKey = '8675309',
   applyStubsToStripe = defaultStripeStubs,
   appContextValue = defaultAppContextValue,
+  languages = navigator.languages,
 }: MockAppProps) => {
   const mockStripe = useMemo<stripe.Stripe>(
     () => applyStubsToStripe(window.Stripe(stripeApiKey)),
@@ -78,10 +80,12 @@ export const MockApp = ({
   }, []);
 
   return (
-    <AppContext.Provider value={appContextValue}>
+    <AppContext.Provider
+      value={{ ...appContextValue, navigatorLanguages: languages }}
+    >
       <AppLocalizationProvider
         baseDir="./locales"
-        userLocales={navigator.languages}
+        userLocales={languages}
         bundles={['main']}
       >
         <StripeProvider stripe={mockStripe}>

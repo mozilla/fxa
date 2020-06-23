@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useContext } from 'react';
 import { Localized } from '@fluent/react';
 
 import {
@@ -29,6 +29,8 @@ import { TermsAndPrivacy } from '../../../components/TermsAndPrivacy';
 
 import PlanUpgradeDetails from './PlanUpgradeDetails';
 import Header from '../../../components/Header';
+import { AppContext } from '../../../lib/AppContext';
+import { productDetailsFromPlan } from '../../../store/utils';
 
 import './index.scss';
 
@@ -57,6 +59,12 @@ export const SubscriptionUpgrade = ({
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
 }: SubscriptionUpgradeProps) => {
+  const { navigatorLanguages } = useContext(AppContext);
+  const { termsOfServiceURL, privacyNoticeURL } = productDetailsFromPlan(
+    selectedPlan,
+    navigatorLanguages
+  );
+
   const validator = useValidatorState();
 
   const inProgress = updateSubscriptionPlanStatus.loading;
@@ -182,6 +190,8 @@ export const SubscriptionUpgrade = ({
                 selectedPlan.currency
               )}
               $intervalCount={selectedPlan.interval_count}
+              termsOfServiceLink={<a href={termsOfServiceURL}></a>}
+              privacyNoticeLink={<a href={privacyNoticeURL}></a>}
             >
               <Checkbox
                 data-testid="confirm"

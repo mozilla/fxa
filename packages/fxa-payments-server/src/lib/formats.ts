@@ -160,5 +160,5 @@ export function getDefaultPaymentConfirmText(
     intervalCount
   );
 
-  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to payment terms, until I cancel my subscription.`;
+  return `I authorize Mozilla, maker of Firefox products, to charge my payment method <strong>${planPricing}</strong>, according to <termsOfServiceLink>Terms of Service</termsOfServiceLink> and <privacyNoticeLink>Privacy Notice</privacyNoticeLink>, until I cancel my subscription.`;
 }
