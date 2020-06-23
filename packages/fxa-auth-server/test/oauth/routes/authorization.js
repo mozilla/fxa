@@ -92,6 +92,21 @@ describe('/authorization POST', function () {
       );
     });
 
+    it('accepts TTL larger than the maximum supported', () => {
+      const ONE_YEAR_IN_SECONDS = 31536000;
+      Joi.assert(
+        {
+          client_id: CLIENT_ID,
+          assertion: BASE64URL_STRING,
+          scope: 'bar',
+          state: 'foo',
+          response_type: 'token',
+          ttl: ONE_YEAR_IN_SECONDS,
+        },
+        validation
+      );
+    });
+
     describe('PKCE params', function () {
       it('accepts code_challenge and code_challenge_method', () => {
         Joi.assert(
