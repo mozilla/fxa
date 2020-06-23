@@ -22,11 +22,11 @@ $(document).ready(function () {
       break;
     case '123done-stage.dev.lcip.org':
       paymentURL =
-        'https://accounts.stage.mozaws.net/subscriptions/products/prod_FfiuDs9u11ESbD';
+        'https://accounts.stage.mozaws.net/subscriptions/products/prod_FfiuDs9u11ESbD?plan=plan_FfiupsKXZ3mMZ6';
       break;
     case '123done-prod.dev.lcip.org':
       paymentURL =
-        'https://accounts.firefox.com/subscriptions/products/prod_FfiuDs9u11ESbD';
+        'https://accounts.firefox.com/subscriptions/products/prod_FfiuDs9u11ESbD?plan=plan_FfiupsKXZ3mMZ6';
       break;
     default:
       paymentURL =
