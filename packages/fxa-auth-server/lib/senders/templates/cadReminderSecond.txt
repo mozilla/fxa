@@ -1,0 +1,7 @@
+{{{t "Last reminder to sync devices!" }}}
+
+{{t "Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox." }}
+
+{{{ link }}}
+
+{{> automatedEmailNoAction}}

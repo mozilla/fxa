@@ -58,6 +58,8 @@ const EMAIL_TYPES = {
   verifySecondary: 'secondary_email',
   verificationReminderFirst: 'registration',
   verificationReminderSecond: 'registration',
+  cadReminderFirst: 'connect_another_device',
+  cadReminderSecond: 'connect_another_device',
 };
 
 const EVENTS = {
