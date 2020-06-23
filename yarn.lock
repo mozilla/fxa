@@ -16729,7 +16729,7 @@ fsevents@^1.2.7:
     sandboxed-regexp: ^0.3.0
     simplesmtp: 0.3.35
     sinon: ^9.0.2
-    stripe: ^8.1.0
+    stripe: ^8.64.0
     through: 2.3.8
     ts-node: ^8.10.1
     typedi: ^0.8.0
@@ -32922,13 +32922,13 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"stripe@npm:^8.1.0":
-  version: 8.51.0
-  resolution: "stripe@npm:8.51.0"
+"stripe@npm:^8.64.0":
+  version: 8.64.0
+  resolution: "stripe@npm:8.64.0"
   dependencies:
     "@types/node": ">=8.1.0"
     qs: ^6.6.0
-  checksum: 3/d07b8a035537327a58db951d335a98d80d765dad54ef36d7dd8d2de5907bd3e047f21322fb8b7ca78cba1f80e11536f220168bc84e74e028227ce7333a1b16f6
+  checksum: 3/56591b9672f37ebb0741c96796cabff6f662cafd943bbea13bd949494580325f537ca804737c893906ae64f37f800923ff19b9659c9f58e17ac1cffc71b9cf40
   languageName: node
   linkType: hard
 

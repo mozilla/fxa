@@ -122,9 +122,8 @@ class StripeHelper {
     this.plansCacheIsEnabled = this.cacheTtlSeconds && redis;
 
     this.stripe = new stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2019-12-03',
+      apiVersion: '2020-03-02',
       maxNetworkRetries: 3,
-      typescript: undefined,
     });
     this.redis = redis;
 
