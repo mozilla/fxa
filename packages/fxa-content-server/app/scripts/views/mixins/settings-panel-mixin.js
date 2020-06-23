@@ -52,8 +52,8 @@ export default {
   },
 
   _closePanelReturnToSettings() {
-    this.navigate('settings');
     this.clearInput();
+    this.navigate('settings');
     this.closePanel();
   },
 
@@ -65,9 +65,11 @@ export default {
       $(inputEl).change();
     });
 
-    const formEl = this.$('form')[0];
+    const formEl = this.$('form  input:not(".hidden")');
     if (formEl) {
-      formEl.reset();
+      for (let i = 0; i < formEl.length; i++) {
+        formEl[i].value = '';
+      }
     }
   },
 

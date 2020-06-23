@@ -230,6 +230,7 @@ export class ChangePasswordForm extends React.Component {
               {t('Change')}
             </button>
             <button
+              type="button"
               className="settings-button secondary-button cancel"
               onClick={this.resetInputValuesAndFocus}
             >
