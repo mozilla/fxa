@@ -1442,10 +1442,11 @@ function createStripeHelper(log, config, statsd) {
   return new StripeHelper(log, config, statsd);
 }
 // HACK: Hang some references off the factory function so we can use it as
-// a type in bin/key_server.js while keeping the exports simple.
-Object.assign(createStripeHelper, {
-  StripeHelper,
-  SUBSCRIPTION_UPDATE_TYPES,
-});
+// a type in bin/key_server.js and routes/subscriptions.js while keeping
+// the exports simple.
+// NOTE: These must be assigned individually instead of Object.assign as
+// dynamic assignments are not seen by type checking.
+createStripeHelper.StripeHelper = StripeHelper;
+createStripeHelper.SUBSCRIPTION_UPDATE_TYPES = SUBSCRIPTION_UPDATE_TYPES;
 
 module.exports = createStripeHelper;
