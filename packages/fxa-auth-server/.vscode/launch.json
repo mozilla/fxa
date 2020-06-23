@@ -1,22 +1,6 @@
 {
   "version": "0.2.0",
   "configurations": [
-        {
-      "type": "node",
-      "request": "launch",
-      "name": "nodemon",
-      "runtimeExecutable": "nodemon",
-      "program": "${workspaceFolder}/bin/key_server.js",
-      "restart": true,
-      "console": "integratedTerminal",
-      "env": {
-        "NODE_ENV": "dev"
-      },
-      "internalConsoleOptions": "neverOpen",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
-    },
     {
       "type": "node",
       "request": "launch",

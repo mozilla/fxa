@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Hapi = require('@hapi/hapi');
-const Raven = require('raven');
+const Sentry = require('@sentry/node');
 const cloneDeep = require('lodash').cloneDeep;
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
@@ -85,7 +85,9 @@ exports.create = async function createServer() {
   // configure Sentry
   const sentryDsn = config.sentryDsn;
   if (sentryDsn) {
-    Raven.config(sentryDsn, {});
+    Sentry.init({
+      dsn: sentryDsn,
+    });
     server.events.on(
       { name: 'request', channels: 'error' },
       (request, event) => {
@@ -99,7 +101,7 @@ exports.create = async function createServer() {
           }
         }
 
-        Raven.captureException(err, {
+        Sentry.captureException(err, {
           extra: {
             exception: exception,
           },

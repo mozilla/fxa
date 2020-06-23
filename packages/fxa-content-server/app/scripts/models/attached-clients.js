@@ -12,9 +12,7 @@ import Constants from '../lib/constants';
 import AttachedClient from './attached-client';
 
 var AttachedClients = Backbone.Collection.extend({
-  model(attrs, options) {
-    return new AttachedClient(attrs, options);
-  },
+  model: AttachedClient,
 
   fetchClients(user) {
     const account = user.getSignedInAccount();

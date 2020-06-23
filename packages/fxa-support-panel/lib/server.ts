@@ -44,7 +44,7 @@ export async function init(
       },
     },
   });
-
+  server.validator(require('@hapi/joi'));
   await server.register([
     Scooter,
     {

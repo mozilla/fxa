@@ -10,7 +10,6 @@ const { assert } = require('chai');
 const config = require(`${ROOT_DIR}/config`).getProperties();
 const cp = require('child_process');
 const mocks = require('../../mocks');
-const path = require('path');
 const Promise = require(`${ROOT_DIR}/lib/promise`);
 const proxyquire = require('proxyquire').noPreserveCache();
 const sinon = require('sinon');
@@ -652,68 +651,3 @@ describe('selectEmailServices:', () => {
     });
   });
 });
-
-if (config.redis.email.enabled) {
-  describe('selectEmailServices with real redis:', function () {
-    const emailAddress = 'foo@example.com';
-
-    let emailService, selectEmailServices;
-
-    this.timeout(30000);
-
-    before(() => {
-      emailService = { emailService: true };
-      selectEmailServices = require(`${ROOT_DIR}/lib/senders/select_email_services`)(
-        mocks.mockLog(),
-        config,
-        { mailer: true },
-        emailService
-      );
-    });
-
-    it('returned the correct results', async () => {
-      // eslint-disable-next-line space-unary-ops
-      await ['sendgrid', 'ses', 'socketlabs'].reduce(
-        async (promise, service) => {
-          await promise;
-
-          await redisWrite({
-            [service]: {
-              regex: '^foo@example.com$',
-              percentage: 100,
-            },
-          });
-          const result = await selectEmailServices({ email: emailAddress });
-          await redisRevert();
-
-          assert.deepEqual(result, [
-            {
-              emailAddresses: [emailAddress],
-              emailService: 'fxa-email-service',
-              emailSender: service,
-              mailer: emailService,
-            },
-          ]);
-        },
-        Promise.resolve()
-      );
-    });
-  });
-}
-
-function redisWrite(emailConfig) {
-  return cp.execAsync(
-    `echo '${JSON.stringify(
-      emailConfig
-    )}' | node -r ts-node/register scripts/email-config write`,
-    {
-      cwd: path.resolve(__dirname, '../../..'),
-    }
-  );
-}
-
-function redisRevert() {
-  return cp.execAsync('node -r ts-node/register scripts/email-config revert', {
-    cwd: path.resolve(__dirname, '../../..'),
-  });
-}

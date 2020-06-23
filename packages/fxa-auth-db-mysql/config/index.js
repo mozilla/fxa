@@ -6,5 +6,7 @@ var fs = require('fs');
 var path = require('path');
 var url = require('url');
 var convict = require('convict');
+convict.addFormats(require('convict-format-with-moment'));
+convict.addFormats(require('convict-format-with-validator'));
 
 module.exports = require('./config')(fs, path, url, convict);
