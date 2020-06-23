@@ -8,13 +8,15 @@ import FlowEventsMixin from './../../mixins/flow-events-mixin';
 import FormView from '../../form';
 import Template from 'templates/post_verify/cad_qr/get_started.mustache';
 import preventDefaultThen from '../../decorators/prevent_default_then';
+import { MOZ_ORG_SYNC_GET_STARTED_LINK } from '../../../lib/constants';
 
 class GetStarted extends FormView {
   template = Template;
   viewName = 'get-started';
+  settingReminder = false;
 
   events = assign(this.events, {
-    'click #maybe-later-btn': preventDefaultThen('clickMaybeLater'),
+    'click #maybe-later-link': preventDefaultThen('clickMaybeLater'),
   });
 
   submit() {
@@ -22,7 +24,20 @@ class GetStarted extends FormView {
   }
 
   clickMaybeLater() {
-    return this.navigate('/sms');
+    if (this.settingReminder) {
+      return;
+    }
+
+    this.settingReminder = true;
+    const account = this.getSignedInAccount();
+    return account
+      .createCadReminder()
+      .then(() => {
+        this.navigateAway(MOZ_ORG_SYNC_GET_STARTED_LINK);
+      })
+      .catch(() => {
+        this.settingReminder = false;
+      });
   }
 }
 

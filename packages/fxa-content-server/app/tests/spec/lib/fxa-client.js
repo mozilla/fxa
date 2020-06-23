@@ -1871,4 +1871,17 @@ describe('lib/fxa-client', function () {
       });
     });
   });
+
+  describe('createCadReminder', () => {
+    it('delegates to the fxa-js-client', () => {
+      const sessionToken = 'cool token bro';
+      sinon.stub(realClient, 'createCadReminder').resolves();
+
+      return client.createCadReminder(sessionToken).then((res) => {
+        assert.isTrue(
+          realClient.createCadReminder.calledOnceWith(sessionToken)
+        );
+      });
+    });
+  });
 });

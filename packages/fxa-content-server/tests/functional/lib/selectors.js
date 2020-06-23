@@ -326,12 +326,12 @@ module.exports = {
   POST_VERIFY_CAD_QR_GET_STARTED: {
     HEADER: '#fxa-cad-qr-get-started-header',
     SUBMIT: 'button[type="submit"]',
-    LATER: '#maybe-later-btn',
+    LATER: '#maybe-later-link',
   },
   POST_VERIFY_CAD_QR_READY_TO_SCAN: {
     HEADER: '#fxa-cad-qr-ready-to-scan-header',
     SUBMIT: 'button[type="submit"]',
-    LATER: '#maybe-later-btn',
+    LATER: '#maybe-later-link',
     USE_SMS: '#use-sms-link',
   },
   POST_VERIFY_CAD_QR_SCAN_CODE: {

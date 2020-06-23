@@ -39,6 +39,7 @@ module.exports = function (
     log,
     config
   );
+  const cadReminders = require('../cad-reminders')(config, log);
   const signupUtils = require('./utils/signup')(
     log,
     db,
@@ -101,6 +102,7 @@ module.exports = function (
     customs,
     push,
     verificationReminders,
+    cadReminders,
     signupUtils,
     zendeskClient,
     stripeHelper
