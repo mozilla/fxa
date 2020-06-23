@@ -5,7 +5,7 @@
 import 'jsdom-global/register';
 import { assert } from 'chai';
 import * as Sentry from '@sentry/browser';
-import sentryMetrics from '../../lib/sentry';
+import sentryMetrics, { _Sentry } from '../../lib/sentry';
 const sinon = require('sinon');
 
 const dsn = 'https://public:private@host:port/1';
@@ -191,10 +191,10 @@ describe('lib/sentry', () => {
 
   describe('captureException', () => {
     it('calls Sentry.captureException', () => {
-      const captureException = sinon.spy(Sentry, 'captureException');
-      captureException(new Error('testo'));
-      sinon.assert.calledOnce(captureException);
-      captureException.restore();
+      const sentryCaptureException = sinon.stub(_Sentry, 'captureException');
+      sentryMetrics.captureException(new Error('testo'));
+      sinon.assert.calledOnce(sentryCaptureException);
+      sentryCaptureException.restore();
     });
   });
 });

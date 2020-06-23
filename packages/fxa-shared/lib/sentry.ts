@@ -5,6 +5,12 @@
 import * as Sentry from '@sentry/browser';
 import Logger from './logger';
 
+// HACK: allow tests to stub this function from Sentry
+// https://stackoverflow.com/questions/35240469/how-to-mock-the-imports-of-an-es6-module
+export const _Sentry = {
+  captureException: Sentry.captureException,
+};
+
 const ALLOWED_QUERY_PARAMETERS = [
   'automatedBrowser',
   'client_id',
@@ -160,7 +166,7 @@ SentryMetrics.prototype = {
           );
         }
       });
-      Sentry.captureException(err);
+      _Sentry.captureException(err);
     });
   },
 

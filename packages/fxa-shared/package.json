@@ -8,7 +8,7 @@
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
-    "test": "tsc --build && node ./scripts/mocha-coverage.js -r ts-node/register --recursive test",
+    "test": "tsc --build && node ./scripts/mocha-coverage.js -r ts-node/register --recursive test/**/*.{js,ts}",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
