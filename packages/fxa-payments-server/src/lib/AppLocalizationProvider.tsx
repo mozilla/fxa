@@ -8,14 +8,7 @@ import { negotiateLanguages } from '@fluent/langneg';
 import { LocalizationProvider } from '@fluent/react';
 import React, { Component } from 'react';
 
-async function fetchAvailableLocales(baseDir: string) {
-  try {
-    const response = await fetch(`${baseDir}/locales.json`);
-    return response.json();
-  } catch (e) {
-    throw new Error('unable to fetch available locales');
-  }
-}
+import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
@@ -101,12 +94,11 @@ export default class AppLocalizationProvider extends Component<Props, State> {
   async componentDidMount() {
     const { baseDir, userLocales, bundles } = this.state;
 
-    const availableLocales = await fetchAvailableLocales(baseDir);
     const currentLocales = negotiateLanguages(
       [...userLocales],
       availableLocales,
       {
-        defaultLocale: availableLocales[0],
+        defaultLocale: 'en-US',
       }
     );
 

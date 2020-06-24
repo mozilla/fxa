@@ -28,8 +28,6 @@ describe('<AppLocalizationProvider/>', () => {
     fetchMock.get('/locales/en-US/greetings.ftl', 'hello = Hello\n');
     fetchMock.get('/locales/en-US/farewells.ftl', 'goodbye = Goodbye\n');
     fetchMock.get('/locales/es-ES/greetings.ftl', 'hello = Hola\n');
-    fetchMock.get('/locales/locales.json', JSON.stringify(locales));
-    fetchMock.get('/bad-locales/locales.json', JSON.stringify(locales));
     fetchMock.get('*', { throws: new Error() });
   });
 
@@ -113,17 +111,6 @@ describe('<AppLocalizationProvider/>', () => {
     );
     await waitUntilTranslated();
     expect(getByTestId('result')).toHaveTextContent('untranslated');
-  });
-
-  it('throws when locales.json is not found', () => {
-    const provider = new AppLocalizationProvider({
-      bundles,
-      baseDir: '/nonexist',
-    });
-    return expect(provider.componentDidMount()).rejects.toHaveProperty(
-      'message',
-      'unable to fetch available locales'
-    );
   });
 
   test('check code property', () => {
