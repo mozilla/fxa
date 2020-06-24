@@ -29,6 +29,8 @@ const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
   config
 );
 
+const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
+
 const Mailer = require(`${LIB_DIR}/senders/email`)(log, config, oauthdb);
 
 run()
@@ -42,8 +44,15 @@ run()
   });
 
 async function run() {
-  const [allReminders, db, templates, translator] = await Promise.all([
+  const [
+    vReminders,
+    cReminders,
+    db,
+    templates,
+    translator,
+  ] = await Promise.all([
     verificationReminders.process(),
+    cadReminders.process(),
     require(`${LIB_DIR}/db`)(config, log, {}, {}).connect(
       config[config.db.backend]
     ),
@@ -64,7 +73,7 @@ async function run() {
     const method = `verificationReminder${key[0].toUpperCase()}${key.substr(
       1
     )}Email`;
-    const reminders = allReminders[key];
+    const reminders = vReminders[key];
 
     log.info('verificationReminders.processing', {
       count: reminders.length,
@@ -126,7 +135,69 @@ async function run() {
     }
   }, Promise.resolve());
 
+  // TODO: This is intentionally an exact copy of the above code
+  // since CAD reminders are an experiment. At the end we'll either
+  // refactor reminders into a better abstraction of remove this code.
+  await cadReminders.keys.reduce(async (promise, key) => {
+    await promise;
+
+    const method = `cadReminder${key[0].toUpperCase()}${key.substr(1)}Email`;
+    const reminders = cReminders[key];
+
+    log.info('cadReminders.processing', {
+      count: reminders.length,
+      key,
+    });
+
+    await reminders.reduce(
+      async (promise, { timestamp, uid, flowId, flowBeginTime }) => {
+        const failed = await promise;
+
+        try {
+          if (sent[uid]) {
+            // Don't send e.g. first and second reminders to the same email from a single batch
+            log.info('cadReminders.skipped.alreadySent', { uid });
+            failed.push({ timestamp, uid, flowId, flowBeginTime });
+            return failed;
+          }
+
+          const account = await db.account(uid);
+          await mailer[method]({
+            acceptLanguage: account.locale,
+            code: account.emailCode,
+            email: account.email,
+            flowBeginTime,
+            flowId,
+            uid,
+          });
+          // eslint-disable-next-line require-atomic-updates
+          sent[uid] = true;
+        } catch (err) {
+          const { errno } = err;
+          switch (errno) {
+            case error.ERRNO.ACCOUNT_UNKNOWN:
+            case error.ERRNO.BOUNCE_COMPLAINT:
+            case error.ERRNO.BOUNCE_HARD:
+            case error.ERRNO.BOUNCE_SOFT:
+              log.info('cadReminders.skipped.error', { uid, errno });
+              try {
+                await cadReminders.delete(uid);
+              } catch (ignore) {}
+              break;
+            default:
+              log.error('cadReminders.error', { err });
+              failed.push({ timestamp, uid, flowId, flowBeginTime });
+          }
+        }
+
+        return failed;
+      },
+      Promise.resolve([])
+    );
+  }, Promise.resolve());
+
   await db.close();
   await oauthdb.close();
   await verificationReminders.close();
+  await cadReminders.close();
 }
