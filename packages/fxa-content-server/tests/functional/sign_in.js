@@ -159,7 +159,7 @@ registerSuite('signin', {
           .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
 
-          // success is seeing the error message.
+          // success is seeing the header
           .then(visibleByQSA(selectors.SETTINGS.HEADER))
           .then(testElementExists(selectors.SETTINGS.HEADER))
           .then(click(selectors.SETTINGS.SIGNOUT, selectors.ENTER_EMAIL.HEADER))
