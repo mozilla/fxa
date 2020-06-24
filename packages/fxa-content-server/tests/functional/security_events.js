@@ -168,26 +168,33 @@ registerSuite('security_events', {
     },
 
     'delete security events': function () {
-      return this.remote
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
+      return (
+        this.remote
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD, true))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
 
-        .then(
-          openPage(
-            SECURITY_EVENTS_URL,
-            selectors.SECURITY_EVENTS.RECENT_ACTIVITY_HEADER
+          .then(
+            openPage(
+              SECURITY_EVENTS_URL,
+              selectors.SECURITY_EVENTS.RECENT_ACTIVITY_HEADER
+            )
           )
-        )
-        .then(
-          testElementTextInclude(
-            selectors.SECURITY_EVENTS.FIRST_EVENT_NAME,
-            'account.login'
+          .then(
+            testElementTextInclude(
+              selectors.SECURITY_EVENTS.FIRST_EVENT_NAME,
+              'account.login'
+            )
           )
-        )
-        .then(testElementExists(selectors.SECURITY_EVENTS.DELETE_EVENTS_BUTTON))
-        .then(click(selectors.SECURITY_EVENTS.DELETE_EVENTS_BUTTON))
-        .then(noSuchElement(selectors.SECURITY_EVENTS.SECURITY_EVENT));
+          .then(
+            testElementExists(selectors.SECURITY_EVENTS.DELETE_EVENTS_BUTTON)
+          )
+          .then(click(selectors.SECURITY_EVENTS.DELETE_EVENTS_BUTTON))
+
+          // reload the page to verify that all the security events have been deleted
+          .refresh()
+          .then(noSuchElement(selectors.SECURITY_EVENTS.SECURITY_EVENT))
+      );
     },
   },
 });
