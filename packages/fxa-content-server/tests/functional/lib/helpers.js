@@ -2721,18 +2721,15 @@ const sendVerificationReminders = thenify(function () {
       'fxa-auth-server',
       'scripts'
     );
-    return cp.execSync(
-      'npx ts-node -P ../tsconfig.json verification-reminders.js',
-      {
-        cwd,
-        env: {
-          ...process.env,
-          NODE_ENV: 'dev',
-        },
-        stdio: 'ignore',
-        timeout: this.timeout,
-      }
-    );
+    return cp.execSync('node -r ts-node/register verification-reminders.js', {
+      cwd,
+      env: {
+        ...process.env,
+        NODE_ENV: 'dev',
+      },
+      stdio: 'ignore',
+      timeout: this.timeout,
+    });
   });
 });
 

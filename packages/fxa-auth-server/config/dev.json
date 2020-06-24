@@ -396,5 +396,9 @@
   "verificationReminders": {
     "firstInterval": "5s",
     "secondInterval": "10s"
+  },
+  "cadReminders": {
+    "firstInterval": "1s",
+    "secondInterval": "2s"
   }
 }
