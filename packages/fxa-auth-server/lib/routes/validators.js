@@ -278,7 +278,10 @@ module.exports.subscriptionsPlanId = isA.string().max(255);
 module.exports.subscriptionsProductId = isA.string().max(255);
 module.exports.subscriptionsProductName = isA.string().max(255);
 module.exports.subscriptionsPaymentToken = isA.string().max(255);
-module.exports.subscriptionPaymentCountryCode = isA.string().length(2);
+module.exports.subscriptionPaymentCountryCode = isA
+  .string()
+  .length(2)
+  .allow(null);
 
 // This is fxa-auth-db-mysql's perspective on an active subscription
 module.exports.activeSubscriptionValidator = isA.object({

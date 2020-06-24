@@ -195,20 +195,38 @@ class DirectStripeRoutes {
       );
     }
 
-    // Get the country from the payment details.
-    // There's only one charge (the latest), per Stripe's docs.
-    let sourceCountry;
-    const paymentMethodDetails =
-      subscription.latest_invoice.payment_intent.charges.data[0]
-        .payment_method_details;
+    let sourceCountry = null;
 
+    // Get the country from the payment details.
+    // However, historically there were (rare) instances where `charges` was
+    // not found in the object graph, hence the defensive code.
     if (
-      paymentMethodDetails &&
-      paymentMethodDetails.type &&
-      paymentMethodDetails[paymentMethodDetails.type] &&
-      paymentMethodDetails[paymentMethodDetails.type].country
+      subscription.latest_invoice.payment_intent.charges &&
+      subscription.latest_invoice.payment_intent.charges.data
     ) {
-      sourceCountry = paymentMethodDetails[paymentMethodDetails.type].country;
+      // There's only one charge (the latest), per Stripe's docs.
+      const paymentMethodDetails =
+        subscription.latest_invoice.payment_intent.charges.data[0]
+          .payment_method_details;
+
+      if (
+        paymentMethodDetails &&
+        paymentMethodDetails.type &&
+        paymentMethodDetails[paymentMethodDetails.type] &&
+        paymentMethodDetails[paymentMethodDetails.type].country
+      ) {
+        sourceCountry = paymentMethodDetails[paymentMethodDetails.type].country;
+      }
+    } else {
+      Sentry.withScope((scope) => {
+        scope.setContext('stripeSubscription', {
+          subscription: { id: subscription.id },
+        });
+        Sentry.captureMessage(
+          'Payment charges not found in subscription payment intent on subscription creation.',
+          Sentry.Severity.Warning
+        );
+      });
     }
 
     await this.customerChanged(request, uid, email);

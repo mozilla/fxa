@@ -573,6 +573,7 @@ describe('DirectStripeRoutes', () => {
   describe('createSubscription', () => {
     let expected, actual;
     let createForNewStub, createForExistingStub;
+    let latest_invoice, subscription;
     const planId = PLAN_ID_1;
     const plan = PLANS[2];
     const paymentToken = 'tok_visa';
@@ -598,11 +599,11 @@ describe('DirectStripeRoutes', () => {
     };
 
     beforeEach(() => {
-      const latest_invoice = {
+      latest_invoice = {
         ...subscriptionCreatedInvoice,
-        payment_intent: closedPaymementIntent,
+        payment_intent: { ...closedPaymementIntent },
       };
-      const subscription = { ...subscription2, latest_invoice };
+      subscription = { ...subscription2, latest_invoice };
       expected = { subscriptionId: subscription.id, sourceCountry: 'US' };
 
       createForNewStub = sandbox
@@ -646,6 +647,32 @@ describe('DirectStripeRoutes', () => {
 
         assert.isTrue(log.info.calledOnce);
         assert.deepEqual(actual, expected);
+      });
+
+      it('handles missing subscription.latest_invoice.payment_intent.charges in Stripe response object graph', async () => {
+        const scopeContextSpy = sinon.fake();
+        const scopeSpy = {
+          setContext: scopeContextSpy,
+        };
+        sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+        sandbox.replace(Sentry, 'captureMessage', sinon.stub());
+        subscription.latest_invoice.payment_intent.charges = undefined;
+        expected = {
+          subscriptionId: subscription.id,
+          sourceCountry: null,
+        };
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+
+        actual = await directStripeRoutesInstance.createSubscription(request);
+        assert.deepEqual(actual, expected);
+        assert.isTrue(
+          scopeContextSpy.calledOnce,
+          'Set a message scope when "charges" is missing'
+        );
+        assert.isTrue(
+          Sentry.captureMessage.calledOnce,
+          'Capture a message with Sentry when "charges" is missing'
+        );
       });
     });
 
