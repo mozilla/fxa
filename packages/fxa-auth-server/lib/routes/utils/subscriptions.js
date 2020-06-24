@@ -6,20 +6,9 @@
 
 const hex = require('buf').to.hex;
 
-const SubscriptionUtils = (module.exports = {
-  // Support some default null values for product / plan metadata and
-  // allow plan metadata to override product metadata
-  metadataFromPlan: (plan) => ({
-    productSet: null,
-    productOrder: null,
-    emailIconURL: null,
-    webIconURL: null,
-    upgradeCTA: null,
-    downloadURL: null,
-    ...plan.product_metadata,
-    ...plan.plan_metadata,
-  }),
+const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
 
+const SubscriptionUtils = (module.exports = {
   // Parse a comma-separated list of capabilities with allowance for varied whitespace
   splitCapabilities: (s) =>
     (s || '')
@@ -97,7 +86,7 @@ async function gatherCapabilitiesFromStripe(subscribedProducts, stripeHelper) {
     if (!subscribedProducts.includes(plan.product_id)) {
       continue;
     }
-    const metadata = SubscriptionUtils.metadataFromPlan(plan);
+    const metadata = metadataFromPlan(plan);
     const capabilityKeys = Object.keys(metadata).filter((key) =>
       key.startsWith('capabilities')
     );

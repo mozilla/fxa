@@ -1,5 +1,6 @@
 import {
   Plan,
+  RawMetadata,
   ProductMetadata,
   ProductDetails,
   ProductDetailsStringProperties,
@@ -59,12 +60,15 @@ export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
  *     'product:name:xx-partial': true,
  *   },
  *
- * @param plan {Plan}
+ * @param plan Metadata fields from a subhub-esque Plan object
  * @param userLocales list of locale strings (only the first is used)
  * @returns {ProductDetails}
  */
 export const productDetailsFromPlan = (
-  plan: Plan,
+  plan: {
+    plan_metadata?: RawMetadata;
+    product_metadata?: RawMetadata;
+  },
   userLocales: readonly string[] = [DEFAULT_LOCALE]
 ): ProductDetails => {
   // TODO: support overlaying multiple prioritized locale choices?

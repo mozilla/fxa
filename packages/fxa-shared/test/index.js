@@ -20,5 +20,7 @@ describe('index:', () => {
     assert.isFunction(index.l10n.localizeTimestamp);
     assert.isFunction(index.oauth.scopes.fromString);
     assert.isFunction(index.oauth.scopes.fromURLEncodedString);
+    assert.isFunction(index.subscriptions.metadata.metadataFromPlan);
+    assert.isFunction(index.subscriptions.metadata.productDetailsFromPlan);
   });
 });

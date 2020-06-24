@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 import { AppContext } from '../../lib/AppContext';
-import { productDetailsFromPlan } from '../../store/utils';
+import {
+  productDetailsFromPlan,
+  DEFAULT_PRODUCT_DETAILS,
+} from 'fxa-shared/subscriptions/metadata';
 import { Plan } from '../../store/types';
-import { DEFAULT_PRODUCT_DETAILS } from '../../store/utils';
 
 import './index.scss';
 

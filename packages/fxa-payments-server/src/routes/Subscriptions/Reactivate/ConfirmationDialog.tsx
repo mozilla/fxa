@@ -9,7 +9,7 @@ import {
 import DialogMessage from '../../../components/DialogMessage';
 import fpnImage from '../../../images/fpn';
 import { Plan, Customer } from '../../../store/types';
-import { metadataFromPlan } from '../../../store/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 export default ({
   onDismiss,

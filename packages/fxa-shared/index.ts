@@ -13,6 +13,10 @@ import emailHelpers from './email/helpers';
 import userAgent from './metrics/user-agent';
 import flowPerformance from './metrics/flow-performance';
 import featureFlags from './feature-flags';
+import {
+  metadataFromPlan,
+  productDetailsFromPlan,
+} from './subscriptions/metadata';
 
 module.exports = {
   email: {
@@ -37,4 +41,10 @@ module.exports = {
   },
   promise,
   redis,
+  subscriptions: {
+    metadata: {
+      metadataFromPlan,
+      productDetailsFromPlan,
+    },
+  },
 };

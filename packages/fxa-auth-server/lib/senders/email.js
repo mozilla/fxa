@@ -11,6 +11,7 @@ const P = require('bluebird');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
 const { URL } = url;
+const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 
 const TEMPLATE_VERSIONS = require('./templates/_versions.json');
 
@@ -1817,6 +1818,7 @@ module.exports = function (log, config, oauthdb) {
         email,
         productIconURLNew,
         productIconURLOld,
+        productName: productNameNew,
         productNameOld,
         paymentAmountOld: this._getLocalizedCurrencyString(
           paymentAmountOldInCents,
@@ -1895,6 +1897,7 @@ module.exports = function (log, config, oauthdb) {
         email,
         productIconURLNew,
         productIconURLOld,
+        productName: productNameNew,
         productNameOld,
         paymentAmountOld: this._getLocalizedCurrencyString(
           paymentAmountOldInCents,
@@ -2475,12 +2478,25 @@ module.exports = function (log, config, oauthdb) {
 
   Mailer.prototype._generateLinks = function (
     primaryLink,
-    { email, uid },
+    message,
     query,
     templateName,
     appStoreLink,
     playStoreLink
   ) {
+    const { email, uid } = message;
+
+    const translator = this.translator(message.acceptLanguage);
+    const {
+      termsOfServiceURL = this.subscriptionTermsUrl,
+      privacyNoticeURL = this.privacyUrl,
+    } = productDetailsFromPlan(
+      {
+        product_metadata: message.productMetadata,
+      },
+      translator.language
+    );
+
     // Generate all possible links. The option to use a specific link
     // is left up to the template.
     const links = {};
@@ -2600,10 +2616,16 @@ module.exports = function (log, config, oauthdb) {
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
     links.subscriptionTermsUrl = this._generateUTMLink(
-      this.subscriptionTermsUrl,
+      termsOfServiceURL,
       {},
       templateName,
       'subscription-terms'
+    );
+    links.subscriptionPrivacyUrl = this._generateUTMLink(
+      privacyNoticeURL,
+      {},
+      templateName,
+      'subscription-privacy'
     );
     links.cancelSubscriptionUrl = this._generateUTMLink(
       this.subscriptionSettingsUrl,

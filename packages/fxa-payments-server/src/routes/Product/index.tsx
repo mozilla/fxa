@@ -12,7 +12,7 @@ import { sequences, SequenceFunctions } from '../../store/sequences';
 import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
 import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
-import { metadataFromPlan } from '../../store/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
 

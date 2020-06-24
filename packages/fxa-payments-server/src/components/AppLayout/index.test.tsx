@@ -6,7 +6,7 @@ import { AppContext, defaultAppContext } from '../../lib/AppContext';
 
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
-import { DEFAULT_PRODUCT_DETAILS } from '../../store/utils';
+import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 
 afterEach(cleanup);
 

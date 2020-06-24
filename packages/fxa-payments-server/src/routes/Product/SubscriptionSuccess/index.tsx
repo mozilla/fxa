@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Plan, Customer, Profile } from '../../../store/types';
 import { AppContext } from '../../../lib/AppContext';
 
-import { metadataFromPlan } from '../../../store/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import PlanDetails from '../../../components/PlanDetails';
 import PaymentConfirmation from '../../../components/PaymentConfirmation';

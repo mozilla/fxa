@@ -11,7 +11,6 @@ const mocks = require('../../../mocks');
 const {
   determineSubscriptionCapabilities,
   determineClientVisibleSubscriptionCapabilities,
-  metadataFromPlan,
 } = require('../../../../lib/routes/utils/subscriptions');
 
 const UID = 'uid8675309';
@@ -141,70 +140,6 @@ describe('routes/utils/subscriptions', () => {
         const expected = ['cap1', 'cap2', 'cap3', 'capA', 'capB', 'capC'];
         await assertExpectedCapabilities(clientId, expected);
       }
-    });
-  });
-
-  describe('metadataFromPlan', () => {
-    const NULL_METADATA = {
-      productSet: null,
-      productOrder: null,
-      emailIconURL: null,
-      webIconURL: null,
-      upgradeCTA: null,
-      downloadURL: null,
-    };
-
-    const PLAN = {
-      plan_id: 'plan_8675309',
-      product_id: 'prod_8675309',
-      product_name: 'Example product',
-      currency: 'usd',
-      amount: 599,
-      interval: 'monthly',
-    };
-
-    it('produces default null values', () => {
-      assert.deepEqual(metadataFromPlan(PLAN), NULL_METADATA);
-    });
-
-    it('extracts product metadata', () => {
-      const product_metadata = {
-        productSet: 'foo',
-        productOrder: 1,
-      };
-      assert.deepEqual(metadataFromPlan({ ...PLAN, product_metadata }), {
-        ...NULL_METADATA,
-        ...product_metadata,
-      });
-    });
-
-    it('extracts plan metadata', () => {
-      const plan_metadata = {
-        productSet: 'foo',
-        productOrder: 1,
-      };
-      assert.deepEqual(metadataFromPlan({ ...PLAN, plan_metadata }), {
-        ...NULL_METADATA,
-        ...plan_metadata,
-      });
-    });
-
-    it('overrides product metadata with plan metadata', () => {
-      const product_metadata = {
-        productSet: 'foo',
-        productOrder: 1,
-      };
-      const plan_metadata = {
-        productSet: 'bar',
-      };
-      assert.deepEqual(
-        metadataFromPlan({ ...PLAN, plan_metadata, product_metadata }),
-        {
-          ...NULL_METADATA,
-          productOrder: 1,
-          productSet: 'bar',
-        }
-      );
     });
   });
 });
