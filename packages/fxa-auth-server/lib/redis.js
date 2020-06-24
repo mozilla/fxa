@@ -206,6 +206,9 @@ class FxaRedis {
   zrevrangebyscore(key, min, max) {
     return this.redis.zrevrangebyscore(key, min, max);
   }
+  zrank(key, member) {
+    return this.redis.zrank(key, member);
+  }
 
   async zpoprangebyscore(key, min, max) {
     const args = Array.from(arguments);

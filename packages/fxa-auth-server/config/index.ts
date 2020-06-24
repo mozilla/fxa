@@ -1631,6 +1631,46 @@ const conf = convict({
       },
     },
   },
+  cadReminders: {
+    rolloutRate: {
+      doc: 'Rollout rate in the range 0 .. 1',
+      default: 1,
+      env: 'CAD_REMINDERS_ROLLOUT_RATE',
+      format: Number,
+    },
+    firstInterval: {
+      doc: 'Time which the first reminder is sent',
+      default: '8 hours',
+      env: 'CAD_REMINDERS_FIRST_INTERVAL',
+      format: 'duration',
+    },
+    secondInterval: {
+      doc: 'Time which the second reminder is sent',
+      default: '3 days',
+      env: 'CAD_REMINDERS_SECOND_INTERVAL',
+      format: 'duration',
+    },
+    redis: {
+      prefix: {
+        default: 'cadReminders:',
+        doc: 'Key prefix for the cad reminders Redis pool',
+        env: 'CAD_REMINDERS_REDIS_PREFIX',
+        format: String,
+      },
+      maxConnections: {
+        default: 10,
+        doc: 'Maximum connection count for the cad reminders Redis pool',
+        env: 'CAD_REMINDERS_REDIS_MAX_CONNECTIONS',
+        format: 'nat',
+      },
+      minConnections: {
+        default: 1,
+        doc: 'Minimum connection count for the cad reminders Redis pool',
+        env: 'CAD_REMINDERS_REDIS_MIN_CONNECTIONS',
+        format: 'nat',
+      },
+    },
+  },
   zendesk: {
     username: {
       doc: 'Zendesk Username for support interaction',
