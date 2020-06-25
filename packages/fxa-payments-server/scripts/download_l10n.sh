@@ -30,8 +30,10 @@ git rev-parse $FXA_L10N_SHA > git-head.txt
 
 cd locale
 
+echo "Copying .ftl files"
 for src in **/*.ftl; do
   dir=$(dirname "$src")
+  dir=$(echo "$dir" | sed "s/_/-/")
   base=$(basename "$src")
   mkdir -p "../../locales/$dir"
   cp "$src" "../../locales/$dir/$base"
