@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = {
-  stories: ['../src/**/*.stories.tsx'],
+  stories: ['./design-guide/main.stories.tsx', '../src/**/*.stories.tsx'],
   addons: [
     '@storybook/addon-actions',
     '@storybook/addon-links',

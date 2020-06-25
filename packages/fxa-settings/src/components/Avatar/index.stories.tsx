@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Avatar } from '.';
 
-storiesOf('components/Avatar', module)
+storiesOf('Components|Avatar', module)
   .add('default avatar', () => (
     <Avatar avatarUrl={null} className="w-32 h-32" />
   ))

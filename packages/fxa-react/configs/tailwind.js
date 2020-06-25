@@ -15,8 +15,11 @@ module.exports = {
     extend: {
       padding: {
         7: '1.75rem',
+        11: '2.75rem',
+        18: '4.5rem',
       },
       margin: {
+        7: '1.75rem',
         11: '2.75rem',
         18: '4.5rem',
       },
@@ -27,12 +30,22 @@ module.exports = {
         2: '2',
         4: '4',
         7: '7',
+        '80px': '0 0 80px',
       },
       width: {
         18: '4.5rem',
       },
       minWidth: {
         sm: '27rem',
+      },
+      maxWidth: {
+        mobileLandscape: '480px',
+        tablet: '768px',
+        desktop: '1024px',
+        desktopXl: '1441px',
+      },
+      inset: {
+        '1/2': '50%',
       },
     },
     screens: {

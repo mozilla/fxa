@@ -63,6 +63,11 @@ const customizeWebpackConfig = ({ config, mode }) => {
     use: ['@svgr/webpack', svgLoader],
   });
 
+  config.module.rules.push({
+    test: /\.(woff|woff2|eot|ttf)$/,
+    loader: require.resolve('file-loader'),
+  });
+
   config.resolve.extensions.push('.ts', '.tsx', '.svg', '.scss', '.css');
   config.module.rules = [{ oneOf: config.module.rules }];
   config.resolve.alias = Object.assign(

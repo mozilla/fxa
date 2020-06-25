@@ -18,4 +18,9 @@ if (process.env.NODE_ENV === 'production') {
   config.purge.content.push('../fxa-react/components/**/*.tsx');
 }
 
+if (process.env.STORYBOOK_BUILD === '1') {
+  console.log('Including Storybook Design Guide paths...');
+  config.purge.content.push('./.storybook/design-guide/**/*.tsx');
+}
+
 module.exports = config;
