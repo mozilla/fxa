@@ -78,7 +78,7 @@ echo "GREP                $GREP"
 
 WORKDIR=fxa-"$FXA_TEST_NAME"
 rm -rf "$WORKDIR"
-git clone https://github.com/mozilla/fxa.git -b master "$WORKDIR"
+git clone https://github.com/mozilla/fxa.git -b main "$WORKDIR"
 cd "$WORKDIR"/packages/fxa-content-server
 git checkout $GIT_COMMIT
 git show --summary

@@ -2358,7 +2358,7 @@ rather than with a BrowserID assertion.
   forbidden for public clients.
 - `ppid_seed`: _integer.min(0).max(1024), optional_ Seed used in `sub` claim generation of
   JWT access tokens/ID tokens for clients with [Pseudonymous Pairwise
-  Identifiers (PPID)](https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/fxa-oauth-server/docs/pairwise-pseudonymous-identifiers.md)
+  Identifiers (PPID)](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/pairwise-pseudonymous-identifiers.md)
   enabled. Used to forcibly rotate the `sub` claim. If not specified, it will default to `0`.
 - `resource`: _url, optional_ Indicates the target service or resource at which access is being
   requested. Its value must be an absolute URI, and may include a query component but
@@ -3809,7 +3809,7 @@ Content-Type: application/json
   "errno": 201,
   "error": "Service Unavailable",
   "message": "Service unavailable",
-  "info": "https://github.com/mozilla/fxa-auth-server/blob/master/docs/api.md#response-format",
+  "info": "https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format",
   "retryAfter": 30,
   "retryAfterLocalized": "in a few seconds"
 }

@@ -20,7 +20,7 @@
 //!   polling SQS queues for
 //!   SES bounce, complaint and delivery notifications.
 //!
-//! [readme]: https://github.com/mozilla/fxa-email-service/blob/master/README.md#fxa_email_service
+//! [readme]: https://github.com/mozilla/fxa/blob/main/packages/fxa-email-service/README.md
 //! [send]: ../fxa_email_send/index.html
 //! [queues]: ../fxa_email_queues/index.html
 

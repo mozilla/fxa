@@ -6,7 +6,7 @@ This is the server that handles payments.
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
-You can view the Storybook built from the most recent master at http://mozilla.github.io/fxa/fxa-payments-server/
+You can view the Storybook built from the most recent main at http://mozilla.github.io/fxa/fxa-payments-server/
 
 In local development, `npm run storybook` should start a Storybook server at <http://localhost:6006> with hot module replacement to reflect live changes.
 

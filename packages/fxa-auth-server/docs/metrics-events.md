@@ -404,7 +404,7 @@ contains the following fields:
 #### Domain names
 
 Possible values for `${domain}` include this
-list of top 20 FxA [email domains](https://github.com/mozilla/fxa-auth-server/blob/master/config/popular-email-domains.js). If an email is not on the list, then the
+list of top 20 FxA [email domains](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/config/popular-email-domains.js). If an email is not on the list, then the
 value `other` is stored.
 
 #### Template names
@@ -438,7 +438,7 @@ Possible values for `${type}` include
 
 Possible values for `${locale}` include
 any valid parsed locale via auth-server
-[translator](https://github.com/mozilla/fxa-auth-server/blob/master/lib/senders/translator.js).
+[translator](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/lib/senders/translator.js).
 
 ## Sampled data sets
 

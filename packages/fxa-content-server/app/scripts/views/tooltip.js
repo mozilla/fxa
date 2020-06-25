@@ -16,7 +16,8 @@ const PADDING_BELOW_TOOLTIP_PX = 2;
 const PADDING_ABOVE_TOOLTIP_PX = 4;
 
 // These values should be the same as
-// https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/styles/_breakpoints.scss#L8
+// https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/styles/_breakpoints.scss
+
 const MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW = 480;
 const MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW = 960;
 

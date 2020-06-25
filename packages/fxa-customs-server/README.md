@@ -42,7 +42,7 @@ Here are the main components of this project:
 
 ### API
 
-See our [detailed API spec](https://github.com/mozilla/fxa/blob/master/packages/fxa-customs-server/docs/api.md).
+See our [detailed API spec](https://github.com/mozilla/fxa/blob/main/packages/fxa-customs-server/docs/api.md).
 
 ### Policies
 

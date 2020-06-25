@@ -102,7 +102,7 @@ Failing requests may be due to the following errors:
 Called by the auth server before performing an action on its end to
 check whether or not the action should be blocked. The endpoint is
 capable of rate-limiting and blocking requests that involve a variety
-of [actions](https://github.com/mozilla/fxa-customs-server/blob/master/lib/actions.js).
+of [actions](https://github.com/mozilla/fxa/blob/main/packages/fxa-customs-server/lib/actions.js).
 
 **_Parameters_**
 

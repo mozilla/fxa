@@ -7,7 +7,7 @@ the user database.
 ## Steps
 
 1. Know which users you want to send emails to.
-2. Use the [dump-users.js](https://github.com/mozilla/fxa-auth-server/blob/master/scripts/dump-users.js) script to
+2. Use the [dump-users.js](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/scripts/dump-users.js) script to
    write the necessary user information to disk. Users can be dumped by `uid` or `email`
 
 - uid, listing uids on the command line

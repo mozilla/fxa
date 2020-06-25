@@ -31,7 +31,7 @@ IFS=$'\n'
 #   4. Check there have been some commits since the last tag.
 #   5. Generate the bumped version string.
 #   6. If current branch is train branch, pull from origin.
-#   7. Otherwise checkout existing train branch or create fresh one from master.
+#   7. Otherwise checkout existing train branch or create fresh one from main.
 #   8. For each of the "main" packages...
 #      8.1. List commits since the last tag.
 #      8.2. For each commit...
@@ -117,7 +117,7 @@ TRAIN_BRANCH="train-$TRAIN"
 if [ "$CURRENT_BRANCH" = "$TRAIN_BRANCH" ]; then
   git pull origin "$TRAIN_BRANCH" > /dev/null 2>&1 || true
 else
-  # 7. Otherwise checkout existing train branch or create fresh one from master.
+  # 7. Otherwise checkout existing train branch or create fresh one from main.
   TRAIN_BRANCH_EXISTS=`git branch --no-color | awk '{$1=$1};1' | grep "^$TRAIN_BRANCH\$"` || true
 
   if [ "$TRAIN_BRANCH_EXISTS" = "" ]; then
@@ -127,9 +127,9 @@ else
     REMOTE_BRANCH_EXISTS=`git branch --no-color -r | awk '{$1=$1};1' | grep "^$REMOTE_BRANCH\$"` || true
 
     if [ "$REMOTE_BRANCH_EXISTS" = "" ]; then
-      echo "Warning: $TRAIN_BRANCH branch not found on local or remote, creating one from master."
-      git checkout master > /dev/null 2>&1
-      git pull origin master > /dev/null 2>&1
+      echo "Warning: $TRAIN_BRANCH branch not found on local or remote, creating one from main."
+      git checkout main > /dev/null 2>&1
+      git pull origin main > /dev/null 2>&1
       git checkout -b "$TRAIN_BRANCH" > /dev/null 2>&1
     else
       git checkout --track -b "$TRAIN_BRANCH" "$REMOTE_BRANCH" > /dev/null 2>&1
@@ -352,7 +352,7 @@ echo
 echo "git push origin $TRAIN_BRANCH"
 echo "git push origin $NEW_TAG"
 echo
-echo "After that, you must open pull a request to merge the changes back to master:"
+echo "After that, you must open pull a request to merge the changes back to main:"
 echo
 echo "  https://github.com/mozilla/fxa/compare/$TRAIN_BRANCH?expand=1"
 echo
@@ -369,7 +369,7 @@ if [ "$BUILD_TYPE" = "Train" ]; then
 
   echo "If there's no deploy bug for $TRAIN_BRANCH yet, you should create one using this URL (you'll need to update the title of the bug in Bugzilla):"
   echo
-  echo "  https://github.com/mozilla/fxa-private/blob/master/_scripts/create-deploy-bug.url"
+  echo "  https://github.com/mozilla/fxa-private/blob/main/_scripts/create-deploy-bug.url"
   echo
   echo "Make sure you copy notes from the deploy doc:"
   echo

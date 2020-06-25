@@ -210,7 +210,7 @@ of the diagrams.
 - `test` - Unit tests, organized in matching heirarchy with the root event-broker directory.
 - `types` - Additional TypeScript definitions for dependencies missing type information.
 
-[fxasp]: https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/service_notifications.md
+[fxasp]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/service_notifications.md
 [mermaid live editor]: https://mermaid-js.github.io/mermaid-live-editor/
 [mermaid]: mermaidjs.github.io/
 [set]: https://tools.ietf.org/html/rfc8417

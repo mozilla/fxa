@@ -10,7 +10,7 @@ if [[ "$(docker images -q "$MODULE")" == "" ]]; then
   exit 0
 fi
 
-if [ "${CIRCLE_BRANCH}" == "master" ]; then
+if [ "${CIRCLE_BRANCH}" == "main" ]; then
   DOCKER_TAG="latest"
 fi
 

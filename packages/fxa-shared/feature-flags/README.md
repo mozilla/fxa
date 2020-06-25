@@ -15,7 +15,7 @@
 Historically,
 the FxA team has carried out development work
 on feature branches,
-only merging to `master`
+only merging to `main`
 after a given feature has been completed
 and code-reviewed.
 Then,
@@ -44,10 +44,10 @@ that can be used to control rollout
 (or rollback).
 This approach also facilitates
 mainline development,
-where engineers merge their work directly to `master`
+where engineers merge their work directly to `main`
 in regular, smaller chunks
 and releases are cut from
-dedicated branches off `master`.
+dedicated branches off `main`.
 There's a much longer discussion
 to be had around mainline development,
 which is out of scope for this readme.
@@ -174,17 +174,17 @@ you can just make local changes to this file
 but if your changes are meant for production,
 you'll need to open a pull request
 to get the changes reviewed
-and merged back to `master`.
+and merged back to `main`.
 
 ## How do I use a feature flag in the content server?
 
 If you're writing client-side code,
 the feature flags are all available
 via the `config.featureFlags` property
-set in [`app/scripts/lib/config-loader.js`](https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/scripts/lib/config-loader.js).
+set in [`app/scripts/lib/config-loader.js`](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/config-loader.js).
 Typically,
 you'd be expected to access them
-from code in the [`app/scripts/lib/experiments/grouping-rules`](https://github.com/mozilla/fxa/tree/master/packages/fxa-content-server/app/scripts/lib/experiments/grouping-rules) directory
+from code in the [`app/scripts/lib/experiments/grouping-rules`](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/app/scripts/lib/experiments/grouping-rules) directory
 and there are many examples there
 of experiments that use feature flags.
 
@@ -216,7 +216,7 @@ try {
 
 You can find an example of this
 in the route handler
-in [`server/lib/routes/get-index.js`](https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/server/lib/routes/get-index.js).
+in [`server/lib/routes/get-index.js`](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/server/lib/routes/get-index.js).
 
 ## How do I use a feature flag in the auth server?
 

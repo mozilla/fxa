@@ -118,7 +118,7 @@ const DEFAULTS = {
   errno: ERRNO.UNEXPECTED_ERROR,
   message: 'Unspecified error',
   info:
-    'https://github.com/mozilla/fxa/blob/master/packages/fxa-auth-server/docs/api.md#response-format',
+    'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
 };
 
 const TOO_LARGE = /^Payload (?:content length|size) greater than maximum allowed/;

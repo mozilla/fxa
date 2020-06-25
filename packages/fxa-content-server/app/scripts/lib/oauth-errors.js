@@ -195,7 +195,7 @@ export default _.extend({}, Errors, {
    */
   toInterpolationContext(err) {
     // For data returned by backend, see
-    // https://github.com/mozilla/fxa-oauth-server/blob/master/docs/api.md#errors
+    // https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/oauth/api.md#errors
     try {
       if (this.is(err, 'MISSING_PARAMETER')) {
         return {

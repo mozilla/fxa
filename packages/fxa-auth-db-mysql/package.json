@@ -22,7 +22,7 @@
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "author": "Mozilla (https://mozilla.org/)",
-  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-auth-db-mysql",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-db-mysql",
   "bugs": {
     "url": "https://github.com/mozilla/fxa/issues"
   },

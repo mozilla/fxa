@@ -59,8 +59,7 @@ const ResetPasswordView = FormView.extend({
     // address should be propagated back to the signin page. If
     // the user enters no email and instead clicks "Remember password?"
     // immediately, the /signin page should have the original email.
-    // See https://github.com/mozilla/fxa/tree/master/features/FxA-72-reset-password
-    // and #5293
+    // See https://github.com/mozilla/fxa-content-server/issues/5293.
     if (email) {
       this._formPrefill.set({ email });
     }

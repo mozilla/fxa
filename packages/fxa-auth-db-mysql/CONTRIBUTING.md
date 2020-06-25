@@ -28,12 +28,12 @@ Before submitting a PR:
 When submitting a PR:
 
 - You agree to license your code under the project's open source license ([MPL 2.0](/LICENSE)).
-- Base your branch off the current `master` (see below for an example workflow).
+- Base your branch off the current `main` (see below for an example workflow).
 - Add both your code and new tests if relevant.
 - Run `grunt eslint` and `npm test` to make sure your code passes linting and tests.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
 - Your commit message must follow the
-  [commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines).
+  [commit guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines).
 
 After your PR is merged:
 
@@ -79,11 +79,11 @@ This is an example workflow to make it easier to submit Pull Requests. Imagine y
 
 ### Keeping up to Date
 
-The main reason for creating a new branch for each feature or fix is so that you can track master correctly. If you need
+The main reason for creating a new branch for each feature or fix is so that you can track main correctly. If you need
 to fetch the latest code for a new fix, try the following:
 
 ```sh
-$ git checkout master
+$ git checkout main
 $ git pull
 ```
 

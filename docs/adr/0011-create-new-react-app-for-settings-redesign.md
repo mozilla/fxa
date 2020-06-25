@@ -7,7 +7,7 @@
 
 "Settings" refers widely to the `accounts.firefox.com/settings` page where users can manage their Firefox account. The "Settings Redesign Project" refers to a 2019/2020 project centered around giving this page a fresh user interface. The changes are fairly significant and will require a lot of component shuffling and some functionality refactoring. [See the PRD](https://docs.google.com/document/d/18zu7JCYIsUp8tUMJqb2uErNlzL9f6CQvefLy9HFZ4UY/edit?pli=1#heading=h.cf57dt1i8634).
 
-The FxA Engineering team desires to migrate from [Backbone and Mustache to React](https://github.com/mozilla/fxa/blob/master/docs/adr/0010-transition-fxa-from-backbone-to-react.md). This ADR addresses questions around what level of action we should take regarding this desire and the Settings Redesign Project - should a conversion to React be done at a later time, or are the changes significant enough to justify propelling us into React now?
+The FxA Engineering team desires to migrate from [Backbone and Mustache to React](https://github.com/mozilla/fxa/blob/main/docs/adr/0010-transition-fxa-from-backbone-to-react.md). This ADR addresses questions around what level of action we should take regarding this desire and the Settings Redesign Project - should a conversion to React be done at a later time, or are the changes significant enough to justify propelling us into React now?
 
 ## Considered Options
 
@@ -37,7 +37,7 @@ We can mitigate risks by avoiding a "big bang" surprise replacement by implement
 - Cons
   - There are a few significant functionality changes, and all of the functionality we refactor or create for this project will need to be refactored again later with React.
   - On the same note, this does not set us up well for future feature requests that will come later this year. We would be forced into Option B or continue with Option A; either way, the React conversion backlog would continue to grow.
-  - Integration into `master` must be done carefully and A/B testing these changes may be complicated.
+  - Integration into `main` must be done carefully and A/B testing these changes may be complicated.
 
 ##### Option B - Take the "100/0" approach by creating all new components with React, but modify existing Backbone/Mustache files or refactor these components as React components
 
@@ -49,8 +49,8 @@ We can mitigate risks by avoiding a "big bang" surprise replacement by implement
   - Allows us to piecemeal React into Settings, resulting in less future refactoring than option A while avoiding the taboo "ground up remake" approach, and allows for the creation of some React components that could be used elsewhere in the FxA ecosystem.
 - Cons
   - The full benefits of a React application won't be realized until many more pieces are converted.
-  - Many popular Backbone-to-React integration guides use a combination of React and Backbone with approaches like embedding React components in Backbone views, wrapping the Backbone app with React, and/or keeping data synchronized between a Redux store and Backbone. It's preferable to move away from an interlinked dependency of the two and thus would require refactoring later. Packages (like [NestedReact](https://github.com/VoliJS/NestedReact/blob/master/docs/05_Migration_from_Backbone.md)) offer a convergence layer between the two, but is an additional dependency we would want to remove later.
-  - Integration into `master` must be done carefully and A/B testing these changes may be complicated.
+  - Many popular Backbone-to-React integration guides use a combination of React and Backbone with approaches like embedding React components in Backbone views, wrapping the Backbone app with React, and/or keeping data synchronized between a Redux store and Backbone. It's preferable to move away from an interlinked dependency of the two and thus would require refactoring later. Packages (like [NestedReact](https://github.com/VoliJS/NestedReact/blob/main/docs/05_Migration_from_Backbone.md)) offer a convergence layer between the two, but is an additional dependency we would want to remove later.
+  - Integration into `main` must be done carefully and A/B testing these changes may be complicated.
 
 ##### Option C - Take the "ground up" approach and create a new settings React application
 
@@ -64,7 +64,7 @@ We can mitigate risks by avoiding a "big bang" surprise replacement by implement
   - May allow for a fresh take on how we do metrics in Settings.
   - Offers an opportunity to set up and use Storybook in FxA. If we do a view-by-view build up, we can deploy changes somewhere for UX and other folks to see progress and request tweaks as features are built out.
   - We can potentially use this as an opportunity to review and extract model and API code from the existing settings app into shared modules.
-  - Management in GitHub is easy, as changes can go directly into `master` and no feature flagging or branches held in isolation from `master` will be necessary. A/B testing will also likely be easier.
+  - Management in GitHub is easy, as changes can go directly into `main` and no feature flagging or branches held in isolation from `main` will be necessary. A/B testing will also likely be easier.
 - Cons
   - A "ground up remake" is generally viewed as taboo. Changing such a large chunk of the front-end codebase doesn't come without its own set of risks.
   - This approach will take much longer to rollout than previous options.
@@ -72,7 +72,7 @@ We can mitigate risks by avoiding a "big bang" surprise replacement by implement
 ## Links
 
 - [Settings Redesign Project PRD](https://docs.google.com/document/d/18zu7JCYIsUp8tUMJqb2uErNlzL9f6CQvefLy9HFZ4UY/edit?pli=1#heading=h.cf57dt1i8634)
-- [Backbone to React ADR](https://github.com/mozilla/fxa/blob/master/docs/adr/0010-transition-fxa-from-backbone-to-react.md)
+- [Backbone to React ADR](https://github.com/mozilla/fxa/blob/main/docs/adr/0010-transition-fxa-from-backbone-to-react.md)
 - [React](https://github.com/facebook/react)
 - [Backbone](https://backbonejs.org/)
 - [Mustache](https://github.com/mustache/mustache.github.com)

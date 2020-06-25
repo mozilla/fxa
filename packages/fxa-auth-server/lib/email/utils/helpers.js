@@ -206,7 +206,7 @@ function logFlowEventFromMessage(log, message, type) {
     const eventName = `email.${templateName}.${type}`;
 
     // Flow events have a specific event and structure that must be emitted.
-    // Ref `gather` in https://github.com/mozilla/fxa-auth-server/blob/master/lib/metrics/context.js
+    // Ref `gather` in https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/lib/metrics/context.js
     const flowEventInfo = {
       event: eventName,
       time: currentTime,

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This is a React version of this Bootstrap view:
-// https://github.com/mozilla/fxa/blob/master/packages/fxa-content-server/app/scripts/views/tooltip.js
+// https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/views/tooltip.js
 
 import React, { useEffect, useRef, useContext } from 'react';
 import classNames from 'classnames';
@@ -13,8 +13,8 @@ import { AppContext } from '../../lib/AppContext';
 export const PADDING_BELOW_TOOLTIP_PX = 2;
 export const PADDING_ABOVE_TOOLTIP_PX = 4;
 
-// These values should be the same as
-// https://github.com/mozilla/fxa-content-server/blob/0eab619612897dcda43e8074dafdf55e8cbe11ee/app/styles/_breakpoints.scss#L6
+// These values should be the same as the breakpoints in
+// https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/styles/_breakpoints.scss
 export const MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW = 480;
 export const MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW = 520;
 

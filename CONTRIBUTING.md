@@ -55,12 +55,12 @@ Before submitting a PR:
 When submitting a PR:
 
 - You agree to and have the legal right to license your code under the project's [license](/LICENSE).
-- Base your branch off the current `master`.
+- Base your branch off the current `main`.
 - Add both your code and new tests if relevant.
 - Run `grunt lint` and `npm test` to make sure your code passes linting and tests.
 - Please do not include merge commits in pull requests; include only commits with the new relevant code.
 - Your commit message must follow the
-  [commit guidelines](https://github.com/mozilla/fxa/blob/master/CONTRIBUTING.md#git-commit-guidelines).
+  [commit guidelines](https://github.com/mozilla/fxa/blob/main/CONTRIBUTING.md#git-commit-guidelines).
 - To skip CI tests add the "🙈 skip ci" github label to the PR.
   - You can skip only specific packages by also adding the corresponding "fxa-" label, for example "fxa-content-server".
 
@@ -72,7 +72,7 @@ This project is production Mozilla code and subject to our [engineering practice
 
 ## Git Commit Guidelines
 
-We loosely follow the [Angular commit guidelines](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#type) of `<type>(<scope>): <subject>` where `type` must be one of:
+We loosely follow the [Angular commit guidelines](https://github.com/angular/angular.js/blob/main/CONTRIBUTING.md#type) of `<type>(<scope>): <subject>` where `type` must be one of:
 
 - **feat**: A new feature
 - **fix**: A bug fix
@@ -139,7 +139,7 @@ if it's a partial fix.
 ### npm
 
 We use [npm](http://npmjs.com/) to manage dependencies. Required components are [automatically
-installed](https://github.com/mozilla/fxa/blob/master/package.json#L6) when you install this project.
+installed](https://github.com/mozilla/fxa/blob/main/package.json#L6) when you install this project.
 
 ### L10N
 

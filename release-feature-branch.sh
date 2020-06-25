@@ -27,8 +27,8 @@ abort() {
   exit 1
 }
 
-if [ "$FEATURE_BRANCH" = "master" ]; then
-  abort "master is not a feature branch";
+if [ "$FEATURE_BRANCH" = "main" ]; then
+  abort "main is not a feature branch";
 fi
 
 LAST_TAG=`git tag -l --sort=version:refname | grep -v '-' | tail -1`
@@ -104,7 +104,7 @@ fi
 
 echo "If there's no deploy bug for $TRAIN_BRANCH_WITH_FEATURE yet, you should create one using this URL (you'll need to update the title of the bug in Bugzilla):"
 echo
-echo "  https://github.com/mozilla/fxa-private/blob/master/_scripts/create-deploy-bug.url"
+echo "  https://github.com/mozilla/fxa-private/blob/main/_scripts/create-deploy-bug.url"
 echo
 echo "Make sure you copy notes from the deploy doc:"
 echo

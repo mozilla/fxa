@@ -5,6 +5,6 @@
 'use strict';
 
 // The list below should be kept in sync with:
-// https://raw.githubusercontent.com/mozilla/fxa-content-server/master/server/config/production-locales.json
+// https://github.com/mozilla/fxa/blob/main/packages/fxa-shared/l10n/supportedLanguages.json
 
 module.exports = require('fxa-shared').l10n.supportedLanguages;

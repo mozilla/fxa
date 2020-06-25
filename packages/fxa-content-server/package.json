@@ -26,7 +26,7 @@
     "type": "git",
     "url": "https://github.com/mozilla/fxa.git"
   },
-  "homepage": "https://github.com/mozilla/fxa/tree/master/packages/fxa-content-server",
+  "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server",
   "bugs": "https://github.com/mozilla/fxa/issues",
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
