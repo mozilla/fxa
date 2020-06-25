@@ -37,20 +37,13 @@ commands:
         default: 6
     steps:
       - base-install:
-          package: all
+          package: fxa-content-server
       - run:
           name: Running test section << parameters.index >> of << parameters.total >>
           environment:
             CIRCLE_NODE_INDEX: << parameters.index >>
             CIRCLE_NODE_TOTAL: << parameters.total >>
           command: ./.circleci/test-package.sh fxa-content-server
-      - run:
-          name: Clean up old Stripe customers from testing
-          command: |
-            cd packages/fxa-auth-server && \
-            yarn run clean-up-old-ci-stripe-customers
-      - store_test_results:
-          path: artifacts/tests
       - store_artifacts:
           path: ~/.pm2/logs
           destination: logs
@@ -90,7 +83,8 @@ jobs:
       - image: memcached
       - image: redis
     steps:
-      - base-install
+      - base-install:
+          package: many
       - run:
           name: Testing...
           command: |
@@ -219,7 +213,8 @@ jobs:
     docker:
       - image: circleci/node:12
     steps:
-      - base-install
+      - base-install:
+          package: many
       - run:
           name: Build and deploy Storybooks
           command: ./_scripts/build-storybooks.sh
