@@ -1,5 +1,24 @@
 # Change history
 
+## 1.177.0
+
+### New features
+
+- auth-server: use ToS ## 1.176.0 privacy links from Stripe metadata in subplat emails ([6b2817090](https://github.com/mozilla/fxa/commit/6b2817090))
+- payments: Add legal doc links to payment confirmation checkbox label ([6d41b566d](https://github.com/mozilla/fxa/commit/6d41b566d))
+- payments: Use Stripe metadata for terms ## 1.176.0 privacy URLs in payments-server ([92e750a82](https://github.com/mozilla/fxa/commit/92e750a82))
+
+### Bug fixes
+
+- scripts: use mkdir and cp in a loop to copy .ftl files ([7d6b33cb9](https://github.com/mozilla/fxa/commit/7d6b33cb9))
+
+### Other changes
+
+- l10n: copy .ftl files from fxa-content-server-l10n into payments ([ca5758a70](https://github.com/mozilla/fxa/commit/ca5758a70))
+- payments-server: use shared lang list ([18f7a1af8](https://github.com/mozilla/fxa/commit/18f7a1af8))
+- deps: updated dependencies ([3fa952919](https://github.com/mozilla/fxa/commit/3fa952919))
+- pm2: Add ISO timestamp to pm2 log lines ([2c5630adb](https://github.com/mozilla/fxa/commit/2c5630adb))
+
 ## 1.176.0
 
 No changes.

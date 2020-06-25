@@ -1,5 +1,11 @@
 # Change history
 
+## 1.177.0
+
+### Other changes
+
+- deps: updated dependencies ([3fa952919](https://github.com/mozilla/fxa/commit/3fa952919))
+
 ## 1.176.0
 
 No changes.

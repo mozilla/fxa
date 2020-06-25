@@ -1,3 +1,21 @@
+## 1.177.0
+
+### New features
+
+- auth + content: add endpoint and hook up CAD QR flow to trigger reminder ([3ccc3b366](https://github.com/mozilla/fxa/commit/3ccc3b366))
+- reminders: added CAD reminders to scripts/verification-reminders ([773ed269c](https://github.com/mozilla/fxa/commit/773ed269c))
+
+### Bug fixes
+
+- sentry: Do not report "No Such Channel" events to Sentry ([854b65164](https://github.com/mozilla/fxa/commit/854b65164))
+- security-events: fix delete security events test by adding refresh function ([0611a62a7](https://github.com/mozilla/fxa/commit/0611a62a7))
+- content-server: clean the input values before navigating ([69039d363](https://github.com/mozilla/fxa/commit/69039d363))
+
+### Other changes
+
+- deps: updated dependencies ([3fa952919](https://github.com/mozilla/fxa/commit/3fa952919))
+- pm2: Add ISO timestamp to pm2 log lines ([2c5630adb](https://github.com/mozilla/fxa/commit/2c5630adb))
+
 ## 1.176.0
 
 ### New features

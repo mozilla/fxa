@@ -1,5 +1,20 @@
 # Change history
 
+## 1.177.0
+
+### New features
+
+- auth-server: use ToS ## 1.176.0 privacy links from Stripe metadata in subplat emails ([6b2817090](https://github.com/mozilla/fxa/commit/6b2817090))
+
+### Bug fixes
+
+- shared: ensure \*.ts tests run ([ea09677c3](https://github.com/mozilla/fxa/commit/ea09677c3))
+
+### Other changes
+
+- deps: updated dependencies ([3fa952919](https://github.com/mozilla/fxa/commit/3fa952919))
+- pm2: Add ISO timestamp to pm2 log lines ([2c5630adb](https://github.com/mozilla/fxa/commit/2c5630adb))
+
 ## 1.176.0
 
 No changes.
