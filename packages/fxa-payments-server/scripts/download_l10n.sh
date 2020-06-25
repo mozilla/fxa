@@ -29,7 +29,13 @@ git pull
 git rev-parse $FXA_L10N_SHA > git-head.txt
 
 cd locale
-cp --parent **/*.ftl ../../locales/
+
+for src in **/*.ftl; do
+  dir=$(dirname "$src")
+  base=$(basename "$src")
+  mkdir -p "../../locales/$dir"
+  cp "$src" "../../locales/$dir/$base"
+done
 
 cd ../../../server/lib
 
