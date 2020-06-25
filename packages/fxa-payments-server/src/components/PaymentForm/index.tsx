@@ -209,8 +209,6 @@ export const PaymentForm = ({
             type="text"
             name="zip"
             label="ZIP code"
-            maxLength={5}
-            minLength={5}
             required
             data-testid="zip"
             placeholder="12345"
@@ -353,21 +351,14 @@ const validateName: OnValidateFunction = (
 };
 
 const validateZip: OnValidateFunction = (value, focused, _props, getString) => {
-  let valid = undefined;
+  let valid = true;
   let error = null;
-  value = ('' + value).replace(/[^\d]+/g, '').substr(0, 5);
+  value = ('' + value).trim();
   if (!value) {
     valid = false;
     error = getString
       ? getString('payment-validate-zip-required')
       : 'Zip code is required';
-  } else if (value.length !== 5 && !focused) {
-    valid = false;
-    error = getString
-      ? getString('payment-validate-zip-short')
-      : 'Zip code is too short';
-  } else if (value.length === 5) {
-    valid = true;
   }
   return {
     value,
