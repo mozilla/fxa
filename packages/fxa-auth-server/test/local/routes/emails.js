@@ -134,6 +134,7 @@ const otpOptions = {
 };
 
 let zendeskClient;
+let cadReminders;
 
 const updateZendeskPrimaryEmail = require('../../../lib/routes/emails')
   ._updateZendeskPrimaryEmail;
@@ -173,6 +174,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   const mailer = options.mailer || {};
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
+  cadReminders = options.cadReminders || mocks.mockCadReminders();
   const signupUtils =
     options.signupUtils ||
     require('../../../lib/routes/utils/signup')(
@@ -190,6 +192,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     customs,
     push,
     verificationReminders,
+    cadReminders,
     signupUtils,
     undefined,
     options.stripeHelper
@@ -1737,6 +1740,65 @@ describe('/recovery_email', () => {
 
     await assert.failsAsync(runTest(route, mockRequest), {
       errno: 150,
+    });
+  });
+});
+
+describe('/emails/reminders/cad', () => {
+  const mockLog = mocks.mockLog();
+  let accountRoutes, mockRequest, route, uid;
+
+  beforeEach(() => {
+    uid = uuid.v4('binary').toString('hex');
+
+    mockRequest = mocks.mockRequest({
+      credentials: {
+        uid,
+        deviceId: uuid.v4('binary').toString('hex'),
+        email: TEST_EMAIL,
+        emailVerified: true,
+        normalizedEmail: normalizeEmail(TEST_EMAIL),
+      },
+      log: mockLog,
+    });
+
+    accountRoutes = makeRoutes({
+      log: mockLog,
+      cadReminders,
+    });
+  });
+
+  it('invokes cadReminder.create', async () => {
+    route = getRoute(accountRoutes, '/emails/reminders/cad');
+    const response = await runTest(route, mockRequest);
+
+    assert.calledOnceWithExactly(cadReminders.get, uid);
+    assert.calledOnce(cadReminders.create);
+
+    assert.ok(response);
+    assert.isEmpty(response);
+  });
+
+  describe('with existing reminders', () => {
+    beforeEach(() => {
+      cadReminders = mocks.mockCadReminders({
+        get: { first: 1, second: null, third: null },
+      });
+      accountRoutes = makeRoutes({
+        log: mockLog,
+        cadReminders,
+      });
+    });
+
+    it('ignores request if reminders exist for user', async () => {
+      route = getRoute(accountRoutes, '/emails/reminders/cad');
+      const response = await runTest(route, mockRequest);
+
+      assert.calledOnceWithExactly(cadReminders.get, uid);
+      assert.notCalled(cadReminders.create);
+
+      assert.ok(response);
+      assert.isEmpty(response);
     });
   });
 });

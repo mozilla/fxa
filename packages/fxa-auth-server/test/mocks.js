@@ -215,6 +215,7 @@ module.exports = {
   mockSubHub,
   mockProfile,
   mockVerificationReminders,
+  mockCadReminders,
   mockStripeHelper,
 };
 
@@ -789,6 +790,20 @@ function mockVerificationReminders(data = {}) {
     keys: ['first', 'second', 'third'],
     create: sinon.spy(() => data.create || { first: 1, second: 1, third: 1 }),
     delete: sinon.spy(() => data.delete || { first: 1, second: 1, third: 1 }),
+    process: sinon.spy(
+      () => data.process || { first: [], second: [], third: [] }
+    ),
+  };
+}
+
+function mockCadReminders(data = {}) {
+  return {
+    keys: ['first', 'second', 'third'],
+    create: sinon.spy(() => data.create || { first: 1, second: 1, third: 1 }),
+    delete: sinon.spy(() => data.delete || { first: 1, second: 1, third: 1 }),
+    get: sinon.spy(
+      () => data.get || { first: null, second: null, third: null }
+    ),
     process: sinon.spy(
       () => data.process || { first: [], second: [], third: [] }
     ),

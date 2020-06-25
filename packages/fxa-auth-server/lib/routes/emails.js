@@ -84,6 +84,7 @@ module.exports = (
   customs,
   push,
   verificationReminders,
+  cadReminders,
   signupUtils,
   zendeskClient,
   /** @type import('../payments/stripe').StripeHelper */
@@ -1035,6 +1036,39 @@ module.exports = (
           secondaryEmail: matchedEmail.email,
           uid,
         });
+
+        return {};
+      },
+    },
+    {
+      method: 'POST',
+      path: '/emails/reminders/cad',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+      },
+      handler: async function (request) {
+        log.begin('Account.CadReminderEmail', request);
+
+        const sessionToken = request.auth.credentials;
+        const uid = sessionToken.uid;
+
+        const reminders = await cadReminders.get(uid);
+        const exists = cadReminders.keys.some((key) => {
+          return reminders[key] !== null;
+        });
+
+        if (!exists) {
+          await cadReminders.create(uid);
+          log.info('cad.reminder.created', {
+            uid,
+          });
+        } else {
+          log.info('cad.reminder.exists', {
+            uid,
+          });
+        }
 
         return {};
       },

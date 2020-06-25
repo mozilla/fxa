@@ -13,9 +13,11 @@ import { MOZ_ORG_SYNC_GET_STARTED_LINK } from '../../../lib/constants';
 class ReadyToScan extends FormView {
   template = Template;
   viewName = 'ready-to-scan';
+  settingReminder = false;
 
   events = assign(this.events, {
     'click #use-sms-link': preventDefaultThen('clickUseSms'),
+    'click #maybe-later-link': preventDefaultThen('clickMaybeLater'),
   });
 
   setInitialContext(context) {
@@ -30,6 +32,23 @@ class ReadyToScan extends FormView {
 
   clickUseSms() {
     return this.navigate('/sms');
+  }
+
+  clickMaybeLater() {
+    if (this.settingReminder) {
+      return;
+    }
+
+    this.settingReminder = true;
+    const account = this.getSignedInAccount();
+    return account
+      .createCadReminder()
+      .then(() => {
+        this.navigateAway(MOZ_ORG_SYNC_GET_STARTED_LINK);
+      })
+      .catch(() => {
+        this.settingReminder = false;
+      });
   }
 }
 

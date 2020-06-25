@@ -1682,6 +1682,15 @@ const Account = Backbone.Model.extend(
     createSigninCode() {
       return this._fxaClient.createSigninCode(this.get('sessionToken'));
     },
+
+    /**
+     * Queues up a reminder to CAD to be delivered at a later time.
+     *
+     * @returns {Promise} resolves with response when complete.
+     */
+    createCadReminder() {
+      return this._fxaClient.createCadReminder(this.get('sessionToken'));
+    },
   },
   {
     ALLOWED_KEYS: ALLOWED_KEYS,

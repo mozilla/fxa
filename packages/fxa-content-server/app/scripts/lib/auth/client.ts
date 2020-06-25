@@ -845,6 +845,10 @@ export default class AuthClient {
     return this.sessionPost('/signinCodes', sessionToken, {});
   }
 
+  async createCadReminder(sessionToken: string) {
+    return this.sessionPost('/emails/reminders/cad', sessionToken, {});
+  }
+
   async recoveryEmails(sessionToken: string) {
     return this.sessionGet('/recovery_emails', sessionToken);
   }

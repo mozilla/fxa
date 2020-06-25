@@ -1386,6 +1386,13 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   createSigninCode: createClientDelegate('createSigninCode'),
+
+  /**
+   * Queues up a reminder to CAD to be delivered at a later time.
+   *
+   * @returns {Promise} resolves with response when complete.
+   */
+  createCadReminder: createClientDelegate('createCadReminder'),
 };
 
 export default FxaClientWrapper;

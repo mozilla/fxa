@@ -5,6 +5,7 @@
 'use strict';
 
 const { registerSuite } = intern.getInterface('object');
+const { assert } = intern.getPlugin('chai');
 const FunctionalHelpers = require('./../lib/helpers');
 const selectors = require('./../lib/selectors');
 const uaStrings = require('../lib/ua-strings');
@@ -72,8 +73,20 @@ registerSuite('cad_qr_signin', {
           .then(
             testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
           )
+          .then(click(selectors.POST_VERIFY_CAD_QR_GET_STARTED.LATER))
+          .getCurrentUrl()
+          .then(function (url) {
+            assert.isTrue(url.includes('mozilla.org'));
+          })
+          .goBack()
           .then(click(selectors.POST_VERIFY_CAD_QR_GET_STARTED.SUBMIT))
 
+          .then(click(selectors.POST_VERIFY_CAD_QR_READY_TO_SCAN.LATER))
+          .getCurrentUrl()
+          .then(function (url) {
+            assert.isTrue(url.includes('mozilla.org'));
+          })
+          .goBack()
           .then(
             testElementExists(selectors.POST_VERIFY_CAD_QR_READY_TO_SCAN.HEADER)
           )
@@ -171,8 +184,8 @@ registerSuite('cad_qr_signup', {
           .then(
             testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
           )
-          .then(click(selectors.POST_VERIFY_CAD_QR_GET_STARTED.SUBMIT))
 
+          .then(click(selectors.POST_VERIFY_CAD_QR_GET_STARTED.SUBMIT))
           .then(
             testElementExists(selectors.POST_VERIFY_CAD_QR_READY_TO_SCAN.HEADER)
           )

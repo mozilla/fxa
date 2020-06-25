@@ -15,6 +15,7 @@ import User from 'models/user';
 import View from 'views/post_verify/cad_qr/get_started';
 import WindowMock from '../../../../mocks/window';
 import $ from 'jquery';
+import { MOZ_ORG_SYNC_GET_STARTED_LINK } from '../../../../../../app/scripts/lib/constants';
 
 describe('views/post_verify/cad_qr/get_started', () => {
   let account;
@@ -57,6 +58,8 @@ describe('views/post_verify/cad_qr/get_started', () => {
       user,
     });
 
+    sinon.stub(account, 'createCadReminder').callsFake(() => Promise.resolve());
+
     return view.render().then(() => $('#container').html(view.$el));
   });
 
@@ -72,7 +75,7 @@ describe('views/post_verify/cad_qr/get_started', () => {
       assert.lengthOf(view.$('#fxa-cad-qr-get-started-header'), 1);
       assert.lengthOf(view.$('.graphic-laptop-mobile'), 1);
       assert.lengthOf(view.$('#submit-btn'), 1);
-      assert.lengthOf(view.$('#maybe-later-btn'), 1);
+      assert.lengthOf(view.$('#maybe-later-link'), 1);
     });
   });
 
@@ -94,12 +97,16 @@ describe('views/post_verify/cad_qr/get_started', () => {
   describe('click maybe later', () => {
     describe('success', () => {
       beforeEach(() => {
-        sinon.spy(view, 'navigate');
+        sinon.spy(view, 'navigateAway');
+        sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
         return view.clickMaybeLater();
       });
 
-      it('calls correct broker methods', () => {
-        assert.isTrue(view.navigate.calledWith('/sms'));
+      it('calls correct methods', () => {
+        assert.isTrue(account.createCadReminder.calledOnce);
+        assert.isTrue(
+          view.navigateAway.calledOnceWith(MOZ_ORG_SYNC_GET_STARTED_LINK)
+        );
       });
     });
   });
