@@ -37,5 +37,7 @@
   "postNewRecoveryCodes": 4,
   "passwordResetAccountRecovery": 5,
   "postAddAccountRecovery": 5,
-  "postRemoveAccountRecovery": 5
+  "postRemoveAccountRecovery": 5,
+  "cadReminderFirst": 1,
+  "cadReminderSecond": 1
 }

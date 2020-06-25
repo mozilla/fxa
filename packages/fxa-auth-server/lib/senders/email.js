@@ -28,6 +28,7 @@ module.exports = function (log, config, oauthdb) {
     log,
     config
   );
+  const cadReminders = require('../cad-reminders')(config, log);
 
   // Email template to UTM campaign map, each of these should be unique and
   // map to exactly one email template.
@@ -2439,6 +2440,70 @@ module.exports = function (log, config, oauthdb) {
       },
     });
   };
+
+  cadReminders.keys.forEach((key, index) => {
+    // Template names are generated in the form `cadReminderFirstEmail`,
+    // where `First` is the key derived from config, with an initial capital letter.
+    const template = `cadReminder${key[0].toUpperCase()}${key.substr(1)}`;
+
+    const isFirstCadReminderEmail = index < cadReminders.keys.length - 1;
+
+    const subject = isFirstCadReminderEmail
+      ? gettext('Your Friendly Reminder: How-To Complete Your Sync Setup')
+      : gettext('Final Reminder: Complete Sync Setup');
+
+    const headerText = isFirstCadReminderEmail
+      ? gettext("Here's your reminder to sync devices.")
+      : gettext('Last reminder to sync devices!');
+
+    const bodyText = isFirstCadReminderEmail
+      ? gettext(
+          'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.'
+        )
+      : gettext(
+          'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.'
+        );
+
+    const action = gettext('Sync another device');
+    const query = {};
+
+    templateNameToCampaignMap[template] = `cad-reminder-${key}`;
+    templateNameToContentMap[template] = 'connect-device';
+
+    Mailer.prototype[`${template}Email`] = async function (message) {
+      const { code, email, uid } = message;
+
+      log.trace(`mailer.${template}`, { code, email, uid });
+
+      const links = this._generateLinks(this.syncUrl, message, query, template);
+      const headers = {
+        'X-Link': links.link,
+      };
+
+      return this.send({
+        ...message,
+        headers,
+        subject,
+        template,
+        templateValues: {
+          action,
+          androidLinkAttributes: linkAttributes(links.androidLink),
+          androidUrl: links.androidLink,
+          cadLinkAttributes: linkAttributes(links.link),
+          iosLinkAttributes: linkAttributes(links.iosLink),
+          iosUrl: links.iosLink,
+          link: links.link,
+          privacyUrl: links.privacyUrl,
+          style: message.style,
+          subject,
+          supportLinkAttributes: links.supportLinkAttributes,
+          supportUrl: links.supportUrl,
+          headerText,
+          bodyText,
+        },
+      });
+    };
+  });
 
   Mailer.prototype._generateUTMLink = function (
     link,

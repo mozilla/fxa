@@ -1115,6 +1115,60 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]],
   ])],
+  ['cadReminderFirstEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How-To Complete Your Sync Setup' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-first', 'connect-device') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderFirst') }],
+      ['X-Template-Name', { test: 'equal', expected: 'cadReminderFirst' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderFirst }],
+    ])],
+    ['html', [
+      { test: 'include', expected: "Here&#x27;s your reminder to sync devices." },
+      { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: configHref('syncUrl', 'cad-reminder-first', 'connect-device') },
+      { test: 'include', expected: config.smtp.androidUrl },
+      { test: 'include', expected: config.smtp.iosUrl },
+      { test: 'include', expected: configHref('privacyUrl', 'cad-reminder-first', 'privacy') },
+      { test: 'include', expected: configHref('supportUrl', 'cad-reminder-first', 'support') },
+    ]],
+    ['text', [
+      { test: 'include', expected: "Here's your reminder to sync devices." },
+      { test: 'include', expected: 'It takes two to sync. Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
+      { test: 'include', expected: config.smtp.syncUrl },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
+  ['cadReminderSecondEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Final Reminder: Complete Sync Setup' }],
+    ['headers', new Map([
+      ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-second', 'connect-device') }],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderSecond') }],
+      ['X-Template-Name', { test: 'equal', expected: 'cadReminderSecond' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.cadReminderSecond }],
+    ])],
+    ['html', [
+      { test: 'include', expected: "Last reminder to sync devices!" },
+      { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: configHref('syncUrl', 'cad-reminder-second', 'connect-device') },
+      { test: 'include', expected: config.smtp.androidUrl },
+      { test: 'include', expected: config.smtp.iosUrl },
+      { test: 'include', expected: configHref('privacyUrl', 'cad-reminder-second', 'privacy') },
+      { test: 'include', expected: configHref('supportUrl', 'cad-reminder-second', 'support') },
+    ]],
+    ['text', [
+      { test: 'include', expected: "Last reminder to sync devices!" },
+      { test: 'include', expected: 'Syncing another device with Firefox privately keeps your bookmarks, passwords and other Firefox data the same everywhere you use Firefox.' },
+      { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-second', 'privacy')}` },
+      { test: 'include', expected: config.smtp.syncUrl },
+      { test: 'notInclude', expected: config.smtp.androidUrl },
+      { test: 'notInclude', expected: config.smtp.iosUrl },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+  ])],
 ]);
 
 describe('lib/senders/email:', () => {
