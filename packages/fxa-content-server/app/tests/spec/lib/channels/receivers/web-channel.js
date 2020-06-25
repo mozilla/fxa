@@ -9,15 +9,21 @@ import WindowMock from '../../../../mocks/window';
 
 var windowMock;
 var receiver;
+var Sentry;
 
 describe('lib/channels/receivers/web-channel', () => {
   beforeEach(() => {
     windowMock = new WindowMock();
+    Sentry = {
+      captureMessage: () => {},
+    };
     receiver = new WebChannelReceiver();
     receiver.initialize({
       webChannelId: 'channel_id',
       window: windowMock,
+      Sentry,
     });
+    sinon.spy(receiver._sentry, 'captureMessage');
   });
 
   afterEach(() => {
@@ -108,6 +114,35 @@ describe('lib/channels/receivers/web-channel', () => {
         )
       );
       assert.isTrue(receiver._reportError.calledOnce);
+      assert.isTrue(receiver._sentry.captureMessage.calledOnce);
+      assert.isTrue(receiver.trigger.calledOnce);
+      assert.isTrue(receiver.trigger.calledWith('error', message));
+    });
+
+    it('does not report "No Such Channel" errors to Sentry', () => {
+      sinon.spy(windowMock.console, 'error');
+      sinon.spy(receiver, 'trigger');
+      sinon.spy(receiver, '_reportError');
+
+      const message = {
+        error: 'No Such Channel',
+      };
+      receiver.receiveMessage({
+        detail: {
+          id: 'channel_id',
+          message,
+        },
+      });
+
+      assert.equal(windowMock.console.error.callCount, 1);
+      assert.isTrue(
+        windowMock.console.error.calledWith(
+          'WebChannel error:',
+          'No Such Channel'
+        )
+      );
+      assert.isTrue(receiver._reportError.calledOnce);
+      assert.isFalse(receiver._sentry.captureMessage.calledOnce);
       assert.isTrue(receiver.trigger.calledOnce);
       assert.isTrue(receiver.trigger.calledWith('error', message));
     });
