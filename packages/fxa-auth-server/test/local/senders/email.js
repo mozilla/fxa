@@ -1116,7 +1116,7 @@ const TESTS = new Map([
     ]],
   ])],
   ['cadReminderFirstEmail', new Map([
-    ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How-To Complete Your Sync Setup' }],
+    ['subject', { test: 'equal', expected: 'Your Friendly Reminder: How To Complete Your Sync Setup' }],
     ['headers', new Map([
       ['X-Link', { test: 'equal', expected: configUrl('syncUrl', 'cad-reminder-first', 'connect-device') }],
       ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('cadReminderFirst') }],
