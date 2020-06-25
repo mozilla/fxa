@@ -17,8 +17,8 @@ function WebChannelReceiver() {
 _.extend(WebChannelReceiver.prototype, Backbone.Events, {
   initialize(options) {
     options = options || {};
-
     this._window = options.window;
+    this._sentry = options.Sentry || Sentry;
     this._boundReceiveMessage = this.receiveMessage.bind(this);
     this._window.addEventListener(
       'WebChannelMessageToContent',
@@ -87,12 +87,17 @@ _.extend(WebChannelReceiver.prototype, Backbone.Events, {
    */
   _reportError(error) {
     this._logger.error('WebChannel error:', error.message);
-    Sentry.captureMessage('WebChannel error: ' + error.message, {
-      // manually capture the stack as a custom field
-      extra: {
-        stackTrace: error.stack,
-      },
-    });
+    if (error.message === 'No Such Channel') {
+      // Do not report "No Such Channel" errors to Sentry.
+      // This error is already muted in Sentry and is not actionable.
+    } else {
+      this._sentry.captureMessage('WebChannel error: ' + error.message, {
+        // manually capture the stack as a custom field
+        extra: {
+          stackTrace: error.stack,
+        },
+      });
+    }
   },
 
   /**
