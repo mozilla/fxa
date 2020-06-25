@@ -2449,7 +2449,7 @@ module.exports = function (log, config, oauthdb) {
     const isFirstCadReminderEmail = index < cadReminders.keys.length - 1;
 
     const subject = isFirstCadReminderEmail
-      ? gettext('Your Friendly Reminder: How-To Complete Your Sync Setup')
+      ? gettext('Your Friendly Reminder: How To Complete Your Sync Setup')
       : gettext('Final Reminder: Complete Sync Setup');
 
     const headerText = isFirstCadReminderEmail
