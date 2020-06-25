@@ -1,3 +1,27 @@
+## 1.177.0
+
+### New features
+
+- dev: handle skip ci label to skip tests ([ce0788085](https://github.com/mozilla/fxa/commit/ce0788085))
+- emails: Add CAD reminder templates ([9e1046fb5](https://github.com/mozilla/fxa/commit/9e1046fb5))
+- auth + content: add endpoint and hook up CAD QR flow to trigger reminder ([3ccc3b366](https://github.com/mozilla/fxa/commit/3ccc3b366))
+- reminders: added CAD reminders to scripts/verification-reminders ([773ed269c](https://github.com/mozilla/fxa/commit/773ed269c))
+- cad: Add remind me later CAD redis manager ([1032fde91](https://github.com/mozilla/fxa/commit/1032fde91))
+- auth-server: use ToS ## 1.176.0 privacy links from Stripe metadata in subplat emails ([6b2817090](https://github.com/mozilla/fxa/commit/6b2817090))
+- auth-server: update stripe api version ([822748e27](https://github.com/mozilla/fxa/commit/822748e27))
+
+### Bug fixes
+
+- emails: Swap grammatically incorrect 'How-To' for 'How To' ([31e141635](https://github.com/mozilla/fxa/commit/31e141635))
+- oauth: Allow token requests to specify arbitrarily large TTL values ([0e9b4fa7b](https://github.com/mozilla/fxa/commit/0e9b4fa7b))
+- payments: handle "charges" missing from the subscription object graph ([a4fe1fb94](https://github.com/mozilla/fxa/commit/a4fe1fb94))
+- auth-server: use individual assignments ([c1b4d7a2f](https://github.com/mozilla/fxa/commit/c1b4d7a2f))
+
+### Other changes
+
+- deps: updated dependencies ([3fa952919](https://github.com/mozilla/fxa/commit/3fa952919))
+- pm2: Add ISO timestamp to pm2 log lines ([2c5630adb](https://github.com/mozilla/fxa/commit/2c5630adb))
+
 ## 1.176.0
 
 ### New features
