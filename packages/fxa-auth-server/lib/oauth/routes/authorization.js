@@ -59,15 +59,11 @@ module.exports = {
         then: Joi.optional(),
         otherwise: Joi.required(),
       }),
-      ttl: Joi.number()
-        .positive()
-        .max(MAX_TTL_S)
-        .default(MAX_TTL_S)
-        .when('response_type', {
-          is: RESPONSE_TYPE_TOKEN,
-          then: Joi.optional(),
-          otherwise: Joi.forbidden(),
-        }),
+      ttl: Joi.number().positive().default(MAX_TTL_S).when('response_type', {
+        is: RESPONSE_TYPE_TOKEN,
+        then: Joi.optional(),
+        otherwise: Joi.forbidden(),
+      }),
       access_type: Joi.string()
         .valid(ACCESS_TYPE_OFFLINE, ACCESS_TYPE_ONLINE)
         .default(ACCESS_TYPE_ONLINE)
@@ -210,11 +206,12 @@ async function generateImplicitGrant(client, payload, grant) {
     });
     throw AppError.invalidResponseType();
   }
+  const ttl = Math.min(payload.ttl, MAX_TTL_S);
   return generateTokens({
     ...grant,
     grantType: 'fxa-credentials',
     resource: payload.resource,
-    ttl: payload.ttl,
+    ttl,
   });
 }
 

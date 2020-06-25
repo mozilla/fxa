@@ -992,6 +992,25 @@ describe('/v1', function () {
               assert(res.result.expires_in > ttl - 10);
             });
         });
+
+        it('allows an arbitrarily long ttl parameter', function () {
+          var ttl = MAX_TTL_S * 100;
+          mockAssertion().reply(200, VERIFY_GOOD);
+          return Server.api
+            .post({
+              url: '/authorization',
+              payload: authParams({
+                client_id: client2.id,
+                response_type: 'token',
+                ttl: ttl,
+              }),
+            })
+            .then(function (res) {
+              assert.equal(res.statusCode, 200);
+              assertSecurityHeaders(res);
+              assert(res.result.expires_in <= MAX_TTL_S);
+            });
+        });
       });
     });
 
@@ -2149,7 +2168,7 @@ describe('/v1', function () {
             });
         });
 
-        it('should not exceed the maximum', function () {
+        it('if greater than the maximum configured value, will return a token with that maximum value', function () {
           return newToken({ access_type: 'offline' })
             .then(function (res) {
               assert.equal(res.statusCode, 200);
@@ -2166,8 +2185,9 @@ describe('/v1', function () {
               });
             })
             .then(function (res) {
-              assertInvalidRequestParam(res.result, 'ttl');
+              assert.equal(res.statusCode, 200);
               assertSecurityHeaders(res);
+              assert(res.result.expires_in <= MAX_TTL_S);
             });
         });
       });
@@ -2240,6 +2260,22 @@ describe('/v1', function () {
         assertSecurityHeaders(res);
         assert.equal(res.statusCode, 200);
         assert(res.result.expires_in <= 42);
+      });
+
+      it('accepts arbitrarily long ttl, but returns the configured maximum ttl', async () => {
+        mockAssertion().reply(200, VERIFY_GOOD);
+        const res = await Server.api.post({
+          url: '/token',
+          payload: {
+            client_id: clientId,
+            grant_type: 'fxa-credentials',
+            ttl: MAX_TTL_S * 100,
+            assertion: AN_ASSERTION,
+          },
+        });
+        assertSecurityHeaders(res);
+        assert(res.result.expires_in <= MAX_TTL_S);
+        assert.equal(res.statusCode, 200);
       });
 
       it('rejects invalid assertions', async () => {

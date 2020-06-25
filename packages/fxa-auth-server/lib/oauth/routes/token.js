@@ -97,7 +97,7 @@ const PAYLOAD_SCHEMA = Joi.object({
     .default(GRANT_AUTHORIZATION_CODE)
     .optional(),
 
-  ttl: Joi.number().positive().max(MAX_TTL_S).default(MAX_TTL_S).optional(),
+  ttl: Joi.number().positive().default(MAX_TTL_S).optional(),
 
   scope: Joi.alternatives()
     .when('grant_type', {
@@ -213,7 +213,7 @@ async function validateGrantParameters(client, params) {
   requestedGrant.grantType = params.grant_type;
   requestedGrant.ppidSeed = params.ppid_seed;
   requestedGrant.resource = params.resource;
-  requestedGrant.ttl = params.ttl;
+  requestedGrant.ttl = Math.min(params.ttl, MAX_TTL_S);
   return requestedGrant;
 }
 
