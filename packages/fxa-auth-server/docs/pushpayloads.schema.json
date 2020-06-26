@@ -1,17 +1,33 @@
 {
   "title": "FxA Push Payload schema",
   "description": "This schema defines what is acceptable to send as a payload data with the Push API from the FxA servers to a device connected to FxA",
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "anyOf": [
-    { "$ref": "#/definitions/deviceConnected" },
-    { "$ref": "#/definitions/deviceDisconnected" },
-    { "$ref": "#/definitions/profileUpdated" },
-    { "$ref": "#/definitions/collectionsChanged" },
-    { "$ref": "#/definitions/passwordChanged" },
-    { "$ref": "#/definitions/passwordReset" },
-    { "$ref": "#/definitions/accountDestroyed" },
-    { "$ref": "#/definitions/commandReceived" }
+    {
+      "$ref": "#/definitions/deviceConnected"
+    },
+    {
+      "$ref": "#/definitions/deviceDisconnected"
+    },
+    {
+      "$ref": "#/definitions/profileUpdated"
+    },
+    {
+      "$ref": "#/definitions/collectionsChanged"
+    },
+    {
+      "$ref": "#/definitions/passwordChanged"
+    },
+    {
+      "$ref": "#/definitions/passwordReset"
+    },
+    {
+      "$ref": "#/definitions/accountDestroyed"
+    },
+    {
+      "$ref": "#/definitions/commandReceived"
+    }
   ],
   "definitions": {
     "deviceConnected": {
@@ -24,7 +40,7 @@
         "command": {
           "type": "string",
           "description": "Helps the receiving device discriminate payloads",
-          "enum": ["fxaccounts:device_connected"]
+          "const": "fxaccounts:device_connected"
         },
         "data": {
           "type": "object",
@@ -48,7 +64,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["fxaccounts:device_disconnected"]
+          "const": "fxaccounts:device_disconnected"
         },
         "data": {
           "type": "object",
@@ -72,7 +88,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["fxaccounts:profile_updated"]
+          "const": "fxaccounts:profile_updated"
         }
       },
       "additionalProperties": false
@@ -85,7 +101,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["sync:collection_changed"]
+          "const": "sync:collection_changed"
         },
         "data": {
           "type": "object",
@@ -128,7 +144,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["fxaccounts:password_changed"]
+          "const": "fxaccounts:password_changed"
         }
       },
       "additionalProperties": false
@@ -141,7 +157,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["fxaccounts:password_reset"]
+          "const": "fxaccounts:password_reset"
         }
       },
       "additionalProperties": false
@@ -154,7 +170,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["fxaccounts:account_destroyed"]
+          "const": "fxaccounts:account_destroyed"
         },
         "data": {
           "type": "object",
@@ -178,7 +194,7 @@
         },
         "command": {
           "type": "string",
-          "enum": ["fxaccounts:command_received"]
+          "const": "fxaccounts:command_received"
         },
         "data": {
           "type": "object",

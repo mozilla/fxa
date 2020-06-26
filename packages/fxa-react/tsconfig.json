@@ -3,7 +3,7 @@
   "compilerOptions": {
     "allowJs": false,
     "composite": true,
-    "types": ["jest", "testing-library__jest-dom"]
+    "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": [
     "./components",

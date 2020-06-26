@@ -46,7 +46,7 @@
     "@hapi/hoek": "^8.5.1",
     "@hapi/joi": "^15.1.1",
     "@sentry/node": "^5.17.0",
-    "ajv": "4.1.7",
+    "ajv": "^6.12.2",
     "aws-sdk": "^2.698.0",
     "base64url": "3.0.0",
     "bluebird": "^3.7.2",
@@ -81,7 +81,7 @@
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "node-zendesk": "^1.4.0",
     "nodemailer": "2.7.2",
-    "otplib": "11.0.1",
+    "otplib": "^11.0.1",
     "p-retry": "^4.2.0",
     "pem-jwk": "^2.0.0",
     "po2json": "0.4.5",
@@ -103,7 +103,7 @@
     "@types/chai": "^4.2.4",
     "@types/convict": "^5.2.1",
     "@types/hapi__hapi": "^19.0.3",
-    "@types/ioredis": "^4.14.8",
+    "@types/ioredis": "^4.16.7",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/jws": "^3.2.0",
@@ -153,6 +153,6 @@
     "through": "2.3.8",
     "ts-node": "^8.10.1",
     "typescript": "3.8.3",
-    "ws": "5.2.2"
+    "ws": "^6.2.1"
   }
 }

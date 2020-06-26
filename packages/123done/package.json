@@ -21,11 +21,11 @@
   "private": true,
   "dependencies": {
     "client-sessions": "0.6.x",
-    "express": "4.16.4",
+    "express": "^4.17.1",
     "fxa-jwtool": "0.7.x",
     "morgan": "^1.10.0",
     "node-rsa": "1.0.5",
-    "redis": "0.7.1",
+    "redis": "^2.8.0",
     "request": "^2.88.2"
   },
   "engines": {
