@@ -2,11 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import ES6Promise from 'es6-promise';
-
-// polyfill ES6 promises on browsers that do not support them.
-ES6Promise.polyfill();
-
 export default {
   /**
    * Return a promise that resolves after `delayMS`.

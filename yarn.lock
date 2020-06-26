@@ -5636,7 +5636,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.3, @types/json-schema@npm:^7.0.4":
+"@types/json-schema@npm:*, @types/json-schema@npm:^7.0.3":
   version: 7.0.4
   resolution: "@types/json-schema@npm:7.0.4"
   checksum: 5094037431e4b29d5cc9d6938ea596d1145cc46d305d8d302a477a54d0a7a83ba4629abbf52fcabc3ffdb31cf94647bc366a7bcc544770cbb80212d903018e2b
@@ -7310,7 +7310,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.0, ajv@npm:^6.12.2, ajv@npm:^6.5.5":
+"ajv@npm:^6.1.0, ajv@npm:^6.10.0, ajv@npm:^6.10.2, ajv@npm:^6.12.0, ajv@npm:^6.5.5":
   version: 6.12.2
   resolution: "ajv@npm:6.12.2"
   dependencies:
@@ -14281,14 +14281,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"es6-promise@npm:4.1.1, es6-promise@npm:^4.0.3, es6-promise@npm:^4.1.1":
+"es6-promise@npm:^4.0.3, es6-promise@npm:^4.1.1":
   version: 4.1.1
   resolution: "es6-promise@npm:4.1.1"
   checksum: c6b0cebf2786db4b00b14e07d43b7724e049f330bb6b998fa23eadf942e50807567173ed81e4f9425b98594809a3c118b7917e296e782d13ef49d9f584d8393c
   languageName: node
   linkType: hard
 
-"es6-promise@npm:4.2.4, es6-promise@npm:^4.0.5":
+"es6-promise@npm:^4.0.5":
   version: 4.2.4
   resolution: "es6-promise@npm:4.2.4"
   checksum: d2f31fdddeea3860e04784183dcd449bdbdd6246d18723ce8491292d218247b54c3aea3847076cdf776dbf2ea9e38e53b69cf0273f61075e11b28a1c54bb8a3a
@@ -15497,31 +15497,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-loader@npm:1.1.11":
-  version: 1.1.11
-  resolution: "file-loader@npm:1.1.11"
-  dependencies:
-    loader-utils: ^1.0.2
-    schema-utils: ^0.4.5
-  peerDependencies:
-    webpack: ^2.0.0 || ^3.0.0 || ^4.0.0
-  checksum: 1fe0faf8e6b6cba4d3df425f4336c87e1cef14ccc4f30f16e79cfb75039cceb8594634345d03e4b194242bed47c0767cb7c5e9401e482b62ba80a09821bf02c3
-  languageName: node
-  linkType: hard
-
-"file-loader@npm:4.2.0":
-  version: 4.2.0
-  resolution: "file-loader@npm:4.2.0"
-  dependencies:
-    loader-utils: ^1.2.3
-    schema-utils: ^2.0.0
-  peerDependencies:
-    webpack: ^4.0.0
-  checksum: 6b37797264073f7cd9084d4fe548a111bf64fea13c798b854c3edc193f2ab64c9299f24133a4de3e9447255cae986734d6ec7b7fa1ecd6b11899a4dc94b34b83
-  languageName: node
-  linkType: hard
-
-"file-loader@npm:4.3.0, file-loader@npm:^4.2.0":
+"file-loader@npm:4.3.0, file-loader@npm:^4.2.0, file-loader@npm:^4.3.0":
   version: 4.3.0
   resolution: "file-loader@npm:4.3.0"
   dependencies:
@@ -16796,14 +16772,13 @@ fsevents@^1.2.7:
     css: 2.2.3
     css-loader: 1.0.0
     duration-js: 3.6.0
-    es6-promise: 4.2.4
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 0.7.5
     express: 4.16.2
     extract-loader: 2.0.1
     fast-text-encoding: ^1.0.1
-    file-loader: 1.1.11
+    file-loader: ^4.3.0
     firefox-profile: 1.2.0
     fxa-common-password-list: 0.0.4
     fxa-crypto-relier: 2.3.0
@@ -17142,7 +17117,6 @@ fsevents@^1.2.7:
   dependencies:
     audit-filter: ^0.5.0
     chai: ^4.2.0
-    es6-promise: 4.1.1
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
@@ -17422,7 +17396,7 @@ fsevents@^1.2.7:
     babel-preset-react-app: ^9.1.2
     camelcase: ^6.0.0
     eslint: ^6.8.0
-    file-loader: 4.2.0
+    file-loader: ^4.3.0
     fxa-shared: "workspace:*"
     identity-obj-proxy: ^3.0.0
     jest: ^24.9.0
@@ -31015,7 +30989,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^0.4.0, schema-utils@npm:^0.4.5":
+"schema-utils@npm:^0.4.0":
   version: 0.4.7
   resolution: "schema-utils@npm:0.4.7"
   dependencies:
@@ -31033,17 +31007,6 @@ resolve@~1.11.1:
     ajv-errors: ^1.0.0
     ajv-keywords: ^3.1.0
   checksum: d2f753e7a17c6054cb8c6d0806daeddac73ea2a192e452f506e50af14da1999d1435618b81a616d9f72e1606c0e46bf1870c9b429bce5d3a949d34455e6e54ff
-  languageName: node
-  linkType: hard
-
-"schema-utils@npm:^2.0.0":
-  version: 2.7.0
-  resolution: "schema-utils@npm:2.7.0"
-  dependencies:
-    "@types/json-schema": ^7.0.4
-    ajv: ^6.12.2
-    ajv-keywords: ^3.4.1
-  checksum: 5d3e7c9e532712bbe0b7ba2f0bdbebc88ca3066c00ceb89877667c3c7b7ea5ee65e0ff7ffbf5164ebda43b0726166d4d39b382e91e9554b7ad2f6b06e77f947d
   languageName: node
   linkType: hard
 

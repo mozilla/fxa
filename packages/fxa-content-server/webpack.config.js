@@ -20,7 +20,6 @@ const webpackConfig = {
       'chosen-js',
       'cocktail-lib',
       'duration',
-      'es6-promise',
       'jquery',
       'js-md5',
       'modal',
@@ -58,7 +57,6 @@ const webpackConfig = {
       cocktail: require.resolve('./app/scripts/lib/cocktail'),
       draggable: require.resolve('jquery-ui/ui/widgets/draggable'),
       duration: require.resolve('duration-js/duration'),
-      'es6-promise': require.resolve('es6-promise/dist/es6-promise'),
       'fast-text-encoding': require.resolve('fast-text-encoding'),
       fxaCryptoDeriver: require.resolve(
         'fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'

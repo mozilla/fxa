@@ -31,7 +31,6 @@
     "url": "https://github.com/mozilla/fxa/issues"
   },
   "dependencies": {
-    "es6-promise": "4.1.1",
     "sjcl": "git://github.com/mozilla-fxa/sjcl.git#3d45d88ed9eaac98d88e7ff83e505db6896dd8c1",
     "xhr2": "0.0.7"
   },
