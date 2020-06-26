@@ -9,6 +9,12 @@ import { LocalizationProvider } from '@fluent/react';
 import React, { Component } from 'react';
 
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
+// en-US is always available.  More importantly, if en-US is one of the
+// requested languages, maybe even the first on the list, Fluent will have it
+// as the _last_ fallback language when it's not in the available list.
+if (!availableLocales.includes('en-US')) {
+  availableLocales.push('en-US');
+}
 
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
