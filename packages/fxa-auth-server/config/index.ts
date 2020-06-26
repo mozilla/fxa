@@ -307,11 +307,6 @@ const conf = convict({
         env: 'PREPEND_VERIFICATION_SUBDOMAIN_SUBDOMAIN',
       },
     },
-    syncUrl: {
-      doc: 'url to Sync product page',
-      format: String,
-      default: 'https://accounts.firefox.com/connect_another_device/',
-    },
     androidUrl: {
       doc: 'url to Android product page',
       format: String,
@@ -1801,6 +1796,7 @@ conf.set('smtp.verifyPrimaryEmailUrl', `${baseUri}/verify_primary_email`);
 conf.set('smtp.verifySecondaryEmailUrl', `${baseUri}/verify_secondary_email`);
 conf.set('smtp.subscriptionSettingsUrl', `${baseUri}/subscriptions`);
 conf.set('smtp.subscriptionSupportUrl', `${baseUri}/support`);
+conf.set('smtp.syncUrl', `${baseUri}/connect_another_device`);
 
 conf.set('isProduction', conf.get('env') === 'prod');
 
