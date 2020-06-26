@@ -149,6 +149,7 @@ const MAILER_METHOD_NAMES = [
   'sendPostRemoveAccountRecoveryEmail',
   'sendPostRemoveSecondaryEmail',
   'sendPostVerifyEmail',
+  'sendPostVerifyNonMobileEmail',
   'sendPostRemoveTwoStepAuthenticationEmail',
   'sendPostVerifySecondaryEmail',
   'sendRecoveryEmail',

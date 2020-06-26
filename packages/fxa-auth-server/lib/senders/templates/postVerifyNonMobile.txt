@@ -7,7 +7,7 @@
 {{t "Setup next device"}}
 {{{ link }}}
 
-{{{t "Or, install on another device. "}}}
+{{{t "Or, install on another desktop device. "}}}
 {{{ cadLinkAttributes }}}
 
 {{> automatedEmailNoAction}}

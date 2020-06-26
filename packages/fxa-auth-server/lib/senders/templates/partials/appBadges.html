@@ -1,10 +1,7 @@
 <tr style="page-break-before: always">
   <td align="center" style="padding: 40px 0 10px;">
-    <a href="{{{iosUrl}}}">
-      <img src="https://accounts.firefox.com/images/apple_app_store_button/en.svg" width="152" height="45" alt="" style="-ms-interpolation-mode: bicubic;" />
-    </a>
-    <a href="{{{androidUrl}}}">
-      <img src="https://accounts.firefox.com/images/google_play_store_button/en@2x.png" width="152" height="45" alt="" style="-ms-interpolation-mode: bicubic;" />
+    <a href="{{{iosUrl}}}"><img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/5/ebdfb903-4e62-4aeb-9eae-26e1ef495049.png" width="152" height="45" alt="" style="-ms-interpolation-mode: bicubic; margin-right:2px" /></a>
+    <a href="{{{androidUrl}}}"><img src="https://image.e.mozilla.org/lib/fe9915707361037e75/m/5/0dda16b4-21bb-4cc1-9042-2ebaaa7a9764.png" width="152" height="45" alt="" style="-ms-interpolation-mode: bicubic;" />
     </a>
   </td>
 </tr>
@@ -12,7 +9,11 @@
 <tr style="page-break-before: always">
   <td valign="center">
     <p class="secondary" style="font-family: sans-serif; font-weight: normal; margin: 5px 0 12px 0; text-align: center; color: #737373; font-size: 11px; line-height: 18px; width: 310px !important; word-wrap:break-word">
-      {{{t "Or, install on <a %(cadLinkAttributes)s>another device</a>."}}}
+      {{#if isDesktopTemplate}}
+        {{{t "Or, install on <a %(cadLinkAttributes)s>another desktop device</a>."}}}
+      {{else}}
+        {{{t "Or, install on <a %(cadLinkAttributes)s>another device</a>."}}}
+      {{/if}}
     </p>
   </td>
 </tr>

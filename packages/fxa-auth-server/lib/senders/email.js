@@ -52,6 +52,7 @@ module.exports = function (log, config, oauthdb) {
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'account-verified',
+    postVerifyNonMobile: 'account-verified',
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'account-email-verified',
     postAddTwoStepAuthentication: 'account-two-step-enabled',
@@ -93,6 +94,7 @@ module.exports = function (log, config, oauthdb) {
     passwordResetRequired: 'password-reset',
     postRemoveSecondary: 'account-email-removed',
     postVerify: 'connect-device',
+    postVerifyNonMobile: 'registration-confirmation',
     postChangePrimary: 'account-email-changed',
     postVerifySecondary: 'manage-account',
     postAddTwoStepAuthentication: 'manage-account',
@@ -1263,52 +1265,56 @@ module.exports = function (log, config, oauthdb) {
     });
   };
 
-  Mailer.prototype.postVerifyEmail = function (message) {
-    log.trace('mailer.postVerifyEmail', {
-      email: message.email,
-      uid: message.uid,
-    });
-
-    const templateName = 'postVerify';
+  ['postVerify', 'postVerifyNonMobile'].forEach((templateName) => {
     const subject = gettext(
       'Account verified. Next, sync another device to finish setup'
     );
-    const query = {};
-
     const action = gettext('Setup next device');
+    const isDesktopTemplate = templateName === 'postVerifyNonMobile';
+    const query = isDesktopTemplate ? { utm_source: 'fxa' } : {};
 
-    const links = this._generateLinks(
-      this.syncUrl,
-      message,
-      query,
-      templateName
-    );
+    Mailer.prototype[`${templateName}Email`] = async function (message) {
+      log.trace(`mailer.${templateName}Email`, {
+        email: message.email,
+        uid: message.uid,
+      });
 
-    const headers = {
-      'X-Link': links.link,
-    };
+      const links = this._generateLinks(
+        this.syncUrl,
+        message,
+        query,
+        templateName
+      );
 
-    return this.send({
-      ...message,
-      headers,
-      subject,
-      template: templateName,
-      templateValues: {
-        action,
-        androidLinkAttributes: linkAttributes(links.androidLink),
-        androidUrl: links.androidLink,
-        cadLinkAttributes: linkAttributes(links.link),
-        iosLinkAttributes: linkAttributes(links.iosLink),
-        iosUrl: links.iosLink,
-        link: links.link,
-        privacyUrl: links.privacyUrl,
-        style: message.style,
+      const headers = {
+        'X-Link': links.link,
+      };
+
+      return this.send({
+        ...message,
+        headers,
         subject,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-      },
-    });
-  };
+        template: templateName,
+        templateValues: {
+          action,
+          androidLinkAttributes: linkAttributes(links.androidLink),
+          androidUrl: links.androidLink,
+          isDesktopTemplate,
+          cadLinkAttributes: isDesktopTemplate
+            ? linkAttributes('https://www.firefox.com')
+            : linkAttributes(links.link),
+          iosLinkAttributes: linkAttributes(links.iosLink),
+          iosUrl: links.iosLink,
+          link: links.link,
+          privacyUrl: links.privacyUrl,
+          style: message.style,
+          subject,
+          supportLinkAttributes: links.supportLinkAttributes,
+          supportUrl: links.supportUrl,
+        },
+      });
+    };
+  });
 
   Mailer.prototype.postVerifySecondaryEmail = function (message) {
     log.trace('mailer.postVerifySecondaryEmail', {

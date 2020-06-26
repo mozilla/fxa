@@ -121,8 +121,38 @@ describe('verifyAccount', () => {
       );
     });
 
-    it('should send post account verification email', () => {
+    it('should send post account verification email with mobile deviceType', () => {
+      sinon
+        .stub(request, 'headers["user-agent"]')
+        .returns({ deviceType: 'mobile' });
+
       assert.calledOnce(mailer.sendPostVerifyEmail);
+      assert.equal(
+        mailer.sendPostVerifyEmail.args[0][2].service,
+        options.service
+      );
+      assert.equal(mailer.sendPostVerifyEmail.args[0][2].uid, TEST_UID);
+    });
+
+    it('should send the non-mobile post account verification email with tablet deviceType', () => {
+      sinon
+        .stub(request, 'headers["user-agent"]')
+        .returns({ deviceType: 'tablet' });
+
+      assert.calledOnce(mailer.sendpostVerifyNonMobileEmail);
+      assert.equal(
+        mailer.sendPostVerifyEmail.args[0][2].service,
+        options.service
+      );
+      assert.equal(mailer.sendPostVerifyEmail.args[0][2].uid, TEST_UID);
+    });
+
+    it('should send the non-mobile post account verification email with null deviceType', () => {
+      sinon
+        .stub(request, 'headers["user-agent"]')
+        .returns({ deviceType: null });
+
+      assert.calledOnce(mailer.sendpostVerifyNonMobileEmail);
       assert.equal(
         mailer.sendPostVerifyEmail.args[0][2].service,
         options.service

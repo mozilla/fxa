@@ -40,6 +40,7 @@ const EMAIL_TYPES = {
   postChangePrimary: 'change_email',
   postRemoveSecondary: 'secondary_email',
   postVerify: 'registration',
+  postVerifyNonMobile: 'registration',
   postVerifySecondary: 'secondary_email',
   postAddTwoStepAuthentication: '2fa',
   postRemoveTwoStepAuthentication: '2fa',
