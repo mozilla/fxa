@@ -4,6 +4,7 @@
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
   "scripts": {
+    "postinstall": "tsc --build || true",
     "build": "tsc --build",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",

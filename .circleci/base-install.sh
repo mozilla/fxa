@@ -15,5 +15,4 @@ if ([[ "$MODULE" == "many" ]] && grep -e '.' packages/test.list > /dev/null) ||
   sudo apt-get install -y graphicsmagick
 
   yarn install --immutable
-  yarn workspace fxa-shared run build
 fi
