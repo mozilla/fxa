@@ -5,16 +5,12 @@
 
 'use strict';
 
-const ES6Promise = require('es6-promise');
 const sjcl = require('sjcl');
 const credentials = require('./lib/credentials');
 const ERRORS = require('./lib/errors');
 const hawkCredentials = require('./lib/hawkCredentials');
 const metricsContext = require('./lib/metricsContext');
 const Request = require('./lib/request');
-
-// polyfill ES6 promises on browsers that do not support them.
-ES6Promise.polyfill();
 
 var VERSION = 'v1';
 var uriVersionRegExp = new RegExp('/' + VERSION + '$');

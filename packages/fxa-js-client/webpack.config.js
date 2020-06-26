@@ -24,7 +24,6 @@ module.exports = {
     extensions: ['.js'],
     modules: [path.resolve(__dirname, 'client')],
     alias: {
-      'es6-promise': require.resolve('es6-promise/dist/es6-promise'),
       sjcl: require.resolve('sjcl/sjcl'),
     },
   },
