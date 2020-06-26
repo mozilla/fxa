@@ -82,26 +82,6 @@ registerSuite('signup here', {
         .then(testErrorTextInclude('email'));
     },
 
-    'COPPA disabled': function () {
-      return this.remote
-        .then(
-          openPage(
-            ENTER_EMAIL_URL + '?coppa=false',
-            selectors.ENTER_EMAIL.HEADER
-          )
-        )
-        .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-        .then(
-          click(selectors.ENTER_EMAIL.SUBMIT, selectors.SIGNUP_PASSWORD.HEADER)
-        )
-
-        .then(noSuchElement(selectors.SIGNUP_PASSWORD.AGE))
-        .then(type(selectors.SIGNUP_PASSWORD.PASSWORD, PASSWORD))
-        .then(type(selectors.SIGNUP_PASSWORD.VPASSWORD, PASSWORD))
-        .then(click(selectors.SIGNUP_PASSWORD.SUBMIT))
-        .then(testAtConfirmScreen(email));
-    },
-
     'signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account': function () {
       // https://github.com/mozilla/fxa-content-server/issues/2209
       var secondEmail = createEmail();

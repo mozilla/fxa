@@ -21,7 +21,6 @@ let secondaryEmail;
 const {
   clearBrowserState,
   click,
-  closeCurrentWindow,
   createEmail,
   createUser,
   fillOutEmailFirstSignIn,
@@ -31,10 +30,7 @@ const {
   fillOutSignUpCode,
   getUnblockInfo,
   openPage,
-  openVerificationLinkInDifferentBrowser,
-  openVerificationLinkInNewTab,
   openVerificationLinkInSameTab,
-  switchToWindow,
   testElementExists,
   testElementTextEquals,
   testElementTextInclude,
@@ -67,84 +63,6 @@ registerSuite('settings secondary emails', {
   },
 
   tests: {
-    'gated in unverified session open verification same tab': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-
-          // send and open verification in same tab
-          .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-          .then(openVerificationLinkInSameTab(email, 0))
-
-          // panel becomes verified and opens add secondary panel
-          .then(visibleByQSA(selectors.EMAIL.INPUT))
-      );
-    },
-
-    'gated in unverified session open verification new tab': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-
-          // send and open verification in same tab
-          .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-          .then(openVerificationLinkInNewTab(email, 0))
-          .then(switchToWindow(1))
-          // panel becomes verified and opens add secondary panel
-          .then(testElementExists(selectors.EMAIL.INPUT))
-          .then(visibleByQSA(selectors.EMAIL.INPUT))
-          .then(closeCurrentWindow())
-
-          .then(switchToWindow(0))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-          .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-          .then(testElementExists(selectors.EMAIL.INPUT))
-          .then(visibleByQSA(selectors.EMAIL.INPUT))
-      );
-    },
-
-    'gated in unverified session open verification different browser': function () {
-      return (
-        this.remote
-          // when an account is created, the original session is verified
-          // re-login to destroy original session and created an unverified one
-          .then(createUser(email, PASSWORD, { preVerified: true }))
-          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_BUTTON))
-
-          // unlock panel
-          .then(click(selectors.EMAIL.UNLOCK_BUTTON))
-          .then(testElementExists(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-
-          // send and open verification in same tab
-          .then(click(selectors.EMAIL.UNLOCK_SEND_BUTTON))
-          .then(openVerificationLinkInDifferentBrowser(email, 0))
-          .then(click(selectors.EMAIL.UNLOCK_REFRESH_BUTTON))
-
-          .then(testElementExists(selectors.EMAIL.INPUT))
-          .then(visibleByQSA(selectors.EMAIL.INPUT))
-      );
-    },
-
     'add and verify secondary email': function () {
       const removedSecondaryEmail = createEmail('sync{id}');
       const verifiedSecondaryEmail = secondaryEmail;
