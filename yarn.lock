@@ -4228,6 +4228,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cbor@npm:5.0.0":
+  version: 5.0.0
+  resolution: "@types/cbor@npm:5.0.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: 3/cb2fe7da7a1955e42b0efcef4f6e3d18a99bbbc23e07996687413b6eefce88175cd298ff444201ffef301798490c98e8175b6e40ad3129a74c2e6a71e9c61d9c
+  languageName: node
+  linkType: hard
+
 "@types/chai@npm:*, @types/chai@npm:^4.2.10, @types/chai@npm:^4.2.11, @types/chai@npm:^4.2.4":
   version: 4.2.11
   resolution: "@types/chai@npm:4.2.11"
@@ -4746,6 +4755,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 71a1fb7334ec2793cf5565379e2450cfe0e8f4f85ae664acff47dc1fa548ea0c3b68f20d705645b4783c6d33421ff468151aec5c75a85c58cd53a31fe4640596
+  languageName: node
+  linkType: hard
+
+"@types/jsrsasign@npm:8.0.3":
+  version: 8.0.3
+  resolution: "@types/jsrsasign@npm:8.0.3"
+  checksum: 3/cb6155811d96965f3b2e45ec3cc2412a88838f252b7c8d83fcfa10cc20ed8ccbc1711e9c3144528ca8964623a50d922194cd735828f3cff3adee93f51ef34842
   languageName: node
   linkType: hard
 
@@ -8444,7 +8460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bignumber.js@npm:9.0.0":
+"bignumber.js@npm:9.0.0, bignumber.js@npm:^9.0.0":
   version: 9.0.0
   resolution: "bignumber.js@npm:9.0.0"
   checksum: 5968a936fbd801d591d35756078c4c3755887346b703f7e77eb2a5506fe900ca7c48baa253c21ed42b45d1d5c7012b69ac57c3936295d16924b7fc257f22bb80
@@ -9636,6 +9652,16 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: 147f48bff9bebf029d7050e2335da3f8d295f26d157edf08d8c3282c804dae04a462c4cd6efa8179755686aa3aeaca5c28f3e7f3559698bc0484c65e46c36c5b
+  languageName: node
+  linkType: hard
+
+"cbor@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "cbor@npm:5.0.2"
+  dependencies:
+    bignumber.js: ^9.0.0
+    nofilter: ^1.0.3
+  checksum: 3/243a084048e7097bc27d34ed5dcb6e1419c1d858613a433ec6d8e39e7cadff11657a1c4a2af6707624b3eb372637f51b634552a5efd9d2b2dbd2640fc6f8be4c
   languageName: node
   linkType: hard
 
@@ -15247,12 +15273,14 @@ fsevents@^1.2.7:
     "@hapi/hoek": ^8.5.1
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^5.17.0
+    "@types/cbor": 5.0.0
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.1
     "@types/hapi__hapi": ^19.0.3
     "@types/ioredis": ^4.16.7
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.3.5
+    "@types/jsrsasign": 8.0.3
     "@types/jws": ^3.2.0
     "@types/lodash": ^4
     "@types/memcached": ^2.2.6
@@ -15271,6 +15299,7 @@ fsevents@^1.2.7:
     bluebird: ^3.7.2
     buf: 0.1.0
     buffer-equal-constant-time: 1.0.1
+    cbor: ^5.0.2
     chai: ^4.2.0
     cldr-core: 31.0.1
     cldr-localenames-full: 31.0.1
@@ -15302,6 +15331,7 @@ fsevents@^1.2.7:
     ioredis: ^4.14.1
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
+    jsrsasign: ^8.0.20
     jsxgettext-recursive-next: 1.1.0
     jws: 3.1.5
     keypair: 1.0.1
@@ -20899,6 +20929,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"jsrsasign@npm:^8.0.20":
+  version: 8.0.20
+  resolution: "jsrsasign@npm:8.0.20"
+  checksum: 3/538b225544c8f0b4b8362ab08bebb0313b73fe89546cb05f3c476185c97f6e38758276306a36843871febfe1841c98c36ebea8a83134a94e66bcb8b92b3344c7
+  languageName: node
+  linkType: hard
+
 "jsx-ast-utils@npm:^2.2.1, jsx-ast-utils@npm:^2.2.3":
   version: 2.2.3
   resolution: "jsx-ast-utils@npm:2.2.3"
@@ -23723,6 +23760,13 @@ fsevents@^1.2.7:
     nodemailer-smtp-transport: 2.7.2
     socks: 1.1.9
   checksum: ed9374ecad046995bd9092dc82c37b5cbacc0fa6c60427ea6aab3a02624b3908c56dae891ceca5571338ee3d4e8053bb10f4d00585d029d8f705338dc545a71f
+  languageName: node
+  linkType: hard
+
+"nofilter@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "nofilter@npm:1.0.3"
+  checksum: 3/675ec4545362be0ce335dca7dfe2c2f8ce9016075b5ef538ff32d6d841ece5847409f00bd13ff4c557536a988029d756fc74b38ab8c26cc90529ea606af1c6f8
   languageName: node
   linkType: hard
 

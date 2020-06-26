@@ -1,0 +1,101 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const utils = require('../../../lib/fido2/utils');
+const assert = require('assert');
+
+describe('utils', () => {
+  describe('hashing', () => {
+    it('returns sha256 hash of string', () => {
+      const buf = Buffer.from('I Love Fxa Team');
+      const buffToHex = utils.hashing('sha256', buf).toString('hex');
+      assert.equal(
+        buffToHex,
+        'fc177e396fa9ca687fc716a02e2bc4d9fcc834cef4f89a005f433200f4d0e221'
+      );
+    });
+  });
+  describe('ASN1 to PEM', () => {
+    it('convert binary to PEM format', () => {
+      const input = Buffer.from(
+        '30740201010420dd1cd59c4de2fa92e363dac282afe790a5193177d413b38e206b2b86b879ffbfa00706052b8104000aa144034200049d0f70eed85345ca5c1c04563bed19608562c37d644061785a836e8f199155f2818a1e2661f9ed501d8f906611892099a9de5a7ea9f641ecb4dd75bbb63c2d5a',
+        'hex'
+      );
+      const output =
+        "-----BEGIN CERTIFICATE-----\n" +
+        "MHQCAQEEIN0c1ZxN4vqS42PawoKv55ClGTF31BOzjiBrK4a4ef+/oAcGBSuBBAAK\n" +
+        "oUQDQgAEnQ9w7thTRcpcHARWO+0ZYIViw31kQGF4WoNujxmRVfKBih4mYfntUB2P\n" +
+        "kGYRiSCZqd5afqn2Qey03XW7tjwtWg==\n" +
+        "----END CERTIFICATE-----\n";
+      assert.equal(utils.ASN1toPEM(input), output);
+    });
+  });
+  describe("RandomBase64 Buffer", () => {
+    it("gives random base64 encoded buffer", () => {
+      assert.strictEqual(44, utils.randomBase64Buff(32).length);
+    });
+  });
+  describe("parseBrowserBuffer", () => {
+    it("Parse base64 from Browser", () => {
+      assert.equal(
+        utils.parseBrowserBuffer("IloveFirefox3000=="),
+        "IloveFirefox3000"
+      );
+    });
+  });
+  describe("base64toPEM", () => {
+    it("convert base64 encoded string to multiline PEM", () => {
+      const input =
+        "TUlJQ1VUQ0NBZnVnQXdJQkFnSUJBREFOQmdrcWhraUc5dzBCQVFRRkFEQlhNUXN3Q1FZRFZRUUdFd0pEVGpFTA0KTUFrR0ExVUVDQk1DVUU0eEN6QUpCZ05WQkFjVEFrTk9NUXN3Q1FZRFZRUUtFd0pQVGpFTE1Ba0dBMVVFQ3hNQw0KVlU0eEZEQVNCZ05WQkFNVEMwaGxjbTl1WnlCWllXNW5NQjRYRFRBMU1EY3hOVEl4TVRrME4xb1hEVEExTURneA0KTkRJeE1UazBOMW93VnpFTE1Ba0dBMVVFQmhNQ1EwNHhDekFKQmdOVkJBZ1RBbEJPTVFzd0NRWURWUVFIRXdKRA0KVGpFTE1Ba0dBMVVFQ2hNQ1QwNHhDekFKQmdOVkJBc1RBbFZPTVJRd0VnWURWUVFERXd0SVpYSnZibWNnV1dGdQ0KWnpCY01BMEdDU3FHU0liM0RRRUJBUVVBQTBzQU1FZ0NRUUNwNWhuRzdvZ0JodGx5bnBPUzIxY0Jld0tFL0I3ag0KVjE0cWV5c2xucjI2eFpVc1NWa28zNlpuaGlhTy96Yk1Pb1JjS0s5dkVjZ010Y0xGdVFUV0RsM1JBZ01CQUFHag0KZ2JFd2dhNHdIUVlEVlIwT0JCWUVGRlhJNzBrclhlUUR4WmdiYUNRb1I0alVEbmNFTUg4R0ExVWRJd1I0TUhhQQ0KRkZYSTcwa3JYZVFEeFpnYmFDUW9SNGpVRG5jRW9WdWtXVEJYTVFzd0NRWURWUVFHRXdKRFRqRUxNQWtHQTFVRQ0KQ0JNQ1VFNHhDekFKQmdOVkJBY1RBa05PTVFzd0NRWURWUVFLRXdKUFRqRUxNQWtHQTFVRUN4TUNWVTR4RkRBUw0KQmdOVkJBTVRDMGhsY205dVp5QlpZVzVuZ2dFQU1Bd0dBMVVkRXdRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFRQ0KQlFBRFFRQS91Z3pCcmpqSzlqY1duRFZmR0hsazNpY05ScTBvVjdSaTMyei8rSFFYNjdhUmZnWnU3S1dkSStKdQ0KV203RENmclBOR1Z3RldVUU9tc1B1ZTlyWkJnTw==";
+      const output =
+        "-----BEGIN CERTIFICATE-----\n" +
+        "TUlJQ1VUQ0NBZnVnQXdJQkFnSUJBREFOQmdrcWhraUc5dzBCQVFRRkFEQlhNUXN3Q\n" +
+        "1FZRFZRUUdFd0pEVGpFTA0KTUFrR0ExVUVDQk1DVUU0eEN6QUpCZ05WQkFjVEFrTk\n" +
+        "9NUXN3Q1FZRFZRUUtFd0pQVGpFTE1Ba0dBMVVFQ3hNQw0KVlU0eEZEQVNCZ05WQkF\n" +
+        "NVEMwaGxjbTl1WnlCWllXNW5NQjRYRFRBMU1EY3hOVEl4TVRrME4xb1hEVEExTURn\n" +
+        "eA0KTkRJeE1UazBOMW93VnpFTE1Ba0dBMVVFQmhNQ1EwNHhDekFKQmdOVkJBZ1RBb\n" +
+        "EJPTVFzd0NRWURWUVFIRXdKRA0KVGpFTE1Ba0dBMVVFQ2hNQ1QwNHhDekFKQmdOVk\n" +
+        "JBc1RBbFZPTVJRd0VnWURWUVFERXd0SVpYSnZibWNnV1dGdQ0KWnpCY01BMEdDU3F\n" +
+        "HU0liM0RRRUJBUVVBQTBzQU1FZ0NRUUNwNWhuRzdvZ0JodGx5bnBPUzIxY0Jld0tF\n" +
+        "L0I3ag0KVjE0cWV5c2xucjI2eFpVc1NWa28zNlpuaGlhTy96Yk1Pb1JjS0s5dkVjZ\n" +
+        "010Y0xGdVFUV0RsM1JBZ01CQUFHag0KZ2JFd2dhNHdIUVlEVlIwT0JCWUVGRlhJNz\n" +
+        "BrclhlUUR4WmdiYUNRb1I0alVEbmNFTUg4R0ExVWRJd1I0TUhhQQ0KRkZYSTcwa3J\n" +
+        "YZVFEeFpnYmFDUW9SNGpVRG5jRW9WdWtXVEJYTVFzd0NRWURWUVFHRXdKRFRqRUxN\n" +
+        "QWtHQTFVRQ0KQ0JNQ1VFNHhDekFKQmdOVkJBY1RBa05PTVFzd0NRWURWUVFLRXdKU\n" +
+        "FRqRUxNQWtHQTFVRUN4TUNWVTR4RkRBUw0KQmdOVkJBTVRDMGhsY205dVp5QlpZVz\n" +
+        "VuZ2dFQU1Bd0dBMVVkRXdRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFRQ0KQlFBRFF\n" +
+        "RQS91Z3pCcmpqSzlqY1duRFZmR0hsazNpY05ScTBvVjdSaTMyei8rSFFYNjdhUmZn\n" +
+        "WnU3S1dkSStKdQ0KV203RENmclBOR1Z3RldVUU9tc1B1ZTlyWkJnTw==\n" +
+        "-----END CERTIFICATE-----\n";
+      assert.equal(utils.base64ToPem(input), output);
+    });
+  });
+  describe("PEMtoBase64", () => {
+    it("convert multiline PEM to base64 string", () => {
+      const input =
+        "-----BEGIN CERTIFICATE-----\n" +
+        "TUlJQ1VUQ0NBZnVnQXdJQkFnSUJBREFOQmdrcWhraUc5dzBCQVFRRkFEQlhNUXN3Q\n" +
+        "1FZRFZRUUdFd0pEVGpFTA0KTUFrR0ExVUVDQk1DVUU0eEN6QUpCZ05WQkFjVEFrTk\n" +
+        "9NUXN3Q1FZRFZRUUtFd0pQVGpFTE1Ba0dBMVVFQ3hNQw0KVlU0eEZEQVNCZ05WQkF\n" +
+        "NVEMwaGxjbTl1WnlCWllXNW5NQjRYRFRBMU1EY3hOVEl4TVRrME4xb1hEVEExTURn\n" +
+        "eA0KTkRJeE1UazBOMW93VnpFTE1Ba0dBMVVFQmhNQ1EwNHhDekFKQmdOVkJBZ1RBb\n" +
+        "EJPTVFzd0NRWURWUVFIRXdKRA0KVGpFTE1Ba0dBMVVFQ2hNQ1QwNHhDekFKQmdOVk\n" +
+        "JBc1RBbFZPTVJRd0VnWURWUVFERXd0SVpYSnZibWNnV1dGdQ0KWnpCY01BMEdDU3F\n" +
+        "HU0liM0RRRUJBUVVBQTBzQU1FZ0NRUUNwNWhuRzdvZ0JodGx5bnBPUzIxY0Jld0tF\n" +
+        "L0I3ag0KVjE0cWV5c2xucjI2eFpVc1NWa28zNlpuaGlhTy96Yk1Pb1JjS0s5dkVjZ\n" +
+        "010Y0xGdVFUV0RsM1JBZ01CQUFHag0KZ2JFd2dhNHdIUVlEVlIwT0JCWUVGRlhJNz\n" +
+        "BrclhlUUR4WmdiYUNRb1I0alVEbmNFTUg4R0ExVWRJd1I0TUhhQQ0KRkZYSTcwa3J\n" +
+        "YZVFEeFpnYmFDUW9SNGpVRG5jRW9WdWtXVEJYTVFzd0NRWURWUVFHRXdKRFRqRUxN\n" +
+        "QWtHQTFVRQ0KQ0JNQ1VFNHhDekFKQmdOVkJBY1RBa05PTVFzd0NRWURWUVFLRXdKU\n" +
+        "FRqRUxNQWtHQTFVRUN4TUNWVTR4RkRBUw0KQmdOVkJBTVRDMGhsY205dVp5QlpZVz\n" +
+        "VuZ2dFQU1Bd0dBMVVkRXdRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFRQ0KQlFBRFF\n" +
+        "RQS91Z3pCcmpqSzlqY1duRFZmR0hsazNpY05ScTBvVjdSaTMyei8rSFFYNjdhUmZn\n" +
+        "WnU3S1dkSStKdQ0KV203RENmclBOR1Z3RldVUU9tc1B1ZTlyWkJnTw==\n" +
+        "-----END CERTIFICATE-----\n";
+      const output =
+        "TUlJQ1VUQ0NBZnVnQXdJQkFnSUJBREFOQmdrcWhraUc5dzBCQVFRRkFEQlhNUXN3Q1FZRFZRUUdFd0pEVGpFTA0KTUFrR0ExVUVDQk1DVUU0eEN6QUpCZ05WQkFjVEFrTk9NUXN3Q1FZRFZRUUtFd0pQVGpFTE1Ba0dBMVVFQ3hNQw0KVlU0eEZEQVNCZ05WQkFNVEMwaGxjbTl1WnlCWllXNW5NQjRYRFRBMU1EY3hOVEl4TVRrME4xb1hEVEExTURneA0KTkRJeE1UazBOMW93VnpFTE1Ba0dBMVVFQmhNQ1EwNHhDekFKQmdOVkJBZ1RBbEJPTVFzd0NRWURWUVFIRXdKRA0KVGpFTE1Ba0dBMVVFQ2hNQ1QwNHhDekFKQmdOVkJBc1RBbFZPTVJRd0VnWURWUVFERXd0SVpYSnZibWNnV1dGdQ0KWnpCY01BMEdDU3FHU0liM0RRRUJBUVVBQTBzQU1FZ0NRUUNwNWhuRzdvZ0JodGx5bnBPUzIxY0Jld0tFL0I3ag0KVjE0cWV5c2xucjI2eFpVc1NWa28zNlpuaGlhTy96Yk1Pb1JjS0s5dkVjZ010Y0xGdVFUV0RsM1JBZ01CQUFHag0KZ2JFd2dhNHdIUVlEVlIwT0JCWUVGRlhJNzBrclhlUUR4WmdiYUNRb1I0alVEbmNFTUg4R0ExVWRJd1I0TUhhQQ0KRkZYSTcwa3JYZVFEeFpnYmFDUW9SNGpVRG5jRW9WdWtXVEJYTVFzd0NRWURWUVFHRXdKRFRqRUxNQWtHQTFVRQ0KQ0JNQ1VFNHhDekFKQmdOVkJBY1RBa05PTVFzd0NRWURWUVFLRXdKUFRqRUxNQWtHQTFVRUN4TUNWVTR4RkRBUw0KQmdOVkJBTVRDMGhsY205dVp5QlpZVzVuZ2dFQU1Bd0dBMVVkRXdRRk1BTUJBZjh3RFFZSktvWklodmNOQVFFRQ0KQlFBRFFRQS91Z3pCcmpqSzlqY1duRFZmR0hsazNpY05ScTBvVjdSaTMyei8rSFFYNjdhUmZnWnU3S1dkSStKdQ0KV203RENmclBOR1Z3RldVUU9tc1B1ZTlyWkJnTw==";
+      assert.equal(utils.pemToBase64(input), output);
+    });
+  });
+});
