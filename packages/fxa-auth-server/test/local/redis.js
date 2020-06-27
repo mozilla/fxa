@@ -24,6 +24,7 @@ const downRedis = require('../../lib/redis')(
   { enabled: true, port: 1, timeoutMs: 10, lazyConnect: true },
   { error: sinon.spy() }
 );
+downRedis.redis.on('error', () => {});
 
 const uid = 'uid1';
 const sessionToken = {

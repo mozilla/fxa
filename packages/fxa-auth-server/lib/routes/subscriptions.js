@@ -7,10 +7,13 @@
 const Sentry = require('@sentry/node');
 const error = require('../error');
 const isA = require('@hapi/joi');
+const { omitBy } = require('lodash');
+// @ts-ignore
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const validators = require('./validators');
 const { splitCapabilities } = require('./utils/subscriptions');
 const { SUBSCRIPTION_UPDATE_TYPES } = require('../payments/stripe');
+// @ts-ignore
 const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
@@ -21,7 +24,7 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.BOUNCE_HARD,
 ];
 
-/** @typedef {import('hapi').Request} Request */
+/** @typedef {import('@hapi/hapi').Request} Request */
 /** @typedef {import('stripe').Stripe.Customer} Customer */
 /** @typedef {import('stripe').Stripe.Source} Source */
 /** @typedef {import('stripe').Stripe.Source.Card} Card */
@@ -35,6 +38,13 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
 /** @typedef {import('stripe').Stripe.Charge} Charge */
 /** @typedef {import('../payments/stripe.js').AbbrevPlan} AbbrevPlan*/
 
+/**
+ * Authentication handler for subscription routes.
+ *
+ * @param {*} db
+ * @param {*} auth
+ * @param {*} fetchEmail
+ */
 async function handleAuth(db, auth, fetchEmail = false) {
   const scope = ScopeSet.fromArray(auth.credentials.scope);
   if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
@@ -51,29 +61,21 @@ async function handleAuth(db, auth, fetchEmail = false) {
   return { uid, email };
 }
 
-// Delete any metadata keys prefixed by `capabilities:` before
-// sending response. We don't need to reveal those.
-// https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
+/**
+ * Delete any metadata keys prefixed by `capabilities:` before
+ * sending response. We don't need to reveal those.
+ * https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
+ *
+ * @param {AbbrevPlan[]} plans
+ */
 function sanitizePlans(plans) {
   return plans.map((planIn) => {
     // Try not to mutate the original in case we cache plans in memory.
     const plan = { ...planIn };
-    for (const metadataKey of ['plan_metadata', 'product_metadata']) {
-      if (plan[metadataKey]) {
-        // Make a clone of the metadata object so we don't mutate the original.
-        const metadata = { ...plan[metadataKey] };
-        const capabilityKeys = [
-          'capabilities',
-          ...Object.keys(metadata).filter((key) =>
-            key.startsWith('capabilities:')
-          ),
-        ];
-        for (const key of capabilityKeys) {
-          delete metadata[key];
-        }
-        plan[metadataKey] = metadata;
-      }
-    }
+    /** @type {(value: string, key: string) => boolean} */
+    const isCapabilityKey = (value, key) => key.startsWith('capabilities');
+    plan.plan_metadata = omitBy(plan.plan_metadata, isCapabilityKey);
+    plan.product_metadata = omitBy(plan.product_metadata, isCapabilityKey);
     return plan;
   });
 }
@@ -101,6 +103,13 @@ class DirectStripeRoutes {
     this.stripeHelper = stripeHelper;
   }
 
+  /**
+   * Reload the customer data to reflect a change.
+   *
+   * @param {*} request
+   * @param {string} uid
+   * @param {string} email
+   */
   async customerChanged(request, uid, email) {
     const [devices] = await Promise.all([
       await request.app.devices,
@@ -114,12 +123,19 @@ class DirectStripeRoutes {
     });
   }
 
+  /**
+   * Retrieve the client capabilities
+   *
+   * @param {*} request
+   */
   async getClients(request) {
     this.log.begin('subscriptions.getClients', request);
+    /** @type {{[clientId: string]: string[]}} */
     const capabilitiesByClientId = {};
 
     const plans = await this.stripeHelper.allPlans();
 
+    /** @type {string[]} */
     const capabilitiesForAll = [];
     for (const plan of plans) {
       const metadata = metadataFromPlan(plan);
@@ -193,39 +209,9 @@ class DirectStripeRoutes {
       );
     }
 
-    let sourceCountry = null;
-
-    // Get the country from the payment details.
-    // However, historically there were (rare) instances where `charges` was
-    // not found in the object graph, hence the defensive code.
-    if (
-      subscription.latest_invoice.payment_intent.charges &&
-      subscription.latest_invoice.payment_intent.charges.data
-    ) {
-      // There's only one charge (the latest), per Stripe's docs.
-      const paymentMethodDetails =
-        subscription.latest_invoice.payment_intent.charges.data[0]
-          .payment_method_details;
-
-      if (
-        paymentMethodDetails &&
-        paymentMethodDetails.type &&
-        paymentMethodDetails[paymentMethodDetails.type] &&
-        paymentMethodDetails[paymentMethodDetails.type].country
-      ) {
-        sourceCountry = paymentMethodDetails[paymentMethodDetails.type].country;
-      }
-    } else {
-      Sentry.withScope((scope) => {
-        scope.setContext('stripeSubscription', {
-          subscription: { id: subscription.id },
-        });
-        Sentry.captureMessage(
-          'Payment charges not found in subscription payment intent on subscription creation.',
-          Sentry.Severity.Warning
-        );
-      });
-    }
+    const sourceCountry = this.stripeHelper.extractSourceCountryFromSubscription(
+      subscription
+    );
 
     await this.customerChanged(request, uid, email);
 
@@ -1279,6 +1265,17 @@ const directRoutes = (
   ];
 };
 
+/**
+ *
+ * @param {*} log
+ * @param {*} db
+ * @param {*} config
+ * @param {*} customs
+ * @param {*} push
+ * @param {*} mailer
+ * @param {*} profile
+ * @param {*} stripeHelper
+ */
 const createRoutes = (
   log,
   db,

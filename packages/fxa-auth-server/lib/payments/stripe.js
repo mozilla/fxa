@@ -1,21 +1,20 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
+// @ts-check
 const Sentry = require('@sentry/node');
 const moment = require('moment');
 const error = require('../error');
 
 const stripe = require('stripe').Stripe;
 
-/** @typedef {import('stripe').Stripe.ApiList<Subscription>} Subscriptions */
-/** @typedef {import('stripe').Stripe.ApiListPromise} ApiListPromise */
 /** @typedef {import('stripe').Stripe.Customer} Customer */
 /** @typedef {import('stripe').Stripe.Event} StripeEvent */
 /** @typedef {import('stripe').Stripe.Plan} Plan */
 /** @typedef {import('stripe').Stripe.Product} Product */
 /** @typedef {import('stripe').Stripe.DeletedProduct} DeletedProduct */
 /** @typedef {import('stripe').Stripe.Subscription} Subscription */
+/** @typedef {import('stripe').Stripe.ApiList<Subscription>} Subscriptions */
 /** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
 /** @typedef {import('stripe').Stripe.Invoice} Invoice */
 /** @typedef {import('stripe').Stripe.Source} Source */
@@ -35,6 +34,7 @@ const stripe = require('stripe').Stripe;
  * @property {string} plan_id
  * @property {Product['metadata']} plan_metadata
  * @property {string} product_id
+ * @property {string} plan_name
  * @property {string} product_name
  * @property {Product['metadata']} product_metadata
  * @property {Plan['interval']} interval
@@ -100,8 +100,8 @@ class StripeHelper {
   /**
    * Create a Stripe Helper with built-in caching.
    *
-   * @param {object} log
-   * @param {object} config
+   * @param {*} log
+   * @param {*} config
    * @param {import('hot-shots').StatsD | undefined} statsd
    */
   constructor(log, config, statsd) {
@@ -138,11 +138,16 @@ class StripeHelper {
    * Get a cached result at a cache key and regenerated it with `refreshFunction`
    * if its expired.
    *
+   * @template T
    * @param {string} cacheKey
    * @param {() => Promise<T>} refreshFunction
-   * @returns {Promise<T | undefined>} possibly cached result
+   * @returns {Promise<T>} possibly cached result
    */
   async getCachedResult(cacheKey, refreshFunction) {
+    if (!this.redis) {
+      return refreshFunction();
+    }
+
     try {
       const json = await this.redis.get(cacheKey);
       if (json) {
@@ -245,7 +250,7 @@ class StripeHelper {
    * and the email.
    *
    * @param {Subscription} sub
-   * @returns {Promise<{uid: string, email: string} | {uid: undefined, email: undefined} | {uid: undefined, email: string}>}
+   * @returns {Promise<{uid: string, email: string} | {uid: null, email: null} | {uid: null, email: string}>}
    */
   async getCustomerUidEmailFromSubscription(sub) {
     const customer = await this.stripe.customers.retrieve(
@@ -253,22 +258,29 @@ class StripeHelper {
     );
     if (customer.deleted) {
       // Deleted customers lost their metadata so we can't send events for them
-      return { uid: undefined, email: undefined };
+      return { uid: null, email: null };
     }
-    if (!(/** @type {Customer} */ (customer.metadata.userid))) {
+    const uid = /** @type {Customer} */ (customer).metadata.userid;
+    const email = /** @type {Customer} */ (customer).email;
+    if (!uid || !email) {
+      const message = !uid
+        ? 'FxA UID does not exist on customer metadata.'
+        : 'Stripe customer is missing email';
       Sentry.withScope((scope) => {
         scope.setContext('stripeEvent', {
           customer: { id: customer.id },
         });
-        Sentry.captureMessage(
-          'FxA UID does not exist on customer metadata.',
-          Sentry.Severity.Error
-        );
+        Sentry.captureMessage(message, Sentry.Severity.Error);
       });
+      throw error.internalValidationError(
+        'getCustomerUidEmailFromSubscription',
+        customer,
+        new Error(message)
+      );
     }
     return {
-      uid: /** @type {Customer} */ (customer).metadata.userid,
-      email: /** @type {Customer} */ (customer).email,
+      uid,
+      email,
     };
   }
 
@@ -347,7 +359,7 @@ class StripeHelper {
     const cacheKey = this.customerCacheKey(uid, email);
     let result = undefined;
 
-    if (!forceRefresh) {
+    if (!forceRefresh && this.redis) {
       try {
         const json = await this.redis.get(cacheKey);
         if (json) {
@@ -363,10 +375,12 @@ class StripeHelper {
         'data.sources',
         'data.subscriptions',
       ]);
-      try {
-        await this.redis.set(cacheKey, JSON.stringify(result));
-      } catch (err) {
-        this.log.error(`stripeHelper.customer.redis.set.failed`, { err });
+      if (this.redis) {
+        try {
+          await this.redis.set(cacheKey, JSON.stringify(result));
+        } catch (err) {
+          this.log.error(`stripeHelper.customer.redis.set.failed`, { err });
+        }
       }
     }
 
@@ -407,7 +421,7 @@ class StripeHelper {
       return;
     }
 
-    return customer.subscriptions.data.find(
+    return /** @type {Subscriptions} */ (customer.subscriptions).data.find(
       (subscription) => subscription.id === subscriptionId
     );
   }
@@ -473,6 +487,9 @@ class StripeHelper {
    * @param {string} email
    */
   async removeCustomerFromCache(uid, email) {
+    if (!this.redis) {
+      return;
+    }
     const customerKey = this.customerCacheKey(uid, email);
     try {
       await this.redis.del(customerKey);
@@ -523,6 +540,7 @@ class StripeHelper {
 
       plans.push({
         plan_id: item.id,
+        plan_name: item.nickname || '',
         plan_metadata: item.metadata,
         product_id: item.product.id,
         product_name: item.product.name,
@@ -641,7 +659,7 @@ class StripeHelper {
    *
    * @param {string} uid
    * @param {string} email
-   * @param {Subscription[id]} subscriptionId
+   * @param {string} subscriptionId
    */
   async cancelSubscriptionForCustomer(uid, email, subscriptionId) {
     const subscription = await this.subscriptionForCustomer(
@@ -673,7 +691,7 @@ class StripeHelper {
    *
    * @param {string} uid
    * @param {string} email
-   * @param {Subscription[id]} subscriptionId
+   * @param {string} subscriptionId
    */
   async reactivateSubscriptionForCustomer(uid, email, subscriptionId) {
     const subscription = await this.subscriptionForCustomer(
@@ -805,10 +823,75 @@ class StripeHelper {
    * @returns {Promise<PaymentIntent>}
    */
   async fetchPaymentIntentFromInvoice(invoice) {
+    if (!invoice.payment_intent) {
+      // We don't have any code working with draft invoices, so
+      // this should not be hit... yet. PayPal support *will* likely operate
+      // on draft invoices though.
+      throw error.internalValidationError(
+        'fetchPaymentIntentFromInvoice',
+        invoice,
+        new Error(`Invoice not finalized: ${invoice.id}`)
+      );
+    }
     if (typeof invoice.payment_intent !== 'string') {
       return invoice.payment_intent;
     }
     return this.stripe.paymentIntents.retrieve(invoice.payment_intent);
+  }
+
+  /**
+   * Extract the source country from a subscription payment details.
+   *
+   * Requires the `latest_invoice.payment_intent` to be expanded during
+   * subscription load.
+   *
+   * @param {Subscription} subscription
+   * @returns {null | string}
+   */
+  extractSourceCountryFromSubscription(subscription) {
+    // Eliminate all the optional values and ensure they were expanded such
+    // that they're not a string.
+    if (
+      !subscription.latest_invoice ||
+      typeof subscription.latest_invoice === 'string' ||
+      !subscription.latest_invoice.payment_intent ||
+      typeof subscription.latest_invoice.payment_intent === 'string'
+    ) {
+      return null;
+    }
+
+    if (subscription.latest_invoice.payment_intent.charges.data.length !== 0) {
+      // Get the country from the payment details.
+      // However, historically there were (rare) instances where `charges` was
+      // not found in the object graph, hence the defensive code.
+      // There's only one charge (the latest), per Stripe's docs.
+      const paymentMethodDetails =
+        subscription.latest_invoice.payment_intent.charges.data[0]
+          .payment_method_details;
+
+      if (
+        paymentMethodDetails &&
+        paymentMethodDetails.type &&
+        // @ts-ignore
+        paymentMethodDetails[paymentMethodDetails.type] &&
+        // @ts-ignore
+        paymentMethodDetails[paymentMethodDetails.type].country
+      ) {
+        // @ts-ignore
+        return paymentMethodDetails[paymentMethodDetails.type].country;
+      }
+    } else {
+      Sentry.withScope((scope) => {
+        scope.setContext('stripeSubscription', {
+          subscription: { id: subscription.id },
+        });
+        Sentry.captureMessage(
+          'Payment charges not found in subscription payment intent on subscription creation.',
+          Sentry.Severity.Warning
+        );
+      });
+    }
+    return null;
   }
 
   /**
@@ -842,7 +925,9 @@ class StripeHelper {
       // as the `expand` argument or this will not fetch the failure code/message.
       if (
         sub.status === 'past_due' &&
-        sub.collection_method === 'charge_automatically'
+        sub.collection_method === 'charge_automatically' &&
+        latestInvoice &&
+        latestInvoice.charge
       ) {
         let charge = latestInvoice.charge;
         if (typeof latestInvoice.charge === 'string') {
@@ -854,11 +939,14 @@ class StripeHelper {
       }
 
       const product = await this.expandResource(
+        // @ts-ignore
         sub.plan.product,
         PRODUCT_RESOURCE
       );
 
+      // @ts-ignore
       const product_id = product.id;
+      // @ts-ignore
       const product_name = product.name;
 
       // FIXME: Note that the plan is only set if the subscription contains a single
@@ -870,7 +958,9 @@ class StripeHelper {
         current_period_start: sub.current_period_start,
         cancel_at_period_end: sub.cancel_at_period_end,
         end_at: sub.ended_at,
+        // @ts-ignore
         latest_invoice: latestInvoice.number,
+        // @ts-ignore
         plan_id: sub.plan.id,
         product_name,
         product_id,
@@ -892,11 +982,25 @@ class StripeHelper {
   async formatSubscriptionsForSupport(subscriptions) {
     const subs = [];
     for (const sub of subscriptions.data) {
+      if (!sub.plan) {
+        throw error.internalValidationError(
+          'formatSubscriptionsForSupport',
+          sub,
+          new Error(`Unexpected multiple plans for subscription: ${sub.id}`)
+        );
+      }
       const product = await this.expandResource(
         sub.plan.product,
         PRODUCT_RESOURCE
       );
 
+      if (!product || product.deleted) {
+        throw error.internalValidationError(
+          'formatSubscriptionsForSupport',
+          sub,
+          new Error(`Product invalid for subcription: ${sub.id}`)
+        );
+      }
       const product_name = product.name;
 
       let previous_product = null;
@@ -959,10 +1063,27 @@ class StripeHelper {
 
     // Dig up & expand objects in the invoice that usually come as just IDs
     const { plan } = invoice.lines.data[0];
+    if (!plan) {
+      // No plan is present if this is not a subscription or proration, which
+      // should never happen as we only have subscriptions.
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice.lines.data[0],
+        new Error(`Unexpected line item: ${invoice.lines.data[0].id}`)
+      );
+    }
     const [abbrevProduct, charge] = await Promise.all([
       this.expandAbbrevProductForPlan(plan),
       this.expandResource(invoice.charge, CHARGES_RESOURCE),
     ]);
+
+    if (!abbrevProduct) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error(`No product attached to plan ${plan.id}`)
+      );
+    }
 
     const {
       email,
@@ -988,6 +1109,26 @@ class StripeHelper {
       emailIconURL: planEmailIconURL = '',
       downloadURL: planDownloadURL = '',
     } = productMetadata;
+
+    if (!charge || !charge.payment_method_details) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error(
+          `No charge or payment method details found on invoice ${invoice.id}`
+        )
+      );
+    }
+    if (!charge.payment_method_details.card) {
+      // FIXME: Allow invoice emails to be sent with non-card payment methods
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        invoice,
+        new Error(
+          `Invoice not completed with a card payment, invoice: ${invoice.id}`
+        )
+      );
+    }
     const {
       brand: cardType,
       last4: lastFour,
@@ -1027,6 +1168,14 @@ class StripeHelper {
         new Error(`Payment source was not card: ${source.id}`)
       );
     }
+    if (!source.customer) {
+      // We shouldn't get here - our sources should be attached to customers.
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        source,
+        new Error(`Customer was not found on source: ${source.id}`)
+      );
+    }
 
     const customer = await this.expandResource(
       source.customer,
@@ -1047,10 +1196,26 @@ class StripeHelper {
 
     /** @type {AbbrevProduct | undefined} */
     let abbrevProduct;
-    /** @type {Plan | undefined} */
+    /** @type {Plan | undefined | null} */
     let plan;
+    if (!customer.subscriptions) {
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        customer,
+        new Error(`No subscriptions found for customer: ${customer.id}`)
+      );
+    }
     for (const subscription of customer.subscriptions.data) {
       if (['active', 'trialing'].includes(subscription.status)) {
+        if (!subscription.plan) {
+          throw error.internalValidationError(
+            'extractSourceDetailsForEmail',
+            customer,
+            new Error(
+              `Multiple plans for a subscription not supported: ${subscription.id}`
+            )
+          );
+        }
         plan = await this.expandResource(subscription.plan, PLAN_RESOURCE);
         abbrevProduct = await this.expandAbbrevProductForPlan(plan);
         break;
@@ -1126,11 +1291,24 @@ class StripeHelper {
       metadata: { userid: uid },
     } = customer;
 
+    if (!subscription.plan) {
+      throw error.internalValidationError(
+        'extractSubscriptionUpdateEventDetailsForEmail',
+        event,
+        new Error(
+          `Multiple plans for a subscription not supported: ${subscription.id}`
+        )
+      );
+    }
+
     const previousAttributes = eventData.previous_attributes;
     const planNew = subscription.plan;
     const planIdNew = subscription.plan.id;
+    // This may be in error, its not obvious what previous attributes must exist
+    // @ts-ignore
     const planOld = previousAttributes.plan;
     const cancelAtPeriodEndNew = subscription.cancel_at_period_end;
+    // @ts-ignore
     const cancelAtPeriodEndOld = previousAttributes.cancel_at_period_end;
 
     const abbrevProductNew = await this.expandAbbrevProductForPlan(planNew);
@@ -1166,6 +1344,14 @@ class StripeHelper {
       closeDate: event.created,
       productMetadata: productNewMetadata,
     };
+
+    if (!invoice) {
+      throw error.internalValidationError(
+        'extractSubscriptionUpdateEventDetailsForEmail',
+        event,
+        new Error(`Invoice expected for subscription: ${subscription.id}`)
+      );
+    }
 
     if (!cancelAtPeriodEndOld && cancelAtPeriodEndNew && !planOld) {
       return this.extractSubscriptionUpdateCancellationDetailsForEmail(
@@ -1265,6 +1451,20 @@ class StripeHelper {
         ],
       },
     } = invoice;
+
+    if (
+      !charge ||
+      !charge.payment_method_details ||
+      !charge.payment_method_details.card
+    ) {
+      throw error.internalValidationError(
+        'extractSubscriptionUpdateReactivationDetailsForEmail',
+        invoice,
+        new Error(
+          `Expected card payment method details for invoice: ${invoice.id}`
+        )
+      );
+    }
 
     const {
       brand: cardType,
@@ -1385,6 +1585,7 @@ class StripeHelper {
       throw error;
     }
 
+    // @ts-ignore
     return this.stripe[resourceType].retrieve(resource);
   }
 
@@ -1396,6 +1597,7 @@ class StripeHelper {
    * @returns { Promise<AbbrevProduct> }
    */
   async expandAbbrevProductForPlan(plan) {
+    // @ts-ignore
     const checkDeletedProduct = (product) => {
       if (product.deleted === true) {
         throw error.unknownSubscriptionPlan(plan.id);
