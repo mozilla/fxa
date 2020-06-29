@@ -14,6 +14,8 @@ import { useNonce } from '../../lib/hooks';
 function init() {
   storiesOf('components/PaymentForm', module)
     .add('default', () => <Subject />)
+    .add('without plan', () => <Subject noPlan />)
+    .add('without confirmation', () => <Subject confirm={false} />)
     .add('fr locale (for legal links)', () => <Subject locale="fr" />)
     .add('in progress', () => <Subject inProgress={true} />)
     .add('all invalid', () => {
@@ -60,6 +62,7 @@ const PLAN = {
 type SubjectProps = {
   inProgress?: boolean;
   confirm?: boolean;
+  noPlan?: boolean;
   plan?: Plan;
   onPayment?: (tokenResponse: stripe.TokenResponse) => void;
   onPaymentError?: (error: any) => void;
@@ -72,6 +75,7 @@ type SubjectProps = {
 const Subject = ({
   inProgress = false,
   confirm = true,
+  noPlan = false,
   plan = PLAN,
   onPayment = action('onPayment'),
   onPaymentError = action('onPaymentError'),
@@ -86,7 +90,7 @@ const Subject = ({
     submitNonce,
     inProgress,
     confirm,
-    plan,
+    plan: noPlan ? undefined : plan,
     onPayment,
     onPaymentError,
     onChange,

@@ -183,7 +183,7 @@ export const SubscriptionUpgrade = ({
             <hr />
 
             <Localized
-              id={`sub-update-confirm-${selectedPlan.interval}`}
+              id={`sub-update-confirm-with-legal-links-${selectedPlan.interval}`}
               strong={<strong></strong>}
               $amount={getLocalizedCurrency(
                 selectedPlan.amount,

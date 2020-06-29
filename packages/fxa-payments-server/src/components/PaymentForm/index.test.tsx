@@ -210,6 +210,26 @@ it('includes the confirmation checkbox when confirm = true and plan supplied', (
 });
 
 describe('Legal', () => {
+  describe('links', () => {
+    const commonLegalLinkTest = (plan?: Plan) => () => {
+      const { queryByText } = render(<Subject {...{ plan }} />);
+      [
+        queryByText('Terms of Service'),
+        queryByText('Privacy Notice'),
+      ].forEach((q) =>
+        plan ? expect(q).toBeInTheDocument() : expect(q).not.toBeInTheDocument()
+      );
+    };
+    it(
+      'omits terms of service and privacy notice links when plan is missing',
+      commonLegalLinkTest()
+    );
+    it(
+      'includes terms of service and privacy notice links when plan is supplied',
+      commonLegalLinkTest(MOCK_PLAN)
+    );
+  });
+
   describe('rendering the legal checkbox Localized component', () => {
     function runTests(plan: Plan, expectedMsgId: string, expectedMsg: string) {
       const testRenderer = TestRenderer.create(
