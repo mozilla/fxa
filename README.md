@@ -228,20 +228,22 @@ Check out the Secrets section in the following READMEs:
 
 #### Test all or some packages
 
+- You might need to run `yarn start infrastructure` before running tests to start services.
+
 From the root directory you may test all or some FxA packages:
 
 ```bash
 # Test only `fxa-shared`
-npm test fxa-shared
+yarn test fxa-shared
 
 # Test `fxa-auth-db-mysql` and `fxa-auth-server`
-npm test fxa-auth-db-mysql fxa-auth-server
+yarn test fxa-auth-db-mysql fxa-auth-server
 
 # Test all packages
-npm test all
+yarn test all
 ```
 
-Note that this invokes the same test suite that CI uses, and is not necessarily the same as running `npm test` in any given package.
+- Note that this invokes the same test suite that CI uses, and is not necessarily the same as running `yarn test` in any given package.
 
 #### Emulating CI environment
 
