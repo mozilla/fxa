@@ -4,7 +4,8 @@
     "noEmit": true,
     "types": [
       "jest",
-      "node"
+      "node",
+      "@testing-library/jest-dom"
     ],
     "lib": [
       "dom",

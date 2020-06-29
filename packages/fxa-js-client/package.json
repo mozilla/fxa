@@ -51,7 +51,7 @@
     "http-proxy": "^1.18.1",
     "load-grunt-tasks": "^5.1.0",
     "mocha": "^7.1.2",
-    "otplib": "7.1.0",
+    "otplib": "^11.0.1",
     "prettier": "^2.0.5",
     "sinon": "^9.0.2",
     "webpack": "^4.41.3"

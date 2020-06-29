@@ -19,6 +19,7 @@ it('renders without imploding', async () => {
   );
 
   await wait();
+
   expect(screen.getByTestId('children')).toBeInTheDocument();
 });
 
@@ -47,5 +48,6 @@ it('renders the error when loading fails', async () => {
   );
 
   await wait();
+
   expect(screen.getByTestId('error-loading-app')).toBeInTheDocument();
 });

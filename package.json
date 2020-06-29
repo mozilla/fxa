@@ -94,10 +94,10 @@
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^23.13.2",
-    "eslint-plugin-react": "^7.19.0",
+    "eslint-plugin-react": "7.19.0",
     "json": "^9.0.6",
-    "stylelint": "^13.4.0",
-    "stylelint-config-prettier": "^8.0.1"
+    "stylelint": "^13.6.1",
+    "stylelint-config-prettier": "^8.0.2"
   },
   "workspaces": [
     "packages/*"

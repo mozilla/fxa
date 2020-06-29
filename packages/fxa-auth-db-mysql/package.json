@@ -36,7 +36,7 @@
     "convict-format-with-validator": "^6.0.0",
     "fxa-jwtool": "0.7.2",
     "fxa-shared": "workspace:*",
-    "ip": "1.1.5",
+    "ip": "^1.1.5",
     "mozlog": "2.2.0",
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
