@@ -50,7 +50,6 @@ describe('mailer locales', () => {
     const locales = [
       // [ locale, expected result ]
       ['', 'en'],
-      ['en-US', 'en'],
       ['en-CA', 'en'],
       ['db-LB', 'en'],
       ['el-GR', 'en'],
@@ -69,7 +68,8 @@ describe('mailer locales', () => {
     const locales = [
       // [ accept-language, expected result ]
       ['bogus-value', 'en'],
-      ['en-US,en;q=0.5', 'en'],
+      ['en', 'en'],
+      ['en-US,en;q=0.5', 'en-US'],
       ['es-AR,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es-AR'],
       ['es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3', 'es-ES'],
       ['sv-SE,sv;q=0.8,en-US;q=0.5,en;q=0.3', 'sv-SE'],
