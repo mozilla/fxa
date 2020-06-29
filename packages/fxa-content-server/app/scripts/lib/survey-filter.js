@@ -350,11 +350,13 @@ export const createSurveyFilter = (
   return async (surveyConfig) =>
     !!(
       surveyConfig &&
-      surveyConfig.rate &&
-      withinRate(surveyConfig.rate) &&
+      parseInt(surveyConfig.rate) >= 0 &&
       surveyConfig.conditions &&
+      (surveyConfig.conditions.always === true ||
+        withinRate(surveyConfig.rate)) &&
       Object.keys(surveyConfig.conditions).length > 0 &&
-      !participatedRecently(previousParticipationTime, doNotBotherSpan) &&
+      (surveyConfig.conditions.always === true ||
+        !participatedRecently(previousParticipationTime, doNotBotherSpan)) &&
       languagesCheck(surveyConfig.conditions, fetchLangs) &&
       // User agent related checks
       userAgentChecks(surveyConfig.conditions, fetchUa) &&

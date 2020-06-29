@@ -1229,5 +1229,77 @@ describe('lib/survey-filter', () => {
       });
       assert.isFalse(actual);
     });
+
+    it('should be true with condition `always: true` when the rate is set to 0', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: {
+          ...config.conditions,
+          always: true,
+        },
+        // This rate of 0 would otherwise yield false
+        // if the always condition was not set to true
+        rate: 0,
+      });
+      assert.isTrue(actual);
+    });
+
+    it('should be true with condition `always: true` when the user has recently participated', async () => {
+      const filter = SurveyFilter.createSurveyFilter(
+        mockWindow,
+        mockUser,
+        mockRelier,
+        // This recently participated timestamp would otherwise
+        // yield false if the always condition was not set to true
+        Date.now(),
+        5000000
+      );
+      const actual = await filter({
+        conditions: {
+          ...config.conditions,
+          always: true,
+        },
+        rate: config.rate,
+      });
+      assert.isTrue(actual);
+    });
+
+    it('should be false with condition `always: true` when another condition is not satisfied', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: {
+          ...config.conditions,
+          always: true,
+          // This condition will yield false because
+          // it is not considered in the always check
+          subscriptions: ['fpn_id'],
+        },
+        rate: config.rate,
+      });
+      assert.isFalse(actual);
+    });
+
+    it('should be false with condition `always` not set to `true` and rate set to 0', async () => {
+      const filter = SurveyFilter.createSurveyFilter.apply(
+        null,
+        trueDefaultArgs
+      );
+      const actual = await filter({
+        conditions: {
+          ...config.conditions,
+          always: 'blah blah',
+        },
+        // This rate of 0 should yield false because
+        // the always condition was not set to true
+        rate: 0,
+      });
+      assert.isFalse(actual);
+    });
   });
 });
