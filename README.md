@@ -419,3 +419,26 @@ In addition to the ecosystem docs, each package has it's own README.md and `docs
 - fxa-profile-server [README](./packages/fxa-profile-server/README.md) / [docs/](./packages/fxa-profile-server/docs)
 - fxa-shared [README](./packages/fxa-shared/README.md)
 - fxa-support-panel [README](./packages/fxa-support-panel/README.md)
+
+---
+
+### Documentation for Scripts
+
+#### \_scripts/legal-md-to-pdf.sh
+
+##### Purpose
+
+This bash script allows for the conversion of markdown files to pdfs. The purpose is to create a way for legal documents to be easily converted and made available for end-users.
+
+##### Usage
+
+_Pre-requisites_: The script requires that you have pandoc and LaTeX installed on your machine.
+
+- pandoc: https://github.com/jgm/pandoc/blob/master/INSTALL.md
+- LaTeX: https://www.latex-project.org/get/
+
+The script will check that pandoc is installed before asking you for the file or directory on your machine that you would like to be converted. If a directory is provided, then all markdown files within that folder will be convered. If a single file is provided, only that file will be converted.
+The resulting output will be stored within `assets/legal`.
+Example:
+file provided to convert: `/Users/test/github/mozilla/legal-docs/firefox_cloud_services_ToS/en-US.md`
+resulting file: `assets/legal/firefox_cloud_services_ToS/en-US.pdf`
