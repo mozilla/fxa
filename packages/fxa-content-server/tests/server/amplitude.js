@@ -2175,5 +2175,395 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_connect_device - submit');
       assert.equal(arg.event_properties.connect_device_flow, 'pairing');
     },
+
+    'screen.get-started': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.get-started',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - get_started_view');
+    },
+
+    'screen.signin.get-started': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.get-started',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - get_started_view');
+    },
+
+    'screen.signup.get-started': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.get-started',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - get_started_view');
+    },
+
+    'screen.ready-to-scan': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.ready-to-scan',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(
+        arg.event_type,
+        'fxa_qr_connect_device - ready_to_scan_view'
+      );
+    },
+
+    'screen.scan-code': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.scan-code',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - scan_code_view');
+    },
+
+    'screen.connected': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'screen.connected',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - connected_view');
+    },
+
+    'flow.get-started.submit': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.get-started.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(
+        arg.event_type,
+        'fxa_qr_connect_device - get_started_submit'
+      );
+    },
+
+    'flow.ready-to-scan.submit': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.ready-to-scan.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(
+        arg.event_type,
+        'fxa_qr_connect_device - ready_to_scan_submit'
+      );
+    },
+
+    'flow.scan-code.submit': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.scan-code.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - scan_code_submit');
+    },
+
+    'flow.connected.submit': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.connected.submit',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - connected_submit');
+    },
+
+    'flow.get-started.link.maybe-later': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.get-started.link.maybe-later',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - get_started_later');
+    },
+
+    'flow.ready-to-scan.link.maybe-later': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.ready-to-scan.link.maybe-later',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(
+        arg.event_type,
+        'fxa_qr_connect_device - ready_to_scan_later'
+      );
+    },
+
+    'flow.ready-to-scan.link.use-sms': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.ready-to-scan.link.use-sms',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(
+        arg.event_type,
+        'fxa_qr_connect_device - ready_to_scan_use_sms'
+      );
+    },
+
+    'flow.scan-code.link.use-sms': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.scan-code.link.use-sms',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - scan_code_use_sms');
+    },
+
+    'flow.connected.link.use-sms': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'flow.connected.link.use-sms',
+        },
+        {
+          connection: {},
+          headers: {
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      const arg = logger.info.args[0][1];
+      assert.equal(arg.event_type, 'fxa_qr_connect_device - connected_use_sms');
+    },
   },
 });

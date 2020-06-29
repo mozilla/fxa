@@ -244,65 +244,13 @@ const EVENTS = {
     group: GROUPS.registration,
     event: 'domain_validation_ignored',
   },
-
-  'screen.get-started': {
-    group: GROUPS.qrConnectDevice,
-    event: 'get_started_view',
-  },
-  'flow.get-started.submit': {
-    group: GROUPS.qrConnectDevice,
-    event: 'get_started_submit',
-  },
-  'flow.get-started.link.maybe-later': {
-    group: GROUPS.qrConnectDevice,
-    event: 'get_started_later',
-  },
-
-  'screen.ready-to-scan': {
-    group: GROUPS.qrConnectDevice,
-    event: 'ready_to_scan_view',
-  },
-  'flow.ready-to-scan.submit': {
-    group: GROUPS.qrConnectDevice,
-    event: 'ready_to_scan_submit',
-  },
-  'flow.ready-to-scan.link.maybe-later': {
-    group: GROUPS.qrConnectDevice,
-    event: 'ready_to_scan_later',
-  },
-  'flow.ready-to-scan.link.use-sms': {
-    group: GROUPS.qrConnectDevice,
-    event: 'ready_to_scan_use_sms',
-  },
-
-  'screen.scan-code': {
-    group: GROUPS.qrConnectDevice,
-    event: 'scan_code_view',
-  },
-  'flow.scan-code.link.use-sms': {
-    group: GROUPS.qrConnectDevice,
-    event: 'scan_code_use_sms',
-  },
   'flow.scan-code.device-connected': {
     group: GROUPS.qrConnectDevice,
     event: 'scan_code_device_connected',
   },
-
-  'screen.connected': {
-    group: GROUPS.qrConnectDevice,
-    event: 'connected_view',
-  },
-  'flow.connected.submit': {
-    group: GROUPS.qrConnectDevice,
-    event: 'connected_connect_another',
-  },
   'flow.connected.link.done': {
     group: GROUPS.qrConnectDevice,
     event: 'connected_done',
-  },
-  'flow.connected.link.use-sms': {
-    group: GROUPS.qrConnectDevice,
-    event: 'connected_use_sms',
   },
 };
 
@@ -323,6 +271,38 @@ const VIEW_ENGAGE_SUBMIT_EVENT_GROUPS = {
 // In the following regular expressions, the first match group is
 // exposed as `eventCategory` and the second as `eventTarget`.
 const FUZZY_EVENTS = new Map([
+  [
+    /^screen(?:\.signin|\.signup)?\.(get-started|ready-to-scan|scan-code|connected)$/,
+    {
+      group: GROUPS.qrConnectDevice,
+      event: (eventCategory, eventTarget) =>
+        `${eventCategory.replace(/-/g, '_')}_view`,
+    },
+  ],
+  [
+    /^flow(?:\.signin|\.signup)?\.(get-started|ready-to-scan|scan-code|connected).submit$/,
+    {
+      group: GROUPS.qrConnectDevice,
+      event: (eventCategory, eventTarget) =>
+        `${eventCategory.replace(/-/g, '_')}_submit`,
+    },
+  ],
+  [
+    /^flow(?:\.signin|\.signup)?\.(get-started|ready-to-scan).link.maybe-later$/,
+    {
+      group: GROUPS.qrConnectDevice,
+      event: (eventCategory, eventTarget) =>
+        `${eventCategory.replace(/-/g, '_')}_later`,
+    },
+  ],
+  [
+    /^flow(?:\.signin|\.signup)?\.(ready-to-scan|scan-code|connected).link.use-sms$/,
+    {
+      group: GROUPS.qrConnectDevice,
+      event: (eventCategory, eventTarget) =>
+        `${eventCategory.replace(/-/g, '_')}_use_sms`,
+    },
+  ],
   [
     /^experiment\.(?:control|designF|designG)\.passwordStrength\.([\w]+)$/,
     {
