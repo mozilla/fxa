@@ -26,7 +26,19 @@ commands:
         default: none
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            # prefer the exact hash
+            - fxa-yarn-cache-{{ checksum "yarn.lock" }}
+            # any cache to start with is better than nothing
+            - fxa-yarn-cache-
       - run: ./.circleci/base-install.sh << parameters.package >>
+      - save_cache:
+          key: fxa-yarn-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - .yarn/cache
+            - .yarn/build-state.yml
+            - .yarn/install-state.gz
   test-content-server-part:
     parameters:
       index:
