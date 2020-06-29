@@ -228,7 +228,7 @@ Check out the Secrets section in the following READMEs:
 
 #### Test all or some packages
 
-- Run `yarn start infrastructure` before running tests to start services.
+- You might need to run `yarn start infrastructure` before running tests to start services.
 
 From the root directory you may test all or some FxA packages:
 
