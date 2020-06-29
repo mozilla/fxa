@@ -251,9 +251,9 @@ suite.tests['#get /i18n/client.json with en,fr should use en'] = function () {
 };
 
 suite.tests[
-  '#get /i18n/client.json with en-US,fr should use en'
+  '#get /i18n/client.json with en-US,fr should use en_US'
 ] = function () {
-  return testClientJson.call(this, 'en-us,fr', 'en');
+  return testClientJson.call(this, 'en-us,fr', 'en_US');
 };
 
 suite.tests['#get /i18n/client.json with lowercase language'] = function () {
