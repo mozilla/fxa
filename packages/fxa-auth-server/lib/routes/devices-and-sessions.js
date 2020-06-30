@@ -237,7 +237,20 @@ module.exports = (
         }
 
         const response = await pushbox.retrieve(uid, deviceId, limit, index);
-        log.info('commands.fetch', { response });
+
+        // To measure command delivery, we emit a "retrieved" event for each retreived
+        // command, which should match to an "invoked" event emitted when it was invoked.
+        for (const msg of response.messages) {
+          const data = msg.data || {}; // should always be present, but you never know...
+          log.info('device.command.retrieved', {
+            uid,
+            target: deviceId,
+            index: msg.index,
+            sender: data.sender,
+            command: data.command,
+          });
+        }
+
         return response;
       },
     },
@@ -276,13 +289,12 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
-        const [, device] = await Promise.all([
-          customs.checkAuthenticated(request, uid, 'invokeDeviceCommand'),
-          db.device(uid, target),
-        ]);
+        await customs.checkAuthenticated(request, uid, 'invokeDeviceCommand');
+
+        const targetDevice = await db.device(uid, target);
 
         // eslint-disable-next-line no-prototype-builtins
-        if (!device.availableCommands.hasOwnProperty(command)) {
+        if (!targetDevice.availableCommands.hasOwnProperty(command)) {
           throw error.unavailableDeviceCommand();
         }
 
@@ -292,23 +304,56 @@ module.exports = (
         }
 
         const data = { command, payload, sender };
-        const { index } = await pushbox.store(uid, device.id, data, ttl);
+        const { index } = await pushbox.store(uid, targetDevice.id, data, ttl);
+
+        // To measure command delivery, we emit an initial "invoked" event for each invoked
+        // command, and expect a matching "retrieved" event when the target retreives it.
+        const metricsTags = {
+          uid,
+          target,
+          index,
+          sender,
+          command,
+          targetOS: targetDevice.uaOS,
+          targetType: targetDevice.type,
+          senderOS: credentials.uaOS,
+          senderType: credentials.deviceType,
+        };
+        log.info('device.command.invoked', metricsTags);
 
         const url = new URL('v1/account/device/commands', config.publicUrl);
         url.searchParams.set('index', index);
         url.searchParams.set('limit', 1);
 
-        await push.notifyCommandReceived(
-          uid,
-          device,
-          command,
-          sender,
-          index,
-          url.href,
-          ttl
-        );
+        let notifyError;
+        try {
+          await push.notifyCommandReceived(
+            uid,
+            targetDevice,
+            command,
+            sender,
+            index,
+            url.href,
+            ttl
+          );
+        } catch (e) {
+          notifyError = e;
+        }
 
-        return {};
+        if (!notifyError) {
+          log.info('device.command.notified', metricsTags);
+        } else {
+          log.info('device.command.notifyError', {
+            err: notifyError,
+            ...metricsTags,
+          });
+        }
+
+        return {
+          enqueued: true,
+          notified: !!notifyError,
+          notifyError: notifyError,
+        };
       },
     },
     {
