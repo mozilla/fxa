@@ -214,19 +214,25 @@ export const Input = withLocalization(UnwrappedInput);
 
 type StripeElementProps = { onValidate?: OnValidateFunction } & FieldProps & {
     component: any;
+    getString: Function | undefined;
   } & ReactStripeElements.ElementProps;
 
 export const defaultStripeElementValidator: OnValidateFunction = (
   value,
   focused,
-  props
+  props,
+  getString
 ) => {
   if (!value || value.empty) {
     if (props.required) {
       return {
         value,
         valid: false,
-        error: focused ? null : `${props.label} is required`,
+        error: focused
+          ? null
+          : getString
+          ? getString('input-error-is-required', { label: props.label })
+          : props.label + ' is required',
       };
     }
   } else if (value.error && value.error.message) {
@@ -255,6 +261,7 @@ export const StripeElement = (props: StripeElementProps) => {
     label,
     className,
     autoFocus,
+    getString,
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
@@ -265,7 +272,7 @@ export const StripeElement = (props: StripeElementProps) => {
       elementValue.current = value;
       validator.updateField({
         name,
-        ...onValidate(value, true, props),
+        ...onValidate(value, true, props, getString),
       });
     },
     [name, props, validator, onValidate, elementValue]
@@ -276,7 +283,7 @@ export const StripeElement = (props: StripeElementProps) => {
       const value = elementValue.current;
       validator.updateField({
         name,
-        ...onValidate(value, false, props),
+        ...onValidate(value, false, props, getString),
       });
     },
     [name, props, validator, onValidate, elementValue]

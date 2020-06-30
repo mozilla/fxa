@@ -179,6 +179,7 @@ export const PaymentForm = ({
           label="Card number"
           style={stripeElementStyles}
           className="input-row input-row--xl"
+          getString={getString}
           required
         />
       </Localized>
@@ -190,6 +191,7 @@ export const PaymentForm = ({
             name="expDate"
             label="Exp. date"
             style={stripeElementStyles}
+            getString={getString}
             required
           />
         </Localized>
@@ -200,6 +202,7 @@ export const PaymentForm = ({
             name="cvc"
             label="CVC"
             style={stripeElementStyles}
+            getString={getString}
             required
           />
         </Localized>

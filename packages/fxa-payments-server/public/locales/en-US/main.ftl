@@ -131,6 +131,7 @@ sub-redirect-skip-survey = No thanks, just take me to my product.
 
 ## fields
 default-input-error = This field is required
+input-error-is-required = { $label } is required
 
 ## subscription upgrade
 product-plan-upgrade-heading = Review your upgrade
