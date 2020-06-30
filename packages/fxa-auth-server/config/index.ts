@@ -307,6 +307,12 @@ const conf = convict({
         env: 'PREPEND_VERIFICATION_SUBDOMAIN_SUBDOMAIN',
       },
     },
+    firefoxDesktopUrl: {
+      doc: 'url to download Firefox page',
+      format: String,
+      default:
+        'https://firefox.com?utm_content=registration-confirmation&utm_medium=email&utm_source=fxa',
+    },
     androidUrl: {
       doc: 'url to Android product page',
       format: String,

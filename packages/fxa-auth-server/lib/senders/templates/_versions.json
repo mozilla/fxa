@@ -17,7 +17,7 @@
   "passwordResetRequired": 4,
   "postChangePrimary": 4,
   "postRemoveSecondary": 4,
-  "postVerify": 4,
+  "postVerify": 5,
   "postVerifySecondary": 4,
   "recovery": 4,
   "sms.installFirefox": 1,

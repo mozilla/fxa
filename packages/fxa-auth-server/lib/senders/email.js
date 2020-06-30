@@ -1268,7 +1268,7 @@ module.exports = function (log, config, oauthdb) {
       email: message.email,
       uid: message.uid,
     });
-
+    const onDesktopOrTabletDevice = !message.onMobileDevice;
     const templateName = 'postVerify';
     const subject = gettext(
       'Account verified. Next, sync another device to finish setup'
@@ -1295,9 +1295,11 @@ module.exports = function (log, config, oauthdb) {
       template: templateName,
       templateValues: {
         action,
+        onDesktopOrTabletDevice,
         androidLinkAttributes: linkAttributes(links.androidLink),
         androidUrl: links.androidLink,
         cadLinkAttributes: linkAttributes(links.link),
+        desktopLinkAttributes: linkAttributes(config.smtp.firefoxDesktopUrl),
         iosLinkAttributes: linkAttributes(links.iosLink),
         iosUrl: links.iosLink,
         link: links.link,
