@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 'use strict';
+const userAgent = require('../../userAgent');
 
 module.exports = (log, db, mailer, push, verificationReminders) => {
   return {
@@ -64,10 +65,13 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
       // Our post-verification email is very specific to sync,
       // so only send it if we're sure this is for sync.
       if (service === 'sync') {
+        const onMobileDevice =
+          userAgent(request.headers['user-agent']).deviceType === 'mobile';
         const mailOptions = {
           acceptLanguage: request.app.acceptLanguage,
           service,
           uid,
+          onMobileDevice,
         };
 
         if (style) {

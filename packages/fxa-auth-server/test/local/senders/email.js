@@ -815,8 +815,10 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('syncUrl', 'account-verified', 'connect-device') },
       { test: 'include', expected: config.smtp.androidUrl },
       { test: 'include', expected: config.smtp.iosUrl },
+      { test: 'include', expected: 'another desktop device' },
       { test: 'include', expected: configHref('privacyUrl', 'account-verified', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'account-verified', 'support') },
+      { test: 'include', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
       { test: 'include', expected: 'Firefox Account verified. You\'re almost there.' },
@@ -1129,8 +1131,10 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('syncUrl', 'cad-reminder-first', 'connect-device') },
       { test: 'include', expected: config.smtp.androidUrl },
       { test: 'include', expected: config.smtp.iosUrl },
+      { test: 'include', expected: 'another device' },
       { test: 'include', expected: configHref('privacyUrl', 'cad-reminder-first', 'privacy') },
       { test: 'include', expected: configHref('supportUrl', 'cad-reminder-first', 'support') },
+      { test: 'notInclude', expected: config.smtp.firefoxDesktopUrl },
     ]],
     ['text', [
       { test: 'include', expected: "Here's your reminder to sync devices." },
