@@ -26,7 +26,6 @@ const MANUAL_EXPERIMENTS = {
   sendSms: BaseExperiment,
   newsletterSync: BaseExperiment,
   qrCodeCad: BaseExperiment,
-  newsletterCadChooser: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
