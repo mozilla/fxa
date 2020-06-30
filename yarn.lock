@@ -15150,6 +15150,7 @@ fsevents@^1.2.7:
     hkdf: 0.0.2
     hot-shots: ^7.6.0
     i18n-abide: 0.0.26
+    intl: 1.2.5
     ioredis: ^4.14.1
     jed: 0.5.4
     jsonwebtoken: ^8.4.0
@@ -18635,6 +18636,13 @@ fsevents@^1.2.7:
   version: 1.2.0
   resolution: "intl-pluralrules@npm:1.2.0"
   checksum: f0e50b284b277c7a9bbc19b88d96ad7982f72f78d37c3ea0d8633419ac09f02ed9f9cc25960d9f67952a7860562c0d8b4dec466a09dea44d446b7960e6a99c01
+  languageName: node
+  linkType: hard
+
+"intl@npm:1.2.5":
+  version: 1.2.5
+  resolution: "intl@npm:1.2.5"
+  checksum: 8fc0b27ce873d865f90bf2e32428b80345e3d91fb2cef7732cfeb6b10c1a83482e4e73c68af48d1dc4eb407a49fc81f1beef34161db7e284259957d3e4fa1aae
   languageName: node
   linkType: hard
 
