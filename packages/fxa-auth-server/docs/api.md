@@ -144,7 +144,7 @@ Note that:
 <!--begin-request-format-->
 
 Requests that require authentication
-use [Hawk](https://github.com/hueniverse/hawk) request signatures.
+use [Hawk](https://github.com/hapijs/hawk) request signatures.
 These endpoints are marked
 with a :lock: icon.
 Where the authentication is optional,

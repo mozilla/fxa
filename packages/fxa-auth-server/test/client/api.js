@@ -8,7 +8,7 @@ module.exports = (config) => {
   const EventEmitter = require('events').EventEmitter;
   const util = require('util');
 
-  const hawk = require('hawk');
+  const hawk = require('@hapi/hawk');
   const P = require('../../lib/promise');
   const request = require('request');
 
