@@ -105,6 +105,25 @@ export default {
   },
 
   /**
+   * Recursively break an object down in to query string key/values.
+   * Supplementary to objToUrlString.
+   *
+   * @param {Object} [obj={}] - object to break down
+   * @param {Array} [keys=[]] - existing keys to supply to the pairing
+   * @returns {Array}
+   */
+  _getObjPairs(obj = {}, keys = []) {
+    return Object.entries(obj || {}).reduce((pairs, [key, value]) => {
+      if (typeof value === 'object') {
+        pairs.push(...this._getObjPairs(value, [...keys, key]));
+      } else if (value != null) {
+        pairs.push([[...keys, key], value]);
+      }
+      return pairs;
+    }, []);
+  },
+
+  /**
    * Convert an object to a URL safe string
    *
    * @param {Object} [obj={}] - object to convert
@@ -112,18 +131,16 @@ export default {
    * @returns {String}
    */
   objToUrlString(obj = {}, prefix = '?') {
-    const params = [];
-    // eslint-disable-next-line no-unused-vars
-    for (const paramName in obj) {
-      const paramValue = obj[paramName];
-      if (
-        typeof paramValue !== 'undefined' &&
-        paramValue !== null &&
-        paramValue !== ''
-      ) {
-        params.push(paramName + '=' + encodeURIComponent(paramValue));
-      }
-    }
+    const params = this._getObjPairs(obj)
+      .map(([[key0, ...keysRest], value]) => {
+        value = value.toString();
+        if (value.length) {
+          return `${key0}${keysRest
+            .map((a) => `[${a}]`)
+            .join('')}=${encodeURIComponent(value)}`;
+        }
+      })
+      .filter((p) => !!p);
 
     if (!params.length) {
       return '';

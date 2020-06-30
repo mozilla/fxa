@@ -110,6 +110,22 @@ describe('lib/url', () => {
     });
   });
 
+  describe('_getObjPairs', () => {
+    it('returns an array containing an array of parent positioning values, and the current value', () => {
+      assert.deepEqual(Url._getObjPairs(['howdy', 'sup']), [
+        [['0'], 'howdy'],
+        [['1'], 'sup'],
+      ]);
+    });
+
+    it('can receive additional parent values and append them', () => {
+      assert.deepEqual(Url._getObjPairs(['howdy', 'sup'], ['variations']), [
+        [['variations', '0'], 'howdy'],
+        [['variations', '1'], 'sup'],
+      ]);
+    });
+  });
+
   describe('objToUrlString', () => {
     it('includes all keys with values', () => {
       var params = {
@@ -119,6 +135,27 @@ describe('lib/url', () => {
       };
 
       assert.equal(Url.objToUrlString(params, '#'), '#hasValue=value');
+    });
+
+    it('supports nested objects and arrays', () => {
+      var params = {
+        phrase: 'hello',
+        variations: ['howdy', 'sup'],
+        translations: {
+          french: ['bonjour', 'salut'],
+          spanish: 'hola',
+        },
+      };
+
+      assert.equal(
+        Url.objToUrlString(params, '?'),
+        `?phrase=hello&
+          variations[0]=howdy&
+          variations[1]=sup&
+          translations[french][0]=bonjour&
+          translations[french][1]=salut&
+          translations[spanish]=hola`.replace(/\n|\s/g, '')
+      );
     });
 
     it('returns an empty string if no parameters are passed in', () => {

@@ -1,6 +1,7 @@
 import SurveyWrapperView from '../views/survey';
 import Storage from './storage';
 import createSurveyFilter from './survey-filter';
+import Url from './url';
 
 const lastSurveyKey = 'lastSurvey';
 
@@ -50,13 +51,16 @@ export default class SurveyTargeter {
     );
 
     try {
-      const surveys = await Promise.all(
-        this._surveysByViewNameMap[viewName].map(async (s) =>
-          (await filter(s)) ? s : null
+      const qualifiedSurveys = (
+        await Promise.all(
+          this._surveysByViewNameMap[viewName].map(async (survey) => {
+            const { passing, conditions } = await filter(survey);
+            if (passing) {
+              return { survey, conditions };
+            }
+          })
         )
-      );
-
-      const qualifiedSurveys = surveys.filter((s) => !!s);
+      ).filter((s) => !!s);
 
       if (qualifiedSurveys.length === 0) {
         return false;
@@ -64,7 +68,11 @@ export default class SurveyTargeter {
 
       const selectedSurvey = this._selectSurvey(qualifiedSurveys);
       this._storage.set(lastSurveyKey, Date.now());
-      return new SurveyWrapperView({ surveyURL: selectedSurvey.url });
+      const surveyURL = Url.updateSearchString(
+        selectedSurvey.survey.url,
+        selectedSurvey.conditions
+      );
+      return new SurveyWrapperView({ surveyURL });
     } catch {
       return false;
     }
