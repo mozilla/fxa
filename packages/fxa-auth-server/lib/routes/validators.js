@@ -350,7 +350,7 @@ module.exports.subscriptionsPlanValidator = isA.object({
   plan_metadata: module.exports.subscriptionPlanMetadataValidator.optional(),
   product_id: module.exports.subscriptionsProductId.required(),
   product_name: isA.string().required(),
-  plan_name: isA.string().allow('').required(),
+  plan_name: isA.string().allow('').optional(),
   product_metadata: module.exports.subscriptionProductMetadataValidator.optional(),
   interval: isA.string().required(),
   interval_count: isA.number().required(),
