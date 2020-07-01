@@ -40,6 +40,8 @@ const failedCharge = require('./fixtures/charge_failed.json');
 const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/event_customer_source_expiring.json');
 const eventCustomerSubscriptionUpdated = require('./fixtures/event_customer_subscription_updated.json');
+const subscriptionCreatedInvoice = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
+const closedPaymementIntent = require('./fixtures/paymentIntent_succeeded.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -247,6 +249,55 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('extractSourceCountryFromSubscription', () => {
+    it('extracts the country if its present', () => {
+      const latest_invoice = {
+        ...subscriptionCreatedInvoice,
+        payment_intent: { ...closedPaymementIntent },
+      };
+      const subscription = { ...subscription2, latest_invoice };
+      const result = stripeHelper.extractSourceCountryFromSubscription(
+        subscription
+      );
+      assert.equal(result, 'US');
+    });
+
+    it('returns null with no invoice', () => {
+      const result = stripeHelper.extractSourceCountryFromSubscription(
+        subscription2
+      );
+      assert.equal(result, null);
+    });
+
+    it('returns null and sends sentry error with no charges', () => {
+      const scopeContextSpy = sinon.fake();
+      const scopeSpy = {
+        setContext: scopeContextSpy,
+      };
+      sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+      sandbox.replace(Sentry, 'captureMessage', sinon.stub());
+
+      const latest_invoice = {
+        ...subscriptionCreatedInvoice,
+        payment_intent: { charges: { data: [] } },
+      };
+      const subscription = { ...subscription2, latest_invoice };
+      const result = stripeHelper.extractSourceCountryFromSubscription(
+        subscription
+      );
+      assert.equal(result, null);
+
+      assert.isTrue(
+        scopeContextSpy.calledOnce,
+        'Set a message scope when "charges" is missing'
+      );
+      assert.isTrue(
+        Sentry.captureMessage.calledOnce,
+        'Capture a message with Sentry when "charges" is missing'
+      );
+    });
+  });
+
   describe('allPlans', () => {
     it('pulls a list of plans and caches it', async () => {
       assert.lengthOf(await stripeHelper.allPlans(), 3);
@@ -300,6 +351,7 @@ describe('StripeHelper', () => {
       const expected = [
         {
           plan_id: goodPlan.id,
+          plan_name: goodPlan.nickname,
           plan_metadata: goodPlan.metadata,
           product_id: goodPlan.product.id,
           product_name: goodPlan.product.name,
@@ -765,7 +817,7 @@ describe('StripeHelper', () => {
           .stub(stripeHelper.stripe.customers, 'retrieve')
           .resolves(customer);
 
-        const expected = { uid: undefined, email: undefined };
+        const expected = { uid: null, email: null };
         const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
           subscription
         );
@@ -776,19 +828,20 @@ describe('StripeHelper', () => {
     });
 
     describe('customer exists but is missing FxA UID on metadata', () => {
-      it('notifies Sentry and returns undefined for uid', async () => {
+      it('notifies Sentry and throws validation check error', async () => {
         customer = deepCopy(newCustomer);
         customer.metadata = {};
         sandbox
           .stub(stripeHelper.stripe.customers, 'retrieve')
           .resolves(customer);
 
-        const expected = { uid: undefined, email: customer.email };
-        const actual = await stripeHelper.getCustomerUidEmailFromSubscription(
-          subscription
-        );
+        try {
+          await stripeHelper.getCustomerUidEmailFromSubscription(subscription);
+          assert.fail('Internal validation check should be thrown');
+        } catch (err) {
+          assert.equal(err.errno, error.ERRNO.INTERNAL_VALIDATION_ERROR);
+        }
 
-        assert.deepEqual(actual, expected);
         assert.isTrue(scopeContextSpy.calledOnce, 'Expected to call Sentry');
       });
     });

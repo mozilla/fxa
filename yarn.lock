@@ -4629,6 +4629,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash@npm:^4":
+  version: 4.14.157
+  resolution: "@types/lodash@npm:4.14.157"
+  checksum: ea8d890a4d78f4690f9d8e5cb03f3581e8ea59047696e2c2114087ec471e891b3ce683e5344c9c15ea7bd9730b79e5fd808b3eff80a01741503ea59922c2bb83
+  languageName: node
+  linkType: hard
+
 "@types/long@npm:^4.0.0, @types/long@npm:^4.0.1":
   version: 4.0.1
   resolution: "@types/long@npm:4.0.1"
@@ -15106,6 +15113,7 @@ fsevents@^1.2.7:
     "@types/joi": ^14.3.3
     "@types/jsonwebtoken": ^8.3.5
     "@types/jws": ^3.2.0
+    "@types/lodash": ^4
     "@types/memcached": ^2.2.6
     "@types/mocha": ^7.0.2
     "@types/nock": ^11.1.0
@@ -15160,6 +15168,7 @@ fsevents@^1.2.7:
     keyv: 3.0.0
     leftpad: 0.0.0
     load-grunt-tasks: ^5.1.0
+    lodash: ^4.17.15
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
     mailparser: 0.6.1

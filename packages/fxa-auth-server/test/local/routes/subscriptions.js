@@ -77,6 +77,7 @@ const PLANS = [
     interval: 'week',
     amount: '123',
     currency: 'usd',
+    plan_metadata: {},
     product_metadata: {
       emailIconURL: 'http://example.com/image.jpg',
       downloadURL: 'http://getfirefox.com',
@@ -91,6 +92,7 @@ const PLANS = [
     interval: 'month',
     amount: '456',
     currency: 'usd',
+    plan_metadata: {},
     product_metadata: {
       'capabilities:client2': 'exampleCap2, exampleCap4',
     },
@@ -107,6 +109,7 @@ const PLANS = [
       // NOTE: whitespace in capabilities list should be flexible for human entry
       'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
     },
+    product_metadata: {},
   },
 ];
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
@@ -166,6 +169,7 @@ describe('sanitizePlans', () => {
         interval: 'week',
         amount: '123',
         currency: 'usd',
+        plan_metadata: {},
         product_metadata: {
           emailIconURL: 'http://example.com/image.jpg',
           downloadURL: 'http://getfirefox.com',
@@ -178,6 +182,7 @@ describe('sanitizePlans', () => {
         interval: 'month',
         amount: '456',
         currency: 'usd',
+        plan_metadata: {},
         product_metadata: {},
       },
       {
@@ -188,6 +193,7 @@ describe('sanitizePlans', () => {
         amount: 499,
         current: 'usd',
         plan_metadata: {},
+        product_metadata: {},
       },
     ];
 
@@ -621,6 +627,9 @@ describe('DirectStripeRoutes', () => {
     describe('when called for a new customer', () => {
       it('creates a new subscription', async () => {
         directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+        directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+          'US'
+        );
 
         actual = await directStripeRoutesInstance.createSubscription(request);
         assert.isTrue(log.begin.calledOnce);
@@ -662,17 +671,12 @@ describe('DirectStripeRoutes', () => {
           sourceCountry: null,
         };
         directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
+        directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+          null
+        );
 
         actual = await directStripeRoutesInstance.createSubscription(request);
         assert.deepEqual(actual, expected);
-        assert.isTrue(
-          scopeContextSpy.calledOnce,
-          'Set a message scope when "charges" is missing'
-        );
-        assert.isTrue(
-          Sentry.captureMessage.calledOnce,
-          'Capture a message with Sentry when "charges" is missing'
-        );
       });
     });
 
@@ -681,6 +685,9 @@ describe('DirectStripeRoutes', () => {
         const customer = deepCopy(customerFixture);
         directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
           customer
+        );
+        directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+          'US'
         );
 
         actual = await directStripeRoutesInstance.createSubscription(request);

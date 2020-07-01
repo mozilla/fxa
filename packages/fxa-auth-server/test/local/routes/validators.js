@@ -406,6 +406,7 @@ describe('lib/routes/validators:', () => {
 
     const basePlan = {
       plan_id: 'plan_8675309',
+      plan_name: '',
       product_id: 'prod_8675309',
       product_name: 'example product',
       interval: 'month',
