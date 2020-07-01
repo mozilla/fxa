@@ -57,22 +57,6 @@ export default {
     this.closePanel();
   },
 
-  clearInput() {
-    const $inputEls = this.$('input');
-
-    $inputEls.each((i, inputEl) => {
-      // Called to clear validation tooltips. issues/5680
-      $(inputEl).change();
-    });
-
-    const formEl = this.$('form  input:not(".hidden")');
-    if (formEl) {
-      for (let i = 0; i < formEl.length; i++) {
-        formEl[i].value = '';
-      }
-    }
-  },
-
   closePanel() {
     this.$el.closest('#fxa-settings-content').removeClass('animate-shadow');
     this.$('.settings-unit').removeClass('open');
