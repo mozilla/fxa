@@ -12,7 +12,7 @@ There is no UI provided by this server. It is expected that user interaction wil
 
 Each user of the service creates an **account** which has a unique id. Access to the account is authenticated by an email/password pair and uses the [Secure Remote Password protocol](https://en.wikipedia.org/wiki/Secure_Remote_Password_protocol) to avoid revealing the password to the server. Note that our SRP protocol ordering is slightly different from the sample on wikipedia, but the variables are the same.
 
-The user connects one or more **devices** to their account. Each device performs the SRP authentication protocol to obtain one or more opaque **authentication tokens**, which are then used to make [Hawk signed requests](https://github.com/hueniverse/hawk/) when interacting with the server API. This token exchange means the device does not need to keep the the user's password in persistent storage.
+The user connects one or more **devices** to their account. Each device performs the SRP authentication protocol to obtain one or more opaque **authentication tokens**, which are then used to make [Hawk signed requests](https://github.com/hapijs/hawk/) when interacting with the server API. This token exchange means the device does not need to keep the the user's password in persistent storage.
 
 Once connected, each device can fetch the user's **encryption keys**. The server maintains two keys for each account, called **kA** and **kB**. kA is known to the server, and is intended for encrypting data that must be recoverable in the event of password reset. kB is stored encrypted by the user's password, and is intended for more secure encryption at the cost of unrecoverability when the password is forgotten.
 

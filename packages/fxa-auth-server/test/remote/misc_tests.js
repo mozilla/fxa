@@ -9,7 +9,7 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const P = require('../../lib/promise');
-const hawk = require('hawk');
+const hawk = require('@hapi/hawk');
 const request = P.promisify(require('request'), { multiArgs: true });
 
 const config = require('../../config').getProperties();
