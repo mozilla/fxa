@@ -95,6 +95,10 @@ const EVENTS = {
     group: GROUPS.registration,
     event: 'email_confirmed',
   },
+  'oauth.token.created': {
+    group: GROUPS.activity,
+    event: 'oauth_access_token_created',
+  },
   'sms.installFirefox.sent': {
     group: GROUPS.sms,
     event: 'sent',

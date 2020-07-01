@@ -376,6 +376,7 @@ has the same schema as `daily_multi_device_users`.
 | `device.created`       | A device record has been created for a Sync account.         |
 | `device.updated`       | Device record is updated on a Sync account.                  |
 | `device.deleted`       | Device record has been deleted from a Sync account.          |
+| `oauth.token.created`  | An oauth access token has been issued for an account.        |
 | `sync.sentTabToDevice` | Device sent a push message for send-tab-to-device feature.   |
 
 ## Email events

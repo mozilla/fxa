@@ -279,7 +279,8 @@
         "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
         "allowedScopes": "https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session",
         "trusted": true,
-        "canGrant": true
+        "canGrant": true,
+        "publicClient": true
       },
       {
         "name": "Fennec",

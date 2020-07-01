@@ -20,6 +20,7 @@ const ACTIVITY_EVENTS = new Set([
   'device.created',
   'device.deleted',
   'device.updated',
+  'oauth.token.created',
   'sync.sentTabToDevice',
 ]);
 
