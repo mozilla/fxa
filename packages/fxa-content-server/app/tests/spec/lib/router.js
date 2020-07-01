@@ -143,19 +143,40 @@ describe('lib/router', () => {
       sinon.spy(metrics, 'flush');
       sinon.spy(router, 'navigate');
       sinon.stub(broker, 'transformLink').callsFake((url) => `/oauth/${url}`);
-
-      return router.navigateAway('blee');
     });
 
-    it('called metrics.flush correctly', () => {
-      assert.equal(metrics.flush.callCount, 1);
-      assert.lengthOf(metrics.flush.args[0], 0);
+    describe('with external link', () => {
+      beforeEach(() => {
+        return router.navigateAway('https://example.com/');
+      });
+
+      it('called metrics.flush correctly', () => {
+        assert.equal(metrics.flush.callCount, 1);
+        assert.lengthOf(metrics.flush.args[0], 0);
+      });
+
+      it('does not transform external links', () => {
+        assert.isFalse(broker.transformLink.called);
+        assert.equal(router.navigate.callCount, 0);
+        assert.equal(windowMock.location.href, 'https://example.com/');
+      });
     });
 
-    it('navigated correctly', () => {
-      assert.isTrue(broker.transformLink.calledOnceWith('blee'));
-      assert.equal(router.navigate.callCount, 0);
-      assert.equal(windowMock.location.href, '/oauth/blee');
+    describe('with internal link', () => {
+      beforeEach(() => {
+        return router.navigateAway('blee');
+      });
+
+      it('called metrics.flush correctly', () => {
+        assert.equal(metrics.flush.callCount, 1);
+        assert.lengthOf(metrics.flush.args[0], 0);
+      });
+
+      it('navigated correctly', () => {
+        assert.isTrue(broker.transformLink.calledOnceWith('blee'));
+        assert.equal(router.navigate.callCount, 0);
+        assert.equal(windowMock.location.href, '/oauth/blee');
+      });
     });
   });
 

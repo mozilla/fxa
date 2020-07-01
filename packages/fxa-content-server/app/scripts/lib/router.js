@@ -440,7 +440,10 @@ const Router = Backbone.Router.extend({
    * @returns {Promise}
    */
   navigateAway(url) {
-    url = this.broker.transformLink(url);
+    // issue #5626: external links should not get transformed
+    if (!/^https?:/.test(url)) {
+      url = this.broker.transformLink(url);
+    }
     return this.metrics.flush().then(() => {
       this.window.location.href = url;
     });
