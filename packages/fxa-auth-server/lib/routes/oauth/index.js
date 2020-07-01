@@ -278,6 +278,25 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
         // done with 'session_token_id' at this point, do not return it.
         delete grant.session_token_id;
 
+        // attempt to record metrics, but swallow the error if one is thrown.
+        try {
+          let uid = sessionToken && sessionToken.uid;
+
+          // As mentioned in lib/routes/utils/oauth.js, some grant flows won't
+          // have the uid in `credentials`, so we get it from the oauth DB.
+          if (!uid) {
+            const tokenVerify = await oauthdb.checkAccessToken(
+              grant.access_token
+            );
+            uid = tokenVerify.user;
+          }
+
+          await request.emitMetricsEvent('oauth.token.created', {
+            grantType: request.payload.grant_type,
+            uid,
+          });
+        } catch (ex) {}
+
         return grant;
       },
     },

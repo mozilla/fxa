@@ -599,6 +599,70 @@ describe('metrics/amplitude', () => {
       });
     });
 
+    describe('oauth.token.created', () => {
+      beforeEach(() => {
+        const now = Date.now();
+        Container.set(StatsD, { increment: sinon.spy() });
+        return amplitude(
+          'oauth.token.created',
+          mocks.mockRequest({
+            uaBrowser: 'foo',
+            uaBrowserVersion: 'bar',
+            uaOS: 'baz',
+            uaOSVersion: 'qux',
+            uaDeviceType: 'pawk',
+            uaFormFactor: 'melm',
+            locale: 'wibble',
+            credentials: {
+              uid: 'blee',
+            },
+            devices: [
+              { lastAccessTime: now - DAY + 10000 },
+              { lastAccessTime: now - WEEK + 10000 },
+              { lastAccessTime: now - MONTH + 10000 },
+              { lastAccessTime: now - MONTH - 1 },
+            ],
+            geo: {
+              location: {
+                country: 'United Kingdom',
+                state: 'England',
+              },
+            },
+            query: {
+              service: '0',
+            },
+            payload: {
+              metricsContext: {
+                deviceId: 'juff',
+                flowId: 'udge',
+                flowBeginTime: 'kwop',
+              },
+            },
+          })
+        );
+      });
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.deepEqual(args[0].user_properties, {
+          flow_id: 'udge',
+          sync_active_devices_day: 1,
+          sync_active_devices_week: 2,
+          sync_active_devices_month: 3,
+          sync_device_count: 4,
+          ua_browser: 'foo',
+          ua_version: 'bar',
+          $append: {
+            fxa_services_used: 'amo',
+          },
+        });
+      });
+    });
+
     describe('sms.installFirefox.sent', () => {
       beforeEach(() => {
         return amplitude('sms.installFirefox.sent', mocks.mockRequest({}));

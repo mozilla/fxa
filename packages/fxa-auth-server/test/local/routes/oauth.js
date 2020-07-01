@@ -9,13 +9,13 @@ const ROOT_DIR = '../../..';
 const sinon = require('sinon');
 const Joi = require('@hapi/joi');
 const assert = { ...sinon.assert, ...require('chai').assert };
-const uuid = require('uuid');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
 
 const MOCK_CLIENT_ID = '0123456789abcdef';
+const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
 const MOCK_SCOPES = 'profile https://identity.mozilla.com/apps/scoped-example';
 const MOCK_UNIX_TIMESTAMP = Math.round(Date.now() / 1000);
 const MOCK_TOKEN =
@@ -73,7 +73,7 @@ describe('/oauth/ routes', () => {
       }
     );
     return await SessionToken.create({
-      uid: uuid.v4('binary').toString('hex'),
+      uid: MOCK_USER_ID,
       email: 'foo@example.com',
       emailVerified: true,
       ...props,
@@ -111,10 +111,9 @@ describe('/oauth/ routes', () => {
   });
 
   describe('/oauth/id-token-verify', () => {
-    let MOCK_USER_ID, MOCK_ID_TOKEN_CLAIMS, mockVerify;
+    let MOCK_ID_TOKEN_CLAIMS, mockVerify;
 
     beforeEach(() => {
-      MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
       MOCK_ID_TOKEN_CLAIMS = {
         iss: 'http://127.0.0.1:9000',
         alg: 'RS256',
@@ -320,6 +319,7 @@ describe('/oauth/ routes', () => {
           scope: MOCK_SCOPES,
         },
       });
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       const resp = await loadAndCallRoute('/oauth/token', mockRequest);
       assert.calledOnce(mockOAuthDB.grantTokensFromSessionToken);
       assert.calledWithExactly(
@@ -332,6 +332,11 @@ describe('/oauth/ routes', () => {
           access_type: 'online',
         }
       );
+      assert.calledOnce(mockEmitMetricsEvent);
+      assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
+        grantType: 'fxa-credentials',
+        uid: MOCK_USER_ID,
+      });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
 
@@ -342,12 +347,14 @@ describe('/oauth/ routes', () => {
         }),
       });
       const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
         payload: {
           client_id: MOCK_CLIENT_ID,
           client_secret: 'ABCDEF',
           code: MOCK_AUTHORIZATION_CODE,
         },
       });
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       const resp = await loadAndCallRoute('/oauth/token', mockRequest);
       assert.calledOnce(mockOAuthDB.grantTokensFromAuthorizationCode);
       assert.calledWithExactly(mockOAuthDB.grantTokensFromAuthorizationCode, {
@@ -355,6 +362,11 @@ describe('/oauth/ routes', () => {
         client_secret: 'ABCDEF',
         code: MOCK_AUTHORIZATION_CODE,
         grant_type: 'authorization_code',
+      });
+      assert.calledOnce(mockEmitMetricsEvent);
+      assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
+        grantType: 'authorization_code',
+        uid: MOCK_USER_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -366,6 +378,7 @@ describe('/oauth/ routes', () => {
         }),
       });
       const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
         payload: {
           client_id: MOCK_CLIENT_ID,
           client_secret: 'ABCDEF',
@@ -373,6 +386,7 @@ describe('/oauth/ routes', () => {
           grant_type: 'authorization_code',
         },
       });
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       const resp = await loadAndCallRoute('/oauth/token', mockRequest);
       assert.calledOnce(mockOAuthDB.grantTokensFromAuthorizationCode);
       assert.calledWithExactly(mockOAuthDB.grantTokensFromAuthorizationCode, {
@@ -380,6 +394,11 @@ describe('/oauth/ routes', () => {
         client_secret: 'ABCDEF',
         code: MOCK_AUTHORIZATION_CODE,
         grant_type: 'authorization_code',
+      });
+      assert.calledOnce(mockEmitMetricsEvent);
+      assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
+        grantType: 'authorization_code',
+        uid: MOCK_USER_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -391,6 +410,7 @@ describe('/oauth/ routes', () => {
         }),
       });
       const mockRequest = mocks.mockRequest({
+        credentials: sessionToken,
         payload: {
           client_id: MOCK_CLIENT_ID,
           client_secret: 'ABCDEF',
@@ -398,6 +418,7 @@ describe('/oauth/ routes', () => {
           grant_type: 'refresh_token',
         },
       });
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       const resp = await loadAndCallRoute('/oauth/token', mockRequest);
       assert.calledOnce(mockOAuthDB.grantTokensFromRefreshToken);
       assert.calledWithExactly(mockOAuthDB.grantTokensFromRefreshToken, {
@@ -405,6 +426,11 @@ describe('/oauth/ routes', () => {
         client_secret: 'ABCDEF',
         refresh_token: MOCK_AUTHORIZATION_CODE,
         grant_type: 'refresh_token',
+      });
+      assert.calledOnce(mockEmitMetricsEvent);
+      assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
+        grantType: 'refresh_token',
+        uid: MOCK_USER_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -424,6 +450,7 @@ describe('/oauth/ routes', () => {
           grant_type: 'fxa-credentials',
         },
       });
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       const resp = await loadAndCallRoute('/oauth/token', mockRequest);
       assert.calledOnce(mockOAuthDB.grantTokensFromSessionToken);
       assert.calledWithExactly(
@@ -436,6 +463,11 @@ describe('/oauth/ routes', () => {
           access_type: 'online',
         }
       );
+      assert.calledOnce(mockEmitMetricsEvent);
+      assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
+        grantType: 'fxa-credentials',
+        uid: MOCK_USER_ID,
+      });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
 
@@ -453,12 +485,14 @@ describe('/oauth/ routes', () => {
           grant_type: 'fxa-credentials',
         },
       });
+      const mockEmitMetricsEvent = sinon.stub(mockRequest, 'emitMetricsEvent');
       try {
         await loadAndCallRoute('/oauth/token', mockRequest);
         throw new Error('should have thrown');
       } catch (err) {
         assert.equal(err.errno, error.ERRNO.INVALID_TOKEN);
       }
+      assert.equal(mockEmitMetricsEvent.callCount, 0);
       assert.equal(mockOAuthDB.grantTokensFromSessionToken.callCount, 0);
     });
   });
