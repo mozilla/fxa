@@ -1,3 +1,9 @@
+## 1.177.1
+
+### Bug fixes
+
+- experiments: fix qr code experiment cohorting rules ([d4dac65ca](https://github.com/mozilla/fxa/commit/d4dac65ca))
+
 ## 1.177.0
 
 ### New features
