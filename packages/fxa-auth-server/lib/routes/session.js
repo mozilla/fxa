@@ -371,6 +371,7 @@ module.exports = function (
           await signupUtils.verifyAccount(request, account, options);
         } else {
           request.emitMetricsEvent('account.confirmed', { uid });
+          await signinUtils.cleanupReminders({ verified: true }, account);
           await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
         }
 

@@ -845,7 +845,7 @@ module.exports = (
           }
         }
 
-        function createResponse() {
+        async function createResponse() {
           const response = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
@@ -868,6 +868,8 @@ module.exports = (
               )
             );
           }
+
+          await signinUtils.cleanupReminders(response, accountRecord);
 
           return response;
         }

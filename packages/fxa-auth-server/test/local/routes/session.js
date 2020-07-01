@@ -30,6 +30,7 @@ function makeRoutes(options = {}) {
   const db = options.db || mocks.mockDB();
   const log = options.log || mocks.mockLog();
   const mailer = options.mailer || mocks.mockMailer();
+  const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
   const customs = options.customs || {
@@ -44,7 +45,8 @@ function makeRoutes(options = {}) {
       config,
       customs,
       db,
-      mailer
+      mailer,
+      cadReminders
     );
 
   const verificationReminders =
@@ -1127,7 +1129,7 @@ describe('/session/duplicate', () => {
 });
 
 describe('/session/verify_code', () => {
-  let route, request, log, db, mailer, push, customs;
+  let route, request, log, db, mailer, push, customs, cadReminders;
 
   function setup(options = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
@@ -1136,8 +1138,17 @@ describe('/session/verify_code', () => {
     push = mocks.mockPush();
     customs = mocks.mockCustoms();
     customs.check = sinon.spy(() => P.resolve(true));
+    cadReminders = mocks.mockCadReminders();
     const config = {};
-    const routes = makeRoutes({ log, config, db, mailer, push, customs });
+    const routes = makeRoutes({
+      log,
+      config,
+      db,
+      mailer,
+      push,
+      customs,
+      cadReminders,
+    });
     route = getRoute(routes, '/session/verify_code');
 
     const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);

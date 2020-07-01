@@ -29,12 +29,14 @@ function makeSigninUtils(options) {
   const customs = options.customs || {};
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || {};
+  const cadReminders = options.cadReminders || mocks.mockCadReminders();
   return require('../../../../lib/routes/utils/signin')(
     log,
     config,
     customs,
     db,
-    mailer
+    mailer,
+    cadReminders
   );
 }
 
@@ -1389,5 +1391,27 @@ describe('getSessionVerificationStatus', () => {
       verificationMethod: 'email-otp',
       verificationReason: 'signup',
     });
+  });
+});
+
+describe('cleanupReminders', () => {
+  let cleanupReminders, mockCadReminders;
+
+  beforeEach(() => {
+    mockCadReminders = mocks.mockCadReminders();
+    cleanupReminders = makeSigninUtils({
+      cadReminders: mockCadReminders,
+    }).cleanupReminders;
+  });
+
+  it('correctly calls cadReminders delete for verified session', async () => {
+    await cleanupReminders({ verified: true }, { uid: '123' });
+    assert.calledOnce(mockCadReminders.delete);
+    assert.calledWithExactly(mockCadReminders.delete, '123');
+  });
+
+  it('does not call cadReminders delete for unverified session', async () => {
+    await cleanupReminders({ verified: false }, { uid: '123' });
+    assert.notCalled(mockCadReminders.delete);
   });
 });
