@@ -426,6 +426,7 @@ describe('StripeElement', () => {
   it('runs validation for empty value if focused and blurred', () => {
     const MockStripeElement = buildMockStripeElement(undefined);
     const validatorStateRef = mkValidatorStateRef();
+    const translatedIsRequired = 'IS REQUIRED TRANSLATED';
     const { container, getByTestId } = render(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement
@@ -433,6 +434,10 @@ describe('StripeElement', () => {
           label="Frobnitz"
           name="input-1"
           required={true}
+          // Basic mock of getString, real version is more in depth, but has test coverage within the library
+          getString={(msg, value) => {
+            return value.label + ' ' + translatedIsRequired;
+          }}
           component={MockStripeElement}
         />
       </TestForm>
@@ -446,7 +451,7 @@ describe('StripeElement', () => {
     const tooltipEl = container.querySelector('aside.tooltip');
     expect(tooltipEl).not.toBeNull();
     expect((tooltipEl as Element).textContent).toContain(
-      'Frobnitz is required'
+      'Frobnitz IS REQUIRED TRANSLATED'
     );
   });
 
