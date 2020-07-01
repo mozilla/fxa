@@ -22,6 +22,14 @@ const UTM_PREFIX = 'fx-';
 const X_SES_CONFIGURATION_SET = 'X-SES-CONFIGURATION-SET';
 const X_SES_MESSAGE_TAGS = 'X-SES-MESSAGE-TAGS';
 
+// Polyfill Intl.NumberFormat until we are using Node >= 13
+if (parseInt(process.versions.node) > 12) {
+  console.error('Time to remove the intl polyfill module!!1!');
+} else {
+  const IntlPolyfill = require('intl');
+  Intl.NumberFormat = IntlPolyfill.NumberFormat;
+}
+
 module.exports = function (log, config, oauthdb) {
   const oauthClientInfo = require('./oauth_client_info')(log, config, oauthdb);
   const verificationReminders = require('../verification-reminders')(

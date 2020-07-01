@@ -69,6 +69,7 @@
     "hkdf": "0.0.2",
     "hot-shots": "^7.6.0",
     "i18n-abide": "0.0.26",
+    "intl": "1.2.5",
     "ioredis": "^4.14.1",
     "jed": "0.5.4",
     "jsonwebtoken": "^8.4.0",
