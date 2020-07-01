@@ -23,6 +23,7 @@
 
   .plan-details-component-inner {
     @include min-width('tablet') {
+      max-width: 343px;
       position: fixed;
     }
   }
@@ -90,7 +91,7 @@
   .plan-details-list {
     border-bottom: 1px solid $grey-30;
     color: rgba(12, 12, 13, 0.8);
-    list-style-position: inside;
+    // list-style-position: inside;
     margin-top: 10px;
     // 1px bottom is a hack to get the padding from the last li
     // to show up on tablet and higher that have position: fixed;
@@ -104,11 +105,12 @@
     ul {
       color: $grey-50;
       margin: 0;
-      padding-left: 0;
+      padding-left: 12px;
     }
 
     li {
       margin-bottom: 16px;
+      line-height: 22px;
 
       span {
         padding-left: 8px;

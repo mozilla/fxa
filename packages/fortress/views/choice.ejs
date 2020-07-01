@@ -10,8 +10,12 @@
     <div class="card price-card <%= `${typeof plan.popular === "undefined" ? "" : "popular"}` %>">
       <h3><%= plan.title %></h3>
       <div class="price-box">
-        <h4><%= plan.monthPrice %></h4>
-        <p>per month</p>
+        <h4><%= plan.monthPrice %>/mo</h4>
+        <% if (plan.cycle === 'yearly') { %>
+          <p class="billed">billed <del><%= plan.base %></del> <span class="discount"><%= plan.price %></span> yearly</p>
+        <% } else { %>
+          <p class="billed">billed <%= plan.price %> monthly</p>
+        <% } %>
         <% if (plan.savings) { %>
           <p class="savings">
             Save <%= plan.savings %>

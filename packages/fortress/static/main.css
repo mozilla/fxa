@@ -126,11 +126,16 @@ h4 {
 
 .price-card h4 {
   font-size: 48px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .price-card p {
+  margin-top: 0;
   font-weight: 500;
+}
+
+.price-card .billed {
+  margin: 16px 0 24px;
 }
 
 .savings,
@@ -167,6 +172,47 @@ h4 {
   transition: background-image 250ms;
   user-select: none;
   width: 100%;
+}
+
+del {
+  position: relative;
+  text-decoration: none;
+}
+
+del::after {
+  content: '';
+  height: 2px;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background: red;
+  top: calc(50% - 2px);
+  transform: rotate(20deg);
+}
+
+del::before {
+  content: '';
+  height: 2px;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background: red;
+  top: calc(50% - 2px);
+  transform: rotate(-20deg);
+}
+
+.discount {
+  position: relative;
+}
+
+.discount::before {
+  content: '';
+  height: 2px;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background: var(--key-color);
+  bottom: -2px;
 }
 
 .button:hover {
