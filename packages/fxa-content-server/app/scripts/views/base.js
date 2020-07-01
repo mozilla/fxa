@@ -1137,6 +1137,25 @@ var BaseView = Backbone.View.extend({
         return result;
       });
   },
+
+  /**
+   * Clear validation tooltips and all visible input values.
+   */
+  clearInput() {
+    const $inputEls = this.$('input');
+
+    $inputEls.each((i, inputEl) => {
+      // Called to clear validation tooltips. issues/5680
+      $(inputEl).change();
+    });
+
+    const formEl = this.$('form input:not(".hidden")');
+    if (formEl) {
+      for (let i = 0; i < formEl.length; i++) {
+        formEl[i].value = '';
+      }
+    }
+  },
 });
 
 Cocktail.mixin(

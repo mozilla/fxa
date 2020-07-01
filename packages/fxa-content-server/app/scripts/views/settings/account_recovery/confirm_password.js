@@ -27,6 +27,7 @@ const View = FormView.extend({
 
   _cancelPasswordConfirm() {
     this.logFlowEvent('cancel', this.viewName);
+    this.clearInput();
     this.navigate('settings/account_recovery', {
       hasRecoveryKey: false,
     });
