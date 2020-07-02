@@ -78,8 +78,12 @@ export const Field = ({
   );
   /* eslint-enable react-hooks/exhaustive-deps */
 
-  const focusElement =
-    autoFocus && tooltipParentRef && tooltipParentRef.current;
+  const fieldElementRef = useRef<HTMLInputElement>(null);
+  let focusElement = autoFocus && tooltipParentRef && tooltipParentRef.current;
+  if (typeof focusElement === 'function') {
+    focusElement = focusElement(fieldElementRef.current);
+  }
+
   useEffect(() => {
     if (focusElement && focusElement.focus) {
       // TODO: figure out how to get rid of this setTimeout because it's
@@ -91,7 +95,7 @@ export const Field = ({
   }, [focusElement]);
 
   return (
-    <div className={className}>
+    <div className={className} ref={fieldElementRef}>
       <label>
         {label && <span className="label-text">{label}</span>}
         {tooltip && tooltipParentRef && validator.getError(name) && (
@@ -282,14 +286,12 @@ export const StripeElement = (props: StripeElementProps) => {
     [name, props, validator, onValidate, elementValue]
   );
 
-  const tooltipParentRef = useRef<any>(null);
-  const stripeElementRef = (el: any) => {
-    // HACK: Stripe elements stash their underlying DOM element in el._ref,
-    // but we need it for Tooltip positioning
-    if (el) {
-      tooltipParentRef.current = el._ref;
+  const tooltipParentRef = useRef<any>((fieldEl) => {
+    console.log('DOFOO', fieldEl);
+    if (fieldEl) {
+      fieldEl.querySelector('.StripeElement');
     }
-  };
+  });
 
   return (
     <Field
@@ -307,7 +309,6 @@ export const StripeElement = (props: StripeElementProps) => {
       <StripeElementComponent
         {...{
           ...childProps,
-          ref: stripeElementRef,
           onChange,
           onBlur,
         }}
