@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Configuration for npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 2
+    reviewers:
+      - "@mozilla/fxa-devs"
+  - package-ecosystem: "npm"
+    directory: "/packages/fxa-content-server"
+    schedule:
+      interval: "daily"
+    open-pull-requests-limit: 2
+    reviewers:
+      - "@mozilla/fxa-devs"
+
+  # Configuration for Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 2
+    reviewers:
+      - "@mozilla/fxa-devs"
