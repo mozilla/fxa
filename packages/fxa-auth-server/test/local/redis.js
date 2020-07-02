@@ -7,7 +7,9 @@
 const { assert } = require('chai');
 const AccessToken = require('../../lib/oauth/db/accessToken');
 const sinon = require('sinon');
+const RefreshTokenMetadata = require('../../lib/oauth/db/refreshTokenMetadata');
 const config = require('../../config').getProperties();
+const recordLimit = 20;
 const prefix = 'test:';
 const maxttl = 1337;
 const redis = require('../../lib/redis')(
@@ -15,6 +17,7 @@ const redis = require('../../lib/redis')(
     ...config.redis.accessTokens,
     ...config.redis.sessionTokens,
     prefix,
+    recordLimit,
     maxttl,
   },
   { error: sinon.spy() }
@@ -252,7 +255,9 @@ describe('Redis', () => {
       });
 
       it('prunes the index by half of the limit when over', async () => {
-        const tokenIds = new Array(101).fill(1).map((_, i) => `token-${i}`);
+        const tokenIds = new Array(recordLimit + 1)
+          .fill(1)
+          .map((_, i) => `token-${i}`);
         await redis.redis.sadd(
           accessToken1.userId.toString('hex'),
           ...tokenIds
@@ -261,7 +266,7 @@ describe('Redis', () => {
         const count = await redis.redis.scard(
           accessToken1.userId.toString('hex')
         );
-        assert.equal(count, 52);
+        assert.equal(count, recordLimit / 2 + 2);
         const token = await redis.getAccessToken(accessToken1.tokenId);
         assert.deepEqual(token, accessToken1);
       });
@@ -430,6 +435,60 @@ describe('Redis', () => {
         );
         const tokens = await redis.getAccessTokens(accessToken1.userId);
         assert.deepEqual(tokens, [accessToken1]);
+      });
+    });
+  });
+
+  describe('Refresh Token Metadata', () => {
+    const uid = '1234';
+    const tokenId1 = '1111';
+    const tokenId2 = '2222';
+    const tokenId3 = '3333';
+    let metadata;
+    let oldMeta;
+
+    beforeEach(async () => {
+      await redis.redis.flushall();
+      oldMeta = new RefreshTokenMetadata(
+        new Date(Date.now() - (maxttl + 1000))
+      );
+      metadata = new RefreshTokenMetadata(new Date());
+    });
+
+    describe('setRefreshToken', () => {
+      it('sets expiry', async () => {
+        await redis.setRefreshToken(uid, tokenId1, metadata);
+        const ttl = await redis.redis.pttl(uid);
+        assert.isAtMost(ttl, maxttl);
+        assert.isAtLeast(ttl, maxttl - 1000);
+      });
+
+      it('prunes old tokens', async () => {
+        await redis.setRefreshToken(uid, tokenId1, oldMeta);
+        await redis.setRefreshToken(uid, tokenId2, oldMeta);
+
+        await redis.setRefreshToken(uid, tokenId3, metadata);
+
+        const tokens = await redis.getRefreshTokens(uid);
+        assert.deepEqual(tokens, {
+          [tokenId3]: metadata,
+        });
+      });
+
+      it(`maxes out at ${recordLimit} recent tokens`, async () => {
+        const tokenIds = new Array(recordLimit)
+          .fill(1)
+          .map((_, i) => `token-${i}`);
+        for (const tokenId of tokenIds) {
+          await redis.setRefreshToken(uid, tokenId, metadata);
+        }
+        const len = await redis.redis.hlen(uid);
+        assert.equal(len, recordLimit);
+        await redis.setRefreshToken(uid, tokenId1, metadata);
+        const tokens = await redis.getRefreshTokens(uid);
+        assert.deepEqual(tokens, {
+          [tokenId1]: metadata,
+        });
       });
     });
   });

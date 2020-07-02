@@ -193,7 +193,12 @@ const QUERY_ACCESS_TOKEN_FIND =
   '  clients.publicClient ' +
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
   'WHERE tokens.token=?';
-const QUERY_REFRESH_TOKEN_FIND = 'SELECT * FROM refreshTokens where token=?';
+// Note that the `token` field stores the hash of the token rather than the raw token,
+// and hence would more properly be called `tokenId`.
+const QUERY_REFRESH_TOKEN_FIND =
+  'SELECT token AS tokenId, clientId, userId, scope, createdAt, ' +
+  'lastUsedAt, profileChangedAt ' +
+  'FROM refreshTokens where token=?';
 const QUERY_REFRESH_TOKEN_LAST_USED_UPDATE =
   'UPDATE refreshTokens SET lastUsedAt=? WHERE token=?';
 const QUERY_CODE_FIND = 'SELECT * FROM codes WHERE code=?';
@@ -237,7 +242,7 @@ const QUERY_LIST_ACCESS_TOKENS_BY_UID =
   'FROM tokens LEFT OUTER JOIN clients ON clients.id = tokens.clientId ' +
   'WHERE tokens.userId=?';
 const QUERY_LIST_REFRESH_TOKENS_BY_UID =
-  'SELECT refreshTokens.token AS refreshTokenId, refreshTokens.clientId, refreshTokens.createdAt, refreshTokens.lastUsedAt, ' +
+  'SELECT refreshTokens.token AS tokenId, refreshTokens.clientId, refreshTokens.createdAt, refreshTokens.lastUsedAt, ' +
   '  refreshTokens.scope, clients.name as clientName, clients.canGrant AS clientCanGrant ' +
   'FROM refreshTokens LEFT OUTER JOIN clients ON clients.id = refreshTokens.clientId ' +
   'WHERE refreshTokens.userId=?';
@@ -513,7 +518,7 @@ MysqlStore.prototype = {
    * @param {String} uid User ID as hex
    * @returns {Promise}
    */
-  getRefreshTokensByUid: async function getRefreshTokensByUid(uid) {
+  _getRefreshTokensByUid: async function _getRefreshTokensByUid(uid) {
     const refreshTokens = await this._read(QUERY_LIST_REFRESH_TOKENS_BY_UID, [
       buf(uid),
     ]);
@@ -577,19 +582,19 @@ MysqlStore.prototype = {
    * If a user has multiple refresh tokens for a given client_id, clients
    * will use their active refresh tokens to get new access tokens.
    *
-   * @param {String} refreshTokenid Refresh Token ID as Hex
+   * @param {String} tokenId Refresh Token ID as Hex
    * @param {String} clientId Client ID as Hex
    * @param {String} uid User Id as Hex
    * @returns {Promise} `true` if the token was found and deleted, `false` otherwise
    */
   _deleteClientRefreshToken: async function _deleteClientRefreshToken(
-    refreshTokenId,
+    tokenId,
     clientId,
     uid
   ) {
     const deleteRefreshTokenRes = await this._write(
       DELETE_REFRESH_TOKEN_WITH_CLIENT_AND_UID,
-      [buf(refreshTokenId), buf(clientId), buf(uid)]
+      [buf(tokenId), buf(clientId), buf(uid)]
     );
 
     // only delete access tokens if deleting the refresh
@@ -606,27 +611,28 @@ MysqlStore.prototype = {
   },
 
   generateRefreshToken: function generateRefreshToken(vals) {
-    var t = {
+    const t = {
       clientId: vals.clientId,
       userId: vals.userId,
       scope: vals.scope,
       profileChangedAt: vals.profileChangedAt,
     };
-    var token = unique.token();
-    var hash = encrypt.hash(token);
+    const token = unique.token();
+    const tokenId = encrypt.hash(token);
     return this._write(QUERY_REFRESH_TOKEN_INSERT, [
       t.clientId,
       t.userId,
       t.scope.toString(),
-      hash,
+      tokenId,
       t.profileChangedAt,
     ]).then(function () {
       t.token = token;
+      t.tokenId = tokenId;
       return t;
     });
   },
 
-  getRefreshToken: function getRefreshToken(token) {
+  _getRefreshToken: function _getRefreshToken(token) {
     return this._readOne(QUERY_REFRESH_TOKEN_FIND, [buf(token)]).then(function (
       t
     ) {
@@ -637,16 +643,15 @@ MysqlStore.prototype = {
     });
   },
 
-  usedRefreshToken: function usedRefreshToken(token) {
-    var now = new Date();
+  _touchRefreshToken: function _touchRefreshToken(token, now) {
     return this._write(QUERY_REFRESH_TOKEN_LAST_USED_UPDATE, [
       now,
       // WHERE
-      token,
+      buf(token),
     ]);
   },
 
-  removeRefreshToken: function removeRefreshToken(id) {
+  _removeRefreshToken: function _removeRefreshToken(id) {
     return this._write(QUERY_REFRESH_TOKEN_DELETE, [buf(id)]);
   },
 

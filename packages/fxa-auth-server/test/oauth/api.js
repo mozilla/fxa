@@ -3244,7 +3244,7 @@ describe('/v1', function () {
         email: user.email,
         scope: ScopeSet.fromArray(scope),
       });
-      return encrypt.hash(token.token).toString('hex');
+      return token.tokenId.toString('hex');
     }
 
     async function makeRefreshToken(client, user, scope) {
@@ -3254,7 +3254,7 @@ describe('/v1', function () {
         email: user.email,
         scope: ScopeSet.fromArray(scope),
       });
-      return encrypt.hash(token.token).toString('hex');
+      return token.tokenId.toString('hex');
     }
 
     beforeEach(async () => {
