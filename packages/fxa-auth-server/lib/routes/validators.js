@@ -273,6 +273,7 @@ module.exports.recoveryData = isA
   .max(1024)
   .required();
 
+module.exports.stripePaymentMethodId = isA.string().max(30);
 module.exports.subscriptionsSubscriptionId = isA.string().max(255);
 module.exports.subscriptionsPlanId = isA.string().max(255);
 module.exports.subscriptionsProductId = isA.string().max(255);
@@ -291,6 +292,44 @@ module.exports.activeSubscriptionValidator = isA.object({
   createdAt: isA.number().required(),
   cancelledAt: isA.alternatives(isA.number(), isA.any().allow(null)),
 });
+
+// This is a Stripe subscription object with latest_invoice.payment_intent expanded
+module.exports.subscriptionsSubscriptionExpandedValidator = isA
+  .object({
+    id: isA.string().required(),
+    object: isA.string().allow('subscription').required(),
+    latest_invoice: isA
+      .object({
+        id: isA.string().required(),
+        object: isA.string().allow('invoice').required(),
+        payment_intent: isA
+          .object({
+            id: isA.string().required(),
+            object: isA.string().allow('payment_intent').required(),
+            client_secret: isA.string().required(),
+          })
+          .unknown(true)
+          .required(),
+      })
+      .unknown(true)
+      .required(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsInvoicePIExpandedValidator = isA
+  .object({
+    id: isA.string().required(),
+    object: isA.string().allow('invoice').required(),
+    payment_intent: isA
+      .object({
+        id: isA.string().required(),
+        object: isA.string().allow('payment_intent').required(),
+        client_secret: isA.string().required(),
+      })
+      .unknown(true)
+      .required(),
+  })
+  .unknown(true);
 
 // This is subhub's perspective on an active subscription
 module.exports.subscriptionsSubscriptionValidator = isA.object({

@@ -572,6 +572,87 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Create a customer.
+   *
+   * New PaymentMethod flow.
+   *
+   * @param {*} request
+   */
+  async createCustomer(request) {
+    this.log.begin('subscriptions.getCustomer', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'createCustomer');
+
+    const customer = await this.stripeHelper.customer(uid, email);
+    if (customer) {
+      return customer;
+    }
+
+    const { displayName, idempotencyKey } = request.payload;
+    const customerIdempotencyKey = `${idempotencyKey}-customer`;
+    return this.stripeHelper.createPlainCustomer(
+      uid,
+      email,
+      displayName,
+      customerIdempotencyKey
+    );
+  }
+
+  /**
+   * Retry an invoice by attaching a new payment method id for use.
+   *
+   * New PaymentMethod flow.
+   *
+   * @param {*} request
+   */
+  async retryInvoice(request) {
+    this.log.begin('subscriptions.retryInvoice', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'retryInvoice');
+
+    const customer = await this.stripeHelper.customer(uid, email);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    const { invoiceId, paymentMethodId, idempotencyKey } = request.payload;
+    const retryIdempotencyKey = `${idempotencyKey}-retryInvoice`;
+    return this.stripeHelper.retryInvoiceWithPaymentId(
+      customer.id,
+      invoiceId,
+      paymentMethodId,
+      retryIdempotencyKey
+    );
+  }
+
+  /**
+   * Create a subscription for a user.
+   *
+   * New PaymentMethod flow.
+   *
+   * @param {*} request
+   */
+  async createSubscriptionWithPMI(request) {
+    this.log.begin('subscriptions.createSubscriptionWithPMI', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'createSubscriptionWithPMI');
+
+    const customer = await this.stripeHelper.customer(uid, email);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    const { priceId, paymentMethodId, idempotencyKey } = request.payload;
+    const subIdempotencyKey = `${idempotencyKey}-createSub`;
+    return this.stripeHelper.createSubscriptionWithPMI(
+      customer.id,
+      priceId,
+      paymentMethodId,
+      subIdempotencyKey
+    );
+  }
+
+  /**
    * Gather all capabilities granted by a product across all clients
    *
    * @param {*} productId
@@ -1168,6 +1249,71 @@ const directRoutes = (
         },
       },
       handler: (request) => directStripeRoutes.getCustomer(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/customer',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: validators.subscriptionsCustomerValidator,
+        },
+        validate: {
+          payload: {
+            displayName: isA.string().required(),
+            idempotencyKey: isA.string().required(),
+          },
+        },
+      },
+      handler: (request) => directStripeRoutes.createCustomer(request),
+    },
+    {
+      method: 'POST',
+      // Avoid conflict with existing, this can be updated to remove `/new` at the
+      // same time the old routes are removed when the client is updated.
+      path: '/oauth/subscriptions/active/new',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: validators.subscriptionsSubscriptionExpandedValidator,
+        },
+        validate: {
+          query: {
+            priceId: isA.string().required(),
+            paymentMethodId: validators.stripePaymentMethodId.required(),
+            idempotencyKey: isA.string().required(),
+          },
+        },
+      },
+      handler: (request) =>
+        directStripeRoutes.createSubscriptionWithPMI(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/invoice/retry',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: validators.subscriptionsInvoicePIExpandedValidator,
+        },
+        validate: {
+          query: {
+            invoiceId: isA.string().required(),
+            paymentMethodId: validators.stripePaymentMethodId.required(),
+            idempotencyKey: isA.string().required(),
+          },
+        },
+      },
+      handler: (request) => directStripeRoutes.retryInvoice(request),
     },
     {
       method: 'GET',
