@@ -7361,24 +7361,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"awesome-typescript-loader@npm:^5.2.1":
-  version: 5.2.1
-  resolution: "awesome-typescript-loader@npm:5.2.1"
-  dependencies:
-    chalk: ^2.4.1
-    enhanced-resolve: ^4.0.0
-    loader-utils: ^1.1.0
-    lodash: ^4.17.5
-    micromatch: ^3.1.9
-    mkdirp: ^0.5.1
-    source-map-support: ^0.5.3
-    webpack-log: ^1.2.0
-  peerDependencies:
-    typescript: ^2.7 || ^3
-  checksum: c8311035ffae5faeb1cabb470f03d3181434cf33f2d1cb528ad57eecee73c2d5c3988479f9c3daf1d26e658703b239c5ed7e31a4bc1ffc96adc345770f2c219e
-  languageName: node
-  linkType: hard
-
 "aws-sdk@npm:^2.443.0, aws-sdk@npm:^2.698.0":
   version: 2.698.0
   resolution: "aws-sdk@npm:2.698.0"
@@ -9523,7 +9505,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.0.1, chalk@npm:^2.1.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2, chalk@npm:~2.4.1":
+"chalk@npm:2.4.2, chalk@npm:^2.0.0, chalk@npm:^2.0.1, chalk@npm:^2.1.0, chalk@npm:^2.3.0, chalk@npm:^2.4.1, chalk@npm:^2.4.2, chalk@npm:~2.4.1":
   version: 2.4.2
   resolution: "chalk@npm:2.4.2"
   dependencies:
@@ -15219,7 +15201,6 @@ fsevents@^1.2.7:
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
     autoprefixer: 9.0.1
-    awesome-typescript-loader: ^5.2.1
     babel-eslint: ^10.1.0
     babel-loader: 8.0.6
     babel-plugin-dynamic-import-webpack: 1.0.2
@@ -15330,6 +15311,7 @@ fsevents@^1.2.7:
     speed-trap: 0.0.10
     thread-loader: ^2.1.2
     time-grunt: 1.4.0
+    ts-loader: ^7.0.5
     ts-node: ^8.10.1
     typescript: 3.8.3
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
@@ -16034,6 +16016,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.0
     prettier: ^2.0.5
     replace-in-file: ^5.0.2
+    semver: ^7.3.2
     stylelint: ^13.6.1
     stylelint-config-prettier: ^8.0.2
   languageName: unknown
@@ -21785,7 +21768,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:^2.0.0, log-symbols@npm:^2.1.0, log-symbols@npm:^2.2.0":
+"log-symbols@npm:^2.0.0, log-symbols@npm:^2.2.0":
   version: 2.2.0
   resolution: "log-symbols@npm:2.2.0"
   dependencies:
@@ -21830,16 +21813,6 @@ fsevents@^1.2.7:
   version: 1.6.8
   resolution: "loglevel@npm:1.6.8"
   checksum: 847939b08549649a0495e1b0d25ac89cec537a057fbb6deae468a066236ca0295aabce314366c026605537c345ece982d88783c7f44ab3599a40554bb09442ed
-  languageName: node
-  linkType: hard
-
-"loglevelnext@npm:^1.0.1":
-  version: 1.0.5
-  resolution: "loglevelnext@npm:1.0.5"
-  dependencies:
-    es6-symbol: ^3.1.1
-    object.assign: ^4.1.0
-  checksum: 57492c93fff6854cd754af3d9829e87a9925bbf79d7f7c26f6712fe736b07dbc7d427066308e906d6483c7ac9ea60ca18813e383a7dc722a8e7f6822abb88266
   languageName: node
   linkType: hard
 
@@ -22394,7 +22367,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"micromatch@npm:^3.0.4, micromatch@npm:^3.1.10, micromatch@npm:^3.1.4, micromatch@npm:^3.1.9":
+"micromatch@npm:^3.0.4, micromatch@npm:^3.1.10, micromatch@npm:^3.1.4":
   version: 3.1.10
   resolution: "micromatch@npm:3.1.10"
   dependencies:
@@ -22415,7 +22388,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"micromatch@npm:^4.0.2":
+"micromatch@npm:^4.0.0, micromatch@npm:^4.0.2":
   version: 4.0.2
   resolution: "micromatch@npm:4.0.2"
   dependencies:
@@ -30237,7 +30210,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:^0.5.11, source-map-support@npm:^0.5.16, source-map-support@npm:^0.5.17, source-map-support@npm:^0.5.3, source-map-support@npm:^0.5.6, source-map-support@npm:~0.5.12":
+"source-map-support@npm:^0.5.11, source-map-support@npm:^0.5.16, source-map-support@npm:^0.5.17, source-map-support@npm:^0.5.6, source-map-support@npm:~0.5.12":
   version: 0.5.19
   resolution: "source-map-support@npm:0.5.19"
   dependencies:
@@ -32272,6 +32245,21 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
+"ts-loader@npm:^7.0.5":
+  version: 7.0.5
+  resolution: "ts-loader@npm:7.0.5"
+  dependencies:
+    chalk: ^2.3.0
+    enhanced-resolve: ^4.0.0
+    loader-utils: ^1.0.2
+    micromatch: ^4.0.0
+    semver: ^6.0.0
+  peerDependencies:
+    typescript: "*"
+  checksum: 4f55f2c9f53b7f0562558b25d2015f4b7a592d91245ce4e059ea0231ff755033dc3b29939f6f7012ba644593f70f656ce8a89354474a7b1741da642b04f17942
+  languageName: node
+  linkType: hard
+
 "ts-node@npm:^8.10.1, ts-node@npm:^8.2.0, ts-node@npm:^8.5.2":
   version: 8.10.1
   resolution: "ts-node@npm:8.10.1"
@@ -33663,18 +33651,6 @@ typescript@3.8.3:
     querystring: ^0.2.0
     strip-ansi: ^3.0.0
   checksum: 83de4f89e79f0e1f0226865423666295fe551fadaadf426b84993cba5148665faeb65535e887c9e387967c745a0c1736bb8d83b48a866e54a3a7614be7e41063
-  languageName: node
-  linkType: hard
-
-"webpack-log@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "webpack-log@npm:1.2.0"
-  dependencies:
-    chalk: ^2.1.0
-    log-symbols: ^2.1.0
-    loglevelnext: ^1.0.1
-    uuid: ^3.1.0
-  checksum: e1822a5e9bc0d59f083852670437e41be243c6a88ae914005328bb0fedd0bdad74ab93f8b95e80ae866978ef9f5f74777cfef1a4b411763806fa315879b88984
   languageName: node
   linkType: hard
 

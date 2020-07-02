@@ -76,6 +76,9 @@ const webpackConfig = {
       uuid: require.resolve('node-uuid/uuid'),
       vat: require.resolve('node-vat/vat'),
       'webcrypto-liner': require.resolve('webcrypto-liner/build/shim'),
+      // Webpack 4 doesn't support the "exports" property of package.json
+      // so unfortunately we need to remap it here as well.
+      'fxa-react/components/Survey': require.resolve('fxa-react/components/Survey')
     },
   },
 
@@ -109,7 +112,12 @@ const webpackConfig = {
       },
       {
         test: /\.tsx?$/,
-        loader: ['cache-loader', 'awesome-typescript-loader'],
+        loader: ['cache-loader', {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true
+          }
+        }],
       },
       {
         test: /\.jsx?$/,

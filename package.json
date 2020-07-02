@@ -34,10 +34,11 @@
     "node-fetch": "^2.6.0",
     "pm2": "^4.4.0",
     "prettier": "^2.0.5",
-    "replace-in-file": "^5.0.2"
+    "replace-in-file": "^5.0.2",
+    "semver": "^7.3.2"
   },
   "engines": {
-    "node": ">=12",
+    "node": "^12.18.0",
     "npm": ">=6.4.1"
   },
   "fxa": {
