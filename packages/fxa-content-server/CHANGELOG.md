@@ -1,3 +1,29 @@
+## 1.178.0
+
+### New features
+
+- account deletion: add checkbox to deletion confirming that your developer extensions and themes will be deleted ([2cc07d892](https://github.com/mozilla/fxa/commit/2cc07d892))
+
+### Bug fixes
+
+- content-server: clean the input value before navigating to account recovery. ([7b41e8e1f](https://github.com/mozilla/fxa/commit/7b41e8e1f))
+- content-server: fix broken links within legal pages ([d29286584](https://github.com/mozilla/fxa/commit/d29286584))
+- experiments: fix qr code experiment cohorting rules ([0d47f5a49](https://github.com/mozilla/fxa/commit/0d47f5a49))
+- tests: fix l10n fallback language tests ([bbcae8a88](https://github.com/mozilla/fxa/commit/bbcae8a88))
+- l10n: fixed l10n-extract script ([36f4ac13f](https://github.com/mozilla/fxa/commit/36f4ac13f))
+
+### Refactorings
+
+- functional: remove duplicate and outdated tests ([306660102](https://github.com/mozilla/fxa/commit/306660102))
+
+### Other changes
+
+- content-server: fix z-index of survey ([6eee0c12a](https://github.com/mozilla/fxa/commit/6eee0c12a))
+- 28b0565bc [test] Add test to sign in existing user ([28b0565bc](https://github.com/mozilla/fxa/commit/28b0565bc))
+- deps: update deps ([27cd24c63](https://github.com/mozilla/fxa/commit/27cd24c63))
+- deps: removed es6-promise ([38877dacd](https://github.com/mozilla/fxa/commit/38877dacd))
+- docs: Replace 'master' with 'main' throughout ([20a0acf8b](https://github.com/mozilla/fxa/commit/20a0acf8b))
+
 ## 1.177.1
 
 ### Bug fixes

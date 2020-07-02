@@ -1,5 +1,20 @@
 # Change history
 
+## 1.178.0
+
+### Bug fixes
+
+- payments: further l10n updates for payment update form ([1f8d51c05](https://github.com/mozilla/fxa/commit/1f8d51c05))
+
+### Other changes
+
+- payments-server: l10n msg 4 required fields ([36b50a41d](https://github.com/mozilla/fxa/commit/36b50a41d))
+- styles: fortress and payments ui improvements ([69994084b](https://github.com/mozilla/fxa/commit/69994084b))
+- deps: update deps ([27cd24c63](https://github.com/mozilla/fxa/commit/27cd24c63))
+- l10n: match directory names to language codes ([bb8f2354f](https://github.com/mozilla/fxa/commit/bb8f2354f))
+- docs: Replace 'master' with 'main' throughout ([20a0acf8b](https://github.com/mozilla/fxa/commit/20a0acf8b))
+- payments: remove zip code validation ([0619df7f2](https://github.com/mozilla/fxa/commit/0619df7f2))
+
 ## 1.177.1
 
 No changes.

@@ -1,3 +1,10 @@
+## 1.178.0
+
+### Other changes
+
+- deps: update deps ([27cd24c63](https://github.com/mozilla/fxa/commit/27cd24c63))
+- docs: Replace 'master' with 'main' throughout ([20a0acf8b](https://github.com/mozilla/fxa/commit/20a0acf8b))
+
 ## 1.177.1
 
 No changes.
