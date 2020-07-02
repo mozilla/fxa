@@ -18,7 +18,7 @@ const BASE_36 = validators.BASE_36;
 // Currently only for metrics purposes, not enforced.
 const MAX_ACTIVE_SESSIONS = 200;
 
-module.exports = (log, config, customs, db, mailer) => {
+module.exports = (log, config, customs, db, mailer, cadReminders) => {
   const unblockCodeLifetime =
     (config.signinUnblock && config.signinUnblock.codeLifetime) || 0;
   const unblockCodeLen =
@@ -497,6 +497,19 @@ module.exports = (log, config, customs, db, mailer) => {
         };
       }
       return { verified: true };
+    },
+
+    /**
+     * Remove verification reminders for the account.
+     */
+    async cleanupReminders(response, account) {
+      // We should only really remove reminders if the session
+      // was marked as verified, ie have met all the requirements
+      // to start syncing
+      if (response.verified) {
+        await cadReminders.delete(account.uid);
+      }
+      return;
     },
   };
 };

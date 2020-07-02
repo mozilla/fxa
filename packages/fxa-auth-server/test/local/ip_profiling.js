@@ -29,6 +29,7 @@ function makeRoutes(options = {}, requireMocks) {
     smtp: {},
   };
   const log = mocks.mockLog();
+  const cadReminders = mocks.mockCadReminders();
   const customs = {
     check() {
       return P.resolve(true);
@@ -40,7 +41,8 @@ function makeRoutes(options = {}, requireMocks) {
     config,
     customs,
     db,
-    mailer
+    mailer,
+    cadReminders
   );
   signinUtils.checkPassword = () => P.resolve(true);
   return proxyquire('../../lib/routes/account', requireMocks || {})(

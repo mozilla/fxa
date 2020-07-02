@@ -44,6 +44,7 @@ const makeRoutes = function (options = {}, requireMocks) {
 
   const log = options.log || mocks.mockLog();
   const mailer = options.mailer || {};
+  const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
   const db = options.db || mocks.mockDB();
@@ -59,7 +60,8 @@ const makeRoutes = function (options = {}, requireMocks) {
       config,
       customs,
       db,
-      mailer
+      mailer,
+      cadReminders
     );
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
@@ -1170,6 +1172,7 @@ describe('/account/login', () => {
     check: () => P.resolve(),
     flag: () => P.resolve(),
   };
+  const mockCadReminders = mocks.mockCadReminders();
   const accountRoutes = makeRoutes({
     checkPassword: function () {
       return P.resolve(true);
@@ -1180,6 +1183,7 @@ describe('/account/login', () => {
     log: mockLog,
     mailer: mockMailer,
     push: mockPush,
+    cadReminders: mockCadReminders,
   });
   let route = getRoute(accountRoutes, '/account/login');
 
@@ -1208,6 +1212,7 @@ describe('/account/login', () => {
     mockDB.getSecondaryEmail.resetHistory();
     mockRequest.payload.email = TEST_EMAIL;
     mockRequest.payload.verificationMethod = undefined;
+    mockCadReminders.delete.resetHistory();
   });
 
   it('emits the correct series of calls and events', () => {
@@ -2033,6 +2038,7 @@ describe('/account/login', () => {
           log: mockLog,
           mailer: mockMailer,
           push: mockPush,
+          cadReminders: mockCadReminders,
         });
 
         route = getRoute(accountRoutes, '/account/login');
@@ -2122,6 +2128,8 @@ describe('/account/login', () => {
             response.verified,
             'response indicates account is verified'
           );
+
+          assert.equal(mockCadReminders.delete.callCount, 1);
         });
       });
 
