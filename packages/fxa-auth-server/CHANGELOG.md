@@ -1,3 +1,30 @@
+## 1.178.0
+
+### New features
+
+- oauth: Store refresh_token last-used-at timestamp in redis. ([d92005bb6](https://github.com/mozilla/fxa/commit/d92005bb6))
+- emails: Add onMobileDevice mailOption for post registration email ([777a31e74](https://github.com/mozilla/fxa/commit/777a31e74))
+- devices: Emit events for a basic "device commands" delivery funnel. ([5705fe683](https://github.com/mozilla/fxa/commit/5705fe683))
+
+### Bug fixes
+
+- reminders: only send reminders if the user has not logged into another device ([9f03c12e9](https://github.com/mozilla/fxa/commit/9f03c12e9))
+- metrics: Create a new oauth token created event that includes sync device data ([19ce4152a](https://github.com/mozilla/fxa/commit/19ce4152a))
+- auth-server: remove plan_name requirement ([5556f6335](https://github.com/mozilla/fxa/commit/5556f6335))
+- l10n: polyfill Intl.NumberFormat for emails ([2a2fcf7ed](https://github.com/mozilla/fxa/commit/2a2fcf7ed))
+- tests: fix l10n fallback language tests ([bbcae8a88](https://github.com/mozilla/fxa/commit/bbcae8a88))
+- auth: use stage-specific sync url in post verify emails, when in stage ([2d566e40d](https://github.com/mozilla/fxa/commit/2d566e40d))
+
+### Refactorings
+
+- auth-server: restore TS check on stripe ([c342deb86](https://github.com/mozilla/fxa/commit/c342deb86))
+
+### Other changes
+
+- update hawk to @hapi/hawk ([cbe94f4ec](https://github.com/mozilla/fxa/commit/cbe94f4ec))
+- deps: update deps ([27cd24c63](https://github.com/mozilla/fxa/commit/27cd24c63))
+- docs: Replace 'master' with 'main' throughout ([20a0acf8b](https://github.com/mozilla/fxa/commit/20a0acf8b))
+
 ## 1.177.1
 
 No changes.
