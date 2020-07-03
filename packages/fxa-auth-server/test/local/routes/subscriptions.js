@@ -717,6 +717,101 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('createCustomer', () => {
+    it('creates a stripe customer', async () => {
+      const expected = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.createPlainCustomer.returns(
+        expected
+      );
+      VALID_REQUEST.payload = {
+        displayName: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.createCustomer(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(expected, actual);
+    });
+  });
+
+  describe('createSubscriptionWithPMI', () => {
+    it('creates a subscription with a payment method', async () => {
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer.returns(customer);
+      const expected = deepCopy(subscriptionCreated);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.returns(
+        expected
+      );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(expected, actual);
+    });
+
+    it('errors when a customer has not been created', async () => {
+      directStripeRoutesInstance.stripeHelper.customer.returns(undefined);
+      VALID_REQUEST.payload = {
+        displayName: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create customer should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+  });
+
+  describe('retryInvoice', () => {
+    it('retries the invoice with the payment method', async () => {
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer.returns(customer);
+      const expected = deepCopy(openInvoice);
+      directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.returns(
+        expected
+      );
+      VALID_REQUEST.payload = {
+        invoiceId: 'in_testinvoice',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+
+      const actual = await directStripeRoutesInstance.retryInvoice(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(expected, actual);
+    });
+
+    it('errors when a customer has not been created', async () => {
+      directStripeRoutesInstance.stripeHelper.customer.returns(undefined);
+      VALID_REQUEST.payload = {
+        displayName: 'Jane Doe',
+        idempotencyKey: uuidv4(),
+      };
+      try {
+        await directStripeRoutesInstance.retryInvoice(VALID_REQUEST);
+        assert.fail('Create customer should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+  });
+
   describe('createSubscriptionNewCustomer', () => {
     it('creates a stripe customer and a new subscription', async () => {
       const expected = subscription2;

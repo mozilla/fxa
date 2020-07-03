@@ -212,6 +212,116 @@ class StripeHelper {
     return this.getCachedResult('listProducts', () => this.fetchAllProducts());
   }
 
+  /** BEGIN: NEW FLOW HELPERS FOR PAYMENT METHODS
+   *
+   * The following methods until the END are for the new payment method
+   * oriented flows that utilize client logic to determine appropriate actions.
+   *
+   **/
+
+  /**
+   * Create a stripe customer.
+   *
+   * @param {string} uid
+   * @param {string} email
+   * @param {string} displayName
+   * @param {string} idempotencyKey
+   *
+   * @returns {Promise<Customer>}
+   */
+  async createPlainCustomer(uid, email, displayName, idempotencyKey) {
+    return this.stripe.customers.create(
+      {
+        email,
+        name: displayName,
+        description: uid,
+        metadata: { userid: uid },
+      },
+      {
+        idempotency_key: idempotencyKey,
+      }
+    );
+  }
+
+  /**
+   * Update an existing customer to use a new payment method id.
+   *
+   * @param {string} customerId
+   * @param {string} invoiceId
+   * @param {string} paymentMethodId
+   * @param {string} idempotencyKey
+   */
+  async retryInvoiceWithPaymentId(
+    customerId,
+    invoiceId,
+    paymentMethodId,
+    idempotencyKey
+  ) {
+    try {
+      await this.stripe.paymentMethods.attach(
+        paymentMethodId,
+        {
+          customer: customerId,
+        },
+        { idempotencyKey }
+      );
+      await this.stripe.customers.update(customerId, {
+        invoice_settings: { default_payment_method: paymentMethodId },
+      });
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
+    }
+    return this.stripe.invoices.retrieve(invoiceId, {
+      expand: ['payment_intent'],
+    });
+  }
+
+  /**
+   * Create a subscription for the provided customer.
+   *
+   * @param {string} customerId
+   * @param {string} priceId
+   * @param {string} paymentMethodId
+   * @param {string} idempotencyKey
+   */
+  async createSubscriptionWithPMI(
+    customerId,
+    priceId,
+    paymentMethodId,
+    idempotencyKey
+  ) {
+    try {
+      await this.stripe.paymentMethods.attach(
+        paymentMethodId,
+        {
+          customer: customerId,
+        },
+        { idempotencyKey }
+      );
+    } catch (err) {
+      if (err.type === 'StripeCardError') {
+        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+      }
+      throw err;
+    }
+    await this.stripe.customers.update(customerId, {
+      invoice_settings: { default_payment_method: paymentMethodId },
+    });
+    return this.stripe.subscriptions.create(
+      {
+        customer: customerId,
+        items: [{ price: priceId }],
+        expand: ['latest_invoice.payment_intent'],
+      },
+      { idempotencyKey }
+    );
+  }
+
+  /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
+
   /**
    * Create a stripe customer
    *

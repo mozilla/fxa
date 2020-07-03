@@ -21,6 +21,7 @@ const StripeHelper = proxyquire('../../../lib/payments/stripe', {
 
 const customer1 = require('./fixtures/customer1.json');
 const newCustomer = require('./fixtures/customer_new.json');
+const newCustomerPM = require('./fixtures/customer_new_pmi.json');
 const deletedCustomer = require('./fixtures/customer_deleted.json');
 const plan1 = require('./fixtures/plan1.json');
 const plan2 = require('./fixtures/plan2.json');
@@ -30,12 +31,15 @@ const product2 = require('./fixtures/product2.json');
 const product3 = require('./fixtures/product3.json');
 const subscription1 = require('./fixtures/subscription1.json');
 const subscription2 = require('./fixtures/subscription2.json');
+const subscriptionPMIExpanded = require('./fixtures/subscription_pmi_expanded.json');
 const cancelledSubscription = require('./fixtures/subscription_cancelled.json');
 const pastDueSubscription = require('./fixtures/subscription_past_due.json');
 const paidInvoice = require('./fixtures/invoice_paid.json');
 const unpaidInvoice = require('./fixtures/invoice_open.json');
+const invoiceRetry = require('./fixtures/invoice_retry.json');
 const successfulPaymentIntent = require('./fixtures/paymentIntent_succeeded.json');
 const unsuccessfulPaymentIntent = require('./fixtures/paymentIntent_requires_payment_method.json');
+const paymentMethodAttach = require('./fixtures/payment_method_attach.json');
 const failedCharge = require('./fixtures/charge_failed.json');
 const invoicePaymentSucceededSubscriptionCreate = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
 const eventCustomerSourceExpiring = require('./fixtures/event_customer_source_expiring.json');
@@ -246,6 +250,175 @@ describe('StripeHelper', () => {
         );
         assert.deepEqual(actualResult, expectedResult);
       });
+    });
+  });
+
+  describe('createPlainCustomer', () => {
+    it('creates a customer using stripe api', async () => {
+      const expected = deepCopy(newCustomerPM);
+      sandbox.stub(stripeHelper.stripe.customers, 'create').returns(expected);
+
+      const actual = await stripeHelper.createPlainCustomer(
+        'uid',
+        'joe@example.com',
+        'Joe Cool',
+        uuidv4()
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox.stub(stripeHelper.stripe.customers, 'create').rejects(apiError);
+
+      return stripeHelper
+        .createPlainCustomer('uid', 'joe@example.com', 'Joe Cool', uuidv4())
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          (err) => {
+            assert.equal(err, apiError);
+          }
+        );
+    });
+  });
+
+  describe('retryInvoiceWithPaymentId', () => {
+    it('retries with an invoice successfully', async () => {
+      const attachExpected = deepCopy(paymentMethodAttach);
+      const customerExpected = deepCopy(newCustomerPM);
+      const invoiceRetryExpected = deepCopy(invoiceRetry);
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .returns(attachExpected);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .returns(customerExpected);
+      sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieve')
+        .returns(invoiceRetryExpected);
+      const actual = await stripeHelper.retryInvoiceWithPaymentId(
+        'customerId',
+        'invoiceId',
+        'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+        uuidv4()
+      );
+
+      assert.deepEqual(actual, invoiceRetryExpected);
+    });
+
+    it('surfaces payment issues', async () => {
+      const apiError = new stripeError.StripeCardError();
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .rejects(apiError);
+
+      return stripeHelper
+        .retryInvoiceWithPaymentId(
+          'customerId',
+          'invoiceId',
+          'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          uuidv4()
+        )
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          (err) => {
+            assert.equal(
+              err.errno,
+              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+            );
+          }
+        );
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .rejects(apiError);
+
+      return stripeHelper
+        .retryInvoiceWithPaymentId(
+          'customerId',
+          'invoiceId',
+          'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          uuidv4()
+        )
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          (err) => {
+            assert.equal(err, apiError);
+          }
+        );
+    });
+  });
+
+  describe('createSubscriptionWithPMI', () => {
+    it('creates a subscription successfully', async () => {
+      const attachExpected = deepCopy(paymentMethodAttach);
+      const customerExpected = deepCopy(newCustomerPM);
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .returns(attachExpected);
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'update')
+        .returns(customerExpected);
+      sandbox
+        .stub(stripeHelper.stripe.subscriptions, 'create')
+        .resolves(subscriptionPMIExpanded);
+      const actual = await stripeHelper.createSubscriptionWithPMI(
+        'customerId',
+        'priceId',
+        'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+        uuidv4()
+      );
+
+      assert.deepEqual(actual, subscriptionPMIExpanded);
+    });
+
+    it('surfaces payment issues', async () => {
+      const apiError = new stripeError.StripeCardError();
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .rejects(apiError);
+
+      return stripeHelper
+        .createSubscriptionWithPMI(
+          'customerId',
+          'priceId',
+          'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          uuidv4()
+        )
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          (err) => {
+            assert.equal(
+              err.errno,
+              error.ERRNO.REJECTED_SUBSCRIPTION_PAYMENT_TOKEN
+            );
+          }
+        );
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'attach')
+        .rejects(apiError);
+
+      return stripeHelper
+        .createSubscriptionWithPMI(
+          'customerId',
+          'invoiceId',
+          'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          uuidv4()
+        )
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          (err) => {
+            assert.equal(err, apiError);
+          }
+        );
     });
   });
 
