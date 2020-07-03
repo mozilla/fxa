@@ -13,6 +13,7 @@ export default class SurveyTargeter {
     this.user = options.user;
     this.window = options.window;
     this.surveys = options.surveys;
+    this.env = options.env;
 
     this._buildSurveysByViewPathMap();
   }
@@ -47,7 +48,8 @@ export default class SurveyTargeter {
       this.user,
       this.relier,
       this._storage.get(lastSurveyKey),
-      this.config.doNotBotherSpan
+      this.config.doNotBotherSpan,
+      this.env
     );
 
     try {
@@ -67,6 +69,12 @@ export default class SurveyTargeter {
       }
 
       const selectedSurvey = this._selectSurvey(qualifiedSurveys);
+
+      if (this.env === 'development') {
+        console.info('Satisfactory user data:');
+        console.table(selectedSurvey.conditions);
+      }
+
       this._storage.set(lastSurveyKey, Date.now());
       const surveyURL = Url.updateSearchString(
         selectedSurvey.survey.url,
