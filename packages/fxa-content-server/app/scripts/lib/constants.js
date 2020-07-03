@@ -170,4 +170,5 @@ module.exports = {
   ID_TOKEN_HINT_GRACE_PERIOD: 60 * 60 * 24 * 7,
 
   ENV_DEVELOPMENT: 'development',
+  ENV_PRODUCTION: 'production',
 };

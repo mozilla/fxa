@@ -72,7 +72,7 @@ describe('lib/survey-targeter', () => {
     assert.equal(view.el.className, 'survey-wrapped');
     assert.equal(
       view.$('iframe').first().attr('src'),
-      'https://www.surveygizmo.com/s3/5541940/pizza?browser=Firefox'
+      'https://www.surveygizmo.com/s3/5541940/pizza?browser=Firefox&server=content&env=production'
     );
   });
 
@@ -115,7 +115,7 @@ describe('lib/survey-targeter', () => {
     assert.deepEqual(setItemSpy.args[0], ['lastSurvey', lastSurveyValue]);
   });
 
-  it('generates the survey URL with matching conditions as query parameters', async () => {
+  it('generates the survey URL with matching conditions, env, and server as query parameters', async () => {
     const urlStringSpy = sandbox.spy(Url, 'updateSearchString');
 
     const survey = {
@@ -144,13 +144,14 @@ describe('lib/survey-targeter', () => {
 
     const targeter = await surveyTargeter.getSurvey('settings');
     const expectedUrl =
-      'https://www.surveygizmo.com/s3/5541940/pizza?languages=en-CA%2Cfr-CA&browser=Firefox&os=Mac%20OS';
-
+      'https://www.surveygizmo.com/s3/5541940/pizza?languages=en-CA%2Cfr-CA&browser=Firefox&os=Mac%20OS&server=content&env=production';
     assert(
       urlStringSpy.calledWith(survey.url, {
         browser: 'Firefox',
         os: 'Mac OS',
         languages: 'en-CA,fr-CA',
+        server: 'content',
+        env: 'production',
       })
     );
     assert(urlStringSpy.returned(expectedUrl));

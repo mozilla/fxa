@@ -2,6 +2,7 @@ import SurveyWrapperView from '../views/survey';
 import Storage from './storage';
 import createSurveyFilter from './survey-filter';
 import Url from './url';
+import { ENV_DEVELOPMENT, ENV_PRODUCTION } from './constants';
 
 const lastSurveyKey = 'lastSurvey';
 
@@ -69,16 +70,20 @@ export default class SurveyTargeter {
       }
 
       const selectedSurvey = this._selectSurvey(qualifiedSurveys);
+      const queryParamData = Object.assign(selectedSurvey.conditions, {
+        server: 'content',
+        env: this.env || ENV_PRODUCTION,
+      });
 
-      if (this.env === 'development') {
-        console.info('Satisfactory user data:');
-        console.table(selectedSurvey.conditions);
+      if (this.env === ENV_DEVELOPMENT) {
+        console.info('Query param data:');
+        console.table(queryParamData);
       }
 
       this._storage.set(lastSurveyKey, Date.now());
       const surveyURL = Url.updateSearchString(
         selectedSurvey.survey.url,
-        selectedSurvey.conditions
+        queryParamData
       );
       return new SurveyWrapperView({ surveyURL });
     } catch {
