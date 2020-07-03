@@ -1561,7 +1561,48 @@ describe('api', function () {
     });
 
     describe('POST', function () {
-      xit('should post a new ecosystem_anon_id', function () {});
+      it('should post a new ecosystem_anon_id', async function () {
+        // Use a temp uid, because we write state to the filesystem that
+        // would otherwise leak across tests.
+        const USERID = uid();
+
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+        let res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'ecosystem.anon.id',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+        assert.equal(res.statusCode, 200);
+
+        mock.coreProfile({
+          email: 'user@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id'],
+        });
+        res = await Server.api.get({
+          url: '/ecosystem_anon_id',
+          headers: {
+            authorization: 'Bearer ' + tok,
+          },
+        });
+        assert.equal(res.statusCode, 200);
+        assert.equal(
+          JSON.parse(res.payload).ecosystemAnonId,
+          'ecosystem.anon.id'
+        );
+      });
 
       it('should fail post if the ecosystem_anon_id is not a string', async function () {
         mock.token({
@@ -1604,6 +1645,46 @@ describe('api', function () {
       });
 
       xit('should fail post with 412 error if the If-Match header does not match the ETag', function () {});
+
+      it('should fail post with 412 error if If-None-Match="*" and ecosystemAnonId already exists', async function () {
+        // Use a temp uid, because we write state to the filesystem that
+        // would otherwise leak across tests.
+        const USERID = uid();
+
+        // First request creates is successfully.
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+        let res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'ecosystem.anon.id',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-None-Match': '*',
+          },
+        });
+        assert.equal(res.statusCode, 200);
+
+        // Second request failed with precondition error.
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+        res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'ecosystem.anon.id',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-None-Match': '*',
+          },
+        });
+        assert.equal(res.statusCode, 412);
+      });
 
       it('should require :write scope', async function () {
         mock.token({

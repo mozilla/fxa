@@ -33,6 +33,17 @@ module.exports = function (config) {
     ),
     profile_server_base_url: normalizeUrl(config.get('profile_url')),
     sync_tokenserver_base_url: normalizeUrl(config.get('sync_tokenserver_url')),
+    // For dev purposes, hard-code the stage AET pipeline keys.
+    // This value taken from https://bugzilla.mozilla.org/show_bug.cgi?id=1636102#c7
+    ecosystem_anon_id_keys: [
+      {
+        crv: 'P-256',
+        kid: 'LlU4keOmhTuq9fCNnpIldYGT9vT9dIDwnu_SBtTgeEQ',
+        kty: 'EC',
+        x: 'i3FM3OFSCZEoqu-jtelXwKt6AL4ODQ75NUdHbcLWQSo',
+        y: 'nW-S3QiHDo-9hwfBhKnGKarkt_PVqVyIPUytjutTunY',
+      },
+    ],
   };
 
   // This response will very rarely change, so enable caching by default.

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const fs = require('fs');
 const Joi = require('@hapi/joi');
 
 const AppError = require('../error');
@@ -112,8 +113,22 @@ module.exports = {
             if (typeof body.profileChangedAt !== 'undefined') {
               result.profileChangedAt = body.profileChangedAt;
             }
-            if (typeof body.ecosystemAnonId !== 'undefined') {
+            // In production, we plan to store the `ecosystemAnonId` field in the auth-server db.
+            // For initial dev purposes, we instead hackily store it in the local filesystem.
+            if (body.ecosystemAnonId) {
               result.ecosystemAnonId = body.ecosystemAnonId;
+            } else {
+              const uid = req.auth.credentials.user;
+              try {
+                const hackilyStoredFields = JSON.parse(
+                  fs.readFileSync(`/tmp/profile.${uid}.json`, 'utf8')
+                );
+                if (
+                  typeof hackilyStoredFields.ecosystemAnonId !== 'undefined'
+                ) {
+                  result.ecosystemAnonId = hackilyStoredFields.ecosystemAnonId;
+                }
+              } catch (_) {}
             }
             return resolve(result);
           }
