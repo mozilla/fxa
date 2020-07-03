@@ -300,14 +300,18 @@ export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowser)(
 );
 
 // Comparator
-export const checkRelierClientId = (relier) => (val) => {
-  if (relier.get('clientId') === val) {
-    return val;
-  }
+export const checkRelierClientIds = (relier) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  const userRP = relier.get('clientId');
+  // If one of any eligible RP IDs matche, return
+  // it, otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return userRP === v;
+  })[0];
 };
 
 export const relierClientIdCheck = createConditionCheckFn(applySourceVal)(
-  checkRelierClientId
+  checkRelierClientIds
 )('relier');
 
 // Comparator

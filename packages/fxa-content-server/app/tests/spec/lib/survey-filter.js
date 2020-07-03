@@ -577,18 +577,26 @@ describe('lib/survey-filter', () => {
     });
   });
 
-  describe('checkRelierClientId', () => {
+  describe('checkRelierClientIds', () => {
     const mockRelier = { get: sandbox.stub().returns('galaxy quest') };
 
     it('should be the matched value when matched exactly', () => {
-      const actual = SurveyFilter.checkRelierClientId(mockRelier)(
+      const actual = SurveyFilter.checkRelierClientIds(mockRelier)(
         'galaxy quest'
       );
       assert.equal(actual, 'galaxy quest');
     });
 
+    it('should accept an array of values and return the matched one', () => {
+      const actual = SurveyFilter.checkRelierClientIds(mockRelier)([
+        'galaxy quest',
+        'manchester orchestra',
+      ]);
+      assert.equal(actual, 'galaxy quest');
+    });
+
     it('should be false when the values do not match', () => {
-      const actual = SurveyFilter.checkRelierClientId(mockRelier)(
+      const actual = SurveyFilter.checkRelierClientIds(mockRelier)(
         'Galaxy Quest'
       );
       assert.isUndefined(actual);
@@ -610,6 +618,15 @@ describe('lib/survey-filter', () => {
     it('should be passing and have the matched value when client id matches configured condition', () => {
       const actual = SurveyFilter.relierClientIdCheck(
         { relier: 'Relying Party!!!' },
+        mockRelier
+      );
+      assertConditionResult(actual, true, 'Relying Party!!!');
+      assert.isTrue(mockRelier.get.calledOnce);
+    });
+
+    it('should be passing and have the matched value when client id matches one of any in an array', () => {
+      const actual = SurveyFilter.relierClientIdCheck(
+        { relier: ['Relying Party!!!', 'Second Market Scenes'] },
         mockRelier
       );
       assertConditionResult(actual, true, 'Relying Party!!!');
