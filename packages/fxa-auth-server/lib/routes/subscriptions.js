@@ -14,6 +14,12 @@ const validators = require('./validators');
 const { splitCapabilities } = require('./utils/subscriptions');
 const { SUBSCRIPTION_UPDATE_TYPES } = require('../payments/stripe');
 // @ts-ignore
+const {
+  filterCustomer,
+  filterSubscription,
+  filterInvoice,
+  filterIntent,
+} = require('fxa-shared').subscriptions.stripe;
 const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
@@ -583,19 +589,20 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createCustomer');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    let customer = await this.stripeHelper.customer(uid, email);
     if (customer) {
       return customer;
     }
 
     const { displayName, idempotencyKey } = request.payload;
     const customerIdempotencyKey = `${idempotencyKey}-customer`;
-    return this.stripeHelper.createPlainCustomer(
+    customer = await this.stripeHelper.createPlainCustomer(
       uid,
       email,
       displayName,
       customerIdempotencyKey
     );
+    return filterCustomer(customer);
   }
 
   /**
@@ -617,12 +624,13 @@ class DirectStripeRoutes {
 
     const { invoiceId, paymentMethodId, idempotencyKey } = request.payload;
     const retryIdempotencyKey = `${idempotencyKey}-retryInvoice`;
-    return this.stripeHelper.retryInvoiceWithPaymentId(
+    const invoice = await this.stripeHelper.retryInvoiceWithPaymentId(
       customer.id,
       invoiceId,
       paymentMethodId,
       retryIdempotencyKey
     );
+    return filterInvoice(invoice);
   }
 
   /**
@@ -644,12 +652,13 @@ class DirectStripeRoutes {
 
     const { priceId, paymentMethodId, idempotencyKey } = request.payload;
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
-    return this.stripeHelper.createSubscriptionWithPMI(
+    const subscription = await this.stripeHelper.createSubscriptionWithPMI(
       customer.id,
       priceId,
       paymentMethodId,
       subIdempotencyKey
     );
+    return filterSubscription(subscription);
   }
 
   /**
@@ -667,7 +676,8 @@ class DirectStripeRoutes {
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
-    return this.stripeHelper.createSetupIntent(customer.id);
+    const setupIntent = await this.stripeHelper.createSetupIntent(customer.id);
+    return filterIntent(setupIntent);
   }
 
   /**
@@ -681,7 +691,7 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updateDefaultPaymentMethod');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    let customer = await this.stripeHelper.customer(uid, email);
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -701,7 +711,8 @@ class DirectStripeRoutes {
       paymentMethodId
     );
     // Refetch the customer and force a cache clear
-    return this.stripeHelper.customer(uid, email, true);
+    customer = this.stripeHelper.customer(uid, email, true);
+    return filterCustomer(customer);
   }
 
   /**

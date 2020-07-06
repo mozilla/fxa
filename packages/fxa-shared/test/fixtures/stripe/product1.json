@@ -1,0 +1,24 @@
+{
+  "id": "prod_GqM9ToKK62qjkK",
+  "object": "product",
+  "active": true,
+  "attributes": [],
+  "created": 1583259938,
+  "description": null,
+  "images": [],
+  "livemode": false,
+  "metadata": {
+    "capabilities": "testForAllClients, foo",
+    "capabilities:dcdb5ae7add825d2": "123donePro,     gogogo",
+    "downloadURL": "http://127.0.0.1:8080/",
+    "webIconURL": "https://123done-stage.dev.lcip.org/img/transparent-logo.png",
+    "emailIconURL": "https://123done-stage.dev.lcip.org/img/transparent-logo.png",
+    "productSet": "123done",
+    "productOrder": "0"
+  },
+  "name": "123Done Pro",
+  "statement_descriptor": null,
+  "type": "service",
+  "unit_label": null,
+  "updated": 1591393664
+}

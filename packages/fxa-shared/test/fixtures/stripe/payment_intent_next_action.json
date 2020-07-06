@@ -1,0 +1,31 @@
+{
+  "id": "pi_1H2NS0BVqmGyQTMaVUjIwk36",
+  "object": "payment_intent",
+  "amount": 499,
+  "canceled_at": null,
+  "cancellation_reason": null,
+  "capture_method": "automatic",
+  "client_secret": "pi_1H2NS0BVqmGyQTMaVUjIwk36_secret_iNyCtKynefZP9XE3HbhcczKKO",
+  "confirmation_method": "automatic",
+  "created": 1594153896,
+  "currency": "usd",
+  "description": "Subscription creation",
+  "last_payment_error": null,
+  "livemode": false,
+  "next_action": {
+    "type": "use_stripe_sdk",
+    "use_stripe_sdk": {
+      "type": "three_d_secure_redirect",
+      "stripe_js": "https://hooks.stripe.com/redirect/authenticate/src_1H2NS0BVqmGyQTMabFhCsWEm?client_secret=src_client_secret_FSrosoFWFnXBWCkR7a1RTNSC",
+      "source": "src_1H2NS0BVqmGyQTMabFhCsWEm",
+      "known_frame_issues": "false"
+    }
+  },
+  "payment_method": "pm_1H2NRyBVqmGyQTMaHIbikRaa",
+  "payment_method_types": ["card"],
+  "receipt_email": null,
+  "setup_future_usage": "off_session",
+  "shipping": null,
+  "source": null,
+  "status": "requires_action"
+}

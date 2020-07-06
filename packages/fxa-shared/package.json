@@ -33,6 +33,8 @@
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/generic-pool": "^3.1.9",
+    "@types/lodash.omitby": "^4",
+    "@types/lodash.pick": "^4",
     "@types/mocha": "^7.0.2",
     "@types/proxyquire": "^1.3.28",
     "@types/redis": "^2.8.16",
@@ -65,8 +67,11 @@
     "generic-pool": "^3.7.1",
     "joi": "^14.3.1",
     "js-md5": "^0.7.3",
+    "lodash.omitby": "^4.6.0",
+    "lodash.pick": "^4.4.0",
     "moment": "^2.24.0",
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "stripe": "^8.69.0"
   }
 }

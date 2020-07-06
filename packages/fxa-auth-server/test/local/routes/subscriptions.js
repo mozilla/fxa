@@ -26,6 +26,13 @@ const {
   DirectStripeRoutes,
 } = require('../../../lib/routes/subscriptions');
 
+const {
+  filterCustomer,
+  filterSubscription,
+  filterInvoice,
+  filterIntent,
+} = require('fxa-shared').subscriptions.stripe;
+
 const subscription2 = require('../payments/fixtures/subscription2.json');
 const cancelledSubscription = require('../payments/fixtures/subscription_cancelled.json');
 const trialSubscription = require('../payments/fixtures/subscription_trialing.json');
@@ -733,7 +740,7 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(filterCustomer(expected), actual);
     });
   });
 
@@ -741,7 +748,7 @@ describe('DirectStripeRoutes', () => {
     it('creates a subscription with a payment method', async () => {
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.customer.returns(customer);
-      const expected = deepCopy(subscriptionCreated);
+      const expected = deepCopy(subscription2);
       directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.returns(
         expected
       );
@@ -755,7 +762,7 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(filterSubscription(expected), actual);
     });
 
     it('errors when a customer has not been created', async () => {
@@ -794,7 +801,7 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(filterInvoice(expected), actual);
     });
 
     it('errors when a customer has not been created', async () => {
@@ -827,7 +834,7 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(filterIntent(expected), actual);
     });
 
     it('errors when a customer has not been created', async () => {
@@ -868,7 +875,7 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      assert.deepEqual(expected, actual);
+      assert.deepEqual(filterCustomer(expected), actual);
     });
 
     it('errors when the payment method id is not attached', async () => {
