@@ -4,16 +4,17 @@
 
 import React, { useState } from 'react';
 import { CSSTransition } from 'react-transition-group';
-
-// TODO: Fix style inports so they work everywhere they are imported
-// import './index.scss';
+import classNames from 'classnames';
 
 type SurveyProps = {
   surveyURL: string;
   surveyComplete?: boolean;
+  onSurveyClose: Function;
+  className?: string;
 };
 
 /*
+ - fix index.scss import, FXA-2237
  - test import in payments server
  - translations will need to wait until after settings work is underway,
 then we should be able to use the same fluent syntax in content and
@@ -33,7 +34,12 @@ export const CreateHandleIframeTask = (
   return handleIframeTask;
 };
 
-export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
+export const Survey = ({
+  surveyURL,
+  surveyComplete = false,
+  onSurveyClose,
+  className = '',
+}: SurveyProps) => {
   const [inProp, setInProp] = useState(false);
   const emoji = `✅ 👍 💖`;
 
@@ -65,13 +71,17 @@ export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
         * The `aria-label` provides generic survey context and the title of the survey in
         * SG is read when the user hits the iframe which provides more specific context.
       */}
-      <aside className="survey-component" data-testid="survey-component" aria-label="Firefox accounts optional user survey">
-        <CSSTransition in={inProp} timeout={100} classNames="button-inner">
-          <button
-            className="survey-control"
-            onClick={() => setInProp(!inProp)}
-          ></button>
-        </CSSTransition>
+      <aside
+        className={classNames('survey-component', className)}
+        data-testid="survey-component"
+        aria-label="Firefox accounts optional user survey"
+      >
+        <button
+          className="survey-close"
+          title="Close"
+          data-testid="survey-close"
+          onClick={onSurveyClose as () => void}
+        ></button>
         {surveyComplete ? surveyCompleteElement : iframe}
       </aside>
     </CSSTransition>

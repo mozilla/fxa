@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /*eslint-disable no-unused-vars*/
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 /*eslint-enable no-unused-vars*/
 import ReactDOM from 'react-dom';
 import BaseView from './base';
@@ -21,6 +21,10 @@ const SurveyView = (props) => {
   const [showSurvey, setShowSurvey] = useState(true);
   const [surveyComplete, setSurveyComplete] = useState(false);
 
+  const onSurveyClose = useCallback(() => {
+    setShowSurvey(false);
+  }, [setShowSurvey]);
+
   useEffect(() => {
     // here we are listening for the survey complete
     // message from surveygizmo
@@ -34,7 +38,7 @@ const SurveyView = (props) => {
     return () => window.removeEventListener('message', handleIframeTask);
   }, [setShowSurvey, setSurveyComplete, setTimeout]);
 
-  return <>{showSurvey && <Survey {...{ surveyComplete, surveyURL }} />}</>;
+  return <>{showSurvey && <Survey {...{ surveyComplete, surveyURL, onSurveyClose }} />}</>;
 };
 
 const SurveyWrapperView = BaseView.extend({

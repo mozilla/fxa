@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { render, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import Survey, { CreateHandleIframeTask } from './index';
@@ -9,9 +9,11 @@ const surveyURL = 'https://my-survey-url.mozilla.org/';
 afterEach(cleanup);
 
 describe('Survey', () => {
+  const onSurveyClose = jest.fn();
+
   it('renders as expected', () => {
     const subject = () => {
-      return render(<Survey {...{ surveyURL }} />);
+      return render(<Survey {...{ surveyURL, onSurveyClose }} />);
     };
 
     const { queryByTestId } = subject();
@@ -21,9 +23,20 @@ describe('Survey', () => {
     expect(surveyContainer).toBeVisible();
   });
 
+  it('calls onSurveyClose on button press', () => {
+    const { getByTestId } = render(
+      <Survey {...{ surveyURL, onSurveyClose }} />
+    );
+
+    fireEvent.click(getByTestId('survey-close'));
+    expect(onSurveyClose).toHaveBeenCalled();
+  });
+
   it('hides iframe and renders survey complete message', () => {
     const subject = () => {
-      return render(<Survey {...{ surveyURL }} surveyComplete />);
+      return render(
+        <Survey {...{ surveyURL, onSurveyClose }} surveyComplete />
+      );
     };
 
     const { queryByTestId } = subject();
