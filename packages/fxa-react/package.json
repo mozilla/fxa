@@ -2,32 +2,24 @@
   "name": "fxa-react",
   "version": "1.0.0",
   "description": "Shared components for FxA React Apps",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mozilla/fxa.git"
-  },
-  "keywords": [
-    "fxa"
-  ],
-  "author": "Mozilla (https://mozilla.org/)",
-  "license": "MPL-2.0",
-  "bugs": {
-    "url": "https://github.com/mozilla/fxa/issues"
-  },
-  "engines": {
-    "node": ">=12"
+  "exports": {
+    "./components/": "./dist/components/",
+    "./configs/": "./configs/",
+    "./images/": "./images/",
+    "./extract-imported-components": "./extract-imported-components.js",
+    "./lib/": "./dist/lib/"
   },
   "scripts": {
     "build-postcss": "postcss styles/tailwind.css -o styles/tailwind.out.css",
     "build-storybook": "NODE_ENV=production npm run build-postcss && build-storybook",
     "build": "tsc --build",
-    "clean": "rimraf 'tsconfig.tsbuildinfo' 'components/**/*.@(js|js.map)' 'lib/*.@(js|js.map|d.ts)'",
+    "clean": "rimraf dist",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "restart": "pm2 restart pm2.config.js",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "storybook": "npm run build-postcss && start-storybook -p 6007",
-    "test": "yarn clean && jest --env=jsdom-fourteen"
+    "test": "jest --env=jsdom-fourteen"
   },
   "dependencies": {
     "fxa-shared": "workspace:*",
@@ -73,5 +65,20 @@
     "ts-jest": "^24.3.0",
     "typescript": "3.8.3",
     "webpack": "^4.43.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mozilla/fxa.git"
+  },
+  "keywords": [
+    "fxa"
+  ],
+  "author": "Mozilla (https://mozilla.org/)",
+  "license": "MPL-2.0",
+  "bugs": {
+    "url": "https://github.com/mozilla/fxa/issues"
+  },
+  "engines": {
+    "node": ">=12"
   }
 }
