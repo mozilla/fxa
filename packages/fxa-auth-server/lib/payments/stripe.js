@@ -20,6 +20,7 @@ const stripe = require('stripe').Stripe;
 /** @typedef {import('stripe').Stripe.Source} Source */
 /** @typedef {import('stripe').Stripe.Card} Card */
 /** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
+/** @typedef {import('stripe').Stripe.SetupIntent} SetupIntent */
 /** @typedef {import('stripe').Stripe.Charge} Charge */
 
 /**
@@ -318,6 +319,29 @@ class StripeHelper {
       },
       { idempotencyKey }
     );
+  }
+
+  /**
+   * Create a SetupIntent for a customer.
+   *
+   * @param {string} customerId
+   *
+   * @returns {Promise<SetupIntent>}
+   */
+  async createSetupIntent(customerId) {
+    return this.stripe.setupIntents.create({ customer: customerId });
+  }
+
+  /**
+   * Updates the default payment method used for invoices for the customer
+   *
+   * @param {string} customerId
+   * @param {string} paymentMethodId
+   */
+  async updateDefaultPaymentMethod(customerId, paymentMethodId) {
+    return this.stripe.customers.update(customerId, {
+      invoice_settings: { default_payment_method: paymentMethodId },
+    });
   }
 
   /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/

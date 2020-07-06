@@ -3560,6 +3560,31 @@ Update the user's default payment method using a payment token.
 :lock: authenticated with OAuth bearer token
 Returns customer details, including limited payment information.
 
+#### POST /oauth/subscriptions/customer
+
+:lock: authenticated with OAuth bearer token
+Create a new customer object for use with subscription payments.
+
+#### POST /oauth/subscriptions/active/new
+
+:lock: authenticated with OAuth bearer token
+Subscribe the user to a price using a payment method id.
+
+#### POST /oauth/subscriptions/invoice/retry
+
+:lock: authenticated with OAuth bearer token
+Retry an incomplete subscription invoice with a new payment method id.
+
+#### POST /oauth/subscriptions/setupintent/create
+
+:lock: authenticated with OAuth bearer token
+Create a new setup intent for attaching a new payment method to the user.
+
+#### POST /oauth/subscriptions/paymentmethod/default
+
+:lock: authenticated with OAuth bearer token
+Update a user's default payment method for invoices to the attached payment method id.
+
 ### Totp
 
 #### POST /totp/create

@@ -653,6 +653,58 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Create a new SetupIntent that will be attached to the current customer
+   * after it succeeds.
+   *
+   * @param {*} request
+   */
+  async createSetupIntent(request) {
+    this.log.begin('subscriptions.createSetupIntent', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'createSetupIntent');
+
+    const customer = await this.stripeHelper.customer(uid, email);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+    return this.stripeHelper.createSetupIntent(customer.id);
+  }
+
+  /**
+   * Updates what payment method is used by default on new invoices for the
+   * customer.
+   *
+   * @param {*} request
+   */
+  async updateDefaultPaymentMethod(request) {
+    this.log.begin('subscriptions.updateDefaultPaymentMethod', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'updateDefaultPaymentMethod');
+
+    const customer = await this.stripeHelper.customer(uid, email);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    const { paymentMethodId } = request.payload;
+
+    // Verify the payment method is already attached to the customer
+    const alreadyAttached = !!customer.sources.data.find(
+      (pm) => pm.id === paymentMethodId
+    );
+    if (!alreadyAttached) {
+      throw error.rejectedCustomerUpdate('Invalid payment method id');
+    }
+
+    await this.stripeHelper.updateDefaultPaymentMethod(
+      customer.id,
+      paymentMethodId
+    );
+    // Refetch the customer and force a cache clear
+    return this.stripeHelper.customer(uid, email, true);
+  }
+
+  /**
    * Gather all capabilities granted by a product across all clients
    *
    * @param {*} productId
@@ -1259,7 +1311,7 @@ const directRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsCustomerValidator,
+          schema: validators.subscriptionsStripeCustomerValidator,
         },
         validate: {
           payload: {
@@ -1281,7 +1333,7 @@ const directRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsSubscriptionExpandedValidator,
+          schema: validators.subscriptionsStripeSubscriptionValidator,
         },
         validate: {
           query: {
@@ -1303,7 +1355,7 @@ const directRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsInvoicePIExpandedValidator,
+          schema: validators.subscriptionsStripeInvoiceValidator,
         },
         validate: {
           query: {
@@ -1314,6 +1366,43 @@ const directRoutes = (
         },
       },
       handler: (request) => directStripeRoutes.retryInvoice(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/setupintent/create',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: validators.subscriptionsStripeIntentValidator,
+        },
+        validate: {
+          payload: {},
+        },
+      },
+      handler: (request) => directStripeRoutes.createSetupIntent(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/paymentmethod/default',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: validators.subscriptionsStripeCustomerValidator,
+        },
+        validate: {
+          payload: {
+            paymentMethodId: validators.stripePaymentMethodId.required(),
+          },
+        },
+      },
+      handler: (request) =>
+        directStripeRoutes.updateDefaultPaymentMethod(request),
     },
     {
       method: 'GET',

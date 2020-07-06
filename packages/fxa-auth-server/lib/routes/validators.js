@@ -293,6 +293,12 @@ module.exports.activeSubscriptionValidator = isA.object({
   cancelledAt: isA.alternatives(isA.number(), isA.any().allow(null)),
 });
 
+module.exports.subscriptionsSetupIntent = isA
+  .object({
+    client_secret: isA.string().required(),
+  })
+  .unknown(true);
+
 // This is a Stripe subscription object with latest_invoice.payment_intent expanded
 module.exports.subscriptionsSubscriptionExpandedValidator = isA
   .object({
@@ -409,6 +415,106 @@ module.exports.subscriptionsCustomerValidator = isA.object({
     .items(module.exports.subscriptionsSubscriptionValidator)
     .optional(),
 });
+
+module.exports.subscriptionsStripeIntentValidator = isA
+  .object({
+    client_secret: isA.string().optional(),
+    created: isA.number().required(),
+    next_action: isA.object({}).unknown(true).optional(),
+    payment_method: isA
+      .alternatives(isA.string(), isA.object({}).unknown(true))
+      .optional(),
+    status: isA.string().required(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsStripeSourceValidator = isA
+  .object({
+    id: isA.string().required(),
+    object: isA.string().required(),
+    brand: isA.string().optional(),
+    exp_month: isA.string().optional(),
+    exp_year: isA.string().optional(),
+    last4: isA.string().optional(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsStripeInvoiceValidator = isA
+  .object({
+    id: isA.string().required(),
+    payment_intent: isA
+      .alternatives(
+        isA.string(),
+        module.exports.subscriptionsStripeIntentValidator
+      )
+      .optional(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsStripePriceValidator = isA
+  .object({
+    id: isA.string().required(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsStripeSubscriptionItemValidator = isA
+  .object({
+    id: isA.string().required(),
+    created: isA.number().required(),
+    price: module.exports.subscriptionsStripePriceValidator.required(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsStripeSubscriptionValidator = isA
+  .object({
+    id: isA.string().required(),
+    cancel_at: isA.number().optional(),
+    canceled_at: isA.number().optional(),
+    cancel_at_period_end: isA.bool().required(),
+    created: isA.number().required(),
+    current_period_end: isA.number().required(),
+    current_period_start: isA.number().required(),
+    ended_at: isA.number().optional(),
+    items: isA
+      .array()
+      .items(module.exports.subscriptionsStripeSubscriptionItemValidator)
+      .required(),
+    latest_invoice: isA
+      .alternatives(
+        isA.string(),
+        module.exports.subscriptionsStripeInvoiceValidator
+      )
+      .optional(),
+    status: isA.string().required(),
+  })
+  .unknown(true);
+
+module.exports.subscriptionsStripeCustomerValidator = isA
+  .object({
+    invoices_settings: isA
+      .object({
+        default_payment_method: isA.string().optional(),
+      })
+      .optional(),
+    latest_invoice: module.exports.subscriptionsStripeInvoiceValidator,
+    sources: isA
+      .object({
+        data: isA
+          .array()
+          .items(module.exports.subscriptionsStripeSourceValidator)
+          .required(),
+      })
+      .optional(),
+    subscriptions: isA
+      .object({
+        data: isA
+          .array()
+          .items(module.exports.subscriptionsStripeSubscriptionValidator)
+          .required(),
+      })
+      .optional(),
+  })
+  .unknown(true);
 
 module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
 
