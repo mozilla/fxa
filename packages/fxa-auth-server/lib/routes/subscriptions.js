@@ -571,7 +571,7 @@ class DirectStripeRoutes {
    * @param {*} request
    */
   async createCustomer(request) {
-    this.log.begin('subscriptions.getCustomer', request);
+    this.log.begin('subscriptions.createCustomer', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createCustomer');
 

@@ -15,6 +15,7 @@ const AuthServerErrno = {
  * - handle Payment token not valid
  */
 
+const CARD_ERROR = 'card-error';
 const BASIC_ERROR = 'basic-error-message';
 const PAYMENT_ERROR_1 = 'payment-error-1';
 const PAYMENT_ERROR_2 = 'payment-error-2';
@@ -30,6 +31,8 @@ let errorMessageIndex: { [key: string]: string } = {
   card_error: 'card-error',
   // todo: handle "parameters_exclusive": "Your already subscribed to _product_"
 };
+
+const cardErrors = ['card_declined', 'incorrect_cvc'];
 
 const basicErrors = [
   'api_key_expired',
@@ -104,6 +107,7 @@ const paymentErrors2 = [
   'transaction_not_allowed',
 ];
 
+cardErrors.forEach((k) => (errorMessageIndex[k] = CARD_ERROR));
 basicErrors.forEach((k) => (errorMessageIndex[k] = BASIC_ERROR));
 paymentErrors1.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_1));
 paymentErrors2.forEach((k) => (errorMessageIndex[k] = PAYMENT_ERROR_2));

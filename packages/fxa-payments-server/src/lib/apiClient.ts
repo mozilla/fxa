@@ -257,3 +257,55 @@ export async function apiUpdatePayment(params: {
     throw error;
   }
 }
+
+export async function apiCreateCustomer(params: {
+  displayName: string;
+  idempotencyKey: string;
+}): Promise<Customer> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/customer`,
+    { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiCreateSubscriptionWithPaymentMethod(params: {
+  priceId: string;
+  paymentMethodId: string;
+  idempotencyKey: string;
+}): Promise<{
+  id: string;
+  latest_invoice: {
+    id: string;
+    payment_intent: {
+      id: string;
+      client_secret: string;
+      status: string;
+    };
+  };
+}> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/active/new`,
+    { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiRetryInvoice(params: {
+  invoiceId: string;
+  paymentMethodId: string;
+  idempotencyKey: string;
+}): Promise<{
+  id: string;
+  payment_intent: {
+    id: string;
+    client_secret: string;
+    status: string;
+  };
+}> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/retry`,
+    { body: JSON.stringify(params) }
+  );
+}

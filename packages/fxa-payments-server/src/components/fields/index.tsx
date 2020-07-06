@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import { withLocalization } from '@fluent/react';
 import { ReactStripeElements } from 'react-stripe-elements';
+import { CardElementProps } from '@stripe/react-stripe-js';
 import classNames from 'classnames';
 import { Validator, FieldType } from '../../lib/validator';
 import Tooltip from '../Tooltip';
@@ -47,7 +48,6 @@ type FieldProps = {
   maxLength?: number;
   minLength?: number;
   autoFocus?: boolean;
-  options?: object;
 };
 
 type FieldHOCProps = {
@@ -213,11 +213,6 @@ const UnwrappedInput = (props: InputProps) => {
 
 export const Input = withLocalization(UnwrappedInput);
 
-type StripeElementProps = { onValidate?: OnValidateFunction } & FieldProps & {
-    component: any;
-    getString: Function | undefined;
-  } & ReactStripeElements.ElementProps;
-
 export const defaultStripeElementValidator: OnValidateFunction = (
   value,
   focused,
@@ -252,7 +247,21 @@ export const defaultStripeElementValidator: OnValidateFunction = (
   };
 };
 
-export const StripeElement = (props: StripeElementProps) => {
+type StripeElementWrapperProps = FieldProps & {
+  onValidate?: OnValidateFunction;
+  component: any;
+  getString?: Function;
+};
+// TODO: This type can go away once we replace PaymentForm with PaymentFormV2
+// and stop using the old Stripe component library
+type OldReactStripeElementProps = StripeElementWrapperProps &
+  ReactStripeElements.ElementProps;
+type NewReactStripeElementProps = StripeElementWrapperProps & CardElementProps;
+type WrappedStripeElementProps =
+  | OldReactStripeElementProps
+  | NewReactStripeElementProps;
+
+export const StripeElement = (props: WrappedStripeElementProps) => {
   const {
     component: StripeElementComponent,
     name,
@@ -263,7 +272,6 @@ export const StripeElement = (props: StripeElementProps) => {
     className,
     autoFocus,
     getString,
-    options = {},
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
@@ -308,7 +316,6 @@ export const StripeElement = (props: StripeElementProps) => {
         <StripeElementComponent
           {...{
             ...childProps,
-            options,
             onChange,
             onBlur,
           }}
