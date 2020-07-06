@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
+import { loadStripe } from '@stripe/stripe-js';
 import { StripeProvider } from 'react-stripe-elements';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { Localized } from '@fluent/react';
@@ -36,6 +37,7 @@ type AppProps = {
   getScreenInfo: () => ScreenInfo;
   locationReload: () => void;
   navigatorLanguages: readonly string[];
+  stripePromise: ReturnType<typeof loadStripe>;
 };
 
 export const App = ({
@@ -48,6 +50,7 @@ export const App = ({
   getScreenInfo,
   locationReload,
   navigatorLanguages = ['en-US', 'en'],
+  stripePromise,
 }: AppProps) => {
   const appContextValue: AppContextType = {
     config,
@@ -58,6 +61,7 @@ export const App = ({
     getScreenInfo,
     locationReload,
     navigatorLanguages,
+    stripePromise,
   };
   FlowEvents.init(queryParams);
   observeNavigationTiming('/navigation-timing');

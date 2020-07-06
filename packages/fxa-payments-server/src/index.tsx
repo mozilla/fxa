@@ -9,6 +9,7 @@ import * as Amplitude from './lib/amplitude';
 import App from './App';
 import ScreenInfo from './lib/screen-info';
 import sentryMetrics from './lib/sentry';
+import { loadStripe } from '@stripe/stripe-js';
 
 import { actions } from './store/actions';
 
@@ -44,6 +45,7 @@ async function init() {
           getScreenInfo,
           locationReload,
           navigatorLanguages: navigator.languages,
+          stripePromise: loadStripe(config.stripe.apiKey),
         }}
       />,
       document.getElementById('root')

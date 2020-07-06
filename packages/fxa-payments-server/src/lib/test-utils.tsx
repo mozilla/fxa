@@ -171,6 +171,21 @@ jest.setMock(
     CardNumberElement: MockStripeElement({ testid: 'cardNumberElement' }),
     CardExpiryElement: MockStripeElement({ testid: 'cardExpiryElement' }),
     CardCVCElement: MockStripeElement({ testid: 'cardCVCElement' }),
+    CardElement: MockStripeElement({ testid: 'cardElement' }),
+  })
+);
+
+jest.setMock(
+  '@stripe/react-stripe-js',
+  Object.assign(require.requireActual('@stripe/react-stripe-js'), {
+    Elements: ({ children }: { children: ReactNode }) => children,
+    // Minimal implementation of "mocks" here, since the PaymentForm code
+    // only checks that these things are truthy
+    useStripe: jest.fn(() => ({})),
+    useElements: jest.fn(() => ({
+      getElement: () => ({}),
+    })),
+    CardElement: MockStripeElement({ testid: 'cardElement' }),
   })
 );
 
@@ -218,6 +233,7 @@ export const defaultAppContextValue = (): AppContextType => ({
   navigateToUrl: jest.fn(),
   getScreenInfo: () => new ScreenInfo(window),
   locationReload: jest.fn(),
+  stripePromise: Promise.resolve(null),
 });
 
 type MockAppProps = {
