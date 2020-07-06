@@ -104,7 +104,9 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
           const client = {
             ...defaultFields,
             sessionTokenId: device.sessionTokenId || null,
-            refreshTokenId: device.refreshTokenId || null,
+            // The refreshTokenId might be a dangling pointer, don't set it
+            // until we know whether the corresponding token exists in the OAuth db.
+            refreshTokenId: null,
             deviceId: device.id,
             deviceType: device.type,
             name: device.name,
@@ -125,7 +127,9 @@ module.exports = (log, db, oauthdb, devices, clientUtils) => {
           let client = clientsByRefreshTokenId.get(
             oauthClient.refresh_token_id
           );
-          if (!client) {
+          if (client) {
+            client.refreshTokenId = oauthClient.refresh_token_id;
+          } else {
             client = {
               ...defaultFields,
               refreshTokenId: oauthClient.refresh_token_id || null,

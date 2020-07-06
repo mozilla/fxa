@@ -309,6 +309,63 @@ describe('/account/attached_clients', () => {
       os: 'Windows',
     });
   });
+
+  it('correctly handles device records with a dangling refresh token', async () => {
+    const now = Date.now();
+    // A single device record, with both a sessionToken and a refreshToken,
+    // but whose refreshTokenId doesn't exist in the OAuth db (because distributed state).
+    const DEVICES = [
+      {
+        id: newId(),
+        sessionTokenId: newId(),
+        refreshTokenId: newId(),
+        createdAt: now - 4000,
+      },
+    ];
+    const SESSIONS = [
+      {
+        id: DEVICES[0].sessionTokenId,
+        createdAt: now,
+        lastAccessTime: now,
+        location: { country: 'Germany' },
+      },
+    ];
+    const OAUTH_CLIENTS = [];
+
+    request.app.devices = (async () => {
+      return DEVICES;
+    })();
+    oauthdb.listAuthorizedClients = sinon.spy(async () => {
+      return OAUTH_CLIENTS;
+    });
+    db.sessions = sinon.spy(async () => {
+      return SESSIONS;
+    });
+
+    request.auth.credentials.id = SESSIONS[0].id;
+    const result = await route(request);
+
+    assert.equal(result.length, 1);
+    assert.deepEqual(result[0], {
+      // No clientId, because we couldn't look up the refresh token.
+      clientId: null,
+      deviceId: DEVICES[0].id,
+      sessionTokenId: SESSIONS[0].id,
+      // The refreshTokenId, because we tried to look it up and it was missing.
+      refreshTokenId: null,
+      isCurrentSession: true,
+      deviceType: 'desktop',
+      name: '',
+      createdTime: DEVICES[0].createdAt,
+      createdTimeFormatted: 'a few seconds ago',
+      lastAccessTime: now,
+      lastAccessTimeFormatted: 'a few seconds ago',
+      scope: null,
+      location: locFields({ country: 'Germany' }),
+      userAgent: '',
+      os: null,
+    });
+  });
 });
 
 describe('/account/attached_client/destroy', () => {
