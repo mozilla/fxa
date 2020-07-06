@@ -59,11 +59,7 @@ export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
 
   return (
     <CSSTransition in={inProp} timeout={200} classNames="survey-inner">
-      <section
-        className="survey-component"
-        data-testid="survey-component"
-        aria-hidden="true"
-      >
+      <section className="survey-component" data-testid="survey-component">
         <CSSTransition in={inProp} timeout={100} classNames="button-inner">
           <button
             className="survey-control"
