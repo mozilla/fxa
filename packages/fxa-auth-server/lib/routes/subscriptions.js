@@ -1284,7 +1284,7 @@ const directRoutes = (
           schema: validators.subscriptionsSubscriptionExpandedValidator,
         },
         validate: {
-          query: {
+          payload: {
             priceId: isA.string().required(),
             paymentMethodId: validators.stripePaymentMethodId.required(),
             idempotencyKey: isA.string().required(),
@@ -1306,7 +1306,7 @@ const directRoutes = (
           schema: validators.subscriptionsInvoicePIExpandedValidator,
         },
         validate: {
-          query: {
+          payload: {
             invoiceId: isA.string().required(),
             paymentMethodId: validators.stripePaymentMethodId.required(),
             idempotencyKey: isA.string().required(),
