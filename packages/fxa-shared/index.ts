@@ -17,6 +17,7 @@ import {
   metadataFromPlan,
   productDetailsFromPlan,
 } from './subscriptions/metadata';
+import * as stripe from './subscriptions/stripe';
 
 module.exports = {
   email: {
@@ -46,5 +47,6 @@ module.exports = {
       metadataFromPlan,
       productDetailsFromPlan,
     },
+    stripe,
   },
 };

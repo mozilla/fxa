@@ -4778,7 +4778,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash@npm:^4":
+"@types/lodash.omitby@npm:^4":
+  version: 4.6.6
+  resolution: "@types/lodash.omitby@npm:4.6.6"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 4efecbf603660bd730b74cc64484492a090bcd50b98a00bd1d768001bb0313dca3e5b6fc90d93ce06971f6018d711289f73d148d87504d30e6db01386dc3c547
+  languageName: node
+  linkType: hard
+
+"@types/lodash.pick@npm:^4":
+  version: 4.4.6
+  resolution: "@types/lodash.pick@npm:4.4.6"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 2c4a9d7329bd44524f8e9ecb9f75c36b5e7dedb205c410178094850b6ed16746023f90da74786783d93b27639a8abf6dc4497419a66a7f1d0174c7b22d0e458d
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*, @types/lodash@npm:^4":
   version: 4.14.157
   resolution: "@types/lodash@npm:4.14.157"
   checksum: ea8d890a4d78f4690f9d8e5cb03f3581e8ea59047696e2c2114087ec471e891b3ce683e5344c9c15ea7bd9730b79e5fd808b3eff80a01741503ea59922c2bb83
@@ -16074,6 +16092,8 @@ fsevents@^1.2.7:
     "@types/chai": ^4.2.11
     "@types/generic-pool": ^3.1.9
     "@types/js-md5": ^0.4.2
+    "@types/lodash.omitby": ^4
+    "@types/lodash.pick": ^4
     "@types/mocha": ^7.0.2
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.16
@@ -16092,6 +16112,8 @@ fsevents@^1.2.7:
     js-md5: ^0.7.3
     jsdom: 16.2.2
     jsdom-global: 3.0.2
+    lodash.omitby: ^4.6.0
+    lodash.pick: ^4.4.0
     mocha: ^7.1.2
     moment: ^2.24.0
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
@@ -16101,6 +16123,7 @@ fsevents@^1.2.7:
     proxyquire: ^2.1.3
     redis: ^2.8.0
     sinon: ^9.0.2
+    stripe: ^8.69.0
     ts-node: ^8.10.1
     typescript: 3.8.3
     underscore: ^1.10.2
@@ -21790,6 +21813,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"lodash.omitby@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "lodash.omitby@npm:4.6.0"
+  checksum: f85ca89c8e4eabb800a23e084e4ada4447237ff49f9b6977f6efb14c980969c8300d82423b57fa6a4c678a0aa78613b52da4188b79a6096755c8bbace61edcf9
+  languageName: node
+  linkType: hard
+
 "lodash.once@npm:^4.0.0":
   version: 4.1.1
   resolution: "lodash.once@npm:4.1.1"
@@ -21813,7 +21843,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash.pick@npm:4.4.0, lodash.pick@npm:^4.2.0":
+"lodash.pick@npm:4.4.0, lodash.pick@npm:^4.2.0, lodash.pick@npm:^4.4.0":
   version: 4.4.0
   resolution: "lodash.pick@npm:4.4.0"
   checksum: 3cf24484b1bd36652bfbe1e925e6955ee0332f1612919331a2d6115d5617bcaaf559e4fb21f4160d51eb2359f7a8dc0e478773da516b4ccc15ef261327064aab
@@ -31217,6 +31247,16 @@ resolve@~1.11.1:
     "@types/node": ">=8.1.0"
     qs: ^6.6.0
   checksum: 56591b9672f37ebb0741c96796cabff6f662cafd943bbea13bd949494580325f537ca804737c893906ae64f37f800923ff19b9659c9f58e17ac1cffc71b9cf40
+  languageName: node
+  linkType: hard
+
+"stripe@npm:^8.69.0":
+  version: 8.69.0
+  resolution: "stripe@npm:8.69.0"
+  dependencies:
+    "@types/node": ">=8.1.0"
+    qs: ^6.6.0
+  checksum: c6fc85e242335421c8aef5fb6051996dfd14e4f480fe3c703368fef2fc9ab1b4e8238a9397fe2ed9b0c49df445aca9d6c97e68196ce2a1b6db84318e7a3f08d3
   languageName: node
   linkType: hard
 

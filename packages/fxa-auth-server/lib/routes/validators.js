@@ -496,7 +496,6 @@ module.exports.subscriptionsStripeCustomerValidator = isA
         default_payment_method: isA.string().optional(),
       })
       .optional(),
-    latest_invoice: module.exports.subscriptionsStripeInvoiceValidator,
     sources: isA
       .object({
         data: isA
