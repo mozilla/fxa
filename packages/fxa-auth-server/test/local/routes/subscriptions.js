@@ -46,6 +46,7 @@ const eventCustomerSourceExpiring = require('../payments/fixtures/event_customer
 const openInvoice = require('../payments/fixtures/invoice_open.json');
 const openPaymentIntent = require('../payments/fixtures/paymentIntent_requires_payment_method.json');
 const closedPaymementIntent = require('../payments/fixtures/paymentIntent_succeeded.json');
+const newSetupIntent = require('../payments/fixtures/setup_intent_new.json');
 const stripePlan = require('../payments/fixtures/plan1.json');
 
 let config,
@@ -804,6 +805,96 @@ describe('DirectStripeRoutes', () => {
       };
       try {
         await directStripeRoutesInstance.retryInvoice(VALID_REQUEST);
+        assert.fail('Create customer should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+  });
+
+  describe('createSetupIntent', () => {
+    it('creates a new setup intent', async () => {
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer.returns(customer);
+      const expected = deepCopy(newSetupIntent);
+      directStripeRoutesInstance.stripeHelper.createSetupIntent.returns(
+        expected
+      );
+      VALID_REQUEST.payload = {};
+
+      const actual = await directStripeRoutesInstance.createSetupIntent(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(expected, actual);
+    });
+
+    it('errors when a customer has not been created', async () => {
+      VALID_REQUEST.payload = {};
+      try {
+        await directStripeRoutesInstance.createSetupIntent(VALID_REQUEST);
+        assert.fail('Create customer should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+  });
+
+  describe('updateDefaultPaymentMethod', () => {
+    it('updates the default payment method', async () => {
+      const customer = deepCopy(emptyCustomer);
+      const paymentMethodId = 'card_1G9Vy3Kb9q6OnNsLYw9Zw0Du';
+
+      const expected = deepCopy(emptyCustomer);
+      expected.invoice_settings.default_payment_method = paymentMethodId;
+
+      directStripeRoutesInstance.stripeHelper.customer
+        .onCall(0)
+        .returns(customer);
+      directStripeRoutesInstance.stripeHelper.customer
+        .onCall(1)
+        .returns(expected);
+
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.returns(
+        customer
+      );
+      VALID_REQUEST.payload = {
+        paymentMethodId,
+      };
+
+      const actual = await directStripeRoutesInstance.updateDefaultPaymentMethod(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(expected, actual);
+    });
+
+    it('errors when the payment method id is not attached', async () => {
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer
+        .onCall(0)
+        .returns(customer);
+
+      VALID_REQUEST.payload = { paymentMethodId: 'pm_asdf' };
+      try {
+        await directStripeRoutesInstance.updateDefaultPaymentMethod(
+          VALID_REQUEST
+        );
+        assert.fail('Create customer should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.REJECTED_CUSTOMER_UPDATE);
+      }
+    });
+
+    it('errors when a customer has not been created', async () => {
+      VALID_REQUEST.payload = { paymentMethodId: 'pm_asdf' };
+      try {
+        await directStripeRoutesInstance.updateDefaultPaymentMethod(
+          VALID_REQUEST
+        );
         assert.fail('Create customer should fail.');
       } catch (err) {
         assert.instanceOf(err, WError);

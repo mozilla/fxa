@@ -46,6 +46,7 @@ const eventCustomerSourceExpiring = require('./fixtures/event_customer_source_ex
 const eventCustomerSubscriptionUpdated = require('./fixtures/event_customer_subscription_updated.json');
 const subscriptionCreatedInvoice = require('./fixtures/invoice_payment_succeeded_subscription_create.json');
 const closedPaymementIntent = require('./fixtures/paymentIntent_succeeded.json');
+const newSetupIntent = require('./fixtures/setup_intent_new.json');
 
 const mockConfig = {
   publicUrl: 'https://accounts.example.com',
@@ -274,6 +275,62 @@ describe('StripeHelper', () => {
 
       return stripeHelper
         .createPlainCustomer('uid', 'joe@example.com', 'Joe Cool', uuidv4())
+        .then(
+          () => Promise.reject(new Error('Method expected to reject')),
+          (err) => {
+            assert.equal(err, apiError);
+          }
+        );
+    });
+  });
+
+  describe('createSetupIntent', () => {
+    it('creates a setup intent', async () => {
+      const expected = deepCopy(newSetupIntent);
+      sandbox
+        .stub(stripeHelper.stripe.setupIntents, 'create')
+        .returns(expected);
+
+      const actual = await stripeHelper.createSetupIntent('cust_new');
+
+      assert.deepEqual(actual, expected);
+      assert.hasAnyKeys(actual, 'client_secret');
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox
+        .stub(stripeHelper.stripe.setupIntents, 'create')
+        .rejects(apiError);
+
+      return stripeHelper.createSetupIntent('cust_new').then(
+        () => Promise.reject(new Error('Method expected to reject')),
+        (err) => {
+          assert.equal(err, apiError);
+        }
+      );
+    });
+  });
+
+  describe('updateDefaultPaymentMethod', () => {
+    it('updates the default payment method', async () => {
+      const expected = deepCopy(newCustomerPM);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').returns(expected);
+
+      const actual = await stripeHelper.updateDefaultPaymentMethod(
+        'cust_new',
+        'pm_1H0FRp2eZvKYlo2CeIZoc0wj'
+      );
+
+      assert.deepEqual(actual, expected);
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox.stub(stripeHelper.stripe.customers, 'update').rejects(apiError);
+
+      return stripeHelper
+        .updateDefaultPaymentMethod('cust_new', 'pm_1H0FRp2eZvKYlo2CeIZoc0wj')
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
           (err) => {
