@@ -3,12 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import UserAgent from './user-agent';
+import { ENV_DEVELOPMENT } from './constants';
 
 // All but the default export here is to make testing easier.
 
 // This subsitutes a (curried) comparator when we know the result is false
 // without doing the comparison.
-const falseFn = () => false;
+const undefinedFn = () => undefined;
+
+// Response for failing conditions
+const failureRes = { passing: false, conditions: {} };
 
 // When a condition is not found in a survey's configurations.
 export const NONE = Symbol();
@@ -27,7 +31,7 @@ export const participatedRecently = (
 };
 
 export const withinRate = (rate) => {
-  if (rate === 0) {
+  if (isNaN(rate) || rate === 0) {
     return false;
   }
 
@@ -53,19 +57,25 @@ export const getConditionWithKey = (conditions, key) => {
  * @param {function} comparator a function that compares two values and returns a boolean
  * @param {string} key the configuration key where the condition value can be found
  * @returns {function} a function that takes conditions and (f) (see description above) and
- *                     returns a boolean
+ *                     returns an object containing the pass/fail state and matching condition
+ *                     value if the condition is satisfied
  */
 export const createConditionCheckFn = (valSource) => (comparator) => (key) => (
   conds,
   fetchFn
 ) => {
-  // This turned out a little janky.  But we want to return true early if the
+  // This turned out a little janky.  But we want to return early with a pass if the
   // condition is not in the configs.
   const condVal = getConditionWithKey(conds, key);
   if (condVal === NONE) {
-    return true;
+    return { passing: true };
   }
-  return valSource(fetchFn)(comparator)(condVal);
+  const result = valSource(fetchFn)(comparator)(condVal);
+  return {
+    passing: result !== undefined,
+    value: result,
+    key: key,
+  };
 };
 
 // Like the function above but creates an async function because (f) can be async.
@@ -74,9 +84,14 @@ export const createAsyncConditionCheckFn = (valSource) => (comparator) => (
 ) => async (conds, fetchFn) => {
   const condVal = getConditionWithKey(conds, key);
   if (condVal === NONE) {
-    return true;
+    return { passing: true };
   }
-  return (await valSource(fetchFn)(comparator))(condVal);
+  const result = (await valSource(fetchFn)(comparator))(condVal);
+  return {
+    passing: result !== undefined,
+    value: result,
+    key: key,
+  };
 };
 
 export const createFetchLanguagesFn = (window) => {
@@ -192,7 +207,7 @@ export const fetchAndApplySourceVal = (fetchFn) => (checkFn) => {
   const x = fetchFn();
 
   if (x === undefined) {
-    return falseFn;
+    return undefinedFn;
   }
 
   return checkFn(x);
@@ -203,7 +218,7 @@ export const asyncFetchAndApplySourceVal = (fetchFn) => async (checkFn) => {
   const x = await fetchFn();
 
   if (x === undefined) {
-    return falseFn;
+    return undefinedFn;
   }
 
   return checkFn(x);
@@ -211,7 +226,7 @@ export const asyncFetchAndApplySourceVal = (fetchFn) => async (checkFn) => {
 
 // Comparator
 export const checkLanguages = (browserLanguages) => (val) => {
-  // True if _any_ of the languages from the condition matches a configured language in the browser.
+  // Returns browserLanguages if _any_ of the languages from the condition matches a configured language in the browser.
   // The language tags in the conditions can be in two forms:
   //  - just the language, e.g. "en", or
   //  - language followed by extlang, script, region, etc. e.g. ("en-CA")
@@ -220,7 +235,7 @@ export const checkLanguages = (browserLanguages) => (val) => {
 
   const separator = '-';
 
-  return val.some((lang) => {
+  const result = val.filter((lang) => {
     lang = lang.toLowerCase();
 
     return browserLanguages.some((browserLang) =>
@@ -229,6 +244,10 @@ export const checkLanguages = (browserLanguages) => (val) => {
         : browserLang.toLowerCase().startsWith(lang)
     );
   });
+
+  if (result.length) {
+    return browserLanguages;
+  }
 };
 
 export const languagesCheck = createConditionCheckFn(fetchAndApplySourceVal)(
@@ -238,58 +257,77 @@ export const languagesCheck = createConditionCheckFn(fetchAndApplySourceVal)(
 const createUaConditionCheckFn = createConditionCheckFn(fetchAndApplySourceVal);
 
 // Comparator
-export const checkUaDeviceType = (ua) => (val) => {
-  return !!(
-    ua &&
-    ua.genericDeviceType &&
-    ua.genericDeviceType().toLowerCase() === val.toLowerCase()
-  );
+export const checkUaDeviceTypes = (ua) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  if (!(ua && ua.genericDeviceType)) {
+    return;
+  }
+  const deviceType = ua.genericDeviceType().toLowerCase();
+  // If one of any eligible device type matches, return
+  // it, otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return deviceType === v.toLowerCase();
+  })[0];
 };
 
 // Comparator
-export const checkUaOsName = (ua) => (val) =>
-  !!(
-    ua &&
-    ua.os &&
-    ua.os.name &&
-    ua.os.name.toLowerCase() === val.toLowerCase()
-  );
+export const checkUaOsNames = (ua) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  if (!(ua && ua.os && ua.os.name)) {
+    return;
+  }
+  const osName = ua.os.name.toLowerCase();
+  // If one of any eligible OS value matches, return it,
+  // otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return osName === v.toLowerCase();
+  })[0];
+};
 
 // Comparator
-export const checkUaBrowser = (ua) => (val) =>
-  !!(
-    ua &&
-    ua.browser &&
-    ua.browser.name &&
-    ua.browser.name.toLowerCase() === val.toLowerCase()
-  );
+export const checkUaBrowsers = (ua) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  if (!(ua && ua.browser && ua.browser.name)) {
+    return;
+  }
+  const browserName = ua.browser.name.toLowerCase();
+  // If one of any eligible browser value matches, return
+  // it, otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return browserName === v.toLowerCase();
+  })[0];
+};
 
 // Ref: https://github.com/mozilla/fxa/blob/9b2d9d1/packages/fxa-content-server/app/scripts/lib/user-agent.js#L182
-export const hasDesiredDeviceType = createUaConditionCheckFn(checkUaDeviceType)(
-  'deviceType'
-);
-export const hasDesiredOs = createUaConditionCheckFn(checkUaOsName)('os');
-export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowser)(
+export const hasDesiredDeviceType = createUaConditionCheckFn(
+  checkUaDeviceTypes
+)('deviceType');
+export const hasDesiredOs = createUaConditionCheckFn(checkUaOsNames)('os');
+export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowsers)(
   'browser'
 );
 
-export const userAgentChecks = (conds, fetchUa) =>
-  hasDesiredBrowser(conds, fetchUa) &&
-  hasDesiredDeviceType(conds, fetchUa) &&
-  hasDesiredOs(conds, fetchUa);
-
 // Comparator
-export const checkRelierClientId = (relier) => (val) =>
-  relier.get('clientId') === val;
+export const checkRelierClientIds = (relier) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  const userRP = relier.get('clientId');
+  // If one of any eligible RP IDs matche, return
+  // it, otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return userRP === v;
+  })[0];
+};
 
 export const relierClientIdCheck = createConditionCheckFn(applySourceVal)(
-  checkRelierClientId
+  checkRelierClientIds
 )('relier');
 
 // Comparator
 export const checkSubscriptions = (acctSubs) => (desiredPlanIds) => {
   const subscribedPlanIds = new Set(acctSubs.map((s) => s.plan_id));
-  return desiredPlanIds.every((x) => subscribedPlanIds.has(x));
+  if (desiredPlanIds.every((x) => subscribedPlanIds.has(x))) {
+    return Array.from(subscribedPlanIds);
+  }
 };
 
 export const subscriptionsCheck = createAsyncConditionCheckFn(
@@ -299,7 +337,7 @@ export const subscriptionsCheck = createAsyncConditionCheckFn(
 // Comparator
 export const checkLocation = (devices) => (desiredLocation) => {
   const currentSession = devices.find((d) => d.isCurrentSession);
-  return !!(
+  if (
     currentSession &&
     currentSession.location &&
     Object.keys(desiredLocation).every(
@@ -308,7 +346,10 @@ export const checkLocation = (devices) => (desiredLocation) => {
         currentSession.location[k].toLowerCase() ===
           desiredLocation[k].toLowerCase()
     )
-  );
+  ) {
+    const locationParts = Object.values(desiredLocation);
+    return locationParts.join(locationParts.length > 1 ? ', ' : '');
+  }
 };
 
 export const geoLocationCheck = createAsyncConditionCheckFn(
@@ -318,7 +359,9 @@ export const geoLocationCheck = createAsyncConditionCheckFn(
 // Comparator
 export const checkSignedInReliers = (devices) => (reliers) => {
   const clientIds = new Set(devices.map((d) => d.clientId));
-  return reliers.every((x) => clientIds.has(x));
+  if (reliers.every((x) => clientIds.has(x))) {
+    return Array.from(clientIds);
+  }
 };
 
 export const signedInReliersCheck = createAsyncConditionCheckFn(
@@ -326,19 +369,40 @@ export const signedInReliersCheck = createAsyncConditionCheckFn(
 )(checkSignedInReliers)('reliersList');
 
 // Comparator
-export const checkNonDefaultAvatar = (profileImage) => (val) =>
-  val ? !profileImage.isDefault() : profileImage.isDefault();
+export const checkNonDefaultAvatar = (profileImage) => (val) => {
+  if (val === !profileImage.isDefault()) {
+    return val;
+  }
+};
 
 export const nonDefaultAvatarCheck = createAsyncConditionCheckFn(
   asyncFetchAndApplySourceVal
 )(checkNonDefaultAvatar)('hasNonDefaultAvatar');
+
+export function surveyGizmoSafe(value) {
+  const type = typeof value;
+
+  if (['string', 'number', 'boolean'].includes(type)) {
+    return value.toString();
+  }
+
+  if (Array.isArray(value)) {
+    return value
+      .filter((v) => !!v)
+      .map((v) => v.toString())
+      .join(',');
+  }
+
+  throw new Error('this value cannot be passed to survey gizmo');
+}
 
 export const createSurveyFilter = (
   window,
   user,
   relier,
   previousParticipationTime,
-  doNotBotherSpan
+  doNotBotherSpan,
+  env
 ) => {
   const fetchUa = createFetchUaFn(window);
   const fetchLangs = createFetchLanguagesFn(window);
@@ -347,30 +411,73 @@ export const createSurveyFilter = (
   const fetchDeviceList = createFetchDeviceListFn(fetchAccount);
   const fetchProfileImage = createFetchProfileImageFn(fetchAccount);
 
-  return async (surveyConfig) =>
-    !!(
-      surveyConfig &&
-      surveyConfig.rate &&
-      withinRate(surveyConfig.rate) &&
-      surveyConfig.conditions &&
-      Object.keys(surveyConfig.conditions).length > 0 &&
-      !participatedRecently(previousParticipationTime, doNotBotherSpan) &&
-      languagesCheck(surveyConfig.conditions, fetchLangs) &&
+  return async (surveyConfig) => {
+    if (
+      !(
+        surveyConfig &&
+        surveyConfig.conditions &&
+        (env === ENV_DEVELOPMENT || withinRate(surveyConfig.rate)) &&
+        Object.keys(surveyConfig.conditions).length > 0 &&
+        (env === ENV_DEVELOPMENT ||
+          !participatedRecently(previousParticipationTime, doNotBotherSpan))
+      )
+    ) {
+      return failureRes;
+    }
+
+    const conditionChecks = [
+      // Language/locale check
+      languagesCheck.bind(null, surveyConfig.conditions, fetchLangs),
       // User agent related checks
-      userAgentChecks(surveyConfig.conditions, fetchUa) &&
+      hasDesiredBrowser.bind(null, surveyConfig.conditions, fetchUa),
+      hasDesiredDeviceType.bind(null, surveyConfig.conditions, fetchUa),
+      hasDesiredOs.bind(null, surveyConfig.conditions, fetchUa),
       // Relying party (relier) check
-      relierClientIdCheck(surveyConfig.conditions, relier) &&
+      relierClientIdCheck.bind(null, surveyConfig.conditions, relier),
       // ASYNC AHEAD
       // Subscriptions check
-      (await subscriptionsCheck(surveyConfig.conditions, fetchSubscriptions)) &&
+      subscriptionsCheck.bind(
+        null,
+        surveyConfig.conditions,
+        fetchSubscriptions
+      ),
       // Geo location related checks
       // The geo location is potentially available in the device/app info
-      (await geoLocationCheck(surveyConfig.conditions, fetchDeviceList)) &&
+      geoLocationCheck.bind(null, surveyConfig.conditions, fetchDeviceList),
       // Other signed in reliers check
-      (await signedInReliersCheck(surveyConfig.conditions, fetchDeviceList)) &&
+      signedInReliersCheck.bind(null, surveyConfig.conditions, fetchDeviceList),
       // Non-default profile image check
-      (await nonDefaultAvatarCheck(surveyConfig.conditions, fetchProfileImage))
-    );
+      nonDefaultAvatarCheck.bind(
+        null,
+        surveyConfig.conditions,
+        fetchProfileImage
+      ),
+    ];
+
+    // This little fella will execute regular and async checks in the order
+    // specified above. If the result of a check is failing it will short circuit
+    // everything and consequently return the failure response. However if the
+    // check is passing, and if a key + value exists, add them to output conditions
+    const satisfiedConditions = {};
+    try {
+      for (const check of conditionChecks) {
+        const result = await check();
+        if (!result.passing) {
+          throw 'checkFailure';
+        }
+        if (result.key && result.value != null) {
+          satisfiedConditions[result.key] = surveyGizmoSafe(result.value);
+        }
+      }
+    } catch (error) {
+      if (error === 'checkFailure') {
+        return failureRes;
+      }
+      throw error;
+    }
+
+    return { passing: true, conditions: satisfiedConditions };
+  };
 };
 
 export default createSurveyFilter;

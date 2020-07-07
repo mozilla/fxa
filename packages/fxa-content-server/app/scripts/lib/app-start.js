@@ -87,7 +87,7 @@ Start.prototype = {
       .then(() => this.initializeDeps())
       .then(() => this.testLocalStorage())
       .then(() => this.allResourcesReady())
-      .catch(err => this.fatalError(err));
+      .catch((err) => this.fatalError(err));
   },
 
   initializeInterTabChannel() {
@@ -410,7 +410,7 @@ Start.prototype = {
           return user.mergeBrowserAccount(browserAccountData);
         }
       })
-      .then(browserAccount => {
+      .then((browserAccount) => {
         const isPairing =
           this.isDevicePairingAsAuthority() || this.isStartingPairing();
 
@@ -531,6 +531,7 @@ Start.prototype = {
         user: this._user,
         surveys: this._config.surveys,
         window: this._window,
+        env: this._config.env,
       });
     }
   },
@@ -568,7 +569,7 @@ Start.prototype = {
           this._storage.testLocalStorage(this._window);
         }
       })
-      .catch(err => this.captureError(err));
+      .catch((err) => this.captureError(err));
   },
 
   /**

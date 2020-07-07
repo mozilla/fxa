@@ -1,6 +1,8 @@
 import SurveyWrapperView from '../views/survey';
 import Storage from './storage';
 import createSurveyFilter from './survey-filter';
+import Url from './url';
+import { ENV_DEVELOPMENT, ENV_PRODUCTION } from './constants';
 
 const lastSurveyKey = 'lastSurvey';
 
@@ -12,6 +14,7 @@ export default class SurveyTargeter {
     this.user = options.user;
     this.window = options.window;
     this.surveys = options.surveys;
+    this.env = options.env;
 
     this._buildSurveysByViewPathMap();
   }
@@ -46,25 +49,43 @@ export default class SurveyTargeter {
       this.user,
       this.relier,
       this._storage.get(lastSurveyKey),
-      this.config.doNotBotherSpan
+      this.config.doNotBotherSpan,
+      this.env
     );
 
     try {
-      const surveys = await Promise.all(
-        this._surveysByViewNameMap[viewName].map(async (s) =>
-          (await filter(s)) ? s : null
+      const qualifiedSurveys = (
+        await Promise.all(
+          this._surveysByViewNameMap[viewName].map(async (survey) => {
+            const { passing, conditions } = await filter(survey);
+            if (passing) {
+              return { survey, conditions };
+            }
+          })
         )
-      );
-
-      const qualifiedSurveys = surveys.filter((s) => !!s);
+      ).filter((s) => !!s);
 
       if (qualifiedSurveys.length === 0) {
         return false;
       }
 
       const selectedSurvey = this._selectSurvey(qualifiedSurveys);
+      const queryParamData = Object.assign(selectedSurvey.conditions, {
+        server: 'content',
+        env: this.env || ENV_PRODUCTION,
+      });
+
+      if (this.env === ENV_DEVELOPMENT) {
+        console.info('Query param data:');
+        console.table(queryParamData);
+      }
+
       this._storage.set(lastSurveyKey, Date.now());
-      return new SurveyWrapperView({ surveyURL: selectedSurvey.url });
+      const surveyURL = Url.updateSearchString(
+        selectedSurvey.survey.url,
+        queryParamData
+      );
+      return new SurveyWrapperView({ surveyURL });
     } catch {
       return false;
     }

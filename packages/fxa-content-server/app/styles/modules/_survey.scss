@@ -119,3 +119,18 @@ $survey-height: 360px;
 .button-inner-enter-active {
   transform: rotate(0deg);
 }
+
+@media (prefers-reduced-motion) {
+  .survey-inner-exit-active,
+  .survey-inner-enter-active {
+    transition-duration: 0s;
+  }
+
+  .survey-component {
+    visibility: hidden;
+
+    &.survey-inner-enter-done {
+      visibility: visible;
+    }
+  }
+}
