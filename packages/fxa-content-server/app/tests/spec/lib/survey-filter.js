@@ -482,40 +482,66 @@ describe('lib/survey-filter', () => {
     });
   });
 
-  describe('checkUaDeviceType', () => {
+  describe('checkUaDeviceTypes', () => {
     it('should be case insensitive, returning the passed in value when matching', () => {
-      const actual = SurveyFilter.checkUaDeviceType(mockUa)('mObile');
+      const actual = SurveyFilter.checkUaDeviceTypes(mockUa)('mObile');
       assert.equal(actual, 'mObile');
       assert.isTrue(mockUa.genericDeviceType.calledOnce);
     });
 
+    it('should accept an array of device types and return the matched one', () => {
+      const actual = SurveyFilter.checkUaDeviceTypes(mockUa)([
+        'mobile',
+        'desktop',
+        'tablet',
+      ]);
+      assert.equal(actual, 'mobile');
+      assert.isTrue(mockUa.genericDeviceType.calledOnce);
+    });
+
     it('should not return anything when the values do not match', () => {
-      const actual = SurveyFilter.checkUaDeviceType(mockUa)('DESKTOP');
+      const actual = SurveyFilter.checkUaDeviceTypes(mockUa)('DESKTOP');
       assert.isUndefined(actual);
       assert.isTrue(mockUa.genericDeviceType.calledOnce);
     });
   });
 
-  describe('checkUaOsName', () => {
+  describe('checkUaOsNames', () => {
     it('should be case insensitive, returning the passed in value when matching', () => {
-      const actual = SurveyFilter.checkUaOsName(mockUa)('Winning');
+      const actual = SurveyFilter.checkUaOsNames(mockUa)('Winning');
+      assert.equal(actual, 'Winning');
+    });
+
+    it('should accept an array of os names and return the matched one', () => {
+      const actual = SurveyFilter.checkUaOsNames(mockUa)([
+        'Winning',
+        'Windows',
+      ]);
       assert.equal(actual, 'Winning');
     });
 
     it('should not return anything when the values do not match', () => {
-      const actual = SurveyFilter.checkUaOsName(mockUa)('Windows');
+      const actual = SurveyFilter.checkUaOsNames(mockUa)('Windows');
       assert.isUndefined(actual);
     });
   });
 
-  describe('checkUaBrowser', () => {
+  describe('checkUaBrowsers', () => {
     it('should be case insensitive, returning the passed in value when matching', () => {
-      const actual = SurveyFilter.checkUaBrowser(mockUa)('spacetuna');
+      const actual = SurveyFilter.checkUaBrowsers(mockUa)('spacetuna');
+      assert.equal(actual, 'spacetuna');
+    });
+
+    it('should accept an array of browser names and return the matched one', () => {
+      const actual = SurveyFilter.checkUaBrowsers(mockUa)([
+        'spacetuna',
+        'brocolli',
+      ]);
       assert.equal(actual, 'spacetuna');
     });
 
     it('should not return anything when the values do not match', () => {
-      const actual = SurveyFilter.checkUaBrowser(mockUa)('Firefox');
+      const actual = SurveyFilter.checkUaBrowsers(mockUa)('Firefox');
       assert.isUndefined(actual);
     });
   });
@@ -524,6 +550,15 @@ describe('lib/survey-filter', () => {
     it('should be passing and have the matched value when the values match', () => {
       const actual = SurveyFilter.hasDesiredDeviceType(
         { deviceType: 'deskTOP' },
+        fetchGoodUaStub
+      );
+      assertConditionResult(actual, true, 'deskTOP');
+      assert.isTrue(fetchGoodUaStub.calledOnce);
+    });
+
+    it('should be passing and have the matched value when the values match in an array', () => {
+      const actual = SurveyFilter.hasDesiredDeviceType(
+        { deviceType: ['deskTOP', 'moBile'] },
         fetchGoodUaStub
       );
       assertConditionResult(actual, true, 'deskTOP');
@@ -550,6 +585,15 @@ describe('lib/survey-filter', () => {
       assert.isTrue(fetchGoodUaStub.calledOnce);
     });
 
+    it('should be passing and have the matched value when the values match in an array', () => {
+      const actual = SurveyFilter.hasDesiredOs(
+        { os: ['Windows', 'Mac OS'] },
+        fetchGoodUaStub
+      );
+      assertConditionResult(actual, true, 'Windows');
+      assert.isTrue(fetchGoodUaStub.calledOnce);
+    });
+
     it('should not be passing and have an undefined value when the values do not match', () => {
       const actual = SurveyFilter.hasDesiredOs({ os: 'macOS' }, fetchBadUaStub);
       assertConditionResult(actual, false);
@@ -561,6 +605,15 @@ describe('lib/survey-filter', () => {
     it('should be passing and have the matched value when the values match', () => {
       const actual = SurveyFilter.hasDesiredBrowser(
         { browser: 'Firefox' },
+        fetchGoodUaStub
+      );
+      assertConditionResult(actual, true, 'Firefox');
+      assert.isTrue(fetchGoodUaStub.calledOnce);
+    });
+
+    it('should be passing and have the matched value when the values match in an array', () => {
+      const actual = SurveyFilter.hasDesiredBrowser(
+        { browser: ['Firefox', 'Chrome', 'Edge'] },
         fetchGoodUaStub
       );
       assertConditionResult(actual, true, 'Firefox');

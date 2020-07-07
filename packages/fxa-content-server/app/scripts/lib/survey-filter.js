@@ -257,46 +257,53 @@ export const languagesCheck = createConditionCheckFn(fetchAndApplySourceVal)(
 const createUaConditionCheckFn = createConditionCheckFn(fetchAndApplySourceVal);
 
 // Comparator
-export const checkUaDeviceType = (ua) => (val) => {
-  if (
-    ua &&
-    ua.genericDeviceType &&
-    ua.genericDeviceType().toLowerCase() === val.toLowerCase()
-  ) {
-    return val;
+export const checkUaDeviceTypes = (ua) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  if (!(ua && ua.genericDeviceType)) {
+    return;
   }
+  const deviceType = ua.genericDeviceType().toLowerCase();
+  // If one of any eligible device type matches, return
+  // it, otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return deviceType === v.toLowerCase();
+  })[0];
 };
 
 // Comparator
-export const checkUaOsName = (ua) => (val) => {
-  if (
-    ua &&
-    ua.os &&
-    ua.os.name &&
-    ua.os.name.toLowerCase() === val.toLowerCase()
-  ) {
-    return val;
+export const checkUaOsNames = (ua) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  if (!(ua && ua.os && ua.os.name)) {
+    return;
   }
+  const osName = ua.os.name.toLowerCase();
+  // If one of any eligible OS value matches, return it,
+  // otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return osName === v.toLowerCase();
+  })[0];
 };
 
 // Comparator
-export const checkUaBrowser = (ua) => (val) => {
-  if (
-    ua &&
-    ua.browser &&
-    ua.browser.name &&
-    ua.browser.name.toLowerCase() === val.toLowerCase()
-  ) {
-    return val;
+export const checkUaBrowsers = (ua) => (vals) => {
+  vals = Array.isArray(vals) ? vals : [vals];
+  if (!(ua && ua.browser && ua.browser.name)) {
+    return;
   }
+  const browserName = ua.browser.name.toLowerCase();
+  // If one of any eligible browser value matches, return
+  // it, otherwise return undefined, which is a failure
+  return vals.filter((v) => {
+    return browserName === v.toLowerCase();
+  })[0];
 };
 
 // Ref: https://github.com/mozilla/fxa/blob/9b2d9d1/packages/fxa-content-server/app/scripts/lib/user-agent.js#L182
-export const hasDesiredDeviceType = createUaConditionCheckFn(checkUaDeviceType)(
-  'deviceType'
-);
-export const hasDesiredOs = createUaConditionCheckFn(checkUaOsName)('os');
-export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowser)(
+export const hasDesiredDeviceType = createUaConditionCheckFn(
+  checkUaDeviceTypes
+)('deviceType');
+export const hasDesiredOs = createUaConditionCheckFn(checkUaOsNames)('os');
+export const hasDesiredBrowser = createUaConditionCheckFn(checkUaBrowsers)(
   'browser'
 );
 
