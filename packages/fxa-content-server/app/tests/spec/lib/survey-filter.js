@@ -1227,6 +1227,22 @@ describe('lib/survey-filter', () => {
       });
       assertFilterResult(actual, false);
     });
+
+    it('should be passing in development, regardless of rate or last shown timestamp', async () => {
+      const filter = SurveyFilter.createSurveyFilter(
+        mockWindow,
+        mockUser,
+        mockRelier,
+        Date.now(),
+        5000000,
+        'development'
+      );
+      const actual = await filter({
+        conditions: config.conditions,
+        rate: 0,
+      });
+      assertFilterResult(actual, true);
+    });
   });
 });
 

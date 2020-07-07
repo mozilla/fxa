@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import UserAgent from './user-agent';
+import { ENV_DEVELOPMENT } from './constants';
 
 // All but the default export here is to make testing easier.
 
@@ -30,7 +31,7 @@ export const participatedRecently = (
 };
 
 export const withinRate = (rate) => {
-  if (rate === 0) {
+  if (isNaN(rate) || rate === 0) {
     return false;
   }
 
@@ -389,7 +390,8 @@ export const createSurveyFilter = (
   user,
   relier,
   previousParticipationTime,
-  doNotBotherSpan
+  doNotBotherSpan,
+  env
 ) => {
   const fetchUa = createFetchUaFn(window);
   const fetchLangs = createFetchLanguagesFn(window);
@@ -402,11 +404,11 @@ export const createSurveyFilter = (
     if (
       !(
         surveyConfig &&
-        surveyConfig.rate &&
         surveyConfig.conditions &&
-        withinRate(surveyConfig.rate) &&
+        (env === ENV_DEVELOPMENT || withinRate(surveyConfig.rate)) &&
         Object.keys(surveyConfig.conditions).length > 0 &&
-        !participatedRecently(previousParticipationTime, doNotBotherSpan)
+        (env === ENV_DEVELOPMENT ||
+          !participatedRecently(previousParticipationTime, doNotBotherSpan))
       )
     ) {
       return failureRes;
