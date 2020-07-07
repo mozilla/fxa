@@ -2672,6 +2672,34 @@ const destroySessionForEmail = thenify(function (email) {
 });
 
 /**
+ * Switch to the iframe embedded by the Stripe element for the named field
+ *
+ * @param {string} fieldName - name of the field
+ * @returns {promise} resolves when complete
+ */
+const switchToStripeElementIFrame = thenify(function (fieldName) {
+  return this.parent
+    .findByCssSelector(`div[data-field-name=${fieldName}] iframe`)
+    .then((result) => this.parent.switchToFrame(result));
+});
+
+/**
+ * Type into a element within the iframe embedded by the Stripe element for the named field
+ *
+ * @param {string} fieldName - name of the field
+ * @param {string} selector - selector for the input element within the Stripe iframe
+ * @param {string} text - text to type
+ * @returns {promise} resolves when complete
+ */
+const typeIntoStripeElement = thenify(function (fieldName, text) {
+  return this.parent
+    .then(switchToStripeElementIFrame(fieldName))
+    .then(type('.InputElement', text))
+    .switchToParentFrame()
+    .end(Infinity);
+});
+
+/**
  * Subscribe to the test product. The user should be signed in at this point.
  *
  * @returns {promise} resolves when complete
@@ -2687,18 +2715,9 @@ const subscribeToTestProduct = thenify(function () {
     .then(getQueryParamValue('flow_id'))
     .then((flowId) => assert.ok(flowId))
     .then(type('input[name=name]', 'Testo McTestson'))
-    .switchToFrame(2)
-    .then(type('input[name=cardnumber]', '4242 4242 4242 4242'))
-    .switchToParentFrame()
-    .end(Infinity)
-    .switchToFrame(3)
-    .then(type('input[name=exp-date]', `12${nextYear}`))
-    .switchToParentFrame()
-    .end(Infinity)
-    .switchToFrame(4)
-    .then(type('.InputElement', '123'))
-    .switchToParentFrame()
-    .end(Infinity)
+    .then(typeIntoStripeElement('creditCardNumber', '4242 4242 4242 4242'))
+    .then(typeIntoStripeElement('expDate', `12${nextYear}`))
+    .then(typeIntoStripeElement('cvc', '123'))
     .then(type('input[name=zip]', '12345'))
     .then(click('input[type=checkbox]'))
     .then(click('button[name=submit]'))

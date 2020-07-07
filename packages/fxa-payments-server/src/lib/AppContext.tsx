@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryParams } from './types';
 import { Config, config } from './config';
 import ScreenInfo from './screen-info';
+import { loadStripe } from '@stripe/stripe-js';
 
 export type AppContextType = {
   config: Config;
@@ -12,6 +13,7 @@ export type AppContextType = {
   getScreenInfo: () => ScreenInfo;
   locationReload: (url: string) => void;
   navigatorLanguages?: readonly string[];
+  stripePromise: ReturnType<typeof loadStripe>;
 };
 
 /* istanbul ignore next - this function does nothing worth covering */
@@ -26,6 +28,7 @@ export const defaultAppContext = {
   navigateToUrl: noopFunction,
   queryParams: {},
   navigatorLanguages: ['en-US', 'en'],
+  stripePromise: Promise.resolve(null),
 };
 
 export const AppContext = React.createContext<AppContextType>(

@@ -91,7 +91,7 @@ export const Field = ({
   }, [focusElement]);
 
   return (
-    <div className={className}>
+    <div className={className} data-field-name={name}>
       <label>
         {label && <span className="label-text">{label}</span>}
         {tooltip && tooltipParentRef && validator.getError(name) && (
@@ -290,14 +290,6 @@ export const StripeElement = (props: StripeElementProps) => {
   );
 
   const tooltipParentRef = useRef<any>(null);
-  const stripeElementRef = (el: any) => {
-    // HACK: Stripe elements stash their underlying DOM element in el._ref,
-    // but we need it for Tooltip positioning
-    if (el) {
-      tooltipParentRef.current = el._ref;
-    }
-  };
-
   return (
     <Field
       {...{
@@ -311,14 +303,15 @@ export const StripeElement = (props: StripeElementProps) => {
         autoFocus,
       }}
     >
-      <StripeElementComponent
-        {...{
-          ...childProps,
-          ref: stripeElementRef,
-          onChange,
-          onBlur,
-        }}
-      />
+      <div className="tooltip-parent" ref={tooltipParentRef}>
+        <StripeElementComponent
+          {...{
+            ...childProps,
+            onChange,
+            onBlur,
+          }}
+        />
+      </div>
     </Field>
   );
 };
