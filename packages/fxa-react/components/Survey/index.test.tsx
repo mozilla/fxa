@@ -17,6 +17,7 @@ describe('Survey', () => {
     const { queryByTestId } = subject();
 
     const surveyContainer = queryByTestId('survey-component');
+    expect(surveyContainer).toHaveAttribute('aria-label', 'Firefox accounts optional user survey');
     expect(surveyContainer).toBeVisible();
   });
 

@@ -59,7 +59,13 @@ export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
 
   return (
     <CSSTransition in={inProp} timeout={200} classNames="survey-inner">
-      <section className="survey-component" data-testid="survey-component">
+      {/*
+        * The header/desc IDs typically provided to the `aria-labelledby` and
+        * `aria-describedby` attributes for screenreader context are dynamic in SurveyGizmo.
+        * The `aria-label` provides generic survey context and the title of the survey in
+        * SG is read when the user hits the iframe which provides more specific context.
+      */}
+      <aside className="survey-component" data-testid="survey-component" aria-label="Firefox accounts optional user survey">
         <CSSTransition in={inProp} timeout={100} classNames="button-inner">
           <button
             className="survey-control"
@@ -67,7 +73,7 @@ export const Survey = ({ surveyURL, surveyComplete = false }: SurveyProps) => {
           ></button>
         </CSSTransition>
         {surveyComplete ? surveyCompleteElement : iframe}
-      </section>
+      </aside>
     </CSSTransition>
   );
 };
