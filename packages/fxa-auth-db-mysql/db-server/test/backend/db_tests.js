@@ -385,7 +385,9 @@ module.exports = function (config, DB) {
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkdWRlbmVzc0Bmb28uYmFyIiwibmFtZSI6IkZvbyBCYXJtYW4iLCJpYXQiOjE1MTYyMzkwMjJ9.hVQ6sj219nUiwN8B5uClxcVpoq-SmRLQdZmXjS0w3CA';
       it('should update ecosystemAnonId', () => {
         return db
-          .updateEcosystemAnonId(accountData.uid, newAnonId)
+          .updateEcosystemAnonId(accountData.uid, {
+            ecosystemAnonId: newAnonId,
+          })
           .then(() => db.account(accountData.uid))
           .then((result) => {
             assert.equal(

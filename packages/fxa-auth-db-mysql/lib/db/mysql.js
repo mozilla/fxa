@@ -661,10 +661,10 @@ module.exports = function (log, error) {
   // Set    : ecosystemAnonId = $2
   // Where  : uid = $1
   var UPDATE_ECOSYSTEM_ANON_ID = `CALL updateEcosystemAnonId_1(?, ?)`;
-  MySql.prototype.updateEcosystemAnonId = function (uid, ecosystemAnonId) {
+  MySql.prototype.updateEcosystemAnonId = function (uid, data) {
     return this.write(
       UPDATE_ECOSYSTEM_ANON_ID,
-      [uid, ecosystemAnonId],
+      [uid, data.ecosystemAnonId],
       (result) => {
         if (result.affectedRows === 0) {
           throw error.notFound();
