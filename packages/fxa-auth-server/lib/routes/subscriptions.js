@@ -711,7 +711,7 @@ class DirectStripeRoutes {
       paymentMethodId
     );
     // Refetch the customer and force a cache clear
-    customer = this.stripeHelper.customer(uid, email, true);
+    customer = await this.stripeHelper.customer(uid, email, true);
     return filterCustomer(customer);
   }
 

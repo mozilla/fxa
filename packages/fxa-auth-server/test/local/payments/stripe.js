@@ -161,7 +161,7 @@ describe('StripeHelper', () => {
     let refreshFunction;
 
     beforeEach(() => {
-      refreshFunction = sandbox.stub().returns(expectedResult);
+      refreshFunction = sandbox.stub().resolves(expectedResult);
     });
 
     it('follows read-through caching logic', async () => {
@@ -257,7 +257,7 @@ describe('StripeHelper', () => {
   describe('createPlainCustomer', () => {
     it('creates a customer using stripe api', async () => {
       const expected = deepCopy(newCustomerPM);
-      sandbox.stub(stripeHelper.stripe.customers, 'create').returns(expected);
+      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
 
       const actual = await stripeHelper.createPlainCustomer(
         'uid',
@@ -289,7 +289,7 @@ describe('StripeHelper', () => {
       const expected = deepCopy(newSetupIntent);
       sandbox
         .stub(stripeHelper.stripe.setupIntents, 'create')
-        .returns(expected);
+        .resolves(expected);
 
       const actual = await stripeHelper.createSetupIntent('cust_new');
 
@@ -315,7 +315,7 @@ describe('StripeHelper', () => {
   describe('updateDefaultPaymentMethod', () => {
     it('updates the default payment method', async () => {
       const expected = deepCopy(newCustomerPM);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').returns(expected);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(expected);
 
       const actual = await stripeHelper.updateDefaultPaymentMethod(
         'cust_new',
@@ -347,13 +347,13 @@ describe('StripeHelper', () => {
       const invoiceRetryExpected = deepCopy(invoiceRetry);
       sandbox
         .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .returns(attachExpected);
+        .resolves(attachExpected);
       sandbox
         .stub(stripeHelper.stripe.customers, 'update')
-        .returns(customerExpected);
+        .resolves(customerExpected);
       sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieve')
-        .returns(invoiceRetryExpected);
+        .resolves(invoiceRetryExpected);
       const actual = await stripeHelper.retryInvoiceWithPaymentId(
         'customerId',
         'invoiceId',
@@ -416,10 +416,10 @@ describe('StripeHelper', () => {
       const customerExpected = deepCopy(newCustomerPM);
       sandbox
         .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .returns(attachExpected);
+        .resolves(attachExpected);
       sandbox
         .stub(stripeHelper.stripe.customers, 'update')
-        .returns(customerExpected);
+        .resolves(customerExpected);
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscriptionPMIExpanded);
@@ -726,11 +726,11 @@ describe('StripeHelper', () => {
       sandbox.stub(moment, 'unix').returns(unixTimestamp);
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'retrieve')
-        .returns(subscription);
+        .resolves(subscription);
 
       const update = sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
-        .returns(subscription2);
+        .resolves(subscription2);
 
       const actual = await stripeHelper.changeSubscriptionPlan(
         'sub_GAt1vgMqOSr5hT',
@@ -759,10 +759,10 @@ describe('StripeHelper', () => {
     it('throws an error if the user already upgraded', async () => {
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'retrieve')
-        .returns(subscription2);
+        .resolves(subscription2);
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'update')
-        .returns(subscription2);
+        .resolves(subscription2);
       let thrown;
       try {
         await stripeHelper.changeSubscriptionPlan(
@@ -949,7 +949,7 @@ describe('StripeHelper', () => {
   describe('createCustomer', () => {
     it('creates a customer using stripe api', async () => {
       const expected = deepCopy(newCustomer);
-      sandbox.stub(stripeHelper.stripe.customers, 'create').returns(expected);
+      sandbox.stub(stripeHelper.stripe.customers, 'create').resolves(expected);
 
       const actual = await stripeHelper.createCustomer(
         'uid',
@@ -1080,7 +1080,7 @@ describe('StripeHelper', () => {
   describe('updateCustomerPaymentMethod', () => {
     it('updates a customer using stripe api', async () => {
       const expected = deepCopy(customer1);
-      sandbox.stub(stripeHelper.stripe.customers, 'update').returns(expected);
+      sandbox.stub(stripeHelper.stripe.customers, 'update').resolves(expected);
 
       const actual = await stripeHelper.updateCustomerPaymentMethod(
         customer1.id,
@@ -1258,7 +1258,7 @@ describe('StripeHelper', () => {
       });
 
       it('returns void if no customer is found', async () => {
-        sandbox.stub(stripeHelper, 'customer').returns(null);
+        sandbox.stub(stripeHelper, 'customer').resolves(null);
 
         assert.isUndefined(
           await stripeHelper.subscriptionForCustomer(
@@ -1286,7 +1286,7 @@ describe('StripeHelper', () => {
       it('calls Stripe with the correct arguments', async () => {
         sandbox
           .stub(stripeHelper.stripe.subscriptions, 'list')
-          .returns({ has_more: false, data: [{ id: 'sub_wibble' }] });
+          .resolves({ has_more: false, data: [{ id: 'sub_wibble' }] });
         await stripeHelper.fetchAllSubscriptionsForCustomer(
           'cus_9001',
           'sub_ixi'
@@ -1302,13 +1302,13 @@ describe('StripeHelper', () => {
         const stub = sandbox.stub(stripeHelper.stripe.subscriptions, 'list');
         stub
           .onFirstCall()
-          .returns({ has_more: true, data: [{ id: 'sub_quux' }] });
+          .resolves({ has_more: true, data: [{ id: 'sub_quux' }] });
         stub
           .onSecondCall()
-          .returns({ has_more: true, data: [{ id: 'sub_foo' }] });
+          .resolves({ has_more: true, data: [{ id: 'sub_foo' }] });
         stub
           .onThirdCall()
-          .returns({ has_more: false, data: [{ id: 'sub_bar' }] });
+          .resolves({ has_more: false, data: [{ id: 'sub_bar' }] });
         const subs = await stripeHelper.fetchAllSubscriptionsForCustomer(
           'cus_9001',
           'sub_ixi'
@@ -1432,7 +1432,7 @@ describe('StripeHelper', () => {
     beforeEach(() => {
       stripeCustomerUpdate = sandbox
         .stub(stripeHelper.stripe.customers, 'update')
-        .returns();
+        .resolves();
 
       sandbox.spy(stripeHelper, 'removeCustomerFromCache');
     });
@@ -1667,7 +1667,7 @@ describe('StripeHelper', () => {
     beforeEach(() => {
       sandbox
         .stub(stripeHelper.stripe.paymentIntents, 'retrieve')
-        .returns(unsuccessfulPaymentIntent);
+        .resolves(unsuccessfulPaymentIntent);
     });
 
     describe('when the payment_intent is loaded', () => {
@@ -1718,7 +1718,7 @@ describe('StripeHelper', () => {
     beforeEach(() => {
       sandbox
         .stub(stripeHelper, 'expandResource')
-        .returns({ id: productId, name: productName });
+        .resolves({ id: productId, name: productName });
     });
 
     describe('when is one subscription', () => {
@@ -1780,7 +1780,7 @@ describe('StripeHelper', () => {
         beforeEach(() => {
           sandbox
             .stub(stripeHelper.stripe.charges, 'retrieve')
-            .returns(failedChargeCopy);
+            .resolves(failedChargeCopy);
         });
 
         describe('when the charge is already expanded', () => {
@@ -1822,7 +1822,7 @@ describe('StripeHelper', () => {
             const input = { data: [subscription1] };
             sandbox
               .stub(stripeHelper.stripe.invoices, 'retrieve')
-              .returns(paidInvoice);
+              .resolves(paidInvoice);
             const expected = [
               {
                 created: subscription1.created,
@@ -1853,7 +1853,7 @@ describe('StripeHelper', () => {
             const input = { data: [subscription] };
             sandbox
               .stub(stripeHelper.stripe.invoices, 'retrieve')
-              .returns(paidInvoice);
+              .resolves(paidInvoice);
             const expected = [
               {
                 created: subscription.created,
@@ -1882,7 +1882,7 @@ describe('StripeHelper', () => {
             const input = { data: [cancelledSubscription] };
             sandbox
               .stub(stripeHelper.stripe.invoices, 'retrieve')
-              .returns(paidInvoice);
+              .resolves(paidInvoice);
             const expected = [
               {
                 created: cancelledSubscription.created,
@@ -1927,7 +1927,7 @@ describe('StripeHelper', () => {
 
         sandbox
           .stub(stripeHelper.stripe.invoices, 'retrieve')
-          .returns(paidInvoice);
+          .resolves(paidInvoice);
 
         const input = {
           data: [subscription1, incompleteSubscription, subscription2],
@@ -1959,7 +1959,7 @@ describe('StripeHelper', () => {
     beforeEach(() => {
       sandbox
         .stub(stripeHelper, 'expandResource')
-        .returns({ id: productId, name: productName });
+        .resolves({ id: productId, name: productName });
     });
 
     describe('when is one subscription', () => {
@@ -2470,19 +2470,19 @@ describe('StripeHelper', () => {
             stripeHelper,
             'extractSubscriptionUpdateCancellationDetailsForEmail'
           )
-          .returns(mockCancellationDetails);
+          .resolves(mockCancellationDetails);
         sandbox
           .stub(
             stripeHelper,
             'extractSubscriptionUpdateReactivationDetailsForEmail'
           )
-          .returns(mockReactivationDetails);
+          .resolves(mockReactivationDetails);
         sandbox
           .stub(
             stripeHelper,
             'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail'
           )
-          .returns(mockUpgradeDowngradeDetails);
+          .resolves(mockUpgradeDowngradeDetails);
       });
 
       function assertOnlyExpectedHelperCalledWith(expectedHelperName, ...args) {
