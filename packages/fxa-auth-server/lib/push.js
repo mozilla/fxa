@@ -473,6 +473,7 @@ module.exports = function (log, db, config, statsd) {
       } else {
         errCode = ERR_PUSH_UNKNOWN;
       }
+      err.errCode = errCode;
       metricsTags = { errCode, err, ...metricsTags };
       this.incrementPushMetric(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
       log.warn(LOG_OP_PUSH_SEND_FAILURE, metricsTags);
