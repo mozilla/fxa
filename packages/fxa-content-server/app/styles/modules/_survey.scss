@@ -1,3 +1,10 @@
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+// If you make changes here, be sure to update
+// `fxa-react/components/Survey/index.scss` for Storybook. See FXA-2237
+
 $shadow: 0 12px 18px 2px rgba(34, 0, 51, 0.04),
   0 6px 22px 4px rgba(7, 48, 114, 0.12), 0 6px 10px -4px rgba(14, 13, 26, 0.12);
 $survey-height: 360px;
@@ -24,10 +31,9 @@ $survey-height: 360px;
   z-index: 11;
 }
 
-.survey-control {
+.survey-close {
   align-items: center;
-  background: 50% no-repeat url('/images/chevron.svg');
-  background-color: transparent;
+  background: 50% no-repeat url('/images/close.svg') transparent;
   border: 0;
   cursor: pointer;
   display: flex;
@@ -42,13 +48,12 @@ $survey-height: 360px;
   }
 
   &:hover {
-    background: 50% no-repeat url('/images/chevron.svg');
-    background-color: rgba(12,12,13,.05);
+    background: 50% no-repeat url('/images/close.svg') rgba(12,12,13,.05);
   }
 
   &:active {
-    background: 50% no-repeat url('/images/chevron.svg');
-    background-color: rgba(12,12,13,.1);
+    background: 50% no-repeat url('/images/close.svg') rgba(12,12,13,.1);
+
   }
 }
 
@@ -99,29 +104,7 @@ $survey-height: 360px;
   bottom: 0;
 }
 
-.survey-inner-exit {
-  bottom: 0;
-}
-
-.survey-inner-exit-active {
-  bottom: -$survey-height;
-  transition: bottom 250ms ease-out;
-  transition-duration: 250ms;
-}
-
-.button-inner-enter,
-.button-inner-exit-done {
-  transform: rotate(180deg);
-}
-
-.button-inner-exit,
-.button-inner-enter-done,
-.button-inner-enter-active {
-  transform: rotate(0deg);
-}
-
 @media (prefers-reduced-motion) {
-  .survey-inner-exit-active,
   .survey-inner-enter-active {
     transition-duration: 0s;
   }
