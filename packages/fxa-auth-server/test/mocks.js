@@ -639,7 +639,7 @@ function mockDevices(data, errors) {
       return data;
     }),
     synthesizeName: sinon.spy(() => {
-      return data.deviceName || null;
+      return data.deviceName || '';
     }),
   };
 }

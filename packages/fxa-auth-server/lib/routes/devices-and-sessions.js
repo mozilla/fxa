@@ -270,7 +270,11 @@ module.exports = (
           },
         },
         response: {
-          schema: {},
+          schema: {
+            enqueued: isA.boolean().optional(),
+            notified: isA.boolean().optional(),
+            notifyError: isA.string().optional(),
+          },
         },
       },
       handler: async function (request) {
@@ -351,8 +355,10 @@ module.exports = (
 
         return {
           enqueued: true,
-          notified: !!notifyError,
-          notifyError: notifyError,
+          notified: !notifyError,
+          notifyError: notifyError
+            ? notifyError.errCode || 'unknown'
+            : undefined,
         };
       },
     },
