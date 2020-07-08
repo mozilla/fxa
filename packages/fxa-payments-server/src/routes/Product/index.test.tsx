@@ -139,9 +139,6 @@ describe('routes/Product', () => {
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
     nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS),
-    nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
       .reply(200, MOCK_CUSTOMER),
   ];
@@ -151,9 +148,6 @@ describe('routes/Product', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
       .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION),
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
       .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),
@@ -196,9 +190,6 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS),
-      nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
         .reply(200, MOCK_CUSTOMER),
     ];
@@ -212,9 +203,6 @@ describe('routes/Product', () => {
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
         .reply(400, MOCK_PLANS),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
         .reply(200, MOCK_CUSTOMER),
@@ -230,9 +218,6 @@ describe('routes/Product', () => {
         .get('/v1/oauth/subscriptions/plans')
         .reply(200, MOCK_PLANS),
       nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS),
-      nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
         .reply(400, MOCK_CUSTOMER),
     ];
@@ -247,9 +232,6 @@ describe('routes/Product', () => {
     const apiMocks = [
       ...initApiMocks(undefined, useDefaultIcon),
       nock(authServer).post('/v1/oauth/subscriptions/active').reply(200, {}),
-      nock(authServer)
-        .get('/v1/oauth/subscriptions/active')
-        .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
         .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),

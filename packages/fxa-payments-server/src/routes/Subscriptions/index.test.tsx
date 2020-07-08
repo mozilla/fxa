@@ -278,19 +278,6 @@ describe('routes/Subscriptions', () => {
     await findByTestId('error-loading-plans');
   });
 
-  it('displays an error if subscriptions fetch fails', async () => {
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS);
-    nock(authServer).get('/v1/oauth/subscriptions/active').reply(500, {});
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(403, MOCK_CUSTOMER);
-    const { findByTestId } = render(<Subject />);
-    await findByTestId('error-subscriptions-fetch');
-  });
-
   it('displays an error if customer fetch fails', async () => {
     nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
     nock(authServer)
@@ -519,15 +506,6 @@ describe('routes/Subscriptions', () => {
     }
   };
 
-  it('hides cancellation date message when date is unavailable', async () => {
-    commonReactivationSetup({ cancelledAtIsUnavailable: true });
-    const { findByTestId, queryByTestId } = render(<Subject />);
-    await findByTestId('subscription-management-loaded');
-    expect(
-      queryByTestId('subscription-cancelled-date')
-    ).not.toBeInTheDocument();
-  });
-
   const reactivationTests = (useDefaultIcon = true) => () => {
     it('supports reactivating a subscription through the confirmation flow', async () => {
       commonReactivationSetup({ useDefaultIcon });
@@ -541,8 +519,6 @@ describe('routes/Subscriptions', () => {
 
       // Wait for the page to load with one subscription
       await findByTestId('subscription-management-loaded');
-
-      expect(queryByTestId('subscription-cancelled-date')).toBeInTheDocument();
 
       const reactivateButton = getByTestId('reactivate-subscription-button');
       fireEvent.click(reactivateButton);
@@ -596,19 +572,6 @@ describe('routes/Subscriptions', () => {
   describe('reactivation with defined webIconURL', reactivationTests(false));
 
   describe('reactivation with default icon', reactivationTests(true));
-
-  it('should display an error message if subhub reports a subscription not found in auth-server', async () => {
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS);
-    nock(authServer).get('/v1/oauth/subscriptions/active').reply(200, []);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER);
-    const { findByTestId } = render(<Subject />);
-    await findByTestId('error-fxa-missing-subscription');
-  });
 
   it('should display an error message for a plan found in auth-server but not subhub', async () => {
     nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE);

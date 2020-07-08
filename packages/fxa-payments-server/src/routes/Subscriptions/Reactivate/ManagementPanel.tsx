@@ -4,12 +4,7 @@
 
 import React, { useCallback } from 'react';
 import { Localized } from '@fluent/react';
-import {
-  Plan,
-  CustomerSubscription,
-  Subscription,
-  Customer,
-} from '../../../store/types';
+import { Plan, CustomerSubscription, Customer } from '../../../store/types';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { getLocalizedDateString, getLocalizedDate } from '../../../lib/formats';
 import { ActionFunctions } from '../../../store/actions';
@@ -18,13 +13,11 @@ import ReactivationConfirmationDialog from './ConfirmationDialog';
 export default ({
   plan,
   customerSubscription,
-  subscription,
   customer,
   reactivateSubscription,
 }: {
   plan: Plan;
   customerSubscription: CustomerSubscription;
-  subscription: Subscription;
   customer: Customer;
   reactivateSubscription: ActionFunctions['reactivateSubscription'];
 }) => {
@@ -45,10 +38,6 @@ export default ({
     hideReactivateConfirmation,
   ]);
 
-  const cancelledAt = subscription.cancelledAt
-    ? (subscription.cancelledAt as number) / 1000
-    : null;
-
   const periodEndTimeStamp = customerSubscription.current_period_end;
 
   return (
@@ -63,17 +52,6 @@ export default ({
       <div className="subscription-cancelled">
         <div className="with-settings-button">
           <div className="subscription-cancelled-details">
-            {cancelledAt && (
-              <Localized
-                id="reactivate-panel-date"
-                $date={getLocalizedDate(cancelledAt)}
-              >
-                <p data-testid="subscription-cancelled-date">
-                  You cancelled your subscription on{' '}
-                  {getLocalizedDateString(cancelledAt)}.
-                </p>
-              </Localized>
-            )}
             <Localized
               id="reactivate-panel-copy"
               $name={plan.product_name}

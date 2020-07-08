@@ -56,9 +56,8 @@ describe('updateSubscriptionPlanAndRefresh', () => {
       plan
     )(dispatch);
 
-    expect(dispatch).toHaveBeenCalledTimes(4);
+    expect(dispatch).toHaveBeenCalledTimes(3);
     expect(actions.updateSubscriptionPlan).toBeCalledWith(subscriptionId, plan);
     expect(actions.fetchCustomer).toBeCalled();
-    expect(actions.fetchSubscriptions).toBeCalled();
   });
 });

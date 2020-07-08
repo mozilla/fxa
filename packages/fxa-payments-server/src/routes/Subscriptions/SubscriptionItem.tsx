@@ -25,7 +25,6 @@ import ReactivateSubscriptionPanel from './Reactivate/ManagementPanel';
 
 type SubscriptionItemProps = {
   customerSubscription: CustomerSubscription;
-  subscription: Subscription | null;
   plan: Plan | null;
   cancelSubscription: SubscriptionsProps['cancelSubscription'];
   reactivateSubscription: SubscriptionsProps['reactivateSubscription'];
@@ -37,7 +36,6 @@ type SubscriptionItemProps = {
 };
 
 export const SubscriptionItem = ({
-  subscription,
   cancelSubscription,
   cancelSubscriptionStatus,
   reactivateSubscription,
@@ -49,24 +47,6 @@ export const SubscriptionItem = ({
   customerSubscription,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
-
-  if (!subscription) {
-    // TOOD: Maybe need a better message here? This shouldn't happen. But, if it
-    // does, it's because subhub reports a subscription that we don't have in
-    // the fxa-auth-server database. The two should be kept in eventual sync.
-    return (
-      <DialogMessage className="dialog-error" onDismiss={locationReload}>
-        <Localized id="sub-item-missing">
-          <h4 data-testid="error-fxa-missing-subscription">
-            Problem loading subscriptions
-          </h4>
-        </Localized>
-        <Localized id="sub-item-missing-msg">
-          <p>Please try again later.</p>
-        </Localized>
-      </DialogMessage>
-    );
-  }
 
   if (!plan) {
     // TODO: This really shouldn't happen, would mean the user has a
@@ -118,7 +98,6 @@ export const SubscriptionItem = ({
                 plan,
                 customer,
                 customerSubscription,
-                subscription,
                 reactivateSubscription,
               }}
             />
