@@ -17,12 +17,7 @@ import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
 import { sequences, SequenceFunctions } from '../../store/sequences';
 import { State } from '../../store/state';
-import {
-  CustomerSubscription,
-  Profile,
-  Subscription,
-  Plan,
-} from '../../store/types';
+import { CustomerSubscription, Profile, Plan } from '../../store/types';
 
 import './index.scss';
 import SubscriptionItem from './SubscriptionItem';
@@ -39,7 +34,6 @@ export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
   plans: SelectorReturns['plans'];
   customer: SelectorReturns['customer'];
-  subscriptions: SelectorReturns['subscriptions'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   reactivateSubscriptionStatus: SelectorReturns['reactivateSubscriptionStatus'];
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
@@ -57,7 +51,6 @@ export const Subscriptions = ({
   profile,
   customer,
   plans,
-  subscriptions,
   customerSubscriptions,
   fetchSubscriptionsRouteResources,
   cancelSubscription,
@@ -111,12 +104,7 @@ export const Subscriptions = ({
     SUPPORT_FORM_URL,
   ]);
 
-  if (
-    customer.loading ||
-    subscriptions.loading ||
-    profile.loading ||
-    plans.loading
-  ) {
+  if (customer.loading || profile.loading || plans.loading) {
     return <LoadingOverlay isLoading={true} />;
   }
 
@@ -140,19 +128,6 @@ export const Subscriptions = ({
           testid="error-loading-plans"
           title="Problem loading plans"
           fetchState={plans}
-          onDismiss={locationReload}
-        />
-      </Localized>
-    );
-  }
-
-  if (!subscriptions.result || subscriptions.error !== null) {
-    return (
-      <Localized id="sub-subscription-error">
-        <FetchErrorDialogMessage
-          testid="error-subscriptions-fetch"
-          title="Problem loading subscriptions"
-          fetchState={subscriptions}
           onDismiss={locationReload}
         />
       </Localized>
@@ -192,7 +167,7 @@ export const Subscriptions = ({
       {customerSubscriptions && cancelSubscriptionStatus.result !== null && (
         <CancellationDialogMessage
           {...{
-            subscription: cancelSubscriptionStatus.result,
+            subscriptionId: cancelSubscriptionStatus.result.subscriptionId,
             customerSubscriptions,
             plans: plans.result,
             resetCancelSubscription,
@@ -305,10 +280,6 @@ export const Subscriptions = ({
                   customerSubscription,
                   cancelSubscriptionStatus,
                   plan: planForId(customerSubscription.plan_id, plans.result),
-                  subscription: subscriptionForId(
-                    customerSubscription.subscription_id,
-                    subscriptions.result
-                  ),
                 }}
               />
             ))}
@@ -326,19 +297,11 @@ const customerSubscriptionForId = (
     (subscription) => subscription.subscription_id === subscriptionId
   )[0];
 
-const subscriptionForId = (
-  subscriptionId: string,
-  subscriptions: Subscription[]
-): Subscription | null =>
-  subscriptions.filter(
-    (subscription) => subscription.subscriptionId === subscriptionId
-  )[0];
-
 const planForId = (planId: string, plans: Plan[]): Plan | null =>
   plans.filter((plan) => plan.plan_id === planId)[0];
 
 type CancellationDialogMessageProps = {
-  subscription: Subscription;
+  subscriptionId: string;
   customerSubscriptions: CustomerSubscription[];
   plans: Plan[];
   resetCancelSubscription: SubscriptionsProps['resetCancelSubscription'];
@@ -346,14 +309,14 @@ type CancellationDialogMessageProps = {
 };
 
 const CancellationDialogMessage = ({
-  subscription,
+  subscriptionId,
   customerSubscriptions,
   plans,
   resetCancelSubscription,
   supportFormUrl,
 }: CancellationDialogMessageProps) => {
   const customerSubscription = customerSubscriptionForId(
-    subscription.subscriptionId,
+    subscriptionId,
     customerSubscriptions
   ) as CustomerSubscription;
   const plan = planForId(customerSubscription.plan_id, plans) as Plan;
@@ -420,7 +383,6 @@ export default connect(
     profile: selectors.profile(state),
     customer: selectors.customer(state),
     customerSubscriptions: selectors.customerSubscriptions(state),
-    subscriptions: selectors.subscriptions(state),
     updatePaymentStatus: selectors.updatePaymentStatus(state),
     cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
     reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),

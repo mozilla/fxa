@@ -17,11 +17,6 @@ function init() {
       <SubscriptionsRoute
         routeProps={{
           ...baseProps,
-          subscriptions: {
-            loading: true,
-            error: null,
-            result: null,
-          },
         }}
       />
     ))
@@ -81,9 +76,6 @@ function init() {
             error: null,
             result: {
               subscriptionId: 'sub_5551212',
-              productId: 'product_123',
-              createdAt: Date.now() - 86400000,
-              cancelledAt: Date.now(),
             },
           },
         }}
@@ -130,14 +122,6 @@ function init() {
         routeProps={{
           ...baseProps,
           plans: errorFetchState(),
-        }}
-      />
-    ))
-    .add('subscriptions', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...baseProps,
-          subscriptions: errorFetchState(),
         }}
       />
     ))
@@ -262,11 +246,6 @@ const baseProps: SubscriptionsProps = {
     loading: false,
     result: null,
   },
-  subscriptions: {
-    error: null,
-    loading: false,
-    result: null,
-  },
   customerSubscriptions: [],
   fetchSubscriptionsRouteResources: action('fetchSubscriptionsRouteResources'),
   cancelSubscription: () => linkTo('routes/Subscriptions', 'cancelled')(),
@@ -321,18 +300,6 @@ const subscribedProps: SubscriptionsProps = {
       subscription_id: 'sub_5551212',
     },
   ],
-  subscriptions: {
-    loading: false,
-    error: null,
-    result: [
-      {
-        subscriptionId: 'sub_5551212',
-        productId: 'product_123',
-        createdAt: Date.now(),
-        cancelledAt: null,
-      },
-    ],
-  },
 };
 
 const cancelledProps: SubscriptionsProps = {
@@ -345,18 +312,6 @@ const cancelledProps: SubscriptionsProps = {
         },
       ]
     : null,
-  subscriptions: {
-    loading: false,
-    error: null,
-    result: [
-      {
-        subscriptionId: 'sub_5551212',
-        productId: 'product_123',
-        createdAt: Date.now() - 400000000,
-        cancelledAt: Date.now() - 200000000,
-      },
-    ],
-  },
 };
 
 const reactivationErrorProps = {

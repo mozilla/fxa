@@ -5,7 +5,6 @@ import { FunctionWithIgnoredReturn } from '../lib/types';
 const {
   fetchProfile,
   fetchPlans,
-  fetchSubscriptions,
   fetchCustomer,
   createSubscription,
   updateSubscriptionPlan,
@@ -35,7 +34,6 @@ export const fetchProductRouteResources = () => async (dispatch: Function) => {
     dispatch(fetchPlans()),
     dispatch(fetchProfile()),
     dispatch(fetchCustomer()),
-    dispatch(fetchSubscriptions()),
   ]).catch(handleThunkError);
 };
 
@@ -46,17 +44,13 @@ export const fetchSubscriptionsRouteResources = () => async (
     dispatch(fetchPlans()),
     dispatch(fetchProfile()),
     dispatch(fetchCustomer()),
-    dispatch(fetchSubscriptions()),
   ]).catch(handleThunkError);
 };
 
 export const fetchCustomerAndSubscriptions = () => async (
   dispatch: Function
 ) => {
-  await Promise.all([
-    dispatch(fetchCustomer()),
-    dispatch(fetchSubscriptions()),
-  ]).catch(handleThunkError);
+  await Promise.all([dispatch(fetchCustomer())]).catch(handleThunkError);
 };
 
 export const createSubscriptionAndRefresh = (

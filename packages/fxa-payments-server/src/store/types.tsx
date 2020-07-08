@@ -130,3 +130,7 @@ export type CreateSubscriptionError = {
 export interface UpdateSubscriptionPlanResult {
   subscriptionId: string;
 }
+
+export interface CancelSubscriptionResult {
+  subscriptionId: string;
+}

@@ -10,6 +10,7 @@ import {
   CreateSubscriptionResult,
   CreateSubscriptionError,
   UpdateSubscriptionPlanResult,
+  CancelSubscriptionResult,
 } from './types';
 
 import { actions, ActionPayload } from './actions';
@@ -20,7 +21,7 @@ export const defaultState = {
   profile: uninitializedFetch<Profile, APIError>(),
   subscriptions: uninitializedFetch<Array<Subscription>>(),
   token: uninitializedFetch<Token>(),
-  cancelSubscription: uninitializedFetch<Subscription>(),
+  cancelSubscription: uninitializedFetch<CancelSubscriptionResult>(),
   reactivateSubscription: uninitializedFetch<
     ActionPayload<typeof actions['reactivateSubscription']>,
     APIError
