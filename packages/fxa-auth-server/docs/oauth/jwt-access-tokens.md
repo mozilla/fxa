@@ -51,8 +51,8 @@ Firefox Accounts largely follows the IETF JWT access token draft spec's
 
 The following is based on the [section on validation][#ietf-jwt-access-token-draft-spec-validation] JWT Access Token Draft Spec:
 
-1.  The resource server MUST verify that the `typ` header value is
-    `at+jwt` and reject tokens carrying any other value.
+1.  The resource server MUST verify that the `typ` header value case-insensitively
+    matches `at+jwt` or `application/at+jwt` and reject tokens carrying any other value.
 2.  The resource server MUST validate the signature of all incoming
     JWT access token according to [RFC7515][#ietf-jws-spec] using the algorithm
     specified in the JWT `alg` Header Parameter. The SP MUST use the keys provided

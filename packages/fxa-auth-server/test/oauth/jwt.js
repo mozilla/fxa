@@ -170,6 +170,24 @@ describe('lib/jwt', () => {
         });
         assert.strictEqual(verifiedPayload.foo, 'bar');
       });
+
+      it('succeeds if valid and typ matches according to comparison rules', async () => {
+        const jwt = await JWT.sign(
+          {
+            foo: 'bar',
+          },
+          {
+            header: {
+              typ: 'cUstOm-JwT',
+            },
+          }
+        );
+
+        const verifiedPayload = await JWT.verify(jwt, {
+          typ: 'application/custom-jwt',
+        });
+        assert.strictEqual(verifiedPayload.foo, 'bar');
+      });
     });
   });
 });
