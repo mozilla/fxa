@@ -77,9 +77,13 @@
       </ul>
 
       <div class="input-row password-row">
-        <!-- add the autocomplete=off attribute - the user is deleting the account, they most likely don't want the password saved. -->
-        <input type="password" class="password tooltip-above" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus autocomplete="off" />
+        <input type="password" class="password tooltip-above" id="password" placeholder="{{#t}}Password{{/t}}" pattern=".{8,}" required autofocus />
       </div>
+
+      <!-- The browser wait until all the required inputs is fulfilled to
+         - show the "Save Password" doorhange. This non-fulfilled input tricks
+         - the browser into not showing the doorhanger. -->
+      <input class="hidden" required />
 
       <div class="button-row">
         <button type="submit" class="settings-button warning-button delete-account-button" disabled>{{#t}}Delete account{{/t}}</button>
