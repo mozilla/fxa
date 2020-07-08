@@ -1,3 +1,9 @@
+## 1.178.1
+
+### Bug fixes
+
+- devices: Fix response validation for /invoke_command ([88024cd10](https://github.com/mozilla/fxa/commit/88024cd10))
+
 ## 1.178.0
 
 ### New features

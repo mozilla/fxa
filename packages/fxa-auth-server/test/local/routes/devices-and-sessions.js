@@ -7,6 +7,7 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const crypto = require('crypto');
+const Joi = require('@hapi/joi');
 const error = require('../../../lib/error');
 const getRoute = require('../../routes_helpers').getRoute;
 const isA = require('@hapi/joi');
@@ -72,8 +73,23 @@ function makeRoutes(options = {}, requireMocks) {
   );
 }
 
-function runTest(route, request, onSuccess, onError) {
-  return route.handler(request).then(onSuccess, onError).catch(onError);
+async function runTest(route, request, onSuccess, onError) {
+  try {
+    const response = await route.handler(request);
+    if (route.options.response.schema) {
+      await Joi.validate(response, route.options.response.schema);
+    }
+    if (onSuccess) {
+      onSuccess(response);
+    }
+    return response;
+  } catch (err) {
+    if (onError) {
+      onError(err);
+    } else {
+      throw err;
+    }
+  }
 }
 
 function hexString(bytes) {
@@ -96,6 +112,7 @@ describe('/account/device', () => {
     config = {};
     mockRequest = mocks.mockRequest({
       credentials: {
+        deviceCallbackAuthKey: '',
         deviceCallbackPublicKey: '',
         deviceCallbackURL: '',
         deviceCallbackIsExpired: false,
@@ -257,6 +274,7 @@ describe('/account/device', () => {
   it('removes the push endpoint expired flag on callback URL update', () => {
     const mockRequest = mocks.mockRequest({
       credentials: {
+        deviceCallbackAuthKey: '',
         deviceCallbackPublicKey: '',
         deviceCallbackURL:
           'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
@@ -291,6 +309,7 @@ describe('/account/device', () => {
   it('should not remove the push endpoint expired flag on any other property update', () => {
     const mockRequest = mocks.mockRequest({
       credentials: {
+        deviceCallbackAuthKey: '',
         deviceCallbackPublicKey: '',
         deviceCallbackURL:
           'https://updates.push.services.mozilla.com/update/50973923bc3e4507a0aa4e285513194a',
@@ -769,8 +788,8 @@ describe('/account/device/commands', () => {
       last: true,
       index: 4,
       messages: [
-        { index: 3, data: { number: 'three' } },
-        { index: 4, data: { number: 'four' } },
+        { index: 3, data: { command: 'three', payload: {} } },
+        { index: 4, data: { command: 'four', payload: {} } },
       ],
     };
     const mockPushbox = mocks.mockPushbox();
@@ -858,8 +877,22 @@ describe('/account/device/commands', () => {
       last: true,
       index: 4,
       messages: [
-        { index: 3, data: { sender: 'sender1', command: 'three' } },
-        { index: 4, data: { sender: 'sender2', command: 'four' } },
+        {
+          index: 3,
+          data: {
+            sender: '99999999999999999999999999999999',
+            command: 'three',
+            payload: {},
+          },
+        },
+        {
+          index: 4,
+          data: {
+            sender: '88888888888888888888888888888888',
+            command: 'four',
+            payload: {},
+          },
+        },
       ],
     };
     const mockPushbox = mocks.mockPushbox();
@@ -891,7 +924,7 @@ describe('/account/device/commands', () => {
           uid,
           target: deviceId,
           index: 3,
-          sender: 'sender1',
+          sender: '99999999999999999999999999999999',
           command: 'three',
         }
       );
@@ -902,7 +935,7 @@ describe('/account/device/commands', () => {
           uid,
           target: deviceId,
           index: 4,
-          sender: 'sender2',
+          sender: '88888888888888888888888888888888',
           command: 'four',
         }
       );
@@ -1230,7 +1263,10 @@ describe('/account/devices/invoke_command', () => {
       '/account/devices/invoke_command'
     );
 
-    return runTest(route, mockRequest).then(() => {
+    return runTest(route, mockRequest).then((response) => {
+      assert.ok(response.enqueued);
+      assert.ok(response.notified);
+      assert.isUndefined(response.notifyError);
       assert.callCount(mockLog.info, 2);
       const expectedMetricsTags = {
         uid,
@@ -1270,6 +1306,7 @@ describe('/account/devices/invoke_command', () => {
       payload,
     };
     const mockPushError = new Error('a push failure');
+    mockPushError.errCode = 'expiredCallback';
     mockPush.notifyCommandReceived = sinon.spy(async () => {
       throw mockPushError;
     });
@@ -1284,7 +1321,10 @@ describe('/account/devices/invoke_command', () => {
       '/account/devices/invoke_command'
     );
 
-    return runTest(route, mockRequest).then(() => {
+    return runTest(route, mockRequest).then((response) => {
+      assert.ok(response.enqueued);
+      assert.notOk(response.notified);
+      assert.equal(response.notifyError, 'expiredCallback');
       assert.callCount(mockPush.notifyCommandReceived, 1);
       assert.callCount(mockLog.info, 2);
       const expectedMetricsTags = {
@@ -1388,6 +1428,7 @@ describe('/account/devices', () => {
       id: crypto.randomBytes(16).toString('hex'),
     };
     const unnamedDevice = {
+      id: '00000000000000000000000000000000',
       sessionTokenId: crypto.randomBytes(16).toString('hex'),
       lastAccessTime: EARLIEST_SANE_TIMESTAMP,
     };
@@ -1396,17 +1437,20 @@ describe('/account/devices', () => {
       credentials,
       devices: [
         {
+          id: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
           name: 'current session',
           type: 'mobile',
           sessionTokenId: credentials.id,
           lastAccessTime: Date.now(),
         },
         {
+          id: 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
           name: 'has no type',
           sessionTokenId: crypto.randomBytes(16).toString('hex'),
           lastAccessTime: 1,
         },
         {
+          id: 'cccccccccccccccccccccccccccccccc',
           name: 'has device type',
           sessionTokenId: crypto.randomBytes(16).toString('hex'),
           uaDeviceType: 'wibble',
@@ -1496,7 +1540,7 @@ describe('/account/devices', () => {
         country: 'Royaume-Uni',
       });
 
-      assert.equal(response[3].name, null);
+      assert.equal(response[3].name, '');
       assert.equal(response[3].lastAccessTime, EARLIEST_SANE_TIMESTAMP);
       assert.equal(
         response[3].lastAccessTimeFormatted,
@@ -1537,6 +1581,7 @@ describe('/account/devices', () => {
       credentials,
       devices: [
         {
+          id: '00000000000000000000000000000000',
           name: 'wibble',
           sessionTokenId: credentials.id,
           lastAccessTime: Date.now(),
@@ -1638,6 +1683,7 @@ describe('/account/devices', () => {
       credentials,
       devices: [
         {
+          id: '00000000000000000000000000000000',
           name: 'wibble',
           sessionTokenId: credentials.id,
           lastAccessTime: yesterday,
@@ -1709,7 +1755,12 @@ describe('/account/sessions', () => {
     now + 7,
     now + 8,
   ];
-  const tokenIds = ['foo', 'bar', 'baz', 'qux'];
+  const tokenIds = [
+    '00000000000000000000000000000000',
+    '11111111111111111111111111111111',
+    '22222222222222222222222222222222',
+    '33333333333333333333333333333333',
+  ];
   const sessions = [
     {
       id: tokenIds[0],
@@ -1724,7 +1775,7 @@ describe('/account/sessions', () => {
       deviceId: null,
       deviceCreatedAt: times[2],
       deviceAvailableCommands: { foo: 'bar' },
-      deviceCallbackURL: 'callback',
+      deviceCallbackURL: 'https://push.services.mozilla.com',
       deviceCallbackPublicKey: 'publicKey',
       deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
@@ -1746,7 +1797,7 @@ describe('/account/sessions', () => {
       uaOS: 'Android',
       uaOSVersion: '6',
       uaDeviceType: 'mobile',
-      deviceId: 'deviceId',
+      deviceId: 'dddddddddddddddddddddddddddddddd',
       deviceCreatedAt: times[4],
       deviceAvailableCommands: { foo: 'bar' },
       deviceCallbackURL: null,
@@ -1771,10 +1822,10 @@ describe('/account/sessions', () => {
       uaOS: null,
       uaOSVersion: '10',
       uaDeviceType: 'tablet',
-      deviceId: 'deviceId',
+      deviceId: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
       deviceCreatedAt: times[6],
       deviceAvailableCommands: {},
-      deviceCallbackURL: 'callback',
+      deviceCallbackURL: 'https://push.services.mozilla.com',
       deviceCallbackPublicKey: 'publicKey',
       deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
@@ -1790,9 +1841,9 @@ describe('/account/sessions', () => {
       uaOS: null,
       uaOSVersion: '10',
       uaDeviceType: 'tablet',
-      deviceId: 'deviceId',
+      deviceId: 'ffffffffffffffffffffffffffffffff',
       deviceCreatedAt: times[8],
-      deviceCallbackURL: 'callback',
+      deviceCallbackURL: 'https://push.services.mozilla.com',
       deviceCallbackPublicKey: 'publicKey',
       deviceCallbackAuthKey: 'authKey',
       deviceCallbackIsExpired: false,
@@ -1825,11 +1876,11 @@ describe('/account/sessions', () => {
             deviceName: 'Firefox 50, Windows 10',
             deviceType: 'desktop',
             deviceAvailableCommands: { foo: 'bar' },
-            deviceCallbackURL: 'callback',
+            deviceCallbackURL: 'https://push.services.mozilla.com',
             deviceCallbackPublicKey: 'publicKey',
             deviceCallbackAuthKey: 'authKey',
             deviceCallbackIsExpired: false,
-            id: 'foo',
+            id: '00000000000000000000000000000000',
             isCurrentDevice: true,
             isDevice: false,
             lastAccessTime: times[1],
@@ -1845,7 +1896,7 @@ describe('/account/sessions', () => {
             },
           },
           {
-            deviceId: 'deviceId',
+            deviceId: 'dddddddddddddddddddddddddddddddd',
             deviceName: 'Nightly, Android 6',
             deviceType: 'mobile',
             deviceAvailableCommands: { foo: 'bar' },
@@ -1853,7 +1904,7 @@ describe('/account/sessions', () => {
             deviceCallbackPublicKey: null,
             deviceCallbackAuthKey: null,
             deviceCallbackIsExpired: false,
-            id: 'bar',
+            id: '11111111111111111111111111111111',
             isCurrentDevice: false,
             isDevice: true,
             lastAccessTime: EARLIEST_SANE_TIMESTAMP - 1,
@@ -1875,15 +1926,15 @@ describe('/account/sessions', () => {
             },
           },
           {
-            deviceId: 'deviceId',
+            deviceId: 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
             deviceName: '',
             deviceType: 'tablet',
             deviceAvailableCommands: {},
-            deviceCallbackURL: 'callback',
+            deviceCallbackURL: 'https://push.services.mozilla.com',
             deviceCallbackPublicKey: 'publicKey',
             deviceCallbackAuthKey: 'authKey',
             deviceCallbackIsExpired: false,
-            id: 'baz',
+            id: '22222222222222222222222222222222',
             isCurrentDevice: false,
             isDevice: true,
             lastAccessTime: EARLIEST_SANE_TIMESTAMP,
@@ -1896,15 +1947,15 @@ describe('/account/sessions', () => {
             location: {},
           },
           {
-            deviceId: 'deviceId',
+            deviceId: 'ffffffffffffffffffffffffffffffff',
             deviceName: '',
             deviceType: 'tablet',
             deviceAvailableCommands: null,
-            deviceCallbackURL: 'callback',
+            deviceCallbackURL: 'https://push.services.mozilla.com',
             deviceCallbackPublicKey: 'publicKey',
             deviceCallbackAuthKey: 'authKey',
             deviceCallbackIsExpired: false,
-            id: 'qux',
+            id: '33333333333333333333333333333333',
             isCurrentDevice: false,
             isDevice: true,
             lastAccessTime: 1,
