@@ -23,6 +23,7 @@ secrets.json
 **/storybook-static
 *.sass-cache
 *.map
+*.swp
 .es5
 .es5cache
 /artifacts
@@ -70,7 +71,6 @@ packages/browserid-verifier/loadtest/*.pyc
 # fxa-auth-db-mysql
 packages/fxa-auth-db-mysql/config/dev.js
 packages/fxa-auth-db-mysql/sandbox
-packages/fxa-auth-db-mysql/*.swp
 
 # fxa-auth-server
 packages/fxa-auth-server/fxa-auth-db-mysql
@@ -78,7 +78,6 @@ packages/fxa-auth-server/sandbox
 packages/fxa-auth-server/config/key.json
 packages/fxa-auth-server/config/oldKey.json
 packages/fxa-auth-server/config/vapid-keys.json
-packages/fxa-auth-server/*.swp
 packages/fxa-auth-server/test/load/bin
 packages/fxa-auth-server/test/load/lib*
 packages/fxa-auth-server/test/load/include
