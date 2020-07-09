@@ -30,6 +30,7 @@ const SignInPasswordView = FormView.extend({
     // directed directly to /signin will not be able
     // to go back. Send them directly to `/` with the
     // account. The email will be prefilled on that page.
+    this.clearInput();
     this.navigate('/', { account: this.getAccount() });
   },
 
