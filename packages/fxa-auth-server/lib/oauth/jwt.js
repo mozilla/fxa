@@ -36,8 +36,10 @@ exports.sign = function sign(claims, options) {
 
 exports.verify = async function verify(jwt, options = {}) {
   const getKey = (header, callback) => {
-    if (options.typ && header.typ !== options.typ) {
-      return callback(new Error('Invalid typ'));
+    if (options.typ) {
+      if (normalizeTyp(options.typ) !== normalizeTyp(header.typ)) {
+        return callback(new Error('Invalid typ'));
+      }
     }
 
     let signingKey;
@@ -58,3 +60,14 @@ exports.verify = async function verify(jwt, options = {}) {
     ignoreExpiration: options.ignoreExpiration,
   });
 };
+
+function normalizeTyp(typ) {
+  // Ref https://tools.ietf.org/html/rfc7515#section-4.1.9 for the rules.
+  if (typ) {
+    typ = typ.toLowerCase();
+    if (!typ.includes('/')) {
+      typ = 'application/' + typ;
+    }
+  }
+  return typ;
+}
