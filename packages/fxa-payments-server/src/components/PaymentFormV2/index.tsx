@@ -122,10 +122,21 @@ export const PaymentForm = ({
     [validator, onSubmitForParent, stripe, submitNonce, shouldAllowSubmit]
   );
 
-  const { matchMedia, navigatorLanguages } = useContext(AppContext);
-  const stripeElementStyles = mkStripeElementStyles(
-    matchMedia(SMALL_DEVICE_RULE)
-  );
+  const { navigatorLanguages } = useContext(AppContext);
+
+  const STRIPE_ELEMENT_STYLES = {
+    style: {
+      base: {
+        fontFamily:
+          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+        fontSize: '16px',
+        fontWeight: '500',
+      },
+      invalid: {
+        color: '#0c0c0d',
+      },
+    },
+  };
 
   let termsOfServiceURL, privacyNoticeURL;
   if (confirm && plan) {
@@ -164,8 +175,8 @@ export const PaymentForm = ({
           component={CardElement}
           name="creditCard"
           label="Your card"
-          style={stripeElementStyles}
           className="input-row input-row--xl"
+          options={STRIPE_ELEMENT_STYLES}
           getString={getString}
           required
         />
@@ -273,22 +284,6 @@ const WrappedPaymentForm = (props: PaymentFormProps) => {
 export const SMALL_DEVICE_RULE = '(max-width: 520px)';
 export const SMALL_DEVICE_LINE_HEIGHT = '40px';
 export const DEFAULT_LINE_HEIGHT = '48px';
-
-export function mkStripeElementStyles(useSmallDeviceStyles: boolean) {
-  // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
-  return {
-    base: {
-      //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
-      fontFamily:
-        'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-      fontSize: '14px',
-      fontWeight: '500',
-    },
-    invalid: {
-      color: '#0c0c0d',
-    },
-  };
-}
 
 const validateName: OnValidateFunction = (
   value,
