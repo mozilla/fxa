@@ -35,7 +35,7 @@ form.payment {
     }
 
     input {
-      font-size: 14px;
+      font-size: 16px;
 
       // overrides firefox's default box shadow for invalid els
       // we get this from our class system
@@ -54,7 +54,7 @@ form.payment {
 
     input::placeholder {
       color: #767676 !important;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 400;
       height: 45px;
       line-height: normal;
@@ -89,11 +89,6 @@ form.payment {
 
   .main-content .payments-card {
     width: 100%;
-
-    .input-row input,
-    .input-row .StripeElement {
-      padding-left: 5px !important;
-    }
 
     .input-row-group {
       padding-bottom: 8px;

@@ -79,28 +79,19 @@ hr {
 
   .StripeElement {
     @include input-element();
-    padding-top: 14px;
+    padding: 14px $input-left-right-padding 0;
+
+    @include respond-to('small') {
+      padding: 9px $input-left-right-padding * .75 0;
+    }
 
     &:last-child {
       margin-bottom: 0;
     }
 
-    html[dir='ltr'] & {
-      padding: 14px 0 0 $input-left-right-padding;
-
-      @include respond-to('simpleSmall') {
-        padding-top: 11px;
-      }
-    }
-
     html[dir='rtl'] & {
       direction: ltr;
-      padding: 14px $input-left-right-padding 0 0;
       text-align: right;
-
-      @include respond-to('simpleSmall') {
-        padding-top: 11px;
-      }
     }
   }
 
