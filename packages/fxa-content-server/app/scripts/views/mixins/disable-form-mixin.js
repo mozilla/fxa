@@ -13,7 +13,6 @@
 // to open/close the panel, the second to submit. Only the submit button
 // should be disabled.
 const BUTTON_SELECTOR = 'button[type=submit]';
-const DISABLED_CLASS = 'disabled';
 
 export default {
   afterRender() {
@@ -32,13 +31,13 @@ export default {
    * Disable the form by disabling the primary button
    */
   disableForm() {
-    this.$(BUTTON_SELECTOR).addClass(DISABLED_CLASS);
+    this.$(BUTTON_SELECTOR).attr('disabled', true);
   },
 
   /**
    * Enable the form by enabling the primary button.
    */
   enableForm() {
-    this.$(BUTTON_SELECTOR).removeClass(DISABLED_CLASS);
+    this.$(BUTTON_SELECTOR).attr('disabled', false);
   },
 };
