@@ -1,3 +1,23 @@
+## 1.179.0
+
+### New features
+
+- payments: New PaymentFormV2 component with Stripe upgrades ([05c0a47a7](https://github.com/mozilla/fxa/commit/05c0a47a7))
+- surveys: Replace minimize/maximize functionality with close ([4318c3ff3](https://github.com/mozilla/fxa/commit/4318c3ff3))
+- surveys: send env and server name to survey gizmo as query params ([37f0bf0bd](https://github.com/mozilla/fxa/commit/37f0bf0bd))
+- surveys: don't animate survey when prefers-reduced-motion is present ([2af2db710](https://github.com/mozilla/fxa/commit/2af2db710))
+- surveys: always show surveys in dev, regardless of rate or last shown timestamp ([0375e993e](https://github.com/mozilla/fxa/commit/0375e993e))
+- surveys: permit strings or arrays to be used in RP checks ([b32ec7efc](https://github.com/mozilla/fxa/commit/b32ec7efc))
+- surveys: permit strings or arrays to be used in ua property checks ([007adc315](https://github.com/mozilla/fxa/commit/007adc315))
+- surveys: send matching conditions over to survey gizmo ([5106a1444](https://github.com/mozilla/fxa/commit/5106a1444))
+
+### Bug fixes
+
+- content-server: disable the "Take picture" button ([1fbac30a6](https://github.com/mozilla/fxa/commit/1fbac30a6))
+- content-server: clean the password input ([b8fdf796d](https://github.com/mozilla/fxa/commit/b8fdf796d))
+- content-server: create fake hidden input ([1187f6efb](https://github.com/mozilla/fxa/commit/1187f6efb))
+- react: use package.json export ([10c230f04](https://github.com/mozilla/fxa/commit/10c230f04))
+
 ## 1.178.1
 
 No changes.

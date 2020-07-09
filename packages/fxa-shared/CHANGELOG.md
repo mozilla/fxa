@@ -1,5 +1,11 @@
 # Change history
 
+## 1.179.0
+
+### New features
+
+- auth-server: add stripe object filtering ([de82e10d3](https://github.com/mozilla/fxa/commit/de82e10d3))
+
 ## 1.178.1
 
 No changes.
