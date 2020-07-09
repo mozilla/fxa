@@ -61,13 +61,12 @@ describe('views/mixins/disable-form-mixin', () => {
     });
   });
 
-  it('`disableForm` adds the `disabled` class to the submit button, `enableForm` removes it', () => {
+  it('`disableForm` adds the `disabled` attribute to the submit button, `enableForm` removes it', () => {
     return view.render().then(() => {
-      assert.lengthOf(view.$('button.disabled'), 0);
       view.disableForm();
-      assert.lengthOf(view.$('button.disabled'), 1);
+      assert.isTrue(view.$('button').prop('disabled'));
       view.enableForm();
-      assert.lengthOf(view.$('button.disabled'), 0);
+      assert.isFalse(view.$('button').prop('disabled'));
     });
   });
 });
