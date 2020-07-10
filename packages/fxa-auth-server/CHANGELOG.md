@@ -1,3 +1,18 @@
+## 1.179.0
+
+### New features
+
+- auth-server: add stripe object filtering ([de82e10d3](https://github.com/mozilla/fxa/commit/de82e10d3))
+- auth-server: add setup intent methods ([f60c453e4](https://github.com/mozilla/fxa/commit/f60c453e4))
+- add new stripe methods for payment method id ([e5f5d911a](https://github.com/mozilla/fxa/commit/e5f5d911a))
+
+### Bug fixes
+
+- oauth: Clarify that JWT `typ` header is case-insensitive. ([4afe925c1](https://github.com/mozilla/fxa/commit/4afe925c1))
+- auth-server: allow customer to not have source on file ([21685ef29](https://github.com/mozilla/fxa/commit/21685ef29))
+- auth-server: payload validation for payment methods ([1ac47bd08](https://github.com/mozilla/fxa/commit/1ac47bd08))
+- attached-clients: Ignore a device's refreshTokenId if it's not a live token. ([3b980c6c9](https://github.com/mozilla/fxa/commit/3b980c6c9))
+
 ## 1.178.1
 
 ### Bug fixes

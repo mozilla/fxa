@@ -1,5 +1,20 @@
 # Change history
 
+## 1.179.0
+
+### New features
+
+- payments: New PaymentFormV2 component with Stripe upgrades ([05c0a47a7](https://github.com/mozilla/fxa/commit/05c0a47a7))
+- payments: add @svgr/webpack to storybook can properly compile svgs ([c44d000d3](https://github.com/mozilla/fxa/commit/c44d000d3))
+
+### Bug fixes
+
+- payments: stop fetching unused cached subscription data on payments frontend ([aa69769bf](https://github.com/mozilla/fxa/commit/aa69769bf))
+
+### Other changes
+
+- styles: correctly pass styles into stripe card element ([7fa3fcaef](https://github.com/mozilla/fxa/commit/7fa3fcaef))
+
 ## 1.178.1
 
 No changes.
