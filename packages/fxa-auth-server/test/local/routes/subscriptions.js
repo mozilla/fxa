@@ -345,9 +345,9 @@ describe('subscriptions directRoutes', () => {
       };
 
       stripeHelper = sinon.createStubInstance(StripeHelper);
-      stripeHelper.customer.returns(customer);
-      stripeHelper.expandResource.returns(stripePlan);
-      stripeHelper.findPlanById.returns(PLANS[0]);
+      stripeHelper.customer.resolves(customer);
+      stripeHelper.expandResource.resolves(stripePlan);
+      stripeHelper.findPlanById.resolves(PLANS[0]);
       stripeHelper.formatSubscriptionsForSupport.restore();
     });
 
@@ -559,7 +559,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('getClients', () => {
     it('returns the clients and their capabilities', async () => {
-      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
 
       const expected = [
         {
@@ -629,7 +629,7 @@ describe('DirectStripeRoutes', () => {
 
       sandbox.stub(directStripeRoutesInstance, 'customerChanged').resolves();
 
-      directStripeRoutesInstance.stripeHelper.findPlanById.returns(plan);
+      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
     });
 
     describe('when called for a new customer', () => {
@@ -728,7 +728,7 @@ describe('DirectStripeRoutes', () => {
   describe('createCustomer', () => {
     it('creates a stripe customer', async () => {
       const expected = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.createPlainCustomer.returns(
+      directStripeRoutesInstance.stripeHelper.createPlainCustomer.resolves(
         expected
       );
       VALID_REQUEST.payload = {
@@ -747,9 +747,9 @@ describe('DirectStripeRoutes', () => {
   describe('createSubscriptionWithPMI', () => {
     it('creates a subscription with a payment method', async () => {
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.returns(customer);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
       const expected = deepCopy(subscription2);
-      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.returns(
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
         expected
       );
       VALID_REQUEST.payload = {
@@ -766,7 +766,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors when a customer has not been created', async () => {
-      directStripeRoutesInstance.stripeHelper.customer.returns(undefined);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(undefined);
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
@@ -786,9 +786,9 @@ describe('DirectStripeRoutes', () => {
   describe('retryInvoice', () => {
     it('retries the invoice with the payment method', async () => {
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.returns(customer);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
       const expected = deepCopy(openInvoice);
-      directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.returns(
+      directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.resolves(
         expected
       );
       VALID_REQUEST.payload = {
@@ -805,7 +805,7 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('errors when a customer has not been created', async () => {
-      directStripeRoutesInstance.stripeHelper.customer.returns(undefined);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(undefined);
       VALID_REQUEST.payload = {
         displayName: 'Jane Doe',
         idempotencyKey: uuidv4(),
@@ -823,9 +823,9 @@ describe('DirectStripeRoutes', () => {
   describe('createSetupIntent', () => {
     it('creates a new setup intent', async () => {
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer.returns(customer);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
       const expected = deepCopy(newSetupIntent);
-      directStripeRoutesInstance.stripeHelper.createSetupIntent.returns(
+      directStripeRoutesInstance.stripeHelper.createSetupIntent.resolves(
         expected
       );
       VALID_REQUEST.payload = {};
@@ -859,12 +859,12 @@ describe('DirectStripeRoutes', () => {
 
       directStripeRoutesInstance.stripeHelper.customer
         .onCall(0)
-        .returns(customer);
+        .resolves(customer);
       directStripeRoutesInstance.stripeHelper.customer
         .onCall(1)
-        .returns(expected);
+        .resolves(expected);
 
-      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.returns(
+      directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
         customer
       );
       VALID_REQUEST.payload = {
@@ -882,7 +882,7 @@ describe('DirectStripeRoutes', () => {
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.customer
         .onCall(0)
-        .returns(customer);
+        .resolves(customer);
 
       VALID_REQUEST.payload = { paymentMethodId: 'pm_asdf' };
       try {
@@ -914,8 +914,8 @@ describe('DirectStripeRoutes', () => {
     it('creates a stripe customer and a new subscription', async () => {
       const expected = subscription2;
       const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.createCustomer.returns(customer);
-      directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+      directStripeRoutesInstance.stripeHelper.createCustomer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.createSubscription.resolves(
         subscription2
       );
 
@@ -957,13 +957,13 @@ describe('DirectStripeRoutes', () => {
 
     describe('the optional paymentToken parameter', () => {
       beforeEach(() => {
-        directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.returns();
+        directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.resolves();
       });
 
       describe('when a payment token is provided', () => {
         it('calls updateCustomerPaymentMethod', async () => {
           const expected = deepCopy(subscription2);
-          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+          directStripeRoutesInstance.stripeHelper.createSubscription.resolves(
             expected
           );
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
@@ -985,7 +985,7 @@ describe('DirectStripeRoutes', () => {
       describe('when a payment token is not provided', () => {
         it('does not call updateCustomerPaymentMethod', async () => {
           const expected = deepCopy(subscription2);
-          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+          directStripeRoutesInstance.stripeHelper.createSubscription.resolves(
             expected
           );
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
@@ -1006,7 +1006,7 @@ describe('DirectStripeRoutes', () => {
     describe('user with no subscriptions', () => {
       it('calls createSubscription', async () => {
         const expected = deepCopy(subscription2);
-        directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+        directStripeRoutesInstance.stripeHelper.createSubscription.resolves(
           expected
         );
         const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
@@ -1042,7 +1042,7 @@ describe('DirectStripeRoutes', () => {
           customer.subscriptions.data = [existingSubscription];
 
           const expected = deepCopy(subscription2);
-          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+          directStripeRoutesInstance.stripeHelper.createSubscription.resolves(
             expected
           );
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
@@ -1125,7 +1125,7 @@ describe('DirectStripeRoutes', () => {
           customer.subscriptions.data = [existingSubscription];
 
           const expected = deepCopy(subscription2);
-          directStripeRoutesInstance.stripeHelper.createSubscription.returns(
+          directStripeRoutesInstance.stripeHelper.createSubscription.resolves(
             expected
           );
           const actual = await directStripeRoutesInstance.createSubscriptionExistingCustomer(
@@ -1437,12 +1437,12 @@ describe('DirectStripeRoutes', () => {
     beforeEach(() => {
       request = { ...VALID_REQUEST, payload: { paymentToken } };
 
-      directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.returns();
+      directStripeRoutesInstance.stripeHelper.updateCustomerPaymentMethod.resolves();
     });
 
     describe('when the customer exists', () => {
       it('updates the payment method', async () => {
-        directStripeRoutesInstance.stripeHelper.fetchCustomer.returns(
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
           customerFixture
         );
 
@@ -1481,7 +1481,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('when the customer does not exist', () => {
       it('throws an error', async () => {
-        directStripeRoutesInstance.stripeHelper.fetchCustomer.returns();
+        directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves();
 
         try {
           await directStripeRoutesInstance.updatePayment(request);
@@ -1591,7 +1591,7 @@ describe('DirectStripeRoutes', () => {
     it('returns the available plans when auth headers are valid', async () => {
       const expected = sanitizePlans(PLANS);
 
-      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
       const actual = await directStripeRoutesInstance.listPlans(VALID_REQUEST);
 
       assert.deepEqual(actual, expected);
@@ -1620,7 +1620,7 @@ describe('DirectStripeRoutes', () => {
 
   describe('getProductCapabilties', () => {
     it('extracts all capabilities for all products', async () => {
-      directStripeRoutesInstance.stripeHelper.allPlans.returns(PLANS);
+      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
       assert.deepEqual(
         await directStripeRoutesInstance.getProductCapabilities(
           'firefox_pro_basic'
@@ -1807,7 +1807,7 @@ describe('DirectStripeRoutes', () => {
       const subscription = deepCopy(subscription2);
       const sub = { id: subscription.id, productId: subscription.plan.product };
 
-      directStripeRoutesInstance.stripeHelper.allPlans.returns([
+      directStripeRoutesInstance.stripeHelper.allPlans.resolves([
         ...PLANS,
         {
           plan_id: subscription2.plan.id,
@@ -1856,7 +1856,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('when the customer is found from the subscription', () => {
       it('calls all the update and notification functions', async () => {
-        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.returns(
+        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
           { uid: UID, email: TEST_EMAIL }
         );
 
@@ -1879,7 +1879,7 @@ describe('DirectStripeRoutes', () => {
 
     describe('when the customer is not found from the subscription', () => {
       it('returns without calling anything', async () => {
-        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.returns(
+        directStripeRoutesInstance.stripeHelper.getCustomerUidEmailFromSubscription.resolves(
           { uid: undefined, email: undefined }
         );
 
