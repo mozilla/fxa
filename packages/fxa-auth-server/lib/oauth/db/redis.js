@@ -28,10 +28,17 @@ class OauthRedis {
         ...config.get('redis.accessTokens'),
         enabled: true,
         maxttl: config.get('oauthServer.expiration.accessToken'),
+        connectTimeout: config.get('redis.connectTimeout'),
       },
       logger
     );
-    this.redisRefreshTokens = redis(config.get('redis.refreshTokens'), logger);
+    this.redisRefreshTokens = redis(
+      {
+        ...config.get('redis.refreshTokens'),
+        connectTimeout: config.get('redis.connectTimeout'),
+      },
+      logger
+    );
   }
 
   async close() {

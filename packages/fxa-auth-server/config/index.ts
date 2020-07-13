@@ -402,6 +402,12 @@ const conf = convict({
       format: 'port',
       doc: 'Port for Redis server',
     },
+    connectTimeout: {
+      default: '1 minute',
+      env: 'REDIS_CONNECT_TIMEOUT',
+      format: 'duration',
+      doc: 'Connect timeout for Redis server',
+    },
     accessTokens: {
       host: {
         default: 'localhost',
