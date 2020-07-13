@@ -61,6 +61,7 @@ The following datatypes are used throughout this document:
   - sessions : `GET /account/:id/sessions`
   - devices : `GET /account/:id/devices`
   - deviceFromTokenVerificationId : `GET /account/:id/tokens/:tokenVerificationId/device`
+  - updateEcosystemAnonId : `PUT /account/:id/ecosystemAnonId`
 - Devices:
   - createDevice : `PUT /account/:id/device/:deviceId`
   - updateDevice : `POST /account/:id/device/:deviceId/update`
@@ -743,6 +744,49 @@ Content-Type: application/json
   - Conditions: if something goes wrong on the server
   - Content-Type : 'application/json'
   - Body : `{"code":"InternalError","message":"...<message related to the error>..."}`
+
+## updateEcosystemAnonId : `PUT /account/<uid>/ecosystemAnonId`
+
+The `ecosystemAnonId` is a JWE represented as a urlsafe-base64 using the JWE Compact Serialization. See the [AET doc](https://docs.google.com/document/d/1zH3eVVI_28Afg1JXe_McDrW4MTYuWhiJMQR6AQbli8I/edit#) for more details.
+
+### Example
+
+```
+curl \
+    -v \
+    -X PUT \
+    http://localhost:8000/account/6044486dd15b42e08b1fb9167415b9ac/ecosystemAnonId \
+    -d '{
+      "uid": "6044486dd15b42e08b1fb9167415b9ac",
+      "ecosystemAnonId": "eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA"
+    }'
+```
+
+### Request
+
+- Method : PUT
+- Path : `/account/<uid>/ecosystemAnonId`
+  - uid : hex128
+- Params:
+  - uid : hex128
+  - ecosystemAnonId: urlsafe-base64 string
+
+### Response
+
+```
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{}
+```
+
+- Status Code : 200 OK
+  - Content-Type : 'application/json'
+  - Body : {}
+- Status Code : 404 Not Found
+  - Conditions: if the `uid` is not found
+  - Content-Type : 'application/json'
+  - Body : `{"message":"Not Found"}`
 
 ## createDevice : `PUT /account/<uid>/device/<deviceId>`
 

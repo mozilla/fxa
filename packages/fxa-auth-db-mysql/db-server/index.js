@@ -126,6 +126,10 @@ function createServer(db) {
   );
   api.post('/account/:id/locale', withIdAndBody(db.updateLocale));
   api.get('/account/:id/sessions', withIdAndBody(db.sessions));
+  api.put(
+    '/account/:id/ecosystemAnonId',
+    withIdAndBody(db.updateEcosystemAnonId)
+  );
 
   api.get('/account/:id/emails', withIdAndBody(db.accountEmails));
   api.post('/account/:id/emails', withIdAndBody(db.createEmail));

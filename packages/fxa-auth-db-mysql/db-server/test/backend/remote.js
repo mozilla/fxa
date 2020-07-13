@@ -2982,6 +2982,40 @@ module.exports = function (cfg, makeServer) {
       });
     });
 
+    describe('ecosystem anon id', async () => {
+      let user;
+      const ecosystemAnonId = 'eyJhbGciOiJFQ0RILUVTIiwia';
+
+      beforeEach(async () => {
+        user = fake.newUserDataHex();
+        const r = await client.putThen(
+          '/account/' + user.accountId,
+          user.account
+        );
+        respOkEmpty(r);
+      });
+
+      it('should create user with ecosystem anon id', async () => {
+        const r = await client.getThen('/account/' + user.accountId);
+        const account = r.obj;
+        assert.equal(account.ecosystemAnonId, 'initialEcosystemAnonId');
+      });
+
+      it('should update ecosystem anon id', async () => {
+        let r = await client.putThen(
+          '/account/' + user.accountId + '/ecosystemAnonId',
+          {
+            ecosystemAnonId,
+          }
+        );
+        respOkEmpty(r);
+
+        r = await client.getThen('/account/' + user.accountId);
+        const account = r.obj;
+        assert.equal(account.ecosystemAnonId, ecosystemAnonId);
+      });
+    });
+
     after(() => server.close());
   });
 };
