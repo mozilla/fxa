@@ -118,18 +118,6 @@ var redirectedRoutes = {
     }),
     statusCode: 302,
   },
-  '/reset_password_complete': {
-    location: '/reset_password_verified',
-    statusCode: 302,
-  },
-  '/signin_complete': {
-    location: '/signin_verified',
-    statusCode: 302,
-  },
-  '/signup_complete': {
-    location: '/signup_verified',
-    statusCode: 302,
-  },
 };
 
 Object.keys(routes).forEach(function (key) {
