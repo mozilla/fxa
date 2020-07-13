@@ -80,6 +80,7 @@ const DB_METHOD_NAMES = [
   'touchSessionToken',
   'totpToken',
   'updateDevice',
+  'updateEcosystemAnonId',
   'updateLocale',
   'updateRecoveryKey',
   'updateSessionToken',
@@ -508,6 +509,11 @@ function mockDB(data, errors) {
     updateDevice: sinon.spy((uid, device) => {
       assert.ok(typeof uid === 'string');
       return P.resolve(device);
+    }),
+    updateEcosystemAnonId: sinon.spy((uid, ecosystemAnonId) => {
+      assert.ok(typeof uid === 'string');
+      assert.ok(typeof ecosystemAnonId === 'string');
+      return P.resolve({});
     }),
     sessionToken: sinon.spy(() => {
       const res = {
