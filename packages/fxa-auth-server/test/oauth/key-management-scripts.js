@@ -14,7 +14,7 @@ describe('the signing-key management scripts', function () {
   let runScript;
   let workDir, keyFile, newKeyFile, oldKeyFile;
 
-  this.timeout(30000);
+  this.timeout(60000);
 
   beforeEach(() => {
     const uniqName = crypto.randomBytes(8).toString('hex');
