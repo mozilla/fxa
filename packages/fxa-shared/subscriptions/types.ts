@@ -37,7 +37,9 @@ export interface ProductMetadata {
 export enum ProductDetailsStringProperties {
   'subtitle',
   'termsOfServiceURL',
+  'termsOfServiceDownloadURL',
   'privacyNoticeURL',
+  'privacyNoticeDownloadURL',
 }
 export enum ProductDetailsListProperties {
   'details',

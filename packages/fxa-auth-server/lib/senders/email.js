@@ -2563,8 +2563,8 @@ module.exports = function (log, config, oauthdb) {
 
     const translator = this.translator(message.acceptLanguage);
     const {
-      termsOfServiceURL = this.subscriptionTermsUrl,
-      privacyNoticeURL = this.privacyUrl,
+      termsOfServiceDownloadURL = this.subscriptionTermsUrl,
+      privacyNoticeDownloadURL = this.privacyUrl,
     } = productDetailsFromPlan(
       {
         product_metadata: message.productMetadata,
@@ -2691,13 +2691,13 @@ module.exports = function (log, config, oauthdb) {
     links.cancellationSurveyLinkAttributes = `href="${links.cancellationSurveyUrl}" style="text-decoration: none; color: #0060DF;"`;
 
     links.subscriptionTermsUrl = this._generateUTMLink(
-      termsOfServiceURL,
+      termsOfServiceDownloadURL,
       {},
       templateName,
       'subscription-terms'
     );
     links.subscriptionPrivacyUrl = this._generateUTMLink(
-      privacyNoticeURL,
+      privacyNoticeDownloadURL,
       {},
       templateName,
       'subscription-privacy'
