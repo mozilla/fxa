@@ -1,3 +1,9 @@
+## 1.179.2
+
+### Bug fixes
+
+- test: use ts-node in transpile only mode for script tests ([867e492f0](https://github.com/mozilla/fxa/commit/867e492f0))
+
 ## 1.179.1
 
 No changes.
