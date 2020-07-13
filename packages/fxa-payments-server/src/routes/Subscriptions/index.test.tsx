@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import {
   render,
   cleanup,
   fireEvent,
   act,
   RenderResult,
+  screen,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
@@ -53,6 +54,13 @@ import {
 import FlowEvent from '../../lib/flow-event';
 jest.mock('../../lib/flow-event');
 
+jest.mock('./PaymentUpdateFormV2', () => ({
+  __esModule: true,
+  default: ({ children }: { children: ReactNode }) => (
+    <section data-testid="PaymentUpdateFormV2">{children}</section>
+  ),
+}));
+
 import { SettingsLayout } from '../../components/AppLayout';
 import Subscriptions from './index';
 
@@ -82,13 +90,15 @@ describe('routes/Subscriptions', () => {
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
+    useSCAPaymentFlow = false,
   }: {
     store?: Store;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     createToken?: jest.Mock<any, any>;
+    useSCAPaymentFlow?: boolean;
   }) => {
-    const props = {};
+    const props = { useSCAPaymentFlow };
     const mockStripe = {
       createToken,
     };
@@ -134,6 +144,32 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/subscriptions/customer')
       .reply(200, mockCustomer),
   ];
+
+  it('does not use PaymentUpdateFormV2 by default', async () => {
+    initApiMocks({
+      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+    });
+    render(<Subject />);
+    await waitForExpect(() =>
+      expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
+    );
+    expect(screen.queryAllByTestId('PaymentUpdateFormV2').length).toEqual(0);
+  });
+
+  it('uses PaymentUpdateFormV2 when useSCAPaymentFlow = true', async () => {
+    initApiMocks({
+      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+    });
+    render(<Subject useSCAPaymentFlow={true} />);
+    await waitForExpect(() =>
+      expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
+    );
+    expect(screen.queryAllByTestId('PaymentUpdateFormV2').length).not.toEqual(
+      0
+    );
+  });
 
   it('lists all subscriptions', async () => {
     // Use mocks for subscription lists that exercise multiple plans

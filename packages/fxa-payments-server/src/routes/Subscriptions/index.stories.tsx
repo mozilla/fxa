@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
 import MockApp, {
@@ -6,13 +6,32 @@ import MockApp, {
 } from '../../../.storybook/components/MockApp';
 import { SettingsLayout } from '../../components/AppLayout';
 import { Subscriptions, SubscriptionsProps } from './index';
+import {
+  PaymentUpdateStripeAPIs,
+  PaymentUpdateAuthServerAPIs,
+} from './PaymentUpdateFormV2';
 import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { FetchState } from '../../store/types';
 import { linkTo } from '@storybook/addon-links';
+import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
 
 function init() {
-  storiesOf('routes/Subscriptions', module)
+  setupVariantStories('routes/Subscriptions');
+  setupVariantStories('routes/SubscriptionsV2', {
+    useSCAPaymentFlow: true,
+    paymentUpdateApiClientOverrides: defaultPaymentUpdateApiClientOverrides(),
+    paymentUpdateStripeOverride: defaultPaymentUpdateStripeOverride(),
+  });
+}
+
+function setupVariantStories(
+  namePrefix: string = 'routes/Subscriptions',
+  baseRouteProps: Partial<SubscriptionsProps> = {}
+) {
+  const SubscriptionsRoute = subscriptionsRouteWithBaseProps(baseRouteProps);
+
+  storiesOf(namePrefix, module)
     .add('loading', () => (
       <SubscriptionsRoute
         routeProps={{
@@ -41,9 +60,9 @@ function init() {
                 product_name: 'Upgradable Product',
                 product_metadata: {
                   upgradeCTA: `
-                    Interested in better features?
-                    Upgrade to <a href="http://mozilla.org">the Upgrade Product</a>!
-                  `,
+                  Interested in better features?
+                  Upgrade to <a href="http://mozilla.org">the Upgrade Product</a>!
+                `,
                 },
               },
             ],
@@ -108,7 +127,8 @@ function init() {
         }}
       />
     ));
-  storiesOf('routes/Subscriptions/errors', module)
+
+  storiesOf(`${namePrefix}/errors`, module)
     .add('profile', () => (
       <SubscriptionsRoute
         routeProps={{
@@ -176,6 +196,22 @@ type SubscriptionsRouteProps = {
   queryParams?: QueryParams;
   applyStubsToStripe?: (orig: stripe.Stripe) => stripe.Stripe;
 };
+
+// Quick & dirty utility to help build variant stories with common route props
+const subscriptionsRouteWithBaseProps = (
+  baseRouteProps?: Partial<SubscriptionsProps>
+) => ({ routeProps = baseProps, ...otherProps }: SubscriptionsRouteProps) => (
+  <SubscriptionsRoute
+    {...{
+      routeProps: {
+        ...routeProps,
+        ...(baseRouteProps || {}),
+      },
+      ...otherProps,
+    }}
+  />
+);
+
 const SubscriptionsRoute = ({
   routeProps = baseProps,
   queryParams = defaultAppContextValue.queryParams,
@@ -231,6 +267,7 @@ const PLANS = [
 ];
 
 const baseProps: SubscriptionsProps = {
+  useSCAPaymentFlow: false,
   profile: {
     error: null,
     loading: false,
@@ -325,5 +362,30 @@ const reactivationErrorProps = {
     }),
   },
 };
+
+// TODO: Move to some shared lib?
+const wait = (delay: number) =>
+  new Promise((resolve) => setTimeout(resolve, delay));
+
+const defaultPaymentUpdateApiClientOverrides = () => ({
+  apiCreateSetupIntent: async () => FILTERED_SETUP_INTENT,
+  apiUpdateDefaultPaymentMethod: async () => {
+    await wait(1000);
+    return CUSTOMER;
+  },
+});
+
+const CONFIRM_CARD_SETUP_RESULT = {
+  setupIntent: {
+    payment_method: 'pm_test',
+  },
+  error: null,
+};
+
+// HACK: Not a complete confirmCardSetup return type, but good enough for stories.
+const defaultPaymentUpdateStripeOverride = () =>
+  (({
+    confirmCardSetup: async () => CONFIRM_CARD_SETUP_RESULT,
+  } as unknown) as PaymentUpdateStripeAPIs);
 
 init();

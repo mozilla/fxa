@@ -1,4 +1,5 @@
 import { Profile, Plan, Customer } from '../store/types';
+import { FilteredSetupIntent } from '../lib/apiClient';
 
 export const PROFILE: Profile = {
   amrValues: [],
@@ -113,3 +114,12 @@ export const PLAN = {
 };
 
 export const PLANS: Plan[] = [PLAN, UPGRADE_FROM_PLAN, SELECTED_PLAN];
+
+export const FILTERED_SETUP_INTENT: FilteredSetupIntent = {
+  client_secret:
+    'seti_1GnXR2Kb9q6OnNsLFV0IWItK_secret_HMFwCT3daxuB29hhx4j7eJQ0IFtqEB5',
+  created: 1590617356,
+  next_action: null,
+  payment_method: 'card_1GnXR2Kb9q6OnNsLuymjpC5P',
+  status: 'succeeded',
+};

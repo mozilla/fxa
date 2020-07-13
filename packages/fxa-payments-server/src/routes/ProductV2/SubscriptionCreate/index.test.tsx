@@ -8,7 +8,6 @@ import {
   cleanup,
   act,
   fireEvent,
-  wait,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
@@ -382,7 +381,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
   );
 
   it(
-    'displays an error of card confirmation is missing payment intent',
+    'displays an error if card confirmation is missing payment intent',
     commonConfirmPaymentTest({
       shouldSucceed: false,
       confirmCardPayment: jest.fn().mockResolvedValue({

@@ -716,15 +716,6 @@ class DirectStripeRoutes {
     }
 
     const { paymentMethodId } = request.payload;
-
-    // Verify the payment method is already attached to the customer
-    const alreadyAttached = !!customer.sources.data.find(
-      (pm) => pm.id === paymentMethodId
-    );
-    if (!alreadyAttached) {
-      throw error.rejectedCustomerUpdate('Invalid payment method id');
-    }
-
     await this.stripeHelper.updateDefaultPaymentMethod(
       customer.id,
       paymentMethodId
@@ -1407,9 +1398,6 @@ const directRoutes = (
         },
         response: {
           schema: validators.subscriptionsStripeIntentValidator,
-        },
-        validate: {
-          payload: {},
         },
       },
       handler: (request) => directStripeRoutes.createSetupIntent(request),
