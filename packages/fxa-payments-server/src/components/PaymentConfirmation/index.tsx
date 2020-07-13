@@ -51,7 +51,10 @@ export const PaymentConfirmation = ({
   );
 
   return (
-    <section className={`container card payment-confirmation ${className}`}>
+    <section
+      className={`container card payment-confirmation ${className}`}
+      data-testid="payment-confirmation"
+    >
       <header>
         <img src={circledCheckbox} alt="circled checkbox" />
         {heading}
@@ -98,9 +101,11 @@ export const PaymentConfirmation = ({
           >
             <p>{planPrice}</p>
           </Localized>
-          <Localized id="payment-confirmation-cc-preview" $last4={last4}>
-            <p className={`c-card ${brand.toLowerCase()}`}></p>
-          </Localized>
+          {last4 && brand && (
+            <Localized id="payment-confirmation-cc-preview" $last4={last4}>
+              <p className={`c-card ${brand.toLowerCase()}`}></p>
+            </Localized>
+          )}
         </div>
       </div>
 

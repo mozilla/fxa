@@ -300,7 +300,7 @@ class StripeHelper {
         {
           customer: customerId,
         },
-        { idempotencyKey }
+        { idempotencyKey: `pma-${idempotencyKey}` }
       );
     } catch (err) {
       if (err.type === 'StripeCardError') {
@@ -317,7 +317,7 @@ class StripeHelper {
         items: [{ price: priceId }],
         expand: ['latest_invoice.payment_intent'],
       },
-      { idempotencyKey }
+      { idempotencyKey: `ssc-${idempotencyKey}` }
     );
   }
 

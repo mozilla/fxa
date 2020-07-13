@@ -4,7 +4,7 @@ import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 
-storiesOf('TermsAndPrivacy', module)
+storiesOf('components/TermsAndPrivacy', module)
   .add('default locale', () => <TermsAndPrivacy plan={SELECTED_PLAN} />)
   .add('with fr locale', () => (
     <AppContext.Provider

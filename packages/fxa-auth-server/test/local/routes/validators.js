@@ -450,4 +450,131 @@ describe('lib/routes/validators:', () => {
       assert.ok(res.error);
     });
   });
+
+  describe('subscriptionsStripeSubscriptionValidator', () => {
+    const { subscriptionsStripeSubscriptionValidator: subject } = validators;
+
+    it('accepts an example of a real API response', () => {
+      const data = {
+        cancel_at_period_end: false,
+        cancel_at: null,
+        canceled_at: null,
+        created: 1594252774,
+        current_period_end: 1596931174,
+        current_period_start: 1594252774,
+        ended_at: null,
+        id: 'sub_Hc1Db1g9PoNzbO',
+        items: {
+          object: 'list',
+          data: [
+            {
+              id: 'si_Hc1DlRa7cZ8vKi',
+              created: 1594252775,
+              price: {
+                id: 'plan_GqM9N6qyhvxaVk',
+                active: true,
+                currency: 'usd',
+                metadata: {},
+                nickname: '123Done Pro Monthly',
+                product: 'prod_GqM9ToKK62qjkK',
+                recurring: {
+                  aggregate_usage: null,
+                  interval: 'month',
+                  interval_count: 1,
+                  trial_period_days: null,
+                  usage_type: 'licensed',
+                },
+                type: 'recurring',
+                unit_amount: 500,
+              },
+            },
+          ],
+          has_more: false,
+          total_count: 1,
+          url: '/v1/subscription_items?subscription=sub_Hc1Db1g9PoNzbO',
+        },
+        latest_invoice: {
+          id: 'in_1H2nApBVqmGyQTMaxm1us1tb',
+          object: 'invoice',
+          payment_intent: {
+            client_secret:
+              'pi_1H2nApBVqmGyQTMaAcsgHdKO_secret_TgEwGsXmcoUH9N8VKyZtOCJxz',
+            created: 1594252775,
+            next_action: {
+              type: 'use_stripe_sdk',
+              use_stripe_sdk: {
+                type: 'three_d_secure_redirect',
+                stripe_js:
+                  'https://hooks.stripe.com/redirect/authenticate/src_1H2nApBVqmGyQTMa1G8pPh9n?client_secret=src_client_secret_0KDP3B9a31NxRRsvwLGm12FT',
+                source: 'src_1H2nApBVqmGyQTMa1G8pPh9n',
+                known_frame_issues: 'false',
+              },
+            },
+            payment_method: 'pm_1H2nAmBVqmGyQTMaEyrNdTGF',
+            status: 'requires_action',
+          },
+        },
+        status: 'incomplete',
+      };
+      const res = subject.validate(data);
+      assert.ok(!res.error);
+    });
+  });
+
+  describe('subscriptionsStripeCustomerValidator', () => {
+    const { subscriptionsStripeCustomerValidator: subject } = validators;
+
+    it('accepts an example of a real API response', () => {
+      const data = {
+        id: 'cus_Hc0e7ojp2976b1',
+        object: 'customer',
+        address: null,
+        balance: 0,
+        created: 1594250683,
+        currency: null,
+        default_source: null,
+        delinquent: false,
+        description: 'fab69542c8ec48d9b9f0366a8f093208',
+        discount: null,
+        email: 'foo@example.com',
+        invoice_prefix: '3ED99BDD',
+        invoice_settings: {
+          custom_fields: null,
+          default_payment_method: null,
+          footer: null,
+        },
+        livemode: false,
+        metadata: { userid: 'fab69542c8ec48d9b9f0366a8f093208' },
+        name: 'ytfytf',
+        next_invoice_sequence: 1,
+        phone: null,
+        preferred_locales: [],
+        shipping: null,
+        sources: {
+          object: 'list',
+          data: [],
+          has_more: false,
+          total_count: 0,
+          url: '/v1/customers/cus_Hc0e7ojp2976b1/sources',
+        },
+        subscriptions: {
+          object: 'list',
+          data: [],
+          has_more: false,
+          total_count: 0,
+          url: '/v1/customers/cus_Hc0e7ojp2976b1/subscriptions',
+        },
+        tax_exempt: 'none',
+        tax_ids: {
+          object: 'list',
+          data: [],
+          has_more: false,
+          total_count: 0,
+          url: '/v1/customers/cus_Hc0e7ojp2976b1/tax_ids',
+        },
+      };
+      const res = subject.validate(data);
+      assert.ok(!res.error);
+    });
+  });
 });

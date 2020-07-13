@@ -17,14 +17,10 @@ import waitForExpect from 'wait-for-expect';
 import { getErrorMessage, PAYMENT_ERROR_2 } from '../../lib/errors';
 import {
   STRIPE_FIELDS,
-  PLAN_ID,
-  PRODUCT_NAME,
   PRODUCT_ID,
   PRODUCT_REDIRECT_URLS,
   MOCK_PLANS,
   MOCK_PROFILE,
-  MOCK_ACTIVE_SUBSCRIPTIONS,
-  MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
   MOCK_CUSTOMER,
   MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
   expectNockScopesDone,

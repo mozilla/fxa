@@ -470,17 +470,22 @@ module.exports.subscriptionsStripeSubscriptionItemValidator = isA
 module.exports.subscriptionsStripeSubscriptionValidator = isA
   .object({
     id: isA.string().required(),
-    cancel_at: isA.number().optional(),
-    canceled_at: isA.number().optional(),
+    cancel_at: isA.alternatives(isA.number(), isA.any().valid(null)),
+    canceled_at: isA.alternatives(isA.number(), isA.any().valid(null)),
     cancel_at_period_end: isA.bool().required(),
     created: isA.number().required(),
     current_period_end: isA.number().required(),
     current_period_start: isA.number().required(),
-    ended_at: isA.number().optional(),
+    ended_at: isA.alternatives(isA.number(), isA.any().valid(null)),
     items: isA
-      .array()
-      .items(module.exports.subscriptionsStripeSubscriptionItemValidator)
-      .required(),
+      .object({
+        data: isA
+          .array()
+          .items(module.exports.subscriptionsStripeSubscriptionItemValidator)
+          .required(),
+      })
+      .unknown(true)
+      .optional(),
     latest_invoice: isA
       .alternatives(
         isA.string(),
@@ -497,14 +502,7 @@ module.exports.subscriptionsStripeCustomerValidator = isA
       .object({
         default_payment_method: isA.string().optional(),
       })
-      .optional(),
-    sources: isA
-      .object({
-        data: isA
-          .array()
-          .items(module.exports.subscriptionsStripeSourceValidator)
-          .required(),
-      })
+      .unknown(true)
       .optional(),
     subscriptions: isA
       .object({
@@ -513,6 +511,7 @@ module.exports.subscriptionsStripeCustomerValidator = isA
           .items(module.exports.subscriptionsStripeSubscriptionValidator)
           .required(),
       })
+      .unknown(true)
       .optional(),
   })
   .unknown(true);

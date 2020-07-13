@@ -88,3 +88,25 @@ export const UPGRADE_FROM_PLAN: Plan = {
     'product:details:3:xx-pirate': "Connects 5 devices wit' one subscription",
   },
 };
+
+export const PLAN = {
+  plan_id: 'plan_456',
+  product_id: PRODUCT_ID,
+  product_name: 'Example Product',
+  currency: 'USD',
+  amount: 1050,
+  interval: 'month' as const,
+  interval_count: 1,
+  product_metadata: {
+    webIconURL: 'http://placekitten.com/512/512',
+    'product:subtitle': 'Really keen product',
+    'product:details:1':
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
+    'product:details:2': 'Sed ut perspiciatis unde omnis iste natus',
+    'product:details:3': 'Nemo enim ipsam voluptatem',
+    'product:details:4':
+      'Ut enim ad minima veniam, quis nostrum exercitationem',
+  },
+};
+
+export const PLANS: Plan[] = [PLAN, UPGRADE_FROM_PLAN, SELECTED_PLAN];

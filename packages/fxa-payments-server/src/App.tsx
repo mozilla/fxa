@@ -22,6 +22,7 @@ import * as FlowEvents from './lib/flow-event';
 import { observeNavigationTiming } from './lib/navigation-timing';
 
 const Product = React.lazy(() => import('./routes/Product'));
+const ProductV2 = React.lazy(() => import('./routes/ProductV2'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
 // TODO: Come up with a better fallback component for lazy-loaded routes
@@ -99,6 +100,14 @@ export const App = ({
                         render={(props) => (
                           <SignInLayout>
                             <Product {...props} />
+                          </SignInLayout>
+                        )}
+                      />
+                      <Route
+                        path="/v2/products/:productId"
+                        render={(props) => (
+                          <SignInLayout>
+                            <ProductV2 {...props} />
                           </SignInLayout>
                         )}
                       />
