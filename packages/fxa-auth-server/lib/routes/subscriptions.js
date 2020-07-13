@@ -337,20 +337,6 @@ class DirectStripeRoutes {
       }
     }
 
-    // If we have a prior subscription, we have 3 options:
-    //   1) Open subscription that needs a payment method, try to pay it
-    //   2) Paid subscription, stop and return as they already have the sub
-    //   3) Old subscription will have no open invoices, ignore it
-    if (subscription && subscription.latest_invoice) {
-      const invoice = /** @type {Invoice} */ (subscription.latest_invoice);
-      if (invoice.status === 'open') {
-        await this.handleOpenInvoice(invoice);
-        return subscription;
-      } else if (invoice.status === 'paid') {
-        throw error.subscriptionAlreadyExists();
-      }
-    }
-
     return this.stripeHelper.createSubscription(
       customer,
       selectedPlan,
