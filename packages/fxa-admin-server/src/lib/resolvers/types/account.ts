@@ -5,10 +5,11 @@
 import { Field, ID, ObjectType } from 'type-graphql';
 
 import { EmailBounce } from './email-bounces';
+import { Email } from './emails';
 
 @ObjectType()
 export class Account {
-  @Field(type => ID)
+  @Field((type) => ID)
   public uid!: string;
 
   @Field()
@@ -20,6 +21,9 @@ export class Account {
   @Field()
   public createdAt!: number;
 
-  @Field(type => [EmailBounce], { nullable: true })
+  @Field((type) => [Email], { nullable: true })
+  public emails!: Email[];
+
+  @Field((type) => [EmailBounce], { nullable: true })
   public emailBounces!: EmailBounce[];
 }

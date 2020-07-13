@@ -10,9 +10,15 @@ import './index.scss';
 
 interface AccountType {
   uid: any;
-  email: string;
   createdAt: number;
-  emailVerified: boolean;
+  emails: [
+    {
+      email: string;
+      isVerified: boolean;
+      isPrimary: boolean;
+      createdAt: number;
+    }
+  ];
   emailBounces: [
     {
       email: string;
@@ -27,9 +33,13 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
   query getAccountByEmail($email: String!) {
     accountByEmail(email: $email) {
       uid
-      email
       createdAt
-      emailVerified
+      emails {
+        email
+        isVerified
+        isPrimary
+        createdAt
+      }
       emailBounces {
         email
         createdAt
@@ -97,6 +107,7 @@ export const EmailBlocks = () => {
               loading,
               error,
               data,
+              query: inputValue,
             }}
           />
         </>
@@ -110,6 +121,7 @@ const AccountSearchResult = ({
   loading,
   error,
   data,
+  query,
 }: {
   onCleared: Function;
   loading: boolean;
@@ -117,12 +129,13 @@ const AccountSearchResult = ({
   data?: {
     accountByEmail: AccountType;
   };
+  query: string;
 }) => {
   if (loading) return <p data-testid="loading-message">Loading...</p>;
   if (error) return <p data-testid="error-message">An error occured.</p>;
 
   if (data?.accountByEmail) {
-    return <Account onCleared={onCleared} {...data.accountByEmail} />;
+    return <Account {...{ query, onCleared }} {...data.accountByEmail} />;
   }
   return <p data-testid="no-account-message">Account not found.</p>;
 };

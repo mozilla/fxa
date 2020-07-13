@@ -12,15 +12,30 @@ import { setupDatabase } from '../../../../lib/db';
 import { Account } from '../../../../lib/db/models/account';
 import { EmailBounces } from '../../../../lib/db/models/email-bounces';
 
-export type AccountIsh = Pick<Account, 'uid' | 'email' | 'emails' | 'normalizedEmail'>;
-export type BounceIsh = Pick<EmailBounces, 'bounceSubType' | 'bounceType' | 'createdAt' | 'email'>;
+export type AccountIsh = Pick<
+  Account,
+  'uid' | 'email' | 'emails' | 'normalizedEmail'
+>;
+export type BounceIsh = Pick<
+  EmailBounces,
+  'bounceSubType' | 'bounceType' | 'createdAt' | 'email'
+>;
 
 export const chance = new Chance();
 
 const thisDir = path.dirname(__filename);
-export const accountTable = fs.readFileSync(path.join(thisDir, './accounts.sql'), 'utf8');
-export const emailsTable = fs.readFileSync(path.join(thisDir, './emails.sql'), 'utf8');
-export const emailBouncesTable = fs.readFileSync(path.join(thisDir, './email-bounces.sql'), 'utf8');
+export const accountTable = fs.readFileSync(
+  path.join(thisDir, './accounts.sql'),
+  'utf8'
+);
+export const emailsTable = fs.readFileSync(
+  path.join(thisDir, './emails.sql'),
+  'utf8'
+);
+export const emailBouncesTable = fs.readFileSync(
+  path.join(thisDir, './email-bounces.sql'),
+  'utf8'
+);
 
 export function randomAccount() {
   const email = chance.email();
@@ -36,7 +51,7 @@ export function randomAccount() {
     verifierSetAt: chance.timestamp(),
     verifierVersion: 0,
     verifyHash: Buffer.from('0', 'hex'),
-    wrapWrapKb: Buffer.from('0', 'hex')
+    wrapWrapKb: Buffer.from('0', 'hex'),
   };
 }
 
@@ -45,19 +60,23 @@ export function randomEmailBounce(email: string): BounceIsh {
     bounceSubType: chance.integer({ min: 0, max: 14 }),
     bounceType: chance.integer({ min: 0, max: 3 }),
     createdAt: chance.timestamp(),
-    email
+    email,
   };
 }
 
-export function randomEmail(account: AccountIsh, primary = true) {
+export function randomEmail(account: AccountIsh, createSecondaryEmail = false) {
+  const email = createSecondaryEmail ? chance.email() : account.email;
+  const normalizedEmail = createSecondaryEmail
+    ? email
+    : account.normalizedEmail;
   return {
     createdAt: chance.timestamp(),
-    email: account.email,
+    email,
+    normalizedEmail,
     emailCode: '',
-    isPrimary: primary,
+    isPrimary: !createSecondaryEmail,
     isVerified: true,
-    normalizedEmail: account.normalizedEmail,
-    uid: account.uid
+    uid: account.uid,
   };
 }
 
@@ -70,8 +89,8 @@ export async function testDatabaseSetup(): Promise<Knex> {
       host: 'localhost',
       password: '',
       port: 3306,
-      user: 'root'
-    }
+      user: 'root',
+    },
   });
 
   await knex.raw('DROP DATABASE IF EXISTS testAdmin');
@@ -83,7 +102,7 @@ export async function testDatabaseSetup(): Promise<Knex> {
     host: 'localhost',
     password: '',
     port: 3306,
-    user: 'root'
+    user: 'root',
   });
 
   await knex.raw(accountTable);

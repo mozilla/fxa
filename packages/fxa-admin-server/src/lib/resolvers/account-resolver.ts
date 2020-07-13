@@ -4,7 +4,7 @@
 
 import { Arg, Ctx, FieldResolver, Query, Resolver, Root } from 'type-graphql';
 
-import { Account, EmailBounces } from '../db/models';
+import { Account, EmailBounces, Emails } from '../db/models';
 import { uuidTransformer } from '../db/transformers';
 import { Context } from '../server';
 import { Account as AccountType } from './types/account';
@@ -48,5 +48,11 @@ export class AccountResolver {
       .innerJoin('emails', 'emailBounces.email', 'emails.normalizedEmail')
       .where('emails.uid', uidBuffer);
     return result;
+  }
+
+  @FieldResolver()
+  public async emails(@Root() account: Account) {
+    const uidBuffer = uuidTransformer.to(account.uid);
+    return await Emails.query().where('uid', uidBuffer);
   }
 }

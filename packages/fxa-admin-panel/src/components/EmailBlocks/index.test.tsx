@@ -35,9 +35,15 @@ function exampleAccountResponse(email: string): MockedResponse {
       data: {
         accountByEmail: {
           uid: 'a1b2c3',
-          email,
+          emails: [
+            {
+              email,
+              isPrimary: true,
+              isVerified: true,
+              createdAt: chance.timestamp(),
+            },
+          ],
           createdAt: chance.timestamp(),
-          emailVerified: true,
           emailBounces: [exampleBounce(email), exampleBounce(email)],
         },
       },
