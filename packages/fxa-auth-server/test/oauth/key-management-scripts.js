@@ -28,9 +28,8 @@ describe('the signing-key management scripts', function () {
       return execFileSync(
         process.execPath,
         [
-          require.resolve('ts-node').replace('index.js', 'bin.js'),
-          '-P',
-          path.join(base, '../tsconfig.json'),
+          '-r',
+          'ts-node/register',
           path.join(base, name),
         ],
         {
@@ -39,6 +38,8 @@ describe('the signing-key management scripts', function () {
             FXA_OPENID_NEWKEYFILE: newKeyFile,
             FXA_OPENID_OLDKEYFILE: oldKeyFile,
             NODE_ENV: 'dev',
+            TS_NODE_TRANSPILE_ONLY: true,
+            TS_NODE_PROJECT: path.join(base, '../tsconfig.json'),
           },
           stdio: [0, 'pipe', 'pipe'],
         }
