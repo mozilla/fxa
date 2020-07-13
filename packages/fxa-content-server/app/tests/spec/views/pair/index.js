@@ -165,6 +165,14 @@ describe('views/pair/index', () => {
         assert.isTrue(view.navigateAway.calledOnce);
       });
     });
+
+    it('shows marketing snippet', () => {
+      return view.render().then(() => {
+        assert.lengthOf(view.$('.marketing-area'), 1);
+        assert.lengthOf(view.$('a.marketing-link-ios'), 1);
+        assert.lengthOf(view.$('a.marketing-link-android'), 1);
+      });
+    });
   });
 
   describe('submit', () => {

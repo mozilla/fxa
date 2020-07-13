@@ -177,6 +177,25 @@ describe('views/marketing_snippet', function () {
         testStoreLink('DOWNLOAD_LINK_TEMPLATE_ANDROID');
         testStoreLink('DOWNLOAD_LINK_TEMPLATE_IOS');
       });
+
+      it('use android pairing app', () => {
+        createView({
+          marketingId,
+          which: View.WHICH.BOTH,
+          useAndroidPairingApp: true,
+        });
+
+        return view.render().then(() => {
+          assert.lengthOf(view.$('.marketing-link-ios'), 1);
+          assert.lengthOf(view.$('.marketing-link-android'), 1);
+
+          const link = view.$('.marketing-link-android').attr('href');
+          assert.include(
+            link,
+            'https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta'
+          );
+        });
+      });
     });
   }
 

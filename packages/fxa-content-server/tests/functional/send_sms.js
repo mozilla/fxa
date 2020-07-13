@@ -12,7 +12,8 @@ const config = intern._config;
 
 const ADJUST_LINK_ANDROID =
   'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +
-  'creative=button-autumn-2016-connect-another-device&adgroup=android';
+  'creative=button-autumn-2016-connect-another-device&adgroup=android&' +
+  'fallback=https://play.google.com/store/apps/details?id=org.mozilla.firefox';
 
 const ADJUST_LINK_IOS =
   'https://app.adjust.com/2uo1qc?campaign=fxa-conf-page&' +

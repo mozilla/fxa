@@ -9,8 +9,9 @@ import Template from '../../templates/pair/index.mustache';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import PairingGraphicsMixin from '../mixins/pairing-graphics-mixin';
 import PairingTotpMixin from './pairing-totp-mixin';
-import { DOWNLOAD_LINK_PAIRING_APP } from '../../lib/constants';
+import { MARKETING_ID_AUTUMN_2016, SYNC_SERVICE } from '../../lib/constants';
 import SyncAuthMixin from '../mixins/sync-auth-mixin';
+import MarketingMixin from '../mixins/marketing-mixin';
 
 class PairIndexView extends FormView {
   template = Template;
@@ -45,7 +46,6 @@ class PairIndexView extends FormView {
     const graphicId = this.getGraphicsId();
 
     context.set({
-      downloadAppLink: DOWNLOAD_LINK_PAIRING_APP,
       graphicId,
     });
   }
@@ -57,7 +57,12 @@ Cocktail.mixin(
   PairingGraphicsMixin,
   PairingTotpMixin(),
   UserAgentMixin,
-  SyncAuthMixin
+  SyncAuthMixin,
+  MarketingMixin({
+    marketingId: MARKETING_ID_AUTUMN_2016,
+    service: SYNC_SERVICE,
+    useAndroidPairingApp: true,
+  })
 );
 
 export default PairIndexView;

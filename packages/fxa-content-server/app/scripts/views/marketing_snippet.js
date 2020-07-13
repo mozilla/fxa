@@ -77,6 +77,7 @@ const View = BaseView.extend(
         options.marketingId || Constants.MARKETING_ID_SPRING_2015;
       this._service = options.service;
       this._which = options.which;
+      this._useAndroidPairingApp = options.useAndroidPairingApp;
     },
 
     events: {
@@ -89,7 +90,9 @@ const View = BaseView.extend(
       const isAndroid = this._isAndroid();
       const isOther = this._isOther();
       const downloadLinkAndroid = this._storeLink(
-        Constants.DOWNLOAD_LINK_TEMPLATE_ANDROID
+        this._useAndroidPairingApp
+          ? Constants.DOWNLOAD_LINK_PAIRING_APP
+          : Constants.DOWNLOAD_LINK_TEMPLATE_ANDROID
       );
       const playStoreImage = this._storeImage(PLAY_STORE_BUTTON, FORMAT_PNG);
       const downloadLinkIos = this._storeLink(
