@@ -37,6 +37,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
     mocks.config['pairing.server_base_uri'] = config.get(
       'pairing.server_base_uri'
     );
+    mocks.config.ecosystem_anon_id_keys = config.get('ecosystem_anon_id_keys');
     /*eslint-enable camelcase*/
   },
   tests: {
@@ -47,7 +48,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
 
     'route interface is correct': function () {
       route = getFxAClientConfig(mocks.config);
-      assert.equal(mocks.config.get.callCount, 6);
+      assert.equal(mocks.config.get.callCount, 7);
       assert.isObject(route);
       assert.lengthOf(Object.keys(route), 3);
       assert.equal(route.method, 'get');
@@ -66,7 +67,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 6);
+      assert.equal(mocks.config.get.callCount, 7);
       assert.equal(mocks.response.json.callCount, 1);
       var args = mocks.response.json.args[0];
       assert.lengthOf(args, 1);
@@ -88,7 +89,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 6);
+      assert.equal(mocks.config.get.callCount, 7);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 1);
       var args = mocks.response.header.args[0];
@@ -103,7 +104,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 6);
+      assert.equal(mocks.config.get.callCount, 7);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 1);
       var args = mocks.response.header.args[0];
@@ -118,7 +119,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
       route = getFxAClientConfig(mocks.config);
       route.process(mocks.request, mocks.response);
 
-      assert.equal(mocks.config.get.callCount, 6);
+      assert.equal(mocks.config.get.callCount, 7);
       assert.equal(mocks.response.json.callCount, 1);
       assert.equal(mocks.response.header.callCount, 0);
     },
@@ -142,7 +143,7 @@ suite.tests[
       assert.equal(res.headers['cache-control'], 'public, max-age=' + maxAge);
 
       var result = JSON.parse(res.body);
-      assert.equal(Object.keys(result).length, 5);
+      assert.equal(Object.keys(result).length, 6);
 
       var conf = intern._config;
       var expectAuthRoot = conf.fxaAuthRoot;
