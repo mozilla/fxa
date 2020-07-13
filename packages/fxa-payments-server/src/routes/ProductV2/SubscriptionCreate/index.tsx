@@ -25,12 +25,13 @@ type RetryStatus = undefined | { invoiceId: string };
 
 export type SubscriptionCreateStripeAPIs = Pick<
   Stripe,
-  'createPaymentMethod' | 'confirmCardPayment'
+  'createPaymentMethod' | 'confirmCardPayment' | 'confirmCardSetup'
 >;
 
 export type SubscriptionCreateAuthServerAPIs = Pick<
   typeof apiClient,
   | 'apiCreateCustomer'
+  | 'apiCreateSetupIntent'
   | 'apiCreateSubscriptionWithPaymentMethod'
   | 'apiRetryInvoice'
 >;
@@ -215,13 +216,17 @@ async function handleSubscriptionPayment({
   customer,
   retryStatus,
   apiCreateCustomer,
+  apiCreateSetupIntent,
   apiCreateSubscriptionWithPaymentMethod,
   apiRetryInvoice,
   onFailure,
   onRetry,
   onSuccess,
 }: {
-  stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
+  stripe: Pick<
+    Stripe,
+    'createPaymentMethod' | 'confirmCardPayment' | 'confirmCardSetup'
+  >;
   name: string;
   card: StripeCardElement;
   idempotencyKey: string;
@@ -233,6 +238,20 @@ async function handleSubscriptionPayment({
   onSuccess: () => void;
 } & SubscriptionCreateAuthServerAPIs) {
   // 1. Create the payment method.
+} & SubscriptionCreateAPIs) {
+  // SetupIntents Flow
+  // 1. Create the Customer
+  if (!customer) {
+    await apiCreateCustomer({
+      displayName: name,
+      idempotencyKey,
+    });
+  }
+
+  // 2. Create SetupIntent
+  const filteredIntent = await apiCreateSetupIntent();
+
+  // 3. Create the payment method.
   const {
     paymentMethod,
     error: paymentError,
@@ -247,14 +266,18 @@ async function handleSubscriptionPayment({
     return onFailure({ type: 'card_error' });
   }
 
-  // 2. Create the customer, if necessary.
-  if (!customer) {
-    // We look up the customer by UID & email on the server.
-    // No need to retain the result of this call for later.
-    await apiCreateCustomer({
-      displayName: name,
-      idempotencyKey,
-    });
+  // 3. Confirm SetupIntent
+  const {
+    setupIntent,
+    error: confirmCardError,
+  } = await stripe.confirmCardSetup(filteredIntent.client_secret, {
+    payment_method: paymentMethod.id,
+  });
+  if (confirmCardError) {
+    return onFailure(confirmCardError);
+  }
+  if (!setupIntent) {
+    return onFailure({ type: 'card_error' });
   }
 
   const commonPaymentIntentParams = {

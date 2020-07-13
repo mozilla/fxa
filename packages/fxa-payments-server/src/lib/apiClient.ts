@@ -1,5 +1,12 @@
 import { Config, defaultConfig } from './config';
-import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
+import {
+  Plan,
+  Profile,
+  Customer,
+  Subscription,
+  Token,
+  FilteredSetupIntent,
+} from '../store/types';
 import * as Amplitude from './amplitude';
 
 // TODO: Use a better type here
@@ -307,5 +314,12 @@ export async function apiRetryInvoice(params: {
     'POST',
     `${config.servers.auth.url}/v1/oauth/subscriptions/invoice/retry`,
     { body: JSON.stringify(params) }
+  );
+}
+
+export async function apiCreateSetupIntent(): Promise<FilteredSetupIntent> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/setupintent/create`
   );
 }

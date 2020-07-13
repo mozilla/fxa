@@ -1,10 +1,9 @@
 import React from 'react';
 import {
   Stripe,
-  StripeCardElement,
-  StripeError,
   PaymentMethod,
   PaymentIntent,
+  SetupIntent,
 } from '@stripe/stripe-js';
 import { storiesOf } from '@storybook/react';
 import { action } from '@storybook/addon-actions';
@@ -243,7 +242,7 @@ const defaultApiClientOverrides = {
 
 const defaultStripeOverride: Pick<
   Stripe,
-  'createPaymentMethod' | 'confirmCardPayment'
+  'createPaymentMethod' | 'confirmCardPayment' | 'confirmCardSetup'
 > = {
   createPaymentMethod: async () => {
     await wait(500);
@@ -255,6 +254,13 @@ const defaultStripeOverride: Pick<
   confirmCardPayment: async () => {
     return {
       paymentIntent: { status: 'succeeded' } as PaymentIntent,
+      error: undefined,
+    };
+  },
+  confirmCardSetup: async () => {
+    await wait(500);
+    return {
+      setupIntent: { status: 'succeeded' } as SetupIntent,
       error: undefined,
     };
   },

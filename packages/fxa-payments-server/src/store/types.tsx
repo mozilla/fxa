@@ -134,3 +134,11 @@ export interface UpdateSubscriptionPlanResult {
 export interface CancelSubscriptionResult {
   subscriptionId: string;
 }
+
+export type FilteredSetupIntent = {
+  client_secret: string;
+  created: number;
+  next_action: string | null;
+  payment_method: string | null;
+  status: string;
+};

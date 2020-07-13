@@ -11,7 +11,7 @@ import {
   wait,
 } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
+import { PaymentMethod, PaymentIntent, SetupIntent } from '@stripe/stripe-js';
 import { SignInLayout } from '../../../components/AppLayout';
 import { CUSTOMER, PROFILE, PLAN } from '../../../lib/mock-data';
 import { PickPartial } from '../../../lib/types';
@@ -108,9 +108,15 @@ const CONFIRM_CARD_RESULT = {
   error: undefined,
 };
 
+const CONFIRM_CARD_SETUP_RESULT = {
+  setupIntent: { status: 'succeeded' } as SetupIntent,
+  error: undefined,
+};
+
 const defaultStripeOverride = () => ({
   createPaymentMethod: jest.fn().mockResolvedValue(PAYMENT_METHOD_RESULT),
   confirmCardPayment: jest.fn().mockResolvedValue(CONFIRM_CARD_RESULT),
+  confirmCardSetup: jest.fn().mockResolvedValue(CONFIRM_CARD_SETUP_RESULT),
 });
 
 describe('routes/ProductV2/SubscriptionCreate', () => {

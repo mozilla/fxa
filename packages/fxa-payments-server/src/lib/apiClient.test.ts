@@ -43,7 +43,9 @@ import {
   apiCancelSubscription,
   apiReactivateSubscription,
   apiUpdatePayment,
+  apiCreateSetupIntent,
 } from './apiClient';
+import { FilteredSetupIntent } from '../store/types';
 
 describe('APIError', () => {
   it('can be created without params', () => {
@@ -366,6 +368,27 @@ describe('API requests', () => {
         ...metricsOptions,
         error,
       });
+      requestMock.done();
+    });
+  });
+
+  describe('apiCreateSetupIntent', () => {
+    const path = '/v1/oauth/subscriptions/setupintent/create';
+
+    it(`POST {auth-server}${path}`, async () => {
+      const expectedResponse: FilteredSetupIntent = {
+        client_secret: 'secret_squirrel',
+        created: 123456789,
+        next_action: null,
+        payment_method: null,
+        status: 'requires_payment_method',
+      };
+
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path)
+        .reply(200, expectedResponse);
+
+      expect(await apiCreateSetupIntent()).toEqual(expectedResponse);
       requestMock.done();
     });
   });
