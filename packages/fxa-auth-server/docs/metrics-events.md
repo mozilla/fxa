@@ -390,8 +390,10 @@ has the same schema as `daily_multi_device_users`.
 | `device.created`       | A device record has been created for a Sync account.         |
 | `device.updated`       | Device record is updated on a Sync account.                  |
 | `device.deleted`       | Device record has been deleted from a Sync account.          |
-| `oauth.token.created`  | An oauth access token has been issued for an account.        |
+| `oauth.token.created`  | An oauth access token has been issued for an account. **      |
 | `sync.sentTabToDevice` | Device sent a push message for send-tab-to-device feature.   |
+
+** We emit the ecosystem_anonymous_id along with this event into the AET pipeline, this is so that we can calulate Daily Active Users in a safe, non-identifiable way.
 
 ## Email events
 

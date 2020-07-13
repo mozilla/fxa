@@ -257,6 +257,7 @@ function mockDB(data, errors) {
           isPrimary: true,
           emailCode: data.emailCode,
         },
+        ecosystemAnonId: data.ecosystemAnonId,
         emails: [
           {
             normalizedEmail: normalizeEmail(data.email),
