@@ -1,10 +1,10 @@
 ## Because
 
-\*
+-
 
-## This commit
+## This pull request
 
-\*
+-
 
 ## Issue that this pull request solves
 
