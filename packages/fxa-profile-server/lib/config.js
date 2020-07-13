@@ -240,6 +240,12 @@ const conf = convict({
       default: 'http://localhost:1113',
       env: 'WORKER_URL',
     },
+    headers_exclude: {
+      doc: 'HTTP headers to not pass through to the worker requests (in lower case)',
+      format: Array,
+      env: 'WORKER_HEADERS_EXCLUDE',
+      default: ['host'],
+    },
   },
   authServerMessaging: {
     region: {
