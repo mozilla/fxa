@@ -134,7 +134,7 @@ async function run(config) {
     server,
     log: log,
     async close() {
-      log.info('shutdown');
+      log.info('shutdown', 'gracefully');
       await server.stop();
       await customs.close();
       oauthdb.close();
@@ -166,6 +166,7 @@ async function main() {
       process.exit(); //XXX: because of openid dep ಠ_ಠ
     };
     process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
     server.log.on('error', shutdown);
 
     if (config.get('env') !== 'prod') {
