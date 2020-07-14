@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
 import { Localized } from '@fluent/react';
 import dayjs from 'dayjs';
 import {
@@ -26,6 +27,9 @@ import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
 import { SubscriptionsProps } from './index';
 import * as Amplitude from '../../lib/amplitude';
+import { apiCreateSetupIntent } from 'fxa-payments-server/src/lib/apiClient';
+import { StripeProvider } from 'react-stripe-elements';
+import { config } from '../../lib/config';
 
 type PaymentUpdateFormProps = {
   customer: Customer;
@@ -34,6 +38,7 @@ type PaymentUpdateFormProps = {
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
+  useSCAPaymentFlow: boolean;
 };
 
 function getBillingDescriptionText(
@@ -55,6 +60,34 @@ function getBillingDescriptionText(
   return `You are billed ${planPricing} for ${name}. Your next payment occurs on ${formattedDateString}.`;
 }
 
+async function handleSCA(tokenId: string) {
+  //1. Create SetupIntent
+  const filteredIntent = await apiCreateSetupIntent();
+
+  const stripe = await loadStripe(config.stripe.apiKey);
+  if (!stripe) {
+    throw Error();
+  }
+
+  //2. Confirm SetupIntent
+  const { setupIntent, error: confirmCardError } = stripe.confirmCardSetup(
+    filteredIntent.client_secret,
+    {
+      payment_method: {
+        card: {
+          token: tokenId,
+        },
+      },
+    }
+  );
+  if (confirmCardError) {
+    return onFailure(confirmCardError);
+  }
+  if (!setupIntent) {
+    return onFailure({ type: 'card_error' });
+  }
+}
+
 export const PaymentUpdateForm = ({
   updatePayment: updatePaymentBase,
   updatePaymentStatus,
@@ -62,6 +95,7 @@ export const PaymentUpdateForm = ({
   customer,
   customerSubscription,
   plan,
+  useSCAPaymentFlow,
 }: PaymentUpdateFormProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
@@ -91,6 +125,10 @@ export const PaymentUpdateForm = ({
   const onPayment = useCallback(
     (tokenResponse: stripe.TokenResponse) => {
       if (tokenResponse && tokenResponse.token) {
+        if (useSCAPaymentFlow) {
+          // Use SetupIntents to Confirm the Card
+          handleSCA(tokenResponse.token.id);
+        }
         updatePayment(tokenResponse.token.id, plan);
       } else {
         // This shouldn't happen with a successful createToken() call, but let's

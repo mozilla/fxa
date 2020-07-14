@@ -33,6 +33,7 @@ type SubscriptionItemProps = {
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  useSCAPaymentFlow: boolean;
 };
 
 export const SubscriptionItem = ({
@@ -45,6 +46,7 @@ export const SubscriptionItem = ({
   resetUpdatePayment,
   updatePaymentStatus,
   customerSubscription,
+  useSCAPaymentFlow,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
@@ -80,6 +82,7 @@ export const SubscriptionItem = ({
                 updatePayment,
                 resetUpdatePayment,
                 updatePaymentStatus,
+                useSCAPaymentFlow,
               }}
             />
             <CancelSubscriptionPanel

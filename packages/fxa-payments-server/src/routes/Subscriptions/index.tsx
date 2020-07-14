@@ -45,6 +45,7 @@ export type SubscriptionsProps = {
   resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
   updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
   resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
+  useSCAPaymentFlow: boolean;
 };
 
 export const Subscriptions = ({
@@ -62,6 +63,7 @@ export const Subscriptions = ({
   resetUpdatePayment,
   resetCancelSubscription,
   updatePaymentStatus,
+  useSCAPaymentFlow,
 }: SubscriptionsProps) => {
   const { config, locationReload, navigateToUrl } = useContext(AppContext);
 
@@ -280,6 +282,7 @@ export const Subscriptions = ({
                   customerSubscription,
                   cancelSubscriptionStatus,
                   plan: planForId(customerSubscription.plan_id, plans.result),
+                  useSCAPaymentFlow,
                 }}
               />
             ))}

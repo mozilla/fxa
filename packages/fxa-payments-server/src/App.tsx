@@ -91,7 +91,20 @@ export const App = ({
                         exact
                         render={(props) => (
                           <SettingsLayout>
-                            <Subscriptions {...props} />
+                            <Subscriptions
+                              {...{ ...props, useSCAPaymentFlow: false }}
+                            />
+                          </SettingsLayout>
+                        )}
+                      />
+                      <Route
+                        path="/v2/subscriptions"
+                        exact
+                        render={(props) => (
+                          <SettingsLayout>
+                            <Subscriptions
+                              {...{ ...props, useSCAPaymentFlow: true }}
+                            />
                           </SettingsLayout>
                         )}
                       />
