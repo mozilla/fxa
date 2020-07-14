@@ -1,3 +1,13 @@
+## 1.179.2
+
+No changes.
+
+## 1.179.1
+
+### Bug fixes
+
+- content: remove old redirect behaviour ([9ace035d0](https://github.com/mozilla/fxa/commit/9ace035d0))
+
 ## 1.179.0
 
 ### New features
