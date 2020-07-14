@@ -1,5 +1,11 @@
 # Change history
 
+## 1.179.3
+
+### Bug fixes
+
+- l10n: fixed currency localization for "other than US" locales ([5f8495594](https://github.com/mozilla/fxa/commit/5f8495594))
+
 ## 1.179.2
 
 No changes.

@@ -1,3 +1,7 @@
+## 1.179.3
+
+No changes.
+
 ## 1.179.2
 
 ### Bug fixes
