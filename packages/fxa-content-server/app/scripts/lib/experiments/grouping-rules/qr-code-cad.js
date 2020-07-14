@@ -33,7 +33,6 @@ module.exports = class QrCodeCad extends BaseGroupingRule {
    * For this experiment, we are doing a staged rollout.
    *
    * @param {Object} subject data used to decide
-   *  @param {Boolean} isSync is this a sync signup?
    * @returns {Any}
    */
   choose(subject = {}) {
