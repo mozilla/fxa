@@ -422,7 +422,6 @@ module.exports.subscriptionsStripeIntentValidator = isA
   .object({
     client_secret: isA.string().optional(),
     created: isA.number().required(),
-    next_action: isA.object({}).unknown(true).optional(),
     payment_method: isA
       .alternatives(isA.string(), isA.object({}).unknown(true))
       .optional(),

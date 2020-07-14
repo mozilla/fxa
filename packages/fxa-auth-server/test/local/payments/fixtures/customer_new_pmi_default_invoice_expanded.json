@@ -1,0 +1,93 @@
+{
+  "id": "cust_new",
+  "object": "customer",
+  "address": null,
+  "balance": 0,
+  "created": 1581078596,
+  "currency": null,
+  "default_source": "card_1G9Vy3Kb9q6OnNsLYw9Zw0Du",
+  "delinquent": false,
+  "description": "testuid",
+  "discount": null,
+  "email": "jane@example.com",
+  "invoice_prefix": "6A11CA66",
+  "invoice_settings": {
+    "custom_fields": null,
+    "default_payment_method": {
+      "id": "pm_1H0FRp2eZvKYlo2CeIZoc0wj",
+      "object": "payment_method",
+      "billing_details": {
+        "address": {
+          "city": null,
+          "country": null,
+          "line1": null,
+          "line2": null,
+          "postal_code": "95014",
+          "state": null
+        },
+        "email": null,
+        "name": "Jane Doe",
+        "phone": null
+      },
+      "card": {
+        "brand": "visa",
+        "checks": {
+          "address_line1_check": null,
+          "address_postal_code_check": "pass",
+          "cvc_check": "pass"
+        },
+        "country": "US",
+        "exp_month": 12,
+        "exp_year": 2022,
+        "fingerprint": "PXj5xzTtGdBo1fVl",
+        "funding": "credit",
+        "generated_from": null,
+        "last4": "4242",
+        "networks": {
+          "available": ["visa"],
+          "preferred": null
+        },
+        "three_d_secure_usage": {
+          "supported": true
+        },
+        "wallet": null
+      },
+      "created": 1593658838,
+      "customer": "cust_new",
+      "livemode": false,
+      "metadata": {},
+      "type": "card"
+    },
+    "footer": null
+  },
+  "livemode": false,
+  "metadata": {
+    "userid": "testuid"
+  },
+  "name": "Jane Doe",
+  "phone": null,
+  "preferred_locales": [],
+  "shipping": null,
+  "sources": {
+    "object": "list",
+    "data": [],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/customers/cust_new/sources"
+  },
+  "subscriptions": {
+    "object": "list",
+    "data": [],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/customers/cust_new/subscriptions"
+  },
+  "tax_exempt": "none",
+  "tax_ids": {
+    "object": "list",
+    "data": [],
+    "has_more": false,
+    "total_count": 0,
+    "url": "/v1/customers/cust_new/tax_ids"
+  }
+}

@@ -529,24 +529,36 @@ class DirectStripeRoutes {
     return activeSubscriptions;
   }
 
-  async getCustomer(request) {
-    this.log.begin('subscriptions.getCustomer', request);
+  /**
+   * Extracts card details if a customer has a source on file.
+   *
+   * @param {Customer} customer
+   */
+  extractCardDetails(customer) {
+    const defaultPayment = customer.invoice_settings.default_payment_method;
+    if (defaultPayment) {
+      if (typeof defaultPayment === 'string') {
+        // This should always be expanded here.
+        throw error.backendServiceFailure('stripe', 'paymentExpansion');
+      }
 
-    const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.fetchCustomer(uid, email, [
-      'data.subscriptions.data.latest_invoice',
-    ]);
-    if (!customer) {
-      throw error.unknownCustomer(uid);
+      if (defaultPayment.card) {
+        return {
+          billing_name: defaultPayment.billing_details.name,
+          payment_type: defaultPayment.card.funding,
+          last4: defaultPayment.card.last4,
+          exp_month: defaultPayment.card.exp_month,
+          exp_year: defaultPayment.card.exp_year,
+          brand: defaultPayment.card.brand,
+        };
+      }
     }
-    let response = { subscriptions: [] };
     if (customer.sources && customer.sources.data.length > 0) {
       // Currently assume a single source, and we can only access these attributes
       // on cards.
       const src = customer.sources.data[0];
       if (src.object === 'card') {
-        response = {
-          ...response,
+        return {
           billing_name: src.name,
           payment_type: src.funding,
           last4: src.last4,
@@ -556,6 +568,25 @@ class DirectStripeRoutes {
         };
       }
     }
+    return {};
+  }
+
+  async getCustomer(request) {
+    this.log.begin('subscriptions.getCustomer', request);
+
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    const customer = await this.stripeHelper.fetchCustomer(uid, email, [
+      'data.subscriptions.data.latest_invoice',
+      'data.invoice_settings.default_payment_method',
+    ]);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+    const cardDetails = this.extractCardDetails(customer);
+    const response = {
+      subscriptions: [],
+      ...cardDetails,
+    };
 
     response.subscriptions = await this.stripeHelper.subscriptionsToResponse(
       customer.subscriptions

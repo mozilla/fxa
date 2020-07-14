@@ -10,6 +10,7 @@ const stripe = require('stripe').Stripe;
 
 /** @typedef {import('stripe').Stripe.Customer} Customer */
 /** @typedef {import('stripe').Stripe.Event} StripeEvent */
+/** @typedef {import('stripe').Stripe.PaymentMethod} PaymentMethod */
 /** @typedef {import('stripe').Stripe.Plan} Plan */
 /** @typedef {import('stripe').Stripe.Product} Product */
 /** @typedef {import('stripe').Stripe.DeletedProduct} DeletedProduct */
@@ -508,6 +509,7 @@ class StripeHelper {
       result = await this.fetchCustomer(uid, email, [
         'data.sources',
         'data.subscriptions',
+        'data.invoice_settings.default_payment_method',
       ]);
       if (this.redis) {
         try {
