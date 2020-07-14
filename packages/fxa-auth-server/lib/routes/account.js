@@ -1490,6 +1490,49 @@ module.exports = (
         return { subscriptions };
       },
     },
+    {
+      method: 'PUT',
+      path: '/account/ecosystemAnonId',
+      apidoc: {
+        errors: [error.invalidScopes, error.anonIdExists],
+      },
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          payload: {
+            ecosystemAnonId: isA.string().required(),
+          },
+        },
+      },
+      handler: async function (request) {
+        log.begin('account.updateEcosystemAnonId', request);
+
+        const { uid, scope } = request.auth.credentials;
+        const { ecosystemAnonId } = request.payload;
+        const noneMatchHeader = request.headers['If-None-Match'];
+        const scopeSet = ScopeSet.fromArray(scope);
+
+        if (!scopeSet.contains('profile:ecosystem_anon_id:write')) {
+          throw error.invalidScopes(scopeSet);
+        }
+
+        await customs.check(request, uid, 'updateEcosystemAnonId');
+
+        if (noneMatchHeader === '*') {
+          const account = await db.account();
+          if (account.ecosystemAnonId != null) {
+            throw error.anonIdExists();
+          }
+        }
+
+        await db.updateEcosystemAnonId(uid, ecosystemAnonId);
+
+        return {};
+      },
+    },
   ];
 
   if (config.isProduction) {

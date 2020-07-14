@@ -1603,7 +1603,33 @@ describe('api', function () {
         assertSecurityHeaders(res);
       });
 
-      xit('should fail post with 412 error if the If-Match header does not match the ETag', function () {});
+      it('should fail post with 412 error if the If-None-Match: * header is present and anon ID already exists', async function () {
+        mock.coreProfile({
+          email: 'andy@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+          ecosystemAnonId: 'who is your humble',
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'are you the light',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-None-Match': '*',
+          },
+        });
+
+        assert.equal(res.statusCode, 412);
+        assertSecurityHeaders(res);
+      });
 
       it('should require :write scope', async function () {
         mock.token({

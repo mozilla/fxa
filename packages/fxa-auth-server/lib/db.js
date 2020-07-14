@@ -1435,6 +1435,19 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return this.redis.pruneSessionTokens(uid, [id]);
   };
 
+  SAFE_URLS.updateEcosystemAnonId = new SafeUrl(
+    '/account/:id/ecosystemAnonId',
+    'db.updateEcosystemAnonId'
+  );
+  DB.prototype.updateEcosystemAnonId = async function (uid, ecosystemAnonId) {
+    log.trace('DB.updateEcosystemAnonId', { uid, ecosystemAnonId });
+    return this.pool.put(
+      SAFE_URLS.updateEcosystemAnonId,
+      { uid },
+      { ecosystemAnonId }
+    );
+  };
+
   function mergeDeviceInfoFromRedis(
     device,
     redisSessionTokens,

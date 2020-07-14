@@ -203,4 +203,18 @@ AppError.authError = function authError(err) {
   );
 };
 
+AppError.anonIdExists = function anonIdExists(err) {
+  return new AppError(
+    {
+      code: 412,
+      error: 'Precondition Failed',
+      errno: 106,
+      message: 'Attempted to update non-null Ecosystem Anon ID',
+    },
+    {
+      cause: err,
+    }
+  );
+};
+
 module.exports = AppError;

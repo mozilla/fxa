@@ -37,6 +37,7 @@ see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
     - [POST /account/unlock/verify_code](#post-accountunlockverify_code)
     - [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
     - [POST /account/destroy (:lock::unlock: sessionToken)](#post-accountdestroy)
+    - [PUT /account/ecosystemAnonId (:lock: oauthToken)](#put-accountmetricsecosystemanonId)
   - [Devices and sessions](#devices-and-sessions)
     - [POST /account/device (:lock: sessionToken, refreshToken)](#post-accountdevice)
     - [GET /account/device/commands (:lock: sessionToken, refreshToken)](#get-accountdevicecommands)
@@ -1147,6 +1148,37 @@ by the following errors
 
 - `code: 400, errno: 138`:
   Unverified session
+
+#### POST /account/ecosystemAnonId
+
+:lock: Authenticated with OAuth bearer token
+
+<!--begin-route-put-accountmetricsecosystemanonId-->
+
+Adds new or updates existing user Ecosystem Anonymous ID.
+
+<!--end-route-put-accountmetricsecosystemanonId-->
+
+##### Request body
+
+- `anonId`: _string, required_
+
+  <!--begin-request-body-put-accountmetricsecosystemanonId-anonId-->
+
+  The new Ecosystem Anonymous ID.
+
+  <!--end-request-body-put-accountmetricsecosystemanonId-email-->
+
+##### Error responses
+
+Failing requests may be caused
+by the following errors
+(this is not an exhaustive list):
+
+- `code: 400, errno: 163`:
+  Token does not contain the correct scope.
+- `code: 412, errno: 190`:
+  Attempted to update non-null Ecosystem Anon ID.
 
 ### Devices and sessions
 

@@ -3106,3 +3106,94 @@ describe('/account', () => {
     });
   });
 });
+
+describe('/account/ecosystemAnonId', () => {
+  const uid = uuid.v4('binary').toString('hex');
+  const ecosystemAnonId = 'bowl of oranges';
+  let mockLog, mockDB, mockRequest, route;
+
+  beforeEach(async () => {
+    mockLog = mocks.mockLog();
+    mockDB = mocks.mockDB();
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      credentials: {
+        scope: ['profile:ecosystem_anon_id:write'],
+        uid,
+      },
+      payload: {
+        ecosystemAnonId,
+      },
+    });
+
+    route = getRoute(
+      makeRoutes({
+        db: mockDB,
+        log: mockLog,
+      }),
+      '/account/ecosystemAnonId'
+    );
+  });
+
+  it('runs, informing the auth db of the new anon id', () => {
+    return runTest(route, mockRequest, (result) => {
+      const updateEcosystemAnonId = mockDB.updateEcosystemAnonId;
+      assert.deepEqual(result, {});
+      assert.equal(mockLog.begin.callCount, 1);
+      assert.equal(updateEcosystemAnonId.callCount, 1);
+      assert.equal(updateEcosystemAnonId.args[0][0], uid);
+      assert.equal(updateEcosystemAnonId.args[0][1], ecosystemAnonId);
+    });
+  });
+
+  it('throws invalidScopes when valid scope is not present', async () => {
+    mockRequest.auth.credentials.scope = [];
+
+    let failed = false;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.INVALID_SCOPES);
+    }
+
+    assert.isTrue(failed);
+  });
+
+  it('throws anonIdExists when if-none-match: * header is present and anon id already exists', async () => {
+    mockRequest.headers['If-None-Match'] = '*';
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'such a simple fool',
+      });
+    };
+
+    let failed = false;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.ECOSYSTEM_ANON_ID_EXISTS);
+    }
+
+    assert.isTrue(failed);
+  });
+
+  it('does not throw anonIdExists when if-none-match: * header is present but anon id is null', async () => {
+    mockRequest.headers['If-None-Match'] = '*';
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: null,
+      });
+    };
+
+    let success = true;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      success = false;
+    }
+
+    assert.isTrue(success);
+  });
+});
