@@ -10,6 +10,8 @@ import React, { Component } from 'react';
 
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
 
+const OTHER_EN_LOCALES = ['en-NZ', 'en-CA', 'en-SG', 'en-MY']
+
 async function fetchMessages(baseDir: string, locale: string, bundle: string) {
   try {
     const response = await fetch(`${baseDir}/${locale}/${bundle}.ftl`);
@@ -48,8 +50,9 @@ async function createMessagesGenerator(
 
   return function* generateMessages() {
     for (const locale of currentLocales) {
+      const sourceLocale = OTHER_EN_LOCALES.includes(locale) ? 'en-GB' : locale;
       const cx = new FluentBundle(locale);
-      for (const i of mergedBundle[locale]) {
+      for (const i of mergedBundle[sourceLocale]) {
         const resource = new FluentResource(i);
         cx.addResource(resource);
       }
@@ -96,7 +99,7 @@ export default class AppLocalizationProvider extends Component<Props, State> {
 
     const currentLocales = negotiateLanguages(
       [...userLocales],
-      availableLocales,
+      [...OTHER_EN_LOCALES, ...availableLocales],
       {
         defaultLocale: 'en-US',
       }
