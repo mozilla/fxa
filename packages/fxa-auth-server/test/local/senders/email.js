@@ -31,8 +31,8 @@ const SUBSCRIPTION_TERMS_URL = 'https://example.com/subscription-product/terms';
 const SUBSCRIPTION_PRIVACY_URL =
   'https://example.com/subscription-product/privacy';
 const productMetadata = {
-  'product:termsOfServiceURL': SUBSCRIPTION_TERMS_URL,
-  'product:privacyNoticeURL': SUBSCRIPTION_PRIVACY_URL,
+  'product:termsOfServiceDownloadURL': SUBSCRIPTION_TERMS_URL,
+  'product:privacyNoticeDownloadURL': SUBSCRIPTION_PRIVACY_URL,
 };
 
 const MESSAGE = {

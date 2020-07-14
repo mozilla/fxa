@@ -24,7 +24,11 @@ export const DEFAULT_PRODUCT_DETAILS: ProductDetails = {
   ],
   termsOfServiceURL:
     'https://www.mozilla.org/about/legal/terms/firefox-private-network',
+  termsOfServiceDownloadURL:
+    'https://accounts-static.cdn.mozilla.net/legal/Mozilla_VPN_ToS/en-US.pdf',
   privacyNoticeURL: 'https://www.mozilla.org/privacy/firefox-private-network',
+  privacyNoticeDownloadURL:
+    'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_privacy_notice/en-US.pdf',
 };
 
 // Support some default null values for product / plan metadata and

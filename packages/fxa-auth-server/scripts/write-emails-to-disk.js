@@ -88,10 +88,10 @@ function sendMail(mailer, messageToSend) {
   const messageSubType = parts[1];
 
   const productMetadata = {
-    'product:termsOfServiceURL':
-      'https://example.com/subscription-product/terms',
-    'product:privacyNoticeURL':
-      'https://example.com/subscription-product/privacy',
+    'product:termsOfServiceDownloadURL':
+      'https://example.com/subscription-product/terms/download',
+    'product:privacyNoticeDownloadURL':
+      'https://example.com/subscription-product/privacy/download',
   };
 
   const message = {

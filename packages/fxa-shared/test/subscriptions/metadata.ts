@@ -2,6 +2,7 @@ import { expect } from 'chai';
 
 import { Plan, ProductMetadata } from '../../subscriptions/types';
 import {
+  DEFAULT_PRODUCT_DETAILS,
   metadataFromPlan,
   productDetailsFromPlan,
 } from '../../subscriptions/metadata';
@@ -85,6 +86,10 @@ describe('subscriptions/metadata', () => {
         'product:details:4': 'Quux Available for Windows, iOS and Android',
         'product:termsOfServiceURL': 'https://example.org/en-US/terms',
         'product:privacyNoticeURL': 'https://example.org/en-US/privacy',
+        'product:termsOfServiceDownloadURL':
+          'https://example.org/en-US/terms/download',
+        'product:privacyNoticeDownloadURL':
+          'https://example.org/en-US/privacy/download',
         'product:subtitle:xx-pirate': 'VPN fer yer full-device',
         'product:foobar:9:xx-pirate': 'what even is this',
         'product:details:4:xx-pirate': "Available fer Windows, iOS an' Android",
@@ -96,6 +101,10 @@ describe('subscriptions/metadata', () => {
           'https://example.org/xx-pirate/terms',
         'product:privacyNoticeURL:xx-pirate':
           'https://example.org/xx-pirate/privacy',
+        'product:termsOfServiceDownloadURL:xx-pirate':
+          'https://example.org/xx-pirate/terms/download',
+        'product:privacyNoticeDownloadURL:xx-pirate':
+          'https://example.org/xx-pirate/privacy/download',
         'product:subtitle:xx-partial': 'Partial localization',
         'product:details:1:xx-partial': true,
         'product:termsOfServiceURL:xx-partial':
@@ -104,19 +113,9 @@ describe('subscriptions/metadata', () => {
     };
 
     it('extracts base details when metadata does not supply product details', () => {
-      expect(productDetailsFromPlan(PLAN)).to.deep.equal({
-        subtitle: 'Full-device VPN',
-        details: [
-          'Device-level encryption',
-          'Servers in 30+ countries',
-          'Connect 5 devices with one subscription',
-          'Available for Windows, iOS and Android',
-        ],
-        termsOfServiceURL:
-          'https://www.mozilla.org/about/legal/terms/firefox-private-network',
-        privacyNoticeURL:
-          'https://www.mozilla.org/privacy/firefox-private-network',
-      });
+      expect(productDetailsFromPlan(PLAN)).to.deep.equal(
+        DEFAULT_PRODUCT_DETAILS
+      );
     });
 
     it('extracts product details for default locale', () => {
@@ -130,6 +129,8 @@ describe('subscriptions/metadata', () => {
         ],
         termsOfServiceURL: 'https://example.org/en-US/terms',
         privacyNoticeURL: 'https://example.org/en-US/privacy',
+        termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
+        privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
       });
     });
 
@@ -144,6 +145,10 @@ describe('subscriptions/metadata', () => {
         ],
         termsOfServiceURL: 'https://example.org/xx-pirate/terms',
         privacyNoticeURL: 'https://example.org/xx-pirate/privacy',
+        termsOfServiceDownloadURL:
+          'https://example.org/xx-pirate/terms/download',
+        privacyNoticeDownloadURL:
+          'https://example.org/xx-pirate/privacy/download',
       });
     });
 
@@ -158,6 +163,8 @@ describe('subscriptions/metadata', () => {
         ],
         termsOfServiceURL: 'https://example.org/xx-partial/terms',
         privacyNoticeURL: 'https://example.org/en-US/privacy',
+        termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
+        privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
       });
     });
 
@@ -172,6 +179,8 @@ describe('subscriptions/metadata', () => {
         ],
         termsOfServiceURL: 'https://example.org/en-US/terms',
         privacyNoticeURL: 'https://example.org/en-US/privacy',
+        termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
+        privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
       });
     });
   });
