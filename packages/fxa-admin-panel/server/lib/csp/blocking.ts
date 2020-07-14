@@ -49,6 +49,11 @@ export default function cspBlocking(config: { [key: string]: any }) {
       defaultSrc: [NONE],
       baseUri: [NONE],
       frameAncestors: [NONE],
+      // React currently handles 100% of form "submissions",
+      // so disable all form-action values. This might need
+      // to be updated to 'self' or another specific value
+      // down the road as the admin panel evolves
+      formAction: [NONE],
       fontSrc: addCdnRuleIfRequired([SELF]),
       imgSrc: addCdnRuleIfRequired([SELF]),
       scriptSrc: addCdnRuleIfRequired([SELF]),

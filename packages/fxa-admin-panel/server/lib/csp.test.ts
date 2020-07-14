@@ -45,6 +45,13 @@ describe('CSP blocking rules', () => {
     expect(frameAncestors).toContain(Sources.NONE);
   });
 
+  it('has correct formAction directives', () => {
+    const { formAction } = directives;
+
+    expect(formAction).toHaveLength(1);
+    expect(formAction).toContain(Sources.NONE);
+  });
+
   it('has correct fontSrc directives', () => {
     const { fontSrc } = directives;
 
