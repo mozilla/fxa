@@ -54,7 +54,6 @@ describe('views/connect_another_device', () => {
       .callsFake(() => Promise.resolve(smsCountry));
     sinon.stub(view, 'replaceCurrentPageWithSmsScreen').callsFake(() => {});
 
-    // TODO: PUll this out into own test section
     sinon
       .stub(view, 'getEligibleQrCodeCadGroup')
       .callsFake(() => Promise.resolve({ group: false }));
@@ -388,6 +387,30 @@ describe('views/connect_another_device', () => {
         assert.isTrue(
           view.replaceCurrentPageWithSmsScreen.calledWith(account, 'CA', false)
         );
+      });
+    });
+
+    describe('with a Fx desktop sync declined user', () => {
+      beforeEach(() => {
+        sinon.stub(view, '_isSignedIn').callsFake(() => true);
+        relier.set('syncPreference', false);
+        return view.render().then(() => {
+          view.afterVisible();
+        });
+      });
+
+      it('shows the marketing area, logs appropriately', () => {
+        assert.isTrue(view._isSignedIn.called);
+        assert.lengthOf(view.$('.marketing-area'), 1);
+        testIsFlowEventLogged('signedin.true');
+        testIsFlowEventLogged('signin.ineligible');
+        testIsFlowEventLogged('install_from.fx_desktop');
+
+        assert.isFalse(view.getEligibleQrCodeCadGroup.called);
+      });
+
+      it('shows the success message', () => {
+        assert.lengthOf(view.$('.success'), 1);
       });
     });
   });

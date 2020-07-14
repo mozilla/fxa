@@ -33,6 +33,13 @@ class ConnectAnotherDeviceView extends FormView {
   beforeRender() {
     const account = this.getAccount();
 
+    // If a relier has explicitly set the `syncPreferences=false` property
+    // this means user dont want to sync. Don't offer CAD
+    const syncPreference = this.relier.get('syncPreference');
+    if (syncPreference === false) {
+      return;
+    }
+
     // Check to see if user is enrolled in the CAD QR code experiment. This
     // takes precedence over the "regular" sms experiment.
     return this.getEligibleQrCodeCadGroup(account).then(
