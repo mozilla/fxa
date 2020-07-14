@@ -223,7 +223,6 @@ export const PaymentUpdateForm = ({
           <PaymentForm
             {...{
               submitNonce,
-              plan,
               onPayment,
               onPaymentError,
               inProgress,
