@@ -23,6 +23,21 @@ const init = async () => {
       host: config.listen.host,
       port: config.listen.port,
     });
+
+    const server_shutdown = async () => {
+      await api.stop().then(function (err) {
+        if (err) {
+          log.warn({ op: 'shutdown', err: err}, 'graceful shutdown failed');
+          shutdown(1);
+        } else {
+          log.info({ op: 'shutdown' }, 'graceful shutdown complete');
+          shutdown(0);
+        }
+      });
+    };
+    process.on('SIGINT', server_shutdown);
+    process.on('SIGTERM', server_shutdown);
+
     return api;
   } catch (err) {
     log.error({ op: 'customs.bin.error', err: err });
