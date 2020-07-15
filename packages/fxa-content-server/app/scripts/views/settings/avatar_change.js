@@ -6,6 +6,7 @@ import $ from 'jquery';
 import AuthErrors from '../../lib/auth-errors';
 import AvatarMixin from '../mixins/avatar-mixin';
 import Cocktail from 'cocktail';
+import Constants from '../../lib/constants';
 import CropperImage from '../../models/cropper-image';
 import FormView from '../form';
 import ImageLoader from '../../lib/image-loader';
@@ -102,7 +103,11 @@ const View = FormView.extend({
         reject(msg);
       };
 
-      if (file.type.match('image.*')) {
+      if (file.size > Constants.PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
+        const msg = AuthErrors.toMessage('IMAGE_TOO_LARGE');
+        this.displayError(msg);
+        reject(msg);
+      } else if (file.type.match('image.*')) {
         const reader = new this.FileReader();
 
         reader.onload = (event) => {
