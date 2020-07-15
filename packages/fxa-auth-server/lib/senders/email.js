@@ -10,6 +10,7 @@ const nodemailer = require('nodemailer');
 const P = require('bluebird');
 const safeUserAgent = require('../userAgent/safe');
 const url = require('url');
+const i18n = require('i18n-abide');
 const { URL } = url;
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 
@@ -382,11 +383,11 @@ module.exports = function (log, config, oauthdb) {
     currency,
     acceptLanguage
   ) {
-    const translator = this.translator(acceptLanguage);
     return getLocalizedCurrencyString(
       amountInCents,
       currency,
-      translator.language
+      // parse outputs them in 'quality' sorted order
+      i18n.parseAcceptLanguage(acceptLanguage).map(a => a.lang)
     );
   };
 
