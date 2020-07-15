@@ -14,10 +14,11 @@ function FileReaderMock() {
   // nothing to do
 }
 
-FileReaderMock._mockFileEvent = function (type, src) {
+FileReaderMock._mockFileEvent = function (type, src, size) {
   var file = {
     _dataURL: src,
     type: type,
+    size: size,
   };
 
   return {
@@ -29,6 +30,10 @@ FileReaderMock._mockFileEvent = function (type, src) {
 
 FileReaderMock._mockPngEvent = function () {
   return this._mockFileEvent('image/png', pngSrc);
+};
+
+FileReaderMock._mockBigStorageSizePngEvent = function () {
+  return this._mockFileEvent('image/png', pngSrc, 30 * 1000000);
 };
 
 FileReaderMock._mockTinyPngEvent = function () {

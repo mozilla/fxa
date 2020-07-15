@@ -610,6 +610,10 @@ var ERRORS = {
     errno: 1064,
     message: t('Mistyped email? %(domain)s does not offer email.'),
   },
+  IMAGE_TOO_LARGE: {
+    errno: 1065,
+    message: t('The image file size is too large to be uploaded.'),
+  },
 };
 
 export default _.extend({}, Errors, {
