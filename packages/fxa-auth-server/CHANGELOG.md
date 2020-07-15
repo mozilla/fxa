@@ -1,3 +1,9 @@
+## 1.179.4
+
+### Bug fixes
+
+- l10n: use accept language for currency l10n in emails ([c5a614933](https://github.com/mozilla/fxa/commit/c5a614933))
+
 ## 1.179.3
 
 No changes.
