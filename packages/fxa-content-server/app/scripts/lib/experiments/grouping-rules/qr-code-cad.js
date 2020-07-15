@@ -17,7 +17,7 @@ const GROUPS = [
   'treatment-b', // Screen displayed in non-sms markets
 ];
 
-const ROLLOUT_RATE = 1.0;
+const ROLLOUT_RATE = 0.0;
 
 module.exports = class QrCodeCad extends BaseGroupingRule {
   constructor() {
