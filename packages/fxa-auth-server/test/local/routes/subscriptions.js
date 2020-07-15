@@ -38,6 +38,7 @@ const cancelledSubscription = require('../payments/fixtures/subscription_cancell
 const trialSubscription = require('../payments/fixtures/subscription_trialing.json');
 const pastDueSubscription = require('../payments/fixtures/subscription_past_due.json');
 const customerFixture = require('../payments/fixtures/customer1.json');
+const customerPMIExpanded = require('../payments/fixtures/customer_new_pmi_default_invoice_expanded.json');
 const multiPlanSubscription = require('../payments/fixtures/subscription_multiplan.json');
 const emptyCustomer = require('../payments/fixtures/customer_new.json');
 const subscriptionCreated = require('../payments/fixtures/subscription_created.json');
@@ -1724,6 +1725,54 @@ describe('DirectStripeRoutes', () => {
       });
 
       describe('customer has payment sources', () => {
+        describe('default invoice payment method is a card object', () => {
+          it('adds payment method data to the response', async () => {
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customerPMIExpanded
+            );
+
+            const defaultInvoice =
+              customerPMIExpanded.invoice_settings.default_payment_method;
+            const expected = {
+              subscriptions: [],
+              billing_name: defaultInvoice.billing_details.name,
+              brand: defaultInvoice.card.brand,
+              payment_type: defaultInvoice.card.funding,
+              last4: defaultInvoice.card.last4,
+              exp_month: defaultInvoice.card.exp_month,
+              exp_year: defaultInvoice.card.exp_year,
+            };
+            const actual = await directStripeRoutesInstance.getCustomer(
+              VALID_REQUEST
+            );
+
+            assert.deepEqual(actual, expected);
+          });
+        });
+        describe('default invoice payment method is a string', () => {
+          it('throws error as it must be expanded', async () => {
+            const customerExpanded = deepCopy(customerPMIExpanded);
+            customerExpanded.invoice_settings.default_payment_method =
+              'pm_1H0FRp2eZvKYlo2CeIZoc0wj';
+            directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+              customerExpanded
+            );
+            try {
+              await directStripeRoutesInstance.getCustomer(VALID_REQUEST);
+              assert.fail('getCustomer should fail with string payment method');
+            } catch (err) {
+              assert.strictEqual(
+                err.errno,
+                error.ERRNO.BACKEND_SERVICE_FAILURE
+              );
+              assert.strictEqual(
+                err.message,
+                'A backend service request failed.'
+              );
+              assert.strictEqual(err.output.payload.service, 'stripe');
+            }
+          });
+        });
         describe('payment source is a card object', () => {
           it('adds source data to the response', async () => {
             directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
