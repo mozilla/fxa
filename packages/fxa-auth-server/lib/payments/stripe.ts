@@ -1,49 +1,32 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-// @ts-check
-const Sentry = require('@sentry/node');
-const moment = require('moment');
-const error = require('../error');
+import * as Sentry from '@sentry/node';
+import moment from 'moment';
+import { Stripe } from 'stripe';
 
-const stripe = require('stripe').Stripe;
+import error from '../error';
+import { StatsD } from 'hot-shots';
+import { PaymentIntent } from '../routes/subscriptions';
 
-/** @typedef {import('stripe').Stripe.Customer} Customer */
-/** @typedef {import('stripe').Stripe.Event} StripeEvent */
-/** @typedef {import('stripe').Stripe.PaymentMethod} PaymentMethod */
-/** @typedef {import('stripe').Stripe.Plan} Plan */
-/** @typedef {import('stripe').Stripe.Product} Product */
-/** @typedef {import('stripe').Stripe.DeletedProduct} DeletedProduct */
-/** @typedef {import('stripe').Stripe.Subscription} Subscription */
-/** @typedef {import('stripe').Stripe.ApiList<Subscription>} Subscriptions */
-/** @typedef {import('stripe').Stripe.SubscriptionListParams} SubscriptionListParams */
-/** @typedef {import('stripe').Stripe.Invoice} Invoice */
-/** @typedef {import('stripe').Stripe.Source} Source */
-/** @typedef {import('stripe').Stripe.Card} Card */
-/** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
-/** @typedef {import('stripe').Stripe.SetupIntent} SetupIntent */
-/** @typedef {import('stripe').Stripe.Charge} Charge */
+export type AbbrevProduct = {
+  product_id: string;
+  product_name: string;
+  product_metadata: Stripe.Product['metadata'];
+};
 
-/**
- * @typedef AbbrevProduct
- * @property {string} product_id
- * @property {string} product_name
- * @property {Product['metadata']} product_metadata
- */
-
-/**
- * @typedef AbbrevPlan
- * @property {string} plan_id
- * @property {Product['metadata']} plan_metadata
- * @property {string} product_id
- * @property {string} plan_name
- * @property {string} product_name
- * @property {Product['metadata']} product_metadata
- * @property {Plan['interval']} interval
- * @property {Plan['interval_count']} interval_count
- * @property {Plan['amount']} amount
- * @property {Plan['currency']} currency
- */
+export type AbbrevPlan = {
+  plan_id: string;
+  plan_metadata: Stripe.Plan['metadata'];
+  product_id: string;
+  plan_name: string;
+  product_name: string;
+  product_metadata: Stripe.Product['metadata'];
+  interval: Stripe.Plan['interval'];
+  interval_count: Stripe.Plan['interval_count'];
+  amount: Stripe.Plan['amount'];
+  currency: Stripe.Plan['currency'];
+};
 
 const CUSTOMER_RESOURCE = 'customers';
 const SUBSCRIPTIONS_RESOURCE = 'subscriptions';
@@ -79,7 +62,10 @@ const SUBSCRIPTION_UPDATE_TYPES = {
  * @param {AbbrevProduct['product_metadata']} newMetadata New product metadata
  * @returns {boolean} Whether the new product is an upgrade.
  */
-function validateProductUpdate(oldMetadata, newMetadata) {
+function validateProductUpdate(
+  oldMetadata: AbbrevProduct['product_metadata'],
+  newMetadata: AbbrevProduct['product_metadata']
+): boolean {
   if (!oldMetadata || !newMetadata) {
     throw error.unknownSubscriptionPlan();
   }
@@ -99,14 +85,17 @@ function validateProductUpdate(oldMetadata, newMetadata) {
 }
 
 class StripeHelper {
+  private log: any;
+  private cacheTtlSeconds: number;
+  private webhookSecret: string;
+  private plansCacheIsEnabled: boolean;
+  private stripe: Stripe;
+  private redis: any;
+
   /**
    * Create a Stripe Helper with built-in caching.
-   *
-   * @param {*} log
-   * @param {*} config
-   * @param {import('hot-shots').StatsD | undefined} statsd
    */
-  constructor(log, config, statsd) {
+  constructor(log: any, config: any, statsd?: StatsD) {
     this.log = log;
     this.cacheTtlSeconds =
       config.subhub.plansCacheTtlSeconds ||
@@ -121,9 +110,9 @@ class StripeHelper {
         },
         log
       );
-    this.plansCacheIsEnabled = this.cacheTtlSeconds && redis;
+    this.plansCacheIsEnabled = !!(this.cacheTtlSeconds && redis);
 
-    this.stripe = new stripe(config.subscriptions.stripeApiKey, {
+    this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
       apiVersion: '2020-03-02',
       maxNetworkRetries: 3,
     });
@@ -139,13 +128,11 @@ class StripeHelper {
   /**
    * Get a cached result at a cache key and regenerated it with `refreshFunction`
    * if its expired.
-   *
-   * @template T
-   * @param {string} cacheKey
-   * @param {() => Promise<T>} refreshFunction
-   * @returns {Promise<T>} possibly cached result
    */
-  async getCachedResult(cacheKey, refreshFunction) {
+  async getCachedResult<T>(
+    cacheKey: string,
+    refreshFunction: () => Promise<T>
+  ): Promise<T> {
     if (!this.redis) {
       return refreshFunction();
     }
@@ -191,11 +178,8 @@ class StripeHelper {
 
   /**
    * Extract an AbbrevProduct from Stripe Product
-   *
-   * @param {Product} product
-   * @returns {AbbrevProduct}
    */
-  abbrevProductFromStripeProduct(product) {
+  abbrevProductFromStripeProduct(product: Stripe.Product): AbbrevProduct {
     return {
       product_id: product.id,
       product_name: product.name,
@@ -223,15 +207,13 @@ class StripeHelper {
 
   /**
    * Create a stripe customer.
-   *
-   * @param {string} uid
-   * @param {string} email
-   * @param {string} displayName
-   * @param {string} idempotencyKey
-   *
-   * @returns {Promise<Customer>}
    */
-  async createPlainCustomer(uid, email, displayName, idempotencyKey) {
+  async createPlainCustomer(
+    uid: string,
+    email: string,
+    displayName: string,
+    idempotencyKey: string
+  ): Promise<Stripe.Customer> {
     return this.stripe.customers.create(
       {
         email,
@@ -247,17 +229,12 @@ class StripeHelper {
 
   /**
    * Update an existing customer to use a new payment method id.
-   *
-   * @param {string} customerId
-   * @param {string} invoiceId
-   * @param {string} paymentMethodId
-   * @param {string} idempotencyKey
    */
   async retryInvoiceWithPaymentId(
-    customerId,
-    invoiceId,
-    paymentMethodId,
-    idempotencyKey
+    customerId: string,
+    invoiceId: string,
+    paymentMethodId: string,
+    idempotencyKey: string
   ) {
     try {
       await this.stripe.paymentMethods.attach(
@@ -283,17 +260,12 @@ class StripeHelper {
 
   /**
    * Create a subscription for the provided customer.
-   *
-   * @param {string} customerId
-   * @param {string} priceId
-   * @param {string} paymentMethodId
-   * @param {string} idempotencyKey
    */
   async createSubscriptionWithPMI(
-    customerId,
-    priceId,
-    paymentMethodId,
-    idempotencyKey
+    customerId: string,
+    priceId: string,
+    paymentMethodId: string,
+    idempotencyKey: string
   ) {
     try {
       await this.stripe.paymentMethods.attach(
@@ -324,22 +296,18 @@ class StripeHelper {
 
   /**
    * Create a SetupIntent for a customer.
-   *
-   * @param {string} customerId
-   *
-   * @returns {Promise<SetupIntent>}
    */
-  async createSetupIntent(customerId) {
+  async createSetupIntent(customerId: string): Promise<Stripe.SetupIntent> {
     return this.stripe.setupIntents.create({ customer: customerId });
   }
 
   /**
    * Updates the default payment method used for invoices for the customer
-   *
-   * @param {string} customerId
-   * @param {string} paymentMethodId
    */
-  async updateDefaultPaymentMethod(customerId, paymentMethodId) {
+  async updateDefaultPaymentMethod(
+    customerId: string,
+    paymentMethodId: string
+  ): Promise<Stripe.Customer> {
     return this.stripe.customers.update(customerId, {
       invoice_settings: { default_payment_method: paymentMethodId },
     });
@@ -349,16 +317,14 @@ class StripeHelper {
 
   /**
    * Create a stripe customer
-   *
-   * @param {string} uid
-   * @param {string} email
-   * @param {string} displayName
-   * @param {string} paymentToken
-   * @param {string} idempotencyKey
-   *
-   * @returns {Promise<Customer>}
    */
-  async createCustomer(uid, email, displayName, paymentToken, idempotencyKey) {
+  async createCustomer(
+    uid: string,
+    email: string,
+    displayName: string,
+    paymentToken: string,
+    idempotencyKey: string
+  ): Promise<Stripe.Customer> {
     try {
       return await this.stripe.customers.create(
         {
@@ -383,20 +349,20 @@ class StripeHelper {
   /**
    * Fetch a customer record from Stripe by id and return its userid metadata
    * and the email.
-   *
-   * @param {Subscription} sub
-   * @returns {Promise<{uid: string, email: string} | {uid: null, email: null} | {uid: null, email: string}>}
    */
-  async getCustomerUidEmailFromSubscription(sub) {
-    const customer = await this.stripe.customers.retrieve(
-      /** @type {string} */ (sub.customer)
-    );
+  async getCustomerUidEmailFromSubscription(sub: Stripe.Subscription) {
+    if (typeof sub.customer !== 'string')
+      throw error.internalValidationError(
+        'getCustomerUidEmailFromSubscription',
+        { sub_id: sub.id }
+      );
+    const customer = await this.stripe.customers.retrieve(sub.customer);
     if (customer.deleted) {
       // Deleted customers lost their metadata so we can't send events for them
       return { uid: null, email: null };
     }
-    const uid = /** @type {Customer} */ (customer).metadata.userid;
-    const email = /** @type {Customer} */ (customer).email;
+    const uid = customer.metadata.userid;
+    const email = customer.email;
     if (!uid || !email) {
       const message = !uid
         ? 'FxA UID does not exist on customer metadata.'
@@ -421,13 +387,11 @@ class StripeHelper {
 
   /**
    * Update a customer's default payment method
-   *
-   * @param {string} customerId
-   * @param {string} paymentToken
-   *
-   * @returns {Promise<Customer>}
    */
-  async updateCustomerPaymentMethod(customerId, paymentToken) {
+  async updateCustomerPaymentMethod(
+    customerId: string,
+    paymentToken: string
+  ): Promise<Stripe.Customer> {
     try {
       return await this.stripe.customers.update(customerId, {
         source: paymentToken,
@@ -442,14 +406,12 @@ class StripeHelper {
 
   /**
    * Fetch a customer for the record from Stripe based on email.
-   *
-   * @param {string} uid Firefox Account Uid
-   * @param {string} email Firefox Account Email
-   * @param {string[]} [expand] Additional fields to expand in the
-   *                           Stripe call.
-   * @returns {Promise<Customer|void>} Customer if exists in the system.
    */
-  async fetchCustomer(uid, email, expand) {
+  async fetchCustomer(
+    uid: string,
+    email: string,
+    expand?: string[]
+  ): Promise<Stripe.Customer | void> {
     const customerResponse = await this.stripe.customers
       .list({ email, expand })
       .autoPagingToArray({ limit: 20 });
@@ -483,14 +445,13 @@ class StripeHelper {
    * Fetch a customer for the record from Stripe based on user ID & email.
    *
    * Uses Redis caching if configured.
-   *
-   * @param {string} uid Firefox Account Uid
-   * @param {string} email Firefox Account Email
-   * @param {boolean} forceRefresh whether to force refresh fetch of customer
-   * @param {boolean} cacheOnly Whether a fetch should only hit our cache.
-   * @returns {Promise<Customer|void>} Customer if exists in the system.
    */
-  async customer(uid, email, forceRefresh = false, cacheOnly = false) {
+  async customer(
+    uid: string,
+    email: string,
+    forceRefresh = false,
+    cacheOnly = false
+  ): Promise<Stripe.Customer | undefined> {
     const cacheKey = this.customerCacheKey(uid, email);
     let result = undefined;
 
@@ -527,11 +488,8 @@ class StripeHelper {
    * On FxA deletion, if the user is a Stripe Customer:
    * - flag the stripe customer to delete
    * - remove the cache entry
-   *
-   * @param {string} uid
-   * @param {string} email
    */
-  async removeCustomer(uid, email) {
+  async removeCustomer(uid: string, email: string) {
     const customer = await this.fetchCustomer(uid, email);
     if (customer) {
       await this.stripe.customers.update(customer.id, {
@@ -545,31 +503,29 @@ class StripeHelper {
    * Fetch a subscription for a customer from Stripe.
    *
    * Uses Redis caching if configured.
-   *
-   * @param {string} uid Firefox Account Uid
-   * @param {string} email Firefox Account Email
-   * @param {string} subscriptionId Subscription ID
-   * @returns {Promise<Subscription|void>} Subscription if exists for the customer.
    */
-  async subscriptionForCustomer(uid, email, subscriptionId) {
+  async subscriptionForCustomer(
+    uid: string,
+    email: string,
+    subscriptionId: string
+  ): Promise<Stripe.Subscription | void> {
     const customer = await this.customer(uid, email);
     if (!customer) {
       return;
     }
 
-    return /** @type {Subscriptions} */ (customer.subscriptions).data.find(
+    return customer.subscriptions?.data.find(
       (subscription) => subscription.id === subscriptionId
     );
   }
 
   /**
    * Fetch a list of subscriptions for a customer from Stripe.
-   *
-   * @param {string} customerId
-   * @param {string} startAfterSubscriptionId
-   * @returns {Promise<Subscription[]>}
    */
-  async fetchAllSubscriptionsForCustomer(customerId, startAfterSubscriptionId) {
+  async fetchAllSubscriptionsForCustomer(
+    customerId: string,
+    startAfterSubscriptionId: string
+  ): Promise<Stripe.Subscription[]> {
     let getMore = true;
     const subscriptions = [];
     let startAfter = startAfterSubscriptionId;
@@ -591,38 +547,31 @@ class StripeHelper {
 
   /**
    * Delete a cached customer record based on user ID & email.
-   *
-   * @param {string} uid Firefox Account Uid
-   * @param {string} email Firefox Account Email
-   * @returns {Promise<Customer|void>} Customer if exists in the system.
    */
-  async refreshCachedCustomer(uid, email) {
+  async refreshCachedCustomer(
+    uid: string,
+    email: string
+  ): Promise<Stripe.Customer | undefined> {
     try {
       return await this.customer(uid, email, true);
     } catch (err) {
       this.log.error(`subhub.refreshCachedCustomer.failed`, { err });
+      return;
     }
   }
 
   /**
    * Build a key used for Redis cache based on user ID & email.
-   *
-   * @param {string} uid Firefox Account Uid
-   * @param {string} email Firefox Account Email
-   * @returns {string} Cache key.
    */
-  customerCacheKey(uid, email) {
+  customerCacheKey(uid: string, email: string): string {
     return `customer-${uid}|${email}`;
   }
 
   /**
    * Remove the cache entry for a customer account
    * This is to be used on account deletion
-   *
-   * @param {string} uid
-   * @param {string} email
    */
-  async removeCustomerFromCache(uid, email) {
+  async removeCustomerFromCache(uid: string, email: string) {
     if (!this.redis) {
       return;
     }
@@ -641,10 +590,8 @@ class StripeHelper {
    * Fetches all plans from stripe and returns them.
    *
    * Use `allPlans` below to use the cached-enhanced version.
-   *
-   * @returns {Promise<AbbrevPlan[]>} All the plans.
    */
-  async fetchAllPlans() {
+  async fetchAllPlans(): Promise<AbbrevPlan[]> {
     const plans = [];
     for await (const item of this.stripe.plans.list({
       active: true,
@@ -694,20 +641,15 @@ class StripeHelper {
    * Fetches all plans from stripe and returns them.
    *
    * Uses Redis caching if configured.
-   *
-   * @returns {Promise<AbbrevPlan[]>} All the plans.
    */
-  async allPlans() {
+  async allPlans(): Promise<AbbrevPlan[]> {
     return this.getCachedResult('listPlans', () => this.fetchAllPlans());
   }
 
   /**
    * Find a plan by id or error if its not a valid planId.
-   *
-   * @param {string} planId
-   * @returns {Promise<AbbrevPlan>}
    */
-  async findPlanById(planId) {
+  async findPlanById(planId: string): Promise<AbbrevPlan> {
     const plans = await this.allPlans();
     const selectedPlan = plans.find((p) => p.plan_id === planId);
     if (!selectedPlan) {
@@ -720,12 +662,11 @@ class StripeHelper {
    * Verify that the `planId` is a valid upgrade for the `currentPlanId`.
    *
    * Throws an error if its an invalid upgrade.
-   *
-   * @param {string} currentPlanId
-   * @param {string} newPlanId
-   * @returns {Promise<void>}
    */
-  async verifyPlanUpdateForSubscription(currentPlanId, newPlanId) {
+  async verifyPlanUpdateForSubscription(
+    currentPlanId: string,
+    newPlanId: string
+  ): Promise<void> {
     const allPlans = await this.allPlans();
     const currentPlan = allPlans
       .filter((plan) => plan.plan_id === currentPlanId)
@@ -758,11 +699,11 @@ class StripeHelper {
    * Note that this call does not verify its a valid upgrade, the
    * `verifyPlanUpgradeForSubscription` should be done first to
    * validate this is an appropraite change for tier use.
-   *
-   * @param {Subscription['id']} subscriptionId
-   * @param {Plan['id']} newPlanId
    */
-  async changeSubscriptionPlan(subscriptionId, newPlanId) {
+  async changeSubscriptionPlan(
+    subscriptionId: string,
+    newPlanId: string
+  ): Promise<Stripe.Subscription> {
     const subscription = await this.stripe.subscriptions.retrieve(
       subscriptionId
     );
@@ -792,12 +733,12 @@ class StripeHelper {
   /**
    * Cancel a given subscription for a customer
    * If the subscription does not belong to the customer, throw an error
-   *
-   * @param {string} uid
-   * @param {string} email
-   * @param {string} subscriptionId
    */
-  async cancelSubscriptionForCustomer(uid, email, subscriptionId) {
+  async cancelSubscriptionForCustomer(
+    uid: string,
+    email: string,
+    subscriptionId: string
+  ): Promise<void> {
     const subscription = await this.subscriptionForCustomer(
       uid,
       email,
@@ -824,12 +765,12 @@ class StripeHelper {
    *    True: return the updated Subscription
    *    False: throw an error
    * If the customer does not own the subscription, throw an error
-   *
-   * @param {string} uid
-   * @param {string} email
-   * @param {string} subscriptionId
    */
-  async reactivateSubscriptionForCustomer(uid, email, subscriptionId) {
+  async reactivateSubscriptionForCustomer(
+    uid: string,
+    email: string,
+    subscriptionId: string
+  ): Promise<Stripe.Subscription> {
     const subscription = await this.subscriptionForCustomer(
       uid,
       email,
@@ -863,13 +804,8 @@ class StripeHelper {
   /**
    * Attempt to pay invoice by invoice id
    * Throws payment failed error on failure
-   *
-   * @param {string} invoiceId
-   *
-   * @returns {Promise<Invoice>}
-   * @throws {error}
    */
-  async payInvoice(invoiceId) {
+  async payInvoice(invoiceId: string): Promise<Stripe.Invoice> {
     let invoice;
 
     try {
@@ -898,15 +834,13 @@ class StripeHelper {
    *  2a. If Invoice is marked as Paid: return newly created Subscription
    *  2b. If Invoice is NOT marked as Paid: throw error
    *
-   *
-   * @param {Customer} customer
-   * @param {AbbrevPlan} selectedPlan
-   * @param {string} idempotencyKey
-   *
-   * @returns {Promise<Subscription>}
    * @throws {error.paymentFailed}
    */
-  async createSubscription(customer, selectedPlan, idempotencyKey) {
+  async createSubscription(
+    customer: Stripe.Customer,
+    selectedPlan: AbbrevPlan,
+    idempotencyKey: string
+  ): Promise<Stripe.Subscription> {
     let subscription;
 
     try {
@@ -927,9 +861,7 @@ class StripeHelper {
       throw err;
     }
 
-    if (
-      !this.paidInvoice(/** @type {Invoice} */ (subscription.latest_invoice))
-    ) {
+    if (!this.paidInvoice(subscription.latest_invoice)) {
       throw error.paymentFailed();
     }
     return subscription;
@@ -940,25 +872,29 @@ class StripeHelper {
    *
    * Note that the invoice *must have the `payment_intent` expanded*
    * or this function will fail.
-   *
-   * @param {Invoice} invoice
-   * @returns {boolean}
    */
-  paidInvoice(invoice) {
+  paidInvoice(invoice: Stripe.Subscription['latest_invoice']): boolean {
+    if (
+      !invoice ||
+      typeof invoice === 'string' ||
+      !invoice.payment_intent ||
+      typeof invoice.payment_intent === 'string'
+    ) {
+      throw error.internalValidationError('paidInvoice', {
+        invoice: invoice,
+      });
+    }
     return (
-      invoice.status === 'paid' &&
-      /** @type {PaymentIntent} */ (invoice.payment_intent).status ===
-        'succeeded'
+      invoice.status === 'paid' && invoice.payment_intent.status === 'succeeded'
     );
   }
 
   /**
    * Retrieve a PaymentIntent from an invoice
-   *
-   * @param {Invoice} invoice
-   * @returns {Promise<PaymentIntent>}
    */
-  async fetchPaymentIntentFromInvoice(invoice) {
+  async fetchPaymentIntentFromInvoice(
+    invoice: Stripe.Invoice
+  ): Promise<PaymentIntent> {
     if (!invoice.payment_intent) {
       // We don't have any code working with draft invoices, so
       // this should not be hit... yet. PayPal support *will* likely operate
@@ -980,11 +916,10 @@ class StripeHelper {
    *
    * Requires the `latest_invoice.payment_intent` to be expanded during
    * subscription load.
-   *
-   * @param {Subscription} subscription
-   * @returns {null | string}
    */
-  extractSourceCountryFromSubscription(subscription) {
+  extractSourceCountryFromSubscription(
+    subscription: Stripe.Subscription
+  ): null | string {
     // Eliminate all the optional values and ensure they were expanded such
     // that they're not a string.
     if (
@@ -1005,16 +940,8 @@ class StripeHelper {
         subscription.latest_invoice.payment_intent.charges.data[0]
           .payment_method_details;
 
-      if (
-        paymentMethodDetails &&
-        paymentMethodDetails.type &&
-        // @ts-ignore
-        paymentMethodDetails[paymentMethodDetails.type] &&
-        // @ts-ignore
-        paymentMethodDetails[paymentMethodDetails.type].country
-      ) {
-        // @ts-ignore
-        return paymentMethodDetails[paymentMethodDetails.type].country;
+      if (paymentMethodDetails?.card?.country) {
+        return paymentMethodDetails.card.country;
       }
     } else {
       Sentry.withScope((scope) => {
@@ -1032,11 +959,10 @@ class StripeHelper {
 
   /**
    * Formats Stripe subscriptions for a customer into an appropriate response.
-   *
-   * @param {Subscriptions} subscriptions Subscriptions to finesse
-   * @returns {Promise<object[]>} Formatted list of subscriptions.
    */
-  async subscriptionsToResponse(subscriptions) {
+  async subscriptionsToResponse(
+    subscriptions: Stripe.ApiList<Stripe.Subscription>
+  ) {
     const subs = [];
     for (const sub of subscriptions.data) {
       let failure_code, failure_message;
@@ -1070,8 +996,10 @@ class StripeHelper {
           charge = await this.stripe.charges.retrieve(latestInvoice.charge);
         }
 
-        failure_code = /** @type {Charge} */ (charge).failure_code;
-        failure_message = /** @type {Charge} */ (charge).failure_message;
+        if (typeof charge !== 'string') {
+          failure_code = charge.failure_code;
+          failure_message = charge.failure_message;
+        }
       }
 
       const product = await this.expandResource(
@@ -1111,11 +1039,10 @@ class StripeHelper {
 
   /**
    * Formats Stripe subscriptions with information needed to provide support.
-   *
-   * @param {Subscriptions} subscriptions Subscriptions to finesse
-   * @returns {Promise<object[]>} Formatted list of subscriptions.
    */
-  async formatSubscriptionsForSupport(subscriptions) {
+  async formatSubscriptionsForSupport(
+    subscriptions: Stripe.ApiList<Stripe.Subscription>
+  ) {
     const subs = [];
     for (const sub of subscriptions.data) {
       if (!sub.plan) {
@@ -1169,12 +1096,8 @@ class StripeHelper {
 
   /**
    * Use the Stripe lib to authenticate and get a webhook event.
-   *
-   * @param {any} payload
-   * @param {string | string[]} signature
-   * @returns {StripeEvent}
    */
-  constructWebhookEvent(payload, signature) {
+  constructWebhookEvent(payload: any, signature: string): Stripe.Event {
     return this.stripe.webhooks.constructEvent(
       payload,
       signature,
@@ -1184,10 +1107,8 @@ class StripeHelper {
 
   /**
    * Extract invoice details for billing emails
-   *
-   * @param {Invoice|string} latestInvoice
    */
-  async extractInvoiceDetailsForEmail(latestInvoice) {
+  async extractInvoiceDetailsForEmail(latestInvoice: Stripe.Invoice | string) {
     const invoice = await this.expandResource(latestInvoice, INVOICES_RESOURCE);
     const customer = await this.expandResource(
       invoice.customer,
@@ -1292,10 +1213,8 @@ class StripeHelper {
 
   /**
    * Extract source details for billing emails
-   *
-   * @param {Source | Card} source
    */
-  async extractSourceDetailsForEmail(source) {
+  async extractSourceDetailsForEmail(source: Stripe.Source | Stripe.Card) {
     if (source.object !== 'card') {
       // We shouldn't get here - all sources should currently be cards.
       throw error.internalValidationError(
@@ -1392,10 +1311,8 @@ class StripeHelper {
 
   /**
    * Extract subscription update details for billing emails
-   *
-   * @param {StripeEvent} event
    */
-  async extractSubscriptionUpdateEventDetailsForEmail(event) {
+  async extractSubscriptionUpdateEventDetailsForEmail(event: Stripe.Event) {
     if (event.type !== 'customer.subscription.updated') {
       throw error.internalValidationError(
         'extractSubscriptionUpdateEventDetailsForEmail',
@@ -1405,7 +1322,7 @@ class StripeHelper {
     }
 
     const eventData = event.data;
-    const subscription = /** @type {Subscription} */ (eventData.object);
+    const subscription = eventData.object as Stripe.Subscription;
     const customer = await this.expandResource(
       subscription.customer,
       'customers'
@@ -1519,15 +1436,11 @@ class StripeHelper {
   /**
    * Helper for extractSubscriptionUpdateEventDetailsForEmail to further
    * extract details in cancellation case
-   *
-   * @param {Subscription} subscription
-   * @param {*} baseDetails
-   * @param {Invoice} invoice
    */
   async extractSubscriptionUpdateCancellationDetailsForEmail(
-    subscription,
-    baseDetails,
-    invoice
+    subscription: Stripe.Subscription,
+    baseDetails: any,
+    invoice: Stripe.Invoice
   ) {
     const { current_period_end: serviceLastActiveDate } = subscription;
 
@@ -1570,9 +1483,9 @@ class StripeHelper {
    * @param {Invoice} invoice
    */
   async extractSubscriptionUpdateReactivationDetailsForEmail(
-    subscription,
-    baseDetails,
-    invoice
+    subscription: Stripe.Subscription,
+    baseDetails: any,
+    invoice: Stripe.Invoice
   ) {
     const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
 
@@ -1634,22 +1547,15 @@ class StripeHelper {
 
   /**
    * Helper for extractSubscriptionUpdateEventDetailsForEmail to further
-   * extract details in upgrade & downgrade cases
-   *
-   * @param {Subscription} subscription
-   * @param {*} baseDetails
-   * @param {Invoice} invoice
-   * @param {Customer} customer
-   * @param {string} productOrderNew
-   * @param {Plan} planOld
+   * extract details in upgrade & downgrade cases.
    */
   async extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
-    subscription,
-    baseDetails,
-    invoice,
-    customer,
-    productOrderNew,
-    planOld
+    subscription: Stripe.Subscription,
+    baseDetails: any,
+    invoice: Stripe.Invoice,
+    customer: Stripe.Customer,
+    productOrderNew: string,
+    planOld: Stripe.Plan
   ) {
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -1709,7 +1615,10 @@ class StripeHelper {
    *
    * @returns {Promise<T>}
    */
-  async expandResource(resource, resourceType) {
+  async expandResource<T>(
+    resource: string | T,
+    resourceType: string
+  ): Promise<T> {
     if (typeof resource !== 'string') {
       return resource;
     }
@@ -1728,11 +1637,8 @@ class StripeHelper {
   /**
    * Accept a Stripe Plan, attempt to expand an AbbrevProduct from cache
    * or Stripe fetch
-   *
-   * @param {Plan} plan
-   * @returns { Promise<AbbrevProduct> }
    */
-  async expandAbbrevProductForPlan(plan) {
+  async expandAbbrevProductForPlan(plan: Stripe.Plan): Promise<AbbrevProduct> {
     // @ts-ignore
     const checkDeletedProduct = (product) => {
       if (product.deleted === true) {
@@ -1765,7 +1671,7 @@ class StripeHelper {
    * @param {Plan} plan
    * @param {AbbrevProduct} abbrevProduct
    */
-  mergeMetadata(plan, abbrevProduct) {
+  mergeMetadata(plan: Stripe.Plan, abbrevProduct: AbbrevProduct) {
     return {
       ...abbrevProduct.product_metadata,
       ...plan.metadata,
@@ -1775,13 +1681,8 @@ class StripeHelper {
 
 /**
  * Create a Stripe Helper with built-in caching.
- *
- * @param {object} log
- * @param {object} config
- * @param {import('hot-shots').StatsD | undefined} statsd
- * @returns StripeHelper
  */
-function createStripeHelper(log, config, statsd) {
+function createStripeHelper(log: any, config: any, statsd?: StatsD) {
   return new StripeHelper(log, config, statsd);
 }
 // HACK: Hang some references off the factory function so we can use it as
