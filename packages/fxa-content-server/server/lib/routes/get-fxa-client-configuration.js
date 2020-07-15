@@ -33,6 +33,7 @@ module.exports = function (config) {
     ),
     profile_server_base_url: normalizeUrl(config.get('profile_url')),
     sync_tokenserver_base_url: normalizeUrl(config.get('sync_tokenserver_url')),
+    ecosystem_anon_id_keys: config.get('ecosystem_anon_id.keys'),
   };
 
   // This response will very rarely change, so enable caching by default.
