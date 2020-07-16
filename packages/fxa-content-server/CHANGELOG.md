@@ -1,3 +1,22 @@
+## 1.180.0
+
+### New features
+
+- AET: Add 'ecosystem_anon_id' field to content server config and expose keys in fxa-client-configuration ([f381b493a](https://github.com/mozilla/fxa/commit/f381b493a))
+
+### Bug fixes
+
+- tests: Fix broken get-fxa-client content-server test ([61ef7b24e](https://github.com/mozilla/fxa/commit/61ef7b24e))
+- delete account: Filter active subscriptions for unique product names ([13ab4bc4a](https://github.com/mozilla/fxa/commit/13ab4bc4a))
+- content-server: create storage size limit to uploaded avatar image. ([3a7f3a41e](https://github.com/mozilla/fxa/commit/3a7f3a41e))
+- cad: don't show CAD if user declines sync in sync optional flow ([7b96d85bf](https://github.com/mozilla/fxa/commit/7b96d85bf))
+- style: add margin to the 'account recovery' button ([a86941713](https://github.com/mozilla/fxa/commit/a86941713))
+- pair: Add marketings links (app badges) to pairing page ([b0d919d21](https://github.com/mozilla/fxa/commit/b0d919d21))
+
+### Other changes
+
+- cad: disable qr code experiment ([9b3c53992](https://github.com/mozilla/fxa/commit/9b3c53992))
+
 ## 1.179.4
 
 No changes.

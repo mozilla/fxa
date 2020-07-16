@@ -1,5 +1,16 @@
 # Change history
 
+## 1.180.0
+
+### New features
+
+- payments: new subscription payment page with card authentication support ([56f28f7a1](https://github.com/mozilla/fxa/commit/56f28f7a1))
+
+### Bug fixes
+
+- l10n: fixed currency localization for "other than US" locales ([79f6eebd9](https://github.com/mozilla/fxa/commit/79f6eebd9))
+- payments: remove legal links from footer of payment update form ([90e2c097b](https://github.com/mozilla/fxa/commit/90e2c097b))
+
 ## 1.179.4
 
 No changes.

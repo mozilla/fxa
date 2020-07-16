@@ -1,3 +1,9 @@
+## 1.180.0
+
+### New features
+
+- aet: Add ecosystemAnonId to auth-db and mysql ([49917be6c](https://github.com/mozilla/fxa/commit/49917be6c))
+
 ## 1.179.4
 
 No changes.

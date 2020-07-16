@@ -1,5 +1,11 @@
 # Change history
 
+## 1.180.0
+
+### New features
+
+- payments: Support new download URLs for legal links in emails ([28ebf9572](https://github.com/mozilla/fxa/commit/28ebf9572))
+
 ## 1.179.4
 
 No changes.

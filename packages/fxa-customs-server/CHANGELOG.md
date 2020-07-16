@@ -1,3 +1,9 @@
+## 1.180.0
+
+### Other changes
+
+- 80bc2ebae [fxa-customs-server] Support graceful shutdown via SIGTERM/SIGINT ([80bc2ebae](https://github.com/mozilla/fxa/commit/80bc2ebae))
+
 ## 1.179.4
 
 No changes.
