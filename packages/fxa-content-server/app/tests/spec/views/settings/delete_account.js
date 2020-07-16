@@ -120,6 +120,12 @@ describe('views/settings/delete_account', function () {
         status: 'active',
       },
       {
+        plan_id: 'plan_1',
+        product_id: 'prod_123',
+        product_name: '321Done Pro',
+        status: 'active',
+      },
+      {
         plan_id: 'plan_2',
         product_id: 'prod_123',
         product_name: '321Done Pro',
@@ -128,13 +134,13 @@ describe('views/settings/delete_account', function () {
       {
         plan_id: 'plan_3',
         product_id: 'prod_123',
-        product_name: '321Done Pro',
+        product_name: '321Done Pro II',
         status: 'trialing',
       },
       {
         plan_id: 'plan_4',
         product_id: 'prod_123',
-        product_name: '321Done Pro',
+        product_name: '321Done Pro III',
         status: 'past_due',
       },
     ];
@@ -318,7 +324,7 @@ describe('views/settings/delete_account', function () {
           },
           {
             plan_id: '321doneProYearly',
-            product_name: '321done Pro',
+            product_name: '321done Pro II',
             status: 'cancelled',
           },
         ];
@@ -371,7 +377,7 @@ describe('views/settings/delete_account', function () {
         assert.isTrue(view._fetchActiveSubscriptions.calledOnce);
       });
 
-      it('renders only subscriptions with a status of "active", "trialing", or "past_due"', () => {
+      it('renders only subscriptions with a status of "active", "trialing", or "past_due" and a unique "product_name"', () => {
         assert.lengthOf(view.$('.delete-account-product-subscription'), 3);
       });
 
