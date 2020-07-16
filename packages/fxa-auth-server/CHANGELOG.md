@@ -1,3 +1,29 @@
+## 1.180.0
+
+### New features
+
+- auth-server: use payment method on file for card ([c0642d514](https://github.com/mozilla/fxa/commit/c0642d514))
+- profile+auth: pass anon id from profile to auth to db ([eb71dd4db](https://github.com/mozilla/fxa/commit/eb71dd4db))
+- payments: Support new download URLs for legal links in emails ([28ebf9572](https://github.com/mozilla/fxa/commit/28ebf9572))
+- payments: new subscription payment page with card authentication support ([56f28f7a1](https://github.com/mozilla/fxa/commit/56f28f7a1))
+- aet: Add ecosystemAnonId to auth-db and mysql ([49917be6c](https://github.com/mozilla/fxa/commit/49917be6c))
+
+### Bug fixes
+
+- l10n: use accept language for currency l10n in emails ([57302814b](https://github.com/mozilla/fxa/commit/57302814b))
+- test: use ts-node in transpile only mode for script tests ([48fc0ac65](https://github.com/mozilla/fxa/commit/48fc0ac65))
+- lint: lol @ .swp in git ([cbe376905](https://github.com/mozilla/fxa/commit/cbe376905))
+- tests: replace returns with resolves on stubs ([12efa0371](https://github.com/mozilla/fxa/commit/12efa0371))
+
+### Refactorings
+
+- auth-server: convert stripe.js to TS ([4ceb4f291](https://github.com/mozilla/fxa/commit/4ceb4f291))
+- auth: remove redundant subscription code ([69fa047b2](https://github.com/mozilla/fxa/commit/69fa047b2))
+
+### Other changes
+
+- 6fc613c9f [fxa-auth-server] Support graceful shutdown also via SIGTERM ([6fc613c9f](https://github.com/mozilla/fxa/commit/6fc613c9f))
+
 ## 1.179.4
 
 ### Bug fixes

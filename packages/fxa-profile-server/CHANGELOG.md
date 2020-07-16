@@ -1,3 +1,9 @@
+## 1.180.0
+
+### New features
+
+- profile+auth: pass anon id from profile to auth to db ([eb71dd4db](https://github.com/mozilla/fxa/commit/eb71dd4db))
+
 ## 1.179.4
 
 No changes.
