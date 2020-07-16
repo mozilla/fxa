@@ -15308,7 +15308,7 @@ fsevents@^1.2.7:
     keyv: 3.0.0
     leftpad: 0.0.0
     load-grunt-tasks: ^5.1.0
-    lodash: ^4.17.15
+    lodash: ^4.17.19
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
     mailparser: 0.6.1
@@ -15466,7 +15466,7 @@ fsevents@^1.2.7:
     jsxgettext-recursive-next: 1.1.0
     legal-docs: "git://github.com/mozilla/legal-docs.git#192bc493988026c4ebd065132a0796548fb3431e"
     load-grunt-tasks: ^5.1.0
-    lodash: 4.17.13
+    lodash: ^4.17.19
     mkdirp: 0.5.1
     mocha: ^7.1.2
     morgan: ^1.10.0
@@ -15989,7 +15989,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     gm-reloaded: 1.24.0
     insist: 1.0.1
-    lodash: ~4.17.15
+    lodash: ^4.17.19
     mkdirp: 0.5.1
     mocha: ^7.1.2
     mocha-text-cov: 0.1.1
@@ -21928,17 +21928,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.13":
-  version: 4.17.13
-  resolution: "lodash@npm:4.17.13"
-  checksum: 8c8f32c5b36c8e95015f5608ecf875f8dabbfa39b5ef4f500394c357ee5ae10e735bc4dbca351d540e29068925aece8fc39ffee86782f6113902d28703a10ef9
-  languageName: node
-  linkType: hard
-
-"lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
-  version: 4.17.15
-  resolution: "lodash@npm:4.17.15"
-  checksum: aec3fbb7570aa67bda500b8299b1b1821d60646bede87f76a74dfcc7666ab3445267d734ec71424d70809d52ad67a1356fab5ab694a3faa1908d68e9d48f00f5
+"lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
+  version: 4.17.19
+  resolution: "lodash@npm:4.17.19"
+  checksum: ff2b7a95f0129dba9101e346d44e0eda0f159d76bbbf23721eec1969b87a32bde3de0cfef0733218c64620e9be08040a973278d46a686540233b356115f3527c
   languageName: node
   linkType: hard
 

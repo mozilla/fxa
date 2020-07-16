@@ -33,7 +33,7 @@
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "workspace:*",
     "gm-reloaded": "1.24.0",
-    "lodash": "~4.17.15",
+    "lodash": "^4.17.19",
     "mozlog": "2.2.0",
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
