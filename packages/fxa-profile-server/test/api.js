@@ -1044,6 +1044,125 @@ describe('api', function () {
       });
     });
 
+    describe('upload-header-excludes', function() {
+      let origHeaderExcludes = null;
+      before(function() {
+        origHeaderExcludes = config.get('worker.headers_exclude');
+        config.set('worker.headers_exclude', ['host', 'x-my-header']);
+      });
+      after(function() {
+        config.set('worker.headers_exclude', origHeaderExcludes);
+      });
+      it('should exclude configured worker request headers', function() {
+        this.slow(2000);
+        this.timeout(3000);
+        mock.token({
+          user: USERID,
+          scope: ['profile:avatar:write'],
+        });
+        mock.log('img_workers', function (rec) {
+          if (rec.levelname === 'DEBUG' && rec.args[0] === 'upload.headers') {
+            assert.equal(rec.args[1]['x-my-header'], null);
+            assert.equal(rec.args[1].authorization, 'Bearer ' + tok);
+            return true;
+          }
+        });
+        mock.image(imageData.length);
+        return Server.api
+          .post({
+            url: '/avatar/upload',
+            payload: imageData,
+            headers: {
+              authorization: 'Bearer ' + tok,
+              'Content-Type': 'image/png',
+              'Content-Length': imageData.length,
+              'X-My-Header': 'some value',
+            },
+          })
+          .then(function(res) {
+            assert.equal(res.statusCode, 201);
+            assert(res.result.url);
+            assert(res.result.id);
+            assertSecurityHeaders(res);
+            return res.result.url;
+          })
+          .then(function(s3url) {
+            return P.all(SIZE_SUFFIXES).map(function(suffix) {
+              return Static.get(s3url + suffix);
+            });
+          })
+          .then(function(responses) {
+            assert.equal(responses.length, SIZE_SUFFIXES.length);
+            responses.forEach(function(res) {
+              assert.equal(res.statusCode, 200);
+            });
+          });
+      });
+    });
+
+    describe('upload-header-unconfigured', function() {
+      let origHeaderExcludes = null;
+      before(function() {
+        origHeaderExcludes = config.get('worker.headers_exclude');
+
+        config.set('worker.headers_exclude', []);
+      });
+      after(function() {
+        config.set('worker.headers_exclude', origHeaderExcludes);
+      });
+      it('should pass-through all worker request headers', function() {
+        this.slow(2000);
+        this.timeout(3000);
+        mock.token({
+          user: USERID,
+          scope: ['profile:avatar:write'],
+        });
+        mock.image(imageData.length);
+        mock.log('img_workers', function (rec) {
+          if (rec.levelname === 'DEBUG' && rec.args[0] === 'upload.headers') {
+            assert.equal(rec.args[1]['host'], 'profile.firefox.local');
+            assert.equal(rec.args[1]['x-my-header'], 'some value');
+            assert.equal(rec.args[1]['x-ignored-header'], 'some value');
+            assert.equal(rec.args[1]['authorization'], 'Bearer ' + tok);
+            assert.equal(rec.args[1]['content-type'], 'image/png');
+            assert.equal(rec.args[1]['content-length'], imageData.length);
+            return true;
+          }
+        });
+        return Server.api
+          .post({
+            url: '/avatar/upload',
+            payload: imageData,
+            headers: {
+              host: 'profile.firefox.local',
+              authorization: 'Bearer ' + tok,
+              'content-type': 'image/png',
+              'content-length': imageData.length,
+              'X-My-Header': 'some value',
+              'X-Ignored-Header': 'some value',
+            },
+          })
+          .then(function(res) {
+            assert.equal(res.statusCode, 201);
+            assert(res.result.url);
+            assert(res.result.id);
+            assertSecurityHeaders(res);
+            return res.result.url;
+          })
+          .then(function(s3url) {
+            return P.all(SIZE_SUFFIXES).map(function(suffix) {
+              return Static.get(s3url + suffix);
+            });
+          })
+          .then(function(responses) {
+            assert.equal(responses.length, SIZE_SUFFIXES.length);
+            responses.forEach(function(res) {
+              assert.equal(res.statusCode, 200);
+            });
+          });
+      });
+    });
+
     describe('DELETE', function () {
       var user = uid();
 
