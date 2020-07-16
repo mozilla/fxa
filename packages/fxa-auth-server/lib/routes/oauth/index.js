@@ -291,9 +291,13 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             uid = tokenVerify.user;
           }
 
+          const account = await db.account(uid);
+          const ecosystemAnonId = account.ecosystemAnonId;
+
           await request.emitMetricsEvent('oauth.token.created', {
             grantType: request.payload.grant_type,
             uid,
+            ecosystemAnonId,
           });
         } catch (ex) {}
 
