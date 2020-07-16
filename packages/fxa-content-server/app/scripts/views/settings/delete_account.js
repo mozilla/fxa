@@ -33,6 +33,7 @@ var View = FormView.extend({
       });
     }
     this._activeSubscriptions = [] || options.activeSubscriptions;
+    this._uniqueActiveSubscriptionNames = [];
     this._uniqueBrowserNames = [];
     this._hasTwoColumnProductList = false;
     this._hideProductContainer = false;
@@ -43,7 +44,7 @@ var View = FormView.extend({
       email: this.getSignedInAccount().get('email'),
       clients: this._attachedClients.toJSON(),
       isPanelOpen: this.isPanelOpen(),
-      subscriptions: this._activeSubscriptions,
+      subscriptions: this._uniqueActiveSubscriptionNames,
       uniqueBrowserNames: this._uniqueBrowserNames,
       hasTwoColumnProductList: this._hasTwoColumnProductList,
       hideProductContainer: this._hideProductContainer,
@@ -65,6 +66,7 @@ var View = FormView.extend({
     ])
       .then(() => {
         this._uniqueBrowserNames = this._setuniqueBrowserNames();
+        this._uniqueActiveSubscriptionNames = this._setUniqueActiveSubscriptionNames();
 
         const numberOfProducts = this._getNumberOfProducts();
         if (numberOfProducts === 0) {
@@ -99,6 +101,10 @@ var View = FormView.extend({
     });
   },
 
+  _setUniqueActiveSubscriptionNames() {
+    return [...new Set((this._activeSubscriptions).map(activeSub => activeSub.product_name))];
+  },
+
   _setuniqueBrowserNames() {
     // filter clients for `webSession` clientTypes with unique
     // `userAgent`, replace numeric versioning with 'browser'.
@@ -122,7 +128,7 @@ var View = FormView.extend({
 
   _getNumberOfProducts() {
     let numberOfProducts =
-      this._uniqueBrowserNames.length + this._activeSubscriptions.length;
+      this._uniqueBrowserNames.length + this._uniqueActiveSubscriptionNames.length;
     // eslint-disable-next-line no-unused-vars
     for (const client of this._attachedClients.toJSON()) {
       if (client.isOAuthApp === true) {
