@@ -18,6 +18,15 @@
     margin-bottom: 10px;
   }
 
+  .highlight {
+    background-color: #ffffba;
+  }
+
+  .verification {
+    margin-left: 10px;
+    font-size: 16px;
+  }
+
   .email-bounce {
     border-image: linear-gradient(to bottom, var(--ff-brand-gradient)) 0 100%;
     border-left: 1px solid;
@@ -38,5 +47,9 @@
   .result {
     color: var(--color-primary);
     font-weight: var(--font-weight-regular);
+  }
+
+  .secondary-emails {
+    margin-bottom: 20px;
   }
 }

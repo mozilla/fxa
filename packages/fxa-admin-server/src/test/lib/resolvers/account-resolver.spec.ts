@@ -6,6 +6,7 @@ import 'reflect-metadata';
 
 import { assert } from 'chai';
 import { graphql, GraphQLSchema } from 'graphql';
+import Chance from 'chance';
 import Knex from 'knex';
 import 'mocha';
 import { buildSchema } from 'type-graphql';
@@ -14,17 +15,21 @@ import {
   randomAccount,
   randomEmail,
   randomEmailBounce,
-  testDatabaseSetup
+  testDatabaseSetup,
 } from '../db/models/helpers';
 import { mockContext } from '../mocks';
 
 import { Account, EmailBounces } from '../../../lib/db/models';
 import { AccountResolver } from '../../../lib/resolvers/account-resolver';
 import { EmailBounceResolver } from '../../../lib/resolvers/email-bounce-resolver';
-import { BounceSubType, BounceType } from '../../../lib/resolvers/types/email-bounces';
+import {
+  BounceSubType,
+  BounceType,
+} from '../../../lib/resolvers/types/email-bounces';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
+const EMAIL_2 = randomEmail(USER_1, true);
 const EMAIL_BOUNCE_1 = randomEmailBounce(USER_1.email);
 
 const USER_2 = randomAccount();
@@ -37,10 +42,12 @@ describe('accountResolver', () => {
   before(async () => {
     knex = await testDatabaseSetup();
     // Load the users in
-    await (Account as any).query().insertGraph({ ...USER_1, emails: [EMAIL_1] });
+    await (Account as any)
+      .query()
+      .insertGraph({ ...USER_1, emails: [EMAIL_1, EMAIL_2] });
     await EmailBounces.query().insert(EMAIL_BOUNCE_1);
     schema = await buildSchema({
-      resolvers: [AccountResolver, EmailBounceResolver]
+      resolvers: [AccountResolver, EmailBounceResolver],
     });
   });
 
@@ -64,7 +71,7 @@ describe('accountResolver', () => {
     assert.isDefined(result.data.accountByUid);
     assert.deepEqual(result.data.accountByUid, {
       email: USER_1.email,
-      uid: USER_1.uid
+      uid: USER_1.uid,
     });
     assert.isTrue(context.logAction.calledOnce);
   });
@@ -94,7 +101,7 @@ describe('accountResolver', () => {
     assert.isDefined(result.data.accountByEmail);
     assert.deepEqual(result.data.accountByEmail, {
       email: USER_1.email,
-      uid: USER_1.uid
+      uid: USER_1.uid,
     });
     assert.isTrue(context.logAction.calledOnce);
   });
@@ -109,6 +116,39 @@ describe('accountResolver', () => {
     const result = (await graphql(schema, query, undefined, context)) as any;
     assert.isDefined(result.data);
     assert.isNull(result.data.accountByEmail);
+    assert.isTrue(context.logAction.calledOnce);
+  });
+
+  it('loads all emails with field resolver', async () => {
+    const query = `query {
+      accountByEmail(email: "${USER_1.email}") {
+        emails {
+          email
+          isPrimary
+          isVerified
+          createdAt
+        }
+      }
+    }`;
+    const result = (await graphql(schema, query, undefined, context)) as any;
+    assert.isDefined(result.data);
+    assert.isDefined(result.data.accountByEmail);
+    assert.deepEqual(result.data.accountByEmail, {
+      emails: [
+        {
+          email: USER_1.email,
+          isPrimary: true,
+          isVerified: true,
+          createdAt: EMAIL_1.createdAt,
+        },
+        {
+          email: EMAIL_2.email,
+          isPrimary: false,
+          isVerified: true,
+          createdAt: EMAIL_2.createdAt,
+        },
+      ],
+    });
     assert.isTrue(context.logAction.calledOnce);
   });
 
@@ -135,10 +175,10 @@ describe('accountResolver', () => {
           bounceSubType: BounceSubType[EMAIL_BOUNCE_1.bounceSubType],
           bounceType: BounceType[EMAIL_BOUNCE_1.bounceType],
           createdAt: EMAIL_BOUNCE_1.createdAt,
-          email: EMAIL_BOUNCE_1.email
-        }
+          email: EMAIL_BOUNCE_1.email,
+        },
       ],
-      uid: USER_1.uid
+      uid: USER_1.uid,
     });
     assert.isTrue(context.logAction.calledOnce);
   });

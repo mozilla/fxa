@@ -11,7 +11,7 @@ import {
   IntrospectionEnumType,
   IntrospectionObjectType,
   IntrospectionSchema,
-  TypeKind
+  TypeKind,
 } from 'graphql';
 import 'mocha';
 import { buildSchema } from 'type-graphql';
@@ -26,74 +26,86 @@ describe('Schema', () => {
   let mutationType: IntrospectionObjectType;
 
   beforeEach(async () => {
-    const schema = await buildSchema({ resolvers: [AccountResolver, EmailBounceResolver] });
+    const schema = await buildSchema({
+      resolvers: [AccountResolver, EmailBounceResolver],
+    });
     builtSchema = await graphql(schema, getIntrospectionQuery());
     schemaIntrospection = builtSchema.data!.__schema as IntrospectionSchema;
     assert.isDefined(schemaIntrospection);
     queryType = schemaIntrospection.types.find(
-      type => type.name === (schemaIntrospection as IntrospectionSchema).queryType.name
+      (type) =>
+        type.name ===
+        (schemaIntrospection as IntrospectionSchema).queryType.name
     ) as IntrospectionObjectType;
 
     const mutationTypeNameRef = schemaIntrospection.mutationType;
     if (mutationTypeNameRef) {
       mutationType = schemaIntrospection.types.find(
-        type => type.name === mutationTypeNameRef.name
+        (type) => type.name === mutationTypeNameRef.name
       ) as IntrospectionObjectType;
     }
   });
 
   function findTypeByName(name: string) {
     return schemaIntrospection.types.find(
-      type => type.kind === TypeKind.OBJECT && type.name === name
+      (type) => type.kind === TypeKind.OBJECT && type.name === name
     ) as IntrospectionObjectType;
   }
 
   function findEnumByName(name: string) {
     return schemaIntrospection.types.find(
-      type => type.kind === TypeKind.ENUM && type.name === name
+      (type) => type.kind === TypeKind.ENUM && type.name === name
     ) as IntrospectionEnumType;
   }
 
   it('is created with expected types', async () => {
-    const queryNames = queryType.fields.map(it => it.name);
+    const queryNames = queryType.fields.map((it) => it.name);
     assert.sameMembers(queryNames, ['accountByUid', 'accountByEmail']);
 
-    const mutationNames = mutationType.fields.map(it => it.name);
+    const mutationNames = mutationType.fields.map((it) => it.name);
     assert.sameMembers(mutationNames, ['clearEmailBounce']);
 
     const accountType = findTypeByName('Account');
     assert.isDefined(accountType);
-    assert.lengthOf(accountType.fields, 5);
-    const accountTypeNames = accountType.fields.map(it => it.name);
+    assert.lengthOf(accountType.fields, 6);
+    const accountTypeNames = accountType.fields.map((it) => it.name);
     assert.sameMembers(accountTypeNames, [
       'uid',
       'email',
+      'emails',
       'emailVerified',
       'createdAt',
-      'emailBounces'
+      'emailBounces',
     ]);
 
     const emailBounceType = findTypeByName('EmailBounce');
     assert.isDefined(emailBounceType);
     assert.lengthOf(emailBounceType.fields, 4);
-    const emailBounceTypeNames = emailBounceType.fields.map(it => it.name);
-    assert.sameMembers(emailBounceTypeNames, ['email', 'bounceType', 'bounceSubType', 'createdAt']);
+    const emailBounceTypeNames = emailBounceType.fields.map((it) => it.name);
+    assert.sameMembers(emailBounceTypeNames, [
+      'email',
+      'bounceType',
+      'bounceSubType',
+      'createdAt',
+    ]);
 
     const bounceTypeEnum = findEnumByName('BounceType');
     assert.isDefined(bounceTypeEnum);
     assert.lengthOf(bounceTypeEnum.enumValues, 4);
-    const bounceTypeValues = bounceTypeEnum.enumValues.map(it => it.name);
+    const bounceTypeValues = bounceTypeEnum.enumValues.map((it) => it.name);
     assert.sameOrderedMembers(bounceTypeValues, [
       'unmapped',
       'Permanent',
       'Transient',
-      'Complaint'
+      'Complaint',
     ]);
 
     const bounceSubTypeEnum = findEnumByName('BounceSubType');
     assert.isDefined(bounceSubTypeEnum);
     assert.lengthOf(bounceSubTypeEnum.enumValues, 15);
-    const bounceSubTypeValues = bounceSubTypeEnum.enumValues.map(it => it.name);
+    const bounceSubTypeValues = bounceSubTypeEnum.enumValues.map(
+      (it) => it.name
+    );
     assert.sameOrderedMembers(bounceSubTypeValues, [
       'unmapped',
       'Undetermined',
@@ -109,7 +121,7 @@ describe('Schema', () => {
       'Fraud',
       'NotSpam',
       'Other',
-      'Virus'
+      'Virus',
     ]);
   });
 });

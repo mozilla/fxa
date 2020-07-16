@@ -10,11 +10,11 @@ import './index.scss';
 
 type AccountProps = {
   uid: string;
-  email: string;
   createdAt: number;
-  emailVerified: boolean;
-  emailBounces: Array<EmailBounceProps>;
+  emails: EmailProps[];
+  emailBounces: EmailBounceProps[];
   onCleared: Function;
+  query: string;
 };
 
 type EmailBounceProps = {
@@ -22,6 +22,13 @@ type EmailBounceProps = {
   createdAt: number;
   bounceType: string;
   bounceSubType: string;
+};
+
+type EmailProps = {
+  email: string;
+  isVerified: boolean;
+  isPrimary: boolean;
+  createdAt: number;
 };
 
 const DATE_FORMAT = 'yyyy-mm-dd @ HH:MM:ss Z';
@@ -33,10 +40,10 @@ export const CLEAR_BOUNCES_BY_EMAIL = gql`
 `;
 
 export const ClearButton = ({
-  email,
+  emails,
   onCleared,
 }: {
-  email: string;
+  emails: string[];
   onCleared: Function;
 }) => {
   const [clearBounces] = useMutation(CLEAR_BOUNCES_BY_EMAIL);
@@ -46,7 +53,10 @@ export const ClearButton = ({
       return;
     }
 
-    clearBounces({ variables: { email } });
+    // This could be improved to clear bounces for individual email
+    // addresses, but for now it seems satisfactory to clear all bounces
+    // for all emails, since they own all of the addresses
+    emails.forEach((email) => clearBounces({ variables: { email } }));
     onCleared();
   };
 
@@ -59,24 +69,34 @@ export const ClearButton = ({
 
 export const Account = ({
   uid,
-  email,
+  emails,
   createdAt,
-  emailVerified,
   emailBounces,
   onCleared,
+  query,
 }: AccountProps) => {
   const date = dateFormat(new Date(createdAt), DATE_FORMAT);
+  const primaryEmail = emails.find((email) => email.isPrimary)!;
+  const secondaryEmails = emails.filter((email) => !email.isPrimary)!;
 
   return (
     <section className="account" data-testid="account-section">
       <ul>
         <li className="flex justify-space-between">
-          <h3 data-testid="email-label">{email}</h3>
+          <h3 data-testid="email-label">
+            <span
+              className={`${query === primaryEmail.email ? 'highlight' : ''}`}
+            >
+              {primaryEmail.email}
+            </span>
+          </h3>
           <span
             data-testid="verified-status"
-            className={`${emailVerified ? 'verified' : 'not-verified'}`}
+            className={`${
+              primaryEmail.isVerified ? 'verified' : 'not-verified'
+            }`}
           >
-            {emailVerified ? 'verified' : 'not verified'}
+            {primaryEmail.isVerified ? 'verified' : 'not verified'}
           </span>
         </li>
         <li className="flex justify-space-between">
@@ -92,13 +112,46 @@ export const Account = ({
             {date}
           </div>
         </li>
+        {secondaryEmails.length > 0 && (
+          <li className="secondary-emails" data-testid="secondary-section">
+            secondary emails:
+            <ul>
+              {secondaryEmails.map((secondaryEmail) => (
+                <li key={secondaryEmail.createdAt}>
+                  <span
+                    data-testid="secondary-email"
+                    className={`${
+                      query === secondaryEmail.email ? 'highlight' : ''
+                    }`}
+                  >
+                    {secondaryEmail.email}
+                  </span>
+                  <span
+                    data-testid="secondary-verified"
+                    className={`verification ${
+                      secondaryEmail.isVerified ? 'verified' : 'not-verified'
+                    }`}
+                  >
+                    {secondaryEmail.isVerified ? 'verified' : 'not verified'}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </li>
+        )}
+        <li></li>
         <li>
           <h4>Email bounces</h4>
         </li>
 
         {emailBounces.length > 0 ? (
           <>
-            <ClearButton {...{ email }} {...{ onCleared }} />
+            <ClearButton
+              {...{
+                emails: emails.map((emails) => emails.email),
+                onCleared,
+              }}
+            />
             {emailBounces.map((emailBounce: EmailBounceProps) => (
               <EmailBounce key={emailBounce.createdAt} {...emailBounce} />
             ))}
