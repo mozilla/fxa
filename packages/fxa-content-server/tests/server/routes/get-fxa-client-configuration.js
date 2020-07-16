@@ -37,7 +37,7 @@ suite.tests['get-fxa-client-configuration route function'] = {
     mocks.config['pairing.server_base_uri'] = config.get(
       'pairing.server_base_uri'
     );
-    mocks.config.ecosystem_anon_id_keys = config.get('ecosystem_anon_id_keys');
+    mocks.config.ecosystem_anon_id_keys = config.get('ecosystem_anon_id.keys');
     /*eslint-enable camelcase*/
   },
   tests: {
