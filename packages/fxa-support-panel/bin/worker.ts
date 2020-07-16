@@ -37,6 +37,7 @@ async function main() {
     process.exit();
   });
   process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 
   function shutdown() {
     server.stop({ timeout: 10_000 }).then(() => {
