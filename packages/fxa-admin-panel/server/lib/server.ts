@@ -41,6 +41,7 @@ app.use(
   }),
   helmet.xssFilter(),
   helmet.noSniff(),
+  helmet.referrerPolicy({ policy: 'same-origin' }),
   noRobots as express.RequestHandler,
   bodyParser.text({
     type: 'text/plain',
