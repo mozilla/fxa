@@ -78,6 +78,8 @@ const PAGE_TEMPLATE_DIRECTORY = path.join(
 
 logger.info('page_template_directory: %s', PAGE_TEMPLATE_DIRECTORY);
 
+const shutdownHooks = []
+
 function makeApp() {
   const app = express();
   const betaSettingsPath = '/beta/settings';
@@ -179,7 +181,12 @@ function makeApp() {
   const routes = require('../lib/routes')(config, i18n);
   const routeLogger = loggerFactory('server.routes');
   const routeHelpers = routing(app, routeLogger);
-  routes.forEach(routeHelpers.addRoute);
+  routes.forEach(function(route) {
+    routeHelpers.addRoute(route);
+    if (route.terminate) {
+      shutdownHooks.push(route.terminate);
+    }
+  });
 
   if (!config.get('settings.enableBeta')) {
     app.use('/beta/*', function (req, res) {
@@ -227,6 +234,8 @@ function makeApp() {
 
 let app;
 let port;
+let mainServer;
+let httpServer;
 
 function catchStartUpErrors(e) {
   if ('EACCES' === e.code) {
@@ -242,21 +251,22 @@ function catchStartUpErrors(e) {
 
 function listen(theApp) {
   app = theApp || app;
+  port = config.get('port');
+  let server;
   if (config.get('use_https')) {
     // Development only... Ops runs this behind nginx
-    port = config.get('port');
     const tlsoptions = {
       cert: fs.readFileSync(config.get('cert_path')),
       key: fs.readFileSync(config.get('key_path')),
     };
 
-    https.createServer(tlsoptions, app).listen(port);
-    app.on('error', catchStartUpErrors);
+    server = https.createServer(tlsoptions, app).listen(port);
   } else {
-    port = config.get('port');
-    app.listen(port, '0.0.0.0').on('error', catchStartUpErrors);
+    server = app.listen(port, '0.0.0.0')
   }
+  app.on('error', catchStartUpErrors);
   if (isMain) {
+    mainServer = server;
     logger.info('Firefox Account Content server listening on port', port);
     logger.info(
       `Config scopedKeys.validation: ${JSON.stringify(
@@ -286,8 +296,9 @@ function listenHttpRedirectApp(httpApp) {
     ? config.get('redirect_port')
     : config.get('http_port');
 
-  httpApp.listen(httpPort, '0.0.0.0');
+  const server = httpApp.listen(httpPort, '0.0.0.0');
   if (isMain) {
+    httpServer = server;
     logger.info(
       'Firefox Account HTTP redirect server listening on port',
       httpPort
@@ -299,12 +310,41 @@ function isCorsRequired() {
   return config.get('static_resource_url') !== config.get('public_url');
 }
 
+// handle shutdown
+function shutdown(signal) {
+  return function () {
+    logger.info('Graceful shutdown received', { signal });
+    shutdownHooks.forEach(function(hook) {
+      try {
+        hook();
+      } catch (err) {
+        logger.warn('Shutdown hook failed', {
+          error: err
+        });
+      }
+    })
+    try {
+      httpServer.close();
+    } catch (err) {
+      logger.warn('Shutdown redirect app failed', {
+        error: err
+      });
+    }
+    mainServer.close();
+    logger.info('Graceful shutdown completed');
+  };
+}
+
 if (isMain) {
   app = makeApp();
   listen(app);
 
   const httpApp = makeHttpRedirectApp();
   listenHttpRedirectApp(httpApp);
+
+  ['SIGINT', 'SIGTERM'].forEach(function (signal) {
+    process.on(signal, shutdown(signal.substr(3)));
+  });
 } else {
   module.exports = {
     listen: listen,
