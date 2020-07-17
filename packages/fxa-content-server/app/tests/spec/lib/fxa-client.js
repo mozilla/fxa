@@ -1884,4 +1884,61 @@ describe('lib/fxa-client', function () {
       });
     });
   });
+
+  describe('updateEcosystemAnonId', () => {
+    const sessionToken = 'the silence';
+    const ecosystemAnonId = 'the gold';
+
+    it('calls the client method', () => {
+      const clientMethod = sinon
+        .stub(realClient, 'updateEcosystemAnonId')
+        .resolves();
+
+      return client
+        .updateEcosystemAnonId(sessionToken, ecosystemAnonId)
+        .then((res) => {
+          sinon.assert.calledWith(clientMethod, sessionToken, ecosystemAnonId);
+        });
+    });
+
+    it('calls the request method', () => {
+      sinon.spy(realClient, 'updateEcosystemAnonId');
+      const requestMethod = sinon.stub(realClient, 'sessionPut').resolves();
+
+      return client
+        .updateEcosystemAnonId(sessionToken, ecosystemAnonId)
+        .then((res) => {
+          requestMethod.calledWith(
+            '/account/ecosystemAnonId',
+            sessionToken,
+            {
+              ecosystemAnonId,
+            },
+            new Headers({})
+          );
+        });
+    });
+
+    it('supports ifNoneMatch option', () => {
+      sinon.spy(realClient, 'updateEcosystemAnonId');
+      const requestMethod = sinon.stub(realClient, 'sessionPut').resolves();
+
+      return client
+        .updateEcosystemAnonId(sessionToken, ecosystemAnonId, {
+          ifNoneMatch: '*',
+        })
+        .then((res) => {
+          requestMethod.calledWith(
+            '/account/ecosystemAnonId',
+            sessionToken,
+            {
+              ecosystemAnonId,
+            },
+            new Headers({
+              'If-None-Match': '*',
+            })
+          );
+        });
+    });
+  });
 });

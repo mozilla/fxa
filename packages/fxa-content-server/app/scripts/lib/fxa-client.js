@@ -1393,6 +1393,24 @@ FxaClientWrapper.prototype = {
    * @returns {Promise} resolves with response when complete.
    */
   createCadReminder: createClientDelegate('createCadReminder'),
+
+  /**
+   * Update a user's ecosystem anon ID
+   *
+   * @method updateEcosystemAnonId
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @param {String} ecosystemAnonId the new Ecosystem Anonymous ID
+   * @return {Promise} A promise that will be fulfilled with an empty response object
+   */
+  updateEcosystemAnonId: withClient(
+    (client, sessionToken, ecosystemAnonId, options = {}) => {
+      return client.updateEcosystemAnonId(
+        sessionToken,
+        ecosystemAnonId,
+        options
+      );
+    }
+  ),
 };
 
 export default FxaClientWrapper;
