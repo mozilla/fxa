@@ -164,12 +164,25 @@ export async function createServer() {
   const port = config.get('listen.port');
   const host = config.get('listen.host');
   logger.info('server.starting', { port });
-  app.listen(port, host, (error) => {
+  const server = app.listen(port, host, (error) => {
     if (error) {
       logger.error('server.start.error', { error });
       return;
     }
 
     logger.info('server.started', { port });
+  });
+
+  const shutdown = (signal: NodeJS.Signals) => {
+    logger.info('server.shutdown', {message: `Graceful shutdown requested (${signal})`});
+    server.close();
+    logger.info('server.shutdown', {message: `Graceful shutdown completed`});
+  }
+
+  Object.values<NodeJS.Signals>(['SIGINT', 'SIGTERM'])
+  .forEach(signal => {
+    process.on(signal, () => {
+      shutdown(signal);
+    });
   });
 }
