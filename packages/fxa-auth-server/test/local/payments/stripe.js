@@ -2121,6 +2121,7 @@ describe('StripeHelper', () => {
       ...mockInvoice,
       id: 'inv_upcoming',
       amount_due: 299000,
+      next_payment_attempt: 1590018018,
     };
 
     const mockCharge = {
@@ -2702,6 +2703,13 @@ describe('StripeHelper', () => {
           expectedBaseUpdateDetails,
           mockInvoice
         );
+        assert.deepEqual(mockStripe.invoices.retrieveUpcoming.args, [
+          [
+            {
+              subscription: event.data.object.id,
+            },
+          ],
+        ]);
         assert.deepEqual(result, defaultExpected);
       });
 
