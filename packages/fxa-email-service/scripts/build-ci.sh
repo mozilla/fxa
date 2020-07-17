@@ -15,6 +15,8 @@ docker cp "$ID":/app/.sourcehash /tmp
 
 if diff .sourcehash /tmp/.sourcehash ; then
   echo "The source is unchanged. Skipping build"
+  # tag latest as build so that deploy.sh will be able to push it as a tagged release, i.e. v1.451.9
+  docker image tag mozilla/fxa-email-service:latest fxa-email-service:build
 else
   cp ../version.json .
   docker build --progress=plain -t fxa-email-service:build . > ../../artifacts/fxa-email-service.log
