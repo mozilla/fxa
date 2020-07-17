@@ -6,6 +6,7 @@ import 'reflect-metadata';
 
 import express from 'express';
 import mozlog from 'mozlog';
+import { Model } from 'objection';
 
 import Config from '../config';
 import { dbHealthCheck } from '../lib/db';
@@ -25,9 +26,23 @@ async function run() {
   server.applyMiddleware({ app });
   app.use(loadBalancerRoutes(dbHealthCheck));
 
-  app.listen({ port: 8090 }, () => {
+  const httpServer = app.listen({ port: 8090 }, () => {
     logger.info('startup', {
       message: `Server is running, GraphQL Playground available at http://localhost:8090${server.graphqlPath}`
+    });
+  });
+
+  const shutdown = (signal: NodeJS.Signals) => {
+    logger.info('shutdown', {message: `Graceful shutdown requested (${signal})`});
+    httpServer.close();
+    Model.knex().destroy();
+    logger.info('shutdown', {message: `Graceful shutdown completed`});
+  }
+
+  Object.values<NodeJS.Signals>(["SIGINT", "SIGTERM"])
+  .forEach(signal => {
+    process.on(signal, () => {
+      shutdown(signal);
     });
   });
 }
