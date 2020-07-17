@@ -440,12 +440,12 @@ describe('StripeHelper', () => {
         .rejects(apiError);
 
       return stripeHelper
-        .createSubscriptionWithPMI(
-          'customerId',
-          'priceId',
-          'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          uuidv4()
-        )
+        .createSubscriptionWithPMI({
+          customerId: 'customerId',
+          priceId: 'priceId',
+          paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          subIdempotencyKey: uuidv4(),
+        })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
           (err) => {
@@ -464,12 +464,12 @@ describe('StripeHelper', () => {
         .rejects(apiError);
 
       return stripeHelper
-        .createSubscriptionWithPMI(
-          'customerId',
-          'invoiceId',
-          'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          uuidv4()
-        )
+        .createSubscriptionWithPMI({
+          customerId: 'customerId',
+          priceId: 'invoiceId',
+          paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
+          subIdempotencyKey: uuidv4(),
+        })
         .then(
           () => Promise.reject(new Error('Method expected to reject')),
           (err) => {

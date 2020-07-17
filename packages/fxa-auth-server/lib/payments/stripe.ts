@@ -261,36 +261,41 @@ class StripeHelper {
   /**
    * Create a subscription for the provided customer.
    */
-  async createSubscriptionWithPMI(
-    customerId: string,
-    priceId: string,
-    paymentMethodId: string,
-    idempotencyKey: string
-  ) {
-    try {
-      await this.stripe.paymentMethods.attach(
-        paymentMethodId,
-        {
-          customer: customerId,
-        },
-        { idempotencyKey: `pma-${idempotencyKey}` }
-      );
-    } catch (err) {
-      if (err.type === 'StripeCardError') {
-        throw error.rejectedSubscriptionPaymentToken(err.message, err);
+  async createSubscriptionWithPMI(opts: {
+    customerId: string;
+    priceId: string;
+    paymentMethodId?: string;
+    subIdempotencyKey: string;
+  }) {
+    const { customerId, priceId, paymentMethodId, subIdempotencyKey } = opts;
+
+    if (paymentMethodId) {
+      try {
+        await this.stripe.paymentMethods.attach(
+          paymentMethodId,
+          {
+            customer: customerId,
+          },
+          { idempotencyKey: `pma-${subIdempotencyKey}` }
+        );
+      } catch (err) {
+        if (err.type === 'StripeCardError') {
+          throw error.rejectedSubscriptionPaymentToken(err.message, err);
+        }
+        throw err;
       }
-      throw err;
+      await this.stripe.customers.update(customerId, {
+        invoice_settings: { default_payment_method: paymentMethodId },
+      });
     }
-    await this.stripe.customers.update(customerId, {
-      invoice_settings: { default_payment_method: paymentMethodId },
-    });
+
     return this.stripe.subscriptions.create(
       {
         customer: customerId,
         items: [{ price: priceId }],
         expand: ['latest_invoice.payment_intent'],
       },
-      { idempotencyKey: `ssc-${idempotencyKey}` }
+      { idempotencyKey: `ssc-${subIdempotencyKey}` }
     );
   }
 
