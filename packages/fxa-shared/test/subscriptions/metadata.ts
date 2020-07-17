@@ -12,6 +12,7 @@ const NULL_METADATA = {
   productOrder: null,
   emailIconURL: null,
   webIconURL: null,
+  webIconBackground: null,
   upgradeCTA: null,
   downloadURL: null,
 };

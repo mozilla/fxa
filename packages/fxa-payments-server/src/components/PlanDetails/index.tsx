@@ -37,13 +37,17 @@ export const PlanDetails = ({
     interval,
     interval_count,
   } = selectedPlan;
-  const { webIconURL } = metadataFromPlan(selectedPlan);
+  const { webIconURL, webIconBackground } = metadataFromPlan(selectedPlan);
   const productDetails = productDetailsFromPlan(
     selectedPlan,
     navigatorLanguages
   );
 
   const role = isMobile ? undefined : 'complementary';
+
+  const setWebIconBackground = webIconBackground
+    ? { background: webIconBackground }
+    : '';
 
   const planPrice = formatPlanPricing(
     amount,
@@ -64,7 +68,10 @@ export const PlanDetails = ({
         >
           <div className="plan-details-header">
             <div className="plan-details-header-wrap">
-              <div className="plan-details-logo-wrap">
+              <div
+                className="plan-details-logo-wrap"
+                style={{ ...setWebIconBackground }}
+              >
                 <img
                   src={webIconURL || ffLogo}
                   alt={product_name}
@@ -84,7 +91,9 @@ export const PlanDetails = ({
                     {planPrice}
                   </Localized>
                   &nbsp;&bull;&nbsp;
-                  <span className="plan-details-subtitle">{productDetails.subtitle}</span>
+                  <span className="plan-details-subtitle">
+                    {productDetails.subtitle}
+                  </span>
                 </p>
               </div>
             </div>

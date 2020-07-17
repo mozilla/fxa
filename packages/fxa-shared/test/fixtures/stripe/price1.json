@@ -12,6 +12,7 @@
     "capabilities:dcdb5ae7add825d2": "123donePro,     gogogo",
     "downloadURL": "http://127.0.0.1:8080/",
     "webIconURL": "https://123done-stage.dev.lcip.org/img/transparent-logo.png",
+    "webIconBackground": "lime",
     "emailIconURL": "https://123done-stage.dev.lcip.org/img/transparent-logo.png",
     "productSet": "123done",
     "productOrder": "0"

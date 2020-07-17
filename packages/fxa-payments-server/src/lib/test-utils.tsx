@@ -313,6 +313,7 @@ export const MOCK_PLANS: Plan[] = [
     product_metadata: {
       productSet: 'example_upgrade',
       webIconURL: 'http://example.com/product.jpg',
+      webIconBackground: 'purple',
     },
   },
   {
@@ -326,6 +327,7 @@ export const MOCK_PLANS: Plan[] = [
     product_metadata: {
       productSet: '123done',
       webIconURL: 'http://example.com/123donepro.jpg',
+      webIconBackground: 'orange',
       'product:subtitle': '123DonePro subtitle',
     },
   },

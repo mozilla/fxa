@@ -79,7 +79,7 @@ function assertPrice(item?: DeepPartial<Stripe.Price>) {
     Object.keys(item?.metadata as any).filter(
       (k) => !k.startsWith('capabilities')
     ),
-    5
+    6
   );
 }
 

@@ -222,6 +222,7 @@ const PLANS: Plan[] = [
     interval_count: 1,
     product_metadata: {
       webIconURL: 'http://placekitten.com/512/512',
+      webIconBackground: 'linear-gradient(purple,lime)',
       'product:subtitle': 'Really keen product',
       'product:details:1':
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit',

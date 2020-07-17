@@ -39,6 +39,7 @@ export const metadataFromPlan = (plan: Plan): ProductMetadata => ({
   productOrder: null,
   emailIconURL: null,
   webIconURL: null,
+  webIconBackground: null,
   upgradeCTA: null,
   downloadURL: null,
   ...plan.product_metadata,

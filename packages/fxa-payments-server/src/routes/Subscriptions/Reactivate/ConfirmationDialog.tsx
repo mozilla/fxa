@@ -24,18 +24,24 @@ export default ({
   customer: Customer;
   periodEndDate: number;
 }) => {
-  const { webIconURL } = metadataFromPlan(plan);
+  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
   const { last4 } = customer;
+
+  const setWebIconBackground = webIconBackground
+    ? { background: webIconBackground }
+    : '';
 
   return (
     <DialogMessage onDismiss={onDismiss}>
-      <img
-        className="fpn-reactivate-subscription"
-        alt={plan.product_name}
-        src={webIconURL || fpnImage}
-        height="48"
-        width="48"
-      />
+      <div className="dialog-icon" style={{ ...setWebIconBackground }}>
+        <img
+          className="reactivate-subscription"
+          alt={plan.product_name}
+          src={webIconURL || fpnImage}
+          height="48"
+          width="48"
+        />
+      </div>
       <Localized
         id="reactivate-confirm-dialog-header"
         $name={plan.product_name}
