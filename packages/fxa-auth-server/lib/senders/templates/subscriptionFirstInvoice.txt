@@ -10,7 +10,7 @@
 
 {{{t "Charged %(invoiceTotal)s on %(invoiceDateOnly)s" }}}
 
-{{{t "%(cardType)s card ending in %(lastFour)s" }}}
+{{#if lastFour}}{{{t "%(cardType)s card ending in %(lastFour)s" }}}{{/if}}
 
 {{{t "Next Invoice: %(nextInvoiceDateOnly)s" }}}
 

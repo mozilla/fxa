@@ -213,6 +213,9 @@ module.exports = function (log, config, oauthdb) {
   };
 
   function cardTypeToText(cardType) {
+    if (!cardType) {
+      return null;
+    }
     return CARD_TYPE_TO_TEXT[cardType] || CARD_TYPE_TO_TEXT.unknown;
   }
 
@@ -387,7 +390,7 @@ module.exports = function (log, config, oauthdb) {
       amountInCents,
       currency,
       // parse outputs them in 'quality' sorted order
-      i18n.parseAcceptLanguage(acceptLanguage).map(a => a.lang)
+      i18n.parseAcceptLanguage(acceptLanguage).map((a) => a.lang)
     );
   };
 

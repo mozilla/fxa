@@ -1167,29 +1167,7 @@ class StripeHelper {
       downloadURL: planDownloadURL = '',
     } = productMetadata;
 
-    if (!charge || !charge.payment_method_details) {
-      throw error.internalValidationError(
-        'extractInvoiceDetailsForEmail',
-        invoice,
-        new Error(
-          `No charge or payment method details found on invoice ${invoice.id}`
-        )
-      );
-    }
-    if (!charge.payment_method_details.card) {
-      // FIXME: Allow invoice emails to be sent with non-card payment methods
-      throw error.internalValidationError(
-        'extractInvoiceDetailsForEmail',
-        invoice,
-        new Error(
-          `Invoice not completed with a card payment, invoice: ${invoice.id}`
-        )
-      );
-    }
-    const {
-      brand: cardType,
-      last4: lastFour,
-    } = charge.payment_method_details.card;
+    const { lastFour, cardType } = await this.extractCardDetails({ charge });
 
     return {
       uid,
@@ -1209,6 +1187,18 @@ class StripeHelper {
       planDownloadURL,
       productMetadata,
     };
+  }
+
+  async extractCardDetails({ charge }: { charge: Stripe.Charge | null }) {
+    let lastFour: string | null = null;
+    let cardType: string | null = null;
+    if (charge?.payment_method_details?.card) {
+      ({
+        brand: cardType,
+        last4: lastFour,
+      } = charge.payment_method_details.card);
+    }
+    return { lastFour, cardType };
   }
 
   /**
@@ -1501,24 +1491,7 @@ class StripeHelper {
       },
     } = invoice;
 
-    if (
-      !charge ||
-      !charge.payment_method_details ||
-      !charge.payment_method_details.card
-    ) {
-      throw error.internalValidationError(
-        'extractSubscriptionUpdateReactivationDetailsForEmail',
-        invoice,
-        new Error(
-          `Expected card payment method details for invoice: ${invoice.id}`
-        )
-      );
-    }
-
-    const {
-      brand: cardType,
-      last4: lastFour,
-    } = charge.payment_method_details.card;
+    const { lastFour, cardType } = await this.extractCardDetails({ charge });
 
     const {
       uid,
