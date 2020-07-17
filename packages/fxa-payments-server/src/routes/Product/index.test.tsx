@@ -388,7 +388,7 @@ describe('routes/Product', () => {
   });
 
   it('displays an error if subscription creation fails for some other reason', async () => {
-    const message = 'We done goofed';
+    const message = 'Something went wrong';
     const {
       getByTestId,
       queryByText,

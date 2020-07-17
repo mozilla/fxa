@@ -146,7 +146,7 @@ function init() {
         paymentErrorInitialState={{
           type: 'card_error',
           code: 'card_declined',
-          message: 'Done goofed!', // should not be displayed
+          message: 'Should not be displayed',
         }}
       />
     ))
@@ -155,7 +155,7 @@ function init() {
         paymentErrorInitialState={{
           type: 'card_error',
           code: 'incorrect_cvc',
-          message: 'Done goofed!', // should not be displayed
+          message: 'Should not be displayed',
         }}
       />
     ))

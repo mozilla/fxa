@@ -237,6 +237,13 @@ reactivate-confirm-copy =
     Your access to { $name } will continue, and your billing cycle
     and payment will stay the same. Your next charge will be
     { $amount } to the card ending in { $last } on { $endDate }.
+# Alternate copy used when a payment method is not available, e.g. for free trials
+# $amount (Number) - The amount billed. It will be formatted as currency.
+# $endDate (Date) - Last day of product access
+reactivate-confirm-without-payment-method-copy =
+    Your access to { $name } will continue, and your billing cycle
+    and payment will stay the same. Your next charge will be
+    { $amount } on { $endDate }.
 reactivate-confirm-button = Resubscribe
 ##  $date (Date) - Last day of product access
 reactivate-panel-date = You cancelled your subscription on { $date }.
