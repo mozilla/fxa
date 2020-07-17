@@ -44,9 +44,14 @@ export class AccountResolver {
   @FieldResolver()
   public async emailBounces(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
-    const result = await EmailBounces.query()
-      .innerJoin('emails', 'emailBounces.email', 'emails.normalizedEmail')
+    const subquery = Emails.query()
+      .select('emails.normalizedEmail')
       .where('emails.uid', uidBuffer);
+    const result = await EmailBounces.query().where(
+      'emailBounces.email',
+      'in',
+      subquery
+    );
     return result;
   }
 
