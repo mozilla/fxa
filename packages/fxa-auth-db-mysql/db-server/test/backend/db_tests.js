@@ -16,9 +16,6 @@ const zeroBuffer32 = Buffer.from(
   'hex'
 );
 const now = Date.now();
-const anonId =
-  'eyJhbGciOiJFQ0RILUVTIiwia2lkIjoiMFZFRTdmT0txbFdHVGZrY0taRUJ2WWl3dkpMYTRUUGlJVGxXMGJOcDdqVSIsImVwayI6eyJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6InY3Q1FlRWtVQjMwUGwxV0tPMUZUZ25OQlNQdlFyNlh0UnZxT2kzSWdzNHciLCJ5IjoiNDBKVEpaQlMwOXpWNHpxb0hHZDI5NGFDeHRqcGU5a09reGhELVctUEZsSSJ9LCJlbmMiOiJBMjU2R0NNIn0.A_wzJya943vlHKFH.yq0JhkGZiZd6UiZK6goTcEf6i4gbbBeXxvq8QV5_nC4.Knl_sYSBrrP-aa54z6B6gA';
-
 function newUuid() {
   return crypto.randomBytes(16);
 }
@@ -41,7 +38,7 @@ function createAccount() {
     verifierSetAt: now,
     createdAt: now,
     locale: 'en_US',
-    ecosystemAnonId: anonId,
+    ecosystemAnonId: crypto.randomBytes(128).toString('base64'),
   };
   account.normalizedEmail = normalizeEmail(account.email);
   account.emailBuffer = Buffer.from(account.email);
@@ -350,6 +347,16 @@ module.exports = function (config, DB) {
           );
         });
       });
+
+      it('sets ecosystemAnonId when provided', () => {
+        return db
+          .getEcosystemAnonIds(accountData.uid)
+          .then((results) => {
+            assert.equal(results.length, 1)
+            const record = results[0]
+            assert.equal(record.ecosystemAnonId, accountData.ecosystemAnonId)
+          })
+      })
     });
 
     describe('db.checkPassword', () => {
@@ -397,16 +404,22 @@ module.exports = function (config, DB) {
             );
           });
       });
-
-      it('should return not found error if the uid is not in the database', () => {
-        const randomUid = newUuid();
+      it('should add to the ecosystemAnonIds table', () => {
+        const ecoAnonId = crypto.randomBytes(128).toString('base64')
         return db
-          .updateEcosystemAnonId(randomUid, newAnonId)
-          .then(assert.fail, (err) => {
-            assert.equal(err.errno, 116, 'should return not found errno');
-            assert.equal(err.code, 404, 'should return not found code');
-          });
-      });
+          .updateEcosystemAnonId(accountData.uid, {
+            ecosystemAnonId: ecoAnonId,
+          })
+          .then(() => db.getEcosystemAnonIds(accountData.uid))
+          .then((results) => {
+            // The original from accountCreate and the update
+            assert.equal(results.length, 2)
+            const record = results[1]
+            assert.equal(record.ecosystemAnonId, ecoAnonId)
+            assert.isAtMost(record.createdAt, Date.now())
+            assert.isAtLeast(record.createdAt, Date.now() - 10000)
+          })
+      })
     });
 
     describe('session token handling', () => {
@@ -2797,6 +2810,14 @@ module.exports = function (config, DB) {
             assert.equal(err.errno, 116, 'err.errno');
           });
       });
+
+      it('deletes ecosystemAnonIds', () => {
+        return db
+          .getEcosystemAnonIds(accountData.uid)
+          .then((results) => {
+            assert.equal(results.length, 0)
+          })
+      })
     });
 
     describe('reminders', () => {

@@ -60,7 +60,7 @@ module.exports.newUserDataHex = function () {
     wrapWrapKb: hex32(),
     verifierSetAt: Date.now(),
     createdAt: Date.now(),
-    ecosystemAnonId: 'initialEcosystemAnonId',
+    ecosystemAnonId: crypto.randomBytes(128).toString('base64'),
   };
   data.account.normalizedEmail = normalizeEmail(data.account.email);
 

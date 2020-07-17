@@ -200,7 +200,7 @@ module.exports = function (log, error) {
   // Insert : accounts
   // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13, ecosystemAnonId = $14
   var CREATE_ACCOUNT =
-    'CALL createAccount_8(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    'CALL createAccount_9(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(CREATE_ACCOUNT, [
@@ -657,19 +657,22 @@ module.exports = function (log, error) {
     ]);
   };
 
+  // Select : ecosystemAnonIds
+  // Fields : hash, ecosystemAnonId, createdAt
+  // Where  : uid = $1
+  var GET_ECOSYSTEM_ANON_IDS = `CALL getEcosystemAnonIds_1(?)`;
+  MySql.prototype.getEcosystemAnonIds = function (uid) {
+    return this.readAllResults(GET_ECOSYSTEM_ANON_IDS, [uid])
+  };
+
   // Update : ecosystemAnonId
   // Set    : ecosystemAnonId = $2
   // Where  : uid = $1
-  var UPDATE_ECOSYSTEM_ANON_ID = `CALL updateEcosystemAnonId_1(?, ?)`;
+  var UPDATE_ECOSYSTEM_ANON_ID = `CALL updateEcosystemAnonId_2(?, ?, ?)`;
   MySql.prototype.updateEcosystemAnonId = function (uid, data) {
     return this.write(
       UPDATE_ECOSYSTEM_ANON_ID,
-      [uid, data.ecosystemAnonId],
-      (result) => {
-        if (result.affectedRows === 0) {
-          throw error.notFound();
-        }
-      }
+      [uid, data.ecosystemAnonId, Date.now()]
     );
   };
 
@@ -677,9 +680,9 @@ module.exports = function (log, error) {
 
   // Delete : sessionTokens, keyFetchTokens, accountResetTokens, passwordChangeTokens,
   //          passwordForgotTokens, accounts, devices, deviceCommands, unverifiedTokens,
-  //          emails, signinCodes, totp
+  //          emails, signinCodes, totp, ecosystemAnonIds
   // Where  : uid = $1
-  var DELETE_ACCOUNT = 'CALL deleteAccount_18(?)';
+  var DELETE_ACCOUNT = 'CALL deleteAccount_19(?)';
 
   MySql.prototype.deleteAccount = function (uid) {
     return this.write(DELETE_ACCOUNT, [uid]);

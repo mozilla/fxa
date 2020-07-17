@@ -2998,7 +2998,7 @@ module.exports = function (cfg, makeServer) {
       it('should create user with ecosystem anon id', async () => {
         const r = await client.getThen('/account/' + user.accountId);
         const account = r.obj;
-        assert.equal(account.ecosystemAnonId, 'initialEcosystemAnonId');
+        assert.equal(account.ecosystemAnonId, user.account.ecosystemAnonId);
       });
 
       it('should update ecosystem anon id', async () => {
