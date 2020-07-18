@@ -59,9 +59,49 @@ async function run() {
   server.applyMiddleware({ app });
 
   app.use(loadBalancerRoutes(dbHealthCheck));
-  app.listen({ port: 8290 }, () => {
+  const httpServer = app.listen({ port: 8290 }, () => {
     logger.info('startup', {
       message: `Server is running, GraphQL Playground available at http://localhost:8290${server.graphqlPath}`,
+    });
+  });
+
+  const shutdown = (signal: NodeJS.Signals) => {
+    logger.info('shutdown', {
+      message: `Graceful shutdown requested (${signal})`
+    });
+    try {
+      httpServer.close();
+    } catch (err) {
+      logger.warn('shutdown', {
+        message: 'Failed to stop the HTTP server',
+        error: err
+      });
+    }
+    try {
+      authKnex.destroy();
+    } catch (err) {
+      logger.warn('shutdown', {
+        message: 'Failed to stop database pool (auth)',
+        error: err
+      });
+    }
+    try {
+      profileKnex.destroy();
+    } catch (err) {
+      logger.warn('shutdown', {
+        message: 'Failed to stop database pool (profile)',
+        error: err
+      });
+    }
+    logger.info('shutdown', {
+      message: `Graceful shutdown completed`
+    });
+  }
+
+  Object.values<NodeJS.Signals>(['SIGINT', 'SIGTERM'])
+  .forEach(signal => {
+    process.on(signal, () => {
+      shutdown(signal);
     });
   });
 }
