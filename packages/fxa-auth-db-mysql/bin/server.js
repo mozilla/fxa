@@ -81,4 +81,21 @@ DB.connect(config).done(function (db) {
   // Log connection config and charset info
   logCharsetInfo(db, 'MASTER');
   logCharsetInfo(db, 'SLAVE');
+
+  function shutdown(signal) {
+    return function () {
+      logger.info('Graceful shutdown received', { signal });
+      try {
+        server.close();
+      } catch (err) {
+        logger.warn('Shutdown of API server failed', { error: err });
+      }
+      db.close();
+      logger.info('Graceful shutdown completed');
+    };
+  }
+
+  ['SIGINT', 'SIGTERM'].forEach(function (signal) {
+    process.on(signal, shutdown(signal.substr(3)));
+  });
 });
