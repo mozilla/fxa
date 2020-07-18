@@ -268,13 +268,45 @@ module.exports = () => {
     const port = config.get('listen.port');
     const host = config.get('listen.host');
     logger.info('server.starting', { port });
-    app.listen(port, host, (error) => {
+    const server = app.listen(port, host, (error) => {
       if (error) {
         logger.error('server.start.error', { error });
         return;
       }
 
       logger.info('server.started', { port });
+    });
+
+    function shutdown(signal) {
+      return function () {
+        logger.info('server.shutdown', {
+          message: 'Graceful shutdown received',
+          signal
+        });
+        try {
+          server.close();
+        } catch (err) {
+          logger.warn('server.shutdown', {
+            message: 'Shutdown of API server failed',
+            error: err
+          });
+        }
+        if (statsdConfig.enabled) {
+          statsd.close(function(err) {
+            logger.warn('server.shutdown', {
+              message: 'Shutdown of StatsD client failed',
+              error: err
+            });
+          });
+        }
+        logger.info('server.shutdown', {
+          message: 'Graceful shutdown completed'
+        });
+      };
+    }
+
+    ['SIGINT', 'SIGTERM'].forEach(function (signal) {
+      process.on(signal, shutdown(signal.substr(3)));
     });
   }
 };
