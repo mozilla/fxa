@@ -1,0 +1,10 @@
+{
+  "extends": "../../_dev/tsconfig.node.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist/server",
+    "types": ["mocha"]
+  },
+  "include": ["./lib/**/*", "./server.ts"],
+  "exclude": ["dist","node_modules"]
+}

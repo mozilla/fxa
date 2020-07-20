@@ -4,7 +4,7 @@
 import 'reflect-metadata';
 
 import express from 'express';
-import FxAccountClient from 'fxa-js-client';
+import AuthClient from 'fxa-auth-client';
 import { graphqlUploadExpress } from 'graphql-upload';
 import mozlog from 'mozlog';
 import { Container } from 'typedi';
@@ -38,7 +38,7 @@ async function run() {
   // Setup the auth client
   Container.set(
     fxAccountClientToken,
-    FxAccountClient(config.authServer.url, {})
+    new AuthClient(config.authServer.url)
   );
 
   // Setup the databases

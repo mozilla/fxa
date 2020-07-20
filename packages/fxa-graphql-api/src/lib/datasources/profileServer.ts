@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Client } from 'fxa-js-client';
+import AuthClient from 'fxa-auth-client';
 import superagent from 'superagent';
 import { Container } from 'typedi';
 
@@ -10,7 +10,7 @@ import { configContainerToken, fxAccountClientToken } from '../constants';
 import { Context } from '../server';
 
 export class ProfileServerSource extends DataSource {
-  private authClient: Client;
+  private authClient: AuthClient;
   private oauthToken: String | undefined;
   private oauthClientId: string;
   private profileServerUrl: string;

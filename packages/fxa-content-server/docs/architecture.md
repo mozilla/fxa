@@ -90,13 +90,13 @@ Views represent either an entire screen or a portion of a screen. Users enter da
 
 A templates is a serialized HTML representation of a View. A view renders a template using data available to it and writes the rendered template to the DOM. Templates use the [mustache](http://mustache.github.io/) templating library.
 
-#### Clients (fxa-js-client, fxa-oauth-client, fxa-profile-client)
+#### Clients (fxa-auth-client, fxa-oauth-client, fxa-profile-client)
 
 Communication with external servers are done via client libraries.
 
-##### [fxa-js-client](https://github.com/mozilla/fxa-js-client)
+##### [fxa-auth-client](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-client)
 
-The fxa-js-client communicates with the Firefox Accounts [Auth Server](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/). The fxa-js-client is used for all aspects of authenticating a user - sign up, sign in, password reset, etc.
+The fxa-auth-client communicates with the Firefox Accounts [Auth Server](https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/). The fxa-auth-client is used for all aspects of authenticating a user - sign up, sign in, password reset, etc.
 
 ##### [oauth-client](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/app/scripts/lib/oauth-client.js)
 

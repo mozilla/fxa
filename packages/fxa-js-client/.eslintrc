@@ -1,8 +1,0 @@
-{
-  "extends": ["plugin:fxa/client"],
-  "plugins": ["fxa"],
-  "rules": {
-    "strict": "off",
-    "space-unary-ops": [2, {"words": false}]
-  }
-}

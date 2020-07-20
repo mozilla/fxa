@@ -1,8 +1,0 @@
-{
-  "comment_1179": "1179 is prototype pollution in minimist, used by eslint, grunt, webpack. Doesn't affect us, as we don't pass untrusted external inputs to those libraries.",
-  "comment_1488": "1488 is a DoS against acorn (via webpack), which only applies if untrusted user content is passed in.",
-  "exceptions": [
-    "https://npmjs.com/advisories/1179",
-    "https://npmjs.com/advisories/1488"
-  ]
-}

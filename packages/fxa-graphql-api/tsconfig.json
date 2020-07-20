@@ -6,7 +6,7 @@
     "emitDecoratorMetadata": true,
     "noEmitHelpers": true,
     "importHelpers": true,
-    "types": ["fxa-js-client", "mocha", "mozlog", "node"]
+    "types": ["mocha", "mozlog", "node"]
   },
   "include": ["./src"]
 }

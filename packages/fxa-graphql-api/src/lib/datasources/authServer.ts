@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { DataSource, DataSourceConfig } from 'apollo-datasource';
-import { Client, MetricContext } from 'fxa-js-client';
+import AuthClient, { MetricsContext } from 'fxa-auth-client';
 import { Container } from 'typedi';
 
 import { fxAccountClientToken } from '../constants';
@@ -25,7 +25,7 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 }
 
 export class AuthServerSource extends DataSource {
-  private authClient: Client;
+  private authClient: AuthClient;
 
   constructor(private token: string = '') {
     super();
@@ -50,9 +50,9 @@ export class AuthServerSource extends DataSource {
   }
 
   public createTotpToken(
-    options: MetricContext
-  ): ReturnType<Client['createTotpToken']> {
-    return this.authClient.createTotpToken(this.token, options);
+    options: MetricsContext
+  ): ReturnType<AuthClient['createTotpToken']> {
+    return this.authClient.createTotpToken(this.token, { metricsContext: options });
   }
 
   public destroyTotpToken(): Promise<any> {

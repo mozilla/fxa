@@ -6,10 +6,10 @@ import { Token } from 'typedi';
 import { AppConfig } from '../config';
 import { Logger } from 'mozlog';
 import { RedisConfig } from '../config';
-import { Client } from 'fxa-js-client';
+import AuthClient from 'fxa-auth-client';
 
 export const configContainerToken = new Token<AppConfig>();
 export const loggerContainerToken = new Token<Logger>();
 
-export const fxAccountClientToken = new Token<Client>();
+export const fxAccountClientToken = new Token<AuthClient>();
 export const authRedisConfig = new Token<RedisConfig>();

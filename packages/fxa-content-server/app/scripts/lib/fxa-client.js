@@ -15,7 +15,7 @@ import Session from './session';
 import SignInReasons from './sign-in-reasons';
 import VerificationReasons from './verification-reasons';
 import VerificationMethods from './verification-methods';
-import AuthClient from './auth/client';
+import AuthClient from 'fxa-auth-client/browser';
 
 function trim(str) {
   return $.trim(str);
@@ -72,7 +72,7 @@ function wrapClientToNormalizeErrors(client) {
   return wrappedClient;
 }
 
-// Class method decorator to get an fxa-js-client instance and pass
+// Class method decorator to get an fxa-auth-client instance and pass
 // it as the first argument to the method.
 function withClient(callback) {
   return function (...args) {
@@ -83,7 +83,7 @@ function withClient(callback) {
 }
 
 /**
- * Create a delegate method to the fxa-js-client.
+ * Create a delegate method to the fxa-auth-client.
  *
  * @param {String} method to delegate to.
  * @returns {Function}
@@ -92,7 +92,7 @@ function createClientDelegate(method) {
   return function (...args) {
     return this._getClient().then((client) => {
       if (!_.isFunction(client[method])) {
-        throw new Error(`Invalid method on fxa-js-client: ${method}`);
+        throw new Error(`Invalid method on fxa-auth-client: ${method}`);
       }
       return client[method](...args);
     });
@@ -225,7 +225,7 @@ FxaClientWrapper.prototype = {
    *                   relier's context.
    *   @param {Boolean} [options.skipCaseError] - if set to true, INCORRECT_EMAIL_CASE
    *                   errors will be returned to be handled locally instead of automatically
-   *                   being retried in the fxa-js-client.
+   *                   being retried in the fxa-auth-client.
    *   @param {String} [options.unblockCode] - Unblock code.
    * @returns {Promise}
    */
@@ -313,7 +313,7 @@ FxaClientWrapper.prototype = {
    *                   verification link if the user must verify their email.
    *   @param {Boolean} [options.skipCaseError] - if set to true, INCORRECT_EMAIL_CASE
    *                   errors will be returned to be handled locally instead of automatically
-   *                   being retried in the fxa-js-client.
+   *                   being retried in the fxa-auth-client.
    *   @param {String} [options.unblockCode] - Unblock code.
    *   @param {String} [options.originalLoginEmail] - the original email address as entered
    *                   by the user, if different from the one used for login.

@@ -94,7 +94,7 @@ set -o xtrace # echo the following commands
 
 # The build below requires dependencies `yum install -y gcc-c++ GraphicMagick`.
 
-npx yarn workspaces focus fxa-content-server fxa-js-client
+npx yarn workspaces focus fxa-content-server
 
 # output the Firefox version number
 $FXA_FIREFOX_BINARY --version 2>/dev/null # squelch annoying 'GLib-CRITICAL **' message
