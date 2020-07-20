@@ -668,13 +668,15 @@ class DirectStripeRoutes {
     }
 
     const { priceId, paymentMethodId, idempotencyKey } = request.payload;
+
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
-    const subscription = await this.stripeHelper.createSubscriptionWithPMI(
-      customer.id,
+    const subscription = await this.stripeHelper.createSubscriptionWithPMI({
+      customerId: customer.id,
       priceId,
       paymentMethodId,
-      subIdempotencyKey
-    );
+      subIdempotencyKey,
+    });
+
     return filterSubscription(subscription);
   }
 
@@ -1366,7 +1368,7 @@ const directRoutes = (
         validate: {
           payload: {
             priceId: isA.string().required(),
-            paymentMethodId: validators.stripePaymentMethodId.required(),
+            paymentMethodId: validators.stripePaymentMethodId.optional(),
             idempotencyKey: isA.string().required(),
           },
         },

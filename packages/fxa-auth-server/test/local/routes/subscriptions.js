@@ -776,11 +776,41 @@ describe('DirectStripeRoutes', () => {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
           VALID_REQUEST
         );
-        assert.fail('Create customer should fail.');
+        assert.fail('Create subscription without a customer should fail.');
       } catch (err) {
         assert.instanceOf(err, WError);
         assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
       }
+    });
+
+    it('creates a subscription without an payment id in the request', async () => {
+      const customer = deepCopy(emptyCustomer);
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      const expected = deepCopy(subscription2);
+      directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI.resolves(
+        expected
+      );
+      const idempotencyKey = uuidv4();
+
+      VALID_REQUEST.payload = {
+        priceId: 'quux',
+        idempotencyKey,
+      };
+
+      const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(filterSubscription(expected), actual);
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
+        {
+          customerId: customer.id,
+          priceId: 'quux',
+          paymentMethodId: undefined,
+          subIdempotencyKey: `${idempotencyKey}-createSub`,
+        }
+      );
     });
   });
 
