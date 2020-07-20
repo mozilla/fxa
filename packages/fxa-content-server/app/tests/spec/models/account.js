@@ -19,6 +19,7 @@ import SignInReasons from 'lib/sign-in-reasons';
 import sinon from 'sinon';
 import VerificationMethods from 'lib/verification-methods';
 import VerificationReasons from 'lib/verification-reasons';
+import aet from 'lib/crypto/account-ecosystem-telemetry';
 
 describe('models/account', function () {
   var account;
@@ -72,12 +73,12 @@ describe('models/account', function () {
     };
     ecosystemAnonIdPublicKeys = [
       {
-        'kty': 'EC',
+        kty: 'EC',
       },
       {
-        'kty': 'RSA',
+        kty: 'RSA',
       },
-    ]
+    ];
 
     account = new Account(
       {
@@ -93,7 +94,7 @@ describe('models/account', function () {
         profileClient: profileClient,
         sentryMetrics: sentryMetrics,
         subscriptionsConfig,
-        ecosystemAnonIdPublicKeys
+        ecosystemAnonIdPublicKeys,
       }
     );
   });
@@ -2948,13 +2949,6 @@ describe('models/account', function () {
     });
   });
 
-  describe('generateEcosystemAnonIdIfRequired', () => {
-    it('receives ecosystemAnonIdPublicKeys', () => {
-      // kind of a moot test at this point, will be updated with FXA-1225 completion
-      assert.equal(account._ecosystemAnonIdPublicKeys, ecosystemAnonIdPublicKeys);
-    });
-  })
-
   describe('_fetchShortLivedSubscriptionsOAuthToken', () => {
     it('calls createOAuthToken with the correct arguments', () => {
       const createOAuthTokenStub = sinon.stub(account, 'createOAuthToken');
@@ -3108,6 +3102,98 @@ describe('models/account', function () {
       assert.isTrue(
         fxaClient.verifyIdToken.calledWith('someIDToken', 'aclientID', 100)
       );
+    });
+  });
+
+  describe('generateEcosystemAnonId', () => {
+    const sandbox = sinon.createSandbox();
+
+    beforeEach(() => {
+      sandbox.stub(fxaClient, 'updateEcosystemAnonId').resolves();
+      sandbox.stub(aet, 'generateEcosystemAnonID').resolves('test id');
+      account.set('sessionToken', SESSION_TOKEN);
+    });
+
+    afterEach(() => {
+      sandbox.restore();
+    });
+
+    it('with kB', async () => {
+      await account.generateEcosystemAnonId({
+        kB: 'kB',
+      });
+
+      assert.isTrue(aet.generateEcosystemAnonID.calledOnce);
+      const args = aet.generateEcosystemAnonID.args[0];
+      assert.equal(args[0], UID);
+      assert.equal(args[1], 'kB');
+      assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
+      assert.isTrue(
+        fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
+      );
+    });
+
+    it('with valid authentication token', async () => {
+      account.set('keyFetchToken', 'keyFetchToken');
+      account.set('unwrapBKey', 'unwrapBKey');
+      sandbox.stub(account, 'accountKeys').resolves({
+        kB: 'kB0',
+      });
+
+      await account.generateEcosystemAnonId();
+
+      assert.isTrue(account.accountKeys.calledOnce);
+      assert.isTrue(aet.generateEcosystemAnonID.calledOnce);
+      const args = aet.generateEcosystemAnonID.args[0];
+      assert.equal(args[0], UID);
+      assert.equal(args[1], 'kB0');
+      assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
+      assert.isTrue(
+        fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
+      );
+    });
+
+    it('with password', async () => {
+      sandbox.stub(fxaClient, 'sessionReauth').resolves({
+        keyFetchToken: 'keyFetchToken',
+        unwrapBKey: 'unwrapBKey',
+      });
+      sandbox.stub(fxaClient, 'accountKeys').resolves({
+        kB: 'kB1',
+      });
+
+      await account.generateEcosystemAnonId({
+        password: 'passwordzxcv',
+      });
+
+      assert.isTrue(fxaClient.sessionReauth.calledOnce);
+      assert.isTrue(fxaClient.accountKeys.calledOnce);
+      assert.isTrue(aet.generateEcosystemAnonID.calledOnce);
+      const args = aet.generateEcosystemAnonID.args[0];
+      assert.equal(args[0], UID);
+      assert.equal(args[1], 'kB1');
+      assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
+      assert.isTrue(
+        fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
+      );
+    });
+
+    it('swallow any errors', async () => {
+      const err = new Error('failure');
+      sandbox.restore();
+      sandbox.stub(aet, 'generateEcosystemAnonID').rejects(err);
+      sandbox.spy(fxaClient, 'updateEcosystemAnonId');
+
+      await account.generateEcosystemAnonId({
+        password: 'passwordzxcv',
+      });
+
+      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
+    });
+
+    it('ignores with no options', async () => {
+      await account.generateEcosystemAnonId();
+      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
     });
   });
 });

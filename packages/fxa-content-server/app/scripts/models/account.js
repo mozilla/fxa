@@ -18,12 +18,15 @@ import SignInReasons from '../lib/sign-in-reasons';
 import VerificationMethods from '../lib/verification-methods';
 import vat from '../lib/vat';
 import { emailsMatch } from 'fxa-shared/email/helpers';
+import VerificationReasons from '../lib/verification-reasons';
+import aet from '../lib/crypto/account-ecosystem-telemetry';
 
 // Account attributes that can be persisted
 const PERSISTENT = {
   accountResetToken: undefined,
   displayName: undefined,
   email: undefined,
+  ecosystemAnonId: undefined,
   grantedPermissions: undefined,
   hadProfileImageSetBefore: undefined,
   lastLogin: undefined,
@@ -58,6 +61,7 @@ const DEFAULTS = _.extend(
   {
     accessToken: undefined,
     declinedSyncEngines: undefined,
+    ecosystemAnonId: undefined,
     hasBounced: undefined,
     keyFetchToken: undefined,
     newsletters: undefined,
@@ -373,6 +377,91 @@ const Account = Backbone.Model.extend(
     },
 
     /**
+     * Attempt to generate and set the ecosystem anon. At a high level
+     * this function attempts to generate the id in the following manner:
+     *
+     * 1. Use kB if it is specified
+     * 2. Attempt to fetch keys if valid authentication token exists to do so
+     * 3. Attempt to use user's password to fetch keys
+     *
+     * @param {Object} [options={}]
+     *   @param {String} [options.kB] Optional The user's kB, if specified takes priority.
+     *   @param {String} [options.password] Optional The user's password
+     * @returns {Promise}
+     */
+    async generateEcosystemAnonId(options = {}) {
+      try {
+        let ecosystemAnonId;
+
+        if (!this._ecosystemAnonIdPublicKeys.length) {
+          return;
+        }
+
+        const randomIndex = Math.floor(
+          Math.random() * this._ecosystemAnonIdPublicKeys.length
+        );
+        const randomKey = this._ecosystemAnonIdPublicKeys[randomIndex];
+
+        if (options.kB) {
+          ecosystemAnonId = await aet.generateEcosystemAnonID(
+            this.get('uid'),
+            options.kB,
+            randomKey
+          );
+        } else if (this.canFetchKeys()) {
+          const keys = await this.accountKeys();
+          ecosystemAnonId = await aet.generateEcosystemAnonID(
+            this.get('uid'),
+            keys.kB,
+            randomKey
+          );
+        } else if (options.password) {
+          // TODO: Using sessionReauth to get keys could potentially pose some issues if the user
+          // is attempting to come from an unverified session. FxA only allows fetching keys from
+          // sessions that are verified (ex. performed some email verification loop).
+          const res = await this._fxaClient.sessionReauth(
+            this.get('sessionToken'),
+            this.get('email'),
+            options.password,
+            {
+              wantsKeys: () => true,
+              has: () => false,
+              isSync: () => false,
+            },
+            {
+              keys: true,
+              reason: VerificationReasons.ECOSYSTEM_ANON_ID,
+            }
+          );
+
+          if (res.keyFetchToken && res.unwrapBKey) {
+            const keys = await this._fxaClient.accountKeys(
+              res.keyFetchToken,
+              res.unwrapBKey
+            );
+            ecosystemAnonId = await aet.generateEcosystemAnonID(
+              this.get('uid'),
+              keys.kB,
+              randomKey
+            );
+          }
+        }
+
+        if (ecosystemAnonId) {
+          this.set('ecosystemAnonId', ecosystemAnonId);
+          await this._fxaClient.updateEcosystemAnonId(
+            this.get('sessionToken'),
+            ecosystemAnonId
+          );
+        }
+      } catch (err) {
+        // In the event of errors, we don't want to block any user actions, just log it
+        // TODO: Follow up with some better error handling
+        console.log('generateEcosystemAnonId failed...', err);
+      }
+    },
+
+    /**
      * Fetches account details from GET /account, for use by the settings views.
      * Caches its own result, because it's not intended for that endpoint to be
      * called repeatedly like some of the polling methods are. If you're really,
@@ -535,6 +624,7 @@ const Account = Backbone.Model.extend(
 
         this.setProfileImage(profileImage);
         this.set('displayName', result.displayName);
+        this.set('ecosystemAnonId', result.ecosystemAnonId);
 
         this.on('change', this._boundOnChange);
       });
