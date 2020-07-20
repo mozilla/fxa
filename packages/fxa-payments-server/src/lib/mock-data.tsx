@@ -46,6 +46,7 @@ export const SELECTED_PLAN: Plan = {
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=2',
+    webIconBackground: 'purple',
     'product:subtitle': 'Even more keen product',
     'product:details:1': 'Quis autem vel eum iure reprehenderit',
     'product:details:2': 'Sed ut perspiciatis unde omnis iste natus',
@@ -75,6 +76,7 @@ export const UPGRADE_FROM_PLAN: Plan = {
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=9',
+    webIconBackground: 'lime',
     'product:subtitle': 'Nifty product',
     'product:details:1':
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
@@ -99,6 +101,7 @@ export const PLAN = {
   interval_count: 1,
   product_metadata: {
     webIconURL: 'http://placekitten.com/512/512',
+    webIconBackground: '#00ffff',
     'product:subtitle': 'Really keen product',
     'product:details:1':
       'Lorem ipsum dolor sit amet, consectetur adipiscing elit',

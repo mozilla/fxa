@@ -82,7 +82,7 @@ export const PlanDetailsCard = ({
 }) => {
   const { navigatorLanguages } = useContext(AppContext);
   const { product_name, amount, currency, interval, interval_count } = plan;
-  const { webIconURL } = metadataFromPlan(plan);
+  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
   const productDetails = productDetailsFromPlan(plan, navigatorLanguages);
   const planPrice = formatPlanPricing(
     amount,
@@ -91,13 +91,20 @@ export const PlanDetailsCard = ({
     interval_count
   );
 
+  const setWebIconBackground = webIconBackground
+    ? { background: webIconBackground }
+    : '';
+
   return (
     <div
       className={`container card plan-details-component-card plan-upgrade-details-component-card ${className}`}
     >
       <div className="plan-details-header">
         <div className="plan-details-header-wrap">
-          <div className="plan-details-logo-wrap">
+          <div
+            className="plan-details-logo-wrap"
+            style={{ ...setWebIconBackground }}
+          >
             <img
               src={webIconURL || ffLogo}
               alt={product_name}
@@ -119,7 +126,8 @@ export const PlanDetailsCard = ({
                 $intervalCount={interval_count}
               >
                 {planPrice}
-              </Localized>&nbsp;&bull;&nbsp;
+              </Localized>
+              &nbsp;&bull;&nbsp;
               {productDetails.subtitle}
             </p>
           </div>

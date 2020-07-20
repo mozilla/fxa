@@ -63,6 +63,7 @@ export interface ProductMetadata {
   productOrder?: number | null;
   emailIconURL?: string | null;
   webIconURL?: string | null;
+  webIconBackground?: string | null;
   upgradeCTA?: string | null;
   downloadURL?: string | null;
   // capabilities:{clientID}: string // filtered out or ignored for now

@@ -7,18 +7,25 @@ import { Localized } from '@fluent/react';
 
 export default ({ plan, onDismiss }: { plan: Plan; onDismiss: () => void }) => {
   const { product_name: productName } = plan;
-  const { webIconURL } = metadataFromPlan(plan);
+  const { webIconURL, webIconBackground } = metadataFromPlan(plan);
+
+  const setWebIconBackground = webIconBackground
+    ? { background: webIconBackground }
+    : '';
+
   return (
     <DialogMessage
       onDismiss={onDismiss}
       data-testid="reactivate-subscription-success-dialog"
     >
-      <img
-        alt={productName}
-        src={webIconURL || fpnImage}
-        width="96"
-        height="96"
-      />
+      <div className="dialog-icon" style={{ ...setWebIconBackground }}>
+        <img
+          alt={productName}
+          src={webIconURL || fpnImage}
+          width="48"
+          height="48"
+        />
+      </div>
       <p
         data-testid="reactivate-subscription-success"
         className="reactivate-subscription-success"
