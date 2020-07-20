@@ -2276,6 +2276,30 @@ describe('StripeHelper', () => {
         assert.deepEqual(result, expected);
       });
 
+      it('does not throw an exception when details on a payment method are missing', async () => {
+        const fixture = deepCopy(invoicePaymentSucceededSubscriptionCreate);
+        fixture.lines.data[0].plan = {
+          id: planId,
+          nickname: planName,
+          metadata: mockPlan.metadata,
+          product: mockProduct,
+        };
+        fixture.customer = mockCustomer;
+        fixture.charge = null;
+        const result = await stripeHelper.extractInvoiceDetailsForEmail(
+          fixture
+        );
+        assert.isFalse(stripeHelper.allProducts.called);
+        assert.isFalse(mockStripe.products.retrieve.called);
+        assert.isFalse(mockStripe.customers.retrieve.called);
+        assert.isFalse(mockStripe.charges.retrieve.called);
+        assert.deepEqual(result, {
+          ...expected,
+          lastFour: null,
+          cardType: null,
+        });
+      });
+
       it('throws an exception for deleted customer', async () => {
         mockStripe.customers.retrieve = sinon
           .stub()
@@ -2655,6 +2679,22 @@ describe('StripeHelper', () => {
     });
 
     describe('extractSubscriptionUpdateReactivationDetailsForEmail', () => {
+      const { card } = mockCharge.payment_method_details;
+      const defaultExpected = {
+        updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
+        email,
+        uid,
+        productId,
+        planId,
+        planEmailIconURL: productIconURLNew,
+        productName,
+        invoiceTotalInCents: mockInvoice.total,
+        invoiceTotalCurrency: mockInvoice.currency,
+        cardType: card.brand,
+        lastFour: card.last4,
+        nextInvoiceDate: new Date(mockInvoice.lines.data[0].period.end * 1000),
+      };
+
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
         const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
@@ -2662,22 +2702,22 @@ describe('StripeHelper', () => {
           expectedBaseUpdateDetails,
           mockInvoice
         );
-        const { card } = mockCharge.payment_method_details;
+        assert.deepEqual(result, defaultExpected);
+      });
+
+      it('does not throw an exception when payment method is missing', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        const noPaymentInvoice = deepCopy(mockInvoice);
+        noPaymentInvoice.charge = null;
+        const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
+          event.data.object,
+          expectedBaseUpdateDetails,
+          noPaymentInvoice
+        );
         assert.deepEqual(result, {
-          updateType: StripeHelper.SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
-          email,
-          uid,
-          productId,
-          planId,
-          planEmailIconURL: productIconURLNew,
-          productName,
-          invoiceTotalInCents: mockInvoice.total,
-          invoiceTotalCurrency: mockInvoice.currency,
-          cardType: card.brand,
-          lastFour: card.last4,
-          nextInvoiceDate: new Date(
-            mockInvoice.lines.data[0].period.end * 1000
-          ),
+          ...defaultExpected,
+          lastFour: null,
+          cardType: null,
         });
       });
     });
