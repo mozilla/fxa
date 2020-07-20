@@ -49,20 +49,37 @@ export default ({
         <h4>Want to keep using {plan.product_name}?</h4>
       </Localized>
       {/* TO DO: display card type, IE 'to the Visa card ending...' */}
-      <Localized
-        id="reactivate-confirm-copy"
-        $name={plan.product_name}
-        $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-        $last={last4}
-        $endDate={getLocalizedDate(periodEndDate)}
-      >
-        <p>
-          Your access to {plan.product_name} will continue, and your billing
-          cycle and payment will stay the same. Your next charge will be
-          {getLocalizedCurrencyString(plan.amount, plan.currency)} to the card
-          ending in {last4} on {getLocalizedDateString(periodEndDate)}.
-        </p>
-      </Localized>
+      {last4 && (
+        <Localized
+          id="reactivate-confirm-copy"
+          $name={plan.product_name}
+          $amount={getLocalizedCurrency(plan.amount, plan.currency)}
+          $last={last4}
+          $endDate={getLocalizedDate(periodEndDate)}
+        >
+          <p>
+            Your access to {plan.product_name} will continue, and your billing
+            cycle and payment will stay the same. Your next charge will be
+            {getLocalizedCurrencyString(plan.amount, plan.currency)} to the card
+            ending in {last4} on {getLocalizedDateString(periodEndDate)}.
+          </p>
+        </Localized>
+      )}
+      {!last4 && (
+        <Localized
+          id="reactivate-confirm-without-payment-method-copy"
+          $name={plan.product_name}
+          $amount={getLocalizedCurrency(plan.amount, plan.currency)}
+          $endDate={getLocalizedDate(periodEndDate)}
+        >
+          <p>
+            Your access to {plan.product_name} will continue, and your billing
+            cycle and payment will stay the same. Your next charge will be{' '}
+            {getLocalizedCurrencyString(plan.amount, plan.currency)} on{' '}
+            {getLocalizedDateString(periodEndDate)}.
+          </p>
+        </Localized>
+      )}
       <div className="action">
         <button
           className="settings-button"
