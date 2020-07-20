@@ -56,6 +56,7 @@ describe('views/mixins/signup-mixin', function () {
         },
         getSignupCodeExperimentGroup: sinon.spy(),
         onSignUpSuccess: SignUpMixin.onSignUpSuccess,
+        clearInput: sinon.spy(),
         relier,
         signUp: SignUpMixin.signUp,
         user,
@@ -231,6 +232,7 @@ describe('views/mixins/signup-mixin', function () {
       });
 
       it('navigates to `confirm_signup_code`', () => {
+        assert.equal(view.clearInput.callCount, 1);
         assert.equal(view.navigate.callCount, 1);
         const args = view.navigate.args[0];
         assert.lengthOf(args, 2);
