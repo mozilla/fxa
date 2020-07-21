@@ -989,7 +989,12 @@ const Account = Backbone.Model.extend(
             relier
           );
         })
-        .then(this.set.bind(this));
+        .then(this.set.bind(this))
+        .then(async () => {
+          if (relier.hasCapability('ecosystemAnonId')) {
+            await this.generateEcosystemAnonId({password: newPassword});
+          }
+        });
     },
 
     /**
@@ -1045,7 +1050,12 @@ const Account = Backbone.Model.extend(
             metricsContext: this._metrics.getFlowEventMetadata(),
           }
         )
-        .then(this.set.bind(this));
+        .then(this.set.bind(this))
+        .then(async() => {
+          if (relier.hasCapability('ecosystemAnonId')) {
+            await this.generateEcosystemAnonId({password});
+          }
+        });
     },
 
     /**
@@ -1653,7 +1663,13 @@ const Account = Backbone.Model.extend(
             metricsContext: this._metrics.getFlowEventMetadata(),
           }
         )
-        .then(this.set.bind(this));
+        .then(this.set.bind(this))
+        .then(async () => {
+          if (relier.hasCapability('ecosystemAnonId')) {
+            await this.generateEcosystemAnonId({kB});
+          }
+        });
+
     },
 
     /**
