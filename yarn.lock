@@ -15943,6 +15943,7 @@ fsevents@^1.2.7:
     handlebars: ^4.5.3
     helmet: ^3.23.3
     hot-shots: ^7.6.0
+    intl: 1.2.5
     intl-pluralrules: ^1.1.1
     jest: ^24.9.0
     joi: ^14.3.1
