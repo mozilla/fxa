@@ -1484,17 +1484,14 @@ class StripeHelper {
   ) {
     const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
 
+    const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
+      subscription: subscription.id,
+    });
     const {
       total: invoiceTotalInCents,
       currency: invoiceTotalCurrency,
-      lines: {
-        data: [
-          {
-            period: { end: nextInvoiceDate },
-          },
-        ],
-      },
-    } = invoice;
+      next_payment_attempt: nextInvoiceDate,
+    } = upcomingInvoice;
 
     const { lastFour, cardType } = await this.extractCardDetails({ charge });
 
@@ -1519,7 +1516,12 @@ class StripeHelper {
       invoiceTotalCurrency,
       cardType,
       lastFour,
-      nextInvoiceDate: new Date(nextInvoiceDate * 1000),
+      // TODO: According to Stripe, this value will be null for invoices where collection_method=send_invoice
+      // Our subscriptions use collection_method=charge_automatically - so this shouldn't happen?
+      // Do trial subscriptions run into this?
+      nextInvoiceDate: nextInvoiceDate
+        ? new Date(nextInvoiceDate * 1000)
+        : null,
     };
   }
 
