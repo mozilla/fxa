@@ -5,7 +5,7 @@
 import $ from 'jquery';
 import AuthErrors from 'lib/auth-errors';
 import chai from 'chai';
-import AuthClient from 'lib/auth/client';
+import AuthClient from 'fxa-auth-client/browser';
 import FxaClientWrapper from 'lib/fxa-client';
 import OAuthRelier from 'models/reliers/oauth';
 import RecoveryKey from 'lib/crypto/recovery-keys';
@@ -1567,7 +1567,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('sendSms', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       sinon.stub(realClient, 'sendSms').callsFake(() => Promise.resolve());
 
       return client
@@ -1624,7 +1624,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('securityEvents', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const events = [
         {
           name: 'account.login',
@@ -1654,7 +1654,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('deleteSecurityEvents', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       sinon.stub(realClient, 'deleteSecurityEvents').callsFake(() => {
         return Promise.resolve({});
       });
@@ -1671,7 +1671,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('smsStatus', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       sinon.stub(realClient, 'smsStatus').callsFake(() =>
         Promise.resolve({
           country: 'GB',
@@ -1693,7 +1693,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('consumeSigninCode', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const resp = {
         email: 'testuser@testuser.com',
       };
@@ -1711,7 +1711,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('createTotpToken', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const resp = {
         qrCodeUrl: 'data:image/png;base64,iVBOR:',
         secret: 'superdupersecretcode',
@@ -1728,7 +1728,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('deleteTotpToken', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const resp = {};
       sinon
         .stub(realClient, 'deleteTotpToken')
@@ -1742,7 +1742,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('checkTotpTokenExists', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const resp = {
         exists: true,
       };
@@ -1758,7 +1758,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('verifyTotpCode', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const resp = {
         success: true,
       };
@@ -1788,7 +1788,7 @@ describe('lib/fxa-client', function () {
       sandbox.restore();
     });
 
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const bundle = 'some cool base64 encrypted data';
       const keys = {
         kB: '12341234',
@@ -1859,7 +1859,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('verifyIdToken', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       sinon
         .stub(realClient, 'verifyIdToken')
         .callsFake(() => Promise.resolve());
@@ -1873,7 +1873,7 @@ describe('lib/fxa-client', function () {
   });
 
   describe('createCadReminder', () => {
-    it('delegates to the fxa-js-client', () => {
+    it('delegates to the fxa-auth-client', () => {
       const sessionToken = 'cool token bro';
       sinon.stub(realClient, 'createCadReminder').resolves();
 

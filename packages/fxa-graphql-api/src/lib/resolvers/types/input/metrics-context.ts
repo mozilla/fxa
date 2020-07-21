@@ -34,17 +34,17 @@ export class MetricsContext {
   public planId?: string;
 
   @Field({ nullable: true })
-  public utmCampaign?: number;
+  public utmCampaign?: string;
 
   @Field({ nullable: true })
-  public utmContent?: number;
+  public utmContent?: string;
 
   @Field({ nullable: true })
-  public utmMedium?: number;
+  public utmMedium?: string;
 
   @Field({ nullable: true })
-  public utmSource?: number;
+  public utmSource?: string;
 
   @Field({ nullable: true })
-  public utmTerm?: number;
+  public utmTerm?: string;
 }

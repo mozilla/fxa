@@ -1,0 +1,10 @@
+{
+  "extends": "../../_dev/tsconfig.browser.json",
+  "compilerOptions": {
+    "composite": true,
+    "outDir": "./dist/browser",
+    "types": ["mocha"]
+  },
+  "include": ["./lib/**/*", "./browser.ts"],
+  "exclude": ["dist","node_modules"]
+}

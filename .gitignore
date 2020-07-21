@@ -114,11 +114,6 @@ packages/fxa-email-service/fxa-auth-db-mysql
 packages/fxa-email-service/target
 packages/fxa-email-service/.sourcehash
 
-# fxa-js-client
-packages/fxa-js-client/components
-packages/fxa-js-client/docs
-packages/fxa-js-client/fxa-auth-server
-
 # fxa-profile-server
 packages/fxa-profile-server/var
 packages/fxa-profile-server/BUCKET_NAME

@@ -37,7 +37,7 @@
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
     "convict-format-with-validator": "^6.0.0",
-    "fxa-js-client": "^1.0.25",
+    "fxa-auth-client": "workspace:*",
     "get-stream": "^5.1.0",
     "graphql": "^14.6.0",
     "graphql-parse-resolve-info": "^4.7.0",

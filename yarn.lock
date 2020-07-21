@@ -2899,6 +2899,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@peculiar/asn1-schema@npm:^2.0.1, @peculiar/asn1-schema@npm:^2.0.8":
+  version: 2.0.8
+  resolution: "@peculiar/asn1-schema@npm:2.0.8"
+  dependencies:
+    "@types/asn1js": ^0.0.1
+    asn1js: ^2.0.26
+    pvtsutils: ^1.0.10
+    tslib: ^1.11.1
+  checksum: 2a49030fb9d31ae83292fae43c9a3bc05e6ab86201ca4360a0a156e194976466f8c7808d12d8c4861630b6c6991eb89cfbec7adb2d3251f56cc86601d2ed0df8
+  languageName: node
+  linkType: hard
+
+"@peculiar/json-schema@npm:^1.1.10":
+  version: 1.1.10
+  resolution: "@peculiar/json-schema@npm:1.1.10"
+  dependencies:
+    tslib: ^1.11.1
+  checksum: c2ed4599865f2acf877cffccb37845405a185ce1ae96efe47763ad2595d011dc5f9da83fd2689418a7e2691c06105ec43008dff7f32603583812876d8685508e
+  languageName: node
+  linkType: hard
+
+"@peculiar/webcrypto@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@peculiar/webcrypto@npm:1.1.2"
+  dependencies:
+    "@peculiar/asn1-schema": ^2.0.8
+    "@peculiar/json-schema": ^1.1.10
+    pvtsutils: ^1.0.10
+    tslib: ^2.0.0
+    webcrypto-core: ^1.1.2
+  checksum: 98d898d9d97201795878b716aa6017a7e87c3b0a59830a1f691280fd6564923ac93d69bffde633e0cd04e70a368071690bbda16c417a7bf8be1e09675ce6d8d4
+  languageName: node
+  linkType: hard
+
 "@pm2/agent-node@npm:^1.1.10":
   version: 1.1.10
   resolution: "@pm2/agent-node@npm:1.1.10"
@@ -4130,6 +4164,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/asn1js@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "@types/asn1js@npm:0.0.1"
+  dependencies:
+    "@types/pvutils": "*"
+  checksum: 8ab342eec3dc1b3fa0e97f0ee339726eec2ec0328f2d314dba5955e3ee9db590e5e251a89822c5215c286c664caa165968c547d666edbbc3e18caeb30061c749
+  languageName: node
+  linkType: hard
+
+"@types/assert@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "@types/assert@npm:1.5.1"
+  checksum: 299654afd3357bee6688ee914c0ba46bb087ed4e1c288c1f01a829a64b735e3b6b2c4b7ee9c8d3fbaff1b33be8ddeae2c1d75d990afb388df84ad00b76ef4e98
+  languageName: node
+  linkType: hard
+
 "@types/babel-types@npm:*":
   version: 7.0.7
   resolution: "@types/babel-types@npm:7.0.7"
@@ -4404,6 +4454,13 @@ __metadata:
     "@types/qs": "*"
     "@types/serve-static": "*"
   checksum: 11dd61e216f8d7f14a9aff19124fa0cefd33066f2a9f0edb25b28fae679eb9f5dc64fbf2f5b82d6c8581d344df1bcfc56125bb78c32ec7bc35e43e4d5290c2f6
+  languageName: node
+  linkType: hard
+
+"@types/fast-text-encoding@npm:^1":
+  version: 1.0.1
+  resolution: "@types/fast-text-encoding@npm:1.0.1"
+  checksum: 6f0b73c4955d01fc75d7d83e315cd28bfcc64d8467c791ec19e5d9ab9f26dc329f02e8dfc0154cc2fb0ad5fd0c77a99b6f64bb8f00b137b0363c3444a5399009
   languageName: node
   linkType: hard
 
@@ -4876,7 +4933,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^7.0.2":
+"@types/mocha@npm:^7, @types/mocha@npm:^7.0.2":
   version: 7.0.2
   resolution: "@types/mocha@npm:7.0.2"
   checksum: a3b2b5b2ed45e417c6292de33678408093a96bc26dc78d4f28446baa7f629e0945557325ada9f3f56efc44e1cee5f4f04e950da4ff316f2bea58106892de96da
@@ -4892,7 +4949,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node-fetch@npm:2.5.7":
+"@types/node-fetch@npm:2.5.7, @types/node-fetch@npm:^2":
   version: 2.5.7
   resolution: "@types/node-fetch@npm:2.5.7"
   dependencies:
@@ -4964,6 +5021,13 @@ __metadata:
   version: 1.3.28
   resolution: "@types/proxyquire@npm:1.3.28"
   checksum: 9b945ed2de610ec4e3f3d1e696fe753da070f328a87810f3cbb6cdf1b7e4df255eb084fb18df8df98f6dcfafb577ebb215342406df7fd14413fdc4c585a2c6b5
+  languageName: node
+  linkType: hard
+
+"@types/pvutils@npm:*":
+  version: 0.0.2
+  resolution: "@types/pvutils@npm:0.0.2"
+  checksum: 513310de90160dc827bc3e34394fa84750525540b458bf073c7586ddc7fb36674f4d8928da1fcf865099e92ba34e61c35fcef786e5369760ea70bdaf061d3dda
   languageName: node
   linkType: hard
 
@@ -7245,6 +7309,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"asn1js@npm:^2.0.26":
+  version: 2.0.26
+  resolution: "asn1js@npm:2.0.26"
+  dependencies:
+    pvutils: latest
+  checksum: f2606ad70206df0184c186ef49ae3cb6d1591a50e37ef515830252163698ea8889c04d96c4d3bb80ae7226ac7632cd84b32be9a643edef23393c7bbd452b6afa
+  languageName: node
+  linkType: hard
+
 "assert-plus@npm:1.0.0, assert-plus@npm:^1.0.0":
   version: 1.0.0
   resolution: "assert-plus@npm:1.0.0"
@@ -7424,7 +7497,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"async@npm:^2.0.0, async@npm:^2.5.0, async@npm:^2.6.0, async@npm:^2.6.1, async@npm:^2.6.2, async@npm:^2.6.3, async@npm:~2.6.1":
+"async@npm:^2.0.0, async@npm:^2.5.0, async@npm:^2.6.1, async@npm:^2.6.2, async@npm:^2.6.3, async@npm:~2.6.1":
   version: 2.6.3
   resolution: "async@npm:2.6.3"
   dependencies:
@@ -8616,18 +8689,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body@npm:^5.1.0":
-  version: 5.1.0
-  resolution: "body@npm:5.1.0"
-  dependencies:
-    continuable-cache: ^0.3.1
-    error: ^7.0.0
-    raw-body: ~1.1.0
-    safe-json-parse: ~1.0.1
-  checksum: d9694787950ff7c54ec884214599cfe6a4b1be49d0060cdda6104a1c02563328d032dda26c96af3ec99c4a3a43994c7b36b8d97153e613365535e0b15c9b4dce
-  languageName: node
-  linkType: hard
-
 "bonjour@npm:^3.5.0":
   version: 3.5.0
   resolution: "bonjour@npm:3.5.0"
@@ -9277,13 +9338,6 @@ __metadata:
   dependencies:
     dicer: 0.3.0
   checksum: acc5c3d2f806c1f43a7a9a342bb4aaaa1223bac81cf3ba35ae3cc999f4e3a2e1b6db2d3895a228a862efbbc7b6fb39a7252e830bb5943e1b4362caa221c868ea
-  languageName: node
-  linkType: hard
-
-"bytes@npm:1":
-  version: 1.0.0
-  resolution: "bytes@npm:1.0.0"
-  checksum: ece30287a729bcd942822049ac83ea716c1f59eb3ad27af66fb22ca8c1ff62fd4547b574091e7f784e91f892df896ec978413133c85505a732da1998886d4258
   languageName: node
   linkType: hard
 
@@ -10709,13 +10763,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"continuable-cache@npm:^0.3.1":
-  version: 0.3.1
-  resolution: "continuable-cache@npm:0.3.1"
-  checksum: cf910530ab67b6fc8d570123a93f23fc52d8f84635e5369a3f9f536d421b33dee16c1e4bf41cfe4261d71a0c734864ee799fac41a5e4d087aa33ba8fe28217ad
-  languageName: node
-  linkType: hard
-
 "continuation-local-storage@npm:^3.2.1":
   version: 3.2.1
   resolution: "continuation-local-storage@npm:3.2.1"
@@ -11890,15 +11937,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"deep-for-each@npm:^2.0.2":
-  version: 2.0.3
-  resolution: "deep-for-each@npm:2.0.3"
-  dependencies:
-    lodash.isplainobject: ^4.0.6
-  checksum: fe67908bfbffdb53447fe0381572c35163eda7b9cf3b1a0ee2dfd3e044408121c80b70c086d00d54e40eafd53069ecb431df90a0794d1fa54ab31b864734d1b5
-  languageName: node
-  linkType: hard
-
 "deep-is@npm:~0.1.3":
   version: 0.1.3
   resolution: "deep-is@npm:0.1.3"
@@ -12950,15 +12988,6 @@ __metadata:
   dependencies:
     is-arrayish: ^0.2.1
   checksum: 6c6c9187429ae867d145bc64c682c7c137b1f8373a406dc3b605c0d92f15b85bfcea02b461dc55ae11b10d013377e1eaf3d469d2861b2f94703c743620a9c08c
-  languageName: node
-  linkType: hard
-
-"error@npm:^7.0.0":
-  version: 7.2.1
-  resolution: "error@npm:7.2.1"
-  dependencies:
-    string-template: ~0.2.1
-  checksum: 21ba37fe6750a1a7357509941983af66fa5e3fbe74eca96d48573878916e38fbe77db4d11374c26cd49b3b091ed9e74dc21983fbb86b564989664b1b87ab3003
   languageName: node
   linkType: hard
 
@@ -14032,7 +14061,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"faye-websocket@npm:^0.10.0, faye-websocket@npm:~0.10.0":
+"faye-websocket@npm:^0.10.0":
   version: 0.10.0
   resolution: "faye-websocket@npm:0.10.0"
   dependencies:
@@ -15202,6 +15231,26 @@ fsevents@^1.2.7:
   languageName: unknown
   linkType: soft
 
+"fxa-auth-client@workspace:*, fxa-auth-client@workspace:packages/fxa-auth-client":
+  version: 0.0.0-use.local
+  resolution: "fxa-auth-client@workspace:packages/fxa-auth-client"
+  dependencies:
+    "@peculiar/webcrypto": ^1.1.2
+    "@types/assert": ^1.5.1
+    "@types/fast-text-encoding": ^1
+    "@types/mocha": ^7
+    "@types/node-fetch": ^2
+    abab: ^2.0.0
+    asmcrypto.js: ^0.22.0
+    fast-text-encoding: ^1.0.0
+    mocha: ^7.1.2
+    node-fetch: ^2.6.0
+    ts-node: ^8.10.1
+    typescript: 3.8.3
+    webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
+  languageName: unknown
+  linkType: soft
+
 "fxa-auth-db-mysql@workspace:*, fxa-auth-db-mysql@workspace:packages/fxa-auth-db-mysql":
   version: 0.0.0-use.local
   resolution: "fxa-auth-db-mysql@workspace:packages/fxa-auth-db-mysql"
@@ -15417,6 +15466,7 @@ fsevents@^1.2.7:
     fast-text-encoding: ^1.0.1
     file-loader: ^4.3.0
     firefox-profile: 1.2.0
+    fxa-auth-client: "workspace:*"
     fxa-common-password-list: 0.0.4
     fxa-crypto-relier: 2.3.0
     fxa-geodb: "workspace:*"
@@ -15719,7 +15769,7 @@ fsevents@^1.2.7:
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
     eslint: ^6.8.0
-    fxa-js-client: ^1.0.25
+    fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
     get-stream: ^5.1.0
     graphql: ^14.6.0
@@ -15746,35 +15796,6 @@ fsevents@^1.2.7:
     typedi: ^0.8.0
     typescript: 3.8.3
     yargs: ^15.3.1
-  languageName: unknown
-  linkType: soft
-
-"fxa-js-client@^1.0.25, fxa-js-client@workspace:packages/fxa-js-client":
-  version: 0.0.0-use.local
-  resolution: "fxa-js-client@workspace:packages/fxa-js-client"
-  dependencies:
-    audit-filter: ^0.5.0
-    chai: ^4.2.0
-    eslint: ^6.8.0
-    eslint-plugin-fxa: ^2.0.2
-    fxa-shared: "workspace:*"
-    grunt: ^1.1.0
-    grunt-cli: ~1.2.0
-    grunt-contrib-clean: ^2.0.0
-    grunt-contrib-watch: ^1.1.0
-    grunt-copyright: ^0.3.0
-    grunt-eslint: ^22.0.0
-    grunt-open: 0.2.4
-    grunt-webpack: ^3.1.3
-    http-proxy: ^1.18.1
-    load-grunt-tasks: ^5.1.0
-    mocha: ^7.1.2
-    otplib: ^11.0.1
-    prettier: ^2.0.5
-    sinon: ^9.0.2
-    sjcl: "git://github.com/mozilla-fxa/sjcl.git#3d45d88ed9eaac98d88e7ff83e505db6896dd8c1"
-    webpack: ^4.41.3
-    xhr2: 0.0.7
   languageName: unknown
   linkType: soft
 
@@ -16248,7 +16269,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"gaze@npm:^1.0.0, gaze@npm:^1.1.0":
+"gaze@npm:^1.0.0":
   version: 1.1.3
   resolution: "gaze@npm:1.1.3"
   dependencies:
@@ -17070,19 +17091,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-contrib-watch@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "grunt-contrib-watch@npm:1.1.0"
-  dependencies:
-    async: ^2.6.0
-    gaze: ^1.1.0
-    lodash: ^4.17.10
-    tiny-lr: ^1.1.1
-  checksum: a297e1528aa19aee651b8e4c4429c5b7ea01b8aa12af568fe3500a26fade4f530306318f24d020e3305c97932d0d7d2dc66b28454666baf8dd0c17fbfc161e28
-  languageName: node
-  linkType: hard
-
-"grunt-copyright@npm:0.3.0, grunt-copyright@npm:^0.3.0":
+"grunt-copyright@npm:0.3.0":
   version: 0.3.0
   resolution: "grunt-copyright@npm:0.3.0"
   peerDependencies:
@@ -17187,17 +17196,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"grunt-open@npm:0.2.4":
-  version: 0.2.4
-  resolution: "grunt-open@npm:0.2.4"
-  dependencies:
-    opn: ^5.4.0
-  bin:
-    grunt-open: bin/grunt-open
-  checksum: 55371f49128dbde6a57bf18007de908862b16237ce2f9703e8001fddee19de284c4ba43b0689d6da54a059c1fb38e8bd4a4c367209c5ba892f4b34ea0d6f1939
-  languageName: node
-  linkType: hard
-
 "grunt-po2json@git://github.com/mozilla-fxa/grunt-po2json.git#2f415c8ac0435bf8942dc7131c3916ecd1684a46":
   version: 0.2.0
   resolution: "grunt-po2json@git://github.com/mozilla-fxa/grunt-po2json.git#commit=2f415c8ac0435bf8942dc7131c3916ecd1684a46"
@@ -17259,18 +17257,6 @@ fsevents@^1.2.7:
   peerDependencies:
     grunt: ">=0.4.0"
   checksum: bfbf03bc967559329ecf9ef82cbba69eaa2bfd7e7ebec06e6e4edf04e3b5a42528107dc9336d7e4aeb56ad6b5452028c1ed96d73b77759034546a1858654cb8e
-  languageName: node
-  linkType: hard
-
-"grunt-webpack@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "grunt-webpack@npm:3.1.3"
-  dependencies:
-    deep-for-each: ^2.0.2
-    lodash: ^4.7.0
-  peerDependencies:
-    webpack: ^2.0.0 || ^3.0.0 || ^4.0.0
-  checksum: d4067676aff19205a6fece03fd960dc53c1717237dc12eea5380888244baa627e7ab1ed06a3feb847f2dfa97420bde58e01a0777b05195cfe80d00e4e666997f
   languageName: node
   linkType: hard
 
@@ -21399,13 +21385,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"livereload-js@npm:^2.3.0":
-  version: 2.4.0
-  resolution: "livereload-js@npm:2.4.0"
-  checksum: fb2bb8160cb3c2cb60ab5c998b640a60d1b3c669f1d23700c9b96bc615d26dc93aa07b711c40b9ebdbe669b6d19d2ed692b6192b575efc638abffd762dcbb0b8
-  languageName: node
-  linkType: hard
-
 "load-grunt-tasks@npm:^5.1.0":
   version: 5.1.0
   resolution: "load-grunt-tasks@npm:5.1.0"
@@ -21928,7 +21907,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.7.0, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
+"lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
   version: 4.17.19
   resolution: "lodash@npm:4.17.19"
   checksum: ff2b7a95f0129dba9101e346d44e0eda0f159d76bbbf23721eec1969b87a32bde3de0cfef0733218c64620e9be08040a973278d46a686540233b356115f3527c
@@ -24329,7 +24308,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"opn@npm:^5.4.0, opn@npm:^5.5.0":
+"opn@npm:^5.5.0":
   version: 5.5.0
   resolution: "opn@npm:5.5.0"
   dependencies:
@@ -27119,6 +27098,22 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"pvtsutils@npm:^1.0.10":
+  version: 1.0.10
+  resolution: "pvtsutils@npm:1.0.10"
+  dependencies:
+    tslib: ^1.10.0
+  checksum: 4409c65452d3a4e8c4111315a1b562c62ea0aa66fe47434691ff72834208cb79c0421a3aa137c2bc1e04633aab8141a072f19251cc1a5dd7006c24bff603977a
+  languageName: node
+  linkType: hard
+
+"pvutils@npm:latest":
+  version: 1.0.17
+  resolution: "pvutils@npm:1.0.17"
+  checksum: dac525a0a4652ee215fa3582c2735ecb28ab4362079158e85e464e8f1a995f8469ebd668dc3b956a494fdba52a27ade121921a421d83818723e7c55cfdeb6afa
+  languageName: node
+  linkType: hard
+
 "q@npm:^1.1.2":
   version: 1.5.1
   resolution: "q@npm:1.5.1"
@@ -27157,7 +27152,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.4.0, qs@npm:^6.5.1, qs@npm:^6.6.0, qs@npm:^6.7.0, qs@npm:^6.9.1, qs@npm:^6.9.3":
+"qs@npm:^6.5.1, qs@npm:^6.6.0, qs@npm:^6.7.0, qs@npm:^6.9.1, qs@npm:^6.9.3":
   version: 6.9.4
   resolution: "qs@npm:6.9.4"
   checksum: beba62d1e1c66e9888cc08a488eb95771c252a92289a96bff4b767a49e4e7afe9487d7ee3269b856292d8281b855ac5eac927c2e77f845e407ee4fe54743fea7
@@ -27310,16 +27305,6 @@ fsevents@^1.2.7:
     iconv-lite: 0.4.24
     unpipe: 1.0.0
   checksum: dc56e010d276f2fc3a17c2dd071f857917cd3734f64051488c845a9878a1eb47e03a9644861f135568d8ab4c2062072700b73060956b36f3a987025bc809402f
-  languageName: node
-  linkType: hard
-
-"raw-body@npm:~1.1.0":
-  version: 1.1.7
-  resolution: "raw-body@npm:1.1.7"
-  dependencies:
-    bytes: 1
-    string_decoder: 0.10
-  checksum: fe7b4c0d0f789806a5bd5900a32dc9da45ef4210ee85ae0b5952f7f188d24a9c21ceaf849c94711b78439adbd62797c75d7953f4eea3a6dd433770a6d3f869ef
   languageName: node
   linkType: hard
 
@@ -29187,13 +29172,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"safe-json-parse@npm:~1.0.1":
-  version: 1.0.1
-  resolution: "safe-json-parse@npm:1.0.1"
-  checksum: 5f6c8cd51bacfaf1788903dd52945d5c8033a15f243d523e3f61d0d491df7107c2c7d2701e51e9be91819aaf40f493bd95dc19a044d09b61f0e0efef67c588b7
-  languageName: node
-  linkType: hard
-
 "safe-json-stringify@npm:^1.0.4, safe-json-stringify@npm:~1":
   version: 1.2.0
   resolution: "safe-json-stringify@npm:1.2.0"
@@ -30073,13 +30051,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sjcl@git://github.com/mozilla-fxa/sjcl.git#3d45d88ed9eaac98d88e7ff83e505db6896dd8c1":
-  version: 1.0.1
-  resolution: "sjcl@git://github.com/mozilla-fxa/sjcl.git#commit=3d45d88ed9eaac98d88e7ff83e505db6896dd8c1"
-  checksum: 8e153c4521f3a073b99738e8898a4b5e56daa63cb5d0bfd9fe5acaab3e6ce6e779551621a5e7ea09a7d5c683af451ca7651664ab662a333bec68692a04c9db2a
-  languageName: node
-  linkType: hard
-
 "slash@npm:^1.0.0":
   version: 1.0.0
   resolution: "slash@npm:1.0.0"
@@ -30938,13 +30909,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"string-template@npm:~0.2.1":
-  version: 0.2.1
-  resolution: "string-template@npm:0.2.1"
-  checksum: c64ac6e7f744d8e37961c987c70038ae4e3ab3c6c9b3822709c1350397f7f0be1e84685924afb44468484823b4e1a8b5d8d4ff925cb0a01b13d8b73e50670513
-  languageName: node
-  linkType: hard
-
 "string-width@npm:^1.0.1, string-width@npm:^1.0.2":
   version: 1.0.2
   resolution: "string-width@npm:1.0.2"
@@ -31064,19 +31028,19 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"string_decoder@npm:0.10, string_decoder@npm:~0.10.0, string_decoder@npm:~0.10.x":
-  version: 0.10.31
-  resolution: "string_decoder@npm:0.10.31"
-  checksum: ae53bca3796913fe686c6b519299a3631d04f0d388f35e7412914e3d351024f711d783d0415babfec276f5f533e84fae687e77220829d872fadb5bb9f7190890
-  languageName: node
-  linkType: hard
-
 "string_decoder@npm:^1.0.0, string_decoder@npm:^1.1.1":
   version: 1.3.0
   resolution: "string_decoder@npm:1.3.0"
   dependencies:
     safe-buffer: ~5.2.0
   checksum: 0a09afb610cb538707fcf0a50a080f159040529eabdba82f23b04f1d1f90adf9ba18cc3800231c6ab2ee55dece047f4bed87c56da52b2afd85c3c7fb73eb7e48
+  languageName: node
+  linkType: hard
+
+"string_decoder@npm:~0.10.0, string_decoder@npm:~0.10.x":
+  version: 0.10.31
+  resolution: "string_decoder@npm:0.10.31"
+  checksum: ae53bca3796913fe686c6b519299a3631d04f0d388f35e7412914e3d351024f711d783d0415babfec276f5f533e84fae687e77220829d872fadb5bb9f7190890
   languageName: node
   linkType: hard
 
@@ -32102,20 +32066,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tiny-lr@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "tiny-lr@npm:1.1.1"
-  dependencies:
-    body: ^5.1.0
-    debug: ^3.1.0
-    faye-websocket: ~0.10.0
-    livereload-js: ^2.3.0
-    object-assign: ^4.1.0
-    qs: ^6.4.0
-  checksum: e3d6d958da297eb3cc27cedd94362f2dd681902cb930119a50c0c7768b8b33a466f46e06a67286b9c1bebdbf132ce390251ae618d8b3e84bbc002745a3c560d3
-  languageName: node
-  linkType: hard
-
 "tiny-lru@npm:^1.6.1":
   version: 1.6.4
   resolution: "tiny-lru@npm:1.6.4"
@@ -32511,7 +32461,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tslib@npm:1.12.0, tslib@npm:>=1.9.0, tslib@npm:^1.10.0, tslib@npm:^1.11.1, tslib@npm:^1.7.1, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
+"tslib@npm:1.12.0, tslib@npm:>=1.9.0, tslib@npm:^1.10.0, tslib@npm:^1.11.1, tslib@npm:^1.11.2, tslib@npm:^1.7.1, tslib@npm:^1.8.1, tslib@npm:^1.9.0, tslib@npm:^1.9.3":
   version: 1.12.0
   resolution: "tslib@npm:1.12.0"
   checksum: a2f020c1187db465fbfb1c6d7d5dcd1a56aa08153d868b614f36fd59ef1225e938288a7cc8c593562faf5a681c53caccc6b580b06b7618a6670830079117f803
@@ -32522,6 +32472,13 @@ resolve@~1.11.1:
   version: 1.9.3
   resolution: "tslib@npm:1.9.3"
   checksum: 7a776542776e0a05508bc96d27bb3e301b6cfce6308cfdcf73b6decebd3c7da3dd2ebbff8cc6fe2a13a31013a9bede5159d637c00d44f34f7f7420ae986a460e
+  languageName: node
+  linkType: hard
+
+"tslib@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "tslib@npm:2.0.0"
+  checksum: a7369a224f12e223fb42f2a720389601a24a1e1c96c55bf0d8d4b60c131e574c175ae23578b8d1bd3f4ec790c7e0a82b43733f022f866d48a23aeadd3910755d
   languageName: node
   linkType: hard
 
@@ -33730,6 +33687,19 @@ typescript@3.8.3:
   languageName: node
   linkType: hard
 
+"webcrypto-core@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "webcrypto-core@npm:1.1.2"
+  dependencies:
+    "@peculiar/asn1-schema": ^2.0.1
+    "@peculiar/json-schema": ^1.1.10
+    asn1js: ^2.0.26
+    pvtsutils: ^1.0.10
+    tslib: ^1.11.2
+  checksum: 535d2f473ae4ecc8e816b6d0d7018328779f91cc477efe00aa1a47322ce40b42aa9f62280e90147b134aac441cabd33f13aa1fa9a2fb2c4faf41b6619c338f20
+  languageName: node
+  linkType: hard
+
 "webcrypto-liner@git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb":
   version: 0.1.36
   resolution: "webcrypto-liner@git://github.com/mozilla-fxa/webcrypto-liner.git#commit=6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
@@ -33937,7 +33907,7 @@ typescript@3.8.3:
   languageName: node
   linkType: hard
 
-"webpack@npm:4.43.0, webpack@npm:^4.33.0, webpack@npm:^4.38.0, webpack@npm:^4.41.2, webpack@npm:^4.41.3, webpack@npm:^4.43.0":
+"webpack@npm:4.43.0, webpack@npm:^4.33.0, webpack@npm:^4.38.0, webpack@npm:^4.41.2, webpack@npm:^4.43.0":
   version: 4.43.0
   resolution: "webpack@npm:4.43.0"
   dependencies:
@@ -34558,13 +34528,6 @@ typescript@3.8.3:
   version: 1.3.0
   resolution: "x-xss-protection@npm:1.3.0"
   checksum: 58c3966b6b087363c937e5d4ee91a278e22b6388c87be48c23a97ca6699a6361b2c25803a7642c8cf691b04e1e8f8841732db2d9415b582c02130a8b09a8100f
-  languageName: node
-  linkType: hard
-
-"xhr2@npm:0.0.7":
-  version: 0.0.7
-  resolution: "xhr2@npm:0.0.7"
-  checksum: 9b0fb9ccf960215239bcb92c36cea4a22d1167cb32af57fcd310bf0d357e3b00abc857f48160938295c154320d103f32b75f8ebd56cf2f18b01ad0e3e5386a93
   languageName: node
   linkType: hard
 

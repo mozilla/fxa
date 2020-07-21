@@ -7,7 +7,6 @@ const cp = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
-const nodeXMLHttpRequest = require('xmlhttprequest');
 const path = require('path');
 const pollUntil = require('@theintern/leadfoot/helpers/pollUntil').default;
 const Querystring = require('querystring');
@@ -21,7 +20,7 @@ const Url = require('url');
 const otplib = require('otplib');
 otplib.authenticator.options = { encoding: 'hex' };
 
-const FxaClient = require('../../../../fxa-js-client/client/FxAccountClient');
+const AuthClient = require('fxa-auth-client').default;
 const config = intern._config;
 
 const AUTH_SERVER_ROOT = config.fxaAuthRoot;
@@ -660,14 +659,12 @@ const noSuchElement = thenify(function (selector, timeoutMS = 0) {
 });
 
 /**
- * Get an fxa-js-client instance
+ * Get an fxa-auth-client instance
  *
  * @returns {Object}
  */
 function getFxaClient() {
-  return new FxaClient(AUTH_SERVER_ROOT, {
-    xhr: nodeXMLHttpRequest.XMLHttpRequest,
-  });
+  return new AuthClient(AUTH_SERVER_ROOT);
 }
 
 /**

@@ -78,7 +78,8 @@ const webpackConfig = {
       'webcrypto-liner': require.resolve('webcrypto-liner/build/shim'),
       // Webpack 4 doesn't support the "exports" property of package.json
       // so unfortunately we need to remap it here as well.
-      'fxa-react/components/Survey': require.resolve('fxa-react/components/Survey')
+      'fxa-react/components/Survey': require.resolve('fxa-react/components/Survey'),
+      'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser')
     },
   },
 

@@ -116,7 +116,7 @@ jobs:
             '123done' \
             'browserid-verifier' \
             'fortress' \
-            'fxa-js-client' \
+            'fxa-auth-client' \
             'fxa-geodb' \
             'fxa-email-event-proxy' \
             'fxa-customs-server' \

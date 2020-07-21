@@ -14,7 +14,7 @@ For a prose description of the client/server protocol
 and details on how each parameter is derived,
 see the [API design document](https://wiki.mozilla.org/Identity/AttachedServices/KeyServerProtocol).
 For a reference client implementation,
-see [`mozilla/fxa-js-client`](https://github.com/mozilla/fxa-js-client).
+see [`fxa-auth-client`](https://github.com/mozilla/fxa/tree/main/packages/fxa-auth-client).
 
 <!--end-abstract-->
 

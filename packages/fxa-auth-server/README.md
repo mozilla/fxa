@@ -117,7 +117,7 @@ Use the `FXA_L10N_SHA` to pin L10N files to certain SHA. If not set then the `ma
 
 ## Reference Client
 
-[fxa-js-client](../fxa-js-client)
+[fxa-auth-client](../fxa-auth-client)
 
 ## Dev Deployment
 
