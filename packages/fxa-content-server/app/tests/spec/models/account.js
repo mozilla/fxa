@@ -30,6 +30,7 @@ describe('models/account', function () {
   var profileClient;
   var relier;
   var subscriptionsConfig;
+  var ecosystemAnonIdPublicKeys;
 
   var CLIENT_ID = 'client_id';
   var EMAIL = 'user@example.domain';
@@ -69,6 +70,14 @@ describe('models/account', function () {
       managementClientId: 'foxkeh',
       managementScopes: 'quux',
     };
+    ecosystemAnonIdPublicKeys = [
+      {
+        'kty': 'EC',
+      },
+      {
+        'kty': 'RSA',
+      },
+    ]
 
     account = new Account(
       {
@@ -84,6 +93,7 @@ describe('models/account', function () {
         profileClient: profileClient,
         sentryMetrics: sentryMetrics,
         subscriptionsConfig,
+        ecosystemAnonIdPublicKeys
       }
     );
   });
@@ -2937,6 +2947,13 @@ describe('models/account', function () {
       assert.isFalse(account.get('totpVerified'));
     });
   });
+
+  describe('generateEcosystemAnonIdIfRequired', () => {
+    it('receives ecosystemAnonIdPublicKeys', () => {
+      // kind of a moot test at this point, will be updated with FXA-1225 completion
+      assert.equal(account._ecosystemAnonIdPublicKeys, ecosystemAnonIdPublicKeys);
+    });
+  })
 
   describe('_fetchShortLivedSubscriptionsOAuthToken', () => {
     it('calls createOAuthToken with the correct arguments', () => {

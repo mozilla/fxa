@@ -99,6 +99,7 @@ const Account = Backbone.Model.extend(
       this._notifier = options.notifier;
       this._sentryMetrics = options.sentryMetrics;
       this._subscriptionsConfig = options.subscriptionsConfig;
+      this._ecosystemAnonIdPublicKeys = options.ecosystemAnonIdPublicKeys;
 
       // upgrade old `grantedPermissions` to the new `permissions`.
       this._upgradeGrantedPermissions();

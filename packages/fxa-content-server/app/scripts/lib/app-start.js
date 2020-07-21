@@ -371,6 +371,7 @@ Start.prototype = {
         profileClient: this._profileClient,
         sentryMetrics: this._sentryMetrics,
         subscriptionsConfig: this._config.subscriptions,
+        ecosystemAnonIdPublicKeys: this._config.ecosystemAnonIdPublicKeys,
         storage: this._getUserStorageInstance(),
         uniqueUserId: this._getUniqueUserId(),
       });
