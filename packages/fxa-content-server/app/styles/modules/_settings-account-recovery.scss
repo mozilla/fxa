@@ -141,6 +141,10 @@
     font-size: 14px;
     line-height: 1.5;
   }
+
+  button.lost-recovery-key, button.remember-password{
+    margin-top: 16px;
+  }
 }
 
 button.button-link {
@@ -148,6 +152,6 @@ button.button-link {
   color: $color-blue;
 }
 
-button.generate-key-link{
+button.generate-key-link, button.btn-create-recovery-key{
   margin-bottom: 16px;
 }
