@@ -11,4 +11,6 @@ var https = require('https');
 https.globalAgent.maxSockets = Infinity;
 
 // in case we want rip `request` out, it can happen in here
-module.exports = require('request');
+module.exports = require('request').defaults({
+  forever: true
+});
