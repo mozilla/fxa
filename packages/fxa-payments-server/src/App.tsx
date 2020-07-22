@@ -1,8 +1,15 @@
-import React, { useContext } from 'react';
+import React, { ReactNode, useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
 import { StripeProvider } from 'react-stripe-elements';
-import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
+import {
+  BrowserRouter,
+  MemoryRouter,
+  Route,
+  Redirect,
+  Switch,
+  useRouteMatch,
+} from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import DocumentTitle from 'react-document-title';
 
@@ -25,10 +32,15 @@ const Product = React.lazy(() => import('./routes/Product'));
 const ProductV2 = React.lazy(() => import('./routes/ProductV2'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
-// TODO: Come up with a better fallback component for lazy-loaded routes
+// TODO: Come up with a better fallback component for lazy-loaded routes?
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
 
-type AppProps = {
+// TODO: Would like to find a better type here describing a function that
+// returns a wrapper component that provides a MemoryRouter with
+// initialEntries set. But, doing this for now.
+type RouterOverride = () => (props: { children: ReactNode }) => JSX.Element;
+
+export type AppProps = {
   config: Config;
   store: Store;
   queryParams: QueryParams;
@@ -39,6 +51,7 @@ type AppProps = {
   locationReload: () => void;
   navigatorLanguages: readonly string[];
   stripePromise: ReturnType<typeof loadStripe>;
+  routerOverride?: RouterOverride;
 };
 
 export const App = ({
@@ -50,9 +63,15 @@ export const App = ({
   navigateToUrl,
   getScreenInfo,
   locationReload,
-  navigatorLanguages = ['en-US', 'en'],
+  navigatorLanguages,
   stripePromise,
+  routerOverride,
 }: AppProps) => {
+  /* istanbul ignore next - router override is only used for tests */
+  const Router = routerOverride ? routerOverride() : BrowserRouter;
+
+  const { useSCAPaymentUIByDefault = false } = config.featureFlags;
+
   const appContextValue: AppContextType = {
     config,
     queryParams,
@@ -80,37 +99,26 @@ export const App = ({
                 <ReduxProvider store={store}>
                   <Router>
                     <React.Suspense fallback={<RouteFallback />}>
-                      {/* Note: every Route below should also be listed in INDEX_ROUTES in server/lib/server.js */}
-                      <Route
-                        path="/"
-                        exact
-                        render={() => <Redirect to="/subscriptions" />}
-                      />
-                      <Route
-                        path="/subscriptions"
-                        exact
-                        render={(props) => (
-                          <SettingsLayout>
-                            <Subscriptions {...props} />
-                          </SettingsLayout>
-                        )}
-                      />
-                      <Route
-                        path="/products/:productId"
-                        render={(props) => (
-                          <SignInLayout>
-                            <Product {...props} />
-                          </SignInLayout>
-                        )}
-                      />
-                      <Route
-                        path="/v2/products/:productId"
-                        render={(props) => (
-                          <SignInLayout>
-                            <ProductV2 {...props} />
-                          </SignInLayout>
-                        )}
-                      />
+                      <Switch>
+                        {/* Note: every permutation of Route and nested Routes below should also be listed in INDEX_ROUTES in server/lib/server.js */}
+                        <Route path="/" exact>
+                          <Redirect to="/subscriptions" />
+                        </Route>
+                        {/* TODO: FXA-2275 - remove V1 routes, only use V2 after SCA UI stabilizes */}
+                        <Route path="/v1">
+                          <AppRoutesV1 />
+                        </Route>
+                        <Route path="/v2">
+                          <AppRoutesV2 />
+                        </Route>
+                        <Route>
+                          {useSCAPaymentUIByDefault ? (
+                            <AppRoutesV2 />
+                          ) : (
+                            <AppRoutesV1 />
+                          )}
+                        </Route>
+                      </Switch>
                     </React.Suspense>
                   </Router>
                 </ReduxProvider>
@@ -120,6 +128,61 @@ export const App = ({
         </Localized>
       </AppLocalizationProvider>
     </AppContext.Provider>
+  );
+};
+
+const joinPath = (path: string, ...rest: string[]) =>
+  [path === '/' ? '' : path, ...rest].join('/');
+
+// Legacy "V1" routes before introduction of SCA payment methods
+const AppRoutesV1 = () => {
+  const { path } = useRouteMatch();
+  return (
+    <Switch>
+      <Route
+        path={joinPath(path, 'subscriptions')}
+        exact
+        render={(props) => (
+          <SettingsLayout>
+            <Subscriptions {...props} />
+          </SettingsLayout>
+        )}
+      />
+      <Route
+        path={joinPath(path, 'products/:productId')}
+        render={(props) => (
+          <SignInLayout>
+            <Product {...props} />
+          </SignInLayout>
+        )}
+      />
+    </Switch>
+  );
+};
+
+// New "V2" routes implementing SCA payment methods
+const AppRoutesV2 = () => {
+  const { path } = useRouteMatch();
+  return (
+    <Switch>
+      <Route
+        path={joinPath(path, 'subscriptions')}
+        exact
+        render={(props) => (
+          <SettingsLayout>
+            <Subscriptions {...props} />
+          </SettingsLayout>
+        )}
+      />
+      <Route
+        path={joinPath(path, 'products/:productId')}
+        render={(props) => (
+          <SignInLayout>
+            <ProductV2 {...props} />
+          </SignInLayout>
+        )}
+      />
+    </Switch>
   );
 };
 

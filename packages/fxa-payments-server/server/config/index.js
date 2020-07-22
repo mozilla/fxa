@@ -12,6 +12,15 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
+  featureFlags: {
+    useSCAPaymentUIByDefault: {
+      default: false,
+      doc:
+        'Whether to use newer SCA payment UI components by default rather than at the /v2 sub-path',
+      env: 'FEATURE_USE_SCA_PAYMENT_UI_BY_DEFAULT',
+      format: Boolean,
+    },
+  },
   amplitude: {
     enabled: {
       default: true,

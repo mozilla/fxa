@@ -11,7 +11,7 @@ export type AppContextType = {
   matchMediaDefault: (query: string) => MediaQueryList;
   navigateToUrl: (url: string) => void;
   getScreenInfo: () => ScreenInfo;
-  locationReload: (url: string) => void;
+  locationReload: () => void;
   navigatorLanguages?: readonly string[];
   stripePromise: ReturnType<typeof loadStripe>;
 };
