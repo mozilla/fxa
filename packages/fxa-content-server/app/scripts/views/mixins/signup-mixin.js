@@ -79,6 +79,7 @@ export default {
     this.logViewEvent('signup.success');
 
     if (account.get('verificationMethod') === 'email-otp') {
+      this.clearInput();
       this.navigate('/confirm_signup_code', { account });
     } else {
       // do NOT propagate the returned promise. The broker
