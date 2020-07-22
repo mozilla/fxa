@@ -178,6 +178,23 @@ export default class AuthClient {
     );
   }
 
+  private async sessionPut(
+    path: string,
+    sessionToken: string,
+    payload: object,
+    headers?: Headers
+  ) {
+    console.log('hey');
+    return this.hawkRequest(
+      'PUT',
+      path,
+      sessionToken,
+      tokenType.sessionToken,
+      payload,
+      headers
+    );
+  }
+
   async signUp(
     email: string,
     password: string,
@@ -1133,5 +1150,40 @@ export default class AuthClient {
       payload.expiry_grace_period = expiryGracePeriod;
     }
     return this.request('POST', '/oauth/id-token-verify', payload);
+  }
+
+  async updateEcosystemAnonId(
+    sessionToken: string,
+    ecosystemAnonId: string,
+    options: {
+      ifNoneMatch?: string;
+      ifMatch?: string;
+    } = {}
+  ) {
+    if (options.ifNoneMatch && options.ifMatch) {
+      throw 'Options ifMatch and ifNoneMatch cannot both be set';
+    }
+
+    const headers: { [header: string]: string } = {};
+
+    if (options.ifNoneMatch) {
+      headers['If-None-Match'] = options.ifNoneMatch;
+    }
+
+    // Not yet supported in the auth server; will be
+    // updated shortly in another PR.
+    //
+    // if (options.ifMatch) {
+    //   headers['If-Match'] = options.ifMatch
+    // }
+
+    return this.sessionPut(
+      '/account/ecosystemAnonId',
+      sessionToken,
+      {
+        ecosystemAnonId,
+      },
+      new Headers(headers)
+    );
   }
 }

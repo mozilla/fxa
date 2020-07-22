@@ -1499,7 +1499,7 @@ module.exports = (
       options: {
         auth: {
           payload: false,
-          strategy: 'oauthToken',
+          strategies: ['sessionToken', 'oauthToken'],
         },
         validate: {
           payload: {
