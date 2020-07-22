@@ -167,6 +167,9 @@ jest.setMock(
   'react-stripe-elements',
   Object.assign(require.requireActual('react-stripe-elements'), {
     injectStripe,
+    StripeProvider: ({ children }: { children: ReactNode }) => (
+      <section data-testid="StripeProvider">{children}</section>
+    ),
     Elements: ({ children }: { children: ReactNode }) => children,
     CardNumberElement: MockStripeElement({ testid: 'cardNumberElement' }),
     CardExpiryElement: MockStripeElement({ testid: 'cardExpiryElement' }),

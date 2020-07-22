@@ -51,6 +51,10 @@ module.exports = () => {
 
   const app = express();
 
+  // Minimal feature flag support from server config
+  // TODO: implement better feature flag support - i.e. with types, from redis
+  const FEATURE_FLAGS = config.get('featureFlags') || {};
+
   // Each of these config values (e.g., 'servers.content') will be exposed as the given
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
@@ -88,7 +92,15 @@ module.exports = () => {
   };
 
   // This is a list of all the paths that should resolve to index.html:
-  const INDEX_ROUTES = ['/', '/subscriptions', '/products/:productId'];
+  const INDEX_ROUTES = [
+    '/',
+    '/subscriptions',
+    '/products/:productId',
+    '/v1/subscriptions',
+    '/v1/products/:productId',
+    '/v2/subscriptions',
+    '/v2/products/:productId',
+  ];
 
   app.disable('x-powered-by');
 
@@ -181,7 +193,7 @@ module.exports = () => {
     return result;
   }
 
-  function injectHtmlConfig(html, config, featureFlags = {}) {
+  function injectHtmlConfig(html, config, featureFlags) {
     return injectMetaContent(html, {
       __SERVER_CONFIG__: config,
       __FEATURE_FLAGS__: featureFlags,
@@ -213,7 +225,7 @@ module.exports = () => {
             return proxyResData;
           }
           const body = proxyResData.toString('utf8');
-          return injectHtmlConfig(body, CLIENT_CONFIG, {});
+          return injectHtmlConfig(body, CLIENT_CONFIG, FEATURE_FLAGS);
         },
       })
     );
@@ -235,7 +247,9 @@ module.exports = () => {
     INDEX_ROUTES.forEach((route) => {
       // FIXME: should set ETag, Not-Modified:
       app.get(route, (req, res) => {
-        res.send(injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, {}));
+        res.send(
+          injectHtmlConfig(STATIC_INDEX_HTML, CLIENT_CONFIG, FEATURE_FLAGS)
+        );
       });
     });
 
