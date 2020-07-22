@@ -5,6 +5,7 @@
 import $ from 'jquery';
 import AuthBroker from 'models/auth_brokers/base';
 import AuthErrors from 'lib/auth-errors';
+import Constants from 'lib/constants';
 import Backbone from 'backbone';
 import chai from 'chai';
 import CropperImage from 'models/cropper-image';
@@ -180,6 +181,28 @@ describe('views/settings/avatar/crop', function () {
             assert.equal(eventParts[1], 'avatar');
             assert.equal(eventParts[2], 'upload');
             assert.match(eventParts[3], /^[0-9]+$/);
+          });
+      });
+
+      it('shows an error when the output image is too large', function () {
+        sinon.stub(view, 'toBlob').resolves({
+          size: Constants.PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE + 1,
+        });
+
+        return view
+          .render()
+          .then(function () {
+            return view.afterVisible();
+          })
+          .then(async function () {
+            try {
+              await view.submit();
+            } catch (error) {
+              assert.equal(
+                error.message,
+                AuthErrors.ERRORS.IMAGE_TOO_LARGE.message
+              );
+            }
           });
       });
 

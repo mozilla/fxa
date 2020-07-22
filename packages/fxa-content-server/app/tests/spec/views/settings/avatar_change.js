@@ -213,27 +213,6 @@ describe('views/settings/avatar_change', function () {
         });
       });
 
-      it('error when trying to upload big storage sized image', function () {
-        view.FileReader = FileReaderMock;
-
-        return view.afterVisible().then(function () {
-          var ev = FileReaderMock._mockBigStorageSizePngEvent();
-          return view.fileSet(ev).then(
-            function () {
-              assert.catch('unexpected success');
-            },
-            function () {
-              assert.equal(
-                view.$('.error').text(),
-                AuthErrors.toMessage('IMAGE_TOO_LARGE')
-              );
-              assert.isTrue(view.isErrorVisible());
-              assert.equal(view.logFlowEvent.callCount, 0);
-            }
-          );
-        });
-      });
-
       it('loads a supported file', function (done) {
         view.FileReader = FileReaderMock;
 

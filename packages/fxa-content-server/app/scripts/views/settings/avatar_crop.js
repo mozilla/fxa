@@ -88,23 +88,25 @@ const View = FormView.extend({
     });
   },
 
-  submit() {
-    let start;
+  async submit() {
     const account = this.getSignedInAccount();
 
     this.logAccountImageChange(account);
 
-    return this.toBlob()
-      .then((data) => {
-        start = Date.now();
-        return account.uploadAvatar(data);
-      })
-      .then((result) => {
-        this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
-        this.updateProfileImage(new ProfileImage(result), account);
-        this.navigate('settings');
-        return result;
-      });
+    const start = Date.now();
+    const imageData = await this.toBlob();
+
+    if (imageData.size >= Constants.PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE) {
+      throw AuthErrors.toError('IMAGE_TOO_LARGE');
+    }
+
+    const uploadResult = await account.uploadAvatar(imageData);
+
+    this.logFlowEvent(`timing.avatar.upload.${Date.now() - start}`);
+    this.updateProfileImage(new ProfileImage(uploadResult), account);
+    this.navigate('settings');
+
+    return uploadResult;
   },
 
   remove() {
