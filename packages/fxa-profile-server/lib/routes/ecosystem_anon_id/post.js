@@ -9,6 +9,7 @@ const notifyProfileUpdated = require('../../updates-queue');
 const AppError = require('../../error');
 const config = require('../../config');
 const request = require('../../request');
+const crypto = require('crypto');
 
 const AUTH_SERVER_URL =
   config.get('authServer.url') + '/account/ecosystemAnonId';
@@ -16,14 +17,19 @@ const AUTH_SERVER_URL =
 const updateAuthServer = function (
   credentials,
   ecosystemAnonId,
-  noneMatchHeader
+  ifNoneMatch,
+  ifMatch
 ) {
   const headers = {
     Authorization: 'Bearer ' + credentials.token,
   };
 
-  if (noneMatchHeader) {
-    headers['If-None-Match'] = noneMatchHeader;
+  if (ifNoneMatch) {
+    headers['If-None-Match'] = ifNoneMatch;
+  }
+
+  if (ifMatch) {
+    headers['If-Match'] = ifMatch;
   }
 
   return new Promise((resolve, reject) => {
@@ -57,7 +63,9 @@ const updateAuthServer = function (
 
           if (body.code === 412 || body.errno === 190) {
             logger.info('request.auth_server.precondition_fail', body);
-            return reject(new AppError.unauthorized(body.message));
+            return reject(
+              new AppError.anonIdUpdateConflict(null, body.message)
+            );
           }
 
           logger.error('request.auth_server.fail', body);
@@ -98,24 +106,41 @@ module.exports = {
         },
       })
       .then(async (res) => {
+        function hashAnonId(anonId) {
+          const hash = crypto.createHash('sha256');
+          return hash.update(anonId).digest('hex');
+        }
+
         const uid = req.auth.credentials.user;
-        const noneMatchHeader = req.headers['if-none-match'];
         const existingAnonId = res.result.ecosystemAnonId;
+        const ifNoneMatch = req.headers['if-none-match'];
+        const ifMatch = req.headers['if-match'];
 
         logger.info('activityEvent', {
           event: 'ecosystemAnonId.post',
           uid: uid,
         });
 
-        if (noneMatchHeader === '*' && existingAnonId != null) {
-          throw AppError.anonIdExists();
+        if (existingAnonId && (ifNoneMatch || ifMatch)) {
+          const hashedAnonId = hashAnonId(existingAnonId);
+
+          if (ifMatch && ifMatch !== hashedAnonId) {
+            throw AppError.anonIdUpdateConflict('If-Match');
+          }
+
+          if (ifNoneMatch === '*') {
+            throw AppError.anonIdUpdateConflict('If-None-Match');
+          } else if (ifNoneMatch === hashedAnonId) {
+            throw AppError.anonIdUpdateConflict('If-None-Match');
+          }
         }
 
         await req.server.methods.profileCache.drop(uid);
         await updateAuthServer(
           req.auth.credentials,
           req.payload.ecosystemAnonId,
-          noneMatchHeader
+          req.headers['if-none-match'],
+          req.headers['if-match']
         );
 
         notifyProfileUpdated(uid);

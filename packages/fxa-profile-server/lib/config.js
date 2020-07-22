@@ -241,7 +241,8 @@ const conf = convict({
       env: 'WORKER_URL',
     },
     headers_exclude: {
-      doc: 'HTTP headers to not pass through to the worker requests (in lower case)',
+      doc:
+        'HTTP headers to not pass through to the worker requests (in lower case)',
       format: Array,
       env: 'WORKER_HEADERS_EXCLUDE',
       default: ['host'],

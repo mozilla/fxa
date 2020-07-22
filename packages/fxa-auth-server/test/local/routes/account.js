@@ -3112,6 +3112,11 @@ describe('/account/ecosystemAnonId', () => {
   const ecosystemAnonId = 'bowl of oranges';
   let mockLog, mockDB, mockRequest, route;
 
+  function hashAnonId(anonId) {
+    const hash = crypto.createHash('sha256');
+    return hash.update(anonId).digest('hex');
+  }
+
   beforeEach(async () => {
     mockLog = mocks.mockLog();
     mockDB = mocks.mockDB();
@@ -3160,7 +3165,7 @@ describe('/account/ecosystemAnonId', () => {
     assert.isTrue(failed);
   });
 
-  it('throws anonIdExists when if-none-match: * header is present and anon id already exists', async () => {
+  it('throws: if-none-match: *, anon id exists', async () => {
     mockRequest.headers['If-None-Match'] = '*';
     mockDB.account = function () {
       return P.resolve({
@@ -3173,17 +3178,91 @@ describe('/account/ecosystemAnonId', () => {
       await runTest(route, mockRequest, () => {});
     } catch (err) {
       failed = true;
-      assert.equal(err.errno, error.ERRNO.ECOSYSTEM_ANON_ID_EXISTS);
+      assert.equal(err.errno, error.ERRNO.ECOSYSTEM_ANON_ID_UPDATE_CONFLICT);
     }
 
     assert.isTrue(failed);
   });
 
-  it('does not throw anonIdExists when if-none-match: * header is present but anon id is null', async () => {
+  it('doesnt throw: if-none-match: *, anon id doesnt exist', async () => {
     mockRequest.headers['If-None-Match'] = '*';
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: null,
+      });
+    };
+
+    let success = true;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      success = false;
+    }
+
+    assert.isTrue(success);
+  });
+
+  it('throws: if-none-match: y (hashed), anon id is y', async () => {
+    mockRequest.headers['If-None-Match'] = hashAnonId('y');
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'y',
+      });
+    };
+
+    let failed = false;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.ECOSYSTEM_ANON_ID_UPDATE_CONFLICT);
+    }
+
+    assert.isTrue(failed);
+  });
+
+  it('doesnt throw: if-none-match: x (hashed), anon id is z', async () => {
+    mockRequest.headers['If-None-Match'] = hashAnonId('x');
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'z',
+      });
+    };
+
+    let success = true;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      success = false;
+    }
+
+    assert.isTrue(success);
+  });
+
+  it('throws: if-match: x (hashed), anon id is z', async () => {
+    mockRequest.headers['If-Match'] = hashAnonId('x');
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'z',
+      });
+    };
+
+    let failed = false;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.ECOSYSTEM_ANON_ID_UPDATE_CONFLICT);
+    }
+
+    assert.isTrue(failed);
+  });
+
+  it('doesnt throw: if-match: x (hashed), anon id is x', async () => {
+    mockRequest.headers['If-Match'] = hashAnonId('x');
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'x',
       });
     };
 

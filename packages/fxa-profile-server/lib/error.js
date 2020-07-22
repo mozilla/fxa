@@ -203,16 +203,19 @@ AppError.authError = function authError(err) {
   );
 };
 
-AppError.anonIdExists = function anonIdExists(err) {
+AppError.anonIdUpdateConflict = function anonIdExists(headerName, message) {
+  message =
+    message ||
+    `Could not update Ecosystem Anon ID because criteria set by ${headerName} was not met`;
   return new AppError(
     {
       code: 412,
       error: 'Precondition Failed',
       errno: 106,
-      message: 'Attempted to update non-null Ecosystem Anon ID',
+      message,
     },
     {
-      cause: err,
+      cause: message,
     }
   );
 };
