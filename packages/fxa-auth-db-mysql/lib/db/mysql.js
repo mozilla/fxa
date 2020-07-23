@@ -198,9 +198,9 @@ module.exports = function (log, error) {
   // CREATE
 
   // Insert : accounts
-  // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13, ecosystemAnonId = $14
+  // Values : uid = $1, normalizedEmail = $2, email = $3, emailCode = $4, emailVerified = $5, kA = $6, wrapWrapKb = $7, authSalt = $8, verifierVersion = $9, verifyHash = $10, verifierSetAt = $11, createdAt = $12, locale = $13
   var CREATE_ACCOUNT =
-    'CALL createAccount_8(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+    'CALL createAccount_9(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 
   MySql.prototype.createAccount = function (uid, data) {
     return this.write(CREATE_ACCOUNT, [
@@ -217,7 +217,6 @@ module.exports = function (log, error) {
       data.verifierSetAt,
       data.createdAt,
       data.locale,
-      data.ecosystemAnonId,
     ]);
   };
 
@@ -601,7 +600,7 @@ module.exports = function (log, error) {
   // Select : accounts
   // Fields : uid, email, normalizedEmail, emailVerified, emailCode, kA, wrapWrapKb, verifierVersion, authSalt, verifierSetAt, createdAt, lockedAt, ecosystemAnonId
   // Where  : accounts.normalizedEmail = LOWER($1)
-  var EMAIL_RECORD = 'CALL emailRecord_5(?)';
+  var EMAIL_RECORD = 'CALL emailRecord_6(?)';
 
   MySql.prototype.emailRecord = function (emailBuffer) {
     return this.readFirstResult(EMAIL_RECORD, [emailBuffer.toString('utf8')]);
