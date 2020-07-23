@@ -33,9 +33,9 @@ describe('lib/crypto/scoped-keys', () => {
   const keysJwk =
     'eyJrdHkiOiJFQyIsImtpZCI6IjVEakVLQ1ZSRGtCUFBLVTc4ZjNQOW92eU5EeDhnb1NWbGh0QzhFMlJfZXciLCJjcnYiOiJQLTI1NiIsIngiOiIzTXkwZzBNN3JwX2MyemMxNVlZM2xKcjlKcURrSmFXQjhLcTJ6aFhRTldNIiwieSI6IlVGZ05UVGVRbWlZTEE5VzJVTmIyemFaVHhzWHVtYnVpbDFhT0xlY1gxRk0ifQ'; //eslint-disable-line max-len
 
-  describe('_deriveScopedKeys', () => {
+  describe('deriveScopedKeys', () => {
     it('derives a key', () => {
-      return ScopedKeys._deriveScopedKeys(
+      return ScopedKeys.deriveScopedKeys(
         keys.kB,
         uid,
         clientKeyData[scope]
@@ -45,19 +45,19 @@ describe('lib/crypto/scoped-keys', () => {
     });
 
     it('throws if no inputKey', () => {
-      return ScopedKeys._deriveScopedKeys().then(assert.fail, (err) => {
+      return ScopedKeys.deriveScopedKeys().then(assert.fail, (err) => {
         assert.equal(err.message, 'input key is required');
       });
     });
 
     it('throws if no uid', () => {
-      return ScopedKeys._deriveScopedKeys(keys.kB).then(assert.fail, (err) => {
+      return ScopedKeys.deriveScopedKeys(keys.kB).then(assert.fail, (err) => {
         assert.equal(err.message, 'uid is required');
       });
     });
 
     it('throws if no client data', () => {
-      return ScopedKeys._deriveScopedKeys(keys.kB, uid).then(
+      return ScopedKeys.deriveScopedKeys(keys.kB, uid).then(
         assert.fail,
         (err) => {
           assert.equal(err.message, 'key data is required');

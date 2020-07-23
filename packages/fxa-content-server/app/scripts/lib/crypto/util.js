@@ -19,6 +19,16 @@ export function base64urlToUint8Array(base64 = '') {
   return bytes;
 }
 
+// Pulled over from fxa-auth-client/lib/utils.ts.
+// TODO: expose this via fxa-auth-client instead?
+export function uint8ToHex(uint8Array = []) {
+  return uint8Array.reduce(
+    (str, byte) => str + ('00' + byte.toString(16)).slice(-2),
+    ''
+  );
+}
+
 export default {
   base64urlToUint8Array,
+  uint8ToHex,
 };

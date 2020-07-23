@@ -18,7 +18,7 @@ import required from '../required';
  * @returns {Promise} A promise that will resolve with an object having a scoped key
  *   The key is represented as a JWK object.
  */
-function _deriveScopedKeys(inputKey, uid, keyData) {
+function deriveScopedKeys(inputKey, uid, keyData) {
   return importFxaCryptoDeriver().then((fxaCryptoDeriver) => {
     required(inputKey, 'input key');
     required(uid, 'uid');
@@ -37,6 +37,21 @@ function _deriveScopedKeys(inputKey, uid, keyData) {
 }
 
 /**
+ * Create an encrypted bundle for key transport
+ *
+ * @param {Object} bundleObject - A bundle of scoped keys
+ * @param {Object} keysJwk - Public key used for scoped key encryption
+ * without stringifying the `bundleObject`.
+ * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
+ */
+function encryptBundle(bundleObject, keysJwk) {
+  return importFxaCryptoDeriver().then((fxaCryptoDeriver) => {
+    const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
+    return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
+  });
+}
+
+/**
  * Derive scoped keys and create an encrypted bundle for key transport
  *
  * @param {Object} accountKeys - Account keys, used to derive scoped keys
@@ -47,7 +62,7 @@ function _deriveScopedKeys(inputKey, uid, keyData) {
  */
 function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
   const deriveKeys = Object.keys(scopedKeyData).map((key) =>
-    _deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key])
+    deriveScopedKeys(accountKeys.kB, uid, scopedKeyData[key])
   );
 
   return Promise.all(deriveKeys).then((derivedKeys) => {
@@ -57,17 +72,12 @@ function createEncryptedBundle(accountKeys, uid, scopedKeyData, keysJwk) {
       bundleObject[derivedKey.scope] = derivedKey;
     });
 
-    return importFxaCryptoDeriver().then((fxaCryptoDeriver) => {
-      const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
-      return fxaDeriverUtils.encryptBundle(
-        keysJwk,
-        JSON.stringify(bundleObject)
-      );
-    });
+    return encryptBundle(bundleObject, keysJwk);
   });
 }
 
 export default {
   createEncryptedBundle,
-  _deriveScopedKeys,
+  deriveScopedKeys,
+  encryptBundle,
 };
