@@ -12,7 +12,6 @@ import Constants from '../../lib/constants';
 import FxSyncBroker from '../auth_brokers/fx-sync';
 import FxDesktopV3broker from '../auth_brokers/fx-desktop-v3';
 import FxFennecV1Broker from '../auth_brokers/fx-fennec-v1';
-import FxIosV1Broker from '../auth_brokers/fx-ios-v1';
 import OauthRedirectBroker from '../auth_brokers/oauth-redirect';
 import OauthWebChannelBroker from '../auth_brokers/oauth-webchannel-v1';
 import OauthRedirectChromeAndroidBroker from '../auth_brokers/oauth-redirect-chrome-android';
@@ -33,10 +32,6 @@ const AUTH_BROKERS = [
   {
     context: Constants.FX_FENNEC_V1_CONTEXT,
     Constructor: FxFennecV1Broker,
-  },
-  {
-    context: Constants.FX_IOS_V1_CONTEXT,
-    Constructor: FxIosV1Broker,
   },
   {
     context: Constants.OAUTH_CONTEXT,

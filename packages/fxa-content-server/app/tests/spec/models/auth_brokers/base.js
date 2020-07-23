@@ -588,10 +588,6 @@ describe('models/auth_brokers/base', function () {
         assert.isFalse(broker.hasCapability('other-capability'));
       });
 
-      it('returns `true` for `signup` by default', function () {
-        assert.isTrue(broker.hasCapability('signup'));
-      });
-
       it('returns `true` for `handleSignedInNotification` by default', function () {
         assert.isTrue(broker.hasCapability('handleSignedInNotification'));
       });

@@ -620,10 +620,6 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
      */
     reuseExistingSession: false,
     /**
-     * Is signup supported? the fx_ios_v1 broker can disable it.
-     */
-    signup: true,
-    /**
      * security events will be shown with `&security_events=true` in the url
      */
     showSecurityEvents: false,

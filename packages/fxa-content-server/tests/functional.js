@@ -29,8 +29,6 @@ module.exports = [
   'tests/functional/fx_fennec_v1_sign_in.js',
   'tests/functional/fx_fennec_v1_sign_up.js',
   'tests/functional/fx_firstrun_v2.js',
-  'tests/functional/fx_ios_v1_sign_in.js',
-  'tests/functional/fx_ios_v1_sign_up.js',
   'tests/functional/legal.js',
   'tests/functional/oauth_force_auth.js',
   'tests/functional/oauth_handshake.js',

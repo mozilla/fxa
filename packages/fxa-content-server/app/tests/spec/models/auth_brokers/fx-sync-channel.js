@@ -69,10 +69,6 @@ describe('models/auth_brokers/fx-sync-channel', () => {
     createAuthBroker();
   });
 
-  it('has the `signup` capability by default', () => {
-    assert.isTrue(broker.hasCapability('signup'));
-  });
-
   it('does not have the `reuseExistingSession` capability by default', () => {
     assert.isFalse(broker.hasCapability('reuseExistingSession'));
   });

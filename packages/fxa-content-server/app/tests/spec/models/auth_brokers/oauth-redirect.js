@@ -81,7 +81,6 @@ describe('models/auth_brokers/oauth-redirect', () => {
   });
 
   it('has the expected capabilities', () => {
-    assert.isTrue(broker.hasCapability('signup'));
     assert.isTrue(broker.hasCapability('reuseExistingSession'));
     assert.isFalse(broker.hasCapability('handleSignedInNotification'));
     assert.isTrue(broker.hasCapability('emailVerificationMarketingSnippet'));

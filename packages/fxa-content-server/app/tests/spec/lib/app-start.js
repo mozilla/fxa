@@ -9,7 +9,6 @@ import Constants from 'lib/constants';
 import ErrorUtils from 'lib/error-utils';
 import ExperimentGroupingRules from 'lib/experiments/grouping-rules';
 import FxFennecV1Broker from 'models/auth_brokers/fx-fennec-v1';
-import FxiOSV1Broker from 'models/auth_brokers/fx-ios-v1';
 import HistoryMock from '../../mocks/history';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
@@ -335,16 +334,6 @@ describe('lib/app-start', () => {
         });
 
         return testExpectedBrokerCreated(FxFennecV1Broker);
-      });
-    });
-
-    describe('fx-ios-v1', () => {
-      it('returns an FxiOSV1 broker if `context=fx_ios_v1`', () => {
-        windowMock.location.search = Url.objToSearchString({
-          context: Constants.FX_IOS_V1_CONTEXT,
-        });
-
-        return testExpectedBrokerCreated(FxiOSV1Broker);
       });
     });
 

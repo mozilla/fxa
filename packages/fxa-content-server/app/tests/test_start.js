@@ -85,7 +85,6 @@ require('./spec/models/attached-clients');
 require('./spec/models/auth_brokers/base');
 require('./spec/models/auth_brokers/fx-desktop-v3');
 require('./spec/models/auth_brokers/fx-fennec-v1');
-require('./spec/models/auth_brokers/fx-ios-v1');
 require('./spec/models/auth_brokers/fx-sync');
 require('./spec/models/auth_brokers/fx-sync-channel');
 require('./spec/models/auth_brokers/fx-sync-web-channel');

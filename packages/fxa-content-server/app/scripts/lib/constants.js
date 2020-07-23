@@ -31,7 +31,6 @@ module.exports = {
   FX_DESKTOP_V2_CONTEXT: 'fx_desktop_v2',
   FX_DESKTOP_V3_CONTEXT: 'fx_desktop_v3',
   FX_FENNEC_V1_CONTEXT: 'fx_fennec_v1',
-  FX_IOS_V1_CONTEXT: 'fx_ios_v1',
   OAUTH_CONTEXT: 'oauth',
   OAUTH_WEBCHANNEL_BROKER: 'oauth-webchannel-v1',
   OAUTH_WEBCHANNEL_CONTEXT: 'oauth_webchannel_v1',
