@@ -166,15 +166,6 @@ registerSuite('Recovery key', {
             )
           )
 
-          // continue without entering the recovery key
-          .then(fillOutRecoveryKey(''))
-          .then(
-            testElementTextInclude(
-              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
-              'recovery key required'
-            )
-          )
-
           .then(fillOutRecoveryKey(recoveryKey))
 
           .then(testElementExists(selectors.COMPLETE_RESET_PASSWORD.HEADER))
