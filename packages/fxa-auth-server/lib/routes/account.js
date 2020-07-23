@@ -1511,9 +1511,17 @@ module.exports = (
       handler: async function (request) {
         log.begin('account.updateEcosystemAnonId', request);
 
-        const { uid, scope } = request.auth.credentials;
+        const auth = request.auth;
+        let uid, scope;
+        if (auth.strategy === 'sessionToken') {
+          uid = auth.credentials.uid;
+          scope = { contains: () => true };
+        } else {
+          uid = auth.credentials.user;
+          scope = ScopeSet.fromArray(auth.credentials.scope);
+        }
+
         const { ecosystemAnonId } = request.payload;
-        const scopeSet = ScopeSet.fromArray(scope);
 
         function hashAnonId(anonId) {
           const hash = crypto.createHash('sha256');
@@ -1523,8 +1531,8 @@ module.exports = (
         const ifNoneMatch = request.headers['If-None-Match'];
         const ifMatch = request.headers['If-Match'];
 
-        if (!scopeSet.contains('profile:ecosystem_anon_id:write')) {
-          throw error.invalidScopes(scopeSet);
+        if (!scope.contains('profile:ecosystem_anon_id:write')) {
+          throw error.invalidScopes(scope);
         }
 
         await customs.check(request, uid, 'updateEcosystemAnonId');
