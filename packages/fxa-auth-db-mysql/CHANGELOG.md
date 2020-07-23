@@ -1,3 +1,9 @@
+## 1.180.1
+
+### Bug fixes
+
+- db: Set collation on stored procedure email fields, so mysql will use indexes. ([044d7280e](https://github.com/mozilla/fxa/commit/044d7280e))
+
 ## 1.180.0
 
 ### New features
