@@ -3124,7 +3124,7 @@ describe('/account/ecosystemAnonId', () => {
       log: mockLog,
       credentials: {
         scope: ['profile:ecosystem_anon_id:write'],
-        uid,
+        user: uid,
       },
       payload: {
         ecosystemAnonId,

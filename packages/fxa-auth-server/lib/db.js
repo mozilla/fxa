@@ -1436,7 +1436,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   };
 
   SAFE_URLS.updateEcosystemAnonId = new SafeUrl(
-    '/account/:id/ecosystemAnonId',
+    '/account/:uid/ecosystemAnonId',
     'db.updateEcosystemAnonId'
   );
   DB.prototype.updateEcosystemAnonId = async function (uid, ecosystemAnonId) {
