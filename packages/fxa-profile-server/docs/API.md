@@ -46,7 +46,7 @@ The currently-defined error responses are:
 - 400, 101: Invalid request parameter
 - 400, 102: Unsupported image provider
 - 400, 125: The request was blocked for security reasons
-- 412, 106: Attempted to update non-null Ecosystem Anon ID
+- 412, 106: Criteria set by a header, either If-None-Match or If-Match, was not met
 - 429, 114: Client has sent too many requests
 - 500, 103: Image processing error
 - 503, 104: OAuth service unavailable

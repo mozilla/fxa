@@ -15,6 +15,7 @@ const uuid = require('uuid');
 const validators = require('./validators');
 const authMethods = require('../authMethods');
 const ScopeSet = require('fxa-shared').oauth.scopes;
+const crypto = require('crypto');
 
 const { determineSubscriptionCapabilities } = require('./utils/subscriptions');
 
@@ -1494,7 +1495,7 @@ module.exports = (
       method: 'PUT',
       path: '/account/ecosystemAnonId',
       apidoc: {
-        errors: [error.invalidScopes, error.anonIdExists],
+        errors: [error.invalidScopes, error.anonIdUpdateConflict],
       },
       options: {
         auth: {
@@ -1512,8 +1513,15 @@ module.exports = (
 
         const { uid, scope } = request.auth.credentials;
         const { ecosystemAnonId } = request.payload;
-        const noneMatchHeader = request.headers['If-None-Match'];
         const scopeSet = ScopeSet.fromArray(scope);
+
+        function hashAnonId(anonId) {
+          const hash = crypto.createHash('sha256');
+          return hash.update(anonId).digest('hex');
+        }
+
+        const ifNoneMatch = request.headers['If-None-Match'];
+        const ifMatch = request.headers['If-Match'];
 
         if (!scopeSet.contains('profile:ecosystem_anon_id:write')) {
           throw error.invalidScopes(scopeSet);
@@ -1521,10 +1529,21 @@ module.exports = (
 
         await customs.check(request, uid, 'updateEcosystemAnonId');
 
-        if (noneMatchHeader === '*') {
-          const account = await db.account();
-          if (account.ecosystemAnonId != null) {
-            throw error.anonIdExists();
+        if (ifNoneMatch || ifMatch) {
+          const { ecosystemAnonId: existingAnonId } = await db.account();
+
+          if (existingAnonId) {
+            const hashedAnonId = hashAnonId(existingAnonId);
+
+            if (ifMatch && ifMatch !== hashedAnonId) {
+              throw error.anonIdUpdateConflict('If-Match');
+            }
+
+            if (ifNoneMatch === '*') {
+              throw error.anonIdUpdateConflict('If-None-Match');
+            } else if (ifNoneMatch === hashedAnonId) {
+              throw error.anonIdUpdateConflict('If-None-Match');
+            }
           }
         }
 

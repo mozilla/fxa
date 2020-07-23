@@ -1044,16 +1044,16 @@ describe('api', function () {
       });
     });
 
-    describe('upload-header-excludes', function() {
+    describe('upload-header-excludes', function () {
       let origHeaderExcludes = null;
-      before(function() {
+      before(function () {
         origHeaderExcludes = config.get('worker.headers_exclude');
         config.set('worker.headers_exclude', ['host', 'x-my-header']);
       });
-      after(function() {
+      after(function () {
         config.set('worker.headers_exclude', origHeaderExcludes);
       });
-      it('should exclude configured worker request headers', function() {
+      it('should exclude configured worker request headers', function () {
         this.slow(2000);
         this.timeout(3000);
         mock.token({
@@ -1079,38 +1079,38 @@ describe('api', function () {
               'X-My-Header': 'some value',
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 201);
             assert(res.result.url);
             assert(res.result.id);
             assertSecurityHeaders(res);
             return res.result.url;
           })
-          .then(function(s3url) {
-            return P.all(SIZE_SUFFIXES).map(function(suffix) {
+          .then(function (s3url) {
+            return P.all(SIZE_SUFFIXES).map(function (suffix) {
               return Static.get(s3url + suffix);
             });
           })
-          .then(function(responses) {
+          .then(function (responses) {
             assert.equal(responses.length, SIZE_SUFFIXES.length);
-            responses.forEach(function(res) {
+            responses.forEach(function (res) {
               assert.equal(res.statusCode, 200);
             });
           });
       });
     });
 
-    describe('upload-header-unconfigured', function() {
+    describe('upload-header-unconfigured', function () {
       let origHeaderExcludes = null;
-      before(function() {
+      before(function () {
         origHeaderExcludes = config.get('worker.headers_exclude');
 
         config.set('worker.headers_exclude', []);
       });
-      after(function() {
+      after(function () {
         config.set('worker.headers_exclude', origHeaderExcludes);
       });
-      it('should pass-through all worker request headers', function() {
+      it('should pass-through all worker request headers', function () {
         this.slow(2000);
         this.timeout(3000);
         mock.token({
@@ -1142,21 +1142,21 @@ describe('api', function () {
               'X-Ignored-Header': 'some value',
             },
           })
-          .then(function(res) {
+          .then(function (res) {
             assert.equal(res.statusCode, 201);
             assert(res.result.url);
             assert(res.result.id);
             assertSecurityHeaders(res);
             return res.result.url;
           })
-          .then(function(s3url) {
-            return P.all(SIZE_SUFFIXES).map(function(suffix) {
+          .then(function (s3url) {
+            return P.all(SIZE_SUFFIXES).map(function (suffix) {
               return Static.get(s3url + suffix);
             });
           })
-          .then(function(responses) {
+          .then(function (responses) {
             assert.equal(responses.length, SIZE_SUFFIXES.length);
-            responses.forEach(function(res) {
+            responses.forEach(function (res) {
               assert.equal(res.statusCode, 200);
             });
           });
@@ -1680,6 +1680,11 @@ describe('api', function () {
     });
 
     describe('POST', function () {
+      function hashAnonId(anonId) {
+        const hash = crypto.createHash('sha256');
+        return hash.update(anonId).digest('hex');
+      }
+
       xit('should post a new ecosystem_anon_id', function () {});
 
       it('should fail post if the ecosystem_anon_id is not a string', async function () {
@@ -1722,7 +1727,7 @@ describe('api', function () {
         assertSecurityHeaders(res);
       });
 
-      it('should fail post with 412 error if the If-None-Match: * header is present and anon ID already exists', async function () {
+      it('should fail post with 412 with `If-None-Match: *` header, anon ID exists', async function () {
         mock.coreProfile({
           email: 'andy@example.domain',
           locale: 'en-US',
@@ -1747,6 +1752,118 @@ describe('api', function () {
         });
 
         assert.equal(res.statusCode, 412);
+        assertSecurityHeaders(res);
+      });
+
+      it('should fail post with 412 with `If-None-Match: super` (hashed) header, anon ID is `super`', async function () {
+        mock.coreProfile({
+          email: 'andy@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+          ecosystemAnonId: 'super',
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'blah',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-None-Match': hashAnonId('super'),
+          },
+        });
+
+        assert.equal(res.statusCode, 412);
+        assertSecurityHeaders(res);
+      });
+
+      it('should post with `If-None-Match: ontario` (hashed) header, anon ID is `quebec`', async function () {
+        mock.coreProfile({
+          email: 'andy@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+          ecosystemAnonId: 'quebec',
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'blah',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-None-Match': hashAnonId('ontario'),
+          },
+        });
+
+        assert.equal(res.statusCode, 503);
+        assertSecurityHeaders(res);
+      });
+
+      it('should fail post with 412 with `If-Match: charlie` (hashed) header, anon ID is `dog`', async function () {
+        mock.coreProfile({
+          email: 'andy@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+          ecosystemAnonId: 'dog',
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'blah',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-Match': hashAnonId('charlie'),
+          },
+        });
+
+        assert.equal(res.statusCode, 412);
+        assertSecurityHeaders(res);
+      });
+
+      it('should post with `If-Match: pandemic` (hashed) header, anon ID is `pandemic`', async function () {
+        mock.coreProfile({
+          email: 'andy@example.domain',
+          locale: 'en-US',
+          authenticationMethods: ['pwd'],
+          authenticatorAssuranceLevel: 1,
+          ecosystemAnonId: 'pandemic',
+        });
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload: {
+            ecosystemAnonId: 'blah',
+          },
+          headers: {
+            authorization: 'Bearer ' + tok,
+            'If-Match': hashAnonId('pandemic'),
+          },
+        });
+
+        assert.equal(res.statusCode, 503);
         assertSecurityHeaders(res);
       });
 

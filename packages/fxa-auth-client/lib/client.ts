@@ -184,7 +184,6 @@ export default class AuthClient {
     payload: object,
     headers?: Headers
   ) {
-    console.log('hey');
     return this.hawkRequest(
       'PUT',
       path,
@@ -1152,30 +1151,36 @@ export default class AuthClient {
     return this.request('POST', '/oauth/id-token-verify', payload);
   }
 
+  /** Update a user's ecosystem anon ID */
   async updateEcosystemAnonId(
+    /** Session token obtained from signIn */
     sessionToken: string,
+    /** The new Ecosystem Anonymous ID */
     ecosystemAnonId: string,
+    /** Additional options to be passed to the method */
     options: {
+      /**
+       * Sets the If-None-Match header to the specified value.
+       * Use '*' to only update ID if one is not already set.
+       */
       ifNoneMatch?: string;
+      /**
+       * Sets the If-Match header to the specified value.
+       * Use the first part of an existing ID to only update
+       * the ID if the values do not fuzzy match.
+       */
       ifMatch?: string;
     } = {}
   ) {
-    if (options.ifNoneMatch && options.ifMatch) {
-      throw 'Options ifMatch and ifNoneMatch cannot both be set';
-    }
-
     const headers: { [header: string]: string } = {};
 
     if (options.ifNoneMatch) {
       headers['If-None-Match'] = options.ifNoneMatch;
     }
 
-    // Not yet supported in the auth server; will be
-    // updated shortly in another PR.
-    //
-    // if (options.ifMatch) {
-    //   headers['If-Match'] = options.ifMatch
-    // }
+    if (options.ifMatch) {
+      headers['If-Match'] = options.ifMatch;
+    }
 
     return this.sessionPut(
       '/account/ecosystemAnonId',

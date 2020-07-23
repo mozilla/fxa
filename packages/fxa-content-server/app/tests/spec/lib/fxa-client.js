@@ -1940,5 +1940,28 @@ describe('lib/fxa-client', function () {
           );
         });
     });
+
+    it('supports ifMatch option', () => {
+      sinon.spy(realClient, 'updateEcosystemAnonId');
+      const requestMethod = sinon.stub(realClient, 'sessionPut').resolves();
+      const ifMatchValue = '2507464399';
+
+      return client
+        .updateEcosystemAnonId(sessionToken, ecosystemAnonId, {
+          ifMatch: ifMatchValue,
+        })
+        .then((res) => {
+          requestMethod.calledWith(
+            '/account/ecosystemAnonId',
+            sessionToken,
+            {
+              ecosystemAnonId,
+            },
+            new Headers({
+              'If-Match': ifMatchValue,
+            })
+          );
+        });
+    });
   });
 });
