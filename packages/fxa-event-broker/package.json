@@ -1,6 +1,6 @@
 {
   "name": "fxa-event-broker",
-  "version": "1.180.0",
+  "version": "1.180.1",
   "description": "Firefox Accounts Event Broker",
   "scripts": {
     "build": "tsc",
