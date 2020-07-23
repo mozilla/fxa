@@ -504,7 +504,11 @@ class DirectStripeRoutes {
   async listActive(request) {
     this.log.begin('subscriptions.listActive', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer(uid, email, false, true);
+    const customer = await this.stripeHelper.customer({
+      uid,
+      email,
+      cacheOnly: true,
+    });
     const activeSubscriptions = [];
 
     if (customer && customer.subscriptions) {
@@ -606,7 +610,7 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createCustomer');
 
-    let customer = await this.stripeHelper.customer(uid, email);
+    let customer = await this.stripeHelper.customer({ uid, email });
     if (customer) {
       return customer;
     }
@@ -634,7 +638,7 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'retryInvoice');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -662,7 +666,7 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -691,7 +695,7 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createSetupIntent');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -710,7 +714,7 @@ class DirectStripeRoutes {
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updateDefaultPaymentMethod');
 
-    let customer = await this.stripeHelper.customer(uid, email);
+    let customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -730,7 +734,11 @@ class DirectStripeRoutes {
       paymentMethodId
     );
     // Refetch the customer and force a cache clear
-    customer = await this.stripeHelper.customer(uid, email, true);
+    customer = await this.stripeHelper.customer({
+      uid,
+      email,
+      forceRefresh: true,
+    });
     return filterCustomer(customer);
   }
 
@@ -1171,7 +1179,11 @@ class DirectStripeRoutes {
     this.log.begin('subscriptions.getSubscriptions', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer(uid, email, false, true);
+    const customer = await this.stripeHelper.customer({
+      uid,
+      email,
+      cacheOnly: true,
+    });
 
     // A FxA user isn't always a customer.
     if (!customer) {
@@ -1196,7 +1208,7 @@ class DirectStripeRoutes {
     const { uid, email } = request.query;
 
     // We know that a user has to be a customer to create a support ticket
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     const response = await this.stripeHelper.formatSubscriptionsForSupport(
       customer.subscriptions
     );

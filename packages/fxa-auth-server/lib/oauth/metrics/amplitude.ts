@@ -15,7 +15,7 @@ const { version: VERSION } = require('../../../package.json');
 import { GROUPS, initialize, validate } from 'fxa-shared/metrics/amplitude';
 import { Logger } from 'mozlog';
 import { Scope } from '@sentry/node';
-import { conf } from '../../../config';
+import { ConfigType } from '../../../config';
 
 const EVENTS = {
   'token.created': {
@@ -30,7 +30,7 @@ const EVENTS = {
 
 const FUZZY_EVENTS = new Map([]);
 
-module.exports = (log: Logger, config: conf) => {
+module.exports = (log: Logger, config: ConfigType) => {
   if (!log || !config.oauthServer.clientIdToServiceNames) {
     throw new TypeError('Missing argument');
   }

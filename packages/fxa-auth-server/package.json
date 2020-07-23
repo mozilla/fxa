@@ -46,6 +46,8 @@
     "@hapi/hoek": "^8.5.1",
     "@hapi/joi": "^15.1.1",
     "@sentry/node": "^5.17.0",
+    "@type-cacheable/core": "^5.2.0",
+    "@type-cacheable/ioredis-adapter": "^5.2.0",
     "ajv": "^6.12.2",
     "aws-sdk": "^2.698.0",
     "base64url": "3.0.0",

@@ -4148,6 +4148,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@type-cacheable/core@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@type-cacheable/core@npm:5.2.0"
+  dependencies:
+    serialize-javascript: ^3.0.0
+  checksum: 70a6b8757911aad2b7346b6b4ba97e1451cfc9191612bc65b1e3b05ce67831dc33b4bcd65c39361a4b01134e8709679f42ed8a8a63804d749f4a10fd1cecac0a
+  languageName: node
+  linkType: hard
+
+"@type-cacheable/ioredis-adapter@npm:^5.2.0":
+  version: 5.2.0
+  resolution: "@type-cacheable/ioredis-adapter@npm:5.2.0"
+  dependencies:
+    "@type-cacheable/core": ^5.2.0
+  peerDependencies:
+    ioredis: ^4.14.1
+  checksum: f23f8f2358a490c9222e029439a0d1c5f8b786d9e4ae2738f5dd6cd33e598a3c4af53e7176bf4b25e7408211564b1f1a46a7b7fb5f1c2be21da772f89b964c16
+  languageName: node
+  linkType: hard
+
 "@types/accepts@npm:*, @types/accepts@npm:^1.3.5":
   version: 1.3.5
   resolution: "@types/accepts@npm:1.3.5"
@@ -15322,6 +15342,8 @@ fsevents@^1.2.7:
     "@hapi/hoek": ^8.5.1
     "@hapi/joi": ^15.1.1
     "@sentry/node": ^5.17.0
+    "@type-cacheable/core": ^5.2.0
+    "@type-cacheable/ioredis-adapter": ^5.2.0
     "@types/cbor": 5.0.0
     "@types/chai": ^4.2.4
     "@types/convict": ^5.2.1
@@ -27303,7 +27325,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5":
+"randombytes@npm:^2.0.0, randombytes@npm:^2.0.1, randombytes@npm:^2.0.5, randombytes@npm:^2.1.0":
   version: 2.1.0
   resolution: "randombytes@npm:2.1.0"
   dependencies:
@@ -29628,6 +29650,15 @@ resolve@~1.11.1:
   version: 2.1.2
   resolution: "serialize-javascript@npm:2.1.2"
   checksum: 9a4d4da6469e327332203438eed9a408e0618519d18aaba3790c88bf87712df4d577423d8fbd7122753800fa12afe19540cba111178ab0cf1f33c2b5771731bf
+  languageName: node
+  linkType: hard
+
+"serialize-javascript@npm:^3.0.0":
+  version: 3.1.0
+  resolution: "serialize-javascript@npm:3.1.0"
+  dependencies:
+    randombytes: ^2.1.0
+  checksum: e3036658c26b4aa0c74b89c91dc702f1b98c34ffc108e7944e2e227f910896367e98374a1a8c9923385ddfccd1759bfbd133d7857f4e315070594bb8761740e7
   languageName: node
   linkType: hard
 

@@ -1,16 +1,13 @@
 {
   "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
+    "experimentalDecorators": true,
     "outDir": "./dist",
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
     "checkJs": false,
-    "types": ["accept-language", "mocha", "mozlog", "node"],
+    "types": ["accept-language", "mocha", "mozlog", "node"]
   },
-  "references": [
-    { "path": "../fxa-shared" }
-  ],
-  "include": [
-    "bin/*"
-  ]
+  "references": [{ "path": "../fxa-shared" }],
+  "include": ["bin/*"]
 }
