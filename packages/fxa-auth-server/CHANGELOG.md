@@ -1,3 +1,24 @@
+## 1.181.0
+
+### New features
+
+- aet: support for if-match and if-none-match across the board ([f267e37f8](https://github.com/mozilla/fxa/commit/f267e37f8))
+- auth-js + content: add updateEcosystemAnonId to auth clients ([d3ea36a7c](https://github.com/mozilla/fxa/commit/d3ea36a7c))
+- auth-client: replace fxa-js-client with fxa-auth-client ([7358a3cae](https://github.com/mozilla/fxa/commit/7358a3cae))
+- auth-server: create a subs w/out a payment method in req ([cb17f7703](https://github.com/mozilla/fxa/commit/cb17f7703))
+- fido2: add fido lib server ([da8366ec5](https://github.com/mozilla/fxa/commit/da8366ec5))
+- auth-server: add ecosystem anon id to ... oath.token.created metrics ping ([3691d2215](https://github.com/mozilla/fxa/commit/3691d2215))
+
+### Bug fixes
+
+- aet: Add support for updating ecosystemAnonId using sessionToken ([cea4eadff](https://github.com/mozilla/fxa/commit/cea4eadff))
+- payments: use upcoming invoice for subscription reactivation price ([88426aa4d](https://github.com/mozilla/fxa/commit/88426aa4d))
+- payments: subscription emails should work without payment methods ([d35048e92](https://github.com/mozilla/fxa/commit/d35048e92))
+
+### Other changes
+
+- deps: updated lodash ([56b7b6746](https://github.com/mozilla/fxa/commit/56b7b6746))
+
 ## 1.180.1
 
 No changes.

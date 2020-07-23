@@ -1,5 +1,20 @@
 # Change history
 
+## 1.181.0
+
+### New features
+
+- payments: feature flag support to select SCA or legacy payment UI as default ([26266e48a](https://github.com/mozilla/fxa/commit/26266e48a))
+
+### Bug fixes
+
+- payments: hide mention of card in reactivate dialog when unavailable ([cf55dda0d](https://github.com/mozilla/fxa/commit/cf55dda0d))
+
+### Other changes
+
+- styles: make subscription icon background configurable as metadata ([ab231fa37](https://github.com/mozilla/fxa/commit/ab231fa37))
+- l10n: follow-up test for #5948 (currency l10n) ([e87996b48](https://github.com/mozilla/fxa/commit/e87996b48))
+
 ## 1.180.1
 
 No changes.

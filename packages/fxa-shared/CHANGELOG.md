@@ -1,5 +1,11 @@
 # Change history
 
+## 1.181.0
+
+### Other changes
+
+- styles: make subscription icon background configurable as metadata ([ab231fa37](https://github.com/mozilla/fxa/commit/ab231fa37))
+
 ## 1.180.1
 
 No changes.

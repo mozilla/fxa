@@ -1,3 +1,30 @@
+## 1.181.0
+
+### New features
+
+- aet: support for if-match and if-none-match across the board ([f267e37f8](https://github.com/mozilla/fxa/commit/f267e37f8))
+- fxa-content-server: AET adding calls to check and generate ecosystem anon id inside the cached credentials mixin. ([ee42a6036](https://github.com/mozilla/fxa/commit/ee42a6036))
+- aet: Add account model methods to generate and store anon id ([0bb36ca11](https://github.com/mozilla/fxa/commit/0bb36ca11))
+- aet: Generate the ecosystem_anon_id on the client ([c7bf16cc0](https://github.com/mozilla/fxa/commit/c7bf16cc0))
+- auth-js + content: add updateEcosystemAnonId to auth clients ([d3ea36a7c](https://github.com/mozilla/fxa/commit/d3ea36a7c))
+- auth-client: replace fxa-js-client with fxa-auth-client ([7358a3cae](https://github.com/mozilla/fxa/commit/7358a3cae))
+- AET: Pass ecosystem anon ID public keys through account model and expose to client ([0765cfe12](https://github.com/mozilla/fxa/commit/0765cfe12))
+
+### Bug fixes
+
+- tests: Remove flakey recovery key assertion ([3930f5550](https://github.com/mozilla/fxa/commit/3930f5550))
+- style: add margin between buttons from account recovery. ([00b0a3604](https://github.com/mozilla/fxa/commit/00b0a3604))
+- content-server: clean the input values before navigating to '/confirm_signup_code' ([5a43796c0](https://github.com/mozilla/fxa/commit/5a43796c0))
+
+### Refactorings
+
+- avatars: move file size validation to post-crop ([13bd6798f](https://github.com/mozilla/fxa/commit/13bd6798f))
+
+### Other changes
+
+- icons: update vpn and fpn icons ([ddacc3800](https://github.com/mozilla/fxa/commit/ddacc3800))
+- deps: updated lodash ([56b7b6746](https://github.com/mozilla/fxa/commit/56b7b6746))
+
 ## 1.180.1
 
 No changes.
