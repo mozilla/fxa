@@ -1,3 +1,9 @@
+## 1.181.0
+
+### Other changes
+
+- build: build fxa-email-service less often ([dcfcfab14](https://github.com/mozilla/fxa/commit/dcfcfab14))
+
 ## 1.180.1
 
 No changes.

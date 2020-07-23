@@ -1,3 +1,18 @@
+## 1.181.0
+
+### New features
+
+- aet: support for if-match and if-none-match across the board ([f267e37f8](https://github.com/mozilla/fxa/commit/f267e37f8))
+
+### Bug fixes
+
+- profile: set `forever: true` in request ([5bf9b64f3](https://github.com/mozilla/fxa/commit/5bf9b64f3))
+
+### Other changes
+
+- deps: updated lodash ([56b7b6746](https://github.com/mozilla/fxa/commit/56b7b6746))
+- ed40818c0 [fxa-profile-server] Allow to exclude HTTP headers from passing to worker - refs #5874, #FXA-2240 ([ed40818c0](https://github.com/mozilla/fxa/commit/ed40818c0))
+
 ## 1.180.1
 
 No changes.
