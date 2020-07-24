@@ -11,6 +11,7 @@ const {
 } = require('./challenge');
 const { parseU2FKey, validateU2FKey } = require('./keys/u2fKey');
 const { parsePackedKey, validatePackedKey } = require('./keys/packed');
+const { parseNoneKey, validateNoneKey} = require('./keys/noneKey');
 
 /**
  * Generate and Validate Registration Challenge
@@ -32,6 +33,11 @@ const parseAuthenticatorKey = (response) => {
   if (authenticatorKey.fmt === 'packed') {
     return parsePackedKey(authenticatorKey, response.clientDataJSON);
   }
+  //Check for None
+  if (authenticatorKey.fmt === 'none') {
+    return parseNoneKey(authenticatorKey, response.clientDataJSON);
+  }
+
   return undefined;
 };
 
@@ -92,6 +98,7 @@ exports.generateRegistrationChallenge = ({
     ],
     authenticatorSelection: {
       authenticatorAttachment: authenticator,
+      userVerification: 'required',
     },
   };
 };
@@ -101,8 +108,8 @@ exports.parseRegistrationRequest = (body) => {
   if (!validateRegistration(body)) {
     return {};
   }
-  const challenge = challengeFromClientData(body.response.clientDataJSON);
-  const key = parseAuthenticatorKey(body.response);
+  const challenge = challengeFromClientData(body.credentials.response.clientDataJSON);
+  const key = parseAuthenticatorKey(body.credentials.response);
 
   return {
     challenge,
@@ -117,7 +124,7 @@ exports.parseRegistrationRequest = (body) => {
 // Verify authenticator
 exports.verifyAuthenticator = (data, key) => {
   const authenticatorDataBuffer = Buffer.from(
-    data.response.authenticatorData,
+    data.credentials.response.authenticatorData,
     'base64'
   );
 
@@ -125,8 +132,8 @@ exports.verifyAuthenticator = (data, key) => {
     return validateU2FKey(
       authenticatorDataBuffer,
       key,
-      data.response.clientDataJSON,
-      data.response.signature
+      data.credentials.response.clientDataJSON,
+      data.credentials.response.signature
     );
   }
 
@@ -134,10 +141,20 @@ exports.verifyAuthenticator = (data, key) => {
     return validatePackedKey(
       authenticatorDataBuffer,
       key,
-      data.response.clientDataJSON,
-      data.response.signature
+      data.credentials.response.clientDataJSON,
+      data.credentials.response.signature
     );
   }
+
+  if (key.fmt === 'none') {
+    return validateNoneKey(
+      authenticatorDataBuffer,
+      key,
+      data.credentials.response.clientDataJSON,
+      data.credentials.response.signature
+    );
+  }
+
   return false;
 };
 
@@ -148,12 +165,11 @@ exports.generateLoginChallenge = (key) => {
   const allowCredentials = keys.map(({ credID }) => ({
     type: 'public-key',
     id: credID,
-    // Add transports support
-    transports: ['usb', 'nfc', 'ble'],
   }));
 
   return {
     challenge: randomBase64Buff(32),
+    userVerification: 'preferred',
     allowCredentials,
   };
 };
@@ -163,8 +179,8 @@ exports.parseLoginRequest = (body) => {
   if (!validateLogin(body)) {
     return {};
   }
-  const challenge = challengeFromClientData(body.response.clientDataJSON);
-  const keyId = parseBrowserBuffer(body.id);
+  const challenge = challengeFromClientData(body.credentials.response.clientDataJSON);
+  const keyId = parseBrowserBuffer(body.credentials.id);
 
   return {
     challenge,

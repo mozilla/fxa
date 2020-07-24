@@ -6,7 +6,8 @@
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
     "checkJs": false,
-    "types": ["accept-language", "mocha", "mozlog", "node"]
+    "types": ["accept-language", "mocha", "mozlog", "node"],
+    "esModuleInterop": true
   },
   "references": [{ "path": "../fxa-shared" }],
   "include": ["bin/*"]

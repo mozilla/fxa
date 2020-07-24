@@ -1065,6 +1065,9 @@ FxaClientWrapper.prototype = {
     'recoveryEmailSecondaryResendCode'
   ),
 
+  fidoSignUp: createClientDelegate('fidoSignUp'),
+  fidoSignIn: createClientDelegate('fidoSignIn'),
+
   /**
    * Creates a new TOTP token for the current user.
    *

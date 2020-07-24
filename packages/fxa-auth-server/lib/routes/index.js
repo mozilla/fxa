@@ -54,6 +54,7 @@ module.exports = function (
   const oauthServer = require('../oauth/routes');
   const grant = require('../oauth/grant');
   const oauthRawDB = require('../oauth/db');
+  const fido = require('./fido')();
   grant.setStripeHelper(stripeHelper);
   const account = require('./account')(
     log,
@@ -184,6 +185,7 @@ module.exports = function (
     devicesSessions,
     attachedClients,
     emails,
+    fido,
     password,
     recoveryCodes,
     securityEvents,

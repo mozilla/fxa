@@ -51,6 +51,8 @@ import SignInTokenCodeView from '../views/sign_in_token_code';
 import SignInTotpCodeView from '../views/sign_in_totp_code';
 import SignInUnblockView from '../views/sign_in_unblock';
 import SignUpPasswordView from '../views/sign_up_password';
+import SignInFido from '../views/sign_in_fido';
+import SignUpFido from '../views/sign_up_fido';
 import SmsSendView from '../views/sms_send';
 import SmsSentView from '../views/sms_sent';
 import Storage from './storage';
@@ -285,6 +287,7 @@ const Router = Backbone.Router.extend({
       SettingsView
     ),
     'signin(/)': createViewHandler(SignInPasswordView),
+    'signin_fido(/)': createViewHandler(SignInFido),
     'signin_bounced(/)': createViewHandler(SignInBouncedView),
     'signin_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_IN,
@@ -303,6 +306,7 @@ const Router = Backbone.Router.extend({
       type: VerificationReasons.SIGN_IN,
     }),
     'signup(/)': createViewHandler(SignUpPasswordView),
+    'signup_fido(/)': createViewHandler(SignUpFido),
     'signup_confirmed(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SIGN_UP,
     }),

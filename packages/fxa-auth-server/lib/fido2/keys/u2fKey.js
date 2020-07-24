@@ -41,11 +41,6 @@ const parseAttestation = (buffer) => {
   buffer = buffer.slice(credIDLength);
   const COSEPublicKey = buffer;
 
-  if (buffer.byteLength)
-    throw new Error(
-      'Failed to decode authData! Leftover bytes have been detected!'
-    );
-
   return {
     rpIdHash,
     flagsBuffer,

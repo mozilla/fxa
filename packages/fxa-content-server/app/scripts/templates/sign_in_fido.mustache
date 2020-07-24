@@ -1,0 +1,28 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-totp-code-header">{{#t}}Authenticate your login{{/t}}
+      <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    <div class="graphic graphic-two-factor-auth"></div>
+
+    <form novalidate>
+      <div class="input-row">
+          <input id="email" type="email" placeholder="{{#t}}Enter Your Email{{/t}}" required autofocus />
+      </div>
+      <div class="button-row">
+        <button id="submit-btn login-fido" type="submit">{{#t}}Sign In{{/t}}</button>
+      </div>
+    </form>
+
+    <div class="links">
+      <a class="different-account-link left" href="/signin">{{#t}}Use a different account{{/t}}</a>
+    </div>
+
+  </section>
+</div>

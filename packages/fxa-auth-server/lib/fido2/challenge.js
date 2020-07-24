@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-exports.validateCredentials = (credentials) => {
+const validateCredentials = (credentials) => {
   if (
-    !credentials.id ||
-    !credentials.rawId ||
-    !credentials.type ||
-    credentials.type !== 'public-key' ||
-    !credentials.response ||
-    !credentials.response.clientDataJSON
+    !credentials.credentials.id ||
+    !credentials.credentials.rawId ||
+    !credentials.credentials.type ||
+    credentials.credentials.type !== 'public-key' ||
+    !credentials.credentials.response ||
+    !credentials.credentials.response.clientDataJSON
   ) {
     return false;
   }
@@ -24,7 +24,9 @@ exports.challengeFromClientData = (clientDataJSON) => {
 };
 
 exports.validateRegistration = (credentials) =>
-  validateCredentials(credentials) && !!credentials.response.attestationObject;
+  validateCredentials(credentials) && !!credentials.credentials.response.attestationObject;
 
 exports.validateLogin = (credentials) =>
-  validateCredentials(credentials) && credentials.response.authenticatorData;
+  validateCredentials(credentials) && credentials.credentials.response.authenticatorData;
+
+exports.validateCredentials = validateCredentials;

@@ -52,7 +52,7 @@ exports.ASN1toPEM = (publicKeyBuffer) => {
 
   const PEMKey = PEMKeyMatch.join('\n');
 
-  return `-----BEGIN ${type}-----\n` + PEMKey + `\n----END ${type}-----\n`;
+  return `-----BEGIN ${type}-----\n` + PEMKey + `\n-----END ${type}-----\n`;
 };
 
 /**

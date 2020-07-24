@@ -27,7 +27,7 @@ describe('utils', () => {
         "MHQCAQEEIN0c1ZxN4vqS42PawoKv55ClGTF31BOzjiBrK4a4ef+/oAcGBSuBBAAK\n" +
         "oUQDQgAEnQ9w7thTRcpcHARWO+0ZYIViw31kQGF4WoNujxmRVfKBih4mYfntUB2P\n" +
         "kGYRiSCZqd5afqn2Qey03XW7tjwtWg==\n" +
-        "----END CERTIFICATE-----\n";
+        "-----END CERTIFICATE-----\n";
       assert.equal(utils.ASN1toPEM(input), output);
     });
   });

@@ -1,0 +1,31 @@
+<div id="main-content" class="card">
+  <header>
+    <h1 id="fxa-enter-email-header">
+      <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
+      {{#t}}Enter your details{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+    </h1>
+  </header>
+
+  <section>
+    <div class="error"></div>
+    <div class="success"></div>
+
+    {{{ userCardHTML }}}
+
+    <form novalidate>
+      <div class="input-row">
+          <input id="email" type="email" placeholder="{{#t}}Enter Your Email{{/t}}" required autofocus />
+      </div>
+      <div class="input-row">
+          <input id="id" type="text" placeholder="{{#t}}Enter Your Name{{/t}}" required autofocus />
+      </div>
+      <div class="button-row">
+        <button id="submit-btn register-fido" type="submit">{{#t}}Sign Up{{/t}}</button>
+      </div>
+
+        <div class="tos-pp faint">
+            {{#unsafeTranslate}}By proceeding, you agree to the <a id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+        </div>
+    </form>
+  </section>
+</div>

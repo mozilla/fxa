@@ -4,6 +4,8 @@
 
 import * as crypto from './crypto';
 import * as hawk from './hawk';
+import { solveRegistration } from './fido2/solveRegistration';
+import { solveLogin } from './fido2/solveLogin';
 
 enum ERRORS {
   INVALID_TIMESTAMP = 111,
@@ -198,6 +200,54 @@ export default class AuthClient {
       payload,
       headers
     );
+  }
+
+  async fidoSignUp(sessionToken: string, id: string, email: string) {
+    const challenge = await this.sessionPost(
+      '/fido/registration-challenge',
+      sessionToken,
+      {
+        id,
+        email,
+      }
+    );
+
+    const credentials = await solveRegistration(challenge);
+    const { loggedIn } = await this.sessionPost(
+      '/fido/register',
+      sessionToken,
+      {
+        credentials
+      }
+    );
+    if (loggedIn) {
+      return console.log('Registration Successful!');
+    }
+
+    return console.log('Registration Failed!');
+  }
+
+  async fidoSignIn(sessionToken: string, email: string){
+    const challenge = await this.sessionPost(
+      '/fido/login',
+      sessionToken,
+      {
+        email
+      },
+    );
+    const credentials = await solveLogin(challenge);
+    const { loggedIn } = await this.sessionPost(
+      '/fido/login-challenge',
+      sessionToken,
+      {
+        credentials
+      }
+    );
+    if (loggedIn) {
+      return console.log('Login Successful!');
+    }
+
+    return console.log('Login Failed!');
   }
 
   async signUp(

@@ -1593,6 +1593,14 @@ const Account = Backbone.Model.extend(
       return this._fxaClient.deleteTotpToken(this.get('sessionToken'));
     },
 
+    fidoSignUp(email, id) {
+      return this._fxaClient.fidoSignUp(this.get('sessionToken'), id, email);
+    },
+
+    fidoSignIn(email){
+      return this._fxaClient.fidoSignIn(this.get('sessionToken'), email);
+    },
+
     /**
      * Verifies a TOTP code. If code is verified, token will be marked as verified.
      *
