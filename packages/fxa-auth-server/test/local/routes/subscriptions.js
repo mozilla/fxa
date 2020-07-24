@@ -372,13 +372,10 @@ describe('subscriptions directRoutes', () => {
         reqOpts,
         stripeHelper
       );
-      assert.isTrue(
-        stripeHelper.customer.calledOnceWith(
-          reqOpts.query.uid,
-          reqOpts.query.email
-        ),
-        'customer not called as expected'
-      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
+        uid: reqOpts.query.uid,
+        email: reqOpts.query.email,
+      });
       assert.deepEqual(response, expected);
     });
   });

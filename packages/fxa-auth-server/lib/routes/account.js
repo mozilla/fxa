@@ -1468,12 +1468,11 @@ module.exports = (
         if (config.subscriptions.enabled) {
           try {
             if (stripeHelper) {
-              const customer = await stripeHelper.customer(
+              const customer = await stripeHelper.customer({
                 uid,
                 email,
-                false,
-                true
-              );
+                cacheOnly: true,
+              });
               if (!customer) {
                 throw error.unknownCustomer(uid);
               }
