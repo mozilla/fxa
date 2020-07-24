@@ -5,6 +5,7 @@ import React, {
   useState,
   useRef,
 } from 'react';
+import { useBooleanState } from 'fxa-react/lib/hooks';
 import { connect } from 'react-redux';
 import { Localized } from '@fluent/react';
 
@@ -30,6 +31,11 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
+import {
+  PaymentUpdateStripeAPIs,
+  PaymentUpdateAuthServerAPIs,
+} from './PaymentUpdateFormV2';
+
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
   plans: SelectorReturns['plans'];
@@ -45,6 +51,9 @@ export type SubscriptionsProps = {
   resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
   updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
   resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
+  useSCAPaymentFlow: boolean;
+  paymentUpdateStripeOverride?: PaymentUpdateStripeAPIs;
+  paymentUpdateApiClientOverrides?: Partial<PaymentUpdateAuthServerAPIs>;
 };
 
 export const Subscriptions = ({
@@ -62,14 +71,35 @@ export const Subscriptions = ({
   resetUpdatePayment,
   resetCancelSubscription,
   updatePaymentStatus,
+  useSCAPaymentFlow,
+  paymentUpdateStripeOverride,
+  paymentUpdateApiClientOverrides,
 }: SubscriptionsProps) => {
   const { config, locationReload, navigateToUrl } = useContext(AppContext);
 
-  const [showPaymentSuccessAlert, setShowPaymentSuccessAlert] = useState(true);
-  const clearSuccessAlert = useCallback(
-    () => setShowPaymentSuccessAlert(false),
-    [setShowPaymentSuccessAlert]
-  );
+  const [
+    updatePaymentIsSuccessViaSCA,
+    setUpdatePaymentIsSuccess,
+    resetUpdatePaymentIsSuccess,
+  ] = useBooleanState(false);
+
+  const [
+    updatePaymentSuccessAlertIsHidden,
+    hideSuccessAlert,
+    resetSuccessAlert,
+  ] = useBooleanState(false);
+
+  // Combined reset function to clear both previous success status and user's
+  // action to dismiss the alert.
+  const resetUpdatePaymentIsSuccessAndAlert = useCallback(() => {
+    resetUpdatePaymentIsSuccess();
+    resetSuccessAlert();
+  }, [resetUpdatePaymentIsSuccess]);
+
+  const showPaymentSuccessAlert =
+    !updatePaymentSuccessAlertIsHidden &&
+    // TODO: When we move to V2 SCA flow, we can drop updatePaymentStatus
+    (updatePaymentIsSuccessViaSCA || updatePaymentStatus.result);
 
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
 
@@ -176,7 +206,7 @@ export const Subscriptions = ({
         />
       )}
 
-      {updatePaymentStatus.result && showPaymentSuccessAlert && (
+      {showPaymentSuccessAlert && (
         <AlertBar className="alert alertSuccess alertCenter">
           <Localized id="sub-billing-update-success">
             <span data-testid="success-billing-update" className="checked">
@@ -189,7 +219,7 @@ export const Subscriptions = ({
               data-testid="clear-success-alert"
               className="close"
               aria-label="Close modal"
-              onClick={clearSuccessAlert}
+              onClick={hideSuccessAlert}
             >
               <CloseIcon role="img" className="close-icon close-alert-bar" />
             </span>
@@ -280,6 +310,12 @@ export const Subscriptions = ({
                   customerSubscription,
                   cancelSubscriptionStatus,
                   plan: planForId(customerSubscription.plan_id, plans.result),
+                  refreshSubscriptions: fetchSubscriptionsRouteResources,
+                  setUpdatePaymentIsSuccess,
+                  resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
+                  useSCAPaymentFlow,
+                  paymentUpdateStripeOverride,
+                  paymentUpdateApiClientOverrides,
                 }}
               />
             ))}

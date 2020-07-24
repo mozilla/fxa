@@ -18,6 +18,10 @@ import { SubscriptionsProps } from './index';
 import * as Amplitude from '../../lib/amplitude';
 
 import PaymentUpdateForm from './PaymentUpdateForm';
+import PaymentUpdateFormV2, {
+  PaymentUpdateStripeAPIs,
+  PaymentUpdateAuthServerAPIs,
+} from './PaymentUpdateFormV2';
 import DialogMessage from '../../components/DialogMessage';
 import AppContext from '../../lib/AppContext';
 
@@ -33,6 +37,12 @@ type SubscriptionItemProps = {
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
+  refreshSubscriptions: () => void;
+  setUpdatePaymentIsSuccess: () => void;
+  resetUpdatePaymentIsSuccess: () => void;
+  useSCAPaymentFlow: boolean;
+  paymentUpdateStripeOverride?: PaymentUpdateStripeAPIs;
+  paymentUpdateApiClientOverrides?: Partial<PaymentUpdateAuthServerAPIs>;
 };
 
 export const SubscriptionItem = ({
@@ -45,6 +55,12 @@ export const SubscriptionItem = ({
   resetUpdatePayment,
   updatePaymentStatus,
   customerSubscription,
+  refreshSubscriptions,
+  setUpdatePaymentIsSuccess,
+  resetUpdatePaymentIsSuccess,
+  useSCAPaymentFlow,
+  paymentUpdateStripeOverride,
+  paymentUpdateApiClientOverrides,
 }: SubscriptionItemProps) => {
   const { locationReload } = useContext(AppContext);
 
@@ -72,16 +88,31 @@ export const SubscriptionItem = ({
 
         {!customerSubscription.cancel_at_period_end ? (
           <>
-            <PaymentUpdateForm
-              {...{
-                plan,
-                customerSubscription,
-                customer,
-                updatePayment,
-                resetUpdatePayment,
-                updatePaymentStatus,
-              }}
-            />
+            {useSCAPaymentFlow ? (
+              <PaymentUpdateFormV2
+                {...{
+                  plan,
+                  customerSubscription,
+                  customer,
+                  refreshSubscriptions,
+                  setUpdatePaymentIsSuccess,
+                  resetUpdatePaymentIsSuccess,
+                  stripeOverride: paymentUpdateStripeOverride,
+                  apiClientOverrides: paymentUpdateApiClientOverrides,
+                }}
+              />
+            ) : (
+              <PaymentUpdateForm
+                {...{
+                  plan,
+                  customerSubscription,
+                  customer,
+                  updatePayment,
+                  resetUpdatePayment,
+                  updatePaymentStatus,
+                }}
+              />
+            )}
             <CancelSubscriptionPanel
               {...{
                 cancelSubscription,

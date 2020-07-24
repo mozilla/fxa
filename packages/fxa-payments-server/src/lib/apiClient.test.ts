@@ -43,6 +43,12 @@ import {
   apiCancelSubscription,
   apiReactivateSubscription,
   apiUpdatePayment,
+  apiCreateCustomer,
+  apiCreateSubscriptionWithPaymentMethod,
+  FilteredSetupIntent,
+  apiCreateSetupIntent,
+  apiUpdateDefaultPaymentMethod,
+  apiRetryInvoice,
 } from './apiClient';
 
 describe('APIError', () => {
@@ -366,6 +372,98 @@ describe('API requests', () => {
         ...metricsOptions,
         error,
       });
+      requestMock.done();
+    });
+  });
+
+  describe('apiCreateCustomer', () => {
+    const path = '/v1/oauth/subscriptions/customer';
+
+    it(`POST {auth-server}${path}`, async () => {
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path)
+        .reply(200, MOCK_CUSTOMER);
+
+      expect(
+        await apiCreateCustomer({
+          displayName: 'Bar Fooson',
+          idempotencyKey: 'idk-8675309',
+        })
+      ).toEqual(MOCK_CUSTOMER);
+      requestMock.done();
+    });
+  });
+
+  describe('apiCreateSubscriptionWithPaymentMethod', () => {
+    const path = '/v1/oauth/subscriptions/active/new';
+
+    it(`POST {auth-server}${path}`, async () => {
+      const expected = { what: 'ever' };
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+
+      expect(
+        await apiCreateSubscriptionWithPaymentMethod({
+          priceId: 'price_12345',
+          paymentMethodId: 'pm_test',
+          idempotencyKey: 'idk-8675309',
+        })
+      ).toEqual(expected);
+      requestMock.done();
+    });
+  });
+
+  describe('apiRetryInvoice', () => {
+    const path = '/v1/oauth/subscriptions/invoice/retry';
+
+    it(`POST {auth-server}${path}`, async () => {
+      const expected = { what: 'ever' };
+      const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
+
+      expect(
+        await apiRetryInvoice({
+          invoiceId: 'inv_12345',
+          paymentMethodId: 'pm_test',
+          idempotencyKey: 'idk-8675309',
+        })
+      ).toEqual(expected);
+      requestMock.done();
+    });
+  });
+
+  describe('apiCreateSetupIntent', () => {
+    const path = '/v1/oauth/subscriptions/setupintent/create';
+
+    it(`POST {auth-server}${path}`, async () => {
+      const expectedResponse: FilteredSetupIntent = {
+        client_secret: 'secret_squirrel',
+        created: 123456789,
+        next_action: null,
+        payment_method: null,
+        status: 'requires_payment_method',
+      };
+
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path)
+        .reply(200, expectedResponse);
+
+      expect(await apiCreateSetupIntent()).toEqual(expectedResponse);
+      requestMock.done();
+    });
+  });
+
+  describe('apiUpdateDefaultPaymentMethod', () => {
+    const path = '/v1/oauth/subscriptions/paymentmethod/default';
+
+    it(`POST {auth-server}${path}`, async () => {
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path)
+        .reply(200, MOCK_CUSTOMER);
+
+      expect(
+        await apiUpdateDefaultPaymentMethod({
+          paymentMethodId: 'pm_test',
+        })
+      ).toEqual(MOCK_CUSTOMER);
       requestMock.done();
     });
   });
