@@ -186,6 +186,17 @@
     },
     "clients": [
       {
+        "id": "fced6b5e3f4c66b9",
+        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "name": "Firefox Send local-dev",
+        "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
+        "redirectUri": "http://localhost:1337/oauth",
+        "trusted": true,
+        "canGrant": false,
+        "publicClient": true,
+        "allowedScopes": "https://identity.mozilla.com/apps/send"
+      },
+      {
         "id": "dcdb5ae7add825d2",
         "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "name": "123Done",
@@ -390,6 +401,10 @@
       },
       {
         "scope": "https://identity.mozilla.com/apps/oldsync",
+        "hasScopedKeys": true
+      },
+      {
+        "scope": "https://identity.mozilla.com/apps/send",
         "hasScopedKeys": true
       }
     ]
