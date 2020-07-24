@@ -19,6 +19,7 @@ const NULL_METADATA = {
 
 const PLAN: Plan = {
   plan_id: 'plan_8675309',
+  plan_name: '',
   product_id: 'prod_8675309',
   product_name: 'Example product',
   currency: 'usd',
@@ -36,7 +37,7 @@ describe('subscriptions/metadata', () => {
     it('extracts product metadata', () => {
       const product_metadata: ProductMetadata = {
         productSet: 'foo',
-        productOrder: 1,
+        productOrder: '1',
       };
       expect(metadataFromPlan({ ...PLAN, product_metadata })).to.deep.equal({
         ...NULL_METADATA,
@@ -47,7 +48,7 @@ describe('subscriptions/metadata', () => {
     it('extracts plan metadata', () => {
       const plan_metadata: ProductMetadata = {
         productSet: 'foo',
-        productOrder: 1,
+        productOrder: '1',
       };
       expect(metadataFromPlan({ ...PLAN, plan_metadata })).to.deep.equal({
         ...NULL_METADATA,
@@ -58,7 +59,7 @@ describe('subscriptions/metadata', () => {
     it('overrides product metadata with plan metadata', () => {
       const product_metadata: ProductMetadata = {
         productSet: 'foo',
-        productOrder: 1,
+        productOrder: '1',
       };
       const plan_metadata: ProductMetadata = {
         productSet: 'bar',
@@ -67,7 +68,7 @@ describe('subscriptions/metadata', () => {
         metadataFromPlan({ ...PLAN, plan_metadata, product_metadata })
       ).to.deep.equal({
         ...NULL_METADATA,
-        productOrder: 1,
+        productOrder: '1',
         productSet: 'bar',
       });
     });

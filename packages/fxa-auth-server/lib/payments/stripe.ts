@@ -13,25 +13,24 @@ import { Stripe } from 'stripe';
 import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
-import { PaymentIntent } from '../routes/subscriptions';
 
 export type AbbrevProduct = {
   product_id: string;
-  product_name: string;
   product_metadata: Stripe.Product['metadata'];
+  product_name: string;
 };
 
 export type AbbrevPlan = {
-  plan_id: string;
-  plan_metadata: Stripe.Plan['metadata'];
-  product_id: string;
-  plan_name: string;
-  product_name: string;
-  product_metadata: Stripe.Product['metadata'];
-  interval: Stripe.Plan['interval'];
-  interval_count: Stripe.Plan['interval_count'];
   amount: Stripe.Plan['amount'];
   currency: Stripe.Plan['currency'];
+  interval_count: Stripe.Plan['interval_count'];
+  interval: Stripe.Plan['interval'];
+  plan_id: string;
+  plan_metadata: Stripe.Plan['metadata'];
+  plan_name: string;
+  product_id: string;
+  product_metadata: Stripe.Product['metadata'];
+  product_name: string;
 };
 
 const CUSTOMER_RESOURCE = 'customers';
@@ -50,7 +49,7 @@ const VALID_RESOURCE_TYPES = [
   INVOICES_RESOURCE,
 ];
 
-const SUBSCRIPTION_UPDATE_TYPES = {
+export const SUBSCRIPTION_UPDATE_TYPES = {
   UPGRADE: 'upgrade',
   DOWNGRADE: 'downgrade',
   REACTIVATION: 'reactivation',
@@ -581,16 +580,16 @@ export class StripeHelper {
       }
 
       plans.push({
-        plan_id: item.id,
-        plan_name: item.nickname || '',
-        plan_metadata: item.metadata,
-        product_id: item.product.id,
-        product_name: item.product.name,
-        product_metadata: item.product.metadata,
-        interval: item.interval,
-        interval_count: item.interval_count,
         amount: item.amount,
         currency: item.currency,
+        interval_count: item.interval_count,
+        interval: item.interval,
+        plan_id: item.id,
+        plan_metadata: item.metadata,
+        plan_name: item.nickname || '',
+        product_id: item.product.id,
+        product_metadata: item.product.metadata,
+        product_name: item.product.name,
       });
     }
     return plans;
@@ -854,7 +853,7 @@ export class StripeHelper {
    */
   async fetchPaymentIntentFromInvoice(
     invoice: Stripe.Invoice
-  ): Promise<PaymentIntent> {
+  ): Promise<Stripe.PaymentIntent> {
     if (!invoice.payment_intent) {
       // We don't have any code working with draft invoices, so
       // this should not be hit... yet. PayPal support *will* likely operate
@@ -1102,6 +1101,14 @@ export class StripeHelper {
       );
     }
 
+    if (!customer.email) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        { customerId: customer.id },
+        'Customer missing email.'
+      );
+    }
+
     const {
       email,
       metadata: { userid: uid },
@@ -1233,6 +1240,13 @@ export class StripeHelper {
       throw error.missingSubscriptionForSourceError(
         'extractSourceDetailsForEmail',
         source
+      );
+    }
+    if (!customer.email) {
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        { customerId: customer.id },
+        'Customer missing email.'
       );
     }
 
