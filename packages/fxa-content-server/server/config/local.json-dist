@@ -27,6 +27,11 @@
          "urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel",
          "urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel"
         ]
+      },
+      "https://identity.mozilla.com/apps/send": {
+        "redirectUris": [
+          "http://localhost:1337/oauth"
+        ]
       }
     }
   },
