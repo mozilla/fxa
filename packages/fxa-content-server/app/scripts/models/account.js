@@ -363,6 +363,7 @@ const Account = Backbone.Model.extend(
      *   authenticationMethods,
      *   authenticatorAssuranceLevel,
      *   profileChangedAt,
+     *   ecosystemAnonId,
      * }
      */
     accountProfile() {
@@ -458,9 +459,29 @@ const Account = Backbone.Model.extend(
           );
         }
       } catch (err) {
-        // In the event of errors, we don't want to block any user actions, just log it
-        // TODO: Follow up with some better error handling
-        console.log('generateEcosystemAnonId failed...', err);
+        this.unset('ecosystemAnonId');
+
+        const reportException = () => {
+          if (this._sentryMetrics) {
+            this._sentryMetrics.captureException(err);
+          }
+        };
+
+        // If we get 412 Precondition Failed it means we
+        // tried to update, but another client beat us to
+        // it. Fetch the new anon ID and use it instead.
+        if (AuthErrors.is(err, 'ECOSYSTEM_ANON_ID_UPDATE_CONFLICT')) {
+          try {
+            const { ecosystemAnonId } = await this.accountProfile();
+            if (ecosystemAnonId) {
+              this.set('ecosystemAnonId', ecosystemAnonId);
+            }
+          } catch (err) {
+            reportException(err);
+          }
+        } else {
+          reportException(err);
+        }
       }
     },
 

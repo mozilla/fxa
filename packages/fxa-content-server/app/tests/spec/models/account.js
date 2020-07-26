@@ -3210,22 +3210,88 @@ describe('models/account', function () {
       assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
     });
 
-    it('swallow any errors', async () => {
-      const err = new Error('failure');
-      sandbox.restore();
-      sandbox.stub(aet, 'generateEcosystemAnonID').rejects(err);
-      sandbox.spy(fxaClient, 'updateEcosystemAnonId');
+    it('ignores with no options', async () => {
+      await account.generateEcosystemAnonId();
+      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
+    });
+
+    it('handles 412 errors by looking up existing eco anon id', async () => {
+      fxaClient.updateEcosystemAnonId.restore();
+      account.set({ sessionToken: SESSION_TOKEN });
+      sandbox.spy(account, 'set');
+      sandbox.spy(account, 'accountProfile');
+      sandbox.stub(fxaClient, 'accountProfile').resolves({
+        ecosystemAnonId: 'wow',
+      });
+      sandbox.stub(fxaClient, 'sessionReauth').resolves({
+        keyFetchToken: 'keyFetchToken',
+        unwrapBKey: 'unwrapBKey',
+      });
+      sandbox.stub(fxaClient, 'accountKeys').resolves({
+        kB: 'kB1',
+      });
+      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
+        sessionVerified: true,
+      });
+      sandbox
+        .stub(fxaClient, 'updateEcosystemAnonId')
+        .rejects(AuthErrors.toError('ECOSYSTEM_ANON_ID_UPDATE_CONFLICT'));
 
       await account.generateEcosystemAnonId({
         password: 'passwordzxcv',
       });
 
-      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
+      sinon.assert.called(account.accountProfile);
+      sinon.assert.calledWith(fxaClient.accountProfile, SESSION_TOKEN);
+      sinon.assert.calledWith(account.set, 'ecosystemAnonId', 'wow');
     });
 
-    it('ignores with no options', async () => {
-      await account.generateEcosystemAnonId();
-      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
+    it('reports errors thrown by accountProfile when looking up existing eco anon id because of a 412 error', async () => {
+      fxaClient.updateEcosystemAnonId.restore();
+      account.set({ sessionToken: SESSION_TOKEN });
+      sandbox.spy(account._sentryMetrics, 'captureException');
+      sandbox.spy(account, 'set');
+      sandbox.spy(account, 'accountProfile');
+      sandbox
+        .stub(fxaClient, 'accountProfile')
+        .rejects(AuthErrors.toError('UNAUTHORIZED'));
+      sandbox.stub(fxaClient, 'sessionReauth').resolves({
+        keyFetchToken: 'keyFetchToken',
+        unwrapBKey: 'unwrapBKey',
+      });
+      sandbox.stub(fxaClient, 'accountKeys').resolves({
+        kB: 'kB1',
+      });
+      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
+        sessionVerified: true,
+      });
+      sandbox
+        .stub(fxaClient, 'updateEcosystemAnonId')
+        .rejects(AuthErrors.toError('ECOSYSTEM_ANON_ID_UPDATE_CONFLICT'));
+
+      await account.generateEcosystemAnonId({
+        password: 'passwordzxcv',
+      });
+
+      sinon.assert.called(account.accountProfile);
+      sinon.assert.calledWith(fxaClient.accountProfile, SESSION_TOKEN);
+      sinon.assert.called(account._sentryMetrics.captureException);
+      assert.isFalse(account.has('ecosystemAnonId'));
+    });
+
+    it('reports any other errors to sentry and removes the newly create anon id', async () => {
+      sandbox.restore();
+      sandbox.spy(account._sentryMetrics, 'captureException');
+      sandbox
+        .stub(aet, 'generateEcosystemAnonID')
+        .rejects(new Error('failure'));
+
+      await account.generateEcosystemAnonId({
+        password: 'passwordzxcv',
+      });
+
+      assert.isFalse(account.has('ecosystemAnonId'));
+      sinon.assert.called(account._sentryMetrics.captureException);
     });
   });
 });
