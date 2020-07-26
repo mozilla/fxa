@@ -14,28 +14,73 @@ $(document).ready(function () {
   window.loggedInEmail = null;
   window.loggedInSubscriptions = [];
 
-  let paymentURL;
+  const paymentURL = {
+    local: '//localhost:3030/subscriptions/products/',
+    dev: 'https://latest.dev.lcip.org/subscriptions/products/',
+    stage: 'https://accounts.stage.mozaws.net/subscriptions/products/',
+    prod: 'https://accounts.firefox.com/subscriptions/products',
+  };
+
+  const subscriptionConfig = {
+    default: {
+      product: 'prod_GqM9ToKK62qjkK',
+      plans: {
+        usd: 'plan_GqM9N6qyhvxaVk',
+        eur: 'price_1H8NnnBVqmGyQTMaLwLRKbF3',
+        cad: 'price_1H8NoEBVqmGyQTMa5MtpqAUM',
+        myr: 'price_1H8NpGBVqmGyQTMaA6Znyu7U',
+      },
+    },
+    stage: {
+      product: 'prod_FfiuDs9u11ESbD',
+      plans: {
+        usd: 'plan_FfiupsKXZ3mMZ6',
+        eur: 'price_1H8OrbKb9q6OnNsLI1Hs9lBU',
+        cad: 'price_1H8OroKb9q6OnNsLbn5v95el',
+        myr: 'price_1H8Os8Kb9q6OnNsLTDqGHIbC',
+      },
+    },
+  };
+
+  let paymentConfig = {};
   switch (window.location.host) {
     case '123done-latest.dev.lcip.org':
-      paymentURL =
-        'https://latest.dev.lcip.org/subscriptions/products/prod_Ex9Z1q5yVydhyk';
+      paymentConfig = {
+        env: paymentURL.dev,
+        ...subscriptionConfig.default,
+      };
       break;
     case '123done-stage.dev.lcip.org':
-      paymentURL =
-        'https://accounts.stage.mozaws.net/subscriptions/products/prod_FfiuDs9u11ESbD?plan=plan_FfiupsKXZ3mMZ6';
+      paymentConfig = {
+        env: paymentURL.stage,
+        ...subscriptionConfig.stage,
+      };
       break;
     case '123done-prod.dev.lcip.org':
-      paymentURL =
-        'https://accounts.firefox.com/subscriptions/products/prod_FfiuDs9u11ESbD?plan=plan_FfiupsKXZ3mMZ6';
+      paymentConfig = {
+        env: 'prod',
+      };
       break;
     default:
-      paymentURL =
-        '//localhost:3030/subscriptions/products/prod_GjeDrVtBRfiWjm';
+      paymentConfig = {
+        env: paymentURL.local,
+        ...subscriptionConfig.default,
+      };
       break;
   }
-  $('.btn-subscribe').each(function (index) {
-    $(this).attr('href', paymentURL);
-  });
+
+  // Since we don't set up test payment stuff in prod,
+  // we can just hide the buttons for that env
+  if (paymentConfig.env === 'prod') {
+    $('.btn-subscribe').hide();
+  } else {
+    $('.btn-subscribe').each(function (index) {
+      const { env, plans, product } = paymentConfig;
+      const currency = $(this).attr('data-currency');
+      const currencyMappedURL = `${env}${product}?plan=${plans[currency]}`;
+      $(this).attr('href', currencyMappedURL);
+    });
+  }
 
   function isSubscribed() {
     return (

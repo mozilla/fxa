@@ -62,23 +62,25 @@ button::-moz-focus-inner {
 
 .banner {
   background: #304050;
-  position: fixed;
-  top: 0;
   width: 100%;
-  padding: 20px;
+  padding: 20px 20px 0;
+}
 
+.banner > div {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding-bottom: 20px;
 }
 
 .banner .btn,
 #header-main .btn {
   background: #eef2f0;
   border-radius: 2px;
-  margin: 10px;
+  margin-right: 16px;
   padding: 10px;
   color: black;
+  font-size: 16px;
 }
 
 .banner .btn:hover {
