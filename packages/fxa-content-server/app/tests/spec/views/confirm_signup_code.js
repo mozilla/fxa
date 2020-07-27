@@ -192,6 +192,7 @@ describe('views/confirm_signup_code', () => {
         assert.isTrue(
           user.verifyAccountSessionCode.calledWith(account, CODE, {
             service: 'sync',
+            scopes: null,
           }),
           'verify with correct code'
         );

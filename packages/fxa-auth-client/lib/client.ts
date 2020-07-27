@@ -106,12 +106,15 @@ export default class AuthClient {
     headers: Headers = new Headers()
   ) {
     headers.set('Content-Type', 'application/json');
-    const response = await fetchOrTimeout(this.url(path), {
-      method,
-      headers,
-      body: cleanStringify(payload),
-    },
-    this.timeout);
+    const response = await fetchOrTimeout(
+      this.url(path),
+      {
+        method,
+        headers,
+        body: cleanStringify(payload),
+      },
+      this.timeout
+    );
     let result: any = await response.text();
     try {
       result = JSON.parse(result);
@@ -537,6 +540,7 @@ export default class AuthClient {
     code: string,
     options: {
       service?: string;
+      scopes?: string[];
       marketingOptIn?: boolean;
       newsletters?: string[];
       style?: string;

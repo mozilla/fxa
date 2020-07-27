@@ -72,6 +72,7 @@ class ConfirmSignupCodeView extends FormView {
     const newsletters = account.get('newsletters');
     const options = {
       service: this.relier.get('service') || null,
+      scopes: this.relier.get('permissions') || null,
     };
     return this.user
       .verifyAccountSessionCode(account, code, options)

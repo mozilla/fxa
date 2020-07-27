@@ -1129,7 +1129,15 @@ describe('/session/duplicate', () => {
 });
 
 describe('/session/verify_code', () => {
-  let route, request, log, db, mailer, push, customs, cadReminders;
+  let route,
+    request,
+    log,
+    db,
+    mailer,
+    push,
+    customs,
+    cadReminders,
+    expectedCode;
 
   function setup(options = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
@@ -1151,7 +1159,7 @@ describe('/session/verify_code', () => {
     });
     route = getRoute(routes, '/session/verify_code');
 
-    const expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
+    expectedCode = getExpectedOtpCode({}, signupCodeAccount.emailCode);
 
     request = mocks.mockRequest({
       credentials: {
@@ -1193,6 +1201,7 @@ describe('/session/verify_code', () => {
       'sessionTokenId',
       'email-2fa'
     );
+    assert.calledOnce(mailer.sendPostVerifyEmail);
   });
 
   it('should skip verify account and but still verify session with a valid code', async () => {
@@ -1222,6 +1231,28 @@ describe('/session/verify_code', () => {
       errno: 183,
       'output.statusCode': 400,
     });
+  });
+
+  it('should verify the account and send post verify email with old sync scope', async () => {
+    request.payload = {
+      code: expectedCode,
+      scopes: ['https://identity.mozilla.com/apps/oldsync'],
+    };
+    await runTest(route, request);
+    assert.calledOnce(db.verifyEmail);
+    assert.calledOnce(db.verifyTokensWithMethod);
+    assert.calledOnce(mailer.sendPostVerifyEmail);
+  });
+
+  it('should verify the account and not send post verify email', async () => {
+    request.payload = {
+      code: expectedCode,
+      scopes: [],
+    };
+    await runTest(route, request);
+    assert.calledOnce(db.verifyEmail);
+    assert.calledOnce(db.verifyTokensWithMethod);
+    assert.notCalled(mailer.sendPostVerifyEmail);
   });
 });
 
