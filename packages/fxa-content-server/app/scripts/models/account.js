@@ -381,8 +381,11 @@ const Account = Backbone.Model.extend(
      * this function attempts to generate the id in the following manner:
      *
      * 1. Use kB if it is specified
-     * 2. Attempt to fetch keys if valid authentication token exists to do so
-     * 3. Attempt to use user's password to fetch keys
+     * 2. Attempt to use user's password to fetch keys
+     * 3. Attempt to fetch keys if valid authentication token exists to do so
+     *
+     * Note that on a password reset we will need to do a reauth since
+     * the browser will attempt to use the keyFetchToken.
      *
      * @param {Object} [options={}]
      *   @param {String} [options.kB] Optional The user's kB, if specified takes priority.
@@ -406,13 +409,6 @@ const Account = Backbone.Model.extend(
           ecosystemAnonId = await aet.generateEcosystemAnonID(
             this.get('uid'),
             options.kB,
-            randomKey
-          );
-        } else if (this.canFetchKeys()) {
-          const keys = await this.accountKeys();
-          ecosystemAnonId = await aet.generateEcosystemAnonID(
-            this.get('uid'),
-            keys.kB,
             randomKey
           );
         } else if (options.password) {
@@ -445,6 +441,13 @@ const Account = Backbone.Model.extend(
               randomKey
             );
           }
+        } else if (this.canFetchKeys()) {
+          const keys = await this.accountKeys();
+          ecosystemAnonId = await aet.generateEcosystemAnonID(
+            this.get('uid'),
+            keys.kB,
+            randomKey
+          );
         }
 
         if (ecosystemAnonId) {
@@ -1081,7 +1084,7 @@ const Account = Backbone.Model.extend(
         })
         .then(this.set.bind(this))
         .then(async () => {
-          await this.generateEcosystemAnonId({ password: newPassword });
+          await this.generateEcosystemAnonId({});
         });
     },
 
