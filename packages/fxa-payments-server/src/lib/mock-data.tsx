@@ -60,6 +60,10 @@ export const SELECTED_PLAN: Plan = {
       'https://www.mozilla.org/en-US/about/legal/terms/services/',
     'product:termsOfServiceURL:fr':
       'https://www.mozilla.org/fr/about/legal/terms/services/',
+    'product:termsOfServiceDownloadURL':
+      'https://www.mozilla.org/en-US/about/legal/terms/services/download.pdf',
+    'product:termsOfServiceDownloadURL:fr':
+      'https://www.mozilla.org/fr/about/legal/terms/services/download.pdf',
     'product:privacyNoticeURL':
       'https://www.mozilla.org/en-US/privacy/websites/',
     'product:privacyNoticeURL:fr':

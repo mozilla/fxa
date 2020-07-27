@@ -9,9 +9,13 @@ import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 
 const enTermsOfServiceURL =
   'https://www.mozilla.org/en-US/about/legal/terms/services/';
+const enTermsOfServiceDownloadURL =
+  'https://www.mozilla.org/en-US/about/legal/terms/services/download.pdf';
 const enPrivacyNoticeURL = 'https://www.mozilla.org/en-US/privacy/websites/';
 const frTermsOfServiceURL =
   'https://www.mozilla.org/fr/about/legal/terms/services/';
+const frTermsOfServiceDownloadURL =
+  'https://www.mozilla.org/fr/about/legal/terms/services/download.pdf';
 const frPrivacyNoticeURL = 'https://www.mozilla.org/fr/privacy/websites/';
 
 const plan = {
@@ -19,6 +23,8 @@ const plan = {
   plan_metadata: {
     'product:termsOfServiceURL': enTermsOfServiceURL,
     'product:termsOfServiceURL:fr': frTermsOfServiceURL,
+    'product:termsOfServiceDownloadURL': enTermsOfServiceDownloadURL,
+    'product:termsOfServiceDownloadURL:fr': frTermsOfServiceDownloadURL,
     'product:privacyNoticeURL': enPrivacyNoticeURL,
     'product:privacyNoticeURL:fr': frPrivacyNoticeURL,
   },
@@ -28,12 +34,21 @@ afterEach(cleanup);
 
 it('renders as expected with no plan', () => {
   const { queryByTestId } = render(<TermsAndPrivacy />);
+
   const termsLink = queryByTestId('terms');
   expect(termsLink).toBeInTheDocument();
   expect(termsLink).toHaveAttribute(
     'href',
     DEFAULT_PRODUCT_DETAILS.termsOfServiceURL
   );
+
+  const termsDownloadLink = queryByTestId('terms-download');
+  expect(termsDownloadLink).toBeInTheDocument();
+  expect(termsDownloadLink).toHaveAttribute(
+    'href',
+    DEFAULT_PRODUCT_DETAILS.termsOfServiceDownloadURL
+  );
+
   const privacyLink = queryByTestId('privacy');
   expect(privacyLink).toBeInTheDocument();
   expect(privacyLink).toHaveAttribute(
