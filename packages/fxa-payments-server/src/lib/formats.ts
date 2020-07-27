@@ -17,10 +17,10 @@ const baseCurrencyOptions = {
  * @param currency
  */
 export function getLocalizedCurrency(
-  amountInCents: number,
+  amountInCents: number | null,
   currency: string
 ): FluentNumber {
-  const decimal = amountInCents / 100;
+  const decimal = (amountInCents || 0) / 100;
   const options = { ...baseCurrencyOptions, currency };
 
   return new FluentNumber(decimal, options);
@@ -34,10 +34,10 @@ export function getLocalizedCurrency(
  * @param currency
  */
 export function getLocalizedCurrencyString(
-  amountInCents: number,
+  amountInCents: number | null,
   currency: string
 ): string {
-  const decimal = amountInCents / 100;
+  const decimal = (amountInCents || 0) / 100;
   const options = { ...baseCurrencyOptions, currency };
 
   return new Intl.NumberFormat('en-US', options).format(decimal);
@@ -125,7 +125,7 @@ export function getLocalizedDateString(
  * @param intervalCount
  */
 export function formatPlanPricing(
-  amount: number,
+  amount: number | null,
   currency: string,
   interval: PlanInterval,
   intervalCount: number
@@ -148,7 +148,7 @@ export function formatPlanPricing(
 }
 
 export function getDefaultPaymentConfirmText(
-  amount: number,
+  amount: number | null,
   currency: string,
   interval: PlanInterval,
   intervalCount: number

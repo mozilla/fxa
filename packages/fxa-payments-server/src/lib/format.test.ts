@@ -16,12 +16,28 @@ describe('format.ts', () => {
         expect(localizedCurrency.opts.currencyDisplay).toEqual('symbol');
         expect(localizedCurrency.opts.style).toEqual('currency');
       });
+
+      it('returns a FluentNumber with the correct currency options given a null amount', () => {
+        const localizedCurrency = getLocalizedCurrency(0, 'USD');
+
+        expect(localizedCurrency.value).toEqual(0);
+        expect(localizedCurrency.opts.currency).toEqual('USD');
+        expect(localizedCurrency.opts.currencyDisplay).toEqual('symbol');
+        expect(localizedCurrency.opts.style).toEqual('currency');
+      });
     });
 
     describe('getLocalizedCurrencyString', () => {
       it('returns a correctly formatted currency string', () => {
         const expected = '$1.23';
         const actual = getLocalizedCurrencyString(123, 'USD');
+
+        expect(actual).toEqual(expected);
+      });
+
+      it('returns a correctly formatted currency string given a null amount', () => {
+        const expected = '$0.00';
+        const actual = getLocalizedCurrencyString(null, 'USD');
 
         expect(actual).toEqual(expected);
       });
