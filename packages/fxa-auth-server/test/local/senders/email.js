@@ -1823,7 +1823,10 @@ describe('email translations', () => {
         'ru',
         'language header is correct'
       );
-      assert.include(emailConfig.subject, 'Добавлена альтернативная эл. почта');
+      assert.include(
+        emailConfig.subject,
+        'Добавлена альтернативная электронная почта'
+      );
       // assert.include(emailConfig.html, 'Подсоединить другое устройство');
     });
 
