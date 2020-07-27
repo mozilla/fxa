@@ -59,7 +59,6 @@ const stripePlan = require('../payments/fixtures/plan1.json');
 
 let config,
   log,
-  directStripeRoutes,
   db,
   customs,
   push,
@@ -280,7 +279,7 @@ describe('subscriptions directRoutes', () => {
         return PLANS;
       });
 
-      directStripeRoutes = new DirectStripeRoutes(
+      const directStripeRoutes = new DirectStripeRoutes(
         log,
         db,
         config,
@@ -304,7 +303,7 @@ describe('subscriptions directRoutes', () => {
         return customerFixture;
       });
 
-      directStripeRoutes = new DirectStripeRoutes(
+      const directStripeRoutes = new DirectStripeRoutes(
         log,
         db,
         config,
@@ -2329,6 +2328,45 @@ describe('DirectStripeRoutes', () => {
         assert.notCalled(profile.deleteCache);
         assert.notCalled(stubSendSubscriptionStatusToSqs);
       });
+    });
+  });
+
+  describe('sendSubscriptionPaymentExpiredEmail', () => {
+    const mockSource = {};
+    const mockAccount = {
+      emails: TEST_EMAIL,
+      locale: ACCOUNT_LOCALE,
+    };
+
+    it('sends the email with a list of subscriptions', async () => {
+      directStripeRoutesInstance.db.account = sandbox
+        .stub()
+        .resolves(mockAccount);
+      directStripeRoutesInstance.mailer.sendMultiSubscriptionsPaymentExpiredEmail = sandbox.stub();
+      directStripeRoutesInstance.mailer.sendSubscriptionPaymentExpiredEmail = sandbox.stub();
+      const mockCustomer = { uid: UID, subscriptions: [{ id: 'sub_testo' }] };
+      directStripeRoutesInstance.stripeHelper.extractSourceDetailsForEmail.resolves(
+        mockCustomer
+      );
+
+      await directStripeRoutesInstance.sendSubscriptionPaymentExpiredEmail(
+        mockSource
+      );
+
+      assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.extractSourceDetailsForEmail,
+        mockSource
+      );
+      assert.calledOnceWithExactly(directStripeRoutesInstance.db.account, UID);
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.mailer.sendSubscriptionPaymentExpiredEmail,
+        TEST_EMAIL,
+        { emails: TEST_EMAIL, locale: ACCOUNT_LOCALE },
+        {
+          acceptLanguage: ACCOUNT_LOCALE,
+          ...mockCustomer,
+        }
+      );
     });
   });
 

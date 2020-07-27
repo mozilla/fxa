@@ -1,0 +1,19 @@
+{{#*inline "title"}}
+  {{t "Your credit card is about to expire" }}
+{{/inline}}
+
+{{#*inline "content"}}
+  {{t "The credit card you're using to make payments for the following subscriptions is about to expire." }}
+  <br><br>
+  <ul>
+    {{#subscriptions}}
+    <li>{{productName }}</li>
+    {{/subscriptions}}
+  </ul>
+  <br><br>
+  {{{t "To prevent any interruption to your service, please <a href=\"%(updateBillingUrl)s\">update your payment information</a> as soon as possible." }}}
+  <br><br>
+  {{{t "Questions about your subscription? Our <a href=\"%(subscriptionSupportUrl)s\">support team</a> is here to help you." }}}
+{{/inline}}
+
+{{> subscriptionEmail}}

@@ -1056,6 +1056,7 @@ class DirectStripeRoutes {
     );
     const { uid } = sourceDetails;
     const account = await this.db.account(uid);
+
     await this.mailer.sendSubscriptionPaymentExpiredEmail(
       account.emails,
       account,
@@ -1064,6 +1065,7 @@ class DirectStripeRoutes {
         ...sourceDetails,
       }
     );
+
     return sourceDetails;
   }
 

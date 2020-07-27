@@ -80,6 +80,10 @@ const MESSAGE = {
   productPaymentCycle: 'month',
   productMetadata,
   service: 'sync',
+  subscriptions: [
+    { productName: 'Firefox Fortress' },
+    { productName: 'Cooking with Foxkeh' },
+  ],
   timeZone: 'America/Los_Angeles',
   tokenCode: 'abc123',
   type: 'secondary',
@@ -374,6 +378,23 @@ const TESTS = new Map([
       { test: 'notInclude', expected: 'utm_source=email' },
     ]]
   ])],
+  ['subscriptionPaymentExpiredEmail', new Map([
+    ['subject', { test: 'equal', expected: 'Credit card for your subscriptions is expiring soon' }],
+    ['headers', new Map([
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('subscriptionsPaymentExpired') }],
+      ['X-Template-Name', { test: 'equal', expected: 'subscriptionsPaymentExpired' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.subscriptionPaymentExpired }],
+    ])],
+    ['html', [
+      { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscriptions-payment-expired', 'cancel-subscription', 'email', 'uid') },
+      { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'using to make payments for the following subscriptions is about to expire.' },
+      { test: 'notInclude', expected: 'utm_source=email' },
+    ]]
+  ]), {updateTemplateValues: x => ({...x, productName: undefined})}],
   ['subscriptionUpgradeEmail', new Map([
     ['subject', { test: 'equal', expected: `You have upgraded to ${MESSAGE.productNameNew}` }],
     ['headers', new Map([
@@ -1228,7 +1249,7 @@ describe('lib/senders/email:', () => {
     assert.notEqual(mailer.mailer, mailer.emailService);
   });
 
-  for (const [type, test] of TESTS) {
+  for (const [type, test, opts = {}] of TESTS) {
     it(`declarative test for ${type}`, async () => {
       mailer.mailer.sendMail = stubSendMail((message) => {
         COMMON_TESTS.forEach((assertions, property) => {
@@ -1240,7 +1261,11 @@ describe('lib/senders/email:', () => {
         });
       });
 
-      await mailer[type](MESSAGE);
+      const { updateTemplateValues } = opts;
+      const tmplVals = updateTemplateValues
+        ? updateTemplateValues(MESSAGE)
+        : MESSAGE;
+      await mailer[type](tmplVals);
     });
   }
 

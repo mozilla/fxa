@@ -148,6 +148,16 @@ function sendMail(mailer, messageToSend) {
     tokenCode: 'LIT12345',
     uid: '6510cb04abd742c6b3e4abefc7e39c9f',
     productMetadata,
+    subscriptions: [
+      {
+        planDownloadURL: 'http://getfirefox.com/',
+        planEmailIconURL: 'http://placekitten.com/512/512',
+        planId: 'plan-example',
+        productId: '0123456789abcdef',
+        productMetadata,
+        productName: 'Firefox Fortress',
+      },
+    ],
   };
 
   return mailer[messageType](message);

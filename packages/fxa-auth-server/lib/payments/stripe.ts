@@ -1216,19 +1216,6 @@ export class StripeHelper {
       throw error.unknownCustomer(source.customer);
     }
 
-    // Follow subhub's lead and just use the customer's first active
-    // subscription as source of plan & product data.
-    //
-    // May need to refine this to search for the specific subscription paid
-    // for with a card if/when we allow multiple payment sources on multiple
-    // subscriptions.
-    //
-    // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L204
-
-    /** @type {AbbrevProduct | undefined} */
-    let abbrevProduct;
-    /** @type {Plan | undefined | null} */
-    let plan;
     if (!customer.subscriptions) {
       throw error.internalValidationError(
         'extractSourceDetailsForEmail',
@@ -1236,6 +1223,9 @@ export class StripeHelper {
         new Error(`No subscriptions found for customer: ${customer.id}`)
       );
     }
+
+    let subscriptions = [];
+
     for (const subscription of customer.subscriptions.data) {
       if (['active', 'trialing'].includes(subscription.status)) {
         if (!subscription.plan) {
@@ -1247,13 +1237,37 @@ export class StripeHelper {
             )
           );
         }
-        plan = await this.expandResource(subscription.plan, PLAN_RESOURCE);
-        abbrevProduct = await this.expandAbbrevProductForPlan(plan);
-        break;
+
+        const plan = await this.expandResource(
+          subscription.plan,
+          PLAN_RESOURCE
+        );
+        const abbrevProduct = await this.expandAbbrevProductForPlan(plan);
+
+        const {
+          product_id: productId,
+          product_name: productName,
+        } = abbrevProduct;
+        const { id: planId, nickname: planName } = plan;
+        const productMetadata = this.mergeMetadata(plan, abbrevProduct);
+        const {
+          emailIconURL: planEmailIconURL = '',
+          downloadURL: planDownloadURL = '',
+        } = productMetadata;
+
+        subscriptions.push({
+          productId,
+          productName,
+          planId,
+          planName,
+          planEmailIconURL,
+          planDownloadURL,
+          productMetadata,
+        });
       }
     }
 
-    if (!plan || !abbrevProduct) {
+    if (subscriptions.length === 0) {
       throw error.missingSubscriptionForSourceError(
         'extractSourceDetailsForEmail',
         source
@@ -1271,24 +1285,11 @@ export class StripeHelper {
       email,
       metadata: { userid: uid },
     } = customer;
-    const { product_id: productId, product_name: productName } = abbrevProduct;
-    const { id: planId, nickname: planName } = plan;
-    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
-    const {
-      emailIconURL: planEmailIconURL = '',
-      downloadURL: planDownloadURL = '',
-    } = productMetadata;
 
     return {
       uid,
       email,
-      productId,
-      productName,
-      planId,
-      planName,
-      planEmailIconURL,
-      planDownloadURL,
-      productMetadata,
+      subscriptions,
     };
   }
 
