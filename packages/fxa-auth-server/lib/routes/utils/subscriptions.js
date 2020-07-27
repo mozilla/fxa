@@ -10,7 +10,7 @@ const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
 
 const SubscriptionUtils = (module.exports = {
   // Parse a comma-separated list of capabilities with allowance for varied whitespace
-  /** @type {(s: [string]) => string[]} */
+  /** @type {(s: string) => string[]} */
   splitCapabilities: (s) =>
     (s || '')
       .trim()
