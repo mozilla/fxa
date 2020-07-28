@@ -19,7 +19,11 @@ export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
   // TODO: if a plan is not supplied, fall back to default details
   // This mainly happens in ProductUpdateForm where we're updating payment
   // details across *all* plans - are there better URLs to pick in that case?
-  const { termsOfServiceURL, privacyNoticeURL } = plan
+  const {
+    termsOfServiceURL,
+    termsOfServiceDownloadURL,
+    privacyNoticeURL,
+  } = plan
     ? productDetailsFromPlan(plan, navigatorLanguages)
     : DEFAULT_PRODUCT_DETAILS;
 
@@ -34,6 +38,17 @@ export const TermsAndPrivacy = ({ plan }: TermsAndPrivacyProps) => {
             href={termsOfServiceURL}
           >
             Terms of Service
+          </a>
+        </Localized>
+        &nbsp;&#x2022;&nbsp;
+        <Localized id="termsDownload">
+          <a
+            rel="noopener noreferrer"
+            target="_blank"
+            data-testid="terms-download"
+            href={termsOfServiceDownloadURL}
+          >
+            Download Terms
           </a>
         </Localized>
       </div>

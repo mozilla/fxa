@@ -241,7 +241,7 @@ export const PaymentUpdateForm = ({
 
 function getBillingDescriptionText(
   name: string,
-  amount: number,
+  amount: number | null,
   currency: string,
   interval: PlanInterval,
   intervalCount: number,
