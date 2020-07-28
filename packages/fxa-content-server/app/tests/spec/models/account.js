@@ -2128,11 +2128,7 @@ describe('models/account', function () {
             )
           );
 
-          assert.isTrue(
-            account.generateEcosystemAnonId.calledWith({
-              password: newPassword,
-            })
-          );
+          assert.isTrue(account.generateEcosystemAnonId.calledWith({}));
           assert.equal(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
           assert.equal(account.get('sessionTokenContext'), 'foo');

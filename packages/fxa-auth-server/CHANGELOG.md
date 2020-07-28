@@ -1,3 +1,13 @@
+## 1.181.2
+
+### Bug fixes
+
+- emails: Fix translation test ([41f73dee4](https://github.com/mozilla/fxa/commit/41f73dee4))
+
+## 1.181.1
+
+No changes.
+
 ## 1.181.0
 
 ### New features
