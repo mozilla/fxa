@@ -2058,8 +2058,7 @@ describe('models/account', function () {
 
   describe('changePassword', function () {
     beforeEach(() => {
-      sinon.stub(account, 'generateEcosystemAnonId')
-        .callsFake(() => {});
+      sinon.stub(account, 'generateEcosystemAnonId').callsFake(() => {});
     });
 
     it('returns `INCORRECT_PASSWORD` error if old password is incorrect (event if passwords are the same)', function () {
@@ -2129,9 +2128,7 @@ describe('models/account', function () {
             )
           );
 
-          assert.isTrue(
-            account.generateEcosystemAnonId.calledWith({password: newPassword})
-          );
+          assert.isTrue(account.generateEcosystemAnonId.calledWith({}));
           assert.equal(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
           assert.equal(account.get('sessionTokenContext'), 'foo');
@@ -2143,8 +2140,7 @@ describe('models/account', function () {
 
   describe('completePasswordReset', function () {
     beforeEach(() => {
-      sinon.stub(account, 'generateEcosystemAnonId')
-        .callsFake(() => {});
+      sinon.stub(account, 'generateEcosystemAnonId').callsFake(() => {});
     });
 
     it('completes the password reset', function () {
@@ -2175,7 +2171,7 @@ describe('models/account', function () {
           );
 
           assert.isTrue(
-            account.generateEcosystemAnonId.calledWith({password: PASSWORD})
+            account.generateEcosystemAnonId.calledWith({ password: PASSWORD })
           );
           assert.ok(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
