@@ -146,6 +146,21 @@ module.exports = async function mock(options) {
         });
     },
 
+    // This will fail the containing test if the auth server route
+    // `/account/ecosystemAnonId` is not called with the exact
+    // supplied body and header arguments
+    anonIdUpdated: function anonIdUpdated(body = {}, headers = {}) {
+      const parts = url.parse(config.get('authServer.url'));
+      const req = nock(parts.protocol + '//' + parts.host);
+
+      Object.keys(headers).forEach((header) => {
+        req.matchHeader(header, headers[header]);
+      });
+
+      req.put(parts.path + '/account/ecosystemAnonId', body).reply(200);
+      return req;
+    },
+
     subscriptions: function mockSubscriptions(subscriptions) {
       var parts = url.parse(config.get('authServer.url'));
       return nock(parts.protocol + '//' + parts.host)
