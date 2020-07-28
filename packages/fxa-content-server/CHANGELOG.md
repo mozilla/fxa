@@ -1,3 +1,9 @@
+## 1.181.1
+
+### Bug fixes
+
+- aet: On password reset reauth to get new keyfetch token to set ecosystem anon id ([04fa3e90a](https://github.com/mozilla/fxa/commit/04fa3e90a))
+
 ## 1.181.0
 
 ### New features
