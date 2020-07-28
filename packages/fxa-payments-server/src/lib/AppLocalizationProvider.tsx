@@ -41,7 +41,7 @@ async function createMessagesGenerator(
   bundles: Array<string>
 ) {
   const fetched = await Promise.all(
-    currentLocales.map(async (locale) => {
+    currentLocales.filter(l => !OTHER_EN_LOCALES.includes(l)).map(async (locale) => {
       return { [locale]: await fetchAllMessages(baseDir, locale, bundles) };
     })
   );
