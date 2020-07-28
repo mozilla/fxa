@@ -1,3 +1,5 @@
+import http from 'http'
+import https from 'https'
 import { Crypto } from '@peculiar/webcrypto';
 import fetch, { Headers } from 'node-fetch';
 import { btoa } from 'abab';
@@ -13,6 +15,13 @@ declare global {
     }
   }
 }
+
+http.globalAgent = new http.Agent({
+  keepAlive: true
+})
+https.globalAgent = new https.Agent({
+  keepAlive: true
+})
 
 global.crypto = new Crypto();
 global.fetch = fetch;
