@@ -415,10 +415,10 @@ const Account = Backbone.Model.extend(
             keys.kB,
             randomKey
           );
-        } else if (options.password) {
-          // TODO: Using sessionReauth to get keys could potentially pose some issues if the user
-          // is attempting to come from an unverified session. FxA only allows fetching keys from
-          // sessions that are verified (ex. performed some email verification loop).
+        } else if (
+          options.password &&
+          (await this.sessionVerificationStatus()).sessionVerified
+        ) {
           const res = await this._fxaClient.sessionReauth(
             this.get('sessionToken'),
             this.get('email'),

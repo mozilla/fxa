@@ -2058,8 +2058,7 @@ describe('models/account', function () {
 
   describe('changePassword', function () {
     beforeEach(() => {
-      sinon.stub(account, 'generateEcosystemAnonId')
-        .callsFake(() => {});
+      sinon.stub(account, 'generateEcosystemAnonId').callsFake(() => {});
     });
 
     it('returns `INCORRECT_PASSWORD` error if old password is incorrect (event if passwords are the same)', function () {
@@ -2130,7 +2129,9 @@ describe('models/account', function () {
           );
 
           assert.isTrue(
-            account.generateEcosystemAnonId.calledWith({password: newPassword})
+            account.generateEcosystemAnonId.calledWith({
+              password: newPassword,
+            })
           );
           assert.equal(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
@@ -2143,8 +2144,7 @@ describe('models/account', function () {
 
   describe('completePasswordReset', function () {
     beforeEach(() => {
-      sinon.stub(account, 'generateEcosystemAnonId')
-        .callsFake(() => {});
+      sinon.stub(account, 'generateEcosystemAnonId').callsFake(() => {});
     });
 
     it('completes the password reset', function () {
@@ -2175,7 +2175,7 @@ describe('models/account', function () {
           );
 
           assert.isTrue(
-            account.generateEcosystemAnonId.calledWith({password: PASSWORD})
+            account.generateEcosystemAnonId.calledWith({ password: PASSWORD })
           );
           assert.ok(account.get('keyFetchToken'), 'new keyFetchToken');
           assert.equal(account.get('sessionToken'), 'new sessionToken');
@@ -3169,13 +3169,16 @@ describe('models/account', function () {
       );
     });
 
-    it('with password', async () => {
+    it('sets with password and a verified session', async () => {
       sandbox.stub(fxaClient, 'sessionReauth').resolves({
         keyFetchToken: 'keyFetchToken',
         unwrapBKey: 'unwrapBKey',
       });
       sandbox.stub(fxaClient, 'accountKeys').resolves({
         kB: 'kB1',
+      });
+      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
+        sessionVerified: true,
       });
 
       await account.generateEcosystemAnonId({
@@ -3192,6 +3195,23 @@ describe('models/account', function () {
       assert.isTrue(
         fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
       );
+    });
+
+    it('does not set with password and unverified session', async () => {
+      sandbox.spy(fxaClient, 'sessionReauth');
+      sandbox.spy(fxaClient, 'accountKeys');
+      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
+        sessionVerified: false,
+      });
+
+      await account.generateEcosystemAnonId({
+        password: 'passwordzxcv',
+      });
+
+      assert.isTrue(fxaClient.sessionReauth.notCalled);
+      assert.isTrue(fxaClient.accountKeys.notCalled);
+      assert.isTrue(aet.generateEcosystemAnonID.notCalled);
+      assert.isTrue(fxaClient.updateEcosystemAnonId.notCalled);
     });
 
     it('swallow any errors', async () => {
