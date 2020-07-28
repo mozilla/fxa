@@ -1280,6 +1280,12 @@ const conf = convict({
       default: '2 hours',
       env: 'FLOW_ID_EXPIRY',
     },
+    telemetryEndpoint: {
+      doc: 'telemetry endpoint uri',
+      format: 'url',
+      default: 'https://incoming.telemetry.mozilla.org',
+      env: 'TELEMETRY_ENDPOINT',
+    },
   },
   statsd: {
     enabled: {

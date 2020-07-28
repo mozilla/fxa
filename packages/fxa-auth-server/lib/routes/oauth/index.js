@@ -16,6 +16,8 @@
  */
 
 const Joi = require('@hapi/joi');
+const requestLib = require('request');
+const uuid = require('uuid');
 const validators = require('../../routes/validators');
 const {
   clientAuthValidators,
@@ -294,10 +296,23 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
           const account = await db.account(uid);
           const ecosystemAnonId = account.ecosystemAnonId;
 
+          const metricsEndpoint = `${
+            config.metrics.telemetryEndpoint
+          }/submit/firefox-accounts/account-ecosystem/1/${uuid
+            .v4('binary')
+            .toString('hex')}`;
+
+          requestLib.post(metricsEndpoint, {
+            form: {
+              submission_timestamp: new Date().toISOString(),
+              user_agent: 'FxA Server',
+              ecosystemAnonId,
+            },
+          });
+
           await request.emitMetricsEvent('oauth.token.created', {
             grantType: request.payload.grant_type,
             uid,
-            ecosystemAnonId,
           });
         } catch (ex) {}
 

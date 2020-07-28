@@ -16,7 +16,6 @@ const JWTIdToken = require(`${ROOT_DIR}/lib/oauth/jwt_id_token`);
 
 const MOCK_CLIENT_ID = '0123456789abcdef';
 const MOCK_USER_ID = '0123456789abcdef0123456789abcdef';
-const MOCK_ANON_ID = 'ANONYMOUSID0987654321';
 const MOCK_SCOPES = 'profile https://identity.mozilla.com/apps/scoped-example';
 const MOCK_UNIX_TIMESTAMP = Math.round(Date.now() / 1000);
 const MOCK_TOKEN =
@@ -34,14 +33,13 @@ const MOCK_TOKEN_RESPONSE = {
 };
 
 describe('/oauth/ routes', () => {
-  let mockOAuthDB, mockDB, mockLog, mockConfig, sessionToken;
+  let mockOAuthDB, mockLog, mockConfig, sessionToken;
 
   async function loadAndCallRoute(path, request) {
     const routes = require('../../../lib/routes/oauth')(
       mockLog,
       mockConfig,
-      mockOAuthDB,
-      mockDB,
+      mockOAuthDB
     );
     const route = await getRoute(routes, path);
     if (route.options.validate.payload) {
@@ -313,11 +311,6 @@ describe('/oauth/ routes', () => {
           return MOCK_TOKEN_RESPONSE;
         }),
       });
-      mockDB = mocks.mockDB({
-        ecosystemAnonId: MOCK_ANON_ID,
-        email: 'foo@example.com',
-        uid: MOCK_USER_ID
-      });
       sessionToken = await mockSessionToken();
       const mockRequest = mocks.mockRequest({
         credentials: sessionToken,
@@ -339,13 +332,10 @@ describe('/oauth/ routes', () => {
           access_type: 'online',
         }
       );
-      assert.called(mockDB.account);
-      assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
       assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
         grantType: 'fxa-credentials',
         uid: MOCK_USER_ID,
-        ecosystemAnonId: MOCK_ANON_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -355,11 +345,6 @@ describe('/oauth/ routes', () => {
         grantTokensFromAuthorizationCode: sinon.spy(async () => {
           return MOCK_TOKEN_RESPONSE;
         }),
-      });
-      mockDB = mocks.mockDB({
-        ecosystemAnonId: MOCK_ANON_ID,
-        email: 'foo@example.com',
-        uid: MOCK_USER_ID
       });
       const mockRequest = mocks.mockRequest({
         credentials: sessionToken,
@@ -378,13 +363,10 @@ describe('/oauth/ routes', () => {
         code: MOCK_AUTHORIZATION_CODE,
         grant_type: 'authorization_code',
       });
-      assert.called(mockDB.account);
-      assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
       assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
         grantType: 'authorization_code',
         uid: MOCK_USER_ID,
-        ecosystemAnonId: MOCK_ANON_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -394,11 +376,6 @@ describe('/oauth/ routes', () => {
         grantTokensFromAuthorizationCode: sinon.spy(async () => {
           return MOCK_TOKEN_RESPONSE;
         }),
-      });
-      mockDB = mocks.mockDB({
-        ecosystemAnonId: MOCK_ANON_ID,
-        email: 'foo@example.com',
-        uid: MOCK_USER_ID
       });
       const mockRequest = mocks.mockRequest({
         credentials: sessionToken,
@@ -418,14 +395,10 @@ describe('/oauth/ routes', () => {
         code: MOCK_AUTHORIZATION_CODE,
         grant_type: 'authorization_code',
       });
-
-      assert.called(mockDB.account);
-      assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
       assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
         grantType: 'authorization_code',
         uid: MOCK_USER_ID,
-        ecosystemAnonId: MOCK_ANON_ID,
       });
 
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -436,11 +409,6 @@ describe('/oauth/ routes', () => {
         grantTokensFromRefreshToken: sinon.spy(async () => {
           return MOCK_TOKEN_RESPONSE;
         }),
-      });
-      mockDB = mocks.mockDB({
-        ecosystemAnonId: MOCK_ANON_ID,
-        email: 'foo@example.com',
-        uid: MOCK_USER_ID
       });
       const mockRequest = mocks.mockRequest({
         credentials: sessionToken,
@@ -460,13 +428,10 @@ describe('/oauth/ routes', () => {
         refresh_token: MOCK_AUTHORIZATION_CODE,
         grant_type: 'refresh_token',
       });
-      assert.called(mockDB.account);
-      assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
       assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
         grantType: 'refresh_token',
         uid: MOCK_USER_ID,
-        ecosystemAnonId: MOCK_ANON_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -476,11 +441,6 @@ describe('/oauth/ routes', () => {
         grantTokensFromSessionToken: sinon.spy(async () => {
           return MOCK_TOKEN_RESPONSE;
         }),
-      });
-      mockDB = mocks.mockDB({
-        ecosystemAnonId: MOCK_ANON_ID,
-        email: 'foo@example.com',
-        uid: MOCK_USER_ID
       });
       sessionToken = await mockSessionToken();
       const mockRequest = mocks.mockRequest({
@@ -504,13 +464,10 @@ describe('/oauth/ routes', () => {
           access_type: 'online',
         }
       );
-      assert.called(mockDB.account);
-      assert.calledWithExactly(mockDB.account, MOCK_USER_ID);
       assert.calledOnce(mockEmitMetricsEvent);
       assert.calledWithExactly(mockEmitMetricsEvent, 'oauth.token.created', {
         grantType: 'fxa-credentials',
         uid: MOCK_USER_ID,
-        ecosystemAnonId: MOCK_ANON_ID,
       });
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
     });
@@ -554,7 +511,6 @@ describe('/oauth/ routes', () => {
         revokeAccessToken: sinon.spy(NOTFOUND),
         revokeRefreshToken: sinon.spy(NOTFOUND),
       });
-      mockDB = mocks.mockDB({ecosystemAnonId: MOCK_ANON_ID});
       const mockRequest = mocks.mockRequest({
         payload: {
           client_id: MOCK_CLIENT_ID,
