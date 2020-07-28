@@ -67,15 +67,25 @@ button {
       background: $error-background-color;
     }
 
-    // 'type' is needed for selector specificity
-    &[type='submit'] {
-      &:active:enabled,
-      &:active:enabled:hover {
-        background: darken($error-background-color, 10);
+    &:enabled {
+      &:hover {
+        background: $error-background-color-hover;
       }
 
-      &:hover:enabled {
-        background: darken($error-background-color, 5);
+      &:active {
+        background: $error-background-color-active;
+      }
+
+      // 'type' is needed for selector specificity
+      &[type='submit'] {
+        &:active,
+        &:active:hover {
+          background: darken($error-background-color, 10);
+        }
+
+        &:hover {
+          background: darken($error-background-color, 5);
+        }
       }
     }
   }
