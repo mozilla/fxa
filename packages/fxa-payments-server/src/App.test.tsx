@@ -72,11 +72,9 @@ describe('App', () => {
     ].forEach((testid) =>
       expect(screen.queryByTestId(testid)).toBeInTheDocument()
     );
-    [
-      'Firefox Accounts',
-      'Account Home',
-      'Subscriptions & Payments',
-    ].forEach((text) => expect(screen.queryByText(text)).toBeInTheDocument());
+    ['Firefox Accounts', 'Account Home', 'Subscriptions'].forEach((text) =>
+      expect(screen.queryByText(text)).toBeInTheDocument()
+    );
   });
 
   const commonRoutePathTest = (
