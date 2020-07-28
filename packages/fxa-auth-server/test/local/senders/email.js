@@ -218,7 +218,7 @@ const TESTS = new Map([
       { test: 'include', expected: configHref('subscriptionSettingsUrl', 'subscription-first-invoice', 'cancel-subscription', 'plan_id', 'product_id', 'uid', 'email') },
       { test: 'include', expected: configHref('subscriptionTermsUrl', 'subscription-first-invoice', 'subscription-terms') },
       { test: 'include', expected: configHref('subscriptionSupportUrl', 'subscription-first-invoice', 'subscription-support') },
-      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}!` },
+      { test: 'include', expected: `Thank you for subscribing to ${MESSAGE.productName}` },
       { test: 'include', expected: `start using ${MESSAGE.productName}` },
       { test: 'include', expected: `Invoice Number: <b>${MESSAGE.invoiceNumber}</b>` },
       { test: 'include', expected: `MasterCard card ending in 5309` },
@@ -1249,9 +1249,9 @@ describe('lib/senders/email:', () => {
       123,
       'USD',
       'en-US;q=0.5,en;q=0.3,en-NZ'
-    )
-    assert.equal(result, 'US$1.23')
-  })
+    );
+    assert.equal(result, 'US$1.23');
+  });
 
   it('formats user-agent strings sanely', () => {
     let result = mailer._formatUserAgentInfo({
@@ -1823,7 +1823,10 @@ describe('email translations', () => {
         'ru',
         'language header is correct'
       );
-      assert.include(emailConfig.subject, 'Добавлена альтернативная эл. почта');
+      assert.include(
+        emailConfig.subject,
+        'Добавлена альтернативная электронная почта'
+      );
       // assert.include(emailConfig.html, 'Подсоединить другое устройство');
     });
 

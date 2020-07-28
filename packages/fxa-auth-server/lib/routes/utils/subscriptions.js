@@ -10,7 +10,7 @@ const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
 
 const SubscriptionUtils = (module.exports = {
   // Parse a comma-separated list of capabilities with allowance for varied whitespace
-  /** @type {(s: [string]) => string[]} */
+  /** @type {(s: string) => string[]} */
   splitCapabilities: (s) =>
     (s || '')
       .trim()
@@ -67,7 +67,11 @@ const SubscriptionUtils = (module.exports = {
  * @param {string} email
  */
 async function fetchSubscribedProductsFromStripe(uid, stripeHelper, email) {
-  const customer = await stripeHelper.customer(uid, email, false, true);
+  const customer = await stripeHelper.customer({
+    uid,
+    email,
+    cacheOnly: true,
+  });
   if (!customer || !customer.subscriptions.data) {
     return [];
   }

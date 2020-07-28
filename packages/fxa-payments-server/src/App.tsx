@@ -144,7 +144,7 @@ const AppRoutesV1 = () => {
         exact
         render={(props) => (
           <SettingsLayout>
-            <Subscriptions {...props} />
+            <Subscriptions {...{ ...props, useSCAPaymentFlow: false }} />
           </SettingsLayout>
         )}
       />
@@ -170,7 +170,7 @@ const AppRoutesV2 = () => {
         exact
         render={(props) => (
           <SettingsLayout>
-            <Subscriptions {...props} />
+            <Subscriptions {...{ ...props, useSCAPaymentFlow: true }} />
           </SettingsLayout>
         )}
       />

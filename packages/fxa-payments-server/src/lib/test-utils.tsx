@@ -93,8 +93,8 @@ export const setupMockConfig = (config?: typeof mockConfig) => {
 
 // Minimal mock for react-stripe-elements that lets us trigger onChange
 // handlers with testing data
-const MockStripeElement = ({ testid }: { testid: string }) =>
-  class extends React.Component {
+const MockStripeElement = ({ testid }: { testid: string }) => {
+  const mockElement = class extends React.Component {
     _ref: null;
     setRef: (el: any) => void;
 
@@ -120,6 +120,14 @@ const MockStripeElement = ({ testid }: { testid: string }) =>
       );
     }
   };
+  // Ensure we have a test ID to identify which kind of Stripe
+  // element this is, later on. Using Object.defineProperty because
+  // a simple mockElement.testid = testid makes TypeScript angry
+  return Object.defineProperty(mockElement, 'testid', {
+    value: testid,
+    writable: false,
+  });
+};
 
 // onChange handler registry - indexed by per-component testid, of which
 // there should only be one instance per PaymentForm
@@ -186,7 +194,9 @@ jest.setMock(
     // only checks that these things are truthy
     useStripe: jest.fn(() => ({})),
     useElements: jest.fn(() => ({
-      getElement: () => ({}),
+      // Mocked getElement passes along the mock element test ID to verify
+      // the kind of Stripe element
+      getElement: (el: any) => ({ isMockElement: true, testid: el.testid }),
     })),
     CardElement: MockStripeElement({ testid: 'cardElement' }),
   })

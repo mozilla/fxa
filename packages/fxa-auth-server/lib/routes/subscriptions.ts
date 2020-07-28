@@ -1,26 +1,30 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-'use strict';
-
-const Sentry = require('@sentry/node');
-const error = require('../error');
-const isA = require('@hapi/joi');
-const { omitBy } = require('lodash');
-// @ts-ignore
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const validators = require('./validators');
-const { splitCapabilities } = require('./utils/subscriptions');
-const { SUBSCRIPTION_UPDATE_TYPES } = require('../payments/stripe');
-// @ts-ignore
-const {
+import isA from '@hapi/joi';
+import * as Sentry from '@sentry/node';
+import ScopeSet from 'fxa-shared/oauth/scopes';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import {
+  DeepPartial,
   filterCustomer,
-  filterSubscription,
-  filterInvoice,
   filterIntent,
-} = require('fxa-shared').subscriptions.stripe;
-const { metadataFromPlan } = require('fxa-shared').subscriptions.metadata;
+  filterInvoice,
+  filterSubscription,
+} from 'fxa-shared/subscriptions/stripe';
+import omitBy from 'lodash/omitBy';
+import { Stripe } from 'stripe';
+
+import { ConfigType } from '../../config';
+import error from '../error';
+import {
+  AbbrevPlan,
+  StripeHelper,
+  SUBSCRIPTION_UPDATE_TYPES,
+} from '../payments/stripe';
+import { AuthLogger, AuthRequest } from '../types';
+import { splitCapabilities } from './utils/subscriptions';
+import validators from './validators';
 
 const SUBSCRIPTIONS_MANAGEMENT_SCOPE =
   'https://identity.mozilla.com/account/subscriptions';
@@ -30,28 +34,10 @@ const IGNORABLE_STRIPE_WEBHOOK_ERRNOS = [
   error.ERRNO.BOUNCE_HARD,
 ];
 
-/** @typedef {import('@hapi/hapi').Request} Request */
-/** @typedef {import('stripe').Stripe.Customer} Customer */
-/** @typedef {import('stripe').Stripe.Source} Source */
-/** @typedef {import('stripe').Stripe.Source.Card} Card */
-/** @typedef {import('stripe').Stripe.Event} Event */
-/** @typedef {import('stripe').Stripe.Subscription} Subscription */
-/** @typedef {import('stripe').Stripe.Plan} Plan */
-/** @typedef {import('stripe').Stripe.Product} Product */
-/** @typedef {import('stripe').Stripe.Invoice} Invoice */
-/** @typedef {import('stripe').Stripe.InvoiceLineItem} InvoiceLineItem */
-/** @typedef {import('stripe').Stripe.PaymentIntent} PaymentIntent */
-/** @typedef {import('stripe').Stripe.Charge} Charge */
-/** @typedef {import('../payments/stripe.js').AbbrevPlan} AbbrevPlan*/
-
 /**
  * Authentication handler for subscription routes.
- *
- * @param {*} db
- * @param {*} auth
- * @param {*} fetchEmail
  */
-async function handleAuth(db, auth, fetchEmail = false) {
+async function handleAuth(db: any, auth: any, fetchEmail = false) {
   const scope = ScopeSet.fromArray(auth.credentials.scope);
   if (!scope.contains(SUBSCRIPTIONS_MANAGEMENT_SCOPE)) {
     throw error.invalidScopes();
@@ -71,15 +57,13 @@ async function handleAuth(db, auth, fetchEmail = false) {
  * Delete any metadata keys prefixed by `capabilities:` before
  * sending response. We don't need to reveal those.
  * https://github.com/mozilla/fxa/issues/3273#issuecomment-552637420
- *
- * @param {AbbrevPlan[]} plans
  */
-function sanitizePlans(plans) {
+function sanitizePlans(plans: AbbrevPlan[]) {
   return plans.map((planIn) => {
     // Try not to mutate the original in case we cache plans in memory.
     const plan = { ...planIn };
-    /** @type {(value: string, key: string) => boolean} */
-    const isCapabilityKey = (value, key) => key.startsWith('capabilities');
+    const isCapabilityKey = (value: string, key: string) =>
+      key.startsWith('capabilities');
     plan.plan_metadata = omitBy(plan.plan_metadata, isCapabilityKey);
     plan.product_metadata = omitBy(plan.product_metadata, isCapabilityKey);
     return plan;
@@ -87,36 +71,21 @@ function sanitizePlans(plans) {
 }
 
 class DirectStripeRoutes {
-  /**
-   *
-   * @param {*} log
-   * @param {*} db
-   * @param {*} config
-   * @param {*} customs
-   * @param {*} push
-   * @param {*} mailer
-   * @param {*} profile
-   * @param {import('../payments/stripe').StripeHelper} stripeHelper
-   */
-  constructor(log, db, config, customs, push, mailer, profile, stripeHelper) {
-    this.log = log;
-    this.db = db;
-    this.config = config;
-    this.customs = customs;
-    this.push = push;
-    this.mailer = mailer;
-    this.profile = profile;
-    this.stripeHelper = stripeHelper;
-  }
+  constructor(
+    private log: AuthLogger,
+    private db: any,
+    private config: ConfigType,
+    private customs: any,
+    private push: any,
+    private mailer: any,
+    private profile: any,
+    private stripeHelper: StripeHelper
+  ) {}
 
   /**
    * Reload the customer data to reflect a change.
-   *
-   * @param {*} request
-   * @param {string} uid
-   * @param {string} email
    */
-  async customerChanged(request, uid, email) {
+  async customerChanged(request: AuthRequest, uid: string, email: string) {
     const [devices] = await Promise.all([
       await request.app.devices,
       await this.stripeHelper.refreshCachedCustomer(uid, email),
@@ -131,18 +100,14 @@ class DirectStripeRoutes {
 
   /**
    * Retrieve the client capabilities
-   *
-   * @param {*} request
    */
-  async getClients(request) {
+  async getClients(request: AuthRequest) {
     this.log.begin('subscriptions.getClients', request);
-    /** @type {{[clientId: string]: string[]}} */
-    const capabilitiesByClientId = {};
+    const capabilitiesByClientId: { [clientId: string]: string[] } = {};
 
     const plans = await this.stripeHelper.allPlans();
 
-    /** @type {string[]} */
-    const capabilitiesForAll = [];
+    const capabilitiesForAll: string[] = [];
     for (const plan of plans) {
       const metadata = metadataFromPlan(plan);
       if (metadata.capabilities) {
@@ -153,7 +118,7 @@ class DirectStripeRoutes {
       );
       for (const key of capabilityKeys) {
         const clientId = key.split(':')[1];
-        const capabilities = splitCapabilities(metadata[key]);
+        const capabilities = splitCapabilities((metadata as any)[key]);
         capabilitiesByClientId[clientId] = (
           capabilitiesByClientId[clientId] || []
         ).concat(capabilities);
@@ -172,7 +137,7 @@ class DirectStripeRoutes {
     );
   }
 
-  async createSubscription(request) {
+  async createSubscription(request: AuthRequest) {
     this.log.begin('subscriptions.createSubscription', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
@@ -184,7 +149,7 @@ class DirectStripeRoutes {
       paymentToken,
       displayName,
       idempotencyKey,
-    } = request.payload;
+    } = request.payload as any;
 
     // Find the selected plan and get its product ID
     const selectedPlan = await this.stripeHelper.findPlanById(planId);
@@ -246,23 +211,15 @@ class DirectStripeRoutes {
 
   /**
    * Create Subscription for New Customer
-   *
-   * @param {string} uid
-   * @param {string} email
-   * @param {string} displayName
-   * @param {string} paymentToken
-   * @param {AbbrevPlan} selectedPlan
-   *
-   * @returns {Promise<Subscription>}
    */
   async createSubscriptionNewCustomer(
-    uid,
-    email,
-    displayName,
-    paymentToken,
-    selectedPlan,
-    idempotencyKey
-  ) {
+    uid: string,
+    email: string,
+    displayName: string,
+    paymentToken: string,
+    selectedPlan: AbbrevPlan,
+    idempotencyKey: string
+  ): Promise<Stripe.Subscription> {
     // This method invokes *two* create methods, both of which accept an
     // idempotency key. Since that key can only be used once we're just adding
     // an additional piece to the customer request. If this method is invoked
@@ -286,19 +243,13 @@ class DirectStripeRoutes {
 
   /**
    * Create Subscription for Existing Customer
-   *
-   * @param {Customer} customer
-   * @param {string} paymentToken
-   * @param {AbbrevPlan} selectedPlan
-   *
-   * @returns {Promise<Subscription>}
    */
   async createSubscriptionExistingCustomer(
-    customer,
-    paymentToken,
-    selectedPlan,
-    idempotencyKey
-  ) {
+    customer: Stripe.Customer,
+    paymentToken: string,
+    selectedPlan: AbbrevPlan,
+    idempotencyKey: string
+  ): Promise<Stripe.Subscription> {
     if (paymentToken) {
       // Always update the source if we are given a paymentToken
       // Note that if the customer already exists and we were not
@@ -317,7 +268,14 @@ class DirectStripeRoutes {
 
     // If the user has a subscription to the product
     if (subscription) {
-      // AND the plan is differetn
+      // AND the plan is different
+      if (!subscription.plan) {
+        throw error.internalValidationError(
+          'createSubscriptionExistingCustomer',
+          { subscription: subscription.id },
+          'Subscriptions with multiple plans not supported.'
+        );
+      }
       if (subscription.plan.id !== selectedPlan.plan_id) {
         throw error.userAlreadySubscribedToProduct();
       }
@@ -327,7 +285,14 @@ class DirectStripeRoutes {
       //   2) Paid subscription, stop and return as they already have the sub
       //   3) Old subscription will have no open invoices, ignore it
       if (subscription.latest_invoice) {
-        const invoice = /** @type {Invoice} */ (subscription.latest_invoice);
+        if (typeof subscription.latest_invoice === 'string') {
+          throw error.internalValidationError(
+            'createSubscriptionExistingCustomer',
+            { subscription: subscription.id },
+            'latest_invoice for subscription was not expanded during load.'
+          );
+        }
+        const invoice = subscription.latest_invoice;
         if (invoice.status === 'open') {
           await this.handleOpenInvoice(invoice);
           return subscription;
@@ -344,10 +309,7 @@ class DirectStripeRoutes {
     );
   }
 
-  /**
-   * @param {Invoice} invoice
-   */
-  async handleOpenInvoice(invoice) {
+  async handleOpenInvoice(invoice: Stripe.Invoice) {
     const payment_intent = await this.stripeHelper.fetchPaymentIntentFromInvoice(
       invoice
     );
@@ -364,28 +326,50 @@ class DirectStripeRoutes {
     await this.stripeHelper.payInvoice(invoice.id);
   }
 
-  findCustomerSubscriptionByPlanId(customer, planId) {
-    const subscription = customer.subscriptions.data.find(
+  findCustomerSubscriptionByPlanId(
+    customer: Stripe.Customer,
+    planId: string
+  ): Stripe.Subscription | undefined {
+    if (!customer.subscriptions) {
+      throw error.internalValidationError(
+        'findCustomerSubscriptionByPlanId',
+        {
+          customerId: customer.id,
+        },
+        'Expected subscriptions to be loaded.'
+      );
+    }
+    return customer.subscriptions.data.find(
       (sub) => sub.items.data.find((item) => item.plan.id === planId) != null
     );
-
-    return subscription;
   }
 
-  findCustomerSubscriptionByProductId(customer, productId) {
-    const subscription = customer.subscriptions.data.find(
+  findCustomerSubscriptionByProductId(
+    customer: Stripe.Customer,
+    productId: string
+  ): Stripe.Subscription | undefined {
+    if (!customer.subscriptions) {
+      throw error.internalValidationError(
+        'findCustomerSubscriptionByProductId',
+        {
+          customerId: customer.id,
+        },
+        'Expected subscriptions to be loaded.'
+      );
+    }
+    return customer.subscriptions.data.find(
       (sub) =>
         sub.items.data.find(
           (item) =>
             item.plan.product === productId ||
-            item.plan.product.id === productId
+            (item.plan.product &&
+              typeof item.plan.product !== 'string' &&
+              item.plan.product.id)
         ) != null
     );
-
-    return subscription;
   }
 
-  async deleteSubscription(request) {
+  async deleteSubscription(request: AuthRequest) {
     this.log.begin('subscriptions.deleteSubscription', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
@@ -410,13 +394,13 @@ class DirectStripeRoutes {
     return { subscriptionId };
   }
 
-  async updatePayment(request) {
+  async updatePayment(request: AuthRequest) {
     this.log.begin('subscriptions.updatePayment', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updatePayment');
 
-    const { paymentToken } = request.payload;
+    const { paymentToken } = request.payload as Record<string, string>;
 
     const customer = await this.stripeHelper.fetchCustomer(uid, email);
     if (!customer) {
@@ -434,14 +418,14 @@ class DirectStripeRoutes {
     return {};
   }
 
-  async reactivateSubscription(request) {
+  async reactivateSubscription(request: AuthRequest) {
     this.log.begin('subscriptions.reactivateSubscription', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
 
     await this.customs.check(request, email, 'reactivateSubscription');
 
-    const { subscriptionId } = request.payload;
+    const { subscriptionId } = request.payload as Record<string, string>;
 
     await this.stripeHelper.reactivateSubscriptionForCustomer(
       uid,
@@ -459,7 +443,7 @@ class DirectStripeRoutes {
     return {};
   }
 
-  async updateSubscription(request) {
+  async updateSubscription(request: AuthRequest) {
     this.log.begin('subscriptions.updateSubscription', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
@@ -467,7 +451,7 @@ class DirectStripeRoutes {
     await this.customs.check(request, email, 'updateSubscription');
 
     const { subscriptionId } = request.params;
-    const { planId } = request.payload;
+    const { planId } = request.payload as Record<string, string>;
 
     const subscription = await this.stripeHelper.subscriptionForCustomer(
       uid,
@@ -476,6 +460,14 @@ class DirectStripeRoutes {
     );
     if (!subscription) {
       throw error.unknownSubscription();
+    }
+
+    if (!subscription.plan) {
+      throw error.internalValidationError(
+        'updateSubscription',
+        { subscription: subscription.id },
+        'Subscriptions with multiple plans not supported.'
+      );
     }
 
     const currentPlanId = subscription.plan.id;
@@ -494,21 +486,33 @@ class DirectStripeRoutes {
     return { subscriptionId };
   }
 
-  async listPlans(request) {
+  async listPlans(request: AuthRequest) {
     this.log.begin('subscriptions.listPlans', request);
     await handleAuth(this.db, request.auth);
     const plans = await this.stripeHelper.allPlans();
     return sanitizePlans(plans);
   }
 
-  async listActive(request) {
+  async listActive(request: AuthRequest) {
     this.log.begin('subscriptions.listActive', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer(uid, email, false, true);
+    const customer = await this.stripeHelper.customer({
+      uid,
+      email,
+      cacheOnly: true,
+    });
     const activeSubscriptions = [];
 
     if (customer && customer.subscriptions) {
       for (const subscription of customer.subscriptions.data) {
+        if (!subscription.plan) {
+          throw error.internalValidationError(
+            'listActive',
+            { subscription: subscription.id },
+            'Subscriptions with multiple plans not supported.'
+          );
+        }
+
         const {
           id: subscriptionId,
           created,
@@ -531,10 +535,8 @@ class DirectStripeRoutes {
 
   /**
    * Extracts card details if a customer has a source on file.
-   *
-   * @param {Customer} customer
    */
-  extractCardDetails(customer) {
+  extractCardDetails(customer: Stripe.Customer) {
     const defaultPayment = customer.invoice_settings.default_payment_method;
     if (defaultPayment) {
       if (typeof defaultPayment === 'string') {
@@ -571,7 +573,7 @@ class DirectStripeRoutes {
     return {};
   }
 
-  async getCustomer(request) {
+  async getCustomer(request: AuthRequest) {
     this.log.begin('subscriptions.getCustomer', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
@@ -584,9 +586,19 @@ class DirectStripeRoutes {
     }
     const cardDetails = this.extractCardDetails(customer);
     const response = {
-      subscriptions: [],
+      // Less than ideal to type as any, but using the ReturnType of below
+      // didn't work any better. 🤷‍♀️
+      subscriptions: [] as any[],
       ...cardDetails,
     };
+
+    if (!customer.subscriptions) {
+      throw error.internalValidationError(
+        'listActive',
+        { customerId: customer.id },
+        'Customer has no subscriptions.'
+      );
+    }
 
     response.subscriptions = await this.stripeHelper.subscriptionsToResponse(
       customer.subscriptions
@@ -598,20 +610,23 @@ class DirectStripeRoutes {
    * Create a customer.
    *
    * New PaymentMethod flow.
-   *
-   * @param {*} request
    */
-  async createCustomer(request) {
+  async createCustomer(
+    request: AuthRequest
+  ): Promise<DeepPartial<Stripe.Customer>> {
     this.log.begin('subscriptions.createCustomer', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createCustomer');
 
-    let customer = await this.stripeHelper.customer(uid, email);
+    let customer = await this.stripeHelper.customer({ uid, email });
     if (customer) {
       return customer;
     }
 
-    const { displayName, idempotencyKey } = request.payload;
+    const { displayName, idempotencyKey } = request.payload as Record<
+      string,
+      string
+    >;
     const customerIdempotencyKey = `${idempotencyKey}-customer`;
     customer = await this.stripeHelper.createPlainCustomer(
       uid,
@@ -626,20 +641,22 @@ class DirectStripeRoutes {
    * Retry an invoice by attaching a new payment method id for use.
    *
    * New PaymentMethod flow.
-   *
-   * @param {*} request
    */
-  async retryInvoice(request) {
+  async retryInvoice(request: AuthRequest) {
     this.log.begin('subscriptions.retryInvoice', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'retryInvoice');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
 
-    const { invoiceId, paymentMethodId, idempotencyKey } = request.payload;
+    const {
+      invoiceId,
+      paymentMethodId,
+      idempotencyKey,
+    } = request.payload as Record<string, string>;
     const retryIdempotencyKey = `${idempotencyKey}-retryInvoice`;
     const invoice = await this.stripeHelper.retryInvoiceWithPaymentId(
       customer.id,
@@ -654,20 +671,24 @@ class DirectStripeRoutes {
    * Create a subscription for a user.
    *
    * New PaymentMethod flow.
-   *
-   * @param {*} request
    */
-  async createSubscriptionWithPMI(request) {
+  async createSubscriptionWithPMI(
+    request: AuthRequest
+  ): Promise<DeepPartial<Stripe.Subscription>> {
     this.log.begin('subscriptions.createSubscriptionWithPMI', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
 
-    const { priceId, paymentMethodId, idempotencyKey } = request.payload;
+    const {
+      priceId,
+      paymentMethodId,
+      idempotencyKey,
+    } = request.payload as Record<string, string>;
 
     const subIdempotencyKey = `${idempotencyKey}-createSub`;
     const subscription = await this.stripeHelper.createSubscriptionWithPMI({
@@ -683,15 +704,13 @@ class DirectStripeRoutes {
   /**
    * Create a new SetupIntent that will be attached to the current customer
    * after it succeeds.
-   *
-   * @param {*} request
    */
-  async createSetupIntent(request) {
+  async createSetupIntent(request: AuthRequest) {
     this.log.begin('subscriptions.createSetupIntent', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createSetupIntent');
 
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
@@ -702,44 +721,40 @@ class DirectStripeRoutes {
   /**
    * Updates what payment method is used by default on new invoices for the
    * customer.
-   *
-   * @param {*} request
    */
-  async updateDefaultPaymentMethod(request) {
+  async updateDefaultPaymentMethod(request: AuthRequest) {
     this.log.begin('subscriptions.updateDefaultPaymentMethod', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'updateDefaultPaymentMethod');
 
-    let customer = await this.stripeHelper.customer(uid, email);
+    let customer = await this.stripeHelper.customer({ uid, email });
     if (!customer) {
       throw error.unknownCustomer(uid);
     }
 
-    const { paymentMethodId } = request.payload;
-
-    // Verify the payment method is already attached to the customer
-    const alreadyAttached = !!customer.sources.data.find(
-      (pm) => pm.id === paymentMethodId
-    );
-    if (!alreadyAttached) {
-      throw error.rejectedCustomerUpdate('Invalid payment method id');
-    }
+    const { paymentMethodId } = request.payload as Record<string, string>;
 
     await this.stripeHelper.updateDefaultPaymentMethod(
       customer.id,
       paymentMethodId
     );
     // Refetch the customer and force a cache clear
-    customer = await this.stripeHelper.customer(uid, email, true);
+    customer = await this.stripeHelper.customer({
+      uid,
+      email,
+      forceRefresh: true,
+    });
+    if (!customer) {
+      // We had a customer, we really shouldn't lose it now.
+      throw error.unexpectedError(request);
+    }
     return filterCustomer(customer);
   }
 
   /**
    * Gather all capabilities granted by a product across all clients
-   *
-   * @param {*} productId
    */
-  async getProductCapabilities(productId) {
+  async getProductCapabilities(productId: string): Promise<string[]> {
     const plans = await this.stripeHelper.allPlans();
     const capabilitiesForProduct = [];
     for (const plan of plans) {
@@ -754,7 +769,9 @@ class DirectStripeRoutes {
         ),
       ];
       for (const key of capabilityKeys) {
-        capabilitiesForProduct.push(...splitCapabilities(metadata[key]));
+        capabilitiesForProduct.push(
+          ...splitCapabilities((metadata as any)[key])
+        );
       }
     }
     // Remove duplicates with Set
@@ -764,14 +781,14 @@ class DirectStripeRoutes {
 
   /**
    * Send a subscription status Service Notification event to SQS
-   *
-   * @param {*} request
-   * @param {string} uid
-   * @param {Event} event
-   * @param {{id: string, productId: string}} sub
-   * @param {boolean} isActive
    */
-  async sendSubscriptionStatusToSqs(request, uid, event, sub, isActive) {
+  async sendSubscriptionStatusToSqs(
+    request: AuthRequest,
+    uid: string,
+    event: Stripe.Event,
+    sub: { id: string; productId: string },
+    isActive: boolean
+  ) {
     this.log.notifyAttachedServices('subscription:update', request, {
       uid,
       eventCreatedAt: event.created,
@@ -785,20 +802,15 @@ class DirectStripeRoutes {
   /**
    * Update the customer and send subscription status update.
    *
-   * @param {*} request
-   * @param {Event} event
-   * @param {Subscription} sub
-   * @param {boolean} isActive
-   * @param {string} uidIn?
-   * @param {string} emailIn?
+   * It is expected that the subscription does *not* have the product expanded.
    */
   async updateCustomerAndSendStatus(
-    request,
-    event,
-    sub,
-    isActive,
-    uidIn = null,
-    emailIn = null
+    request: AuthRequest,
+    event: Stripe.Event,
+    sub: Stripe.Subscription,
+    isActive: boolean,
+    uidIn: string | null = null,
+    emailIn: string | null = null
   ) {
     let uid, email;
     if (uidIn && emailIn) {
@@ -813,26 +825,32 @@ class DirectStripeRoutes {
         email,
       } = await this.stripeHelper.getCustomerUidEmailFromSubscription(sub));
     }
-    if (!uid) {
+    if (!uid || !email) {
       return;
     }
     await this.updateCustomer(uid, email);
+    if (!sub.plan || typeof sub.plan.product !== 'string') {
+      throw error.internalValidationError(
+        'updateCustomerAndSendStatus',
+        {
+          subscriptionId: sub.id,
+        },
+        'Expected subscription to have a single plan with product not expanded.'
+      );
+    }
     await this.sendSubscriptionStatusToSqs(
       request,
       uid,
       event,
-      { id: sub.id, productId: /** @type {string} */ (sub.plan.product) },
+      { id: sub.id, productId: sub.plan.product },
       isActive
     );
   }
 
   /**
    * Refresh the cached customer and invalidate profile cache.
-   *
-   * @param {*} uid
-   * @param {*} email
    */
-  async updateCustomer(uid, email) {
+  async updateCustomer(uid: string, email: string) {
     await this.stripeHelper.refreshCachedCustomer(uid, email);
     await this.profile.deleteCache(uid);
   }
@@ -841,10 +859,8 @@ class DirectStripeRoutes {
    * Handle webhook events from Stripe by pre-processing the incoming
    * event and dispatching to the appropriate sub-handler. Log an info
    * message for events we don't yet handle.
-   *
-   * @param {*} request
    */
-  async handleWebhookEvent(request) {
+  async handleWebhookEvent(request: AuthRequest) {
     try {
       const event = this.stripeHelper.constructWebhookEvent(
         request.payload,
@@ -898,12 +914,12 @@ class DirectStripeRoutes {
    *
    * Only subscriptions that are active/trialing are valid. Emit an event for
    * those conditions only.
-   *
-   * @param {*} request
-   * @param {Event} event
    */
-  async handleSubscriptionCreatedEvent(request, event) {
-    const sub = /** @type {Subscription} */ (event.data.object);
+  async handleSubscriptionCreatedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const sub = event.data.object as Stripe.Subscription;
     if (['active', 'trialing'].includes(sub.status)) {
       return this.updateCustomerAndSendStatus(request, event, sub, true);
     }
@@ -915,19 +931,18 @@ class DirectStripeRoutes {
    * The only time this requires us to emit a subscription event is when an
    * existing incomplete subscription has now been completed. Unpaid renewals and
    * subscriptions that are cancelled result in a `subscription.deleted` event.
-   *
-   * @param {*} request
-   * @param {Event} event
    */
-  async handleSubscriptionUpdatedEvent(request, event) {
-    const stripeData = /** @type {import('stripe').Stripe.Event.Data } */ (event.data);
-    const sub = /** @type {Subscription} */ (stripeData.object);
+  async handleSubscriptionUpdatedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const sub = event.data.object as Stripe.Subscription;
     const { uid, email } = await this.sendSubscriptionUpdatedEmail(event);
 
     // if the subscription changed from 'incomplete' to 'active' or 'trialing'
     if (
       ['active', 'trialing'].includes(sub.status) &&
-      stripeData.previous_attributes.status === 'incomplete'
+      (event.data?.previous_attributes as any)?.status === 'incomplete'
     ) {
       return this.updateCustomerAndSendStatus(
         request,
@@ -942,12 +957,12 @@ class DirectStripeRoutes {
 
   /**
    * Handle `subscription.deleted` Stripe wehbook events.
-   *
-   * @param {*} request
-   * @param {Event} event
    */
-  async handleSubscriptionDeletedEvent(request, event) {
-    const sub = /** @type {Subscription} */ (event.data.object);
+  async handleSubscriptionDeletedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const sub = event.data.object as Stripe.Subscription;
     const { uid, email } = await this.sendSubscriptionDeletedEmail(sub);
     return this.updateCustomerAndSendStatus(
       request,
@@ -961,24 +976,24 @@ class DirectStripeRoutes {
 
   /**
    * Handle `invoice.payment_succeeded` Stripe wehbook events.
-   *
-   * @param {*} request
-   * @param {Event} event
    */
-  async handleInvoicePaymentSucceededEvent(request, event) {
-    const invoice = /** @type {Invoice} */ (event.data.object);
+  async handleInvoicePaymentSucceededEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const invoice = event.data.object as Stripe.Invoice;
     const { uid, email } = await this.sendSubscriptionInvoiceEmail(invoice);
     await this.updateCustomer(uid, email);
   }
 
   /**
    * Handle `invoice.payment_succeeded` Stripe wehbook events.
-   *
-   * @param {*} request
-   * @param {Event} event
    */
-  async handleInvoicePaymentFailedEvent(request, event) {
-    const invoice = /** @type {Invoice} */ (event.data.object);
+  async handleInvoicePaymentFailedEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const invoice = event.data.object as Stripe.Invoice;
     const { uid, email } = await this.sendSubscriptionPaymentFailedEmail(
       invoice
     );
@@ -987,12 +1002,12 @@ class DirectStripeRoutes {
 
   /**
    * Handle `customer.source.expiring` Stripe wehbook events.
-   *
-   * @param {*} request
-   * @param {Event} event
    */
-  async handleCustomerSourceExpiringEvent(request, event) {
-    const source = /** @type {Source} */ (event.data.object);
+  async handleCustomerSourceExpiringEvent(
+    request: AuthRequest,
+    event: Stripe.Event
+  ) {
+    const source = event.data.object as Stripe.Source;
     const { uid, email } = await this.sendSubscriptionPaymentExpiredEmail(
       source
     );
@@ -1001,10 +1016,8 @@ class DirectStripeRoutes {
 
   /**
    * Send out an email on payment expiration.
-   *
-   * @param {Source} paymentSource
    */
-  async sendSubscriptionPaymentExpiredEmail(paymentSource) {
+  async sendSubscriptionPaymentExpiredEmail(paymentSource: Stripe.Source) {
     const sourceDetails = await this.stripeHelper.extractSourceDetailsForEmail(
       paymentSource
     );
@@ -1023,10 +1036,8 @@ class DirectStripeRoutes {
 
   /**
    * Send out an email on payment failure.
-   *
-   * @param {Invoice} invoice
    */
-  async sendSubscriptionPaymentFailedEmail(invoice) {
+  async sendSubscriptionPaymentFailedEmail(invoice: Stripe.Invoice) {
     const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
       invoice
     );
@@ -1046,10 +1057,8 @@ class DirectStripeRoutes {
   /**
    * Send out the appropriate invoice email, depending on whether it's the
    * initial or a subsequent invoice.
-   *
-   * @param {Invoice} invoice
    */
-  async sendSubscriptionInvoiceEmail(invoice) {
+  async sendSubscriptionInvoiceEmail(invoice: Stripe.Invoice) {
     const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
       invoice
     );
@@ -1079,10 +1088,8 @@ class DirectStripeRoutes {
   /**
    * Send out the appropriate email on subscription update, depending on
    * whether the change was a subscription upgrade or downgrade.
-   *
-   * @param {Event} event
    */
-  async sendSubscriptionUpdatedEmail(event) {
+  async sendSubscriptionUpdatedEmail(event: Stripe.Event) {
     const eventDetails = await this.stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
       event
     );
@@ -1119,10 +1126,18 @@ class DirectStripeRoutes {
   /**
    * Send out the appropriate email on subscription deletion, depending on
    * whether the user still has an account.
-   *
-   * @param {Subscription} subscription
    */
-  async sendSubscriptionDeletedEmail(subscription) {
+  async sendSubscriptionDeletedEmail(subscription: Stripe.Subscription) {
+    if (typeof subscription.latest_invoice !== 'string') {
+      throw error.internalValidationError(
+        'sendSubscriptionDeletedEmail',
+        {
+          subscriptionId: subscription.id,
+          subscriptionInvoiceType: typeof subscription.latest_invoice,
+        },
+        'Subscription latest_invoice was not a string.'
+      );
+    }
     const invoiceDetails = await this.stripeHelper.extractInvoiceDetailsForEmail(
       subscription.latest_invoice
     );
@@ -1163,21 +1178,31 @@ class DirectStripeRoutes {
 
   /**
    * Get a list of subscriptions with a FxA UID and email address.
-   *
-   * @param {Request} request a Hapi request
-   * @returns {Promise<object[]>} Formatted list of subscriptions.
    */
-  async getSubscriptions(request) {
+  async getSubscriptions(request: AuthRequest) {
     this.log.begin('subscriptions.getSubscriptions', request);
 
     const { uid, email } = await handleAuth(this.db, request.auth, true);
-    const customer = await this.stripeHelper.customer(uid, email, false, true);
+    const customer = await this.stripeHelper.customer({
+      uid,
+      email,
+      cacheOnly: true,
+    });
 
     // A FxA user isn't always a customer.
     if (!customer) {
       return [];
     }
 
+    if (!customer.subscriptions) {
+      throw error.internalValidationError(
+        'getSubscriptions',
+        {
+          customerId: customer.id,
+        },
+        'Customer did not have any subscriptions.'
+      );
+    }
     const response = await this.stripeHelper.subscriptionsToResponse(
       customer.subscriptions
     );
@@ -1187,16 +1212,23 @@ class DirectStripeRoutes {
 
   /**
    * Get a list of subscriptions for support agents
-   *
-   * @param {Request} request a Hapi request
-   * @returns {Promise<object[]>} Formatted list of subscriptions.
    */
-  async getSubscriptionsForSupport(request) {
+  async getSubscriptionsForSupport(request: AuthRequest) {
     this.log.begin('subscriptions.getSubscriptionsForSupport', request);
-    const { uid, email } = request.query;
+    const { uid, email } = request.query as Record<string, string>;
 
     // We know that a user has to be a customer to create a support ticket
-    const customer = await this.stripeHelper.customer(uid, email);
+    const customer = await this.stripeHelper.customer({ uid, email });
+    if (!customer || !customer.subscriptions) {
+      throw error.internalValidationError(
+        'getSubscriptionsForSupport',
+        {
+          customerId: customer?.id,
+          uid,
+        },
+        'No customer object or no subscriptions object present for customer.'
+      );
+    }
     const response = await this.stripeHelper.formatSubscriptionsForSupport(
       customer.subscriptions
     );
@@ -1206,14 +1238,14 @@ class DirectStripeRoutes {
 }
 
 const directRoutes = (
-  log,
-  db,
-  config,
-  customs,
-  push,
-  mailer,
-  profile,
-  stripeHelper
+  log: AuthLogger,
+  db: any,
+  config: ConfigType,
+  customs: any,
+  push: any,
+  mailer: any,
+  profile: any,
+  stripeHelper: StripeHelper
 ) => {
   const directStripeRoutes = new DirectStripeRoutes(
     log,
@@ -1247,7 +1279,7 @@ const directRoutes = (
           ),
         },
       },
-      handler: (request) => directStripeRoutes.getClients(request),
+      handler: (request: AuthRequest) => directStripeRoutes.getClients(request),
     },
     {
       method: 'GET',
@@ -1261,7 +1293,7 @@ const directRoutes = (
           schema: isA.array().items(validators.subscriptionsPlanValidator),
         },
       },
-      handler: (request) => directStripeRoutes.listPlans(request),
+      handler: (request: AuthRequest) => directStripeRoutes.listPlans(request),
     },
     {
       method: 'GET',
@@ -1275,7 +1307,7 @@ const directRoutes = (
           schema: isA.array().items(validators.activeSubscriptionValidator),
         },
       },
-      handler: (request) => directStripeRoutes.listActive(request),
+      handler: (request: AuthRequest) => directStripeRoutes.listActive(request),
     },
     {
       method: 'POST',
@@ -1300,7 +1332,8 @@ const directRoutes = (
           }),
         },
       },
-      handler: (request) => directStripeRoutes.createSubscription(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.createSubscription(request),
     },
     {
       method: 'POST',
@@ -1316,7 +1349,8 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) => directStripeRoutes.updatePayment(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.updatePayment(request),
     },
     {
       method: 'GET',
@@ -1330,7 +1364,8 @@ const directRoutes = (
           schema: validators.subscriptionsCustomerValidator,
         },
       },
-      handler: (request) => directStripeRoutes.getCustomer(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.getCustomer(request),
     },
     {
       method: 'POST',
@@ -1350,7 +1385,8 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) => directStripeRoutes.createCustomer(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.createCustomer(request),
     },
     {
       method: 'POST',
@@ -1373,7 +1409,7 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) =>
+      handler: (request: AuthRequest) =>
         directStripeRoutes.createSubscriptionWithPMI(request),
     },
     {
@@ -1395,7 +1431,8 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) => directStripeRoutes.retryInvoice(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.retryInvoice(request),
     },
     {
       method: 'POST',
@@ -1408,11 +1445,9 @@ const directRoutes = (
         response: {
           schema: validators.subscriptionsStripeIntentValidator,
         },
-        validate: {
-          payload: {},
-        },
       },
-      handler: (request) => directStripeRoutes.createSetupIntent(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.createSetupIntent(request),
     },
     {
       method: 'POST',
@@ -1431,7 +1466,7 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) =>
+      handler: (request: AuthRequest) =>
         directStripeRoutes.updateDefaultPaymentMethod(request),
     },
     {
@@ -1455,7 +1490,7 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) =>
+      handler: (request: AuthRequest) =>
         directStripeRoutes.getSubscriptionsForSupport(request),
     },
     {
@@ -1475,7 +1510,8 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) => directStripeRoutes.updateSubscription(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.updateSubscription(request),
     },
     {
       method: 'DELETE',
@@ -1491,7 +1527,8 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) => directStripeRoutes.deleteSubscription(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.deleteSubscription(request),
     },
     {
       method: 'POST',
@@ -1507,7 +1544,8 @@ const directRoutes = (
           },
         },
       },
-      handler: (request) => directStripeRoutes.reactivateSubscription(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.reactivateSubscription(request),
     },
     {
       method: 'POST',
@@ -1525,31 +1563,21 @@ const directRoutes = (
           headers: { 'stripe-signature': isA.string().required() },
         },
       },
-      handler: (request) => directStripeRoutes.handleWebhookEvent(request),
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.handleWebhookEvent(request),
     },
   ];
 };
 
-/**
- *
- * @param {*} log
- * @param {*} db
- * @param {*} config
- * @param {*} customs
- * @param {*} push
- * @param {*} mailer
- * @param {*} profile
- * @param {*} stripeHelper
- */
 const createRoutes = (
-  log,
-  db,
-  config,
-  customs,
-  push,
-  mailer,
-  profile,
-  stripeHelper
+  log: AuthLogger,
+  db: any,
+  config: ConfigType,
+  customs: any,
+  push: any,
+  mailer: any,
+  profile: any,
+  stripeHelper: StripeHelper
 ) => {
   // Skip routes if the subscriptions feature is not configured & enabled
   if (!config.subscriptions || !config.subscriptions.enabled) {

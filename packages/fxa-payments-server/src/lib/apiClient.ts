@@ -309,3 +309,28 @@ export async function apiRetryInvoice(params: {
     { body: JSON.stringify(params) }
   );
 }
+
+export type FilteredSetupIntent = {
+  client_secret: string;
+  created: number;
+  next_action: string | null;
+  payment_method: string | null;
+  status: string;
+};
+
+export async function apiCreateSetupIntent(): Promise<FilteredSetupIntent> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/setupintent/create`
+  );
+}
+
+export async function apiUpdateDefaultPaymentMethod(params: {
+  paymentMethodId: string;
+}): Promise<Customer> {
+  return apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/paymentmethod/default`,
+    { body: JSON.stringify(params) }
+  );
+}

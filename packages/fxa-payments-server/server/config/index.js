@@ -173,7 +173,7 @@ const conf = convict({
       '123doneProProduct': 'http://localhost:8080/',
       fortressProProduct: 'http://localhost:9292/download',
       prod_FUUNYnlDso7FeB: 'https://fortress-latest.dev.lcip.org/',
-      prod_Ex9Z1q5yVydhyk: 'https://123done-latest.dev.lcip.org/',
+      prod_GqM9ToKK62qjkK: 'https://123done-latest.dev.lcip.org/',
       // todo get new prod_id for 123done stage
       prod_FfiuDs9u11ESbD: 'https://123done-stage.dev.lcip.org',
     },

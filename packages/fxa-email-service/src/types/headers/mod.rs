@@ -28,9 +28,11 @@ use hyperx::{
     header::{parsing::from_one_raw_str, Formatter, Raw as RawHeader},
 };
 
-// No header's total length should be greater than 998 characters
+// The total length of a header line should be limited to 998 characters.
 // See: https://tools.ietf.org/html/rfc5322#section-2.1.1
-const HEADER_MAX_LENGTH: usize = 998;
+// That includes the header name, the value, and the two characters ": "
+// used to separate them (which is what the "minus 2" below is for).
+const HEADER_MAX_LENGTH: usize = 998 - 2;
 
 macro_rules! custom_header {
     ($struct_name:ident, $header_name:expr) => {

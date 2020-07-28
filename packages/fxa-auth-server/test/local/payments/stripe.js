@@ -58,6 +58,7 @@ const mockConfig = {
     enabled: true,
     url: 'https://foo.bar',
     key: 'foo',
+    plansCacheTtlSeconds: 60,
   },
 };
 
@@ -100,6 +101,7 @@ function createMockRedis() {
     },
     init(config, log) {
       this.reset();
+      this.redis = this;
       return this;
     },
     async set(key, value, opt, ttl) {
@@ -142,6 +144,7 @@ describe('StripeHelper', () => {
     mockRedis = createMockRedis();
     log = mockLog();
     stripeHelper = new StripeHelper(log, mockConfig);
+    stripeHelper.redis = mockRedis;
     listStripePlans = sandbox
       .stub(stripeHelper.stripe.plans, 'list')
       .returns(asyncIterable([plan1, plan2, plan3]));
@@ -152,106 +155,6 @@ describe('StripeHelper', () => {
 
   afterEach(() => {
     sandbox.restore();
-  });
-
-  describe('getCachedResult', () => {
-    const expectedResult = { status: 'success' };
-
-    const cacheKey = 'testKey';
-    let refreshFunction;
-
-    beforeEach(() => {
-      refreshFunction = sandbox.stub().resolves(expectedResult);
-    });
-
-    it('follows read-through caching logic', async () => {
-      // On first call: cache miss, call refresh function, cache the result
-      let actualResult = await stripeHelper.getCachedResult(
-        cacheKey,
-        refreshFunction
-      );
-      assert.isTrue(mockRedis.get.calledOnceWithExactly(cacheKey));
-      assert.isTrue(
-        mockRedis.set.calledOnceWith(
-          cacheKey,
-          JSON.stringify(expectedResult),
-          'EX',
-          mockConfig.subscriptions.cacheTtlSeconds
-        )
-      );
-      assert.isTrue(refreshFunction.calledOnce);
-      assert.deepEqual(actualResult, expectedResult);
-
-      refreshFunction.resetHistory();
-      mockRedis.get.resetHistory();
-      mockRedis.set.resetHistory();
-
-      // On subsequent call: cache hit, return cache result
-      actualResult = await stripeHelper.getCachedResult(
-        cacheKey,
-        refreshFunction
-      );
-      assert.isTrue(mockRedis.get.calledOnceWithExactly(cacheKey));
-      assert.isTrue(mockRedis.set.notCalled);
-      assert.isTrue(refreshFunction.notCalled);
-      assert.deepEqual(actualResult, expectedResult);
-    });
-
-    describe('when there is an error on cache read', () => {
-      it('logs error and returns expected result', async () => {
-        mockRedis.get.restore();
-        sandbox.stub(mockRedis, 'get').rejects(Error);
-
-        const actualResult = await stripeHelper.getCachedResult(
-          cacheKey,
-          refreshFunction
-        );
-
-        assert.isTrue(mockRedis.get.calledOnceWithExactly(cacheKey));
-        assert.isTrue(
-          mockRedis.set.calledOnceWith(
-            cacheKey,
-            JSON.stringify(expectedResult),
-            'EX',
-            mockConfig.subscriptions.cacheTtlSeconds
-          )
-        );
-        assert.isTrue(
-          log.error.calledOnceWith(
-            'stripeHelper.getCachedResult.redis.get.failed'
-          )
-        );
-        assert.deepEqual(actualResult, expectedResult);
-      });
-    });
-
-    describe('when there is an error on cache save', () => {
-      it('logs error and returns expected result', async () => {
-        mockRedis.set.restore();
-        sandbox.stub(mockRedis, 'set').rejects(Error);
-
-        const actualResult = await stripeHelper.getCachedResult(
-          cacheKey,
-          refreshFunction
-        );
-
-        assert.isTrue(mockRedis.get.calledOnceWithExactly(cacheKey));
-        assert.isTrue(
-          mockRedis.set.calledOnceWith(
-            cacheKey,
-            JSON.stringify(expectedResult),
-            'EX',
-            mockConfig.subscriptions.cacheTtlSeconds
-          )
-        );
-        assert.isTrue(
-          log.error.calledOnceWith(
-            'stripeHelper.getCachedResult.redis.set.failed'
-          )
-        );
-        assert.deepEqual(actualResult, expectedResult);
-      });
-    });
   });
 
   describe('createPlainCustomer', () => {
@@ -1221,18 +1124,27 @@ describe('StripeHelper', () => {
 
     describe('customer', () => {
       it('fetches an existing customer and caches it', async () => {
-        assert.deepEqual(await stripeHelper.customer(uid, email), customer1);
+        assert.deepEqual(
+          await stripeHelper.customer({ uid, email }),
+          customer1
+        );
         assert(mockRedis.get.calledOnce);
         assert(mockRedis.set.calledOnce);
 
-        assert.deepEqual(await stripeHelper.customer(uid, email), customer1);
+        assert.deepEqual(
+          await stripeHelper.customer({ uid, email }),
+          customer1
+        );
         assert(mockRedis.get.calledTwice);
         assert(mockRedis.set.calledOnce);
         assert(stripeHelper.stripe.customers.list.calledOnce);
 
-        const customerKey = stripeHelper.customerCacheKey(uid, email);
+        const customerKey = StripeHelper.StripeHelper.customerCacheKey([
+          uid,
+          email,
+        ]);
         assert.deepEqual(
-          await stripeHelper.customer(uid, email),
+          await stripeHelper.customer({ uid, email }),
           JSON.parse(await mockRedis.get(customerKey))
         );
       });
@@ -1240,7 +1152,10 @@ describe('StripeHelper', () => {
 
     describe('subscriptionForCustomer', () => {
       it('uses cached customer data to look up a subscription', async () => {
-        assert.deepEqual(await stripeHelper.customer(uid, email), customer1);
+        assert.deepEqual(
+          await stripeHelper.customer({ uid, email }),
+          customer1
+        );
         assert(mockRedis.get.calledOnce);
         assert(mockRedis.set.calledOnce);
 
@@ -1273,7 +1188,11 @@ describe('StripeHelper', () => {
     describe('subscriptionForCustomer', () => {
       it('uses only cached customer data to look up a subscription', async () => {
         assert.deepEqual(
-          await stripeHelper.customer('nonexistentuid', email, false, true),
+          await stripeHelper.customer({
+            uid: 'nonexistentuid',
+            email,
+            cacheOnly: true,
+          }),
           undefined
         );
         assert(mockRedis.get.calledOnce);
@@ -1338,9 +1257,9 @@ describe('StripeHelper', () => {
       let customerKey;
 
       beforeEach(async () => {
-        customerKey = stripeHelper.customerCacheKey(uid, email);
+        customerKey = StripeHelper.StripeHelper.customerCacheKey([uid, email]);
         assert.deepEqual(
-          await stripeHelper.customer(uid, email),
+          await stripeHelper.customer({ uid, email }),
           JSON.parse(await mockRedis.get(customerKey))
         );
       });
@@ -1374,7 +1293,10 @@ describe('StripeHelper', () => {
         });
 
         it('does not fail if key does not exist', async () => {
-          const key = stripeHelper.customerCacheKey('test-test-test', email);
+          const key = StripeHelper.StripeHelper.customerCacheKey([
+            'test-test-test',
+            email,
+          ]);
           assert.isUndefined(await mockRedis.get(key));
 
           await stripeHelper.removeCustomerFromCache('test-test-test', email);
@@ -1383,43 +1305,6 @@ describe('StripeHelper', () => {
           assert.isTrue(log.error.notCalled);
           assert.isUndefined(await mockRedis.get(key));
         });
-
-        it('logs errors', async () => {
-          mockRedis.del.restore();
-          sandbox.stub(mockRedis, 'del').rejects(Error);
-
-          await stripeHelper.removeCustomerFromCache(uid, email);
-
-          assert.isTrue(mockRedis.del.calledOnceWithExactly(customerKey));
-          const expectedLogMsg = `stripeHelper.removeCustomerFromCache failed to remove cache key: ${customerKey}`;
-          assert.isTrue(log.error.calledOnceWith(expectedLogMsg));
-        });
-      });
-    });
-
-    describe('error fetching cached result', () => {
-      it('logs error', async () => {
-        mockRedis.get.restore();
-        sandbox.stub(mockRedis, 'get').rejects(Error);
-
-        const result = await stripeHelper.customer(uid, email, false);
-        assert.isNotEmpty(result);
-        assert(
-          log.error.calledOnceWith('stripeHelper.customer.redis.get.failed')
-        );
-      });
-    });
-
-    describe('error setting cached result', () => {
-      it('logs error', async () => {
-        mockRedis.set.restore();
-        sandbox.stub(mockRedis, 'set').rejects(Error);
-
-        const result = await stripeHelper.customer(uid, email);
-        assert.isNotEmpty(result);
-        assert(
-          log.error.calledOnceWith('stripeHelper.customer.redis.set.failed')
-        );
       });
     });
   });

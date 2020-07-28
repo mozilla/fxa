@@ -2,30 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as Sentry from '@sentry/node';
+import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
+import { useAdapter } from '@type-cacheable/ioredis-adapter';
+import { StatsD } from 'hot-shots';
+import ioredis from 'ioredis';
 import moment from 'moment';
+import { Logger } from 'mozlog';
 import { Stripe } from 'stripe';
 
+import { ConfigType } from '../../config';
 import error from '../error';
-import { StatsD } from 'hot-shots';
-import { PaymentIntent } from '../routes/subscriptions';
+import Redis from '../redis';
 
 export type AbbrevProduct = {
   product_id: string;
-  product_name: string;
   product_metadata: Stripe.Product['metadata'];
+  product_name: string;
 };
 
 export type AbbrevPlan = {
-  plan_id: string;
-  plan_metadata: Stripe.Plan['metadata'];
-  product_id: string;
-  plan_name: string;
-  product_name: string;
-  product_metadata: Stripe.Product['metadata'];
-  interval: Stripe.Plan['interval'];
-  interval_count: Stripe.Plan['interval_count'];
   amount: Stripe.Plan['amount'];
   currency: Stripe.Plan['currency'];
+  interval_count: Stripe.Plan['interval_count'];
+  interval: Stripe.Plan['interval'];
+  plan_id: string;
+  plan_metadata: Stripe.Plan['metadata'];
+  plan_name: string;
+  product_id: string;
+  product_metadata: Stripe.Product['metadata'];
+  product_name: string;
 };
 
 const CUSTOMER_RESOURCE = 'customers';
@@ -44,7 +49,7 @@ const VALID_RESOURCE_TYPES = [
   INVOICES_RESOURCE,
 ];
 
-const SUBSCRIPTION_UPDATE_TYPES = {
+export const SUBSCRIPTION_UPDATE_TYPES = {
   UPGRADE: 'upgrade',
   DOWNGRADE: 'downgrade',
   REACTIVATION: 'reactivation',
@@ -84,81 +89,47 @@ function validateProductUpdate(
   return oldOrder !== newOrder;
 }
 
-class StripeHelper {
-  private log: any;
+export class StripeHelper {
+  // Note that this isn't quite accurate, as the auth-server logger has some extras
+  // attached to it in Hapi.
+  private log: Logger;
   private cacheTtlSeconds: number;
   private webhookSecret: string;
-  private plansCacheIsEnabled: boolean;
   private stripe: Stripe;
-  private redis: any;
+  private redis: ioredis.Redis | undefined;
 
   /**
    * Create a Stripe Helper with built-in caching.
    */
-  constructor(log: any, config: any, statsd?: StatsD) {
+  constructor(log: Logger, config: ConfigType, statsd?: StatsD) {
     this.log = log;
-    this.cacheTtlSeconds =
-      config.subhub.plansCacheTtlSeconds ||
-      config.subscriptions.cacheTtlSeconds;
+    this.cacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
-    const redis =
-      this.cacheTtlSeconds &&
-      require('../redis')(
-        {
-          ...config.redis,
-          ...config.redis.subhub,
-        },
-        log
-      );
-    this.plansCacheIsEnabled = !!(this.cacheTtlSeconds && redis);
+    const redis = this.cacheTtlSeconds
+      ? Redis(
+          {
+            ...config.redis,
+            ...config.redis.subhub,
+          },
+          log
+        )?.redis
+      : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
       apiVersion: '2020-03-02',
       maxNetworkRetries: 3,
     });
     this.redis = redis;
+    if (this.redis) {
+      cacheManager.setOptions({ ttlSeconds: this.cacheTtlSeconds });
+      useAdapter(this.redis);
+    }
 
     if (statsd) {
       this.stripe.on('response', (response) => {
         statsd.timing('stripe_request', response.elapsed);
       });
     }
-  }
-
-  /**
-   * Get a cached result at a cache key and regenerated it with `refreshFunction`
-   * if its expired.
-   */
-  async getCachedResult<T>(
-    cacheKey: string,
-    refreshFunction: () => Promise<T>
-  ): Promise<T> {
-    if (!this.redis) {
-      return refreshFunction();
-    }
-
-    try {
-      const json = await this.redis.get(cacheKey);
-      if (json) {
-        return JSON.parse(json);
-      }
-    } catch (err) {
-      this.log.error(`stripeHelper.getCachedResult.redis.get.failed`, { err });
-    }
-
-    const result = await refreshFunction();
-    try {
-      await this.redis.set(
-        cacheKey,
-        JSON.stringify(result),
-        'EX',
-        this.cacheTtlSeconds
-      );
-    } catch (err) {
-      this.log.error(`stripeHelper.getCachedResult.redis.set.failed`, { err });
-    }
-
-    return result;
   }
 
   /**
@@ -194,8 +165,9 @@ class StripeHelper {
    *
    * @returns {Promise<AbbrevProduct[]>} All the products.
    */
+  @Cacheable({ cacheKey: 'listProducts' })
   async allProducts() {
-    return this.getCachedResult('listProducts', () => this.fetchAllProducts());
+    return this.fetchAllProducts();
   }
 
   /** BEGIN: NEW FLOW HELPERS FOR PAYMENT METHODS
@@ -446,47 +418,47 @@ class StripeHelper {
     return customer;
   }
 
+  static customerCacheKey = (args: any[]) => `customer-${args[0]}|${args[1]}`;
+
+  @Cacheable({ cacheKey: StripeHelper.customerCacheKey })
+  async cachedCustomer(
+    uid: string,
+    email: string
+  ): Promise<Stripe.Customer | void> {
+    return this.fetchCustomer(uid, email, [
+      'data.sources',
+      'data.subscriptions',
+      'data.invoice_settings.default_payment_method',
+    ]);
+  }
+
   /**
    * Fetch a customer for the record from Stripe based on user ID & email.
    *
    * Uses Redis caching if configured.
    */
-  async customer(
-    uid: string,
-    email: string,
+  async customer({
+    uid,
+    email,
     forceRefresh = false,
-    cacheOnly = false
-  ): Promise<Stripe.Customer | undefined> {
-    const cacheKey = this.customerCacheKey(uid, email);
-    let result = undefined;
-
-    if (!forceRefresh && this.redis) {
-      try {
-        const json = await this.redis.get(cacheKey);
-        if (json) {
-          result = JSON.parse(json);
-        }
-      } catch (err) {
-        this.log.error(`stripeHelper.customer.redis.get.failed`, { err });
-      }
+    cacheOnly = false,
+  }: {
+    uid: string;
+    email: string;
+    forceRefresh?: boolean;
+    cacheOnly?: boolean;
+  }): Promise<Stripe.Customer | undefined> {
+    if (cacheOnly) {
+      return (
+        (await cacheManager.client?.get(
+          StripeHelper.customerCacheKey([uid, email])
+        )) || undefined
+      );
     }
-
-    if (!result && !cacheOnly) {
-      result = await this.fetchCustomer(uid, email, [
-        'data.sources',
-        'data.subscriptions',
-        'data.invoice_settings.default_payment_method',
-      ]);
-      if (this.redis) {
-        try {
-          await this.redis.set(cacheKey, JSON.stringify(result));
-        } catch (err) {
-          this.log.error(`stripeHelper.customer.redis.set.failed`, { err });
-        }
-      }
+    if (forceRefresh) {
+      await this.removeCustomerFromCache(uid, email);
     }
-
-    return result;
+    return (await this.cachedCustomer(uid, email)) || undefined;
   }
 
   /**
@@ -514,7 +486,7 @@ class StripeHelper {
     email: string,
     subscriptionId: string
   ): Promise<Stripe.Subscription | void> {
-    const customer = await this.customer(uid, email);
+    const customer = await this.customer({ uid, email });
     if (!customer) {
       return;
     }
@@ -558,7 +530,7 @@ class StripeHelper {
     email: string
   ): Promise<Stripe.Customer | undefined> {
     try {
-      return await this.customer(uid, email, true);
+      return await this.customer({ uid, email, forceRefresh: true });
     } catch (err) {
       this.log.error(`subhub.refreshCachedCustomer.failed`, { err });
       return;
@@ -566,30 +538,11 @@ class StripeHelper {
   }
 
   /**
-   * Build a key used for Redis cache based on user ID & email.
-   */
-  customerCacheKey(uid: string, email: string): string {
-    return `customer-${uid}|${email}`;
-  }
-
-  /**
    * Remove the cache entry for a customer account
    * This is to be used on account deletion
    */
-  async removeCustomerFromCache(uid: string, email: string) {
-    if (!this.redis) {
-      return;
-    }
-    const customerKey = this.customerCacheKey(uid, email);
-    try {
-      await this.redis.del(customerKey);
-    } catch (err) {
-      this.log.error(
-        `stripeHelper.removeCustomerFromCache failed to remove cache key: ${customerKey}`,
-        { err }
-      );
-    }
-  }
+  @CacheClear({ cacheKey: StripeHelper.customerCacheKey })
+  async removeCustomerFromCache(uid: string, email: string) {}
 
   /**
    * Fetches all plans from stripe and returns them.
@@ -627,16 +580,16 @@ class StripeHelper {
       }
 
       plans.push({
-        plan_id: item.id,
-        plan_name: item.nickname || '',
-        plan_metadata: item.metadata,
-        product_id: item.product.id,
-        product_name: item.product.name,
-        product_metadata: item.product.metadata,
-        interval: item.interval,
-        interval_count: item.interval_count,
         amount: item.amount,
         currency: item.currency,
+        interval_count: item.interval_count,
+        interval: item.interval,
+        plan_id: item.id,
+        plan_metadata: item.metadata,
+        plan_name: item.nickname || '',
+        product_id: item.product.id,
+        product_metadata: item.product.metadata,
+        product_name: item.product.name,
       });
     }
     return plans;
@@ -647,8 +600,9 @@ class StripeHelper {
    *
    * Uses Redis caching if configured.
    */
+  @Cacheable({ cacheKey: 'listPlans' })
   async allPlans(): Promise<AbbrevPlan[]> {
-    return this.getCachedResult('listPlans', () => this.fetchAllPlans());
+    return this.fetchAllPlans();
   }
 
   /**
@@ -899,7 +853,7 @@ class StripeHelper {
    */
   async fetchPaymentIntentFromInvoice(
     invoice: Stripe.Invoice
-  ): Promise<PaymentIntent> {
+  ): Promise<Stripe.PaymentIntent> {
     if (!invoice.payment_intent) {
       // We don't have any code working with draft invoices, so
       // this should not be hit... yet. PayPal support *will* likely operate
@@ -1147,6 +1101,14 @@ class StripeHelper {
       );
     }
 
+    if (!customer.email) {
+      throw error.internalValidationError(
+        'extractInvoiceDetailsForEmail',
+        { customerId: customer.id },
+        'Customer missing email.'
+      );
+    }
+
     const {
       email,
       metadata: { userid: uid },
@@ -1172,7 +1134,9 @@ class StripeHelper {
       downloadURL: planDownloadURL = '',
     } = productMetadata;
 
-    const { lastFour, cardType } = await this.extractCardDetails({ charge });
+    const { lastFour, cardType } = await this.extractCardDetails({
+      charge,
+    });
 
     return {
       uid,
@@ -1276,6 +1240,13 @@ class StripeHelper {
       throw error.missingSubscriptionForSourceError(
         'extractSourceDetailsForEmail',
         source
+      );
+    }
+    if (!customer.email) {
+      throw error.internalValidationError(
+        'extractSourceDetailsForEmail',
+        { customerId: customer.id },
+        'Customer missing email.'
       );
     }
 
@@ -1493,7 +1464,9 @@ class StripeHelper {
       next_payment_attempt: nextInvoiceDate,
     } = upcomingInvoice;
 
-    const { lastFour, cardType } = await this.extractCardDetails({ charge });
+    const { lastFour, cardType } = await this.extractCardDetails({
+      charge,
+    });
 
     const {
       uid,

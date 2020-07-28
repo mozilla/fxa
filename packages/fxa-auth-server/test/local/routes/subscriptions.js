@@ -372,13 +372,10 @@ describe('subscriptions directRoutes', () => {
         reqOpts,
         stripeHelper
       );
-      assert.isTrue(
-        stripeHelper.customer.calledOnceWith(
-          reqOpts.query.uid,
-          reqOpts.query.email
-        ),
-        'customer not called as expected'
-      );
+      sinon.assert.calledOnceWithExactly(stripeHelper.customer, {
+        uid: reqOpts.query.uid,
+        email: reqOpts.query.email,
+      });
       assert.deepEqual(response, expected);
     });
   });
@@ -907,24 +904,6 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.deepEqual(filterCustomer(expected), actual);
-    });
-
-    it('errors when the payment method id is not attached', async () => {
-      const customer = deepCopy(emptyCustomer);
-      directStripeRoutesInstance.stripeHelper.customer
-        .onCall(0)
-        .resolves(customer);
-
-      VALID_REQUEST.payload = { paymentMethodId: 'pm_asdf' };
-      try {
-        await directStripeRoutesInstance.updateDefaultPaymentMethod(
-          VALID_REQUEST
-        );
-        assert.fail('Create customer should fail.');
-      } catch (err) {
-        assert.instanceOf(err, WError);
-        assert.equal(err.errno, error.ERRNO.REJECTED_CUSTOMER_UPDATE);
-      }
     });
 
     it('errors when a customer has not been created', async () => {

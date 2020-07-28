@@ -1,13 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import convict from 'convict';
+import fs from 'fs';
+import path from 'path';
+import url from 'url';
 
-'use strict';
-
-const fs = require('fs');
-const path = require('path');
-const url = require('url');
-const convict = require('convict');
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 
 convict.addFormats(require('convict-format-with-moment'));
@@ -1866,7 +1864,7 @@ if (conf.get('oauthServer.openid.keyFile')) {
   // If the file doesnt exist, or contains an empty object, then there's no active key.
   conf.set('oauthServer.openid.key', null);
   if (fs.existsSync(keyFile)) {
-    const key = JSON.parse(fs.readFileSync(keyFile));
+    const key = JSON.parse(fs.readFileSync(keyFile, 'utf-8'));
     if (key && Object.keys(key).length > 0) {
       conf.set('oauthServer.openid.key', key);
     }
@@ -1885,7 +1883,7 @@ if (conf.get('oauthServer.openid.newKeyFile')) {
   // If the file doesnt exist, or contains an empty object, then there's no new key.
   conf.set('oauthServer.openid.newKey', null);
   if (fs.existsSync(newKeyFile)) {
-    const newKey = JSON.parse(fs.readFileSync(newKeyFile));
+    const newKey = JSON.parse(fs.readFileSync(newKeyFile, 'utf-8'));
     if (newKey && Object.keys(newKey).length > 0) {
       conf.set('oauthServer.openid.newKey', newKey);
     }
@@ -1904,7 +1902,7 @@ if (conf.get('oauthServer.openid.oldKeyFile')) {
   // If the file doesnt exist, or contains an empty object, then there's no old key.
   conf.set('oauthServer.openid.oldKey', null);
   if (fs.existsSync(oldKeyFile)) {
-    const oldKey = JSON.parse(fs.readFileSync(oldKeyFile));
+    const oldKey = JSON.parse(fs.readFileSync(oldKeyFile, 'utf-8'));
     if (oldKey && Object.keys(oldKey).length > 0) {
       conf.set('oauthServer.openid.oldKey', oldKey);
     }
@@ -1931,5 +1929,6 @@ if (conf.get('isProduction')) {
 }
 
 export type conf = typeof conf;
+export type ConfigType = ReturnType<conf['getProperties']>;
 
 module.exports = conf;

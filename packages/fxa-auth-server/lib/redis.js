@@ -321,3 +321,4 @@ module.exports = (config, log) => {
   }
   return new FxaRedis(config, log);
 };
+module.exports.FxARedis = FxaRedis;
