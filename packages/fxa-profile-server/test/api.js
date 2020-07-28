@@ -1607,8 +1607,9 @@ describe('api', function () {
     var tok = token();
 
     describe('GET', function () {
-      it('should return an ecosystem_anon_id if set', async function () {
-        const ECOSYSTEM_ANON_ID = 'foo.barzzy.123';
+      const ECOSYSTEM_ANON_ID = 'foo.barzzy.123';
+
+      const setupMock = () => {
         mock.coreProfile({
           email: 'user@example.domain',
           locale: 'en-US',
@@ -1620,13 +1621,22 @@ describe('api', function () {
           user: USERID,
           scope: ['profile:ecosystem_anon_id'],
         });
+      };
 
+      const getEcosystemAnonId = async () => {
         const res = await Server.api.get({
           url: '/ecosystem_anon_id',
           headers: {
             authorization: 'Bearer ' + tok,
           },
         });
+        return res;
+      };
+
+      it('should return an ecosystem_anon_id if set', async function () {
+        setupMock();
+
+        const res = await getEcosystemAnonId();
 
         assert.equal(res.statusCode, 200);
         assert.equal(
@@ -1634,6 +1644,21 @@ describe('api', function () {
           ECOSYSTEM_ANON_ID
         );
         assertSecurityHeaders(res);
+      });
+
+      it('should log an ecosystem_anon_id.get activity event', async function () {
+        setupMock();
+
+        mock.log('routes.ecosystem_anon_id.get', function (rec) {
+          if (rec.levelname === 'INFO') {
+            assert.equal(rec.args[0], 'activityEvent');
+            assert.equal(rec.args[1].event, 'ecosystemAnonId.get');
+            assert.equal(rec.args[1].uid, USERID);
+            return true;
+          }
+        });
+
+        await getEcosystemAnonId();
       });
 
       it('should return 204 if not set', async function () {
@@ -1649,12 +1674,7 @@ describe('api', function () {
           scope: ['profile:ecosystem_anon_id'],
         });
 
-        const res = await Server.api.get({
-          url: '/ecosystem_anon_id',
-          headers: {
-            authorization: 'Bearer ' + tok,
-          },
-        });
+        const res = await getEcosystemAnonId();
 
         assert.equal(res.statusCode, 204);
         assert(!res.payload);
@@ -1667,12 +1687,7 @@ describe('api', function () {
           scope: ['profile:email'],
         });
 
-        const res = await Server.api.get({
-          url: '/ecosystem_anon_id',
-          headers: {
-            authorization: 'Bearer ' + tok,
-          },
-        });
+        const res = await getEcosystemAnonId();
 
         assert.equal(res.statusCode, 403);
         assertSecurityHeaders(res);
