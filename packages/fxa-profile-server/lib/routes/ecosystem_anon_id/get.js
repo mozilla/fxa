@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const Joi = require('@hapi/joi');
+const logger = require('../../logging')('routes.ecosystem_anon_id.get');
 
 module.exports = {
   auth: {
@@ -15,6 +16,7 @@ module.exports = {
     },
   },
   handler: async function ecosystemAnonIdGet(req, h) {
+    const uid = req.auth.credentials.user;
     return req.server
       .inject({
         allowInternals: true,
@@ -30,7 +32,11 @@ module.exports = {
           strategy: 'oauth',
         },
       })
-      .then(res => {
+      .then((res) => {
+        logger.info('activityEvent', {
+          event: 'ecosystemAnonId.get',
+          uid: uid,
+        });
         if (res.statusCode !== 200) {
           return res;
         }

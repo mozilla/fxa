@@ -37,7 +37,7 @@ see [`fxa-auth-client`](https://github.com/mozilla/fxa/tree/main/packages/fxa-au
     - [POST /account/unlock/verify_code](#post-accountunlockverify_code)
     - [POST /account/reset (:lock: accountResetToken)](#post-accountreset)
     - [POST /account/destroy (:lock::unlock: sessionToken)](#post-accountdestroy)
-    - [PUT /account/ecosystemAnonId (:lock: oauthToken)](#put-accountmetricsecosystemanonId)
+    - [PUT /account/ecosystemAnonId (:lock: sessionToken, oauthToken)](#put-accountmetricsecosystemanonId)
   - [Devices and sessions](#devices-and-sessions)
     - [POST /account/device (:lock: sessionToken, refreshToken)](#post-accountdevice)
     - [GET /account/device/commands (:lock: sessionToken, refreshToken)](#get-accountdevicecommands)
@@ -1149,9 +1149,9 @@ by the following errors
 - `code: 400, errno: 138`:
   Unverified session
 
-#### POST /account/ecosystemAnonId
+#### PUT /account/ecosystemAnonId
 
-:lock: Authenticated with OAuth bearer token
+:lock: Authenticated with OAuth bearer token or HAWK-authenticated with session token
 
 <!--begin-route-put-accountmetricsecosystemanonId-->
 
