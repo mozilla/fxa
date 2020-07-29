@@ -1700,7 +1700,29 @@ describe('api', function () {
         return hash.update(anonId).digest('hex');
       }
 
-      xit('should post a new ecosystem_anon_id', function () {});
+      it('should put a new ecosystem_anon_id', async function () {
+        const payload = {
+          ecosystemAnonId: 'beans on pizza',
+        };
+        const headers = {
+          authorization: `Bearer ${tok}`,
+        };
+
+        mock.anonIdUpdated(payload, headers);
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload,
+          headers,
+        });
+
+        assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+      });
 
       it('should fail post if the ecosystem_anon_id is not a string', async function () {
         mock.token({
@@ -1799,6 +1821,15 @@ describe('api', function () {
       });
 
       it('should post with `If-None-Match: ontario` (hashed) header, anon ID is `quebec`', async function () {
+        const payload = {
+          ecosystemAnonId: 'bitin the bullet',
+        };
+        const headers = {
+          authorization: `Bearer ${tok}`,
+          'If-None-Match': hashAnonId('ontario'),
+        };
+
+        mock.anonIdUpdated(payload, headers);
         mock.coreProfile({
           email: 'andy@example.domain',
           locale: 'en-US',
@@ -1813,16 +1844,11 @@ describe('api', function () {
 
         const res = await Server.api.post({
           url: '/ecosystem_anon_id',
-          payload: {
-            ecosystemAnonId: 'blah',
-          },
-          headers: {
-            authorization: 'Bearer ' + tok,
-            'If-None-Match': hashAnonId('ontario'),
-          },
+          payload,
+          headers,
         });
 
-        assert.equal(res.statusCode, 503);
+        assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
       });
 
@@ -1855,6 +1881,15 @@ describe('api', function () {
       });
 
       it('should post with `If-Match: pandemic` (hashed) header, anon ID is `pandemic`', async function () {
+        const payload = {
+          ecosystemAnonId: 'shark attack',
+        };
+        const headers = {
+          authorization: `Bearer ${tok}`,
+          'If-Match': hashAnonId('pandemic'),
+        };
+
+        mock.anonIdUpdated(payload, headers);
         mock.coreProfile({
           email: 'andy@example.domain',
           locale: 'en-US',
@@ -1869,16 +1904,11 @@ describe('api', function () {
 
         const res = await Server.api.post({
           url: '/ecosystem_anon_id',
-          payload: {
-            ecosystemAnonId: 'blah',
-          },
-          headers: {
-            authorization: 'Bearer ' + tok,
-            'If-Match': hashAnonId('pandemic'),
-          },
+          payload,
+          headers,
         });
 
-        assert.equal(res.statusCode, 503);
+        assert.equal(res.statusCode, 200);
         assertSecurityHeaders(res);
       });
 

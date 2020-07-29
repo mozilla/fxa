@@ -33,7 +33,7 @@ const updateAuthServer = function (
   }
 
   return new Promise((resolve, reject) => {
-    request.get(
+    request.put(
       AUTH_SERVER_URL,
       {
         headers,
