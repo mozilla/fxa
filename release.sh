@@ -307,8 +307,10 @@ packages/fxa-email-event-proxy
 packages/fxa-email-service
 packages/fxa-event-broker
 packages/fxa-geodb
+packages/fxa-graphql-api
 packages/fxa-payments-server
 packages/fxa-profile-server
+packages/fxa-react
 packages/fxa-settings
 packages/fxa-shared
 packages/fxa-support-panel"
