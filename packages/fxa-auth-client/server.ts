@@ -3,12 +3,14 @@ import https from 'https'
 import { Crypto } from '@peculiar/webcrypto';
 import fetch, { Headers } from 'node-fetch';
 import { btoa } from 'abab';
+import AbortController from 'abort-controller';
 import AuthClient from './lib/client';
 
 declare global {
   namespace NodeJS {
     interface Global {
         fetch: typeof fetch,
+        AbortController: typeof AbortController,
         Headers: typeof Headers,
         crypto: Crypto,
         btoa: typeof btoa
@@ -25,6 +27,7 @@ https.globalAgent = new https.Agent({
 
 global.crypto = new Crypto();
 global.fetch = fetch;
+global.AbortController = AbortController;
 global.Headers = Headers;
 global.btoa = btoa;
 

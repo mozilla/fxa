@@ -18,6 +18,7 @@
   "dependencies": {
     "@peculiar/webcrypto": "^1.1.2",
     "abab": "^2.0.0",
+    "abort-controller": "^3.0.0",
     "node-fetch": "^2.6.0"
   },
   "devDependencies": {
