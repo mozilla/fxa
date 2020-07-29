@@ -1384,7 +1384,7 @@ export class StripeHelper {
         baseDetails,
         invoice
       );
-    } else if (!cancelAtPeriodEndOld && !cancelAtPeriodEndNew && planOld) {
+    } else if (!cancelAtPeriodEndNew && planOld) {
       return this.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
         subscription,
         baseDetails,
