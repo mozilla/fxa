@@ -2461,6 +2461,25 @@ describe('StripeHelper', () => {
           event.data.previous_attributes.plan
         );
       });
+
+      it('calls the expected helper method for upgrade or downgrade if previously cancelled', async () => {
+        const event = deepCopy(eventCustomerSubscriptionUpdated);
+        event.data.object.cancel_at_period_end = false;
+        event.data.previous_attributes.cancel_at_period_end = true;
+        const result = await stripeHelper.extractSubscriptionUpdateEventDetailsForEmail(
+          event
+        );
+        assert.equal(result, mockUpgradeDowngradeDetails);
+        assertOnlyExpectedHelperCalledWith(
+          'extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail',
+          event.data.object,
+          expectedBaseUpdateDetails,
+          mockInvoice,
+          mockCustomer,
+          event.data.object.plan.metadata.productOrder,
+          event.data.previous_attributes.plan
+        );
+      });
     });
 
     const productNameOld = '123 Done Pro Plus Monthly';
