@@ -15287,6 +15287,7 @@ fsevents@^1.2.7:
     "@types/mocha": ^7
     "@types/node-fetch": ^2
     abab: ^2.0.0
+    abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     fast-text-encoding: ^1.0.0
     mocha: ^7.1.2

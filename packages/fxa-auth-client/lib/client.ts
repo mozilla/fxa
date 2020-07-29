@@ -46,19 +46,19 @@ function pathWithKeys(path: string, keys?: boolean) {
 async function fetchOrTimeout(
   input: RequestInfo,
   init: RequestInit = {},
-  timeout: number = 30000
+  timeout: number
 ) {
   let id = 0;
   if (typeof AbortController !== 'undefined') {
     const aborter = new AbortController();
     init.signal = aborter.signal;
-    id = window.setTimeout(() => aborter.abort(), timeout);
+    id = setTimeout((() => aborter.abort()) as TimerHandler, timeout);
   }
   try {
     return await fetch(input, init);
   } finally {
     if (id) {
-      window.clearTimeout(id);
+      clearTimeout(id);
     }
   }
 }
@@ -72,14 +72,16 @@ export default class AuthClient {
   static VERSION = 'v1';
   private uri: string;
   private localtimeOffsetMsec: number;
+  private timeout: number;
 
-  constructor(authServerUri: string) {
+  constructor(authServerUri: string, options: { timeout?: number } = {}) {
     if (new RegExp(`/${AuthClient.VERSION}$`).test(authServerUri)) {
       this.uri = authServerUri;
     } else {
       this.uri = `${authServerUri}/${AuthClient.VERSION}`;
     }
     this.localtimeOffsetMsec = 0;
+    this.timeout = options.timeout || 30000;
   }
 
   static async create(authServerUri: string) {
@@ -108,7 +110,8 @@ export default class AuthClient {
       method,
       headers,
       body: cleanStringify(payload),
-    });
+    },
+    this.timeout);
     let result: any = await response.text();
     try {
       result = JSON.parse(result);
