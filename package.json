@@ -62,6 +62,14 @@
       "fxa-profile-server": [
         "fxa-auth-server",
         "fxa-shared"
+      ],
+      "fxa-payments-server": [
+        "fxa-shared",
+        "fxa-react"
+      ],
+      "fxa-settings": [
+        "fxa-shared",
+        "fxa-react"
       ]
     }
   },
