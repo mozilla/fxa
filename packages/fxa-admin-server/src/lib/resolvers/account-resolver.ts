@@ -10,6 +10,16 @@ import { Context } from '../server';
 import { Account as AccountType } from './types/account';
 
 const ACCOUNT_COLUMNS = ['uid', 'email', 'emailVerified', 'createdAt'];
+const EMAIL_COLUMNS = [
+  'createdAt',
+  'email',
+  'id',
+  'isPrimary',
+  'isVerified',
+  'normalizedEmail',
+  'uid',
+  'verifiedAt',
+];
 
 @Resolver((of) => AccountType)
 export class AccountResolver {
@@ -58,6 +68,6 @@ export class AccountResolver {
   @FieldResolver()
   public async emails(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
-    return await Emails.query().where('uid', uidBuffer);
+    return await Emails.query().select(EMAIL_COLUMNS).where('uid', uidBuffer);
   }
 }
