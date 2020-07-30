@@ -3,6 +3,10 @@
   "version": "1.181.2",
   "description": "Shared module for FxA repositories",
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./": "./dist/"
+  },
   "scripts": {
     "postinstall": "tsc --build || true",
     "build": "tsc --build",
