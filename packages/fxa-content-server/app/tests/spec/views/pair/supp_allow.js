@@ -65,6 +65,7 @@ describe('views/pair/supp_allow', () => {
     view = new View({
       broker,
       viewName: 'pairSuppAllow',
+      notifier,
     });
   }
 

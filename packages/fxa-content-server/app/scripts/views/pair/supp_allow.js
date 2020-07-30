@@ -4,6 +4,7 @@
 
 import { assign } from 'underscore';
 import Cocktail from 'cocktail';
+import FlowEventsMixin from '../mixins/flow-events-mixin';
 import FormView from '../form';
 import DeviceBeingPairedMixin from './device-being-paired-mixin';
 import preventDefaultThen from '../decorators/prevent_default_then';
@@ -29,6 +30,6 @@ class PairSuppAllowView extends FormView {
   }
 }
 
-Cocktail.mixin(PairSuppAllowView, DeviceBeingPairedMixin());
+Cocktail.mixin(PairSuppAllowView, FlowEventsMixin, DeviceBeingPairedMixin());
 
 export default PairSuppAllowView;

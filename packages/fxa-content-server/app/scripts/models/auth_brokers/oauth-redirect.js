@@ -99,6 +99,10 @@ export default BaseAuthenticationBroker.extend({
    * @returns {Promise}
    */
   sendOAuthResultToRelier(result) {
+    if (this.hasCapability('supportsPairing')) {
+      this._metrics.logEvent('pairing.signin.success');
+    }
+
     return this._metrics.flush().then(() => {
       const extraParams = {};
       if (result.error) {

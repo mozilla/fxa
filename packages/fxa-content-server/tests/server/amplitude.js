@@ -1984,6 +1984,61 @@ registerSuite('amplitude', {
       });
     },
 
+    'pairing.signin.success': () => {
+      amplitude(
+        {
+          time: '1585321743',
+          type: 'pairing.signin.success',
+        },
+        {
+          connection: {},
+          headers: {
+            'user-agent':
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:58.0) Gecko/20100101 Firefox/65.0',
+            'x-forwarded-for': '63.245.221.32',
+          },
+        },
+        {
+          flowBeginTime: '1585261624219',
+          flowId:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          lang: 'gd',
+          service: '1',
+          uid: '44794bdf0be84d4e8c7a8026b8580fa3',
+        }
+      );
+
+      assert.equal(process.stderr.write.callCount, 0);
+      assert.equal(logger.info.callCount, 1);
+      const args = logger.info.args[0];
+      assert.lengthOf(args, 2);
+      assert.equal(args[0], 'amplitudeEvent');
+      assert.deepEqual(args[1], {
+        app_version: APP_VERSION,
+        event_properties: {
+          oauth_client_id: '1',
+          service: 'pocket',
+        },
+        event_type: 'fxa_login - complete',
+        language: 'gd',
+        op: 'amplitudeEvent',
+        os_name: 'Mac OS X',
+        os_version: '10.11',
+        session_id: '1585261624219',
+        time: '1585321743',
+        user_id: '44794bdf0be84d4e8c7a8026b8580fa3',
+        user_properties: {
+          flow_id:
+            '11750082326622a61b155a58a54442dd3702fa899b18d62868562ef9a3bc8484',
+          ua_browser: 'Firefox',
+          ua_version: '65.0',
+          $append: {
+            fxa_services_used: 'pocket',
+          },
+        },
+      });
+    },
+
     'screen.confirm-signup-code': () => {
       amplitude(
         {
