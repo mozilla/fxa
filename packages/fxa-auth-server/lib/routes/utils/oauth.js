@@ -5,7 +5,10 @@
 'use strict';
 
 const encrypt = require('../../../lib/oauth/encrypt');
-const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
+const {
+  OAUTH_SCOPE_OLD_SYNC,
+  MAX_NEW_ACCOUNT_AGE,
+} = require('../../constants');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 
 // right now we only care about notifications for the following scopes
@@ -65,25 +68,28 @@ module.exports = {
     });
 
     // Email the user about their new device connection
-    // (but don't send anything if it was an existing device)
+    // (but don't send anything if it was an existing device or new account)
     if (!credentials.deviceId) {
-      const geoData = request.app.geo;
-      const ip = request.app.clientAddress;
-      const emailOptions = {
-        acceptLanguage: request.app.acceptLanguage,
-        ip,
-        location: geoData.location,
-        service: clientId,
-        timeZone: geoData.timeZone,
-        uid: credentials.uid,
-      };
-
       const account = await db.account(credentials.uid);
-      await mailer.sendNewDeviceLoginEmail(
-        account.emails,
-        account,
-        emailOptions
-      );
+      const isNewAccount = Date.now() - account.createdAt < MAX_NEW_ACCOUNT_AGE;
+
+      if (!isNewAccount) {
+        const geoData = request.app.geo;
+        const ip = request.app.clientAddress;
+        const emailOptions = {
+          acceptLanguage: request.app.acceptLanguage,
+          ip,
+          location: geoData.location,
+          service: clientId,
+          timeZone: geoData.timeZone,
+          uid: credentials.uid,
+        };
+        await mailer.sendNewDeviceLoginEmail(
+          account.emails,
+          account,
+          emailOptions
+        );
+      }
     }
   },
 };

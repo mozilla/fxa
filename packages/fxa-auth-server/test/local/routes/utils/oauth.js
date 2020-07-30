@@ -78,6 +78,27 @@ describe('newTokenNotification', () => {
     );
   });
 
+  it('skips sending email for new account', async () => {
+    db = mocks.mockDB({
+      email: TEST_EMAIL,
+      emailVerified: true,
+      uid: MOCK_UID,
+      createdAt: Date.now(),
+    });
+    await oauthUtils.newTokenNotification(
+      db,
+      oauthdb,
+      mailer,
+      devices,
+      request,
+      grant
+    );
+
+    assert.equal(oauthdb.checkAccessToken.callCount, 0);
+    assert.equal(mailer.sendNewDeviceLoginEmail.callCount, 0);
+    assert.equal(devices.upsert.callCount, 1, 'created a device');
+  });
+
   it('creates a device and sends an email with checkAccessToken uid', async () => {
     credentials = {};
     request = mocks.mockRequest({ credentials });

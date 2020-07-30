@@ -246,6 +246,7 @@ function mockDB(data, errors) {
     account: sinon.spy((uid) => {
       assert.ok(typeof uid === 'string');
       return P.resolve({
+        createdAt: data.createdAt,
         email: data.email,
         emailCode: data.emailCode,
         emailVerified: data.emailVerified || false,

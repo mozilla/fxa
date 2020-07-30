@@ -132,16 +132,6 @@ describe('/oauth/ routes', function () {
     assert.ok(res.expires_in);
     assert.ok(res.token_type);
 
-    // got an email notification
-    const emailData = await server.mailbox.waitForEmail(email);
-    assert.equal(emailData.headers['x-template-name'], 'newDeviceLogin');
-    assert.equal(emailData.subject, `New sign-in to ${OAUTH_CLIENT_NAME}`);
-    assert.equal(
-      emailData.headers['x-service-id'],
-      PUBLIC_CLIENT_ID,
-      'has client id'
-    );
-
     // added a new device
     devices = await client.devicesWithRefreshToken(res.refresh_token);
     assert.equal(devices.length, 1, 'new device');

@@ -519,6 +519,7 @@ var User = Backbone.Model.extend({
    * @param {String} code
    * @param {Object} [options]
    * @param {Object} [options.service] - the service issuing signup request
+   * @param {Object} [options.scopes] - the oauth scopes for request
    * @returns {Promise} - resolves with the account when complete
    */
   verifyAccountSessionCode(account, code, options) {

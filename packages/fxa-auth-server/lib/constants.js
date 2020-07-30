@@ -6,4 +6,7 @@ module.exports = {
   OAUTH_SCOPE_OLD_SYNC: 'https://identity.mozilla.com/apps/oldsync',
   OAUTH_SCOPE_SESSION_TOKEN: 'https://identity.mozilla.com/tokens/session',
   SHORT_ACCESS_TOKEN_TTL_IN_MS: 1000 * 60 * 60 * 6,
+  // Maximum age an account is considered "new", useful when sending
+  // notification emails
+  MAX_NEW_ACCOUNT_AGE: 1000 * 60 * 60 * 24,
 };

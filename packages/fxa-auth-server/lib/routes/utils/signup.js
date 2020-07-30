@@ -4,6 +4,9 @@
 
 'use strict';
 const userAgent = require('../../userAgent');
+const ScopeSet = require('fxa-shared').oauth.scopes;
+const { OAUTH_SCOPE_OLD_SYNC } = require('../../constants');
+const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
 module.exports = (log, db, mailer, push, verificationReminders) => {
   return {
@@ -14,7 +17,7 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
      */
     verifyAccount: async (request, account, options) => {
       const { uid } = account;
-      const { newsletters, service, reminder, style } = options;
+      const { newsletters, service, reminder, style, scopes } = options;
       await db.verifyEmail(account, account.primaryEmail.emailCode);
 
       const geoData = request.app.geo;
@@ -63,13 +66,14 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
       );
 
       // Our post-verification email is very specific to sync,
-      // so only send it if we're sure this is for sync.
-      if (service === 'sync') {
+      // so only send it if we're sure this is for sync or sync scoped client.
+      const scopeSet = ScopeSet.fromArray(scopes);
+      if (service === 'sync' || scopeSet.intersects(NOTIFICATION_SCOPES)) {
         const onMobileDevice =
           userAgent(request.headers['user-agent']).deviceType === 'mobile';
         const mailOptions = {
           acceptLanguage: request.app.acceptLanguage,
-          service,
+          service: 'sync',
           uid,
           onMobileDevice,
         };

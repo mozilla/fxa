@@ -95,11 +95,12 @@ module.exports.sessionToken = module.exports.hexString.length(64);
 module.exports.sessionTokenId = module.exports.hexString.length(64);
 module.exports.authorizationCode = module.exports.hexString.length(64);
 // Note that the empty string is a valid scope value (meaning "no permissions").
-module.exports.scope = isA
+const scope = isA
   .string()
   .max(256)
   .regex(/^[a-zA-Z0-9 _\/.:-]*$/)
   .allow('');
+module.exports.scope = scope;
 module.exports.assertion = isA
   .string()
   .min(50)
@@ -525,6 +526,8 @@ module.exports.subscriptionsStripeCustomerValidator = isA
 module.exports.ppidSeed = isA.number().integer().min(0).max(1024);
 
 module.exports.style = isA.string().allow(['trailhead']).optional();
+
+module.exports.scopes = isA.array().items(scope).default([]).optional();
 
 module.exports.newsletters = isA
   .array()
