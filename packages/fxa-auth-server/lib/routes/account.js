@@ -1536,25 +1536,33 @@ module.exports = (
 
         await customs.check(request, uid, 'updateEcosystemAnonId');
 
-        if (ifNoneMatch || ifMatch) {
-          const { ecosystemAnonId: existingAnonId } = await db.account();
+        const { ecosystemAnonId: existingAnonId } = await db.account();
 
-          if (existingAnonId) {
-            const hashedAnonId = hashAnonId(existingAnonId);
+        if ((ifNoneMatch || ifMatch) && existingAnonId) {
+          const hashedAnonId = hashAnonId(existingAnonId);
 
-            if (ifMatch && ifMatch !== hashedAnonId) {
-              throw error.anonIdUpdateConflict('If-Match');
-            }
+          if (ifMatch && ifMatch !== hashedAnonId) {
+            throw error.anonIdUpdateConflict('If-Match');
+          }
 
-            if (ifNoneMatch === '*') {
-              throw error.anonIdUpdateConflict('If-None-Match');
-            } else if (ifNoneMatch === hashedAnonId) {
-              throw error.anonIdUpdateConflict('If-None-Match');
-            }
+          if (ifNoneMatch === '*') {
+            throw error.anonIdUpdateConflict('If-None-Match');
+          } else if (ifNoneMatch === hashedAnonId) {
+            throw error.anonIdUpdateConflict('If-None-Match');
           }
         }
 
         await db.updateEcosystemAnonId(uid, ecosystemAnonId);
+
+        // Order matters here: if the awaited `db.updateEcosystemAnonId` call
+        // doesn't throw, *then* log the (old, new) pair, so that the data
+        // pipeline can maintain an accurate historical list of anon_ids.
+        if (existingAnonId) {
+          log.info('account.updateEcosystemAnonId.complete', {
+            previous: existingAnonId,
+            next: ecosystemAnonId,
+          });
+        }
 
         return {};
       },

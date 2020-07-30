@@ -3107,6 +3107,7 @@ describe('/account', () => {
 describe('/account/ecosystemAnonId', () => {
   const uid = uuid.v4('binary').toString('hex');
   const ecosystemAnonId = 'bowl of oranges';
+  const oldAnonId = 'old id';
   let mockLog, mockDB, mockRequest, route;
 
   function hashAnonId(anonId) {
@@ -3116,7 +3117,13 @@ describe('/account/ecosystemAnonId', () => {
 
   beforeEach(async () => {
     mockLog = mocks.mockLog();
-    mockDB = mocks.mockDB();
+    mockLog.info = sinon.spy();
+
+    mockDB = mocks.mockDB({
+      uid: uid,
+      ecosystemAnonId: oldAnonId,
+    });
+
     mockRequest = mocks.mockRequest({
       log: mockLog,
       credentials: {
@@ -3137,7 +3144,16 @@ describe('/account/ecosystemAnonId', () => {
     );
   });
 
+  afterEach(() => {
+    mockLog.info.resetHistory();
+  });
+
   it('runs, informing the auth db of the new anon id', () => {
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'stuff and things',
+      });
+    };
     return runTest(route, mockRequest, (result) => {
       const updateEcosystemAnonId = mockDB.updateEcosystemAnonId;
       assert.deepEqual(result, {});
@@ -3271,5 +3287,23 @@ describe('/account/ecosystemAnonId', () => {
     }
 
     assert.isTrue(success);
+  });
+
+  it('logs old and new anon_ids on successful update', async () => {
+    mockRequest.headers['If-Match'] = hashAnonId(oldAnonId);
+    mockDB.account = sinon.spy(() => {
+      return P.resolve({
+        ecosystemAnonId: oldAnonId,
+      });
+    });
+    await runTest(route, mockRequest, () => {
+      assert.equal(mockLog.info.callCount, 1);
+      assert.equal(
+        mockLog.info.args[0][0],
+        'account.updateEcosystemAnonId.complete'
+      );
+      assert.equal(mockLog.info.args[0][1].previous, oldAnonId);
+      assert.equal(mockLog.info.args[0][1].next, ecosystemAnonId);
+    });
   });
 });
