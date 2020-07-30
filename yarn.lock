@@ -2019,26 +2019,26 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/react@npm:^0.11.0":
-  version: 0.11.1
-  resolution: "@fluent/react@npm:0.11.1"
+"@fluent/react@npm:^0.12.0":
+  version: 0.12.0
+  resolution: "@fluent/react@npm:0.12.0"
   dependencies:
-    "@fluent/sequence": 0.4.0
+    "@fluent/sequence": 0.5.0
     cached-iterable: ^0.2.1
     prop-types: ^15.6.0
   peerDependencies:
     "@fluent/bundle": ">=0.14.0 <0.16.0"
     react: ">=16.8.0"
-  checksum: 16837d2e5106b03846182a3e72b573efb3604e1cac014f8dedebc3a62638323cd3ade644a70c14738ea4f23569a1818a06297200f6d17cc6739a2e0ab73919dc
+  checksum: a51e1e9d9930303830fccf890ed3f6fc9d65e9de51f9116c826ea6b57a7dbfd4ea7901b62022a9a6b3af7ca6e90f21eb74b4d0bbb9f2c0d23871cea4053eb414
   languageName: node
   linkType: hard
 
-"@fluent/sequence@npm:0.4.0":
-  version: 0.4.0
-  resolution: "@fluent/sequence@npm:0.4.0"
+"@fluent/sequence@npm:0.5.0":
+  version: 0.5.0
+  resolution: "@fluent/sequence@npm:0.5.0"
   peerDependencies:
     "@fluent/bundle": ">= 0.13.0"
-  checksum: 4f276fa8590160e12b878abda80aa6050c74dce71ca7b22aa8178b6b3af1d7e93c7859db28e723ee73855f3b948aefabf2473a0d36a8b1bb4d28cb69b789a75e
+  checksum: 80e4fd609d09a89236332f467460f9c4a7362056615adbb1faafbdd37e39478b4a0752ff73729772ae35475e9f0c9200bb7ad18effb387470b1eea6a10780ce6
   languageName: node
   linkType: hard
 
@@ -4502,25 +4502,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/fluent__bundle@npm:*":
-  version: 0.14.2
-  resolution: "@types/fluent__bundle@npm:0.14.2"
-  checksum: bfe6ff9a08bf65fb7f87fa20f6771fe0c57b0e71a7224ad3270b7e7b0b2f5d26e0367e2281a9ae6a6358390d9912c18ea9b040a6e3548cee3c605d09e77f2f9b
-  languageName: node
-  linkType: hard
-
-"@types/fluent__react@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "@types/fluent__react@npm:0.10.0"
-  dependencies:
-    "@types/fluent__bundle": "*"
-    "@types/hoist-non-react-statics": "*"
-    "@types/react": "*"
-    csstype: ^2.2.0
-  checksum: ecc9a028deec07f11e1f8be19895c9e679beb263abdb84006d3ace51e65260d8e489498901770257c5519174dcd3612509131d8fe673bc41473469b3648742f8
-  languageName: node
-  linkType: hard
-
 "@types/fs-capacitor@npm:*":
   version: 2.0.0
   resolution: "@types/fs-capacitor@npm:2.0.0"
@@ -4671,7 +4652,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hoist-non-react-statics@npm:*, @types/hoist-non-react-statics@npm:^3.3.0":
+"@types/hoist-non-react-statics@npm:^3.3.0":
   version: 3.3.1
   resolution: "@types/hoist-non-react-statics@npm:3.3.1"
   dependencies:
@@ -15933,7 +15914,7 @@ fsevents@^1.2.7:
     "@babel/register": ^7.7.0
     "@fluent/bundle": ^0.15.1
     "@fluent/langneg": ^0.4.0
-    "@fluent/react": ^0.11.0
+    "@fluent/react": ^0.12.0
     "@rescripts/cli": ~0.0.14
     "@sentry/browser": ^5.17.0
     "@sentry/node": ^5.17.0
@@ -15947,7 +15928,6 @@ fsevents@^1.2.7:
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
     "@types/classnames": ^2.2.9
-    "@types/fluent__react": ^0.10.0
     "@types/jest": ^24.9.1
     "@types/jsdom": ^12.2.4
     "@types/nock": ^11.1.0

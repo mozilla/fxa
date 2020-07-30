@@ -5,7 +5,7 @@
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import 'intl-pluralrules';
 import { negotiateLanguages } from '@fluent/langneg';
-import { LocalizationProvider } from '@fluent/react';
+import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 import React, { Component } from 'react';
 
 import availableLocales from 'fxa-shared/l10n/supportedLanguages.json';
@@ -35,7 +35,7 @@ function fetchAllMessages(
   );
 }
 
-async function createMessagesGenerator(
+async function createFluentBundleGenerator(
   baseDir: string,
   currentLocales: Array<string>,
   bundles: Array<string>
@@ -48,7 +48,7 @@ async function createMessagesGenerator(
 
   const mergedBundle = fetched.reduce((obj, cur) => Object.assign(obj, cur));
 
-  return function* generateMessages() {
+  return function* generateFluentBundles() {
     for (const locale of currentLocales) {
       const sourceLocale = OTHER_EN_LOCALES.includes(locale) ? 'en-GB' : locale;
       const cx = new FluentBundle(locale);
@@ -65,7 +65,7 @@ type State = {
   baseDir: string;
   userLocales: ReadonlyArray<string>;
   bundles: Array<string>;
-  messages?: Generator<FluentBundle, void, unknown>;
+  l10n?: ReactLocalization;
 };
 
 type Props = {
@@ -105,24 +105,24 @@ export default class AppLocalizationProvider extends Component<Props, State> {
       }
     );
 
-    const generateMessages = await createMessagesGenerator(
+    const bundleGenerator = await createFluentBundleGenerator(
       baseDir,
       currentLocales,
       bundles
     );
-    this.setState({ messages: generateMessages() });
+    this.setState({ l10n: new ReactLocalization(bundleGenerator()) });
   }
 
   render() {
     const { children } = this.props;
-    const { messages } = this.state;
+    const { l10n } = this.state;
 
-    if (!messages) {
+    if (!l10n) {
       return <div />;
     }
 
     return (
-      <LocalizationProvider bundles={messages}>{children}</LocalizationProvider>
+      <LocalizationProvider l10n={l10n}>{children}</LocalizationProvider>
     );
   }
 }
