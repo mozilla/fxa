@@ -129,7 +129,7 @@ describe('<AppLocalizationProvider/>', () => {
     const { getByTestId } = render(
       <AppLocalizationProvider bundles={bundles} userLocales={['en-NZ']}>
         <main data-testid="result">
-          <Localized id="hello" $amount={getLocalizedCurrency(123, 'USD')}>
+          <Localized id="hello" vars={{ amount: getLocalizedCurrency(123, 'USD') }}>
             <div>untranslated</div>
           </Localized>
         </main>

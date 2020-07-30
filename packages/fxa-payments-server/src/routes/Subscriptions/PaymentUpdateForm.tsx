@@ -156,10 +156,12 @@ export const PaymentUpdateForm = ({
       </h3>
       <Localized
         id={`pay-update-billing-description-${plan.interval}`}
-        $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-        $intervalCount={plan.interval_count}
-        $name={plan.product_name}
-        $date={getLocalizedDate(customerSubscription.current_period_end, true)}
+        vars={{
+          amount: getLocalizedCurrency(plan.amount, plan.currency),
+          intervalCount: plan.interval_count,
+          name: plan.product_name,
+          date: getLocalizedDate(customerSubscription.current_period_end, true),
+        }}
       >
         <p className="billing-description">{billingDescriptionText}</p>
       </Localized>
@@ -176,12 +178,12 @@ export const PaymentUpdateForm = ({
             {last4 && expirationDate && (
               <>
                 {/* TODO: Need to find a way to display a card icon here? */}
-                <Localized id="sub-update-card-ending" $last={last4}>
+                <Localized id="sub-update-card-ending" vars={{ last: last4 }}>
                   <div className="last-four">Card ending {last4}</div>
                 </Localized>
                 <Localized
                   id="pay-update-card-exp"
-                  $expirationDate={expirationDate}
+                  vars={{ expirationDate }}
                 >
                   <div data-testid="card-expiration-date" className="expiry">
                     Expires {expirationDate}

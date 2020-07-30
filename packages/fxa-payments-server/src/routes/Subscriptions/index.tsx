@@ -364,8 +364,10 @@ const CancellationDialogMessage = ({
       </Localized>
       <Localized
         id="sub-route-idx-cancel-msg"
-        $name={plan.product_name}
-        $date={getLocalizedDate(customerSubscription.current_period_end)}
+        vars={{
+          name: plan.product_name,
+          date: getLocalizedDate(customerSubscription.current_period_end),
+        }}
       >
         <p>
           Your {plan.product_name} subscription has been cancelled.
@@ -380,8 +382,8 @@ const CancellationDialogMessage = ({
       </Localized>
       <Localized
         id="sub-route-idx-cancel-aside"
-        $url={supportFormUrl}
-        a={<a href={supportFormUrl}></a>}
+        vars={{ url: supportFormUrl }}
+        elems={{ a: <a href={supportFormUrl}></a> }}
       >
         <p className="small">
           Have questions? Visit <a href={supportFormUrl}>Mozilla Support</a>.

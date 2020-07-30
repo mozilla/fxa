@@ -226,11 +226,15 @@ export const PaymentForm = ({
         <>
           <Localized
             id={`payment-confirm-with-legal-links-${plan.interval}`}
-            $intervalCount={plan.interval_count}
-            $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-            strong={<strong></strong>}
-            termsOfServiceLink={<a href={termsOfServiceURL}></a>}
-            privacyNoticeLink={<a href={privacyNoticeURL}></a>}
+            vars={{
+              intervalCount: plan.interval_count,
+              amount: getLocalizedCurrency(plan.amount, plan.currency),
+            }}
+            elems={{
+              strong: <strong></strong>,
+              termsOfServiceLink: <a href={termsOfServiceURL}></a>,
+              privacyNoticeLink: <a href={privacyNoticeURL}></a>,
+            }}
           >
             <Checkbox data-testid="confirm" name="confirm" required>
               {getDefaultPaymentConfirmText(

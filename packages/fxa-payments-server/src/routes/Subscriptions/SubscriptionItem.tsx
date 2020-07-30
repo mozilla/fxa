@@ -224,8 +224,10 @@ const CancelSubscriptionPanel = ({
             </Localized>
             <Localized
               id="sub-item-cancel-msg"
-              $name={plan.product_name}
-              $period={getLocalizedDate(current_period_end)}
+              vars={{
+                name: plan.product_name,
+                period: getLocalizedDate(current_period_end),
+              }}
             >
               <p>
                 You will no longer be able to use {plan.product_name} after{' '}
@@ -243,8 +245,10 @@ const CancelSubscriptionPanel = ({
                 />
                 <Localized
                   id="sub-item-cancel-confirm"
-                  $name={plan.product_name}
-                  $period={getLocalizedDate(current_period_end)}
+                  vars={{
+                    name: plan.product_name,
+                    period: getLocalizedDate(current_period_end),
+                  }}
                 >
                   <span>
                     Cancel my access and my saved information within{' '}

@@ -113,8 +113,8 @@ describe('PaymentConfirmation', () => {
         });
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-        expect(planPriceComponent.props.$amount).toStrictEqual(expectedAmount);
-        expect(planPriceComponent.props.$intervalCount).toBe(
+        expect(planPriceComponent.props.vars.amount).toStrictEqual(expectedAmount);
+        expect(planPriceComponent.props.vars.intervalCount).toBe(
           plan.interval_count
         );
         expect(planPriceComponent.props.children.props.children).toBe(

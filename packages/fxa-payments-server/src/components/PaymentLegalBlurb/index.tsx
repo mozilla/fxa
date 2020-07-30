@@ -11,13 +11,13 @@ export const PaymentLegalBlurb = () => (
 
     <Localized
       id="payment-legal-link"
-      a={
-        <a
+      elems={{
+        a: <a
           href="https://stripe.com/privacy"
           target="_blank"
           rel="noopener noreferrer"
         ></a>
-      }
+      }}
     >
       <p>
         View the <a>Stripe privacy policy</a>.

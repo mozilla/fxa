@@ -59,12 +59,12 @@ describe('PaymentUpdateForm', () => {
         true
       );
 
-      expect(billingDetails.props.$amount).toStrictEqual(expectedAmount);
-      expect(billingDetails.props.$intervalCount).toBe(
+      expect(billingDetails.props.vars.amount).toStrictEqual(expectedAmount);
+      expect(billingDetails.props.vars.intervalCount).toBe(
         props.plan.interval_count
       );
-      expect(billingDetails.props.$name).toBe(props.plan.product_name);
-      expect(billingDetails.props.$date).toStrictEqual(expectedDate);
+      expect(billingDetails.props.vars.name).toBe(props.plan.product_name);
+      expect(billingDetails.props.vars.date).toStrictEqual(expectedDate);
       expect(billingDetails.props.children.props.children).toBe(expectedMsg);
     }
 
