@@ -90,6 +90,10 @@ const EVENTS = {
     group: GROUPS.login,
     event: 'complete',
   },
+  'pairing.signin.success': {
+    group: GROUPS.login,
+    event: 'complete',
+  },
 
   // Signup code based metrics
   'screen.confirm-signup-code': {
