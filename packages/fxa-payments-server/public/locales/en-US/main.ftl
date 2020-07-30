@@ -198,30 +198,31 @@ plan-price-year = { $intervalCount ->
   *[other] { $amount } every { $intervalCount } years
 }
 
-## payment update
-##  $name (String) - The name of the subscribed product.
-##  $amount (Number) - The amount billed. It will be formatted as currency.
-##  $date (Date) - The date for the next time a charge will occur.
+
+## subscription billing details
+## $amount (Number) - The amount billed. It will be formatted as currency.
 #  $intervalCount (Number) - The interval between payments, in days.
-pay-update-billing-description-day = { $intervalCount ->
-  [one] You are billed { $amount } daily for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every { $intervalCount } days for { $name }. Your next payment occurs on { $date }.
+sub-plan-price-day = { $intervalCount ->
+  [one] { $amount } daily
+  *[other] { $amount } every { $intervalCount } days
 }
 #  $intervalCount (Number) - The interval between payments, in weeks.
-pay-update-billing-description-week = { $intervalCount ->
-  [one] You are billed { $amount } weekly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every { $intervalCount } weeks for { $name }. Your next payment occurs on { $date }.
+sub-plan-price-week = { $intervalCount ->
+  [one] { $amount } weekly
+  *[other] { $amount } every { $intervalCount } weeks
 }
 #  $intervalCount (Number) - The interval between payments, in months.
-pay-update-billing-description-month = { $intervalCount ->
-  [one] You are billed { $amount } monthly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every { $intervalCount } months for { $name }. Your next payment occurs on { $date }.
+sub-plan-price-month = { $intervalCount ->
+  [one] { $amount } monthly
+  *[other] { $amount } every { $intervalCount } months
 }
 #  $intervalCount (Number) - The interval between payments, in years.
-pay-update-billing-description-year = { $intervalCount ->
-  [one] You are billed { $amount } yearly for { $name }. Your next payment occurs on { $date }.
-  *[other] You are billed { $amount } every { $intervalCount } years for { $name }. Your next payment occurs on { $date }.
+sub-plan-price-year = { $intervalCount ->
+  [one] { $amount } yearly
+  *[other] { $amount } every { $intervalCount } years
 }
+## $date (Date) - The date for the next time a charge will occur.
+sub-next-bill = Next billed on { $date }
 
 ##
 pay-update-card-exp = Expires { $expirationDate }

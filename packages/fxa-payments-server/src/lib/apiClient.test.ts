@@ -347,18 +347,14 @@ describe('API requests', () => {
       productId: 'prod_4567',
       paymentToken: 'pmt_234234',
     };
-    const metricsOptions = {
-      planId: params.planId,
-      productId: params.productId,
-    };
 
     it('POST {auth-server}/v1/oauth/subscriptions/updatePayment', async () => {
       const requestMock = nock(AUTH_BASE_URL)
         .post(path, { paymentToken: params.paymentToken })
         .reply(200, {});
       expect(await apiUpdatePayment(params)).toEqual({});
-      expect(<jest.Mock>updatePayment_PENDING).toBeCalledWith(metricsOptions);
-      expect(<jest.Mock>updatePayment_FULFILLED).toBeCalledWith(metricsOptions);
+      expect(<jest.Mock>updatePayment_PENDING).toBeCalledWith();
+      expect(<jest.Mock>updatePayment_FULFILLED).toBeCalledWith();
       requestMock.done();
     });
 
@@ -373,9 +369,8 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>updatePayment_PENDING).toBeCalledWith(metricsOptions);
+      expect(<jest.Mock>updatePayment_PENDING).toBeCalledWith();
       expect(<jest.Mock>updatePayment_REJECTED).toBeCalledWith({
-        ...metricsOptions,
         error,
       });
       requestMock.done();
@@ -513,12 +508,8 @@ describe('API requests', () => {
         MOCK_CUSTOMER
       );
 
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
-        metricsOptions
-      );
-      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith({
-        ...metricsOptions,
-      });
+      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith();
+      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith();
       requestMock.done();
     });
 
@@ -534,11 +525,8 @@ describe('API requests', () => {
         error = e;
       }
       expect(error).not.toBeNull();
-      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
-        metricsOptions
-      );
+      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith();
       expect(<jest.Mock>updateDefaultPaymentMethod_REJECTED).toBeCalledWith({
-        ...metricsOptions,
         error,
       });
       requestMock.done();

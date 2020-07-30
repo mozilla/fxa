@@ -31,7 +31,8 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
-import {
+import PaymentUpdateForm from './PaymentUpdateForm';
+import PaymentUpdateFormV2, {
   PaymentUpdateStripeAPIs,
   PaymentUpdateAuthServerAPIs,
 } from './PaymentUpdateFormV2';
@@ -192,6 +193,12 @@ export const Subscriptions = ({
     return <LoadingOverlay isLoading={true} />;
   }
 
+  const hasActiveSubscription =
+    customerSubscriptions &&
+    customerSubscriptions.some((s) => !s.cancel_at_period_end);
+  const showPaymentUpdateForm =
+    customer && customer.result && hasActiveSubscription;
+
   return (
     <div className="subscription-management" onClick={onAnyClick}>
       {customerSubscriptions && cancelSubscriptionStatus.result !== null && (
@@ -292,6 +299,32 @@ export const Subscriptions = ({
               </button>
             </div>
           </div>
+
+          {customer.result && showPaymentUpdateForm && (
+            <>
+              {useSCAPaymentFlow ? (
+                <PaymentUpdateFormV2
+                  {...{
+                    customer: customer.result,
+                    refreshSubscriptions: fetchSubscriptionsRouteResources,
+                    setUpdatePaymentIsSuccess,
+                    resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
+                    stripeOverride: paymentUpdateStripeOverride,
+                    apiClientOverrides: paymentUpdateApiClientOverrides,
+                  }}
+                />
+              ) : (
+                <PaymentUpdateForm
+                  {...{
+                    customer: customer.result,
+                    updatePayment,
+                    resetUpdatePayment,
+                    updatePaymentStatus,
+                  }}
+                />
+              )}
+            </>
+          )}
 
           {customer.result &&
             customerSubscriptions &&

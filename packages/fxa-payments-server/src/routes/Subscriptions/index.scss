@@ -1,3 +1,4 @@
+@import '../../../../fxa-content-server/app/styles/variables';
 @import '../../../../fxa-content-server/app/styles/breakpoints';
 
 .subscription-management {
@@ -26,7 +27,8 @@
     border: 0;
   }
 
-  .subscription {
+  .subscription,
+  .payment-update {
     margin: 25px 32px;
 
     @include respond-to('simpleSmall') {
@@ -44,12 +46,18 @@
     }
   }
 
-  .cancel-subscription {
-    border-top: 1px solid #e0e0e6;
-    padding-top: 16px;
+  .payment-update {
+    header {
+      h2 {
+        font-weight: 600;
+      }
+    }
+  }
 
+
+  .cancel-subscription {
     p {
-      color: #737373;
+      color: $faint-text-color;
       line-height: 1.5;
     }
 
@@ -76,19 +84,28 @@
     }
   }
 
-  .card-details {
+  .card-details,
+  .price-details {
+    color: $faint-text-color;
     display: flex;
     flex: 4;
 
+    > div {
+      padding-right: 32px;
+    }
+  }
+  .card-details {
     .last-four,
     .expiry {
       align-items: center;
       display: flex;
-      font-weight: 700;
     }
+  }
+  .price-details {
+    flex-direction: column;
 
-    > div {
-      padding-right: 32px;
+    .plan-pricing {
+      font-weight: 600;
     }
   }
 
@@ -124,11 +141,9 @@
   }
 
   .payment-update {
-    padding-bottom: 18px;
-
     .upgrade-cta,
     .billing-description {
-      color: #737373;
+      color: $faint-text-color;
       line-height: 1.5;
     }
 
