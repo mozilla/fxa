@@ -18,7 +18,8 @@ export class SessionTokenAuth {
       const result = await this.authClient.sessionStatus(sessionToken);
       return result.uid;
     } catch (err) {
-      throw new AuthenticationError('Invalid session token');
+      console.log(err);
+      throw new AuthenticationError('Invalid session token: ' + err);
     }
   }
 }
