@@ -1,3 +1,9 @@
+## 1.182.0
+
+### Bug fixes
+
+- emails: Account for formatting chars in max email header length. ([80074dad8](https://github.com/mozilla/fxa/commit/80074dad8))
+
 ## 1.181.2
 
 No changes.

@@ -1,3 +1,28 @@
+## 1.182.0
+
+### New features
+
+- aet: make either precondition header mandatory when updating anon id ([e1ff5ed54](https://github.com/mozilla/fxa/commit/e1ff5ed54))
+- auth-server: send email on upgrade from cancelled ([98ca2a16e](https://github.com/mozilla/fxa/commit/98ca2a16e))
+- payments: use SetupIntent API for SCA payment update ([9592b4233](https://github.com/mozilla/fxa/commit/9592b4233))
+
+### Bug fixes
+
+- emails: Send post account verify email when created from sync scope client ([e587c4ef1](https://github.com/mozilla/fxa/commit/e587c4ef1))
+- aet: When the eco_anon_id is updated, log the old and new values ([44598a3f2](https://github.com/mozilla/fxa/commit/44598a3f2))
+- emails: Fix translation test ([ee696c65a](https://github.com/mozilla/fxa/commit/ee696c65a))
+
+### Refactorings
+
+- auth-server: convert subscriptions to TS ([b94d0c99b](https://github.com/mozilla/fxa/commit/b94d0c99b))
+- auth-server: use type-cacheable for caching ([db20d6995](https://github.com/mozilla/fxa/commit/db20d6995))
+
+### Other changes
+
+- aet: Add logging to profile-server get anon_id route ([a571fcc82](https://github.com/mozilla/fxa/commit/a571fcc82))
+- oauth: add Firefox Send oauth client to local config ([ec822aff0](https://github.com/mozilla/fxa/commit/ec822aff0))
+- emails: remove ! from sub receipt email ([bad8a59a8](https://github.com/mozilla/fxa/commit/bad8a59a8))
+
 ## 1.181.2
 
 ### Bug fixes

@@ -1,3 +1,17 @@
+## 1.182.0
+
+### New features
+
+- aet: make either precondition header mandatory when updating anon id ([e1ff5ed54](https://github.com/mozilla/fxa/commit/e1ff5ed54))
+
+### Bug fixes
+
+- profile: aet call to auth server should be put, not get ([316dd5d77](https://github.com/mozilla/fxa/commit/316dd5d77))
+
+### Other changes
+
+- aet: Add logging to profile-server get anon_id route ([a571fcc82](https://github.com/mozilla/fxa/commit/a571fcc82))
+
 ## 1.181.2
 
 No changes.
