@@ -3149,11 +3149,13 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('runs, informing the auth db of the new anon id', () => {
+    mockRequest.headers['If-None-Match'] = '*';
     mockDB.account = function () {
       return P.resolve({
-        ecosystemAnonId: 'stuff and things',
+        ecosystemAnonId: null,
       });
     };
+
     return runTest(route, mockRequest, (result) => {
       const updateEcosystemAnonId = mockDB.updateEcosystemAnonId;
       assert.deepEqual(result, {});
@@ -3162,6 +3164,24 @@ describe('/account/ecosystemAnonId', () => {
       assert.equal(updateEcosystemAnonId.args[0][0], uid);
       assert.equal(updateEcosystemAnonId.args[0][1], ecosystemAnonId);
     });
+  });
+
+  it('throws anonIdNoCondition when neither if-none-match nor if-match are present', async () => {
+    mockDB.account = function () {
+      return P.resolve({
+        ecosystemAnonId: 'heheheheheh',
+      });
+    };
+
+    let failed = false;
+    try {
+      await runTest(route, mockRequest, () => {});
+    } catch (err) {
+      failed = true;
+      assert.equal(err.errno, error.ERRNO.ECOSYSTEM_ANON_ID_NO_CONDITION);
+    }
+
+    assert.isTrue(failed);
   });
 
   it('throws invalidScopes when valid scope is not present', async () => {

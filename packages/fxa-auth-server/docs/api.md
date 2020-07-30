@@ -1157,6 +1157,11 @@ by the following errors
 
 Adds new or updates existing user Ecosystem Anonymous ID.
 
+Note that _either_ request header `If-Match` or `If-None-Match` is required to perform this request.
+
+- `If-Match` with a value of your known Ecosystem Anonymous ID, SHA-256 hashed, to set a new ID if it matches the passed in ID.
+- `If-None-Match` with a value of `*` to set a new ID if one does not already exist, or your known Ecosystem Anonymous ID, SHA-256 hashed, to set a new ID if it does not match the passed in ID.
+
 <!--end-route-put-accountmetricsecosystemanonId-->
 
 ##### Request body
@@ -1180,6 +1185,9 @@ by the following errors
 - `code: 412, errno: 190`:
   Could not update because criteria set by a header,
   either If-None-Match or If-Match, was not met
+- `code: 400, errno: 191`:
+  Header If-None-Match or If-Match is required to
+  perform the request
 
 ### Devices and sessions
 

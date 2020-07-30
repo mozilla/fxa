@@ -1706,6 +1706,7 @@ describe('api', function () {
         };
         const headers = {
           authorization: `Bearer ${tok}`,
+          'If-None-Match': '*',
         };
 
         mock.anonIdUpdated(payload, headers);
@@ -1721,6 +1722,30 @@ describe('api', function () {
         });
 
         assert.equal(res.statusCode, 200);
+        assertSecurityHeaders(res);
+      });
+
+      it('should fail post if neither if-none-match nor if-match headers are present', async function () {
+        const payload = {
+          ecosystemAnonId: 'beans on pizza',
+        };
+        const headers = {
+          authorization: `Bearer ${tok}`,
+        };
+
+        mock.token({
+          user: USERID,
+          scope: ['profile:ecosystem_anon_id:write'],
+        });
+
+        const res = await Server.api.post({
+          url: '/ecosystem_anon_id',
+          payload,
+          headers,
+        });
+
+        assert.equal(res.statusCode, 400);
+        assert.equal(res.result.errno, 107);
         assertSecurityHeaders(res);
       });
 
