@@ -107,6 +107,7 @@ fn set_custom_header(message: MessageBuilder, name: &str, value: &str) -> Messag
         "x-uid" => message.header(Uid::new(value.to_owned())),
         "x-unblock-code" => message.header(UnblockCode::new(value.to_owned())),
         "x-verify-code" => message.header(VerifyCode::new(value.to_owned())),
+        "x-verify-short-code" => message.header(VerifyShortCode::new(value.to_owned())),
         _ => message,
     }
 }
