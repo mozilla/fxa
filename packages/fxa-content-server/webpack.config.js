@@ -127,9 +127,9 @@ const webpackConfig = {
           path.resolve(__dirname, 'app', 'tests'),
         ],
         exclude: [
-          path.resolve(__dirname, 'app', 'scripts', 'vendor'),
           path.resolve(__dirname, 'app', 'scripts', 'templates'),
           path.resolve(__dirname, 'node_modules'),
+          path.resolve(__dirname, '..', '..', 'node_modules'),
         ],
         use: [
           {
@@ -144,17 +144,28 @@ const webpackConfig = {
           {
             loader: 'babel-loader',
             options: {
+              babelrc: false,
               cacheDirectory: true,
               presets: [
-                ['@babel/preset-react', {}],
                 [
                   '@babel/preset-env',
                   {
                     targets: {
                       firefox: '60',
+                      edge: '16'
                     },
+                    corejs: 3,
+                    include: [
+                      // these are all for edge - setting the target isn't enough
+                      '@babel/plugin-transform-classes',
+                      '@babel/plugin-transform-destructuring',
+                      '@babel/plugin-transform-spread',
+                      '@babel/plugin-proposal-object-rest-spread',
+                    ],
+                    useBuiltIns: 'entry',
                   },
                 ],
+                ['@babel/preset-react', {}],
                 '@babel/preset-typescript',
               ],
               plugins: [
