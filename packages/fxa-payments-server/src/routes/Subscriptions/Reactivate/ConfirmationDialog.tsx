@@ -44,7 +44,9 @@ export default ({
       </div>
       <Localized
         id="reactivate-confirm-dialog-header"
-        $name={plan.product_name}
+        vars={{
+          name: plan.product_name
+        }}
       >
         <h4>Want to keep using {plan.product_name}?</h4>
       </Localized>
@@ -52,10 +54,12 @@ export default ({
       {last4 && (
         <Localized
           id="reactivate-confirm-copy"
-          $name={plan.product_name}
-          $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-          $last={last4}
-          $endDate={getLocalizedDate(periodEndDate)}
+          vars={{
+            name: plan.product_name,
+            amount: getLocalizedCurrency(plan.amount, plan.currency),
+            last: last4,
+            endDate: getLocalizedDate(periodEndDate),
+          }}
         >
           <p>
             Your access to {plan.product_name} will continue, and your billing
@@ -68,9 +72,11 @@ export default ({
       {!last4 && (
         <Localized
           id="reactivate-confirm-without-payment-method-copy"
-          $name={plan.product_name}
-          $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-          $endDate={getLocalizedDate(periodEndDate)}
+          vars={{
+            name: plan.product_name,
+            amount: getLocalizedCurrency(plan.amount, plan.currency),
+            endDate: getLocalizedDate(periodEndDate),
+          }}
         >
           <p>
             Your access to {plan.product_name} will continue, and your billing

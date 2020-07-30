@@ -98,7 +98,7 @@ const Subject = ({
     validatorMiddlewareReducer,
     onMounted: () => {},
     onEngaged: () => {},
-    getString: () => {},
+    getString: x => x,
   };
   return (
     <MockPage locale={locale}>

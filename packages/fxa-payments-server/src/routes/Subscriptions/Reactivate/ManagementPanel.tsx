@@ -54,9 +54,13 @@ export default ({
           <div className="subscription-cancelled-details">
             <Localized
               id="reactivate-panel-copy"
-              $name={plan.product_name}
-              $date={getLocalizedDate(periodEndTimeStamp)}
-              strong={<strong></strong>}
+              vars={{
+                name: plan.product_name,
+                date: getLocalizedDate(periodEndTimeStamp),
+              }}
+              elems={{
+                strong: <strong></strong>,
+              }}
             >
               <p>
                 You will lose access to {plan.product_name} on{' '}

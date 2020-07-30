@@ -6,7 +6,7 @@ import React, {
   DetailedHTMLProps,
   FormHTMLAttributes,
 } from 'react';
-import { withLocalization } from '@fluent/react';
+import { withLocalization, WithLocalizationProps } from '@fluent/react';
 import { ReactStripeElements } from 'react-stripe-elements';
 import { CardElementProps } from '@stripe/react-stripe-js';
 import classNames from 'classnames';
@@ -115,8 +115,7 @@ export type OnValidateFunction = (
 
 type InputProps = {
   onValidate?: OnValidateFunction;
-  getString?: Function;
-} & FieldProps &
+} & WithLocalizationProps & FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement

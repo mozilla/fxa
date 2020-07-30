@@ -20,7 +20,7 @@ import {
 } from 'fxa-payments-server/src/lib/formats';
 import { defaultState } from 'fxa-payments-server/src/store/state';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import { LocalizationProvider } from '@fluent/react';
+import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 
 const { queryByTestId, queryByText, queryAllByText, getByTestId } = screen;
 
@@ -127,7 +127,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
         render(
-          <LocalizationProvider bundles={[bundle]}>
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
         );
@@ -147,7 +147,7 @@ describe('CancelSubscriptionPanel', () => {
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
         render(
-          <LocalizationProvider bundles={[bundle]}>
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
         );
@@ -166,7 +166,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
         render(
-          <LocalizationProvider bundles={[bundle]}>
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
         );

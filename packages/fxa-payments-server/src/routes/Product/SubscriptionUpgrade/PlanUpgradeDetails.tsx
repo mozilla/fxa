@@ -58,11 +58,13 @@ export const PlanUpgradeDetails = ({
             </Localized>
             <Localized
               id={`plan-price-${selectedPlan.interval}`}
-              $amount={getLocalizedCurrency(
-                selectedPlan.amount,
-                selectedPlan.currency
-              )}
-              $intervalCount={selectedPlan.interval_count}
+              vars={{
+                amount: getLocalizedCurrency(
+                  selectedPlan.amount,
+                  selectedPlan.currency
+                ),
+                intervalCount: selectedPlan.interval_count,
+              }}
             >
               <p className="total-price">{totalPrice}</p>
             </Localized>
@@ -122,8 +124,10 @@ export const PlanDetailsCard = ({
             <p className="product-description plan-details-description">
               <Localized
                 id={`plan-price-${interval}`}
-                $amount={getLocalizedCurrency(amount, currency)}
-                $intervalCount={interval_count}
+                vars={{
+                  amount: getLocalizedCurrency(amount, currency),
+                  intervalCount: interval_count,
+                }}
               >
                 {planPrice}
               </Localized>

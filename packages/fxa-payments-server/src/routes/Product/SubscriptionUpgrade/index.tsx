@@ -148,7 +148,9 @@ export const SubscriptionUpgrade = ({
             <div>
               <Localized
                 id="payment-confirmation-cc-preview"
-                $last4={cardLast4}
+                vars={{
+                  last4: cardLast4
+                }}
               >
                 <p className={`c-card ${cardBrandLc}`}>
                   {' '}
@@ -166,9 +168,11 @@ export const SubscriptionUpgrade = ({
             <hr />
             <Localized
               id="sub-update-copy"
-              $startingDate={getLocalizedDate(
-                upgradeFromSubscription.current_period_end
-              )}
+              vars={{
+                startingDate: getLocalizedDate(
+                  upgradeFromSubscription.current_period_end
+                )
+              }}
             >
               <p>
                 Your plan will change immediately, and you’ll be charged an
@@ -184,14 +188,18 @@ export const SubscriptionUpgrade = ({
 
             <Localized
               id={`sub-update-confirm-with-legal-links-${selectedPlan.interval}`}
-              strong={<strong></strong>}
-              $amount={getLocalizedCurrency(
-                selectedPlan.amount,
-                selectedPlan.currency
-              )}
-              $intervalCount={selectedPlan.interval_count}
-              termsOfServiceLink={<a href={termsOfServiceURL}></a>}
-              privacyNoticeLink={<a href={privacyNoticeURL}></a>}
+              vars={{
+                amount: getLocalizedCurrency(
+                  selectedPlan.amount,
+                  selectedPlan.currency
+                ),
+                intervalCount: selectedPlan.interval_count,
+              }}
+              elems={{
+                strong: <strong></strong>,
+                termsOfServiceLink: <a href={termsOfServiceURL}></a>,
+                privacyNoticeLink: <a href={privacyNoticeURL}></a>,
+              }}
             >
               <Checkbox
                 data-testid="confirm"
