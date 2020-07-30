@@ -61,6 +61,11 @@ const updateAuthServer = function (
             return reject(new AppError.unauthorized(body.message));
           }
 
+          if (body.errno === 191) {
+            logger.info('request.auth_server.no_condition', body);
+            return reject(new AppError.anonIdNoCondition());
+          }
+
           if (body.code === 412 || body.errno === 190) {
             logger.info('request.auth_server.precondition_fail', body);
             return reject(
@@ -121,7 +126,11 @@ module.exports = {
           uid: uid,
         });
 
-        if (existingAnonId && (ifNoneMatch || ifMatch)) {
+        if (!ifNoneMatch && !ifMatch) {
+          throw AppError.anonIdNoCondition();
+        }
+
+        if (existingAnonId) {
           const hashedAnonId = hashAnonId(existingAnonId);
 
           if (ifMatch && ifMatch !== hashedAnonId) {

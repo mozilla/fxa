@@ -220,4 +220,19 @@ AppError.anonIdUpdateConflict = function anonIdExists(headerName, message) {
   );
 };
 
+AppError.anonIdNoCondition = function anonIdNoCondition(err) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: 107,
+      message:
+        'Header If-None-Match or If-Match is required to perform the request',
+    },
+    {
+      cause: err,
+    }
+  );
+};
+
 module.exports = AppError;

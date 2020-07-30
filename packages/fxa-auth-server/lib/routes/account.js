@@ -1494,7 +1494,11 @@ module.exports = (
       method: 'PUT',
       path: '/account/ecosystemAnonId',
       apidoc: {
-        errors: [error.invalidScopes, error.anonIdUpdateConflict],
+        errors: [
+          error.invalidScopes,
+          error.anonIdUpdateConflict,
+          error.anonIdNoCondition,
+        ],
       },
       options: {
         auth: {
@@ -1536,9 +1540,13 @@ module.exports = (
 
         await customs.check(request, uid, 'updateEcosystemAnonId');
 
+        if (!ifNoneMatch && !ifMatch) {
+          throw error.anonIdNoCondition()
+        }
+
         const { ecosystemAnonId: existingAnonId } = await db.account();
 
-        if ((ifNoneMatch || ifMatch) && existingAnonId) {
+        if (existingAnonId) {
           const hashedAnonId = hashAnonId(existingAnonId);
 
           if (ifMatch && ifMatch !== hashedAnonId) {
