@@ -57,6 +57,18 @@ button {
     }
   }
 
+  &.tertiary-button {
+    background: transparent;
+    color: $blue-60;
+
+    &:hover {
+      color: $blue-70;
+    }
+    &:active {
+      color: $blue-80;
+    }
+  }
+
   &.warning-button {
     background: $error-background-color;
     border: 0;

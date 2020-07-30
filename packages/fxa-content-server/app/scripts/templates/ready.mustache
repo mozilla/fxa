@@ -27,7 +27,9 @@
       {{^isFromRelyingParty}}
         {{#emailVerified}}
           <p class="account-ready-service">{{{escapedEmailReadyText}}}</p>
-          <button class="button-link btn-goto-account">{{#t}}Continue to my account{{/t}}</button>
+          <div class="links">
+            <a href="#" class="btn-goto-account">{{#t}}Continue to my account{{/t}}</a>
+          </div>
         {{/emailVerified}}
         {{^emailVerified}}
           {{#isSignedIn}}
@@ -43,7 +45,9 @@
       {{#isPasswordReset}}
           <div class="button-row">
               <button class="primary-button btn-create-recovery-key">{{#t}}Generate a new recovery key{{/t}}</button>
-              <button class="button-link btn-goto-account">{{#t}}Continue to my account{{/t}}</button>
+          </div>
+          <div class="links">
+            <a href="#" class="btn-goto-account">{{#t}}Continue to my account{{/t}}</a>
           </div>
       {{/isPasswordReset}}
 
