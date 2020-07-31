@@ -2005,31 +2005,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/bundle@npm:^0.15.1":
-  version: 0.15.1
-  resolution: "@fluent/bundle@npm:0.15.1"
-  checksum: 30c21b7ad07c961db50d93861a7a92ab460d3fc30e390490679cd62b20da1e2ee4b6debbf990349a32302f9b1799c09fe05ddef244733cef2ac85d3a702290b2
+"@fluent/bundle@npm:^0.16.0":
+  version: 0.16.0
+  resolution: "@fluent/bundle@npm:0.16.0"
+  checksum: 02a911fdb6708cf5efb63d055b179e13fc9027434eb711eefb70cf8b23b6f81f6dc4444349a0c9cf0eb971aa9e604835740a2a2a7bb3c42cbb4c018f7f57f30b
   languageName: node
   linkType: hard
 
-"@fluent/langneg@npm:^0.4.0":
-  version: 0.4.0
-  resolution: "@fluent/langneg@npm:0.4.0"
-  checksum: c7093da0e242ec046c6f0da0068082dc2b29a05c5dcf6e6fdd6113b5c76ed99ca5f962f5e262b925a00d4ee6cb89d8deaa96f8872a210e0ce3f6a9c0bfe98f61
+"@fluent/langneg@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@fluent/langneg@npm:0.5.0"
+  checksum: ea8cff2da909412fb34076ccfa7b344048ae53681af0535b5ba06d80bcadfc25a5abd3214fc3fb7cad25ed45ee6564768c8269126253708bb54b77913b58338a
   languageName: node
   linkType: hard
 
-"@fluent/react@npm:^0.12.0":
-  version: 0.12.0
-  resolution: "@fluent/react@npm:0.12.0"
+"@fluent/react@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@fluent/react@npm:0.13.0"
   dependencies:
     "@fluent/sequence": 0.5.0
     cached-iterable: ^0.2.1
     prop-types: ^15.6.0
   peerDependencies:
-    "@fluent/bundle": ">=0.14.0 <0.16.0"
+    "@fluent/bundle": ">=0.16.0 <0.17.0"
     react: ">=16.8.0"
-  checksum: a51e1e9d9930303830fccf890ed3f6fc9d65e9de51f9116c826ea6b57a7dbfd4ea7901b62022a9a6b3af7ca6e90f21eb74b4d0bbb9f2c0d23871cea4053eb414
+  checksum: 0c1e1db21dc943f0b53b95d7834dc38dd53d2892e1c5b10267c493028aeee5c64ce32b99fbecdb7abc15aa8602fe40f694bf616035379ed342fa2d9cfcdb89ba
   languageName: node
   linkType: hard
 
@@ -15912,9 +15912,9 @@ fsevents@^1.2.7:
   dependencies:
     "@babel/core": ^7.10.3
     "@babel/register": ^7.7.0
-    "@fluent/bundle": ^0.15.1
-    "@fluent/langneg": ^0.4.0
-    "@fluent/react": ^0.12.0
+    "@fluent/bundle": ^0.16.0
+    "@fluent/langneg": ^0.5.0
+    "@fluent/react": ^0.13.0
     "@rescripts/cli": ~0.0.14
     "@sentry/browser": ^5.17.0
     "@sentry/node": ^5.17.0

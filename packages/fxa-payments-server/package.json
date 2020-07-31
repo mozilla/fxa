@@ -37,9 +37,9 @@
   "devDependencies": {
     "@babel/core": "^7.10.3",
     "@babel/register": "^7.7.0",
-    "@fluent/bundle": "^0.15.1",
-    "@fluent/langneg": "^0.4.0",
-    "@fluent/react": "^0.12.0",
+    "@fluent/bundle": "^0.16.0",
+    "@fluent/langneg": "^0.5.0",
+    "@fluent/react": "^0.13.0",
     "@rescripts/cli": "~0.0.14",
     "@storybook/addon-actions": "^5.3.19",
     "@storybook/addon-links": "^5.3.19",
