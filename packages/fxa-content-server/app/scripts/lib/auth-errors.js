@@ -616,9 +616,7 @@ var ERRORS = {
   },
   ECOSYSTEM_ANON_ID_UPDATE_CONFLICT: {
     errno: 190,
-    message: t(
-      'Could not update Ecosystem Anon ID because precondition failed.'
-    ),
+    message: 'Could not update Ecosystem Anon ID because precondition failed.', // only used for logging, no need for translation
   },
 };
 
