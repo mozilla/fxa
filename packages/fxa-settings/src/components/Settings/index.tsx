@@ -9,6 +9,8 @@ import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Modal from '../Modal';
 import AlertBar from '../AlertBar';
 import { AccountData } from '../AccountDataHOC/gql';
+import { usePasswordChanger } from '../Auth'
+import { oldPassword, newPassword } from '../../lib/cache';
 
 export const Settings = ({ account }: { account: AccountData }) => {
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
@@ -22,8 +24,11 @@ export const Settings = ({ account }: { account: AccountData }) => {
 
   const modalHeaderId = 'modal-header-verify-email';
   const modalDescId = 'modal-desc-verify-email';
+  oldPassword('asdzxcasd')
+  newPassword('asdzxcasd')
 
   const primaryEmail = account.emails.find((email) => email.isPrimary)!;
+  const { changePassword, passwordChangeState } = usePasswordChanger()
 
   return (
     <>
@@ -62,7 +67,10 @@ export const Settings = ({ account }: { account: AccountData }) => {
             header="Password"
             headerValueClassName="tracking-wider"
             headerValue="••••••••••••••••••"
-            route="#"
+            {...{
+              revealModal: changePassword,
+              modalRevealed,
+            }}
           >
             <p className="text-grey-400 text-xs mobileLandscape:mt-3">
               Created {account.passwordCreated}
