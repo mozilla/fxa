@@ -4,12 +4,8 @@
 
 const {
   permitAdditionalJSImports,
-  setupAliasedPaths,
-  componentsJestMapper,
 } = require('fxa-react/configs/rescripts');
 
 module.exports = [
   permitAdditionalJSImports,
-  setupAliasedPaths,
-  componentsJestMapper,
 ];
