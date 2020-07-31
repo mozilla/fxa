@@ -1,3 +1,9 @@
+## 1.182.1
+
+### Bug fixes
+
+- aet: Correctly check preconditions when updating ecosystemAnonId ([6131a627a](https://github.com/mozilla/fxa/commit/6131a627a))
+
 ## 1.182.0
 
 ### New features
