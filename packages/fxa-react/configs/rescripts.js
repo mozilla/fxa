@@ -4,14 +4,10 @@
 
 const { resolve } = require('path');
 
-const additionalJSImports = {
-  'fxa-react': resolve(__dirname, '../'),
-  'fxa-shared': resolve(__dirname, '../../fxa-shared'),
-};
-
 const permitAdditionalJSImports = (config) => {
-  const importPaths = Object.values(additionalJSImports);
-
+  // We're just gonna call all of fxa fair game ;)
+  const allFxa = resolve(__dirname, '../../')
+  const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')]
   // Update ModuleScopePlugin's appSrcs to allow our new directory
   config.resolve.plugins.forEach((plugin) => {
     if (plugin.constructor && plugin.constructor.name === 'ModuleScopePlugin') {
@@ -53,7 +49,7 @@ const permitAdditionalJSImports = (config) => {
   ) {
     config.module.rules[2].oneOf[1].include = [
       config.module.rules[2].oneOf[1].include,
-      ...importPaths,
+      allFxa
     ];
   } else {
     throw new Error(
@@ -65,38 +61,6 @@ const permitAdditionalJSImports = (config) => {
   return config;
 };
 
-const setupAliasedPaths = (config) => {
-  // Add the list of additional imports to Webpack's alias resolver
-  config.resolve.alias = Object.assign(
-    config.resolve.alias,
-    additionalJSImports
-  );
-
-  // IMPORTANT - While this will work, in order for Typescript to also resolve
-  // these custom aliases we need to set them in TSConfig's "paths". Please refer
-  // to tsconfig.json and tsconfig.paths.json for details around that setup.
-
-  return config;
-};
-
-const componentsJestMapper = {
-  jest: (config) => {
-    return {
-      ...config,
-      moduleNameMapper: Object.keys(additionalJSImports).reduce(
-        (previous, key) => {
-          return Object.assign(previous, {
-            [`^${key}/(.*)$`]: resolve(additionalJSImports[key], '$1'),
-          });
-        },
-        {}
-      ),
-    };
-  },
-};
-
 module.exports = {
   permitAdditionalJSImports,
-  setupAliasedPaths,
-  componentsJestMapper,
 };
