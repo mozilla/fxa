@@ -1531,8 +1531,8 @@ module.exports = (
           return hash.update(anonId).digest('hex');
         }
 
-        const ifNoneMatch = request.headers['If-None-Match'];
-        const ifMatch = request.headers['If-Match'];
+        const ifNoneMatch = request.headers['if-none-match'];
+        const ifMatch = request.headers['if-match'];
 
         if (!scope.contains('profile:ecosystem_anon_id:write')) {
           throw error.invalidScopes(scope);
@@ -1541,10 +1541,10 @@ module.exports = (
         await customs.check(request, uid, 'updateEcosystemAnonId');
 
         if (!ifNoneMatch && !ifMatch) {
-          throw error.anonIdNoCondition()
+          throw error.anonIdNoCondition();
         }
 
-        const { ecosystemAnonId: existingAnonId } = await db.account();
+        const { ecosystemAnonId: existingAnonId } = await db.account(uid);
 
         if (existingAnonId) {
           const hashedAnonId = hashAnonId(existingAnonId);
