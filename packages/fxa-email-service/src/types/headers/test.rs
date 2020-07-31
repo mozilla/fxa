@@ -140,6 +140,13 @@ fn verify_code() {
 }
 
 #[test]
+fn verify_short_code() {
+    let header = VerifyShortCode::new("wobble".to_owned());
+    assert_eq!(header.to_string(), "wobble");
+    assert_eq!(VerifyShortCode::header_name(), "X-Verify-Short-Code");
+}
+
+#[test]
 fn any_header_length() {
     // No header value should be longer than 996 characters, minus the length of the header name.
     let header = Link::new(std::iter::repeat("X").take(997).collect::<String>().to_owned());

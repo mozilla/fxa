@@ -98,3 +98,4 @@ custom_header!(TemplateVersion, "X-Template-Version");
 custom_header!(Uid, "X-Uid");
 custom_header!(UnblockCode, "X-Unblock-Code");
 custom_header!(VerifyCode, "X-Verify-Code");
+custom_header!(VerifyShortCode, "X-Verify-Short-Code");
