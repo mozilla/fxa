@@ -1,5 +1,16 @@
 # Change history
 
+## 1.182.0
+
+### Bug fixes
+
+- auth: added exports to fxa-shared package.json ([31c8d650a](https://github.com/mozilla/fxa/commit/31c8d650a))
+- payments: de-dupe and correct some differing types between fxa-shared and fxa-payments-server Redux store ([e695bc9fb](https://github.com/mozilla/fxa/commit/e695bc9fb))
+
+### Refactorings
+
+- auth-server: convert subscriptions to TS ([b94d0c99b](https://github.com/mozilla/fxa/commit/b94d0c99b))
+
 ## 1.181.2
 
 No changes.

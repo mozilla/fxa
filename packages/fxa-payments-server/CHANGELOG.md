@@ -1,5 +1,22 @@
 # Change history
 
+## 1.182.0
+
+### New features
+
+- payments: Add "Download Terms" link to terms and privacy component ([1134fac2d](https://github.com/mozilla/fxa/commit/1134fac2d))
+- payments: use SetupIntent API for SCA payment update ([9592b4233](https://github.com/mozilla/fxa/commit/9592b4233))
+
+### Bug fixes
+
+- payments: filter "synthetic" locales out of the fetch list ([3c1e650de](https://github.com/mozilla/fxa/commit/3c1e650de))
+- payments: de-dupe and correct some differing types between fxa-shared and fxa-payments-server Redux store ([e695bc9fb](https://github.com/mozilla/fxa/commit/e695bc9fb))
+
+### Other changes
+
+- subscriptions: use just "Subscriptions" ([56ecd40af](https://github.com/mozilla/fxa/commit/56ecd40af))
+- test: add non-usd flows to 123 done ([860c70095](https://github.com/mozilla/fxa/commit/860c70095))
+
 ## 1.181.2
 
 No changes.

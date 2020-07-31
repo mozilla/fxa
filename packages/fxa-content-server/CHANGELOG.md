@@ -1,3 +1,22 @@
+## 1.182.0
+
+### New features
+
+- aet: handle generateEcosystemAnonId update failure ([ff592f0de](https://github.com/mozilla/fxa/commit/ff592f0de))
+- aet: bail out of set with password if session unverified ([6ee1cae52](https://github.com/mozilla/fxa/commit/6ee1cae52))
+
+### Bug fixes
+
+- emails: Send post account verify email when created from sync scope client ([e587c4ef1](https://github.com/mozilla/fxa/commit/e587c4ef1))
+- metrics: Add fxa_login - complete for pairing login ([81b3d943f](https://github.com/mozilla/fxa/commit/81b3d943f))
+- edge: fxa failed on Edge ([3266e312d](https://github.com/mozilla/fxa/commit/3266e312d))
+- style: add active and hover effect to the warning buttons from settings ([ef8d074f4](https://github.com/mozilla/fxa/commit/ef8d074f4))
+
+### Other changes
+
+- subscriptions: use just "Subscriptions" ([56ecd40af](https://github.com/mozilla/fxa/commit/56ecd40af))
+- oauth: add Firefox Send oauth client to local config ([ec822aff0](https://github.com/mozilla/fxa/commit/ec822aff0))
+
 ## 1.181.2
 
 No changes.
