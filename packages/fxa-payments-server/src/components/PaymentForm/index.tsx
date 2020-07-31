@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Localized, withLocalization } from '@fluent/react';
+import { Localized, withLocalization, WithLocalizationProps } from '@fluent/react';
 
 import {
   injectStripe,
@@ -49,7 +49,6 @@ export type PaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
   plan?: Plan;
-  getString?: Function;
   onCancel?: () => void;
   onPayment: (
     tokenResponse: stripe.TokenResponse,
@@ -64,7 +63,7 @@ export type PaymentFormProps = {
   onEngaged: Function;
   onChange: Function;
   submitNonce: string;
-};
+} & WithLocalizationProps;
 
 export const PaymentForm = ({
   inProgress = false,
