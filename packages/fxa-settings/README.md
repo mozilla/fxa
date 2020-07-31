@@ -1,6 +1,6 @@
 # Firefox Accounts Settings
 
-This documentation is up to date as of 2020-06-08.
+This documentation is up to date as of 2020-07-31.
 
 ## Development
 
@@ -9,17 +9,6 @@ This documentation is up to date as of 2020-06-08.
 - `yarn test` to run unit tests
 - `yarn storybook` to open Storybook
 
-### External imports
-
-You can import React components externally from `fxa-react` into this project:
-
-```javascript
-// e.g. assuming the component HelloWorld exists
-import HelloWorld from 'fxa-react/components/HelloWorld';
-```
-
-Components from React packages can be moved into `fxa-react` to be shared across multiple packages. See the "Reusing components with `fxa-react`" section of this doc for more details.
-
 ### Styling components
 
 #### Tailwind
@@ -27,6 +16,8 @@ Components from React packages can be moved into `fxa-react` to be shared across
 The `fxa-settings`, `fxa-react`, and `fxa-admin-panel` packages are setup to share a [Tailwind CSS](https://tailwindcss.com/) configuration file found in the `fxa-react` package. Other React packages, such as `fxa-payments-server` and `fxa-content-server` will be configured to use Tailwind at a later time. If you're not familiar with Tailwind, look through [their documentation](https://tailwindcss.com/docs) to get an idea of what [utility-first](https://tailwindcss.com/docs/utility-first) (Atomic CSS) is and what you can expect while using it. The general idea is simple: use single-purpose classes on elements to layer styles until the design is achieved. **You can accomplish almost all of your styling needs with classes provided by Tailwind's default configuration or through adding them in the configuration file.**
 
 Each package has its own `tailwind.[s]css` file. This file, any S/CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding this file should happen automatically on any change. If you're not sure what specific class name corresponds with the style you need or if you need to check that a specific style exists in our utility classes, search through `tailwind.out.css` for these styles as needed. Note that if you run a build command to test a production build, you'll need to make an update to one of these files with `pm2` running or manually run `yarn build-postcss` to rebuild the dev version containing all available classes (see the "PurgeCSS" section for more details).
+
+**FxA has a design guide available** in Storybook to help alleviate much of the burden around finding the correct class name to use as well as some of the mental math involved explained below. Run `yarn storybook` in this package to pull it up and see the "Storybook" section for more information on Storybook.
 
 Not every spacing value from a design hand off may be absolutely precise due to small variations from web tool processing (such as Sketch conversion to InVision or Figma) - it's important to keep in mind that our CSS system for FxA styles increase in **units of `4px`**. If a design reflects 17px, it's generally safe to go with the closest value divisible by 4, 16px (which is equivalent to `1rem`), but it is up to the engineer to ask for clarification from visual design if this might be an intended one-off and to also potentially offer a strong recommendation to stay within our standard guidelines if a design strays from the `4px` increment standard for the sake of consistency across our products. If an exception needs to be made or if the [Tailwind default configuration](https://tailwindcss.com/docs/configuration) doesn't offer a needed value (for example, [default spacing](https://tailwindcss.com/docs/customizing-spacing#default-spacing-scale) uses `-8` to output `2rem` measurements and `-10` to output `2.5rem`, but if we need `2.25rem`, it's completely acceptable to need `-9`), use the `extends` option in the configuration file to add the class that you need. This also applies with colors and font-sizes - don't arbitrarily add these values without ensuring current values won't work for what Design intends or without conveying to them that it's different than what we've used so far.
 
@@ -125,6 +116,17 @@ In the event you need to write styles that Tailwind is not able to affectively c
 - Because PostCSS syntax cannot be directly loaded into a React component (`import './index.scss'`), custom stylesheets must be `@import`ed directly into a `tailwind.[s]css` file or another file that is imported into this file. Add these custom stylesheets in the `styles/` directory.
 - Imported custom styles are not scoped per component and some line of thought should go into custom class names to avoid naming collisions. Generally, you should match the class name to the name of your component and it's recommended to use a `[component]-[descriptor]` style (e.g. using a shared UnitRow to display secondary emails could be `unit-row-secondary-emails`). Also, if possible, keep the selector one to two levels deep, never use `!important` to avoid specificity collisions, and don't use `&-` overzealously as it makes classes difficult to search for (one level deep is fine). These recommendations also generally apply to custom component utility classes.
 
+### External imports
+
+You can import React components externally from `fxa-react` into this project:
+
+```javascript
+// e.g. assuming the component HelloWorld exists
+import HelloWorld from 'fxa-react/components/HelloWorld';
+```
+
+Components from React packages can be moved into `fxa-react` to be shared across multiple packages.
+
 ### Reusing components with `fxa-react` and Tailwind
 
 Let's say there's a component in `fxa-admin-panel` that you also want to use in `fxa-settings`. You move this component into `fxa-react` to use it in both `fxa-admin-panel` and `fxa-settings` and style it with Tailwind classes:
@@ -203,16 +205,21 @@ const LogoImage = () => <div class="logo" role="img" aria-label="logo"></div>;
 
 ## Testing
 
-This package uses [Jest](https://jestjs.io/) to test its code. By default `npm test` will test all JS files under `src/`.
+This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS files under `src/`.
 
 Test specific tests with the following commands:
 
 ```bash
-# Test for the component AlertBar
-npm run test -- AppLayout
+# Test for the component AppLayout
+yarn test AppLayout
 
 # Grep for "renders as expected"
-npm run test -- -t "renders as expected"
+yarn test -t="renders as expected"
+```
+
+You can also see the test coverage with details by running the following command:
+```
+CI=yes yarn test --coverage --verbose
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
@@ -221,9 +228,7 @@ Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more adva
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
-_You will eventually be able to view the built Storybook at <http://mozilla.github.io/fxa/settings>._
-
-In local development, `npm run storybook` should start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes.
+In local development, `yarn storybook` will start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
 
 ## License
 
