@@ -3149,8 +3149,9 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('runs, informing the auth db of the new anon id', () => {
-    mockRequest.headers['If-None-Match'] = '*';
-    mockDB.account = function () {
+    mockRequest.headers['if-none-match'] = '*';
+    mockDB.account = function (providedUid) {
+      assert.equal(providedUid, uid);
       return P.resolve({
         ecosystemAnonId: null,
       });
@@ -3199,7 +3200,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('throws: if-none-match: *, anon id exists', async () => {
-    mockRequest.headers['If-None-Match'] = '*';
+    mockRequest.headers['if-none-match'] = '*';
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: 'such a simple fool',
@@ -3218,7 +3219,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('doesnt throw: if-none-match: *, anon id doesnt exist', async () => {
-    mockRequest.headers['If-None-Match'] = '*';
+    mockRequest.headers['if-none-match'] = '*';
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: null,
@@ -3236,7 +3237,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('throws: if-none-match: y (hashed), anon id is y', async () => {
-    mockRequest.headers['If-None-Match'] = hashAnonId('y');
+    mockRequest.headers['if-none-match'] = hashAnonId('y');
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: 'y',
@@ -3255,7 +3256,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('doesnt throw: if-none-match: x (hashed), anon id is z', async () => {
-    mockRequest.headers['If-None-Match'] = hashAnonId('x');
+    mockRequest.headers['if-none-match'] = hashAnonId('x');
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: 'z',
@@ -3273,7 +3274,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('throws: if-match: x (hashed), anon id is z', async () => {
-    mockRequest.headers['If-Match'] = hashAnonId('x');
+    mockRequest.headers['if-match'] = hashAnonId('x');
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: 'z',
@@ -3292,7 +3293,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('doesnt throw: if-match: x (hashed), anon id is x', async () => {
-    mockRequest.headers['If-Match'] = hashAnonId('x');
+    mockRequest.headers['if-match'] = hashAnonId('x');
     mockDB.account = function () {
       return P.resolve({
         ecosystemAnonId: 'x',
@@ -3310,7 +3311,7 @@ describe('/account/ecosystemAnonId', () => {
   });
 
   it('logs old and new anon_ids on successful update', async () => {
-    mockRequest.headers['If-Match'] = hashAnonId(oldAnonId);
+    mockRequest.headers['if-match'] = hashAnonId(oldAnonId);
     mockDB.account = sinon.spy(() => {
       return P.resolve({
         ecosystemAnonId: oldAnonId,
