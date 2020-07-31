@@ -59,7 +59,9 @@ registerSuite('Firefox Desktop Sync v3 settings', {
         .then(testIsBrowserNotified('fxaccounts:can_link_account'))
         .then(fillOutSignInTokenCode(email, 0))
         .then(testIsBrowserNotified('fxaccounts:login'))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(
+          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
+        )
 
         // wait until account data is in localstorage before redirecting
         .then(

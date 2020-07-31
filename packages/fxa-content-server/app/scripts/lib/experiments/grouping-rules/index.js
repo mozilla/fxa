@@ -16,8 +16,6 @@ const experimentGroupingRules = [
   require('./send-sms-install-link'),
   require('./sentry'),
   require('./newsletter-sync'),
-  require('./qr-code-cad'),
-  require('./newsletter-cad-chooser'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {

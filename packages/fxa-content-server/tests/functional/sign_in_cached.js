@@ -379,7 +379,9 @@ registerSuite('cached signin', {
         )
         .then(fillOutSignInTokenCode(email, 0))
 
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+        .then(
+          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
+        )
         .then(testIsBrowserNotified('fxaccounts:login'))
         .then(getStoredAccountByEmail(email))
         .then((accountData) => {

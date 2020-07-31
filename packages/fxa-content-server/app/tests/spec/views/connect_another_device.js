@@ -20,7 +20,6 @@ describe('views/connect_another_device', () => {
   let model;
   let notifier;
   let relier;
-  let smsCountry;
   let user;
   let view;
   let windowMock;
@@ -49,17 +48,6 @@ describe('views/connect_another_device', () => {
       window: windowMock,
     });
     sinon.spy(view, 'logFlowEvent');
-    sinon
-      .stub(view, 'getEligibleSmsCountry')
-      .callsFake(() => Promise.resolve(smsCountry));
-    sinon.stub(view, 'replaceCurrentPageWithSmsScreen').callsFake(() => {});
-
-    sinon
-      .stub(view, 'getEligibleQrCodeCadGroup')
-      .callsFake(() => Promise.resolve({ group: false }));
-
-    // by default, user is ineligble to send an SMS
-    smsCountry = null;
   });
 
   afterEach(() => {
@@ -72,21 +60,6 @@ describe('views/connect_another_device', () => {
   }
 
   describe('render/afterVisible', () => {
-    describe('with a user that can send an SMS', () => {
-      beforeEach(() => {
-        smsCountry = 'GB';
-
-        return view.render().then(() => view.afterVisible());
-      });
-
-      it('redirects the user to the /sms page', () => {
-        assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
-        assert.isTrue(
-          view.replaceCurrentPageWithSmsScreen.calledWith(account, 'GB', true)
-        );
-      });
-    });
-
     describe('with a Fx desktop user that is signed in', () => {
       beforeEach(() => {
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
@@ -105,12 +78,31 @@ describe('views/connect_another_device', () => {
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
         testIsFlowEventLogged('install_from.fx_desktop');
-
-        assert.isFalse(view.replaceCurrentPageWithSmsScreen.called);
       });
 
       it('shows the success message', () => {
         assert.lengthOf(view.$('.success'), 1);
+      });
+    });
+
+    describe('with a Fx desktop user that can pair', () => {
+      beforeEach(() => {
+        sinon.stub(view, '_isSignedIn').callsFake(() => true);
+        relier.set('entrypoint', 'fxa_discoverability_native');
+        relier.set('context', 'fx_desktop_v3');
+        sinon.spy(view, 'navigate');
+
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+
+        return view.render().then(() => {
+          view.afterVisible();
+        });
+      });
+
+      it('shows pairing', () => {
+        assert.isTrue(view._isSignedIn.called);
+        assert.isTrue(view.navigate.calledWith('/pair'));
       });
     });
 
@@ -374,22 +366,6 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    describe('with showSuccessMessage set to false for a user that can send an SMS', () => {
-      beforeEach(() => {
-        model.set('showSuccessMessage', false);
-        smsCountry = 'CA';
-
-        return view.render().then(() => view.afterVisible());
-      });
-
-      it('redirects the user to the /sms page', () => {
-        assert.isTrue(view.replaceCurrentPageWithSmsScreen.calledOnce);
-        assert.isTrue(
-          view.replaceCurrentPageWithSmsScreen.calledWith(account, 'CA', false)
-        );
-      });
-    });
-
     describe('with a Fx desktop sync declined user', () => {
       beforeEach(() => {
         sinon.stub(view, '_isSignedIn').callsFake(() => true);
@@ -409,12 +385,35 @@ describe('views/connect_another_device', () => {
         testIsFlowEventLogged('signedin.true');
         testIsFlowEventLogged('signin.ineligible');
         testIsFlowEventLogged('install_from.fx_desktop');
-
-        assert.isFalse(view.getEligibleQrCodeCadGroup.called);
       });
 
       it('shows the success message', () => {
         assert.lengthOf(view.$('.success'), 1);
+      });
+    });
+
+    describe('with a Fx desktop user that completed sign-in', () => {
+      beforeEach(() => {
+        sinon.stub(view, 'isSignIn').callsFake(() => true);
+        sinon.stub(view, '_areSmsRequirementsMet').callsFake(() => true);
+        sinon.spy(view, 'replaceCurrentPage');
+
+        windowMock.navigator.userAgent =
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+
+        return view.render().then(() => {
+          view.afterVisible();
+        });
+      });
+
+      it('shows qr code cad', () => {
+        assert.isTrue(view.isSignIn.called);
+        assert.isTrue(
+          view.replaceCurrentPage.calledWith(
+            '/post_verify/cad_qr/get_started',
+            { account }
+          )
+        );
       });
     });
   });

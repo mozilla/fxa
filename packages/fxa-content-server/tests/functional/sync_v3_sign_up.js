@@ -21,8 +21,6 @@ const {
   createEmail,
   fillOutEmailFirstSignUp,
   fillOutSignUpCode,
-  getWebChannelMessageData,
-  storeWebChannelMessageData,
   noSuchElement,
   noSuchBrowserNotification,
   openPage,
@@ -144,77 +142,6 @@ registerSuite('Firefox Desktop Sync v3 signup', {
           // has been cleared.
           .then(testIsBrowserNotified('fxaccounts:login'))
 
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-      );
-    },
-
-    'verify at /confirm_signup_code, force SMS': function () {
-      return (
-        this.remote
-          .then(
-            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              query: {
-                country: 'US',
-                forceExperiment: 'sendSms',
-                forceExperimentGroup: 'treatment',
-                forceUA: uaStrings.desktop_firefox_58,
-              },
-            })
-          )
-          .then(storeWebChannelMessageData('fxaccounts:login'))
-          .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-
-          // user should be transitioned to /choose_what_to_sync
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(noSuchBrowserNotification('fxaccounts:login'))
-
-          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
-
-          // user should be transitioned to the "go confirm your address" page
-          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-
-          // the login message is only sent after the sync preferences screen
-          // has been cleared.
-          .then(testIsBrowserNotified('fxaccounts:login'))
-          // verify the user
-          .then(getWebChannelMessageData('fxaccounts:login'))
-          .then(fillOutSignUpCode(email, 0))
-          .then(testElementExists(selectors.SMS_SEND.HEADER))
-      );
-    },
-
-    'verify at /confirm_signup_code, SMS not supported': function () {
-      return (
-        this.remote
-          .then(
-            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              query: {
-                forceUA: uaStrings['desktop_firefox_58'],
-              },
-            })
-          )
-          .then(storeWebChannelMessageData('fxaccounts:login'))
-          .then(noSuchElement(selectors.ENTER_EMAIL.LINK_SUGGEST_SYNC))
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-
-          // user should be transitioned to /choose_what_to_sync
-          .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-
-          .then(testIsBrowserNotified('fxaccounts:can_link_account'))
-          .then(noSuchBrowserNotification('fxaccounts:login'))
-
-          .then(click(selectors.CHOOSE_WHAT_TO_SYNC.SUBMIT))
-
-          // user should be transitioned to the "go confirm your address" page
-          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
-
-          // the login message is only sent after the sync preferences screen
-          // has been cleared.
-          .then(testIsBrowserNotified('fxaccounts:login'))
-          .then(fillOutSignUpCode(email, 0))
           .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
       );
     },

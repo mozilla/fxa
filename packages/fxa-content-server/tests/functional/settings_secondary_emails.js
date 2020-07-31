@@ -369,7 +369,9 @@ registerSuite('settings secondary emails', {
 
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
           .then(fillOutSignInTokenCode(email, 0))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(
+            testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
+          )
 
           // wait until account data is in localstorage before redirecting
           .then(
@@ -419,7 +421,9 @@ registerSuite('settings secondary emails', {
           .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
 
           .then(fillOutSignInTokenCode(secondaryEmail, 1))
-          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
+          .then(
+            testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
+          )
       );
     },
   },

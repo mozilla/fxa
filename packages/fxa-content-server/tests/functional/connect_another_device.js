@@ -23,7 +23,6 @@ const ADJUST_LINK_IOS =
   'ct=adjust_tracker&mt=8';
 
 const CONNECT_ANOTHER_DEVICE_URL = `${config.fxaContentRoot}connect_another_device`;
-const CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL = `${config.fxaContentRoot}connect_another_device?forceExperiment=sendSms&forceExperimentGroup=signinCodes`;
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync&action=email`;
 
 const {
@@ -84,36 +83,6 @@ registerSuite('connect_another_device', {
           )
         )
         .then(noSuchElement(selectors.CONNECT_ANOTHER_DEVICE.SUCCESS));
-    },
-
-    'signup Fx Desktop, load /connect_another_device page, SMS enabled': function () {
-      // should have both links to mobile apps
-      const forceUA = UA_STRINGS['desktop_firefox'];
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            query: { forceUA },
-          })
-        )
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(testElementExists(selectors.CHOOSE_WHAT_TO_SYNC.HEADER))
-
-        .then(
-          openPage(
-            CONNECT_ANOTHER_DEVICE_SMS_ENABLED_URL,
-            selectors.SMS_SEND.HEADER
-          )
-        )
-        .then(
-          testHrefEquals(selectors.SMS_SEND.LINK_MARKETING_IOS, ADJUST_LINK_IOS)
-        )
-        .then(
-          testHrefEquals(
-            selectors.SMS_SEND.LINK_MARKETING_ANDROID,
-            ADJUST_LINK_ANDROID
-          )
-        )
-        .then(noSuchElement(selectors.SMS_SEND.SUCCESS));
     },
   },
 });
