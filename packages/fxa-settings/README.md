@@ -203,6 +203,30 @@ const LogoImage = () => (
 const LogoImage = () => <div class="logo" role="img" aria-label="logo"></div>;
 ```
 
+### Metrics
+
+Metrics reports are currently sent to the fxa-content-server metrics endpoint. Use the [metrics library](./src/lib/metrics.ts) to log events and other information.
+
+#### Payload data
+
+Relevant environment and account data, such as window measurements, user locale, and flow data are automatically included in metrics payloads, however additional data can be set as needed:
+
+- `setProperties({ key: value })` can be used to configure additional information about the user's environment and session. Refer to `ConfigurableProperties` in the metrics library for the properties that can be configured.
+- `setUserPreference` can be used to log when a user preference is updated.
+- `addExperiment(choice, group)` can be used to add details about an experiment the user is participating in.
+- `addMarketingImpression(url, campaignId)` and `setMarketingClick(url, campaignId)` can be used to add details about a marketing flow the user is a part of, and whether or not a marketing link was interacted with.
+
+#### Event logging
+
+Log events to record when a user completes a measurable action. All previously mentioned payload data is included each time one of the following logging functions are called:
+
+- `logViewEvent(viewName, eventName, eventProperties)` can be used to record that a particular view (a "page") was visited.
+- `logExperiment(choice, group, eventProperties)` can be used to log the outcome of an experiment the user is participating in. This also calls `addExperiment` with the same choice and group.
+
+All logging methods have the argument `eventProperties`, which can be used to supply event-specific information to the payload.
+
+**Note:** take care when calling these methods as they attempt to log the event immediately. When logging view events inside React Components you'll want to place the call inside a `useEffect` hook to only execute on component render.
+
 ## Testing
 
 This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS files under `src/`.

@@ -8,7 +8,7 @@ import AppLayout from '../AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import Settings from '../Settings';
-import FlowEvents from '../../lib/flow-event';
+import * as Metrics from '../../lib/metrics';
 import { Account } from '../../models';
 import { Router } from '@reach/router';
 import FlowContainer from '../FlowContainer';
@@ -52,12 +52,12 @@ export const GET_INITIAL_STATE = gql`
 `;
 
 type AppProps = {
-  queryParams: QueryParams;
+  flowQueryParams: FlowQueryParams;
 };
 
-export const App = ({ queryParams }: AppProps) => {
+export const App = ({ flowQueryParams }: AppProps) => {
   const { loading, error } = useQuery<{ account: Account }>(GET_INITIAL_STATE);
-  FlowEvents.init(queryParams);
+  Metrics.init(flowQueryParams);
 
   if (loading) {
     return (

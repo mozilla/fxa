@@ -49,6 +49,11 @@ class GetFlowView extends BaseView {
       flowBeginTime,
       flowId,
     } = this.metrics.getFlowEventMetadata();
+    const broker = this.metrics.getFilteredValue('broker');
+    const context = this.metrics.getFilteredValue('context');
+    const isSampledUser = this.metrics.getFilteredValue('isSampledUser');
+    const service = this.metrics.getFilteredValue('service');
+    const uniqueUserId = this.metrics.getFilteredValue('uniqueUserId');
 
     let redirectPath = redirectTo;
     let redirectParams = {};
@@ -58,9 +63,14 @@ class GetFlowView extends BaseView {
     }
 
     const queryString = Url.objToSearchString({
-      device_id: deviceId,
-      flow_begin_time: flowBeginTime,
-      flow_id: flowId,
+      deviceId,
+      flowBeginTime,
+      flowId,
+      broker,
+      context,
+      isSampledUser,
+      service,
+      uniqueUserId,
       ...redirectParams,
     });
 
