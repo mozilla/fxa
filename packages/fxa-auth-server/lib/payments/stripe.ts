@@ -93,7 +93,7 @@ export class StripeHelper {
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
   private log: Logger;
-  private cacheTtlSeconds: number;
+  private plansAndProductsCacheTtlSeconds: number;
   private webhookSecret: string;
   private stripe: Stripe;
   private redis: ioredis.Redis | undefined;
@@ -103,9 +103,12 @@ export class StripeHelper {
    */
   constructor(log: Logger, config: ConfigType, statsd?: StatsD) {
     this.log = log;
-    this.cacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
+    this.plansAndProductsCacheTtlSeconds = config.subhub.plansCacheTtlSeconds;
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
-    const redis = this.cacheTtlSeconds
+    // TODO (FXA-949 / issue #3922): The TTL setting here is serving double-duty for
+    // both TTL and whether caching should be enabled at all. We should
+    // introduce a second setting for cache enable / disable.
+    const redis = this.plansAndProductsCacheTtlSeconds
       ? Redis(
           {
             ...config.redis,
@@ -119,9 +122,12 @@ export class StripeHelper {
       apiVersion: '2020-03-02',
       maxNetworkRetries: 3,
     });
+    cacheManager.setOptions({
+      // Ensure the StripeHelper instance is passed into TTLBuilder functions
+      excludeContext: false,
+    });
     this.redis = redis;
     if (this.redis) {
-      cacheManager.setOptions({ ttlSeconds: this.cacheTtlSeconds });
       useAdapter(this.redis);
     }
 
@@ -165,7 +171,10 @@ export class StripeHelper {
    *
    * @returns {Promise<AbbrevProduct[]>} All the products.
    */
-  @Cacheable({ cacheKey: 'listProducts' })
+  @Cacheable({
+    cacheKey: 'listProducts',
+    ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
+  })
   async allProducts() {
     return this.fetchAllProducts();
   }
@@ -420,7 +429,12 @@ export class StripeHelper {
 
   static customerCacheKey = (args: any[]) => `customer-${args[0]}|${args[1]}`;
 
-  @Cacheable({ cacheKey: StripeHelper.customerCacheKey })
+  @Cacheable({
+    cacheKey: StripeHelper.customerCacheKey,
+    // Note: No TTL specified here, because we don't want customers to expire (yet)
+    // TODO (FXA-2383): Should track FxA users who are Customers with a persistent DB table
+    // TODO (FXA-949 / issue #3922): Should establish a TTL specifically for Customer data
+  })
   async cachedCustomer(
     uid: string,
     email: string
@@ -600,7 +614,10 @@ export class StripeHelper {
    *
    * Uses Redis caching if configured.
    */
-  @Cacheable({ cacheKey: 'listPlans' })
+  @Cacheable({
+    cacheKey: 'listPlans',
+    ttlSeconds: (args, context) => context.plansAndProductsCacheTtlSeconds,
+  })
   async allPlans(): Promise<AbbrevPlan[]> {
     return this.fetchAllPlans();
   }
