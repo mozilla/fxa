@@ -19,6 +19,7 @@ import { Localized } from '@fluent/react';
 import * as apiClient from '../../../lib/apiClient';
 
 import '../../Product/SubscriptionCreate/index.scss';
+import { create } from 'domain';
 
 type PaymentError = undefined | StripeError;
 type RetryStatus = undefined | { invoiceId: string };
@@ -88,23 +89,43 @@ export const SubscriptionCreate = ({
     async ({ stripe: stripeFromParams, ...params }) => {
       setInProgress(true);
       try {
-        await handleSubscriptionPayment({
-          ...params,
-          ...apiClient,
-          ...apiClientOverrides,
-          stripe:
-            stripeOverride /* istanbul ignore next - used for testing */ ||
-            stripeFromParams,
-          selectedPlan,
-          customer,
-          retryStatus,
-          onSuccess: refreshSubscriptions,
-          onFailure: setPaymentError,
-          onRetry: (status: RetryStatus) => {
-            setRetryStatus(status);
-            setPaymentError({ type: 'card_error', code: 'card_declined' });
-          },
-        });
+        if (!params.card) {
+          await handleSubscriptionPaymentWithExistingMethod({
+            ...params,
+            ...apiClient,
+            ...apiClientOverrides,
+            stripe:
+              stripeOverride /* istanbul ignore next - used for testing */ ||
+              stripeFromParams,
+            selectedPlan,
+            customer,
+            retryStatus,
+            onSuccess: refreshSubscriptions,
+            onFailure: setPaymentError,
+            onRetry: (status: RetryStatus) => {
+              setRetryStatus(status);
+              setPaymentError({ type: 'card_error', code: 'card_declined' });
+            },
+          });
+        } else {
+          await handleSubscriptionPayment({
+            ...params,
+            ...apiClient,
+            ...apiClientOverrides,
+            stripe:
+              stripeOverride /* istanbul ignore next - used for testing */ ||
+              stripeFromParams,
+            selectedPlan,
+            customer,
+            retryStatus,
+            onSuccess: refreshSubscriptions,
+            onFailure: setPaymentError,
+            onRetry: (status: RetryStatus) => {
+              setRetryStatus(status);
+              setPaymentError({ type: 'card_error', code: 'card_declined' });
+            },
+          });
+        }
       } catch (error) {
         console.error('handleSubscriptionPayment failed', error);
         setPaymentError(error);
@@ -170,6 +191,7 @@ export const SubscriptionCreate = ({
               validatorInitialState,
               confirm: true,
               plan: selectedPlan,
+              customer,
               onMounted: onFormMounted,
               onEngaged: onFormEngaged,
             }}
@@ -271,7 +293,7 @@ async function handleSubscriptionPayment({
       {
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
-        paymentMethodId: paymentMethod.id,
+        paymentMethodId: customer ? undefined : paymentMethod.id,
         idempotencyKey,
       }
     );
@@ -301,6 +323,51 @@ async function handleSubscriptionPayment({
   }
 }
 
+async function handleSubscriptionPaymentWithExistingMethod({
+  stripe,
+  idempotencyKey,
+  selectedPlan,
+  apiCreateSubscriptionWithPaymentMethod,
+  apiRetryInvoice,
+  onFailure,
+  onRetry,
+  onSuccess,
+}: {
+  stripe: Pick<Stripe, 'confirmCardPayment'>;
+  idempotencyKey: string;
+  selectedPlan: Plan;
+  customer: Customer;
+  retryStatus: RetryStatus;
+  onFailure: (error: PaymentError) => void;
+  onRetry: (status: RetryStatus) => void;
+  onSuccess: () => void;
+} & SubscriptionCreateAuthServerAPIs) {
+  const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
+    {
+      priceId: selectedPlan.plan_id,
+      productId: selectedPlan.product_id,
+      idempotencyKey,
+    }
+  );
+
+  const commonPaymentIntentParams = {
+    paymentMethodId: createSubscriptionResult.latest_invoice.p,
+    stripe,
+    onSuccess,
+    onFailure,
+    onRetry,
+  };
+
+  return handlePaymentIntent({
+    invoiceId: createSubscriptionResult.latest_invoice.id,
+    paymentIntentStatus:
+      createSubscriptionResult.latest_invoice.payment_intent.status,
+    paymentIntentClientSecret:
+      createSubscriptionResult.latest_invoice.payment_intent.client_secret,
+    ...commonPaymentIntentParams,
+  });
+}
+
 async function handlePaymentIntent({
   invoiceId,
   paymentIntentStatus,
@@ -314,7 +381,7 @@ async function handlePaymentIntent({
   invoiceId: string;
   paymentIntentStatus: string;
   paymentIntentClientSecret: string | null;
-  paymentMethodId: string;
+  paymentMethodId?: string;
   stripe: Pick<Stripe, 'confirmCardPayment'>;
   onFailure: (error: PaymentError) => void;
   onRetry: (status: RetryStatus) => void;

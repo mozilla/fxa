@@ -168,16 +168,19 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     expect(screen.queryByTestId('subscription-create')).toBeInTheDocument();
     await screen.findAllByText('Set up your subscription');
 
-    await act(async () => {
-      mockStripeElementOnChangeFns.cardElement(
-        elementChangeResponse({ complete: true, value: 'test' })
-      );
-    });
+    if (screen.queryByTestId('name')) {
+      await act(async () => {
+        mockStripeElementOnChangeFns.cardElement(
+          elementChangeResponse({ complete: true, value: 'test' })
+        );
+      });
 
-    fireEvent.change(screen.getByTestId('name'), {
-      target: { value: 'Foo Barson' },
-    });
-    fireEvent.blur(screen.getByTestId('name'));
+      fireEvent.change(screen.getByTestId('name'), {
+        target: { value: 'Foo Barson' },
+      });
+      fireEvent.blur(screen.getByTestId('name'));
+    }
+
     fireEvent.click(screen.getByTestId('confirm'));
 
     return {
@@ -203,18 +206,33 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     await waitForExpect(() =>
       expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
     );
-    expect(stripeOverride.createPaymentMethod).toHaveBeenCalled();
+    expect(stripeOverride.createPaymentMethod).toHaveBeenCalledTimes(
+      withCustomer ? 0 : 1
+    );
     expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalledTimes(
       withCustomer ? 0 : 1
     );
-    expect(
-      apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock.calls[0][0]
-    ).toMatchObject({
-      // idempotencyKey (ignored)
-      priceId: PLAN.plan_id,
-      productId: PLAN.product_id,
-      paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
-    });
+
+    if (withCustomer) {
+      expect(
+        apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
+          .calls[0][0]
+      ).toMatchObject({
+        // idempotencyKey (ignored)
+        priceId: PLAN.plan_id,
+        productId: PLAN.product_id,
+      });
+    } else {
+      expect(
+        apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock
+          .calls[0][0]
+      ).toMatchObject({
+        // idempotencyKey (ignored)
+        priceId: PLAN.plan_id,
+        productId: PLAN.product_id,
+        paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
+      });
+    }
   };
 
   const commonRetryPaymentTest = ({
@@ -251,6 +269,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     const { refreshSubscriptions } = await commonSubmitSetup({
       apiClientOverrides,
       stripeOverride,
+      customer: null,
     });
 
     await act(async () => {
@@ -314,6 +333,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     const { refreshSubscriptions } = await commonSubmitSetup({
       apiClientOverrides,
       stripeOverride,
+      customer: null,
     });
 
     await act(async () => {
@@ -405,6 +425,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     };
     const { stripeOverride, refreshSubscriptions } = await commonSubmitSetup({
       apiClientOverrides,
+      customer: null,
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit'));
@@ -468,6 +489,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         refreshSubscriptions,
       } = await commonSubmitSetup({
         stripeOverride,
+        customer: null,
       });
       await act(async () => {
         fireEvent.click(screen.getByTestId('submit'));
@@ -533,6 +555,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       };
       const { refreshSubscriptions } = await commonSubmitSetup({
         apiClientOverrides,
+        customer: null,
       });
       await act(async () => {
         fireEvent.click(screen.getByTestId('submit'));
@@ -562,6 +585,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       };
       const { stripeOverride, refreshSubscriptions } = await commonSubmitSetup({
         apiClientOverrides,
+        customer: null,
       });
 
       await act(async () => {

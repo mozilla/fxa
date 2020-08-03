@@ -116,17 +116,17 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     expect(screen.queryByTestId('payment-update')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('change-button'));
 
-    await act(async () => {
-      mockStripeElementOnChangeFns.cardElement(
-        elementChangeResponse({ complete: true, value: 'test' })
-      );
-    });
-
-    fireEvent.change(screen.getByTestId('name'), {
-      target: { value: DISPLAY_NAME },
-    });
-    fireEvent.blur(screen.getByTestId('name'));
-
+    if (screen.queryByTestId('name')) {
+      await act(async () => {
+        mockStripeElementOnChangeFns.cardElement(
+          elementChangeResponse({ complete: true, value: 'test' })
+        );
+      });
+      fireEvent.change(screen.getByTestId('name'), {
+        target: { value: DISPLAY_NAME },
+      });
+      fireEvent.blur(screen.getByTestId('name'));
+    }
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit'));
     });

@@ -32,7 +32,7 @@ import {
   getDefaultPaymentConfirmText,
 } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
-import { Plan } from '../../store/types';
+import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
@@ -42,12 +42,13 @@ export type BasePaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
   plan?: Plan;
+  customer?: Customer | null;
   onCancel?: () => void;
   onSubmit: (submitResult: {
-    stripe: Stripe;
-    elements: StripeElements;
-    name: string;
-    card: StripeCardElement;
+    stripe?: Stripe;
+    elements?: StripeElements;
+    name?: string;
+    card?: StripeCardElement;
     idempotencyKey: string;
   }) => void;
   validatorInitialState?: ValidatorState;
@@ -62,6 +63,7 @@ export const PaymentForm = ({
   inProgress = false,
   confirm = true,
   plan,
+  customer,
   getString,
   onSubmit: onSubmitForParent,
   onCancel,
@@ -98,6 +100,11 @@ export const PaymentForm = ({
   const shouldAllowSubmit = !nonceMatch && !inProgress && validator.allValid();
   const showProgressSpinner = nonceMatch || inProgress;
 
+  let useExistingPaymentMethod = false;
+  if (customer) {
+    useExistingPaymentMethod = true;
+  }
+
   const onSubmit = useCallback(
     async (ev) => {
       ev.preventDefault();
@@ -119,6 +126,23 @@ export const PaymentForm = ({
       }
     },
     [validator, onSubmitForParent, stripe, submitNonce, shouldAllowSubmit]
+  );
+
+  const onSubmitUseExistingPaymentMethod = useCallback(
+    async (ev) => {
+      ev.preventDefault();
+      setLastSubmitNonce(submitNonce);
+      onSubmitForParent({
+        idempotencyKey: submitNonce,
+      });
+      useExistingPaymentMethod = false;
+    },
+    [
+      onSubmitForParent,
+      submitNonce,
+      shouldAllowSubmit,
+      useExistingPaymentMethod,
+    ]
   );
 
   const { navigatorLanguages } = useContext(AppContext);
@@ -149,39 +173,49 @@ export const PaymentForm = ({
     <Form
       data-testid="paymentForm"
       validator={validator}
-      onSubmit={onSubmit}
+      onSubmit={
+        useExistingPaymentMethod ? onSubmitUseExistingPaymentMethod : onSubmit
+      }
       className="payment"
       {...{ onChange }}
     >
-      <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
-        <Input
-          type="text"
-          name="name"
-          label="Name as it appears on your card"
-          data-testid="name"
-          placeholder="Full Name"
-          required
-          autoFocus
-          spellCheck={false}
-          onValidate={(value, focused, props) =>
-            validateName(value, focused, props, getString)
-          }
-        />
-      </Localized>
-
-      <Localized id="payment-cc" attrs={{ label: true }}>
-        <StripeElement
-          component={CardElement}
-          name="creditCard"
-          label="Your card"
-          className="input-row input-row--xl"
-          options={STRIPE_ELEMENT_STYLES}
-          getString={getString}
-          required
-        />
-      </Localized>
-
-      <hr />
+      {useExistingPaymentMethod && (
+        <p>Charging to existing payment method ending in: {customer?.last4}</p>
+      )}
+      {!!!useExistingPaymentMethod && (
+        <>
+          <Localized
+            id="payment-name"
+            attrs={{ placeholder: true, label: true }}
+          >
+            <Input
+              type="text"
+              name="name"
+              label="Name as it appears on your card"
+              data-testid="name"
+              placeholder="Full Name"
+              required
+              autoFocus
+              spellCheck={false}
+              onValidate={(value, focused, props) =>
+                validateName(value, focused, props, getString)
+              }
+            />
+          </Localized>
+          <Localized id="payment-cc" attrs={{ label: true }}>
+            <StripeElement
+              component={CardElement}
+              name="creditCard"
+              label="Your card"
+              className="input-row input-row--xl"
+              options={STRIPE_ELEMENT_STYLES}
+              getString={getString}
+              required
+            />
+          </Localized>
+          <hr />
+        </>
+      )}
 
       {confirm && plan && (
         <>

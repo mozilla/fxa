@@ -263,7 +263,7 @@ export async function apiCreateCustomer(params: {
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
   productId: string;
-  paymentMethodId: string;
+  paymentMethodId?: string;
   idempotencyKey: string;
 }): Promise<{
   id: string;
