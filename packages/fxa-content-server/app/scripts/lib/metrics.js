@@ -16,6 +16,7 @@
 
 import $ from 'jquery';
 import _ from 'underscore';
+import AuthErrors from '../lib/auth-errors';
 import Cocktail from 'cocktail';
 import Constants from './constants';
 import Backbone from 'backbone';
@@ -27,6 +28,7 @@ import speedTrap from 'speed-trap';
 import Strings from './strings';
 import SubscriptionModel from 'models/subscription';
 import xhr from './xhr';
+import Validate from '../lib/validate';
 
 // Speed trap is a singleton, convert it
 // to an instantiable function.
@@ -83,6 +85,7 @@ const ALLOWED_FIELDS = [
 var DEFAULT_INACTIVITY_TIMEOUT_MS = new Duration('10s').milliseconds();
 var NOT_REPORTED_VALUE = 'none';
 var UNKNOWN_CAMPAIGN_ID = 'unknown';
+const INVALID_UTM = 'invalid';
 
 // convert a hash of metrics impressions into an array of objects.
 function flattenHashIntoArrayOfObjects(hashTable) {
@@ -112,6 +115,15 @@ function marshallFlowEvent(eventName, viewName) {
 function marshallProperty(property) {
   if (property && property !== NOT_REPORTED_VALUE) {
     return property;
+  }
+}
+
+function marshallUtmProperty(property) {
+  if (property && property !== NOT_REPORTED_VALUE) {
+    if (Validate.isUtmValid(property)) {
+      return property;
+    }
+    return INVALID_UTM;
   }
 }
 
@@ -330,6 +342,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
     // reported again.
     this._numStoredAccounts = '';
 
+    this._validateSanitizeUtmParams(filteredData);
+
     const send = () => this._send(filteredData, isPageUnloading);
     return (
       send()
@@ -381,6 +395,30 @@ _.extend(Metrics.prototype, Backbone.Events, {
       this.logEvent('inactivity.flush');
       this.flush();
     }, this._inactivityFlushMs);
+  },
+
+  // Since RPs and client do not have full control over the UTM
+  // params that could be passed to them, we need to sanitize those values
+  // the best we can. This replaces and reports any invalid utm params which
+  // allows us to still submit the metrics.
+  _validateSanitizeUtmParams(filteredData) {
+    const utmKeyReg = /^utm_/;
+    return Object.keys(filteredData)
+      .filter((key) => {
+        return utmKeyReg.test(key);
+      })
+      .forEach((utmKey) => {
+        const valid = Validate.isUtmValid(filteredData[utmKey]);
+        if (!valid && this._sentryMetrics) {
+          this._sentryMetrics.captureException(
+            AuthErrors.toInvalidParameterError(utmKey)
+          );
+
+          // Override original UTM param with `invalid` value. This will allow us
+          // to submit the metrics
+          filteredData[utmKey] = INVALID_UTM;
+        }
+      });
   },
 
   /**
@@ -767,11 +805,11 @@ _.extend(Metrics.prototype, Backbone.Events, {
       entrypointVariation: marshallProperty(this._entrypointVariation),
       flowBeginTime: metadata.flowBegin,
       flowId: metadata.flowId,
-      utmCampaign: marshallProperty(this._utmCampaign),
-      utmContent: marshallProperty(this._utmContent),
-      utmMedium: marshallProperty(this._utmMedium),
-      utmSource: marshallProperty(this._utmSource),
-      utmTerm: marshallProperty(this._utmTerm),
+      utmCampaign: marshallUtmProperty(this._utmCampaign),
+      utmContent: marshallUtmProperty(this._utmContent),
+      utmMedium: marshallUtmProperty(this._utmMedium),
+      utmSource: marshallUtmProperty(this._utmSource),
+      utmTerm: marshallUtmProperty(this._utmTerm),
       productId: subscriptionMetadata.productId || undefined,
       planId: subscriptionMetadata.planId || undefined,
     };

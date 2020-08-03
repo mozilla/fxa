@@ -26,6 +26,7 @@ describe('lib/metrics', () => {
   let environment;
   let metrics;
   let notifier;
+  let sentryMock;
   let windowMock;
   let xhr;
 
@@ -36,6 +37,10 @@ describe('lib/metrics', () => {
     sinon.spy(notifier, 'on');
 
     xhr = { ajax() {} };
+
+    sentryMock = {
+      captureException: sinon.spy(),
+    };
 
     metrics = new Metrics(
       _.defaults(options, {
@@ -54,6 +59,7 @@ describe('lib/metrics', () => {
         notifier,
         screenHeight: 1200,
         screenWidth: 1600,
+        sentryMetrics: sentryMock,
         service: 'sync',
         startTime: 1439233336187,
         uid: '0ae7fe2b244f4a789857dff3ae263927',
@@ -972,6 +978,47 @@ describe('lib/metrics', () => {
 
         metrics.logEvent('flism');
       });
+    });
+  });
+
+  describe('sanitizes and reports invalid utm', () => {
+    it('flushes as expected', (done) => {
+      createMetrics({
+        utmCampaign: '(not valid)',
+        utmContent: 'utm_content',
+        utmMedium: 'utm_medium',
+        utmSource: 'none',
+        utmTerm: '',
+      });
+
+      sinon.stub(metrics, '_send').resolves(true);
+
+      metrics.logEvent('signin.success');
+
+      setTimeout(() => {
+        try {
+          assert.equal(metrics._send.callCount, 1);
+
+          const firstPayload = metrics._send.args[0][0];
+          assert.equal(firstPayload.events[0].type, 'signin.success');
+          assert.equal(firstPayload.utm_campaign, 'invalid');
+          assert.equal(firstPayload.utm_content, 'utm_content');
+          assert.equal(firstPayload.utm_medium, 'utm_medium');
+          assert.equal(firstPayload.utm_source, 'none');
+          assert.equal(firstPayload.utm_term, 'none');
+
+          assert.equal(sentryMock.captureException.callCount, 1);
+          assert.equal(
+            sentryMock.captureException.args[0][0].errno,
+            107,
+            'invalid param'
+          );
+        } catch (err) {
+          return done(err);
+        }
+
+        done();
+      }, 50);
     });
   });
 
