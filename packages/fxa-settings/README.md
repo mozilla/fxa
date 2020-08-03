@@ -1,6 +1,6 @@
 # Firefox Accounts Settings
 
-This documentation is up to date as of 2020-07-31.
+This documentation is up to date as of 2020-08-03.
 
 ## Development
 
@@ -229,6 +229,10 @@ Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more adva
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
 In local development, `yarn storybook` will start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
+
+## GQL
+
+This package consumes the [FxA GraphQL API](https://github.com/mozilla/fxa/tree/main/packages/fxa-graphql-api). See the documentation to connect to the playground to view the API docs and schema.
 
 ## License
 
