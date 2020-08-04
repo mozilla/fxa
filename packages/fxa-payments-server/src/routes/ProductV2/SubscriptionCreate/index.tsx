@@ -270,6 +270,7 @@ async function handleSubscriptionPayment({
     const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
       {
         priceId: selectedPlan.plan_id,
+        productId: selectedPlan.product_id,
         paymentMethodId: paymentMethod.id,
         idempotencyKey,
       }

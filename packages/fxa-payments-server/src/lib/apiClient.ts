@@ -271,6 +271,7 @@ export async function apiCreateCustomer(params: {
 
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
+  productId: string;
   paymentMethodId: string;
   idempotencyKey: string;
 }): Promise<{
@@ -284,11 +285,30 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     };
   };
 }> {
-  return apiFetch(
-    'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/active/new`,
-    { body: JSON.stringify(params) }
-  );
+  const { priceId, paymentMethodId, idempotencyKey } = params;
+  const metricsOptions = {
+    planId: params.priceId,
+    productId: params.productId,
+  };
+  try {
+    Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
+    const result = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/active/new`,
+      { body: JSON.stringify({ priceId, paymentMethodId, idempotencyKey }) }
+    );
+    Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
+      ...metricsOptions,
+      sourceCountry: result.sourceCountry,
+    });
+    return result.subscription;
+  } catch (error) {
+    Amplitude.createSubscriptionWithPaymentMethod_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
 }
 
 export async function apiRetryInvoice(params: {
@@ -328,9 +348,22 @@ export async function apiCreateSetupIntent(): Promise<FilteredSetupIntent> {
 export async function apiUpdateDefaultPaymentMethod(params: {
   paymentMethodId: string;
 }): Promise<Customer> {
-  return apiFetch(
-    'POST',
-    `${config.servers.auth.url}/v1/oauth/subscriptions/paymentmethod/default`,
-    { body: JSON.stringify(params) }
-  );
+  const { paymentMethodId } = params;
+  const metricsOptions = {};
+  try {
+    Amplitude.updateDefaultPaymentMethod_PENDING(metricsOptions);
+    const result = await apiFetch(
+      'POST',
+      `${config.servers.auth.url}/v1/oauth/subscriptions/paymentmethod/default`,
+      { body: JSON.stringify({ paymentMethodId }) }
+    );
+    Amplitude.updateDefaultPaymentMethod_FULFILLED(metricsOptions);
+    return result;
+  } catch (error) {
+    Amplitude.updateDefaultPaymentMethod_REJECTED({
+      ...metricsOptions,
+      error,
+    });
+    throw error;
+  }
 }

@@ -751,6 +751,10 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('creates a subscription with a payment method', async () => {
+      const sourceCountry = 'us';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
       const expected = deepCopy(subscription2);
@@ -775,7 +779,13 @@ describe('DirectStripeRoutes', () => {
       );
       assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
 
-      assert.deepEqual(filterSubscription(expected), actual);
+      assert.deepEqual(
+        {
+          sourceCountry,
+          subscription: filterSubscription(expected),
+        },
+        actual
+      );
     });
 
     it('errors when a customer has not been created', async () => {
@@ -796,6 +806,10 @@ describe('DirectStripeRoutes', () => {
     });
 
     it('creates a subscription without an payment id in the request', async () => {
+      const sourceCountry = 'us';
+      directStripeRoutesInstance.stripeHelper.extractSourceCountryFromSubscription.returns(
+        sourceCountry
+      );
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
       const expected = deepCopy(subscription2);
@@ -813,7 +827,13 @@ describe('DirectStripeRoutes', () => {
         VALID_REQUEST
       );
 
-      assert.deepEqual(filterSubscription(expected), actual);
+      assert.deepEqual(
+        {
+          sourceCountry,
+          subscription: filterSubscription(expected),
+        },
+        actual
+      );
       sinon.assert.calledWith(
         directStripeRoutesInstance.stripeHelper.createSubscriptionWithPMI,
         {
