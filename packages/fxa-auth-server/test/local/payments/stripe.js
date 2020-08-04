@@ -439,6 +439,13 @@ describe('StripeHelper', () => {
       assert.lengthOf(await stripeHelper.allPlans(), 3);
       assert(mockRedis.get.calledTwice);
       assert(mockRedis.set.calledOnce);
+
+      // Assert that a TTL was set for this cache entry
+      assert.deepEqual(mockRedis.set.args[0][2], [
+        'EX',
+        mockConfig.subhub.plansCacheTtlSeconds,
+      ]);
+
       assert(stripeHelper.stripe.plans.list.calledOnce);
 
       assert.deepEqual(
@@ -532,6 +539,13 @@ describe('StripeHelper', () => {
       assert.lengthOf(await stripeHelper.allProducts(), 3);
       assert(mockRedis.get.calledTwice);
       assert(mockRedis.set.calledOnce);
+
+      // Assert that a TTL was set for this cache entry
+      assert.deepEqual(mockRedis.set.args[0][2], [
+        'EX',
+        mockConfig.subhub.plansCacheTtlSeconds,
+      ]);
+
       assert(stripeHelper.stripe.products.list.calledOnce);
 
       assert.deepEqual(
@@ -1130,6 +1144,9 @@ describe('StripeHelper', () => {
         );
         assert(mockRedis.get.calledOnce);
         assert(mockRedis.set.calledOnce);
+
+        // Assert that no TTL was set for this cache entry - i.e. [ 'EX', 600 ] should not appear.
+        assert.deepEqual(mockRedis.set.args[0][2], []);
 
         assert.deepEqual(
           await stripeHelper.customer({ uid, email }),
