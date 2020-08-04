@@ -197,10 +197,6 @@ module.exports = (log, db, mailer, customs, config) => {
 
         const sessionToken = request.auth.credentials;
 
-        if (sessionToken.tokenVerificationId) {
-          throw errors.unverifiedSession();
-        }
-
         try {
           const token = await db.totpToken(sessionToken.uid);
           return {
