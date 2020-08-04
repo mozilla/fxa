@@ -531,7 +531,9 @@ export default class AuthClient {
     return this.sessionPost('/session/destroy', sessionToken, options);
   }
 
-  async sessionStatus(sessionToken: string) {
+  async sessionStatus(
+    sessionToken: string
+  ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
     return this.sessionGet('/session/status', sessionToken);
   }
 
@@ -933,7 +935,9 @@ export default class AuthClient {
     return this.sessionPost('/totp/destroy', sessionToken, {});
   }
 
-  async checkTotpTokenExists(sessionToken: string): Promise<{ exists: boolean, verified: boolean }> {
+  async checkTotpTokenExists(
+    sessionToken: string
+  ): Promise<{ exists: boolean; verified: boolean }> {
     return this.sessionGet('/totp/exists', sessionToken);
   }
 

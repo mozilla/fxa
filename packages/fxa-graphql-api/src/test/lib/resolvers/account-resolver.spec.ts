@@ -56,7 +56,7 @@ describe('accountResolver', () => {
             accountCreated
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -78,7 +78,7 @@ describe('accountResolver', () => {
             uid
           }
         }`;
-        context.authUser = USER_2.uid;
+        context.session.uid = USER_2.uid;
         const result = (await graphql(
           schema,
           query,
@@ -101,7 +101,7 @@ describe('accountResolver', () => {
             clientMutationId
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -125,7 +125,7 @@ describe('accountResolver', () => {
             displayName
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -155,7 +155,7 @@ describe('accountResolver', () => {
             clientMutationId
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -188,7 +188,7 @@ describe('accountResolver', () => {
             recoveryCodes
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -217,7 +217,7 @@ describe('accountResolver', () => {
             recoveryCodes
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -244,7 +244,7 @@ describe('accountResolver', () => {
             success
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -268,7 +268,7 @@ describe('accountResolver', () => {
             clientMutationId
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -291,7 +291,7 @@ describe('accountResolver', () => {
             clientMutationId
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -314,7 +314,7 @@ describe('accountResolver', () => {
             clientMutationId
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,
@@ -339,7 +339,7 @@ describe('accountResolver', () => {
             clientMutationId
           }
         }`;
-        context.authUser = USER_1.uid;
+        context.session.uid = USER_1.uid;
         const result = (await graphql(
           schema,
           query,

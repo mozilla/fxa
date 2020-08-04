@@ -13,7 +13,10 @@ export function mockContext() {
     profileAPI: stubInterface<ProfileServerSource>(),
   };
   return {
-    authUser: '',
+    session: {
+      uid: '',
+      state: 'unverified',
+    },
     token: 'test',
     logger: stubInterface<Logger>(),
     dataSources: ds,

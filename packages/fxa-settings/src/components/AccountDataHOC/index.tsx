@@ -15,9 +15,6 @@ type AccountDataHOCProps = {
   children: (props: AccountDataHOCChildrenProps) => React.ReactNode;
 };
 
-// A data extraction layer for initial load.
-// TODO: If an account is unverified we'll need to
-// requery with less requested properties.
 export const AccountDataHOC = ({ children }: AccountDataHOCProps) => {
   const { loading, error, data } = useQuery(GET_ACCOUNT);
 

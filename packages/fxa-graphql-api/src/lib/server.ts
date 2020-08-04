@@ -12,6 +12,7 @@ import { SessionTokenAuth } from './auth';
 import { AuthServerSource } from './datasources/authServer';
 import { ProfileServerSource } from './datasources/profileServer';
 import { AccountResolver } from './resolvers/account-resolver';
+import { SessionResolver } from './resolvers/session-resolver';
 import { reportGraphQLError } from './sentry';
 
 type ServerConfig = {
@@ -39,7 +40,7 @@ export function formatError(debug: boolean, logger: Logger, err: GraphQLError) {
  * Context available to resolvers
  */
 export type Context = {
-  authUser: string;
+  session: { uid: string; state: 'verified' | 'unverified' };
   token: string;
   dataSources: DataSources;
   logger: Logger;
@@ -57,11 +58,11 @@ export async function createServer(
 ): Promise<ApolloServer> {
   const schema = await TypeGraphQL.buildSchema({
     container: Container,
-    resolvers: [AccountResolver],
+    resolvers: [AccountResolver, SessionResolver],
     validate: false,
   });
   const authHeader = config.authHeader.toLowerCase();
-  const authUser = Container.get(SessionTokenAuth);
+  const authToken = Container.get(SessionTokenAuth);
   const debugMode = config.env !== 'production';
   const defaultContext = async ({ req }: { req: Request }) => {
     const bearerToken = req.headers[authHeader];
@@ -70,13 +71,12 @@ export async function createServer(
         'Invalid authentcation header found at: ' + authHeader
       );
     }
-    const userId = await authUser.lookupUserId(bearerToken);
+    const session = await authToken.getSessionStatus(bearerToken);
     return {
-      authUser: userId,
       token: bearerToken,
+      session,
       logger,
-    };
-    '';
+    } as Context;
   };
 
   return new ApolloServer({

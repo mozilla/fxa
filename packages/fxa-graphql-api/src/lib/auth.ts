@@ -13,10 +13,9 @@ export class SessionTokenAuth {
   @Inject(fxAccountClientToken)
   private authClient!: AuthClient;
 
-  public async lookupUserId(sessionToken: string): Promise<string> {
+  public async getSessionStatus(sessionToken: string) {
     try {
-      const result = await this.authClient.sessionStatus(sessionToken);
-      return result.uid;
+      return await this.authClient.sessionStatus(sessionToken);
     } catch (err) {
       throw new AuthenticationError('Invalid session token');
     }

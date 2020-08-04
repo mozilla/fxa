@@ -84,7 +84,7 @@ describe('AuthServerSource', () => {
       recoveryEmailSecondaryResendCode: sandbox.stub(),
     };
     Container.set(fxAccountClientToken, authClient);
-    context = mockContext();
+    context = mockContext() as Context;
     authSource = new AuthServerSource();
     const config = stubInterface<DataSourceConfig<Context>>();
     config.context = context;
