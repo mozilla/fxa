@@ -1,3 +1,9 @@
+## 1.182.2
+
+### Bug fixes
+
+- payments: ensure Customer data is not cached with an expiration TTL ([0dced12c6](https://github.com/mozilla/fxa/commit/0dced12c6))
+
 ## 1.182.1
 
 ### Bug fixes
