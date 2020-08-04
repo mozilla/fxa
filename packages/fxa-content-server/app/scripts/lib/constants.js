@@ -86,8 +86,8 @@ module.exports = {
   PROFILE_IMAGE_MIN_WIDTH: 100,
   DEFAULT_PROFILE_IMAGE_MIME_TYPE: 'image/jpeg',
 
-  // Limit to 1.35 megabytes
-  PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE: 1.35 * 1024 * 1024,
+  // Limit to 2 megabytes
+  PROFILE_FILE_IMAGE_MAX_UPLOAD_SIZE: 2 * 1024 * 1024,
 
   ONERROR_MESSAGE_LIMIT: 100,
 

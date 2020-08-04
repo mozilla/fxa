@@ -134,7 +134,7 @@ const conf = convict({
   image: {
     maxSize: {
       doc: 'Maximum bytes allow for uploads',
-      default: 1024 * 1024 * 1, // 1MB
+      default: 1024 * 1024 * 2, // 2MB
       env: 'IMG_UPLOADS_DEST_MAX_SIZE',
     },
     types: {
