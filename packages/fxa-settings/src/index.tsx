@@ -4,22 +4,15 @@
 
 import React from 'react';
 import { render } from 'react-dom';
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider, ApolloClient, createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 import App from './components/App';
+import { AuthClient, AuthContext } from './lib/auth';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
-import Storage from './lib/storage';
+import { cache, sessionToken, typeDefs } from './lib/cache';
 import './index.scss';
-
-const storage = Storage.factory('localStorage');
-
-function getSessionToken(): string {
-  const storedAccounts = storage.get('accounts');
-  const currentAccountUid = storage.get('currentAccountUid');
-  // TODO: protect from if user doesn't have sessionToken (probably redirect them back to login)
-  return storedAccounts[currentAccountUid].sessionToken;
-}
 
 try {
   sentryMetrics.configure(config.sentry.dsn, config.version);
@@ -27,9 +20,31 @@ try {
     return document.head.querySelector(name);
   });
 
+  if (!sessionToken()) {
+    window.location.replace(window.location.origin);
+  }
+
   if (!config.servers.gql.url) {
     throw new Error('GraphQL API URL not set');
   }
+  if (!config.servers.auth.url) {
+    throw new Error('Auth Server URL not set');
+  }
+  const authClient = new AuthClient(config.servers.auth.url);
+
+  // sessionToken can change due to a password change so we
+  // can't simply add it in the constructor
+  const httpLink = createHttpLink({
+    uri: `${config.servers.gql.url}/graphql`,
+  });
+  const authLink = setContext((_, { headers }) => {
+    return {
+      headers: {
+        ...headers,
+        Authorization: sessionToken(),
+      },
+    };
+  });
 
   // TODO: due to the nature and specificity of the requests we need to talk
   // directly to the auth server, not the GQL server, for the following routes:
@@ -37,18 +52,18 @@ try {
   // - POST /password/change/finish
   // - POST /account/destroy
   const apolloClient = new ApolloClient({
-    cache: new InMemoryCache(),
-    uri: `${config.servers.gql.url}/graphql`,
-    headers: {
-      authorization: getSessionToken(),
-    },
+    cache,
+    link: authLink.concat(httpLink),
+    typeDefs,
   });
   const queryParams = searchParams(window.location.search);
 
   render(
     <React.StrictMode>
       <ApolloProvider client={apolloClient}>
-        <App {...{ queryParams }} />
+        <AuthContext.Provider value={{ auth: authClient }}>
+          <App {...{ queryParams }} />
+        </AuthContext.Provider>
       </ApolloProvider>
     </React.StrictMode>,
     document.getElementById('root')

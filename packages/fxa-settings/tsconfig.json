@@ -20,6 +20,9 @@
     },
     {
       "path": "../fxa-shared"
+    },
+    {
+      "path": "../fxa-auth-client/tsconfig.browser.json"
     }
   ]
 }

@@ -4,10 +4,16 @@
 
 import React from 'react';
 import { render, act } from '@testing-library/react';
-import { MockedProvider } from '@apollo/client/testing';
+import { MockedProvider, MockLink } from '@apollo/client/testing';
 import '@testing-library/jest-dom/extend-expect';
 import App from '.';
 import FlowEvent from '../../lib/flow-event';
+
+// workaround for https://github.com/apollographql/apollo-client/issues/6559
+const mockLink = new MockLink([], false);
+mockLink.setOnError((error) => {
+  return;
+});
 
 const appProps = {
   queryParams: {},
@@ -20,7 +26,7 @@ beforeEach(() => {
 it('renders', async () => {
   await act(async () => {
     render(
-      <MockedProvider mocks={[]}>
+      <MockedProvider mocks={[]} addTypename={false} link={mockLink}>
         <App {...appProps} />
       </MockedProvider>
     );
@@ -30,7 +36,7 @@ it('renders', async () => {
 it('redirects to /get_flow when flow data is not present', async () => {
   await act(async () => {
     render(
-      <MockedProvider mocks={[]}>
+      <MockedProvider mocks={[]} addTypename={false} link={mockLink}>
         <App {...appProps} />
       </MockedProvider>
     );
@@ -58,7 +64,7 @@ it('redirects to /get_flow when flow data is not present', async () => {
 
   await act(async () => {
     render(
-      <MockedProvider mocks={[]}>
+      <MockedProvider mocks={[]} addTypename={false} link={mockLink}>
         <App {...updatedAppProps} />
       </MockedProvider>
     );
