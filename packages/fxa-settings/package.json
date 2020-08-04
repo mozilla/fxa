@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.1.2",
+    "@reach/router": "^1.3.4",
     "classnames": "^2.2.6",
     "fxa-auth-client": "workspace:*",
     "fxa-react": "workspace:*",

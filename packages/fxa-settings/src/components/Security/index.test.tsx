@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import Security from '.';
+import { renderWithRouter } from '../../models/_mocks';
 
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
-    render(
+    renderWithRouter(
       <Security
         accountRecoveryKeyEnabled={false}
         twoFactorAuthEnabled={false}
@@ -23,7 +24,7 @@ describe('Security', () => {
   });
 
   it('renders "enabled two factor" and "recovery key present" <Security/> with correct content', async () => {
-    render(
+    renderWithRouter(
       <Security accountRecoveryKeyEnabled={true} twoFactorAuthEnabled={true} />
     );
 

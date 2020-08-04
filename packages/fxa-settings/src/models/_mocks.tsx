@@ -7,6 +7,12 @@ import { InMemoryCache, ApolloClient, ApolloProvider } from '@apollo/client';
 import { Account } from '.';
 import { GET_INITIAL_STATE } from '../components/App';
 import { deepMerge } from '../lib/utilities';
+import {
+  createHistory,
+  createMemorySource,
+  LocationProvider,
+} from '@reach/router';
+import { render } from '@testing-library/react';
 
 const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
@@ -122,4 +128,14 @@ export class MockedCache extends React.Component<MockedProps, MockedState> {
   componentWillUnmount() {
     this.state.client.stop();
   }
+}
+
+export function renderWithRouter(
+  ui: any,
+  { route = '/', history = createHistory(createMemorySource(route)) } = {}
+) {
+  return {
+    ...render(<LocationProvider {...{ history }}>{ui}</LocationProvider>),
+    history,
+  };
 }

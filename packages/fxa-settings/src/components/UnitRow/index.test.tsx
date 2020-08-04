@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import UnitRow from '.';
+import { renderWithRouter } from '../../models/_mocks';
 
 describe('UnitRow', () => {
   it('renders as expected with minimal required attributes', () => {
-    render(<UnitRow header="Foxy" headerValue={null} />);
+    renderWithRouter(<UnitRow header="Foxy" headerValue={null} />);
 
     expect(screen.getByTestId('unit-row-header').textContent).toContain('Foxy');
     expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
@@ -19,7 +20,7 @@ describe('UnitRow', () => {
   });
 
   it('renders the children', () => {
-    render(
+    renderWithRouter(
       <UnitRow header="Display name" headerValue={null}>
         <p data-testid="children">The children!</p>
       </UnitRow>
@@ -29,7 +30,7 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with `route` prop and non-null `headerValue`', () => {
-    render(
+    renderWithRouter(
       <UnitRow
         header="Display name"
         headerValue="Fred Flinstone"
@@ -53,7 +54,7 @@ describe('UnitRow', () => {
   });
 
   it('renders as expected with `revealModal` prop', () => {
-    render(
+    renderWithRouter(
       <UnitRow
         header="Display name"
         headerValue={null}
@@ -65,7 +66,7 @@ describe('UnitRow', () => {
   });
 
   it('renders non-default `noHeaderValueText` and `noHeaderValueCtaText`', () => {
-    render(
+    renderWithRouter(
       <UnitRow
         header="Display name"
         headerValue={null}

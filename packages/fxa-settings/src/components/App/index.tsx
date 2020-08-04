@@ -10,6 +10,8 @@ import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 import Settings from '../Settings';
 import FlowEvents from '../../lib/flow-event';
 import { Account } from '../../models';
+import { Router } from '@reach/router';
+import FlowContainer from '../FlowContainer';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -68,7 +70,15 @@ export const App = ({ queryParams }: AppProps) => {
 
   return (
     <AppLayout>
-      <Settings />
+      <Router basepath="/beta/settings">
+        <Settings path="/" />
+        <FlowContainer path="/avatar/change" title="Profile picture"/>
+        <FlowContainer path="/display_name" title="Display name"/>
+        <FlowContainer
+            path="/change_password"
+            title="Change password"
+        />
+      </Router>
     </AppLayout>
   );
 };

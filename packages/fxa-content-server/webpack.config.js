@@ -77,8 +77,10 @@ const webpackConfig = {
       vat: require.resolve('node-vat/vat'),
       // Webpack 4 doesn't support the "exports" property of package.json
       // so unfortunately we need to remap it here as well.
-      'fxa-react/components/Survey': require.resolve('fxa-react/components/Survey'),
-      'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser')
+      'fxa-react/components/Survey': require.resolve(
+        'fxa-react/components/Survey'
+      ),
+      'fxa-auth-client/browser': require.resolve('fxa-auth-client/browser'),
     },
   },
 
@@ -112,12 +114,15 @@ const webpackConfig = {
       },
       {
         test: /\.tsx?$/,
-        loader: ['cache-loader', {
-          loader: 'ts-loader',
-          options: {
-            transpileOnly: true
-          }
-        }],
+        loader: [
+          'cache-loader',
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true,
+            },
+          },
+        ],
       },
       {
         test: /\.jsx?$/,
@@ -151,7 +156,7 @@ const webpackConfig = {
                   {
                     targets: {
                       firefox: '60',
-                      edge: '16'
+                      edge: '16',
                     },
                     corejs: 3,
                     include: [
