@@ -49,6 +49,8 @@ const TOTP_CODE = /^[0-9]{6}$/;
 // Recovery codes can be 8-10 alpha numeric characters
 const RECOVERY_CODE = /^([a-zA-Z0-9]{8,10})$/;
 
+const utmRegex = /^[\w\/.%-]{1,128}$/;
+
 var Validate = {
   /**
    * Check if an email address is valid
@@ -272,6 +274,16 @@ var Validate = {
     }, true);
 
     return areAllValid;
+  },
+
+  /**
+   * Check if the utm param is valid.
+   *
+   * @param {String} value
+   * @returns {Boolean}
+   */
+  isUtmValid(value) {
+    return utmRegex.test(value);
   },
 };
 

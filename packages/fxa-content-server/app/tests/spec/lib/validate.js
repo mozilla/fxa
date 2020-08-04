@@ -359,4 +359,22 @@ describe('lib/validate', function () {
       );
     });
   });
+
+  describe('isUtmValid', () => {
+    it('returns false if more than 128 chars', () => {
+      assert.isFalse(Validate.isUtmValid(createRandomHexString(129)));
+    });
+
+    it('returns false for empty string', () => {
+      assert.isFalse(Validate.isUtmValid(''));
+    });
+
+    it('returns false for invalid chars', () => {
+      assert.isFalse(Validate.isUtmValid('(not valid)'));
+    });
+
+    it('returns true for valid chars', () => {
+      assert.isTrue(Validate.isUtmValid('marketing-snippet'));
+    });
+  });
 });
