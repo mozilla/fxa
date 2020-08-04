@@ -933,7 +933,7 @@ export default class AuthClient {
     return this.sessionPost('/totp/destroy', sessionToken, {});
   }
 
-  async checkTotpTokenExists(sessionToken: string) {
+  async checkTotpTokenExists(sessionToken: string): Promise<{ exists: boolean, verified: boolean }> {
     return this.sessionGet('/totp/exists', sessionToken);
   }
 

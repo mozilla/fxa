@@ -94,20 +94,6 @@ describe('remote totp', function () {
     });
   });
 
-  it('should fail check for totp token if in unverified session', () => {
-    email = server.uniqueEmail();
-    return client
-      .login()
-      .then(() => client.sessionStatus())
-      .then((result) => {
-        assert.equal(result.state, 'unverified', 'session is unverified');
-        return client.checkTotpTokenExists();
-      })
-      .then(assert.fail, (err) => {
-        assert.equal(err.errno, 138, 'correct unverified session errno');
-      });
-  });
-
   it('should fail to create second totp token for same user', () => {
     return client.createTotpToken().then(assert.fail, (err) => {
       assert.equal(err.code, 400, 'correct error code');

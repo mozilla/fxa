@@ -157,18 +157,6 @@ describe('totp', () => {
         assert.equal(db.totpToken.callCount, 1, 'called get TOTP token');
       });
     });
-
-    it('should be disabled in unverified session', () => {
-      requestOptions.credentials.tokenVerificationId = 'notverified';
-      return setup(
-        { db: { email: TEST_EMAIL } },
-        {},
-        '/totp/exists',
-        requestOptions
-      ).then(assert.fail, (err) => {
-        assert.deepEqual(err.errno, 138, 'unverified session error');
-      });
-    });
   });
 
   describe('/session/verify/totp', () => {
