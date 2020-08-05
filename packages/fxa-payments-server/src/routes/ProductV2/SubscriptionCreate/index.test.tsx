@@ -212,6 +212,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     ).toMatchObject({
       // idempotencyKey (ignored)
       priceId: PLAN.plan_id,
+      productId: PLAN.product_id,
       paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
     });
   };
@@ -263,6 +264,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       ).toMatchObject({
         // idempotencyKey (ignored)
         priceId: PLAN.plan_id,
+        productId: PLAN.product_id,
         paymentMethodId: initialPaymentMethod.paymentMethod.id,
       })
     );
@@ -325,6 +327,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
       ).toMatchObject({
         // idempotencyKey (ignored)
         priceId: PLAN.plan_id,
+        productId: PLAN.product_id,
         paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
       })
     );
@@ -572,6 +575,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         ).toMatchObject({
           // idempotencyKey (ignored)
           priceId: PLAN.plan_id,
+          productId: PLAN.product_id,
           paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
         })
       );

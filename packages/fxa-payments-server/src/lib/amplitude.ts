@@ -10,6 +10,8 @@ const eventGroupNames = {
   updatePayment: 'subPayManage',
   cancelSubscription: 'subCancel',
   manageSubscriptions: 'subManage',
+  createSubscriptionWithPaymentMethod: 'subPaySetup',
+  updateDefaultPaymentMethod: 'subPayManage',
 } as const;
 
 const eventTypeNames = {
@@ -19,6 +21,11 @@ const eventTypeNames = {
   success: 'success',
   fail: 'fail',
   complete: 'complete',
+
+  submit3DS: '3ds-submit',
+  success3DS: '3ds-success',
+  fail3DS: '3ds-fail',
+  complete3DS: '3ds-complete',
 } as const;
 
 type GlobalEventProperties = {
@@ -201,6 +208,76 @@ export function updatePayment_REJECTED(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.fail,
+    eventProperties
+  );
+}
+
+export function createSubscriptionWithPaymentMethod_PENDING(
+  eventProperties: EventProperties
+) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.createSubscriptionWithPaymentMethod,
+    eventTypeNames.submit,
+    eventProperties
+  );
+}
+
+export function createSubscriptionWithPaymentMethod_FULFILLED(
+  eventProperties: SuccessfulSubscriptionEventProperties
+) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.createSubscriptionWithPaymentMethod,
+    eventTypeNames.success3DS,
+    eventProperties
+  );
+  safeLogAmplitudeEvent(
+    eventGroupNames.createSubscriptionWithPaymentMethod,
+    eventTypeNames.complete3DS,
+    eventProperties
+  );
+}
+
+export function createSubscriptionWithPaymentMethod_REJECTED(
+  eventProperties: EventProperties
+) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.createSubscriptionWithPaymentMethod,
+    eventTypeNames.fail3DS,
+    eventProperties
+  );
+}
+
+export function updateDefaultPaymentMethod_PENDING(
+  eventProperties: EventProperties
+) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.updateDefaultPaymentMethod,
+    eventTypeNames.submit3DS,
+    eventProperties
+  );
+}
+
+export function updateDefaultPaymentMethod_FULFILLED(
+  eventProperties: EventProperties
+) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.updateDefaultPaymentMethod,
+    eventTypeNames.success3DS,
+    eventProperties
+  );
+  safeLogAmplitudeEvent(
+    eventGroupNames.updateDefaultPaymentMethod,
+    eventTypeNames.complete3DS,
+    eventProperties
+  );
+}
+
+export function updateDefaultPaymentMethod_REJECTED(
+  eventProperties: EventProperties
+) {
+  safeLogAmplitudeEvent(
+    eventGroupNames.updateDefaultPaymentMethod,
+    eventTypeNames.fail3DS,
     eventProperties
   );
 }

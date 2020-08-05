@@ -15,6 +15,12 @@ import {
   updateSubscriptionPlan_PENDING,
   updateSubscriptionPlan_FULFILLED,
   updateSubscriptionPlan_REJECTED,
+  createSubscriptionWithPaymentMethod_PENDING,
+  createSubscriptionWithPaymentMethod_FULFILLED,
+  createSubscriptionWithPaymentMethod_REJECTED,
+  updateDefaultPaymentMethod_PENDING,
+  updateDefaultPaymentMethod_FULFILLED,
+  updateDefaultPaymentMethod_REJECTED,
 } from './amplitude';
 jest.mock('./amplitude');
 
@@ -396,18 +402,58 @@ describe('API requests', () => {
 
   describe('apiCreateSubscriptionWithPaymentMethod', () => {
     const path = '/v1/oauth/subscriptions/active/new';
+    const params = {
+      priceId: 'price_12345',
+      productId: 'prod_abdce',
+      paymentMethodId: 'pm_test',
+      idempotencyKey: 'idk-8675309',
+    };
+    const metricsOptions = {
+      planId: params.priceId,
+      productId: params.productId,
+    };
 
     it(`POST {auth-server}${path}`, async () => {
-      const expected = { what: 'ever' };
+      const expected = { sourceCountry: 'US', subscription: { what: 'ever' } };
       const requestMock = nock(AUTH_BASE_URL).post(path).reply(200, expected);
 
+      expect(await apiCreateSubscriptionWithPaymentMethod(params)).toEqual(
+        expected.subscription
+      );
+
       expect(
-        await apiCreateSubscriptionWithPaymentMethod({
-          priceId: 'price_12345',
-          paymentMethodId: 'pm_test',
-          idempotencyKey: 'idk-8675309',
-        })
-      ).toEqual(expected);
+        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+      ).toBeCalledWith(metricsOptions);
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_FULFILLED
+      ).toBeCalledWith({
+        ...metricsOptions,
+        sourceCountry: expected.sourceCountry,
+      });
+      requestMock.done();
+    });
+
+    it('sends amplitude ping on error', async () => {
+      const { priceId, paymentMethodId, idempotencyKey } = params;
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path, { priceId, paymentMethodId, idempotencyKey })
+        .reply(400, { message: 'oops' });
+      let error = null;
+      try {
+        await apiCreateSubscriptionWithPaymentMethod(params);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).not.toBeNull();
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_PENDING
+      ).toBeCalledWith(metricsOptions);
+      expect(
+        <jest.Mock>createSubscriptionWithPaymentMethod_REJECTED
+      ).toBeCalledWith({
+        ...metricsOptions,
+        error,
+      });
       requestMock.done();
     });
   });
@@ -453,17 +499,48 @@ describe('API requests', () => {
 
   describe('apiUpdateDefaultPaymentMethod', () => {
     const path = '/v1/oauth/subscriptions/paymentmethod/default';
+    const params = {
+      paymentMethodId: 'pm_test',
+    };
+    const metricsOptions = {};
 
     it(`POST {auth-server}${path}`, async () => {
       const requestMock = nock(AUTH_BASE_URL)
         .post(path)
         .reply(200, MOCK_CUSTOMER);
 
-      expect(
-        await apiUpdateDefaultPaymentMethod({
-          paymentMethodId: 'pm_test',
-        })
-      ).toEqual(MOCK_CUSTOMER);
+      expect(await apiUpdateDefaultPaymentMethod(params)).toEqual(
+        MOCK_CUSTOMER
+      );
+
+      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+        metricsOptions
+      );
+      expect(<jest.Mock>updateDefaultPaymentMethod_FULFILLED).toBeCalledWith({
+        ...metricsOptions,
+      });
+      requestMock.done();
+    });
+
+    it('sends amplitude ping on error', async () => {
+      const { paymentMethodId } = params;
+      const requestMock = nock(AUTH_BASE_URL)
+        .post(path, { paymentMethodId })
+        .reply(400, { message: 'oops' });
+      let error = null;
+      try {
+        await apiUpdateDefaultPaymentMethod(params);
+      } catch (e) {
+        error = e;
+      }
+      expect(error).not.toBeNull();
+      expect(<jest.Mock>updateDefaultPaymentMethod_PENDING).toBeCalledWith(
+        metricsOptions
+      );
+      expect(<jest.Mock>updateDefaultPaymentMethod_REJECTED).toBeCalledWith({
+        ...metricsOptions,
+        error,
+      });
       requestMock.done();
     });
   });

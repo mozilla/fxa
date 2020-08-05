@@ -674,7 +674,10 @@ class DirectStripeRoutes {
    */
   async createSubscriptionWithPMI(
     request: AuthRequest
-  ): Promise<DeepPartial<Stripe.Subscription>> {
+  ): Promise<{
+    sourceCountry: string | null;
+    subscription: DeepPartial<Stripe.Subscription>;
+  }> {
     this.log.begin('subscriptions.createSubscriptionWithPMI', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
@@ -697,6 +700,10 @@ class DirectStripeRoutes {
       paymentMethodId,
       subIdempotencyKey,
     });
+
+    const sourceCountry = this.stripeHelper.extractSourceCountryFromSubscription(
+      subscription
+    );
 
     await this.customerChanged(request, uid, email);
 
@@ -721,7 +728,10 @@ class DirectStripeRoutes {
       subscriptionId: subscription.id,
     });
 
-    return filterSubscription(subscription);
+    return {
+      sourceCountry,
+      subscription: filterSubscription(subscription),
+    };
   }
 
   /**
@@ -1422,7 +1432,10 @@ const directRoutes = (
           strategy: 'oauthToken',
         },
         response: {
-          schema: validators.subscriptionsStripeSubscriptionValidator,
+          schema: isA.object().keys({
+            subscription: validators.subscriptionsStripeSubscriptionValidator,
+            sourceCountry: validators.subscriptionPaymentCountryCode.required(),
+          }),
         },
         validate: {
           payload: {
