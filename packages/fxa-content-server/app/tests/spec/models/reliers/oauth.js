@@ -788,7 +788,7 @@ describe('models/reliers/oauth', () => {
         });
     });
 
-    it('rejects if prompt=none not enabled for client', () => {
+    it('rejects if prompt=none not enabled for client and client uses login_hint', () => {
       config.isPromptNoneEnabled = true;
       config.isPromptNoneEnabledForClient = false;
 
@@ -799,6 +799,34 @@ describe('models/reliers/oauth', () => {
             OAuthErrors.is(err, 'PROMPT_NONE_NOT_ENABLED_FOR_CLIENT')
           );
         });
+    });
+
+    it('allows if prompt=none not enabled for client but client uses id_token_hint', () => {
+      config.isPromptNoneEnabled = true;
+      config.isPromptNoneEnabledForClient = false;
+      const UID = '123';
+      account.set({
+        email: 'testuser@testuser.com',
+        sessionToken: 'token',
+        uid: UID,
+        verified: true,
+      });
+      sinon.stub(account, 'verifyIdToken').callsFake(() => {
+        return Promise.resolve({
+          sub: UID,
+        });
+      });
+      sinon.stub(account, 'sessionVerificationStatus').callsFake(() => {
+        return Promise.resolve({
+          verified: true,
+        });
+      });
+      relier.unset('email');
+      relier.set('idTokenHint', 'placeholderIDToken');
+
+      return relier
+        .validatePromptNoneRequest(account)
+        .then(assert.true, assert.fail);
     });
 
     it('rejects if the client is requesting keys', () => {

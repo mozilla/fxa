@@ -41,6 +41,8 @@ module.exports = function (config) {
   const SUBSCRIPTIONS = config.get('subscriptions');
   const SURVEY_FEATURE = config.get('surveyFeature');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
+  // Note that this list is only enforced for clients that use login_hint/email
+  // with prompt=none. id_token_hint clients are not subject to this check.
   const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
     config.get('oauth.prompt_none.enabled_client_ids')
   );

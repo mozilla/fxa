@@ -368,17 +368,17 @@ var OAuthRelier = Relier.extend({
    * @returns {Promise<none>} rejects with an error if prompt=none cannot be used.
    */
   validatePromptNoneRequest(account) {
+    const requestedEmail = this.get('email');
     return Promise.resolve()
       .then(() => {
         if (!this._config.isPromptNoneEnabled) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED');
         }
 
-        // `prompt=none` access was controlled when we only used `login_hint`,
-        // but we should consider loosening this restriction, and instead allow
-        // all RPs to use `id_token_hint`. See the discussion issue:
-        // https://github.com/mozilla/fxa/issues/4963
-        if (!this._config.isPromptNoneEnabledForClient) {
+        // If the RP uses email, check they are allowed to use prompt=none.
+        // This check is not necessary if the RP uses id_token_hint.
+        // See the discussion issue: https://github.com/mozilla/fxa/issues/4963
+        if (requestedEmail && !this._config.isPromptNoneEnabledForClient) {
           throw OAuthErrors.toError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
         }
 
@@ -411,8 +411,6 @@ var OAuthRelier = Relier.extend({
               }
             });
         } else {
-          const requestedEmail = this.get('email');
-
           if (!requestedEmail) {
             // yeah yeah, it's a bit strange to look at `email`
             // and then say `login_hint` is missing. `login_hint`
@@ -421,8 +419,6 @@ var OAuthRelier = Relier.extend({
             // `login_hint` is copied to the `email` field if no `email`
             // is specified. If neither is available, throw an error
             // about `login_hint` since it's spec compliant.
-            //
-            // (Should the error mention id_token_hint as well?)
             throw OAuthErrors.toMissingParameterError('login_hint');
           }
 
