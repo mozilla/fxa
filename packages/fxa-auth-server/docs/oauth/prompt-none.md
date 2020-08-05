@@ -8,8 +8,13 @@ More formally, `prompt=none` is a flow described by the [OpenID Connect spec][#o
 
 ## prompt=none usage is controlled
 
-Usage of `prompt=none` is controlled to an authorized list of RPs since
+Usage of `prompt=none` with `login_hint` / `email` is controlled to an authorized list of RPs, since
 it bypasses the normal authorization flow and use could easily fall afoul of user expectations.
+
+However, _all_ RPs can check the user's FxA login state using `id_token_hint`: since RPs not on the
+[authorized list](#prompt=none-usage-is-controlled) can only obtain an [id_token][#oidc-id-token] by
+going through the normal authorization flow, it is safe to assume an RP presenting the `id_token`
+as part of a `prompt=none` flow has already been granted authorization.
 
 ## Requesting `prompt=none` during authorization
 
@@ -99,15 +104,12 @@ For users that are already authenticated to Firefox Accounts, `prompt=none` bypa
 
 ## Future directions
 
-Now that FxA accepts the id_token_hint query parameter, support for `prompt=none` [could be expanded][#oidc-id-token-hint-discussion-issue] to allow any RP to check the user's FxA login state. Since RPs not on the [authorized list](#prompt=none-usage-is-controlled) can only obtain an [id_token][#oidc-id-token] by going through the normal authorization flow, it is safe to assume an RP presenting the `id_token` as part of a `prompt=none` flow has already been granted authorization.
-
 Support for [OIDC RP Initiated Logout][#oidc-rp-initiated-logout-github-issue] may go some way to reducing user confusion on what it means to sign out of an RP and whether they should have to enter their password again. Upon signing out of the RP, RPs that support the OIDC RP Initiated Logout protocol will redirect the user to FxA where they are given the option to destroy their FxA session as well.
 
 [#authorization-api-doc]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#get-v1authorization
 [#fxa-devices-and-apps]: https://accounts.firefox.com/settings/clients
 [#oauth-server-api-destroy]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/fxa-oauth-server/docs/api.md#post-v1destroy
 [#oidc-error-codes]: https://openid.net/specs/openid-connect-core-1_0.html#AuthError
-[#oidc-id-token-hint-discussion-issue]: https://github.com/mozilla/fxa/issues/4963
 [#oidc-id-token]: https://openid.net/specs/openid-connect-core-1_0.html#IDToken
 [#oidc-logout-flows]: https://medium.com/@robert.broeckelmann/openid-connect-logout-eccc73df758f
 [#oidc-rp-initiated-logout-github-issue]: https://github.com/mozilla/fxa/issues/1979
