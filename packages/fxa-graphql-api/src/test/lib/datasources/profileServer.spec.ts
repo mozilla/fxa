@@ -43,7 +43,7 @@ describe('ProfileServerSource', () => {
     };
     Container.set(fxAccountClientToken, authClient);
     Container.set(configContainerToken, config);
-    context = mockContext();
+    context = mockContext() as Context;
     profileSource = new ProfileServerSource();
     const pluginConfig = stubInterface<DataSourceConfig<Context>>();
     pluginConfig.context = context;

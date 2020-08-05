@@ -215,7 +215,7 @@ export class AccountResolver {
 
   @Query((returns) => AccountType, { nullable: true })
   public account(@Ctx() context: Context, @Info() info: GraphQLResolveInfo) {
-    context.logger.info('account', { uid: context.authUser });
+    context.logger.info('account', { uid: context.session.uid });
 
     // Introspect the query to determine if we should load the emails
     const parsed: any = parseResolveInfo(info);
@@ -228,7 +228,7 @@ export class AccountResolver {
     const options: AccountOptions = includeEmails
       ? { include: ['emails'] }
       : {};
-    return accountByUid(context.authUser, options);
+    return accountByUid(context.session.uid, options);
   }
 
   @FieldResolver()

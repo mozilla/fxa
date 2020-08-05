@@ -15,3 +15,6 @@ export function useAuth() {
   }
   return auth!;
 }
+
+// NOTE for future self
+// In cases where the sessionToken changes we should also flush the session { verified } value from apollo cache

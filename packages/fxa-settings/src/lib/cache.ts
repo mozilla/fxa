@@ -17,18 +17,18 @@ export function sessionToken(newToken?: string) {
   }
 }
 
-// sessionToken is added as a local field in the cache as an example.
+// sessionToken is added as a local field as an example.
 export const typeDefs = gql`
-  extend type Query {
-    sessionToken: String!
+  extend type Session {
+    token: String!
   }
 `;
 
 export const cache = new InMemoryCache({
   typePolicies: {
-    Query: {
+    Session: {
       fields: {
-        sessionToken: {
+        token: {
           read() {
             return sessionToken();
           },

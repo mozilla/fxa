@@ -20,7 +20,7 @@ import { createServer } from '../../lib/server';
 
 const sandbox = sinon.createSandbox();
 
-const sessionAuth = { lookupUserId: sandbox.stub() };
+const sessionAuth = { getSessionStatus: sandbox.stub() };
 
 const mockLogger = ({ info: () => {} } as unknown) as Logger;
 
@@ -89,7 +89,7 @@ describe('createServer', () => {
     });
 
     it('should throw an AuthenticationError when auth server has auth error', async () => {
-      sessionAuth.lookupUserId.rejects(
+      sessionAuth.getSessionStatus.rejects(
         new AuthenticationError('Invalid token')
       );
       try {
@@ -101,12 +101,16 @@ describe('createServer', () => {
     });
 
     it('should return a user and the bearer token', async () => {
-      sessionAuth.lookupUserId.resolves('9001xyz');
+      sessionAuth.getSessionStatus.resolves({
+        uid: '9001xyz',
+        state: 'unverified',
+      });
       try {
         const context = await (server as any).context({
           req: { headers: { authorization: 'lolcatz' } },
         });
-        assert.equal(context.authUser, '9001xyz');
+        assert.equal(context.session.uid, '9001xyz');
+        assert.equal(context.session.state, 'unverified');
         assert.equal(context.token, 'lolcatz');
       } catch (e) {
         assert.fail('Should not have thrown an exception: ' + e);
