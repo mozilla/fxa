@@ -13,9 +13,9 @@ import {
 } from './hooks';
 
 describe('useFocusOnTriggeringElementOnClose', () => {
-  const Subject = ({ revealed }: { revealed?: boolean }) => {
+  const Subject = ({ revealed, triggerException }: { revealed?: boolean, triggerException?: boolean | undefined }) => {
     const triggerElement = useRef<HTMLButtonElement>(null);
-    useFocusOnTriggeringElementOnClose(revealed, triggerElement);
+    useFocusOnTriggeringElementOnClose(revealed, triggerElement, triggerException);
 
     return (
       <button ref={triggerElement} data-testid="trigger-element">
@@ -33,6 +33,13 @@ describe('useFocusOnTriggeringElementOnClose', () => {
 
   it('does nothing if `revealed` is not passed in', () => {
     const { rerender, getByTestId } = render(<Subject />);
+    rerender(<Subject />);
+
+    expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
+  });
+
+  it('does nothing if `triggerException` is truthy', () => {
+    const { rerender, getByTestId } = render(<Subject triggerException />);
     rerender(<Subject />);
 
     expect(document.activeElement).not.toBe(getByTestId('trigger-element'));

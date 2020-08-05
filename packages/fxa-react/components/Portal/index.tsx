@@ -39,8 +39,11 @@ const Portal = ({
     el = document.createElement('div');
     el.setAttribute('class', 'portal');
     el.setAttribute('id', id);
-    el.setAttribute('role', 'dialog');
     document.body.appendChild(el);
+
+    if (id !== 'alert-bar-portal') {
+      el.setAttribute('role', 'dialog');
+    }
 
     if (id === 'modal') {
       el.setAttribute('aria-labelledby', headerId);
