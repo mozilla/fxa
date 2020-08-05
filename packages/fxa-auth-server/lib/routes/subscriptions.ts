@@ -698,6 +698,29 @@ class DirectStripeRoutes {
       subIdempotencyKey,
     });
 
+    await this.customerChanged(request, uid, email);
+
+    const account = await this.db.account(uid);
+    const selectedPlan = await this.stripeHelper.findPlanById(priceId);
+    const productId = selectedPlan.product_id;
+    const productMetadata = metadataFromPlan(selectedPlan);
+    await this.mailer.sendDownloadSubscriptionEmail(account.emails, account, {
+      acceptLanguage: account.locale,
+      productId,
+      planId: priceId,
+      planName: selectedPlan.plan_name,
+      productName: selectedPlan.product_name,
+      planEmailIconURL: productMetadata.emailIconURL,
+      planDownloadURL: productMetadata.downloadURL,
+      appStoreLink: productMetadata.appStoreLink,
+      playStoreLink: productMetadata.playStoreLink,
+      productMetadata,
+    });
+    this.log.info('subscriptions.createSubscriptionWithPMI.success', {
+      uid,
+      subscriptionId: subscription.id,
+    });
+
     return filterSubscription(subscription);
   }
 

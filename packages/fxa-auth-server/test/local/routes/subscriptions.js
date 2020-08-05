@@ -743,6 +743,13 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('createSubscriptionWithPMI', () => {
+    const plan = PLANS[2];
+
+    beforeEach(() => {
+      directStripeRoutesInstance.stripeHelper.findPlanById.resolves(plan);
+      sandbox.stub(directStripeRoutesInstance, 'customerChanged').resolves();
+    });
+
     it('creates a subscription with a payment method', async () => {
       const customer = deepCopy(emptyCustomer);
       directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
@@ -759,6 +766,14 @@ describe('DirectStripeRoutes', () => {
       const actual = await directStripeRoutesInstance.createSubscriptionWithPMI(
         VALID_REQUEST
       );
+
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.customerChanged,
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
+      );
+      assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
 
       assert.deepEqual(filterSubscription(expected), actual);
     });
@@ -808,6 +823,13 @@ describe('DirectStripeRoutes', () => {
           subIdempotencyKey: `${idempotencyKey}-createSub`,
         }
       );
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.customerChanged,
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
+      );
+      assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
     });
   });
 
