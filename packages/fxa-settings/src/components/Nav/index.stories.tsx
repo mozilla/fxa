@@ -4,12 +4,19 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { MockedCache } from '../../models/_mocks';
 import { Nav } from '.';
 
 storiesOf('Components|Nav', module)
   .add('basic', () => (
-    <Nav hasSubscription={false} primaryEmail="user@xample.com" />
+    <MockedCache>
+      <Nav />
+    </MockedCache>
   ))
   .add('with link to Subscriptions', () => (
-    <Nav hasSubscription primaryEmail="user@example.com" />
+    <MockedCache
+      account={{ subscriptions: [{ created: 1, productName: 'x' }] }}
+    >
+      <Nav />
+    </MockedCache>
   ));

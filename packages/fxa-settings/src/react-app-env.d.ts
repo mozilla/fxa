@@ -3,3 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 /// <reference types="react-scripts" />
+
+type hexstring = string;
+
+type Hash<T> = { [key: string]: T };
+
+interface QueryParams {
+  device_id?: string;
+  flow_id?: string;
+  flow_begin_time?: number;
+}

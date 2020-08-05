@@ -5,11 +5,16 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { MockedCache } from '../../models/_mocks';
 import Nav from '.';
 
 describe('Nav', () => {
   it('renders as expected', () => {
-    render(<Nav hasSubscription={false} primaryEmail="user@example.com" />);
+    render(
+      <MockedCache>
+        <Nav />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('nav-link-profile')).toHaveTextContent('Profile');
     expect(screen.getByTestId('nav-link-profile')).toHaveAttribute(
@@ -38,14 +43,20 @@ describe('Nav', () => {
     );
     expect(screen.getByTestId('nav-link-newsletters')).toHaveAttribute(
       'href',
-      'https://basket.mozilla.org/fxa/?email=user@example.com'
+      'https://basket.mozilla.org/fxa/?email=johndope@example.com'
     );
 
     expect(screen.queryByTestId('nav-link-subscriptions')).toBeNull();
   });
 
   it('renders as expected with subscriptions link', () => {
-    render(<Nav hasSubscription primaryEmail="user@example.com" />);
+    render(
+      <MockedCache
+        account={{ subscriptions: [{ created: 1, productName: 'x' }] }}
+      >
+        <Nav />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('nav-link-subscriptions')).toHaveTextContent(
       'Paid Subscriptions'

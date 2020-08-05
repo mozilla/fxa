@@ -218,11 +218,24 @@ yarn test -t="renders as expected"
 ```
 
 You can also see the test coverage with details by running the following command:
+
 ```
 CI=yes yarn test --coverage --verbose
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
+
+### Components that use `useAccount`
+
+[MockedCache](./src/models/_mocks.tsx) is a convenient way to test components that `useAccount()`. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider).
+
+Example:
+
+```jsx
+<MockedCache account={{ avatarUrl: null }}>
+  <HeaderLockup />
+</MockedCache>
+```
 
 ## Storybook
 

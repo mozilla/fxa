@@ -4,8 +4,6 @@
 
 // Various utilities that don't fit in a standalone lib
 
-import { Hash } from './types';
-
 /**
  * Recursively merge an object
  **/
@@ -20,14 +18,15 @@ export function deepMerge(
   const source = sources.shift();
 
   for (const key in source) {
-    if (typeof source[key] === 'object' && !Array.isArray(source[key])) {
+    const value = source[key];
+    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       if (!target[key]) {
         Object.assign(target, { [key]: {} });
       }
 
-      deepMerge(target[key], source[key]);
+      deepMerge(target[key], value);
     } else {
-      Object.assign(target, { [key]: source[key] });
+      Object.assign(target, { [key]: value });
     }
   }
 

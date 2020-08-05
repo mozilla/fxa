@@ -4,15 +4,17 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { MockedCache } from '../../models/_mocks';
 import { HeaderLockup } from '.';
 
 storiesOf('Components|HeaderLockup', module)
   .add('with default avatar', () => (
-    <HeaderLockup avatarUrl={null} primaryEmail="user@example.com" />
+    <MockedCache>
+      <HeaderLockup />
+    </MockedCache>
   ))
   .add('with non-default avatar', () => (
-    <HeaderLockup
-      avatarUrl="http://placekitten.com/256/256"
-      primaryEmail="user@example.com"
-    />
+    <MockedCache account={{ avatarUrl: 'http://placekitten.com/256/256' }}>
+      <HeaderLockup />
+    </MockedCache>
   ));

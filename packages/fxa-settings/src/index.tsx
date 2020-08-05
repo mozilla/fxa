@@ -6,6 +6,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { ApolloProvider, ApolloClient, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import App from './components/App';
 import { AuthClient, AuthContext } from './lib/auth';
 import sentryMetrics from 'fxa-shared/lib/sentry';
@@ -62,7 +63,9 @@ try {
     <React.StrictMode>
       <ApolloProvider client={apolloClient}>
         <AuthContext.Provider value={{ auth: authClient }}>
-          <App {...{ queryParams }} />
+          <AppErrorBoundary>
+            <App {...{ queryParams }} />
+          </AppErrorBoundary>
         </AuthContext.Provider>
       </ApolloProvider>
     </React.StrictMode>,

@@ -10,35 +10,25 @@ import Footer from 'fxa-react/components/Footer';
 import AlertBarContext from '../../lib/AlertBarContext';
 
 type AppLayoutProps = {
-  avatarUrl: string | null;
-  primaryEmail: string;
-  hasSubscription: boolean;
   children: React.ReactNode;
 };
 
-export const AppLayout = ({
-  avatarUrl,
-  primaryEmail,
-  hasSubscription,
-  children,
-}: AppLayoutProps) => {
+export const AppLayout = ({ children }: AppLayoutProps) => {
   const alertBarRootRef = useRef<HTMLDivElement>(null);
-
   return (
     <div className="flex flex-col min-h-screen" data-testid="app">
       <ContentSkip />
-      <HeaderLockup
-        {...{
-          avatarUrl,
-          primaryEmail,
-        }}
-      />
+      <HeaderLockup />
       <div className="max-w-screen-desktopXl w-full mx-auto flex flex-1 tablet:px-20 desktop:px-12">
         <div className="hidden desktop:block desktop:flex-2">
-          <Nav {...{ hasSubscription, primaryEmail }} />
+          <Nav />
         </div>
         <main id="main" data-testid="main" className="desktop:flex-7">
-          <div id="alert-bar-root" data-testid="alert-bar-root" ref={alertBarRootRef} />
+          <div
+            id="alert-bar-root"
+            data-testid="alert-bar-root"
+            ref={alertBarRootRef}
+          />
           <AlertBarContext.Provider value={{ alertBarRootRef }}>
             {children}
           </AlertBarContext.Provider>
@@ -46,6 +36,7 @@ export const AppLayout = ({
       </div>
       <Footer />
     </div>
-  )};
+  );
+};
 
 export default AppLayout;
