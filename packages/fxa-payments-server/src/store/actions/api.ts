@@ -83,14 +83,11 @@ export default {
         };
       },
     } as const),
-  updatePayment: (paymentToken: string, plan: Plan) =>
+  updatePayment: (paymentToken: string) =>
     ({
       type: 'updatePayment',
-      meta: { plan },
       payload: apiUpdatePayment({
         paymentToken,
-        planId: plan.plan_id,
-        productId: plan.product_id,
       }),
     } as const),
 } as const;

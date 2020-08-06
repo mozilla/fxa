@@ -509,6 +509,7 @@ export const MOCK_CUSTOMER = {
       cancel_at_period_end: false,
       current_period_start: 1565816388.815,
       current_period_end: 1568408388.815,
+      end_at: null,
     },
   ],
 };

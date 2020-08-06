@@ -103,12 +103,11 @@ export const reactivateSubscriptionAndRefresh = (
   }
 };
 
-export const updatePaymentAndRefresh = (
-  paymentToken: string,
-  plan: Plan
-) => async (dispatch: Function) => {
+export const updatePaymentAndRefresh = (paymentToken: string) => async (
+  dispatch: Function
+) => {
   try {
-    await dispatch(updatePayment(paymentToken, plan));
+    await dispatch(updatePayment(paymentToken));
     await dispatch(fetchCustomerAndSubscriptions());
     setTimeout(() => dispatch(resetUpdatePayment()), RESET_PAYMENT_DELAY);
   } catch (err) {

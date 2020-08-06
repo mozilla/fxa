@@ -231,27 +231,18 @@ export async function apiReactivateSubscription({
   };
 }
 
-export async function apiUpdatePayment(params: {
-  planId: string;
-  productId: string;
-  paymentToken: string;
-}) {
-  const metricsOptions = {
-    planId: params.planId,
-    productId: params.productId,
-  };
+export async function apiUpdatePayment(params: { paymentToken: string }) {
   try {
-    Amplitude.updatePayment_PENDING(metricsOptions);
+    Amplitude.updatePayment_PENDING();
     const result = await apiFetch(
       'POST',
       `${config.servers.auth.url}/v1/oauth/subscriptions/updatePayment`,
       { body: JSON.stringify({ paymentToken: params.paymentToken }) }
     );
-    Amplitude.updatePayment_FULFILLED(metricsOptions);
+    Amplitude.updatePayment_FULFILLED();
     return result;
   } catch (error) {
     Amplitude.updatePayment_REJECTED({
-      ...metricsOptions,
       error,
     });
     throw error;
@@ -349,19 +340,17 @@ export async function apiUpdateDefaultPaymentMethod(params: {
   paymentMethodId: string;
 }): Promise<Customer> {
   const { paymentMethodId } = params;
-  const metricsOptions = {};
   try {
-    Amplitude.updateDefaultPaymentMethod_PENDING(metricsOptions);
+    Amplitude.updateDefaultPaymentMethod_PENDING();
     const result = await apiFetch(
       'POST',
       `${config.servers.auth.url}/v1/oauth/subscriptions/paymentmethod/default`,
       { body: JSON.stringify({ paymentMethodId }) }
     );
-    Amplitude.updateDefaultPaymentMethod_FULFILLED(metricsOptions);
+    Amplitude.updateDefaultPaymentMethod_FULFILLED();
     return result;
   } catch (error) {
     Amplitude.updateDefaultPaymentMethod_REJECTED({
-      ...metricsOptions,
       error,
     });
     throw error;

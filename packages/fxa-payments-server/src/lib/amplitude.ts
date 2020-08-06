@@ -167,40 +167,36 @@ export function createSubscription_REJECTED(eventProperties: EventProperties) {
   );
 }
 
-export function updatePaymentMounted(eventProperties: EventProperties) {
-  safeLogAmplitudeEvent(
-    eventGroupNames.updatePayment,
-    eventTypeNames.view,
-    eventProperties
-  );
+export function updatePaymentMounted() {
+  safeLogAmplitudeEvent(eventGroupNames.updatePayment, eventTypeNames.view, {});
 }
 
-export function updatePaymentEngaged(eventProperties: EventProperties) {
+export function updatePaymentEngaged() {
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.engage,
-    eventProperties
+    {}
   );
 }
 
-export function updatePayment_PENDING(eventProperties: EventProperties) {
+export function updatePayment_PENDING() {
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.submit,
-    eventProperties
+    {}
   );
 }
 
-export function updatePayment_FULFILLED(eventProperties: EventProperties) {
+export function updatePayment_FULFILLED() {
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.success,
-    eventProperties
+    {}
   );
   safeLogAmplitudeEvent(
     eventGroupNames.updatePayment,
     eventTypeNames.complete,
-    eventProperties
+    {}
   );
 }
 
@@ -247,28 +243,24 @@ export function createSubscriptionWithPaymentMethod_REJECTED(
   );
 }
 
-export function updateDefaultPaymentMethod_PENDING(
-  eventProperties: EventProperties
-) {
+export function updateDefaultPaymentMethod_PENDING() {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
     eventTypeNames.submit3DS,
-    eventProperties
+    {}
   );
 }
 
-export function updateDefaultPaymentMethod_FULFILLED(
-  eventProperties: EventProperties
-) {
+export function updateDefaultPaymentMethod_FULFILLED() {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
     eventTypeNames.success3DS,
-    eventProperties
+    {}
   );
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
     eventTypeNames.complete3DS,
-    eventProperties
+    {}
   );
 }
 

@@ -5,63 +5,28 @@
 import React, { useCallback, useState } from 'react';
 import { Localized } from '@fluent/react';
 import dayjs from 'dayjs';
-import {
-  getLocalizedDateString,
-  getLocalizedDate,
-  getLocalizedCurrency,
-  formatPlanPricing,
-} from '../../lib/formats';
 import { useNonce } from '../../lib/hooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
 import { SelectorReturns } from '../../store/selectors';
-import {
-  Customer,
-  CustomerSubscription,
-  Plan,
-  PlanInterval,
-} from '../../store/types';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
+import { Customer } from '../../store/types';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
 import { SubscriptionsProps } from './index';
 import * as Amplitude from '../../lib/amplitude';
 
-type PaymentUpdateFormProps = {
+export type PaymentUpdateFormProps = {
   customer: Customer;
-  customerSubscription: CustomerSubscription;
-  plan: Plan;
   resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
   updatePayment: SubscriptionsProps['updatePayment'];
   updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
 };
-
-function getBillingDescriptionText(
-  name: string,
-  amount: number | null,
-  currency: string,
-  interval: PlanInterval,
-  intervalCount: number,
-  date: number
-): string {
-  const formattedDateString = getLocalizedDateString(date, true);
-  const planPricing = formatPlanPricing(
-    amount,
-    currency,
-    interval,
-    intervalCount
-  );
-
-  return `You are billed ${planPricing} for ${name}. Your next payment occurs on ${formattedDateString}.`;
-}
 
 export const PaymentUpdateForm = ({
   updatePayment: updatePaymentBase,
   updatePaymentStatus,
   resetUpdatePayment: resetUpdatePaymentBase,
   customer,
-  customerSubscription,
-  plan,
 }: PaymentUpdateFormProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
@@ -91,7 +56,7 @@ export const PaymentUpdateForm = ({
   const onPayment = useCallback(
     (tokenResponse: stripe.TokenResponse) => {
       if (tokenResponse && tokenResponse.token) {
-        updatePayment(tokenResponse.token.id, plan);
+        updatePayment(tokenResponse.token.id);
       } else {
         // This shouldn't happen with a successful createToken() call, but let's
         // display an error in case it does.
@@ -99,7 +64,7 @@ export const PaymentUpdateForm = ({
         setCreateTokenError(error);
       }
     },
-    [updatePayment, setCreateTokenError, plan]
+    [updatePayment, setCreateTokenError]
   );
 
   const onPaymentError = useCallback(
@@ -116,19 +81,11 @@ export const PaymentUpdateForm = ({
     resetUpdatePayment();
   }, [setCreateTokenError, resetUpdatePayment]);
 
-  const onFormMounted = useCallback(
-    () => Amplitude.updatePaymentMounted(plan),
-    [plan]
-  );
+  const onFormMounted = useCallback(() => Amplitude.updatePaymentMounted(), []);
 
-  const onFormEngaged = useCallback(
-    () => Amplitude.updatePaymentEngaged(plan),
-    [plan]
-  );
+  const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
 
   const inProgress = updatePaymentStatus.loading;
-
-  const { upgradeCTA } = metadataFromPlan(plan);
 
   const { last4, exp_month, exp_year } = customer;
 
@@ -138,103 +95,82 @@ export const PaymentUpdateForm = ({
     .set('year', Number(exp_year))
     .format('MMMM YYYY');
 
-  const billingDescriptionText = getBillingDescriptionText(
-    plan.product_name,
-    plan.amount,
-    plan.currency,
-    plan.interval,
-    plan.interval_count,
-    customerSubscription.current_period_end
-  );
-
   return (
-    <div className="payment-update">
-      <h3 className="billing-title">
-        <Localized id="sub-update-title">
-          <span className="title">Billing Information</span>
-        </Localized>
-      </h3>
-      <Localized
-        id={`pay-update-billing-description-${plan.interval}`}
-        $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-        $intervalCount={plan.interval_count}
-        $name={plan.product_name}
-        $date={getLocalizedDate(customerSubscription.current_period_end, true)}
-      >
-        <p className="billing-description">{billingDescriptionText}</p>
-      </Localized>
-      {upgradeCTA && (
-        <p
-          className="upgrade-cta"
-          data-testid="upgrade-cta"
-          dangerouslySetInnerHTML={{ __html: upgradeCTA }}
-        />
-      )}
-      {!updateRevealed ? (
-        <div className="with-settings-button">
-          <div className="card-details">
-            {last4 && expirationDate && (
-              <>
-                {/* TODO: Need to find a way to display a card icon here? */}
-                <Localized id="sub-update-card-ending" $last={last4}>
-                  <div className="last-four">Card ending {last4}</div>
+    <div className="settings-unit">
+      <div className="payment-update">
+        <header>
+          <h2 className="billing-title">
+            <Localized id="sub-update-title">
+              <span className="title">Billing Information</span>
+            </Localized>
+          </h2>
+        </header>
+        {!updateRevealed ? (
+          <div className="with-settings-button">
+            <div className="card-details" data-testid="card-details">
+              {last4 && expirationDate && (
+                <>
+                  {/* TODO: Need to find a way to display a card icon here? */}
+                  <Localized id="sub-update-card-ending" $last={last4}>
+                    <div className="last-four">Card ending {last4}</div>
+                  </Localized>
+                  <Localized
+                    id="pay-update-card-exp"
+                    $expirationDate={expirationDate}
+                  >
+                    <div data-testid="card-expiration-date" className="expiry">
+                      Expires {expirationDate}
+                    </div>
+                  </Localized>
+                </>
+              )}
+            </div>
+            <div className="action">
+              <button
+                data-testid="reveal-payment-update-button"
+                className="settings-button"
+                onClick={onRevealUpdateClick}
+              >
+                <Localized id="pay-update-change-btn">
+                  <span className="change-button">Change</span>
                 </Localized>
-                <Localized
-                  id="pay-update-card-exp"
-                  $expirationDate={expirationDate}
-                >
-                  <div data-testid="card-expiration-date" className="expiry">
-                    Expires {expirationDate}
-                  </div>
-                </Localized>
-              </>
-            )}
+              </button>
+            </div>
           </div>
-          <div className="action">
-            <button
-              data-testid="reveal-payment-update-button"
-              className="settings-button"
-              onClick={onRevealUpdateClick}
-            >
-              <Localized id="pay-update-change-btn">
-                <span className="change-button">Change</span>
-              </Localized>
-            </button>
-          </div>
-        </div>
-      ) : (
-        <>
-          <ErrorMessage isVisible={!!createTokenError.error}>
-            {createTokenError.error && (
-              <p data-testid="error-payment-submission">
-                {getErrorMessage(createTokenError.type)}
-              </p>
-            )}
-          </ErrorMessage>
+        ) : (
+          <>
+            <ErrorMessage isVisible={!!createTokenError.error}>
+              {createTokenError.error && (
+                <p data-testid="error-payment-submission">
+                  {getErrorMessage(createTokenError.type)}
+                </p>
+              )}
+            </ErrorMessage>
 
-          <ErrorMessage isVisible={!!updatePaymentStatus.error}>
-            {updatePaymentStatus.error && (
-              <p data-testid="error-billing-update">
-                {updatePaymentStatus.error.message}
-              </p>
-            )}
-          </ErrorMessage>
+            <ErrorMessage isVisible={!!updatePaymentStatus.error}>
+              {updatePaymentStatus.error && (
+                <p data-testid="error-billing-update">
+                  {updatePaymentStatus.error.message}
+                </p>
+              )}
+            </ErrorMessage>
 
-          <PaymentForm
-            {...{
-              submitNonce,
-              onPayment,
-              onPaymentError,
-              inProgress,
-              confirm: false,
-              onCancel: hideUpdate,
-              onChange,
-              onMounted: onFormMounted,
-              onEngaged: onFormEngaged,
-            }}
-          />
-        </>
-      )}
+            <PaymentForm
+              {...{
+                submitNonce,
+                onPayment,
+                onPaymentError,
+                inProgress,
+                confirm: false,
+                onCancel: hideUpdate,
+                onChange,
+                onMounted: onFormMounted,
+                onEngaged: onFormEngaged,
+              }}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 };
