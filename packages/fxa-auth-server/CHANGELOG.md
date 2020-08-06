@@ -1,3 +1,17 @@
+## 1.183.0
+
+### New features
+
+- payments: implement metrics for SCA flows ([39f651722](https://github.com/mozilla/fxa/commit/39f651722))
+- totp: remove session verification requirement from /totp/exists ([12b1be1d7](https://github.com/mozilla/fxa/commit/12b1be1d7))
+
+### Bug fixes
+
+- oidc: Allow prompt=none with id_token_hint for all RPs ([2c5687e86](https://github.com/mozilla/fxa/commit/2c5687e86))
+- payments: ensure SCA flow sends download email and triggers customer update ([c20658beb](https://github.com/mozilla/fxa/commit/c20658beb))
+- payments: ensure Customer data is not cached with an expiration TTL ([9ea05dcc8](https://github.com/mozilla/fxa/commit/9ea05dcc8))
+- aet: Correctly check preconditions when updating ecosystemAnonId ([033070d38](https://github.com/mozilla/fxa/commit/033070d38))
+
 ## 1.182.2
 
 ### Bug fixes

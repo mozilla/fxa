@@ -1,3 +1,22 @@
+## 1.183.0
+
+### Bug fixes
+
+- oidc: Allow prompt=none with id_token_hint for all RPs ([2c5687e86](https://github.com/mozilla/fxa/commit/2c5687e86))
+- params: Gracefully handle invalid utm params ([7b70b9cd9](https://github.com/mozilla/fxa/commit/7b70b9cd9))
+- tests: Fix chrome failing test ([5384cded8](https://github.com/mozilla/fxa/commit/5384cded8))
+- content-server: change the buttons from account-recovery to links. ([0cd838b0b](https://github.com/mozilla/fxa/commit/0cd838b0b))
+
+### Refactorings
+
+- rescripts: include all of fxa as valid paths in rescripts ([62b0878bf](https://github.com/mozilla/fxa/commit/62b0878bf))
+- avatars: increase max file size to 2mb ([1c0663c80](https://github.com/mozilla/fxa/commit/1c0663c80))
+
+### Other changes
+
+- experiment: remove the qr cad experiment ([3f5ea0679](https://github.com/mozilla/fxa/commit/3f5ea0679))
+- aet: Don't translate anon_id update errors ([118abdd86](https://github.com/mozilla/fxa/commit/118abdd86))
+
 ## 1.182.2
 
 No changes.
