@@ -1,3 +1,9 @@
+## 1.183.1
+
+### Bug fixes
+
+- server: register 2FA inline setup routes with server ([d10c7436c](https://github.com/mozilla/fxa/commit/d10c7436c))
+
 ## 1.183.0
 
 ### Bug fixes
