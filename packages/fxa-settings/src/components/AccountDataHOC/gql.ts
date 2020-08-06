@@ -1,4 +1,4 @@
-import {gql} from '@apollo/client';
+import { gql } from '@apollo/client';
 
 export const GET_ACCOUNT = gql`
   query GetAccount {
@@ -32,32 +32,3 @@ export const GET_ACCOUNT = gql`
     }
   }
 `;
-
-export interface AccountData {
-  uid: string;
-  displayName: string | null;
-  avatarUrl: string | null;
-  accountCreated: number;
-  passwordCreated: number;
-  recoveryKey: boolean;
-  emails: {
-    email: string;
-    isPrimary: boolean;
-    verified: boolean;
-  }[];
-  attachedClients: {
-    clientId: string;
-    isCurrentSession: boolean;
-    userAgent: string;
-    deviceType: string;
-    deviceId: string;
-  }[];
-  totp: {
-    exists: boolean;
-    verified: boolean;
-  };
-  subscriptions: {
-    created: number;
-    productName: string;
-  }[];
-}

@@ -4,11 +4,9 @@
 
 import React from 'react';
 import AccountDataHOC from '../AccountDataHOC';
-import { AccountData } from '../AccountDataHOC/gql';
 import AppLayout from '../AppLayout';
 import Settings from '../Settings';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
-import { QueryParams } from '../../lib/types';
 import FlowEvents from '../../lib/flow-event';
 
 type AppProps = {

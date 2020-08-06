@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useQuery } from '@apollo/client';
-import { GET_ACCOUNT, AccountData } from './gql';
+import { GET_ACCOUNT } from './gql';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
 

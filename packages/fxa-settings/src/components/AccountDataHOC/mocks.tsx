@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from '@apollo/client/testing';
-import { GET_ACCOUNT, AccountData } from './gql';
+import { GET_ACCOUNT } from './gql';
 
 export const MOCK_ACCOUNT: AccountData = {
   uid: 'abc123',

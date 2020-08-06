@@ -4,8 +4,6 @@
 
 // Various utilities that don't fit in a standalone lib
 
-import { Hash } from './types';
-
 /**
  * Recursively merge an object
  **/
