@@ -1,3 +1,9 @@
+## 1.183.0
+
+### Bug fixes
+
+- headers: allow X-Verify-Short-Code header to pass through ([bdf0be2c5](https://github.com/mozilla/fxa/commit/bdf0be2c5))
+
 ## 1.182.2
 
 No changes.

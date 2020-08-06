@@ -1,5 +1,16 @@
 # Change history
 
+## 1.183.0
+
+### New features
+
+- payments: implement metrics for SCA flows ([39f651722](https://github.com/mozilla/fxa/commit/39f651722))
+
+### Refactorings
+
+- subscriptions: use a single payment update form ([8ab8480f1](https://github.com/mozilla/fxa/commit/8ab8480f1))
+- rescripts: include all of fxa as valid paths in rescripts ([62b0878bf](https://github.com/mozilla/fxa/commit/62b0878bf))
+
 ## 1.182.2
 
 No changes.

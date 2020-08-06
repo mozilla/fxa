@@ -1,3 +1,9 @@
+## 1.183.0
+
+### Refactorings
+
+- avatars: increase max file size to 2mb ([1c0663c80](https://github.com/mozilla/fxa/commit/1c0663c80))
+
 ## 1.182.2
 
 No changes.
