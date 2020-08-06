@@ -16,6 +16,7 @@ type UnitRowProps = {
   route?: string;
   revealModal?: () => void;
   modalRevealed?: boolean;
+  alertBarRevealed?: boolean;
 };
 
 // TO DO: accept a refresh button prop to use in for secondary email
@@ -32,11 +33,15 @@ export const UnitRow = ({
   noHeaderValueCtaText = 'Add',
   revealModal,
   modalRevealed,
+  alertBarRevealed,
 }: UnitRowProps) => {
   const ctaText = headerValue ? 'Change' : noHeaderValueCtaText;
 
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
-  useFocusOnTriggeringElementOnClose(modalRevealed, modalTriggerElement);
+  // If the UnitRow children contains an AlertBar that is revealed,
+  // don't redirect focus back to the element that opened the modal
+  // because focus will be set in the AlertBar.
+  useFocusOnTriggeringElementOnClose(modalRevealed, modalTriggerElement, alertBarRevealed);
 
   return (
     <div className="unit-row">
