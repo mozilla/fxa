@@ -7,6 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
 const {
   click,
@@ -44,7 +45,13 @@ registerSuite('Fx Fennec Sync v1 settings', {
       this.remote
         .then(createUser(email, FIRST_PASSWORD, { preVerified: true }))
         .then(clearBrowserState())
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+            query: {
+              forceUA: uaStrings['android_firefox'],
+            },
+          })
+        )
         .then(
           respondToWebChannelMessage('fxaccounts:can_link_account', {
             ok: true,

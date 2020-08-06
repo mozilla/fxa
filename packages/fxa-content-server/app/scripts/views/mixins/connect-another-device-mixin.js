@@ -19,6 +19,7 @@
 import ExperimentMixin from './experiment-mixin';
 import UserAgentMixin from '../../lib/user-agent-mixin';
 import VerificationReasonMixin from './verification-reason-mixin';
+import Constants from '../../lib/constants';
 
 const REASON_ANDROID = 'sms.ineligible.android';
 const REASON_CONTROL_GROUP = 'sms.ineligible.control_group';
@@ -72,6 +73,30 @@ export default {
   },
 
   /**
+   * Checks to see if a user is eligible for the pairing flow.
+   *
+   * To be eligible, the user must not be in a sign-in or sign-up flow,
+   * and have access CAD from the Firefox desktop app toolbar menu or app
+   * menu.
+   *
+   */
+  isEligibleForPairing() {
+    const context = this.relier.get('context');
+    const entrypoint = this.relier.get('entrypoint');
+
+    if (
+      this.isDefault() &&
+      context === Constants.FX_DESKTOP_V3_CONTEXT &&
+      (entrypoint === Constants.FIREFOX_TOOLBAR_ENTRYPOINT ||
+        entrypoint === Constants.FIREFOX_MENU_ENTRYPOINT)
+    ) {
+      return true;
+    }
+
+    return false;
+  },
+
+  /**
    * Replace the current page with the send SMS screen.
    *
    * @param {Object} account
@@ -97,6 +122,14 @@ export default {
     this.replaceCurrentPage('/post_verify/cad_qr/get_started', {
       account,
     });
+  },
+
+  /**
+   * Replace the current page with the pairing screen.
+   *
+   */
+  replaceCurrentPageWithPairScreen() {
+    this.navigate('/pair', {});
   },
 
   /**
@@ -137,30 +170,6 @@ export default {
           return country;
         }
       }
-    });
-  },
-
-  getEligibleQrCodeCadGroup(account) {
-    // Initialize the flow metrics so any flow events are logged.
-    // The flow-events-mixin, even if it were mixed in, does this in
-    // `afterRender` whereas this method can be called in `beforeRender`
-    this.notifier.trigger('flow.initialize');
-
-    return this._isEligibleForSms(account).then(({ country }) => {
-      if (!country) {
-        // If no country is returned, the reason is already logged.
-        return {
-          group: undefined,
-          country,
-        };
-      }
-      return {
-        group: this.getAndReportExperimentGroup('qrCodeCad', {
-          account,
-          country,
-        }),
-        country,
-      };
     });
   },
 

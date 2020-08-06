@@ -9,7 +9,7 @@ import sinon from 'sinon';
 
 describe('lib/experiments/grouping-rules/index', () => {
   it('EXPERIMENT_NAMES is exported', () => {
-    assert.lengthOf(ExperimentGroupingRules.EXPERIMENT_NAMES, 7);
+    assert.lengthOf(ExperimentGroupingRules.EXPERIMENT_NAMES, 5);
   });
 
   describe('choose', () => {

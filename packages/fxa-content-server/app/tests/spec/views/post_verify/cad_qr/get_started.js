@@ -58,6 +58,7 @@ describe('views/post_verify/cad_qr/get_started', () => {
       user,
     });
 
+    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
     sinon.stub(account, 'createCadReminder').callsFake(() => Promise.resolve());
 
     return view.render().then(() => $('#container').html(view.$el));
@@ -76,6 +77,18 @@ describe('views/post_verify/cad_qr/get_started', () => {
       assert.lengthOf(view.$('.graphic-laptop-mobile'), 1);
       assert.lengthOf(view.$('#submit-btn'), 1);
       assert.lengthOf(view.$('#maybe-later-link'), 1);
+    });
+  });
+
+  describe('without an account', () => {
+    beforeEach(() => {
+      account = new Account({});
+      sinon.spy(view, 'navigate');
+      return view.render();
+    });
+
+    it('redirects to the email first page', () => {
+      assert.isTrue(view.navigate.calledWith('/'));
     });
   });
 
@@ -98,7 +111,6 @@ describe('views/post_verify/cad_qr/get_started', () => {
     describe('success', () => {
       beforeEach(() => {
         sinon.spy(view, 'navigateAway');
-        sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
         return view.clickMaybeLater();
       });
 

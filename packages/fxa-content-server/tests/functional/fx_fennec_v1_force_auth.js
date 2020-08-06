@@ -7,6 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
 const {
   clearBrowserState,
@@ -43,6 +44,7 @@ const setupTest = thenify(function (options) {
           context: 'fx_fennec_v1',
           email: email,
           service: 'sync',
+          forceUA: uaStrings['android_firefox'],
         },
       })
     )

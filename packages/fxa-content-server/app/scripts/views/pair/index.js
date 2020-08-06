@@ -33,7 +33,9 @@ class PairIndexView extends FormView {
     const account = this.getSignedInAccount();
     if (account.isDefault()) {
       // if we are not logged into Sync then we offer to connect
-      return this.replaceCurrentPage('connect_another_device');
+      return this.replaceCurrentPage('connect_another_device', {
+        forceView: true,
+      });
     }
 
     if (!account.get('verified') || !account.get('sessionToken')) {

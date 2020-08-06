@@ -10,7 +10,6 @@
  */
 import Cocktail from 'cocktail';
 import ConnectAnotherDeviceMixin from './mixins/connect-another-device-mixin';
-import ExperimentMixin from './mixins/experiment-mixin';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
 import HasModalChildViewMixin from './mixins/has-modal-child-view-mixin';
@@ -33,54 +32,18 @@ class ConnectAnotherDeviceView extends FormView {
   beforeRender() {
     const account = this.getAccount();
 
-    // If a relier has explicitly set the `syncPreferences=false` property
-    // this means user dont want to sync. Don't offer CAD
-    const syncPreference = this.relier.get('syncPreference');
-    if (syncPreference === false) {
+    // To avoid to redirection loops the forceView property might be set
+    if (this.model.get('forceView')) {
       return;
     }
 
-    // Check to see if user is enrolled in the CAD QR code experiment. This
-    // takes precedence over the "regular" sms experiment.
-    return this.getEligibleQrCodeCadGroup(account).then(
-      ({ group, country }) => {
-        if (group) {
-          switch (group) {
-            case 'control': {
-              // Current SMS experience
-              return this.replaceCurrentPageWithSmsScreen(
-                account,
-                country,
-                this._showSuccessMessage()
-              );
-            }
-            case 'treatment-a': {
-              // New updated CAD via QR code experience
-              return this.replaceCurrentPageWithQrCadScreen(account);
-            }
-            case 'treatment-b': {
-              // Current non-SMS experience
-              return;
-            }
-          }
-        }
+    if (this.isSignIn() && this._areSmsRequirementsMet(account)) {
+      return this.replaceCurrentPageWithQrCadScreen(account);
+    }
 
-        // If the user is eligible for SMS, send them to the SMS screen.
-        // This allows the browser to link directly to /connect_another_device
-        // and we handle sending users to the correct place.
-        // See https://github.com/mozilla/fxa-content-server/issues/5737 and
-        // https://bugzilla.mozilla.org/show_bug.cgi?id=1418466
-        return this.getEligibleSmsCountry(account).then((country) => {
-          if (country) {
-            return this.replaceCurrentPageWithSmsScreen(
-              account,
-              country,
-              this._showSuccessMessage()
-            );
-          }
-        });
-      }
-    );
+    if (this.isEligibleForPairing()) {
+      return this.replaceCurrentPageWithPairScreen();
+    }
   }
 
   afterRender() {
@@ -288,7 +251,6 @@ class ConnectAnotherDeviceView extends FormView {
 Cocktail.mixin(
   ConnectAnotherDeviceView,
   ConnectAnotherDeviceMixin,
-  ExperimentMixin,
   FlowEventsMixin,
   HasModalChildViewMixin,
   PairingGraphicsMixin,

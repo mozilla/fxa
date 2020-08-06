@@ -7,6 +7,7 @@
 const { registerSuite } = intern.getInterface('object');
 const FunctionalHelpers = require('./lib/helpers');
 const selectors = require('./lib/selectors');
+const uaStrings = require('./lib/ua-strings');
 
 const config = intern._config;
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_fennec_v1&service=sync`;
@@ -41,7 +42,13 @@ const setupTest = thenify(function (successSelector, options = {}) {
   return this.parent
     .then(clearBrowserState())
     .then(createUser(email, PASSWORD, { preVerified: options.preVerified }))
-    .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+    .then(
+      openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
+        query: {
+          forceUA: uaStrings['android_firefox'],
+        },
+      })
+    )
     .then(
       respondToWebChannelMessage('fxaccounts:can_link_account', { ok: true })
     )

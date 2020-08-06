@@ -8,10 +8,10 @@ const { registerSuite } = intern.getInterface('object');
 const { assert } = intern.getPlugin('chai');
 const FunctionalHelpers = require('./../lib/helpers');
 const selectors = require('./../lib/selectors');
-const uaStrings = require('../lib/ua-strings');
 const config = intern._config;
 
 const ENTER_EMAIL_URL = `${config.fxaContentRoot}?context=fx_desktop_v3&service=sync`;
+const CAD_QR_URL = `${config.fxaContentRoot}post_verify/cad_qr/get_started?context=fx_desktop_v3&service=sync`;
 
 const PASSWORD = 'password1234567';
 const TEST_DEVICE_NAME = 'Test Runner Session Device';
@@ -24,14 +24,11 @@ const {
   createEmail,
   createUser,
   fillOutEmailFirstSignIn,
-  fillOutEmailFirstSignUp,
-  fillOutSignUpCode,
-  getStoredAccountByEmail,
   openPage,
   testElementExists,
 } = FunctionalHelpers;
 
-registerSuite('cad_qr_signin', {
+registerSuite('cad_qr', {
   beforeEach: function () {
     email = createEmail();
     client = FunctionalHelpers.getFxaClient();
@@ -44,34 +41,17 @@ registerSuite('cad_qr_signin', {
   },
 
   tests: {
-    'control - CAD via sms': function () {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            query: {
-              forceExperiment: 'qrCodeCad',
-              forceExperimentGroup: 'control',
-            },
-          })
-        )
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SMS_SEND.HEADER));
-    },
-
-    'treatment a - CAD via QR code': function () {
+    'CAD via QR code': function () {
       return (
         this.remote
-          .then(
-            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              query: {
-                forceExperiment: 'qrCodeCad',
-                forceExperimentGroup: 'treatment-a',
-              },
-            })
-          )
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
           .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
           .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
+            openPage(
+              CAD_QR_URL,
+              selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER
+            )
           )
           .then(click(selectors.POST_VERIFY_CAD_QR_GET_STARTED.LATER))
           .getCurrentUrl()
@@ -111,127 +91,6 @@ registerSuite('cad_qr_signin', {
             testElementExists(selectors.POST_VERIFY_CAD_QR_CONNECTED.HEADER)
           )
       );
-    },
-
-    'treatment b - CAD via store badges': function () {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            query: {
-              forceExperiment: 'qrCodeCad',
-              forceExperimentGroup: 'treatment-b',
-            },
-          })
-        )
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
-    },
-  },
-});
-
-registerSuite('cad_qr_signup', {
-  beforeEach: function () {
-    email = createEmail();
-    client = FunctionalHelpers.getFxaClient();
-    return this.remote.then(clearBrowserState({ force: true }));
-  },
-
-  tests: {
-    'control - CAD via sms': function () {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            query: {
-              forceUA: uaStrings['desktop_firefox_71'],
-              forceExperiment: 'qrCodeCad',
-              forceExperimentGroup: 'control',
-            },
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                capabilities: {
-                  multiService: true,
-                },
-              },
-            },
-          })
-        )
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(fillOutSignUpCode(email, 0))
-        .then(testElementExists(selectors.SMS_SEND.HEADER));
-    },
-
-    'treatment a - CAD via QR code': function () {
-      return (
-        this.remote
-          .then(
-            openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-              query: {
-                forceUA: uaStrings['desktop_firefox_71'],
-                forceExperiment: 'qrCodeCad',
-                forceExperimentGroup: 'treatment-a',
-              },
-              webChannelResponses: {
-                'fxaccounts:fxa_status': {
-                  capabilities: {
-                    multiService: true,
-                  },
-                },
-              },
-            })
-          )
-          .then(fillOutEmailFirstSignUp(email, PASSWORD))
-          .then(fillOutSignUpCode(email, 0))
-          .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
-          )
-
-          .then(click(selectors.POST_VERIFY_CAD_QR_GET_STARTED.SUBMIT))
-          .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_READY_TO_SCAN.HEADER)
-          )
-          .then(click(selectors.POST_VERIFY_CAD_QR_READY_TO_SCAN.SUBMIT))
-
-          .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_SCAN_CODE.HEADER)
-          )
-
-          // Add a device using a session token from the browser
-          .then(getStoredAccountByEmail(email))
-          .then(function (account) {
-            return client.deviceRegister(
-              account.sessionToken,
-              TEST_DEVICE_NAME,
-              TEST_DEVICE_TYPE
-            );
-          })
-
-          .then(
-            testElementExists(selectors.POST_VERIFY_CAD_QR_CONNECTED.HEADER)
-          )
-      );
-    },
-
-    'treatment b - CAD via store badges': function () {
-      return this.remote
-        .then(
-          openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER, {
-            query: {
-              forceUA: uaStrings['desktop_firefox_71'],
-              forceExperiment: 'qrCodeCad',
-              forceExperimentGroup: 'treatment-b',
-            },
-            webChannelResponses: {
-              'fxaccounts:fxa_status': {
-                capabilities: {
-                  multiService: true,
-                },
-              },
-            },
-          })
-        )
-        .then(fillOutEmailFirstSignUp(email, PASSWORD))
-        .then(fillOutSignUpCode(email, 0))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
   },
 });

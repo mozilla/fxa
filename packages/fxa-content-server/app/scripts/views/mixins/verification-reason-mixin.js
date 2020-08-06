@@ -21,6 +21,7 @@ export default {
   initialize(options) {
     if (!this.model.has('type')) {
       this.model.set('type', options.type || VerificationReasons.SIGN_UP);
+      this.model.set('typeDefault', true);
     }
   },
 
@@ -40,6 +41,17 @@ export default {
    */
   isSignUp() {
     return this.model.get('type') === VerificationReasons.SIGN_UP;
+  },
+
+  /**
+   * Check to see if this is a default verification state.
+   * This would happen if a page is loaded from a non sign-in
+   * or sign-up flow.
+   *
+   * @returns {Boolean}
+   */
+  isDefault() {
+    return this.model.get('typeDefault') === true;
   },
 
   /**

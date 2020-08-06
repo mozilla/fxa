@@ -19,6 +19,14 @@ class GetStarted extends FormView {
     'click #maybe-later-link': preventDefaultThen('clickMaybeLater'),
   });
 
+  beforeRender() {
+    const account = this.getSignedInAccount();
+    if (account.isDefault()) {
+      this.relier.set('redirectTo', this.window.location.href);
+      return this.replaceCurrentPage('/');
+    }
+  }
+
   submit() {
     return this.navigate('/post_verify/cad_qr/ready_to_scan');
   }

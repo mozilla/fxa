@@ -68,19 +68,6 @@ registerSuite('post_verify_account_recovery', {
         .then(click(selectors.POST_VERIFY_ADD_RECOVERY_KEY.SUBMIT))
         .then(testElementExists(selectors.POST_VERIFY_CONFIRM_PASSWORD.HEADER))
 
-        .then(
-          type(
-            selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD,
-            'invalidPassword'
-          )
-        )
-        .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
-        .then(
-          testElementTextInclude(
-            selectors.POST_VERIFY_CONFIRM_PASSWORD.TOOLTIP,
-            'incorrect password'
-          )
-        )
         .then(type(selectors.POST_VERIFY_CONFIRM_PASSWORD.PASSWORD, PASSWORD))
         .then(click(selectors.POST_VERIFY_CONFIRM_PASSWORD.SUBMIT))
         .then(testElementExists(selectors.POST_VERIFY_SAVE_RECOVERY_KEY.HEADER))

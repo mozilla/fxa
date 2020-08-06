@@ -145,7 +145,9 @@ registerSuite('signin to Sync after OAuth', {
 
         .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
         .then(fillOutSignInTokenCode(email, 0))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
+        .then(
+          testElementExists(selectors.POST_VERIFY_CAD_QR_GET_STARTED.HEADER)
+        );
     },
   },
 });
