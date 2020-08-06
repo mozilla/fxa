@@ -8,6 +8,7 @@ import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Modal from '../Modal';
 import AlertBar from '../AlertBar';
+import Security from '../Security';
 import { AccountData } from '../AccountDataHOC/gql';
 
 export const Settings = ({ account }: { account: AccountData }) => {
@@ -123,6 +124,11 @@ export const Settings = ({ account }: { account: AccountData }) => {
           </UnitRow>
         </div>
       </section>
+
+      <Security
+        accountRecoveryKeyEnabled={account.recoveryKey}
+        twoFactorAuthEnabled={false}
+      />
     </>
   );
 };
