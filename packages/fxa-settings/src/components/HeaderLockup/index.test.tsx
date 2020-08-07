@@ -5,6 +5,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { MockedCache } from '../../models/_mocks';
 import HeaderLockup from '.';
 
 // TO DO: functional test for `data-testid="header-menu"` to be visible in
@@ -12,7 +13,11 @@ import HeaderLockup from '.';
 
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
-    render(<HeaderLockup avatarUrl={null} primaryEmail="user@example.com" />);
+    render(
+      <MockedCache account={{ avatarUrl: null }}>
+        <HeaderLockup />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('header-sumo-link')).toHaveAttribute(
       'href',

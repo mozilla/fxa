@@ -7,9 +7,9 @@ import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Security from '../Security';
 import UnitRowSecondaryEmail from '../UnitRowSecondaryEmail';
-import { AccountData } from '../AccountDataHOC/gql';
+import { Account } from '../../models';
 
-export const Settings = ({ account }: { account: AccountData }) => {
+export const Settings = ({ account }: { account: Account }) => {
   const primaryEmail = account.emails.find((email) => email.isPrimary)!;
 
   return (
