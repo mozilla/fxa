@@ -29,6 +29,7 @@ function ChangePassword(props) {
         displayError={props.displayError}
         isPanelOpen={props.isPanelOpen}
         showValidationError={props.showValidationError}
+        validateFormField={props.validateFormField}
       />
     </div>
   );
@@ -84,7 +85,7 @@ export class ChangePasswordForm extends React.Component {
   showValidationErrors() {
     if (
       this.state.newPass &&
-      this.validateFormField('#new_password') &&
+      this.props.validateFormField('#new_password') &&
       this.state.newVPass &&
       this.state.newPass !== this.state.newVPass
     ) {
@@ -115,24 +116,12 @@ export class ChangePasswordForm extends React.Component {
     );
   };
 
-  validateFormField(selector) {
-    try {
-      // calling the jQuery plugin to validate the input elements
-      // and thrown and error if the input fields are not validated.
-      $(selector).validate();
-    } catch (err) {
-      this.props.showValidationError(selector, err);
-      return false;
-    }
-    return true;
-  }
-
   handleSubmit = (event) => {
     event.preventDefault();
     const areInputsValid =
-      this.validateFormField('#old_password') &&
-      this.validateFormField('#new_password') &&
-      this.validateFormField('#new_vpassword');
+      this.props.validateFormField('#old_password') &&
+      this.props.validateFormField('#new_password') &&
+      this.props.validateFormField('#new_vpassword');
 
     if (!areInputsValid) {
       event.stopPropagation();
@@ -272,6 +261,9 @@ class ChangePasswordView extends FormView {
           isPanelOpen={this.isPanelOpen()}
           showValidationError={(id, err) =>
             this.showValidationError(this.$(id), err)
+          }
+          validateFormField={(selection) =>
+            this.validateFormField(selection)
           }
         />,
         this.$el.get(0)
