@@ -4,12 +4,11 @@
 
 import React from 'react';
 import { InMemoryCache, ApolloClient, ApolloProvider } from '@apollo/client';
-import { MockedResponse } from '@apollo/client/testing';
 import { Account } from '.';
 import { GET_INITIAL_STATE } from '../components/App';
 import { deepMerge } from '../lib/utilities';
 
-export const MOCK_ACCOUNT: Account = {
+const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
   displayName: 'John Dope',
   avatarUrl: 'http://avatars.com/y2k',
@@ -33,19 +32,6 @@ export const MOCK_ACCOUNT: Account = {
   totp: {
     exists: true,
     verified: true,
-  },
-};
-
-export const MOCK_GET_ACCOUNT: MockedResponse = {
-  request: {
-    query: GET_INITIAL_STATE,
-  },
-  result: {
-    data: {
-      account: {
-        ...MOCK_ACCOUNT,
-      },
-    },
   },
 };
 
