@@ -11,14 +11,14 @@
 # - `$GITHUB_BRANCH` is the branch you'd like to build & deploy to docker hub (this may be `main`)
 # - `$MOZ_ENDPOINT` - one of {stage,latest,stable}; default `stage` if not set.
 
-MOZ_ENDPOINT="${MOZ_ENDPOINT:-stage}"
-source $DIRNAME/defaults.sh
-source $DIRNAME/test-ci-remote/${MOZ_ENDPOINT}
-
-env | sort
-
 DIR=$(dirname "$0")
 cd "$DIR/.."
+
+MOZ_ENDPOINT="${MOZ_ENDPOINT:-stage}"
+source $DIRNAME/test-ci-remote/defaults.sh
+source $DIRNAME/test-ci-remote/${MOZ_ENDPOINT}
+env | sort
+
 echo -e "\n###################################"
 echo "# testing fxa-content-server"
 echo -e "###################################\n"
