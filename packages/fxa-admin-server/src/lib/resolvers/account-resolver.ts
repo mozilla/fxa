@@ -54,13 +54,14 @@ export class AccountResolver {
   @FieldResolver()
   public async emailBounces(@Root() account: Account) {
     const uidBuffer = uuidTransformer.to(account.uid);
-    const subquery = Emails.query()
+    // MySQL Query optimizer does weird things, use separate queries to force index use
+    const emails = await Emails.query()
       .select('emails.normalizedEmail')
       .where('emails.uid', uidBuffer);
     const result = await EmailBounces.query().where(
       'emailBounces.email',
       'in',
-      subquery
+      emails.map((x) => x.normalizedEmail)
     );
     return result;
   }
