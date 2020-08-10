@@ -5,7 +5,6 @@
 import React from 'react';
 import { render, act } from '@testing-library/react';
 import { MockedProvider, MockLink } from '@apollo/client/testing';
-import '@testing-library/jest-dom/extend-expect';
 import App from '.';
 import FlowEvent from '../../lib/flow-event';
 

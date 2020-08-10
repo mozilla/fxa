@@ -5,11 +5,13 @@
 module.exports = {
   roots: ['<rootDir>'],
   transform: {
-    '^.+\\.tsx?$': 'ts-jest',
+    '^.+\\.(ts|tsx)?$': 'ts-jest',
     '^.+\\.svg$': '<rootDir>/svg-transform.js',
   },
   moduleNameMapper: {
     '\\.(css|scss)$': 'identity-obj-proxy',
   },
   testPathIgnorePatterns: ['/dist/', '/node_modules/'],
+  // Matches create-react-app
+  setupFilesAfterEnv: ['./setupTests.ts'],
 };

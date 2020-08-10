@@ -4,8 +4,6 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-
 import Modal from './index';
 
 it('renders as expected', () => {
@@ -24,7 +22,7 @@ it('renders as expected', () => {
 
 it('accepts an alternate className', () => {
   const onDismiss = jest.fn();
-  const { queryByTestId } = render(
+  render(
     <Modal
       headerId="some-header"
       descId="some-description"
@@ -34,17 +32,19 @@ it('accepts an alternate className', () => {
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
-  expect(queryByTestId('modal-content-container')).toHaveClass('barquux');
+  expect(screen.queryByTestId('modal-content-container')).toHaveClass(
+    'barquux'
+  );
 });
 
 it('calls onDismiss on click outside', () => {
   const onDismiss = jest.fn();
-  const { container, getByTestId } = render(
+  const { container } = render(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
-  fireEvent.click(getByTestId('modal-content-container'));
+  fireEvent.click(screen.getByTestId('modal-content-container'));
   expect(onDismiss).not.toHaveBeenCalled();
   fireEvent.click(container);
   expect(onDismiss).toHaveBeenCalled();
@@ -63,10 +63,10 @@ it('calls onDismiss on esc key press', () => {
 
 it('shifts focus to the tab fence when opened', () => {
   const onDismiss = jest.fn();
-  const { getByTestId } = render(
+  render(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
   );
-  expect(document.activeElement).toBe(getByTestId('modal-tab-fence'));
+  expect(document.activeElement).toBe(screen.getByTestId('modal-tab-fence'));
 });

@@ -1,13 +1,10 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 
 import { LoadingSpinner } from './index';
 
-afterEach(cleanup);
-
 it('renders as expected', () => {
-  const { queryByTestId } = render(<LoadingSpinner />);
-  const result = queryByTestId('loading-spinner');
+  render(<LoadingSpinner />);
+  const result = screen.queryByTestId('loading-spinner');
   expect(result).toBeInTheDocument();
 });

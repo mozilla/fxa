@@ -3,36 +3,33 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import { render, screen } from '@testing-library/react';
 import UnitRow from '.';
-
-afterEach(cleanup);
 
 describe('UnitRow', () => {
   it('renders as expected with minimal required attributes', () => {
-    const { getByTestId, queryByTestId } = render(
-      <UnitRow header="Foxy" headerValue={null} />
-    );
+    render(<UnitRow header="Foxy" headerValue={null} />);
 
-    expect(getByTestId('unit-row-header').textContent).toContain('Foxy');
-    expect(getByTestId('unit-row-header-value').textContent).toContain('None');
-    expect(queryByTestId('unit-row-route')).toBeNull();
-    expect(queryByTestId('unit-row-modal')).toBeNull();
+    expect(screen.getByTestId('unit-row-header').textContent).toContain('Foxy');
+    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
+      'None'
+    );
+    expect(screen.queryByTestId('unit-row-route')).toBeNull();
+    expect(screen.queryByTestId('unit-row-modal')).toBeNull();
   });
 
   it('renders the children', () => {
-    const { getByTestId } = render(
+    render(
       <UnitRow header="Display name" headerValue={null}>
         <p data-testid="children">The children!</p>
       </UnitRow>
     );
 
-    expect(getByTestId('children')).toBeInTheDocument();
+    expect(screen.getByTestId('children')).toBeInTheDocument();
   });
 
   it('renders as expected with `route` prop and non-null `headerValue`', () => {
-    const { getByTestId } = render(
+    render(
       <UnitRow
         header="Display name"
         headerValue="Fred Flinstone"
@@ -40,21 +37,23 @@ describe('UnitRow', () => {
       />
     );
 
-    expect(getByTestId('unit-row-header').textContent).toContain(
+    expect(screen.getByTestId('unit-row-header').textContent).toContain(
       'Display name'
     );
-    expect(getByTestId('unit-row-header-value').textContent).toContain(
+    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
       'Fred Flinstone'
     );
-    expect(getByTestId('unit-row-route')).toHaveAttribute(
+    expect(screen.getByTestId('unit-row-route')).toHaveAttribute(
       'href',
       '/display_name'
     );
-    expect(getByTestId('unit-row-route').textContent).toContain('Change');
+    expect(screen.getByTestId('unit-row-route').textContent).toContain(
+      'Change'
+    );
   });
 
   it('renders as expected with `revealModal` prop', () => {
-    const { getByTestId } = render(
+    render(
       <UnitRow
         header="Display name"
         headerValue={null}
@@ -62,11 +61,11 @@ describe('UnitRow', () => {
       />
     );
 
-    expect(getByTestId('unit-row-modal').textContent).toContain('Add');
+    expect(screen.getByTestId('unit-row-modal').textContent).toContain('Add');
   });
 
   it('renders non-default `noHeaderValueText` and `noHeaderValueCtaText`', () => {
-    const { getByTestId } = render(
+    render(
       <UnitRow
         header="Display name"
         headerValue={null}
@@ -76,9 +75,11 @@ describe('UnitRow', () => {
       />
     );
 
-    expect(getByTestId('unit-row-header-value').textContent).toContain(
+    expect(screen.getByTestId('unit-row-header-value').textContent).toContain(
       'Not set'
     );
-    expect(getByTestId('unit-row-route').textContent).toContain('Create');
+    expect(screen.getByTestId('unit-row-route').textContent).toContain(
+      'Create'
+    );
   });
 });
