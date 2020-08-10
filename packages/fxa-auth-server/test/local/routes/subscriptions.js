@@ -658,7 +658,6 @@ describe('DirectStripeRoutes', () => {
             TEST_EMAIL
           )
         );
-        assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
 
         assert.isTrue(log.info.calledOnce);
         assert.deepEqual(actual, expected);
@@ -715,7 +714,6 @@ describe('DirectStripeRoutes', () => {
             TEST_EMAIL
           )
         );
-        assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
 
         assert.isTrue(log.info.calledOnce);
         assert.deepEqual(actual, expected);
@@ -777,7 +775,6 @@ describe('DirectStripeRoutes', () => {
         UID,
         TEST_EMAIL
       );
-      assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
 
       assert.deepEqual(
         {
@@ -849,7 +846,6 @@ describe('DirectStripeRoutes', () => {
         UID,
         TEST_EMAIL
       );
-      assert.isTrue(mailer.sendDownloadSubscriptionEmail.calledOnce);
     });
   });
 
@@ -861,6 +857,7 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.retryInvoiceWithPaymentId.resolves(
         expected
       );
+      sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
       VALID_REQUEST.payload = {
         invoiceId: 'in_testinvoice',
         paymentMethodId: 'pm_asdf',
@@ -869,6 +866,13 @@ describe('DirectStripeRoutes', () => {
 
       const actual = await directStripeRoutesInstance.retryInvoice(
         VALID_REQUEST
+      );
+
+      sinon.assert.calledWith(
+        directStripeRoutesInstance.customerChanged,
+        VALID_REQUEST,
+        UID,
+        TEST_EMAIL
       );
 
       assert.deepEqual(filterInvoice(expected), actual);
@@ -2389,6 +2393,17 @@ describe('DirectStripeRoutes', () => {
           ...mockInvoiceDetails,
         }
       );
+      if (expectedMethodName === 'sendSubscriptionFirstInvoiceEmail') {
+        assert.calledWith(
+          directStripeRoutesInstance.mailer.sendDownloadSubscriptionEmail,
+          mockAccount.emails,
+          mockAccount,
+          {
+            acceptLanguage: mockAccount.locale,
+            ...mockInvoiceDetails,
+          }
+        );
+      }
     };
 
     it(

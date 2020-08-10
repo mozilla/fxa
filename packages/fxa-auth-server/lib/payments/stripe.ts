@@ -47,7 +47,7 @@ const VALID_RESOURCE_TYPES = [
   PLAN_RESOURCE,
   CHARGES_RESOURCE,
   INVOICES_RESOURCE,
-];
+] as const;
 
 export const SUBSCRIPTION_UPDATE_TYPES = {
   UPGRADE: 'upgrade',
@@ -1587,7 +1587,7 @@ export class StripeHelper {
    */
   async expandResource<T>(
     resource: string | T,
-    resourceType: string
+    resourceType: typeof VALID_RESOURCE_TYPES[number]
   ): Promise<T> {
     if (typeof resource !== 'string') {
       return resource;

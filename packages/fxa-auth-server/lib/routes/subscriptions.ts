@@ -151,10 +151,7 @@ class DirectStripeRoutes {
       idempotencyKey,
     } = request.payload as any;
 
-    // Find the selected plan and get its product ID
     const selectedPlan = await this.stripeHelper.findPlanById(planId);
-    const productId = selectedPlan.product_id;
-    const productMetadata = metadataFromPlan(selectedPlan);
 
     const customer = await this.stripeHelper.fetchCustomer(uid, email, [
       'data.subscriptions.data.latest_invoice',
@@ -186,19 +183,6 @@ class DirectStripeRoutes {
 
     await this.customerChanged(request, uid, email);
 
-    const account = await this.db.account(uid);
-    await this.mailer.sendDownloadSubscriptionEmail(account.emails, account, {
-      acceptLanguage: account.locale,
-      productId,
-      planId,
-      planName: selectedPlan.plan_name,
-      productName: selectedPlan.product_name,
-      planEmailIconURL: productMetadata.emailIconURL,
-      planDownloadURL: productMetadata.downloadURL,
-      appStoreLink: productMetadata.appStoreLink,
-      playStoreLink: productMetadata.playStoreLink,
-      productMetadata,
-    });
     this.log.info('subscriptions.createSubscription.success', {
       uid,
       subscriptionId: subscription.id,
@@ -664,6 +648,9 @@ class DirectStripeRoutes {
       paymentMethodId,
       retryIdempotencyKey
     );
+
+    await this.customerChanged(request, uid, email);
+
     return filterInvoice(invoice);
   }
 
@@ -707,22 +694,6 @@ class DirectStripeRoutes {
 
     await this.customerChanged(request, uid, email);
 
-    const account = await this.db.account(uid);
-    const selectedPlan = await this.stripeHelper.findPlanById(priceId);
-    const productId = selectedPlan.product_id;
-    const productMetadata = metadataFromPlan(selectedPlan);
-    await this.mailer.sendDownloadSubscriptionEmail(account.emails, account, {
-      acceptLanguage: account.locale,
-      productId,
-      planId: priceId,
-      planName: selectedPlan.plan_name,
-      productName: selectedPlan.product_name,
-      planEmailIconURL: productMetadata.emailIconURL,
-      planDownloadURL: productMetadata.downloadURL,
-      appStoreLink: productMetadata.appStoreLink,
-      playStoreLink: productMetadata.playStoreLink,
-      productMetadata,
-    });
     this.log.info('subscriptions.createSubscriptionWithPMI.success', {
       uid,
       subscriptionId: subscription.id,
@@ -1108,6 +1079,7 @@ class DirectStripeRoutes {
     switch (invoice.billing_reason) {
       case 'subscription_create':
         await this.mailer.sendSubscriptionFirstInvoiceEmail(...mailParams);
+        await this.mailer.sendDownloadSubscriptionEmail(...mailParams);
         break;
       default:
         // Other billing reasons should be covered in subsequent invoice email
