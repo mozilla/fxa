@@ -15,8 +15,8 @@ DIR=$(dirname "$0")
 cd "$DIR/.."
 
 MOZ_ENDPOINT="${MOZ_ENDPOINT:-stage}"
-source $DIRNAME/test-ci-remote/defaults.sh
-source $DIRNAME/test-ci-remote/${MOZ_ENDPOINT}
+source $DIRNAME/scripts/test-ci-remote/defaults.sh
+source $DIRNAME/scripts/test-ci-remote/${MOZ_ENDPOINT}
 env | sort
 
 echo -e "\n###################################"
