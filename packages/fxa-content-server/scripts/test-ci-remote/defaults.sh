@@ -4,7 +4,7 @@
 
 CHANNELS_DIR="$HOME/firefox-channels"
 
-FXA_CONTENT_ROOT="https://latest.dev.lcip.org/"
+echo 'FXA_CONTENT_ROOT="https://latest.dev.lcip.org/"' >> $BASH_ENV
 FXA_AUTH_ROOT="https://latest.dev.lcip.org/auth/v1"
 FXA_OAUTH_ROOT="https://oauth-latest.dev.lcip.org"
 FXA_PROFILE_ROOT="https://latest.dev.lcip.org/profile"
