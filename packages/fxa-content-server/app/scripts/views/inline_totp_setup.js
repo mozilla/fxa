@@ -72,15 +72,25 @@ var View = FormView.extend({
 
   beforeRender() {
     const account = this.getAccount();
+
     if (!account.get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
     }
-    return account.checkTotpTokenExists().then((result) => {
-      if (result.exists && result.verified) {
-        return this.onSubmitComplete();
+
+    return account.sessionVerificationStatus().then(({ sessionVerified }) => {
+      if (!sessionVerified) {
+        this.relier.set('redirectTo', this.window.location.href);
+        return this.replaceCurrentPage('/signin_token_code');
       }
-      // pre-generate the TOTP token
-      return this.getTotpToken();
+
+      return account.checkTotpTokenExists().then((result) => {
+        if (result.exists && result.verified) {
+          return this.onSubmitComplete();
+        }
+
+        // pre-generate the TOTP token
+        return this.getTotpToken();
+      });
     });
   },
 
