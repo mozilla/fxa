@@ -7,10 +7,17 @@ import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Security from '../Security';
 import UnitRowSecondaryEmail from '../UnitRowSecondaryEmail';
-import { Account } from '../../models';
 
-export const Settings = ({ account }: { account: Account }) => {
-  const primaryEmail = account.emails.find((email) => email.isPrimary)!;
+import { useAccount } from '../../models';
+
+export const Settings = () => {
+  const {
+    primaryEmail,
+    displayName,
+    avatarUrl,
+    passwordCreated,
+    recoveryKey,
+  } = useAccount();
 
   return (
     <>
@@ -18,15 +25,11 @@ export const Settings = ({ account }: { account: Account }) => {
         <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
 
         <div className="bg-white tablet:rounded-xl shadow">
-          <UnitRowWithAvatar avatarUrl={account.avatarUrl} />
+          <UnitRowWithAvatar avatarUrl={avatarUrl} />
 
           <hr className="unit-row-hr" />
 
-          <UnitRow
-            header="Display name"
-            headerValue={account.displayName}
-            route="#"
-          />
+          <UnitRow header="Display name" headerValue={displayName} route="#" />
 
           <hr className="unit-row-hr" />
 
@@ -37,7 +40,7 @@ export const Settings = ({ account }: { account: Account }) => {
             route="#"
           >
             <p className="text-grey-400 text-xs mobileLandscape:mt-3">
-              Created {account.passwordCreated}
+              Created {passwordCreated}
             </p>
           </UnitRow>
 
@@ -52,7 +55,7 @@ export const Settings = ({ account }: { account: Account }) => {
       </section>
 
       <Security
-        accountRecoveryKeyEnabled={account.recoveryKey}
+        accountRecoveryKeyEnabled={recoveryKey}
         twoFactorAuthEnabled={false}
       />
     </>

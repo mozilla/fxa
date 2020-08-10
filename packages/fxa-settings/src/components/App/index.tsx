@@ -53,9 +53,7 @@ type AppProps = {
 };
 
 export const App = ({ queryParams }: AppProps) => {
-  const { loading, error, data } = useQuery<{ account: Account }>(
-    GET_INITIAL_STATE
-  );
+  const { loading, error } = useQuery<{ account: Account }>(GET_INITIAL_STATE);
   FlowEvents.init(queryParams);
 
   if (loading) {
@@ -67,11 +65,10 @@ export const App = ({ queryParams }: AppProps) => {
   if (error) {
     return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
   }
-  const account = data!.account;
 
   return (
     <AppLayout>
-      <Settings {...{ account }} />
+      <Settings />
     </AppLayout>
   );
 };
