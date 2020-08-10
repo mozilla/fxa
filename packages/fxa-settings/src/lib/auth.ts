@@ -6,7 +6,10 @@ export interface AuthContextValue {
 }
 
 export const AuthContext = React.createContext<AuthContextValue>({});
-export { AuthClient };
+
+export function createAuthClient(authServerUri: string) {
+  return new AuthClient(authServerUri);
+}
 
 export function useAuth() {
   const { auth } = useContext(AuthContext);
