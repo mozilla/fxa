@@ -1243,4 +1243,14 @@ describe('views/base', function () {
       assert.isTrue(view._onRequiredClick.calledOnce);
     });
   });
+
+  describe('displayStatusMessages', () => {
+    it('clears the alertText after displaying success', () => {
+      const account = { unset: sinon.spy() };
+      model.set('account', account);
+      model.set('success', 'ok');
+      view.displayStatusMessages();
+      assert.isTrue(account.unset.calledOnceWithExactly('alertText'));
+    });
+  });
 });

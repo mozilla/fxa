@@ -7,8 +7,8 @@ import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Security from '../Security';
 import UnitRowSecondaryEmail from '../UnitRowSecondaryEmail';
-import { useLocation, RouteComponentProps } from '@reach/router';
-
+import { RouteComponentProps } from '@reach/router';
+import AlertExternal from '../AlertExternal';
 import { useAccount } from '../../models';
 
 export const Settings = (_: RouteComponentProps) => {
@@ -30,6 +30,7 @@ export const Settings = (_: RouteComponentProps) => {
 
   return (
     <>
+      <AlertExternal />
       <section className="mt-11" id="profile" data-testid="settings-profile">
         <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
 
@@ -38,7 +39,11 @@ export const Settings = (_: RouteComponentProps) => {
 
           <hr className="unit-row-hr" />
 
-          <UnitRow header="Display name" headerValue={displayName} route="/beta/settings/display_name" />
+          <UnitRow
+            header="Display name"
+            headerValue={displayName}
+            route="/beta/settings/display_name"
+          />
 
           <hr className="unit-row-hr" />
 
@@ -46,7 +51,7 @@ export const Settings = (_: RouteComponentProps) => {
             header="Password"
             headerValueClassName="tracking-wider"
             headerValue="••••••••••••••••••"
-             route="/beta/settings/change_password"
+            route="/beta/settings/change_password"
           >
             <p className="text-grey-400 text-xs mobileLandscape:mt-3">
               Created {pwdDateText}

@@ -18,7 +18,7 @@ describe('views/behaviors/navigate', function () {
       navigate: sinon.spy(),
     };
 
-    const accountMock = {};
+    const accountMock = { set: sinon.spy() };
 
     const promise = navigateBehavior(viewMock, accountMock);
     // navigateBehavior returns a promise that never resolves,
@@ -28,6 +28,9 @@ describe('views/behaviors/navigate', function () {
     const endpoint = viewMock.navigate.args[0][0];
     const navigateOptions = viewMock.navigate.args[0][1];
 
+    assert.isTrue(
+      accountMock.set.calledOnceWithExactly('alertText', options.success)
+    );
     assert.equal(endpoint, 'settings');
     assert.equal(navigateOptions.success, 'success');
     assert.equal(navigateOptions.error, 'error');

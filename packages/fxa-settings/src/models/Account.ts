@@ -7,7 +7,7 @@ export interface Email {
 }
 
 export interface Account {
-  uid: string;
+  uid: hexstring;
   displayName: string | null;
   avatarUrl: string | null;
   accountCreated: number;
@@ -30,6 +30,7 @@ export interface Account {
     created: number;
     productName: string;
   }[];
+  alertTextExternal: string | null;
 }
 
 export const GET_ACCOUNT = gql`
@@ -62,6 +63,7 @@ export const GET_ACCOUNT = gql`
         created
         productName
       }
+      alertTextExternal @client
     }
   }
 `;

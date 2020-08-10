@@ -43,6 +43,7 @@ export const GET_INITIAL_STATE = gql`
         created
         productName
       }
+      alertTextExternal @client
     }
     session {
       verified
@@ -72,12 +73,9 @@ export const App = ({ queryParams }: AppProps) => {
     <AppLayout>
       <Router basepath="/beta/settings">
         <Settings path="/" />
-        <FlowContainer path="/avatar/change" title="Profile picture"/>
-        <FlowContainer path="/display_name" title="Display name"/>
-        <FlowContainer
-            path="/change_password"
-            title="Change password"
-        />
+        <FlowContainer path="/avatar/change" title="Profile picture" />
+        <FlowContainer path="/display_name" title="Display name" />
+        <FlowContainer path="/change_password" title="Change password" />
       </Router>
     </AppLayout>
   );
