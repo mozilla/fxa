@@ -13,6 +13,7 @@ import FormView from './form';
 import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
+import VerificationReasons from '../lib/verification-reasons';
 
 const CODE_INPUT_SELECTOR = 'input.totp-code';
 const TOTP_SUPPORT_URL =
@@ -72,15 +73,29 @@ var View = FormView.extend({
 
   beforeRender() {
     const account = this.getAccount();
+
     if (!account.get('sessionToken')) {
       this.navigate(this._getMissingSessionTokenScreen());
     }
-    return account.checkTotpTokenExists().then((result) => {
-      if (result.exists && result.verified) {
-        return this.onSubmitComplete();
+
+    return account.sessionVerificationStatus().then(({ sessionVerified }) => {
+      if (!sessionVerified) {
+        return account.verifySessionResendCode().then(() => {
+          return this.replaceCurrentPage('/signin_token_code', {
+            type: VerificationReasons.SIGN_IN,
+            redirectTo: this.window.location.href,
+          });
+        });
       }
-      // pre-generate the TOTP token
-      return this.getTotpToken();
+
+      return account.checkTotpTokenExists().then((result) => {
+        if (result.exists && result.verified) {
+          return this.onSubmitComplete();
+        }
+
+        // pre-generate the TOTP token
+        return this.getTotpToken();
+      });
     });
   },
 

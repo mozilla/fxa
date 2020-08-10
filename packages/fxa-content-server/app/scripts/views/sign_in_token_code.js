@@ -21,12 +21,12 @@ const View = FormView.extend({
   template: Template,
 
   getAccount() {
-    return this.model.get('account');
+    return this.getSignedInAccount();
   },
 
   beforeRender() {
     // user cannot confirm if they have not initiated a sign in.
-    if (!this.model.get('account')) {
+    if (!this.getAccount()) {
       this.navigate(this._getAuthPage());
     }
   },
@@ -62,6 +62,11 @@ const View = FormView.extend({
       .verifyAccountSessionCode(account, code)
       .then(() => {
         this.logViewEvent('success');
+
+        const redirectTo = this.model.get('redirectTo');
+        if (redirectTo) {
+          return (this.window.location.href = redirectTo);
+        }
 
         if (this.isForcePasswordChange(account)) {
           return this.invokeBrokerMethod('beforeForcePasswordChange', account);

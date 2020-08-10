@@ -117,27 +117,5 @@ registerSuite('OAuth signin token code', {
           )
       );
     },
-
-    'verified - valid code then click back': function () {
-      return (
-        this.remote
-          .then(openFxaFromRp('enter-email', experimentParams))
-          .then(fillOutEmailFirstSignIn(email, PASSWORD))
-
-          // Correctly submits the token code and navigates to oauth page
-          .then(testElementExists(selectors.SIGNIN_TOKEN_CODE.HEADER))
-          .then(fillOutSignInTokenCode(email, 0))
-
-          .then(
-            testElementTextInclude(
-              NOTES_REDIRECT_PAGE_SELECTOR,
-              NOTES_PAGE_TEXT_SELECTOR
-            )
-          )
-
-          .goBack()
-          .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
-      );
-    },
   },
 });
