@@ -1,0 +1,17 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+FXA_CONTENT_ROOT="https://accounts.stage.mozaws.net/"
+FXA_AUTH_ROOT="https://api-accounts.stage.mozaws.net/v1"
+FXA_OAUTH_ROOT="https://oauth.stage.mozaws.net"
+FXA_PROFILE_ROOT="https://profile.stage.mozaws.net"
+FXA_TOKEN_ROOT="https://token.stage.mozaws.net"
+
+FXA_OAUTH_APP_ROOT="https://123done-stage.dev.lcip.org/"
+FXA_UNTRUSTED_OAUTH_APP_ROOT="https://321done-stage.dev.lcip.org/"
+
+FXA_CONTENT_VERSION="https://accounts.stage.mozaws.net/__version__"
+FXA_OAUTH_VERSION="https://oauth.stage.mozaws.net/__version__"
+FXA_PROFILE_VERSION="https://profile.stage.mozaws.net/__version__"
+FXA_AUTH_VERSION="https://api-accounts.stage.mozaws.net/__version__"

@@ -220,7 +220,7 @@ jobs:
       - store_artifacts:
           path: artifacts
 
-  # This job is manually triggered for now. see _dev/docker/circleci/README.md
+  # This job is manually triggered for now. see ./packages/fxa-content-server/scripts/test-ci-remote.sh.
   test-content-server-remote:
     executor: content-server-executor
     steps:
