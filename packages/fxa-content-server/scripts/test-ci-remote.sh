@@ -39,7 +39,7 @@ cd ../../
 mkdir -p artifacts/tests
 
 if [ -z "${MOZ_GIT_COMMIT}" ]; then
-  FXA_CONTENT_ROOT=$(jq -r .fxaContentRoot ./tests/endpoints/stage.json)
+  FXA_CONTENT_ROOT=$(jq -r .fxaContentRoot ./packages/fxa-content-server/tests/endpoints/stage.json)
   if [ ! -z "${FXA_CONTENT_ROOT}" ]; then
     MOZ_GIT_COMMIT=$(curl -s "${FXA_CONTENT_ROOT}__version__" | jq -r .commit)
     echo $MOZ_GIT_COMMIT
