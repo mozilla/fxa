@@ -19,6 +19,14 @@ export const Settings = () => {
     recoveryKey,
   } = useAccount();
 
+  const pwdDateText = Intl.DateTimeFormat('default', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  }).format(new Date(passwordCreated));
+
   return (
     <>
       <section className="mt-11" id="profile" data-testid="settings-profile">
@@ -40,7 +48,7 @@ export const Settings = () => {
             route="#"
           >
             <p className="text-grey-400 text-xs mobileLandscape:mt-3">
-              Created {passwordCreated}
+              Created {pwdDateText}
             </p>
           </UnitRow>
 
