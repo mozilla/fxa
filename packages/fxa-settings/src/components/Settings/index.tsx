@@ -64,7 +64,7 @@ export const Settings = (_: RouteComponentProps) => {
 
           <hr className="unit-row-hr" />
 
-          <UnitRowSecondaryEmail primaryEmail={primaryEmail.email} />
+          <UnitRowSecondaryEmail />
         </div>
       </section>
 

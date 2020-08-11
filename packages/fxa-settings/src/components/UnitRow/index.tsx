@@ -20,10 +20,6 @@ type UnitRowProps = {
   alertBarRevealed?: boolean;
 };
 
-// TO DO: accept a refresh button prop to use in for secondary email
-// and recovery key, a delete icon next to secondary email, and
-// conditionally display "disable" for two-step auth
-
 export const UnitRow = ({
   header,
   headerValue,
@@ -42,7 +38,11 @@ export const UnitRow = ({
   // If the UnitRow children contains an AlertBar that is revealed,
   // don't redirect focus back to the element that opened the modal
   // because focus will be set in the AlertBar.
-  useFocusOnTriggeringElementOnClose(modalRevealed, modalTriggerElement, alertBarRevealed);
+  useFocusOnTriggeringElementOnClose(
+    modalRevealed,
+    modalTriggerElement,
+    alertBarRevealed
+  );
 
   const location = useLocation();
 
