@@ -40,7 +40,6 @@ mkdir -p artifacts/tests
 cd packages/fxa-content-server
 
 #xxx
-sudo docker images
 which jq
 
 echo $MOZ_GIT_COMMIT
