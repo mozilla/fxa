@@ -39,17 +39,13 @@ cd ../../
 mkdir -p artifacts/tests
 cd packages/fxa-content-server
 
-#xxx
-which jq
-
-echo $MOZ_GIT_COMMIT
 if [ -z "${MOZ_GIT_COMMIT}" ]; then
   FXA_CONTENT_ROOT=$(jq -r .fxaContentRoot ./tests/endpoints/stage.json)
   if [ ! -z "${FXA_CONTENT_ROOT}" ]; then
     MOZ_GIT_COMMIT=$(curl -s "${FXA_CONTENT_ROOT}__version__" | jq -r .commit)
     echo $MOZ_GIT_COMMIT
     if [ -z "${MOZ_GIT_COMMIT}" ]; then
-      echo Cound not find MOZ_GIT_COMMIT from FXA_CONTENT_ROOT/__version__. Abort.
+      echo Cound not find MOZ_GIT_COMMIT from "${FXA_CONTENT_ROOT}__version__".FXA_CONTENT_ROOT/__version__. Abort.
       exit 1
     fi
   fi
@@ -58,12 +54,6 @@ fi
 git checkout $MOZ_GIT_COMMIT
 git show --summary
 yarn workspaces focus fxa-content-server
-
-echo targ tvjf /firefox.tar.bz2
-tar tvjf /firefox.tar.bz2
-
-echo tar tvjf /7f10c7614e9fa46-target.tar.bz2
-tar tvjf /7f10c7614e9fa46-target.tar.bz2
 
 mozinstall /firefox.tar.bz2
 yarn lint
