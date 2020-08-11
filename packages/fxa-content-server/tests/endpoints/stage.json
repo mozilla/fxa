@@ -6,6 +6,7 @@
   "fxaTokenRoot": "https://token.stage.mozaws.net",
   "fxaOAuthApp": "https://123done-stage.dev.lcip.org/",
   "fxaUntrustedOauthApp": "https://321done-stage.dev.lcip.org/",
+  "fxaEmailRoot": "http://restmail.net",
   "fxaPaymentsRoot": "https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/",
   "fxaProduction": true
 }
