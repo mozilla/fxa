@@ -14,6 +14,37 @@ const yargsConfig = process.env.MOZ_ENDPOINT
   : {};
 console.log('yargsConfig', yargsConfig);
 const args = require('yargs').config(yargsConfig).argv;
+console.log(
+  JSON.stringify(
+    {
+      'args.groupsCount': args.groupsCount,
+      'args.groupNum': args.groupNum,
+      'args.fxaAuthRoot': args.fxaAuthRoot,
+      'args.fxaContentRoot': args.fxaContentRoot,
+      'args.fxaOAuthRoot': args.fxaOAuthRoot,
+      'args.fxaProfileRoot': args.fxaProfileRoot,
+      'args.fxaTokenRoot': args.fxaTokenRoot,
+      'args.fxaEmailRoot': args.fxaEmailRoot,
+      'args.fxaOAuthApp': args.fxaOAuthApp,
+      'args.fxaUntrustedOauthApp': args.fxaUntrustedOauthApp,
+      'args.fxaPaymentsRoot': args.fxaPaymentsRoot,
+      'args.output': args.output,
+      'args.fxaProduction': args.fxaProduction,
+      'args.fxaDevBox': args.fxaDevBox,
+      'args.fxaToken': args.fxaToken,
+      'args.asyncTimeout': args.asyncTimeout,
+      'args.bailAfterFirstFailure': args.bailAfterFirstFailure,
+      'args.testProductId': args.testProductId,
+      'args.grep': args.grep,
+      'args.suites': args.suites,
+      'args.useTeamCityReporter': args.useTeamCityReporter,
+      'args.unit': args.unit,
+      'args.firefoxBinary': args.firefoxBinary,
+    },
+    null,
+    2
+  )
+);
 const firefoxProfile = require('./tools/firefox_profile');
 
 // Tests
