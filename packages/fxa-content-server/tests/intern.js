@@ -2,9 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+console.log(JSON.stringify(process.env, null, 2));
 const fs = require('fs');
+const path = require('path');
 const intern = require('intern').default;
-const args = require('yargs').argv;
+const yargsConfig = process.env.MOZ_ENDPOINT
+  ? require(path.resolve(
+      __dirname,
+      `./endpoints/${process.env.MOZ_ENDPOINT}.json`
+    ))
+  : {};
+const args = require('yargs').config(yargsConfig).argv;
 const firefoxProfile = require('./tools/firefox_profile');
 
 // Tests
