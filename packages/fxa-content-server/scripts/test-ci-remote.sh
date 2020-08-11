@@ -52,10 +52,10 @@ if [ -z "${MOZ_GIT_COMMIT}" ]; then
       echo Cound not find MOZ_GIT_COMMIT from FXA_CONTENT_ROOT/__version. Abort.
       exit 1
     fi
-    git checkout $MOZ_GIT_COMMIT
   fi
 fi
 
+git checkout $MOZ_GIT_COMMIT
 git show --summary
 yarn workspaces focus fxa-content-server
 
