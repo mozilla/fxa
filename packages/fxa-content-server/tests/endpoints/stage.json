@@ -6,5 +6,6 @@
   "fxaTokenRoot": "https://token.stage.mozaws.net",
   "fxaOAuthAppRoot": "https://123done-stage.dev.lcip.org/",
   "fxaUntrustedOAuthAppRoot": "https://321done-stage.dev.lcip.org/",
-  "fxaPaymentsRoot": "https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/"
+  "fxaPaymentsRoot": "https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/",
+  "fxaProduction": true
 }
