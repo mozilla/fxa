@@ -46,7 +46,7 @@ echo $MOZ_GIT_COMMIT
 if [ -z "${MOZ_GIT_COMMIT}" ]; then
   FXA_CONTENT_ROOT=$(jq .fxaContentRoot ./tests/endpoints/stage.json)
   if [ ! -z "${FXA_CONTENT_ROOT}" ]; then
-    MOZ_GIT_COMMIT=$(curl -s ${FXA_CONTENT_ROOT}/__version | jq .commit)
+    MOZ_GIT_COMMIT=$(curl -s ${FXA_CONTENT_ROOT}/__version__ | jq .commit)
     echo $MOZ_GIT_COMMIT
     if [ -z "${MOZ_GIT_COMMIT}" ]; then
       echo Cound not find MOZ_GIT_COMMIT from FXA_CONTENT_ROOT/__version. Abort.
