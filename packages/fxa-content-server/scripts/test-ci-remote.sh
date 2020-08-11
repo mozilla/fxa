@@ -39,7 +39,8 @@ cd ../../
 mkdir -p artifacts/tests
 cd packages/fxa-content-server
 
-docker images
+sudo docker images
+which jq
 
 # if [ -z "${MOZ_GIT_COMMIT}" ]; then 
 mozinstall /firefox.tar.bz2
