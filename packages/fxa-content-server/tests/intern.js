@@ -12,6 +12,7 @@ const yargsConfig = process.env.MOZ_ENDPOINT
       `./endpoints/${process.env.MOZ_ENDPOINT}.json`
     ))
   : {};
+console.log(yargsConfig);
 const args = require('yargs').config(yargsConfig).argv;
 const firefoxProfile = require('./tools/firefox_profile');
 
