@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import { MockedCache } from '../../models/_mocks';
 import Nav from '.';
 

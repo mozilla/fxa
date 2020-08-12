@@ -1,12 +1,9 @@
 import React from 'react';
-import { render, fireEvent, cleanup } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
+import { render, fireEvent } from '@testing-library/react';
 
 import Survey, { CreateHandleIframeTask } from './index';
 
 const surveyURL = 'https://my-survey-url.mozilla.org/';
-
-afterEach(cleanup);
 
 describe('Survey', () => {
   const onSurveyClose = jest.fn();
@@ -19,7 +16,10 @@ describe('Survey', () => {
     const { queryByTestId } = subject();
 
     const surveyContainer = queryByTestId('survey-component');
-    expect(surveyContainer).toHaveAttribute('aria-label', 'Firefox accounts optional user survey');
+    expect(surveyContainer).toHaveAttribute(
+      'aria-label',
+      'Firefox accounts optional user survey'
+    );
     expect(surveyContainer).toBeVisible();
   });
 

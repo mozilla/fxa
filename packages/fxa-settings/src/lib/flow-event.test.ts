@@ -13,7 +13,6 @@ const mockNow = 1002003004005;
 beforeEach(() => {
   // `sendBeacon` is undefined in this context
   window.navigator.sendBeacon = jest.fn();
-  global.console.error = jest.fn();
 });
 
 it('does not send metrics when uninitialized', () => {

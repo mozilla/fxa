@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useRef, ReactNode } from 'react';
+import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import AlertBar from './index';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 
@@ -20,7 +19,9 @@ describe('AlertBar', () => {
         </AlertBar>
       </AlertBarRootAndContextProvider>
     );
-    expect(screen.getByTestId('alert-bar-root')).toContainElement(screen.getByTestId('alert-bar'));
+    expect(screen.getByTestId('alert-bar-root')).toContainElement(
+      screen.getByTestId('alert-bar')
+    );
     expect(screen.queryByTestId('children')).toBeInTheDocument();
     expect(screen.queryByTestId('alert-bar')).toHaveAttribute('role', 'alert');
     expect(screen.getByTestId('alert-bar-dismiss')).toHaveAttribute(
@@ -37,7 +38,7 @@ describe('AlertBar', () => {
     );
 
     expect(screen.getByTestId('alert-bar-portal')).toBeInTheDocument;
-  })
+  });
 
   it('calls onDismiss on button click', () => {
     const { rerender } = render(<AlertBarRootAndContextProvider />);

@@ -66,19 +66,18 @@ describe('decode', () => {
   describe('development', () => {
     beforeAll(() => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development' });
-      jest.spyOn(global.console, 'warn').mockReturnValue();
     });
 
     it('warns when server config is missing', () => {
       decode(null);
-      expect(global.console.warn).toHaveBeenCalledWith(
+      expect(window.console.warn).toHaveBeenCalledWith(
         'fxa-settings is missing server config'
       );
     });
 
     it('warns when an invalid server config is supplied', () => {
       decode('thou shalt not decode');
-      expect(global.console.warn).toHaveBeenCalledWith(
+      expect(window.console.warn).toHaveBeenCalledWith(
         'fxa-settings server config is invalid'
       );
     });

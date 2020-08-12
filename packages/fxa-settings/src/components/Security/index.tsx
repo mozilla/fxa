@@ -15,7 +15,6 @@ type SecurityProps = {
 export const Security = ({
   twoFactorAuthEnabled,
   accountRecoveryKeyEnabled,
-  className,
 }: SecurityProps) => {
   const getValue = (settingOption: boolean) =>
     settingOption ? 'Enabled' : 'Not Set';

@@ -2,25 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import '@testing-library/jest-dom/extend-expect';
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
 import AppLayout from '.';
 
 it('renders the app with children', () => {
-  const { getByTestId } = render(
+  render(
     <MockedCache>
       <AppLayout>
         <p data-testid="test-child">Hello, world!</p>
       </AppLayout>
     </MockedCache>
   );
-  expect(getByTestId('app')).toBeInTheDocument();
-  expect(getByTestId('content-skip')).toBeInTheDocument();
-  expect(getByTestId('header')).toBeInTheDocument();
-  expect(getByTestId('footer')).toBeInTheDocument();
-  expect(getByTestId('nav')).toBeInTheDocument();
-  expect(getByTestId('main')).toBeInTheDocument();
-  expect(getByTestId('main')).toContainElement(getByTestId('test-child'));
+  expect(screen.getByTestId('app')).toBeInTheDocument();
+  expect(screen.getByTestId('content-skip')).toBeInTheDocument();
+  expect(screen.getByTestId('header')).toBeInTheDocument();
+  expect(screen.getByTestId('footer')).toBeInTheDocument();
+  expect(screen.getByTestId('nav')).toBeInTheDocument();
+  expect(screen.getByTestId('main')).toBeInTheDocument();
+  expect(screen.getByTestId('main')).toContainElement(
+    screen.getByTestId('test-child')
+  );
 });
