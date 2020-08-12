@@ -16,6 +16,8 @@ export const PROFILE_CHANGE_EVENT = 'profileDataChange';
 export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
 
 // Message schemas
+const CLIENT_ID = joi.string().regex(/[a-z0-9]{16}/);
+
 const BASE_MESSAGE_SCHEMA = joi
   .object()
   .keys({
@@ -27,7 +29,7 @@ const BASE_MESSAGE_SCHEMA = joi
 const LOGIN_SCHEMA = joi
   .object()
   .keys({
-    clientId: joi.string().optional(),
+    clientId: CLIENT_ID.optional(),
     deviceCount: joi.number().integer().required(),
     email: joi.string().required(),
     event: joi.string().valid(LOGIN_EVENT).required(),
@@ -100,7 +102,9 @@ export type deleteSchema = joi.Literal<typeof DELETE_SCHEMA>;
 export type loginSchema = joi.Literal<typeof LOGIN_SCHEMA>;
 export type passwordSchema = joi.Literal<typeof PASSWORD_CHANGE_SCHEMA>;
 export type profileSchema = joi.Literal<typeof PROFILE_CHANGE_SCHEMA>;
-export type subscriptionUpdateSchema = joi.Literal<typeof SUBSCRIPTION_UPDATE_SCHEMA>;
+export type subscriptionUpdateSchema = joi.Literal<
+  typeof SUBSCRIPTION_UPDATE_SCHEMA
+>;
 
 export type ServiceNotification =
   | deleteSchema

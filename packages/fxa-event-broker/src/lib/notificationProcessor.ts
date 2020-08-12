@@ -147,7 +147,8 @@ class ServiceNotificationProcessor {
       return;
     }
     this.metrics.increment('message.type', { eventType: 'login' });
-    await this.db.storeLogin(message.uid, message.clientId);
+    // In case a SQS source capitalized the client id, lower-case it for consistency.
+    await this.db.storeLogin(message.uid, message.clientId.toLowerCase());
   }
 
   /**
