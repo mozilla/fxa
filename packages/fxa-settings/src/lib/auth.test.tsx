@@ -6,10 +6,10 @@
 import React from 'react';
 import { render, cleanup } from '@testing-library/react';
 
-import { AuthClient, AuthContext, useAuth } from './auth';
+import { AuthContext, createAuthClient, useAuth } from './auth';
 
 describe('useAuth', () => {
-  const client = new AuthClient('none');
+  const client = createAuthClient('none');
 
   afterEach(() => {
     cleanup();
