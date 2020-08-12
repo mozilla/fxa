@@ -55,6 +55,7 @@ const PERSISTENT = {
   sessionTokenContext: undefined,
   uid: undefined,
   verified: undefined,
+  alertText: undefined,
 };
 
 const DEFAULTS = _.extend(

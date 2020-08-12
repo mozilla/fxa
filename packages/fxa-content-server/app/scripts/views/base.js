@@ -435,6 +435,10 @@ var BaseView = Backbone.View.extend({
     if (success) {
       this.displaySuccess(success);
       this.model.unset('success');
+      const account = this.model.get('account');
+      if (account) {
+        account.unset('alertText');
+      }
     }
 
     var unsafeSuccess = this.model.get('unsafeSuccess');

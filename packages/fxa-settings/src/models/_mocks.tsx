@@ -39,6 +39,7 @@ const MOCK_ACCOUNT: Account = {
     exists: true,
     verified: true,
   },
+  alertTextExternal: null,
 };
 
 export interface MockedProps {

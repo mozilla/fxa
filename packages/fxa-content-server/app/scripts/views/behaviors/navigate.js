@@ -10,6 +10,9 @@ import _ from 'underscore';
 
 const NavigationBehavior = function (endpoint, options = {}) {
   const behavior = function (view, account) {
+    if (account && options.success) {
+      account.set('alertText', options.success);
+    }
     const navigateOptions = _.assign({}, options, { account });
     view.navigate(endpoint, navigateOptions);
 
