@@ -3,18 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
 import AppLayout from '.';
+import { renderWithRouter } from '../../models/_mocks';
 
-it('renders the app with children', () => {
-  render(
+it('renders the app with children', async () => {
+  const {
+    history: {navigate},
+  } = renderWithRouter(
     <MockedCache>
       <AppLayout>
         <p data-testid="test-child">Hello, world!</p>
       </AppLayout>
     </MockedCache>
   );
+  await navigate('/beta/settings');
   expect(screen.getByTestId('app')).toBeInTheDocument();
   expect(screen.getByTestId('content-skip')).toBeInTheDocument();
   expect(screen.getByTestId('header')).toBeInTheDocument();

@@ -5,10 +5,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import UnitRowWithAvatar from '.';
+import { renderWithRouter } from '../../models/_mocks';
 
 describe('UnitRowWithAvatar', () => {
   it('renders as expected with the default avatar', () => {
-    render(<UnitRowWithAvatar avatarUrl={null} />);
+    renderWithRouter(<UnitRowWithAvatar avatarUrl={null} />);
 
     expect(
       screen.getByTestId('unit-row-with-avatar-route').textContent
@@ -18,7 +19,7 @@ describe('UnitRowWithAvatar', () => {
   });
 
   it('renders as expected with the user avatar', () => {
-    render(<UnitRowWithAvatar avatarUrl="some-fake-image.png" />);
+    renderWithRouter(<UnitRowWithAvatar avatarUrl="some-fake-image.png" />);
 
     expect(
       screen.getByTestId('unit-row-with-avatar-route').textContent

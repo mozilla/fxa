@@ -8,6 +8,7 @@ import ContentSkip from '../ContentSkip';
 import Nav from '../Nav';
 import Footer from 'fxa-react/components/Footer';
 import AlertBarContext from '../../lib/AlertBarContext';
+import { Router } from '@reach/router';
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -21,7 +22,9 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <HeaderLockup />
       <div className="max-w-screen-desktopXl w-full mx-auto flex flex-1 tablet:px-20 desktop:px-12">
         <div className="hidden desktop:block desktop:flex-2">
-          <Nav />
+          <Router primary={false} basepath="/beta/settings">
+            <Nav path="/" />
+          </Router>
         </div>
         <main id="main" data-testid="main" className="desktop:flex-7">
           <div

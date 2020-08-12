@@ -3098,6 +3098,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@reach/router@npm:^1.3.4":
+  version: 1.3.4
+  resolution: "@reach/router@npm:1.3.4"
+  dependencies:
+    create-react-context: 0.3.0
+    invariant: ^2.2.3
+    prop-types: ^15.6.1
+    react-lifecycles-compat: ^3.0.4
+  peerDependencies:
+    react: 15.x || 16.x || 16.4.0-alpha.0911da3
+    react-dom: 15.x || 16.x || 16.4.0-alpha.0911da3
+  checksum: 7fedb32b5f589d0de236f83af7a0098bef93327925ac3dc090026ce79f6571005207d872fb01378ef00dfcd6e9ed0f0583755c5817ae9d85f3fd6d5b34b84417
+  languageName: node
+  linkType: hard
+
 "@rescripts/cli@npm:0.0.14, @rescripts/cli@npm:~0.0.14":
   version: 0.0.14
   resolution: "@rescripts/cli@npm:0.0.14"
@@ -16155,6 +16170,7 @@ fsevents@^1.2.7:
   dependencies:
     "@apollo/client": ^3.1.2
     "@babel/core": ^7.10.3
+    "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.14
     "@sentry/browser": ^5.17.0
     "@storybook/addon-actions": ^5.3.19

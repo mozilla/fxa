@@ -48,7 +48,7 @@ it('redirects to /get_flow when flow data is not present', async () => {
   );
 });
 
-it('redirects to /get_flow when flow data is not present', async () => {
+it("doesn't redirect to /get_flow when flow data is present", async () => {
   const DEVICE_ID = 'yoyo';
   const BEGIN_TIME = 123456;
   const FLOW_ID = 'abc123';

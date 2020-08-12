@@ -5,6 +5,7 @@
 import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
+import {Link, RouteComponentProps, useLocation} from '@reach/router';
 
 type UnitRowProps = {
   header: string;
@@ -34,7 +35,7 @@ export const UnitRow = ({
   revealModal,
   modalRevealed,
   alertBarRevealed,
-}: UnitRowProps) => {
+}: UnitRowProps & RouteComponentProps) => {
   const ctaText = headerValue ? 'Change' : noHeaderValueCtaText;
 
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
@@ -42,6 +43,8 @@ export const UnitRow = ({
   // don't redirect focus back to the element that opened the modal
   // because focus will be set in the AlertBar.
   useFocusOnTriggeringElementOnClose(modalRevealed, modalTriggerElement, alertBarRevealed);
+
+  const location = useLocation();
 
   return (
     <div className="unit-row">
@@ -61,13 +64,13 @@ export const UnitRow = ({
       <div className="unit-row-actions">
         <div>
           {route && (
-            <a
+            <Link
               className="cta-neutral transition-standard"
               data-testid="unit-row-route"
-              href={route}
+              to={`${route}${location.search}`}
             >
               {ctaText}
-            </a>
+            </Link>
           )}
 
           {revealModal && (

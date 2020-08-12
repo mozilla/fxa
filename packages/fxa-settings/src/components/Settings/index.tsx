@@ -7,10 +7,11 @@ import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Security from '../Security';
 import UnitRowSecondaryEmail from '../UnitRowSecondaryEmail';
+import { useLocation, RouteComponentProps } from '@reach/router';
 
 import { useAccount } from '../../models';
 
-export const Settings = () => {
+export const Settings = (_: RouteComponentProps) => {
   const {
     primaryEmail,
     displayName,
@@ -37,7 +38,7 @@ export const Settings = () => {
 
           <hr className="unit-row-hr" />
 
-          <UnitRow header="Display name" headerValue={displayName} route="#" />
+          <UnitRow header="Display name" headerValue={displayName} route="/beta/settings/display_name" />
 
           <hr className="unit-row-hr" />
 
@@ -45,7 +46,7 @@ export const Settings = () => {
             header="Password"
             headerValueClassName="tracking-wider"
             headerValue="••••••••••••••••••"
-            route="#"
+             route="/beta/settings/change_password"
           >
             <p className="text-grey-400 text-xs mobileLandscape:mt-3">
               Created {pwdDateText}

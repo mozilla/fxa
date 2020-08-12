@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import Settings from './index';
 import { MockedCache } from '../../models/_mocks';
+import { renderWithRouter } from '../../models/_mocks';
 
 it('renders without imploding', async () => {
-  render(
+  renderWithRouter(
     <MockedCache>
       <Settings />
     </MockedCache>
