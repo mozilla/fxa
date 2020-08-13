@@ -34,7 +34,7 @@ const baseMessage = {
 
 const baseLoginMessage = {
   ...baseMessage,
-  clientId: '123client',
+  clientId: '444c5d137fc34d82ae65441d7f26a504',
   deviceCount: 2,
   email: 'test@testuser.com',
   service: '123-client',
@@ -157,6 +157,17 @@ describe('ServiceNotificationProcessor', () => {
     assert.calledWith(db.storeLogin as SinonSpy, baseLoginMessage.uid, baseLoginMessage.clientId);
   });
 
+  it('normalizes the client id', async () => {
+    const message = Object.assign({}, baseLoginMessage);
+    message.clientId = message.clientId.toUpperCase();
+    updateStubMessage(baseLoginMessage);
+    consumer.start();
+    await pEvent(consumer.app, 'message_processed');
+    consumer.stop();
+    assert.calledOnce(db.storeLogin as SinonSpy);
+    assert.calledWith(db.storeLogin as SinonSpy, baseLoginMessage.uid, baseLoginMessage.clientId);
+  });
+
   const fetchOnValidMessage = {
     'delete message': baseDeleteMessage,
     'legacy subscription message': baseSubscriptionUpdateLegacyMessage,
@@ -180,7 +191,7 @@ describe('ServiceNotificationProcessor', () => {
   }
 
   const invalidMessages = {
-    login: { ...baseLoginMessage, ts: false },
+    login: { ...baseLoginMessage, clientId: 'test1234' },
     'password change': { ...basePasswordChangeMessage, ts: false },
     'password reset': { ...basePasswordResetMessage, ts: false },
     'primary email change': { ...basePrimaryEmailMessage, ts: false },
