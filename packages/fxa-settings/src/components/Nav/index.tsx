@@ -6,7 +6,7 @@ import React from 'react';
 import classNames from 'classnames';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as OpenExternal } from './open-external.svg';
-import { useAccount } from 'fxa-settings/src/models';
+import { useAccount } from '../../models';
 import { RouteComponentProps } from '@reach/router';
 
 const activeClasses = 'bg-grey-100 font-bold text-blue-500 rounded-sm';

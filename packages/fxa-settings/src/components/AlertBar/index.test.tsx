@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react';
-import AlertBar from './index';
+import AlertBar from '.';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 
 describe('AlertBar', () => {

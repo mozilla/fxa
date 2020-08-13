@@ -9,6 +9,10 @@
     @apply font-header w-full mb-1;
   }
 
+  &-multi-row + &-multi-row {
+    @apply mt-4;
+  }
+
   &-content {
     @apply w-full;
   }

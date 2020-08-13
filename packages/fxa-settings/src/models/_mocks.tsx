@@ -14,7 +14,7 @@ import {
 } from '@reach/router';
 import { render } from '@testing-library/react';
 
-const MOCK_ACCOUNT: Account = {
+export const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
   displayName: 'John Dope',
   avatarUrl: 'http://avatars.com/y2k',
