@@ -13,7 +13,7 @@ STORYBOOKS_REPO="${STORYBOOKS_REPO:-mozilla-fxa/storybooks}"
 STORYBOOKS_URL="${STORYBOOKS_URL:-https://mozilla-fxa.github.io/storybooks}"
 STORYBOOKS_BRANCH="${STORYBOOKS_BRANCH:-gh-pages}"
 PUBLISH_ROOT="${PUBLISH_ROOT:-storybooks-publish}"
-MAX_STORYBOOK_AGE="${MAX_STORYBOOK_AGE:-90}"
+MAX_STORYBOOK_AGE="${MAX_STORYBOOK_AGE:-3 weeks ago}"
 
 STORYBOOKS_REPO_URL="https://$STORYBOOKS_GITHUB_TOKEN@github.com/$STORYBOOKS_REPO.git"
 
@@ -78,8 +78,13 @@ if [[ ! -z $CI_PULL_REQUEST ]]; then
 fi;
 
 # Delete storybooks older than 90 days
-find $PUBLISH_ROOT/commits $PUBLISH_ROOT/pulls -mindepth 1 -maxdepth 1 \
-    -type d -ctime +$MAX_STORYBOOK_AGE -exec rm -rf {} \;
+pushd $PUBLISH_ROOT
+DELETE_BEFORE=$(date --date="$MAX_STORYBOOK_AGE" '+%Y-%m-%d')
+git log --before $DELETE_BEFORE --name-only commits/ | grep '^commits/.*/' | \
+    cut -d/ -f1-2 | sort | uniq | xargs rm -rf
+git log --before $DELETE_BEFORE --name-only pulls/ | grep '^pulls/.*/' | \
+    cut -d/ -f1-2 | sort | uniq | xargs rm -rf
+popd
 
 # Build index.html for root, commits, and pulls
 ./_scripts/build-storybooks-indexes.js $PUBLISH_ROOT

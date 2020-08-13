@@ -8,11 +8,12 @@ const reqFromComponents = require.context(
   true,
   /\.stories.tsx?$/
 );
+
 const reqFromRoutes = require.context('../src/routes', true, /\.stories.tsx?$/);
 
 function loadStories() {
-  [reqFromComponents, reqFromRoutes].forEach(req =>
-    req.keys().forEach(filename => req(filename))
+  [reqFromComponents, reqFromRoutes].forEach((req) =>
+    req.keys().forEach((filename) => req(filename))
   );
 }
 
