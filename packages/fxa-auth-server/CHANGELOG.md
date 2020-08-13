@@ -1,3 +1,10 @@
+## 1.184.0
+
+### Bug fixes
+
+- payments: do not send payment failure emails during subscription creation flow ([5eb89ef66](https://github.com/mozilla/fxa/commit/5eb89ef66))
+- payments: send subscription download email along with initial invoice ([d080dad75](https://github.com/mozilla/fxa/commit/d080dad75))
+
 ## 1.183.1
 
 No changes.

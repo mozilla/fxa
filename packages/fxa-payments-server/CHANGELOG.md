@@ -1,5 +1,12 @@
 # Change history
 
+## 1.184.0
+
+### Bug fixes
+
+- payments: ensure SCA payment update uses same error as subscription create ([b8132570e](https://github.com/mozilla/fxa/commit/b8132570e))
+- style: Update 404 pages paragraph styles ([f91e5768c](https://github.com/mozilla/fxa/commit/f91e5768c))
+
 ## 1.183.1
 
 No changes.

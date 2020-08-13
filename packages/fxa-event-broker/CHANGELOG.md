@@ -1,5 +1,11 @@
 # Change history
 
+## 1.184.0
+
+### New features
+
+- event-broker: prevent invalid client ids ([48357db16](https://github.com/mozilla/fxa/commit/48357db16))
+
 ## 1.183.1
 
 No changes.
