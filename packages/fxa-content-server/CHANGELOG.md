@@ -1,3 +1,15 @@
+## 1.184.0
+
+### New features
+
+- settings: metrics reporting ([aa3a9060c](https://github.com/mozilla/fxa/commit/aa3a9060c))
+- settings: display alert messages from login in new settings ([4de585d4d](https://github.com/mozilla/fxa/commit/4de585d4d))
+- router: Add react router support to settings ([6081c19b6](https://github.com/mozilla/fxa/commit/6081c19b6))
+
+### Bug fixes
+
+- style: Update 404 pages paragraph styles ([f91e5768c](https://github.com/mozilla/fxa/commit/f91e5768c))
+
 ## 1.183.1
 
 ### Bug fixes
