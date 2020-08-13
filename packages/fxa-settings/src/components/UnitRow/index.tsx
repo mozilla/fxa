@@ -5,7 +5,7 @@
 import React, { useRef } from 'react';
 import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
-import {Link, RouteComponentProps, useLocation} from '@reach/router';
+import { Link, RouteComponentProps, useLocation } from '@reach/router';
 
 type UnitRowProps = {
   header: string;

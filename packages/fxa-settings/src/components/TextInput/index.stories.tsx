@@ -11,27 +11,28 @@ storiesOf('Components|TextInput', module)
     <div className="p-10 max-w-lg">
       <div className="mb-3">
         <TextInput
-          label="Default label"
+          label="Default label (with error tooltip)"
           placeholder="Here's a suggestion"
-          type="text"
+          errorText="This is some error text"
         />
+      </div>
+      <div className="mb-3">
+        <TextInput label="Default label" placeholder="Here's a suggestion" />
       </div>
       <div className="mb-3">
         <TextInput
           label="Label with value"
           placeholder="Here's a suggestion"
           defaultValue="This is the value"
-          type="text"
         />
       </div>
       <div className="mb-3">
-        <TextInput label="This one's disabled" type="text" disabled />
+        <TextInput label="This one's disabled" disabled />
       </div>
       <div className="mb-3">
         <TextInput
           label="This one's disabled"
           defaultValue="But it has a value"
-          type="text"
           disabled
         />
       </div>
@@ -40,7 +41,6 @@ storiesOf('Components|TextInput', module)
           label="Label that is extremely long because you never know what some languages are going to produce with the sentence you give them"
           placeholder="Hope it works!"
           defaultValue="wow"
-          type="text"
         />
       </div>
     </div>

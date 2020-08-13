@@ -3,23 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { UnitRow } from '../UnitRow';
 import LinkExternal from 'fxa-react/components/LinkExternal';
+import { UnitRow } from '../UnitRow';
+import { useAccount } from '../../models';
 
 type SecurityProps = {
   twoFactorAuthEnabled: boolean;
-  accountRecoveryKeyEnabled: boolean;
   className?: string;
 };
 
-export const Security = ({
-  twoFactorAuthEnabled,
-  accountRecoveryKeyEnabled,
-}: SecurityProps) => {
+export const Security = ({ twoFactorAuthEnabled }: SecurityProps) => {
   const getValue = (settingOption: boolean) =>
     settingOption ? 'Enabled' : 'Not Set';
   const getClassName = (settingOption: boolean) =>
     settingOption ? 'text-green-800' : '';
+
+  const { recoveryKey } = useAccount();
 
   return (
     <section className="mt-11" id="security" data-testid="settings-security">
@@ -27,8 +26,8 @@ export const Security = ({
       <div className="bg-white tablet:rounded-xl shadow">
         <UnitRow
           header="Recovery key"
-          headerValueClassName={getClassName(accountRecoveryKeyEnabled)}
-          headerValue={getValue(accountRecoveryKeyEnabled)}
+          headerValueClassName={getClassName(recoveryKey)}
+          headerValue={getValue(recoveryKey)}
           route="/beta/settings/account_recovery"
         >
           <p className="text-sm mt-3">
