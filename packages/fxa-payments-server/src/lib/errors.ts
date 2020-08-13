@@ -79,6 +79,7 @@ const paymentErrors1 = [
   'reenter_transaction',
   'try_again_later',
   'payment_intent_authentication_failure',
+  'setup_intent_authentication_failure',
   'processing_error',
 ];
 

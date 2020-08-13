@@ -8,3 +8,9 @@ it('returns the basic error text if not predefined error type', () => {
 it('returns the payment error text for the correct error type', () => {
   expect(getErrorMessage('approve_with_id')).toEqual(PAYMENT_ERROR_1);
 });
+
+it('returns the payment error text for setup intent authentication failure', () => {
+  expect(getErrorMessage('setup_intent_authentication_failure')).toEqual(
+    PAYMENT_ERROR_1
+  );
+});
