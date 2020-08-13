@@ -2269,21 +2269,27 @@ describe('DirectStripeRoutes', () => {
     });
 
     describe('handleInvoicePaymentFailedEvent', () => {
-      it('sends email and emits a notification when an invoice payment fails', async () => {
-        const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
-        const sendSubscriptionPaymentFailedEmailStub = sandbox
+      const mockSubscription = {
+        id: 'test1',
+        plan: { product: 'test2' },
+      };
+      let sendSubscriptionPaymentFailedEmailStub;
+
+      beforeEach(() => {
+        sendSubscriptionPaymentFailedEmailStub = sandbox
           .stub(
             directStripeRoutesInstance,
             'sendSubscriptionPaymentFailedEmail'
           )
           .resolves(true);
-        const mockSubscription = {
-          id: 'test1',
-          plan: { product: 'test2' },
-        };
         directStripeRoutesInstance.stripeHelper.expandResource.resolves(
           mockSubscription
         );
+      });
+
+      it('sends email and emits a notification when an invoice payment fails', async () => {
+        const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
+        paymentFailedEvent.data.object.billing_reason = 'subscription_cycle';
         await directStripeRoutesInstance.handleInvoicePaymentFailedEvent(
           {},
           paymentFailedEvent
@@ -2293,6 +2299,16 @@ describe('DirectStripeRoutes', () => {
           paymentFailedEvent.data.object
         );
         assert.notCalled(stubSendSubscriptionStatusToSqs);
+      });
+
+      it('does not send email during subscription creation flow', async () => {
+        const paymentFailedEvent = deepCopy(eventInvoicePaymentFailed);
+        paymentFailedEvent.data.object.billing_reason = 'subscription_create';
+        await directStripeRoutesInstance.handleInvoicePaymentFailedEvent(
+          {},
+          paymentFailedEvent
+        );
+        assert.notCalled(sendSubscriptionPaymentFailedEmailStub);
       });
     });
 

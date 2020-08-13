@@ -998,6 +998,10 @@ class DirectStripeRoutes {
     event: Stripe.Event
   ) {
     const invoice = event.data.object as Stripe.Invoice;
+    if (invoice.billing_reason !== 'subscription_cycle') {
+      // Send payment failure emails only when processing a subscription renewal.
+      return;
+    }
     const { uid, email } = await this.sendSubscriptionPaymentFailedEmail(
       invoice
     );
