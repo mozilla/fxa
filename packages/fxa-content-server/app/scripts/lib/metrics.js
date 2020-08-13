@@ -509,6 +509,15 @@ _.extend(Metrics.prototype, Backbone.Events, {
     });
   },
 
+  /**
+   * Get a value from filtered data
+   *
+   * @returns {*}
+   */
+  getFilteredValue(key) {
+    return this.getFilteredData()[key];
+  },
+
   _send(data, isPageUnloading) {
     const url = `${this._collector}/metrics`;
     const payload = JSON.stringify(data);

@@ -44,6 +44,7 @@ describe('views/get_flow', function () {
     sinon.stub(view, 'initializeFlowEvents');
     sinon.stub(view, 'navigateAway');
     sinon.stub(view.metrics, 'getFlowEventMetadata').returns(flowData);
+    sinon.stub(view.metrics, 'getFilteredValue').returns('foo');
 
     sinon.stub(view.window.console, 'error');
   });
@@ -52,17 +53,20 @@ describe('views/get_flow', function () {
     $(view.el).remove();
     view.window.console.error.restore();
     view.metrics.getFlowEventMetadata.restore();
+    view.metrics.getFilteredValue.restore();
     view.destroy();
     view = null;
   });
 
   describe('render with proper params', () => {
     const betaSettingsPath = '/beta/settings';
-    let queryParams = {
-      device_id: flowData.deviceId,
-      flow_begin_time: flowData.flowBeginTime,
-      flow_id: flowData.flowId,
-    };
+    let queryParams = Object.assign(flowData, {
+      broker: 'foo',
+      context: 'foo',
+      isSampledUser: 'foo',
+      service: 'foo',
+      uniqueUserId: 'foo',
+    });
 
     describe('correct redirect_path', () => {
       beforeEach(() => {

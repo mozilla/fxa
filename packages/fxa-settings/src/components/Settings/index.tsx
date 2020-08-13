@@ -9,6 +9,8 @@ import Security from '../Security';
 import UnitRowSecondaryEmail from '../UnitRowSecondaryEmail';
 import { RouteComponentProps } from '@reach/router';
 import AlertExternal from '../AlertExternal';
+import * as Metrics from '../../lib/metrics';
+
 import { useAccount } from '../../models';
 
 export const Settings = (_: RouteComponentProps) => {
@@ -18,7 +20,13 @@ export const Settings = (_: RouteComponentProps) => {
     avatarUrl,
     passwordCreated,
     recoveryKey,
+    uid,
   } = useAccount();
+
+  Metrics.setProperties({
+    lang: document.querySelector('html')?.getAttribute('lang'),
+    uid,
+  });
 
   const pwdDateText = Intl.DateTimeFormat('default', {
     year: 'numeric',

@@ -8,8 +8,13 @@ type hexstring = string;
 
 type Hash<T> = { [key: string]: T };
 
-interface QueryParams {
-  device_id?: string;
-  flow_id?: string;
-  flow_begin_time?: number;
+interface FlowQueryParams {
+  broker?: string;
+  context?: string;
+  deviceId?: string;
+  flowBeginTime?: number;
+  flowId?: string;
+  isSampledUser?: boolean;
+  service?: string;
+  uniqueUserId?: string;
 }

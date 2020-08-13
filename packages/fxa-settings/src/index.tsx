@@ -22,14 +22,16 @@ try {
 
   const authClient = createAuthClient(config.servers.auth.url);
   const apolloClient = createApolloClient(config.servers.gql.url);
-  const queryParams = searchParams(window.location.search);
+  const flowQueryParams = searchParams(
+    window.location.search
+  ) as FlowQueryParams;
 
   render(
     <React.StrictMode>
       <ApolloProvider client={apolloClient}>
         <AuthContext.Provider value={{ auth: authClient }}>
           <AppErrorBoundary>
-            <App {...{ queryParams }} />
+            <App {...{ flowQueryParams }} />
           </AppErrorBoundary>
         </AuthContext.Provider>
       </ApolloProvider>
