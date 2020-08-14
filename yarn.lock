@@ -2481,17 +2481,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hoek@npm:9.x.x, @hapi/hoek@npm:^9.0.0, @hapi/hoek@npm:^9.0.2, @hapi/hoek@npm:^9.0.4":
+"@hapi/hoek@npm:9.x.x, @hapi/hoek@npm:^9.0.0, @hapi/hoek@npm:^9.0.2, @hapi/hoek@npm:^9.0.3, @hapi/hoek@npm:^9.0.4":
   version: 9.0.4
   resolution: "@hapi/hoek@npm:9.0.4"
   checksum: d000f60d5e30db7ed2b838a7ec4a757542f04036c8eb431328fd1139f3f7dbd400a2c7d86acbbaf8b8da11dee6f8ae706f6d88bd71c02b3c5f16fd3f6223aa09
-  languageName: node
-  linkType: hard
-
-"@hapi/hoek@npm:^6.2.1":
-  version: 6.2.4
-  resolution: "@hapi/hoek@npm:6.2.4"
-  checksum: 4a54f7ff426d2478229167409492579c5e11e393af784026b701f1c913d676d934fb131358776d1ce9e643d1a026dcbc3c1e03226984c31ba52227990e984de3
   languageName: node
   linkType: hard
 
@@ -2522,7 +2515,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:15.x.x, @hapi/joi@npm:^15.0.0, @hapi/joi@npm:^15.0.1, @hapi/joi@npm:^15.1.1":
+"@hapi/joi@npm:15.x.x, @hapi/joi@npm:^15.0.0, @hapi/joi@npm:^15.1.1":
   version: 15.1.1
   resolution: "@hapi/joi@npm:15.1.1"
   dependencies:
@@ -2547,7 +2540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:17.x.x, @hapi/joi@npm:^17.1.1":
+"@hapi/joi@npm:17.x.x, @hapi/joi@npm:^17.1.0, @hapi/joi@npm:^17.1.1":
   version: 17.1.1
   resolution: "@hapi/joi@npm:17.1.1"
   dependencies:
@@ -4565,10 +4558,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/bluebird@npm:^3.5.28":
-  version: 3.5.30
-  resolution: "@types/bluebird@npm:3.5.30"
-  checksum: 5b96760ccff03518fb176d7aac285c8d2e3a6a3a3b1de07a46e7a75c5aa89e71d4dc175cbefd07b92f1351271540893746638e6166214438965df598db0f725c
+"@types/bluebird@npm:^3.5.32":
+  version: 3.5.32
+  resolution: "@types/bluebird@npm:3.5.32"
+  checksum: 92c0baae50feaecb43c1b592829dcbe832b4440110a98cf9ae761e758c6d80843ca7bbd0ecb867e7c470658c52858a53b5700bca5598bce81a713f64f6a5cf41
   languageName: node
   linkType: hard
 
@@ -4954,12 +4947,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/hapi__joi@npm:15.0.1":
-  version: 15.0.1
-  resolution: "@types/hapi__joi@npm:15.0.1"
-  dependencies:
-    "@types/hapi__joi": "*"
-  checksum: 585ab76db8dcb3c2f6f04804dc0324f8e4c7c3e34b5e332937a34e3517ba6bcae02a64df3b993f66c343d88f4be760d1d550cd9853a936d5591ffbc6f6f97fa5
+"@types/hapi__joi@npm:17.1.4":
+  version: 17.1.4
+  resolution: "@types/hapi__joi@npm:17.1.4"
+  checksum: ffd3c81bdbdf6dfa0f3f4905f62340bd4dd23479d2eea1eafbdaf19440fb67641690047090a2f6472c654c0b7db9c16f0ef813764bf25808abbcad06530751e3
   languageName: node
   linkType: hard
 
@@ -9005,13 +8996,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"blankie@npm:^4.1.1":
-  version: 4.1.1
-  resolution: "blankie@npm:4.1.1"
+"blankie@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "blankie@npm:5.0.0"
   dependencies:
-    "@hapi/hoek": ^6.2.1
-    "@hapi/joi": ^15.0.0
-  checksum: 6d941543b089df3b94728be436e85afbfe9354dc9aa310a3764b89a390780b65e9148cfd0d19a1d48df40401a377edfca75f9b33ba5587869c84d59f00997c5f
+    "@hapi/hoek": ^9.0.3
+    "@hapi/joi": ^17.1.0
+  checksum: f8c03a0ae52179daf38dc829a18f4ee24c4ea8d847fee34b50ac521da8284175cae2e69d2d34a8b98270bbcd0b0eaba4bdd5286ea0d82769839b02a38ecd785b
   languageName: node
   linkType: hard
 
@@ -16762,40 +16753,40 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-support-panel@workspace:packages/fxa-support-panel"
   dependencies:
-    "@hapi/hapi": ^19.1.1
-    "@hapi/joi": ^15.0.1
+    "@hapi/hapi": ^20.0.0
+    "@hapi/joi": ^17.1.1
     "@hapi/scooter": ^6.0.0
-    "@types/bluebird": ^3.5.28
+    "@types/bluebird": ^3.5.32
     "@types/convict": ^5.2.1
-    "@types/eslint": 6.8.1
-    "@types/hapi__hapi": ^19.0.3
-    "@types/hapi__joi": 15.0.1
-    "@types/mocha": ^7.0.2
+    "@types/eslint": 7.2.0
+    "@types/hapi__hapi": ^19.0.4
+    "@types/hapi__joi": 17.1.4
+    "@types/mocha": ^8.0.2
     "@types/node": ^12.12.7
     "@types/request-promise-native": ^1.0.17
     audit-filter: ^0.5.0
-    blankie: ^4.1.1
+    blankie: ^5.0.0
     chai: ^4.2.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
-    eslint: ^6.8.0
+    eslint: ^7.6.0
     fxa-conventional-changelog: 1.1.0
     fxa-shared: "workspace:*"
-    handlebars: ^4.5.2
-    mocha: ^7.1.2
-    mozlog: 2.2.0
-    nock: ^12.0.3
+    handlebars: ^4.7.6
+    mocha: ^8.1.1
+    mozlog: 3.0.1
+    nock: ^13.0.4
     pm2: ^4.4.0
     prettier: ^2.0.5
     request: ^2.88.2
-    request-promise-native: ^1.0.8
-    semver: ^6.3.0
-    sinon: ^9.0.2
-    ts-node: ^8.10.1
+    request-promise-native: ^1.0.9
+    semver: ^7.3.2
+    sinon: ^9.0.3
+    ts-node: ^8.10.2
     ts-sinon: ^1.2.0
-    typesafe-joi: ^2.0.6
-    typescript: 3.8.3
+    typesafe-joi: ^2.1.0
+    typescript: 3.9.7
   languageName: unknown
   linkType: soft
 
@@ -18042,7 +18033,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"handlebars@npm:^4.5.2, handlebars@npm:^4.5.3":
+"handlebars@npm:^4.5.2, handlebars@npm:^4.5.3, handlebars@npm:^4.7.6":
   version: 4.7.6
   resolution: "handlebars@npm:4.7.6"
   dependencies:
@@ -23819,7 +23810,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mozlog@npm:^3.0.1":
+"mozlog@npm:3.0.1, mozlog@npm:^3.0.1":
   version: 3.0.1
   resolution: "mozlog@npm:3.0.1"
   dependencies:
@@ -33588,7 +33579,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"typesafe-joi@npm:^2.0.6, typesafe-joi@npm:^2.1.0":
+"typesafe-joi@npm:^2.1.0":
   version: 2.1.0
   resolution: "typesafe-joi@npm:2.1.0"
   dependencies:
