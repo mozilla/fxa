@@ -50,13 +50,13 @@
     "mkdirp": "0.5.1",
     "mocha": "^7.1.2",
     "mocha-text-cov": "0.1.1",
-    "nock": "^12.0.3",
+    "nock": "^13.0.4",
     "nyc": "^15.0.1",
     "pm2": "^4.4.0",
     "pngparse": "2.0.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "sinon": "^9.0.2",
+    "sinon": "^9.0.3",
     "through": "2.3.8"
   },
   "repository": {
