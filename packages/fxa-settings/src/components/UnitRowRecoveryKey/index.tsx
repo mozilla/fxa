@@ -60,7 +60,6 @@ export const UnitRowRecoveryKey = () => {
           : '/beta/settings/account_recovery/confirm_password'
       }
       revealModal={recoveryKey ? revealModal : undefined}
-      modalRevealed={recoveryKey ? modalRevealed : undefined}
       ctaText={recoveryKey ? 'Remove' : 'Create'}
       alertBarRevealed
     >
@@ -78,10 +77,8 @@ export const UnitRowRecoveryKey = () => {
           <Modal
             onDismiss={hideModal}
             onConfirm={deleteRecoveryKey}
-            // TODO - Uncomment these two
-            // lines once #6302 is merged
-            // confirmBtnClassName="cta-caution"
-            // confirmText="Remove"
+            confirmBtnClassName="cta-caution"
+            confirmText="Remove"
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >

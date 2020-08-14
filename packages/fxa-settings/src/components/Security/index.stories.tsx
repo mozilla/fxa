@@ -11,12 +11,12 @@ import { MockedCache } from '../../models/_mocks';
 storiesOf('Components|Security', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
-    <MockedCache account={{ recoveryKey: false }}>
-      <Security twoFactorAuthEnabled={false} />
+    <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
+      <Security />
     </MockedCache>
   ))
   .add('account recovery key set and two factor enabled', () => (
-    <MockedCache>
-      <Security twoFactorAuthEnabled={true} />
+    <MockedCache account={{ recoveryKey: true, totp: { exists: true } }}>
+      <Security />
     </MockedCache>
   ));

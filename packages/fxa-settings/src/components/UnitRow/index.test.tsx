@@ -83,4 +83,22 @@ describe('UnitRow', () => {
       'Create'
     );
   });
+
+  it('renders `secondaryCtaText`', () => {
+    renderWithRouter(
+      <UnitRow
+        header="Display name"
+        headerValue="Fred Flinstone"
+        route="/display_name"
+        revealSecondaryModal={() => {}}
+      />
+    );
+
+    expect(screen.getByTestId('unit-row-route').textContent).toContain(
+      'Change'
+    );
+    expect(screen.getByTestId('unit-row-modal').textContent).toContain(
+      'Disable'
+    );
+  });
 });
