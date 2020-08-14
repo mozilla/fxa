@@ -127,7 +127,7 @@ export type FieldType = 'input' | 'stripe';
 type FieldStateKeys = 'fieldType' | 'value' | 'required' | 'valid' | 'error';
 type FieldState = {
   fieldType: FieldType;
-  value: any;
+  value?: any;
   required: boolean;
   valid: boolean | undefined | null;
   error: string | null;
