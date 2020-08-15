@@ -16701,6 +16701,7 @@ fsevents@^1.2.7:
     "@types/node": ^12.12.35
     "@types/react": ^16.9.34
     "@types/react-dom": ^16.9.6
+    "@types/uuid": ^7.0.2
     "@types/webpack": 4.41.16
     babel-loader: ^8.0.0
     classnames: ^2.2.6
@@ -16723,6 +16724,7 @@ fsevents@^1.2.7:
     subscriptions-transport-ws: ^0.9.11
     tailwindcss: ^1.4.6
     typescript: 3.9.7
+    uuid: ^8.3.0
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft

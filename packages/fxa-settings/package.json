@@ -43,7 +43,8 @@
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
     "subscriptions-transport-ws": "^0.9.11",
-    "typescript": "3.9.7"
+    "typescript": "3.9.7",
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "@babel/core": "^7.10.3",
@@ -64,6 +65,7 @@
     "@types/node": "^12.12.35",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "@types/uuid": "^7.0.2",
     "@types/webpack": "4.41.16",
     "babel-loader": "^8.0.0",
     "eslint": "^6.8.0",

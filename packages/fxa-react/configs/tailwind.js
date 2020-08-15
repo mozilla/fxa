@@ -32,6 +32,7 @@ module.exports = {
         4: '4',
         5: '5',
         7: '7',
+        '50%': '50%',
         '80px': '0 0 80px',
       },
       width: {
@@ -40,14 +41,32 @@ module.exports = {
       minWidth: {
         sm: '27rem',
       },
+      minHeight: {
+        24: '6rem',
+      },
       maxWidth: {
         mobileLandscape: '480px',
         tablet: '768px',
         desktop: '1024px',
         desktopXl: '1441px',
+        48: '12rem',
       },
       inset: {
         '1/2': '50%',
+        '-px': '-1px',
+      },
+      boxShadow: {
+        // Specific-use focus shadows for input elements
+        'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
+        'input-grey-focus': '0 0 0 1px #6D6D6E, 0 0 0 3px #E7E7E7',
+      },
+      scale: {
+        '80': '.8',
+      },
+      backgroundOpacity: {
+        '10': '0.1',
+        '20': '0.2',
+        '30': '0.3',
       },
     },
     screens: {
@@ -223,6 +242,12 @@ module.exports = {
   variants: {
     width: ['responsive', 'hover', 'focus'],
     height: ['responsive', 'hover', 'focus'],
+    textColor: ['responsive', 'hover', 'focus', 'active', 'disabled'],
+    borderColor: ['responsive', 'hover', 'focus', 'disabled'],
+    backgroundColor: ['responsive', 'hover', 'focus', 'disabled'],
+    backgroundOpacity: ['hover', 'focus', 'active'],
+    placeholderColor: ['responsive', 'focus', 'disabled'],
+    cursor: ['responsive', 'disabled'],
   },
   plugins: [
     plugin(function ({ addUtilities }) {
