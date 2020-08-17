@@ -21,12 +21,14 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
       <ContentSkip />
       <HeaderLockup />
       <div className="max-w-screen-desktopXl w-full mx-auto flex flex-1 tablet:px-20 desktop:px-12">
-        <div className="hidden desktop:block desktop:flex-2">
-          <Router primary={false} basepath="/beta/settings">
-            <Nav path="/" />
-          </Router>
-        </div>
-        <main id="main" data-testid="main" className="desktop:flex-7">
+        <Router
+          className="hidden desktop:block desktop:flex-2"
+          primary={false}
+          basepath="/beta/settings"
+        >
+          <Nav path="/" />
+        </Router>
+        <main id="main" data-testid="main" className="flex-7">
           <div
             id="alert-bar-root"
             data-testid="alert-bar-root"

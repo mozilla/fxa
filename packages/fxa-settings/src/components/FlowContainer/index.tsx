@@ -3,35 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { RouteComponentProps, useLocation, Link } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 import { ReactComponent as BackArrow } from './back-arrow.svg';
 
 type FlowContainerProps = {
   title?: string;
-  backRoute?: string;
-  children?: React.ReactElement;
+  children?: React.ReactNode;
 };
 
 export const FlowContainer = ({
   title,
-  backRoute,
   children,
 }: FlowContainerProps & RouteComponentProps) => {
-  const location = useLocation();
-  const backRoutePath =
-    (backRoute ? backRoute : '/beta/settings') + location.search;
   return (
-    <div className="flex" data-testid="flow-container">
-      <Link
-        to={backRoutePath}
-        className="pt-7 pr-6"
-        data-testid="flow-container-back-btn"
-      >
-        <BackArrow role="img" className="inline h-8 w-8" />
-      </Link>
-      <div className="bg-white shadow container pl-6 pr-10 pb-10">
-        <h1 className="font-header pt-8 pb-4">{title}</h1>
-        <div>{children}</div>
+    <div
+      className="mx-2 tablet:mt-12 tablet:mx-24 desktop:mx-56"
+      data-testid="flow-container"
+    >
+      <div className="flex items-start bg-white shadow py-8 px-6 rounded-xl">
+        <button
+          onClick={() => window.history.back()}
+          className="pr-6 desktop:pl-6 desktop:-ml-24"
+          data-testid="flow-container-back-btn"
+        >
+          <BackArrow role="img" className="inline h-8 w-8" />
+        </button>
+        <div className="desktop:ml-4">
+          <h1 className="font-header">{title}</h1>
+          <div>{children}</div>
+        </div>
       </div>
     </div>
   );
