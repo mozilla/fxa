@@ -8,8 +8,6 @@ import PasswordInput from './index';
 
 storiesOf('Components|PasswordInput', module).add('default', () => (
   <div className="p-10 max-w-lg">
-    <div className="mb-3">
-      <PasswordInput label="You think you know how to password? Enter it here." />
-    </div>
+    <PasswordInput label="You think you know how to password? Enter it here." />
   </div>
 ));

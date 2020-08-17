@@ -2,70 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, {
-  FocusEvent,
-  MouseEvent,
-  useEffect,
-  useState,
-  useCallback,
-  ChangeEvent,
-} from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import React, { MouseEvent, useState, useCallback, ChangeEvent } from 'react';
 import { ReactComponent as Checkmark } from './checkmark.svg';
 
 export type CheckboxProps = {
   defaultChecked?: boolean;
   disabled?: boolean;
-  id?: string;
   label?: string;
   onClick?: (event: MouseEvent<HTMLInputElement>) => void;
-  onBlur?: (event: FocusEvent<HTMLInputElement>) => void;
-  onFocus?: (event: FocusEvent<HTMLInputElement>) => void;
-  onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
-  readerText?: string;
 };
 
 export const Checkbox = ({
   defaultChecked,
   disabled,
-  id,
   label,
-  onClick,
-  onBlur,
-  onFocus,
-  onChange,
-  readerText,
 }: CheckboxProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(defaultChecked === true);
   const [hovered, setHovered] = useState<boolean>(false);
-  const [checkboxId, setCheckboxId] = useState<string | undefined>(id);
-  const readerId = `${checkboxId}-sr`;
 
-  useEffect(() => {
-    !checkboxId && setCheckboxId(uuidv4());
-  }, [checkboxId, id]);
+  const checkboxFocus = useCallback(() => {
+    setFocussed(true);
+  }, [focussed]);
 
-  const checkboxFocus = useCallback(
-    (event: FocusEvent<HTMLInputElement>) => {
-      setFocussed(true);
-      onFocus && onFocus(event);
-    },
-    [focussed]
-  );
-
-  const checkboxBlur = useCallback(
-    (event: FocusEvent<HTMLInputElement>) => {
-      setFocussed(false);
-      onBlur && onBlur(event);
-    },
-    [focussed]
-  );
+  const checkboxBlur = useCallback(() => {
+    setFocussed(false);
+  }, [focussed]);
 
   const checkboxChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setChecked(event.target.checked);
-      onChange && onChange(event);
     },
     [checked]
   );
@@ -85,8 +51,6 @@ export const Checkbox = ({
         <input
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           type="checkbox"
-          id={checkboxId}
-          aria-describedby={readerText ? readerId : undefined}
           onFocus={checkboxFocus}
           onBlur={checkboxBlur}
           onChange={checkboxChange}
@@ -94,7 +58,6 @@ export const Checkbox = ({
           {...{
             defaultChecked,
             disabled,
-            onClick,
           }}
         />
         <span
@@ -129,11 +92,6 @@ export const Checkbox = ({
       {label && (
         <span data-testid="checkbox-label" className="text-sm ml-3 font-body">
           {label}
-        </span>
-      )}
-      {readerText && (
-        <span data-testid="checkbox-srtext" className="sr-only" id={readerId}>
-          {readerText}
         </span>
       )}
     </label>
