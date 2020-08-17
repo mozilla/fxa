@@ -353,5 +353,71 @@ describe('accountResolver', () => {
         });
       });
     });
+
+    describe('verifySecondaryEmail', async () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.recoveryEmailSecondaryVerifyCode.resolves(
+          true
+        );
+        const query = `mutation {
+          verifySecondaryEmail(input: {clientMutationId: "testid", email: "test@example.com", code: "ABCD1234"}) {
+            clientMutationId
+          }
+        }`;
+        context.session.uid = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.verifySecondaryEmail);
+        assert.deepEqual(result.data.verifySecondaryEmail, {
+          clientMutationId: 'testid',
+        });
+      });
+    });
+
+    describe('sendSessionVerificationCode', async () => {
+      it('succeeds', async () => {
+        context.dataSources.authAPI.sessionResendVerifyCode.resolves(true);
+        const query = `mutation {
+          sendSessionVerificationCode(input: {clientMutationId: "testid"}) {
+            clientMutationId
+          }
+        }`;
+        context.session.uid = USER_1.uid;
+        const result = (await graphql(
+          schema,
+          query,
+          undefined,
+          context
+        )) as any;
+        assert.isDefined(result.data);
+        assert.isDefined(result.data.sendSessionVerificationCode);
+        assert.deepEqual(result.data.sendSessionVerificationCode, {
+          clientMutationId: 'testid',
+        });
+      });
+    });
+  });
+
+  describe('verifySession', async () => {
+    it('succeeds', async () => {
+      context.dataSources.authAPI.sessionVerifyCode.resolves(true);
+      const query = `mutation {
+        verifySession(input: {clientMutationId: "testid", code: "ABCD1234"}) {
+          clientMutationId
+        }
+      }`;
+      context.session.uid = USER_1.uid;
+      const result = (await graphql(schema, query, undefined, context)) as any;
+      assert.isDefined(result.data);
+      assert.isDefined(result.data.verifySession);
+      assert.deepEqual(result.data.verifySession, {
+        clientMutationId: 'testid',
+      });
+    });
   });
 });

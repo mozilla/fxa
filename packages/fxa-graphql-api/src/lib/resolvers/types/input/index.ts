@@ -9,3 +9,6 @@ export { AttachedClientDisconnectInput } from './attached-client-disconnect';
 export { ChangeRecoveryCodesInput } from './change-recovery-codes';
 export { DeleteTotpInput } from './delete-totp';
 export { VerifyTotpInput } from './verify-totp';
+export { VerifyEmailInput } from './verify-email';
+export { SendSessionVerificationInput } from './send-session-verification';
+export { VerifySessionInput } from './verify-session';
