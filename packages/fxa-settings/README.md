@@ -1,6 +1,6 @@
 # Firefox Accounts Settings
 
-This documentation is up to date as of 2020-08-03.
+This documentation is up to date as of 2020-08-20.
 
 ## Development
 
@@ -8,6 +8,75 @@ This documentation is up to date as of 2020-08-03.
 - `yarn build` to create a production build
 - `yarn test` to run unit tests
 - `yarn storybook` to open Storybook
+
+### GQL and REST API Calls
+
+FxA Settings communicates primarily with the FxA GraphQL API through use of [Apollo Client](https://www.apollographql.com/docs/react/) to indirectly interact with the `fxa-auth-server`. Requests that simply retrieve data are called queries and all other interaction requests are called mutations. See the [GQL documentation](https://graphql.org/learn/) to learn more. See ([he documentation for `fxa-graphql-api`](https://github.com/mozilla/fxa/tree/main/packages/fxa-graphql-api) to connect to the playground, a place to view the API docs and schema, and to write and test queries and mutations before using them in a component.
+
+While most API calls can be performed with GQL, there are a few calls that must directly communicate with the auth server (for now) for security reasons. To make REST API calls to the auth server, use the `useAuth` and `useAwait` hooks.
+
+### Global Application Data
+
+This application uses [Apollo client cache](https://www.apollographql.com/docs/react/caching/cache-configuration/) to store app-global state, holding both data received from the GQL server and [local data](https://www.apollographql.com/docs/tutorial/local-state/) that needs to be globally accessible. You can see the shape of this data in the schema found within the `GetInitialState` query, noting that a `@client` directive denotes local data.
+
+Access the client cache data in top-level objects via custom `use` hooks. At the time of writing, `useAccount` and `useSession` (see the `VerifiedSessionGuard` section) will allow you to access `data.account` and `data.session` respectively inside components where that data is needed. See the "Testing" section of this doc for how to mock calls.
+
+#### `AlertBar` and `AlertExternal`
+
+##### AlertBar
+
+The `AlertBar` is used to display messages to the user, typically for communicating success or error messages back to the user. `<div id="alert-bar-root"></div>` is located just below the layout header and serves as the parent for where this component renders in the DOM via a React [Portal](https://reactjs.org/docs/portals.html) and an `AlertBarContext` which holds a reference to `alert-bar-root`.
+
+A basic example for displaying the component:
+
+```
+const MyComponent = () => {
+  /* `alertBarRevealed` will return `false` on first render. `revealAlertBar` and `hideAlertBar`
+   * are functions - call `revealAlertBar` when you need `alertBarRevealed` to be `true` and
+   * call `hideAlertBar` when it should be `false`. You'll typically pass `hideAlertBar` into
+   * `AlertBar` as the `onDismiss` prop.
+  */
+  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
+
+  return(
+    <>
+    {alertBarRevealed &&
+      <AlertBar onDismiss={hideAlertBar}>
+        <p>Alert bar text!</p>
+      </AlertBar>
+    }
+      <div>
+        <button
+          onClick={revealAlertBar}
+        >Click here to see the AlertBar!
+        </button>
+      </div>
+    </>
+  );
+}
+```
+
+See the "Testing" section for mocking the `AlertBar`.
+
+##### `AlertExternal`
+
+Some actions from the `fxa-content-server` need to display an alert message on the settings page, such as when a user has successfully verified their primary email in the login flow. To display the message across the "app boundary" between the content server and `fxa-settings`, a message is stored in `localStorage` and whichever app sees it first will display the message and then remove it from `localStorage`.
+
+If `fxa-settings` checks `localStorage` first, it stores the string in the Apollo client cache local state variable `alertTextExternal`, displays it in the `AlertBar` through the `AlertExternal` component, and clears the text.
+
+### Sessions and `VerifiedSessionGuard`
+
+Users cannot access the settings page if their primary email is not verified, and in fact they're considered to have an unverified _account_ in this state. Users can, however, access the page with an unverified session - in this context, a verified or unverified session serves as an enhanced verification step. If it's a user's first session, the session will be verified when the user's primary email is verified. If it's a new session, say on another device, the user's session will be invalid until the user requests a verification code that will be sent to their primary email.
+
+A user can't do the following in an unverified session, as determined by an `Unverified session` error from the auth-server:
+
+- Delete their account
+- Changing their password
+- All actions around secondary emails
+- All actions around TOTP
+- All actions around the recovery key
+
+This means we'll need to guard around any actions allowing these interactions, links to flows for these actions, and flows themselves. We can do this with by wrapping the action with a `VerifiedSessionGuard` that ensures a user's session is verified before displaying the content and otherwise renders what's passed in via a `guard` prop.
 
 ### Styling components
 
@@ -180,6 +249,18 @@ const LogoImage = () => <Logo role="img" aria-label="logo" />;
 
 Inlining our SVGs will minimize the number of network requests our application needs to perform. `role="img"` tells screenreaders to refer to this element as an image and `aria-label` acts like `alt` text on an `img` tag does. You can also pass in `className` and other properties, and if needed, conditionally change elements inside of the SVG such as a `path`'s `fill` property.
 
+If the inlined SVG is inside of a button, you can forgo the `role` and `aria-label` by preferring a `title` on a button:
+
+```
+import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+...
+<button
+  title="Close"
+>
+  <CloseIcon />
+</button>
+```
+
 Other ways to use SVGs:
 
 ```javascript
@@ -227,7 +308,7 @@ All logging methods have the argument `eventProperties`, which can be used to su
 
 **Note:** take care when calling these methods as they attempt to log the event immediately. When logging view events inside React Components you'll want to place the call inside a `useEffect` hook to only execute on component render.
 
-## Testing
+## Testing and Mocks for Tests/Storybook
 
 This package uses [Jest](https://jestjs.io/) to test its code. By default `yarn test` will test all JS files under `src/`.
 
@@ -249,9 +330,24 @@ CI=yes yarn test --coverage --verbose
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
 
+### Components that use `AlertBar` or `AlertExternal`
+
+Because the `AlertBar` renders children into `<div id="alert-bar-root"></div>` located just below the layout header in the DOM in the real application, this element and the reference to it, located in `AlertBarContext`, must be present when running isolated tests. Wrap the test in `AlertBarRootAndContextProvider` for this purpose.
+
+```
+const { rerender } = render(<AlertBarRootAndContextProvider />);
+rerender(
+  <AlertBarRootAndContextProvider>
+    <MyComponent />
+  </AlertBarRootAndContextProvider>
+);
+```
+
+A `rerender` is necessary in order to update the component reference in the Context provider. If this is _not_ provided, it will default to using a `Portal` that renders adjacent to the root app `<div id="root"></div>` and an error will show in the console.
+
 ### Components that use `useAccount`
 
-[MockedCache](./src/models/_mocks.tsx) is a convenient way to test components that `useAccount()`. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider).
+[MockedCache](./src/models/_mocks.tsx) is a convenient way to test components that `useAccount()`. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) when the default mocked cache will work for the test or if `cache` is the only prop in a `MockedProvider` that needs to be changed.
 
 Example:
 
@@ -266,10 +362,6 @@ Example:
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
 In local development, `yarn storybook` will start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
-
-## GQL
-
-This package consumes the [FxA GraphQL API](https://github.com/mozilla/fxa/tree/main/packages/fxa-graphql-api). See the documentation to connect to the playground to view the API docs and schema.
 
 ## License
 
