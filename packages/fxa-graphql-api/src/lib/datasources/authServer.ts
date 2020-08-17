@@ -52,7 +52,9 @@ export class AuthServerSource extends DataSource {
   public createTotpToken(
     options: MetricsContext
   ): ReturnType<AuthClient['createTotpToken']> {
-    return this.authClient.createTotpToken(this.token, { metricsContext: options });
+    return this.authClient.createTotpToken(this.token, {
+      metricsContext: options,
+    });
   }
 
   public destroyTotpToken(): Promise<any> {
@@ -90,5 +92,21 @@ export class AuthServerSource extends DataSource {
 
   public verifyTotp(code: string, options?: { service: string }) {
     return this.authClient.verifyTotpCode(this.token, code, options);
+  }
+
+  public recoveryEmailSecondaryVerifyCode(email: string, code: string) {
+    return this.authClient.recoveryEmailSecondaryVerifyCode(
+      this.token,
+      email,
+      code
+    );
+  }
+
+  public sessionResendVerifyCode() {
+    return this.authClient.sessionResendVerifyCode(this.token);
+  }
+
+  public sessionVerifyCode(code: string) {
+    return this.authClient.sessionVerifyCode(this.token, code);
   }
 }

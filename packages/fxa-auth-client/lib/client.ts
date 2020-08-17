@@ -547,14 +547,14 @@ export default class AuthClient {
       newsletters?: string[];
       style?: string;
     } = {}
-  ) {
+  ): Promise<{}> {
     return this.sessionPost('/session/verify_code', sessionToken, {
       code,
       ...options,
     });
   }
 
-  async sessionResendVerifyCode(sessionToken: string) {
+  async sessionResendVerifyCode(sessionToken: string): Promise<{}> {
     return this.sessionPost('/session/resend_code', sessionToken, {});
   }
 
@@ -906,7 +906,7 @@ export default class AuthClient {
     sessionToken: string,
     email: string,
     code: string
-  ) {
+  ): Promise<{}> {
     return this.sessionPost(
       '/recovery_email/secondary/verify_code',
       sessionToken,

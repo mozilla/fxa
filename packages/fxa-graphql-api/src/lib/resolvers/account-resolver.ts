@@ -29,9 +29,12 @@ import {
   CreateTotpInput,
   DeleteTotpInput,
   EmailInput,
+  SendSessionVerificationInput,
   UpdateAvatarInput,
   UpdateDisplayNameInput,
   VerifyTotpInput,
+  VerifyEmailInput,
+  VerifySessionInput,
 } from './types/input';
 import {
   BasicPayload,
@@ -162,6 +165,35 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => BasicPayload, {
+    description: 'Reset the verification code to a secondary email.',
+  })
+  @CatchGatewayError
+  public async resendSecondaryEmailCode(
+    @Ctx() context: Context,
+    @Arg('input', (type) => EmailInput) input: EmailInput
+  ): Promise<BasicPayload> {
+    await context.dataSources.authAPI.recoveryEmailSecondaryResendCode(
+      input.email
+    );
+    return { clientMutationId: input.clientMutationId };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Verify the email address with a code.',
+  })
+  @CatchGatewayError
+  public async verifySecondaryEmail(
+    @Ctx() context: Context,
+    @Arg('input', (type) => VerifyEmailInput) input: VerifyEmailInput
+  ) {
+    await context.dataSources.authAPI.recoveryEmailSecondaryVerifyCode(
+      input.email,
+      input.code
+    );
+    return { clientMutationId: input.clientMutationId };
+  }
+
+  @Mutation((returns) => BasicPayload, {
     description: 'Remove the secondary email for the signed in account.',
   })
   @CatchGatewayError
@@ -187,20 +219,6 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => BasicPayload, {
-    description: 'Reset the verification code to a secondary email.',
-  })
-  @CatchGatewayError
-  public async resendSecondaryEmailCode(
-    @Ctx() context: Context,
-    @Arg('input', (type) => EmailInput) input: EmailInput
-  ): Promise<BasicPayload> {
-    await context.dataSources.authAPI.recoveryEmailSecondaryResendCode(
-      input.email
-    );
-    return { clientMutationId: input.clientMutationId };
-  }
-
-  @Mutation((returns) => BasicPayload, {
     description:
       "Destroy all tokens held by a connected client, disconnecting it from the user's account.",
   })
@@ -210,6 +228,30 @@ export class AccountResolver {
     input: AttachedClientDisconnectInput
   ) {
     await context.dataSources.authAPI.attachedClientDestroy(input);
+    return { clientMutationId: input.clientMutationId };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Send a session verification email.',
+  })
+  public async sendSessionVerificationCode(
+    @Ctx() context: Context,
+    @Arg('input', (type) => SendSessionVerificationInput)
+    input: SendSessionVerificationInput
+  ) {
+    await context.dataSources.authAPI.sessionResendVerifyCode();
+    return { clientMutationId: input.clientMutationId };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Verify the session via an email code.',
+  })
+  @CatchGatewayError
+  public async verifySession(
+    @Ctx() context: Context,
+    @Arg('input', (type) => VerifySessionInput) input: VerifySessionInput
+  ) {
+    await context.dataSources.authAPI.sessionVerifyCode(input.code);
     return { clientMutationId: input.clientMutationId };
   }
 
