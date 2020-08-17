@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState, useCallback, ChangeEvent, FocusEvent } from 'react';
+import React, { useState, useCallback, ChangeEvent } from 'react';
 import TextInput, { TextInputProps } from '../TextInput';
 import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
@@ -12,7 +12,6 @@ type PasswordInputProps = Omit<TextInputProps, 'type'>;
 export const PasswordInput = ({
   defaultValue,
   disabled,
-  id,
   label,
   placeholder,
 }: PasswordInputProps) => {
@@ -32,7 +31,6 @@ export const PasswordInput = ({
       {...{
         defaultValue,
         disabled,
-        id,
         label,
         placeholder,
         onChange,

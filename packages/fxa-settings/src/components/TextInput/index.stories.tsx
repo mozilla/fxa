@@ -14,7 +14,6 @@ storiesOf('Components|TextInput', module)
           label="Default label"
           placeholder="Here's a suggestion"
           type="text"
-          readerText="This is additional information that screen readers can describe"
         />
       </div>
       <div className="mb-3">

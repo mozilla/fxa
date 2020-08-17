@@ -36,7 +36,7 @@ it('can render multiple values', () => {
 });
 
 it('can copy a single value to the clipboard', () => {
-  render(<DataBlock value={singleValue} copyable />);
+  render(<DataBlock value={singleValue} />);
   fireEvent.click(screen.getByTestId('datablock-button'));
   expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(
     singleValue
@@ -44,21 +44,9 @@ it('can copy a single value to the clipboard', () => {
 });
 
 it('can copy multiple values to the clipboard', () => {
-  render(<DataBlock value={multiValue} copyable />);
+  render(<DataBlock value={multiValue} />);
   fireEvent.click(screen.getByTestId('datablock-button'));
   expect(window.navigator.clipboard.writeText).toHaveBeenCalledWith(
     multiValue.join(', ')
   );
-});
-
-it('can be a read-only (disabled) element', () => {
-  render(<DataBlock value={singleValue} />);
-  expect(screen.getByTestId('datablock-button')).toBeDisabled();
-});
-
-it('can have screen reader text', () => {
-  const readerText = 'Born Of You';
-  render(<DataBlock {...{ readerText }} value={singleValue} />);
-  expect(screen.getByTestId('datablock-srtext')).toBeInTheDocument();
-  expect(screen.getByTestId('datablock-srtext')).toHaveTextContent(readerText);
 });

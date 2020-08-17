@@ -33,10 +33,3 @@ it('can have a label', () => {
   expect(screen.getByTestId('checkbox-label')).toBeInTheDocument();
   expect(screen.getByTestId('checkbox-label')).toHaveTextContent(label);
 });
-
-it('can have screen reader text', () => {
-  const readerText = 'Sleeper 1972';
-  render(<Checkbox {...{ readerText }} />);
-  expect(screen.getByTestId('checkbox-srtext')).toBeInTheDocument();
-  expect(screen.getByTestId('checkbox-srtext')).toHaveTextContent(readerText);
-});

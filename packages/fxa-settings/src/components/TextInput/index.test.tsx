@@ -43,27 +43,7 @@ it('accepts various input types', () => {
   });
 });
 
-it('can have screen reader text', () => {
-  const readerText = 'Never Really Been Another Way Out';
-  render(<TextInput {...{ label, readerText }} />);
-  expect(screen.getByTestId('input-srtext')).toBeInTheDocument();
-  expect(screen.getByTestId('input-srtext')).toHaveTextContent(readerText);
-});
-
-it('accepts a custom id', () => {
-  const id = 'h6fcK_fRYaI';
-  render(<TextInput {...{ label, id }} />);
-  expect(screen.getByTestId('input-field')).toHaveAttribute('id', id);
-  expect(screen.getByTestId('input-label')).toHaveAttribute('for', id);
-});
-
-it('creates a random id if one is not supplied', () => {
-  render(<TextInput {...{ label }} />);
-  const id = screen.getByTestId('input-field').getAttribute('id');
-  expect(screen.getByTestId('input-label')).toHaveAttribute('for', id);
-});
-
-it('can have extra content', () => {
+it('can render adjacent children', () => {
   render(
     <TextInput {...{ label }}>
       <p data-testid="input-children">Hey</p>

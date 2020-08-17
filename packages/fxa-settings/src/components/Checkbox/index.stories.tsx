@@ -12,10 +12,7 @@ storiesOf('Components|Checkbox', module).add('default', () => (
       <Checkbox />
     </div>
     <div className="mb-3">
-      <Checkbox
-        label="Howdy I'm a label"
-        readerText="This is additional information that screen readers can describe"
-      />
+      <Checkbox label="Howdy I'm a label" />
     </div>
     <div className="mb-3">
       <Checkbox label="Hey hey, I'm checked baby" defaultChecked />
@@ -32,7 +29,7 @@ storiesOf('Components|Checkbox', module).add('default', () => (
     <div className="mb-3">
       <Checkbox
         label="Checked and disabled? Cool flex."
-        defaultChecked={true}
+        defaultChecked
         disabled
       />
     </div>
