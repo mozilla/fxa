@@ -46,6 +46,7 @@ module.exports = function (log, config, oauthdb) {
     subscriptionUpgrade: 'subscription-upgrade',
     subscriptionDowngrade: 'subscription-downgrade',
     subscriptionPaymentExpired: 'subscription-payment-expired',
+    subscriptionsPaymentExpired: 'subscriptions-payment-expired',
     subscriptionPaymentFailed: 'subscription-payment-failed',
     subscriptionAccountDeletion: 'subscription-account-deletion',
     subscriptionCancellation: 'subscription-cancellation',
@@ -87,6 +88,7 @@ module.exports = function (log, config, oauthdb) {
     subscriptionUpgrade: 'subscriptions',
     subscriptionDowngrade: 'subscriptions',
     subscriptionPaymentExpired: 'subscriptions',
+    subscriptionsPaymentExpired: 'subscriptions',
     subscriptionPaymentFailed: 'subscriptions',
     subscriptionAccountDeletion: 'subscriptions',
     subscriptionCancellation: 'subscriptions',
@@ -1938,36 +1940,48 @@ module.exports = function (log, config, oauthdb) {
   };
 
   Mailer.prototype.subscriptionPaymentExpiredEmail = async function (message) {
-    const {
-      email,
-      uid,
-      productId,
-      planId,
-      planEmailIconURL,
-      productName,
-    } = message;
+    const { email, uid, subscriptions } = message;
 
     const enabled = config.subscriptions.transactionalEmails.enabled;
     log.trace('mailer.subscriptionPaymentExpired', {
       enabled,
       email,
-      productId,
       uid,
     });
     if (!enabled) {
       return;
     }
 
-    const query = { plan_id: planId, product_id: productId, uid };
-    const template = 'subscriptionPaymentExpired';
+    const headers = {};
     const translator = this.translator(message.acceptLanguage);
 
-    const links = this._generateLinks(null, message, query, template);
-    const headers = {};
-    const translatorParams = { productName };
-    const subject = translator.gettext(
-      'Credit card for %(productName)s expiring soon'
-    );
+    let subject;
+    let productName;
+    let template = 'subscriptionPaymentExpired';
+    let links = {};
+
+    if (subscriptions.length === 1) {
+      productName = subscriptions[0].productName;
+      subject = translator.gettext(
+        'Credit card for %(productName)s expiring soon'
+      );
+      links = this._generateLinks(
+        null,
+        message,
+        {
+          plan_id: subscriptions[0].planId,
+          product_id: subscriptions[0].productId,
+          uid,
+        },
+        template
+      );
+    } else {
+      subject = translator.gettext(
+        'Credit card for your subscriptions is expiring soon'
+      );
+      template = 'subscriptionsPaymentExpired';
+      links = this._generateLinks(null, message, {}, template);
+    }
 
     return this.send({
       ...message,
@@ -1977,12 +1991,11 @@ module.exports = function (log, config, oauthdb) {
       template,
       templateValues: {
         ...links,
-        ...translatorParams,
         uid,
         email,
-        icon: planEmailIconURL,
-        product: productName,
-        subject: translator.format(subject, translatorParams),
+        subject,
+        subscriptions,
+        productName,
       },
     });
   };

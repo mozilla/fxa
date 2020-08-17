@@ -2,13 +2,21 @@
 
 {{{t "This is an automated email; if you received it in error, no action is required."}}}
 
+{{#if productName }}
 {{{t "Terms and cancellation policy:"}}}
 {{{subscriptionTermsUrl}}}
+{{/if}}
 
+{{#if productName }}
 {{{t "Privacy notice:"}}}
 {{{subscriptionPrivacyUrl}}}
+{{/if}}
 
+{{#if productName }}
 {{{t "Cancel subscription:"}}}
+{{else}}
+{{{t "Cancel subscriptions:"}}}
+{{/if}}
 {{{cancelSubscriptionUrl}}}
 
 {{{t "Update billing information:"}}}

@@ -260,18 +260,22 @@
                                         style="font-family:Helvetica, Geneva, Tahoma, Verdana, sans-serif; font-size: 14px; line-height: 18px; color: #ffffff; padding: 0 20px 30px;"
                                       >
                                         <br /><br />
+                                        {{#if productName}}
                                         {{t "You're receiving this email because %(email)s has a Firefox account and you signed up for %(productName)s." }}
+                                        {{else}}
+                                        {{t "You're receiving this email because %(email)s has a Firefox account and you have subscribed to multiple products." }}
+                                        {{/if}}
                                         <br /><br />
                                         {{{t "Manage your Firefox account settings by visiting your <a %(accountSettingsLinkAttributes)s>account page</a>." }}}
                                         <br /><br />
-                                        <a
+                                        {{#if productName}}<a
                                           href="{{{subscriptionTermsUrl}}}"
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           style="color:#ffffff;font-weight:500;"
                                           alias="TermsofService"
                                           >{{t "Terms and cancellation policy" }}</a>
-                                          &nbsp;&nbsp;&#8226;&nbsp;&nbsp;{{#if isCancellationEmail}}<a
+                                          &nbsp;&nbsp;&#8226;&nbsp;&nbsp;{{/if}}{{#if isCancellationEmail}}<a
                                           href="{{{reactivateSubscriptionUrl}}}"
                                           target="_blank"
                                           rel="noopener noreferrer"
@@ -284,7 +288,7 @@
                                           rel="noopener noreferrer"
                                           style="color:#ffffff;font-weight:normal;"
                                           alias="CancelSubscription"
-                                          >{{t "Cancel subscription" }}</a
+                                          >{{#if productName}}{{t "Cancel subscription" }}{{else}}{{t "Cancel subscriptions" }}{{/if}}</a
                                         >{{/if}}&nbsp;&nbsp;&#8226;&nbsp;&nbsp;
                                         <a
                                           href="{{{updateBillingUrl}}}"
@@ -329,14 +333,14 @@
                                           style="color:#ffffff;font-weight:500;"
                                           alias="textlink1"
                                           >{{t "Legal" }}</a
-                                        >&nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
+                                        >{{#if productName}}&nbsp;&nbsp;&#8226;&nbsp;&nbsp;<a
                                           href="{{{subscriptionPrivacyUrl}}}"
                                           target="_blank"
                                           rel="noopener noreferrer"
                                           style="color:#ffffff;font-weight:normal;"
                                           alias="textlink2"
                                           >{{t "Privacy" }}</a
-                                        >
+                                        >{{/if}}
                                       </td>
                                     </tr>
                                   </table>

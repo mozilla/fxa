@@ -2271,18 +2271,22 @@ describe('StripeHelper', () => {
       const expected = {
         uid,
         email,
-        productId,
-        productName,
-        planId,
-        planName,
-        planEmailIconURL,
-        planDownloadURL,
-        productMetadata: {
-          downloadURL: planDownloadURL,
-          emailIconURL: planEmailIconURL,
-          'product:privacyNoticeURL': privacyNoticeURL,
-          'product:termsOfServiceURL': termsOfServiceURL,
-        },
+        subscriptions: [
+          {
+            productId,
+            productName,
+            planId,
+            planName,
+            planEmailIconURL,
+            planDownloadURL,
+            productMetadata: {
+              downloadURL: planDownloadURL,
+              emailIconURL: planEmailIconURL,
+              'product:privacyNoticeURL': privacyNoticeURL,
+              'product:termsOfServiceURL': termsOfServiceURL,
+            },
+          },
+        ],
       };
 
       it('extracts expected details from a source that requires requests to expand', async () => {
