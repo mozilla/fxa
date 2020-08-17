@@ -125,7 +125,7 @@
     "speed-trap": "0.0.10",
     "thread-loader": "^2.1.2",
     "time-grunt": "1.4.0",
-    "typescript": "3.8.3",
+    "typescript": "3.9.7",
     "ua-parser-js": "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version",
     "underscore": "^1.10.2",
     "verror": "1.10.0",

@@ -166,7 +166,16 @@ function injectStripe<P extends Object>(
 ) {
   return (props: P) => {
     const { mockStripe } = useContext(MockStripeContext);
-    return <WrappedComponent {...{ ...props, stripe: mockStripe }} />;
+    return (
+      <WrappedComponent
+        {...{
+          ...props,
+          stripe: mockStripe as ReactStripeElements.InjectedStripeProps['stripe'],
+        }}
+        as
+        any
+      />
+    );
   };
 }
 

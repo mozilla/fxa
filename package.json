@@ -113,7 +113,7 @@
   ],
   "resolutions": {
     "gobbledygook": "git://github.com/mozilla-fxa/gobbledygook.git#354042684056e57ca77f036989e907707a36cff2",
-    "tap/typescript": "3.8.3",
+    "tap/typescript": "3.9.7",
     "@types/node": "12.12.38",
     "http-proxy": "^1.18.1"
   }

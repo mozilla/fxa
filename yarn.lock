@@ -15764,7 +15764,7 @@ fsevents@^1.2.7:
     tailwindcss: ^1.4.6
     ts-jest: ^24.3.0
     ts-node: ^8.10.2
-    typescript: 3.8.3
+    typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -15834,7 +15834,7 @@ fsevents@^1.2.7:
     mocha: ^7.1.2
     node-fetch: ^2.6.0
     ts-node: ^8.10.2
-    typescript: 3.8.3
+    typescript: 3.9.7
     webcrypto-liner: "git://github.com/mozilla-fxa/webcrypto-liner.git#6b3ad971b3b1f0d4da3855c6ceee9b3afa9f0eeb"
   languageName: unknown
   linkType: soft
@@ -15991,7 +15991,7 @@ fsevents@^1.2.7:
     through: 2.3.8
     ts-node: ^8.10.2
     typedi: ^0.8.0
-    typescript: 3.8.3
+    typescript: 3.9.7
     urijs: 1.19.1
     uuid: 1.4.1
     verror: ^1.10.0
@@ -16145,7 +16145,7 @@ fsevents@^1.2.7:
     time-grunt: 1.4.0
     ts-loader: ^7.0.5
     ts-node: ^8.10.2
-    typescript: 3.8.3
+    typescript: 3.9.7
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
     underscore: ^1.10.2
     upng-js: 2.1.0
@@ -16433,7 +16433,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     ts-node: ^8.10.2
     typedi: ^0.8.0
-    typescript: 3.8.3
+    typescript: 3.9.7
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -16572,7 +16572,7 @@ fsevents@^1.2.7:
     ts-node: ^8.10.2
     type-to-reducer: ^1.2.0
     typedi: ^0.8.0
-    typescript: 3.8.3
+    typescript: 3.9.7
     uuid: ^8.3.0
     wait-for-expect: ^1.3.0
     webpack: ^4.43.0
@@ -16672,7 +16672,7 @@ fsevents@^1.2.7:
     sass-loader: ^8.0.2
     tailwindcss: ^1.4.6
     ts-jest: ^24.3.0
-    typescript: 3.8.3
+    typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -16722,7 +16722,7 @@ fsevents@^1.2.7:
     react-scripts: ^3.4.1
     subscriptions-transport-ws: ^0.9.11
     tailwindcss: ^1.4.6
-    typescript: 3.8.3
+    typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
   linkType: soft
@@ -16768,7 +16768,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     stripe: ^8.69.0
     ts-node: ^8.10.2
-    typescript: 3.8.3
+    typescript: 3.9.7
     underscore: ^1.10.2
     uuid: ^8.3.0
   languageName: unknown
@@ -33715,16 +33715,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-typescript@3.8.3:
-  version: 3.8.3
-  resolution: "typescript@npm:3.8.3"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 519b11576247fe3570d89a2aa757d8f666aafc0cb9465a6cdd4df09c1dc6bf7285f0c6008d2ac7a55ea26457e767aaab819f58439d80af2cce1d9805b2be1034
-  languageName: node
-  linkType: hard
-
 typescript@3.9.7:
   version: 3.9.7
   resolution: "typescript@npm:3.9.7"
@@ -33732,16 +33722,6 @@ typescript@3.9.7:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 10848a9c35fd8c70a8792b8bd9485317534bcd58768793d3b7d9c7486e9fd30cf345f83fa2a324e0bf6088bc8a4d8d061d58fda38b18c2ff187cf01fbbff6267
-  languageName: node
-  linkType: hard
-
-"typescript@patch:typescript@3.8.3#builtin<compat/typescript>":
-  version: 3.8.3
-  resolution: "typescript@patch:typescript@npm%3A3.8.3#builtin<compat/typescript>::version=3.8.3&hash=64df9d"
-  bin:
-    tsc: bin/tsc
-    tsserver: bin/tsserver
-  checksum: 7b29bcb0576cc81266c5b4e6f84bb5a760483fa80bcd7d9588b0d3e16063c733552acf686c8541b93be2cf29ec5d8360ec927509b11e4e723f0dc91366b9cb1a
   languageName: node
   linkType: hard
 
