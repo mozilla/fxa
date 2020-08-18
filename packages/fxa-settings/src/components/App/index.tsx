@@ -12,6 +12,7 @@ import * as Metrics from '../../lib/metrics';
 import { Account } from '../../models';
 import { Router } from '@reach/router';
 import FlowContainer from '../FlowContainer';
+import ChangePassword from '../ChangePassword';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -75,7 +76,7 @@ export const App = ({ flowQueryParams }: AppProps) => {
         <Settings path="/" />
         <FlowContainer path="/avatar/change" title="Profile picture" />
         <FlowContainer path="/display_name" title="Display name" />
-        <FlowContainer path="/change_password" title="Change password" />
+        <ChangePassword path="/change_password" />
       </Router>
     </AppLayout>
   );
