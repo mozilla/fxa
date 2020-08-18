@@ -3,9 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import LinkExternal from 'fxa-react/components/LinkExternal';
-import { UnitRow } from '../UnitRow';
-import { useAccount } from '../../models';
+import UnitRow from '../UnitRow';
+import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 
 type SecurityProps = {
   twoFactorAuthEnabled: boolean;
@@ -17,32 +16,12 @@ export const Security = ({ twoFactorAuthEnabled }: SecurityProps) => {
     settingOption ? 'Enabled' : 'Not Set';
   const getClassName = (settingOption: boolean) =>
     settingOption ? 'text-green-800' : '';
-
-  const { recoveryKey } = useAccount();
-
   return (
     <section className="mt-11" id="security" data-testid="settings-security">
       <h2 className="font-header font-bold ml-4 mb-4">Security</h2>
       <div className="bg-white tablet:rounded-xl shadow">
-        <UnitRow
-          header="Recovery key"
-          headerValueClassName={getClassName(recoveryKey)}
-          headerValue={getValue(recoveryKey)}
-          route="/beta/settings/account_recovery"
-        >
-          <p className="text-sm mt-3">
-            Restores your information when you forget your password.
-          </p>
-          <LinkExternal
-            className="link-blue text-xs mt-2"
-            href="https://support.mozilla.org/en-US/kb/reset-your-firefox-account-password-recovery-keys"
-          >
-            Why does resetting my password reset my data?
-          </LinkExternal>
-        </UnitRow>
-
+        <UnitRowRecoveryKey />
         <hr className="unit-row-hr" />
-
         <UnitRow
           header="Two-step authentication"
           headerValueClassName={getClassName(twoFactorAuthEnabled)}

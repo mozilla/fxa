@@ -12,3 +12,4 @@ export { VerifyTotpInput } from './verify-totp';
 export { VerifyEmailInput } from './verify-email';
 export { SendSessionVerificationInput } from './send-session-verification';
 export { VerifySessionInput } from './verify-session';
+export { DeleteRecoveryKeyInput } from './delete-recovery-key';

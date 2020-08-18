@@ -19,7 +19,7 @@ storiesOf('Components|UnitRow', module)
     <UnitRow
       header="Display name"
       headerValue={null}
-      noHeaderValueCtaText="Custom CTA text"
+      ctaText="Custom CTA text"
       route="#"
     />
   ))

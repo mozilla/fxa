@@ -65,13 +65,13 @@ describe('UnitRow', () => {
     expect(screen.getByTestId('unit-row-modal').textContent).toContain('Add');
   });
 
-  it('renders non-default `noHeaderValueText` and `noHeaderValueCtaText`', () => {
+  it('renders non-default `noHeaderValueText` and `ctaText`', () => {
     renderWithRouter(
       <UnitRow
         header="Display name"
         headerValue={null}
         noHeaderValueText="Not set"
-        noHeaderValueCtaText="Create"
+        ctaText="Create"
         route="/display_name"
       />
     );

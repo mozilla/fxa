@@ -10,7 +10,7 @@ import { renderWithRouter, MockedCache } from '../../models/_mocks';
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
     renderWithRouter(
-      <MockedCache>
+      <MockedCache account={{ recoveryKey: false }}>
         <Security twoFactorAuthEnabled={false} />
       </MockedCache>
     );
@@ -19,12 +19,12 @@ describe('Security', () => {
     expect(await screen.findByText('Two-step authentication')).toBeTruthy;
 
     const result = await screen.findAllByText('Not Set');
-    expect(result).toHaveLength(1);
+    expect(result).toHaveLength(2);
   });
 
   it('renders "enabled two factor" and "recovery key present" <Security/> with correct content', async () => {
     renderWithRouter(
-      <MockedCache account={{ recoveryKey: true }}>
+      <MockedCache>
         <Security twoFactorAuthEnabled={true} />
       </MockedCache>
     );

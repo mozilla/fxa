@@ -48,8 +48,8 @@ storiesOf('Components|Modal', module)
 
 type ModalToggleChildrenProps = {
   modalRevealed: boolean;
-  hideModal: Function;
-  showModal: Function;
+  hideModal: () => void;
+  showModal: () => void;
 };
 type ModalToggleProps = {
   children: (props: ModalToggleChildrenProps) => React.ReactNode | null;

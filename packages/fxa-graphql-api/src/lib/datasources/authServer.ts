@@ -109,4 +109,8 @@ export class AuthServerSource extends DataSource {
   public sessionVerifyCode(code: string) {
     return this.authClient.sessionVerifyCode(this.token, code);
   }
+
+  public deleteRecoveryKey() {
+    return this.authClient.deleteRecoveryKey(this.token);
+  }
 }
