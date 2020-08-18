@@ -44,7 +44,7 @@ export const TextInput = ({
 
   return (
     <label
-      className={`flex items-center rounded transition-all duration-100 ease-in-out border ${
+      className={`flex items-center rounded transition-all duration-100 ease-in-out border mt-3 mb-3 ${
         focussed ? 'border-blue-400 shadow-input-blue-focus' : 'border-grey-200'
       } ${disabled ? 'border-grey-100 bg-grey-10' : 'bg-white'}`}
       data-testid="input-container"
