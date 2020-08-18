@@ -7,11 +7,12 @@ import UnitRow from '../UnitRow';
 import UnitRowWithAvatar from '../UnitRowWithAvatar';
 import Security from '../Security';
 import UnitRowSecondaryEmail from '../UnitRowSecondaryEmail';
-import { RouteComponentProps } from '@reach/router';
+import { RouteComponentProps, Router } from '@reach/router';
 import AlertExternal from '../AlertExternal';
 import * as Metrics from '../../lib/metrics';
 
 import { useAccount } from '../../models';
+import Nav from '../Nav';
 
 export const Settings = (_: RouteComponentProps) => {
   const {
@@ -37,50 +38,59 @@ export const Settings = (_: RouteComponentProps) => {
   }).format(new Date(passwordCreated));
 
   return (
-    <>
+    <div className="flex">
       <AlertExternal />
-      <section className="mt-11" id="profile" data-testid="settings-profile">
-        <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
+      <Router
+        className="hidden desktop:block desktop:flex-2"
+        primary={false}
+        basepath="/beta/settings"
+      >
+        <Nav path="/" />
+      </Router>
+      <div className="flex-7">
+        <section className="mt-11" id="profile" data-testid="settings-profile">
+          <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
 
-        <div className="bg-white tablet:rounded-xl shadow">
-          <UnitRowWithAvatar avatarUrl={avatarUrl} />
+          <div className="bg-white tablet:rounded-xl shadow">
+            <UnitRowWithAvatar avatarUrl={avatarUrl} />
 
-          <hr className="unit-row-hr" />
+            <hr className="unit-row-hr" />
 
-          <UnitRow
-            header="Display name"
-            headerValue={displayName}
-            route="/beta/settings/display_name"
-          />
+            <UnitRow
+              header="Display name"
+              headerValue={displayName}
+              route="/beta/settings/display_name"
+            />
 
-          <hr className="unit-row-hr" />
+            <hr className="unit-row-hr" />
 
-          <UnitRow
-            header="Password"
-            headerValueClassName="tracking-wider"
-            headerValue="••••••••••••••••••"
-            route="/beta/settings/change_password"
-          >
-            <p className="text-grey-400 text-xs mobileLandscape:mt-3">
-              Created {pwdDateText}
-            </p>
-          </UnitRow>
+            <UnitRow
+              header="Password"
+              headerValueClassName="tracking-wider"
+              headerValue="••••••••••••••••••"
+              route="/beta/settings/change_password"
+            >
+              <p className="text-grey-400 text-xs mobileLandscape:mt-3">
+                Created {pwdDateText}
+              </p>
+            </UnitRow>
 
-          <hr className="unit-row-hr" />
+            <hr className="unit-row-hr" />
 
-          <UnitRow header="Primary email" headerValue={primaryEmail.email} />
+            <UnitRow header="Primary email" headerValue={primaryEmail.email} />
 
-          <hr className="unit-row-hr" />
+            <hr className="unit-row-hr" />
 
-          <UnitRowSecondaryEmail />
-        </div>
-      </section>
+            <UnitRowSecondaryEmail />
+          </div>
+        </section>
 
-      <Security
-        accountRecoveryKeyEnabled={recoveryKey}
-        twoFactorAuthEnabled={false}
-      />
-    </>
+        <Security
+          accountRecoveryKeyEnabled={recoveryKey}
+          twoFactorAuthEnabled={false}
+        />
+      </div>
+    </div>
   );
 };
 
