@@ -8,7 +8,7 @@
 
  Usage:
 
- scripts/must-reset.js -i ./reset.json
+ scripts/must-reset.js -e -i ./reset.txt
 
  This script is used to put user accounts into a "must reset" state. It uses the
  same config file as key_server.js so should be run from a production instance.
@@ -20,68 +20,66 @@
 // HACK: Prevent config falling over due to missing secrets
 process.env.NODE_ENV = 'dev';
 
-const butil = require('../lib/crypto/butil');
 const commandLineOptions = require('commander');
-const config = require('../config').getProperties();
-const crypto = require('crypto');
-const log = require('../lib/log')({});
-const P = require('../lib/promise');
+const fs = require('fs');
+const main = require('./must-reset/index');
 const path = require('path');
-const Token = require('../lib/tokens')(log, config);
-const AuthDB = require('../lib/db')(config, log, Token);
-const oauth = require('../lib/oauth/db');
 
 commandLineOptions
-  .option('-i, --input <filename>', 'JSON input file')
+  .option('-e, --emails [emails]', 'Email addresses')
+  .option('-u, --uids [uids]', 'User IDs')
+  .option('-i, --input <filename>', 'Input filename from which to read input')
   .parse(process.argv);
 
-const requiredOptions = ['input'];
+if (!commandLineOptions.input) {
+  console.error(`-i, --input required`);
+  process.exit(1);
+} else if (!commandLineOptions.emails && !commandLineOptions.uids) {
+  console.error('One of `emails` or `uids` must be specified');
+  process.exit(1);
+} else if (commandLineOptions.emails && commandLineOptions.uids) {
+  console.error('Only one of `emails` or `uids` can be specified, not both');
+  process.exit(1);
+}
 
-function checkRequiredOption(optionName) {
-  if (!commandLineOptions[optionName]) {
-    console.error(`--${optionName} required`);
+let emails = [];
+let uids = [];
+
+if (commandLineOptions.emails) {
+  emails = getItems('emails');
+} else if (commandLineOptions.uids) {
+  uids = getItems('uids');
+}
+
+if (!emails.length && !uids.length) {
+  console.error('No `emails` or `uids` found inside the specified file');
+  process.exit(1);
+}
+
+function getItems(type) {
+  try {
+    const input = fs
+      .readFileSync(path.resolve(commandLineOptions.input))
+      .toString('utf8');
+
+    return adjustText(input);
+  } catch (err) {
+    console.error('No such file or directory');
     process.exit(1);
   }
 }
 
-requiredOptions.forEach(checkRequiredOption);
+function adjustText(input = '') {
+  if (!input.length) {
+    return [];
+  }
 
-async function main() {
-  const db = await AuthDB.connect(config[config.db.backend]);
-
-  const json = require(path.resolve(commandLineOptions.input));
-
-  const uids = json.map((entry) => {
-    return entry.uid;
-  });
-
-  await P.all(
-    uids.map(async (uid) => {
-      try {
-        // Removes all session tokens,
-        await db.resetAccount(
-          { uid },
-          {
-            authSalt: butil.ONES.toString('hex'),
-            verifyHash: butil.ONES.toString('hex'),
-            wrapWrapKb: crypto.randomBytes(32).toString('hex'),
-            verifierVersion: 1,
-          }
-        );
-
-        // Removes oauth related tokens
-        await oauth.removeUser(uid);
-        console.info('account reset', uid);
-      } catch (err) {
-        console.error('failed', uid, err);
-        process.exit(1);
-      }
-    })
-  );
-
-  console.info('%s accounts reset', uids.length);
-  await db.close();
-  process.exit();
+  return input
+    .split(/[,\s]+/)
+    .map((s) => s.trim())
+    .filter((s) => !!s.length);
 }
 
-main();
+const keys = emails.length ? emails : uids;
+const dbFunction = emails.length ? 'accountRecord' : 'account';
+main(keys, dbFunction);
