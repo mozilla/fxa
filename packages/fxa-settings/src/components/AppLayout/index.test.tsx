@@ -10,7 +10,7 @@ import { renderWithRouter } from '../../models/_mocks';
 
 it('renders the app with children', async () => {
   const {
-    history: {navigate},
+    history: { navigate },
   } = renderWithRouter(
     <MockedCache>
       <AppLayout>
@@ -23,7 +23,6 @@ it('renders the app with children', async () => {
   expect(screen.getByTestId('content-skip')).toBeInTheDocument();
   expect(screen.getByTestId('header')).toBeInTheDocument();
   expect(screen.getByTestId('footer')).toBeInTheDocument();
-  expect(screen.getByTestId('nav')).toBeInTheDocument();
   expect(screen.getByTestId('main')).toBeInTheDocument();
   expect(screen.getByTestId('main')).toContainElement(
     screen.getByTestId('test-child')
