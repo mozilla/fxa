@@ -99,7 +99,7 @@ export default BaseAuthenticationBroker.extend({
    * @returns {Promise}
    */
   sendOAuthResultToRelier(result) {
-    if (this.hasCapability('supportsPairing')) {
+    if (this.hasCapability('supportsPairing') || result.action === 'pairing') {
       this._metrics.logEvent('pairing.signin.success');
     }
 
