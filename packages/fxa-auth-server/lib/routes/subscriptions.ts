@@ -742,6 +742,8 @@ class DirectStripeRoutes {
       customer.id,
       paymentMethodId
     );
+    await this.stripeHelper.removeSources(customer.id);
+
     // Refetch the customer and force a cache clear
     customer = await this.stripeHelper.customer({
       uid,

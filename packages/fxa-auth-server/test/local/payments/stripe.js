@@ -243,6 +243,49 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('removeSources', () => {
+    it('removes all the sources', async () => {
+      const ids = {
+        data: [{ id: uuidv4() }, { id: uuidv4() }, { id: uuidv4() }],
+      };
+      sandbox.stub(stripeHelper.stripe.customers, 'listSources').resolves(ids);
+      sandbox.stub(stripeHelper.stripe.customers, 'deleteSource').resolves({});
+      const result = await stripeHelper.removeSources('cust_new');
+      assert.deepEqual(result, [{}, {}, {}]);
+      sinon.assert.calledThrice(stripeHelper.stripe.customers.deleteSource);
+      for (const obj of ids.data) {
+        sinon.assert.calledWith(
+          stripeHelper.stripe.customers.deleteSource,
+          'cust_new',
+          obj.id
+        );
+      }
+    });
+
+    it('returns if no sources', async () => {
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'listSources')
+        .resolves({ data: [] });
+      sandbox.stub(stripeHelper.stripe.customers, 'deleteSource').resolves({});
+      const result = await stripeHelper.removeSources('cust_new');
+      assert.deepEqual(result, []);
+      sinon.assert.notCalled(stripeHelper.stripe.customers.deleteSource);
+    });
+
+    it('surfaces stripe errors', async () => {
+      const apiError = new stripeError.StripeAPIError();
+      sandbox
+        .stub(stripeHelper.stripe.customers, 'listSources')
+        .rejects(apiError);
+      return stripeHelper.removeSources('cust_new').then(
+        () => Promise.reject(new Error('Method expected to reject')),
+        (err) => {
+          assert.equal(err, apiError);
+        }
+      );
+    });
+  });
+
   describe('retryInvoiceWithPaymentId', () => {
     it('retries with an invoice successfully', async () => {
       const attachExpected = deepCopy(paymentMethodAttach);
