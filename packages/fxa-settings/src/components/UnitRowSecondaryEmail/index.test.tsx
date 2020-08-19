@@ -12,11 +12,12 @@ import {
   MockedCache,
   MOCK_ACCOUNT,
   renderWithRouter,
+  mockEmail,
 } from '../../models/_mocks';
 import { GET_INITIAL_STATE } from '../App';
 import { UnitRowSecondaryEmail, RESEND_SECONDARY_EMAIL_CODE_MUTATION } from '.';
 
-const createMock = (email: string) => ({
+const mockGqlSuccess = (email: string) => ({
   request: {
     query: RESEND_SECONDARY_EMAIL_CODE_MUTATION,
     variables: { input: { email } },
@@ -30,17 +31,12 @@ const createMock = (email: string) => ({
   },
 });
 
-const createErrorMock = (email: string) => ({
+const mockGqlError = (email: string) => ({
   request: {
     query: RESEND_SECONDARY_EMAIL_CODE_MUTATION,
     variables: { input: { email } },
   },
-  result: {
-    data: null,
-    error: {
-      message: 'Aw shucks',
-    },
-  },
+  error: new Error('Aw shucks'),
 });
 
 describe('UnitRowSecondaryEmail', () => {
@@ -92,16 +88,8 @@ describe('UnitRowSecondaryEmail', () => {
   describe('one secondary email set', () => {
     it('renders as expected when unverified', () => {
       const emails = [
-        {
-          email: 'johndope@example.com',
-          isPrimary: true,
-          verified: true,
-        },
-        {
-          email: 'johndope2@example.com',
-          isPrimary: false,
-          verified: false,
-        },
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false, false),
       ];
       render(
         <MockedCache account={{ emails }}>
@@ -121,16 +109,8 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('renders as expected when verified', () => {
       const emails = [
-        {
-          email: 'johndope@example.com',
-          isPrimary: true,
-          verified: true,
-        },
-        {
-          email: 'johndope2@example.com',
-          isPrimary: false,
-          verified: true,
-        },
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false),
       ];
       render(
         <MockedCache account={{ emails }}>
@@ -154,26 +134,10 @@ describe('UnitRowSecondaryEmail', () => {
   describe('multiple secondary emails set', () => {
     it('renders as expected and with verified email text only present on the last verified', () => {
       const emails = [
-        {
-          email: 'johndope@example.com',
-          isPrimary: true,
-          verified: true,
-        },
-        {
-          email: 'johndope2@example.com',
-          isPrimary: false,
-          verified: true,
-        },
-        {
-          email: 'johndope3@example.com',
-          isPrimary: false,
-          verified: true,
-        },
-        {
-          email: 'johndope4@example.com',
-          isPrimary: false,
-          verified: true,
-        },
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false),
+        mockEmail('johndope3@example.com', false),
+        mockEmail('johndope4@example.com', false),
       ];
       render(
         <MockedCache account={{ emails }}>
@@ -205,26 +169,10 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('renders multiple unverified as expected', () => {
       const emails = [
-        {
-          email: 'johndope@example.com',
-          isPrimary: true,
-          verified: true,
-        },
-        {
-          email: 'johndope2@example.com',
-          isPrimary: false,
-          verified: false,
-        },
-        {
-          email: 'johndope3@example.com',
-          isPrimary: false,
-          verified: true,
-        },
-        {
-          email: 'johndope4@example.com',
-          isPrimary: false,
-          verified: false,
-        },
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false, false),
+        mockEmail('johndope3@example.com', false),
+        mockEmail('johndope4@example.com', false, false),
       ];
       render(
         <MockedCache account={{ emails }}>
@@ -247,19 +195,11 @@ describe('UnitRowSecondaryEmail', () => {
 
   describe('resendSecondaryEmailCode', () => {
     it('displays a success message in the AlertBar', async () => {
-      const primaryEmail = {
-        email: 'somethingdifferent@example.com',
-        isPrimary: true,
-        verified: true,
-      };
+      const primaryEmail = mockEmail('somethingdifferent@example.com');
 
       const emails = [
         { ...primaryEmail },
-        {
-          email: 'johndope2@example.com',
-          isPrimary: false,
-          verified: false,
-        },
+        mockEmail('johndope2@example.com', false, false),
       ];
       const cache = new InMemoryCache();
       cache.writeQuery({
@@ -269,7 +209,7 @@ describe('UnitRowSecondaryEmail', () => {
           session: { verified: true },
         },
       });
-      const mocks = [createMock('johndope2@example.com')];
+      const mocks = [mockGqlSuccess('johndope2@example.com')];
 
       const { rerender } = render(<AlertBarRootAndContextProvider />);
       rerender(
@@ -295,16 +235,8 @@ describe('UnitRowSecondaryEmail', () => {
 
     it('displays an error message in the AlertBar', async () => {
       const emails = [
-        {
-          email: 'johndope@example.com',
-          isPrimary: true,
-          verified: true,
-        },
-        {
-          email: 'johndope2@example.com',
-          isPrimary: false,
-          verified: false,
-        },
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false, false),
       ];
       const cache = new InMemoryCache();
       cache.writeQuery({
@@ -314,7 +246,7 @@ describe('UnitRowSecondaryEmail', () => {
           session: { verified: true },
         },
       });
-      const mocks = [createErrorMock('johndope2@example.com')];
+      const mocks = [mockGqlError('johndope2@example.com')];
 
       const { rerender } = render(<AlertBarRootAndContextProvider />);
       rerender(
@@ -334,10 +266,9 @@ describe('UnitRowSecondaryEmail', () => {
         screen.queryByTestId('resend-secondary-email-code-success')
       ).not.toBeInTheDocument();
 
-      // TODO: This fails and will be addressed in an immediate follow up.
-      // expect(
-      //   screen.queryByTestId('resend-secondary-email-code-error')
-      // ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('resend-secondary-email-code-error').textContent
+      ).toContain('Aw shucks');
     });
   });
 });
