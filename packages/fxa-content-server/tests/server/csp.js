@@ -42,12 +42,11 @@ suite.tests['blockingRules'] = function () {
   assert.isFalse(reportOnly);
 
   const connectSrc = directives.connectSrc;
-  assert.lengthOf(connectSrc, 8);
+  assert.lengthOf(connectSrc, 7);
   assert.include(connectSrc, Sources.SELF);
   assert.include(connectSrc, Sources.AUTH_SERVER);
   assert.include(connectSrc, Sources.OAUTH_SERVER);
   assert.include(connectSrc, Sources.PROFILE_SERVER);
-  assert.include(connectSrc, Sources.MARKETING_EMAIL_SERVER);
   assert.include(connectSrc, Sources.PAIRING_SERVER_HTTP);
   assert.include(connectSrc, Sources.PAIRING_SERVER_WEBSOCKET);
 
@@ -62,11 +61,11 @@ suite.tests['blockingRules'] = function () {
 
   let frameSrc = directives.frameSrc;
 
-  config.set('surveyFeature', {enabled: false});
+  config.set('surveyFeature', { enabled: false });
   assert.include(frameSrc, "'none'");
   config.set('surveyFeature', {
     enabled: true,
-    doNotBotherSpan: 2592000000
+    doNotBotherSpan: 2592000000,
   });
   frameSrc = blockingRules(config).directives.frameSrc;
   assert.isAbove(frameSrc.length, 1);
