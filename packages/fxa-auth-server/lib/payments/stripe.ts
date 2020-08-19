@@ -299,6 +299,34 @@ export class StripeHelper {
     });
   }
 
+  /**
+   * Remove all sources from a customer.
+   *
+   * For users that are using payment methods, we no longer wish to store
+   * sources so we remove them all.
+   *
+   * Returns the deleted cards.
+   *
+   * @param customerId
+   */
+  async removeSources(customerId: string): Promise<Stripe.Card[]> {
+    const sources = await this.stripe.customers.listSources(customerId, {
+      object: 'card',
+    });
+    if (sources.data.length === 0) {
+      return [];
+    }
+    return Promise.all(
+      sources.data.map(
+        (s) =>
+          (this.stripe.customers.deleteSource(
+            customerId,
+            s.id
+          ) as unknown) as Promise<Stripe.Card>
+      )
+    );
+  }
+
   /** END: NEW FLOW HELPERS FOR PAYMENT METHODS **/
 
   /**

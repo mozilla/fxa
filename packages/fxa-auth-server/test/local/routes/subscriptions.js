@@ -936,10 +936,15 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.customer
         .onCall(1)
         .resolves(expected);
-
       directStripeRoutesInstance.stripeHelper.updateDefaultPaymentMethod.resolves(
         customer
       );
+      directStripeRoutesInstance.stripeHelper.removeSources.resolves([
+        {},
+        {},
+        {},
+      ]);
+
       VALID_REQUEST.payload = {
         paymentMethodId,
       };
@@ -949,6 +954,9 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.deepEqual(filterCustomer(expected), actual);
+      sinon.assert.calledOnce(
+        directStripeRoutesInstance.stripeHelper.removeSources
+      );
     });
 
     it('errors when a customer has not been created', async () => {
