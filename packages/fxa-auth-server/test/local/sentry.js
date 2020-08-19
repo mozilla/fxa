@@ -10,6 +10,7 @@ const sinon = require('sinon');
 const verror = require('verror');
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
+const error = require('../../lib/error');
 
 const config = require('../../config').getProperties();
 const configureSentry = require('../../lib/sentry').configureSentry;
@@ -48,6 +49,43 @@ describe('Sentry', () => {
     assert.equal(throws, false);
   });
 
+  it('adds payload details to an internal validation error', async () => {
+    config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
+    await configureSentry(server, config);
+    const err = error.internalValidationError(
+      'internalError',
+      { extra: 'data' },
+      'Missing data'
+    );
+    const sentryCaptureSpy = sandbox.stub(Sentry, 'captureException');
+    const scopeContextSpy = sinon.fake();
+    const scopeSpy = {
+      addEventProcessor: sinon.fake(),
+      setContext: scopeContextSpy,
+      setExtra: sinon.fake(),
+    };
+    sandbox.replace(Sentry, 'withScope', (fn) => fn(scopeSpy));
+    await server.events.emit({ name: 'request', channel: 'error' }, [
+      {},
+      { error: err },
+    ]);
+
+    sinon.assert.calledTwice(scopeSpy.setContext);
+    sinon.assert.calledWith(scopeSpy.setContext, 'payload', {
+      code: 500,
+      errno: 998,
+      error: 'Internal Server Error',
+      info:
+        'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
+      message: 'An internal validation check failed.',
+      op: 'internalError',
+    });
+    sinon.assert.calledWith(scopeSpy.setContext, 'payload.data', {
+      extra: 'data',
+    });
+    sinon.assert.calledOnceWithExactly(sentryCaptureSpy, err);
+  });
+
   it('adds EndpointError details to a reported error', async () => {
     config.sentryDsn = 'https://deadbeef:deadbeef@localhost/123';
     await configureSentry(server, config);
@@ -80,8 +118,14 @@ describe('Sentry', () => {
       { error: fullError },
     ]);
 
-    sentryCaptureSpy.calledOnceWith(fullError);
-    assert.equal(scopeContextSpy.calledOnce, true);
+    sinon.assert.calledOnceWithExactly(scopeSpy.setContext, 'cause', {
+      errorMessage: 'An internal server error has occurred',
+      errorName: 'EndpointError',
+      method: 'PUT',
+      path: '/account/',
+      reason: 'connect refused',
+    });
+    sinon.assert.calledOnceWithExactly(sentryCaptureSpy, fullError);
     const ctx = scopeContextSpy.args[0][1];
     assert.equal(ctx.method, endError.attempt.method);
     assert.equal(ctx.path, endError.attempt.path);

@@ -187,10 +187,7 @@ function AppError(options, extra, headers, error) {
     },
     headers: headers || {},
   };
-  const keys = Object.keys(extra || {});
-  for (let i = 0; i < keys.length; i++) {
-    this.output.payload[keys[i]] = extra[keys[i]];
-  }
+  Object.assign(this.output.payload, extra || {});
 }
 inherits(AppError, verror.WError);
 

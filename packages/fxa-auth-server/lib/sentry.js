@@ -129,6 +129,15 @@ async function configureSentry(server, config) {
             return sentryEvent;
           });
           scope.setExtra('exception', exception);
+          // If additional data was added to the error, extract it.
+          if (err.output && typeof err.output.payload === 'object') {
+            const payload = err.output.payload;
+            if (typeof payload.data === 'object') {
+              scope.setContext('payload.data', payload.data);
+              delete payload.data;
+            }
+            scope.setContext('payload', payload);
+          }
           const cause = verror.cause(err);
           if (cause && cause.message) {
             const causeContext = {
