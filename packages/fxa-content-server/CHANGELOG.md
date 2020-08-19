@@ -1,3 +1,10 @@
+## 1.184.1
+
+### Bug fixes
+
+- metrics: Emit pairing metric when broker sends `action=pairing` ([3b0de6973](https://github.com/mozilla/fxa/commit/3b0de6973))
+- content server: make safari save the correct fields in keychain ([1f573c99f](https://github.com/mozilla/fxa/commit/1f573c99f))
+
 ## 1.184.0
 
 ### New features
