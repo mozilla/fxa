@@ -28,7 +28,7 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     openWebmailButtonVisible: false,
   }),
 
-  commands: _.pick(WebChannel, 'FXA_STATUS', 'OAUTH_LOGIN'),
+  commands: _.pick(WebChannel, 'FXA_STATUS', 'OAUTH_LOGIN', 'DELETE_ACCOUNT'),
 
   type: Constants.OAUTH_WEBCHANNEL_BROKER,
 
@@ -112,6 +112,13 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
       result.state = state;
     }
     return this.send(this.getCommand('OAUTH_LOGIN'), result);
+  },
+
+  afterDeleteAccount(account) {
+    return this.send(this.getCommand('DELETE_ACCOUNT'), {
+      email: account.get('email'),
+      uid: account.get('uid'),
+    }).then(() => proto.afterDeleteAccount.call(this, account));
   },
 });
 
