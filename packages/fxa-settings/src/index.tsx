@@ -39,5 +39,5 @@ try {
     document.getElementById('root')
   );
 } catch (error) {
-  console.log('Error initializing FXA Settings', error);
+  console.error('Error initializing FXA Settings', error);
 }

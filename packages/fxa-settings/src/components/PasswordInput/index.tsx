@@ -18,12 +18,9 @@ export const PasswordInput = ({
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
 
-  const onChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      setHasContent(event.target.value.length > 0);
-    },
-    [hasContent]
-  );
+  const onChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    setHasContent(event.target.value.length > 0);
+  }, []);
 
   return (
     <TextInput

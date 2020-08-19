@@ -46,7 +46,7 @@ export const UnitRowSecondaryEmail = () => {
     const modalDescId = 'modal-desc-verify-email';
 
     const resendPrimaryEmailCodeFromModal = useCallback(() => {
-      console.log('resend primary email verification code - part of FXA-1613');
+      // Resend primary email verification code - part of FXA-1613
       hideModal();
       revealAlertBar();
     }, [hideModal]);
@@ -176,7 +176,7 @@ export const UnitRowSecondaryEmail = () => {
                 <button
                   className="cta-neutral transition-standard"
                   onClick={() => {
-                    console.log(`make ${secondaryEmail} the primary email!`);
+                    // Make secondaryEmail the primary email!
                   }}
                   data-testid="secondary-email-make-primary"
                 >

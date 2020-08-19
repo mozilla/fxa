@@ -28,18 +28,18 @@ export const TextInput = ({
 
   const onFocus = useCallback(() => {
     setFocussed(true);
-  }, [focussed]);
+  }, []);
 
   const onBlur = useCallback(() => {
     setFocussed(false);
-  }, [focussed]);
+  }, []);
 
   const textFieldChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       setHasContent(event.target.value.length > 0);
       onChange && onChange(event);
     },
-    [hasContent]
+    [onChange]
   );
 
   return (

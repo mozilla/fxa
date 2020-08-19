@@ -6,6 +6,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import AppErrorBoundary from '.';
 
+window.console.error = jest.fn();
+
 describe('AppErrorBoundary', () => {
   it('renders children that do not cause exceptions', () => {
     const GoodComponent = () => <p data-testid="good-component">Hi</p>;

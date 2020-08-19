@@ -9,6 +9,7 @@ import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 
 describe('AlertBar', () => {
   const onDismiss = jest.fn();
+  window.console.error = jest.fn();
 
   it('renders as expected', () => {
     const { rerender } = render(<AlertBarRootAndContextProvider />);

@@ -13,7 +13,7 @@ import { ReactComponent as Menu } from './menu.svg';
 import { useAccount } from '../../models';
 
 export const HeaderLockup = () => {
-  const { avatarUrl, primaryEmail } = useAccount();
+  const { avatarUrl } = useAccount();
   const left = (
     <>
       <button
@@ -22,6 +22,7 @@ export const HeaderLockup = () => {
       >
         <Menu />
       </button>
+      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
       <a
         href="#"
         title="Back to top"
@@ -58,9 +59,7 @@ export const HeaderLockup = () => {
         className="w-6 mx-6 desktop:mx-8"
         data-testid="header-bento"
       />
-      {console.log(
-        `TODO display ${primaryEmail.email} in the header in FXA-1575`
-      )}
+      {/* TODO display primaryEmail.email in the header in FXA-1575 */}
       <Avatar {...{ avatarUrl }} className="w-10" />
     </>
   );

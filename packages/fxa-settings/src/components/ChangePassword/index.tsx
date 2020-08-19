@@ -8,6 +8,7 @@ import FlowContainer from '../FlowContainer';
 import PasswordInput from '../PasswordInput';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
+// eslint-disable-next-line no-empty-pattern
 export const ChangePassword = ({}: RouteComponentProps) => {
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
