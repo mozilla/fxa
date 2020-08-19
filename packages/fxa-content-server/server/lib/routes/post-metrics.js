@@ -82,7 +82,7 @@ const BODY_SCHEMA = {
   flowBeginTime: OFFSET_TYPE.optional(),
   flowId: STRING_TYPE.hex().length(64).optional(),
   flushTime: TIME_TYPE.required(),
-  initialView: STRING_TYPE.regex(/^[a-z._-]+$/).optional(),
+  initialView: STRING_TYPE.regex(/^[0-9a-z._-]+$/).optional(),
   isSampledUser: BOOLEAN_TYPE.required(),
   lang: STRING_TYPE.regex(/^[a-z]+(?:-[A-Za-z]+)?$/).required(),
   marketing: joi
