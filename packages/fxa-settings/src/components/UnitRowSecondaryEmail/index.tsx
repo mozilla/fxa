@@ -10,6 +10,7 @@ import UnitRow from '../UnitRow';
 import Modal from '../Modal';
 import AlertBar from '../AlertBar';
 import { useAccount, Email } from '../../models';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 
 export const RESEND_SECONDARY_EMAIL_CODE_MUTATION = gql`
   mutation resendSecondaryEmailCode($input: EmailInput!) {
@@ -36,8 +37,18 @@ export const UnitRowSecondaryEmail = () => {
 
   const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
 
+  // TODO: DRY this up and don't import `sentryMetrics` into every component
+  // needing a mutation - we must have an `onError` option in mutations
+  // to allow tests to pass but providing one prevents an error from actually
+  // throwing so we need to manually report it to Sentry.
+  // See https://github.com/apollographql/react-apollo/issues/2614
   const [resendSecondaryEmailCode, { data, error }] = useMutation(
-    RESEND_SECONDARY_EMAIL_CODE_MUTATION
+    RESEND_SECONDARY_EMAIL_CODE_MUTATION,
+    {
+      onError: (error) => {
+        sentryMetrics.captureException(error);
+      },
+    }
   );
 
   const UnitRowSecondaryEmailNotSet = () => {

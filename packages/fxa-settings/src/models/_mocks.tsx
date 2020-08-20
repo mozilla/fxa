@@ -140,3 +140,13 @@ export function renderWithRouter(
     history,
   };
 }
+
+export const mockEmail = (
+  email: string,
+  isPrimary = true,
+  verified = true
+) => ({
+  email,
+  isPrimary,
+  verified,
+});
