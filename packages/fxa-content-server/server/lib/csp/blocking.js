@@ -19,15 +19,12 @@ function getOrigin(link) {
  * blockingCspMiddleware is where to declare rules that will cause a resource
  * to be blocked if it runs afowl of a rule.
  */
-module.exports = function(config) {
+module.exports = function (config) {
   const AUTH_SERVER = getOrigin(config.get('fxaccount_url'));
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
   const GRAVATAR = 'https://secure.gravatar.com';
-  const MARKETING_EMAIL_SERVER = getOrigin(
-    config.get('marketing_email.api_url')
-  );
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
   const PROFILE_SERVER = getOrigin(config.get('profile_url'));
   const PROFILE_IMAGES_SERVER = getOrigin(config.get('profile_images_url'));
@@ -38,10 +35,9 @@ module.exports = function(config) {
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
   const SENTRY_SERVER = 'https://sentry.prod.mozaws.net';
   // create a unique array of origins from survey urls
-  const SURVEYS = [
-    ...new Set(surveyList.map(s => getOrigin(s.url))),
-  ];
-  const surveysEnabledAndSet = (config.get('surveyFeature.enabled') && SURVEYS.length);
+  const SURVEYS = [...new Set(surveyList.map((s) => getOrigin(s.url)))];
+  const surveysEnabledAndSet =
+    config.get('surveyFeature.enabled') && SURVEYS.length;
   //
   // Double quoted values
   //
@@ -65,7 +61,6 @@ module.exports = function(config) {
         AUTH_SERVER,
         OAUTH_SERVER,
         PROFILE_SERVER,
-        MARKETING_EMAIL_SERVER,
         PAIRING_SERVER_WEBSOCKET,
         PAIRING_SERVER_HTTP,
         SENTRY_SERVER,
@@ -96,7 +91,6 @@ module.exports = function(config) {
       CDN_URL,
       DATA,
       GRAVATAR,
-      MARKETING_EMAIL_SERVER,
       NONE,
       OAUTH_SERVER,
       PAIRING_SERVER_HTTP,

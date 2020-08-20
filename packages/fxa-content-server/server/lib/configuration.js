@@ -60,33 +60,6 @@ const conf = (module.exports = convict({
     doc: 'Check if the resources are under the /dist directory',
     format: Boolean,
   },
-  basket: {
-    api_key: {
-      default: 'test key please change',
-      doc: 'DEPRECATED - Basket API key',
-      format: String,
-    },
-    api_timeout: {
-      default: '5 seconds',
-      doc: 'DEPRECATED - Timeout for talking to the Basket API server, in ms',
-      format: Number,
-    },
-    api_url: {
-      default: 'http://localhost:10140',
-      doc: 'DEPRECATED - Url for the Basket API server',
-      format: String,
-    },
-    email_preferences_url: {
-      default: 'https://basket.allizom.org/fxa/',
-      doc: 'DEPRECATED - Url for the Basket proxy server',
-      format: String,
-    },
-    proxy_url: {
-      default: 'http://localhost:1114',
-      doc: 'DEPRECATED - Url for the Basket proxy server',
-      format: String,
-    },
-  },
   cachify_prefix: {
     default: 'v',
     doc: 'The prefix for cachify hashes in URLs',
@@ -377,12 +350,6 @@ const conf = (module.exports = convict({
     },
   },
   marketing_email: {
-    api_url: {
-      default: 'http://localhost:1114',
-      doc: 'DEPRECATED - User facing URL of the Marketing Email Server',
-      env: 'FXA_MARKETING_EMAIL_API_URL',
-      format: 'url',
-    },
     enabled: {
       default: true,
       doc: 'Feature flag for communication preferences in settings',
