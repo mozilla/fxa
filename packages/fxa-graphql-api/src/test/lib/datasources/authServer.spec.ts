@@ -77,6 +77,7 @@ describe('AuthServerSource', () => {
       attachedClients: sandbox.stub(),
       checkTotpTokenExists: sandbox.stub(),
       recoveryKeyExists: sandbox.stub(),
+      deleteRecoveryKey: sandbox.stub(),
       sessionStatus: sandbox.stub(),
       recoveryEmailCreate: sandbox.stub(),
       recoveryEmailDestroy: sandbox.stub(),
@@ -158,6 +159,7 @@ describe('AuthServerSource', () => {
     'recoveryEmailSecondaryVerifyCode',
     'sessionResendVerifyCode',
     'sessionVerifyCode',
+    'deleteRecoveryKey',
   ]) {
     describe(name, () => {
       it('returns', async () => {

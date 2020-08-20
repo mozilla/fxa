@@ -9,12 +9,12 @@ import { MockedCache } from '../../models/_mocks';
 
 storiesOf('Components|Security', module)
   .add('default', () => (
-    <MockedCache>
+    <MockedCache account={{ recoveryKey: false }}>
       <Security twoFactorAuthEnabled={false} />
     </MockedCache>
   ))
   .add('account recovery key set and two factor enabled', () => (
-    <MockedCache account={{ recoveryKey: true }}>
+    <MockedCache>
       <Security twoFactorAuthEnabled={true} />
     </MockedCache>
   ));

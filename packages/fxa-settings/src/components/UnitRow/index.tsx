@@ -11,7 +11,7 @@ type UnitRowProps = {
   header: string;
   headerValue: string | null;
   noHeaderValueText?: string;
-  noHeaderValueCtaText?: string;
+  ctaText?: string;
   children?: React.ReactNode;
   headerValueClassName?: string;
   route?: string;
@@ -27,12 +27,12 @@ export const UnitRow = ({
   children,
   headerValueClassName,
   noHeaderValueText = 'None',
-  noHeaderValueCtaText = 'Add',
+  ctaText,
   revealModal,
   modalRevealed,
   alertBarRevealed,
 }: UnitRowProps & RouteComponentProps) => {
-  const ctaText = headerValue ? 'Change' : noHeaderValueCtaText;
+  ctaText = ctaText || (headerValue ? 'Change' : 'Add');
 
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
   // If the UnitRow children contains an AlertBar that is revealed,

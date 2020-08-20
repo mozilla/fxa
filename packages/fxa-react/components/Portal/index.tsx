@@ -55,12 +55,12 @@ const Portal = ({
   }
 
   useEffect(() => {
-    // Last child out of the portal gets to remove the parent from the DOM.
     return () => {
+      // When unloaded, we do not remove the portal element in order to allow
+      // a series of portal dependent components to be rendered.
       let el = document.getElementById(id);
       if (el && el.children.length === 1) {
-        el.remove();
-
+        // Reset any non-portal properties here
         if (id === 'modal') {
           resetA11yOnAdjacentElementsAndBody(
             document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)

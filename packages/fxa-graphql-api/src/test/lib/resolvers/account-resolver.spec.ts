@@ -420,4 +420,22 @@ describe('accountResolver', () => {
       });
     });
   });
+
+  describe('deleteRecoveryKey', async () => {
+    it('succeeds!', async () => {
+      context.dataSources.authAPI.deleteRecoveryKey.resolves(true);
+      const query = `mutation {
+        deleteRecoveryKey(input: {clientMutationId: "testid"}) {
+          clientMutationId
+        }
+      }`;
+      context.session.uid = USER_1.uid;
+      const result = (await graphql(schema, query, undefined, context)) as any;
+      assert.isDefined(result.data);
+      assert.isDefined(result.data.deleteRecoveryKey);
+      assert.deepEqual(result.data.deleteRecoveryKey, {
+        clientMutationId: 'testid',
+      });
+    });
+  });
 });

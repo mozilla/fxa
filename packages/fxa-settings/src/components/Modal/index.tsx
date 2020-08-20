@@ -11,9 +11,10 @@ import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 
 type ModalProps = {
   className?: string;
-  onDismiss: Function;
+  onDismiss: () => void;
   onConfirm?: () => void;
   children: ReactNode;
+  hasButtons?: boolean;
   headerId: string;
   descId: string;
   'data-testid'?: string;
@@ -24,6 +25,7 @@ export const Modal = ({
   onDismiss,
   onConfirm,
   children,
+  hasButtons = true,
   headerId,
   descId,
   'data-testid': testid = 'modal',
@@ -55,7 +57,7 @@ export const Modal = ({
           <div className="flex justify-end pr-2 pt-2">
             <button
               data-testid="modal-dismiss"
-              onClick={onDismiss as () => void}
+              onClick={onDismiss}
               title="Close modal"
             >
               <CloseIcon className="w-2 h-2 m-3" role="img" />
@@ -64,26 +66,27 @@ export const Modal = ({
 
           <div className="px-4 tablet:px-12 pb-10">
             <div>{children}</div>
-
-            <div className="flex mt-6">
-              <button
-                className="cta-neutral-lg transition-standard flex-1"
-                data-testid="modal-cancel"
-                onClick={onDismiss as () => void}
-              >
-                Cancel
-              </button>
-
-              {onConfirm && (
+            {hasButtons && (
+              <div className="flex mt-6">
                 <button
-                  className="cta-primary transition-standard flex-1"
-                  data-testid="modal-confirm"
-                  onClick={onConfirm}
+                  className="cta-neutral-lg transition-standard flex-1"
+                  data-testid="modal-cancel"
+                  onClick={onDismiss}
                 >
-                  Confirm
+                  Cancel
                 </button>
-              )}
-            </div>
+
+                {onConfirm && (
+                  <button
+                    className="cta-primary transition-standard flex-1"
+                    data-testid="modal-confirm"
+                    onClick={onConfirm}
+                  >
+                    Confirm
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

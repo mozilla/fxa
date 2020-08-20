@@ -35,6 +35,7 @@ import {
   VerifyTotpInput,
   VerifyEmailInput,
   VerifySessionInput,
+  DeleteRecoveryKeyInput,
 } from './types/input';
 import {
   BasicPayload,
@@ -96,6 +97,21 @@ export class AccountResolver {
     input: DeleteTotpInput
   ): Promise<BasicPayload> {
     await context.dataSources.authAPI.destroyTotpToken();
+    return {
+      clientMutationId: input.clientMutationId,
+    };
+  }
+
+  @Mutation((returns) => BasicPayload, {
+    description: 'Deletes the current TOTP token for the user.',
+  })
+  @CatchGatewayError
+  public async deleteRecoveryKey(
+    @Ctx() context: Context,
+    @Arg('input', (type) => DeleteRecoveryKeyInput)
+    input: DeleteRecoveryKeyInput
+  ): Promise<BasicPayload> {
+    await context.dataSources.authAPI.deleteRecoveryKey();
     return {
       clientMutationId: input.clientMutationId,
     };

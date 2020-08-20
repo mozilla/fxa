@@ -4,15 +4,22 @@
 
 import React from 'react';
 import { useSession } from '../../models';
+import ModalVerifySession from '../ModalVerifySession';
 
 export const VerifiedSessionGuard = ({
-  guard,
+  onDismiss,
+  onError,
   children,
 }: {
-  guard: React.ReactElement;
-  children: React.ReactElement;
+  onDismiss: () => void;
+  onError: (error: Error) => void;
+  children?: React.ReactNode;
 }) => {
-  return useSession().verified ? children : guard;
+  return useSession().verified ? (
+    <>{children}</>
+  ) : (
+    <ModalVerifySession {...{ onDismiss, onError }} />
+  );
 };
 
 export default VerifiedSessionGuard;

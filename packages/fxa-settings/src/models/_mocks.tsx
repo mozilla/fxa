@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { InMemoryCache, ApolloClient, ApolloProvider } from '@apollo/client';
+import { MockLink, MockedResponse } from '@apollo/client/testing';
 import { Account } from '.';
 import { GET_INITIAL_STATE } from '../components/App';
 import { deepMerge } from '../lib/utilities';
@@ -47,6 +48,7 @@ export interface MockedProps {
   verified?: boolean;
   childProps?: object;
   children?: React.ReactElement;
+  mocks?: MockedResponse<Record<string, any>>[];
 }
 export interface MockedState {
   client: ApolloClient<any>;
@@ -113,7 +115,10 @@ export class MockedCache extends React.Component<MockedProps, MockedState> {
   constructor(props: MockedProps) {
     super(props);
     this.state = {
-      client: new ApolloClient({ cache: createCache(props) }),
+      client: new ApolloClient({
+        cache: createCache(props),
+        link: new MockLink(props.mocks || [], true),
+      }),
     };
   }
 

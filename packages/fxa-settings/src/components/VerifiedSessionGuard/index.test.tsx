@@ -6,11 +6,14 @@ import React from 'react';
 import { render, wait, screen } from '@testing-library/react';
 import { MockedCache } from '../../models/_mocks';
 import { VerifiedSessionGuard } from '.';
+import { SEND_SESSION_VERIFICATION_CODE_MUTATION } from '../ModalVerifySession';
 
 it('renders the content when verified', async () => {
+  const onDismiss = jest.fn();
+  const onError = jest.fn();
   render(
     <MockedCache>
-      <VerifiedSessionGuard guard={<div data-testid="guard">oops</div>}>
+      <VerifiedSessionGuard {...{ onDismiss, onError }}>
         <div data-testid="children">Content</div>
       </VerifiedSessionGuard>
     </MockedCache>
@@ -22,9 +25,26 @@ it('renders the content when verified', async () => {
 });
 
 it('renders the guard when unverified', async () => {
+  const onDismiss = jest.fn();
+  const onError = jest.fn();
+  const mocks = [
+    {
+      request: {
+        query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
+        variables: { input: {} },
+      },
+      result: {
+        data: {
+          sendSessionVerificationCode: {
+            clientMutationId: null,
+          },
+        },
+      },
+    },
+  ];
   render(
-    <MockedCache verified={false}>
-      <VerifiedSessionGuard guard={<div data-testid="guard">oops</div>}>
+    <MockedCache verified={false} mocks={mocks}>
+      <VerifiedSessionGuard {...{ onDismiss, onError }}>
         <div>Content</div>
       </VerifiedSessionGuard>
     </MockedCache>
@@ -32,5 +52,5 @@ it('renders the guard when unverified', async () => {
 
   await wait();
 
-  expect(screen.getByTestId('guard')).toBeInTheDocument();
+  expect(screen.getByTestId('modal-verify-session')).toBeInTheDocument();
 });
