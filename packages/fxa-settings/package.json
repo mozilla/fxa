@@ -13,7 +13,7 @@
     "restart": "npm run build-postcss && pm2 restart pm2.config.js",
     "start": "npm run build-postcss && pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
-    "storybook": "npm run build-postcss && start-storybook -p 6008 -s .storybook/design-guide",
+    "storybook": "npm run build-postcss && start-storybook -p 6008 -s .storybook/design-guide --no-version-updates",
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test"
   },
   "eslintConfig": {

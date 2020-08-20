@@ -66,6 +66,7 @@ describe('decode', () => {
   describe('development', () => {
     beforeAll(() => {
       Object.defineProperty(process.env, 'NODE_ENV', { value: 'development' });
+      window.console.warn = jest.fn();
     });
 
     it('warns when server config is missing', () => {

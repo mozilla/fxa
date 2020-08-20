@@ -269,6 +269,7 @@ export function useViewEvent(
 ) {
   useEffect(() => {
     logViewEvent(viewName, eventName, eventProperties);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, dependencies);
 }
 

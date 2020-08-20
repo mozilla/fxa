@@ -16,7 +16,6 @@ import {
   addMarketingImpression,
   setMarketingClick,
 } from './metrics';
-import sentryMetrics from 'fxa-shared/lib/sentry';
 
 const deviceId = 'v8v0b6';
 const flowBeginTime = 1589394215438;
@@ -68,7 +67,7 @@ function parsePayloadData() {
   try {
     payloadData = JSON.parse(sendBeaconMock.calls[0][1]);
   } catch (error) {
-    console.log('There was an issue parsing the payload data', error);
+    console.error('There was an issue parsing the payload data', error);
   }
 
   return payloadData;
@@ -102,6 +101,7 @@ afterEach(() => {
 describe('init', () => {
   beforeEach(() => {
     window.location.replace = jest.fn();
+    window.console.error = jest.fn();
   });
 
   it('remains uninitialized when any flow param is empty', () => {

@@ -16,21 +16,26 @@ export const FlowContainer = ({
   children,
 }: FlowContainerProps & RouteComponentProps) => {
   return (
-    <div className="flex" data-testid="flow-container">
-      <div className="mx-auto my-6 tablet:my-10 flex items-start bg-white shadow py-8 px-6 rounded-xl">
+    <div
+      className="max-w-lg mx-auto my-6 py-8 px-6 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl"
+      data-testid="flow-container"
+    >
+      <div className="flex items-center">
         <button
           onClick={() => window.history.back()}
-          className="pr-6 desktop:pl-6 desktop:-ml-24"
           data-testid="flow-container-back-btn"
           title="Back"
+          className="relative w-8 h-8 -ml-2 mr-2 tablet:mr-10 tablet:-ml-18"
         >
-          <BackArrow className="inline h-8 w-8" />
+          <BackArrow
+            width="16"
+            height="14"
+            className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
+          />
         </button>
-        <div className="desktop:ml-4">
-          <h1 className="font-header">{title}</h1>
-          <div>{children}</div>
-        </div>
+        <h1 className="font-header">{title}</h1>
       </div>
+      <div className="mt-2 w-full">{children}</div>
     </div>
   );
 };
