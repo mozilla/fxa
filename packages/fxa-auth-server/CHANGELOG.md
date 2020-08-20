@@ -1,3 +1,21 @@
+## 1.185.0
+
+### New features
+
+- auth-server: remove sources on payment update ([b8f0cac20](https://github.com/mozilla/fxa/commit/b8f0cac20))
+- auth-server: enhance must-reset script to accept a plain text list ([b68bd577a](https://github.com/mozilla/fxa/commit/b68bd577a))
+
+### Bug fixes
+
+- auth-server: attach payload data to sentry ([9b5ff1802](https://github.com/mozilla/fxa/commit/9b5ff1802))
+- emails: Fix primary email change bug involving multiple accounts ([6d145b4a8](https://github.com/mozilla/fxa/commit/6d145b4a8))
+
+### Other changes
+
+- update typescript ([245568d56](https://github.com/mozilla/fxa/commit/245568d56))
+- dependency updates ([aaa549ed6](https://github.com/mozilla/fxa/commit/aaa549ed6))
+- emails: add CC expiration email for Multiple Products ([4f7ab36a7](https://github.com/mozilla/fxa/commit/4f7ab36a7))
+
 ## 1.184.1
 
 No changes.

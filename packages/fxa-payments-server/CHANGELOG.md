@@ -1,5 +1,16 @@
 # Change history
 
+## 1.185.0
+
+### Bug fixes
+
+- storybook: delete commits and pulls over 3 weeks old on every build ([306846f0a](https://github.com/mozilla/fxa/commit/306846f0a))
+
+### Other changes
+
+- update typescript ([245568d56](https://github.com/mozilla/fxa/commit/245568d56))
+- dependency updates ([aaa549ed6](https://github.com/mozilla/fxa/commit/aaa549ed6))
+
 ## 1.184.1
 
 No changes.

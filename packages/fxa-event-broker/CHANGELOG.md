@@ -1,5 +1,11 @@
 # Change history
 
+## 1.185.0
+
+### Other changes
+
+- event-broker: dependency update ([d834a047b](https://github.com/mozilla/fxa/commit/d834a047b))
+
 ## 1.184.1
 
 No changes.

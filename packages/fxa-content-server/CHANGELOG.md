@@ -1,3 +1,18 @@
+## 1.185.0
+
+### Bug fixes
+
+- totp: Ensure the user has a verified session before starting inline TOTP setup ([7c4e7817e](https://github.com/mozilla/fxa/commit/7c4e7817e))
+- delete: Emit a `delete_account` webchannel message when account is deleted by support client ([141414e16](https://github.com/mozilla/fxa/commit/141414e16))
+- content server: make safari save the correct fields in keychain ([2ef597e39](https://github.com/mozilla/fxa/commit/2ef597e39))
+- metrics: Emit pairing metric when broker sends `action=pairing` ([f0582b95d](https://github.com/mozilla/fxa/commit/f0582b95d))
+
+### Other changes
+
+- configs: remove basket proxy configs ([b1de8d323](https://github.com/mozilla/fxa/commit/b1de8d323))
+- update typescript ([245568d56](https://github.com/mozilla/fxa/commit/245568d56))
+- dependency updates ([aaa549ed6](https://github.com/mozilla/fxa/commit/aaa549ed6))
+
 ## 1.184.1
 
 ### Bug fixes

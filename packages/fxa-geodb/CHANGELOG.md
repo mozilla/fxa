@@ -1,5 +1,11 @@
 # Change history
 
+## 1.185.0
+
+### Other changes
+
+- dependency updates ([aaa549ed6](https://github.com/mozilla/fxa/commit/aaa549ed6))
+
 ## 1.184.1
 
 No changes.
