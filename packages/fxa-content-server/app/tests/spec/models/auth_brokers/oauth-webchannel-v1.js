@@ -26,6 +26,7 @@ function generateOAuthCode() {
 
 const OAUTH_STATUS_MESSAGE = 'fxaccounts:fxa_status';
 const OAUTH_LOGIN_MESSAGE = 'fxaccounts:oauth_login';
+const OAUTH_DELETE_ACCOUNT_MESSAGE = 'fxaccounts:delete_account';
 const REDIRECT_URI = 'https://localhost:8080';
 const VALID_OAUTH_CODE = generateOAuthCode();
 
@@ -78,6 +79,8 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
 
     account = user.initAccount({
       sessionToken: 'abc123',
+      email: 'test@email.com',
+      uid: 'uid',
     });
     sinon.stub(account, 'createOAuthCode').callsFake(() => {
       return Promise.resolve({
@@ -235,6 +238,19 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
         error: 'error',
         redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
         state: 'state',
+      });
+    });
+  });
+
+  describe('delete account', () => {
+    it('calls correct methods', async () => {
+      await broker.afterDeleteAccount(account);
+
+      const msg = broker.send.getCall(0).args;
+      assert.equal(msg[0], OAUTH_DELETE_ACCOUNT_MESSAGE);
+      assert.deepEqual(msg[1], {
+        email: account.get('email'),
+        uid: account.get('uid'),
       });
     });
   });
