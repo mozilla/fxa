@@ -5,11 +5,16 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Security } from '.';
+import { MockedCache } from '../../models/_mocks';
 
 storiesOf('Components|Security', module)
   .add('default', () => (
-    <Security accountRecoveryKeyEnabled={false} twoFactorAuthEnabled={false} />
+    <MockedCache>
+      <Security twoFactorAuthEnabled={false} />
+    </MockedCache>
   ))
   .add('account recovery key set and two factor enabled', () => (
-    <Security accountRecoveryKeyEnabled={true} twoFactorAuthEnabled={true} />
+    <MockedCache account={{ recoveryKey: true }}>
+      <Security twoFactorAuthEnabled={true} />
+    </MockedCache>
   ));
