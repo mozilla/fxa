@@ -73,6 +73,8 @@ describe('views/sign_in_token_code', () => {
       window: windowMock,
     });
 
+    sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+
     return view.render();
   });
 
@@ -92,6 +94,8 @@ describe('views/sign_in_token_code', () => {
     describe('without an account', () => {
       beforeEach(() => {
         model.unset('account');
+        view.getSignedInAccount.restore();
+        sinon.stub(view, 'getSignedInAccount').callsFake(() => {});
         sinon.spy(view, 'navigate');
         return view.render();
       });
