@@ -1,5 +1,15 @@
 # Change history
 
+## 1.185.1
+
+No changes.
+
+## 1.185.0
+
+### Other changes
+
+- support-panel: update dependencies ([03faca14c](https://github.com/mozilla/fxa/commit/03faca14c))
+
 ## 1.184.1
 
 No changes.
