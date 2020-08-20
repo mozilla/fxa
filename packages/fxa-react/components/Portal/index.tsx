@@ -56,15 +56,17 @@ const Portal = ({
 
   useEffect(() => {
     return () => {
-      // When unloaded, we do not remove the portal element in order to allow
-      // a series of portal dependent components to be rendered.
       let el = document.getElementById(id);
       if (el && el.children.length === 1) {
         // Reset any non-portal properties here
         if (id === 'modal') {
+          // When unloaded, we do not remove the portal element in order to allow
+          // a series of portal dependent components to be rendered.
           resetA11yOnAdjacentElementsAndBody(
             document.querySelectorAll(TOP_LEVEL_NONMODAL_DIVS_SELECTOR)
           );
+        } else {
+          el.remove();
         }
       }
     };
