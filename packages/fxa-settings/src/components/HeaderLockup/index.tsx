@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
+import React from 'react';
 import LogoLockup from 'fxa-react/components/LogoLockup';
 import Header from 'fxa-react/components/Header';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -13,27 +12,8 @@ import { ReactComponent as Bento } from './bento.svg';
 import { ReactComponent as Menu } from './menu.svg';
 import { useAccount } from '../../models';
 
-const SHADOW_SCROLL_THRESHOLD = 5;
-
 export const HeaderLockup = () => {
   const { avatarUrl } = useAccount();
-  const [showShadow, setShowShadow] = useState<boolean>(false);
-
-  useEffect(() => {
-    function handleScroll() {
-      const scrollTop =
-        window.pageYOffset || document.documentElement.scrollTop;
-      const shouldShow = scrollTop > SHADOW_SCROLL_THRESHOLD;
-      if (shouldShow !== showShadow) {
-        setShowShadow(shouldShow);
-      }
-    }
-
-    window.addEventListener('scroll', handleScroll);
-    handleScroll();
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [showShadow]);
-
   const left = (
     <>
       <button
@@ -84,15 +64,7 @@ export const HeaderLockup = () => {
     </>
   );
 
-  return (
-    <Header
-      {...{ left, right }}
-      className={classNames(
-        'sticky top-0 bg-grey-10 transition-shadow ease-in duration-100',
-        showShadow && 'shadow-md'
-      )}
-    />
-  );
+  return <Header {...{ left, right }} />;
 };
 
 export default HeaderLockup;
