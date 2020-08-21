@@ -2664,8 +2664,22 @@ describe('StripeHelper', () => {
         nextInvoiceDate: new Date(mockInvoice.lines.data[0].period.end * 1000),
       };
 
+      const { lastFour, cardType } = defaultExpected;
+
+      const mockCustomer = {
+        invoice_settings: {
+          default_payment_method: {
+            card: {
+              last4: lastFour,
+              brand: cardType,
+            },
+          },
+        },
+      };
+
       it('extracts expected details for a subscription reactivation', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
+        sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
         const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
           event.data.object,
           expectedBaseUpdateDetails,
@@ -2683,15 +2697,96 @@ describe('StripeHelper', () => {
 
       it('does not throw an exception when payment method is missing', async () => {
         const event = deepCopy(eventCustomerSubscriptionUpdated);
-        const noPaymentInvoice = deepCopy(mockInvoice);
-        noPaymentInvoice.charge = null;
+        const customer = deepCopy(mockCustomer);
+        customer.invoice_settings.default_payment_method = null;
+        sandbox.stub(stripeHelper, 'customer').resolves(customer);
         const result = await stripeHelper.extractSubscriptionUpdateReactivationDetailsForEmail(
           event.data.object,
           expectedBaseUpdateDetails,
-          noPaymentInvoice
+          mockInvoice
         );
         assert.deepEqual(result, {
           ...defaultExpected,
+          lastFour: null,
+          cardType: null,
+        });
+      });
+    });
+
+    describe('extractCustomerDefaultPaymentDetails', () => {
+      const mockPaymentMethod = {
+        card: {
+          last4: '4321',
+          brand: 'MasterCard',
+        },
+      };
+
+      const mockSource = {
+        id: sourceId,
+        last4: '0987',
+        brand: 'Visa',
+      };
+
+      const mockCustomer = {
+        invoice_settings: {
+          default_payment_method: mockPaymentMethod,
+        },
+        default_source: mockSource.id,
+        sources: {
+          data: [mockSource],
+        },
+      };
+
+      it('throws for a deleted customer', async () => {
+        sandbox.stub(stripeHelper, 'customer').resolves(null);
+        let thrown;
+        try {
+          await stripeHelper.extractCustomerDefaultPaymentDetails({
+            uid,
+            email,
+          });
+        } catch (err) {
+          thrown = err;
+        }
+        assert.equal(thrown.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      });
+
+      it('extracts from default payment method first when available', async () => {
+        sandbox.stub(stripeHelper, 'customer').resolves(mockCustomer);
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
+          uid,
+          email,
+        });
+        assert.deepEqual(result, {
+          lastFour: mockPaymentMethod.card.last4,
+          cardType: mockPaymentMethod.card.brand,
+        });
+      });
+
+      it('extracts from default source when available', async () => {
+        const customer = deepCopy(mockCustomer);
+        customer.invoice_settings.default_payment_method = null;
+        sandbox.stub(stripeHelper, 'customer').resolves(customer);
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
+          uid,
+          email,
+        });
+        assert.deepEqual(result, {
+          lastFour: mockSource.last4,
+          cardType: mockSource.brand,
+        });
+      });
+
+      it('returns undefined details when neither default payment method nor source is available', async () => {
+        const customer = deepCopy(mockCustomer);
+        customer.invoice_settings.default_payment_method = null;
+        customer.default_source = null;
+        sandbox.stub(stripeHelper, 'customer').resolves(customer);
+        const result = await stripeHelper.extractCustomerDefaultPaymentDetails({
+          uid,
+          email,
+        });
+        assert.deepEqual(result, {
           lastFour: null,
           cardType: null,
         });

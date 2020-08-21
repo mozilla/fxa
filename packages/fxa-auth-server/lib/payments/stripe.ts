@@ -39,6 +39,7 @@ const PRODUCT_RESOURCE = 'products';
 const PLAN_RESOURCE = 'plans';
 const CHARGES_RESOURCE = 'charges';
 const INVOICES_RESOURCE = 'invoices';
+const PAYMENT_METHOD_RESOURCE = 'paymentMethods';
 
 const VALID_RESOURCE_TYPES = [
   CUSTOMER_RESOURCE,
@@ -47,6 +48,7 @@ const VALID_RESOURCE_TYPES = [
   PLAN_RESOURCE,
   CHARGES_RESOURCE,
   INVOICES_RESOURCE,
+  PAYMENT_METHOD_RESOURCE,
 ] as const;
 
 export const SUBSCRIPTION_UPDATE_TYPES = {
@@ -1499,7 +1501,22 @@ export class StripeHelper {
     baseDetails: any,
     invoice: Stripe.Invoice
   ) {
-    const charge = await this.expandResource(invoice.charge, CHARGES_RESOURCE);
+    const {
+      uid,
+      email,
+      planId,
+      productId,
+      productNameNew: productName,
+      productIconURLNew: planEmailIconURL,
+    } = baseDetails;
+
+    const {
+      lastFour,
+      cardType,
+    } = await this.extractCustomerDefaultPaymentDetails({
+      uid,
+      email,
+    });
 
     const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
       subscription: subscription.id,
@@ -1509,19 +1526,6 @@ export class StripeHelper {
       currency: invoiceTotalCurrency,
       next_payment_attempt: nextInvoiceDate,
     } = upcomingInvoice;
-
-    const { lastFour, cardType } = await this.extractCardDetails({
-      charge,
-    });
-
-    const {
-      uid,
-      email,
-      planId,
-      productId,
-      productNameNew: productName,
-      productIconURLNew: planEmailIconURL,
-    } = baseDetails;
 
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.REACTIVATION,
@@ -1542,6 +1546,51 @@ export class StripeHelper {
         ? new Date(nextInvoiceDate * 1000)
         : null,
     };
+  }
+
+  async extractCustomerDefaultPaymentDetails({
+    uid,
+    email,
+  }: {
+    uid: string;
+    email: string;
+  }) {
+    let lastFour = null;
+    let cardType = null;
+
+    const customer = await this.customer({ uid, email });
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    if (customer.invoice_settings.default_payment_method) {
+      // Post-SCA customer with a default PaymentMethod
+      // default_payment_method *should* be expanded, but just in case...
+      const paymentMethod = await this.expandResource(
+        customer.invoice_settings.default_payment_method,
+        'paymentMethods'
+      );
+      if (paymentMethod.card) {
+        ({ last4: lastFour, brand: cardType } = paymentMethod.card);
+      }
+      // PaymentMethods should all be cards, but email templates should
+      // already handle undefined lastFour and cardType gracefully
+    } else if (customer.default_source) {
+      // Legacy pre-SCA customer still using a Source rather than PaymentMethod
+      let source: Stripe.Card;
+      if (typeof customer.default_source !== 'string') {
+        // We don't expand this resource in cached customer, but it seemed to happen once
+        source = customer.default_source as Stripe.Card;
+      } else {
+        // We *do* expand sources, so just do a local lookup by ID.
+        source = customer.sources.data.find(
+          (s) => s.id === customer.default_source
+        ) as Stripe.Card;
+      }
+      ({ last4: lastFour, brand: cardType } = source);
+    }
+
+    return { lastFour, cardType };
   }
 
   /**
