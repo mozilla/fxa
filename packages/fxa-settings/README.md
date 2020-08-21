@@ -2,6 +2,41 @@
 
 This documentation is up to date as of 2020-08-20.
 
+## Table of Contents
+
+[Relevant ADRs](#relevant-adrs)\
+[Development](#development)\
+[GQL and REST API Calls](#gql-and-rest-api-calls)\
+— [Global Application Data](#global-application-data)\
+[Components to Know](#components-to-know)\
+— [`AlertBar`](#alertbar-and-alertexternal)\
+— [`VerifiedSessionGuard`](#sessions-and-verifiedsessionguard)\
+[Styling Components](#styling-components)\
+— [Tailwind](#tailwind)\
+—— [Component Classes](#component-classes)\
+— [PurgeCSS](#purgecss)\
+— [Custom Styles](#custom-styles)\
+[`fxa-react`](#fxa-react)\
+— [Reusing Components with `fxa-react` and Tailwind](#reusing-components-with-fxa-react-and-Tailwind)\
+[Working with SVGs](#working-with-svgs)\
+[Metrics](#metrics)\
+— [Payload Data](#payload-data)\
+— [Event Logging](#event-logging)\
+[Testing and Mocks for Tests/Storybook](#testing-and-mocks-for-testsstorybook)\
+— [`AlertBar` or `AlertExternal`](#components-that-use-alertbar-or-alertexternal)\
+— [`useAccount`](#components-that-use-useaccount)\
+[Storybook](#storybook)\
+[License](#license)
+
+## Relevant ADRs
+
+- [Create a New React Application for the Settings Redesign Project](https://github.com/mozilla/fxa/blob/main/docs/adr/0011-create-new-react-app-for-settings-redesign.md)
+- [React Toolchain for Settings Redesign](https://github.com/mozilla/fxa/blob/main/docs/adr/0013-react-toolchain-for-settings-redesign.md)
+- [Use GraphQL and Apollo for Settings Redesign](https://github.com/mozilla/fxa/blob/main/docs/adr/0016-use-graphql-and-apollo-for-settings-redesign.md)
+- [Switch from OAuth2 to Sharing sessionToken with GraphQL Server for Settings Redesign Auth](https://github.com/mozilla/fxa/blob/main/docs/adr/0017-switch-settings-auth-to-sessiontoken.md)
+- [Use Utility-First CSS (Tailwind) with Custom SCSS](https://github.com/mozilla/fxa/blob/main/docs/adr/0018-use-tailwind-with-custom-scss.md)
+- [Use Existing InternJS for Functional Testing in Settings V2](https://github.com/mozilla/fxa/blob/main/docs/adr/0021-use-internjs-testing.md)
+
 ## Development
 
 - `yarn start|stop|restart` to start, stop, and restart the server as a PM2 process
@@ -9,9 +44,9 @@ This documentation is up to date as of 2020-08-20.
 - `yarn test` to run unit tests
 - `yarn storybook` to open Storybook
 
-### GQL and REST API Calls
+## GQL and REST API Calls
 
-FxA Settings communicates primarily with the FxA GraphQL API through use of [Apollo Client](https://www.apollographql.com/docs/react/) to indirectly interact with the `fxa-auth-server`. Requests that simply retrieve data are called queries and all other interaction requests are called mutations. See the [GQL documentation](https://graphql.org/learn/) to learn more. See ([he documentation for `fxa-graphql-api`](https://github.com/mozilla/fxa/tree/main/packages/fxa-graphql-api) to connect to the playground, a place to view the API docs and schema, and to write and test queries and mutations before using them in a component.
+FxA Settings communicates primarily with the FxA GraphQL API through use of [Apollo Client](https://www.apollographql.com/docs/react/) to indirectly interact with the `fxa-auth-server`. Requests that simply retrieve data are called queries and all other interaction requests are called mutations. See the [GQL documentation](https://graphql.org/learn/) to learn more. See [the documentation for `fxa-graphql-api`](https://github.com/mozilla/fxa/tree/main/packages/fxa-graphql-api) to connect to the playground, a place to view the API docs and schema, and to write and test queries and mutations before using them in a component.
 
 While most API calls can be performed with GQL, there are a few calls that must directly communicate with the auth server (for now) for security reasons. To make REST API calls to the auth server, use the `useAuth` and `useAwait` hooks.
 
@@ -21,9 +56,11 @@ This application uses [Apollo client cache](https://www.apollographql.com/docs/r
 
 Access the client cache data in top-level objects via custom `use` hooks. At the time of writing, `useAccount` and `useSession` (see the `VerifiedSessionGuard` section) will allow you to access `data.account` and `data.session` respectively inside components where that data is needed. See the "Testing" section of this doc for how to mock calls.
 
-#### `AlertBar` and `AlertExternal`
+## Components to Know
 
-##### AlertBar
+### `AlertBar` and `AlertExternal`
+
+#### AlertBar
 
 The `AlertBar` is used to display messages to the user, typically for communicating success or error messages back to the user. `<div id="alert-bar-root"></div>` is located just below the layout header and serves as the parent for where this component renders in the DOM via a React [Portal](https://reactjs.org/docs/portals.html) and an `AlertBarContext` which holds a reference to `alert-bar-root`.
 
@@ -58,7 +95,7 @@ const MyComponent = () => {
 
 See the "Testing" section for mocking the `AlertBar`.
 
-##### `AlertExternal`
+#### `AlertExternal`
 
 Some actions from the `fxa-content-server` need to display an alert message on the settings page, such as when a user has successfully verified their primary email in the login flow. To display the message across the "app boundary" between the content server and `fxa-settings`, a message is stored in `localStorage` and whichever app sees it first will display the message and then remove it from `localStorage`.
 
@@ -76,7 +113,7 @@ A user can't do the following in an unverified session, as determined by an `Unv
 - All actions around TOTP
 - All actions around the recovery key
 
-This means we'll need to guard around any actions allowing these interactions, links to flows for these actions, and flows themselves. We can do this with by wrapping the action with a `VerifiedSessionGuard` that ensures a user's session is verified before displaying the content and otherwise renders what's passed in via a `guard` prop.
+This means we'll need to guard around any actions allowing these interactions, links to flows for these actions, and flows themselves. We can do this with by wrapping the component containing the action in question with a `VerifiedSessionGuard` that ensures a user's session is verified before displaying the content.
 
 ### Styling components
 
@@ -185,7 +222,7 @@ In the event you need to write styles that Tailwind is not able to affectively c
 - Because PostCSS syntax cannot be directly loaded into a React component (`import './index.scss'`), custom stylesheets must be `@import`ed directly into a `tailwind.[s]css` file or another file that is imported into this file. Add these custom stylesheets in the `styles/` directory.
 - Imported custom styles are not scoped per component and some line of thought should go into custom class names to avoid naming collisions. Generally, you should match the class name to the name of your component and it's recommended to use a `[component]-[descriptor]` style (e.g. using a shared UnitRow to display secondary emails could be `unit-row-secondary-emails`). Also, if possible, keep the selector one to two levels deep, never use `!important` to avoid specificity collisions, and don't use `&-` overzealously as it makes classes difficult to search for (one level deep is fine). These recommendations also generally apply to custom component utility classes.
 
-### External imports
+### `fxa-react`
 
 You can import React components externally from `fxa-react` into this project:
 
@@ -196,7 +233,7 @@ import HelloWorld from 'fxa-react/components/HelloWorld';
 
 Components from React packages can be moved into `fxa-react` to be shared across multiple packages.
 
-### Reusing components with `fxa-react` and Tailwind
+#### Reusing components with `fxa-react` and Tailwind
 
 Let's say there's a component in `fxa-admin-panel` that you also want to use in `fxa-settings`. You move this component into `fxa-react` to use it in both `fxa-admin-panel` and `fxa-settings` and style it with Tailwind classes:
 
