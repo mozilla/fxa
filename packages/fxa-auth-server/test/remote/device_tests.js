@@ -207,8 +207,9 @@ describe('remote device', function () {
     const password = 'test password';
     return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
-        // That's a beta, and a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298
-        name: 'Firefox \u5728 \u03b2 test',
+        // That's a beta, a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298,
+        // and the unicode replacement character in case of mojibake.
+        name: 'Firefox \u5728 \u03b2 test\ufffd',
         type: 'desktop',
       };
       return client
