@@ -108,6 +108,7 @@ export const ModalVerifySession = ({
         ></TextInput>
         <div className="flex mt-6">
           <button
+            type="button"
             className="cta-neutral-lg transition-standard flex-1"
             data-testid="modal-verify-session-cancel"
             onClick={onDismiss}
