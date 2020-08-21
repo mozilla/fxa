@@ -5,36 +5,31 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { InMemoryCache } from '@apollo/client';
-import { MockedProvider } from '@apollo/client/testing';
-import {
-  MockedCache,
-  MOCK_ACCOUNT,
-  renderWithRouter,
-  mockEmail,
-} from '../../models/_mocks';
-import { GET_INITIAL_STATE } from '../App';
-import { SecondaryEmailInputForm, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
+import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
+import { FlowSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
+import { GraphQLError } from 'graphql';
 
 const mockGqlSuccess = (email: string) => ({
   request: {
     query: CREATE_SECONDARY_EMAIL_MUTATION,
     variables: { input: { email } },
   },
-  error: new Error('Email Address already added'),
+  result: {
+    errors: [new GraphQLError('Email Address already added')],
+  },
 });
 
-describe('SecondaryEmailInputForm', () => {
+describe('FlowSecondaryEmailAdd', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
       renderWithRouter(
         <MockedCache>
-          <SecondaryEmailInputForm />
+          <FlowSecondaryEmailAdd />
         </MockedCache>
       );
 
       expect(screen.getByTestId('secondary-email-input').textContent).toContain(
-        'Secondary Email'
+        'Enter email address'
       );
       expect(screen.getByTestId('cancel-button').textContent).toContain(
         'Cancel'
@@ -45,7 +40,7 @@ describe('SecondaryEmailInputForm', () => {
     it('Enables "save" button once valid email is input', () => {
       renderWithRouter(
         <MockedCache>
-          <SecondaryEmailInputForm />
+          <FlowSecondaryEmailAdd />
         </MockedCache>
       );
 
@@ -60,7 +55,7 @@ describe('SecondaryEmailInputForm', () => {
     it('Do not Enable "save" button if invalid email is input', () => {
       renderWithRouter(
         <MockedCache>
-          <SecondaryEmailInputForm />
+          <FlowSecondaryEmailAdd />
         </MockedCache>
       );
 
@@ -77,19 +72,11 @@ describe('SecondaryEmailInputForm', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const cache = new InMemoryCache();
-      cache.writeQuery({
-        query: GET_INITIAL_STATE,
-        data: {
-          account: { ...MOCK_ACCOUNT, emails },
-          session: { verified: true },
-        },
-      });
       const mocks = [mockGqlSuccess('johndope2@example.com')];
       renderWithRouter(
-        <MockedProvider {...{ mocks, cache }}>
-          <SecondaryEmailInputForm />
-        </MockedProvider>
+        <MockedCache account={{ emails }} {...{ mocks }}>
+          <FlowSecondaryEmailAdd />
+        </MockedCache>
       );
       const input = screen.getByTestId('input-field');
       fireEvent.change(input, { target: { value: 'johndope2@example.com' } });

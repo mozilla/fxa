@@ -71,7 +71,9 @@ export class AuthServerSource extends DataSource {
   }
 
   public recoveryEmailCreate(email: string): Promise<any> {
-    return this.authClient.recoveryEmailCreate(this.token, email);
+    return this.authClient.recoveryEmailCreate(this.token, email, {
+      verificationMethod: 'email-otp',
+    });
   }
 
   public recoveryEmailDestroy(email: string): Promise<any> {

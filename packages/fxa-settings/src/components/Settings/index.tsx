@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { RouteComponentProps, Router } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
 import AlertExternal from '../AlertExternal';
 import Nav from '../Nav';
 import Security from '../Security';
@@ -23,13 +23,9 @@ export const Settings = (_: RouteComponentProps) => {
   return (
     <div className="flex">
       <AlertExternal />
-      <Router
-        className="hidden desktop:block desktop:flex-2"
-        primary={false}
-        basepath="/beta/settings"
-      >
-        <Nav path="/" />
-      </Router>
+      <div className="hidden desktop:block desktop:flex-2">
+        <Nav />
+      </div>
       <div className="flex-7">
         <Profile />
         <Security twoFactorAuthEnabled={false} />

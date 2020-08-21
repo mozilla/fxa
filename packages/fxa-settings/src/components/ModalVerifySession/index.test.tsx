@@ -139,9 +139,9 @@ describe('ModalVerifySession', () => {
 
     await wait();
 
-    expect(
-      screen.getByTestId('modal-verify-session-error').textContent
-    ).toContain('invalid code');
+    expect(screen.getByTestId('error-tooltip').textContent).toContain(
+      'invalid code'
+    );
   });
 
   it('bubbles other errors', async () => {

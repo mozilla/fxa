@@ -25,9 +25,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@apollo/client@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "@apollo/client@npm:3.1.2"
+"@apollo/client@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "@apollo/client@npm:3.1.3"
   dependencies:
     "@types/zen-observable": ^0.8.0
     "@wry/context": ^0.5.2
@@ -48,7 +48,7 @@ __metadata:
   peerDependenciesMeta:
     react:
       optional: true
-  checksum: acda72746d4d9db9b32d38c5c7032adeec486b88b6a5bb25c2792d32ba2eb61007453a7f628919e50680234e043c9a8aa6f18c72fa2c5d93bbc800c65f887e4e
+  checksum: 525668ad5828d1b01cb9e235c6240e17f4f50a4bf536599261065acca5fbfd067b70b1f333b0e0d082690ee37ff9ddbb04305f00dccda7f8a330f7a89a16d7c6
   languageName: node
   linkType: hard
 
@@ -16600,7 +16600,7 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
-    "@apollo/client": ^3.1.2
+    "@apollo/client": ^3.1.3
     "@babel/core": ^7.10.3
     "@reach/router": ^1.3.4
     "@rescripts/cli": 0.0.14
