@@ -37,7 +37,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
     "fxa-shared": "workspace:*",
-    "pm2": "^4.4.0",
+    "pm2": "^4.4.1",
     "prettier": "^2.0.5"
   },
   "scripts": {
