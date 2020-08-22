@@ -4,11 +4,16 @@
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { MockedCache } from '../../models/_mocks';
 import Avatar from '.';
 
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
-    render(<Avatar avatarUrl={null} />);
+    render(
+      <MockedCache account={{ avatarUrl: null }}>
+        <Avatar />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('avatar-default')).toHaveAttribute('role', 'img');
     expect(screen.getByTestId('avatar-default')).toHaveAttribute(
@@ -19,17 +24,25 @@ describe('Avatar', () => {
   });
 
   it('renders default avatar with a custom className', () => {
-    render(<Avatar avatarUrl={null} className="my-class" />);
+    render(
+      <MockedCache account={{ avatarUrl: null }}>
+        <Avatar className="my-class" />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('avatar-default')).toHaveClass('my-class');
   });
 
   it('renders the avatar with expected attributes', () => {
-    render(<Avatar avatarUrl="some-fake-image.png" />);
+    render(
+      <MockedCache>
+        <Avatar />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
       'src',
-      'some-fake-image.png'
+      'http://placekitten.com/512/512'
     );
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
       'alt',
@@ -39,7 +52,11 @@ describe('Avatar', () => {
   });
 
   it('renders the avatar with a custom className', () => {
-    render(<Avatar avatarUrl="some-fake-image.png" className="my-class" />);
+    render(
+      <MockedCache>
+        <Avatar className="my-class" />
+      </MockedCache>
+    );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveClass('my-class');
   });

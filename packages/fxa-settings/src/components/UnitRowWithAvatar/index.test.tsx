@@ -3,13 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import UnitRowWithAvatar from '.';
+import { MockedCache } from '../../models/_mocks';
 import { renderWithRouter } from '../../models/_mocks';
 
 describe('UnitRowWithAvatar', () => {
   it('renders as expected with the default avatar', () => {
-    renderWithRouter(<UnitRowWithAvatar avatarUrl={null} />);
+    renderWithRouter(
+      <MockedCache account={{ avatarUrl: null }}>
+        <UnitRowWithAvatar />
+      </MockedCache>
+    );
 
     expect(
       screen.getByTestId('unit-row-with-avatar-route').textContent
@@ -19,7 +24,11 @@ describe('UnitRowWithAvatar', () => {
   });
 
   it('renders as expected with the user avatar', () => {
-    renderWithRouter(<UnitRowWithAvatar avatarUrl="some-fake-image.png" />);
+    renderWithRouter(
+      <MockedCache>
+        <UnitRowWithAvatar />
+      </MockedCache>
+    );
 
     expect(
       screen.getByTestId('unit-row-with-avatar-route').textContent

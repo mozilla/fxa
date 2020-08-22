@@ -4,13 +4,11 @@
 
 import React from 'react';
 import Avatar from '../Avatar';
+import { useAccount } from '../../models';
 import { Link, useLocation } from '@reach/router';
 
-type UnitRowWithAvatarProps = {
-  avatarUrl: string | null;
-};
-
-export const UnitRowWithAvatar = ({ avatarUrl }: UnitRowWithAvatarProps) => {
+export const UnitRowWithAvatar = () => {
+  const { avatarUrl } = useAccount();
   const ctaText = avatarUrl ? 'Change' : 'Add';
   const location = useLocation();
   return (
@@ -19,10 +17,7 @@ export const UnitRowWithAvatar = ({ avatarUrl }: UnitRowWithAvatarProps) => {
         <h3 data-testid="unit-row-with-avatar-header">Picture</h3>
       </div>
       <div className="unit-row-content">
-        <Avatar
-          {...{ avatarUrl }}
-          className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16"
-        />
+        <Avatar className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16" />
       </div>
       <div className="unit-row-actions">
         <div>

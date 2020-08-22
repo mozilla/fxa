@@ -4,14 +4,16 @@
 
 import React from 'react';
 import classNames from 'classnames';
+import { useAccount } from '../../models';
 import { ReactComponent as DefaultAvatar } from './avatar-default.svg';
 
 type AvatarProps = {
-  avatarUrl: string | null;
   className?: string;
 };
 
-export const Avatar = ({ avatarUrl, className }: AvatarProps) => {
+export const Avatar = ({ className }: AvatarProps) => {
+  const { avatarUrl } = useAccount();
+
   if (avatarUrl) {
     return (
       <img

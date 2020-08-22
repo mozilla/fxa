@@ -208,7 +208,7 @@ export const UnitRowSecondaryEmail = () => {
     return (
       <div className="mobileLandscape:flex unit-row-multi-row">
         <div className="unit-row-content" data-testid="unit-row-content">
-          <p className="font-bold" data-testid="unit-row-header-value">
+          <p className="font-bold break-all" data-testid="unit-row-header-value">
             <span className="flex justify-between items-center">
               {email}
               <DeleteEmailButton

@@ -9,12 +9,12 @@ import { HeaderLockup } from '.';
 
 storiesOf('Components|HeaderLockup', module)
   .add('with default avatar', () => (
-    <MockedCache>
+    <MockedCache account={{ avatarUrl: null }}>
       <HeaderLockup />
     </MockedCache>
   ))
   .add('with non-default avatar', () => (
-    <MockedCache account={{ avatarUrl: 'http://placekitten.com/256/256' }}>
+    <MockedCache>
       <HeaderLockup />
     </MockedCache>
   ));

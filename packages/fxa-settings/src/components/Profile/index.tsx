@@ -5,12 +5,7 @@ import { UnitRowWithAvatar } from '../UnitRowWithAvatar';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
 
 export const Profile = () => {
-  const {
-    primaryEmail,
-    displayName,
-    avatarUrl,
-    passwordCreated,
-  } = useAccount();
+  const { primaryEmail, displayName, passwordCreated } = useAccount();
 
   const pwdDateText = Intl.DateTimeFormat('default', {
     year: 'numeric',
@@ -25,13 +20,14 @@ export const Profile = () => {
       <h2 className="font-header font-bold ml-4 mb-4">Profile</h2>
 
       <div className="bg-white tablet:rounded-xl shadow">
-        <UnitRowWithAvatar avatarUrl={avatarUrl} />
+        <UnitRowWithAvatar />
 
         <hr className="unit-row-hr" />
 
         <UnitRow
           header="Display name"
           headerValue={displayName}
+          headerValueClassName="break-all"
           route="/beta/settings/display_name"
         />
 
@@ -50,7 +46,11 @@ export const Profile = () => {
 
         <hr className="unit-row-hr" />
 
-        <UnitRow header="Primary email" headerValue={primaryEmail.email} />
+        <UnitRow
+          header="Primary email"
+          headerValue={primaryEmail.email}
+          headerValueClassName="break-all"
+        />
 
         <hr className="unit-row-hr" />
 

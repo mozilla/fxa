@@ -4,12 +4,17 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { Avatar } from '.';
+import { MockedCache } from '../../models/_mocks';
+import Avatar from '.';
 
 storiesOf('Components|Avatar', module)
   .add('default avatar', () => (
-    <Avatar avatarUrl={null} className="w-32 h-32" />
+    <MockedCache account={{ avatarUrl: null }}>
+      <Avatar className="w-32 h-32" />
+    </MockedCache>
   ))
   .add('non-default avatar', () => (
-    <Avatar className="w-32 h-32" avatarUrl="http://placekitten.com/256/256" />
+    <MockedCache>
+      <Avatar className="w-32 h-32" />
+    </MockedCache>
   ));
