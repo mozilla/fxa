@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Localized, withLocalization } from '@fluent/react';
+import { Localized, withLocalization, WithLocalizationProps } from '@fluent/react';
 import {
   Stripe,
   StripeElements,
@@ -42,7 +42,6 @@ export type BasePaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
   plan?: Plan;
-  getString?: Function;
   onCancel?: () => void;
   onSubmit: (submitResult: {
     stripe: Stripe;
@@ -57,7 +56,7 @@ export type BasePaymentFormProps = {
   onEngaged: Function;
   onChange: Function;
   submitNonce: string;
-};
+} & WithLocalizationProps;
 
 export const PaymentForm = ({
   inProgress = false,
@@ -188,11 +187,15 @@ export const PaymentForm = ({
         <>
           <Localized
             id={`payment-confirm-with-legal-links-${plan.interval}`}
-            $intervalCount={plan.interval_count}
-            $amount={getLocalizedCurrency(plan.amount, plan.currency)}
-            strong={<strong></strong>}
-            termsOfServiceLink={<a href={termsOfServiceURL}></a>}
-            privacyNoticeLink={<a href={privacyNoticeURL}></a>}
+            vars={{
+              intervalCount: plan.interval_count,
+              amount: getLocalizedCurrency(plan.amount, plan.currency),
+            }}
+            elems={{
+              strong: <strong></strong>,
+              termsOfServiceLink: <a href={termsOfServiceURL}></a>,
+              privacyNoticeLink: <a href={privacyNoticeURL}></a>,
+            }}
           >
             <Checkbox data-testid="confirm" name="confirm" required>
               {getDefaultPaymentConfirmText(

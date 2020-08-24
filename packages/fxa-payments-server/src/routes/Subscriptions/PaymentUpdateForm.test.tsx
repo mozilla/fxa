@@ -2,7 +2,7 @@ import React from 'react';
 import { screen, render, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import { LocalizationProvider } from '@fluent/react';
+import { LocalizationProvider, ReactLocalization } from '@fluent/react';
 
 import PaymentForm from '../../components/PaymentForm';
 jest.mock('../../components/PaymentForm', () => {
@@ -44,7 +44,7 @@ describe('PaymentUpdateFormV1', () => {
       'pay-update-change-btn = gogo',
     ].forEach((x) => bundle.addResource(new FluentResource(x)));
     render(
-      <LocalizationProvider bundles={[bundle]}>
+      <LocalizationProvider l10n={new ReactLocalization([bundle])}>
         <PaymentUpdateForm {...baseProps} />
       </LocalizationProvider>
     );

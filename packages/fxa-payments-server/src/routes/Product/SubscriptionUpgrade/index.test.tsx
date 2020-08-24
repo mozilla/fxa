@@ -179,8 +179,8 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-        expect(legalCheckbox.props.$amount).toStrictEqual(expectedAmount);
-        expect(legalCheckbox.props.$intervalCount).toBe(plan.interval_count);
+        expect(legalCheckbox.props.vars.amount).toStrictEqual(expectedAmount);
+        expect(legalCheckbox.props.vars.intervalCount).toBe(plan.interval_count);
         expect(legalCheckbox.props.children.props.children).toBe(expectedMsg);
       }
 
@@ -403,8 +403,8 @@ describe('PlanDetailsCard', () => {
       });
       const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
 
-      expect(planPriceComponent.props.$amount).toStrictEqual(expectedAmount);
-      expect(planPriceComponent.props.$intervalCount).toBe(plan.interval_count);
+      expect(planPriceComponent.props.vars.amount).toStrictEqual(expectedAmount);
+      expect(planPriceComponent.props.vars.intervalCount).toBe(plan.interval_count);
       expect(planPriceComponent.props.children).toBe(
         expectedMsg
       );

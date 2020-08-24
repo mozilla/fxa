@@ -135,13 +135,10 @@ export const PaymentUpdateForm = ({
               {last4 && expirationDate && (
                 <>
                   {/* TODO: Need to find a way to display a card icon here? */}
-                  <Localized id="sub-update-card-ending" $last={last4}>
+                  <Localized id="sub-update-card-ending" vars={{ last: last4 }}>
                     <div className="last-four">Card ending {last4}</div>
                   </Localized>
-                  <Localized
-                    id="pay-update-card-exp"
-                    $expirationDate={expirationDate}
-                  >
+                  <Localized id="pay-update-card-exp" vars={{ expirationDate }}>
                     <div data-testid="card-expiration-date" className="expiry">
                       Expires {expirationDate}
                     </div>

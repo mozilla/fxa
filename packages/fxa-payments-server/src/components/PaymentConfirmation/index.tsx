@@ -34,7 +34,7 @@ export const PaymentConfirmation = ({
   });
 
   const heading = displayName ? (
-    <Localized id="payment-confirmation-heading" $displayName={displayName}>
+    <Localized id="payment-confirmation-heading" vars={{ displayName }}>
       <h2></h2>
     </Localized>
   ) : (
@@ -71,7 +71,7 @@ export const PaymentConfirmation = ({
         <div className="bottom-row">
           <Localized
             id="payment-confirmation-invoice-number"
-            $invoiceNumber={invoiceNumber}
+            vars={{ invoiceNumber }}
           >
             <p></p>
           </Localized>
@@ -96,13 +96,15 @@ export const PaymentConfirmation = ({
         <div className="bottom-row">
           <Localized
             id={`payment-confirmation-amount-${interval}`}
-            $amount={getLocalizedCurrency(amount, currency)}
-            $intervalCount={interval_count}
+            vars={{
+              amount: getLocalizedCurrency(amount, currency),
+              intervalCount: interval_count,
+            }}
           >
             <p>{planPrice}</p>
           </Localized>
           {last4 && brand && (
-            <Localized id="payment-confirmation-cc-preview" $last4={last4}>
+            <Localized id="payment-confirmation-cc-preview" vars={{ last4 }}>
               <p className={`c-card ${brand.toLowerCase()}`}></p>
             </Localized>
           )}
