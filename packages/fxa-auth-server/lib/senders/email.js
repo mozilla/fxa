@@ -215,10 +215,12 @@ module.exports = function (log, config, oauthdb) {
   };
 
   function cardTypeToText(cardType) {
-    if (!cardType) {
+    if (typeof cardType !== 'string') {
       return null;
     }
-    return CARD_TYPE_TO_TEXT[cardType] || CARD_TYPE_TO_TEXT.unknown;
+    return (
+      CARD_TYPE_TO_TEXT[cardType.toLowerCase()] || CARD_TYPE_TO_TEXT.unknown
+    );
   }
 
   function Mailer(translator, templates, mailerConfig, sender) {
