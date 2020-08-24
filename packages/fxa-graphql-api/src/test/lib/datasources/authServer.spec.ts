@@ -86,6 +86,7 @@ describe('AuthServerSource', () => {
       recoveryEmailSecondaryVerifyCode: sandbox.stub(),
       sessionResendVerifyCode: sandbox.stub(),
       sessionVerifyCode: sandbox.stub(),
+      sessionDestroy: sandbox.stub(),
     };
     Container.set(fxAccountClientToken, authClient);
     context = mockContext() as Context;
@@ -160,6 +161,7 @@ describe('AuthServerSource', () => {
     'sessionResendVerifyCode',
     'sessionVerifyCode',
     'deleteRecoveryKey',
+    'sessionDestroy',
   ]) {
     describe(name, () => {
       it('returns', async () => {

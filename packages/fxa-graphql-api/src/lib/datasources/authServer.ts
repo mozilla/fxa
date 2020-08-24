@@ -113,4 +113,8 @@ export class AuthServerSource extends DataSource {
   public deleteRecoveryKey() {
     return this.authClient.deleteRecoveryKey(this.token);
   }
+
+  public sessionDestroy() {
+    return this.authClient.sessionDestroy(this.token);
+  }
 }
