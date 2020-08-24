@@ -5,17 +5,29 @@
 import React, { useRef } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import * as apolloClient from '@apollo/client';
 
 import {
   useFocusOnTriggeringElementOnClose,
   useEscKeydownEffect,
   useChangeFocusEffect,
+  useHandledMutation,
 } from './hooks';
 
 describe('useFocusOnTriggeringElementOnClose', () => {
-  const Subject = ({ revealed, triggerException }: { revealed?: boolean, triggerException?: boolean | undefined }) => {
+  const Subject = ({
+    revealed,
+    triggerException,
+  }: {
+    revealed?: boolean;
+    triggerException?: boolean | undefined;
+  }) => {
     const triggerElement = useRef<HTMLButtonElement>(null);
-    useFocusOnTriggeringElementOnClose(revealed, triggerElement, triggerException);
+    useFocusOnTriggeringElementOnClose(
+      revealed,
+      triggerElement,
+      triggerException
+    );
 
     return (
       <button ref={triggerElement} data-testid="trigger-element">
@@ -74,5 +86,35 @@ describe('useChangeFocusEffect', () => {
   it('changes focus as expected', () => {
     render(<Subject />);
     expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
+  });
+});
+
+describe('useHandledMutation', () => {
+  const query = {
+    kind: 'Document',
+    definitions: [],
+  } as apolloClient.DocumentNode;
+
+  beforeEach(() => {
+    Object.defineProperty(apolloClient, 'useMutation', {
+      value: jest.fn(),
+    });
+  });
+
+  it('calls useMutation with the correct default params', () => {
+    useHandledMutation(query);
+
+    expect(apolloClient.useMutation).toHaveBeenCalledWith(query, {
+      onError: expect.any(Function),
+    });
+  });
+
+  it('calls useMutation with additional params', () => {
+    useHandledMutation(query, { fetchPolicy: 'no-cache' });
+
+    expect(apolloClient.useMutation).toHaveBeenCalledWith(query, {
+      onError: expect.any(Function),
+      fetchPolicy: 'no-cache',
+    });
   });
 });
