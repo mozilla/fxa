@@ -116,6 +116,21 @@ describe('/token POST', function () {
       );
     });
 
+    // TODO: hsould this be "allows TTL lower than configured max TTL value"?
+    it('allows TTL of 6 hours', () => {
+      v(
+        {
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          code: CODE,
+          ttl: 60 * 60 * 6, // 6 hours
+        },
+        (err) => {
+          assert.equal(err, null);
+        }
+      );
+    });
+
     describe('pkce', () => {
       it('accepts pkce code_verifier instead of client_secret', (done) => {
         v(
