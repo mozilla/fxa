@@ -148,24 +148,11 @@
           </h1>
           <button id="logout">logout</button>
           <div id="loggedin"><span></span></div>
-          <div id="subscriptionCTA">
-            <a
-              href="//localhost:3030/subscriptions/products/prod_GqM9ToKK62qjkK"
-              class="btn btn-persona btn-subscribe"
-              >Subscribe for Pro</a
-            >
-          </div>
         </div>
       </header>
       <section class="todo">
         <div class="container">
           <div class="preroll">
-            <div id="subscriptionCTA">
-              <span
-                >Subscribe for pro! LINK TBD!
-                productId=123doneProProduct&amp;</span
-              >
-            </div>
             <ul id="signinhere" style="font-size: 15pt;">
               <p>Sign in to get started making todo lists!</p>
             </ul>
@@ -203,6 +190,25 @@
 
     <footer id="footer-main">
       <div class="container">
+        <div class="subscription-buttons">
+          <a
+          class="btn btn-persona btn-subscribe" data-currency="usd"
+          >Subscribe to Pro (USD)</a
+        >
+          <a
+          class="btn btn-persona btn-subscribe" data-currency="eur"
+          >Subscribe to Pro (EUR)</a
+        >
+        <a
+          class="btn btn-persona btn-subscribe" data-currency="cad"
+          >Subscribe to Pro (CAD)</a
+        >
+        <a
+          class="btn btn-persona btn-subscribe" data-currency="myr"
+          >Subscribe to Pro (MYR)</a
+        >
+        </div>
+
         <div class="logo"></div>
         <p>
           <strong>123done</strong> is a simple todo list application!
