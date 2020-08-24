@@ -10,9 +10,7 @@ type UnitRowWithAvatarProps = {
   avatarUrl: string | null;
 };
 
-export const UnitRowWithAvatar = ({
-  avatarUrl,
-}: UnitRowWithAvatarProps) => {
+export const UnitRowWithAvatar = ({ avatarUrl }: UnitRowWithAvatarProps) => {
   const ctaText = avatarUrl ? 'Change' : 'Add';
   const location = useLocation();
   return (
@@ -29,7 +27,7 @@ export const UnitRowWithAvatar = ({
       <div className="unit-row-actions">
         <div>
           <Link
-            className="cta-neutral transition-standard"
+            className="cta-neutral cta-base transition-standard"
             data-testid="unit-row-with-avatar-route"
             to={`/beta/settings/avatar/change${location.search}`}
           >

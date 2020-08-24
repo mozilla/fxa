@@ -69,7 +69,7 @@ export const Modal = ({
             {hasButtons && (
               <div className="flex mt-6">
                 <button
-                  className="cta-neutral-lg transition-standard flex-1"
+                  className="cta-neutral transition-standard flex-1"
                   data-testid="modal-cancel"
                   onClick={onDismiss}
                 >
