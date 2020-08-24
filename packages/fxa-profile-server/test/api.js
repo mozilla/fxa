@@ -1521,6 +1521,7 @@ describe('api', function () {
           'André Citroën',
           'the unblinking ಠ_ಠ of ckarlof',
           'abominable ☃',
+          'moji\uFFFDbake',
           // emoji
           '👍',
           '👍🏼',

@@ -40,15 +40,19 @@ exports.IP_ADDRESS = isA.string().ip();
 //   \u2028-\u2029  - unicode line/paragraph separator
 //   \uD800-\uDFFF  - non-BMP surrogate pairs
 //   \uE000-\uF8FF  - BMP private use area
-//   \uFFF9-\uFFFF  - unicode "specials" block
+//   \uFFF9-\uFFFC  - unicode specials prior to the replacement character
+//   \uFFFE-\uFFFF  - unicode this-is-not-a-character specials
+//
+// Note that the unicode replacement character \uFFFD is explicitly allowed,
+// and clients may use it to replace other disallowed characters.
 //
 // We might tweak this list in future.
 
-const DISPLAY_SAFE_UNICODE = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFF])*$/;
+const DISPLAY_SAFE_UNICODE = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
 module.exports.DISPLAY_SAFE_UNICODE = DISPLAY_SAFE_UNICODE;
 
 // Similar display-safe match but includes non-BMP characters
-const DISPLAY_SAFE_UNICODE_WITH_NON_BMP = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFF])*$/;
+const DISPLAY_SAFE_UNICODE_WITH_NON_BMP = /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;
 module.exports.DISPLAY_SAFE_UNICODE_WITH_NON_BMP = DISPLAY_SAFE_UNICODE_WITH_NON_BMP;
 
 // Bearer auth header regex
