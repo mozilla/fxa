@@ -99,7 +99,7 @@
     "eslint-plugin-react": "7.19.0",
     "fxa-shared": "workspace:*",
     "jest": "^24.9.0",
-    "pm2": "^4.4.0",
+    "pm2": "^4.4.1",
     "postcss-cli": "^7.1.1",
     "prettier": "^2.0.5",
     "supertest": "^4.0.2",

@@ -57,7 +57,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^24.9.0",
     "jest-environment-jsdom-fourteen": "1.0.1",
-    "pm2": "^4.4.0",
+    "pm2": "^4.4.1",
     "postcss-cli": "^7.1.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
