@@ -79,7 +79,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     render(
-      <MockedCache mocks={happyMocks}>
+      <MockedCache verified={false} mocks={happyMocks}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </MockedCache>
     );
@@ -104,7 +104,7 @@ describe('ModalVerifySession', () => {
     const onError = jest.fn();
     const onCompleted = jest.fn();
     render(
-      <MockedCache mocks={happyMocks}>
+      <MockedCache verified={false} mocks={happyMocks}>
         <ModalVerifySession {...{ onDismiss, onError, onCompleted }} />
       </MockedCache>
     );
@@ -125,7 +125,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     render(
-      <MockedCache mocks={sadMocks}>
+      <MockedCache verified={false} mocks={sadMocks}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </MockedCache>
     );
@@ -148,7 +148,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     render(
-      <MockedCache mocks={sadMocks}>
+      <MockedCache verified={false} mocks={sadMocks}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </MockedCache>
     );

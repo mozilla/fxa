@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 import Modal from '../Modal';
 import TextInput from '../TextInput';
 import { gql, useMutation } from '@apollo/client';
-import { useAccount } from '../../models';
+import { useAccount, useSession } from '../../models';
 
 type ModalProps = {
   onDismiss: () => void;
@@ -33,8 +33,9 @@ export const VERIFY_SESSION_MUTATION = gql`
 export const ModalVerifySession = ({
   onDismiss,
   onError,
-  onCompleted = () => {},
+  onCompleted,
 }: ModalProps) => {
+  const session = useSession();
   const [code, setCode] = useState<string>();
   const [errorText, setErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
@@ -44,7 +45,6 @@ export const ModalVerifySession = ({
     onError,
   });
   const [verifySession] = useMutation(VERIFY_SESSION_MUTATION, {
-    onCompleted,
     onError: (error) => {
       if (error.graphQLErrors?.length) {
         setErrorText(error.message);
@@ -64,9 +64,18 @@ export const ModalVerifySession = ({
       });
     },
   });
+
   useEffect(() => {
-    sendCode();
-  }, [sendCode]);
+    if (onCompleted && session.verified) {
+      onCompleted();
+    } else {
+      sendCode();
+    }
+  }, [session, sendCode, onCompleted]);
+
+  if (session.verified) {
+    return <></>;
+  }
 
   return (
     <Modal
