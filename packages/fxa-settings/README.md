@@ -66,31 +66,30 @@ The `AlertBar` is used to display messages to the user, typically for communicat
 
 A basic example for displaying the component:
 
-```
+```jsx
 const MyComponent = () => {
   /* `alertBarRevealed` will return `false` on first render. `revealAlertBar` and `hideAlertBar`
    * are functions - call `revealAlertBar` when you need `alertBarRevealed` to be `true` and
    * call `hideAlertBar` when it should be `false`. You'll typically pass `hideAlertBar` into
    * `AlertBar` as the `onDismiss` prop.
-  */
+   */
   const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
 
-  return(
+  return (
     <>
-    {alertBarRevealed &&
-      <AlertBar onDismiss={hideAlertBar}>
-        <p>Alert bar text!</p>
-      </AlertBar>
-    }
+      {alertBarRevealed && (
+        <AlertBar onDismiss={hideAlertBar}>
+          <p>Alert bar text!</p>
+        </AlertBar>
+      )}
       <div>
-        <button
-          onClick={revealAlertBar}
-        >Click here to see the AlertBar!
+        <button onClick={revealAlertBar}>
+          Click here to see the AlertBar!
         </button>
       </div>
     </>
   );
-}
+};
 ```
 
 See the "Testing" section for mocking the `AlertBar`.
@@ -288,7 +287,7 @@ Inlining our SVGs will minimize the number of network requests our application n
 
 If the inlined SVG is inside of a button, you can forgo the `role` and `aria-label` by preferring a `title` on a button:
 
-```
+```jsx
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 ...
 <button
@@ -371,7 +370,7 @@ Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more adva
 
 Because the `AlertBar` renders children into `<div id="alert-bar-root"></div>` located just below the layout header in the DOM in the real application, this element and the reference to it, located in `AlertBarContext`, must be present when running isolated tests. Wrap the test in `AlertBarRootAndContextProvider` for this purpose.
 
-```
+```jsx
 const { rerender } = render(<AlertBarRootAndContextProvider />);
 rerender(
   <AlertBarRootAndContextProvider>
