@@ -113,6 +113,10 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     assert.isTrue(broker.hasCapability('fxaStatus'));
   });
 
+  it('capability reuseExistingSession false', () => {
+    assert.isFalse(broker.getCapability('reuseExistingSession'));
+  });
+
   it('status capability - choose_what_to_sync: true with engines', (done) => {
     channelMock.request = sinon.spy(() =>
       Promise.resolve({
