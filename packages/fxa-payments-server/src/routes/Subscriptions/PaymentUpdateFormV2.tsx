@@ -11,7 +11,7 @@ import { getErrorMessage } from '../../lib/errors';
 import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import { Customer } from '../../store/types';
 import AlertBar from '../../components/AlertBar';
-import PaymentForm, { PaymentFormProps } from '../../components/PaymentFormV2';
+import PaymentForm from '../../components/PaymentFormV2';
 import ErrorMessage from '../../components/ErrorMessage';
 import * as Amplitude from '../../lib/amplitude';
 import * as apiClient from 'fxa-payments-server/src/lib/apiClient';
@@ -63,7 +63,7 @@ export const PaymentUpdateForm = ({
     resetUpdatePaymentIsSuccess,
   ]);
 
-  const onSubmit: PaymentFormProps['onSubmit'] = useCallback(
+  const onSubmit = useCallback(
     async ({ stripe: stripeFromParams, ...params }) => {
       setInProgress();
       resetUpdatePaymentIsSuccess();

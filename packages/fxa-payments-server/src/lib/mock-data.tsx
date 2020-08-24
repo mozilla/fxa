@@ -12,6 +12,10 @@ export const PROFILE: Profile = {
   uid: '8675309asdf',
 };
 
+export const NEW_CUSTOMER: Customer = {
+  subscriptions: [],
+};
+
 export const CUSTOMER: Customer = {
   billing_name: 'Foo Barson',
   payment_type: 'credit',

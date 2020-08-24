@@ -27,9 +27,9 @@ export default {
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
   createSubscription: (
-    paymentToken: string,
+    paymentToken: string | null,
     plan: Plan,
-    displayName: string,
+    displayName: string | null,
     idempotencyKey: string
   ) =>
     ({

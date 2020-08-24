@@ -122,10 +122,10 @@ export async function apiFetchCustomer(): Promise<Customer> {
 }
 
 export async function apiCreateSubscription(params: {
-  paymentToken: string;
+  paymentToken: string | null;
   planId: string;
   productId: string;
-  displayName: string;
+  displayName: string | null;
   idempotencyKey: string;
 }) {
   const metricsOptions = {
@@ -263,7 +263,7 @@ export async function apiCreateCustomer(params: {
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
   productId: string;
-  paymentMethodId: string;
+  paymentMethodId?: string;
   idempotencyKey: string;
 }): Promise<{
   id: string;
@@ -273,6 +273,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
       id: string;
       client_secret: string;
       status: string;
+      payment_method: string;
     };
   };
 }> {
@@ -312,6 +313,7 @@ export async function apiRetryInvoice(params: {
     id: string;
     client_secret: string;
     status: string;
+    payment_method: string;
   };
 }> {
   return apiFetch(

@@ -505,8 +505,8 @@ export const MOCK_CUSTOMER = {
   payment_type: 'card',
   brand: 'Visa',
   last4: '8675',
-  exp_month: 8,
-  exp_year: 2020,
+  exp_month: '8',
+  exp_year: '2020',
   subscriptions: [
     {
       subscription_id: 'sub0.28964929339372136',

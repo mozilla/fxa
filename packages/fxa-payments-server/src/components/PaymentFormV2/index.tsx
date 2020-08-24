@@ -1,5 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Localized, withLocalization, WithLocalizationProps } from '@fluent/react';
+import {
+  Localized,
+  withLocalization,
+  WithLocalizationProps,
+} from '@fluent/react';
 import {
   Stripe,
   StripeElements,
@@ -32,24 +36,31 @@ import {
   getDefaultPaymentConfirmText,
 } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
-import { Plan } from '../../store/types';
+import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 import './index.scss';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
+export type PaymentSubmitResult = {
+  stripe: Stripe;
+  elements: StripeElements;
+  name: string;
+  card: StripeCardElement | null;
+  idempotencyKey: string;
+};
+export type PaymentUpdateResult = PaymentSubmitResult & {
+  card: StripeCardElement;
+};
+
 export type BasePaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
   plan?: Plan;
+  customer?: Customer | null;
+  getString?: Function;
   onCancel?: () => void;
-  onSubmit: (submitResult: {
-    stripe: Stripe;
-    elements: StripeElements;
-    name: string;
-    card: StripeCardElement;
-    idempotencyKey: string;
-  }) => void;
+  onSubmit: (submitResult: PaymentSubmitResult | PaymentUpdateResult) => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
   onMounted: Function;
@@ -62,6 +73,7 @@ export const PaymentForm = ({
   inProgress = false,
   confirm = true,
   plan,
+  customer,
   getString,
   onSubmit: onSubmitForParent,
   onCancel,
@@ -72,6 +84,8 @@ export const PaymentForm = ({
   onChange: onChangeProp,
   submitNonce,
 }: BasePaymentFormProps) => {
+  const hasExistingCard = customer && customer.last4;
+
   const stripe = useStripe();
   const elements = useElements();
 
@@ -108,7 +122,7 @@ export const PaymentForm = ({
       const { name } = validator.getValues();
       const card = elements.getElement(CardElement);
       /* istanbul ignore next - card should exist unless there was an external stripe loading error, handled above */
-      if (card) {
+      if (hasExistingCard || card) {
         onSubmitForParent({
           stripe,
           elements,
@@ -144,15 +158,23 @@ export const PaymentForm = ({
       navigatorLanguages
     ));
   }
-
-  return (
-    <Form
-      data-testid="paymentForm"
-      validator={validator}
-      onSubmit={onSubmit}
-      className="payment"
-      {...{ onChange }}
-    >
+  const paymentSource = hasExistingCard ? (
+    <div className="card-details" data-testid="card-details">
+      <Localized
+        id="sub-update-card-ending"
+        vars={{
+          last: (customer as Customer).last4!,
+        }}
+      >
+        <div
+          className={`new-sub c-card unbranded ${customer?.brand?.toLowerCase()}`}
+        >
+          Card ending {customer?.last4}
+        </div>
+      </Localized>
+    </div>
+  ) : (
+    <>
       <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
         <Input
           type="text"
@@ -180,6 +202,18 @@ export const PaymentForm = ({
           required
         />
       </Localized>
+    </>
+  );
+
+  return (
+    <Form
+      data-testid="paymentForm"
+      validator={validator}
+      onSubmit={onSubmit}
+      className="payment"
+      {...{ onChange }}
+    >
+      {paymentSource}
 
       <hr />
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
@@ -149,7 +149,7 @@ export const SubscriptionCreate = ({
             </Localized>
           </h3>
 
-          <AcceptedCards />
+          {!hasExistingCard(customer) && <AcceptedCards />}
 
           <ErrorMessage isVisible={!!paymentError}>
             {paymentError && (
@@ -163,6 +163,7 @@ export const SubscriptionCreate = ({
 
           <PaymentForm
             {...{
+              customer,
               submitNonce,
               onSubmit,
               onChange,
@@ -223,7 +224,7 @@ async function handleSubscriptionPayment({
 }: {
   stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
   name: string;
-  card: StripeCardElement;
+  card: StripeCardElement | null;
   idempotencyKey: string;
   selectedPlan: Plan;
   customer: Customer | null;
@@ -232,13 +233,38 @@ async function handleSubscriptionPayment({
   onRetry: (status: RetryStatus) => void;
   onSuccess: () => void;
 } & SubscriptionCreateAuthServerAPIs) {
+  // If there's an existing card on record, GOTO 3
+
+  if (hasExistingCard(customer)) {
+    const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
+      {
+        priceId: selectedPlan.plan_id,
+        productId: selectedPlan.product_id,
+        idempotencyKey,
+      }
+    );
+    return handlePaymentIntent({
+      invoiceId: createSubscriptionResult.latest_invoice.id,
+      paymentIntentStatus:
+        createSubscriptionResult.latest_invoice.payment_intent.status,
+      paymentIntentClientSecret:
+        createSubscriptionResult.latest_invoice.payment_intent.client_secret,
+      paymentMethodId:
+        createSubscriptionResult.latest_invoice.payment_intent.payment_method,
+      stripe,
+      onSuccess,
+      onFailure,
+      onRetry,
+    });
+  }
+
   // 1. Create the payment method.
   const {
     paymentMethod,
     error: paymentError,
   } = await stripe.createPaymentMethod({
     type: 'card',
-    card,
+    card: card as StripeCardElement,
   });
   if (paymentError) {
     return onFailure(paymentError);
@@ -314,7 +340,7 @@ async function handlePaymentIntent({
   invoiceId: string;
   paymentIntentStatus: string;
   paymentIntentClientSecret: string | null;
-  paymentMethodId: string;
+  paymentMethodId: string | undefined;
   stripe: Pick<Stripe, 'confirmCardPayment'>;
   onFailure: (error: PaymentError) => void;
   onRetry: (status: RetryStatus) => void;
@@ -359,5 +385,8 @@ async function handlePaymentIntent({
     }
   }
 }
+
+const hasExistingCard = (customer: Customer | null) =>
+  customer && customer.last4;
 
 export default SubscriptionCreate;

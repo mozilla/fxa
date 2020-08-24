@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
-import { Plan } from '../../../store/types';
+import { Plan, Customer } from '../../../store/types';
 
 import { State as ValidatorState } from '../../../lib/validator';
 
@@ -19,6 +19,7 @@ import './index.scss';
 
 export type SubscriptionCreateProps = {
   accountActivated: boolean;
+  customer?: Customer;
   selectedPlan: Plan;
   createSubscriptionAndRefresh: ProductProps['createSubscriptionAndRefresh'];
   createSubscriptionStatus: ProductProps['createSubscriptionStatus'];
@@ -28,6 +29,7 @@ export type SubscriptionCreateProps = {
 
 export const SubscriptionCreate = ({
   accountActivated,
+  customer,
   selectedPlan,
   createSubscriptionAndRefresh: createSubscriptionAndRefreshBase,
   createSubscriptionStatus,
@@ -101,15 +103,15 @@ export const SubscriptionCreate = ({
 
   const onPayment = useCallback(
     (
-      tokenResponse: stripe.TokenResponse,
-      name: string,
+      tokenResponse: stripe.TokenResponse | null,
+      name: string | null,
       idempotencyKey: string
     ) => {
-      if (tokenResponse && tokenResponse.token) {
+      if (hasExistingCard || (tokenResponse && tokenResponse.token)) {
         createSubscriptionAndRefresh(
-          tokenResponse.token.id,
+          tokenResponse?.token?.id || null,
           selectedPlan,
-          name,
+          name || null,
           idempotencyKey
         );
       } else {
@@ -129,6 +131,8 @@ export const SubscriptionCreate = ({
     },
     [setCreateTokenError]
   );
+
+  const hasExistingCard = customer && customer.last4;
 
   return (
     <div className="product-payment" data-testid="subscription-create">
@@ -150,9 +154,9 @@ export const SubscriptionCreate = ({
         </Localized>
       </h3>
 
-      <AcceptedCards />
+      {!hasExistingCard && <AcceptedCards />}
 
-      <ErrorMessage isVisible={!!createTokenError.error}>
+      <ErrorMessage isVisible={!hasExistingCard && !!createTokenError.error}>
         {createTokenError.error && (
           <Localized id={getErrorMessage(createTokenError.type)}>
             <p data-testid="error-payment-submission">
@@ -189,6 +193,7 @@ export const SubscriptionCreate = ({
           inProgress,
           validatorInitialState,
           confirm: true,
+          customer,
           plan: selectedPlan,
           onMounted: onFormMounted,
           onEngaged: onFormEngaged,
