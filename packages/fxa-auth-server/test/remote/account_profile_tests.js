@@ -63,7 +63,7 @@ describe('fetch user profile data', function () {
   describe('when a request is authenticated with a valid oauth token', async () => {
     let token;
 
-    async function initialize(scope) {
+    async function initialize(scope, ttl) {
       email = server.uniqueEmail();
       password = 'test password';
       client = await Client.createAndVerify(
@@ -74,13 +74,18 @@ describe('fetch user profile data', function () {
         { lang: 'en-US' }
       );
 
-      const tokenResponse = await client.grantOAuthTokensFromSessionToken({
+      const tokenArgs = {
         grant_type: 'fxa-credentials',
         client_id: CLIENT_ID,
         access_type: 'offline',
         scope: scope,
-      });
-
+      };
+      if (ttl) {
+        tokenArgs.ttl = ttl;
+      }
+      const tokenResponse = await client.grantOAuthTokensFromSessionToken(
+        tokenArgs
+      );
       token = tokenResponse.access_token;
     }
 
@@ -101,6 +106,21 @@ describe('fetch user profile data', function () {
         'assurance level is returned'
       );
       assert.ok(response.profileChangedAt, 'profileChangedAt is returned');
+    });
+
+    describe('shorter TTL token is considered valid', async () => {
+      it('allows six hour TTL', async () => {
+        const SIX_HOURS_IN_SEC = 60 * 60 * 6;
+        await initialize('profile', SIX_HOURS_IN_SEC);
+
+        let response;
+        try {
+          response = await client.accountProfile(token);
+          assert.ok(response);
+        } catch (err) {
+          assert.fail(err, 'should not fail on shorter TTL');
+        }
+      });
     });
 
     describe('scopes are applied to profile data returned', async () => {

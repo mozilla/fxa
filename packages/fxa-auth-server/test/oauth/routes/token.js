@@ -116,19 +116,58 @@ describe('/token POST', function () {
       );
     });
 
-    // TODO: hsould this be "allows TTL lower than configured max TTL value"?
-    it('allows TTL of 6 hours', () => {
-      v(
-        {
-          client_id: CLIENT_ID,
-          client_secret: CLIENT_SECRET,
-          code: CODE,
-          ttl: 60 * 60 * 6, // 6 hours
-        },
-        (err) => {
-          assert.equal(err, null);
-        }
-      );
+    describe('refresh_token grants', () => {
+      it('accepts a valid refresh_token request', (done) => {
+        v(
+          {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'refresh_token',
+            refresh_token: REFRESH_TOKEN,
+          },
+          (err) => {
+            assert.equal(err, null);
+            done();
+          }
+        );
+      });
+
+      it('allows TTL of 6 hours for a refresh_token request', (done) => {
+        v(
+          {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'refresh_token',
+            refresh_token: REFRESH_TOKEN,
+            ttl: 60 * 60 * 6, // 6 hours
+          },
+          (err) => {
+            assert.equal(err, null);
+            done();
+          }
+        );
+      });
+
+      it('allows TTL of 6 hours for a profile scope refresh_token request', (done) => {
+        const PPID_SEED = Math.floor(Math.random() * 1024);
+        const PROFILE_URL = 'https://profile.accounts.firefox.com/v1/profile';
+        v(
+          {
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'refresh_token',
+            refresh_token: REFRESH_TOKEN,
+            ttl: 60 * 60 * 6, // 6 hours
+            scope: 'profile',
+            ppid_seed: PPID_SEED,
+            resource: PROFILE_URL,
+          },
+          (err) => {
+            assert.equal(err, null);
+            done();
+          }
+        );
+      });
     });
 
     describe('pkce', () => {
@@ -274,5 +313,27 @@ describe('/token POST', function () {
         assert.equal(err.errno, 202); // Disabled client.
       }
     });
+    /*
+    it('allows grants for enabled clients', async () => {
+      const ppidSeed = Math.floor(Math.random() * 1024);
+      request.payload.client_id = NON_DISABLED_CLIENT_ID;
+      //request.payload.client_secret = CLIENT_SECRET;
+      request.payload.grant_type = 'refresh_token';
+      request.payload.scope = 'profile';
+      //request.payload.refresh_token = REFRESH_TOKEN;
+      //request.payload.ttl = 60 * 60 * 6; // 6 hrs
+      request.payload.ppid_seed = ppidSeed;
+      request.payload.resource = 'https://profile.accounts.firefox.com/v1/profile';
+
+      try {
+        const resp = await route.handler(request);
+        assert.equal(resp, true);
+      } catch (err) {
+        assert.equal(JSON.stringify(err), null);
+        assert.fail('should have passed');
+      }
+
+    });
+  */
   });
 });
