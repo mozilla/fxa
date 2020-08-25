@@ -225,6 +225,12 @@ export class ChangePasswordForm extends React.Component {
             />
           </div>
 
+          {/* The browser wait until all the required inputs is fulfilled to
+         - show the "Save Password" doorhange. This non-fulfilled input tricks
+         - the browser into not showing the doorhanger until the page is changed
+         - with the text on the input. #547*/}
+          <input class="hidden" required />
+
           <div className="button-row">
             <button type="submit" className="settings-button primary-button">
               {t('Change')}
