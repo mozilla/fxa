@@ -26,6 +26,13 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
   defaultCapabilities: _.extend({}, proto.defaultCapabilities, {
     chooseWhatToSyncWebV1: true,
     openWebmailButtonVisible: false,
+
+    // For oauth webchannel clients, the sessionToken will get exchanged
+    // for a refresh token so we shouldn't really reuse it. For example,
+    // reusing a sessionToken that was verified with 2FA, would not prompt
+    // the user for the 2FA code again because the session already has
+    // the highest verification level.
+    reuseExistingSession: false,
   }),
 
   commands: _.pick(WebChannel, 'FXA_STATUS', 'OAUTH_LOGIN', 'DELETE_ACCOUNT'),
