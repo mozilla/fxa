@@ -13,6 +13,8 @@ import { Account } from '../../models';
 import { Router } from '@reach/router';
 import FlowContainer from '../FlowContainer';
 import ChangePassword from '../ChangePassword';
+import FlowSecondaryEmailAdd from '../FlowSecondaryEmailAdd';
+import FlowSecondaryEmailVerify from '../FlowSecondaryEmailVerify';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -77,6 +79,8 @@ export const App = ({ flowQueryParams }: AppProps) => {
         <FlowContainer path="/avatar/change" title="Profile picture" />
         <FlowContainer path="/display_name" title="Display name" />
         <ChangePassword path="/change_password" />
+        <FlowSecondaryEmailAdd path="/emails" />
+        <FlowSecondaryEmailVerify path="/emails/verify" />
       </Router>
     </AppLayout>
   );

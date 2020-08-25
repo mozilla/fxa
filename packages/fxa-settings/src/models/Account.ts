@@ -1,4 +1,4 @@
-import { gql, useQuery } from '@apollo/client';
+import { gql, useApolloClient } from '@apollo/client';
 
 export interface Email {
   email: string;
@@ -69,8 +69,12 @@ export const GET_ACCOUNT = gql`
 `;
 
 export function useAccount() {
-  const { data } = useQuery<{ account: Account }>(GET_ACCOUNT, {
-    fetchPolicy: 'cache-only',
-  });
-  return data!.account;
+  // work around for https://github.com/apollographql/apollo-client/issues/6209
+  // see git history for previous version
+  const client = useApolloClient();
+  const { account } = client.cache.readQuery<{ account: Account }>({
+    query: GET_ACCOUNT,
+  })!;
+
+  return account;
 }

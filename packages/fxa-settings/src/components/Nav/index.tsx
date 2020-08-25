@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { ReactComponent as OpenExternal } from './open-external.svg';
 import { useAccount } from '../../models';
-import { RouteComponentProps } from '@reach/router';
 
 const activeClasses = 'bg-grey-100 font-bold text-blue-500 rounded-sm';
 
@@ -15,7 +14,7 @@ const activeClasses = 'bg-grey-100 font-bold text-blue-500 rounded-sm';
 // `nav`: bg-white w-full inset-0 mt-18 mr-24 desktop:bg-transparent text-xl desktop:text-base
 // `nav ul`: px-6 py-7 tablet:px-8 desktop:p-0
 
-export const Nav = (_: RouteComponentProps) => {
+export const Nav = () => {
   const account = useAccount();
   const primaryEmail = account.primaryEmail.email;
   const hasSubscription = account.subscriptions.length > 0;

@@ -96,15 +96,12 @@ export const ModalVerifySession = ({
           <span className="font-bold">{primaryEmail.email}</span> within 5
           minutes.
         </p>
-        {/* TODO: proper validation error text ↓ is just a placeholder */}
-        <p className="text-red-500" data-testid="modal-verify-session-error">
-          {errorText}
-        </p>
         <TextInput
           label="Enter your verification code"
           onChange={(event) => {
             setCode(event.target.value);
           }}
+          {...{ errorText }}
         ></TextInput>
         <div className="flex mt-6">
           <button

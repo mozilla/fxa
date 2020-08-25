@@ -3,18 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act, wait } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { InMemoryCache } from '@apollo/client';
-import { MockedProvider } from '@apollo/client/testing';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import {
-  MockedCache,
-  MOCK_ACCOUNT,
-  renderWithRouter,
-  mockEmail,
-} from '../../models/_mocks';
-import { GET_INITIAL_STATE } from '../App';
+import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
 import { UnitRowSecondaryEmail, RESEND_SECONDARY_EMAIL_CODE_MUTATION } from '.';
 
 const mockGqlSuccess = (email: string) => ({
@@ -53,7 +45,7 @@ describe('UnitRowSecondaryEmail', () => {
       );
       expect(screen.getByTestId('unit-row-route')).toHaveAttribute(
         'href',
-        '/beta/settings/secondary_email'
+        '/beta/settings/emails'
       );
       expect(
         screen.getByTestId('secondary-email-default-content')
@@ -63,26 +55,6 @@ describe('UnitRowSecondaryEmail', () => {
         '#recovery-key'
       );
     });
-
-    it('opens a modal on CTA click when the primary email is unverified', () => {
-      const primaryEmail = {
-        email: 'johndope@example.com',
-        isPrimary: true,
-        verified: false,
-      };
-      renderWithRouter(
-        <MockedCache account={{ primaryEmail, emails: [primaryEmail] }}>
-          <UnitRowSecondaryEmail />
-        </MockedCache>
-      );
-      const unitRowModal = screen.getByTestId('unit-row-modal');
-      expect(unitRowModal.textContent).toContain('Add');
-      fireEvent.click(unitRowModal);
-      expect(
-        screen.getByTestId('modal-header-verify-email').textContent
-      ).toContain('Verify primary email first');
-      expect(screen.getByTestId('modal-desc-verify-email')).toBeInTheDocument();
-    });
   });
 
   describe('one secondary email set', () => {
@@ -91,7 +63,7 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      render(
+      renderWithRouter(
         <MockedCache account={{ emails }}>
           <UnitRowSecondaryEmail />
         </MockedCache>
@@ -112,7 +84,7 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false),
       ];
-      render(
+      renderWithRouter(
         <MockedCache account={{ emails }}>
           <UnitRowSecondaryEmail />
         </MockedCache>
@@ -139,7 +111,7 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false),
       ];
-      render(
+      renderWithRouter(
         <MockedCache account={{ emails }}>
           <UnitRowSecondaryEmail />
         </MockedCache>
@@ -174,7 +146,7 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope3@example.com', false),
         mockEmail('johndope4@example.com', false, false),
       ];
-      render(
+      renderWithRouter(
         <MockedCache account={{ emails }}>
           <UnitRowSecondaryEmail />
         </MockedCache>
@@ -194,30 +166,21 @@ describe('UnitRowSecondaryEmail', () => {
   });
 
   describe('resendSecondaryEmailCode', () => {
-    it('displays a success message in the AlertBar', async () => {
+    it('navigates to the emails/verify route on success', async () => {
       const primaryEmail = mockEmail('somethingdifferent@example.com');
 
       const emails = [
         { ...primaryEmail },
         mockEmail('johndope2@example.com', false, false),
       ];
-      const cache = new InMemoryCache();
-      cache.writeQuery({
-        query: GET_INITIAL_STATE,
-        data: {
-          account: { ...MOCK_ACCOUNT, emails, primaryEmail },
-          session: { verified: true },
-        },
-      });
       const mocks = [mockGqlSuccess('johndope2@example.com')];
 
-      const { rerender } = render(<AlertBarRootAndContextProvider />);
-      rerender(
-        <MockedProvider {...{ mocks, cache }}>
+      const { history } = renderWithRouter(
+        <MockedCache {...{ mocks, account: { emails } }}>
           <AlertBarRootAndContextProvider>
             <UnitRowSecondaryEmail />
           </AlertBarRootAndContextProvider>
-        </MockedProvider>
+        </MockedCache>
       );
 
       await act(async () => {
@@ -225,12 +188,9 @@ describe('UnitRowSecondaryEmail', () => {
           screen.getByTestId('resend-secondary-email-code-button')
         );
       });
-      expect(
-        screen.queryByTestId('resend-secondary-email-code-error')
-      ).not.toBeInTheDocument();
-      expect(
-        screen.getByTestId('resend-secondary-email-code-success').textContent
-      ).toContain('somethingdifferent@example.com');
+      await wait();
+
+      expect(history.location.pathname).toEqual('/beta/settings/emails/verify');
     });
 
     it('displays an error message in the AlertBar', async () => {
@@ -238,23 +198,14 @@ describe('UnitRowSecondaryEmail', () => {
         mockEmail('johndope@example.com'),
         mockEmail('johndope2@example.com', false, false),
       ];
-      const cache = new InMemoryCache();
-      cache.writeQuery({
-        query: GET_INITIAL_STATE,
-        data: {
-          account: { ...MOCK_ACCOUNT, emails },
-          session: { verified: true },
-        },
-      });
       const mocks = [mockGqlError('johndope2@example.com')];
 
-      const { rerender } = render(<AlertBarRootAndContextProvider />);
-      rerender(
-        <MockedProvider {...{ mocks, cache }}>
-          <AlertBarRootAndContextProvider>
+      renderWithRouter(
+        <AlertBarRootAndContextProvider>
+          <MockedCache {...{ mocks, account: { emails } }}>
             <UnitRowSecondaryEmail />
-          </AlertBarRootAndContextProvider>
-        </MockedProvider>
+          </MockedCache>
+        </AlertBarRootAndContextProvider>
       );
 
       await act(async () => {
@@ -262,6 +213,7 @@ describe('UnitRowSecondaryEmail', () => {
           screen.getByTestId('resend-secondary-email-code-button')
         );
       });
+      await wait();
       expect(
         screen.queryByTestId('resend-secondary-email-code-success')
       ).not.toBeInTheDocument();
