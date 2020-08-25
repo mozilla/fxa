@@ -1,6 +1,6 @@
 {
   "name": "fxa-metrics-processor",
-  "version": "1.0.0",
+  "version": "1.185.1",
   "description": "Firefox Accounts metrics ETL worker code",
   "main": "index.js",
   "scripts": {

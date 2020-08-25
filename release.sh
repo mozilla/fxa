@@ -245,6 +245,12 @@ bump() {
 
   # 8.3. If CHANGELOG.md exists, write the summary string to CHANGELOG.md.
   if [ -f "$1/CHANGELOG.md" ]; then
+    # If the file is empty, we seed it with the last version so awk can pick up
+    # on it.  This is cheesy, but the newlines embedded in the variables limit
+    # our options here.
+    if [ ! -s "$1/CHANGELOG.md" ]; then
+      echo "## $LAST_VERSION" > "$1/CHANGELOG.md"
+    fi
     awk "{ gsub(/^## $LAST_VERSION/, \"## $NEW_VERSION\n\n$SUMMARY## $LAST_VERSION\") }; { print }" "$1/CHANGELOG.md" > "$1/CHANGELOG.md.release.bak"
     mv "$1/CHANGELOG.md.release.bak" "$1/CHANGELOG.md"
 

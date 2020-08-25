@@ -1,6 +1,6 @@
 {
   "name": "fxa-auth-client",
-  "version": "1.180.0",
+  "version": "1.185.1",
   "description": "",
   "main": "dist/server/server.js",
   "exports": {
