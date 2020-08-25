@@ -11230,13 +11230,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie-parser@npm:1.4.3":
-  version: 1.4.3
-  resolution: "cookie-parser@npm:1.4.3"
+"cookie-parser@npm:1.4.5":
+  version: 1.4.5
+  resolution: "cookie-parser@npm:1.4.5"
   dependencies:
-    cookie: 0.3.1
+    cookie: 0.4.0
     cookie-signature: 1.0.6
-  checksum: 81ebda8362fc39c1192751311e7a83808ebdb7cab7678a6d5538a39bf8ee456534d6a110ad9d6720e770b657cd124df1670f697d683541b9100e0e77466954e8
+  checksum: a3eeda832d81862477e40444a8d411595b91e15f9b1d2b397a173e9efa744a29129de9aaa99342cf9468641d854a464c4e215cd60d1df49374c9ccffa1af52bf
   languageName: node
   linkType: hard
 
@@ -15967,7 +15967,7 @@ fsevents@^1.2.7:
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
-    cookie-parser: 1.4.3
+    cookie-parser: 1.4.5
     copy-webpack-plugin: ^5.1.1
     core-js: ^3.6.5
     css: 2.2.3
