@@ -74,13 +74,24 @@ button::-moz-focus-inner {
 }
 
 .banner .btn,
-#header-main .btn {
+#header-main .btn,
+#footer-main .btn {
   background: #eef2f0;
   border-radius: 2px;
   margin-right: 16px;
   padding: 10px;
   color: black;
   font-size: 16px;
+}
+#footer-main .subscription-buttons {
+  display: none;
+}
+.logged-in #footer-main .subscription-buttons {
+  display: block;
+  margin: 20px 0px;
+}
+.logged-in.is-subscribed #footer-main .subscription-buttons {
+  display: none;
 }
 
 .banner .btn:hover {
@@ -192,16 +203,6 @@ button::-moz-focus-inner {
   font-size: 14px;
   margin: 7px 0;
   padding: 5px 10px;
-}
-
-#subscriptionCTA {
-  float: right;
-  margin: 7px 0;
-  padding: 5px 10px;
-}
-
-.is-subscribed #subscriptionCTA {
-  display: none;
 }
 
 #header-main h1 {
