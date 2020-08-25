@@ -185,7 +185,7 @@ export const UnitRowSecondaryEmail = () => {
             {secondaryEmailIsVerified && (
               <div>
                 <button
-                  className="cta-neutral transition-standard"
+                  className="cta-neutral cta-base transition-standard"
                   onClick={() => {
                     // Make secondaryEmail the primary email!
                   }}

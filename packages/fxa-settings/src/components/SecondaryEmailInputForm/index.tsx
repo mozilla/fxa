@@ -55,7 +55,7 @@ export const SecondaryEmailInputForm = () => {
 
       <div className="flex justify-center space-x-6">
         <Link
-          className="cta-neutral-lg transition-standard mb-3 w-32"
+          className="cta-neutral transition-standard mb-3 w-32"
           data-testid="cancel-button"
           to="/beta/settings"
         >

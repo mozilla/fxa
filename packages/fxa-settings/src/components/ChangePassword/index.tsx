@@ -40,7 +40,7 @@ export const ChangePassword = ({}: RouteComponentProps) => {
 
         <div className="flex justify-center p-2">
           <button
-            className="cta-neutral-lg w-1/4 m-2"
+            className="cta-neutral w-1/4 m-2"
             onClick={() => window.history.back()}
           >
             Cancel
