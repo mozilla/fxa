@@ -107,7 +107,7 @@
     "mocha": "^7.1.2",
     "morgan": "^1.10.0",
     "mozlog": "2.2.0",
-    "mustache": "2.3.0",
+    "mustache": "4.0.1",
     "node-sass": "^4.13.1",
     "node-uuid": "1.4.8",
     "node-vat": "0.0.9",
