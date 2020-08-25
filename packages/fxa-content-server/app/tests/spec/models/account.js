@@ -2961,6 +2961,20 @@ describe('models/account', function () {
     });
   });
 
+  describe('consumeRecoveryCode', () => {
+    beforeEach(() => {
+      sinon
+        .stub(fxaClient, 'consumeRecoveryCode')
+        .callsFake(() => Promise.resolve());
+      account.set('verified', false);
+    });
+
+    it('sets verified state to true', async () => {
+      await account.consumeRecoveryCode();
+      assert.isTrue(account.get('verified'));
+    });
+  });
+
   describe('_fetchShortLivedSubscriptionsOAuthToken', () => {
     it('calls createOAuthToken with the correct arguments', () => {
       const createOAuthTokenStub = sinon.stub(account, 'createOAuthToken');

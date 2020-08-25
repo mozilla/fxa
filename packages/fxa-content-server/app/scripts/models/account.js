@@ -1631,14 +1631,16 @@ const Account = Backbone.Model.extend(
 
      * @returns {Promise}
      */
-    consumeRecoveryCode(code) {
-      return this._fxaClient.consumeRecoveryCode(
+    async consumeRecoveryCode(code) {
+      const response = await this._fxaClient.consumeRecoveryCode(
         this.get('sessionToken'),
         code,
         {
           metricsContext: this._metrics.getFlowEventMetadata(),
         }
       );
+      this.set('verified', true);
+      return response;
     },
 
     /**
