@@ -1,5 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Localized, withLocalization, WithLocalizationProps } from '@fluent/react';
+import {
+  Localized,
+  withLocalization,
+  WithLocalizationProps,
+} from '@fluent/react';
 import {
   Stripe,
   StripeElements,
@@ -45,10 +49,14 @@ export type BasePaymentFormProps = {
   customer?: Customer | null;
   onCancel?: () => void;
   onSubmit: (submitResult: {
-    stripe?: Stripe;
-    elements?: StripeElements;
-    name?: string;
-    card?: StripeCardElement;
+    stripe: Stripe;
+    elements: StripeElements;
+    name: string;
+    card: StripeCardElement;
+    idempotencyKey: string;
+  }) => void;
+  onReuseSubmit: (submitResult: {
+    stripe: Stripe;
     idempotencyKey: string;
   }) => void;
   validatorInitialState?: ValidatorState;

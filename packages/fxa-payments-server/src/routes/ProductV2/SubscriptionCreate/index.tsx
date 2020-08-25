@@ -89,7 +89,7 @@ export const SubscriptionCreate = ({
     async ({ stripe: stripeFromParams, ...params }) => {
       setInProgress(true);
       try {
-        if (!params.card) {
+        if (!params.card && customer) {
           await handleSubscriptionPaymentWithExistingMethod({
             ...params,
             ...apiClient,
@@ -128,6 +128,55 @@ export const SubscriptionCreate = ({
         }
       } catch (error) {
         console.error('handleSubscriptionPayment failed', error);
+        setPaymentError(error);
+      }
+      setInProgress(false);
+      refreshSubmitNonce();
+    },
+    [
+      selectedPlan,
+      customer,
+      retryStatus,
+      apiClientOverrides,
+      stripeOverride,
+      setInProgress,
+      refreshSubscriptions,
+      refreshSubmitNonce,
+      setPaymentError,
+      setRetryStatus,
+    ]
+  );
+
+  const onReuseSubmit: PaymentFormProps['onReuseSubmit'] = useCallback(
+    async ({ stripe: stripeFromParams, ...params }) => {
+      setInProgress(true);
+      try {
+        if (!customer) {
+          throw 'Customer not provided';
+        }
+
+        await handleSubscriptionPaymentWithExistingMethod({
+          ...params,
+          ...apiClient,
+          ...apiClientOverrides,
+          stripe:
+            stripeOverride /* istanbul ignore next - used for testing */ ||
+            stripeFromParams,
+          selectedPlan,
+          customer,
+          retryStatus,
+          onSuccess: refreshSubscriptions,
+          onFailure: setPaymentError,
+          onRetry: (status: RetryStatus) => {
+            setRetryStatus(status);
+            setPaymentError({ type: 'card_error', code: 'card_declined' });
+          },
+        });
+      } catch (error) {
+        console.error(
+          'handleSubscriptionPaymentWithExistingMethod failed',
+          error
+        );
         setPaymentError(error);
       }
       setInProgress(false);
@@ -186,6 +235,7 @@ export const SubscriptionCreate = ({
             {...{
               submitNonce,
               onSubmit,
+              onReuseSubmit,
               onChange,
               inProgress,
               validatorInitialState,
