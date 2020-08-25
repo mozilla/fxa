@@ -149,6 +149,10 @@ var ERRORS = {
     errno: 136,
     message: t('This email was already verified by another user'),
   },
+  UNVERIFIED_SESSION: {
+    errno: 138,
+    message: t('Unverified session'),
+  },
   EMAIL_PRIMARY_EXISTS: {
     errno: 139,
     message: t('Secondary email must be different than your account email'),

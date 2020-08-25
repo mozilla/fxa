@@ -144,6 +144,10 @@ var FormView = BaseView.extend({
   },
 
   onFormSubmit() {
+    if (this.skipBaseOnFormSubmit) {
+      return;
+    }
+
     return (
       this.validateAndSubmit()
         // drop the error on the ground, it'll already be logged.

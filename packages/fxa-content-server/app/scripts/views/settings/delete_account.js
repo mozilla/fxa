@@ -9,6 +9,7 @@ import PasswordMixin from '../mixins/password-mixin';
 import ServiceMixin from '../mixins/settings-panel-mixin';
 import Session from '../../lib/session';
 import SettingsPanelMixin from '../mixins/service-mixin';
+import UpgradeSessionRedirectMixin from '../mixins/upgrade-session-redirect-mixin';
 import Template from 'templates/settings/delete_account.mustache';
 import AttachedClients from '../../models/attached-clients';
 import { CLIENT_TYPE_WEB_SESSION } from '../../lib/constants';
@@ -102,7 +103,11 @@ var View = FormView.extend({
   },
 
   _setUniqueActiveSubscriptionNames() {
-    return [...new Set((this._activeSubscriptions).map(activeSub => activeSub.product_name))];
+    return [
+      ...new Set(
+        this._activeSubscriptions.map((activeSub) => activeSub.product_name)
+      ),
+    ];
   },
 
   _setuniqueBrowserNames() {
@@ -128,7 +133,8 @@ var View = FormView.extend({
 
   _getNumberOfProducts() {
     let numberOfProducts =
-      this._uniqueBrowserNames.length + this._uniqueActiveSubscriptionNames.length;
+      this._uniqueBrowserNames.length +
+      this._uniqueActiveSubscriptionNames.length;
     // eslint-disable-next-line no-unused-vars
     for (const client of this._attachedClients.toJSON()) {
       if (client.isOAuthApp === true) {
@@ -192,6 +198,12 @@ var View = FormView.extend({
   },
 });
 
-Cocktail.mixin(View, PasswordMixin, SettingsPanelMixin, ServiceMixin);
+Cocktail.mixin(
+  View,
+  PasswordMixin,
+  SettingsPanelMixin,
+  ServiceMixin,
+  UpgradeSessionRedirectMixin
+);
 
 export default View;

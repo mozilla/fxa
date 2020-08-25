@@ -640,6 +640,30 @@ describe('views/settings/delete_account', function () {
           });
         });
 
+        describe('error - unverified session with 2FA', function () {
+          beforeEach(function () {
+            sinon.stub(view, 'validateAndSubmit').callsFake(function () {
+              return Promise.reject(AuthErrors.toError('UNVERIFIED_SESSION'));
+            });
+            sinon.stub(account, 'accountProfile').callsFake(function () {
+              return Promise.resolve({
+                authenticationMethods: ['pwd', 'email', 'otp'],
+              });
+            });
+            sinon.stub(view, 'replaceCurrentPage');
+            return view.onFormSubmit();
+          });
+
+          it('redirects to signin_totp_code page', function () {
+            assert.isTrue(view.replaceCurrentPage.called);
+            assert.isTrue(
+              view.replaceCurrentPage.calledWith('/signin_totp_code', {
+                redirectPathname: view.window.location.pathname,
+              })
+            );
+          });
+        });
+
         describe('other errors', function () {
           beforeEach(function () {
             sinon.stub(user, 'deleteAccount').callsFake(function () {

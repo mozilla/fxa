@@ -37,6 +37,11 @@ const View = FormView.extend({
         if (result.success) {
           this.logFlowEvent('success', this.viewName);
 
+          const redirectPathname = this.model.get('redirectPathname');
+          if (redirectPathname) {
+            return this.navigate(redirectPathname);
+          }
+
           if (this.isForcePasswordChange(account)) {
             return this.invokeBrokerMethod(
               'beforeForcePasswordChange',
