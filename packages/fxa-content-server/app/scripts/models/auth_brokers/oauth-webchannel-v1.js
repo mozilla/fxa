@@ -102,6 +102,10 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
    * @returns {Promise}
    */
   sendOAuthResultToRelier(result, account) {
+    if (this.hasCapability('supportsPairing') || result.action === 'pairing') {
+      this._metrics.logEvent('pairing.signin.success');
+    }
+
     result.redirect = Constants.OAUTH_WEBCHANNEL_REDIRECT;
     if (account && account.get('declinedSyncEngines')) {
       result.declinedSyncEngines = account.get('declinedSyncEngines');

@@ -55,7 +55,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
   beforeEach(() => {
     metrics = {
       flush: sinon.spy(() => Promise.resolve()),
-      logEvent: () => {},
+      logEvent: sinon.spy(),
     };
     relier = new Relier({
       action: 'action',
@@ -192,6 +192,19 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
       state: 'state',
     });
+  });
+
+  it('logs pairing metrics if enabled', async () => {
+    broker.setCapability('supportsPairing', true);
+    await broker.sendOAuthResultToRelier(
+      {
+        redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
+      },
+      account
+    );
+
+    assert.isTrue(metrics.flush.calledOnce);
+    assert.isTrue(metrics.logEvent.calledOnceWith('pairing.signin.success'));
   });
 
   describe('login with an error', () => {
