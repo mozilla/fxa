@@ -161,16 +161,16 @@ this worked correctly before a full deployment occurs.
 
 Command Syntax:
 
-    node dist/bin/simulate-webhook-call.js CLIENTID WEBHOOKURL CAPABILITIES
+    node dist/scripts/simulate-webhook-call.js CLIENTID WEBHOOKURL CAPABILITIES
 
 Where `CAPABILITIES` is a comma-seperated string of capabilities to include.
 
 #### Usage
 
 ```bash
-$ npm run build
+$ yarn build
 $ export LOG_FORMAT=pretty
-$ node dist/bin/simulate-webhook-call.js a9238ba https://example.com/webhook capability_1
+$ node dist/scripts/simulate-webhook-call.js a9238ba https://example.com/webhook capability_1
 fxa-event-broker.simulateWebhookCall.INFO: webhookCall {"statusCode":200,"body":"ok\n"}
 $
 ```
@@ -183,32 +183,7 @@ found there can be copied into the [mermaid live editor] to view. Extensions
 [are available for VS Code](https://marketplace.visualstudio.com/items?itemName=bpruitt-goddard.mermaid-markdown-syntax-highlighting) and other editors that allow local previews
 of the diagrams.
 
-### Code Organization
-
-- `bin/` - Program directory (Note the runnable versions will be under `dist/` when compiled)
-  - `generate-sqs-traffic` - Create a stream of SQS events for a local test run.
-  - `simulate-webhook-call` - Webhook URL testing script to verify correct webhook handling.
-  - `worker` - Primary entry point for running the event-broker in production.
-  - `workerDev` - Development version of event-broker that uses FxA daemons pm2 starts.
-- `config/` - Configuration loader and `.json` files for runtime environments.
-- `lib/`
-  - `api/` - Hapi-based HTTP API that Google PubSub publishes to which proxies the
-    requests out to RP's.
-  - `db/` - Database handlers for storing RP's a user has logged into and user events.
-  - `selfUpdatingService/` - Global objects used by the HTTP API and SQS processor which automatically
-    update themselves with the latest webhook URLs for RPs and current subscription
-    capabilities for each RP.
-  - `jwts` - JWT generator for the [Security Event Tokens][set] defined above that are sent to RPs.
-  - `notificationProcessor` - SQS notification processor that parses [FxA Service Notifications][fxasp],
-    creates a new event, then fans it out to Google PubSub queues for each RP it
-    should be delivered to.
-  - `proxy-server` - HTTP API server setup for above `api/`.
-  - `result` - Result interface.
-  - `sentry` - Sentry error handling configuration/setup for SQS processor and HTTP API.
-  - `serviceNotification` - [FxA Service Notification][fxasp] message validation and type extraction.
-  - `version` - Version loading for HTTP API version check endpoint.
-- `test` - Unit tests, organized in matching heirarchy with the root event-broker directory.
-- `types` - Additional TypeScript definitions for dependencies missing type information.
+This package is built using [NestJS](https://nestjs.com/) and follows module/service/providor patterns as documented for a NestJS project.
 
 [fxasp]: https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/service_notifications.md
 [mermaid live editor]: https://mermaid-js.github.io/mermaid-live-editor/
@@ -217,16 +192,14 @@ of the diagrams.
 
 ## Testing
 
-This package uses [Mocha](https://mochajs.org/) to test its code. By default `npm test` will test all files ending in `.spec.ts` under `src/test/` and uses `ts-node` so it can process TypeScript files.
+This package uses [Jest](https://mochajs.org/) to test its code. By default `yarn test` will test all files ending in `.spec.ts`.
 
-Test specific tests with the following commands:
+Test commands:
 
 ```bash
-# Test only src/test/lib/db/firestore.spec.ts
-npx mocha -r ts-node/register src/test/lib/db/firestore.spec.ts
+# Test with coverage
+yarn test:cov
 
-# Grep for "queries on start"
-npx mocha -r ts-node/register src/test/**/** -g "queries on start"
+# Test on file change
+yarn test:watch
 ```
-
-Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) for more advanced test configuration.

@@ -7,6 +7,7 @@ import { MetricsContext } from './index';
 export class SubscriptionEvent {
   constructor(
     public event: string,
+    public eventCreatedAt: number,
     public ts: number,
     public metricsContext: MetricsContext,
     public subscriptionId: string,

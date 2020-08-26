@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import * as Chance from 'chance';
 import { FactoryBot } from 'factory-bot-ts';
 
@@ -19,13 +18,16 @@ FactoryBot.define(
   {
     event: 'subscription:update',
     isActive: () => chance.bool(),
+    eventCreatedAt: () => Math.ceil(new Date().getTime() / 1000),
     metricsContext: {},
     productCapabilities: (): string[] =>
-      [...new Array(chance.integer({ max: 5, min: 1 }))].map(() => chance.word()),
+      [...new Array(chance.integer({ max: 5, min: 1 }))].map(() =>
+        chance.word()
+      ),
     productId: () => chance.word(),
     subscriptionId: () => chance.hash(),
     ts: () => new Date().getTime(),
-    uid: () => chance.hash()
+    uid: () => chance.hash(),
   },
   SubscriptionEvent
 );
@@ -41,7 +43,7 @@ FactoryBot.define(
     service: () => chance.word(),
     ts: () => new Date().getTime(),
     uid: () => chance.hash(),
-    userAgent: () => chance.word()
+    userAgent: () => chance.word(),
   },
   LoginEvent
 );
