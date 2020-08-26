@@ -5525,6 +5525,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/request@npm:2.48.5":
+  version: 2.48.5
+  resolution: "@types/request@npm:2.48.5"
+  dependencies:
+    "@types/caseless": "*"
+    "@types/node": "*"
+    "@types/tough-cookie": "*"
+    form-data: ^2.5.0
+  checksum: 74f1a250cab068aec594cede9e57508e0b63d46110dd5d62611f087a4c0e9b524884b1d76f128e5ee86d3d91a40587986d85567b567653cd3e30873686ab195d
+  languageName: node
+  linkType: hard
+
 "@types/responselike@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/responselike@npm:1.0.0"
@@ -5601,6 +5613,15 @@ __metadata:
   dependencies:
     "@types/sinonjs__fake-timers": "*"
   checksum: 773f698d132c2c0c66ad5e5d54259bd8bf692807737fc820737f96cbdd9b6c7ac975b62430c5a67549ee60a23638624c6acebcdcbe94a3134e010c0065b44130
+  languageName: node
+  linkType: hard
+
+"@types/sinon@npm:9.0.5":
+  version: 9.0.5
+  resolution: "@types/sinon@npm:9.0.5"
+  dependencies:
+    "@types/sinonjs__fake-timers": "*"
+  checksum: 0ba4f812ca5bb89bb1d708c6b2211cf8cd990510b0eb354c5073dee745ad49904d49e5726601a9dc25c820561a033e29b100b88ae4b0dd2618cef78505aab753
   languageName: node
   linkType: hard
 
@@ -10337,7 +10358,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^2.0.0, chokidar@npm:^2.0.4, chokidar@npm:^2.1.8":
+"chokidar@npm:^2.0.4, chokidar@npm:^2.1.8":
   version: 2.1.8
   resolution: "chokidar@npm:2.1.8"
   dependencies:
@@ -12522,13 +12543,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dependency-graph@npm:^0.7.0":
-  version: 0.7.2
-  resolution: "dependency-graph@npm:0.7.2"
-  checksum: 48ab6a4baa777fdac748f8ea826b22b5bfede4d63855932fe704a9fc91ed8869a9e234bf9ee120d2c885bd4e0d15d710caca943bddfe3a831f97d334bfe0b849
-  languageName: node
-  linkType: hard
-
 "dependency-graph@npm:^0.9.0":
   version: 0.9.0
   resolution: "dependency-graph@npm:0.9.0"
@@ -13892,6 +13906,52 @@ __metadata:
   bin:
     eslint: ./bin/eslint.js
   checksum: e593370f38c42dc5333f2052941ee8199aa194c6753d2d83d195f895c788ac131eead9b0b80ab40c3a972f6907c9573f793f7dd856da6e55a6bf4342a8976b12
+  languageName: node
+  linkType: hard
+
+"eslint@npm:7.7.0":
+  version: 7.7.0
+  resolution: "eslint@npm:7.7.0"
+  dependencies:
+    "@babel/code-frame": ^7.0.0
+    ajv: ^6.10.0
+    chalk: ^4.0.0
+    cross-spawn: ^7.0.2
+    debug: ^4.0.1
+    doctrine: ^3.0.0
+    enquirer: ^2.3.5
+    eslint-scope: ^5.1.0
+    eslint-utils: ^2.1.0
+    eslint-visitor-keys: ^1.3.0
+    espree: ^7.2.0
+    esquery: ^1.2.0
+    esutils: ^2.0.2
+    file-entry-cache: ^5.0.1
+    functional-red-black-tree: ^1.0.1
+    glob-parent: ^5.0.0
+    globals: ^12.1.0
+    ignore: ^4.0.6
+    import-fresh: ^3.0.0
+    imurmurhash: ^0.1.4
+    is-glob: ^4.0.0
+    js-yaml: ^3.13.1
+    json-stable-stringify-without-jsonify: ^1.0.1
+    levn: ^0.4.1
+    lodash: ^4.17.19
+    minimatch: ^3.0.4
+    natural-compare: ^1.4.0
+    optionator: ^0.9.1
+    progress: ^2.0.0
+    regexpp: ^3.1.0
+    semver: ^7.2.1
+    strip-ansi: ^6.0.0
+    strip-json-comments: ^3.1.0
+    table: ^5.2.3
+    text-table: ^0.2.0
+    v8-compile-cache: ^2.0.3
+  bin:
+    eslint: bin/eslint.js
+  checksum: 6f47e20ec67a8ad58ed79ad350373142fb30387f4b9847f43943d80a2307e74252ea8739a9f53ec850ef5eaf689103c3d7b8bbc71e04e06444687cfda51fe3b7
   languageName: node
   linkType: hard
 
@@ -15973,7 +16033,7 @@ fsevents@^1.2.7:
     css: 2.2.3
     css-loader: 1.0.0
     duration-js: 3.6.0
-    eslint: ^6.8.0
+    eslint: 7.7.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 0.7.5
     express: ^4.17.1
@@ -16045,7 +16105,7 @@ fsevents@^1.2.7:
     otplib: ^11.0.1
     photon-colors: 1.0.3
     pm2: ^4.4.1
-    postcss-cli: 6.0.0
+    postcss-cli: 7.1.1
     postcss-loader: 2.1.6
     prettier: ^2.0.5
     proxyquire: ^2.1.3
@@ -16738,6 +16798,8 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa@workspace:."
   dependencies:
+    "@types/request": 2.48.5
+    "@types/sinon": 9.0.5
     diffparser: ^2.0.1
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
@@ -17217,7 +17279,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"globby@npm:8.0.2, globby@npm:^8.0.0":
+"globby@npm:8.0.2":
   version: 8.0.2
   resolution: "globby@npm:8.0.2"
   dependencies:
@@ -22631,7 +22693,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:^2.0.0, log-symbols@npm:^2.2.0":
+"log-symbols@npm:^2.2.0":
   version: 2.2.0
   resolution: "log-symbols@npm:2.2.0"
   dependencies:
@@ -26414,29 +26476,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"postcss-cli@npm:6.0.0":
-  version: 6.0.0
-  resolution: "postcss-cli@npm:6.0.0"
-  dependencies:
-    chalk: ^2.1.0
-    chokidar: ^2.0.0
-    dependency-graph: ^0.7.0
-    fs-extra: ^7.0.0
-    get-stdin: ^6.0.0
-    globby: ^8.0.0
-    postcss: ^7.0.0
-    postcss-load-config: ^2.0.0
-    postcss-reporter: ^5.0.0
-    pretty-hrtime: ^1.0.3
-    read-cache: ^1.0.0
-    yargs: ^12.0.1
-  bin:
-    postcss: ./bin/postcss
-  checksum: 23b3ef8c2191f35dd209183c9d5ad4ebd07a5740fedd70e389bb9c7e0effaf592737790be439a537e3e706922a168e465ee5bc9aa4d05ae70c0ff9cab55b09be
-  languageName: node
-  linkType: hard
-
-"postcss-cli@npm:^7.1.1":
+"postcss-cli@npm:7.1.1, postcss-cli@npm:^7.1.1":
   version: 7.1.1
   resolution: "postcss-cli@npm:7.1.1"
   dependencies:
@@ -27230,18 +27270,6 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"postcss-reporter@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "postcss-reporter@npm:5.0.0"
-  dependencies:
-    chalk: ^2.0.1
-    lodash: ^4.17.4
-    log-symbols: ^2.0.0
-    postcss: ^6.0.8
-  checksum: 958b688c1fda694deab3c5b453347c5e36b655972fcff8d928c0cff8e287a643931449f0cc3877ea6415eae534752ae8d9cf83ea1aa786bfe9d5eec092d59115
-  languageName: node
-  linkType: hard
-
 "postcss-reporter@npm:^6.0.0, postcss-reporter@npm:^6.0.1":
   version: 6.0.1
   resolution: "postcss-reporter@npm:6.0.1"
@@ -27430,7 +27458,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"postcss@npm:^6.0.0, postcss@npm:^6.0.1, postcss@npm:^6.0.23, postcss@npm:^6.0.8, postcss@npm:^6.0.9":
+"postcss@npm:^6.0.0, postcss@npm:^6.0.1, postcss@npm:^6.0.23, postcss@npm:^6.0.9":
   version: 6.0.23
   resolution: "postcss@npm:6.0.23"
   dependencies:
@@ -35802,7 +35830,7 @@ typescript@3.9.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:12.0.5, yargs@npm:^12.0.1":
+"yargs@npm:12.0.5":
   version: 12.0.5
   resolution: "yargs@npm:12.0.5"
   dependencies:
