@@ -4,27 +4,12 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 import { MockedCache } from '../../models/_mocks';
 import UnitRowRecoveryKey from '.';
-import { SEND_SESSION_VERIFICATION_CODE_MUTATION } from '../ModalVerifySession';
-
-const mocks = [
-  {
-    request: {
-      query: SEND_SESSION_VERIFICATION_CODE_MUTATION,
-      variables: { input: {} },
-    },
-    result: {
-      data: {
-        sendSessionVerificationCode: {
-          clientMutationId: null,
-        },
-      },
-    },
-  },
-];
 
 storiesOf('Components|UnitRowRecoveryKey', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('with recovery key', () => (
     <MockedCache>
       <UnitRowRecoveryKey />

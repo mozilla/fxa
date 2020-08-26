@@ -10,6 +10,7 @@ import { UnitRowSecondaryEmail, RESEND_SECONDARY_EMAIL_CODE_MUTATION } from '.';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 import { MockedCache, MOCK_ACCOUNT, mockEmail } from '../../models/_mocks';
 import { GET_INITIAL_STATE } from '../App';
+import { LocationProvider } from '@reach/router';
 
 // every unverified email with a functioning "Resend verification"
 // button must have a mock object created per mutation attempt.
@@ -28,6 +29,7 @@ const mockGqlSuccess = (email: string) => ({
 });
 
 storiesOf('Components|UnitRowSecondaryEmail', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('No secondary email set, primary email verified', () => (
     <MockedCache>
       <AlertBarRootAndContextProvider>

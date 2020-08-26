@@ -4,11 +4,13 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { UnitRow } from '.';
 import { Modal } from '../Modal';
 
 storiesOf('Components|UnitRow', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('basic, with falsey headerValue', () => (
     <UnitRow header="Some header" headerValue={null} />
   ))

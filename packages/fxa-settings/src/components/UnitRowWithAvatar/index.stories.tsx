@@ -4,9 +4,11 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 import { UnitRowWithAvatar } from '.';
 
 storiesOf('Components|UnitRowWithAvatar', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('with default avatar', () => <UnitRowWithAvatar avatarUrl={null} />)
   .add('with non-default avatar', () => (
     <UnitRowWithAvatar avatarUrl="http://placekitten.com/256/256" />

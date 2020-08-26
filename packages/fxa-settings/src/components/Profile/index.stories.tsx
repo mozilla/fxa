@@ -4,11 +4,14 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 import { Profile } from '.';
 import { MockedCache } from '../../models/_mocks';
 
-storiesOf('Components|Profile', module).add('default', () => (
-  <MockedCache>
-    <Profile />
-  </MockedCache>
-));
+storiesOf('Components|Profile', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
+  .add('default', () => (
+    <MockedCache>
+      <Profile />
+    </MockedCache>
+  ));

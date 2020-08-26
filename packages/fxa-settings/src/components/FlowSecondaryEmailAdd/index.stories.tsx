@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
 import { FlowSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
 import { MockedCache, mockEmail } from '../../models/_mocks';
@@ -19,6 +20,7 @@ const mockGqlError = (email: string) => ({
 });
 
 storiesOf('Components|FlowSecondaryEmailAdd', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('Default empty', () => (
     <MockedCache>
       <FlowSecondaryEmailAdd />

@@ -393,6 +393,32 @@ Example:
 </MockedCache>
 ```
 
+### Common Errors
+
+##### Lacking Location Provider
+
+```
+useLocation hook was used but a LocationContext.Provider was not found in the parent tree. Make sure this is used in a component that is a child of Router
+```
+
+```js
+.addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
+```
+
+##### Lacking Mocked Apollo Provider
+
+```
+No Apollo Client instance can be found. Please ensure that you have called `ApolloProvider` higher up in your tree.
+```
+
+```js
+  .addDecorator((getStory) => (
+    <MockedProvider>
+      <MockedCache>{getStory()}</MockedCache>
+    </MockedProvider>
+  ))
+```
+
 ## Storybook
 
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
