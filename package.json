@@ -27,6 +27,8 @@
   "author": "Mozilla (https://mozilla.org/)",
   "license": "MPL-2.0",
   "dependencies": {
+    "@types/request": "2.48.5",
+    "@types/sinon": "9.0.5",
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
     "lint-staged": "^10.2.11",
