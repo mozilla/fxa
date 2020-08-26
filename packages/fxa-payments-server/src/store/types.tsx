@@ -67,15 +67,15 @@ export interface CustomerSubscription {
   subscription_id: string;
 }
 
-export interface Customer {
-  billing_name: string | null;
-  payment_type: string;
-  last4: string;
-  exp_month: string;
-  exp_year: string;
-  brand: string;
+export type Customer = {
+  billing_name?: string | null;
+  brand?: string;
+  exp_month?: string;
+  exp_year?: string;
+  last4?: string;
+  payment_type?: string;
   subscriptions: Array<CustomerSubscription>;
-}
+};
 
 export interface CreateSubscriptionResult {
   subscriptionId: string;

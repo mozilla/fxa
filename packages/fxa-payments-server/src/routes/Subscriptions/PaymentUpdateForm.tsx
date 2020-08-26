@@ -54,7 +54,7 @@ export const PaymentUpdateForm = ({
   }, [resetUpdatePayment, revealUpdate]);
 
   const onPayment = useCallback(
-    (tokenResponse: stripe.TokenResponse) => {
+    (tokenResponse: stripe.TokenResponse | null) => {
       if (tokenResponse && tokenResponse.token) {
         updatePayment(tokenResponse.token.id);
       } else {

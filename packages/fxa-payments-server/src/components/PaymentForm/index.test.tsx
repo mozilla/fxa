@@ -16,6 +16,7 @@ import {
   MOCK_PLANS,
   setupFluentLocalizationTest,
   getLocalizedMessage,
+  MOCK_CUSTOMER,
 } from '../../lib/test-utils';
 
 import { PaymentForm, PaymentFormProps, PaymentFormStripeProps } from './index';
@@ -65,8 +66,8 @@ type SubjectProps = Omit<
   | 'submitNonce'
 > & {
   onPayment?: (
-    tokenResponse: stripe.TokenResponse,
-    name: string,
+    tokenResponse: stripe.TokenResponse | null,
+    name: string | null,
     idempotencyKey: string
   ) => void;
   onPaymentError?: (error: any) => void;
@@ -593,4 +594,36 @@ it('calls onPaymentError when payment processing fails', async () => {
   await waitForExpect(() =>
     expect(onPaymentError).toHaveBeenCalledWith('BAD THINGS')
   );
+});
+
+describe('with an existing card', async () => {
+  it('renders correctly', () => {
+    const { queryByTestId, queryByText } = render(
+      <Subject customer={MOCK_CUSTOMER} />
+    );
+    expect(queryByTestId('card-details')).toBeInTheDocument();
+    expect(queryByTestId('zip')).not.toBeInTheDocument();
+    expect(
+      queryByText(`Card ending ${MOCK_CUSTOMER.last4}`)
+    ).toBeInTheDocument();
+  });
+
+  it('calls the backend correctly', async () => {
+    const stripe: PaymentFormStripeProps = {
+      createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
+    };
+    const onPayment = jest.fn();
+    const { getByTestId } = render(
+      <Subject customer={MOCK_CUSTOMER} stripe={stripe} onPayment={onPayment} />
+    );
+
+    fireEvent.click(getByTestId('submit'));
+    expect(stripe.createToken).not.toHaveBeenCalled();
+    await waitForExpect(() => {
+      expect(onPayment).toHaveBeenCalledTimes(1);
+      // No Stripe token or display name for a current subscriber with card on file
+      expect(onPayment.mock.calls[0][0]).toBeNull();
+      expect(onPayment.mock.calls[0][1]).toBeNull();
+    });
+  });
 });

@@ -1,5 +1,15 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { Localized, withLocalization, WithLocalizationProps } from '@fluent/react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+  FormEvent,
+} from 'react';
+import {
+  Localized,
+  withLocalization,
+  WithLocalizationProps,
+} from '@fluent/react';
 
 import {
   injectStripe,
@@ -33,7 +43,7 @@ import {
 import { AppContext } from '../../lib/AppContext';
 
 import './index.scss';
-import { Plan, PlanInterval } from '../../store/types';
+import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
@@ -48,11 +58,12 @@ export type PaymentFormStripeProps = {
 export type PaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
+  customer?: Customer;
   plan?: Plan;
   onCancel?: () => void;
   onPayment: (
-    tokenResponse: stripe.TokenResponse,
-    name: string,
+    tokenResponse: stripe.TokenResponse | null,
+    name: string | null,
     idempotencyKey: string
   ) => void;
   onPaymentError: (error: any) => void;
@@ -69,6 +80,7 @@ export const PaymentForm = ({
   inProgress = false,
   confirm = true,
   plan,
+  customer,
   getString,
   onCancel,
   onPayment,
@@ -81,6 +93,8 @@ export const PaymentForm = ({
   onChange: onChangeProp,
   submitNonce,
 }: PaymentFormProps) => {
+  const hasExistingCard = customer && customer.last4;
+
   const validator = useValidatorState({
     initialState: validatorInitialState,
     middleware: validatorMiddlewareReducer,
@@ -104,13 +118,22 @@ export const PaymentForm = ({
   const shouldAllowSubmit = !nonceMatch && !inProgress && validator.allValid();
   const showProgressSpinner = nonceMatch || inProgress;
 
-  const onSubmit = useCallback(
-    (ev) => {
-      ev.preventDefault();
-      if (!shouldAllowSubmit) {
-        return;
-      }
-      setLastSubmitNonce(submitNonce);
+  const createSubmitCb = (cb: Function) => (ev: FormEvent) => {
+    ev.preventDefault();
+    if (!shouldAllowSubmit) {
+      return;
+    }
+    setLastSubmitNonce(submitNonce);
+    cb();
+  };
+  const paymentWithExistingCard = useCallback(
+    createSubmitCb(() => {
+      onPayment(null, null, submitNonce);
+    }),
+    [onPayment, submitNonce, shouldAllowSubmit]
+  );
+  const paymentWithNewCard = useCallback(
+    createSubmitCb(() => {
       const { name, zip } = validator.getValues();
       if (stripe) {
         stripe
@@ -122,7 +145,7 @@ export const PaymentForm = ({
             onPaymentError(err);
           });
       }
-    },
+    }),
     [
       validator,
       onPayment,
@@ -132,6 +155,9 @@ export const PaymentForm = ({
       shouldAllowSubmit,
     ]
   );
+  const onSubmit = hasExistingCard
+    ? paymentWithExistingCard
+    : paymentWithNewCard;
 
   const { matchMedia, navigatorLanguages } = useContext(AppContext);
   const stripeElementStyles = mkStripeElementStyles(
@@ -146,14 +172,23 @@ export const PaymentForm = ({
     ));
   }
 
-  return (
-    <Form
-      data-testid="paymentForm"
-      validator={validator}
-      onSubmit={onSubmit}
-      className="payment"
-      {...{ onChange }}
-    >
+  const paymentSource = hasExistingCard ? (
+    <div className="card-details" data-testid="card-details">
+      <Localized
+        id="sub-update-card-ending"
+        vars={{
+          last: (customer as Customer).last4!,
+        }}
+      >
+        <div
+          className={`new-sub c-card unbranded ${customer?.brand?.toLowerCase()}`}
+        >
+          Card ending {customer?.last4}
+        </div>
+      </Localized>
+    </div>
+  ) : (
+    <>
       <Localized id="payment-name" attrs={{ placeholder: true, label: true }}>
         <Input
           type="text"
@@ -219,6 +254,18 @@ export const PaymentForm = ({
           />
         </Localized>
       </FieldGroup>
+    </>
+  );
+
+  return (
+    <Form
+      data-testid="paymentForm"
+      validator={validator}
+      onSubmit={onSubmit}
+      className="payment"
+      {...{ onChange }}
+    >
+      {paymentSource}
 
       <hr />
 

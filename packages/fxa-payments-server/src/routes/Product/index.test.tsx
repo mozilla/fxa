@@ -136,7 +136,7 @@ describe('routes/Product', () => {
       .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER),
+      .reply(200, { subscriptions: [] }),
   ];
 
   const initSubscribedApiMocks = (useDefaultIcon: boolean = false) => [

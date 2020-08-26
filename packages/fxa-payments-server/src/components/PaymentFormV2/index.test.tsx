@@ -16,6 +16,7 @@ import {
   MOCK_PLANS,
   setupFluentLocalizationTest,
   getLocalizedMessage,
+  MOCK_CUSTOMER,
 } from '../../lib/test-utils';
 
 import PaymentForm, { PaymentFormProps, localeToStripeLocale } from './index';
@@ -513,4 +514,27 @@ it('does not call onSubmit if somehow submitted while in progress', async () => 
   // ...but let's force the form to submit and assert nothing happens.
   fireEvent.submit(getByTestId('paymentForm'));
   expect(onSubmit).not.toHaveBeenCalled();
+});
+
+describe('with existing card', () => {
+  it('renders correctly', () => {
+    const { queryByTestId, queryByText } = render(
+      <Subject customer={MOCK_CUSTOMER} />
+    );
+    expect(queryByTestId('card-details')).toBeInTheDocument();
+    expect(queryByTestId('name')).not.toBeInTheDocument();
+    expect(
+      queryByText(`Card ending ${MOCK_CUSTOMER.last4}`)
+    ).toBeInTheDocument();
+  });
+
+  it('calls the submit handler', async () => {
+    const onSubmit = jest.fn();
+    const { getByTestId } = render(
+      <Subject customer={MOCK_CUSTOMER} onSubmit={onSubmit} />
+    );
+
+    fireEvent.click(getByTestId('submit'));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
 });

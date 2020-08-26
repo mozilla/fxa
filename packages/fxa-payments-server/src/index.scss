@@ -210,6 +210,11 @@ hr {
 
 .c-card {
   position: relative;
+
+  &.new-sub {
+    font-weight: bold;
+    margin-left: 45px;
+  }
 }
 
 .c-card::before {
@@ -220,6 +225,10 @@ hr {
   position: absolute;
   top: 0;
   width: 40px;
+}
+
+.unbranded::before {
+  background: url('./images/unbranded.svg') no-repeat;
 }
 
 .visa::before {

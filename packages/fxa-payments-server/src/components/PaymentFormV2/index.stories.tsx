@@ -8,12 +8,13 @@ import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
-import { Plan } from '../../store/types';
+import { Plan, Customer } from '../../store/types';
 import { useNonce } from '../../lib/hooks';
 
 function init() {
   storiesOf('components/PaymentFormV2', module)
     .add('default', () => <Subject />)
+    .add('with existing card', () => <Subject customer={CUSTOMER} />)
     .add('without plan', () => <Subject noPlan />)
     .add('without confirmation', () => <Subject confirm={false} />)
     .add('fr locale', () => <Subject locale="fr" />)
@@ -55,12 +56,35 @@ const PLAN = {
       'https://www.mozilla.org/fr/privacy/websites/',
   },
 };
+const CUSTOMER = {
+  billing_name: 'Foo Barson',
+  payment_type: 'credit',
+  last4: '5309',
+  exp_month: '02',
+  exp_year: '2099',
+  brand: 'Visa',
+  subscriptions: [
+    {
+      subscription_id: 'sub0.28964929339372136',
+      plan_id: '123doneProMonthly',
+      product_id: 'prod_123',
+      product_name: '123done Pro',
+      latest_invoice: '628031D-0002',
+      status: 'active',
+      cancel_at_period_end: false,
+      current_period_end: Date.now() / 1000 + 86400 * 31,
+      current_period_start: Date.now() / 1000 - 86400 * 31,
+      end_at: null,
+    },
+  ],
+};
 
 type SubjectProps = {
   inProgress?: boolean;
   confirm?: boolean;
   noPlan?: boolean;
   plan?: Plan;
+  customer?: Customer;
   onSubmit?: PaymentFormProps['onSubmit'];
   onPaymentError?: (error: any) => void;
   onChange?: Function;
@@ -74,6 +98,7 @@ const Subject = ({
   confirm = true,
   noPlan = false,
   plan = PLAN,
+  customer = undefined,
   onSubmit = action('onSubmit'),
   validatorInitialState,
   validatorMiddlewareReducer,
@@ -87,6 +112,7 @@ const Subject = ({
     submitNonce,
     inProgress,
     confirm,
+    customer,
     plan: noPlan ? undefined : plan,
     onSubmit,
     onChange,

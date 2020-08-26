@@ -221,6 +221,7 @@ const SUBSCRIPTION_RESULT = {
     payment_intent: {
       id: 'pi_7890',
       client_secret: 'cs_abcd',
+      payment_method: 'pm_98765',
       status: 'succeeded',
     },
   },
@@ -231,6 +232,7 @@ const RETRY_INVOICE_RESULT = {
   payment_intent: {
     id: 'pi_9876',
     client_secret: 'cs_erty',
+    payment_method: 'pm_98765',
     status: 'succeeded',
   },
 };

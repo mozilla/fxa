@@ -149,7 +149,7 @@ export const SubscriptionUpgrade = ({
               <Localized
                 id="payment-confirmation-cc-preview"
                 vars={{
-                  last4: cardLast4
+                  last4: cardLast4 as string,
                 }}
               >
                 <p className={`c-card ${cardBrandLc}`}>
@@ -171,7 +171,7 @@ export const SubscriptionUpgrade = ({
               vars={{
                 startingDate: getLocalizedDate(
                   upgradeFromSubscription.current_period_end
-                )
+                ),
               }}
             >
               <p>

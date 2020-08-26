@@ -230,7 +230,7 @@ class DirectStripeRoutes {
    */
   async createSubscriptionExistingCustomer(
     customer: Stripe.Customer,
-    paymentToken: string,
+    paymentToken: string | null,
     selectedPlan: AbbrevPlan,
     idempotencyKey: string
   ): Promise<Stripe.Subscription> {
@@ -1333,8 +1333,10 @@ const directRoutes = (
         validate: {
           payload: {
             planId: validators.subscriptionsPlanId.required(),
-            paymentToken: validators.subscriptionsPaymentToken.required(),
-            displayName: isA.string().required(),
+            paymentToken: validators.subscriptionsPaymentToken
+              .required()
+              .allow(null),
+            displayName: isA.string().required().allow(null),
             idempotencyKey: isA.string().required(),
           },
         },

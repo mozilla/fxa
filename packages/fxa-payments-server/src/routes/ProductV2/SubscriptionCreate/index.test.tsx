@@ -12,7 +12,7 @@ import {
 import '@testing-library/jest-dom/extend-expect';
 import { PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
 import { SignInLayout } from '../../../components/AppLayout';
-import { CUSTOMER, PROFILE, PLAN } from '../../../lib/mock-data';
+import { CUSTOMER, PROFILE, PLAN, NEW_CUSTOMER } from '../../../lib/mock-data';
 import { PickPartial } from '../../../lib/types';
 
 import {
@@ -36,7 +36,7 @@ type SubjectProps = PickPartial<
 
 const Subject = ({
   isMobile = false,
-  customer = CUSTOMER,
+  customer = NEW_CUSTOMER,
   profile = PROFILE,
   selectedPlan = PLAN,
   apiClientOverrides = defaultApiClientOverrides(),
@@ -90,7 +90,7 @@ const RETRY_INVOICE_RESULT = {
 };
 
 const defaultApiClientOverrides = () => ({
-  apiCreateCustomer: jest.fn().mockResolvedValue(CUSTOMER),
+  apiCreateCustomer: jest.fn().mockResolvedValue(NEW_CUSTOMER),
   apiCreateSubscriptionWithPaymentMethod: jest
     .fn()
     .mockResolvedValue(SUBSCRIPTION_RESULT),
@@ -168,16 +168,20 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     expect(screen.queryByTestId('subscription-create')).toBeInTheDocument();
     await screen.findAllByText('Set up your subscription');
 
-    await act(async () => {
-      mockStripeElementOnChangeFns.cardElement(
-        elementChangeResponse({ complete: true, value: 'test' })
-      );
-    });
+    if (props?.customer?.last4) {
+      expect(screen.queryByTestId('card-details')).toBeInTheDocument();
+    } else {
+      await act(async () => {
+        mockStripeElementOnChangeFns.cardElement(
+          elementChangeResponse({ complete: true, value: 'test' })
+        );
+      });
+      fireEvent.change(screen.getByTestId('name'), {
+        target: { value: 'Foo Barson' },
+      });
+      fireEvent.blur(screen.getByTestId('name'));
+    }
 
-    fireEvent.change(screen.getByTestId('name'), {
-      target: { value: 'Foo Barson' },
-    });
-    fireEvent.blur(screen.getByTestId('name'));
     fireEvent.click(screen.getByTestId('confirm'));
 
     return {
@@ -187,15 +191,36 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     };
   }
 
-  const commonPaymentSubmissionTest = (
-    withCustomer: boolean = false
-  ) => async () => {
+  const commonPaymentSubmissionTest = ({
+    // "Customer" here is one _without_ any subs or CC info.
+    // It affects the number of calls to apiClientOverrides.apiCreateCustomer.
+    withCustomer,
+    withExistingCard = false,
+  }: {
+    withCustomer: boolean;
+    withExistingCard?: boolean;
+  }) => async () => {
+    const customer = withExistingCard ? CUSTOMER : withCustomer ? {} : null;
+    const expectedCreateCustomerCalls = customer === null ? 1 : 0;
+    const expectedCreatePaymentMethodCalls = !withExistingCard ? 1 : 0;
+    const _expectedCreateSubArgs = {
+      // idempotencyKey (ignored)
+      priceId: PLAN.plan_id,
+      productId: PLAN.product_id,
+    };
+    const expectedCreateSubArgs = withExistingCard
+      ? _expectedCreateSubArgs
+      : {
+          ..._expectedCreateSubArgs,
+          paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
+        };
+
     const {
       apiClientOverrides,
       stripeOverride,
       refreshSubscriptions,
     } = await commonSubmitSetup({
-      customer: withCustomer ? CUSTOMER : null,
+      customer,
     });
     await act(async () => {
       fireEvent.click(screen.getByTestId('submit'));
@@ -203,18 +228,15 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
     await waitForExpect(() =>
       expect(refreshSubscriptions).toHaveBeenCalledTimes(1)
     );
-    expect(stripeOverride.createPaymentMethod).toHaveBeenCalled();
+    expect(stripeOverride.createPaymentMethod).toHaveBeenCalledTimes(
+      expectedCreatePaymentMethodCalls
+    );
     expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalledTimes(
-      withCustomer ? 0 : 1
+      expectedCreateCustomerCalls
     );
     expect(
       apiClientOverrides.apiCreateSubscriptionWithPaymentMethod.mock.calls[0][0]
-    ).toMatchObject({
-      // idempotencyKey (ignored)
-      priceId: PLAN.plan_id,
-      productId: PLAN.product_id,
-      paymentMethodId: PAYMENT_METHOD_RESULT.paymentMethod.id,
-    });
+    ).toMatchObject(expectedCreateSubArgs);
   };
 
   const commonRetryPaymentTest = ({
@@ -248,6 +270,7 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         .mockResolvedValueOnce(initialPaymentMethod)
         .mockResolvedValueOnce(retryPaymentMethod),
     };
+
     const { refreshSubscriptions } = await commonSubmitSetup({
       apiClientOverrides,
       stripeOverride,
@@ -355,11 +378,15 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
 
   it(
     'handles a successful payment submission as new customer',
-    commonPaymentSubmissionTest(false)
+    commonPaymentSubmissionTest({ withCustomer: false })
   );
   it(
     'handles a successful payment submission as existing customer',
-    commonPaymentSubmissionTest(true)
+    commonPaymentSubmissionTest({ withCustomer: true })
+  );
+  it(
+    'handles a successful subscription submission as an existing subscriber',
+    commonPaymentSubmissionTest({ withCustomer: true, withExistingCard: true })
   );
 
   it(

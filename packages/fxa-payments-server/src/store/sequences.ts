@@ -54,9 +54,9 @@ export const fetchCustomerAndSubscriptions = () => async (
 };
 
 export const createSubscriptionAndRefresh = (
-  paymentToken: string,
+  paymentToken: string | null,
   plan: Plan,
-  displayName: string,
+  displayName: string | null,
   nonce: string
 ) => async (dispatch: Function) => {
   try {
