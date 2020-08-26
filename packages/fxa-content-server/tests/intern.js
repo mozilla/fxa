@@ -18,6 +18,7 @@ const testsFunctionalSmoke = require('./functional_smoke');
 const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
+const testsSettingsV2 = require('./functional_settings_v2');
 
 const fxaAuthRoot = args.fxaAuthRoot || 'http://localhost:9000/v1';
 const fxaContentRoot = args.fxaContentRoot || 'http://localhost:3030/';
@@ -103,6 +104,9 @@ if (args.suites) {
       break;
     case 'functional_smoke':
       config.functionalSuites = testsFunctionalSmoke;
+      break;
+    case 'settings_v2':
+      config.functionalSuites = testsSettingsV2;
       break;
     case 'all':
       config.functionalSuites = testsMain;
