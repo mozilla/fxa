@@ -4,10 +4,12 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
+import { LocationProvider } from '@reach/router';
 import { Security } from '.';
 import { MockedCache } from '../../models/_mocks';
 
 storiesOf('Components|Security', module)
+  .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default', () => (
     <MockedCache account={{ recoveryKey: false }}>
       <Security twoFactorAuthEnabled={false} />
