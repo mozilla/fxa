@@ -63,9 +63,9 @@ const View = FormView.extend({
       .then(() => {
         this.logViewEvent('success');
 
-        const redirectTo = this.model.get('redirectTo');
-        if (redirectTo) {
-          return (this.window.location.href = redirectTo);
+        const redirectPathname = this.model.get('redirectPathname');
+        if (redirectPathname) {
+          return this.navigate(redirectPathname);
         }
 
         if (this.isForcePasswordChange(account)) {
