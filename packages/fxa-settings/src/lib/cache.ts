@@ -45,6 +45,14 @@ export function sessionToken(newToken?: hexstring) {
   }
 }
 
+export function clearSignedInAccountUid() {
+  const all = accounts() || {};
+  const uid = storage.get('currentAccountUid') as hexstring;
+  delete all[uid];
+  accounts(all);
+  storage.remove('currentAccountUid');
+}
+
 function consumeAlertTextExternal() {
   const account = currentAccount();
   const text = account?.alertText || null;

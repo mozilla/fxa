@@ -63,7 +63,7 @@
     "rimraf": "^3.0.2",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
-    "tailwindcss": "^1.4.6",
+    "tailwindcss": "^1.7.3",
     "ts-jest": "^24.3.0",
     "typescript": "3.9.7",
     "webpack": "^4.43.0"

@@ -6,14 +6,12 @@ import React from 'react';
 import LogoLockup from 'fxa-react/components/LogoLockup';
 import Header from 'fxa-react/components/Header';
 import LinkExternal from 'fxa-react/components/LinkExternal';
-import Avatar from '../Avatar';
+import DropDownAvatarMenu from '../DropDownAvatarMenu';
 import { ReactComponent as Help } from './help.svg';
 import { ReactComponent as Bento } from './bento.svg';
 import { ReactComponent as Menu } from './menu.svg';
-import { useAccount } from '../../models';
 
 export const HeaderLockup = () => {
-  const { avatarUrl } = useAccount();
   const left = (
     <>
       <button
@@ -59,8 +57,7 @@ export const HeaderLockup = () => {
         className="w-6 mx-6 desktop:mx-8"
         data-testid="header-bento"
       />
-      {/* TODO display primaryEmail.email in the header in FXA-1575 */}
-      <Avatar {...{ avatarUrl }} className="w-10" />
+      <DropDownAvatarMenu />
     </>
   );
 

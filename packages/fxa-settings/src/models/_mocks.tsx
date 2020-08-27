@@ -18,7 +18,7 @@ import { render } from '@testing-library/react';
 export const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
   displayName: 'John Dope',
-  avatarUrl: 'http://avatars.com/y2k',
+  avatarUrl: 'http://placekitten.com/512/512',
   accountCreated: 123456789,
   passwordCreated: 123456789,
   recoveryKey: true,

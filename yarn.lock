@@ -10181,7 +10181,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^4.0.0, chalk@npm:^4.1.0":
+"chalk@npm:^3.0.0 || ^4.0.0, chalk@npm:^4.0.0, chalk@npm:^4.1.0":
   version: 4.1.0
   resolution: "chalk@npm:4.1.0"
   dependencies:
@@ -15741,7 +15741,7 @@ fsevents@^1.2.7:
     react-scripts: ^3.4.1
     serve-static: ^1.14.1
     supertest: ^4.0.2
-    tailwindcss: ^1.4.6
+    tailwindcss: ^1.7.3
     ts-jest: ^24.3.0
     ts-node: ^8.10.2
     typescript: 3.9.7
@@ -16649,7 +16649,7 @@ fsevents@^1.2.7:
     rimraf: ^3.0.2
     sass: ^1.26.5
     sass-loader: ^8.0.2
-    tailwindcss: ^1.4.6
+    tailwindcss: ^1.7.3
     ts-jest: ^24.3.0
     typescript: 3.9.7
     webpack: ^4.43.0
@@ -16700,7 +16700,7 @@ fsevents@^1.2.7:
     react-dom: ^16.13.1
     react-scripts: ^3.4.1
     subscriptions-transport-ws: ^0.9.11
-    tailwindcss: ^1.4.6
+    tailwindcss: ^1.7.3
     typescript: 3.9.7
     webpack: ^4.43.0
   languageName: unknown
@@ -24936,7 +24936,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^2.0.1":
+"object-hash@npm:^2.0.1, object-hash@npm:^2.0.3":
   version: 2.0.3
   resolution: "object-hash@npm:2.0.3"
   checksum: e633ae67cd6c5f3cd52af5bef0fe7f25d597b415a6d92a601be0b97a47642908cf333cedfc9e848d25b6c51fd6cf6e64ff6eb3af710eae249a42f6a69ad6b12d
@@ -32564,33 +32564,35 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^1.4.6":
-  version: 1.4.6
-  resolution: "tailwindcss@npm:1.4.6"
+"tailwindcss@npm:^1.7.3":
+  version: 1.7.3
+  resolution: "tailwindcss@npm:1.7.3"
   dependencies:
     "@fullhuman/postcss-purgecss": ^2.1.2
     autoprefixer: ^9.4.5
     browserslist: ^4.12.0
     bytes: ^3.0.0
-    chalk: ^4.0.0
+    chalk: ^3.0.0 || ^4.0.0
     color: ^3.1.2
     detective: ^5.2.0
     fs-extra: ^8.0.0
     lodash: ^4.17.15
     node-emoji: ^1.8.1
     normalize.css: ^8.0.1
+    object-hash: ^2.0.3
     postcss: ^7.0.11
     postcss-functions: ^3.0.0
     postcss-js: ^2.0.0
     postcss-nested: ^4.1.1
     postcss-selector-parser: ^6.0.0
+    postcss-value-parser: ^4.1.0
     pretty-hrtime: ^1.0.3
     reduce-css-calc: ^2.1.6
     resolve: ^1.14.2
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 671553f6dfabe4af66d74c2f3a8cad483d4630b0ab26eba5ff0a4df0b75dd2cc00ae1b7678a1d2830774e3110059f29e0f29def8ae0e33521f648ec48b14f769
+  checksum: 82e54f7cecf5dc9dc42f505681cb386b1ebd4fb2c79dc2a7e234c9080334b7f92ff6bd72ea82c0f083e994be00a56fa1c670a74ae7187b6704f2161ff5212156
   languageName: node
   linkType: hard
 

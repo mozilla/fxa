@@ -26,7 +26,7 @@ export const Settings = (_: RouteComponentProps) => {
       <div className="hidden desktop:block desktop:flex-2">
         <Nav />
       </div>
-      <div className="flex-7">
+      <div className="flex-7 max-w-full">
         <Profile />
         <Security twoFactorAuthEnabled={false} />
       </div>

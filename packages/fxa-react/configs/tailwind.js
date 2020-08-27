@@ -55,6 +55,9 @@ module.exports = {
       inset: {
         '1/2': '50%',
         '-px': '-1px',
+        '-3': '-0.75rem',
+        '-52': '-13rem',
+        '55': '13.75rem',
       },
       boxShadow: {
         // Specific-use focus shadows for input elements
@@ -245,11 +248,12 @@ module.exports = {
     width: ['responsive', 'hover', 'focus'],
     height: ['responsive', 'hover', 'focus'],
     textColor: ['responsive', 'hover', 'focus', 'active', 'disabled'],
-    borderColor: ['responsive', 'hover', 'focus', 'disabled'],
+    borderColor: ['responsive', 'hover', 'focus', 'active', 'disabled'],
     backgroundColor: ['responsive', 'hover', 'focus', 'disabled'],
     backgroundOpacity: ['hover', 'focus', 'active'],
     placeholderColor: ['responsive', 'focus', 'disabled'],
     cursor: ['responsive', 'disabled'],
+    textDecoration: ['responsive', 'hover', 'focus', 'active', 'group-hover'],
   },
   plugins: [
     plugin(function ({ addUtilities }) {
@@ -260,6 +264,16 @@ module.exports = {
       };
 
       addUtilities(customUtilities, ['responsive', 'hover', 'focus']);
+    }),
+    plugin(function ({ addComponents }) {
+      const carets = {
+        '.caret-up': {
+          borderLeft: '.75rem solid transparent',
+          borderRight: '.75rem solid transparent',
+          borderBottom: '.75rem solid #fff',
+        },
+      };
+      addComponents(carets);
     }),
   ],
 };
