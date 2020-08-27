@@ -1,5 +1,17 @@
 # Change history
 
+## 1.186.0
+
+### New features
+
+- payments: use existing card for new subscriptions ([044c891ca](https://github.com/mozilla/fxa/commit/044c891ca))
+
+### Other changes
+
+- payments: upgrade @fluent/bundle to 0.16, @fluent/react to 0.13, @fluent/langneg to 0.5 ([e6083822c](https://github.com/mozilla/fxa/commit/e6083822c))
+- deps: update yarn version and root level deps ([da2e99729](https://github.com/mozilla/fxa/commit/da2e99729))
+- payments: upgrade to @fluent/react 0.12.0 ([bc5bd56cb](https://github.com/mozilla/fxa/commit/bc5bd56cb))
+
 ## 1.185.1
 
 No changes.

@@ -1,3 +1,13 @@
+## 1.186.0
+
+### Bug fixes
+
+- validation: Allow unicode replacement character in display-safe strings. ([12cbb8caa](https://github.com/mozilla/fxa/commit/12cbb8caa))
+
+### Other changes
+
+- deps: update yarn version and root level deps ([da2e99729](https://github.com/mozilla/fxa/commit/da2e99729))
+
 ## 1.185.1
 
 No changes.
