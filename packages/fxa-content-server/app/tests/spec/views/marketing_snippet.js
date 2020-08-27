@@ -192,7 +192,7 @@ describe('views/marketing_snippet', function () {
           const link = view.$('.marketing-link-android').attr('href');
           assert.include(
             link,
-            'https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta'
+            'https://play.google.com/store/apps/details?id=org.mozilla.firefox'
           );
         });
       });
