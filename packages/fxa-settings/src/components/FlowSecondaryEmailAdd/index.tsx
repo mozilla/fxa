@@ -1,5 +1,6 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
+import { cloneDeep } from '@apollo/client/utilities';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import TextInput from '../TextInput';
 import { RouteComponentProps, useNavigate } from '@reach/router';
@@ -36,11 +37,13 @@ export const FlowSecondaryEmailAdd = (_: RouteComponentProps) => {
       cache.modify({
         fields: {
           account: (existing: Account) => {
-            const emails = [
-              ...existing.emails,
-              { email: email!, isPrimary: false, verified: false },
-            ];
-            return { ...existing, emails };
+            const account = cloneDeep(existing);
+            account.emails.push({
+              email: email!,
+              isPrimary: false,
+              verified: false,
+            });
+            return account;
           },
         },
       });

@@ -21,6 +21,10 @@
   &:focus {
     @apply bg-white;
   }
+
+  &:disabled {
+    @apply bg-white text-grey-300 border-grey-200;
+  }
 }
 
 .cta-primary {
@@ -36,6 +40,10 @@
 
   &:focus {
     @apply border-0;
+  }
+
+  &:disabled {
+    @apply bg-blue-500 border-transparent bg-opacity-40 text-opacity-50;
   }
 }
 

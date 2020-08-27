@@ -6,7 +6,7 @@ import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { InMemoryCache } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing';
-import { UnitRowSecondaryEmail, RESEND_SECONDARY_EMAIL_CODE_MUTATION } from '.';
+import { UnitRowSecondaryEmail, RESEND_EMAIL_CODE_MUTATION } from '.';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 import { MockedCache, MOCK_ACCOUNT, mockEmail } from '../../models/_mocks';
 import { GET_INITIAL_STATE } from '../App';
@@ -16,7 +16,7 @@ import { LocationProvider } from '@reach/router';
 // button must have a mock object created per mutation attempt.
 const mockGqlSuccess = (email: string) => ({
   request: {
-    query: RESEND_SECONDARY_EMAIL_CODE_MUTATION,
+    query: RESEND_EMAIL_CODE_MUTATION,
     variables: { input: { email } },
   },
   result: {
