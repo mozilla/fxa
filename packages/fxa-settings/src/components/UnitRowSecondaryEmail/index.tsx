@@ -2,15 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode, useCallback, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { gql } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import { cloneDeep } from '@apollo/client/utilities';
-import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useHandledMutation } from '../../lib/hooks';
+import { useHandledMutation, useAlertBar } from '../../lib/hooks';
 import { useAccount, Email, Account } from '../../models';
 import UnitRow from '../UnitRow';
-import AlertBar, { AlertBarType } from '../AlertBar';
+import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
 import { ReactComponent as TrashIcon } from './trash-icon.svg';
 
@@ -46,10 +45,9 @@ type UnitRowSecondaryEmailContentAndActionsProps = {
 export const UnitRowSecondaryEmail = () => {
   const account = useAccount();
   const navigate = useNavigate();
+  const alertBar = useAlertBar();
   const [queuedAction, setQueuedAction] = useState<() => void>();
-  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
   const [email, setEmail] = useState<string>();
-  const [alertMessage, setAlertMessage] = useState<[string, AlertBarType]>();
 
   const secondaryEmails = account.emails.filter((email) => !email.isPrimary);
   const hasAtLeastOneSecondaryEmail = !!secondaryEmails.length;
@@ -57,36 +55,14 @@ export const UnitRowSecondaryEmail = () => {
     .map((email) => email.verified)
     .lastIndexOf(true);
 
-  const showSuccess = useCallback(
-    (message: string) => {
-      setAlertMessage([message, 'success']);
-      revealAlertBar();
-    },
-    [setAlertMessage, revealAlertBar]
-  );
-
-  const showError = useCallback(
-    (message: string) => {
-      setAlertMessage([message, 'error']);
-      revealAlertBar();
-    },
-    [setAlertMessage, revealAlertBar]
-  );
-
-  const showInfo = useCallback(
-    (message: string) => {
-      setAlertMessage([message, 'info']);
-      revealAlertBar();
-    },
-    [setAlertMessage, revealAlertBar]
-  );
-
   const [resendEmailCode] = useHandledMutation(RESEND_EMAIL_CODE_MUTATION, {
     onCompleted() {
       navigate('/beta/settings/emails/verify', { state: { email } });
     },
     onError(error) {
-      showError(`Sorry, there was a problem re-sending the verification code.`);
+      alertBar.error(
+        `Sorry, there was a problem re-sending the verification code.`
+      );
       throw error;
     },
   });
@@ -96,10 +72,10 @@ export const UnitRowSecondaryEmail = () => {
     { loading: makeEmailPrimaryLoading },
   ] = useHandledMutation(MAKE_EMAIL_PRIMARY_MUTATION, {
     onCompleted() {
-      showSuccess(`${email} is now your primary email.`);
+      alertBar.success(`${email} is now your primary email.`);
     },
     onError(error) {
-      showError(`Sorry, there was a problem changing your primary email.`);
+      alertBar.error(`Sorry, there was a problem changing your primary email.`);
       throw error;
     },
     update: (cache) => {
@@ -122,10 +98,10 @@ export const UnitRowSecondaryEmail = () => {
     DELETE_EMAIL_MUTATION,
     {
       onCompleted() {
-        showSuccess(`${email} email successfully deleted.`);
+        alertBar.success(`${email} email successfully deleted.`);
       },
       onError(error) {
-        showError(`Sorry, there was a problem deleting this email.`);
+        alertBar.error(`Sorry, there was a problem deleting this email.`);
         throw error;
       },
       update: (cache) => {
@@ -151,21 +127,21 @@ export const UnitRowSecondaryEmail = () => {
         <ModalVerifySession
           onDismiss={() => {
             setQueuedAction(undefined);
-            showInfo(
+            alertBar.info(
               `You'll need to verify your current session to perform this action.`
             );
           }}
           onError={(error) => {
             setQueuedAction(undefined);
-            showError(error.message);
+            alertBar.error(error.message);
           }}
           onCompleted={queuedAction}
         />
       )}
-      {alertBarRevealed && alertMessage && (
-        <AlertBar onDismiss={hideAlertBar} type={alertMessage[1]}>
-          <p data-testid={`alert-bar-message-${alertMessage[1]}`}>
-            {alertMessage[0]}
+      {alertBar.visible && alertBar.content && (
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          <p data-testid={`alert-bar-message-${alertBar.type}`}>
+            {alertBar.content}
           </p>
         </AlertBar>
       )}
@@ -181,7 +157,7 @@ export const UnitRowSecondaryEmail = () => {
         headerValue={null}
         route="/beta/settings/emails"
         {...{
-          alertBarRevealed,
+          alertBarRevealed: alertBar.visible,
         }}
       >
         <SecondaryEmailDefaultContent />

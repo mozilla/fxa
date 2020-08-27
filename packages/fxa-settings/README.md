@@ -69,29 +69,66 @@ When an external link needs to be opened in a new tab, use the `LinkExternal` co
 
 The `AlertBar` is used to display messages to the user, typically for communicating success or error messages back to the user. `<div id="alert-bar-root"></div>` is located just below the layout header and serves as the parent for where this component renders in the DOM via a React [Portal](https://reactjs.org/docs/portals.html) and an `AlertBarContext` which holds a reference to `alert-bar-root`.
 
-The `AlertBar` takes in an optional `type` prop, defaulting to `'success'` if not passed in but can be set to `'error'` or `'info'`, altering the text and background color of the bar.
+The `AlertBar` takes in an optional `type` prop, defaulting to `'success'` if not passed in but can be set to `'error'` or `'info'`, altering the text and background color of the bar. Additionally, the `useAlertBar` hook is available to help maintain state and provide convenience methods for showing alerts.
 
 A basic example for displaying the component:
 
 ```jsx
 const MyComponent = () => {
-  /* `alertBarRevealed` will return `false` on first render. `revealAlertBar` and `hideAlertBar`
-   * are functions - call `revealAlertBar` when you need `alertBarRevealed` to be `true` and
-   * call `hideAlertBar` when it should be `false`. You'll typically pass `hideAlertBar` into
-   * `AlertBar` as the `onDismiss` prop.
+  /* `.visible` defaults to `false` unless configured otherwise.
+   * The `.show` and `.hide` methods are used to toggle visibility.
+   * You'll typically pass `.hide` into `AlertBar` as the `onDismiss` prop.
    */
-  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
+
+  const alertBar = useAlertBar();
 
   return (
     <>
-      {alertBarRevealed && (
-        <AlertBar onDismiss={hideAlertBar}>
+      {alertBar.visible && (
+        <AlertBar onDismiss={alertBar.hide}>
           <p>Alert bar text!</p>
         </AlertBar>
       )}
       <div>
-        <button onClick={revealAlertBar}>
-          Click here to see the AlertBar!
+        <button onClick={alertBar.show}>Click here to see the AlertBar!</button>
+      </div>
+    </>
+  );
+};
+```
+
+A more advanced example, using convenience methods, and variable content and type:
+
+```jsx
+const MyComponent = () => {
+  /* The hook provides `.success`, `.info`, and `.error` convenience methods
+   * to help you set content and display the AlertBar of that type.
+   * Use `.content` and `.type` to set those properties on the AlertBar.
+   */
+
+  const alertBar = useAlertBar();
+
+  return (
+    <>
+      {alertBar.visible && (
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          {alertBar.content}
+        </AlertBar>
+      )}
+      <div>
+        <button
+          onClick={() => {
+            alertBar.success('This is a success message.');
+          }}
+        >
+          Click here to a success AlertBar!
+        </button>
+        <button
+          onClick={() => {
+            alertBar.error('This is an error message.');
+          }}
+        >
+          Click here to an error AlertBar!
         </button>
       </div>
     </>

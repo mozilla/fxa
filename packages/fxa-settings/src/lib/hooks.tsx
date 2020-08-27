@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, ReactNode, useCallback } from 'react';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import { useMutation, DocumentNode, MutationHookOptions } from '@apollo/client';
+import { useBooleanState } from 'fxa-react/lib/hooks';
+import { AlertBarType } from '../components/AlertBar';
 
 // Focus on the element that triggered some action after the first
 // argument changes from `false` to `true` unless a `triggerException`
@@ -82,4 +84,58 @@ export function useHandledMutation(
   };
 
   return useMutation(mutation, options);
+}
+
+export function useAlertBar({
+  defaultVisible = false,
+  defaultType = 'success',
+  defaultContent,
+}: {
+  defaultVisible?: boolean;
+  defaultType?: AlertBarType;
+  defaultContent?: ReactNode;
+} = {}) {
+  const [visible, show, hide] = useBooleanState(defaultVisible);
+  const [type, setType] = useState<AlertBarType>(defaultType);
+  const [content, setContent] = useState<ReactNode | null>(defaultContent);
+
+  const success = useCallback(
+    (message: ReactNode) => {
+      setContent(message);
+      setType('success');
+      show();
+    },
+    [setContent, setType, show]
+  );
+
+  const error = useCallback(
+    (message: ReactNode) => {
+      setContent(message);
+      setType('error');
+      show();
+    },
+    [setContent, setType, show]
+  );
+
+  const info = useCallback(
+    (message: ReactNode) => {
+      setContent(message);
+      setType('info');
+      show();
+    },
+    [setContent, setType, show]
+  );
+
+  return {
+    visible,
+    show,
+    hide,
+    type,
+    setType,
+    content,
+    setContent,
+    success,
+    error,
+    info,
+  };
 }
