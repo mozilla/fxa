@@ -78,3 +78,12 @@ export function splitEncodedParams(str = '', allowedFields?: string[]) {
     .filter((key) => allowedFields.indexOf(key) >= 0)
     .reduce((newObj, key) => Object.assign(newObj, { [key]: terms[key] }), {});
 }
+
+export function deleteSearchParams(
+  search: Location['search'],
+  ...keys: string[]
+): string {
+  const searchParams = new URLSearchParams(search.slice(1));
+  keys.forEach((k) => searchParams.delete(k));
+  return searchParams.toString();
+}

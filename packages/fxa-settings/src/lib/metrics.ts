@@ -4,9 +4,24 @@
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import { useEffect } from 'react';
+import { deleteSearchParams } from './utilities';
 
 const NOT_REPORTED_VALUE = 'none';
 const UNKNOWN_VALUE = 'unknown';
+
+// This list of keys is used to strip excess query
+// params from the URL. If more are added they should
+// be added here, as well as updated in FlowQueryParams
+const flowParamKeys = [
+  'broker',
+  'context',
+  'deviceId',
+  'flowBeginTime',
+  'flowId',
+  'isSampledUser',
+  'service',
+  'uniqueUserId',
+];
 
 type Optional<T> = T | typeof NOT_REPORTED_VALUE;
 
@@ -155,6 +170,18 @@ export function init(flowQueryParams: FlowQueryParams) {
     ) {
       flowEventData = flowQueryParams;
       initialized = true;
+
+      let replacementPath = window.location.pathname;
+      const strippedParams = deleteSearchParams(
+        window.location.search,
+        ...flowParamKeys
+      );
+
+      if (strippedParams.length) {
+        replacementPath += `?${strippedParams}`;
+      }
+
+      window.history.replaceState(null, '', replacementPath);
     } else {
       let redirectPath = window.location.pathname;
       if (window.location.search) {

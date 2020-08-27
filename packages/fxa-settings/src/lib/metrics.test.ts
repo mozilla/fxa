@@ -101,6 +101,7 @@ afterEach(() => {
 describe('init', () => {
   beforeEach(() => {
     window.location.replace = jest.fn();
+    window.history.replaceState = jest.fn();
     window.console.error = jest.fn();
   });
 
@@ -127,6 +128,12 @@ describe('init', () => {
     initAndLog();
 
     expect(window.navigator.sendBeacon).toHaveBeenCalled();
+  });
+
+  it('strips excess params from the url', () => {
+    initFlow();
+
+    expect(window.history.replaceState).toHaveBeenCalled();
   });
 });
 
