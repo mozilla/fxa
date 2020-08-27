@@ -61,7 +61,7 @@
     "postcss-cli": "^7.1.1",
     "prettier": "^2.0.5",
     "rimraf": "^3.0.2",
-    "sass": "^1.26.5",
+    "sass": "^1.26.10",
     "sass-loader": "^8.0.2",
     "tailwindcss": "^1.7.3",
     "ts-jest": "^24.3.0",
