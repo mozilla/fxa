@@ -20,7 +20,7 @@ const mockUid = 'deadbeef';
 const TTL = '42';
 const pushModulePath = `${ROOT_DIR}/lib/push`;
 
-const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/docs/pushpayloads.schema.json`;
+const PUSH_PAYLOADS_SCHEMA_PATH = `${ROOT_DIR}/lib/pushpayloads.schema.json`;
 let PUSH_PAYLOADS_SCHEMA_MATCHER = null;
 match.validPushPayload = (fields) => {
   if (!PUSH_PAYLOADS_SCHEMA_MATCHER) {

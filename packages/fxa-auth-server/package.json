@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsc --build && cp -R lib dist/fxa-auth-server && cp -R fxa-content-server-l10n dist/fxa-auth-server && cp -R config dist/fxa-auth-server",
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",

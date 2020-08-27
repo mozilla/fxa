@@ -1,7 +1,6 @@
-FROM fxa-node:latest
+FROM fxa-mono:build
 
 USER root
-RUN ln -sF /fxa/packages/fxa-auth-server /app
+RUN ln -sF /fxa/packages/fxa-auth-server/dist/fxa-auth-server /app
 USER app
 WORKDIR /app
-RUN cp -R dist/fxa-auth-server/* ./
