@@ -121,7 +121,7 @@ module.exports = {
   DOWNLOAD_LINK_TEMPLATE_IOS:
     'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=ios&fallback=https://itunes.apple.com/app/apple-store/id989804926?pt=373246&ct=adjust_tracker&mt=8', //eslint-disable-line max-len
   DOWNLOAD_LINK_PAIRING_APP:
-    'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android&fallback=https://play.google.com/store/apps/details?id=org.mozilla.firefox_beta',
+    'https://app.adjust.com/2uo1qc?campaign=%(campaign)s&creative=%(creative)s&adgroup=android&fallback=https://play.google.com/store/apps/details?id=org.mozilla.firefox',
 
   MOZ_ORG_SYNC_GET_STARTED_LINK:
     'https://www.mozilla.org/firefox/sync?utm_source=fx-website&utm_medium=fx-accounts&utm_campaign=fx-signup&utm_content=fx-sync-get-started', //eslint-disable-line max-len
