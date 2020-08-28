@@ -18,7 +18,7 @@ const HEX_STRING = validators.HEX_STRING;
 const DEVICES_SCHEMA = require('../devices').schema;
 const PUSH_PAYLOADS_SCHEMA_PATH = path.resolve(
   __dirname,
-  '../../docs/pushpayloads.schema.json'
+  '../pushpayloads.schema.json'
 );
 
 // Assign a default TTL for well-known commands if a request didn't specify it.

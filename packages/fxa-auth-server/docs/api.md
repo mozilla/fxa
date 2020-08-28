@@ -1508,7 +1508,7 @@ and display the tab in a timely manner.
   <!--begin-request-body-post-accountdevicesnotify-payload-->
 
   Push payload,
-  validated against [`pushpayloads.schema.json`](pushpayloads.schema.json).
+  validated against [`pushpayloads.schema.json`](../lib/pushpayloads.schema.json).
 
   <!--end-request-body-post-accountdevicesnotify-payload-->
 

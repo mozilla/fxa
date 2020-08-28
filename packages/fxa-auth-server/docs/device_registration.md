@@ -117,7 +117,7 @@ HTTP/1.1 200 OK
 
 Once a webpush subscription is registered,
 the device will receive push notifications
-that match the JSON schema defined in [`pushpayloads.schema.json`](pushpayloads.schema.json).
+that match the JSON schema defined in [`pushpayloads.schema.json`](../lib/pushpayloads.schema.json).
 For legacy reasons,
 FxA may send an empty push notification
 to indicate that an account has become verified.

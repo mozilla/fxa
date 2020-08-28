@@ -11,7 +11,6 @@
 **/fxa-content-server-l10n
 packages/*/build
 packages/fxa-auth-server/.mail_output
-!packages/fxa-auth-server/docs/pushpayloads.schema.json
 packages/fxa-dev-launcher
 packages/fxa-email-event-proxy
 packages/fxa-email-service

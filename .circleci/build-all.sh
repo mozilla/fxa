@@ -8,7 +8,7 @@ if [[ -n "${CIRCLECI}" ]]; then
 fi
 
 ../_scripts/build-builder.sh
-../_scripts/build-fxa-node.sh
+../_scripts/build-fxa-mono.sh
 
 for d in ../packages/*/ ; do
   ./build.sh "$(basename "$d")"
