@@ -22,8 +22,8 @@
     a {
       padding: 0 16px;
 
-      &:last-child {
-        padding: 16px 0 16px 16px;
+      &.privacy {
+        margin-right: -16px;
       }
     }
   }
