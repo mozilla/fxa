@@ -441,6 +441,95 @@ describe('routes/Subscriptions', () => {
     await findByTestId('cancellation-message-title');
   });
 
+  it('cancelling one subscription disables other subscription cancel buttons', async () => {
+    initApiMocks({
+      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
+    });
+
+    nock(authServer)
+      .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
+      .reply(200, {});
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/active')
+      .reply(200, [
+        {
+          uid: 'a90fef48240b49b2b6a33d333aee9b13',
+          subscriptionId: 'sub0.28964929339372136',
+          productId: '123doneProProduct',
+          createdAt: 1565816388815,
+          cancelledAt: 1566252991684,
+        },
+      ]);
+    nock(authServer)
+      .get('/v1/oauth/subscriptions/customer')
+      .reply(200, {
+        ...MOCK_CUSTOMER,
+        subscriptions: [
+          {
+            subscription_id: 'sub0.28964929339372136',
+            plan_id: '123doneProMonthly',
+            product_id: 'prod_123',
+            product_name: '123done Pro',
+            latest_invoice: '628031D-0002',
+            status: 'active',
+            cancel_at_period_end: true,
+            current_period_start: 1565816388.815,
+            current_period_end: 1568408388.815,
+          },
+        ],
+      });
+
+    const { findByTestId, queryAllByTestId, getAllByTestId } = render(
+      <Subject />
+    );
+
+    // Wait for the page to load with one subscription
+    await findByTestId('subscription-management-loaded');
+    const items = queryAllByTestId('subscription-item');
+    expect(items.length).toBe(2);
+
+    // Click the button to reveal the cancellation panel
+    const revealButtons = getAllByTestId('reveal-cancel-subscription-button');
+    for (const revealButton of revealButtons) {
+      fireEvent.click(revealButton);
+    }
+
+    await waitForExpect(() =>
+      expect(cancelSubscriptionMounted).toBeCalledTimes(2)
+    );
+
+    const confirmBoxes = getAllByTestId('confirm-cancel-subscription-checkbox');
+    for (const confirmBox of confirmBoxes) {
+      fireEvent.click(confirmBox);
+    }
+
+    const cancelButtons = getAllByTestId('cancel-subscription-button');
+    await waitForExpect(() =>
+      expect(cancelButtons[0]).not.toHaveAttribute('disabled')
+    );
+    await waitForExpect(() =>
+      expect(cancelButtons[1]).not.toHaveAttribute('disabled')
+    );
+
+    expect(cancelSubscriptionEngaged).toBeCalledTimes(2);
+
+    fireEvent.click(cancelButtons[0]);
+
+    await waitForExpect(() =>
+      expect(getAllByTestId('spinner-update').length).toEqual(1)
+    );
+    await waitForExpect(() =>
+      expect(cancelButtons[0]).toHaveAttribute('disabled')
+    );
+    await waitForExpect(() =>
+      expect(cancelButtons[1]).toHaveAttribute('disabled')
+    );
+
+    // A farewell dialog should appear
+    await findByTestId('cancellation-message-title');
+  });
+
   async function commonReactivationSetup({
     useDefaultIcon = false,
     cancelledAtIsUnavailable = false,

@@ -33,9 +33,20 @@ const CancelSubscriptionPanel = ({
 }: CancelSubscriptionPanelProps) => {
   const [cancelRevealed, revealCancel, hideCancel] = useBooleanState();
   const [confirmationChecked, onConfirmationChanged] = useCheckboxState();
+  const [
+    isLocalCancellation,
+    setIsLocalCancellation,
+    resetIsLocalCancellation,
+  ] = useBooleanState();
 
-  const confirmCancellation = useCallback(() => {
-    cancelSubscription(subscription_id, plan);
+  const confirmCancellation = useCallback(async () => {
+    setIsLocalCancellation();
+    try {
+      await cancelSubscription(subscription_id, plan);
+    } catch (err) {
+      // no-op, error is displayed in the Subscriptions route parent
+    }
+    resetIsLocalCancellation();
   }, [cancelSubscription, subscription_id, plan]);
 
   const viewed = useRef(false);
@@ -181,7 +192,7 @@ const CancelSubscriptionPanel = ({
                   cancelSubscriptionStatus.loading || !confirmationChecked
                 }
               >
-                {cancelSubscriptionStatus.loading ? (
+                {cancelSubscriptionStatus.loading && isLocalCancellation ? (
                   <span data-testid="spinner-update" className="spinner">
                     &nbsp;
                   </span>
