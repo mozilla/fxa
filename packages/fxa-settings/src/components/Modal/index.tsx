@@ -38,7 +38,7 @@ export const Modal = ({
     <Portal id="modal" {...{ headerId, descId }}>
       <div
         data-testid={testid}
-        className="flex flex-col justify-center fixed inset-0 w-full px-2 h-full bg-black bg-opacity-75"
+        className="flex flex-col justify-center fixed inset-0 z-50 w-full px-2 h-full bg-black bg-opacity-75"
       >
         <div
           data-testid="modal-content-container"
@@ -67,9 +67,9 @@ export const Modal = ({
           <div className="px-4 tablet:px-12 pb-10">
             <div>{children}</div>
             {hasButtons && (
-              <div className="flex mt-6">
+              <div className="flex justify-center mx-auto mt-6 max-w-64">
                 <button
-                  className="cta-neutral transition-standard flex-1"
+                  className="cta-neutral mx-2 flex-1"
                   data-testid="modal-cancel"
                   onClick={onDismiss}
                 >
@@ -78,7 +78,7 @@ export const Modal = ({
 
                 {onConfirm && (
                   <button
-                    className="cta-primary transition-standard flex-1"
+                    className="mx-2 flex-1 cta-primary"
                     data-testid="modal-confirm"
                     onClick={onConfirm}
                   >

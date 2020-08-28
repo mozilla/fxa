@@ -71,21 +71,25 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           });
         }}
       >
-        <p className="my-6">
+        <p>
           Please enter the verification code that was sent to{' '}
           <span className="font-bold">{email}</span> within 5 minutes.
         </p>
-        <InputText
-          label="Enter your verification code"
-          onChange={(event) => {
-            setCode(event.target.value);
-          }}
-          {...{ errorText }}
-        ></InputText>
-        <div className="flex mt-6">
+
+        <div className="my-6">
+          <InputText
+            label="Enter your verification code"
+            onChange={(event) => {
+              setCode(event.target.value);
+            }}
+            {...{ errorText }}
+          ></InputText>
+        </div>
+
+        <div className="flex justify-center mx-auto max-w-64">
           <button
             type="button"
-            className="cta-neutral-lg transition-standard flex-1"
+            className="cta-neutral mx-2 flex-1"
             data-testid="secondary-email-verify-cancel"
             onClick={goBack}
           >
@@ -93,7 +97,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           </button>
           <button
             type="submit"
-            className="cta-primary transition-standard flex-1"
+            className="cta-primary mx-2 flex-1"
             data-testid="secondary-email-verify-submit"
           >
             Verify

@@ -22,7 +22,7 @@ export const UnitRowWithAvatar = () => {
       <div className="unit-row-actions">
         <div>
           <Link
-            className="cta-neutral cta-base transition-standard"
+            className="cta-neutral cta-base"
             data-testid="unit-row-with-avatar-route"
             to={`/beta/settings/avatar/change${location.search}`}
           >

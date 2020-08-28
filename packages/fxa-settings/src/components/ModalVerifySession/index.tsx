@@ -87,14 +87,14 @@ export const ModalVerifySession = ({
     >
       <form
         onSubmit={(event) => {
-          event.preventDefault();
+          event.preventDefault()
           verifySession({
             variables: {
               input: {
                 code,
               },
             },
-          });
+          })
         }}
       >
         <h2
@@ -106,23 +106,27 @@ export const ModalVerifySession = ({
         <p
           id="modal-verify-session-desc"
           data-testid="modal-desc"
-          className="my-6"
+          className="my-6 text-center"
         >
           Please enter the verification code that was sent to{' '}
           <span className="font-bold">{primaryEmail.email}</span> within 5
           minutes.
         </p>
-        <InputText
-          label="Enter your verification code"
-          onChange={(event) => {
-            setCode(event.target.value);
-          }}
-          {...{ errorText }}
-        ></InputText>
-        <div className="flex mt-6">
+
+        <div className="mt-4 mb-6">
+          <InputText
+            label="Enter your verification code"
+            onChange={(event) => {
+              setCode(event.target.value)
+            }}
+            {...{ errorText }}
+          ></InputText>
+        </div>
+
+        <div className="flex justify-center mx-auto max-w-64">
           <button
             type="button"
-            className="cta-neutral transition-standard flex-1"
+            className="cta-neutral mx-2 flex-1"
             data-testid="modal-verify-session-cancel"
             onClick={onDismiss}
           >
@@ -130,7 +134,7 @@ export const ModalVerifySession = ({
           </button>
           <button
             type="submit"
-            className="cta-primary transition-standard flex-1"
+            className="cta-primary mx-2 flex-1"
             data-testid="modal-verify-session-submit"
           >
             Verify
@@ -138,7 +142,7 @@ export const ModalVerifySession = ({
         </div>
       </form>
     </Modal>
-  );
+  )
 };
 
 export default ModalVerifySession;

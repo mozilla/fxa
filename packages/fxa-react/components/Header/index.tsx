@@ -15,7 +15,7 @@ export const Header = (props: HeaderProps) => {
     <header
       data-testid="header"
       role="banner"
-      className={props.className || 'sticky top-0 bg-grey-10'}
+      className={props.className || 'sticky top-0 bg-grey-10 z-10'}
     >
       <div className="px-6 tablet:px-8 py-4 flex justify-between">
         <div className="flex">{props.left}</div>

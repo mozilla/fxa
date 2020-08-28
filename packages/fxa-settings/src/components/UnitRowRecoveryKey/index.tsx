@@ -75,17 +75,23 @@ export const UnitRowRecoveryKey = () => {
       </LinkExternal>
       {modalRevealed && (
         <VerifiedSessionGuard onDismiss={hideModal} onError={onError}>
-          {/* TODO customize confirm button text and style */}
           <Modal
             onDismiss={hideModal}
             onConfirm={deleteRecoveryKey}
-            headerId="some-id"
-            descId="some-desc"
+            // TODO - Uncomment these two
+            // lines once #6302 is merged
+            // confirmBtnClassName="cta-caution"
+            // confirmText="Remove"
+            headerId="recovery-key-header"
+            descId="recovery-key-desc"
           >
-            <h2 id="some-id" className="font-bold text-xl text-center mb-2">
+            <h2
+              id="recovery-key-header"
+              className="font-bold text-xl text-center mb-2"
+            >
               Remove recovery key?
             </h2>
-            <p id="some-desc">
+            <p id="recovery-key-desc" className="my-6 text-center">
               In the event you reset your password, you won't be able to use
               your recovery key to access your data. You can't undo this action.
             </p>
@@ -94,7 +100,10 @@ export const UnitRowRecoveryKey = () => {
       )}
       {/* TODO: style AlertBar in the error case */}
       {alertBarRevealed && (
-        <AlertBar onDismiss={hideAlertBar}>
+        <AlertBar
+          onDismiss={hideAlertBar}
+          type={errorText ? 'error' : 'success'}
+        >
           {errorText ? (
             <p data-testid="delete-recovery-key-error">
               Error text TBD. {errorText}

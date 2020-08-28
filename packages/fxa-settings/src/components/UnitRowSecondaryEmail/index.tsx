@@ -258,7 +258,7 @@ export const UnitRowSecondaryEmail = () => {
             {verified && (
               <button
                 disabled={makeEmailPrimaryLoading}
-                className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap transition-standard"
+                className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
                 onClick={() => {
                   queueEmailAction(makeEmailPrimary);
                 }}

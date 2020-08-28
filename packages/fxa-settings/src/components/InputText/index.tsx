@@ -9,6 +9,7 @@ import React, {
   ReactElement,
   RefObject,
 } from 'react';
+import classNames from 'classnames';
 
 export type InputTextProps = {
   defaultValue?: string | number;
@@ -18,6 +19,7 @@ export type InputTextProps = {
   placeholder?: string;
   errorText?: string;
   errorTooltipClass?: string;
+  className?: string;
   inputRef?: RefObject<HTMLInputElement>;
   onChange?: (event: ChangeEvent<HTMLInputElement>) => void;
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
@@ -32,6 +34,7 @@ export const InputText = ({
   onChange,
   errorText,
   errorTooltipClass,
+  className = '',
   inputRef,
   type = 'text',
 }: InputTextProps) => {
@@ -56,21 +59,23 @@ export const InputText = ({
 
   return (
     <label
-      className={`flex items-center rounded transition-all duration-100 ease-in-out border mt-3 mb-3 tooltip
+      className={`flex items-center rounded transition-all duration-100 ease-in-out border tooltip
       ${errorText ? 'tooltip-showing' : ''}
       ${
         focussed ? 'border-blue-400 shadow-input-blue-focus' : 'border-grey-200'
       }
-      ${disabled ? 'border-grey-100 bg-grey-10' : 'bg-white'}`}
+      ${disabled ? 'border-grey-100 bg-grey-10' : 'bg-white'} ${className}`}
       data-testid="input-container"
     >
       <span className="block relative flex-auto">
         <span
-          className={`px-3 w-full cursor-text absolute text-sm origin-top-left transition-all duration-100 ease-in-out truncate font-body ${
+          className={classNames(
+            'px-3 w-full cursor-text absolute text-sm origin-top-left transition-all duration-100 ease-in-out truncate font-body',
+            disabled ? 'text-grey-300' : 'text-grey-600',
             hasContent || focussed
               ? 'transform scale-80 mt-1 ml-1 -left-px'
               : 'mt-3 pt-px'
-          } ${disabled ? 'text-grey-300' : 'text-grey-600'}`}
+          )}
           data-testid="input-label"
         >
           {label}
