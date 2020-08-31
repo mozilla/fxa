@@ -12,6 +12,9 @@ export class UpdateDisplayNamePayload {
   })
   public clientMutationId?: string;
 
-  @Field({ description: 'Updated display name. Null if an error occurred.', nullable: true })
+  @Field({
+    description: 'Updated display name. Null if an error occurred.',
+    nullable: true,
+  })
   public displayName?: string;
 }
