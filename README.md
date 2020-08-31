@@ -442,3 +442,7 @@ The resulting output will be stored within `assets/legal`.
 Example:
 file provided to convert: `/Users/test/github/mozilla/legal-docs/firefox_cloud_services_ToS/en-US.md`
 resulting file: `assets/legal/firefox_cloud_services_ToS/en-US.pdf`
+
+### bananafox
+
+A Probot github app for FxA
