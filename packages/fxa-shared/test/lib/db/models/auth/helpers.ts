@@ -8,8 +8,8 @@ import path from 'path';
 import Chance from 'chance';
 import Knex from 'knex';
 
-import { setupAuthDatabase } from 'fxa-shared/lib/db';
-import { Account } from 'fxa-shared/lib/db/models/auth/account';
+import { setupAuthDatabase } from '../../../../../lib/db';
+import { Account } from '../../../../../lib/db/models/auth/account';
 
 export type AccountIsh = Pick<
   Account,

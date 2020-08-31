@@ -19,7 +19,7 @@ import {
   dbHealthCheck,
   setupAuthDatabase,
   setupProfileDatabase,
-} from '../lib/db';
+} from 'fxa-shared/lib/db';
 import { loadBalancerRoutes } from '../lib/middleware';
 import { configureSentry } from '../lib/sentry';
 import { createServer } from '../lib/server';
@@ -36,10 +36,7 @@ async function run() {
   Container.set(configContainerToken, Config);
 
   // Setup the auth client
-  Container.set(
-    fxAccountClientToken,
-    new AuthClient(config.authServer.url)
-  );
+  Container.set(fxAccountClientToken, new AuthClient(config.authServer.url));
 
   // Setup the databases
   const authKnex = setupAuthDatabase(config.database.mysql.auth);

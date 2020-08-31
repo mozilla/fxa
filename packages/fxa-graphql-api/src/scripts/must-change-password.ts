@@ -27,9 +27,9 @@ import path from 'path';
 import fs from 'fs';
 
 import Config from '../config';
-import { setupAuthDatabase, setupDatabase } from '../lib/db';
-import { batchAccountUpdate } from '../lib/db/models/auth';
-import { uuidTransformer } from '../lib/db/transformers';
+import { setupAuthDatabase, setupDatabase } from 'fxa-shared/lib/db';
+import { batchAccountUpdate } from 'fxa-shared/lib/db/models/auth';
+import { uuidTransformer } from 'fxa-shared/lib/db/transformers';
 
 const config = Config.getProperties();
 const logger = mozlog(config.logging)('must-change-password');
