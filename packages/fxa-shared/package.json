@@ -71,6 +71,7 @@
     "generic-pool": "^3.7.1",
     "joi": "^14.3.1",
     "js-md5": "^0.7.3",
+    "knex": "^0.21.4",
     "lodash.omitby": "^4.6.0",
     "lodash.pick": "^4.4.0",
     "moment": "^2.24.0",
