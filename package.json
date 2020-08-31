@@ -31,7 +31,7 @@
     "@types/sinon": "9.0.5",
     "diffparser": "^2.0.1",
     "husky": "^4.2.5",
-    "lint-staged": "^10.2.11",
+    "lint-staged": "^10.2.13",
     "node-fetch": "^2.6.0",
     "nps": "^5.10.0",
     "pm2": "^4.4.1",
