@@ -79,8 +79,8 @@
     "moment": "^2.24.0",
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "objection": "^2.2.2",
-    "reflect-metadata": "^0.1.13",
     "redis": "^2.8.0",
+    "reflect-metadata": "^0.1.13",
     "stripe": "^8.69.0"
   }
 }
