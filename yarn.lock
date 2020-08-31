@@ -16741,6 +16741,7 @@ fsevents@^1.2.7:
     moment: ^2.24.0
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.0.1
+    objection: ^2.2.2
     pm2: ^4.4.1
     prettier: ^2.0.5
     proxyquire: ^2.1.3
