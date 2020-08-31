@@ -36,6 +36,7 @@
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
     "@types/chai": "^4.2.11",
+    "@types/chance": "^1.1.0",
     "@types/generic-pool": "^3.1.9",
     "@types/lodash.omitby": "^4",
     "@types/lodash.pick": "^4",
@@ -45,6 +46,7 @@
     "@types/sinon": "^9.0.4",
     "audit-filter": "^0.5.0",
     "chai": "^4.2.0",
+    "chance": "^1.1.6",
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
     "jsdom": "16.2.2",
