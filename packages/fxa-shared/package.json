@@ -77,6 +77,7 @@
     "lodash.omitby": "^4.6.0",
     "lodash.pick": "^4.4.0",
     "moment": "^2.24.0",
+    "mysql": "^2.18.1",
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "objection": "^2.2.2",
     "redis": "^2.8.0",
