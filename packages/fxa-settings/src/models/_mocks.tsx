@@ -78,7 +78,7 @@ export function createCache({
  * MockedCache is a sugary sweet version of MockedProvider.
  *
  * By default it uses values from MOCK_ACCOUNT but can be overwritten via props
- * `account` and `verified`.
+ * `account` and `verified`. It also takes in an optional `mocks` property.
  *
  * Example:
  * ```

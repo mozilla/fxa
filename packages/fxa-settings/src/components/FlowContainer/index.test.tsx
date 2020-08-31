@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import FlowContainer from './index';
 import { renderWithRouter } from '../../models/_mocks';
 

@@ -5,8 +5,8 @@
 import React from 'react';
 import { screen, fireEvent, wait, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
-import { FlowSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
+import { PageSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
 import { GraphQLError } from 'graphql';
 import { WindowLocation } from '@reach/router';
 
@@ -39,11 +39,11 @@ const mockLocation = ({
   state: { email: 'johndope@example.com' },
 } as unknown) as WindowLocation;
 
-describe('FlowSecondaryEmailVerify', () => {
+describe('PageSecondaryEmailVerify', () => {
   it('renders as expected', () => {
     renderWithRouter(
       <MockedCache>
-        <FlowSecondaryEmailVerify location={mockLocation} />
+        <PageSecondaryEmailVerify location={mockLocation} />
       </MockedCache>
     );
 
@@ -55,7 +55,7 @@ describe('FlowSecondaryEmailVerify', () => {
   it('renders error messages', async () => {
     renderWithRouter(
       <MockedCache mocks={mocks}>
-        <FlowSecondaryEmailVerify location={mockLocation} />
+        <PageSecondaryEmailVerify location={mockLocation} />
       </MockedCache>
     );
 
@@ -77,7 +77,7 @@ describe('FlowSecondaryEmailVerify', () => {
   it('navigates to settings on success', async () => {
     const { history } = renderWithRouter(
       <MockedCache mocks={mocks}>
-        <FlowSecondaryEmailVerify location={mockLocation} />
+        <PageSecondaryEmailVerify location={mockLocation} />
       </MockedCache>
     );
 

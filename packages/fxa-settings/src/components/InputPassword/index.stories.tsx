@@ -4,10 +4,10 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import PasswordInput from './index';
+import InputPassword from '.';
 
-storiesOf('Components|PasswordInput', module).add('default', () => (
+storiesOf('Components|InputPassword', module).add('default', () => (
   <div className="p-10 max-w-lg">
-    <PasswordInput label="You think you know how to password? Enter it here." />
+    <InputPassword label="You think you know how to password? Enter it here." />
   </div>
 ));

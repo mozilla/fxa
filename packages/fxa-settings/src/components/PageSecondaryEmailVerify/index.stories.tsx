@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { FlowSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
+import { PageSecondaryEmailVerify, VERIFY_SECONDARY_EMAIL_MUTATION } from '.';
+import { AppLayout } from '../AppLayout';
 import { MockedCache } from '../../models/_mocks';
 import { GraphQLError } from 'graphql';
 import { WindowLocation, LocationProvider } from '@reach/router';
@@ -38,12 +39,14 @@ const mockLocation = ({
   state: { email: 'johndope@example.com' },
 } as unknown) as WindowLocation;
 
-storiesOf('Components|FlowSecondaryEmailVerify', module)
+storiesOf('Pages|SecondaryEmailVerify', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('valid: 1234, invalid: 4444', () => {
     return (
       <MockedCache {...{ mocks }}>
-        <FlowSecondaryEmailVerify location={mockLocation} />
+        <AppLayout>
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </AppLayout>
       </MockedCache>
     );
   });

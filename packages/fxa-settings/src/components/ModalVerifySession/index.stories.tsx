@@ -54,7 +54,7 @@ const mocks = [
 storiesOf('Components|ModalVerifySession', module).add(
   'valid code: 1234, invalid code: 4444',
   () => (
-    <MockedCache mocks={mocks}>
+    <MockedCache {...{ mocks }} verified={false}>
       <ModalToggle>
         {({ modalRevealed, hideModal }) =>
           modalRevealed && (

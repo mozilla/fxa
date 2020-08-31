@@ -4,40 +4,40 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import TextInput from './index';
+import InputText from './index';
 
-storiesOf('Components|TextInput', module)
+storiesOf('Components|InputText', module)
   .add('type text (default)', () => (
     <div className="p-10 max-w-lg">
       <div className="mb-3">
-        <TextInput
+        <InputText
           label="Default label (with error tooltip)"
           placeholder="Here's a suggestion"
           errorText="This is some error text"
         />
       </div>
       <div className="mb-3">
-        <TextInput label="Default label" placeholder="Here's a suggestion" />
+        <InputText label="Default label" placeholder="Here's a suggestion" />
       </div>
       <div className="mb-3">
-        <TextInput
+        <InputText
           label="Label with value"
           placeholder="Here's a suggestion"
           defaultValue="This is the value"
         />
       </div>
       <div className="mb-3">
-        <TextInput label="This one's disabled" disabled />
+        <InputText label="This one's disabled" disabled />
       </div>
       <div className="mb-3">
-        <TextInput
+        <InputText
           label="This one's disabled"
           defaultValue="But it has a value"
           disabled
         />
       </div>
       <div className="mb-3">
-        <TextInput
+        <InputText
           label="Label that is extremely long because you never know what some languages are going to produce with the sentence you give them"
           placeholder="Hope it works!"
           defaultValue="wow"
@@ -47,7 +47,7 @@ storiesOf('Components|TextInput', module)
   ))
   .add('type email', () => (
     <div className="p-10 max-w-lg">
-      <TextInput
+      <InputText
         type="email"
         label="Enter your email, please"
         placeholder="cutie@pie.com"
@@ -56,7 +56,7 @@ storiesOf('Components|TextInput', module)
   ))
   .add('type number', () => (
     <div className="p-10 max-w-lg">
-      <TextInput
+      <InputText
         type="number"
         label="How many stars in the universe?"
         placeholder="Just one, it's you"
@@ -65,20 +65,20 @@ storiesOf('Components|TextInput', module)
   ))
   .add('type password', () => (
     <div className="p-10 max-w-lg">
-      <TextInput
+      <InputText
         type="password"
         label="Super secret password"
         placeholder="Make sure it's a good one"
       />
       <small className="block mt-2">
-        Note: please use the <code>&lt;PasswordInput /&gt;</code> component
+        Note: please use the <code>&lt;InputPassword /&gt;</code> component
         instead.
       </small>
     </div>
   ))
   .add('type tel', () => (
     <div className="p-10 max-w-lg">
-      <TextInput
+      <InputText
         type="tel"
         label="Enter your phone number"
         defaultValue="250 746 4399"
@@ -87,6 +87,6 @@ storiesOf('Components|TextInput', module)
   ))
   .add('type url', () => (
     <div className="p-10 max-w-lg">
-      <TextInput type="url" label="Link to your alt account" />
+      <InputText type="url" label="Link to your alt account" />
     </div>
   ));

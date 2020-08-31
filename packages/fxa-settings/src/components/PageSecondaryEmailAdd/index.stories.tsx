@@ -5,7 +5,8 @@
 import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { storiesOf } from '@storybook/react';
-import { FlowSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
+import { AppLayout } from '../AppLayout';
+import { PageSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
 import { MockedCache, mockEmail } from '../../models/_mocks';
 import { GraphQLError } from 'graphql';
 
@@ -19,18 +20,22 @@ const mockGqlError = (email: string) => ({
   },
 });
 
-storiesOf('Components|FlowSecondaryEmailAdd', module)
+storiesOf('Pages|SecondaryEmailAdd', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('Default empty', () => (
     <MockedCache>
-      <FlowSecondaryEmailAdd />
+      <AppLayout>
+        <PageSecondaryEmailAdd />
+      </AppLayout>
     </MockedCache>
   ))
   .add('No secondary email set, primary email verified', () => {
     const mocks = [mockGqlError('johndope2@example.com')];
     return (
       <MockedCache {...{ mocks }}>
-        <FlowSecondaryEmailAdd />
+        <AppLayout>
+          <PageSecondaryEmailAdd />
+        </AppLayout>
       </MockedCache>
     );
   })
@@ -40,7 +45,9 @@ storiesOf('Components|FlowSecondaryEmailAdd', module)
       const mocks = [mockGqlError('johndope@example.com')];
       return (
         <MockedCache {...{ mocks }}>
-          <FlowSecondaryEmailAdd />
+          <AppLayout>
+            <PageSecondaryEmailAdd />
+          </AppLayout>
         </MockedCache>
       );
     }
@@ -55,7 +62,9 @@ storiesOf('Components|FlowSecondaryEmailAdd', module)
       const mocks = [mockGqlError('johndope2@example.com')];
       return (
         <MockedCache account={{ emails }} {...{ mocks }}>
-          <FlowSecondaryEmailAdd />
+          <AppLayout>
+            <PageSecondaryEmailAdd />
+          </AppLayout>
         </MockedCache>
       );
     }
