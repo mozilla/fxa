@@ -387,6 +387,6 @@ async function handlePaymentIntent({
 }
 
 const hasExistingCard = (customer: Customer | null) =>
-  customer && customer.last4;
+  customer && customer.last4 && customer.subscriptions.length > 0;
 
 export default SubscriptionCreate;
