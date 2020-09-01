@@ -1,3 +1,25 @@
+## 1.186.0
+
+### New features
+
+- payments: add subscription buttons for 123done while logged in ([675a312d4](https://github.com/mozilla/fxa/commit/675a312d4))
+
+### Bug fixes
+
+- totp: Add mixin to verify session if a request is `unverified session` based ([47074a150](https://github.com/mozilla/fxa/commit/47074a150))
+- metrics: Emit metrics for pairing part 2 ([da6948ee0](https://github.com/mozilla/fxa/commit/da6948ee0))
+- content server: mark session as verified so recovery code usage can redirect you to cad screen ([b0e20ff33](https://github.com/mozilla/fxa/commit/b0e20ff33))
+- totp: Don't reuse existing sessions for oauth webchannel clients ([18395c17c](https://github.com/mozilla/fxa/commit/18395c17c))
+- content-server: create fake hidden input sign in ([d74cc0803](https://github.com/mozilla/fxa/commit/d74cc0803))
+- content-server: create fake hidden input on change password. ([c2a80b7f8](https://github.com/mozilla/fxa/commit/c2a80b7f8))
+
+### Other changes
+
+- fxa: bump deps from open dependabot prs ([b7d726cbf](https://github.com/mozilla/fxa/commit/b7d726cbf))
+- deps: bump mustache in /packages/fxa-content-server ([43ac83dd0](https://github.com/mozilla/fxa/commit/43ac83dd0))
+- deps: bump cookie-parser in /packages/fxa-content-server ([99f4173bf](https://github.com/mozilla/fxa/commit/99f4173bf))
+- deps: update yarn version and root level deps ([da2e99729](https://github.com/mozilla/fxa/commit/da2e99729))
+
 ## 1.185.1
 
 No changes.

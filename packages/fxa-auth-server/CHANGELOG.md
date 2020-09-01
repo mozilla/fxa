@@ -1,3 +1,18 @@
+## 1.186.0
+
+### New features
+
+- payments: use existing card for new subscriptions ([044c891ca](https://github.com/mozilla/fxa/commit/044c891ca))
+
+### Bug fixes
+
+- payments: use default payment details in reactivation email ([367f39d9d](https://github.com/mozilla/fxa/commit/367f39d9d))
+- validation: Allow unicode replacement character in display-safe strings. ([12cbb8caa](https://github.com/mozilla/fxa/commit/12cbb8caa))
+
+### Other changes
+
+- deps: update yarn version and root level deps ([da2e99729](https://github.com/mozilla/fxa/commit/da2e99729))
+
 ## 1.185.1
 
 No changes.
