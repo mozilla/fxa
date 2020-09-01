@@ -22,6 +22,7 @@ class AddNewsletters extends FormView {
 
   events = assign(this.events, {
     'click #maybe-later-btn': preventDefaultThen('clickMaybeLater'),
+    'click input.marketing-email-optin': 'toggleSubscribeButton',
   });
 
   beforeRender() {
@@ -32,6 +33,14 @@ class AddNewsletters extends FormView {
     if (account.isDefault()) {
       this.relier.set('redirectTo', this.window.location.href);
       return this.replaceCurrentPage('/');
+    }
+  }
+
+  toggleSubscribeButton() {
+    if (this.getOptedIntoNewsletters().length) {
+      this.$('#submit-btn').removeClass('disabled');
+    } else {
+      this.$('#submit-btn').addClass('disabled');
     }
   }
 

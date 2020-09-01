@@ -24,16 +24,19 @@ Cocktail.mixin(View, EmailOptInMixin);
 describe('views/mixins/email-opt-in-mixin', () => {
   let experimentGroupingRules;
   let marketingEmailEnabled;
+  let getExperimentGroup;
   let view;
 
   beforeEach(() => {
     experimentGroupingRules = {
       choose: () => {},
     };
+    getExperimentGroup = () => false;
     marketingEmailEnabled = true;
 
     view = new View({
       experimentGroupingRules,
+      getExperimentGroup,
       marketingEmailEnabled,
     });
   });
@@ -117,6 +120,20 @@ describe('views/mixins/email-opt-in-mixin', () => {
         'test-pilot',
         'knowledge-is-power',
       ]);
+    });
+  });
+
+  describe('returns new copy for newsletter experiment', () => {
+    beforeEach(() => {
+      view.getExperimentGroup = () => true;
+      sinon.spy(view, 'getExperimentGroup');
+      return view.render();
+    });
+
+    it('returns list of newsletters', () => {
+      view
+        .$(view._newsletterTypeToSelector(NEWSLETTERS.CONSUMER_BETA))
+        .attr('label', 'Testing Firefox products');
     });
   });
 });

@@ -86,6 +86,7 @@ class ConfirmSignupCodeView extends FormView {
         }
 
         if (this.isInNewsletterSyncExperimentTreatment()) {
+          account.set('verified', true);
           this.navigate('/post_verify/newsletters/add_newsletters', {
             account,
           });
