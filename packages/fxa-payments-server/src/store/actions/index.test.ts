@@ -31,10 +31,8 @@ const assertActionPayload = (
 
 describe('resetActions', () => {
   const actionNames: ActionsKey[] = [
-    'resetCreateSubscription',
     'resetCancelSubscription',
     'resetReactivateSubscription',
-    'resetUpdatePayment',
     'resetUpdateSubscriptionPlan',
   ];
   actionNames.forEach((name) => {

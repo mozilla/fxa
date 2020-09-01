@@ -68,18 +68,6 @@ function setupVariantStories(
         }}
       />
     ))
-    .add('updated payment', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedProps,
-          updatePaymentStatus: {
-            loading: false,
-            error: null,
-            result: true,
-          },
-        }}
-      />
-    ))
     .add('cancelled', () => (
       <SubscriptionsRoute
         routeProps={{
@@ -140,26 +128,6 @@ function setupVariantStories(
         routeProps={{
           ...baseProps,
           plans: errorFetchState(),
-        }}
-      />
-    ))
-    .add('payment update', () => (
-      <SubscriptionsRoute
-        routeProps={{
-          ...subscribedProps,
-          updatePaymentStatus: {
-            loading: false,
-            result: null,
-            error: new APIError({
-              // Copy / paste of error content from API
-              code: 'expired_card',
-              message: 'Your card has expired.',
-              errno: 181,
-              error: 'Bad Request',
-              info:
-                'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
-            }),
-          },
         }}
       />
     ))
@@ -284,15 +252,8 @@ const baseProps: SubscriptionsProps = {
   fetchSubscriptionsRouteResources: action('fetchSubscriptionsRouteResources'),
   cancelSubscription: () => linkTo('routes/Subscriptions', 'cancelled')(),
   reactivateSubscription: action('reactivateSubscription'),
-  resetUpdatePayment: action('resetUpdatePayment'),
   resetCancelSubscription: action('resetCancelSubscription'),
   resetReactivateSubscription: action('resetReactivateSubscription'),
-  updatePayment: () => linkTo('routes/Subscriptions', 'updated payment')(),
-  updatePaymentStatus: {
-    error: null,
-    loading: false,
-    result: null,
-  },
   cancelSubscriptionStatus: {
     error: null,
     loading: false,

@@ -12,7 +12,9 @@ describe('reduceReducers', () => {
       identityReducer,
       identityReducer
     );
-    const result = combinedReducer(undefined, { type: 'resetUpdatePayment' });
+    const result = combinedReducer(undefined, {
+      type: 'resetUpdateSubscriptionPlan',
+    });
     expect(result).toEqual(defaultState);
   });
 
@@ -28,7 +30,7 @@ describe('reduceReducers', () => {
       identityReducer
     );
     const result = combinedReducer(currentState, {
-      type: 'resetUpdatePayment',
+      type: 'resetUpdateSubscriptionPlan',
     });
     expect(result).toEqual(currentState);
   });

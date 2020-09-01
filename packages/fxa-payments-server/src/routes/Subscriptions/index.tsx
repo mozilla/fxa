@@ -42,15 +42,12 @@ export type SubscriptionsProps = {
   customer: SelectorReturns['customer'];
   cancelSubscriptionStatus: SelectorReturns['cancelSubscriptionStatus'];
   reactivateSubscriptionStatus: SelectorReturns['reactivateSubscriptionStatus'];
-  updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
   customerSubscriptions: SelectorReturns['customerSubscriptions'];
   cancelSubscription: SequenceFunctions['cancelSubscriptionAndRefresh'];
   resetCancelSubscription: ActionFunctions['resetCancelSubscription'];
   reactivateSubscription: ActionFunctions['reactivateSubscription'];
   fetchSubscriptionsRouteResources: SequenceFunctions['fetchSubscriptionsRouteResources'];
   resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
-  updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
-  resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
   paymentUpdateStripeOverride?: PaymentUpdateStripeAPIs;
   paymentUpdateApiClientOverrides?: Partial<PaymentUpdateAuthServerAPIs>;
 };
@@ -66,10 +63,7 @@ export const Subscriptions = ({
   reactivateSubscription,
   reactivateSubscriptionStatus,
   resetReactivateSubscription,
-  updatePayment,
-  resetUpdatePayment,
   resetCancelSubscription,
-  updatePaymentStatus,
   paymentUpdateStripeOverride,
   paymentUpdateApiClientOverrides,
 }: SubscriptionsProps) => {
@@ -95,9 +89,7 @@ export const Subscriptions = ({
   }, [resetUpdatePaymentIsSuccess]);
 
   const showPaymentSuccessAlert =
-    !updatePaymentSuccessAlertIsHidden &&
-    // TODO: When we move to V2 SCA flow, we can drop updatePaymentStatus
-    (updatePaymentIsSuccessViaSCA || updatePaymentStatus.result);
+    !updatePaymentSuccessAlertIsHidden && updatePaymentIsSuccessViaSCA;
 
   const SUPPORT_FORM_URL = `${config.servers.content.url}/support`;
 
@@ -231,14 +223,6 @@ export const Subscriptions = ({
         </AlertBar>
       )}
 
-      {updatePaymentStatus.loading && (
-        <AlertBar className="alert alertPending">
-          <Localized id="sub-route-idx-updating">
-            <span>Updating billing information...</span>
-          </Localized>
-        </AlertBar>
-      )}
-
       {reactivateSubscriptionStatus.error && (
         <DialogMessage
           className="dialog-error"
@@ -317,9 +301,6 @@ export const Subscriptions = ({
                 key={idx}
                 {...{
                   customer: customer.result,
-                  updatePayment,
-                  resetUpdatePayment,
-                  updatePaymentStatus,
                   cancelSubscription,
                   reactivateSubscription,
                   customerSubscription,
@@ -435,7 +416,6 @@ export default connect(
     profile: selectors.profile(state),
     customer: selectors.customer(state),
     customerSubscriptions: selectors.customerSubscriptions(state),
-    updatePaymentStatus: selectors.updatePaymentStatus(state),
     cancelSubscriptionStatus: selectors.cancelSubscriptionStatus(state),
     reactivateSubscriptionStatus: selectors.reactivateSubscriptionStatus(state),
     plansByProductId: selectors.plansByProductId(state),
@@ -443,8 +423,6 @@ export default connect(
   {
     fetchSubscriptionsRouteResources:
       sequences.fetchSubscriptionsRouteResources,
-    updatePayment: sequences.updatePaymentAndRefresh,
-    resetUpdatePayment: actions.resetUpdatePayment,
     cancelSubscription: sequences.cancelSubscriptionAndRefresh,
     resetCancelSubscription: actions.resetCancelSubscription,
     reactivateSubscription: sequences.reactivateSubscriptionAndRefresh,

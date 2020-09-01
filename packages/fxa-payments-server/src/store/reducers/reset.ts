@@ -6,9 +6,7 @@ type ResetTypeToStoreMap = Record<ResetAction['type'], keyof State>;
 const resetTypeToStoreMap: ResetTypeToStoreMap = {
   resetCancelSubscription: 'cancelSubscription',
   resetUpdateSubscriptionPlan: 'updateSubscriptionPlan',
-  resetCreateSubscription: 'createSubscription',
   resetReactivateSubscription: 'reactivateSubscription',
-  resetUpdatePayment: 'updatePayment',
 };
 
 export default (state: State, action: Action): State => {
