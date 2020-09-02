@@ -298,6 +298,9 @@ describe('StripeHelper', () => {
         .stub(stripeHelper.stripe.customers, 'update')
         .resolves(customerExpected);
       sandbox
+        .stub(stripeHelper.stripe.invoices, 'pay')
+        .resolves(invoiceRetryExpected);
+      sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieve')
         .resolves(invoiceRetryExpected);
       const actual = await stripeHelper.retryInvoiceWithPaymentId(

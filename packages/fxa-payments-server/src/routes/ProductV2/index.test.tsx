@@ -203,7 +203,7 @@ describe('routes/Product', () => {
         .reply(200, MOCK_PLANS),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
-        .reply(200, { ...MOCK_CUSTOMER, subscriptions: null }),
+        .reply(200, { ...MOCK_CUSTOMER, subscriptions: [] }),
     ];
     const { findAllByText } = render(<Subject />);
     await findAllByText('Set up your subscription');

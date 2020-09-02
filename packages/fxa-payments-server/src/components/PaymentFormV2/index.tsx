@@ -84,7 +84,8 @@ export const PaymentForm = ({
   onChange: onChangeProp,
   submitNonce,
 }: BasePaymentFormProps) => {
-  const hasExistingCard = customer && customer.last4;
+  const hasExistingCard =
+    customer && customer.last4 && customer.subscriptions.length > 0;
 
   const stripe = useStripe();
   const elements = useElements();
