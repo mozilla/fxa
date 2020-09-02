@@ -12,7 +12,6 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "baseUrl": "../packages",
-    "incremental": true,
     "typeRoots": [
       "../types",
       "../node_modules/@types",
