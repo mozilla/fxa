@@ -8,84 +8,100 @@ import dayjs from 'dayjs';
 import { useNonce } from '../../lib/hooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { getErrorMessage } from '../../lib/errors';
-import { SelectorReturns } from '../../store/selectors';
+import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
 import { Customer } from '../../store/types';
+import AlertBar from '../../components/AlertBar';
 import PaymentForm from '../../components/PaymentForm';
 import ErrorMessage from '../../components/ErrorMessage';
-import { SubscriptionsProps } from './index';
 import * as Amplitude from '../../lib/amplitude';
+import * as apiClient from 'fxa-payments-server/src/lib/apiClient';
+
+type PaymentUpdateError = undefined | StripeError;
+
+export type PaymentUpdateStripeAPIs = Pick<Stripe, 'confirmCardSetup'>;
+
+export type PaymentUpdateAuthServerAPIs = Pick<
+  typeof apiClient,
+  'apiCreateSetupIntent' | 'apiUpdateDefaultPaymentMethod'
+>;
 
 export type PaymentUpdateFormProps = {
   customer: Customer;
-  resetUpdatePayment: SubscriptionsProps['resetUpdatePayment'];
-  updatePayment: SubscriptionsProps['updatePayment'];
-  updatePaymentStatus: SelectorReturns['updatePaymentStatus'];
+  refreshSubscriptions: () => void;
+  setUpdatePaymentIsSuccess: () => void;
+  resetUpdatePaymentIsSuccess: () => void;
+  paymentErrorInitialState?: PaymentUpdateError;
+  stripeOverride?: PaymentUpdateStripeAPIs;
+  apiClientOverrides?: Partial<PaymentUpdateAuthServerAPIs>;
 };
 
 export const PaymentUpdateForm = ({
-  updatePayment: updatePaymentBase,
-  updatePaymentStatus,
-  resetUpdatePayment: resetUpdatePaymentBase,
   customer,
+  refreshSubscriptions,
+  setUpdatePaymentIsSuccess,
+  resetUpdatePaymentIsSuccess,
+  paymentErrorInitialState,
+  stripeOverride,
+  apiClientOverrides,
 }: PaymentUpdateFormProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [updateRevealed, revealUpdate, hideUpdate] = useBooleanState();
-  const [createTokenError, setCreateTokenError] = useState({
-    type: '',
-    error: false,
-  });
-
-  const resetUpdatePayment = useCallback(async () => {
-    resetUpdatePaymentBase();
-    refreshSubmitNonce();
-  }, [resetUpdatePaymentBase, refreshSubmitNonce]);
-
-  const updatePayment = useCallback(
-    async (...args: Parameters<typeof updatePaymentBase>) => {
-      await updatePaymentBase(...args);
-      refreshSubmitNonce();
-    },
-    [updatePaymentBase, refreshSubmitNonce]
+  const [inProgress, setInProgress, resetInProgress] = useBooleanState(false);
+  const [paymentError, setPaymentError] = useState<PaymentUpdateError>(
+    paymentErrorInitialState
   );
 
   const onRevealUpdateClick = useCallback(() => {
-    resetUpdatePayment();
+    refreshSubmitNonce();
     revealUpdate();
-  }, [resetUpdatePayment, revealUpdate]);
+    resetInProgress();
+    resetUpdatePaymentIsSuccess();
+  }, [
+    refreshSubmitNonce,
+    revealUpdate,
+    resetInProgress,
+    resetUpdatePaymentIsSuccess,
+  ]);
 
-  const onPayment = useCallback(
-    (tokenResponse: stripe.TokenResponse | null) => {
-      if (tokenResponse && tokenResponse.token) {
-        updatePayment(tokenResponse.token.id);
-      } else {
-        // This shouldn't happen with a successful createToken() call, but let's
-        // display an error in case it does.
-        const error: any = { type: 'api_error', error: true };
-        setCreateTokenError(error);
+  const onSubmit = useCallback(
+    async ({ stripe: stripeFromParams, ...params }) => {
+      setInProgress();
+      resetUpdatePaymentIsSuccess();
+      try {
+        await handlePaymentUpdate({
+          ...params,
+          ...apiClient,
+          ...apiClientOverrides,
+          stripe:
+            stripeOverride /* istanbul ignore next - used for testing */ ||
+            stripeFromParams,
+          onFailure: setPaymentError,
+          onSuccess: () => {
+            hideUpdate();
+            setUpdatePaymentIsSuccess();
+            refreshSubscriptions();
+          },
+        });
+      } catch (error) {
+        console.error('handleSubscriptionPayment failed', error);
+        setPaymentError(error);
       }
+      resetInProgress();
+      refreshSubmitNonce();
     },
-    [updatePayment, setCreateTokenError]
-  );
-
-  const onPaymentError = useCallback(
-    (error: any) => {
-      error.error = true;
-      setCreateTokenError(error);
-    },
-    [setCreateTokenError]
+    []
   );
 
   // clear any error rendered with `ErrorMessage`
   const onChange = useCallback(() => {
-    setCreateTokenError({ type: '', error: false });
-    resetUpdatePayment();
-  }, [setCreateTokenError, resetUpdatePayment]);
+    if (paymentError) {
+      setPaymentError(undefined);
+    }
+  }, [paymentError, setPaymentError]);
 
   const onFormMounted = useCallback(() => Amplitude.updatePaymentMounted(), []);
 
   const onFormEngaged = useCallback(() => Amplitude.updatePaymentEngaged(), []);
-
-  const inProgress = updatePaymentStatus.loading;
 
   const { last4, exp_month, exp_year } = customer;
 
@@ -97,7 +113,15 @@ export const PaymentUpdateForm = ({
 
   return (
     <div className="settings-unit">
-      <div className="payment-update">
+      <div className="payment-update" data-testid="payment-update">
+        {inProgress && (
+          <AlertBar className="alert alertPending">
+            <Localized id="sub-route-idx-updating">
+              <span>Updating billing information...</span>
+            </Localized>
+          </AlertBar>
+        )}
+
         <header>
           <h2 className="billing-title">
             <Localized id="sub-update-title">
@@ -107,7 +131,7 @@ export const PaymentUpdateForm = ({
         </header>
         {!updateRevealed ? (
           <div className="with-settings-button">
-            <div className="card-details" data-testid="card-details">
+            <div className="card-details">
               {last4 && expirationDate && (
                 <>
                   {/* TODO: Need to find a way to display a card icon here? */}
@@ -129,34 +153,28 @@ export const PaymentUpdateForm = ({
                 onClick={onRevealUpdateClick}
               >
                 <Localized id="pay-update-change-btn">
-                  <span className="change-button">Change</span>
+                  <span className="change-button" data-testid="change-button">
+                    Change
+                  </span>
                 </Localized>
               </button>
             </div>
           </div>
         ) : (
           <>
-            <ErrorMessage isVisible={!!createTokenError.error}>
-              {createTokenError.error && (
-                <p data-testid="error-payment-submission">
-                  {getErrorMessage(createTokenError.type)}
-                </p>
+            <ErrorMessage isVisible={!!paymentError}>
+              {paymentError && (
+                <Localized id={getErrorMessage(paymentError.code || 'UNKNOWN')}>
+                  <p data-testid="error-payment-submission">
+                    {getErrorMessage(paymentError.code || 'UNKNOWN')}
+                  </p>
+                </Localized>
               )}
             </ErrorMessage>
-
-            <ErrorMessage isVisible={!!updatePaymentStatus.error}>
-              {updatePaymentStatus.error && (
-                <p data-testid="error-billing-update">
-                  {updatePaymentStatus.error.message}
-                </p>
-              )}
-            </ErrorMessage>
-
             <PaymentForm
               {...{
                 submitNonce,
-                onPayment,
-                onPaymentError,
+                onSubmit,
                 inProgress,
                 confirm: false,
                 onCancel: hideUpdate,
@@ -171,5 +189,52 @@ export const PaymentUpdateForm = ({
     </div>
   );
 };
+
+async function handlePaymentUpdate({
+  stripe,
+  name,
+  card,
+  apiCreateSetupIntent,
+  apiUpdateDefaultPaymentMethod,
+  onFailure,
+  onSuccess,
+}: {
+  stripe: PaymentUpdateStripeAPIs;
+  name: string;
+  card: StripeCardElement;
+  onFailure: (error: PaymentUpdateError) => void;
+  onSuccess: () => void;
+} & PaymentUpdateAuthServerAPIs) {
+  // 1. Create the setup intent
+  const filteredIntent = await apiCreateSetupIntent();
+
+  // 2. Confirm the setup intent with a card from the payment form
+  // Note: This client-side Stripe API also handles SCA auth dialogs
+  const { setupIntent, error: setupError } = await stripe.confirmCardSetup(
+    filteredIntent.client_secret,
+    {
+      payment_method: {
+        card,
+        billing_details: { name },
+      },
+    }
+  );
+  if (setupError) {
+    return onFailure(setupError);
+  }
+  if (!setupIntent) {
+    return onFailure({ type: 'card_error' });
+  }
+
+  // 3. Use the payment method ID from the setup intent to update default payment method.
+  const { payment_method: paymentMethodId } = setupIntent;
+  if (typeof paymentMethodId !== 'string') {
+    return onFailure({ type: 'card_error' });
+  }
+  await apiUpdateDefaultPaymentMethod({ paymentMethodId });
+
+  // Finally, if there are no exceptions, we've succeeded.
+  return onSuccess();
+}
 
 export default PaymentUpdateForm;

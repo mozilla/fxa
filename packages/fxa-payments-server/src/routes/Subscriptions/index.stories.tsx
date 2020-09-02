@@ -9,7 +9,7 @@ import { Subscriptions, SubscriptionsProps } from './index';
 import {
   PaymentUpdateStripeAPIs,
   PaymentUpdateAuthServerAPIs,
-} from './PaymentUpdateFormV2';
+} from './PaymentUpdateForm';
 import { QueryParams } from '../../lib/types';
 import { APIError } from '../../lib/apiClient';
 import { FetchState } from '../../store/types';
@@ -17,9 +17,7 @@ import { linkTo } from '@storybook/addon-links';
 import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
 
 function init() {
-  setupVariantStories('routes/Subscriptions');
-  setupVariantStories('routes/SubscriptionsV2', {
-    useSCAPaymentFlow: true,
+  setupVariantStories('routes/Subscriptions', {
     paymentUpdateApiClientOverrides: defaultPaymentUpdateApiClientOverrides(),
     paymentUpdateStripeOverride: defaultPaymentUpdateStripeOverride(),
   });
@@ -267,7 +265,6 @@ const PLANS = [
 ];
 
 const baseProps: SubscriptionsProps = {
-  useSCAPaymentFlow: false,
   profile: {
     error: null,
     loading: false,

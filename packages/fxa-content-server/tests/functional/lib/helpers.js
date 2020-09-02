@@ -2683,15 +2683,16 @@ const switchToStripeElementIFrame = thenify(function (fieldName) {
 /**
  * Type into a element within the iframe embedded by the Stripe element for the named field
  *
- * @param {string} fieldName - name of the field
+ * @param {string} fieldName - name of the field component containing the Stripe Element iframe
+ * @param {string} subFieldName - name attribute of the child field within the Stripe Element
  * @param {string} selector - selector for the input element within the Stripe iframe
  * @param {string} text - text to type
  * @returns {promise} resolves when complete
  */
-const typeIntoStripeElement = thenify(function (fieldName, text) {
+const typeIntoStripeElement = thenify(function (fieldName, subFieldName, text) {
   return this.parent
     .then(switchToStripeElementIFrame(fieldName))
-    .then(type('.InputElement', text))
+    .then(type(`.InputElement[name=${subFieldName}]`, text))
     .switchToParentFrame()
     .end(Infinity);
 });
@@ -2712,10 +2713,12 @@ const subscribeToTestProduct = thenify(function () {
     .then(getQueryParamValue('flow_id'))
     .then((flowId) => assert.ok(flowId))
     .then(type('input[name=name]', 'Testo McTestson'))
-    .then(typeIntoStripeElement('creditCardNumber', '4242 4242 4242 4242'))
-    .then(typeIntoStripeElement('expDate', `12${nextYear}`))
-    .then(typeIntoStripeElement('cvc', '123'))
-    .then(type('input[name=zip]', '12345'))
+    .then(
+      typeIntoStripeElement('creditCard', 'cardnumber', `4242 4242 4242 4242`)
+    )
+    .then(typeIntoStripeElement('creditCard', 'exp-date', `12${nextYear}`))
+    .then(typeIntoStripeElement('creditCard', 'cvc', `123`))
+    .then(typeIntoStripeElement('creditCard', 'postal', `12345`))
     .then(click('input[type=checkbox]'))
     .then(click('button[name=submit]'))
     .then(testElementExists('.download-link'))

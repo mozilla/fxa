@@ -31,11 +31,10 @@ import { LoadingOverlay } from '../../components/LoadingOverlay';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { getLocalizedDate, getLocalizedDateString } from '../../lib/formats';
 
-import PaymentUpdateForm from './PaymentUpdateForm';
-import PaymentUpdateFormV2, {
+import PaymentUpdateForm, {
   PaymentUpdateStripeAPIs,
   PaymentUpdateAuthServerAPIs,
-} from './PaymentUpdateFormV2';
+} from './PaymentUpdateForm';
 
 export type SubscriptionsProps = {
   profile: SelectorReturns['profile'];
@@ -52,7 +51,6 @@ export type SubscriptionsProps = {
   resetReactivateSubscription: ActionFunctions['resetReactivateSubscription'];
   updatePayment: SequenceFunctions['updatePaymentAndRefresh'];
   resetUpdatePayment: ActionFunctions['resetUpdatePayment'];
-  useSCAPaymentFlow: boolean;
   paymentUpdateStripeOverride?: PaymentUpdateStripeAPIs;
   paymentUpdateApiClientOverrides?: Partial<PaymentUpdateAuthServerAPIs>;
 };
@@ -72,7 +70,6 @@ export const Subscriptions = ({
   resetUpdatePayment,
   resetCancelSubscription,
   updatePaymentStatus,
-  useSCAPaymentFlow,
   paymentUpdateStripeOverride,
   paymentUpdateApiClientOverrides,
 }: SubscriptionsProps) => {
@@ -301,29 +298,16 @@ export const Subscriptions = ({
           </div>
 
           {customer.result && showPaymentUpdateForm && (
-            <>
-              {useSCAPaymentFlow ? (
-                <PaymentUpdateFormV2
-                  {...{
-                    customer: customer.result,
-                    refreshSubscriptions: fetchSubscriptionsRouteResources,
-                    setUpdatePaymentIsSuccess,
-                    resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
-                    stripeOverride: paymentUpdateStripeOverride,
-                    apiClientOverrides: paymentUpdateApiClientOverrides,
-                  }}
-                />
-              ) : (
-                <PaymentUpdateForm
-                  {...{
-                    customer: customer.result,
-                    updatePayment,
-                    resetUpdatePayment,
-                    updatePaymentStatus,
-                  }}
-                />
-              )}
-            </>
+            <PaymentUpdateForm
+              {...{
+                customer: customer.result,
+                refreshSubscriptions: fetchSubscriptionsRouteResources,
+                setUpdatePaymentIsSuccess,
+                resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
+                stripeOverride: paymentUpdateStripeOverride,
+                apiClientOverrides: paymentUpdateApiClientOverrides,
+              }}
+            />
           )}
 
           {customer.result &&
@@ -344,7 +328,6 @@ export const Subscriptions = ({
                   refreshSubscriptions: fetchSubscriptionsRouteResources,
                   setUpdatePaymentIsSuccess,
                   resetUpdatePaymentIsSuccess: resetUpdatePaymentIsSuccessAndAlert,
-                  useSCAPaymentFlow,
                   paymentUpdateStripeOverride,
                   paymentUpdateApiClientOverrides,
                 }}

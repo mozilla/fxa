@@ -19,7 +19,7 @@ import {
   MOCK_CUSTOMER,
 } from '../../lib/test-utils';
 
-import { PaymentForm, PaymentFormProps, PaymentFormStripeProps } from './index';
+import PaymentForm, { PaymentFormProps, localeToStripeLocale } from './index';
 import { getLocalizedCurrency } from '../../lib/formats';
 
 const findMockPlan = (planId: string): Plan => {
@@ -40,45 +40,22 @@ const MOCK_PLAN = {
   interval_count: 1,
 };
 
-const VALID_CREATE_TOKEN_RESPONSE: stripe.TokenResponse = {
-  token: {
-    id: 'tok_8675309',
-    object: 'test',
-    client_ip: '123.123.123.123',
-    created: Date.now(),
-    livemode: false,
-    type: 'card',
-    used: false,
-  },
-};
-
 afterEach(cleanup);
 
 // Redefine onPayment and onPaymentError as optional so we can supply mock
 // functions by default in Subject.
 type SubjectProps = Omit<
   PaymentFormProps,
-  | 'onPayment'
-  | 'onPaymentError'
-  | 'onMounted'
-  | 'onEngaged'
-  | 'onChange'
-  | 'submitNonce'
+  'onSubmit' | 'onMounted' | 'onEngaged' | 'onChange' | 'submitNonce'
 > & {
-  onPayment?: (
-    tokenResponse: stripe.TokenResponse | null,
-    name: string | null,
-    idempotencyKey: string
-  ) => void;
-  onPaymentError?: (error: any) => void;
-  onMounted?: () => void;
-  onEngaged?: () => void;
-  onChange?: () => void;
+  onSubmit?: PaymentFormProps['onSubmit'];
+  onMounted?: PaymentFormProps['onMounted'];
+  onEngaged?: PaymentFormProps['onEngaged'];
+  onChange?: PaymentFormProps['onChange'];
   submitNonce?: string;
 };
 const Subject = ({
-  onPayment = jest.fn(),
-  onPaymentError = jest.fn(),
+  onSubmit = jest.fn(),
   onMounted = jest.fn(),
   onEngaged = jest.fn(),
   onChange = jest.fn(),
@@ -88,17 +65,32 @@ const Subject = ({
   return (
     <PaymentForm
       {...{
-        onPayment,
-        onPaymentError,
+        onSubmit,
         onMounted,
         onEngaged,
         onChange,
         submitNonce,
+        getString: null,
         ...props,
       }}
     />
   );
 };
+
+describe('localeToStripeLocale', () => {
+  it('handles known Stripe locales as expected', () => {
+    expect(localeToStripeLocale('ar')).toEqual('ar');
+  });
+  it('handles locales with subtags as expected', () => {
+    expect(localeToStripeLocale('en-GB')).toEqual('en');
+  });
+  it('handles empty locales as "auto"', () => {
+    expect(localeToStripeLocale()).toEqual('auto');
+  });
+  it('handles unknown Stripe locales as "auto"', () => {
+    expect(localeToStripeLocale('xx-pirate')).toEqual('auto');
+  });
+});
 
 it('renders all expected default fields and elements', () => {
   const { container, queryAllByTestId, getByTestId } = render(<Subject />);
@@ -107,13 +99,7 @@ it('renders all expected default fields and elements', () => {
   expect(container.querySelector('span.spinner')).not.toBeInTheDocument();
   expect(getByTestId('submit')).toHaveAttribute('disabled');
 
-  for (let testid of [
-    'name',
-    'zip',
-    'cardNumberElement',
-    'cardExpiryElement',
-    'cardCVCElement',
-  ]) {
+  for (let testid of ['name', 'cardElement']) {
     expect(queryAllByTestId(testid).length).toEqual(1);
   }
 });
@@ -122,9 +108,7 @@ it('renders error tooltips for invalid stripe elements', () => {
   const { getByTestId } = render(<Subject />);
 
   const mockErrors = {
-    cardNumberElement: 'NUMBER BAD',
-    cardCVCElement: 'CVC BAD',
-    cardExpiryElement: 'EXP BAD',
+    cardElement: 'CARD BAD',
   };
 
   act(() => {
@@ -155,14 +139,8 @@ const renderWithValidFields = (props?: SubjectProps) => {
   expect(getByTestId('submit')).toHaveAttribute('disabled');
   fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
   fireEvent.blur(getByTestId('name'));
-  fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-  fireEvent.blur(getByTestId('zip'));
 
-  const stripeFields = [
-    'cardNumberElement',
-    'cardCVCElement',
-    'cardExpiryElement',
-  ];
+  const stripeFields = ['cardElement'];
 
   act(() => {
     for (const testid of stripeFields) {
@@ -441,29 +419,30 @@ describe('Legal', () => {
   });
 });
 
+it('calls onSubmit when all fields valid and submitted', async () => {
+  const onSubmit = jest.fn();
+  let { getByTestId } = renderWithValidFields({
+    onSubmit,
+    onChange: () => {},
+  });
+  const submitButton = getByTestId('submit');
+  expect(submitButton).not.toHaveAttribute('disabled');
+  fireEvent.click(submitButton);
+  expect(onSubmit).toHaveBeenCalled();
+});
+
 it('renders a progress spinner when submitted, disables further submission (issue #4386 / FXA-1275)', async () => {
-  const stripe: PaymentFormStripeProps = {
-    createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
-  };
-  const onPayment = jest.fn();
+  const onSubmit = jest.fn();
 
   const { queryByTestId, getByTestId } = renderWithValidFields({
-    stripe,
-    onPayment,
+    onSubmit,
     submitNonce: 'unique-nonce-1',
   });
 
   const submitButton = getByTestId('submit');
   fireEvent.click(submitButton);
 
-  expect(stripe.createToken).toHaveBeenCalledTimes(1);
-  await waitForExpect(() =>
-    expect(onPayment).toHaveBeenCalledWith(
-      VALID_CREATE_TOKEN_RESPONSE,
-      'Foo Barson',
-      'unique-nonce-1'
-    )
-  );
+  await waitForExpect(() => expect(onSubmit).toHaveBeenCalled());
 
   expect(queryByTestId('spinner-submit')).toBeInTheDocument();
   expect(getByTestId('submit')).toHaveAttribute('disabled');
@@ -471,7 +450,7 @@ it('renders a progress spinner when submitted, disables further submission (issu
   fireEvent.submit(getByTestId('paymentForm'));
   fireEvent.click(submitButton);
 
-  expect(stripe.createToken).toHaveBeenCalledTimes(1);
+  expect(onSubmit).toHaveBeenCalledTimes(1);
 });
 
 it('renders a progress spinner when inProgress = true', () => {
@@ -500,34 +479,18 @@ it('displays an error for empty name', () => {
   expect(getByText('Please enter your name')).toBeInTheDocument();
 });
 
-it('displays an error for empty zip code', () => {
-  const { getByText, getByTestId } = render(<Subject />);
-  fireEvent.change(getByTestId('zip'), { target: { value: '123' } });
-  fireEvent.change(getByTestId('zip'), { target: { value: '' } });
-  fireEvent.blur(getByTestId('zip'));
-  expect(getByText('Zip code is required')).toBeInTheDocument();
-});
-
-it('fails silently on submit if a stripe API reference has not been supplied', () => {
-  let { getByTestId } = renderWithValidFields();
-  fireEvent.submit(getByTestId('paymentForm'));
-});
-
 it('enables submit button when all fields are valid', () => {
   let { getByTestId } = renderWithValidFields();
   expect(getByTestId('submit')).not.toHaveAttribute('disabled');
 });
 
-it('does not call stripe.createToken if somehow submitted with invalid fields', async () => {
-  const stripe: PaymentFormStripeProps = {
-    createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
-  };
-  const onPayment = jest.fn();
+it('does not call onSubmit if somehow submitted without confirm checked', async () => {
+  const onSubmit = jest.fn();
+  // renderWithValidFields does not check the confirm box
   let { getByTestId } = renderWithValidFields({
     confirm: true,
     plan: MOCK_PLAN,
-    onPayment,
-    stripe,
+    onSubmit,
     onChange: () => {},
   });
   // The user shouldn't be able to click a disabled submit button...
@@ -535,18 +498,14 @@ it('does not call stripe.createToken if somehow submitted with invalid fields', 
   expect(submitButton).toHaveAttribute('disabled');
   // ...but let's force the form to submit and assert nothing happens.
   fireEvent.submit(getByTestId('paymentForm'));
-  expect(stripe.createToken).not.toHaveBeenCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
 });
 
-it('does not call stripe.createToken if somehow submitted while in progress', async () => {
-  const stripe: PaymentFormStripeProps = {
-    createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
-  };
-  const onPayment = jest.fn();
+it('does not call onSubmit if somehow submitted while in progress', async () => {
+  const onSubmit = jest.fn();
   let { getByTestId } = renderWithValidFields({
     inProgress: true,
-    onPayment,
-    stripe,
+    onSubmit,
     onChange: () => {},
   });
   // The user shouldn't be able to click a disabled submit button...
@@ -554,76 +513,35 @@ it('does not call stripe.createToken if somehow submitted while in progress', as
   expect(submitButton).toHaveAttribute('disabled');
   // ...but let's force the form to submit and assert nothing happens.
   fireEvent.submit(getByTestId('paymentForm'));
-  expect(stripe.createToken).not.toHaveBeenCalled();
+  expect(onSubmit).not.toHaveBeenCalled();
 });
 
-it('calls onPayment when payment processing succeeds', async () => {
-  const stripe: PaymentFormStripeProps = {
-    createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
-  };
-  const onPayment = jest.fn();
-  const { getByTestId } = renderWithValidFields({ stripe, onPayment });
-  const submitButton = getByTestId('submit');
-  expect(submitButton).not.toHaveAttribute('disabled');
-  fireEvent.click(submitButton);
-  expect(stripe.createToken).toHaveBeenCalled();
-  await waitForExpect(() =>
-    expect(onPayment).toHaveBeenCalledWith(
-      VALID_CREATE_TOKEN_RESPONSE,
-      'Foo Barson',
-      'test-nonce'
-    )
-  );
-});
-
-it('calls onPaymentError when payment processing fails', async () => {
-  const stripe: PaymentFormStripeProps = {
-    createToken: jest.fn().mockRejectedValue('BAD THINGS'),
-  };
-  const onPayment = jest.fn();
-  const onPaymentError = jest.fn();
-  const { getByTestId } = renderWithValidFields({
-    stripe,
-    onPayment,
-    onPaymentError,
-  });
-  const submitButton = getByTestId('submit');
-  expect(submitButton).not.toHaveAttribute('disabled');
-  fireEvent.click(submitButton);
-  expect(stripe.createToken).toHaveBeenCalled();
-  await waitForExpect(() =>
-    expect(onPaymentError).toHaveBeenCalledWith('BAD THINGS')
-  );
-});
-
-describe('with an existing card', async () => {
+describe('with existing card', () => {
   it('renders correctly', () => {
     const { queryByTestId, queryByText } = render(
       <Subject customer={MOCK_CUSTOMER} />
     );
     expect(queryByTestId('card-details')).toBeInTheDocument();
-    expect(queryByTestId('zip')).not.toBeInTheDocument();
+    expect(queryByTestId('name')).not.toBeInTheDocument();
     expect(
       queryByText(`Card ending ${MOCK_CUSTOMER.last4}`)
     ).toBeInTheDocument();
   });
 
-  it('calls the backend correctly', async () => {
-    const stripe: PaymentFormStripeProps = {
-      createToken: jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
-    };
-    const onPayment = jest.fn();
+  it('renders the payment form for customer without subscriptions', () => {
+    const customer = { ...MOCK_CUSTOMER, subscriptions: [] };
+    const { queryByTestId } = render(<Subject customer={customer} />);
+    expect(queryByTestId('name')).toBeInTheDocument();
+    expect(queryByTestId('card-details')).not.toBeInTheDocument();
+  });
+
+  it('calls the submit handler', async () => {
+    const onSubmit = jest.fn();
     const { getByTestId } = render(
-      <Subject customer={MOCK_CUSTOMER} stripe={stripe} onPayment={onPayment} />
+      <Subject customer={MOCK_CUSTOMER} onSubmit={onSubmit} />
     );
 
     fireEvent.click(getByTestId('submit'));
-    expect(stripe.createToken).not.toHaveBeenCalled();
-    await waitForExpect(() => {
-      expect(onPayment).toHaveBeenCalledTimes(1);
-      // No Stripe token or display name for a current subscriber with card on file
-      expect(onPayment.mock.calls[0][0]).toBeNull();
-      expect(onPayment.mock.calls[0][1]).toBeNull();
-    });
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });

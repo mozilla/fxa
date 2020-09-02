@@ -36,13 +36,6 @@ jest.mock('./routes/Product', () => ({
   ),
 }));
 
-jest.mock('./routes/ProductV2', () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => (
-    <section data-testid="ProductV2">{children}</section>
-  ),
-}));
-
 jest.mock('./routes/Subscriptions', () => ({
   __esModule: true,
   default: ({ children }: { children: ReactNode }) => (
@@ -99,50 +92,6 @@ describe('App', () => {
   it(
     'renders Product route for /products/prod_fpn',
     commonRoutePathTest('Product', '/products/prod_fpn')
-  );
-
-  it(
-    'renders Subscriptions route for /v1/subscriptions',
-    commonRoutePathTest('Subscriptions', '/v1/subscriptions')
-  );
-
-  it(
-    'renders Product route for /v1/products/prod_fpn',
-    commonRoutePathTest('Product', '/v1/products/prod_fpn')
-  );
-
-  // TODO: check for props of V2 Subscription route
-  it(
-    'renders Subscriptions route for /v2/subscriptions',
-    commonRoutePathTest('Subscriptions', '/v2/subscriptions')
-  );
-
-  it(
-    'renders ProductV2 route for /v2/products/prod_fpn',
-    commonRoutePathTest('ProductV2', '/v2/products/prod_fpn')
-  );
-
-  // TODO: check for props of V2 Subscription route
-  it(
-    'renders Subscriptions route at default path when feature flag is set',
-    commonRoutePathTest('Subscriptions', undefined, {
-      featureFlags: { useSCAPaymentUIByDefault: true },
-    })
-  );
-
-  // TODO: check for props of V2 Subscription route
-  it(
-    'renders Subscriptions route at /subscriptions when feature flag is set',
-    commonRoutePathTest('Subscriptions', '/subscriptions', {
-      featureFlags: { useSCAPaymentUIByDefault: true },
-    })
-  );
-
-  it(
-    'renders ProductV2 route at /products/prod_fpn when feature flag is set',
-    commonRoutePathTest('ProductV2', '/products/prod_fpn', {
-      featureFlags: { useSCAPaymentUIByDefault: true },
-    })
   );
 
   const Subject = ({

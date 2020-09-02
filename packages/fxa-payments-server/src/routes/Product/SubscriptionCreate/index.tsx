@@ -1,61 +1,62 @@
-import React, { useState, useCallback, useEffect, useContext } from 'react';
-import { Plan, Customer } from '../../../store/types';
-
+import React, { useState, useCallback } from 'react';
+import { Stripe, StripeCardElement, StripeError } from '@stripe/stripe-js';
+import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
 
 import { useNonce } from '../../../lib/hooks';
 import { getErrorMessage } from '../../../lib/errors';
 
-import { SignInLayoutContext } from '../../../components/AppLayout';
-import PaymentForm from '../../../components/PaymentForm';
+import PlanDetails from '../../../components/PlanDetails';
+import Header from '../../../components/Header';
+import PaymentForm, { PaymentFormProps } from '../../../components/PaymentForm';
 import ErrorMessage from '../../../components/ErrorMessage';
-import AcceptedCards from '../AcceptedCards';
+import AcceptedCards from '../../Product/AcceptedCards';
 
-import { ProductProps } from '../index';
 import * as Amplitude from '../../../lib/amplitude';
 import { Localized } from '@fluent/react';
+import * as apiClient from '../../../lib/apiClient';
 
-import './index.scss';
+import '../../Product/SubscriptionCreate/index.scss';
+
+type PaymentError = undefined | StripeError;
+type RetryStatus = undefined | { invoiceId: string };
+
+export type SubscriptionCreateStripeAPIs = Pick<
+  Stripe,
+  'createPaymentMethod' | 'confirmCardPayment'
+>;
+
+export type SubscriptionCreateAuthServerAPIs = Pick<
+  typeof apiClient,
+  | 'apiCreateCustomer'
+  | 'apiCreateSubscriptionWithPaymentMethod'
+  | 'apiRetryInvoice'
+>;
 
 export type SubscriptionCreateProps = {
-  accountActivated: boolean;
-  customer?: Customer;
+  isMobile: boolean;
+  profile: Profile;
+  customer: Customer | null;
   selectedPlan: Plan;
-  createSubscriptionAndRefresh: ProductProps['createSubscriptionAndRefresh'];
-  createSubscriptionStatus: ProductProps['createSubscriptionStatus'];
-  resetCreateSubscription: ProductProps['resetCreateSubscription'];
+  refreshSubscriptions: () => void;
   validatorInitialState?: ValidatorState;
+  paymentErrorInitialState?: PaymentError;
+  stripeOverride?: SubscriptionCreateStripeAPIs;
+  apiClientOverrides?: Partial<SubscriptionCreateAuthServerAPIs>;
 };
 
 export const SubscriptionCreate = ({
-  accountActivated,
+  isMobile,
+  profile,
   customer,
   selectedPlan,
-  createSubscriptionAndRefresh: createSubscriptionAndRefreshBase,
-  createSubscriptionStatus,
-  resetCreateSubscription: resetCreateSubscriptionBase,
+  refreshSubscriptions,
   validatorInitialState,
+  paymentErrorInitialState,
+  stripeOverride,
+  apiClientOverrides = {},
 }: SubscriptionCreateProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
-
-  const resetCreateSubscription = useCallback(async () => {
-    resetCreateSubscriptionBase();
-    refreshSubmitNonce();
-  }, [resetCreateSubscriptionBase, refreshSubmitNonce]);
-
-  const createSubscriptionAndRefresh = useCallback(
-    async (...args: Parameters<typeof createSubscriptionAndRefreshBase>) => {
-      await createSubscriptionAndRefreshBase(...args);
-      refreshSubmitNonce();
-    },
-    [createSubscriptionAndRefreshBase, refreshSubmitNonce]
-  );
-
-  // Hide the Firefox logo in layout if we want to display the avatar
-  const { setHideLogo } = useContext(SignInLayoutContext);
-  useEffect(() => {
-    setHideLogo(!accountActivated);
-  }, [setHideLogo, accountActivated]);
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -67,79 +68,133 @@ export const SubscriptionCreate = ({
     [selectedPlan]
   );
 
-  // Reset subscription creation status on initial render.
-  useEffect(
-    () => void resetCreateSubscription(),
-    // Prevent an infinite loop, here
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+  const [inProgress, setInProgress] = useState(false);
+
+  const [paymentError, setPaymentError] = useState<PaymentError>(
+    paymentErrorInitialState
   );
-
-  const [createTokenError, setCreateTokenError] = useState({
-    type: '',
-    error: false,
-  });
-
-  const inProgress = createSubscriptionStatus.loading;
-
-  const isCardError =
-    createSubscriptionStatus.error !== null &&
-    (createSubscriptionStatus.error.code === 'card_declined' ||
-      createSubscriptionStatus.error.code === 'incorrect_cvc');
+  const [retryStatus, setRetryStatus] = useState<RetryStatus>();
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
-    if (createTokenError.error) {
-      setCreateTokenError({ type: '', error: false });
-    } else if (isCardError) {
-      resetCreateSubscription();
+    if (paymentError) {
+      setPaymentError(undefined);
     }
-  }, [
-    createTokenError,
-    setCreateTokenError,
-    resetCreateSubscription,
-    isCardError,
-  ]);
+  }, [paymentError, setPaymentError]);
 
-  const onPayment = useCallback(
-    (
-      tokenResponse: stripe.TokenResponse | null,
-      name: string | null,
-      idempotencyKey: string
-    ) => {
-      if (hasExistingCard || (tokenResponse && tokenResponse.token)) {
-        createSubscriptionAndRefresh(
-          tokenResponse?.token?.id || null,
+  const onSubmit: PaymentFormProps['onSubmit'] = useCallback(
+    async ({ stripe: stripeFromParams, ...params }) => {
+      setInProgress(true);
+      try {
+        await handleSubscriptionPayment({
+          ...params,
+          ...apiClient,
+          ...apiClientOverrides,
+          stripe:
+            stripeOverride /* istanbul ignore next - used for testing */ ||
+            stripeFromParams,
           selectedPlan,
-          name || null,
-          idempotencyKey
-        );
-      } else {
-        // This shouldn't happen with a successful createToken() call, but let's
-        // display an error in case it does.
-        const error: any = { type: 'api_error', error: true };
-        setCreateTokenError(error);
+          customer,
+          retryStatus,
+          onSuccess: refreshSubscriptions,
+          onFailure: setPaymentError,
+          onRetry: (status: RetryStatus) => {
+            setRetryStatus(status);
+            setPaymentError({ type: 'card_error', code: 'card_declined' });
+          },
+        });
+      } catch (error) {
+        console.error('handleSubscriptionPayment failed', error);
+        setPaymentError(error);
       }
+      setInProgress(false);
+      refreshSubmitNonce();
     },
-    [selectedPlan, createSubscriptionAndRefresh, setCreateTokenError]
+    [
+      selectedPlan,
+      customer,
+      retryStatus,
+      apiClientOverrides,
+      stripeOverride,
+      setInProgress,
+      refreshSubscriptions,
+      refreshSubmitNonce,
+      setPaymentError,
+      setRetryStatus,
+    ]
   );
-
-  const onPaymentError = useCallback(
-    (error: any) => {
-      error.error = true;
-      setCreateTokenError(error);
-    },
-    [setCreateTokenError]
-  );
-
-  const hasExistingCard = customer && customer.last4;
 
   return (
-    <div className="product-payment" data-testid="subscription-create">
-      <div
-        className="subscription-create-heading"
-        data-testid="subscription-create-heading"
-      >
+    <>
+      <Header {...{ profile }} />
+      <div className="main-content">
+        <div className="product-payment" data-testid="subscription-create">
+          <div
+            className="subscription-create-heading"
+            data-testid="subscription-create-heading"
+          >
+            <Localized id="product-plan-details-heading">
+              <h2>Set up your subscription</h2>
+            </Localized>
+            <Localized id="sub-guarantee">
+              <p className="subheading">30-day money-back guarantee</p>
+            </Localized>
+          </div>
+
+          <h3 className="billing-title">
+            <Localized id="sub-update-title">
+              <span className="title">Billing Information</span>
+            </Localized>
+          </h3>
+
+          {!hasExistingCard(customer) && <AcceptedCards />}
+
+          <ErrorMessage isVisible={!!paymentError}>
+            {paymentError && (
+              <Localized id={getErrorMessage(paymentError.code || 'UNKNOWN')}>
+                <p data-testid="error-payment-submission">
+                  {getErrorMessage(paymentError.code || 'UNKNOWN')}
+                </p>
+              </Localized>
+            )}
+          </ErrorMessage>
+
+          <PaymentForm
+            {...{
+              customer,
+              submitNonce,
+              onSubmit,
+              onChange,
+              inProgress,
+              validatorInitialState,
+              confirm: true,
+              plan: selectedPlan,
+              onMounted: onFormMounted,
+              onEngaged: onFormEngaged,
+            }}
+          />
+        </div>
+        <PlanDetails
+          {...{
+            profile,
+            selectedPlan,
+            isMobile,
+            showExpandButton: isMobile,
+          }}
+        />
+        <MobileCreateHeading {...{ isMobile }} />
+      </div>
+    </>
+  );
+};
+
+const MobileCreateHeading = ({ isMobile }: { isMobile: boolean }) =>
+  isMobile ? (
+    <div
+      className="mobile-subscription-create-heading"
+      data-testid="mobile-subscription-create-heading"
+    >
+      <div className="subscription-create-heading">
         <Localized id="product-plan-details-heading">
           <h2>Set up your subscription</h2>
         </Localized>
@@ -147,60 +202,189 @@ export const SubscriptionCreate = ({
           <p className="subheading">30-day money-back guarantee</p>
         </Localized>
       </div>
-
-      <h3 className="billing-title">
-        <Localized id="sub-update-title">
-          <span className="title">Billing Information</span>
-        </Localized>
-      </h3>
-
-      {!hasExistingCard && <AcceptedCards />}
-
-      <ErrorMessage isVisible={!hasExistingCard && !!createTokenError.error}>
-        {createTokenError.error && (
-          <Localized id={getErrorMessage(createTokenError.type)}>
-            <p data-testid="error-payment-submission">
-              {getErrorMessage(createTokenError.type)}
-            </p>
-          </Localized>
-        )}
-      </ErrorMessage>
-
-      <ErrorMessage isVisible={isCardError}>
-        <Localized id={getErrorMessage('card_error')}>
-          <p data-testid="error-card-rejected">
-            {getErrorMessage('card_error')}
-          </p>
-        </Localized>
-      </ErrorMessage>
-
-      <ErrorMessage
-        isVisible={!!(createSubscriptionStatus.error && !isCardError)}
-      >
-        {createSubscriptionStatus.error ? (
-          <p data-testid="error-sub-status">
-            {createSubscriptionStatus.error.message}
-          </p>
-        ) : null}
-      </ErrorMessage>
-
-      <PaymentForm
-        {...{
-          submitNonce,
-          onPayment,
-          onPaymentError,
-          onChange,
-          inProgress,
-          validatorInitialState,
-          confirm: true,
-          customer,
-          plan: selectedPlan,
-          onMounted: onFormMounted,
-          onEngaged: onFormEngaged,
-        }}
-      />
     </div>
-  );
-};
+  ) : null;
+
+async function handleSubscriptionPayment({
+  stripe,
+  name,
+  card,
+  idempotencyKey,
+  selectedPlan,
+  customer,
+  retryStatus,
+  apiCreateCustomer,
+  apiCreateSubscriptionWithPaymentMethod,
+  apiRetryInvoice,
+  onFailure,
+  onRetry,
+  onSuccess,
+}: {
+  stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
+  name: string;
+  card: StripeCardElement | null;
+  idempotencyKey: string;
+  selectedPlan: Plan;
+  customer: Customer | null;
+  retryStatus: RetryStatus;
+  onFailure: (error: PaymentError) => void;
+  onRetry: (status: RetryStatus) => void;
+  onSuccess: () => void;
+} & SubscriptionCreateAuthServerAPIs) {
+  // If there's an existing card on record, GOTO 3
+
+  if (hasExistingCard(customer)) {
+    const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
+      {
+        priceId: selectedPlan.plan_id,
+        productId: selectedPlan.product_id,
+        idempotencyKey,
+      }
+    );
+    return handlePaymentIntent({
+      invoiceId: createSubscriptionResult.latest_invoice.id,
+      paymentIntentStatus:
+        createSubscriptionResult.latest_invoice.payment_intent.status,
+      paymentIntentClientSecret:
+        createSubscriptionResult.latest_invoice.payment_intent.client_secret,
+      paymentMethodId:
+        createSubscriptionResult.latest_invoice.payment_intent.payment_method,
+      stripe,
+      onSuccess,
+      onFailure,
+      onRetry,
+    });
+  }
+
+  // 1. Create the payment method.
+  const {
+    paymentMethod,
+    error: paymentError,
+  } = await stripe.createPaymentMethod({
+    type: 'card',
+    card: card as StripeCardElement,
+  });
+  if (paymentError) {
+    return onFailure(paymentError);
+  }
+  if (!paymentMethod) {
+    return onFailure({ type: 'card_error' });
+  }
+
+  // 2. Create the customer, if necessary.
+  if (!customer) {
+    // We look up the customer by UID & email on the server.
+    // No need to retain the result of this call for later.
+    await apiCreateCustomer({
+      displayName: name,
+      idempotencyKey,
+    });
+  }
+
+  const commonPaymentIntentParams = {
+    paymentMethodId: paymentMethod.id,
+    stripe,
+    onSuccess,
+    onFailure,
+    onRetry,
+  };
+
+  if (!retryStatus) {
+    // 3a. Attempt to create the subscription.
+    const createSubscriptionResult = await apiCreateSubscriptionWithPaymentMethod(
+      {
+        priceId: selectedPlan.plan_id,
+        productId: selectedPlan.product_id,
+        paymentMethodId: paymentMethod.id,
+        idempotencyKey,
+      }
+    );
+    return handlePaymentIntent({
+      invoiceId: createSubscriptionResult.latest_invoice.id,
+      paymentIntentStatus:
+        createSubscriptionResult.latest_invoice.payment_intent.status,
+      paymentIntentClientSecret:
+        createSubscriptionResult.latest_invoice.payment_intent.client_secret,
+      ...commonPaymentIntentParams,
+    });
+  } else {
+    // 3b. Retry payment for the subscription invoice created earlier.
+    const { invoiceId } = retryStatus;
+    const retryInvoiceResult = await apiRetryInvoice({
+      invoiceId: retryStatus.invoiceId,
+      paymentMethodId: paymentMethod.id,
+      idempotencyKey,
+    });
+    return handlePaymentIntent({
+      invoiceId,
+      paymentIntentStatus: retryInvoiceResult.payment_intent.status,
+      paymentIntentClientSecret:
+        retryInvoiceResult.payment_intent.client_secret,
+      ...commonPaymentIntentParams,
+    });
+  }
+}
+
+async function handlePaymentIntent({
+  invoiceId,
+  paymentIntentStatus,
+  paymentIntentClientSecret,
+  paymentMethodId,
+  stripe,
+  onSuccess,
+  onFailure,
+  onRetry,
+}: {
+  invoiceId: string;
+  paymentIntentStatus: string;
+  paymentIntentClientSecret: string | null;
+  paymentMethodId: string | undefined;
+  stripe: Pick<Stripe, 'confirmCardPayment'>;
+  onFailure: (error: PaymentError) => void;
+  onRetry: (status: RetryStatus) => void;
+  onSuccess: () => void;
+}): Promise<void> {
+  switch (paymentIntentStatus) {
+    case 'succeeded': {
+      return onSuccess();
+    }
+    case 'requires_payment_method': {
+      return onRetry({ invoiceId });
+    }
+    case 'requires_action': {
+      if (!paymentIntentClientSecret) {
+        return onFailure({ type: 'api_error' });
+      }
+      const confirmResult = await stripe.confirmCardPayment(
+        paymentIntentClientSecret,
+        { payment_method: paymentMethodId }
+      );
+      if (confirmResult.error) {
+        return onFailure(confirmResult.error);
+      }
+      if (!confirmResult.paymentIntent) {
+        return onFailure({ type: 'api_error' });
+      }
+      return handlePaymentIntent({
+        invoiceId,
+        paymentIntentStatus: confirmResult.paymentIntent.status,
+        paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
+        paymentMethodId,
+        stripe,
+        onSuccess,
+        onFailure,
+        onRetry,
+      });
+    }
+    // Other payment_intent.status cases?
+    default: {
+      console.error('Unexpected payment intent status', paymentIntentStatus);
+      return onFailure({ type: 'api_error' });
+    }
+  }
+}
+
+const hasExistingCard = (customer: Customer | null) =>
+  customer && customer.last4 && customer.subscriptions.length > 0;
 
 export default SubscriptionCreate;

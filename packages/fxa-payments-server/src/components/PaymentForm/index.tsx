@@ -1,27 +1,23 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-  FormEvent,
-} from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import {
   Localized,
   withLocalization,
   WithLocalizationProps,
 } from '@fluent/react';
-
 import {
-  injectStripe,
-  CardNumberElement,
-  CardExpiryElement,
-  CardCVCElement,
+  Stripe,
+  StripeElements,
+  StripeCardElement,
+  StripeElementsOptions,
+} from '@stripe/stripe-js';
+import {
+  CardElement,
   Elements,
-  ReactStripeElements,
-} from 'react-stripe-elements';
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
 import {
   Form,
-  FieldGroup,
   Input,
   StripeElement,
   SubmitButton,
@@ -37,39 +33,36 @@ import {
 import { useCallbackOnce } from '../../lib/hooks';
 import {
   getLocalizedCurrency,
-  formatPlanPricing,
   getDefaultPaymentConfirmText,
 } from '../../lib/formats';
 import { AppContext } from '../../lib/AppContext';
-
-import './index.scss';
 import { Plan, Customer } from '../../store/types';
 import { productDetailsFromPlan } from 'fxa-shared/subscriptions/metadata';
+
+import './index.scss';
 import { TermsAndPrivacy } from '../TermsAndPrivacy';
 
-// Define a minimal type for what we use from the Stripe API, which makes
-// things easier to mock.
-export type PaymentFormStripeProps = {
-  createToken(
-    options?: stripe.TokenOptions
-  ): Promise<ReactStripeElements.PatchedTokenResponse>;
+export type PaymentSubmitResult = {
+  stripe: Stripe;
+  elements: StripeElements;
+  name: string;
+  card: StripeCardElement | null;
+  idempotencyKey: string;
+};
+export type PaymentUpdateResult = PaymentSubmitResult & {
+  card: StripeCardElement;
 };
 
-export type PaymentFormProps = {
+export type BasePaymentFormProps = {
   inProgress?: boolean;
   confirm?: boolean;
-  customer?: Customer;
   plan?: Plan;
+  customer?: Customer | null;
+  getString?: Function;
   onCancel?: () => void;
-  onPayment: (
-    tokenResponse: stripe.TokenResponse | null,
-    name: string | null,
-    idempotencyKey: string
-  ) => void;
-  onPaymentError: (error: any) => void;
+  onSubmit: (submitResult: PaymentSubmitResult | PaymentUpdateResult) => void;
   validatorInitialState?: ValidatorState;
   validatorMiddlewareReducer?: ValidatorMiddlewareReducer;
-  stripe?: PaymentFormStripeProps;
   onMounted: Function;
   onEngaged: Function;
   onChange: Function;
@@ -82,18 +75,20 @@ export const PaymentForm = ({
   plan,
   customer,
   getString,
+  onSubmit: onSubmitForParent,
   onCancel,
-  onPayment,
-  onPaymentError,
   validatorInitialState,
   validatorMiddlewareReducer,
-  stripe,
   onMounted,
   onEngaged,
   onChange: onChangeProp,
   submitNonce,
-}: PaymentFormProps) => {
-  const hasExistingCard = customer && customer.last4;
+}: BasePaymentFormProps) => {
+  const hasExistingCard =
+    customer && customer.last4 && customer.subscriptions.length > 0;
+
+  const stripe = useStripe();
+  const elements = useElements();
 
   const validator = useValidatorState({
     initialState: validatorInitialState,
@@ -118,51 +113,44 @@ export const PaymentForm = ({
   const shouldAllowSubmit = !nonceMatch && !inProgress && validator.allValid();
   const showProgressSpinner = nonceMatch || inProgress;
 
-  const createSubmitCb = (cb: Function) => (ev: FormEvent) => {
-    ev.preventDefault();
-    if (!shouldAllowSubmit) {
-      return;
-    }
-    setLastSubmitNonce(submitNonce);
-    cb();
-  };
-  const paymentWithExistingCard = useCallback(
-    createSubmitCb(() => {
-      onPayment(null, null, submitNonce);
-    }),
-    [onPayment, submitNonce, shouldAllowSubmit]
-  );
-  const paymentWithNewCard = useCallback(
-    createSubmitCb(() => {
-      const { name, zip } = validator.getValues();
-      if (stripe) {
-        stripe
-          .createToken({ name, address_zip: zip })
-          .then((tokenResponse: stripe.TokenResponse) => {
-            onPayment(tokenResponse, name, submitNonce);
-          })
-          .catch((err) => {
-            onPaymentError(err);
-          });
+  const onSubmit = useCallback(
+    async (ev) => {
+      ev.preventDefault();
+      if (!stripe || !elements || !shouldAllowSubmit) {
+        return;
       }
-    }),
-    [
-      validator,
-      onPayment,
-      onPaymentError,
-      stripe,
-      submitNonce,
-      shouldAllowSubmit,
-    ]
+      setLastSubmitNonce(submitNonce);
+      const { name } = validator.getValues();
+      const card = elements.getElement(CardElement);
+      /* istanbul ignore next - card should exist unless there was an external stripe loading error, handled above */
+      if (hasExistingCard || card) {
+        onSubmitForParent({
+          stripe,
+          elements,
+          name,
+          card,
+          idempotencyKey: submitNonce,
+        });
+      }
+    },
+    [validator, onSubmitForParent, stripe, submitNonce, shouldAllowSubmit]
   );
-  const onSubmit = hasExistingCard
-    ? paymentWithExistingCard
-    : paymentWithNewCard;
 
-  const { matchMedia, navigatorLanguages } = useContext(AppContext);
-  const stripeElementStyles = mkStripeElementStyles(
-    matchMedia(SMALL_DEVICE_RULE)
-  );
+  const { navigatorLanguages } = useContext(AppContext);
+
+  const STRIPE_ELEMENT_STYLES = {
+    style: {
+      base: {
+        fontFamily:
+          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
+        fontSize: '16px',
+        fontWeight: '500',
+      },
+      invalid: {
+        color: '#0c0c0d',
+      },
+    },
+  };
 
   let termsOfServiceURL, privacyNoticeURL;
   if (confirm && plan) {
@@ -171,7 +159,6 @@ export const PaymentForm = ({
       navigatorLanguages
     ));
   }
-
   const paymentSource = hasExistingCard ? (
     <div className="card-details" data-testid="card-details">
       <Localized
@@ -205,55 +192,17 @@ export const PaymentForm = ({
         />
       </Localized>
 
-      <Localized id="payment-ccn" attrs={{ label: true }}>
+      <Localized id="payment-cc" attrs={{ label: true }}>
         <StripeElement
-          component={CardNumberElement}
-          name="creditCardNumber"
-          label="Card number"
-          style={stripeElementStyles}
+          component={CardElement}
+          name="creditCard"
+          label="Your card"
           className="input-row input-row--xl"
+          options={STRIPE_ELEMENT_STYLES}
           getString={getString}
           required
         />
       </Localized>
-
-      <FieldGroup>
-        <Localized id="payment-exp" attrs={{ label: true }}>
-          <StripeElement
-            component={CardExpiryElement}
-            name="expDate"
-            label="Exp. date"
-            style={stripeElementStyles}
-            getString={getString}
-            required
-          />
-        </Localized>
-
-        <Localized id="payment-cvc" attrs={{ label: true }}>
-          <StripeElement
-            component={CardCVCElement}
-            name="cvc"
-            label="CVC"
-            style={stripeElementStyles}
-            getString={getString}
-            required
-          />
-        </Localized>
-
-        <Localized id="payment-zip" attrs={{ label: true }}>
-          <Input
-            type="text"
-            name="zip"
-            label="ZIP code"
-            required
-            data-testid="zip"
-            placeholder="12345"
-            onValidate={(value, focused, props) =>
-              validateZip(value, focused, props, getString)
-            }
-          />
-        </Localized>
-      </FieldGroup>
     </>
   );
 
@@ -354,34 +303,25 @@ export const PaymentForm = ({
 };
 
 /* istanbul ignore next - skip testing react-stripe-elements plumbing */
-const InjectedPaymentForm = injectStripe(PaymentForm);
-
-/* istanbul ignore next - skip testing react-stripe-elements plumbing */
-const WrappedPaymentForm = (props: PaymentFormProps) => (
-  <Elements>
-    <InjectedPaymentForm {...props} />
-  </Elements>
-);
+export type PaymentFormProps = {
+  locale?: string;
+} & BasePaymentFormProps;
+const WrappedPaymentForm = (props: PaymentFormProps) => {
+  const { locale, ...otherProps } = props;
+  const { stripePromise } = useContext(AppContext);
+  return (
+    <Elements
+      options={{ locale: localeToStripeLocale(locale) }}
+      stripe={stripePromise}
+    >
+      <PaymentForm {...otherProps} />
+    </Elements>
+  );
+};
 
 export const SMALL_DEVICE_RULE = '(max-width: 520px)';
 export const SMALL_DEVICE_LINE_HEIGHT = '40px';
 export const DEFAULT_LINE_HEIGHT = '48px';
-
-export function mkStripeElementStyles(useSmallDeviceStyles: boolean) {
-  // ref: https://stripe.com/docs/stripe-js/reference#the-elements-object
-  return {
-    base: {
-      //TODO: Figure out what this really should be - I just copied it from computed styles because CSS can't apply through the iframe
-      fontFamily:
-        'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif',
-      fontSize: '14px',
-      fontWeight: '500',
-    },
-    invalid: {
-      color: '#0c0c0d',
-    },
-  };
-}
 
 const validateName: OnValidateFunction = (
   value,
@@ -394,7 +334,8 @@ const validateName: OnValidateFunction = (
     valid = false;
   }
   const errorMsg = getString
-    ? getString('payment-validate-name-error')
+    ? /* istanbul ignore next - not testing l10n here */
+      getString('payment-validate-name-error')
     : 'Please enter your name';
   return {
     value,
@@ -403,22 +344,59 @@ const validateName: OnValidateFunction = (
   };
 };
 
-const validateZip: OnValidateFunction = (value, focused, _props, getString) => {
-  let valid = true;
-  let error = null;
-  value = ('' + value).trim();
-  if (!value) {
-    valid = false;
-    error = getString
-      ? /* istanbul ignore next - not testing l10n here */
-        getString('payment-validate-zip-required')
-      : 'Zip code is required';
+/**
+ * Stripe locales do not exactly match FxA locales. Mostly language tags
+ * without subtags. This function should convert / normalize as necessary.
+ */
+type StripeLocale = StripeElementsOptions['locale'];
+export const localeToStripeLocale = (locale?: string): StripeLocale => {
+  if (locale) {
+    if (locale in stripeLocales) {
+      return locale as StripeLocale;
+    }
+    const lang = locale.split('-').shift();
+    if (lang && lang in stripeLocales) {
+      return lang as StripeLocale;
+    }
   }
-  return {
-    value,
-    valid,
-    error: !focused ? error : null,
-  };
+  return 'auto';
 };
+
+// TODO: Move to fxa-shared/l10n?
+// see also: https://stripe.com/docs/js/appendix/supported_locales
+enum stripeLocales {
+  'ar',
+  'bg',
+  'cs',
+  'da',
+  'de',
+  'el',
+  'et',
+  'en',
+  'es',
+  'fi',
+  'fr',
+  'he',
+  'hu',
+  'id',
+  'it',
+  'ja',
+  'lt',
+  'lv',
+  'ms',
+  'mt',
+  'nb',
+  'nl',
+  'pl',
+  'pt-BR',
+  'pt',
+  'ro',
+  'ru',
+  'sk',
+  'sl',
+  'sv',
+  'tk',
+  'zh',
+}
 
 export default withLocalization(WrappedPaymentForm);

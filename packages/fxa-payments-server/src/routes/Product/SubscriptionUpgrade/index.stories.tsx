@@ -23,8 +23,7 @@ function init() {
       <SubscriptionUpgradeView
         props={{
           ...MOCK_PROPS,
-          updateSubscriptionPlanAndRefresh: (subscriptionId, plan) =>
-            linkToUpgradeSuccess(),
+          updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
         }}
       />
     ))
@@ -36,8 +35,7 @@ function init() {
         }}
         props={{
           ...MOCK_PROPS,
-          updateSubscriptionPlanAndRefresh: (subscriptionId, plan) =>
-            linkToUpgradeSuccess(),
+          updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
         }}
       />
     ))
