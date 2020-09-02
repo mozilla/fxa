@@ -32,7 +32,7 @@ By default, Firefox accounts does not enforce sub rotation, but for sensitive RP
 
 ## Ensuring 3rd parties are unable to access user information
 
-An OAuth access token is a bearer token that can be presented by anyone to an OAuth service provider to access a protected resource. If a JWT access token contains a PPID `sub` claim that is meant to protect a user's privacy, but is granted the `profile` scope allows the service provider to present the same access token to the FxA profile server and learn the user's true identity. As such, tokens _MUST NOT_ be requested with the `profile` scope or any of its implicants such as `profile:uid` or `profile:email`.
+An OAuth access token is a bearer token that can be presented by anyone to an OAuth service provider to access a protected resource. If a JWT access token contains a PPID `sub` claim that is meant to protect a user's privacy, but is granted the `profile` scope, it will allow the service provider to present the same access token to the FxA profile server, and learn the user's true identity. As such, tokens _MUST NOT_ be requested with the `profile` scope or any of its sub-scopes, such as `profile:uid` or `profile:email`. If an RP requests a JWT access token including both the `ppid_seed` parameter and also a profile-related grant, then that request will be rejected with a 400 error with `errno` 123, and error message "PPID tokens cannot grant profile access".
 
 ## PPIDs and logging
 
