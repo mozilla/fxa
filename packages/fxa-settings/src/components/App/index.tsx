@@ -7,14 +7,14 @@ import { gql, useQuery } from '@apollo/client';
 import AppLayout from '../AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import Settings from '../Settings';
 import * as Metrics from '../../lib/metrics';
 import { Account } from '../../models';
 import { Router } from '@reach/router';
 import FlowContainer from '../FlowContainer';
-import ChangePassword from '../ChangePassword';
-import FlowSecondaryEmailAdd from '../FlowSecondaryEmailAdd';
-import FlowSecondaryEmailVerify from '../FlowSecondaryEmailVerify';
+import PageSettings from '../PageSettings';
+import PageChangePassword from '../PageChangePassword';
+import PageSecondaryEmailAdd from '../PageSecondaryEmailAdd';
+import PageSecondaryEmailVerify from '../PageSecondaryEmailVerify';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -75,12 +75,12 @@ export const App = ({ flowQueryParams }: AppProps) => {
   return (
     <AppLayout>
       <Router basepath="/beta/settings">
-        <Settings path="/" />
+        <PageSettings path="/" />
         <FlowContainer path="/avatar/change" title="Profile picture" />
         <FlowContainer path="/display_name" title="Display name" />
-        <ChangePassword path="/change_password" />
-        <FlowSecondaryEmailAdd path="/emails" />
-        <FlowSecondaryEmailVerify path="/emails/verify" />
+        <PageChangePassword path="/change_password" />
+        <PageSecondaryEmailAdd path="/emails" />
+        <PageSecondaryEmailVerify path="/emails/verify" />
       </Router>
     </AppLayout>
   );

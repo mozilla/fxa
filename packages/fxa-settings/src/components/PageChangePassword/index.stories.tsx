@@ -4,9 +4,17 @@
 
 import React from 'react';
 import { storiesOf } from '@storybook/react';
-import { ChangePassword } from '.';
+import { PageChangePassword } from '.';
 import { LocationProvider } from '@reach/router';
+import AppLayout from '../AppLayout';
+import { MockedCache } from 'fxa-settings/src/models/_mocks';
 
-storiesOf('Components|ChangePassword', module)
+storiesOf('Pages|ChangePassword', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('default', () => <ChangePassword />);
+  .add('default', () => (
+    <MockedCache>
+      <AppLayout>
+        <PageChangePassword />
+      </AppLayout>
+    </MockedCache>
+  ));

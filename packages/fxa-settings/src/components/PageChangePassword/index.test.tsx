@@ -4,12 +4,12 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-import ChangePassword from './index';
+import { screen } from '@testing-library/react';
+import PageChangePassword from '.';
 import { renderWithRouter } from '../../models/_mocks';
 
 it('renders', async () => {
-  renderWithRouter(<ChangePassword />);
+  renderWithRouter(<PageChangePassword />);
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
   expect(screen.getByTestId('nav-link-common-passwords')).toBeInTheDocument();

@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useCallback, ChangeEvent } from 'react';
-import TextInput, { TextInputProps } from '../TextInput';
+import InputText, { InputTextProps } from '../InputText';
 import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
 
-type PasswordInputProps = Omit<TextInputProps, 'type'>;
+type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
-export const PasswordInput = ({
+export const InputPassword = ({
   defaultValue,
   disabled,
   label,
   placeholder,
-}: PasswordInputProps) => {
+}: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -23,7 +23,7 @@ export const PasswordInput = ({
   }, []);
 
   return (
-    <TextInput
+    <InputText
       type={visible ? `text` : 'password'}
       {...{
         defaultValue,
@@ -64,8 +64,8 @@ export const PasswordInput = ({
           />
         )}
       </button>
-    </TextInput>
+    </InputText>
   );
 };
 
-export default PasswordInput;
+export default InputPassword;

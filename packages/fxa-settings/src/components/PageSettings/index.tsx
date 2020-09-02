@@ -12,7 +12,7 @@ import { Profile } from '../Profile';
 import * as Metrics from '../../lib/metrics';
 import { useAccount } from '../../models';
 
-export const Settings = (_: RouteComponentProps) => {
+export const PageSettings = (_: RouteComponentProps) => {
   const { uid } = useAccount();
 
   Metrics.setProperties({
@@ -34,4 +34,4 @@ export const Settings = (_: RouteComponentProps) => {
   );
 };
 
-export default Settings;
+export default PageSettings;

@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import TextInput from '../TextInput';
+import InputText from '../InputText';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import FlowContainer from '../FlowContainer';
 import { Account } from '../../models';
@@ -16,7 +16,7 @@ export const VERIFY_SECONDARY_EMAIL_MUTATION = gql`
   }
 `;
 
-export const FlowSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
+export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   const [code, setCode] = useState<string>();
   const [errorText, setErrorText] = useState<string>();
   const goBack = useCallback(() => window.history.back(), []);
@@ -75,13 +75,13 @@ export const FlowSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
           Please enter the verification code that was sent to{' '}
           <span className="font-bold">{email}</span> within 5 minutes.
         </p>
-        <TextInput
+        <InputText
           label="Enter your verification code"
           onChange={(event) => {
             setCode(event.target.value);
           }}
           {...{ errorText }}
-        ></TextInput>
+        ></InputText>
         <div className="flex mt-6">
           <button
             type="button"
@@ -104,4 +104,4 @@ export const FlowSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   );
 };
 
-export default FlowSecondaryEmailVerify;
+export default PageSecondaryEmailVerify;

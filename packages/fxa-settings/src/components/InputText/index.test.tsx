@@ -4,12 +4,12 @@
 
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
-import TextInput from './index';
+import InputText from '.';
 
 const label = 'Eveything to Nothing';
 
 it('renders as expected', () => {
-  render(<TextInput {...{ label }} />);
+  render(<InputText {...{ label }} />);
   expect(screen.getByTestId('input-container')).toBeInTheDocument();
   expect(screen.getByTestId('input-label')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();
@@ -17,13 +17,13 @@ it('renders as expected', () => {
 });
 
 it('can be disabled', () => {
-  render(<TextInput {...{ label }} disabled />);
+  render(<InputText {...{ label }} disabled />);
   expect(screen.getByTestId('input-field')).toBeDisabled();
 });
 
 it('can have default text', () => {
   const defaultValue = 'Forest Whitaker';
-  render(<TextInput {...{ label, defaultValue }} />);
+  render(<InputText {...{ label, defaultValue }} />);
   expect(screen.getByTestId('input-field')).toHaveValue(defaultValue);
 });
 
@@ -36,7 +36,7 @@ it('accepts various input types', () => {
       | 'number'
       | 'url'
       | 'password';
-    render(<TextInput {...{ label, type }} />);
+    render(<InputText {...{ label, type }} />);
     expect(screen.getByTestId('input-field')).toHaveAttribute('type', type);
     // Cleanup because we want to find this element again within the same test
     cleanup();
@@ -45,9 +45,9 @@ it('accepts various input types', () => {
 
 it('can render adjacent children', () => {
   render(
-    <TextInput {...{ label }}>
+    <InputText {...{ label }}>
       <p data-testid="input-children">Hey</p>
-    </TextInput>
+    </InputText>
   );
   expect(screen.getByTestId('input-children')).toBeInTheDocument();
 });

@@ -5,7 +5,6 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { InMemoryCache } from '@apollo/client';
-import { MockedProvider } from '@apollo/client/testing';
 import { UnitRowSecondaryEmail, RESEND_EMAIL_CODE_MUTATION } from '.';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
 import { MockedCache, MOCK_ACCOUNT, mockEmail } from '../../models/_mocks';
@@ -30,43 +29,25 @@ const mockGqlSuccess = (email: string) => ({
 
 storiesOf('Components|UnitRowSecondaryEmail', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
-  .add('No secondary email set, primary email verified', () => (
+  .add('No secondary email set', () => (
     <MockedCache>
       <AlertBarRootAndContextProvider>
         <UnitRowSecondaryEmail />
       </AlertBarRootAndContextProvider>
     </MockedCache>
   ))
-  .add('No secondary email set, primary email unverified', () => {
-    const primaryEmail = mockEmail('johndope@example.com', true, false);
+  .add('One secondary email set, unverified', () => {
+    const emails = [
+      mockEmail('johndope@example.com'),
+      mockEmail('johndope2@example.com', false, false),
+    ];
+    const mocks = [mockGqlSuccess('johndope2@example.com')];
     return (
-      <MockedCache account={{ primaryEmail, emails: [primaryEmail] }}>
+      <MockedCache account={{ emails }} {...{ mocks }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
       </MockedCache>
-    );
-  })
-  .add('One secondary email set, unverified', () => {
-    const emails = [
-      mockEmail('johndope@example.com'),
-      mockEmail('johndope@example.com', false, false),
-    ];
-    const cache = new InMemoryCache();
-    cache.writeQuery({
-      query: GET_INITIAL_STATE,
-      data: {
-        account: { ...MOCK_ACCOUNT, emails },
-        session: { verified: true },
-      },
-    });
-    const mocks = [mockGqlSuccess('johndope2@example.com')];
-    return (
-      <MockedProvider {...{ mocks, cache }}>
-        <AlertBarRootAndContextProvider>
-          <UnitRowSecondaryEmail />
-        </AlertBarRootAndContextProvider>
-      </MockedProvider>
     );
   })
   .add('One secondary email set, verified', () => {
@@ -114,11 +95,11 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
     });
     const mocks = [mockGqlSuccess('johndope3@example.com')];
     return (
-      <MockedProvider {...{ mocks, cache }}>
+      <MockedCache account={{ emails }} {...{ mocks }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedProvider>
+      </MockedCache>
     );
   })
   .add('Multiple secondary emails set, multiple unverified', () => {
@@ -128,23 +109,15 @@ storiesOf('Components|UnitRowSecondaryEmail', module)
       mockEmail('johndope3@example.com', false, false),
       mockEmail('johndope4@example.com', false, false),
     ];
-    const cache = new InMemoryCache();
-    cache.writeQuery({
-      query: GET_INITIAL_STATE,
-      data: {
-        account: { ...MOCK_ACCOUNT, emails },
-        session: { verified: true },
-      },
-    });
     const mocks = [
       mockGqlSuccess('johndope3@example.com'),
       mockGqlSuccess('johndope4@example.com'),
     ];
     return (
-      <MockedProvider {...{ mocks, cache }}>
+      <MockedCache account={{ emails }} {...{ mocks }}>
         <AlertBarRootAndContextProvider>
           <UnitRowSecondaryEmail />
         </AlertBarRootAndContextProvider>
-      </MockedProvider>
+      </MockedCache>
     );
   });

@@ -1,6 +1,6 @@
 # Firefox Accounts Settings
 
-This documentation is up to date as of 2020-08-20.
+This documentation is up to date as of 2020-09-01.
 
 ## Table of Contents
 
@@ -9,8 +9,9 @@ This documentation is up to date as of 2020-08-20.
 [GQL and REST API Calls](#gql-and-rest-api-calls)\
 — [Global Application Data](#global-application-data)\
 [Components to Know](#components-to-know)\
+— [`LinkExternal`](#linkexternal)\
 — [`AlertBar`](#alertbar-and-alertexternal)\
-— [`VerifiedSessionGuard`](#sessions-and-verifiedsessionguard)\
+— [`VerifiedSessionGuard` and `ModalVerifySession`](#sessions-verifiedsessionguard-and-modalverifysession)\
 [Styling Components](#styling-components)\
 — [Tailwind](#tailwind)\
 —— [Component Classes](#component-classes)\
@@ -24,7 +25,7 @@ This documentation is up to date as of 2020-08-20.
 — [Event Logging](#event-logging)\
 [Testing and Mocks for Tests/Storybook](#testing-and-mocks-for-testsstorybook)\
 — [`AlertBar` or `AlertExternal`](#components-that-use-alertbar-or-alertexternal)\
-— [`useAccount`](#components-that-use-useaccount)\
+— [`useAccount`, `useSession`, or GQL Mocks](#components-that-use-useaccount-usesession-or-need-a-gql-mock)\
 [Storybook](#storybook)\
 [License](#license)
 
@@ -54,15 +55,21 @@ While most API calls can be performed with GQL, there are a few calls that must 
 
 This application uses [Apollo client cache](https://www.apollographql.com/docs/react/caching/cache-configuration/) to store app-global state, holding both data received from the GQL server and [local data](https://www.apollographql.com/docs/tutorial/local-state/) that needs to be globally accessible. You can see the shape of this data in the schema found within the `GetInitialState` query, noting that a `@client` directive denotes local data.
 
-Access the client cache data in top-level objects via custom `use` hooks. At the time of writing, `useAccount` and `useSession` (see the `VerifiedSessionGuard` section) will allow you to access `data.account` and `data.session` respectively inside components where that data is needed. See the "Testing" section of this doc for how to mock calls.
+Access the client cache data in top-level objects via custom `use` hooks. At the time of writing, `useAccount` and `useSession` (see the "Sessions" section) will allow you to access `data.account` and `data.session` respectively inside components where that data is needed. See the "Testing" section of this doc for how to mock calls.
 
 ## Components to Know
+
+### `LinkExternal`
+
+When an external link needs to be opened in a new tab, use the `LinkExternal` component. This ensures `rel="noopener noreferrer"` is present on links containing a `target="_blank"` as a precaution against reverse tabnabbing and also provides visually hidden accessible text to inform screenreaders the link will open in a new window.
 
 ### `AlertBar` and `AlertExternal`
 
 #### AlertBar
 
 The `AlertBar` is used to display messages to the user, typically for communicating success or error messages back to the user. `<div id="alert-bar-root"></div>` is located just below the layout header and serves as the parent for where this component renders in the DOM via a React [Portal](https://reactjs.org/docs/portals.html) and an `AlertBarContext` which holds a reference to `alert-bar-root`.
+
+The `AlertBar` takes in an optional `type` prop, defaulting to `'success'` if not passed in but can be set to `'error'` or `'info'`, altering the text and background color of the bar.
 
 A basic example for displaying the component:
 
@@ -100,19 +107,21 @@ Some actions from the `fxa-content-server` need to display an alert message on t
 
 If `fxa-settings` checks `localStorage` first, it stores the string in the Apollo client cache local state variable `alertTextExternal`, displays it in the `AlertBar` through the `AlertExternal` component, and clears the text.
 
-### Sessions and `VerifiedSessionGuard`
+### Sessions, `VerifiedSessionGuard`, and `ModalVerifySession`
 
 Users cannot access the settings page if their primary email is not verified, and in fact they're considered to have an unverified _account_ in this state. Users can, however, access the page with an unverified session - in this context, a verified or unverified session serves as an enhanced verification step. If it's a user's first session, the session will be verified when the user's primary email is verified. If it's a new session, say on another device, the user's session will be invalid until the user requests a verification code that will be sent to their primary email.
 
 A user can't do the following in an unverified session, as determined by an `Unverified session` error from the auth-server:
 
 - Delete their account
-- Changing their password
+- Change their password
 - All actions around secondary emails
 - All actions around TOTP
 - All actions around the recovery key
 
 This means we'll need to guard around any actions allowing these interactions, links to flows for these actions, and flows themselves. We can do this with by wrapping the component containing the action in question with a `VerifiedSessionGuard` that ensures a user's session is verified before displaying the content.
+
+When a user attempts to perform a guarded action in an unverified session state, the `ModalVerifySession` should be presented instead of following through with the action. This modal is returned by `VerifiedSessionGuard` but depending on the component, it can be used standalone.
 
 ### Styling components
 
@@ -120,7 +129,7 @@ This means we'll need to guard around any actions allowing these interactions, l
 
 The `fxa-settings`, `fxa-react`, and `fxa-admin-panel` packages are setup to share a [Tailwind CSS](https://tailwindcss.com/) configuration file found in the `fxa-react` package. Other React packages, such as `fxa-payments-server` and `fxa-content-server` will be configured to use Tailwind at a later time. If you're not familiar with Tailwind, look through [their documentation](https://tailwindcss.com/docs) to get an idea of what [utility-first](https://tailwindcss.com/docs/utility-first) (Atomic CSS) is and what you can expect while using it. The general idea is simple: use single-purpose classes on elements to layer styles until the design is achieved. **You can accomplish almost all of your styling needs with classes provided by Tailwind's default configuration or through adding them in the configuration file.**
 
-Each package has its own `tailwind.[s]css` file. This file, any S/CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding this file should happen automatically on any change. If you're not sure what specific class name corresponds with the style you need or if you need to check that a specific style exists in our utility classes, search through `tailwind.out.css` for these styles as needed. Note that if you run a build command to test a production build, you'll need to make an update to one of these files with `pm2` running or manually run `yarn build-postcss` to rebuild the dev version containing all available classes (see the "PurgeCSS" section for more details).
+Each package has its own `tailwind.[s]css` file. This file, any S/CSS files this file imports, and the Tailwind configuration file are compiled to produce `tailwind.out.css`. Rebuilding the SCSS file should happen automatically on any change. If you're not sure what specific class name corresponds with the style you need or if you need to check that a specific style exists in our utility classes, search through `tailwind.out.[s]css` for these styles as needed. Note that if you run a build command to test a production build, you'll need to make an update to one of these files with `pm2` running or manually run `yarn build-postcss` to rebuild the dev version containing all available classes (see the "PurgeCSS" section for more details).
 
 **FxA has a design guide available** in Storybook to help alleviate much of the burden around finding the correct class name to use as well as some of the mental math involved explained below. Run `yarn storybook` in this package to pull it up and see the "Storybook" section for more information on Storybook.
 
@@ -381,16 +390,17 @@ rerender(
 
 A `rerender` is necessary in order to update the component reference in the Context provider. If this is _not_ provided, it will default to using a `Portal` that renders adjacent to the root app `<div id="root"></div>` and an error will show in the console.
 
-### Components that use `useAccount`
+### Components that use `useAccount`, `useSession`, or Need a GQL Mock
 
-[MockedCache](./src/models/_mocks.tsx) is a convenient way to test components that `useAccount()`. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) when the default mocked cache will work for the test or if `cache` is the only prop in a `MockedProvider` that needs to be changed.
+[MockedCache](./src/models/_mocks.tsx) is a convenient way to test components that `useAccount` or `useSession`. Use it in place of [MockedProvider](https://www.apollographql.com/docs/react/api/react/testing/#mockedprovider) without prop overrides to use the default mocked cache, or pass in `account` to override pieces of the default mocked cache and/or `verified` to override the top-level `session.verified` data piece. A `mocks` prop can also be passed in when a query or mutation needs success or failure mocks.
 
 Example:
 
 ```jsx
-<MockedCache account={{ avatarUrl: null }}>
+const mocks = [];
+<MockedCache account={{ avatarUrl: null }} verified={false} {...{ mocks }}>
   <HeaderLockup />
-</MockedCache>
+</MockedCache>;
 ```
 
 ### Common Errors

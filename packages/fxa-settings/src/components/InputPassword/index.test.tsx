@@ -4,12 +4,12 @@
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import PasswordInput from './index';
+import InputPassword from '.';
 
 const label = 'Top Notch';
 
 it('renders as expected', () => {
-  render(<PasswordInput {...{ label }} />);
+  render(<InputPassword {...{ label }} />);
   expect(screen.getByTestId('input-container')).toBeInTheDocument();
   expect(screen.getByTestId('input-label')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();
@@ -17,13 +17,13 @@ it('renders as expected', () => {
 });
 
 it('can be disabled', () => {
-  render(<PasswordInput {...{ label }} disabled />);
+  render(<InputPassword {...{ label }} disabled />);
   expect(screen.getByTestId('input-field')).toBeDisabled();
 });
 
 it('can have a default value', () => {
   const defaultValue = 'Myths Made Plain';
-  render(<PasswordInput {...{ label, defaultValue }} />);
+  render(<InputPassword {...{ label, defaultValue }} />);
   expect(screen.getByTestId('input-field')).toHaveAttribute(
     'value',
     defaultValue
@@ -31,7 +31,7 @@ it('can have a default value', () => {
 });
 
 it('can be toggled', () => {
-  render(<PasswordInput {...{ label }} />);
+  render(<InputPassword {...{ label }} />);
   expect(screen.getByTestId('input-field')).toHaveAttribute('type', 'password');
   fireEvent.click(screen.getByTestId('visibility-toggle'));
   expect(screen.getByTestId('input-field')).toHaveAttribute('type', 'text');

@@ -5,11 +5,11 @@
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
 import FlowContainer from '../FlowContainer';
-import PasswordInput from '../PasswordInput';
+import InputPassword from '../InputPassword';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 // eslint-disable-next-line no-empty-pattern
-export const ChangePassword = ({}: RouteComponentProps) => {
+export const PageChangePassword = ({}: RouteComponentProps) => {
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
     // TODO: actually perform the change password
@@ -34,9 +34,9 @@ export const ChangePassword = ({}: RouteComponentProps) => {
           </li>
         </ul>
 
-        <PasswordInput label="Enter current password" />
-        <PasswordInput label="Enter new password" />
-        <PasswordInput label="Re-enter new password" />
+        <InputPassword label="Enter current password" />
+        <InputPassword label="Enter new password" />
+        <InputPassword label="Re-enter new password" />
 
         <div className="flex justify-center p-2">
           <button
@@ -62,4 +62,4 @@ export const ChangePassword = ({}: RouteComponentProps) => {
   );
 };
 
-export default ChangePassword;
+export default PageChangePassword;

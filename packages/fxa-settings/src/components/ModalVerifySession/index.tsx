@@ -4,7 +4,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Modal from '../Modal';
-import TextInput from '../TextInput';
+import InputText from '../InputText';
 import { gql, useMutation } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
 
@@ -74,14 +74,14 @@ export const ModalVerifySession = ({
   }, [session, sendCode, onCompleted]);
 
   if (session.verified) {
-    return <></>;
+    return null;
   }
 
   return (
     <Modal
       data-testid="modal-verify-session"
-      descId="some-desc"
-      headerId="some-id"
+      descId="modal-verify-session-desc"
+      headerId="modal-verify-session-header"
       hasButtons={false}
       onDismiss={onDismiss}
     >
@@ -97,21 +97,28 @@ export const ModalVerifySession = ({
           });
         }}
       >
-        <h2 id="some-id" className="font-bold text-xl text-center">
+        <h2
+          id="modal-verify-session-header"
+          className="font-bold text-xl text-center"
+        >
           Verify your email
         </h2>
-        <p id="some-desc" data-testid="modal-desc" className="my-6">
+        <p
+          id="modal-verify-session-desc"
+          data-testid="modal-desc"
+          className="my-6"
+        >
           Please enter the verification code that was sent to{' '}
           <span className="font-bold">{primaryEmail.email}</span> within 5
           minutes.
         </p>
-        <TextInput
+        <InputText
           label="Enter your verification code"
           onChange={(event) => {
             setCode(event.target.value);
           }}
           {...{ errorText }}
-        ></TextInput>
+        ></InputText>
         <div className="flex mt-6">
           <button
             type="button"

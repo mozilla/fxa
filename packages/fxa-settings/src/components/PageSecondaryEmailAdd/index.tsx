@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import TextInput from '../TextInput';
+import InputText from '../InputText';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import FlowContainer from '../FlowContainer';
 import { Account } from '../../models';
@@ -16,7 +16,7 @@ export const CREATE_SECONDARY_EMAIL_MUTATION = gql`
   }
 `;
 
-export const FlowSecondaryEmailAdd = (_: RouteComponentProps) => {
+export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const [saveBtnDisabled, setSaveBtnDisabled] = useState(true);
   const [errorText, setErrorText] = useState<string>();
   const [email, setEmail] = useState<string>();
@@ -75,7 +75,7 @@ export const FlowSecondaryEmailAdd = (_: RouteComponentProps) => {
         }}
       >
         <div className="mb-3" data-testid="secondary-email-input">
-          <TextInput
+          <InputText
             label="Enter email address"
             type="email"
             onChange={checkEmail}
@@ -109,4 +109,4 @@ export const FlowSecondaryEmailAdd = (_: RouteComponentProps) => {
   );
 };
 
-export default FlowSecondaryEmailAdd;
+export default PageSecondaryEmailAdd;

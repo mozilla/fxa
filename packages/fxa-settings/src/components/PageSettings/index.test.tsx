@@ -4,14 +4,13 @@
 
 import React from 'react';
 import { screen } from '@testing-library/react';
-import Settings from './index';
-import { MockedCache } from '../../models/_mocks';
-import { renderWithRouter } from '../../models/_mocks';
+import PageSettings from '.';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
 
 it('renders without imploding', async () => {
   renderWithRouter(
     <MockedCache>
-      <Settings />
+      <PageSettings />
     </MockedCache>
   );
   expect(screen.getByTestId('settings-profile')).toBeInTheDocument();

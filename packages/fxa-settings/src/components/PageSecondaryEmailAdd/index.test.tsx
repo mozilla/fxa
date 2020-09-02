@@ -6,7 +6,7 @@ import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
-import { FlowSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
+import { PageSecondaryEmailAdd, CREATE_SECONDARY_EMAIL_MUTATION } from '.';
 import { GraphQLError } from 'graphql';
 
 const mockGqlSuccess = (email: string) => ({
@@ -19,12 +19,12 @@ const mockGqlSuccess = (email: string) => ({
   },
 });
 
-describe('FlowSecondaryEmailAdd', () => {
+describe('PageSecondaryEmailAdd', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {
       renderWithRouter(
         <MockedCache>
-          <FlowSecondaryEmailAdd />
+          <PageSecondaryEmailAdd />
         </MockedCache>
       );
 
@@ -40,7 +40,7 @@ describe('FlowSecondaryEmailAdd', () => {
     it('Enables "save" button once valid email is input', () => {
       renderWithRouter(
         <MockedCache>
-          <FlowSecondaryEmailAdd />
+          <PageSecondaryEmailAdd />
         </MockedCache>
       );
 
@@ -55,7 +55,7 @@ describe('FlowSecondaryEmailAdd', () => {
     it('Do not Enable "save" button if invalid email is input', () => {
       renderWithRouter(
         <MockedCache>
-          <FlowSecondaryEmailAdd />
+          <PageSecondaryEmailAdd />
         </MockedCache>
       );
 
@@ -75,7 +75,7 @@ describe('FlowSecondaryEmailAdd', () => {
       const mocks = [mockGqlSuccess('johndope2@example.com')];
       renderWithRouter(
         <MockedCache account={{ emails }} {...{ mocks }}>
-          <FlowSecondaryEmailAdd />
+          <PageSecondaryEmailAdd />
         </MockedCache>
       );
       const input = screen.getByTestId('input-field');

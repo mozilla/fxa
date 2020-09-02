@@ -10,7 +10,7 @@ import React, {
   RefObject,
 } from 'react';
 
-export type TextInputProps = {
+export type InputTextProps = {
   defaultValue?: string | number;
   disabled?: boolean;
   children?: ReactElement;
@@ -23,7 +23,7 @@ export type TextInputProps = {
   type?: 'text' | 'email' | 'tel' | 'number' | 'url' | 'password';
 };
 
-export const TextInput = ({
+export const InputText = ({
   defaultValue,
   disabled,
   children,
@@ -34,7 +34,7 @@ export const TextInput = ({
   errorTooltipClass,
   inputRef,
   type = 'text',
-}: TextInputProps) => {
+}: InputTextProps) => {
   const [focussed, setFocussed] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
 
@@ -108,4 +108,4 @@ export const TextInput = ({
   );
 };
 
-export default TextInput;
+export default InputText;
