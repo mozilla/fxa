@@ -12,7 +12,12 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "baseUrl": "../packages",
-    "typeRoots": ["../types", "../node_modules/@types", "../packages/*/node_modules/@types"]
+    "incremental": true,
+    "typeRoots": [
+      "../types",
+      "../node_modules/@types",
+      "../packages/*/node_modules/@types"
+    ]
   },
   "exclude": ["../node_modules", "../packages/*/node_modules"]
 }

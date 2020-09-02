@@ -15,5 +15,6 @@ declare namespace LoggerConfigFactory {
     info(type: string, fields: object): void;
     warning(type: string, fields: object): void;
     warn(type: string, fields: object): void;
+    verbose(type: string, fields: object): void;
   }
 }

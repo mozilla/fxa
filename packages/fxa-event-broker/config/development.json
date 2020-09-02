@@ -9,8 +9,7 @@
     "level": "debug"
   },
   "openid": {
-    "issuer": "http://localhost:3030",
-    "key": {}
+    "issuer": "http://localhost:3030"
   },
   "firestore": {
     "enabled": true

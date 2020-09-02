@@ -10,12 +10,11 @@ module.exports = {
   apps: [
     {
       name: 'event-broker',
-      script: 'node -r ts-node/register src/bin/workerDev.ts',
+      script: 'nest start --debug=9180 --watch',
       cwd: __dirname,
       max_restarts: '1',
       env: {
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--inspect=9180',
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_FILES: 'true',
         WORKER_HOST: '0.0.0.0',

@@ -20,7 +20,7 @@ module.exports = {
         NODE_OPTIONS: '--inspect=9150',
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_FILES: 'true',
-        PORT: '8090', // TODO: this needs to get added to src/config.ts
+        PORT: '8095', // TODO: this needs to get added to src/config.ts
       },
       filter_env: ['npm_'],
       watch: ['src'],

@@ -2,6 +2,9 @@
   "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
     "outDir": "./dist",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "allowJs": false
   },
   "include": ["src"]
