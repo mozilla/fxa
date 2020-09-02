@@ -1,5 +1,11 @@
 # Change history
 
+## 1.186.1
+
+### Bug fixes
+
+- payments: pay invoice on retry ([71df1cfb2](https://github.com/mozilla/fxa/commit/71df1cfb2))
+
 ## 1.186.0
 
 ### New features
