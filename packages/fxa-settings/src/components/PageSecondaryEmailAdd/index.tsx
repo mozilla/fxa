@@ -74,7 +74,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
           }
         }}
       >
-        <div className="mb-3" data-testid="secondary-email-input">
+        <div className="mt-4 mb-6" data-testid="secondary-email-input">
           <InputText
             label="Enter email address"
             type="email"
@@ -83,21 +83,18 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
           />
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex justify-center mx-auto max-w-64">
           <button
             type="button"
-            className="cta-neutral-lg transition-standard mb-3 w-32"
+            className="cta-neutral mx-2 flex-1"
             data-testid="cancel-button"
             onClick={goBack}
           >
             Cancel
           </button>
-
           <button
             type="submit"
-            className={`cta-primary transition-standard mb-3 w-32 ${
-              saveBtnDisabled ? 'opacity-25' : ''
-            }`}
+            className="cta-primary mx-2 flex-1"
             data-testid="save-button"
             disabled={saveBtnDisabled}
           >

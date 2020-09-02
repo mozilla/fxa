@@ -17,7 +17,7 @@ export const FlowContainer = ({
 }: FlowContainerProps & RouteComponentProps) => {
   return (
     <div
-      className="max-w-lg mx-auto my-6 py-8 px-6 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl"
+      className="max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl"
       data-testid="flow-container"
     >
       <div className="flex items-center">
@@ -35,7 +35,7 @@ export const FlowContainer = ({
         </button>
         <h1 className="font-header">{title}</h1>
       </div>
-      <div className="mt-2 w-full">{children}</div>
+      <div className="w-full">{children}</div>
     </div>
   );
 };

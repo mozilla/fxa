@@ -14,6 +14,7 @@ export const InputPassword = ({
   disabled,
   label,
   placeholder,
+  className,
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
@@ -31,6 +32,7 @@ export const InputPassword = ({
         label,
         placeholder,
         onChange,
+        className,
       }}
     >
       <button

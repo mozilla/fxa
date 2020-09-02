@@ -51,6 +51,7 @@ module.exports = {
         desktop: '1024px',
         desktopXl: '1441px',
         48: '12rem',
+        64: '16rem',
       },
       inset: {
         '1/2': '50%',

@@ -4,7 +4,7 @@
 
 .cta-neutral,
 .cta-primary {
-  @apply py-2 px-5 rounded w-full inline-block text-center border font-header box-border;
+  @apply py-2 px-5 rounded w-full inline-block text-center border font-header box-border transition-standard;
 }
 
 .cta-neutral {

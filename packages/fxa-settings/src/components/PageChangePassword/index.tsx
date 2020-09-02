@@ -19,7 +19,8 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     <FlowContainer title="Change Password">
       <form onSubmit={handleSubmit}>
         <h1>Stay safe — don't reuse passwords. Your password:</h1>
-        <ul className="list-disc text-grey-400 text-xs p-3">
+
+        <ul className="list-disc text-grey-400 text-xs m-3 list-inside">
           <li>Must be at least 8 characters</li>
           <li>Must not be your email address</li>
           <li>
@@ -34,20 +35,20 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
           </li>
         </ul>
 
-        <InputPassword label="Enter current password" />
-        <InputPassword label="Enter new password" />
-        <InputPassword label="Re-enter new password" />
+        <div className="my-6">
+          <InputPassword label="Enter current password" className="mb-2" />
+          <InputPassword label="Enter new password" className="mb-2" />
+          <InputPassword label="Re-enter new password" />
+        </div>
 
-        <div className="flex justify-center p-2">
+        <div className="flex justify-center mb-4 mx-auto max-w-64">
           <button
-            className="cta-neutral w-1/4 m-2"
+            className="cta-neutral mx-2 flex-1"
             onClick={() => window.history.back()}
           >
             Cancel
           </button>
-          <button className="cta-primary transition-standard w-1/4 m-2">
-            Save
-          </button>
+          <button className="cta-primary mx-2 flex-1">Save</button>
         </div>
 
         <LinkExternal
