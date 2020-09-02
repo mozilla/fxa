@@ -16723,11 +16723,15 @@ fsevents@^1.2.7:
     "@types/sinon": ^9.0.4
     accept-language: ^2.0.17
     ajv: ^6.12.2
+    apollo-datasource: ^0.7.2
+    apollo-server: ^2.16.1
+    apollo-server-express: ^2.16.1
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.2.0
     chance: ^1.1.6
+    convict: ^6.0.0
     cors: ^2.8.5
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
@@ -16742,7 +16746,9 @@ fsevents@^1.2.7:
     lodash.pick: ^4.4.0
     mocha: ^7.1.2
     moment: ^2.24.0
+    mozlog: ^3.0.1
     mysql: ^2.18.1
+    nock: ^13.0.4
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.0.1
     objection: ^2.2.2
@@ -16753,9 +16759,11 @@ fsevents@^1.2.7:
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
     stripe: ^8.69.0
+    superagent: ^6.0.0
     ts-node: ^8.10.2
     ts-sinon: ^1.2.0
     type-graphql: ^0.17.6
+    typedi: ^0.8.0
     typescript: 3.9.7
     underscore: ^1.10.2
     uuid: ^8.3.0

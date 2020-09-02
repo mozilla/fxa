@@ -52,6 +52,7 @@
     "jsdom": "16.2.2",
     "jsdom-global": "3.0.2",
     "mocha": "^7.1.2",
+    "nock": "^13.0.4",
     "nyc": "^15.0.1",
     "pm2": "^4.4.1",
     "prettier": "^2.0.5",
@@ -68,8 +69,12 @@
     "@types/js-md5": "^0.4.2",
     "accept-language": "^2.0.17",
     "ajv": "^6.12.2",
+    "apollo-datasource": "^0.7.2",
+    "apollo-server": "^2.16.1",
+    "apollo-server-express": "^2.16.1",
     "bluebird": "^3.7.2",
     "celebrate": "^10.0.1",
+    "convict": "^6.0.0",
     "cors": "^2.8.5",
     "generic-pool": "^3.7.1",
     "graphql": "^14.6.0",
@@ -79,12 +84,15 @@
     "lodash.omitby": "^4.6.0",
     "lodash.pick": "^4.4.0",
     "moment": "^2.24.0",
+    "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "objection": "^2.2.2",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13",
     "stripe": "^8.69.0",
-    "type-graphql": "^0.17.6"
+    "superagent": "^6.0.0",
+    "type-graphql": "^0.17.6",
+    "typedi": "^0.8.0"
   }
 }
