@@ -561,6 +561,37 @@ class DirectStripeRoutes {
   }
 
   /**
+   * Detach a payment method from a customer _without_ any subscriptions.
+   * This prevents a potentially problematic card for being used for the
+   * customer's _first_ subscription.
+   */
+  async detachFailedPaymentMethod(request: AuthRequest) {
+    this.log.begin('subscriptions.detachFailedPaymentMethod', request);
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(request, email, 'detachFailedPaymentMethod');
+
+    let customer = await this.stripeHelper.customer({ uid, email });
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    const { paymentMethodId } = request.payload as Record<string, string>;
+
+    // We are handling a very specific scenario here, one in which the customer
+    // has not been ever able to successfully subscribe with the attempted
+    // payment method.
+    if (
+      customer.subscriptions?.data.length &&
+      customer.subscriptions.data.every((s) => s.status === 'incomplete')
+    ) {
+      return await this.stripeHelper.detachPaymentMethod(paymentMethodId);
+    }
+
+    // Do nothing.  There's no course correction action to take.
+    return { id: paymentMethodId };
+  }
+
+  /**
    * Gather all capabilities granted by a product across all clients
    */
   async getProductCapabilities(productId: string): Promise<string[]> {
@@ -1244,6 +1275,30 @@ const directRoutes = (
       },
       handler: (request: AuthRequest) =>
         directStripeRoutes.updateDefaultPaymentMethod(request),
+    },
+    {
+      method: 'POST',
+      path: '/oauth/subscriptions/paymentmethod/failed/detach',
+      options: {
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        response: {
+          schema: isA
+            .object({
+              id: validators.stripePaymentMethodId.required(),
+            })
+            .unknown(true),
+        },
+        validate: {
+          payload: {
+            paymentMethodId: validators.stripePaymentMethodId.required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.detachFailedPaymentMethod(request),
     },
     {
       method: 'GET',

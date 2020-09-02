@@ -243,6 +243,22 @@ describe('StripeHelper', () => {
     });
   });
 
+  describe('detachPaymentMethod', () => {
+    it('calls the Stripe api', async () => {
+      const paymentMethodId = 'pm_9001';
+      const expected = { id: paymentMethodId };
+      sandbox
+        .stub(stripeHelper.stripe.paymentMethods, 'detach')
+        .resolves(expected);
+      const actual = await stripeHelper.detachPaymentMethod(paymentMethodId);
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        stripeHelper.stripe.paymentMethods.detach,
+        paymentMethodId
+      );
+    });
+  });
+
   describe('removeSources', () => {
     it('removes all the sources', async () => {
       const ids = {

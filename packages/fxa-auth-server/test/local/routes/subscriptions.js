@@ -827,6 +827,72 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('detachFailedPaymentMethod', () => {
+    it('calls stripe helper to detach the payment method', async () => {
+      const customer = deepCopy(customerFixture);
+      customer.subscriptions.data[0].status = 'incomplete';
+      const paymentMethodId = 'pm_9001';
+      const expected = { id: paymentMethodId, isGood: 'yep' };
+
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.detachPaymentMethod.resolves(
+        expected
+      );
+
+      VALID_REQUEST.payload = {
+        paymentMethodId,
+      };
+
+      const actual = await directStripeRoutesInstance.detachFailedPaymentMethod(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.stripeHelper.detachPaymentMethod,
+        paymentMethodId
+      );
+    });
+
+    it('does not detach if the subscription is not "incomplete"', async () => {
+      const customer = deepCopy(customerFixture);
+      const paymentMethodId = 'pm_9001';
+      const resp = { id: paymentMethodId, isGood: 'yep' };
+
+      directStripeRoutesInstance.stripeHelper.customer.resolves(customer);
+      directStripeRoutesInstance.stripeHelper.detachPaymentMethod.resolves(
+        resp
+      );
+
+      VALID_REQUEST.payload = {
+        paymentMethodId,
+      };
+      const actual = await directStripeRoutesInstance.detachFailedPaymentMethod(
+        VALID_REQUEST
+      );
+
+      assert.deepEqual(actual, { id: paymentMethodId });
+      sinon.assert.notCalled(
+        directStripeRoutesInstance.stripeHelper.detachPaymentMethod
+      );
+    });
+
+    it('errors when a customer has not been created', async () => {
+      VALID_REQUEST.payload = { paymentMethodId: 'pm_asdf' };
+      try {
+        await directStripeRoutesInstance.detachFailedPaymentMethod(
+          VALID_REQUEST
+        );
+        assert.fail(
+          'Detaching a payment method from a non-existent customer should fail.'
+        );
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+  });
+
   describe('findCustomerSubscriptionByPlanId', () => {
     describe('Customer has Single One-Plan Subscription', () => {
       const customer = deepCopy(customerFixture);

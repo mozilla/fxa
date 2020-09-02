@@ -31,6 +31,7 @@ export type SubscriptionCreateAuthServerAPIs = Pick<
   | 'apiCreateCustomer'
   | 'apiCreateSubscriptionWithPaymentMethod'
   | 'apiRetryInvoice'
+  | 'apiDetachFailedPaymentMethod'
 >;
 
 export type SubscriptionCreateProps = {
@@ -216,6 +217,7 @@ async function handleSubscriptionPayment({
   apiCreateCustomer,
   apiCreateSubscriptionWithPaymentMethod,
   apiRetryInvoice,
+  apiDetachFailedPaymentMethod,
   onFailure,
   onRetry,
   onSuccess,
@@ -227,6 +229,7 @@ async function handleSubscriptionPayment({
   selectedPlan: Plan;
   customer: Customer | null;
   retryStatus: RetryStatus;
+  apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError) => void;
   onRetry: (status: RetryStatus) => void;
   onSuccess: () => void;
@@ -242,6 +245,7 @@ async function handleSubscriptionPayment({
       }
     );
     return handlePaymentIntent({
+      customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
       paymentIntentStatus:
         createSubscriptionResult.latest_invoice.payment_intent.status,
@@ -250,6 +254,7 @@ async function handleSubscriptionPayment({
       paymentMethodId:
         createSubscriptionResult.latest_invoice.payment_intent.payment_method,
       stripe,
+      apiDetachFailedPaymentMethod,
       onSuccess,
       onFailure,
       onRetry,
@@ -284,6 +289,7 @@ async function handleSubscriptionPayment({
   const commonPaymentIntentParams = {
     paymentMethodId: paymentMethod.id,
     stripe,
+    apiDetachFailedPaymentMethod,
     onSuccess,
     onFailure,
     onRetry,
@@ -300,6 +306,7 @@ async function handleSubscriptionPayment({
       }
     );
     return handlePaymentIntent({
+      customer,
       invoiceId: createSubscriptionResult.latest_invoice.id,
       paymentIntentStatus:
         createSubscriptionResult.latest_invoice.payment_intent.status,
@@ -316,6 +323,7 @@ async function handleSubscriptionPayment({
       idempotencyKey,
     });
     return handlePaymentIntent({
+      customer,
       invoiceId,
       paymentIntentStatus: retryInvoiceResult.payment_intent.status,
       paymentIntentClientSecret:
@@ -326,20 +334,24 @@ async function handleSubscriptionPayment({
 }
 
 async function handlePaymentIntent({
+  customer,
   invoiceId,
   paymentIntentStatus,
   paymentIntentClientSecret,
   paymentMethodId,
   stripe,
+  apiDetachFailedPaymentMethod,
   onSuccess,
   onFailure,
   onRetry,
 }: {
+  customer: Customer | null;
   invoiceId: string;
   paymentIntentStatus: string;
   paymentIntentClientSecret: string | null;
   paymentMethodId: string | undefined;
   stripe: Pick<Stripe, 'confirmCardPayment'>;
+  apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError) => void;
   onRetry: (status: RetryStatus) => void;
   onSuccess: () => void;
@@ -349,6 +361,16 @@ async function handlePaymentIntent({
       return onSuccess();
     }
     case 'requires_payment_method': {
+      // If this happens when a customer is trying to subscribe to their first
+      // product, detach the payment method.  The user must enter a working
+      // card to move on; we'll get a working payment method from that.
+      // This does not affect functionality, thus not blocking.
+      if (
+        (!customer || (customer && customer.subscriptions.length === 0)) &&
+        paymentMethodId
+      ) {
+        apiDetachFailedPaymentMethod({ paymentMethodId });
+      }
       return onRetry({ invoiceId });
     }
     case 'requires_action': {
@@ -366,11 +388,13 @@ async function handlePaymentIntent({
         return onFailure({ type: 'api_error' });
       }
       return handlePaymentIntent({
+        customer,
         invoiceId,
         paymentIntentStatus: confirmResult.paymentIntent.status,
         paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
         paymentMethodId,
         stripe,
+        apiDetachFailedPaymentMethod,
         onSuccess,
         onFailure,
         onRetry,

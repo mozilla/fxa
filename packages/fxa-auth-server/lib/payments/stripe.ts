@@ -423,6 +423,12 @@ export class StripeHelper {
     }
   }
 
+  async detachPaymentMethod(
+    paymentMethodId: string
+  ): Promise<Stripe.PaymentMethod> {
+    return await this.stripe.paymentMethods.detach(paymentMethodId);
+  }
+
   /**
    * Fetch a customer for the record from Stripe based on email.
    */
