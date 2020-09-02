@@ -528,6 +528,13 @@ describe('with existing card', () => {
     ).toBeInTheDocument();
   });
 
+  it('renders the payment form for customer without subscriptions', () => {
+    const customer = { ...MOCK_CUSTOMER, subscriptions: [] };
+    const { queryByTestId } = render(<Subject customer={customer} />);
+    expect(queryByTestId('name')).toBeInTheDocument();
+    expect(queryByTestId('card-details')).not.toBeInTheDocument();
+  });
+
   it('calls the submit handler', async () => {
     const onSubmit = jest.fn();
     const { getByTestId } = render(

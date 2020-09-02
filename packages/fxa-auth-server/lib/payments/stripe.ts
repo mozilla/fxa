@@ -230,6 +230,9 @@ export class StripeHelper {
       await this.stripe.customers.update(customerId, {
         invoice_settings: { default_payment_method: paymentMethodId },
       });
+      // Try paying now instead of waiting for Stripe since this could block a
+      // customer from finishing a payment
+      await this.stripe.invoices.pay(invoiceId);
     } catch (err) {
       if (err.type === 'StripeCardError') {
         throw error.rejectedSubscriptionPaymentToken(err.message, err);
