@@ -80,21 +80,19 @@ export const DropDownAvatarMenu = () => {
             className="drop-down-menu -left-52"
           >
             <div className="flex flex-wrap">
-              <div className="flex w-full p-4">
-                <div className="mr-3 flex flex-1">
+              <div className="flex w-full p-4 items-center">
+                <div className="mr-3 flex-1">
                   <Avatar className="w-10" />
                 </div>
-                <div className="flex flex-4 truncate">
-                  <p className="leading-5 max-w-full truncate">
-                    <span className="text-grey-400 text-xs">Signed in as</span>
-                    <span
-                      className="font-bold block truncate"
-                      data-testid="drop-down-name-or-email"
-                    >
-                      {displayName || primaryEmail.email}
-                    </span>
-                  </p>
-                </div>
+                <p className="leading-5 max-w-full truncate">
+                  <span className="text-grey-400 text-xs">Signed in as</span>
+                  <span
+                    className="font-bold block truncate"
+                    data-testid="drop-down-name-or-email"
+                  >
+                    {displayName || primaryEmail.email}
+                  </span>
+                </p>
               </div>
               <div className="w-full">
                 <div className="bg-gradient-to-r from-blue-500 via-pink-700 to-yellow-500 h-px" />
