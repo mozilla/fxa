@@ -1127,6 +1127,36 @@ describe('lib/fxa-client', function () {
           assert.isTrue(sessionData.verified);
         });
     });
+
+    it('completes the password reset using existing accountResetToken', function () {
+      const options = {
+        accountResetToken: 'accountResetToken',
+      };
+      return client
+        .completePasswordReset(email, password, token, code, relier, options)
+        .then(function (sessionData) {
+          assert.isTrue(
+            realClient.passwordForgotVerifyCode.notCalled,
+            'uses accountResetToken'
+          );
+          assert.isTrue(
+            realClient.accountReset.calledWith(
+              trim(email),
+              password,
+              'accountResetToken',
+              { keys: true, sessionToken: true }
+            )
+          );
+
+          assert.equal(sessionData.email, trim(email));
+          assert.equal(sessionData.keyFetchToken, 'new keyFetchToken');
+          assert.equal(sessionData.sessionToken, 'new sessionToken');
+          assert.equal(sessionData.sessionTokenContext, 'fx_desktop_v1');
+          assert.equal(sessionData.uid, 'uid');
+          assert.equal(sessionData.unwrapBKey, 'unwrap b key');
+          assert.isTrue(sessionData.verified);
+        });
+    });
   });
 
   describe('checkAccountExists', function () {

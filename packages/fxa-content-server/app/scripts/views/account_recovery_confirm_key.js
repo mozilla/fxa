@@ -30,6 +30,7 @@ const View = FormView.extend({
     this.logFlowEvent('lost-recovery-key', this.viewName);
     this.navigate('/complete_reset_password', {
       lostRecoveryKey: true,
+      accountResetToken: this.model.get('accountResetToken'),
     });
   },
 
@@ -73,6 +74,7 @@ const View = FormView.extend({
         return accountResetToken;
       })
       .then((accountResetToken) => {
+        this.model.set('accountResetToken', accountResetToken);
         return account.getRecoveryBundle(uid, recoveryKey).then((data) => {
           this.logFlowEvent('success', this.viewName);
           this.navigate('/account_recovery_reset_password', {

@@ -609,8 +609,13 @@ FxaClientWrapper.prototype = {
         sessionToken: true,
       };
 
-      return client
-        .passwordForgotVerifyCode(code, token, {})
+      return Promise.resolve()
+        .then(() => {
+          if (options.accountResetToken) {
+            return { accountResetToken: options.accountResetToken };
+          }
+          return client.passwordForgotVerifyCode(code, token, {});
+        })
         .then((result) => {
           let emailToHashWith = email;
 

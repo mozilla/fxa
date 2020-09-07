@@ -1161,6 +1161,7 @@ const Account = Backbone.Model.extend(
           {
             emailToHashWith,
             metricsContext: this._metrics.getFlowEventMetadata(),
+            accountResetToken: this.get('accountResetToken'),
           }
         )
         .then(this.set.bind(this))
