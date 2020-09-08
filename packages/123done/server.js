@@ -6,13 +6,14 @@ const sessions = require('client-sessions');
 
 const oauth = require('./oauth');
 const config = require('./config');
+const version = require('./version');
 
 const logger = morgan('short');
 
 // create a connection to the redis datastore
 let db = redis.createClient();
 
-db.on('error', function (err) {
+db.on('error', function () {
   // eslint-disable-line handle-callback-err
   db = null;
   console.log(
@@ -24,6 +25,10 @@ db.on('error', function (err) {
 const app = express();
 
 app.use(logger, express.json());
+
+app.get('/__version__', (_, res) =>
+  res.type('application/json').send(JSON.stringify(version))
+);
 
 app.use(function (req, res, next) {
   if (/^\/api/.test(req.url)) {
