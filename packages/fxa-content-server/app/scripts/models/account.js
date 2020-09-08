@@ -395,8 +395,10 @@ const Account = Backbone.Model.extend(
      * @returns {Promise}
      */
     async generateEcosystemAnonId(options = {}) {
+      let oldEcosystemAnonId, newEcosystemAnonId;
+
       try {
-        let ecosystemAnonId;
+        oldEcosystemAnonId = (await this.accountProfile()).ecosystemAnonId;
 
         if (!this._ecosystemAnonIdPublicKeys.length) {
           return;
@@ -408,7 +410,7 @@ const Account = Backbone.Model.extend(
         const randomKey = this._ecosystemAnonIdPublicKeys[randomIndex];
 
         if (options.kB) {
-          ecosystemAnonId = await aet.generateEcosystemAnonID(
+          newEcosystemAnonId = await aet.generateEcosystemAnonID(
             this.get('uid'),
             options.kB,
             randomKey
@@ -437,7 +439,7 @@ const Account = Backbone.Model.extend(
               res.keyFetchToken,
               res.unwrapBKey
             );
-            ecosystemAnonId = await aet.generateEcosystemAnonID(
+            newEcosystemAnonId = await aet.generateEcosystemAnonID(
               this.get('uid'),
               keys.kB,
               randomKey
@@ -445,43 +447,42 @@ const Account = Backbone.Model.extend(
           }
         } else if (this.canFetchKeys()) {
           const keys = await this.accountKeys();
-          ecosystemAnonId = await aet.generateEcosystemAnonID(
+          newEcosystemAnonId = await aet.generateEcosystemAnonID(
             this.get('uid'),
             keys.kB,
             randomKey
           );
         }
 
-        if (ecosystemAnonId) {
-          this.set('ecosystemAnonId', ecosystemAnonId);
+        if (newEcosystemAnonId) {
+          const updateOptions = {};
+
+          if (oldEcosystemAnonId) {
+            updateOptions.ifMatch = oldEcosystemAnonId;
+          }
+
+          this.set('ecosystemAnonId', newEcosystemAnonId);
           await this._fxaClient.updateEcosystemAnonId(
             this.get('sessionToken'),
-            ecosystemAnonId
+            newEcosystemAnonId,
+            updateOptions
           );
         }
       } catch (err) {
         this.unset('ecosystemAnonId');
 
-        const reportException = () => {
+        // If we get 412 Precondition Failed it means we
+        // tried to update, but another client beat us to
+        // it. Use the existing anon ID instead.
+        if (
+          AuthErrors.is(err, 'ECOSYSTEM_ANON_ID_UPDATE_CONFLICT') &&
+          oldEcosystemAnonId
+        ) {
+          this.set('ecosystemAnonId', oldEcosystemAnonId);
+        } else {
           if (this._sentryMetrics) {
             this._sentryMetrics.captureException(err);
           }
-        };
-
-        // If we get 412 Precondition Failed it means we
-        // tried to update, but another client beat us to
-        // it. Fetch the new anon ID and use it instead.
-        if (AuthErrors.is(err, 'ECOSYSTEM_ANON_ID_UPDATE_CONFLICT')) {
-          try {
-            const { ecosystemAnonId } = await this.accountProfile();
-            if (ecosystemAnonId) {
-              this.set('ecosystemAnonId', ecosystemAnonId);
-            }
-          } catch (err) {
-            reportException(err);
-          }
-        } else {
-          reportException(err);
         }
       }
     },
