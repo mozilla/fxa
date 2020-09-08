@@ -299,6 +299,16 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             uid,
             ecosystemAnonId,
           });
+
+          // This is a bit of a hack, but we emit the `account.signed`
+          // event to signal to the flow it has been completed (see flowCompleteSignal).
+          // Previously, this event would get emitted on the `/certificate/sign`
+          // endpoint however, with the move to sync oauth, this does not happen anymore
+          // and we need to "fake" it.
+          await request.emitMetricsEvent('account.signed', {
+            uid: uid,
+            device_id: sessionToken.deviceId,
+          });
         } catch (ex) {}
 
         return grant;
