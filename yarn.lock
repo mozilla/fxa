@@ -2665,6 +2665,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/inert@npm:6.0.2":
+  version: 6.0.2
+  resolution: "@hapi/inert@npm:6.0.2"
+  dependencies:
+    "@hapi/ammo": 5.x.x
+    "@hapi/boom": 9.x.x
+    "@hapi/bounce": 2.x.x
+    "@hapi/hoek": 9.x.x
+    "@hapi/validate": 1.x.x
+    lru-cache: 5.x.x
+  checksum: f22ff173e3c0c8251991cab92c62a17c88f9a0677dc6571c6077b4b03e42e00f1aa5216c3d9d30adfc5dd8b368d4a8cd68d8a8504bc571dcc48d6fe69c268827
+  languageName: node
+  linkType: hard
+
 "@hapi/inert@npm:~6.0.1":
   version: 6.0.1
   resolution: "@hapi/inert@npm:6.0.1"
@@ -6348,6 +6362,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/sass@npm:^1":
+  version: 1.16.0
+  resolution: "@types/sass@npm:1.16.0"
+  dependencies:
+    "@types/node": "*"
+  checksum: e95d14da2d05dea49e913db55922857234b01f2b1b513dd8cc556b64ffa6d89fb81ce4c1f21a6b4cd20f39d61455975e623ed681502b3d06b2d24a2ddd03a21e
+  languageName: node
+  linkType: hard
+
 "@types/semver@npm:^6.0.1":
   version: 6.2.1
   resolution: "@types/semver@npm:6.2.1"
@@ -9962,6 +9985,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bl@npm:4.0.3":
+  version: 4.0.3
+  resolution: "bl@npm:4.0.3"
+  dependencies:
+    buffer: ^5.5.0
+    inherits: ^2.0.4
+    readable-stream: ^3.4.0
+  checksum: 1f33c5a3da08a87260a7f11acadf088ef331ebb4b86db1160ec332be9326afdf9f73dca1fd5cc431dba7cc9d5574b508192f9fd7c37a9a11c9e4a50025917690
+  languageName: node
+  linkType: hard
+
 "blankie@npm:^5.0.0":
   version: 5.0.0
   resolution: "blankie@npm:5.0.0"
@@ -10650,7 +10684,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.4.3":
+"buffer@npm:^5.1.0, buffer@npm:^5.2.1, buffer@npm:^5.4.3, buffer@npm:^5.5.0":
   version: 5.6.0
   resolution: "buffer@npm:5.6.0"
   dependencies:
@@ -12252,12 +12286,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"consolidate@npm:0.14.5":
-  version: 0.14.5
-  resolution: "consolidate@npm:0.14.5"
+"consolidate@npm:0.15.1":
+  version: 0.15.1
+  resolution: "consolidate@npm:0.15.1"
   dependencies:
     bluebird: ^3.1.1
-  checksum: 278c780c23c41c142ca6aa53068f6e6c41ec66ac2ab08eac13e42c0177b5fa91eae4e56e2cff56e84b349a66dcdf50798d758d09549ed0daa4498cea9d348b9b
+  checksum: dcab488231c0b0f98b63da526447fa700d6af792a0b3ee43c60a9e6695aa0f5353cab1f3fbe82533235001979256a0849259c4897b90db6ffde992efa2246b53
   languageName: node
   linkType: hard
 
@@ -17300,7 +17334,7 @@ fsevents@^1.2.7:
     chai: ^4.2.0
     chosen-js: "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
-    consolidate: 0.14.5
+    consolidate: 0.15.1
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
@@ -17378,7 +17412,7 @@ fsevents@^1.2.7:
     node-uuid: 1.4.8
     node-vat: 0.0.9
     normalize.css: 3.0.1
-    on-headers: 1.0.1
+    on-headers: 1.0.2
     otplib: ^11.0.1
     photon-colors: 1.0.3
     pm2: ^4.4.1
@@ -18098,8 +18132,11 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa@workspace:."
   dependencies:
+    "@hapi/inert": 6.0.2
     "@types/request": 2.48.5
+    "@types/sass": ^1
     "@types/sinon": 9.0.5
+    bl: 4.0.3
     diffparser: ^2.0.1
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
@@ -18113,6 +18150,7 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     prettier: ^2.0.5
     replace-in-file: ^6.1.0
+    sass: 1.26.10
     semver: ^7.3.2
     stylelint: ^13.6.1
     stylelint-config-prettier: ^8.0.2
@@ -27104,14 +27142,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"on-headers@npm:1.0.1":
-  version: 1.0.1
-  resolution: "on-headers@npm:1.0.1"
-  checksum: 105b300f33ce9b7907538d5a7b1a3709644fd42d0d1213bd28cfc58121f5ebcacaf7666716cc505731df05a3127d45f143c2bb12834633ac96928d56666da895
-  languageName: node
-  linkType: hard
-
-"on-headers@npm:^1.0.2, on-headers@npm:~1.0.2":
+"on-headers@npm:1.0.2, on-headers@npm:^1.0.2, on-headers@npm:~1.0.2":
   version: 1.0.2
   resolution: "on-headers@npm:1.0.2"
   checksum: 51e75c80755169e765aa76238722e5ad1623f62b13bbc23544ade20cdbb6950cf0e6aa91de35d02ec956f47dc072ee460d8eef82354e4abf8fa692885cb3f2d8
@@ -32381,6 +32412,17 @@ resolve@~1.11.1:
     sass:
       optional: true
   checksum: e23d9b308f0792fb9ca3ebe314d5c9c96dfa833f89f457e4fc9c5026dacbfbb81e65b1e9b924f6aa11d749e2ba033acf7d1767929d6f9628c45525535bceb889
+  languageName: node
+  linkType: hard
+
+"sass@npm:1.26.10":
+  version: 1.26.10
+  resolution: "sass@npm:1.26.10"
+  dependencies:
+    chokidar: ">=2.0.0 <4.0.0"
+  bin:
+    sass: sass.js
+  checksum: 001da3a0fa57087f92fc48f7fa9a0f832d6c0ac8a4377df485a555c9db4749bba3fe3da8e46eb015439cb4d40bc1add1f704523914152f5a18f2358bd58f51d9
   languageName: node
   linkType: hard
 
