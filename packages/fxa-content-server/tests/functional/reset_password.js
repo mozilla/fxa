@@ -186,6 +186,22 @@ registerSuite('reset_password', {
           .then(fillOutResetPassword(email))
 
           .then(testElementExists(selectors.CONFIRM_RESET_PASSWORD.HEADER))
+          //Check email resent for reset password
+          .then(click(selectors.CONFIRM_RESET_PASSWORD.LINK_RESEND))
+
+          //Confirm the success message for resend email
+          .then(visibleByQSA(selectors.CONFIRM_RESET_PASSWORD.RESEND_SUCCESS))
+
+          //continue to sign in again
+          .then(click(selectors.CONFIRM_RESET_PASSWORD.LINK_SIGNIN))
+          .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
+          .then(testElementValueEquals(selectors.ENTER_EMAIL.EMAIL, email))
+          .then(
+            click(
+              selectors.ENTER_EMAIL.SUBMIT,
+              selectors.SIGNIN_PASSWORD.HEADER
+            )
+          )
       );
     },
 
