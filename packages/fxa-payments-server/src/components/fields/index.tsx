@@ -115,7 +115,8 @@ export type OnValidateFunction = (
 
 type InputProps = {
   onValidate?: OnValidateFunction;
-} & WithLocalizationProps & FieldProps &
+} & WithLocalizationProps &
+  FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
     HTMLInputElement
@@ -251,14 +252,8 @@ type StripeElementWrapperProps = FieldProps & {
   component: any;
   getString?: Function;
 };
-// TODO: This type can go away once we replace PaymentForm with PaymentFormV2
-// and stop using the old Stripe component library
-type OldReactStripeElementProps = StripeElementWrapperProps &
-  ReactStripeElements.ElementProps;
-type NewReactStripeElementProps = StripeElementWrapperProps & CardElementProps;
-type WrappedStripeElementProps =
-  | OldReactStripeElementProps
-  | NewReactStripeElementProps;
+
+type WrappedStripeElementProps = StripeElementWrapperProps & CardElementProps;
 
 export const StripeElement = (props: WrappedStripeElementProps) => {
   const {

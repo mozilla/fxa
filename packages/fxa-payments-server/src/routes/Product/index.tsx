@@ -4,31 +4,23 @@ import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { State as ValidatorState } from '../../lib/validator';
 import { useMatchMedia } from '../../lib/hooks';
 
 import { State } from '../../store/state';
 import { sequences, SequenceFunctions } from '../../store/sequences';
 import { actions, ActionFunctions } from '../../store/actions';
 import { selectors, SelectorReturns } from '../../store/selectors';
-import {
-  CustomerSubscription,
-  Plan,
-  ProductMetadata,
-  Customer,
-} from '../../store/types';
+import { CustomerSubscription, Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 
-import './index.scss';
+import '../Product/index.scss';
 
 import DialogMessage from '../../components/DialogMessage';
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 
-import SubscriptionSuccess from './SubscriptionSuccess';
-import SubscriptionCreate from './SubscriptionCreate';
-import SubscriptionUpgrade from './SubscriptionUpgrade';
-import PlanDetails from '../../components/PlanDetails';
-import Header from '../../components/Header';
+import SubscriptionSuccess from '../Product/SubscriptionSuccess';
+import SubscriptionUpgrade from '../Product/SubscriptionUpgrade';
+import SubscriptionCreate from '../Product/SubscriptionCreate';
 
 export type ProductProps = {
   match: {
@@ -41,14 +33,11 @@ export type ProductProps = {
   customer: SelectorReturns['customer'];
   customerSubscriptions: SelectorReturns['customerSubscriptions'];
   plansByProductId: SelectorReturns['plansByProductId'];
-  createSubscriptionStatus: SelectorReturns['createSubscriptionStatus'];
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
-  createSubscriptionAndRefresh: SequenceFunctions['createSubscriptionAndRefresh'];
-  resetCreateSubscription: ActionFunctions['resetCreateSubscription'];
   updateSubscriptionPlanAndRefresh: SequenceFunctions['updateSubscriptionPlanAndRefresh'];
   resetUpdateSubscriptionPlan: ActionFunctions['resetUpdateSubscriptionPlan'];
   fetchProductRouteResources: SequenceFunctions['fetchProductRouteResources'];
-  validatorInitialState?: ValidatorState;
+  fetchCustomerAndSubscriptions: SequenceFunctions['fetchCustomerAndSubscriptions'];
 };
 
 export const Product = ({
@@ -59,12 +48,9 @@ export const Product = ({
   plans,
   customer,
   customerSubscriptions,
-  createSubscriptionStatus,
   plansByProductId,
-  createSubscriptionAndRefresh,
-  resetCreateSubscription,
   fetchProductRouteResources,
-  validatorInitialState,
+  fetchCustomerAndSubscriptions,
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
   updateSubscriptionPlanStatus,
@@ -192,46 +178,17 @@ export const Product = ({
     }
   }
 
-  const mobileCreateHeading = isMobile ? (
-    <div className="mobile-subscription-create-heading">
-      <div className="subscription-create-heading">
-        <Localized id="product-plan-details-heading">
-          <h2>Set up your subscription</h2>
-        </Localized>
-        <Localized id="sub-guarantee">
-          <p className="subheading">30-day money-back guarantee</p>
-        </Localized>
-      </div>
-    </div>
-  ) : null;
-
   return (
-    <>
-      <Header {...{ profile: profile.result }} />
-      <div className="main-content">
-        <SubscriptionCreate
-          {...{
-            profile: profile.result,
-            customer: customer.result ?? undefined,
-            accountActivated,
-            selectedPlan,
-            createSubscriptionAndRefresh,
-            createSubscriptionStatus,
-            resetCreateSubscription,
-            validatorInitialState,
-          }}
-        />
-        <PlanDetails
-          {...{
-            profile: profile.result,
-            selectedPlan,
-            isMobile,
-            showExpandButton: isMobile,
-          }}
-        />
-        {mobileCreateHeading}
-      </div>
-    </>
+    <SubscriptionCreate
+      {...{
+        isMobile,
+        profile: profile.result,
+        customer: customer.result,
+        accountActivated,
+        selectedPlan,
+        refreshSubscriptions: fetchCustomerAndSubscriptions,
+      }}
+    />
   );
 };
 
@@ -298,14 +255,12 @@ export default connect(
     customerSubscriptions: selectors.customerSubscriptions(state),
     profile: selectors.profile(state),
     plans: selectors.plans(state),
-    createSubscriptionStatus: selectors.createSubscriptionStatus(state),
     updateSubscriptionPlanStatus: selectors.updateSubscriptionPlanStatus(state),
     plansByProductId: selectors.plansByProductId(state),
   }),
   {
-    resetCreateSubscription: actions.resetCreateSubscription,
     fetchProductRouteResources: sequences.fetchProductRouteResources,
-    createSubscriptionAndRefresh: sequences.createSubscriptionAndRefresh,
+    fetchCustomerAndSubscriptions: sequences.fetchCustomerAndSubscriptions,
     updateSubscriptionPlanAndRefresh:
       sequences.updateSubscriptionPlanAndRefresh,
     resetUpdateSubscriptionPlan: actions.resetUpdateSubscriptionPlan,

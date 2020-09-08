@@ -2,21 +2,13 @@
  * @jest-environment jsdom
  */
 import React from 'react';
-import {
-  render,
-  cleanup,
-  act,
-  fireEvent,
-  RenderResult,
-  queryByTestId,
-} from '@testing-library/react';
+import { render, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import nock from 'nock';
-import waitForExpect from 'wait-for-expect';
 
-import { getErrorMessage, PAYMENT_ERROR_2 } from '../../lib/errors';
+import { AuthServerErrno } from '../../lib/errors';
+
 import {
-  STRIPE_FIELDS,
   PRODUCT_ID,
   PRODUCT_REDIRECT_URLS,
   MOCK_PLANS,
@@ -30,9 +22,6 @@ import {
   mockConfig,
   mockServerUrl,
   mockOptionsResponses,
-  mockStripeElementOnChangeFns,
-  elementChangeResponse,
-  VALID_CREATE_TOKEN_RESPONSE,
 } from '../../lib/test-utils';
 
 jest.mock('../../lib/sentry');
@@ -41,8 +30,6 @@ jest.mock('../../lib/flow-event');
 
 import { SignInLayout } from '../../components/AppLayout';
 import Product from './index';
-import { SMALL_DEVICE_RULE } from '../../components/PaymentForm';
-import { ProductMetadata } from '../../store/types';
 
 describe('routes/Product', () => {
   let authServer = '';
@@ -70,14 +57,12 @@ describe('routes/Product', () => {
     accountActivated,
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
-    createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
   }: {
     productId?: string;
     planId?: string;
     matchMedia?: (query: string) => boolean;
     navigateToUrl?: (url: string) => void;
     accountActivated?: string;
-    createToken?: jest.Mock<any, any>;
   }) => {
     const props = {
       match: {
@@ -87,9 +72,6 @@ describe('routes/Product', () => {
       },
       createSubscriptionMounted: () => {},
       createSubscriptionEngaged: () => {},
-    };
-    const mockStripe = {
-      createToken,
     };
     const appContextValue = {
       ...defaultAppContextValue(),
@@ -101,7 +83,7 @@ describe('routes/Product', () => {
       },
     };
     return (
-      <MockApp {...{ mockStripe, appContextValue }}>
+      <MockApp {...{ appContextValue }}>
         <SignInLayout>
           <Product {...props} />
         </SignInLayout>
@@ -109,48 +91,30 @@ describe('routes/Product', () => {
     );
   };
 
-  // To exercise the default icon fallback, delete webIconURL from the first plan.
-  const varyPlansForDefaultIcon = (useDefaultIcon: boolean = false) =>
-    !useDefaultIcon
-      ? MOCK_PLANS
-      : [
-          {
-            ...MOCK_PLANS[0],
-            product_metadata: {
-              ...MOCK_PLANS[0].product_metadata,
-              webIconURL: null,
-            },
-          },
-          ...MOCK_PLANS.slice(1),
-        ];
-
-  const initApiMocks = (
-    displayName?: string,
-    useDefaultIcon: boolean = false
-  ) => [
+  const initApiMocks = (displayName?: string) => [
     nock(profileServer)
       .get('/v1/profile')
       .reply(200, { ...MOCK_PROFILE, displayName }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
+      .reply(200, MOCK_PLANS),
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
-      .reply(200, { subscriptions: [] }),
+      .reply(200, MOCK_CUSTOMER),
   ];
 
   const initSubscribedApiMocks = (useDefaultIcon: boolean = false) => [
     nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, varyPlansForDefaultIcon(useDefaultIcon)),
+      .reply(200, MOCK_PLANS),
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
       .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),
   ];
 
-  const withExistingAccount = (useDisplayName?: boolean) => async () => {
-    const displayName = useDisplayName ? 'Foo Barson' : undefined;
+  it('renders with product ID and display name', async () => {
+    const displayName = 'Foo Barson';
     const apiMocks = initApiMocks(displayName);
     const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
     if (window.onload) {
@@ -163,11 +127,7 @@ describe('routes/Product', () => {
     ).toBeInTheDocument();
     expect(queryByText('Billing Information')).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
-  };
-
-  it('renders with valid product ID', withExistingAccount(false));
-
-  it('renders with product ID and display name', withExistingAccount(true));
+  });
 
   it('displays an error with invalid product ID', async () => {
     const apiMocks = initApiMocks();
@@ -221,182 +181,32 @@ describe('routes/Product', () => {
     await findByTestId('error-loading-customer');
   });
 
-  async function commonSubmitSetup(
-    createToken: jest.Mock<any, any>,
-    useDefaultIcon: boolean = false
-  ) {
+  it('does not display an error on missing / new customer', async () => {
     const apiMocks = [
-      ...initApiMocks(undefined, useDefaultIcon),
-      nock(authServer).post('/v1/oauth/subscriptions/active').reply(200, {}),
+      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
-        .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),
+        .reply(404, { errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER }),
     ];
-
-    const navigateToUrl = jest.fn();
-    const matchMedia = jest.fn(() => false);
-    const renderResult = render(
-      <Subject {...{ matchMedia, navigateToUrl, createToken }} />
-    );
-    const { getByTestId, findAllByText } = renderResult;
-
+    const { findAllByText } = render(<Subject />);
     await findAllByText('Set up your subscription');
-
-    act(() => {
-      for (const testid of STRIPE_FIELDS) {
-        mockStripeElementOnChangeFns[testid](
-          elementChangeResponse({ complete: true, value: 'test' })
-        );
-      }
-    });
-    fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
-    fireEvent.blur(getByTestId('name'));
-    fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-    fireEvent.blur(getByTestId('zip'));
-    fireEvent.click(getByTestId('confirm'));
-
-    return { ...renderResult, matchMedia, navigateToUrl, apiMocks };
-  }
-
-  const expectProductImage = ({
-    getByAltText,
-    useDefaultIcon = false,
-  }: {
-    getByAltText: RenderResult['getByAltText'];
-    useDefaultIcon?: boolean;
-  }) => {
-    const productMetadata = MOCK_PLANS[0].product_metadata as ProductMetadata;
-  };
-
-  const withProductImageTests = (useDefaultIcon = false) => () => {
-    it('handles a successful payment submission as expected', async () => {
-      const createToken = jest
-        .fn()
-        .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
-      const {
-        getByAltText,
-        getByTestId,
-        findByText,
-        findByTestId,
-        apiMocks,
-      } = await commonSubmitSetup(createToken, useDefaultIcon);
-
-      fireEvent.click(getByTestId('submit'));
-
-      await findByTestId('download-link');
-      expectProductImage({ getByAltText, useDefaultIcon });
-      expect(createToken).toBeCalled();
-      expectNockScopesDone(apiMocks);
-    });
-  };
-
-  describe('with product icon defined', withProductImageTests(false));
-
-  describe('with default product icon', withProductImageTests(true));
-
-  it('displays an error if payment submission somehow silently fails', async () => {
-    const createToken = jest.fn().mockResolvedValue({});
-    const {
-      getByTestId,
-      findByTestId,
-      queryByTestId,
-    } = await commonSubmitSetup(createToken);
-    fireEvent.click(getByTestId('submit'));
-    await findByTestId('error-payment-submission');
   });
 
-  it('displays an error on failure to submit payment', async () => {
-    const createToken = jest.fn().mockRejectedValue({
-      type: 'call_issuer',
-    });
-    const { getByTestId, findByTestId, queryByText } = await commonSubmitSetup(
-      createToken
-    );
-    fireEvent.click(getByTestId('submit'));
-    await findByTestId('error-payment-submission');
-    expect(queryByText(PAYMENT_ERROR_2)).toBeInTheDocument();
-  });
-
-  async function commonCreateSubscriptionFailSetup(
-    code: string,
-    message: string
-  ) {
+  it('does not display an error on customer with no subscriptions', async () => {
     const apiMocks = [
-      ...initApiMocks(),
-      nock(authServer).post('/v1/oauth/subscriptions/active').reply(400, {
-        code,
-        message,
-      }),
+      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/customer')
+        .reply(200, { ...MOCK_CUSTOMER, subscriptions: [] }),
     ];
-    const renderResult = render(<Subject />);
-    const { getByTestId, findAllByText } = renderResult;
-
+    const { findAllByText } = render(<Subject />);
     await findAllByText('Set up your subscription');
-
-    act(() => {
-      for (const testid of STRIPE_FIELDS) {
-        mockStripeElementOnChangeFns[testid](
-          elementChangeResponse({ complete: true, value: 'test' })
-        );
-      }
-    });
-    fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
-    fireEvent.blur(getByTestId('name'));
-    fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-    fireEvent.blur(getByTestId('zip'));
-    fireEvent.click(getByTestId('confirm'));
-
-    return renderResult;
-  }
-
-  it('displays error based on `card_error` during subscription creation if card declines', async () => {
-    const message = getErrorMessage('card_error');
-    const {
-      getByTestId,
-      queryByText,
-      findByTestId,
-    } = await commonCreateSubscriptionFailSetup('card_declined', message);
-    fireEvent.click(getByTestId('submit'));
-
-    await findByTestId('error-card-rejected');
-    expect(queryByText(message)).toBeInTheDocument();
-
-    // hide on form change
-    fireEvent.change(getByTestId('zip'), { target: { value: '12345' } });
-    await waitForExpect(() =>
-      expect(queryByText(message)).not.toBeInTheDocument()
-    );
-  });
-
-  it('displays error based on `card_error` during subscription creation if card CVC is incorrect', async () => {
-    const message = getErrorMessage('card_error');
-    const {
-      getByTestId,
-      queryByText,
-      findByTestId,
-    } = await commonCreateSubscriptionFailSetup('incorrect_cvc', message);
-    fireEvent.click(getByTestId('submit'));
-
-    await findByTestId('error-card-rejected');
-    expect(queryByText(message)).toBeInTheDocument();
-
-    // hide on form change
-    fireEvent.change(getByTestId('zip'), { target: { value: '12345' } });
-    await waitForExpect(() =>
-      expect(queryByText(message)).not.toBeInTheDocument()
-    );
-  });
-
-  it('displays an error if subscription creation fails for some other reason', async () => {
-    const message = 'Something went wrong';
-    const {
-      getByTestId,
-      queryByText,
-      findByTestId,
-    } = await commonCreateSubscriptionFailSetup('api_error', message);
-    fireEvent.click(getByTestId('submit'));
-    await findByTestId('error-sub-status');
-    expect(queryByText(message)).toBeInTheDocument();
   });
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
@@ -410,6 +220,13 @@ describe('routes/Product', () => {
       />
     );
     await findByTestId('subscription-upgrade');
+    expectNockScopesDone(apiMocks);
+  });
+
+  it('displays payment confirmation if user is already subscribed the product', async () => {
+    const apiMocks = initSubscribedApiMocks();
+    const { findByTestId } = render(<Subject />);
+    await findByTestId('payment-confirmation');
     expectNockScopesDone(apiMocks);
   });
 });

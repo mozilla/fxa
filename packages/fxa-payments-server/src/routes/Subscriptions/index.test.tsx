@@ -54,10 +54,10 @@ import {
 import FlowEvent from '../../lib/flow-event';
 jest.mock('../../lib/flow-event');
 
-jest.mock('./PaymentUpdateFormV2', () => ({
+jest.mock('./PaymentUpdateForm', () => ({
   __esModule: true,
   default: ({ children }: { children: ReactNode }) => (
-    <section data-testid="PaymentUpdateFormV2">{children}</section>
+    <section data-testid="PaymentUpdateForm">{children}</section>
   ),
 }));
 
@@ -90,7 +90,6 @@ describe('routes/Subscriptions', () => {
     matchMedia = jest.fn(() => false),
     navigateToUrl = jest.fn(),
     createToken = jest.fn().mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE),
-    useSCAPaymentFlow = false,
   }: {
     store?: Store;
     matchMedia?: (query: string) => boolean;
@@ -98,7 +97,7 @@ describe('routes/Subscriptions', () => {
     createToken?: jest.Mock<any, any>;
     useSCAPaymentFlow?: boolean;
   }) => {
-    const props = { useSCAPaymentFlow };
+    const props = {};
     const mockStripe = {
       createToken,
     };
@@ -145,7 +144,7 @@ describe('routes/Subscriptions', () => {
       .reply(200, mockCustomer),
   ];
 
-  it('does not use PaymentUpdateFormV2 by default', async () => {
+  it('uses PaymentUpdateForm', async () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
@@ -154,21 +153,7 @@ describe('routes/Subscriptions', () => {
     await waitForExpect(() =>
       expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
     );
-    expect(screen.queryAllByTestId('PaymentUpdateFormV2').length).toEqual(0);
-  });
-
-  it('uses PaymentUpdateFormV2 when useSCAPaymentFlow = true', async () => {
-    initApiMocks({
-      mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
-      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
-    });
-    render(<Subject useSCAPaymentFlow={true} />);
-    await waitForExpect(() =>
-      expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument()
-    );
-    expect(screen.queryAllByTestId('PaymentUpdateFormV2').length).not.toEqual(
-      0
-    );
+    expect(screen.queryAllByTestId('PaymentUpdateForm').length).not.toEqual(0);
   });
 
   it('lists all subscriptions', async () => {
@@ -189,25 +174,6 @@ describe('routes/Subscriptions', () => {
     const ctas = queryAllByTestId('upgrade-cta');
     expect(ctas.length).toBe(0);
     expect(queryByTestId('no-subscriptions-available')).not.toBeInTheDocument();
-  });
-
-  it('displays the correct expiration date for current credit card', async () => {
-    initApiMocks({
-      mockCustomer: {
-        ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
-        exp_month: 10,
-        exp_year: 2021,
-      },
-      mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
-    });
-    const { findByTestId, queryAllByTestId } = render(<Subject />);
-    if (window.onload) {
-      dispatchEvent(new Event('load'));
-    }
-    await findByTestId('subscription-management-loaded');
-    const expDate = queryAllByTestId('card-expiration-date');
-    expect(expDate.length).toBeGreaterThan(0);
-    expect(expDate[0].textContent).toContain('Expires October 2021');
   });
 
   it('displays upgrade CTA when available for a subscription', async () => {
@@ -709,174 +675,5 @@ describe('routes/Subscriptions', () => {
       .reply(200, MOCK_CUSTOMER);
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-subhub-missing-plan');
-  });
-
-  it('support updating billing information', async () => {
-    initApiMocks();
-
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/updatePayment')
-      .reply(200, {});
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER);
-
-    const createToken = jest
-      .fn()
-      .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
-    const { findByTestId, getByTestId } = render(
-      <Subject createToken={createToken} />
-    );
-    await findByTestId('subscription-management-loaded');
-
-    // Click button to reveal the payment update form
-    fireEvent.click(getByTestId('reveal-payment-update-button'));
-    await findByTestId('paymentForm');
-
-    expect(updatePaymentMounted).toBeCalledTimes(1);
-
-    act(() => {
-      for (const testid of STRIPE_FIELDS) {
-        mockStripeElementOnChangeFns[testid](
-          elementChangeResponse({ complete: true, value: 'test' })
-        );
-      }
-    });
-    fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
-    fireEvent.blur(getByTestId('name'));
-    fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-    fireEvent.blur(getByTestId('zip'));
-    fireEvent.click(getByTestId('submit'));
-
-    expect(updatePaymentEngaged).toBeCalledTimes(1);
-
-    await findByTestId('success-billing-update');
-
-    // click outside the payment success dialog to trigger dismiss
-    fireEvent.click(getByTestId('clear-success-alert'));
-
-    waitForExpect(() =>
-      expect(getByTestId('success-billing-update')).not.toBeInTheDocument()
-    );
-  });
-
-  it('displays an error message if updating billing information fails', async () => {
-    initApiMocks();
-
-    nock(authServer)
-      .post('/v1/oauth/subscriptions/updatePayment')
-      .reply(500, {});
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/active')
-      .reply(200, MOCK_ACTIVE_SUBSCRIPTIONS);
-    nock(authServer)
-      .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER);
-
-    const createToken = jest
-      .fn()
-      .mockResolvedValue(VALID_CREATE_TOKEN_RESPONSE);
-    const {
-      debug,
-      findByTestId,
-      getByTestId,
-      queryAllByTestId,
-      queryByTestId,
-    } = render(<Subject createToken={createToken} />);
-    await findByTestId('subscription-management-loaded');
-
-    // Click button to reveal the payment update form
-    fireEvent.click(getByTestId('reveal-payment-update-button'));
-    await findByTestId('paymentForm');
-
-    act(() => {
-      for (const testid of STRIPE_FIELDS) {
-        mockStripeElementOnChangeFns[testid](
-          elementChangeResponse({ complete: true, value: 'test' })
-        );
-      }
-    });
-    fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
-    fireEvent.blur(getByTestId('name'));
-    fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-    fireEvent.blur(getByTestId('zip'));
-    fireEvent.click(getByTestId('submit'));
-
-    await findByTestId('error-billing-update');
-  });
-
-  it('displays an error message if createToken resolves to an unexpected value', async () => {
-    initApiMocks();
-
-    const createToken = jest.fn().mockResolvedValue({ foo: 'bad value' });
-    const {
-      debug,
-      findByTestId,
-      getByTestId,
-      queryAllByTestId,
-      queryByTestId,
-    } = render(<Subject createToken={createToken} />);
-    await findByTestId('subscription-management-loaded');
-
-    // Click button to reveal the payment update form
-    fireEvent.click(getByTestId('reveal-payment-update-button'));
-    await findByTestId('paymentForm');
-
-    act(() => {
-      for (const testid of STRIPE_FIELDS) {
-        mockStripeElementOnChangeFns[testid](
-          elementChangeResponse({ complete: true, value: 'test' })
-        );
-      }
-    });
-    fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
-    fireEvent.blur(getByTestId('name'));
-    fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-    fireEvent.blur(getByTestId('zip'));
-    fireEvent.click(getByTestId('submit'));
-
-    await findByTestId('error-payment-submission');
-  });
-
-  it('displays an error message if createToken fails', async () => {
-    initApiMocks();
-
-    const createToken = jest.fn().mockRejectedValue({
-      type: 'try_again_later',
-    });
-
-    const { container, findByTestId, getByTestId, queryByText } = render(
-      <Subject createToken={createToken} />
-    );
-    await findByTestId('subscription-management-loaded');
-
-    // Click button to reveal the payment update form
-    fireEvent.click(getByTestId('reveal-payment-update-button'));
-    await findByTestId('paymentForm');
-
-    act(() => {
-      for (const testid of STRIPE_FIELDS) {
-        mockStripeElementOnChangeFns[testid](
-          elementChangeResponse({ complete: true, value: 'test' })
-        );
-      }
-    });
-    fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
-    fireEvent.blur(getByTestId('name'));
-    fireEvent.change(getByTestId('zip'), { target: { value: '90210' } });
-    fireEvent.blur(getByTestId('zip'));
-    fireEvent.click(getByTestId('submit'));
-
-    await findByTestId('error-payment-submission');
-    expect(queryByText(PAYMENT_ERROR_1)).toBeInTheDocument();
-
-    // click outside the payment error dialog to trigger dismiss
-    fireEvent.click(container);
-    waitForExpect(() =>
-      expect(getByTestId('error-payment-submission')).not.toBeInTheDocument()
-    );
   });
 });

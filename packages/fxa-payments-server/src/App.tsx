@@ -2,14 +2,7 @@ import React, { ReactNode, useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
 import { StripeProvider } from 'react-stripe-elements';
-import {
-  BrowserRouter,
-  MemoryRouter,
-  Route,
-  Redirect,
-  Switch,
-  useRouteMatch,
-} from 'react-router-dom';
+import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import DocumentTitle from 'react-document-title';
 
@@ -29,7 +22,6 @@ import * as FlowEvents from './lib/flow-event';
 import { observeNavigationTiming } from './lib/navigation-timing';
 
 const Product = React.lazy(() => import('./routes/Product'));
-const ProductV2 = React.lazy(() => import('./routes/ProductV2'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
 
 // TODO: Come up with a better fallback component for lazy-loaded routes?
@@ -104,20 +96,19 @@ export const App = ({
                         <Route path="/" exact>
                           <Redirect to="/subscriptions" />
                         </Route>
-                        {/* TODO: FXA-2275 - remove V1 routes, only use V2 after SCA UI stabilizes */}
-                        <Route path="/v1">
-                          <AppRoutesV1 />
+                        <Route path="/subscriptions" exact>
+                          <SettingsLayout>
+                            <Subscriptions />
+                          </SettingsLayout>
                         </Route>
-                        <Route path="/v2">
-                          <AppRoutesV2 />
-                        </Route>
-                        <Route>
-                          {useSCAPaymentUIByDefault ? (
-                            <AppRoutesV2 />
-                          ) : (
-                            <AppRoutesV1 />
+                        <Route
+                          path="/products/:productId"
+                          render={(props) => (
+                            <SignInLayout>
+                              <Product {...props} />
+                            </SignInLayout>
                           )}
-                        </Route>
+                        />
                       </Switch>
                     </React.Suspense>
                   </Router>
@@ -128,61 +119,6 @@ export const App = ({
         </Localized>
       </AppLocalizationProvider>
     </AppContext.Provider>
-  );
-};
-
-const joinPath = (path: string, ...rest: string[]) =>
-  [path === '/' ? '' : path, ...rest].join('/');
-
-// Legacy "V1" routes before introduction of SCA payment methods
-const AppRoutesV1 = () => {
-  const { path } = useRouteMatch();
-  return (
-    <Switch>
-      <Route
-        path={joinPath(path, 'subscriptions')}
-        exact
-        render={(props) => (
-          <SettingsLayout>
-            <Subscriptions {...{ ...props, useSCAPaymentFlow: false }} />
-          </SettingsLayout>
-        )}
-      />
-      <Route
-        path={joinPath(path, 'products/:productId')}
-        render={(props) => (
-          <SignInLayout>
-            <Product {...props} />
-          </SignInLayout>
-        )}
-      />
-    </Switch>
-  );
-};
-
-// New "V2" routes implementing SCA payment methods
-const AppRoutesV2 = () => {
-  const { path } = useRouteMatch();
-  return (
-    <Switch>
-      <Route
-        path={joinPath(path, 'subscriptions')}
-        exact
-        render={(props) => (
-          <SettingsLayout>
-            <Subscriptions {...{ ...props, useSCAPaymentFlow: true }} />
-          </SettingsLayout>
-        )}
-      />
-      <Route
-        path={joinPath(path, 'products/:productId')}
-        render={(props) => (
-          <SignInLayout>
-            <ProductV2 {...props} />
-          </SignInLayout>
-        )}
-      />
-    </Switch>
   );
 };
 

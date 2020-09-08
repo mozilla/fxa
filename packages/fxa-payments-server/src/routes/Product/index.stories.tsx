@@ -115,64 +115,6 @@ function init() {
         }}
       />
     ));
-
-  storiesOf('routes/Product/payment failures', module)
-    .add('card declined', () => (
-      <ProductRoute
-        routeProps={{
-          ...FAILURE_PROPS,
-          createSubscriptionStatus: {
-            result: null,
-            loading: false,
-            error: {
-              // Copy / paste of error content from API
-              code: 'expired_card',
-              message: 'Your card has expired.',
-              errno: 181,
-              error: 'Bad Request',
-              info:
-                'https://github.com/mozilla/fxa/blob/main/packages/fxa-auth-server/docs/api.md#response-format',
-              statusCode: 402,
-            },
-          },
-        }}
-      />
-    ))
-    .add('miscellaneous', () => (
-      <ProductRoute
-        routeProps={{
-          ...FAILURE_PROPS,
-          createSubscriptionStatus: {
-            result: null,
-            loading: false,
-            error: {
-              code: '',
-              message: 'Payment server request failed.',
-            },
-          },
-        }}
-      />
-    ))
-    .add('stripe.createToken() fails on submit', () => {
-      const validatorInitialState = mkValidPaymentFormState();
-      const applyStubsToStripe = (stripe: stripe.Stripe) => ({
-        ...stripe,
-        createToken: (element: stripe.elements.Element | string) =>
-          Promise.reject({
-            type: 'api_error',
-            message: 'The Stripe system is down.',
-          }),
-      });
-      return (
-        <ProductRoute
-          applyStubsToStripe={applyStubsToStripe}
-          routeProps={{
-            ...MOCK_PROPS,
-            validatorInitialState,
-          }}
-        />
-      );
-    });
 }
 
 type ProductRouteProps = {
@@ -257,11 +199,6 @@ const CUSTOMER: Customer = {
   ],
 };
 
-const linkToSubscriptionSuccess = linkTo(
-  'routes/Product',
-  'subscription success'
-);
-
 const MOCK_PROPS: ProductProps = {
   match: {
     params: {
@@ -278,11 +215,6 @@ const MOCK_PROPS: ProductProps = {
     loading: false,
     result: PLANS,
   },
-  createSubscriptionStatus: {
-    error: null,
-    loading: false,
-    result: null,
-  },
   customer: {
     error: null,
     loading: false,
@@ -290,9 +222,8 @@ const MOCK_PROPS: ProductProps = {
   },
   customerSubscriptions: [],
   plansByProductId: (_: string) => PLANS,
-  createSubscriptionAndRefresh: linkToSubscriptionSuccess as () => any,
-  resetCreateSubscription: action('resetCreateSubscription'),
   fetchProductRouteResources: action('fetchProductRouteResources'),
+  fetchCustomerAndSubscriptions: action('fetchProductRouteResources'),
   updateSubscriptionPlanAndRefresh: action('updateSubscriptionPlanAndRefresh'),
   resetUpdateSubscriptionPlan: action('resetUpdateSubscriptionPlan'),
   updateSubscriptionPlanStatus: {

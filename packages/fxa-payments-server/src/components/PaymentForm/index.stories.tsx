@@ -12,12 +12,15 @@ import { Plan, Customer } from '../../store/types';
 import { useNonce } from '../../lib/hooks';
 
 function init() {
-  storiesOf('components/PaymentForm', module)
+  storiesOf('components/PaymentFormV2', module)
     .add('default', () => <Subject />)
     .add('with existing card', () => <Subject customer={CUSTOMER} />)
     .add('without plan', () => <Subject noPlan />)
     .add('without confirmation', () => <Subject confirm={false} />)
-    .add('fr locale (for legal links)', () => <Subject locale="fr" />)
+    .add('fr locale', () => <Subject locale="fr" />)
+    .add('de locale', () => <Subject locale="de" />)
+    .add('es-AR locale', () => <Subject locale="es-AR" />)
+    .add('pt-BR locale', () => <Subject locale="pt-BR" />)
     .add('in progress', () => <Subject inProgress={true} />)
     .add('all invalid', () => {
       const state = mockValidatorState();
@@ -25,14 +28,8 @@ function init() {
       // HACK: pre-seed with some error messages for display purposes
       state.fields.name.valid = false;
       state.fields.name.error = 'Please enter your name';
-      state.fields.zip.valid = false;
-      state.fields.zip.error = 'Zip code is too short';
-      state.fields.creditCardNumber.valid = false;
-      state.fields.creditCardNumber.error = 'Your card number is incomplete';
-      state.fields.expDate.valid = false;
-      state.fields.expDate.error = "Your card's expiration date is incomplete";
-      state.fields.cvc.valid = false;
-      state.fields.cvc.error = "Your card's security code is incomplete";
+      state.fields.creditCard.valid = false;
+      state.fields.creditCard.error = 'Your card number is incomplete';
 
       return <Subject validatorInitialState={state} />;
     });
@@ -88,7 +85,7 @@ type SubjectProps = {
   noPlan?: boolean;
   plan?: Plan;
   customer?: Customer;
-  onPayment?: (tokenResponse: stripe.TokenResponse | null) => void;
+  onSubmit?: PaymentFormProps['onSubmit'];
   onPaymentError?: (error: any) => void;
   onChange?: Function;
   validatorInitialState?: ValidatorState;
@@ -102,29 +99,28 @@ const Subject = ({
   noPlan = false,
   plan = PLAN,
   customer = undefined,
-  onPayment = action('onPayment'),
-  onPaymentError = action('onPaymentError'),
+  onSubmit = action('onSubmit'),
   validatorInitialState,
   validatorMiddlewareReducer,
   onChange = () => {},
-  locale = 'en-US',
+  locale = 'auto',
 }: SubjectProps) => {
   const [submitNonce, refreshSubmitNonce] = useNonce();
 
   const paymentFormProps: PaymentFormProps = {
+    locale,
     submitNonce,
     inProgress,
     confirm,
     customer,
     plan: noPlan ? undefined : plan,
-    onPayment,
-    onPaymentError,
+    onSubmit,
     onChange,
     validatorInitialState,
     validatorMiddlewareReducer,
     onMounted: () => {},
     onEngaged: () => {},
-    getString: x => x,
+    getString: (x) => x,
   };
   return (
     <MockPage locale={locale}>
@@ -160,28 +156,7 @@ const mockValidatorState = (): ValidatorState => ({
       fieldType: 'input',
       required: true,
     },
-    zip: {
-      value: null,
-      valid: null,
-      error: null,
-      fieldType: 'input',
-      required: true,
-    },
-    creditCardNumber: {
-      value: null,
-      valid: null,
-      error: null,
-      fieldType: 'stripe',
-      required: true,
-    },
-    expDate: {
-      value: null,
-      valid: null,
-      error: null,
-      fieldType: 'stripe',
-      required: true,
-    },
-    cvc: {
+    creditCard: {
       value: null,
       valid: null,
       error: null,
