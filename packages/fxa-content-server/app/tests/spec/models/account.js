@@ -3138,6 +3138,10 @@ describe('models/account', function () {
       sandbox.stub(fxaClient, 'updateEcosystemAnonId').resolves();
       sandbox.stub(aet, 'generateEcosystemAnonID').resolves('test id');
       account.set('sessionToken', SESSION_TOKEN);
+      sandbox.spy(account, 'accountProfile');
+      sandbox.stub(fxaClient, 'accountProfile').resolves({
+        ecosystemAnonId: 'wow',
+      });
     });
 
     afterEach(() => {
@@ -3155,7 +3159,13 @@ describe('models/account', function () {
       assert.equal(args[1], 'kB');
       assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
       assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
+        fxaClient.updateEcosystemAnonId.calledWithExactly(
+          SESSION_TOKEN,
+          'test id',
+          {
+            ifMatch: 'wow',
+          }
+        )
       );
     });
 
@@ -3175,7 +3185,13 @@ describe('models/account', function () {
       assert.equal(args[1], 'kB0');
       assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
       assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
+        fxaClient.updateEcosystemAnonId.calledWithExactly(
+          SESSION_TOKEN,
+          'test id',
+          {
+            ifMatch: 'wow',
+          }
+        )
       );
     });
 
@@ -3203,7 +3219,43 @@ describe('models/account', function () {
       assert.equal(args[1], 'kB1');
       assert.isTrue(account._ecosystemAnonIdPublicKeys.includes(args[2]));
       assert.isTrue(
-        fxaClient.updateEcosystemAnonId.calledWith(SESSION_TOKEN, 'test id')
+        fxaClient.updateEcosystemAnonId.calledWithExactly(
+          SESSION_TOKEN,
+          'test id',
+          {
+            ifMatch: 'wow',
+          }
+        )
+      );
+    });
+
+    it('does not supply ifMatch if an old eco anon id does not exist', async () => {
+      fxaClient.accountProfile.restore();
+      sandbox.stub(fxaClient, 'accountProfile').resolves({
+        ecosystemAnonId: null,
+      });
+
+      sandbox.stub(fxaClient, 'sessionReauth').resolves({
+        keyFetchToken: 'keyFetchToken',
+        unwrapBKey: 'unwrapBKey',
+      });
+      sandbox.stub(fxaClient, 'accountKeys').resolves({
+        kB: 'kB1',
+      });
+      sandbox.stub(fxaClient, 'sessionVerificationStatus').resolves({
+        sessionVerified: true,
+      });
+
+      await account.generateEcosystemAnonId({
+        password: 'passwordzxcv',
+      });
+
+      assert.isTrue(
+        fxaClient.updateEcosystemAnonId.calledWithExactly(
+          SESSION_TOKEN,
+          'test id',
+          {}
+        )
       );
     });
 
@@ -3233,10 +3285,6 @@ describe('models/account', function () {
       fxaClient.updateEcosystemAnonId.restore();
       account.set({ sessionToken: SESSION_TOKEN });
       sandbox.spy(account, 'set');
-      sandbox.spy(account, 'accountProfile');
-      sandbox.stub(fxaClient, 'accountProfile').resolves({
-        ecosystemAnonId: 'wow',
-      });
       sandbox.stub(fxaClient, 'sessionReauth').resolves({
         keyFetchToken: 'keyFetchToken',
         unwrapBKey: 'unwrapBKey',
@@ -3262,10 +3310,10 @@ describe('models/account', function () {
 
     it('reports errors thrown by accountProfile when looking up existing eco anon id because of a 412 error', async () => {
       fxaClient.updateEcosystemAnonId.restore();
+      fxaClient.accountProfile.restore();
       account.set({ sessionToken: SESSION_TOKEN });
       sandbox.spy(account._sentryMetrics, 'captureException');
       sandbox.spy(account, 'set');
-      sandbox.spy(account, 'accountProfile');
       sandbox
         .stub(fxaClient, 'accountProfile')
         .rejects(AuthErrors.toError('UNAUTHORIZED'));
