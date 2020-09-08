@@ -41,8 +41,11 @@ const View = FormView.extend({
     const model = options.model;
 
     // If this property is set, this will ensure that a regular password reset
-    // is preformed by *not* setting any `recoveryKeyId` data.
+    // is preformed by *not* setting any `recoveryKeyId` data. Additionally,
+    // if we already have a valid accountResetToken, don't attempt to verify it
+    // again.
     this.lostRecoveryKey = model && model.get('lostRecoveryKey');
+    this.accountResetToken = model && model.get('accountResetToken');
     if (this.lostRecoveryKey) {
       return;
     }
@@ -59,8 +62,9 @@ const View = FormView.extend({
 
   getAccount() {
     const email = this._verificationInfo.get('email');
+    const accountResetToken = this.accountResetToken;
 
-    return this.user.initAccount({ email });
+    return this.user.initAccount({ email, accountResetToken });
   },
 
   // beforeRender is asynchronous and returns a promise. Only render
