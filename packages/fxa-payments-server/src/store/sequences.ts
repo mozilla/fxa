@@ -6,12 +6,9 @@ const {
   fetchProfile,
   fetchPlans,
   fetchCustomer,
-  createSubscription,
   updateSubscriptionPlan,
   cancelSubscription,
   reactivateSubscription,
-  updatePayment,
-  resetUpdatePayment,
 } = actions;
 
 // This is the length fo time that alert bar is displayed before
@@ -53,20 +50,6 @@ export const fetchCustomerAndSubscriptions = () => async (
   await Promise.all([dispatch(fetchCustomer())]).catch(handleThunkError);
 };
 
-export const createSubscriptionAndRefresh = (
-  paymentToken: string | null,
-  plan: Plan,
-  displayName: string | null,
-  nonce: string
-) => async (dispatch: Function) => {
-  try {
-    await dispatch(createSubscription(paymentToken, plan, displayName, nonce));
-    await dispatch(fetchCustomerAndSubscriptions());
-  } catch (err) {
-    handleThunkError(err);
-  }
-};
-
 export const updateSubscriptionPlanAndRefresh = (
   subscriptionId: string,
   plan: Plan
@@ -103,27 +86,13 @@ export const reactivateSubscriptionAndRefresh = (
   }
 };
 
-export const updatePaymentAndRefresh = (paymentToken: string) => async (
-  dispatch: Function
-) => {
-  try {
-    await dispatch(updatePayment(paymentToken));
-    await dispatch(fetchCustomerAndSubscriptions());
-    setTimeout(() => dispatch(resetUpdatePayment()), RESET_PAYMENT_DELAY);
-  } catch (err) {
-    handleThunkError(err);
-  }
-};
-
 export const sequences = {
   fetchProductRouteResources,
   fetchSubscriptionsRouteResources,
   fetchCustomerAndSubscriptions,
-  createSubscriptionAndRefresh,
   updateSubscriptionPlanAndRefresh,
   cancelSubscriptionAndRefresh,
   reactivateSubscriptionAndRefresh,
-  updatePaymentAndRefresh,
 };
 
 export type SequencesCollection = typeof sequences;

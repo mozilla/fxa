@@ -3,7 +3,6 @@ import {
   render,
   cleanup,
   fireEvent,
-  act,
   RenderResult,
   screen,
 } from '@testing-library/react';
@@ -16,8 +15,6 @@ jest.mock('../../lib/sentry');
 import {
   manageSubscriptionsMounted,
   manageSubscriptionsEngaged,
-  updatePaymentMounted,
-  updatePaymentEngaged,
   cancelSubscriptionMounted,
   cancelSubscriptionEngaged,
 } from '../../lib/amplitude';
@@ -38,11 +35,7 @@ import {
   mockConfig,
   mockServerUrl,
   mockOptionsResponses,
-  mockStripeElementOnChangeFns,
-  elementChangeResponse,
-  STRIPE_FIELDS,
   VALID_CREATE_TOKEN_RESPONSE,
-  PRODUCT_NAME,
   MOCK_PROFILE,
   MOCK_PLANS,
   MOCK_ACTIVE_SUBSCRIPTIONS,

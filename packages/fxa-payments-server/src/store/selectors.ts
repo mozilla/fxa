@@ -8,11 +8,9 @@ export const selectors = {
   plans: (state: State) => state.plans,
   customer: (state: State) => state.customer,
 
-  createSubscriptionStatus: (state: State) => state.createSubscription,
   updateSubscriptionPlanStatus: (state: State) => state.updateSubscriptionPlan,
   cancelSubscriptionStatus: (state: State) => state.cancelSubscription,
   reactivateSubscriptionStatus: (state: State) => state.reactivateSubscription,
-  updatePaymentStatus: (state: State) => state.updatePayment,
 
   plansByProductId: (state: State) => (productId: string): Array<Plan> => {
     const fetchedPlans = selectors.plans(state).result || [];

@@ -44,11 +44,9 @@ import {
   apiFetchSubscriptions,
   apiFetchToken,
   apiFetchCustomer,
-  apiCreateSubscription,
   apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
-  apiUpdatePayment,
   apiCreateCustomer,
   apiCreateSubscriptionWithPaymentMethod,
   FilteredSetupIntent,
@@ -162,62 +160,6 @@ describe('API requests', () => {
         .get('/v1/oauth/subscriptions/customer')
         .reply(200, MOCK_CUSTOMER);
       expect(await apiFetchCustomer()).toEqual(MOCK_CUSTOMER);
-      requestMock.done();
-    });
-  });
-
-  describe('apiCreateSubscription', () => {
-    const path = '/v1/oauth/subscriptions/active';
-    const params = {
-      paymentToken: 'pay_12345',
-      planId: 'plan_2345',
-      productId: 'prod_4567',
-      displayName: 'Foo Q. Barson',
-    };
-    const metricsOptions = {
-      planId: params.planId,
-      productId: params.productId,
-      sourceCountry: 'GD',
-    };
-
-    it('POST {auth-server}/v1/oauth/subscriptions/active', async () => {
-      const requestMock = nock(AUTH_BASE_URL)
-        .post(path, params)
-        .reply(200, { subscriptionId: 'asdf', sourceCountry: 'GD' });
-      expect(await apiCreateSubscription(params)).toEqual({
-        subscriptionId: 'asdf',
-        sourceCountry: 'GD',
-      });
-      expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith({
-        planId: params.planId,
-        productId: params.productId,
-      });
-      expect(<jest.Mock>createSubscription_FULFILLED).toBeCalledWith(
-        metricsOptions
-      );
-      requestMock.done();
-    });
-
-    it('sends amplitude ping on error', async () => {
-      const requestMock = nock(AUTH_BASE_URL)
-        .post(path, params)
-        .reply(400, { message: 'oops' });
-      let error = null;
-      try {
-        await apiCreateSubscription(params);
-      } catch (e) {
-        error = e;
-      }
-      expect(error).not.toBeNull();
-      expect(<jest.Mock>createSubscription_PENDING).toBeCalledWith({
-        planId: params.planId,
-        productId: params.productId,
-      });
-      expect(<jest.Mock>createSubscription_REJECTED).toBeCalledWith({
-        planId: params.planId,
-        productId: params.productId,
-        error,
-      });
       requestMock.done();
     });
   });
@@ -336,43 +278,6 @@ describe('API requests', () => {
         .post(path, { subscriptionId: params.subscriptionId })
         .reply(200, expectedResponse);
       expect(await apiReactivateSubscription(params)).toEqual(expectedResponse);
-      requestMock.done();
-    });
-  });
-
-  describe('apiUpdatePayment', () => {
-    const path = '/v1/oauth/subscriptions/updatePayment';
-    const params = {
-      planId: 'plan_2345',
-      productId: 'prod_4567',
-      paymentToken: 'pmt_234234',
-    };
-
-    it('POST {auth-server}/v1/oauth/subscriptions/updatePayment', async () => {
-      const requestMock = nock(AUTH_BASE_URL)
-        .post(path, { paymentToken: params.paymentToken })
-        .reply(200, {});
-      expect(await apiUpdatePayment(params)).toEqual({});
-      expect(<jest.Mock>updatePayment_PENDING).toBeCalledWith();
-      expect(<jest.Mock>updatePayment_FULFILLED).toBeCalledWith();
-      requestMock.done();
-    });
-
-    it('sends amplitude ping on error', async () => {
-      const requestMock = nock(AUTH_BASE_URL)
-        .post(path, { paymentToken: params.paymentToken })
-        .reply(400, { message: 'oops' });
-      let error = null;
-      try {
-        await apiUpdatePayment(params);
-      } catch (e) {
-        error = e;
-      }
-      expect(error).not.toBeNull();
-      expect(<jest.Mock>updatePayment_PENDING).toBeCalledWith();
-      expect(<jest.Mock>updatePayment_REJECTED).toBeCalledWith({
-        error,
-      });
       requestMock.done();
     });
   });

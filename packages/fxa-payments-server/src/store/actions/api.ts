@@ -4,11 +4,9 @@ import {
   apiFetchSubscriptions,
   apiFetchToken,
   apiFetchCustomer,
-  apiCreateSubscription,
   apiUpdateSubscriptionPlan,
   apiCancelSubscription,
   apiReactivateSubscription,
-  apiUpdatePayment,
 } from '../../lib/apiClient';
 
 import { Plan } from '../types';
@@ -26,23 +24,6 @@ export default {
   },
   fetchCustomer: () =>
     ({ type: 'fetchCustomer', payload: apiFetchCustomer() } as const),
-  createSubscription: (
-    paymentToken: string | null,
-    plan: Plan,
-    displayName: string | null,
-    idempotencyKey: string
-  ) =>
-    ({
-      type: 'createSubscription',
-      meta: { plan },
-      payload: apiCreateSubscription({
-        paymentToken,
-        displayName,
-        planId: plan.plan_id,
-        productId: plan.product_id,
-        idempotencyKey,
-      }),
-    } as const),
   updateSubscriptionPlan: (subscriptionId: string, plan: Plan) =>
     ({
       type: 'updateSubscriptionPlan',
@@ -82,12 +63,5 @@ export default {
           plan,
         };
       },
-    } as const),
-  updatePayment: (paymentToken: string) =>
-    ({
-      type: 'updatePayment',
-      payload: apiUpdatePayment({
-        paymentToken,
-      }),
     } as const),
 } as const;

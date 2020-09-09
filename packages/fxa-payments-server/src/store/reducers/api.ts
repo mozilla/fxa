@@ -11,11 +11,9 @@ const apiTypeToStoreMap: ApiTypeToStoreMap = {
   fetchPlans: 'plans',
   fetchSubscriptions: 'subscriptions',
   fetchCustomer: 'customer',
-  createSubscription: 'createSubscription',
   updateSubscriptionPlan: 'updateSubscriptionPlan',
   cancelSubscription: 'cancelSubscription',
   reactivateSubscription: 'reactivateSubscription',
-  updatePayment: 'updatePayment',
 };
 
 /*
