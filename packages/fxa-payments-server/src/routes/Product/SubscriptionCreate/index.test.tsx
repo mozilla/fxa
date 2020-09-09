@@ -89,12 +89,20 @@ const RETRY_INVOICE_RESULT = {
   },
 };
 
+const DETACH_PAYMENT_METHOD_RESULT = {
+  id: 'pm_80808',
+  foo: 'quux',
+};
+
 const defaultApiClientOverrides = () => ({
   apiCreateCustomer: jest.fn().mockResolvedValue(NEW_CUSTOMER),
   apiCreateSubscriptionWithPaymentMethod: jest
     .fn()
     .mockResolvedValue(SUBSCRIPTION_RESULT),
   apiRetryInvoice: jest.fn().mockResolvedValue(RETRY_INVOICE_RESULT),
+  apiDetachFailedPaymentMethod: jest
+    .fn()
+    .mockResolvedValue(DETACH_PAYMENT_METHOD_RESULT),
 });
 
 const PAYMENT_METHOD_RESULT = {
@@ -290,6 +298,11 @@ describe('routes/ProductV2/SubscriptionCreate', () => {
         productId: PLAN.product_id,
         paymentMethodId: initialPaymentMethod.paymentMethod.id,
       })
+    );
+    await waitForExpect(() =>
+      expect(
+        apiClientOverrides.apiDetachFailedPaymentMethod.mock.calls[0][0]
+      ).toMatchObject({ paymentMethodId: 'pm_initial' })
     );
     expect(
       screen.queryByTestId('error-payment-submission')

@@ -1,6 +1,7 @@
 import { Config, defaultConfig } from './config';
 import { Plan, Profile, Customer, Subscription, Token } from '../store/types';
 import * as Amplitude from './amplitude';
+import { PaymentMethod } from '@stripe/stripe-js';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -303,4 +304,16 @@ export async function apiUpdateDefaultPaymentMethod(params: {
     });
     throw error;
   }
+}
+
+export async function apiDetachFailedPaymentMethod(params: {
+  paymentMethodId: string;
+}): Promise<PaymentMethod> {
+  const { paymentMethodId } = params;
+  const result = await apiFetch(
+    'POST',
+    `${config.servers.auth.url}/v1/oauth/subscriptions/paymentmethod/failed/detach`,
+    { body: JSON.stringify({ paymentMethodId }) }
+  );
+  return result;
 }

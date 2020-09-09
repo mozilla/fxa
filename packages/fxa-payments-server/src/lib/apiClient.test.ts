@@ -53,6 +53,7 @@ import {
   apiCreateSetupIntent,
   apiUpdateDefaultPaymentMethod,
   apiRetryInvoice,
+  apiDetachFailedPaymentMethod,
 } from './apiClient';
 
 describe('APIError', () => {
@@ -434,6 +435,20 @@ describe('API requests', () => {
       expect(<jest.Mock>updateDefaultPaymentMethod_REJECTED).toBeCalledWith({
         error,
       });
+      requestMock.done();
+    });
+  });
+
+  describe('apiDetachFailedPaymentMethod', () => {
+    it('POST correctly', async () => {
+      const resp = { id: 'pm_503541' };
+      const requestMock = nock(AUTH_BASE_URL)
+        .post('/v1/oauth/subscriptions/paymentmethod/failed/detach')
+        .reply(200, resp);
+      const actual = await apiDetachFailedPaymentMethod({
+        paymentMethodId: '???',
+      });
+      expect(actual).toEqual(resp);
       requestMock.done();
     });
   });

@@ -2,6 +2,7 @@
   "extends": "../../_dev/tsconfig.browser.json",
   "compilerOptions": {
     "noEmit": true,
+    "incremental": false,
     "types": [
       "jest",
       "@testing-library/jest-dom"
