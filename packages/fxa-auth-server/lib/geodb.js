@@ -60,7 +60,7 @@ module.exports = (log) => {
         timeZone: location.timeZone,
       };
     } catch (err) {
-      log.error('geodb.1', { err: err.message });
+      log.trace('geodb.1', { err: err.message });
       return {};
     }
   };
