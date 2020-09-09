@@ -1062,7 +1062,17 @@ const conf = convict({
       accessToken: {
         doc: 'Access Tokens maximum expiration (can live shorter)',
         format: 'duration',
-        default: '2 weeks',
+        // Warning: here be dragons. 365 minutes is 6 hours plus 5 minutes.
+        // This value is intended to be just slightly larger than the constant
+        // that determines if a JWT is stored in the database or not,
+        // SHORT_ACCESS_TTL_TOKEN_IN_MS (found in lib/constants), currently
+        // 6 hours. We want to keep this FXA_EXPIRATION_ACCESS_TOKEN default
+        // value greater than 6 hours, because tokens not backed by the
+        // database are validated slightly differently (see lib/oauth/token).
+        // Setting this FXA_EXPIRATION_ACCESS_TOKEN config value at or below
+        // SHORT_ACCESS_TTL_TOKEN_IN_MS should be done with caution. See #5143
+        // and the discussion in #6368.
+        default: '365 minutes',
         env: 'FXA_EXPIRATION_ACCESS_TOKEN',
       },
       accessTokenExpiryEpoch: {
