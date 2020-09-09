@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
+import { useAlertBar } from '../../lib/hooks';
 import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
@@ -22,19 +23,19 @@ export const DELETE_RECOVERY_KEY_MUTATION = gql`
 
 export const UnitRowRecoveryKey = () => {
   const { recoveryKey } = useAccount();
+  const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
-  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
   const [errorText, setErrorText] = useState<string>();
   const onError = (e: Error) => {
     setErrorText(e.message);
     hideModal();
-    revealAlertBar();
+    alertBar.show();
   };
   const [deleteRecoveryKey] = useMutation(DELETE_RECOVERY_KEY_MUTATION, {
     variables: { input: {} },
     onCompleted: () => {
       hideModal();
-      revealAlertBar();
+      alertBar.show();
     },
     onError,
     ignoreResults: true,
@@ -98,10 +99,9 @@ export const UnitRowRecoveryKey = () => {
           </Modal>
         </VerifiedSessionGuard>
       )}
-      {/* TODO: style AlertBar in the error case */}
-      {alertBarRevealed && (
+      {alertBar.visible && (
         <AlertBar
-          onDismiss={hideAlertBar}
+          onDismiss={alertBar.hide}
           type={errorText ? 'error' : 'success'}
         >
           {errorText ? (
@@ -116,7 +116,7 @@ export const UnitRowRecoveryKey = () => {
         </AlertBar>
       )}
     </UnitRow>
-  );
+  )
 };
 
 export default UnitRowRecoveryKey;

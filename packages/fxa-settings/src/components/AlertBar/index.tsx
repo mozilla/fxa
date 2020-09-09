@@ -17,7 +17,7 @@ type AlertBarProps = {
   type?: AlertBarType;
 };
 
-const typeClasses = {
+export const typeClasses = {
   success: 'text-grey-600 bg-green-500',
   error: 'text-white bg-red-500',
   info: 'text-white bg-blue-500',
@@ -45,6 +45,7 @@ export const AlertBar = ({
       data-testid="alert-bar"
     >
       <div
+        data-testid="alert-bar-inner"
         className={`max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded font-bold text-sm ${typeClasses[type]}`}
       >
         <div
