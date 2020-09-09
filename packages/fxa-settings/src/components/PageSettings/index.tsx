@@ -28,7 +28,7 @@ export const PageSettings = (_: RouteComponentProps) => {
       </div>
       <div className="flex-7 max-w-full">
         <Profile />
-        <Security twoFactorAuthEnabled={false} />
+        <Security />
       </div>
     </div>
   );

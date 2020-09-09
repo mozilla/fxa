@@ -17,6 +17,8 @@ type ModalProps = {
   hasButtons?: boolean;
   headerId: string;
   descId: string;
+  confirmText?: string;
+  confirmBtnClassName?: string;
   'data-testid'?: string;
 };
 
@@ -28,6 +30,8 @@ export const Modal = ({
   hasButtons = true,
   headerId,
   descId,
+  confirmText = 'Confirm',
+  confirmBtnClassName = 'cta-primary',
   'data-testid': testid = 'modal',
 }: ModalProps) => {
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
@@ -43,7 +47,7 @@ export const Modal = ({
         <div
           data-testid="modal-content-container"
           className={classNames(
-            'max-w-lg bg-white mx-auto rounded-xl',
+            'max-w-md bg-white mx-auto rounded-xl',
             className
           )}
           ref={modalInsideRef}
@@ -64,7 +68,7 @@ export const Modal = ({
             </button>
           </div>
 
-          <div className="px-4 tablet:px-12 pb-10">
+          <div className="px-4 tablet:px-10 pb-10">
             <div>{children}</div>
             {hasButtons && (
               <div className="flex justify-center mx-auto mt-6 max-w-64">
@@ -78,11 +82,11 @@ export const Modal = ({
 
                 {onConfirm && (
                   <button
-                    className="mx-2 flex-1 cta-primary"
+                    className={classNames('mx-2 flex-1', confirmBtnClassName)}
                     data-testid="modal-confirm"
                     onClick={onConfirm}
                   >
-                    Confirm
+                    {confirmText}
                   </button>
                 )}
               </div>

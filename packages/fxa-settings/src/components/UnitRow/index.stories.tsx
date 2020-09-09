@@ -44,7 +44,6 @@ storiesOf('Components|UnitRow', module)
           headerValue={null}
           {...{
             revealModal,
-            modalRevealed,
           }}
         >
           <p className="text-sm mt-3">Content goes here.</p>
@@ -61,4 +60,35 @@ storiesOf('Components|UnitRow', module)
         </UnitRow>
       );
     }
-  );
+  )
+  .add('with modal-triggering secondary CTA', () => {
+    const [
+      secondaryModalRevealed,
+      revealSecondaryModal,
+      hideModal,
+    ] = useBooleanState();
+    return (
+      <UnitRow
+        header="Display name"
+        headerValue={null}
+        {...{
+          secondaryButtonClassName: 'bg-red-500 text-white border-red-600',
+          revealSecondaryModal,
+          ctaText: 'Change',
+          route: '#',
+        }}
+      >
+        <p className="text-sm mt-3">Content goes here.</p>
+        <p className="text-grey-400 text-xs mt-2">More content.</p>
+
+        {secondaryModalRevealed && (
+          <Modal onDismiss={hideModal} headerId="some-id" descId="some-desc">
+            <h2 id="some-id" className="font-bold text-xl text-center mb-2">
+              Modal header
+            </h2>
+            <p id="some-desc">Modal description here.</p>
+          </Modal>
+        )}
+      </UnitRow>
+    );
+  });

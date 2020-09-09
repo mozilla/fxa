@@ -10,8 +10,8 @@ import { renderWithRouter, MockedCache } from '../../models/_mocks';
 describe('Security', () => {
   it('renders "fresh load" <Security/> with correct content', async () => {
     renderWithRouter(
-      <MockedCache account={{ recoveryKey: false }}>
-        <Security twoFactorAuthEnabled={false} />
+      <MockedCache account={{ recoveryKey: false, totp: { exists: false } }}>
+        <Security />
       </MockedCache>
     );
 
@@ -24,8 +24,8 @@ describe('Security', () => {
 
   it('renders "enabled two factor" and "recovery key present" <Security/> with correct content', async () => {
     renderWithRouter(
-      <MockedCache>
-        <Security twoFactorAuthEnabled={true} />
+      <MockedCache account={{ recoveryKey: true, totp: { exists: true } }}>
+        <Security />
       </MockedCache>
     );
 

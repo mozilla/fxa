@@ -7,16 +7,62 @@ import classNames from 'classnames';
 import { useFocusOnTriggeringElementOnClose } from '../../lib/hooks';
 import { Link, RouteComponentProps, useLocation } from '@reach/router';
 
+type ModalButtonProps = {
+  ctaText: string;
+  className?: string;
+  revealModal: () => void;
+  modalRevealed?: boolean;
+  alertBarRevealed?: boolean;
+  leftSpaced?: boolean;
+};
+
+export const ModalButton = ({
+  ctaText,
+  className,
+  revealModal,
+  modalRevealed,
+  alertBarRevealed,
+  leftSpaced,
+}: ModalButtonProps) => {
+  const modalTriggerElement = useRef<HTMLButtonElement>(null);
+  // If the UnitRow children contains an AlertBar that is revealed,
+  // don't redirect focus back to the element that opened the modal
+  // because focus will be set in the AlertBar.
+  useFocusOnTriggeringElementOnClose(
+    modalRevealed,
+    modalTriggerElement,
+    alertBarRevealed
+  );
+
+  return (
+    <button
+      className={classNames(
+        'cta-base transition-standard',
+        leftSpaced && 'ml-2',
+        className || 'cta-neutral'
+      )}
+      data-testid="unit-row-modal"
+      ref={modalTriggerElement}
+      onClick={revealModal}
+    >
+      {ctaText}
+    </button>
+  );
+};
+
 type UnitRowProps = {
   header: string;
   headerValue: string | null;
   noHeaderValueText?: string;
   ctaText?: string;
+  secondaryCtaText?: string;
+  secondaryCtaRoute?: string;
+  secondaryButtonClassName?: string;
   children?: React.ReactNode;
   headerValueClassName?: string;
   route?: string;
   revealModal?: () => void;
-  modalRevealed?: boolean;
+  revealSecondaryModal?: () => void;
   alertBarRevealed?: boolean;
 };
 
@@ -28,23 +74,17 @@ export const UnitRow = ({
   headerValueClassName,
   noHeaderValueText = 'None',
   ctaText,
+  secondaryCtaText = 'Disable',
+  secondaryCtaRoute,
+  secondaryButtonClassName,
   revealModal,
-  modalRevealed,
+  revealSecondaryModal,
   alertBarRevealed,
 }: UnitRowProps & RouteComponentProps) => {
   ctaText = ctaText || (headerValue ? 'Change' : 'Add');
 
-  const modalTriggerElement = useRef<HTMLButtonElement>(null);
-  // If the UnitRow children contains an AlertBar that is revealed,
-  // don't redirect focus back to the element that opened the modal
-  // because focus will be set in the AlertBar.
-  useFocusOnTriggeringElementOnClose(
-    modalRevealed,
-    modalTriggerElement,
-    alertBarRevealed
-  );
-
   const location = useLocation();
+  const multiButton = !!(route || secondaryCtaRoute);
 
   return (
     <div className="unit-row">
@@ -62,10 +102,10 @@ export const UnitRow = ({
       </div>
 
       <div className="unit-row-actions">
-        <div>
+        <div className="flex items-center">
           {route && (
             <Link
-              className="cta-neutral cta-base"
+              className="cta-neutral cta-base transition-standard mr-2"
               data-testid="unit-row-route"
               to={`${route}${location.search}`}
             >
@@ -74,14 +114,30 @@ export const UnitRow = ({
           )}
 
           {revealModal && (
-            <button
-              className="cta-neutral cta-base"
-              data-testid="unit-row-modal"
-              ref={modalTriggerElement}
-              onClick={revealModal}
+            <ModalButton
+              leftSpaced={multiButton}
+              {...{ revealModal, ctaText, alertBarRevealed }}
+            />
+          )}
+
+          {secondaryCtaRoute && (
+            <Link
+              className="cta-neutral cta-base transition-standard mr-2"
+              data-testid="unit-row-route"
+              to={`${secondaryCtaRoute}${location.search}`}
             >
-              {ctaText}
-            </button>
+              {secondaryCtaText}
+            </Link>
+          )}
+
+          {revealSecondaryModal && (
+            <ModalButton
+              leftSpaced={multiButton}
+              revealModal={revealSecondaryModal}
+              ctaText={secondaryCtaText}
+              className={secondaryButtonClassName}
+              alertBarRevealed={alertBarRevealed}
+            />
           )}
         </div>
       </div>
