@@ -63,6 +63,14 @@ const View = FormView.extend({
       .then(() => {
         this.logViewEvent('success');
 
+        // Note: `redirectTo` looks similar to `redirectPathname`, but they
+        // work slightly differently: `redirectTo` redirects automatically,
+        // while `redirectPathname` redirects after a form submission.
+        const redirectTo = this.model.get('redirectTo');
+        if (redirectTo) {
+          return (this.window.location.href = redirectTo);
+        }
+
         const redirectPathname = this.model.get('redirectPathname');
         if (redirectPathname) {
           return this.navigate(redirectPathname);
