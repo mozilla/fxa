@@ -1,3 +1,9 @@
+## 1.186.2
+
+### Bug fixes
+
+- metrics: Emit the the `flow.complete` event when a user creates an oauth token for sync: Emit the the `flow.complete` event when a user creates an oauth token for sync ([770677c68](https://github.com/mozilla/fxa/commit/770677c68))
+
 ## 1.186.1
 
 ### Bug fixes
