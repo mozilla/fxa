@@ -1278,6 +1278,11 @@ describe('lib/senders/email:', () => {
     assert.equal(result, 'US$1.23');
   });
 
+  it('formats currency strings when given an invalid language tag', () => {
+    const result = mailer._getLocalizedCurrencyString(123, 'USD', 'en__us');
+    assert.equal(result, '$1.23');
+  });
+
   it('formats user-agent strings sanely', () => {
     let result = mailer._formatUserAgentInfo({
       uaBrowser: 'Firefox',

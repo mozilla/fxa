@@ -195,7 +195,17 @@ module.exports = function (log, config, oauthdb) {
     const decimal = amountInCents / 100;
     const options = { ...baseCurrencyOptions, currency };
 
-    return new Intl.NumberFormat(locale, options).format(decimal);
+    try {
+      return new Intl.NumberFormat(locale, options).format(decimal);
+    } catch (e) {
+      // The exception could be a verror wrapped one.
+      const cause = e.cause ? e.cause() : e;
+      // If the language tag is not something Intl can handle, use 'en-US'.
+      if (cause.message.endsWith('is not a structurally valid language tag')) {
+        return getLocalizedCurrencyString(amountInCents, currency, 'en-US');
+      }
+      throw e;
+    }
   }
 
   function sesMessageTagsHeaderValue(templateName, serviceName) {
