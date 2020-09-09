@@ -30,3 +30,22 @@ export default {
     slug: 'knowledge-is-power',
   },
 };
+
+export const newsletterNewCopy = {
+  CONSUMER_BETA: {
+    label: t('Testing Firefox products'),
+    slug: 'test-pilot',
+  },
+  FIREFOX_ACCOUNTS_JOURNEY: {
+    label: t('Get the latest news about Mozilla and Firefox'),
+    slug: 'firefox-accounts-journey',
+  },
+  HEALTHY_INTERNET: {
+    label: t('Taking action to keep the internet healthy'),
+    slug: 'take-action-for-the-internet',
+  },
+  ONLINE_SAFETY: {
+    label: t('Safety and privacy online with Firefox and Mozilla'),
+    slug: 'knowledge-is-power',
+  },
+};
