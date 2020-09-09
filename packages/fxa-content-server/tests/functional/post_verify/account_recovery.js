@@ -91,7 +91,12 @@ registerSuite('post_verify_account_recovery', {
                 'INVALIDKEY'
               )
             )
-            .then(click(selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT))
+            .then(
+              click(
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.SUBMIT,
+                selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP
+              )
+            )
             .then(
               testElementTextInclude(
                 selectors.POST_VERIFY_CONFIRM_RECOVERY_KEY.TOOLTIP,
