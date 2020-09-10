@@ -8,8 +8,6 @@ const jwt = require('./jwt');
 const sub = require('./jwt_sub');
 const { OAUTH_SCOPE_OLD_SYNC } = require('../constants');
 const config = require('../../config');
-const ScopeSet = require('fxa-shared').oauth.scopes;
-const SCOPE_PROFILE_WRITE = ScopeSet.fromString('profile:write');
 const TOKEN_SERVER_URL = config.get('syncTokenserverUrl');
 
 const HEADER_TYP = 'at+JWT';
@@ -28,14 +26,6 @@ exports.create = async function generateJWTAccessToken(accessToken, grant) {
     : grant.scope.contains(OAUTH_SCOPE_OLD_SYNC)
     ? TOKEN_SERVER_URL
     : clientId;
-
-  if (
-    grant.ppidSeed &&
-    grant.scope &&
-    SCOPE_PROFILE_WRITE.intersects(grant.scope)
-  ) {
-    throw AppError.ppidConflict();
-  }
 
   // Claims list from:
   // https://tools.ietf.org/html/draft-ietf-oauth-access-token-jwt#section-2.2
