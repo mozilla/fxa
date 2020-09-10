@@ -61,7 +61,7 @@
     "express": "^4.17.1",
     "extract-loader": "5.1.0",
     "fast-text-encoding": "^1.0.1",
-    "file-loader": "^4.3.0",
+    "file-loader": "^6.1.0",
     "fxa-auth-client": "workspace:*",
     "fxa-common-password-list": "0.0.4",
     "fxa-crypto-relier": "2.3.0",
