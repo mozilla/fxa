@@ -28,6 +28,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@hapi/inert": "6.0.2",
+    "@types/helmet": "0.0.48",
     "@types/request": "2.48.5",
     "@types/sinon": "9.0.5",
     "bl": "4.0.3",
@@ -40,7 +41,8 @@
     "prettier": "^2.0.5",
     "replace-in-file": "^6.1.0",
     "sass": "1.26.10",
-    "semver": "^7.3.2"
+    "semver": "^7.3.2",
+    "temp": "0.9.1"
   },
   "engines": {
     "node": "^12.18.0",
@@ -106,6 +108,7 @@
   },
   "devDependencies": {
     "@types/sass": "^1",
+    "@types/temp": "^0",
     "eslint": "^6.8.0",
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^23.13.2",
