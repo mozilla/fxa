@@ -1,3 +1,9 @@
+## 1.187.0
+
+### Refactorings
+
+- settings: various cosmetic changes to better reflect designs ([d5e444416](https://github.com/mozilla/fxa/commit/d5e444416))
+
 ## 1.186.2
 
 No changes.

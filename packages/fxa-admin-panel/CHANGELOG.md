@@ -1,3 +1,14 @@
+## 1.187.0
+
+### Bug fixes
+
+- admin-panel: stop using helmet.xssFilter because we don't want its default value; disable hsts force ([c8d20c5ac](https://github.com/mozilla/fxa/commit/c8d20c5ac))
+
+### Other changes
+
+- deps: bump helmet from 3.23.3 to 4.1.0 ([c0631ebc6](https://github.com/mozilla/fxa/commit/c0631ebc6))
+- deps-dev: bump @types/serve-static from 1.13.3 to 1.13.5 ([4b4495f1c](https://github.com/mozilla/fxa/commit/4b4495f1c))
+
 ## 1.186.2
 
 No changes.

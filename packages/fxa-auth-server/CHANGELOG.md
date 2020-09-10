@@ -1,3 +1,24 @@
+## 1.187.0
+
+### New features
+
+- docker: publish fxa-mono docker image ([2742c1d07](https://github.com/mozilla/fxa/commit/2742c1d07))
+
+### Bug fixes
+
+- oauth: do not issue JWT access tokens that include a ppid_seed and grant access to profile scopes ([148bef705](https://github.com/mozilla/fxa/commit/148bef705))
+- emails: use default lang tag for sub emails when given invalid tag ([44a9908ec](https://github.com/mozilla/fxa/commit/44a9908ec))
+- oauth: lower access token lifetimes to six hours plus five minutes ([5e48c0cce](https://github.com/mozilla/fxa/commit/5e48c0cce))
+- metrics: Emit the the `flow.complete` event when a user creates an oauth token for sync: Emit the the `flow.complete` event when a user creates an oauth token for sync ([767b2f51a](https://github.com/mozilla/fxa/commit/767b2f51a))
+- logging: trace log geodb failures: trace log geodb failures ([a47764c89](https://github.com/mozilla/fxa/commit/a47764c89))
+- payments: pay invoice on retry ([408fcfe2b](https://github.com/mozilla/fxa/commit/408fcfe2b))
+
+### Other changes
+
+- oauth: do not issue JWT access tokens that both use PPIDs and grant access to profile scopes" ([90a0c2654](https://github.com/mozilla/fxa/commit/90a0c2654))
+- payments: detach payment method on failed first sub payment ([80ae4c153](https://github.com/mozilla/fxa/commit/80ae4c153))
+- payments: clean up subplat API code unused after SCA switch over ([13c5265fb](https://github.com/mozilla/fxa/commit/13c5265fb))
+
 ## 1.186.2
 
 ### Bug fixes

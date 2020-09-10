@@ -1,3 +1,22 @@
+## 1.187.0
+
+### New features
+
+- settings: add useAlertBar hook ([6e22bc02d](https://github.com/mozilla/fxa/commit/6e22bc02d))
+
+### Bug fixes
+
+- settings: fix vertical spacing in avatar dropdown ([5f2ad51fa](https://github.com/mozilla/fxa/commit/5f2ad51fa))
+
+### Refactorings
+
+- settings: various cosmetic changes to better reflect designs ([d5e444416](https://github.com/mozilla/fxa/commit/d5e444416))
+- settings: Settings components tree mods, add pages section to Storybook, doc updates ([a4ec47fca](https://github.com/mozilla/fxa/commit/a4ec47fca))
+
+### Other changes
+
+- fxa-settings: rework Two-step auth unit row ([39c7a851c](https://github.com/mozilla/fxa/commit/39c7a851c))
+
 ## 1.186.2
 
 No changes.

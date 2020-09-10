@@ -1,5 +1,19 @@
 # Change history
 
+## 1.187.0
+
+### Bug fixes
+
+- payments: pay invoice on retry ([408fcfe2b](https://github.com/mozilla/fxa/commit/408fcfe2b))
+- payments: display only one in-progress spinner during cancellation ([b364b18ba](https://github.com/mozilla/fxa/commit/b364b18ba))
+
+### Other changes
+
+- deps: bump helmet from 3.23.3 to 4.1.0 ([c0631ebc6](https://github.com/mozilla/fxa/commit/c0631ebc6))
+- payments: detach payment method on failed first sub payment ([80ae4c153](https://github.com/mozilla/fxa/commit/80ae4c153))
+- payments: clean up subplat API code unused after SCA switch over ([13c5265fb](https://github.com/mozilla/fxa/commit/13c5265fb))
+- payments: cleanup of pre-SCA code in payments-server ([28066579a](https://github.com/mozilla/fxa/commit/28066579a))
+
 ## 1.186.2
 
 No changes.

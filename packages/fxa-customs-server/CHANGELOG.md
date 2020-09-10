@@ -1,3 +1,9 @@
+## 1.187.0
+
+### New features
+
+- docker: publish fxa-mono docker image ([2742c1d07](https://github.com/mozilla/fxa/commit/2742c1d07))
+
 ## 1.186.2
 
 No changes.
