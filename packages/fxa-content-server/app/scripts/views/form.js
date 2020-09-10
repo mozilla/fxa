@@ -577,6 +577,27 @@ var FormView = BaseView.extend({
     }
     return newValues;
   },
+
+  /**
+   * Checks whether the selected form is valid.
+   * If the elements is invalid, returns false.
+   *
+   * @param {String} selector
+   * @returns {Boolean}
+   */
+  validateFormField(selector) {
+    const $el = this.$(selector);
+
+    try {
+      // calling the jQuery plugin to validate the input elements
+      // and thrown and error if the input fields are not validated.
+      $el.validate();
+    } catch (err) {
+      this.showValidationError(selector, err);
+      return false;
+    }
+    return true;
+  },
 });
 
 export default FormView;
