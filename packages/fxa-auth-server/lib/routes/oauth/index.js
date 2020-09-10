@@ -298,6 +298,7 @@ module.exports = (log, config, oauthdb, db, mailer, devices) => {
             grantType: request.payload.grant_type,
             uid,
             ecosystemAnonId,
+            clientId: request.payload.client_id,
           });
 
           // This is a bit of a hack, but we emit the `account.signed`
