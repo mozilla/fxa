@@ -360,15 +360,6 @@ AppError.unknownToken = function unknownToken() {
   });
 };
 
-AppError.ppidConflict = function ppidConflict() {
-  return new AppError({
-    code: 400,
-    error: 'Bad Request',
-    errno: 123,
-    message: 'PPID tokens cannot grant profile access',
-  });
-};
-
 // N.B. `errno: 201` is traditionally our generic "service unavailable" error,
 // so let's reserve it for that purpose here as well.
 

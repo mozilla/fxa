@@ -118,63 +118,6 @@ describe('lib/jwt_access_token', () => {
 
       assert.equal(signedClaims.aud, TOKEN_SERVER_URL);
     });
-
-    describe('PPID / uid scope tests', () => {
-      beforeEach(() => {
-        requestedGrant.ppidSeed = 1000;
-      });
-
-      const scopeTest = async (scopes) => {
-        requestedGrant.scope = ScopeSet.fromArray(scopes);
-        try {
-          await JWTAccessToken.create(mockAccessToken, requestedGrant);
-          assert.fail();
-        } catch (err) {
-          assert.instanceOf(err, AppError);
-          assert.equal(err.errno, 123);
-        }
-      };
-
-      it('should not allow a PPID token to grant access to a profile:uid scope', async () => {
-        await scopeTest(['profile:uid']);
-      });
-
-      it('should not allow a PPID token to grant access to a profile scope', async () => {
-        await scopeTest(['profile']);
-      });
-
-      it('should not allow a PPID token to grant access to a profile:write scope', async () => {
-        await scopeTest(['profile:write']);
-      });
-
-      it('should not allow a PPID token to grant access to a profile:write sub-scope', async () => {
-        await scopeTest(['profile:avatar:write']);
-      });
-
-      it('should not allow a PPID token to grant access to a compound scope including a profile sub-scope', async () => {
-        await scopeTest([
-          'https://identity.mozilla.com/apps/sync',
-          'profile:avatar',
-        ]);
-      });
-
-      it('should allow a PPID token to grant access to a random non-profile scope', async () => {
-        requestedGrant.scope = ScopeSet.fromArray([
-          'foo',
-          'bar',
-          'https://identity.mozilla.com/apps/sync',
-        ]);
-        try {
-          const token = await JWTAccessToken.create(
-            mockAccessToken,
-            requestedGrant
-          );
-          assert.ok(token);
-        } catch (err) {
-          assert.fail(err);
-        }
-      });
-    });
   });
 
   describe('tokenId', () => {
