@@ -118,7 +118,7 @@
     "fxa-react": "workspace:*",
     "fxa-settings": "workspace:*",
     "fxa-shared": "workspace:*",
-    "helmet": "^3.23.3",
+    "helmet": "^4.1.0",
     "hot-shots": "^7.6.0",
     "intl-pluralrules": "^1.1.0",
     "joi": "^14.3.1",
