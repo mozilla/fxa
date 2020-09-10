@@ -5857,6 +5857,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/json-schema@npm:^7.0.5":
+  version: 7.0.6
+  resolution: "@types/json-schema@npm:7.0.6"
+  languageName: node
+  linkType: hard
+
 "@types/json5@npm:^0.0.29":
   version: 0.0.29
   resolution: "@types/json5@npm:0.0.29"
@@ -7627,6 +7633,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ajv-keywords@npm:^3.5.2":
+  version: 3.5.2
+  resolution: "ajv-keywords@npm:3.5.2"
+  peerDependencies:
+    ajv: ^6.9.1
+  languageName: node
+  linkType: hard
+
 "ajv@npm:6.12.0":
   version: 6.12.0
   resolution: "ajv@npm:6.12.0"
@@ -7660,6 +7674,17 @@ __metadata:
     json-schema-traverse: ^0.4.1
     uri-js: ^4.2.2
   checksum: 09f3d7992c4a6e554e65accab279878c2da2a7e3ca782032de51c7c91d80a43a3e2aeb26efb8e8950b3941a89882f21aaca1170dafada784a7a0f275b5e6e745
+  languageName: node
+  linkType: hard
+
+"ajv@npm:^6.12.4":
+  version: 6.12.4
+  resolution: "ajv@npm:6.12.4"
+  dependencies:
+    fast-deep-equal: ^3.1.1
+    fast-json-stable-stringify: ^2.0.0
+    json-schema-traverse: ^0.4.1
+    uri-js: ^4.2.2
   languageName: node
   linkType: hard
 
@@ -16564,6 +16589,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"file-loader@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "file-loader@npm:6.1.0"
+  dependencies:
+    loader-utils: ^2.0.0
+    schema-utils: ^2.7.1
+  peerDependencies:
+    webpack: ^4.0.0 || ^5.0.0
+  languageName: node
+  linkType: hard
+
 "file-sync-cmp@npm:^0.1.0":
   version: 0.1.1
   resolution: "file-sync-cmp@npm:0.1.1"
@@ -17872,7 +17908,7 @@ fsevents@^1.2.7:
     express: ^4.17.1
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.1
-    file-loader: ^4.3.0
+    file-loader: ^6.1.0
     firefox-profile: 1.2.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: 0.0.4
@@ -33082,6 +33118,16 @@ resolve@~1.11.1:
     ajv: ^6.12.0
     ajv-keywords: ^3.4.1
   checksum: 78ae62749e3a4a945de51ca47d22047e8959a96b1797af4abb2dfe3c10a7e5c12f877480a183e97158a8590bfde045a65af571fa68737721a975392e5606499c
+  languageName: node
+  linkType: hard
+
+"schema-utils@npm:^2.7.1":
+  version: 2.7.1
+  resolution: "schema-utils@npm:2.7.1"
+  dependencies:
+    "@types/json-schema": ^7.0.5
+    ajv: ^6.12.4
+    ajv-keywords: ^3.5.2
   languageName: node
   linkType: hard
 
