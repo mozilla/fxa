@@ -220,6 +220,19 @@ jobs:
       - store_artifacts:
           path: artifacts
 
+  # This job is manually triggered for now. see _dev/docker/circleci/README.md
+  test-content-server-remote:
+    executor: content-server-executor
+    steps:
+      - base-install:
+          package: fxa-content-server
+      - run:
+          name: Running test section against a remote target
+          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
+      - store_artifacts:
+          path: ~/screenshots
+          destination: screenshots
+
   build-and-deploy-storybooks:
     resource_class: small
     docker:
