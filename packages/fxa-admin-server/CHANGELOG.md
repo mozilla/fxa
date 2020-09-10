@@ -1,3 +1,9 @@
+## 1.187.0
+
+### New features
+
+- event-broker: migrate to NestJS ([553bb238d](https://github.com/mozilla/fxa/commit/553bb238d))
+
 ## 1.186.2
 
 No changes.

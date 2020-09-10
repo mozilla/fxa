@@ -1,3 +1,29 @@
+## 1.187.0
+
+### New features
+
+- aet: set ifMatch option when generating new eco anon id on account model ([26c4efa2d](https://github.com/mozilla/fxa/commit/26c4efa2d))
+- mobile: direct users to Firefox for Android release page instead of Beta ([67f2e6c3e](https://github.com/mozilla/fxa/commit/67f2e6c3e))
+
+### Bug fixes
+
+- totp: Restore unverified session handling in the force-2FA flow ([c5ebe9fa9](https://github.com/mozilla/fxa/commit/c5ebe9fa9))
+- tests: fix attempts for intermittent functional test failures ([0979c0bec](https://github.com/mozilla/fxa/commit/0979c0bec))
+- recovery: Use the existing accountResetToken if account model has it set ([cc4b03073](https://github.com/mozilla/fxa/commit/cc4b03073))
+- newsletter: Various newsletter fixes ([1018c65b5](https://github.com/mozilla/fxa/commit/1018c65b5))
+- content-server: fix padding in link from legal footer ([20c0c4ab2](https://github.com/mozilla/fxa/commit/20c0c4ab2))
+- content-server: validate the sign up input before showing validation error ([3729273bb](https://github.com/mozilla/fxa/commit/3729273bb))
+
+### Other changes
+
+- deps: bump file-loader in /packages/fxa-content-server ([75ac057d3](https://github.com/mozilla/fxa/commit/75ac057d3))
+- deps-dev: bump install in /packages/fxa-content-server ([ce8995f43](https://github.com/mozilla/fxa/commit/ce8995f43))
+- deps: bump helmet from 3.23.3 to 4.1.0 ([c0631ebc6](https://github.com/mozilla/fxa/commit/c0631ebc6))
+- monorepo: update deps 9/9 ([047c96ea5](https://github.com/mozilla/fxa/commit/047c96ea5))
+- reset-password: add few missing checks for resend email ([5bd460275](https://github.com/mozilla/fxa/commit/5bd460275))
+- monorepo: update deps 9/8 ([05a00a0ae](https://github.com/mozilla/fxa/commit/05a00a0ae))
+- payments: cleanup of pre-SCA code in payments-server ([28066579a](https://github.com/mozilla/fxa/commit/28066579a))
+
 ## 1.186.2
 
 No changes.

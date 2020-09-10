@@ -1,6 +1,6 @@
 {
   "name": "fxa-graphql-api",
-  "version": "1.186.2",
+  "version": "1.187.0",
   "description": "FxA GraphQL API",
   "scripts": {
     "build": "tsc",
