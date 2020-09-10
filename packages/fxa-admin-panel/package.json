@@ -83,7 +83,7 @@
     "@types/on-headers": "^1.0.0",
     "@types/react": "^16.8.0",
     "@types/react-router-dom": "^5.1.5",
-    "@types/serve-static": "1.13.3",
+    "@types/serve-static": "1.13.5",
     "@types/supertest": "^2.0.8",
     "@types/webpack": "4.41.16",
     "@typescript-eslint/eslint-plugin": "2.33.0",
