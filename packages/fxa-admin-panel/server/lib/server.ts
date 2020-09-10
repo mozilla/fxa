@@ -39,7 +39,13 @@ app.use(
   helmet.frameguard({
     action: 'deny',
   }),
-  helmet.xssFilter(),
+  // As of Helmet v4 xssFilter() now sets this header value to `0`,
+  // which disables XSS Filtering altogether. We want it enabled.
+  // More info: https://github.com/helmetjs/helmet/issues/230
+  (req, res, next) => {
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    next();
+  },
   helmet.noSniff(),
   helmet.referrerPolicy({ policy: 'same-origin' }),
   noRobots as express.RequestHandler,
@@ -69,7 +75,6 @@ const hstsEnabled = config.get('hstsEnabled');
 if (hstsEnabled) {
   app.use(
     helmet.hsts({
-      force: true,
       includeSubDomains: true,
       maxAge: config.get('hstsMaxAge'),
     })
