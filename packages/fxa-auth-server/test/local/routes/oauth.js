@@ -349,6 +349,7 @@ describe('/oauth/ routes', () => {
           grantType: 'fxa-credentials',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
+          clientId: MOCK_CLIENT_ID,
         }
       );
       assert.calledWithMatch(
@@ -400,6 +401,7 @@ describe('/oauth/ routes', () => {
           grantType: 'authorization_code',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
+          clientId: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -445,6 +447,7 @@ describe('/oauth/ routes', () => {
           grantType: 'authorization_code',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
+          clientId: MOCK_CLIENT_ID,
         }
       );
 
@@ -490,6 +493,7 @@ describe('/oauth/ routes', () => {
           grantType: 'refresh_token',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
+          clientId: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
@@ -538,6 +542,7 @@ describe('/oauth/ routes', () => {
           grantType: 'fxa-credentials',
           uid: MOCK_USER_ID,
           ecosystemAnonId: MOCK_ANON_ID,
+          clientId: MOCK_CLIENT_ID,
         }
       );
       assert.deepEqual(resp, MOCK_TOKEN_RESPONSE);
