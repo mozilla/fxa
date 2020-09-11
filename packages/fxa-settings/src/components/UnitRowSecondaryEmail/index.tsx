@@ -11,7 +11,7 @@ import { useAccount, Email, Account } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
-import { ReactComponent as TrashIcon } from './trash-icon.svg';
+import { ButtonIconTrash } from '../ButtonIcon';
 
 export const RESEND_EMAIL_CODE_MUTATION = gql`
   mutation resendSecondaryEmailCode($input: EmailInput!) {
@@ -190,7 +190,8 @@ export const UnitRowSecondaryEmail = () => {
           >
             <span className="flex justify-between items-center">
               {email}
-              <DeleteEmailButton
+              <ButtonIconTrash
+                title="Remove email"
                 classNames="mobileLandscape:hidden"
                 disabled={deleteEmailLoading}
                 onClick={() => {
@@ -243,7 +244,8 @@ export const UnitRowSecondaryEmail = () => {
                 Make primary
               </button>
             )}
-            <DeleteEmailButton
+            <ButtonIconTrash
+              title="Remove email"
               classNames="hidden mobileLandscape:inline-block"
               disabled={deleteEmailLoading}
               testId="secondary-email-delete"
@@ -307,31 +309,6 @@ const SecondaryEmailDefaultContent = () => (
       for that.
     </p>
   </div>
-);
-
-const DeleteEmailButton = ({
-  classNames,
-  disabled,
-  onClick,
-  testId,
-}: {
-  classNames: string;
-  disabled: boolean;
-  onClick: () => void;
-  testId?: string;
-}) => (
-  <button
-    className={`relative w-8 h-8 ml-2 text-red-500 active:text-red-800 focus:text-red-800 disabled:text-grey-300 disabled:cursor-wait ${classNames}`}
-    title="Remove email"
-    data-testid={testId}
-    {...{ onClick, disabled }}
-  >
-    <TrashIcon
-      width="11"
-      height="14"
-      className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
-    />
-  </button>
 );
 
 export default UnitRowSecondaryEmail;
