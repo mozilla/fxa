@@ -1,3 +1,9 @@
+## 1.187.2
+
+### Bug fixes
+
+- tests: hacky workaround for mozilla.org page selector bug ([3d0dc3975](https://github.com/mozilla/fxa/commit/3d0dc3975))
+
 ## 1.187.1
 
 No changes.

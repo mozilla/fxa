@@ -1,3 +1,9 @@
+## 1.187.2
+
+### Bug fixes
+
+- metrics: include the client_id when logging the `oauth.token.created` event ([651cbadb2](https://github.com/mozilla/fxa/commit/651cbadb2))
+
 ## 1.187.1
 
 ### Bug fixes
