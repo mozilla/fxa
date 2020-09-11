@@ -162,7 +162,7 @@ module.exports = {
     HEADER: '#fxa-cannot-create-account-header',
   },
   DOWNLOAD_FIREFOX_THANKS: {
-    HEADER: '#download-button-wrapper-desktop',
+    HEADER: '[data-test-fxa-template="firefox-download-thanks"]',
   },
   EMAIL: {
     ADD_BUTTON: '.email-add:not(.disabled)',
