@@ -9,11 +9,12 @@ import { AppConfig } from './config';
 
 export const MetricsFactory: Provider<StatsD> = {
   provide: 'METRICS',
-  useFactory: (config: ConfigService<AppConfig>) => {
-    if (config.get<string>('env') === 'development') {
+  useFactory: (configService: ConfigService<AppConfig>) => {
+    const config = configService.get('metrics') as AppConfig['metrics'];
+    if (config.host === '') {
       return new StatsD({ mock: true });
     }
-    return new StatsD(config.get('metrics'));
+    return new StatsD(config);
   },
   inject: [ConfigService],
 };
