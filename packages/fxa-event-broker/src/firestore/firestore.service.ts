@@ -40,8 +40,8 @@ export class FirestoreService {
       delete config.credentials;
     }
 
-    // Utilize the local firestore emulator in development mode
-    if (configService.get('env') === 'development') {
+    // Utilize the local firestore emulator in when the env indicates
+    if (!!process.env.FIRESTORE_EMULATOR_HOST) {
       this.db = new Firestore({
         customHeaders: {
           Authorization: 'Bearer owner',
