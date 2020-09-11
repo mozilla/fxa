@@ -78,7 +78,7 @@ export const AlertBar = ({
     );
     return (
       <Portal id="alert-bar-portal">
-        <div className="fixed mt-16 top-0" data-testid="alert-bar-portal">
+        <div className="fixed mt-16 top-0 z-10" data-testid="alert-bar-portal">
           {alertBar}
         </div>
       </Portal>
