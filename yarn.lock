@@ -8622,6 +8622,12 @@ __metadata:
   languageName: node
   linkType: hard
 
+"asmcrypto.js@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "asmcrypto.js@npm:2.3.2"
+  languageName: node
+  linkType: hard
+
 "asn1.js@npm:1.0.3":
   version: 1.0.3
   resolution: "asn1.js@npm:1.0.3"
@@ -17849,7 +17855,7 @@ fsevents@^1.2.7:
     "@types/backbone": ^1.4.1
     "@types/sinon-chai": 3.2.4
     "@types/sinon-express-mock": 1.3.8
-    asmcrypto.js: ^0.22.0
+    asmcrypto.js: ^2.3.2
     audit-filter: ^0.5.0
     autoprefixer: 9.0.1
     babel-eslint: ^10.1.0
