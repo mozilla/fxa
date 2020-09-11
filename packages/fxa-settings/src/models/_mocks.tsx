@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { InMemoryCache, ApolloClient, ApolloProvider } from '@apollo/client';
+import {
+  InMemoryCache,
+  ApolloClient,
+  ApolloProvider,
+  DocumentNode,
+} from '@apollo/client';
 import { MockLink, MockedResponse } from '@apollo/client/testing';
 import { Account } from '.';
 import { GET_INITIAL_STATE } from '../components/App';
@@ -14,6 +19,7 @@ import {
   LocationProvider,
 } from '@reach/router';
 import { render } from '@testing-library/react';
+import { GET_ACCOUNT } from './Account';
 
 export const MOCK_ACCOUNT: Account = {
   uid: 'abc123',
@@ -155,3 +161,18 @@ export const mockEmail = (
   isPrimary,
   verified,
 });
+
+export const mockAccountQuery = (
+  modifications: { [key: string]: any } = {}
+) => {
+  return {
+    request: {
+      query: GET_ACCOUNT,
+    },
+    result: {
+      data: {
+        account: Object.assign(MOCK_ACCOUNT, modifications),
+      },
+    },
+  };
+};

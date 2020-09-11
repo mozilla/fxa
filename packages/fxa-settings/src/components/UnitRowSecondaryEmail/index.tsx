@@ -7,11 +7,11 @@ import { gql } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import { cloneDeep } from '@apollo/client/utilities';
 import { useHandledMutation, useAlertBar } from '../../lib/hooks';
-import { useAccount, Email, Account } from '../../models';
+import { useAccount, useLazyAccount, Email, Account } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
 import ModalVerifySession from '../ModalVerifySession';
-import { ButtonIconTrash } from '../ButtonIcon';
+import { ButtonIconTrash, ButtonIconReload } from '../ButtonIcon';
 
 export const RESEND_EMAIL_CODE_MUTATION = gql`
   mutation resendSecondaryEmailCode($input: EmailInput!) {
@@ -54,6 +54,11 @@ export const UnitRowSecondaryEmail = () => {
   const lastVerifiedSecondaryEmailIndex = secondaryEmails
     .map((email) => email.verified)
     .lastIndexOf(true);
+
+  const [getAccount, { accountLoading }] = useLazyAccount((error) => {
+    alertBar.error(`Sorry, there was a problem refreshing that email.`);
+    throw error;
+  });
 
   const [resendEmailCode] = useHandledMutation(RESEND_EMAIL_CODE_MUTATION, {
     onCompleted() {
@@ -190,14 +195,24 @@ export const UnitRowSecondaryEmail = () => {
           >
             <span className="flex justify-between items-center">
               {email}
-              <ButtonIconTrash
-                title="Remove email"
-                classNames="mobileLandscape:hidden"
-                disabled={deleteEmailLoading}
-                onClick={() => {
-                  queueEmailAction(deleteEmail);
-                }}
-              />
+              <span>
+                <ButtonIconTrash
+                  title="Remove email"
+                  classNames="mobileLandscape:hidden"
+                  disabled={deleteEmailLoading}
+                  onClick={() => {
+                    queueEmailAction(deleteEmail);
+                  }}
+                />
+                {!verified && (
+                  <ButtonIconReload
+                    title="Refresh email"
+                    classNames="mobileLandscape:hidden"
+                    disabled={accountLoading}
+                    onClick={getAccount}
+                  />
+                )}
+              </span>
             </span>
             {!verified && (
               <span
@@ -253,6 +268,15 @@ export const UnitRowSecondaryEmail = () => {
                 queueEmailAction(deleteEmail);
               }}
             />
+            {!verified && (
+              <ButtonIconReload
+                title="Refresh email"
+                classNames="hidden mobileLandscape:inline-block"
+                testId="secondary-email-refresh"
+                disabled={accountLoading}
+                onClick={getAccount}
+              />
+            )}
           </div>
         </div>
       </div>

@@ -11,7 +11,8 @@ import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount } from '../../models';
+import { useAccount, useLazyAccount } from '../../models';
+import { ButtonIconReload } from '../ButtonIcon';
 
 export const DELETE_RECOVERY_KEY_MUTATION = gql`
   mutation deleteRecoveryKey($input: DeleteRecoveryKeyInput!) {
@@ -31,6 +32,12 @@ export const UnitRowRecoveryKey = () => {
     hideModal();
     alertBar.show();
   };
+
+  const [getAccount, { accountLoading }] = useLazyAccount((error) => {
+    setErrorText('Sorry, there was a problem refreshing the recovery key.');
+    alertBar.show();
+  });
+
   const [deleteRecoveryKey] = useMutation(DELETE_RECOVERY_KEY_MUTATION, {
     variables: { input: {} },
     onCompleted: () => {
@@ -63,6 +70,23 @@ export const UnitRowRecoveryKey = () => {
       revealModal={recoveryKey ? revealModal : undefined}
       ctaText={recoveryKey ? 'Remove' : 'Create'}
       alertBarRevealed
+      headerContent={
+        <ButtonIconReload
+          title="Refresh recovery key"
+          classNames="mobileLandscape:hidden"
+          disabled={accountLoading}
+          onClick={getAccount}
+        />
+      }
+      actionContent={
+        <ButtonIconReload
+          title="Refresh recovery key"
+          classNames="hidden mobileLandscape:inline-block"
+          testId="recovery-key-refresh"
+          disabled={accountLoading}
+          onClick={getAccount}
+        />
+      }
     >
       <p className="text-sm mt-3">
         Restores your information when you forget your password.
@@ -113,7 +137,7 @@ export const UnitRowRecoveryKey = () => {
         </AlertBar>
       )}
     </UnitRow>
-  )
+  );
 };
 
 export default UnitRowRecoveryKey;

@@ -63,7 +63,7 @@ export const ButtonIconReload = ({
 }: Omit<ButtonIconProps, 'icon'>) => (
   <ButtonIcon
     classNames={`text-grey-500 active:text-grey-600 focus:text-grey-600 ${classNames}`}
-    icon={[RefreshIcon, 12, 12]}
+    icon={[RefreshIcon, 13, 12]}
     {...{ title, disabled, onClick, testId }}
   />
 );

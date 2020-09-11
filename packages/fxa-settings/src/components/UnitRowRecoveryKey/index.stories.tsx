@@ -5,23 +5,33 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
-import { MockedCache } from '../../models/_mocks';
+import { MockedCache, mockAccountQuery } from '../../models/_mocks';
 import UnitRowRecoveryKey from '.';
 
 storiesOf('Components|UnitRowRecoveryKey', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('with recovery key', () => (
-    <MockedCache>
+    <MockedCache
+      account={{ recoveryKey: true }}
+      mocks={[mockAccountQuery({ recoveryKey: false })]}
+    >
       <UnitRowRecoveryKey />
     </MockedCache>
   ))
   .add('no recovery key', () => (
-    <MockedCache account={{ recoveryKey: false }}>
+    <MockedCache
+      account={{ recoveryKey: false }}
+      mocks={[mockAccountQuery({ recoveryKey: true })]}
+    >
       <UnitRowRecoveryKey />
     </MockedCache>
   ))
   .add('with recovery key and unverified session', () => (
-    <MockedCache verified={false}>
+    <MockedCache
+      account={{ recoveryKey: true }}
+      verified={false}
+      mocks={[mockAccountQuery({ recoveryKey: false })]}
+    >
       <UnitRowRecoveryKey />
     </MockedCache>
   ));
