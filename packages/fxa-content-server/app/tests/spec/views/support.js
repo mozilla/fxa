@@ -33,6 +33,7 @@ describe('views/support', function () {
   const supportTicket = {
     productName: 'FxA - 123Done Pro',
     topic: 'Payment & billing',
+    app: 'Mobile',
     subject: '',
     message: 'inquiries from generals',
   };
@@ -93,6 +94,16 @@ describe('views/support', function () {
         plan_id: '123done_9001',
         product_id: '123done_xyz',
         product_name: '123Done Pro',
+        product_metadata: {
+          'support:app:foo': 'Mobile',
+          'support:app:bar': 'Desktop',
+        },
+      },
+      {
+        plan_id: 'foobar_9001',
+        product_id: 'foobar_plus',
+        product_name: 'FooBar Plus',
+        product_metadata: {},
       },
     ]);
     sinon.stub(user, 'getAccountByUid').returns(account);
@@ -127,7 +138,7 @@ describe('views/support', function () {
   });
 
   describe('product name', function () {
-    it('should be the prefixed "Firefox Account" when "Firefox Account" is selected', function () {
+    it('should be the prefixed product name of the selected plan', function () {
       return view
         .render()
         .then(function () {
@@ -141,28 +152,42 @@ describe('views/support', function () {
             .trigger('change');
           assert.equal(
             view.supportForm.get('productName'),
-            'FxA - Firefox Account'
+            'FxA - 123Done Pro'
           );
         });
     });
 
-    it('should be the prefixed product name of the selected plan', function () {
-      return view
-        .render()
-        .then(function () {
-          view.afterVisible();
-          $('#container').append(view.el);
-        })
-        .then(function () {
-          view
-            .$('#product option:eq(2)')
-            .prop('selected', true)
-            .trigger('change');
-          assert.equal(
-            view.supportForm.get('productName'),
-            'FxA - 123Done Pro'
+    describe('app/service name', function () {
+      it('should be selectable once a product is selected', function () {
+        return view
+          .render()
+          .then(() => {
+            view.afterVisible();
+            $('#container').append(view.el);
+          })
+          .then(() => assert.isTrue(view.$('#app').prop('disabled')))
+          .then(() =>
+            assert.isFalse(view.$('#app').parent().parent().is(':visible'))
+          )
+          .then(() => {
+            view.$('#product option:eq(1)').prop('selected', true);
+            view.$('#product').trigger('change');
+          })
+          .then(() => new Promise((resolve) => setTimeout(resolve, 500)))
+          .then(() => assert.isFalse(view.$('#app').prop('disabled')))
+          .then(() =>
+            assert.isTrue(view.$('#app').parent().parent().is(':visible'))
+          )
+          .then(() => {
+            view.$('#product option:eq(2)').prop('selected', true);
+            view.$('#product').trigger('change');
+          })
+          .then(() => new Promise((resolve) => setTimeout(resolve, 500)))
+          .then(() => assert.isTrue(view.$('#app').prop('disabled')))
+          .then(() =>
+            assert.isFalse(view.$('#app').parent().parent().is(':visible'))
           );
-        });
+      });
     });
 
     it('emits subscription.initialize correctly', () => {
@@ -174,13 +199,12 @@ describe('views/support', function () {
         })
         .then(function () {
           view
-            .$('#product option:eq(2)')
+            .$('#product option:eq(1)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(notifier.trigger.callCount, 5);
           const args = notifier.trigger.args[4];
           assert.lengthOf(args, 3);
-          console.log(args);
           assert.equal(args[0], 'subscription.initialize');
           assert.instanceOf(args[1], SubscriptionModel);
           assert.equal(args[1].get('planId'), '123done_9001');
@@ -197,7 +221,7 @@ describe('views/support', function () {
         })
         .then(function () {
           view
-            .$('#product option:eq(3)')
+            .$('#product option:eq(2)')
             .prop('selected', true)
             .trigger('change');
           assert.equal(view.supportForm.get('productName'), 'FxA - Other');
@@ -332,8 +356,10 @@ describe('views/support', function () {
           $('#container').append(view.el);
         })
         .then(function () {
-          view.$('#product option:eq(2)').prop('selected', true);
+          view.$('#product option:eq(1)').prop('selected', true);
+          view.$('#product').trigger('change');
           view.$('#topic option:eq(1)').prop('selected', true);
+          view.$('#app option:eq(0)').prop('selected', true);
           view.$('#message').val(supportTicket.message).trigger('keyup');
 
           // calling this directly instead of clicking submit so we can have
@@ -347,16 +373,21 @@ describe('views/support', function () {
             supportTicket
           );
           assert.ok($('.dialog-success').length);
-          assert.equal(view.logFlowEvent.callCount, 3);
+          assert.equal(view.logFlowEvent.callCount, 4);
           assert.deepEqual(view.logFlowEvent.getCall(0).args, [
+            'engage',
+            'support',
+            { once: true },
+          ]);
+          assert.deepEqual(view.logFlowEvent.getCall(1).args, [
             'submit',
             'support',
           ]);
-          assert.deepEqual(view.logFlowEvent.getCall(1).args, [
+          assert.deepEqual(view.logFlowEvent.getCall(2).args, [
             'success',
             'support',
           ]);
-          assert.deepEqual(view.logFlowEvent.getCall(2).args, [
+          assert.deepEqual(view.logFlowEvent.getCall(3).args, [
             'complete',
             'support',
           ]);

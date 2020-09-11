@@ -69,30 +69,40 @@ registerSuite('support form with an active subscription', {
         this.skip('missing Stripe API key in CircleCI run');
       }
       const email = createEmail();
-      return this.remote
-        .then(createUser(email, PASSWORD, { preVerified: true }))
-        .then(clearBrowserState())
-        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(testElementExists(selectors.SETTINGS.HEADER))
-        .then(subscribeToTestProduct())
-        .then(openPage(SUPPORT_URL, 'div.support'))
-        .then(click('#product_chosen a.chosen-single'))
-        .then(
-          click(
-            '#product_chosen ul.chosen-results li[data-option-array-index="1"]'
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(clearBrowserState())
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(subscribeToTestProduct())
+          .then(openPage(SUPPORT_URL, 'div.support'))
+          .then(click('#product_chosen a.chosen-single'))
+          .then(
+            click(
+              '#product_chosen ul.chosen-results li[data-option-array-index="1"]'
+            )
           )
-        )
-        .then(click('#topic_chosen a.chosen-single'))
-        .then(
-          click(
-            '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
+          .then(click('#topic_chosen a.chosen-single'))
+          .then(
+            click(
+              '#topic_chosen ul.chosen-results li[data-option-array-index="1"]'
+            )
           )
-        )
-        // test hitting enter and making sure we don't leave the form
-        .then(typeNative('input[name="subject"]', 'ENTER'))
-        .then(type('textarea[name=message]', 'please send halp'))
-        .then(click('button[type=submit]'));
+          // This next bit rely on the product having at least one
+          // 'support:app:...' entry in its metadata
+          .then(click('#app_chosen a.chosen-single'))
+          .then(
+            click(
+              '#app_chosen ul.chosen-results li[data-option-array-index="1"]'
+            )
+          )
+          // test hitting enter and making sure we don't leave the form
+          .then(typeNative('input[name="subject"]', 'ENTER'))
+          .then(type('textarea[name=message]', 'please send halp'))
+          .then(click('button[type=submit]'))
+      );
       // Since we don't have proper Zendesk config in CircleCI, the form
       // cannot be successfully submitted.
       // .then(testElementExists('.subscription-management'));

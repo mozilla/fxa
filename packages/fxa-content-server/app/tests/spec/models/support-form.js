@@ -13,6 +13,7 @@ describe('models/support-form', function () {
       plan: '123done',
       productName: 'FxA - Best Product Ever',
       topic: '345finished',
+      app: '',
       subject: '',
       message: '678completed',
     });
@@ -33,7 +34,7 @@ describe('models/support-form', function () {
     assert.isFalse(supportForm.isValid());
   });
 
-  it('does not require a subject', function () {
+  it('does not require an app/service or a subject', function () {
     assert.isTrue(supportForm.isValid());
   });
 });
