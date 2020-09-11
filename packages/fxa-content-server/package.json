@@ -39,7 +39,7 @@
     "@babel/preset-typescript": "^7.10.1",
     "@sentry/browser": "^5.17.0",
     "@sentry/node": "^5.17.0",
-    "asmcrypto.js": "^0.22.0",
+    "asmcrypto.js": "^2.3.2",
     "autoprefixer": "9.0.1",
     "babel-loader": "8.0.6",
     "backbone": "^1.4.0",
