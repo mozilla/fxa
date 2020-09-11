@@ -52,7 +52,7 @@ export class QueueworkerService
     this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.disableQueueWorker =
       this.configService.get<boolean>('disableQueueWorker') ?? false;
-    if (env === 'development' && this.queueName.includes('localhost:4100')) {
+    if (this.queueName.includes('localhost:4100')) {
       AWS.config.update({
         accessKeyId: 'fake',
         ['endpoint' as any]: 'localhost:4100',
@@ -84,7 +84,7 @@ export class QueueworkerService
 
   async onApplicationBootstrap(): Promise<void> {
     const env = this.configService.get<string>('env');
-    if (env === 'development' && this.queueName.includes('localhost:4100')) {
+    if (this.queueName.includes('localhost:4100')) {
       // Verify that the queue exists
       const queueParts = this.queueName.split('/');
       const queueName = queueParts[queueParts.length - 1];

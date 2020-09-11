@@ -9,6 +9,9 @@ import { v4 as uuid4 } from 'uuid';
 import { ClientWebhooks } from '../client-webhooks/client-webhooks.interface';
 import { FirestoreService } from './firestore.service';
 
+// Set the env var to use the emulator
+process.env.FIRESTORE_EMULATOR_HOST = 'localhost:9090';
+
 describe('FirestoreService', () => {
   let fs: Firestore;
   let service: FirestoreService;
