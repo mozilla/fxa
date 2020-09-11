@@ -49,9 +49,10 @@ export class QueueworkerService
     private clientCapability: ClientCapabilityService
   ) {
     const env = this.configService.get<string>('env');
+    this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.disableQueueWorker =
       this.configService.get<boolean>('disableQueueWorker') ?? false;
-    if (env === 'development') {
+    if (env === 'development' && this.queueName.includes('localhost:4100')) {
       AWS.config.update({
         accessKeyId: 'fake',
         ['endpoint' as any]: 'localhost:4100',
@@ -59,7 +60,6 @@ export class QueueworkerService
         sslEnabled: false,
       });
     }
-    this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.topicPrefix = configService.get('topicPrefix') as string;
 
     const region = extractRegionFromUrl(this.queueName);
@@ -84,7 +84,7 @@ export class QueueworkerService
 
   async onApplicationBootstrap(): Promise<void> {
     const env = this.configService.get<string>('env');
-    if (env === 'development') {
+    if (env === 'development' && this.queueName.includes('localhost:4100')) {
       // Verify that the queue exists
       const queueParts = this.queueName.split('/');
       const queueName = queueParts[queueParts.length - 1];

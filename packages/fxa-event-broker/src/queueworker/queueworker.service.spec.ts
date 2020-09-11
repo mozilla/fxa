@@ -167,6 +167,8 @@ describe('QueueworkerService', () => {
 
   describe('lifecycle', () => {
     it('starts up with dev checks', async () => {
+      (service as any).queueName =
+        'https://localhost:4100/queue.mozilla/321321321/notifications';
       const mockQueue = jest.fn().mockResolvedValue({});
       const mockCreate = jest.fn().mockResolvedValue({});
       (service as any).sqs = {
