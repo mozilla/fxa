@@ -21,6 +21,10 @@ describe('Health Controller', () => {
     expect(controller.heartbeat()).toStrictEqual({});
   });
 
+  it('should return lbheartbeat', () => {
+    expect(controller.lbheartbeat()).toStrictEqual({});
+  });
+
   it('should return the version', () => {
     const source = controller.versionData().source;
     expect(source).toBe(version.source);
