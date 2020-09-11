@@ -6114,21 +6114,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/passport@npm:*":
+"@types/passport@npm:*, @types/passport@npm:^1":
   version: 1.0.4
   resolution: "@types/passport@npm:1.0.4"
   dependencies:
     "@types/express": "*"
   checksum: f6edbe3cc920047f59a4191ece0d10a01039d41dbb1e48dd45e833372e92d3ad6c5a7b03182c77a7712d103635e50e88f1ff835f237b3c5170a24bdb7c7aa689
-  languageName: node
-  linkType: hard
-
-"@types/passport@npm:^0":
-  version: 0.4.7
-  resolution: "@types/passport@npm:0.4.7"
-  dependencies:
-    "@types/express": "*"
-  checksum: 23009d2833528894a822b6ce8cdca185dd6ec4db311ff20eef80c638addaf9799b00a9a3a83abe221c3133c264c3094f6f5d977f73332b414ddce7a47098752c
   languageName: node
   linkType: hard
 
@@ -18104,7 +18095,7 @@ fsevents@^1.2.7:
     "@types/express": ^4.17.2
     "@types/jest": 25.2.3
     "@types/node": ^14.0.27
-    "@types/passport": ^0
+    "@types/passport": ^1
     "@types/passport-jwt": ^3.0.3
     "@types/rimraf": 3.0.0
     "@types/supertest": ^2.0.8
