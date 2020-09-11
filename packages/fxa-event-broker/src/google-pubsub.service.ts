@@ -10,7 +10,8 @@ import { AppConfig } from './config';
 export const GooglePubsubFactory: Provider = {
   provide: 'GOOGLEPUBSUB',
   useFactory: async (config: ConfigService<AppConfig>) => {
-    if (config.get<string>('env') === 'development') {
+    const pubsubConfig = config.get('pubsub') as AppConfig['pubsub'];
+    if (pubsubConfig.audience === 'example.com') {
       return new PubSub({ projectId: 'fxa-event-broker' });
     }
     return new PubSub();
