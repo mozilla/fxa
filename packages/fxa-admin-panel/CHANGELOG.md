@@ -1,3 +1,7 @@
+## 1.187.1
+
+No changes.
+
 ## 1.187.0
 
 ### Bug fixes

@@ -1,3 +1,9 @@
+## 1.187.1
+
+### Bug fixes
+
+- docker: Copy version.json into expected path /app/version.json ([9536c64e6](https://github.com/mozilla/fxa/commit/9536c64e6))
+
 ## 1.187.0
 
 ### New features
