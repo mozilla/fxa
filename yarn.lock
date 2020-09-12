@@ -9426,13 +9426,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-dynamic-import-webpack@npm:1.0.2":
-  version: 1.0.2
-  resolution: "babel-plugin-dynamic-import-webpack@npm:1.0.2"
-  dependencies:
-    babel-plugin-syntax-dynamic-import: ^6.18.0
-    babel-template: ^6.26.0
-  checksum: 836a6e7c6e1b6d16f12962f2df1b9cb0d8dba3fac51c107b0b8adafccf9509c5f29a0e2cd517ee93a0e87873aeccdb1e1fece7bc638823afffa17c5365d4fd07
+"babel-plugin-dynamic-import-webpack@npm:1.1.0":
+  version: 1.1.0
+  resolution: "babel-plugin-dynamic-import-webpack@npm:1.1.0"
   languageName: node
   linkType: hard
 
@@ -9633,13 +9629,6 @@ __metadata:
   version: 6.13.0
   resolution: "babel-plugin-syntax-async-functions@npm:6.13.0"
   checksum: 33e3123ffbd47bcb9ab6e813801688e33d21fbf28fcdc1bfbed73e9566e56d747e5c77031792bc81191a59d159c98e12a0c748c204e5a2ab5f0f1dffec12b547
-  languageName: node
-  linkType: hard
-
-"babel-plugin-syntax-dynamic-import@npm:^6.18.0":
-  version: 6.18.0
-  resolution: "babel-plugin-syntax-dynamic-import@npm:6.18.0"
-  checksum: 07a22c060c47cd9326729a8b068fdf31514819e0669b2ca229378ff94feb7612e6bf8d5364fc0240ce367a698cd0a7dcb2101ee90ac68e53a5702d0b77b42efa
   languageName: node
   linkType: hard
 
@@ -17845,7 +17834,7 @@ fsevents@^1.2.7:
     autoprefixer: 9.0.1
     babel-eslint: ^10.1.0
     babel-loader: 8.0.6
-    babel-plugin-dynamic-import-webpack: 1.0.2
+    babel-plugin-dynamic-import-webpack: 1.1.0
     backbone: ^1.4.0
     backbone.cocktail: 0.5.9
     base32-decode: 1.0.0
