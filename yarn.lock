@@ -8929,19 +8929,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"autoprefixer@npm:9.0.1":
-  version: 9.0.1
-  resolution: "autoprefixer@npm:9.0.1"
+"autoprefixer@npm:9.8.6":
+  version: 9.8.6
+  resolution: "autoprefixer@npm:9.8.6"
   dependencies:
-    browserslist: ^4.0.1
-    caniuse-lite: ^1.0.30000865
+    browserslist: ^4.12.0
+    caniuse-lite: ^1.0.30001109
+    colorette: ^1.2.1
     normalize-range: ^0.1.2
     num2fraction: ^1.2.2
-    postcss: ^7.0.1
-    postcss-value-parser: ^3.2.3
+    postcss: ^7.0.32
+    postcss-value-parser: ^4.1.0
   bin:
-    autoprefixer: ./bin/autoprefixer
-  checksum: 45075febf9f6e7c5a057dac45f680f718876b951396352712a6ee3965beed9750d150996aea1e7f40c8789a1f698bffc7d6e51dfef0b346f7b547537037d34a5
+    autoprefixer: bin/autoprefixer
   languageName: node
   linkType: hard
 
@@ -11072,7 +11072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:^4.0.0, browserslist@npm:^4.0.1, browserslist@npm:^4.12.0, browserslist@npm:^4.6.2, browserslist@npm:^4.6.4, browserslist@npm:^4.7.2, browserslist@npm:^4.8.5, browserslist@npm:^4.9.1":
+"browserslist@npm:^4.0.0, browserslist@npm:^4.12.0, browserslist@npm:^4.6.2, browserslist@npm:^4.6.4, browserslist@npm:^4.7.2, browserslist@npm:^4.8.5, browserslist@npm:^4.9.1":
   version: 4.12.0
   resolution: "browserslist@npm:4.12.0"
   dependencies:
@@ -11615,10 +11615,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000865, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30000989, caniuse-lite@npm:^1.0.30001010, caniuse-lite@npm:^1.0.30001035, caniuse-lite@npm:^1.0.30001043, caniuse-lite@npm:^1.0.30001087":
+"caniuse-lite@npm:^1.0.0, caniuse-lite@npm:^1.0.30000844, caniuse-lite@npm:^1.0.30000929, caniuse-lite@npm:^1.0.30000981, caniuse-lite@npm:^1.0.30000989, caniuse-lite@npm:^1.0.30001010, caniuse-lite@npm:^1.0.30001035, caniuse-lite@npm:^1.0.30001043, caniuse-lite@npm:^1.0.30001087":
   version: 1.0.30001088
   resolution: "caniuse-lite@npm:1.0.30001088"
   checksum: 4f87a29c5906b3ff65eda27a8bc4434051475a8a8af5c0df685b03fde818688e6ad1e56dfcd7268ff06fe9eac978870b29909e6234b86610b73272c7e8ec280a
+  languageName: node
+  linkType: hard
+
+"caniuse-lite@npm:^1.0.30001109":
+  version: 1.0.30001125
+  resolution: "caniuse-lite@npm:1.0.30001125"
   languageName: node
   linkType: hard
 
@@ -12454,7 +12460,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorette@npm:1.2.1":
+"colorette@npm:1.2.1, colorette@npm:^1.2.1":
   version: 1.2.1
   resolution: "colorette@npm:1.2.1"
   checksum: 1cc21ad4b84777a424794f78b6bb6a44b614ae17dcea91762199339f8047598e6d981249eeef7ea588c99eaf062be8fcdcd4866c112998922ed854db6dde96f9
@@ -17831,7 +17837,7 @@ fsevents@^1.2.7:
     "@types/sinon-express-mock": 1.3.8
     asmcrypto.js: ^0.22.0
     audit-filter: ^0.5.0
-    autoprefixer: 9.0.1
+    autoprefixer: 9.8.6
     babel-eslint: ^10.1.0
     babel-loader: 8.0.6
     babel-plugin-dynamic-import-webpack: 1.1.0
