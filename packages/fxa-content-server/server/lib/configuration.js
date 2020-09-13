@@ -448,7 +448,7 @@ const conf = (module.exports = convict({
       format: Array,
     },
     server_base_uri: {
-      default: 'wss://dev.channelserver.nonprod.cloudops.mozgcp.net',
+      default: 'wss://channelserver.services.mozilla.com',
       doc: 'The url of the Pairing channel server.',
       env: 'PAIRING_SERVER_BASE_URI',
     },
