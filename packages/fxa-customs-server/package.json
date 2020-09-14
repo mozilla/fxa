@@ -34,7 +34,7 @@
     "convict-format-with-validator": "^6.0.0",
     "deep-equal": "1.0.1",
     "ip": "^1.1.5",
-    "ip-reputation-js-client": "6.0.0",
+    "ip-reputation-js-client": "6.0.1",
     "lodash.isequal": "4.5.0",
     "lodash.merge": "4.6.2",
     "memcached": "^2.2.2"
