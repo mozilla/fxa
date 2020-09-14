@@ -3,8 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useEffect, useRef, useState, ReactNode, useCallback } from 'react';
-import sentryMetrics from 'fxa-shared/lib/sentry';
-import { useMutation, DocumentNode, MutationHookOptions } from '@apollo/client';
+import {
+  useMutation as useApolloMutation,
+  DocumentNode,
+  MutationHookOptions,
+  ApolloError,
+} from '@apollo/client';
+import sentry from 'fxa-shared/lib/sentry';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { AlertBarType } from '../components/AlertBar';
 
@@ -60,30 +65,29 @@ export function useChangeFocusEffect() {
   return elToFocus;
 }
 
-// TODO - Iron out how we want to handle mutation errors (FXA-2450)
-// We must have an `onError` option in mutations to allow tests to pass
-// but providing one prevents an error from actually throwing so we need
-// to manually report it to Sentry.
-// See https://github.com/apollographql/react-apollo/issues/2614
-export function useHandledMutation(
+export function useMutation(
   mutation: DocumentNode,
   options: MutationHookOptions<any, Record<string, any>> | undefined = {}
 ) {
-  const customOnError = options.onError;
+  const { onError } = options;
+
   options.onError = (error) => {
-    if (customOnError) {
+    console.error(error);
+
+    if (error.networkError) {
+      sentry.captureException(error);
+    }
+
+    if (onError) {
       try {
-        customOnError(error);
+        onError(error);
       } catch (error) {
-        sentryMetrics.captureException(error);
+        sentry.captureException(error);
       }
-    } else {
-      console.error(error);
-      sentryMetrics.captureException(error);
     }
   };
 
-  return useMutation(mutation, options);
+  return useApolloMutation(mutation, options);
 }
 
 export function useAlertBar({
@@ -109,8 +113,8 @@ export function useAlertBar({
   );
 
   const error = useCallback(
-    (message: ReactNode) => {
-      setContent(message);
+    (message: ReactNode, error?: ApolloError) => {
+      setContent(error?.graphQLErrors?.length ? error.message : message);
       setType('error');
       show();
     },

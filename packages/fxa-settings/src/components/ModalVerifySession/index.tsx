@@ -5,12 +5,13 @@
 import React, { useEffect, useState } from 'react';
 import Modal from '../Modal';
 import InputText from '../InputText';
-import { gql, useMutation } from '@apollo/client';
+import { ApolloError, gql } from '@apollo/client';
 import { useAccount, useSession } from '../../models';
+import { useMutation } from '../../lib/hooks';
 
 type ModalProps = {
   onDismiss: () => void;
-  onError: (error: Error) => void;
+  onError: (error: ApolloError) => void;
   onCompleted?: () => void;
 };
 
@@ -39,12 +40,15 @@ export const ModalVerifySession = ({
   const [code, setCode] = useState<string>();
   const [errorText, setErrorText] = useState<string>();
   const { primaryEmail } = useAccount();
+
   const [sendCode] = useMutation(SEND_SESSION_VERIFICATION_CODE_MUTATION, {
     variables: { input: {} },
     ignoreResults: true,
     onError,
   });
+
   const [verifySession] = useMutation(VERIFY_SESSION_MUTATION, {
+    ignoreResults: true,
     onError: (error) => {
       if (error.graphQLErrors?.length) {
         setErrorText(error.message);
@@ -53,7 +57,6 @@ export const ModalVerifySession = ({
         onError(error);
       }
     },
-    ignoreResults: true,
     update: (cache) => {
       cache.modify({
         fields: {
@@ -87,14 +90,14 @@ export const ModalVerifySession = ({
     >
       <form
         onSubmit={(event) => {
-          event.preventDefault()
+          event.preventDefault();
           verifySession({
             variables: {
               input: {
                 code,
               },
             },
-          })
+          });
         }}
       >
         <h2
@@ -117,7 +120,7 @@ export const ModalVerifySession = ({
           <InputText
             label="Enter your verification code"
             onChange={(event) => {
-              setCode(event.target.value)
+              setCode(event.target.value);
             }}
             {...{ errorText }}
           ></InputText>
@@ -142,7 +145,7 @@ export const ModalVerifySession = ({
         </div>
       </form>
     </Modal>
-  )
+  );
 };
 
 export default ModalVerifySession;

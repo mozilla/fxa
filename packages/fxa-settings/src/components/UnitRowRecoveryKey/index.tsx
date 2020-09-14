@@ -2,11 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import React from 'react';
+import { ApolloError, gql } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAlertBar } from '../../lib/hooks';
+import { useAlertBar, useMutation } from '../../lib/hooks';
 import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
@@ -26,25 +26,25 @@ export const UnitRowRecoveryKey = () => {
   const { recoveryKey } = useAccount();
   const alertBar = useAlertBar();
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
-  const [errorText, setErrorText] = useState<string>();
-  const onError = (e: Error) => {
-    setErrorText(e.message);
-    hideModal();
-    alertBar.show();
-  };
 
   const [getAccount, { accountLoading }] = useLazyAccount((error) => {
-    setErrorText('Sorry, there was a problem refreshing the recovery key.');
-    alertBar.show();
+    hideModal();
+    alertBar.error(
+      'Sorry, there was a problem refreshing the recovery key.',
+      error
+    );
   });
 
   const [deleteRecoveryKey] = useMutation(DELETE_RECOVERY_KEY_MUTATION, {
     variables: { input: {} },
     onCompleted: () => {
       hideModal();
-      alertBar.show();
+      alertBar.success('Account recovery key removed.');
     },
-    onError,
+    onError: (error) => {
+      hideModal();
+      alertBar.error('Your account recovery key could not be removed.', error);
+    },
     ignoreResults: true,
     update: (cache) => {
       cache.modify({
@@ -98,7 +98,16 @@ export const UnitRowRecoveryKey = () => {
         Why does resetting my password reset my data?
       </LinkExternal>
       {modalRevealed && (
-        <VerifiedSessionGuard onDismiss={hideModal} onError={onError}>
+        <VerifiedSessionGuard
+          onDismiss={hideModal}
+          onError={(error) => {
+            hideModal();
+            alertBar.error(
+              'Sorry, there was a problem verifying your session',
+              error
+            );
+          }}
+        >
           <Modal
             onDismiss={hideModal}
             onConfirm={deleteRecoveryKey}
@@ -121,19 +130,10 @@ export const UnitRowRecoveryKey = () => {
         </VerifiedSessionGuard>
       )}
       {alertBar.visible && (
-        <AlertBar
-          onDismiss={alertBar.hide}
-          type={errorText ? 'error' : 'success'}
-        >
-          {errorText ? (
-            <p data-testid="delete-recovery-key-error">
-              Error text TBD. {errorText}
-            </p>
-          ) : (
-            <p data-testid="delete-recovery-key-success">
-              Account recovery key removed
-            </p>
-          )}
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          <p data-testid={`delete-recovery-key-${alertBar.type}`}>
+            {alertBar.content}
+          </p>
         </AlertBar>
       )}
     </UnitRow>

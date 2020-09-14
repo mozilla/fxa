@@ -19,6 +19,12 @@ const mockGqlSuccess = (email: string) => ({
   },
 });
 
+window.console.error = jest.fn();
+
+afterAll(() => {
+  (window.console.error as jest.Mock).mockReset();
+});
+
 describe('PageSecondaryEmailAdd', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {

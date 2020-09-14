@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { ApolloError } from '@apollo/client';
 import { useSession } from '../../models';
 import ModalVerifySession from '../ModalVerifySession';
 
@@ -12,7 +13,7 @@ export const VerifiedSessionGuard = ({
   children,
 }: {
   onDismiss: () => void;
-  onError: (error: Error) => void;
+  onError: (error: ApolloError) => void;
   children?: React.ReactNode;
 }) => {
   return useSession().verified ? (

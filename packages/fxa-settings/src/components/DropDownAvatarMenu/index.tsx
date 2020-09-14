@@ -3,14 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import Avatar from '../Avatar';
 import AlertBar from '../AlertBar';
 import { useAccount } from '../../models';
-import sentryMetrics from 'fxa-shared/lib/sentry';
 import { clearSignedInAccountUid } from '../../lib/cache';
-import { useClickOutsideEffect, useBooleanState } from 'fxa-react/lib/hooks';
-import { useEscKeydownEffect } from '../../lib/hooks';
+import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
+import { useEscKeydownEffect, useMutation, useAlertBar } from '../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
 
 export const DESTROY_SESSION_MUTATION = gql`
@@ -29,19 +28,14 @@ export const DropDownAvatarMenu = () => {
     setRevealed
   );
   useEscKeydownEffect(setRevealed);
-  const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
+  const alertBar = useAlertBar();
   const dropDownId = 'drop-down-avatar-menu';
 
-  // TODO: FXA-2450
-  const [destroySession, { data, error }] = useMutation(
-    DESTROY_SESSION_MUTATION,
-    {
-      onError: (error) => {
-        revealAlertBar();
-        sentryMetrics.captureException(error);
-      },
-    }
-  );
+  const [destroySession, { data }] = useMutation(DESTROY_SESSION_MUTATION, {
+    onError: (error) => {
+      alertBar.error('Sorry, there was a problem signing you out.', error);
+    },
+  });
 
   const signOut = () => {
     destroySession({
@@ -57,9 +51,9 @@ export const DropDownAvatarMenu = () => {
 
   return (
     <>
-      {alertBarRevealed && error && (
-        <AlertBar onDismiss={hideAlertBar} type="error">
-          <p data-testid="sign-out-error">Error text TBD. {error.message}</p>
+      {alertBar.visible && (
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          <p data-testid="sign-out-error">{alertBar.content}</p>
         </AlertBar>
       )}
       <div className="relative" ref={avatarMenuInsideRef}>
