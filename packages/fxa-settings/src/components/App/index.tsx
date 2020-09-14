@@ -12,7 +12,6 @@ import { Account } from '../../models';
 import { ACCOUNT_FIELDS } from '../../models/Account';
 import { Router } from '@reach/router';
 import Head from 'fxa-react/components/Head';
-import FlowContainer from '../FlowContainer';
 import PageSettings from '../PageSettings';
 import PageChangePassword from '../PageChangePassword';
 import PageRecoveryKeyAdd from '../PageRecoveryKeyAdd';
@@ -26,6 +25,7 @@ import { HomePath } from '../../constants';
 import { useConfig } from 'fxa-settings/src/lib/config';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import PageAvatar from '../PageAvatar';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -71,8 +71,8 @@ export const App = ({ flowQueryParams }: AppProps) => {
         <Router basepath={HomePath}>
           <ScrollToTop default>
             <PageSettings path="/" />
-            <FlowContainer path="/avatar/change" title="Profile picture" />
             <PageDisplayName path="/display_name" />
+            <PageAvatar path="/avatar/change" />
             <PageChangePassword path="/change_password" />
             <PageRecoveryKeyAdd path="/account_recovery" />
             <PageSecondaryEmailAdd path="/emails" />
