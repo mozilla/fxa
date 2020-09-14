@@ -13205,15 +13205,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:1.5.0":
-  version: 1.5.0
-  resolution: "cron@npm:1.5.0"
-  dependencies:
-    moment-timezone: ^0.5.x
-  checksum: 7ca3efcdafb73f2f7e1e358869432b9d2b8324f4de54d89b7831aa3dee4661f34d5b12ca82d80d70844133c808cd60e00811e7ffa6796ce2592c3fcd9edd7145
-  languageName: node
-  linkType: hard
-
 "cron@npm:1.7.2":
   version: 1.7.2
   resolution: "cron@npm:1.7.2"
@@ -18146,7 +18137,7 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
     chai: ^4.2.0
-    cron: 1.5.0
+    cron: 1.8.2
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
