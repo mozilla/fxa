@@ -17922,7 +17922,7 @@ fsevents@^1.2.7:
     mkdirp: 0.5.1
     mocha: ^7.1.2
     morgan: ^1.10.0
-    mozlog: 2.2.0
+    mozlog: 3.0.1
     mustache: 4.0.1
     node-sass: ^4.13.1
     node-uuid: 1.4.8
