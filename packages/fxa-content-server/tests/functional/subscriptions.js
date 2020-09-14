@@ -27,8 +27,33 @@ const {
   visibleByQSA,
 } = FunctionalHelpers;
 
+const TEST_PRODUCT_URL = `${config.fxaContentRoot}subscriptions/products/${config.testProductId}`;
+
 registerSuite('subscriptions', {
   tests: {
+    'visit product page without signing in, expect to see product name displayed in sub-header': function () {
+      if (
+        process.env.CIRCLECI === 'true' &&
+        !process.env.SUBHUB_STRIPE_APIKEY
+      ) {
+        this.skip('missing Stripe API key in CircleCI run');
+      }
+      return this.remote
+        .then(
+          clearBrowserState({
+            '123done': true,
+            force: true,
+          })
+        )
+        .then(openPage(TEST_PRODUCT_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(
+          testElementTextInclude(
+            selectors.ENTER_EMAIL.SUB_HEADER,
+            'Continue to 123Done Pro'
+          )
+        );
+    },
+
     'sign up, subscribe for 123Done Pro, sign into 123Done to verify subscription': function () {
       if (
         process.env.CIRCLECI === 'true' &&

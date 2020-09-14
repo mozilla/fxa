@@ -74,7 +74,10 @@ export default function (config) {
      */
     isSyncSuggestionEnabled() {
       return (
-        !this.relier.get('service') && this.relier.get('context') === 'web'
+        !this.relier.get('service') &&
+        this.relier.get('context') === 'web' &&
+        // issue #6121 - skip sync suggestion if headed to subscription product page
+        !this.relier.get('subscriptionProductId')
       );
     },
 

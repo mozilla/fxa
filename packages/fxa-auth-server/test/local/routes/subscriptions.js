@@ -1176,6 +1176,34 @@ describe('DirectStripeRoutes', () => {
     });
   });
 
+  describe('getProductName', () => {
+    it('should respond with product name for valid id', async () => {
+      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      const productId = PLANS[1].product_id;
+      const expected = { product_name: PLANS[1].product_name };
+      const result = await directStripeRoutesInstance.getProductName({
+        auth: {},
+        query: { productId },
+      });
+      assert.deepEqual(expected, result);
+    });
+
+    it('should respond with an error for invalid id', async () => {
+      directStripeRoutesInstance.stripeHelper.allPlans.resolves(PLANS);
+      const productId = 'this-is-not-valid';
+      try {
+        await directStripeRoutesInstance.getProductName({
+          auth: {},
+          query: { productId },
+        });
+        assert.fail('Getting a product name should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+      }
+    });
+  });
+
   describe('listPlans', () => {
     it('returns the available plans when auth headers are valid', async () => {
       const expected = sanitizePlans(PLANS);

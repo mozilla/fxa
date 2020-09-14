@@ -277,6 +277,20 @@ class DirectStripeRoutes {
     return sanitizePlans(plans);
   }
 
+  async getProductName(request: AuthRequest) {
+    this.log.begin('subscriptions.getProductName', request);
+    const { productId } = request.query as Record<string, string>;
+    const plans = await this.stripeHelper.allPlans();
+    const planForProduct = plans.find((plan) => plan.product_id === productId);
+    if (!planForProduct) {
+      throw error.unknownSubscriptionPlan();
+    }
+    this.log.info('subscriptions.getProductName', {
+      productId,
+    });
+    return { product_name: planForProduct.product_name };
+  }
+
   async listActive(request: AuthRequest) {
     this.log.begin('subscriptions.listActive', request);
     const { uid, email } = await handleAuth(this.db, request.auth, true);
@@ -1296,6 +1310,24 @@ const directRoutes = (
       },
       handler: (request: AuthRequest) =>
         directStripeRoutes.detachFailedPaymentMethod(request),
+    },
+    {
+      method: 'GET',
+      path: '/oauth/subscriptions/productname',
+      options: {
+        response: {
+          schema: isA.object({
+            product_name: isA.string().required(),
+          }),
+        },
+        validate: {
+          query: {
+            productId: isA.string().required(),
+          },
+        },
+      },
+      handler: (request: AuthRequest) =>
+        directStripeRoutes.getProductName(request),
     },
     {
       method: 'GET',

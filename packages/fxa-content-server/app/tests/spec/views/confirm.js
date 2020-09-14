@@ -147,6 +147,7 @@ describe('views/confirm', function () {
         view = new View({
           broker: broker,
           canGoBack: true,
+          relier: relier,
           model: model,
           notifier: notifier,
           user: user,

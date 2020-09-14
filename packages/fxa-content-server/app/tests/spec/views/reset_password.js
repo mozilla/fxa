@@ -378,11 +378,13 @@ describe('views/reset_password with `canGoBack: false`', () => {
 
 describe('views/reset_password with reset_password_confirm=false', function () {
   var view;
+  let notifier;
   var relier;
   var broker;
   var formPrefill;
 
   beforeEach(function () {
+    notifier = new Notifier();
     relier = new Relier();
     relier.set('email', 'testuser@testuser.com');
     relier.set('resetPasswordConfirm', false);
@@ -397,6 +399,7 @@ describe('views/reset_password with reset_password_confirm=false', function () {
       broker: broker,
       formPrefill: formPrefill,
       relier: relier,
+      notifier,
     });
 
     sinon.stub(view, 'resetPassword').callsFake(function () {
