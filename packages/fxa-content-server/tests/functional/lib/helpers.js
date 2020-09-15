@@ -2698,11 +2698,11 @@ const typeIntoStripeElement = thenify(function (fieldName, subFieldName, text) {
 });
 
 /**
- * Subscribe to the test product. The user should be signed in at this point.
+ * Subscribe to the test product with a given CC number.
  *
  * @returns {promise} resolves when complete
  */
-const subscribeToTestProduct = thenify(function () {
+const subscribeToTestProductWithCardNumber = thenify(function (cardNumber) {
   const nextYear = (new Date().getFullYear() + 1).toString().substr(2);
   return this.parent
     .then(openPage(TEST_PRODUCT_URL, 'div.product-payment'))
@@ -2713,14 +2713,22 @@ const subscribeToTestProduct = thenify(function () {
     .then(getQueryParamValue('flow_id'))
     .then((flowId) => assert.ok(flowId))
     .then(type('input[name=name]', 'Testo McTestson'))
-    .then(
-      typeIntoStripeElement('creditCard', 'cardnumber', `4242 4242 4242 4242`)
-    )
+    .then(typeIntoStripeElement('creditCard', 'cardnumber', cardNumber))
     .then(typeIntoStripeElement('creditCard', 'exp-date', `12${nextYear}`))
     .then(typeIntoStripeElement('creditCard', 'cvc', `123`))
     .then(typeIntoStripeElement('creditCard', 'postal', `12345`))
     .then(click('input[type=checkbox]'))
-    .then(click('button[name=submit]'))
+    .then(click('button[name=submit]'));
+});
+
+/**
+ * Subscribe to the test product. The user should be signed in at this point.
+ *
+ * @returns {promise} resolves when complete
+ */
+const subscribeToTestProduct = thenify(function () {
+  return this.parent
+    .then(subscribeToTestProductWithCardNumber('4242 4242 4242 4242'))
     .then(testElementExists('.download-link'))
     .then(openPage(SUBSCRIPTION_MGMT_URL, '.subscription-management'))
     .then(testElementExists('div[data-testid="subscription-item"]'));
@@ -2848,6 +2856,7 @@ module.exports = {
   sendVerificationReminders,
   storeWebChannelMessageData,
   subscribeToTestProduct,
+  subscribeToTestProductWithCardNumber,
   switchToWindow,
   takeScreenshot,
   testAreEventsLogged,
