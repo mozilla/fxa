@@ -12,6 +12,8 @@ import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useAccount } from '../../models';
 
+const route = '/beta/settings/two_step_authentication';
+
 export const DELETE_TOTP_MUTATION = gql`
   mutation deleteTotp($input: DeleteTotpInput!) {
     deleteTotp(input: $input) {
@@ -24,6 +26,11 @@ export const UnitRowTwoStepAuth = () => {
   const { totp } = useAccount();
   const { exists, verified } = totp;
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
+  const [
+    secondaryModalRevealed,
+    revealSecondaryModal,
+    hideSecondaryModal,
+  ] = useBooleanState();
   const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
   const [errorText, setErrorText] = useState<string>();
   const onError = (e: Error) => {
@@ -54,10 +61,13 @@ export const UnitRowTwoStepAuth = () => {
     ? {
         headerValueClassName: 'text-green-800',
         headerValue: 'Enabled',
-        ctaText: 'Change',
         secondaryCtaText: 'Disable',
         secondaryButtonClassName: 'cta-caution',
+        // The naming of this is a bit confusing, since they are swapped in this
+        // case, we should come up with a better name here. Filed FXA-2539
+        revealModal: revealSecondaryModal,
         revealSecondaryModal: revealModal,
+        hideCtaText: true,
       }
     : {
         headerValue: null,
@@ -70,7 +80,7 @@ export const UnitRowTwoStepAuth = () => {
   return (
     <UnitRow
       header="Two-step authentication"
-      route="/beta/settings/two_step_authentication"
+      route={route}
       {...conditionalUnitRowProps}
     >
       <p className="text-sm mt-3">
@@ -104,6 +114,28 @@ export const UnitRowTwoStepAuth = () => {
                 replacing your recovery codes
               </LinkExternal>
               .
+            </p>
+          </Modal>
+        </VerifiedSessionGuard>
+      )}
+      {secondaryModalRevealed && (
+        <VerifiedSessionGuard onDismiss={hideSecondaryModal} onError={onError}>
+          <Modal
+            onDismiss={hideSecondaryModal}
+            headerId="two-step-auth-change-codes-header"
+            descId="two-step-auth-change-codes-description"
+            confirmText="Change"
+            confirmBtnClassName="cta-primary"
+            route={route}
+          >
+            <h2
+              className="font-bold text-xl text-center mb-2"
+              data-testid="change-codes-modal-header"
+            >
+              Change recovery codes?
+            </h2>
+            <p className="text-center">
+              You won't be able to undo this action.
             </p>
           </Modal>
         </VerifiedSessionGuard>
