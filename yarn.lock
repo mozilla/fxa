@@ -4996,6 +4996,7 @@ __metadata:
     tslib: ~1.9.3
   bin:
     digdugEnvironments: ./bin/digdugEnvironments.js
+  checksum: 3dd6c26af2525f783e1c38303d2de2bf2fcb740e4784b52ea92359c00683cb24560151204ef6cf5b5f553631dace552ab4eba234fb100601f9ce399bdc7fa6df
   languageName: node
   linkType: hard
 
@@ -12797,6 +12798,7 @@ __metadata:
   resolution: "consolidate@npm:0.16.0"
   dependencies:
     bluebird: ^3.7.2
+  checksum: b75f222ef398c055a1ce17117d3803887db75aa076c3053b4aa1c3d9cded1191026b9848b5eefe492e2d7b1496844aef249a3a902e20b3034963a5b32ed3a105
   languageName: node
   linkType: hard
 
@@ -21303,6 +21305,7 @@ fsevents@^1.2.7:
     ws: ~7.0.0
   bin:
     intern: bin/intern.js
+  checksum: de44b9063222f9bc258b6a1a4a4c1c5e8ddd513d505a0de0c70ba9c1fa1b6f66e604fce8aee85353f6e5bc086d41bfc8f597baaf271fe0bbc74802ee148e31aa
   languageName: node
   linkType: hard
 
