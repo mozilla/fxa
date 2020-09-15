@@ -103,6 +103,12 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
    */
   sendOAuthResultToRelier(result, account) {
     if (this.hasCapability('supportsPairing') || result.action === 'pairing') {
+      if (!this.relier.has('service')) {
+        // the service in the query parameter currently overrides the status message
+        // this is due to backwards compatibility
+        this.relier.set('service', this.relier.get('clientId'));
+        this._metrics.setService(this.relier.get('clientId'));
+      }
       this._metrics.logEvent('pairing.signin.success');
     }
 
