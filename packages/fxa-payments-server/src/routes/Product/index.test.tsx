@@ -94,23 +94,31 @@ describe('routes/Product', () => {
   const initApiMocks = (displayName?: string) => [
     nock(profileServer)
       .get('/v1/profile')
-      .reply(200, { ...MOCK_PROFILE, displayName }),
+      .reply(
+        200,
+        { ...MOCK_PROFILE, displayName },
+        { 'Access-Control-Allow-Origin': '*' }
+      ),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS),
+      .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER),
+      .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
   ];
 
   const initSubscribedApiMocks = (useDefaultIcon: boolean = false) => [
-    nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+    nock(profileServer)
+      .get('/v1/profile')
+      .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/plans')
-      .reply(200, MOCK_PLANS),
+      .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
     nock(authServer)
       .get('/v1/oauth/subscriptions/customer')
-      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION),
+      .reply(200, MOCK_CUSTOMER_AFTER_SUBSCRIPTION, {
+        'Access-Control-Allow-Origin': '*',
+      }),
   ];
 
   it('renders with product ID and display name', async () => {
@@ -141,13 +149,15 @@ describe('routes/Product', () => {
 
   it('displays an error on failure to load profile', async () => {
     const apiMocks = [
-      nock(profileServer).get('/v1/profile').reply(400, MOCK_PROFILE),
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(400, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
-        .reply(200, MOCK_CUSTOMER),
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-profile');
@@ -169,13 +179,15 @@ describe('routes/Product', () => {
 
   it('displays an error on failure to load customer', async () => {
     const apiMocks = [
-      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
-        .reply(400, MOCK_CUSTOMER),
+        .reply(400, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
     ];
     const { findByTestId } = render(<Subject />);
     await findByTestId('error-loading-customer');
@@ -183,13 +195,19 @@ describe('routes/Product', () => {
 
   it('does not display an error on missing / new customer', async () => {
     const apiMocks = [
-      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
-        .reply(404, { errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER }),
+        .reply(
+          404,
+          { errno: AuthServerErrno.UNKNOWN_SUBSCRIPTION_CUSTOMER },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
     ];
     const { findAllByText } = render(<Subject />);
     await findAllByText('Set up your subscription');
@@ -197,13 +215,19 @@ describe('routes/Product', () => {
 
   it('does not display an error on customer with no subscriptions', async () => {
     const apiMocks = [
-      nock(profileServer).get('/v1/profile').reply(200, MOCK_PROFILE),
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(200, MOCK_PROFILE, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/plans')
-        .reply(200, MOCK_PLANS),
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
       nock(authServer)
         .get('/v1/oauth/subscriptions/customer')
-        .reply(200, { ...MOCK_CUSTOMER, subscriptions: [] }),
+        .reply(
+          200,
+          { ...MOCK_CUSTOMER, subscriptions: [] },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
     ];
     const { findAllByText } = render(<Subject />);
     await findAllByText('Set up your subscription');

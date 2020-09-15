@@ -1,12 +1,12 @@
-import { Provider } from '@nestjs/common';
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
-import { MozLoggerService } from '../logger/logger.service';
 import { ClientCapabilityService } from './client-capability.service';
 
 const baseClients = [

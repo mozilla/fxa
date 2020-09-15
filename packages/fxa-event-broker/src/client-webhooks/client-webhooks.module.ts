@@ -5,11 +5,10 @@ import { Module } from '@nestjs/common';
 
 import { FirestoreModule } from '../firestore/firestore.module';
 import { FirestoreService } from '../firestore/firestore.service';
-import { LoggerModule } from '../logger/logger.module';
 import { ClientWebhooksService } from './client-webhooks.service';
 
 @Module({
-  imports: [FirestoreModule, LoggerModule],
+  imports: [FirestoreModule],
   providers: [ClientWebhooksService, FirestoreService],
   exports: [ClientWebhooksService],
 })

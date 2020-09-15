@@ -4,10 +4,10 @@
 import { NestApplicationOptions } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 
 import { AppModule } from './app.module';
 import Config, { AppConfig } from './config';
-import { SentryInterceptor } from './sentry/sentry.interceptor';
 
 async function bootstrap() {
   const nestConfig: NestApplicationOptions = {};

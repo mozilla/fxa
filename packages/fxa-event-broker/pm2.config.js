@@ -20,7 +20,7 @@ module.exports = {
         WORKER_HOST: '0.0.0.0',
         PUBSUB_EMULATOR_HOST: 'localhost:8085',
         FIRESTORE_EMULATOR_HOST: 'localhost:9090',
-        PUBSUB_PROXY_PORT: '8090',
+        PUBSUB_PROXY_PORT: '8093',
         PATH,
       },
       filter_env: ['npm_'],

@@ -1,6 +1,13 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test, TestingModule } from '@nestjs/testing';
+
+import { getVersionInfo } from '../version';
+import { HEALTH_CONFIG } from './health.constants';
 import { HealthController } from './health.controller';
-import { version } from '../version';
+
+const version = getVersionInfo(__dirname);
 
 describe('Health Controller', () => {
   let controller: HealthController;
@@ -8,6 +15,7 @@ describe('Health Controller', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [HealthController],
+      providers: [{ provide: HEALTH_CONFIG, useValue: { version } }],
     }).compile();
 
     controller = module.get<HealthController>(HealthController);
@@ -17,8 +25,8 @@ describe('Health Controller', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should return heartbeat', () => {
-    expect(controller.heartbeat()).toStrictEqual({});
+  it('should return heartbeat', async () => {
+    expect(await controller.heartbeat()).toStrictEqual({});
   });
 
   it('should return lbheartbeat', () => {

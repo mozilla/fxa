@@ -9,9 +9,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import axios, { AxiosInstance } from 'axios';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { AppConfig } from '../config';
-import { MozLoggerService } from '../logger/logger.service';
 
 export type ClientCapabilities = Record<string, string[]>;
 
