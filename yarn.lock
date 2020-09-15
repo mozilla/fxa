@@ -5056,9 +5056,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@theintern/digdug@npm:~2.4.5":
-  version: 2.4.5
-  resolution: "@theintern/digdug@npm:2.4.5"
+"@theintern/digdug@npm:~2.5.0":
+  version: 2.5.0
+  resolution: "@theintern/digdug@npm:2.5.0"
   dependencies:
     "@theintern/common": ~0.2.3
     command-exists: ~1.2.6
@@ -5066,11 +5066,10 @@ __metadata:
     tslib: ~1.9.3
   bin:
     digdugEnvironments: ./bin/digdugEnvironments.js
-  checksum: 30cd505c6abb023167a938acc3c4f328e25638b627cd39c196a8bf2c2855b07ff5f83fedeadf0939f88113628158e87ba2bbb6f2b5972cfbd7cc25aacd63f738
   languageName: node
   linkType: hard
 
-"@theintern/leadfoot@npm:~2.3.0":
+"@theintern/leadfoot@npm:~2.3.2":
   version: 2.3.2
   resolution: "@theintern/leadfoot@npm:2.3.2"
   dependencies:
@@ -17897,7 +17896,7 @@ fsevents@^1.2.7:
     http-proxy-middleware: ^1.0.3
     i18n-abide: 0.0.26
     install: 0.13.0
-    intern: ^4.5.0
+    intern: ^4.8.7
     joi: ^14.3.1
     jquery: 3.5.0
     jquery-modal: "git://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
@@ -21230,13 +21229,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"intern@npm:^4.5.0":
-  version: 4.8.4
-  resolution: "intern@npm:4.8.4"
+"intern@npm:^4.8.7":
+  version: 4.8.7
+  resolution: "intern@npm:4.8.7"
   dependencies:
     "@theintern/common": ~0.2.3
-    "@theintern/digdug": ~2.4.5
-    "@theintern/leadfoot": ~2.3.0
+    "@theintern/digdug": ~2.5.0
+    "@theintern/leadfoot": ~2.3.2
     "@types/benchmark": 1.0.31
     "@types/chai": 4.1.7
     "@types/charm": 1.0.1
@@ -21275,7 +21274,6 @@ fsevents@^1.2.7:
     ws: ~7.0.0
   bin:
     intern: bin/intern.js
-  checksum: e788e50fcf9e579cdbef2fbf37fa0a58c470708ad67137a6ef1f9d7fcb935ac0d3b803f7eb78780f57a4991de83c73b212e80a927e2a96907e95ad5cf6c18efb
   languageName: node
   linkType: hard
 
