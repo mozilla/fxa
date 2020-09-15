@@ -103,7 +103,7 @@
     "urijs": "1.19.1",
     "uuid": "1.4.1",
     "verror": "^1.10.0",
-    "web-push": "3.3.0"
+    "web-push": "3.4.4"
   },
   "devDependencies": {
     "@types/cbor": "5.0.0",

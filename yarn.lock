@@ -8573,7 +8573,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1.js@npm:^5.0.0, asn1.js@npm:^5.0.1":
+"asn1.js@npm:^5.0.1":
   version: 5.3.0
   resolution: "asn1.js@npm:5.3.0"
   dependencies:
@@ -8582,6 +8582,18 @@ __metadata:
     minimalistic-assert: ^1.0.0
     safer-buffer: ^2.1.0
   checksum: 5cfb2daa2803fbc5cded76cb381266237e07216ce4ccafe46fff1201b7518051acc8bb26feff8cc3dc15f8c09064359353010424e3b3767d1607ecd8ea4ee170
+  languageName: node
+  linkType: hard
+
+"asn1.js@npm:^5.3.0":
+  version: 5.4.1
+  resolution: "asn1.js@npm:5.4.1"
+  dependencies:
+    bn.js: ^4.0.0
+    inherits: ^2.0.1
+    minimalistic-assert: ^1.0.0
+    safer-buffer: ^2.1.0
+  checksum: 4aa368fce1f2213c41016e4d739da9a65a8462d131146109afa9a5527e9071ec550b1b1d2e5b105044b90dc4bd6b6331bfd7a0a5bb12557604ebdfd330a788d0
   languageName: node
   linkType: hard
 
@@ -17808,7 +17820,7 @@ fsevents@^1.2.7:
     urijs: 1.19.1
     uuid: 1.4.1
     verror: ^1.10.0
-    web-push: 3.3.0
+    web-push: 3.4.4
     ws: ^6.2.1
   bin:
     fxa-auth: ./bin/key_server.js
@@ -20654,12 +20666,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"http_ece@npm:1.0.5":
-  version: 1.0.5
-  resolution: "http_ece@npm:1.0.5"
+"http_ece@npm:1.1.0":
+  version: 1.1.0
+  resolution: "http_ece@npm:1.1.0"
   dependencies:
     urlsafe-base64: ~1.0.0
-  checksum: b438a50c973b5ee0272b285525b69fd61bd8669155a0b4c51bdc7454b487ee54474f8071be44d57dd4860ac35cbd242515cbc943224ef945c2c57c6278bc605c
+  checksum: 54ba32313115fb9c0da22205dce4383328732281a2ab6de53ee213fbc23106ec3b9c6be7f8356b1889845d12d71fa9d1ad75fbe8fa68e81025c75881792589a7
   languageName: node
   linkType: hard
 
@@ -24087,7 +24099,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jws@npm:^3.1.3, jws@npm:^3.2.2":
+"jws@npm:^3.2.2":
   version: 3.2.2
   resolution: "jws@npm:3.2.2"
   dependencies:
@@ -37684,18 +37696,19 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"web-push@npm:3.3.0":
-  version: 3.3.0
-  resolution: "web-push@npm:3.3.0"
+"web-push@npm:3.4.4":
+  version: 3.4.4
+  resolution: "web-push@npm:3.4.4"
   dependencies:
-    asn1.js: ^5.0.0
-    http_ece: 1.0.5
-    jws: ^3.1.3
-    minimist: ^1.2.0
+    asn1.js: ^5.3.0
+    http_ece: 1.1.0
+    https-proxy-agent: ^5.0.0
+    jws: ^4.0.0
+    minimist: ^1.2.5
     urlsafe-base64: ^1.0.0
   bin:
     web-push: src/cli.js
-  checksum: 65533750326dfc3a1720b678eb2dccf8c85e1bbea756821a3dd8f7f06ee254d70490ae084ed93dc10e2cf419abc123558c377453893609cc72f03e523a65c868
+  checksum: 9ce9b643e3d9032a4fa6d9cd32ec7ca4b5921b83a28175f17a1439128c0b738198851d3c61b5789d6ee86aad214bb4a50374400d99bbe2380bb4f5144a914d8d
   languageName: node
   linkType: hard
 
