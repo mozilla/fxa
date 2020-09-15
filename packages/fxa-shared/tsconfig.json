@@ -1,10 +1,13 @@
 {
   "extends": "../../_dev/tsconfig.node.json",
   "compilerOptions": {
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "composite": true,
     "outDir": "./dist",
-    "types": ["accept-language","mocha"]
+    "types": ["accept-language", "mocha", "mozlog", "jest", "node"]
   },
-  "include": ["./**/*", "./*", "./**/*.json"],
-  "exclude": ["dist","node_modules"]
+  "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],
+  "exclude": ["dist", "node_modules", "**/*.spec.ts"]
 }

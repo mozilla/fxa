@@ -5,12 +5,10 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StatsD } from 'hot-shots';
 
-import { AppConfig } from './config';
-
 export const MetricsFactory: Provider<StatsD> = {
   provide: 'METRICS',
-  useFactory: (configService: ConfigService<AppConfig>) => {
-    const config = configService.get('metrics') as AppConfig['metrics'];
+  useFactory: (configService: ConfigService) => {
+    const config = configService.get('metrics');
     if (config.host === '') {
       return new StatsD({ mock: true });
     }

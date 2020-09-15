@@ -1,14 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { Inject, Injectable } from '@nestjs/common';
 import { ExtraErrorData } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
 
-import { AppConfig } from '../config';
-import { version } from '../version';
+import { SENTRY_CONFIG } from './sentry.constants';
+import { SentryConfigParams } from './sentry.module';
 
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
@@ -20,14 +19,10 @@ const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
 
 @Injectable()
 export class SentryService {
-  constructor(configService: ConfigService<AppConfig>) {
-    const sentryDsn = configService.get<string>('sentryDsn');
-
+  constructor(@Inject(SENTRY_CONFIG) private sentryConfig: SentryConfigParams) {
     // Setup Sentry
     Sentry.init({
-      dsn: sentryDsn,
-      release: version.version,
-      environment: configService.get('env'),
+      ...sentryConfig,
       integrations: [new ExtraErrorData()],
       beforeSend(event, hint) {
         return filterSentryEvent(event, hint);

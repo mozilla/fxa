@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request, Response } from 'express';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
-import { MozLoggerService } from '../logger/logger.service';
 import * as dto from '../queueworker/sqs.dto';
 
 @Controller('v1/proxy')

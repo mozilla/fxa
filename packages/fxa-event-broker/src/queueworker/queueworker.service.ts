@@ -10,13 +10,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import AWS, { SQS } from 'aws-sdk';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { AppConfig } from '../config';
 import { FirestoreService } from '../firestore/firestore.service';
-import { MozLoggerService } from '../logger/logger.service';
 import { ServiceNotification } from './service-notification.interface';
 import * as dto from './sqs.dto';
 

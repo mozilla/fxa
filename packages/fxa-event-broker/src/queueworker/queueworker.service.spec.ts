@@ -4,10 +4,10 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { FirestoreService } from '../firestore/firestore.service';
-import { MozLoggerService } from '../logger/logger.service';
 import { QueueworkerService } from './queueworker.service';
 
 const now = Date.now();
