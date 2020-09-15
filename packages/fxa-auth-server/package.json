@@ -14,7 +14,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
     "postinstall": "scripts/download_l10n.sh",
-    "start": "NODE_ENV=dev npm run gen-keys && ../../_scripts/check-mysql.sh && pm2 start pm2.config.js",
+    "start": "scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "test": "VERIFIER_VERSION=0 scripts/test-local.sh",

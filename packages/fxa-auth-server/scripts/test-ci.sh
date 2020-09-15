@@ -14,6 +14,7 @@ node -r ts-node/register ./scripts/gen_keys.js
 node -r ts-node/register ./scripts/gen_vapid_keys.js
 node -r ts-node/register ./scripts/oauth_gen_keys.js
 node -r ts-node/register ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
+node -r ts-node/register ./scripts/oauth-db-patcher.js
 
 TESTS=(local oauth remote scripts)
 for t in "${TESTS[@]}"; do
