@@ -50,7 +50,7 @@
     "cache-loader": "^3.0.1",
     "chosen-js": "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0",
     "connect-cachify": "0.0.17",
-    "consolidate": "0.15.1",
+    "consolidate": "0.16.0",
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
     "convict-format-with-validator": "^6.0.0",

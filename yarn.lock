@@ -10564,7 +10564,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bluebird@npm:>=2.2.2, bluebird@npm:^3.1.1, bluebird@npm:^3.3.5, bluebird@npm:^3.5.0, bluebird@npm:^3.5.5, bluebird@npm:^3.7.2":
+"bluebird@npm:>=2.2.2, bluebird@npm:^3.3.5, bluebird@npm:^3.5.0, bluebird@npm:^3.5.5, bluebird@npm:^3.7.2":
   version: 3.7.2
   resolution: "bluebird@npm:3.7.2"
   checksum: 4f2288662f3d4eadbb82d4daa4a7d7976a28fa3c7eb4102c9b4033b03e5be4574ba123ac52a7c103cde4cb7b2d2afc1dbe41817ca15a29ff21ecd258d0286047
@@ -12811,12 +12811,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"consolidate@npm:0.15.1":
-  version: 0.15.1
-  resolution: "consolidate@npm:0.15.1"
+"consolidate@npm:0.16.0":
+  version: 0.16.0
+  resolution: "consolidate@npm:0.16.0"
   dependencies:
-    bluebird: ^3.1.1
-  checksum: dcab488231c0b0f98b63da526447fa700d6af792a0b3ee43c60a9e6695aa0f5353cab1f3fbe82533235001979256a0849259c4897b90db6ffde992efa2246b53
+    bluebird: ^3.7.2
   languageName: node
   linkType: hard
 
@@ -17840,7 +17839,7 @@ fsevents@^1.2.7:
     chai: ^4.2.0
     chosen-js: "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
     connect-cachify: 0.0.17
-    consolidate: 0.15.1
+    consolidate: 0.16.0
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
     convict-format-with-validator: ^6.0.0
