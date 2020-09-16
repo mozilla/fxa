@@ -29,6 +29,13 @@ describe('Health Controller', () => {
     expect(await controller.heartbeat()).toStrictEqual({});
   });
 
+  it('should return heartbeat extras', async () => {
+    (controller as any).config.extraHealthData = jest
+      .fn()
+      .mockResolvedValue({ test: 'testing' });
+    expect(await controller.heartbeat()).toStrictEqual({ test: 'testing' });
+  });
+
   it('should return lbheartbeat', () => {
     expect(controller.lbheartbeat()).toStrictEqual({});
   });
@@ -36,5 +43,21 @@ describe('Health Controller', () => {
   it('should return the version', () => {
     const source = controller.versionData().source;
     expect(source).toBe(version.source);
+  });
+
+  it('should throw an exception', () => {
+    expect.assertions(1);
+    try {
+      controller.exc();
+    } catch (err) {
+      expect(err.message).toBe('Test Exception');
+    }
+  });
+
+  it('should skip throwing if too frequent', () => {
+    jest
+      .spyOn(global.Date, 'now')
+      .mockImplementationOnce(() => Date.now() - 60_000);
+    expect(controller.exc()).toBe('Too Frequent');
   });
 });

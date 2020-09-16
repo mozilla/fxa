@@ -7,6 +7,8 @@ import { Version } from '../version';
 import { HEALTH_CONFIG } from './health.constants';
 import { HealthControllerConfigParams } from './health.module';
 
+let lastTrigger = Date.now() - 60_000;
+
 @Controller()
 export class HealthController {
   constructor(
@@ -29,5 +31,16 @@ export class HealthController {
   @Get('__version__')
   versionData(): Version {
     return this.config.version;
+  }
+
+  @Get('__exception__')
+  exc() {
+    // Limit how frequently this could be abused.
+    const now = Date.now();
+    if (now - lastTrigger >= 60_000) {
+      lastTrigger = now;
+      throw new Error('Test Exception');
+    }
+    return 'Too Frequent';
   }
 }
