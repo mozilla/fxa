@@ -1123,7 +1123,7 @@ const conf = convict({
       env: 'FXA_OAUTH_LOCAL_REDIRECTS',
     },
     mysql: {
-      createSchema: { default: true, env: 'CREATE_MYSQL_SCHEMA' },
+      createSchema: { default: false, env: 'CREATE_MYSQL_SCHEMA' },
       user: { default: 'root', env: 'MYSQL_USERNAME' },
       password: { default: '', env: 'MYSQL_PASSWORD' },
       database: { default: 'fxa_oauth', env: 'MYSQL_DATABASE' },
@@ -1765,6 +1765,13 @@ const conf = convict({
       doc: 'Zendesk support ticket custom field for topic',
       default: '360028484432',
       env: 'ZENDESK_TOPIC_FIELD_ID',
+      format: String,
+    },
+    appFieldId: {
+      doc:
+        'Zendesk support ticket custom field for product specific app or service',
+      default: '360030780972',
+      env: 'ZENDESK_APP_FIELD_ID',
       format: String,
     },
   },

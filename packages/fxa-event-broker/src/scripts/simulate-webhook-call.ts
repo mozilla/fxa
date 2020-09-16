@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 /**
  * Webhook URL testing script to verify correct webhook handling.
  *
@@ -10,11 +9,11 @@
  * @module
  */
 import { NestFactory } from '@nestjs/core';
-import Chance from 'chance';
 import axios from 'axios';
+import Chance from 'chance';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { AppModule } from '../app.module';
-import { MozLoggerService } from '../logger/logger.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
 
 const chance = new Chance.Chance();

@@ -6,9 +6,9 @@ import {
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from '@nestjs/common';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { FirestoreService } from '../firestore/firestore.service';
-import { MozLoggerService } from '../logger/logger.service';
 import { ClientWebhooks } from './client-webhooks.interface';
 
 /**

@@ -1,23 +1,16 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-
-import { PubsubProxyController } from './pubsub-proxy.controller';
-import { MozLoggerService } from '../logger/logger.service';
-import { Provider } from '@nestjs/common';
-import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
-import { JwtsetService } from '../jwtset/jwtset.service';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import nock from 'nock';
 
-import {
-  DELETE_EVENT_ID,
-  PASSWORD_EVENT_ID,
-  PROFILE_EVENT_ID,
-  SUBSCRIPTION_STATE_EVENT_ID,
-} from '../jwtset/set.interface';
+import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
+import { JwtsetService } from '../jwtset/jwtset.service';
 import * as dto from '../queueworker/sqs.dto';
+import { PubsubProxyController } from './pubsub-proxy.controller';
 
 const TEST_TOKEN =
   'eyJhbGciOiJSUzI1NiIsImtpZCI6IjdkNjgwZDhjNzBkNDRlOTQ3MTMzY2JkNDk5ZWJjMWE2MWMzZDVhYmMiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXpwIjoiMTEzNzc0MjY0NDYzMDM4MzIxOTY0IiwiZW1haWwiOiJnYWUtZ2NwQGFwcHNwb3QuZ3NlcnZpY2VhY2NvdW50LmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjE1NTAxODU5MzUsImlhdCI6MTU1MDE4MjMzNSwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEzNzc0MjY0NDYzMDM4MzIxOTY0In0.QVjyqpmadTyDZmlX2u3jWd1kJ68YkdwsRZDo-QxSPbxjug4ucLBwAs2QePrcgZ6hhkvdc4UHY4YF3fz9g7XHULNVIzX5xh02qXEH8dK6PgGndIWcZQzjSYfgO-q-R2oo2hNM5HBBsQN4ARtGK_acG-NGGWM3CQfahbEjZPAJe_B8M7HfIu_G5jOLZCw2EUcGo8BvEwGcLWB2WqEgRM0-xt5-UPzoa3-FpSPG7DHk7z9zRUeq6eB__ldb-2o4RciJmjVwHgnYqn3VvlX9oVKEgXpNFhKuYA-mWh5o7BCwhujSMmFoBOh6mbIXFcyf5UiVqKjpqEbqPGo_AvKvIQ9VTQ';
@@ -129,6 +122,9 @@ describe('PubsubProxy Controller', () => {
           load: [
             () => ({
               env: 'development',
+              pubsub: {
+                authenticate: true,
+              },
               serviceNotificationQueueUrl:
                 'https://us-east-1/queue.|api-domain|/321321321/notifications',
               log: { app: 'test' },

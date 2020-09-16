@@ -21,7 +21,9 @@ const {
   openPage,
   openRP,
   subscribeToTestProduct,
+  subscribeToTestProductWithCardNumber,
   testElementExists,
+  testElementTextInclude,
   visibleByQSA,
 } = FunctionalHelpers;
 
@@ -65,6 +67,40 @@ registerSuite('subscriptions', {
         .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
         .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
         .then(visibleByQSA(selectors['123DONE'].SUBSCRIBED));
+    },
+    'sign up, failed to subscribe due to expired CC': function () {
+      if (
+        process.env.CIRCLECI === 'true' &&
+        !process.env.SUBHUB_STRIPE_APIKEY
+      ) {
+        this.skip('missing Stripe API key in CircleCI run');
+      }
+      const email = createEmail();
+      return this.remote
+        .then(
+          clearBrowserState({
+            '123done': true,
+            force: true,
+          })
+        )
+        .then(createUser(email, PASSWORD, { preVerified: true }))
+        .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+        .then(fillOutEmailFirstSignIn(email, PASSWORD))
+        .then(testElementExists(selectors.SETTINGS.HEADER))
+
+        .then(openRP())
+        .then(click(selectors['123DONE'].BUTTON_SIGNIN))
+        .then(testElementExists(selectors.SIGNIN_PASSWORD.HEADER))
+        .then(click(selectors['SIGNIN_PASSWORD'].SUBMIT_USE_SIGNED_IN))
+        .then(testElementExists(selectors['123DONE'].AUTHENTICATED))
+        .then(visibleByQSA(selectors['123DONE'].BUTTON_SUBSCRIBE))
+
+        .then(click(selectors['123DONE'].LINK_LOGOUT))
+        .then(visibleByQSA(selectors['123DONE'].BUTTON_SIGNIN))
+
+        .then(subscribeToTestProductWithCardNumber('4000000000000069'))
+
+        .then(testElementTextInclude('.error-message-container', 'expired'));
     },
   },
 });

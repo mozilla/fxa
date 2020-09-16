@@ -11,11 +11,11 @@
  */
 import { NestFactory } from '@nestjs/core';
 import { Chance } from 'chance';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { AppModule } from '../app.module';
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import Config from '../config';
-import { MozLoggerService } from '../logger/logger.service';
 import { QueueworkerService } from '../queueworker/queueworker.service';
 import {
   FactoryBot,

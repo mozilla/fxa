@@ -1,14 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ExtraErrorData } from '@sentry/integrations';
+import { ExecutionContext } from '@nestjs/common';
+import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
 import { SQS } from 'aws-sdk';
-
-import { AppConfig } from '../config';
-import { version } from '../version';
+import { Request } from 'express';
 
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
@@ -18,22 +15,9 @@ const EMAILREGEX = /(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))
 const FILTERED = '[Filtered]';
 const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
 
-@Injectable()
-export class SentryService {
-  constructor(configService: ConfigService<AppConfig>) {
-    const sentryDsn = configService.get<string>('sentryDsn');
-
-    // Setup Sentry
-    Sentry.init({
-      dsn: sentryDsn,
-      release: version.version,
-      environment: configService.get('env'),
-      integrations: [new ExtraErrorData()],
-      beforeSend(event, hint) {
-        return filterSentryEvent(event, hint);
-      },
-    });
-  }
+export interface ExtraContext {
+  name: string;
+  fieldData: Record<string, string>;
 }
 
 /**
@@ -41,7 +25,7 @@ export class SentryService {
  *
  * @param obj Object to filter values on
  */
-function filterObject<T>(obj: T): T {
+export function filterObject<T>(obj: T): T {
   if (typeof obj === 'object' && obj) {
     for (const [key, value] of Object.entries(obj)) {
       if (typeof value === 'string') {
@@ -67,7 +51,7 @@ function filterObject<T>(obj: T): T {
  *
  * @param event
  */
-function filterSentryEvent(event: Sentry.Event, hint: unknown) {
+export function filterSentryEvent(event: Sentry.Event, hint: unknown) {
   if (event.message) {
     event.message = event.message.replace(TOKENREGEX, FILTERED);
   }
@@ -124,4 +108,57 @@ export function captureSqsError(err: Error, message?: SQS.Message): void {
     }
     Sentry.captureException(err);
   });
+}
+
+/**
+ * Report an exception with request and additional optional context objects.
+ *
+ * @param exception
+ * @param excContexts List of additional exception context objects to capture.
+ * @param request A request object if available.
+ */
+export function reportRequestException(
+  exception: Error,
+  excContexts: ExtraContext[] = [],
+  request?: Request
+) {
+  Sentry.withScope((scope: Sentry.Scope) => {
+    scope.addEventProcessor((event: Sentry.Event) => {
+      if (request) {
+        const sentryEvent = Sentry.Handlers.parseRequest(event, request);
+        sentryEvent.level = Sentry.Severity.Error;
+        return sentryEvent;
+      }
+      return null;
+    });
+    for (const ctx of excContexts) {
+      scope.setContext(ctx.name, ctx.fieldData);
+    }
+    Sentry.captureException(exception);
+  });
+}
+
+export function processException(context: ExecutionContext, exception: Error) {
+  // First determine what type of a request this is
+  let requestType: 'http' | 'graphql' | undefined;
+  let request: Request | undefined;
+  let gqlExec: GqlExecutionContext | undefined;
+  if (context.getType() === 'http') {
+    requestType = 'http';
+    request = context.switchToHttp().getRequest();
+  } else if (context.getType<GqlContextType>() === 'graphql') {
+    requestType = 'graphql';
+    gqlExec = GqlExecutionContext.create(context);
+    request = gqlExec.getContext().req;
+  }
+  let excContexts: ExtraContext[] = [];
+  if (gqlExec) {
+    const info = gqlExec.getInfo();
+    excContexts.push({
+      name: 'graphql',
+      fieldData: { fieldName: info.fieldName, path: info.path },
+    });
+  }
+
+  reportRequestException(exception, excContexts, request);
 }

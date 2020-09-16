@@ -7,6 +7,8 @@ import {
   ProductDetailsStringProperty,
   ProductDetailsListProperties,
   ProductDetailsListProperty,
+  AccountSubscription,
+  AbbrevPlan,
 } from './types';
 
 const DEFAULT_LOCALE = 'en-US';
@@ -134,4 +136,32 @@ export const productDetailsFromPlan = (
     ...details.default,
     ...details.selected,
   };
+};
+
+/**
+ * Parse out the 'support:app:' metadata into a dictionary keyed by the product
+ * id.  This is used for the app/service select on the support form.
+ */
+export const getProductSupportApps = (subscriptions: AccountSubscription[]) => (
+  plans: AbbrevPlan[]
+) => {
+  const metadataPrefix = 'support:app:';
+  return plans.reduce((acc: { [keys: string]: string[] }, p) => {
+    if (
+      !acc[p.product_id] &&
+      subscriptions.some((s) => p.product_id === s.product_id) &&
+      Object.keys(p.product_metadata).some((k) => k.startsWith(metadataPrefix))
+    ) {
+      acc[p.product_id] = Object.entries(p.product_metadata).reduce(
+        (apps: string[], [k, v]) => {
+          if (k.startsWith(metadataPrefix)) {
+            apps.push(v);
+          }
+          return apps;
+        },
+        []
+      );
+    }
+    return acc;
+  }, {});
 };

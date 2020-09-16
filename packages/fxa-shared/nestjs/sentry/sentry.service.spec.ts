@@ -4,6 +4,7 @@
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { SENTRY_CONFIG } from './sentry.constants';
 import { SentryService } from './sentry.service';
 
 describe('SentryService', () => {
@@ -12,7 +13,7 @@ describe('SentryService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule],
-      providers: [SentryService],
+      providers: [SentryService, { provide: SENTRY_CONFIG, useValue: {} }],
     }).compile();
 
     service = module.get<SentryService>(SentryService);

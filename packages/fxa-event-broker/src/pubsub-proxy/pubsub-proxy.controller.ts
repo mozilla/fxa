@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request, Response } from 'express';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { JwtsetService } from '../jwtset/jwtset.service';
-import { MozLoggerService } from '../logger/logger.service';
 import * as dto from '../queueworker/sqs.dto';
 
 @Controller('v1/proxy')
@@ -38,6 +38,10 @@ export class PubsubProxyController {
   ): Promise<void> {
     const webhookData = this.webhookService.webhooks;
     if (!Object.keys(webhookData).includes(clientId)) {
+      this.log.debug('proxyDelivery', {
+        message: 'webhook for clientId not found',
+        clientId,
+      });
       res.status(404).send();
       return;
     }
@@ -92,8 +96,13 @@ export class PubsubProxyController {
           clientId,
           statusCode: (err.response as AxiosResponse).status.toString(),
         });
+        this.log.debug('proxyDeliverFail', {
+          response: err.response,
+          message: 'failed to proxy message',
+        });
         response = err.response;
       } else {
+        this.log.error('proxyDeliverError', { err });
         throw err;
       }
     }

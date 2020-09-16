@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as sentry from '@sentry/node';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import joi from 'typesafe-joi';
 
-import { MozLoggerService } from '../logger/logger.service';
 import * as dto from './sqs.dto';
 
 export type ServiceNotification =

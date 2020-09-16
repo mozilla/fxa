@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { FirestoreService } from '../firestore/firestore.service';
-import { MozLoggerService } from '../logger/logger.service';
 import { ClientWebhooksService } from './client-webhooks.service';
 
 const baseClients = [

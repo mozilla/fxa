@@ -5,15 +5,13 @@ import { Injectable, Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import mozlog, { Logger as MozLogger, LoggerFactory } from 'mozlog';
 
-import { AppConfig } from '../config';
-
 let logFactory: LoggerFactory;
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class MozLoggerService {
   private mozlog: MozLogger;
 
-  constructor(configService: ConfigService<AppConfig>) {
+  constructor(configService: ConfigService) {
     if (!logFactory) {
       logFactory = mozlog(configService.get('log'));
     }

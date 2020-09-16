@@ -1,10 +1,16 @@
 import { expect } from 'chai';
 
-import { Plan, ProductMetadata } from '../../subscriptions/types';
+import {
+  AbbrevPlan,
+  AccountSubscription,
+  Plan,
+  ProductMetadata,
+} from '../../subscriptions/types';
 import {
   DEFAULT_PRODUCT_DETAILS,
   metadataFromPlan,
   productDetailsFromPlan,
+  getProductSupportApps,
 } from '../../subscriptions/metadata';
 
 const NULL_METADATA = {
@@ -184,6 +190,83 @@ describe('subscriptions/metadata', () => {
         termsOfServiceDownloadURL: 'https://example.org/en-US/terms/download',
         privacyNoticeDownloadURL: 'https://example.org/en-US/privacy/download',
       });
+    });
+  });
+
+  describe('getProductSupportApps', () => {
+    const subscriptions: AccountSubscription[] = [
+      {
+        created: 1600208907,
+        current_period_end: 1602800907,
+        current_period_start: 1600208907,
+        cancel_at_period_end: false,
+        end_at: null,
+        latest_invoice: 'DDCB9132-0002',
+        plan_id: 'price_1HJnNbBVqmGyQTMaoduxgunR',
+        product_name: 'Cooking with Foxkeh',
+        product_id: 'prod_GvH2k78kKusAlV',
+        status: 'active',
+        subscription_id: 'sub_I1qKQD2YFCVdFI',
+      },
+      {
+        created: 1600185585,
+        current_period_end: 1600271985,
+        current_period_start: 1600185585,
+        cancel_at_period_end: false,
+        end_at: null,
+        latest_invoice: 'DDCB9132-0001',
+        plan_id: 'plan_GjeF1VyTFSnOkD',
+        product_name: 'Firefox Guardian',
+        product_id: 'prod_GjeBkx6iQFoVgg',
+        status: 'active',
+        subscription_id: 'sub_I1k3kT4hAg0TOV',
+      },
+    ];
+    const plans: AbbrevPlan[] = [
+      {
+        amount: 2000,
+        currency: 'usd',
+        interval_count: 1,
+        interval: 'month',
+        plan_id: 'plan_HzXGkO7lSUw8R1',
+        plan_metadata: {},
+        plan_name: '',
+        product_id: 'prod_HzXGNuO76B5o6g',
+        product_metadata: { 'support:app:1': 'Pop!_OS' },
+        product_name: 'myproduct',
+      },
+    ];
+
+    it('returns an empty dictionary when there are no matching products', () => {
+      const actual = getProductSupportApps(subscriptions)(plans);
+      expect(actual).to.deep.equal({});
+    });
+
+    it('returns an empty dictionary when there are no matching metadata', () => {
+      const matchingPlanNoMetadata = [
+        {
+          ...plans[0],
+          product_id: 'prod_GvH2k78kKusAlV',
+          product_metadata: {},
+        },
+      ];
+      const actual = getProductSupportApps(subscriptions)(
+        matchingPlanNoMetadata
+      );
+      expect(actual).to.deep.equal({});
+    });
+
+    it('returns a dictionary keyed by product ids', () => {
+      const matchingPlanNoMetadata = [
+        {
+          ...plans[0],
+          product_id: 'prod_GjeBkx6iQFoVgg',
+        },
+      ];
+      const actual = getProductSupportApps(subscriptions)(
+        matchingPlanNoMetadata
+      );
+      expect(actual).to.deep.equal({ prod_GjeBkx6iQFoVgg: ['Pop!_OS'] });
     });
   });
 });

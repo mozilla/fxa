@@ -5,18 +5,24 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
-import { MockedCache } from '../../models/_mocks';
+import { MockedCache, mockAccountQuery } from '../../models/_mocks';
 import UnitRowTwoStepAuth from '.';
 
 storiesOf('Components|UnitRowTwoStepAuth', module)
   .addDecorator((getStory) => <LocationProvider>{getStory()}</LocationProvider>)
   .add('default unset', () => (
-    <MockedCache account={{ totp: { exists: false, verified: false } }}>
+    <MockedCache
+      account={{ totp: { exists: false, verified: false } }}
+      mocks={[mockAccountQuery({ exists: true, verified: false })]}
+    >
       <UnitRowTwoStepAuth />
     </MockedCache>
   ))
   .add('enabled, not verified', () => (
-    <MockedCache account={{ totp: { exists: true, verified: false } }}>
+    <MockedCache
+      account={{ totp: { exists: true, verified: false } }}
+      mocks={[mockAccountQuery({ exists: true, verified: false })]}
+    >
       <UnitRowTwoStepAuth />
     </MockedCache>
   ))
@@ -24,6 +30,7 @@ storiesOf('Components|UnitRowTwoStepAuth', module)
     <MockedCache
       verified={false}
       account={{ totp: { exists: true, verified: false } }}
+      mocks={[mockAccountQuery({ exists: true, verified: false })]}
     >
       <UnitRowTwoStepAuth />
     </MockedCache>

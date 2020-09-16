@@ -66,6 +66,9 @@
       "fxa-auth-client": [
         "fxa-auth-server"
       ],
+      "fxa-event-broker": [
+        "fxa-shared"
+      ],
       "fxa-profile-server": [
         "fxa-auth-server",
         "fxa-shared"
