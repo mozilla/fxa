@@ -280,16 +280,27 @@ registerSuite('settings change email', {
           .then((checkboxes) => checkboxes.map((checkbox) => checkbox.click()))
           .end()
 
-          // enter correct password
+          // enter correct password for deleting account
           .then(
             type(selectors.SETTINGS_DELETE_ACCOUNT.INPUT_PASSWORD, PASSWORD)
           )
           .then(click(selectors.SETTINGS_DELETE_ACCOUNT.SUBMIT))
           .then(testElementExists(selectors.ENTER_EMAIL.HEADER))
           .then(testSuccessWasShown())
-          .then(type(selectors.ENTER_EMAIL.EMAIL, email))
-          .then(click(selectors.ENTER_EMAIL.SUBMIT))
-          .then(visibleByQSA(selectors.SIGNUP_PASSWORD.HEADER))
+
+          // Try creating a new account with the same secondary email as previous account and new password
+          .then(fillOutEmailFirstSignUp(secondaryEmail, NEW_PASSWORD))
+          .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
+          .then(fillOutSignUpCode(secondaryEmail, 2))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+
+          // Verify that user can add the same primary email as secondary as used in the previous account
+          .then(click(selectors.EMAIL.MENU_BUTTON))
+          .then(type(selectors.EMAIL.INPUT, email))
+          .then(click(selectors.EMAIL.ADD_BUTTON))
+          .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+          .then(openVerificationLinkInSameTab(email, 3, {}))
+          .then(testSuccessWasShown())
       );
     },
   },
