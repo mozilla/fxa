@@ -7,15 +7,15 @@ module.exports = {
       'use strict';
       var e = {
           928: (e, t, r) => {
-            r.r(t), r.d(t, { default: () => p });
+            r.r(t), r.d(t, { default: () => i });
             var o = r(594),
-              n = r(966),
-              c = r(42),
-              a = function (e, t, r, o) {
-                var n,
-                  c = arguments.length,
-                  a =
-                    c < 3
+              c = r(966),
+              s = r(42),
+              n = function (e, t, r, o) {
+                var c,
+                  s = arguments.length,
+                  n =
+                    s < 3
                       ? t
                       : null === o
                       ? (o = Object.getOwnPropertyDescriptor(t, r))
@@ -24,35 +24,64 @@ module.exports = {
                   'object' == typeof Reflect &&
                   'function' == typeof Reflect.decorate
                 )
-                  a = Reflect.decorate(e, t, r, o);
+                  n = Reflect.decorate(e, t, r, o);
                 else
-                  for (var i = e.length - 1; i >= 0; i--)
-                    (n = e[i]) &&
-                      (a = (c < 3 ? n(a) : c > 3 ? n(t, r, a) : n(t, r)) || a);
-                return c > 3 && a && Object.defineProperty(t, r, a), a;
+                  for (var a = e.length - 1; a >= 0; a--)
+                    (c = e[a]) &&
+                      (n = (s < 3 ? c(n) : s > 3 ? c(t, r, n) : c(t, r)) || n);
+                return s > 3 && n && Object.defineProperty(t, r, n), n;
               };
-            class i extends c.Command {
+            class a extends s.Command {
               async execute() {
-                const e = await n.Configuration.find(
+                const e = await c.Configuration.find(
                     this.context.cwd,
                     this.context.plugins
                   ),
-                  { project: t, workspace: r } = await n.Project.find(
+                  { project: t, workspace: r } = await c.Project.find(
                     e,
                     this.context.cwd
                   );
                 if (!r)
                   throw new o.WorkspaceRequiredError(t.cwd, this.context.cwd);
-                const c = await n.Cache.find(e);
+                const s = await c.Cache.find(e);
                 await t.resolveEverything({
-                  cache: c,
-                  report: new n.ThrowReport(),
-                }),
-                  await t.persistLockfile();
+                  cache: s,
+                  report: new c.ThrowReport(),
+                });
+                try {
+                  const r = Array.from(
+                    new Set(
+                      c.miscUtils.sortMap(t.storedResolutions.values(), [
+                        (e) => {
+                          const r = t.storedPackages.get(e);
+                          if (!r)
+                            throw new Error(
+                              'Assertion failed: The locator should have been registered'
+                            );
+                          return c.structUtils.stringifyLocator(r);
+                        },
+                      ])
+                    )
+                  ).filter((e) => !t.storedChecksums.has(e));
+                  for (const o of r) {
+                    const r = t.storedPackages.get(o),
+                      n = e.makeFetcher(),
+                      a = await n.fetch(r, {
+                        checksums: t.storedChecksums,
+                        project: t,
+                        cache: s,
+                        fetcher: n,
+                        report: new c.ThrowReport(),
+                      });
+                    a.checksum &&
+                      t.storedChecksums.set(r.locatorHash, a.checksum);
+                  }
+                } catch (e) {}
+                await t.persistLockfile();
               }
             }
-            a([c.Command.Path('relock')], i.prototype, 'execute', null);
-            const p = { commands: [i] };
+            n([s.Command.Path('relock')], a.prototype, 'execute', null);
+            const i = { commands: [a] };
           },
           594: (e) => {
             e.exports = require('@yarnpkg/cli');
@@ -67,8 +96,8 @@ module.exports = {
         t = {};
       function r(o) {
         if (t[o]) return t[o].exports;
-        var n = (t[o] = { exports: {} });
-        return e[o](n, n.exports, r), n.exports;
+        var c = (t[o] = { exports: {} });
+        return e[o](c, c.exports, r), c.exports;
       }
       return (
         (r.n = (e) => {
