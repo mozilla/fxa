@@ -1,6 +1,6 @@
 {
   "name": "fxa-admin-server",
-  "version": "1.187.0",
+  "version": "1.187.3",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
     "build": "tsc",

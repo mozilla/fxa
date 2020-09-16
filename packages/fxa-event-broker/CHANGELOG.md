@@ -1,5 +1,20 @@
 # Change history
 
+## 1.187.3
+
+No changes.
+
+## 1.187.2
+
+### Bug fixes
+
+- event-broker: dont use env for local checks ([271e28455](https://github.com/mozilla/fxa/commit/271e28455))
+- event-broker: include lbheartbeat and dev check ([36250c1b2](https://github.com/mozilla/fxa/commit/36250c1b2))
+
+## 1.187.1
+
+No changes.
+
 ## 1.187.0
 
 ### New features
