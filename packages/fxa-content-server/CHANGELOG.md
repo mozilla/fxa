@@ -1,3 +1,24 @@
+## 1.187.3
+
+### Bug fixes
+
+- metrics: Emit the service name with pairing login complete ([bdd9d8967](https://github.com/mozilla/fxa/commit/bdd9d8967))
+- tests: Point to correct metrics doc for validation ([5268f86c9](https://github.com/mozilla/fxa/commit/5268f86c9))
+
+### Other changes
+
+- experiments: Enable newsletters experiment on 50% of sync users ([a6cd63da4](https://github.com/mozilla/fxa/commit/a6cd63da4))
+
+## 1.187.2
+
+### Bug fixes
+
+- tests: hacky workaround for mozilla.org page selector bug ([3d0dc3975](https://github.com/mozilla/fxa/commit/3d0dc3975))
+
+## 1.187.1
+
+No changes.
+
 ## 1.187.0
 
 ### New features
