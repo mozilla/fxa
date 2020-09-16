@@ -7,6 +7,8 @@ import { assert } from 'chai';
 import Constants from 'lib/constants';
 import WebChannel from 'lib/channels/web';
 import OAuthWebChannelBroker from 'models/auth_brokers/oauth-webchannel-v1';
+import Metrics from 'lib/metrics';
+import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/base';
 import Session from 'lib/session';
 import sinon from 'sinon';
@@ -35,6 +37,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
   let broker;
   let channelMock;
   let metrics;
+  let notifier;
   let relier;
   let user;
   let windowMock;
@@ -53,10 +56,10 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
   }
 
   beforeEach(() => {
-    metrics = {
-      flush: sinon.spy(() => Promise.resolve()),
-      logEvent: sinon.spy(),
-    };
+    notifier = new Notifier();
+    metrics = new Metrics({ notifier });
+    sinon.stub(metrics, 'flush').callsFake(() => Promise.resolve());
+    sinon.stub(metrics, 'logEvent').callsFake(() => Promise.resolve());
     relier = new Relier({
       action: 'action',
       clientId: 'clientId',
@@ -196,6 +199,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
 
   it('logs pairing metrics if enabled', async () => {
     broker.setCapability('supportsPairing', true);
+    relier.unset('service');
     await broker.sendOAuthResultToRelier(
       {
         redirect: Constants.OAUTH_WEBCHANNEL_REDIRECT,
@@ -205,6 +209,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
 
     assert.isTrue(metrics.flush.calledOnce);
     assert.isTrue(metrics.logEvent.calledOnceWith('pairing.signin.success'));
+    assert.equal(metrics._service, 'clientId');
   });
 
   describe('login with an error', () => {
