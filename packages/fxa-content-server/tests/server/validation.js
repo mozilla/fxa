@@ -10,7 +10,7 @@ const request = require('request-promise');
 const validation = require('../../server/lib/validation');
 
 const METRICS_DOCS_URL =
-  'https://raw.githubusercontent.com/mozilla/application-services/master/docs/product-portal/accounts/metrics.md';
+  'https://raw.githubusercontent.com/mozilla/ecosystem-platform/master/docs/relying-parties/metrics-for-relying-parties.md';
 const UTM_REGEX = validation.TYPES.UTM._tests[1].arg.pattern;
 const REGEXES = new Map([
   ['entrypoint', validation.PATTERNS.ENTRYPOINT],
