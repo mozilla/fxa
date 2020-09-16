@@ -12,8 +12,7 @@ import { AppConfig } from '../config';
 import { PubSubJWT } from './pubsubclaim.interface';
 
 @Injectable()
-export class GoogleJwtStrategy extends PassportStrategy(Strategy) {
-  public readonly name = 'googlejwt';
+export class GoogleJwtStrategy extends PassportStrategy(Strategy, 'googlejwt') {
   private verificationToken: string;
 
   constructor(configService: ConfigService<AppConfig>) {

@@ -122,6 +122,9 @@ describe('PubsubProxy Controller', () => {
           load: [
             () => ({
               env: 'development',
+              pubsub: {
+                authenticate: true,
+              },
               serviceNotificationQueueUrl:
                 'https://us-east-1/queue.|api-domain|/321321321/notifications',
               log: { app: 'test' },
