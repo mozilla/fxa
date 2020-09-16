@@ -123,7 +123,6 @@ To update dependencies use [yarn up](https://yarnpkg.com/cli/up) or `yarn worksp
 > [Java 8+](https://www.java.com/en/download/),
 > [Rust nightly+](https://doc.rust-lang.org/1.5.0/book/nightly-rust.html),
 > [libgmp](https://gmplib.org/),
-> [graphicsmagick](http://www.graphicsmagick.org/),
 > [docker](https://docs.docker.com/),
 > [gcloud CLI](https://cloud.google.com/sdk/) > [Yarn 2](https://yarnpkg.com)
 
@@ -146,7 +145,7 @@ sudo easy_install pip && sudo pip install virtualenv
 ##### Ubuntu:
 
 ```
-sudo apt-get install build-essential git libgmp3-dev graphicsmagick  python-virtualenv python-dev pkg-config libssl-dev curl openjdk-11-jre firefox
+sudo apt-get install build-essential git libgmp3-dev python-virtualenv python-dev pkg-config libssl-dev curl openjdk-11-jre firefox
 ```
 
 Follow the [Docker CE instructions to install Docker](https://docs.docker.com/install/linux/docker-ce/ubuntu/).

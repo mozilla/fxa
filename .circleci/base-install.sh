@@ -11,8 +11,6 @@ if ([[ "$MODULE" == "many" ]] && grep -e '.' packages/test.list > /dev/null) ||
     grep -e "$MODULE" -e 'all' packages/test.list > /dev/null; then
   ./.circleci/assert-branch.sh
   ./_scripts/create-version-json.sh
-  sudo apt-get update
-  sudo apt-get install -y graphicsmagick
 
   yarn install --immutable
 fi

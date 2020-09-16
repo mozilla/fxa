@@ -2,7 +2,6 @@ FROM circleci/node:12-stretch-browsers
 
 USER root
 RUN apt-get update && apt-get install -y \
-    graphicsmagick \
     python-setuptools \
     python-dev \
     && rm -rf /var/lib/apt/lists/*

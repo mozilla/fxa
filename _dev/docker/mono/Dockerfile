@@ -9,7 +9,6 @@ RUN set -x \
         --uid 10001 \
         app
 RUN apt-get update && apt-get install -y \
-    graphicsmagick \
     netcat \
     openssl \
     && rm -rf /var/lib/apt/lists/*
