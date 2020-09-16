@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import isA from '@hapi/joi';
 import * as Sentry from '@sentry/node';
+import { AbbrevPlan } from 'fxa-shared/dist/subscriptions/types';
 import ScopeSet from 'fxa-shared/oauth/scopes';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
@@ -17,11 +18,7 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../config';
 import error from '../error';
-import {
-  AbbrevPlan,
-  StripeHelper,
-  SUBSCRIPTION_UPDATE_TYPES,
-} from '../payments/stripe';
+import { StripeHelper, SUBSCRIPTION_UPDATE_TYPES } from '../payments/stripe';
 import { AuthLogger, AuthRequest } from '../types';
 import { splitCapabilities } from './utils/subscriptions';
 import validators from './validators';

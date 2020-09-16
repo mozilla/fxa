@@ -24,6 +24,7 @@ import SupportForm from 'models/support-form';
 import SupportFormErrorTemplate from 'templates/partial/support-form-error.mustache';
 import SupportFormSuccessTemplate from 'templates/partial/support-form-success.mustache';
 import Template from 'templates/support.mustache';
+import { getProductSupportApps } from 'fxa-shared/subscriptions/metadata';
 
 const productPrefix = 'FxA - ';
 
@@ -42,6 +43,7 @@ const SupportView = BaseView.extend({
   initialize(options = {}) {
     this.getUidAndSetSignedInAccount();
     this.supportForm = new SupportForm();
+    this.productSupportApps = {};
 
     this._subscriptionsConfig = {};
     if (options && options.config && options.config.subscriptions) {
@@ -81,7 +83,15 @@ const SupportView = BaseView.extend({
       if (subscriptions.length) {
         this.model.set('subscriptions', subscriptions);
 
-        return account.fetchProfile();
+        return account
+          .fetchSubscriptionPlans()
+          .then((plans) => {
+            const productSupportApps = getProductSupportApps(subscriptions)(
+              plans
+            );
+            this.productSupportApps = productSupportApps;
+          })
+          .then(() => account.fetchProfile());
       } else {
         // Note that if a user landed here, it is because:
         // a) they accessed the page directly, as the button for this page is
@@ -106,10 +116,23 @@ const SupportView = BaseView.extend({
     this.submitText = this.$('.submit-content');
     this.submitSpinner = this.$('.spinner');
     this.cancelBtn = this.$('button.cancel');
+    this.appEl = this.$('#app');
+    // hidden until a product with the required metadata is selected
+    this.appEl.parent().parent().hide();
     this.subjectEl = this.$('#subject');
     this.messageEl = this.$('#message');
-    this.productEl.chosen({ disable_search: true, width: '100%' });
-    this.topicEl.chosen({ disable_search: true, width: '100%' });
+    this.productEl.chosen({
+      disable_search: true,
+      width: '100%',
+    });
+    this.topicEl.chosen({
+      disable_search: true,
+      width: '100%',
+    });
+    this.appEl.chosen({
+      disable_search: true,
+      width: '100%',
+    });
 
     // Have screen readers use the form label for the drop down
     $('div.chosen-drop ul').each(function () {
@@ -147,9 +170,37 @@ const SupportView = BaseView.extend({
       );
     }
 
+    // We need to update the product specific app/service options when the
+    // product selection has changed
+    if (e.target.id === 'product') {
+      const apps =
+        subscription && this.productSupportApps[subscription.product_id]
+          ? this.productSupportApps[subscription.product_id]
+          : [];
+
+      if (apps.length) {
+        this.appEl
+          .empty()
+          .append(
+            apps
+              .map(_.escape)
+              .map((a) => `<option value="${a}">${a}</option>`)
+              .join('')
+          )
+          .prop('disabled', false);
+        this.appEl.parent().parent().slideDown();
+      } else {
+        this.appEl.empty().prop('disabled', true);
+        this.appEl.parent().parent().slideUp();
+      }
+
+      this.appEl.trigger('chosen:updated');
+    }
+
     this.supportForm.set({
       productName: this.formatProductName(productName),
       topic: this.topicEl.val(),
+      app: this.appEl.val() || '',
       subject: this.subjectEl.val().trim(),
       message: this.messageEl.val().trim(),
     });

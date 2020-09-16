@@ -174,6 +174,7 @@ describe('support', () => {
       plan: '123done',
       productName: 'FxA - 123done Pro',
       topic: 'Billing',
+      app: 'FxOS Client',
       subject: 'Change of address',
       message: 'How do I change it?',
     },
@@ -217,6 +218,7 @@ describe('support', () => {
           [
             'FxA - 123done Pro',
             requestOptions.payload.topic,
+            requestOptions.payload.app,
             'Mountain View',
             'California',
             'United States',
@@ -266,6 +268,7 @@ describe('support', () => {
           [
             'FxA - 123done Pro',
             requestOptions.payload.topic,
+            requestOptions.payload.app,
             'Mountain View',
             'California',
             'United States',

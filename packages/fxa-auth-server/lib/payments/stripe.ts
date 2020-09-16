@@ -4,6 +4,7 @@
 import * as Sentry from '@sentry/node';
 import cacheManager, { Cacheable, CacheClear } from '@type-cacheable/core';
 import { useAdapter } from '@type-cacheable/ioredis-adapter';
+import { AbbrevPlan, AbbrevProduct } from 'fxa-shared/dist/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
 import moment from 'moment';
@@ -13,25 +14,6 @@ import { Stripe } from 'stripe';
 import { ConfigType } from '../../config';
 import error from '../error';
 import Redis from '../redis';
-
-export type AbbrevProduct = {
-  product_id: string;
-  product_metadata: Stripe.Product['metadata'];
-  product_name: string;
-};
-
-export type AbbrevPlan = {
-  amount: Stripe.Plan['amount'];
-  currency: Stripe.Plan['currency'];
-  interval_count: Stripe.Plan['interval_count'];
-  interval: Stripe.Plan['interval'];
-  plan_id: string;
-  plan_metadata: Stripe.Plan['metadata'];
-  plan_name: string;
-  product_id: string;
-  product_metadata: Stripe.Product['metadata'];
-  product_name: string;
-};
 
 const CUSTOMER_RESOURCE = 'customers';
 const SUBSCRIPTIONS_RESOURCE = 'subscriptions';

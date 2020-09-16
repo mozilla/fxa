@@ -38,7 +38,6 @@
                 <div class="input-row">
                   <select id="product" name="product" data-placeholder="{{optionPlaceholder}}">
                     <option value=""></option>
-                    <option value="Firefox Account">{{#t}}Firefox Account{{/t}}</option>
                     {{#subscriptions}}
                     <option value="{{product_name}}">{{product_name}}</option>
                     {{/subscriptions}}
@@ -56,6 +55,15 @@
                     {{#topicOptions}}
                     <option value="{{topic}}">{{translated}}</option>
                     {{/topicOptions}}
+                  </select>
+                </div>
+              </div>
+              <div class="support-field">
+                <div class="form-label">
+                  <label for="app">{{#t}}Do you need help with a specific app or service? (optional){{/t}}</label>
+                </div>
+                <div class="input-row">
+                  <select id="app" name="app" data-placeholder="{{optionPlaceholder}}" disabled>
                   </select>
                 </div>
               </div>

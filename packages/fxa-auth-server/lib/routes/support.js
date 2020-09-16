@@ -47,6 +47,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           payload: isA.object().keys({
             productName: isA.string().required(),
             topic: isA.string().required(),
+            app: isA.string().allow('').optional(),
             subject: isA.string().allow('').optional(),
             message: isA.string().required(),
           }),
@@ -74,6 +75,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           locationStateFieldId,
           locationCountryFieldId,
           topicFieldId,
+          appFieldId,
         } = config.zendesk;
 
         const zendeskReq = {
@@ -86,6 +88,7 @@ module.exports = (log, db, config, customs, zendeskClient) => {
           custom_fields: [
             { id: productNameFieldId, value: request.payload.productName },
             { id: topicFieldId, value: request.payload.topic },
+            { id: appFieldId, value: request.payload.app },
             { id: locationCityFieldId, value: location.city },
             { id: locationStateFieldId, value: location.state },
             { id: locationCountryFieldId, value: location.country },

@@ -174,3 +174,11 @@
     box-shadow: 0 0 0 3px rgba($blue-50, 0.3);
   }
 }
+
+.chosen-disabled {
+  opacity: 0.4;
+  cursor: default;
+  .chosen-single {
+    cursor: default;
+  }
+}
