@@ -7,6 +7,6 @@
 
   &::before {
     content: '';
-    @apply caret-up absolute -top-3 left-55;
+    @apply caret-top absolute -top-3 left-55;
   }
 }

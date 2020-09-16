@@ -59,11 +59,14 @@ module.exports = {
         '-3': '-0.75rem',
         '-52': '-13rem',
         '55': '13.75rem',
+        ten: '10%',
+        full: '100%',
       },
       boxShadow: {
         // Specific-use focus shadows for input elements
         'input-blue-focus': '0 0 0 1px #0090ED, 0 0 0 3px #C2D8F7',
         'input-grey-focus': '0 0 0 1px #6D6D6E, 0 0 0 3px #E7E7E7',
+        'tooltip-grey-drop': '0 0 4px rgba(32, 18, 58, 0.24)',
       },
       scale: {
         '80': '.8',
@@ -268,10 +271,35 @@ module.exports = {
     }),
     plugin(function ({ addComponents }) {
       const carets = {
-        '.caret-up': {
+        '.caret-top': {
           borderLeft: '.75rem solid transparent',
           borderRight: '.75rem solid transparent',
           borderBottom: '.75rem solid #fff',
+        },
+        '.caret-top-default': {
+          borderLeft: '.75rem solid transparent',
+          borderRight: '.75rem solid transparent',
+          borderBottom: '.75rem solid #3D3D3D',
+        },
+        '.caret-top-error': {
+          borderLeft: '.75rem solid transparent',
+          borderRight: '.75rem solid transparent',
+          borderBottom: '.75rem solid #E22850',
+        },
+        '.caret-bottom': {
+          borderLeft: '.75rem solid transparent',
+          borderRight: '.75rem solid transparent',
+          borderBottom: '.75rem solid #fff',
+        },
+        '.caret-bottom-default': {
+          borderLeft: '.75rem solid transparent',
+          borderRight: '.75rem solid transparent',
+          borderTop: '.75rem solid #3D3D3D',
+        },
+        '.caret-bottom-error': {
+          borderLeft: '.75rem solid transparent',
+          borderRight: '.75rem solid transparent',
+          borderTop: '.75rem solid #E22850',
         },
       };
       addComponents(carets);

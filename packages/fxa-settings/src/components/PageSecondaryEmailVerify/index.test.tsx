@@ -69,9 +69,7 @@ describe('PageSecondaryEmailVerify', () => {
 
     await wait();
 
-    expect(screen.getByTestId('error-tooltip').textContent).toContain(
-      'invalid code'
-    );
+    expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
   });
 
   it('navigates to settings on success', async () => {
