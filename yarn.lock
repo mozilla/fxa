@@ -19541,21 +19541,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:14.6.0, graphql@npm:^14.5.3":
+"graphql@npm:*, graphql@npm:14.6.0, graphql@npm:^14.5.3, graphql@npm:^14.6.0":
   version: 14.6.0
   resolution: "graphql@npm:14.6.0"
   dependencies:
     iterall: ^1.2.2
   checksum: 24cab2758cea2ce592c59af28cac0fc80d2f2eac2f2441ce0152ce3c5a3a2416394aadf71b2d8db58f46c44ca3d20747eb168f58502f6eadafab0f11dea13791
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^14.6.0":
-  version: 14.7.0
-  resolution: "graphql@npm:14.7.0"
-  dependencies:
-    iterall: ^1.2.2
-  checksum: 3b7d50f98f5c66db36327d6dd331367c6da166d701b5bad669664e8602a180ee50dcb5ae3e1f9874e7fa59c1217f50a52a922fc77b5a1e04276426e67815b0ed
   languageName: node
   linkType: hard
 
