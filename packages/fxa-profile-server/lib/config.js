@@ -131,17 +131,6 @@ const conf = convict({
         env: 'IMG_COMPUTE_MAX_PROCESSES',
       },
     },
-    gm: {
-      limits: {
-        // See http://www.graphicsmagick.org/GraphicsMagick.html#details-limit
-        disk: '64MB',
-        files: '8',
-        map: '32MB',
-        memory: '64MB',
-        pixels: '16K',
-        threads: '8',
-      },
-    },
     url: {
       doc: 'Pattern to generate FxA avatar URLs. {id} will be replaced.',
       default: 'http://localhost:1112/a/{id}',

@@ -10,7 +10,6 @@ RUN set -x \
         app
 RUN apt-get update && apt-get install -y \
     git-core \
-    graphicsmagick \
     python-setuptools \
     python-dev \
     build-essential \
