@@ -5,7 +5,11 @@
 import React from 'react';
 import { screen, act, fireEvent, wait } from '@testing-library/react';
 import { DELETE_TOTP_MUTATION, UnitRowTwoStepAuth } from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import {
+  renderWithRouter,
+  MockedCache,
+  mockAccountQuery,
+} from '../../models/_mocks';
 
 const mockMutationSuccess = {
   request: {
@@ -52,6 +56,33 @@ describe('UnitRowTwoStepAuth', () => {
       'Not Set'
     );
     expect(screen.getByTestId('unit-row-route').textContent).toContain('Add');
+  });
+
+  it('can be refreshed', async () => {
+    renderWithRouter(
+      <MockedCache
+        account={{ totp: { exists: false } }}
+        mocks={[
+          mockAccountQuery({
+            totp: {
+              exists: true,
+              verified: true,
+            },
+          }),
+        ]}
+      >
+        <UnitRowTwoStepAuth />
+      </MockedCache>
+    );
+    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
+      'Not Set'
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('two-step-refresh'));
+    });
+    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
+      'Enabled'
+    );
   });
 
   it('renders view as not enabled after disabling TOTP', async () => {

@@ -10,7 +10,8 @@ import AlertBar from '../AlertBar';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { useAccount } from '../../models';
+import { useAccount, useLazyAccount } from '../../models';
+import { ButtonIconReload } from '../ButtonIcon';
 
 export const DELETE_TOTP_MUTATION = gql`
   mutation deleteTotp($input: DeleteTotpInput!) {
@@ -22,7 +23,7 @@ export const DELETE_TOTP_MUTATION = gql`
 
 export const UnitRowTwoStepAuth = () => {
   const { totp } = useAccount();
-  const { exists, verified } = totp;
+  const { exists } = totp;
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [alertBarRevealed, revealAlertBar, hideAlertBar] = useBooleanState();
   const [errorText, setErrorText] = useState<string>();
@@ -31,6 +32,14 @@ export const UnitRowTwoStepAuth = () => {
     hideModal();
     revealAlertBar();
   };
+
+  const [getAccount, { accountLoading }] = useLazyAccount((error) => {
+    setErrorText(
+      'Sorry, there was a problem refreshing two-step authentication.'
+    );
+    revealAlertBar();
+  });
+
   const [disableTwoStepAuth] = useMutation(DELETE_TOTP_MUTATION, {
     variables: { input: {} },
     onCompleted: () => {
@@ -72,6 +81,23 @@ export const UnitRowTwoStepAuth = () => {
       header="Two-step authentication"
       route="/beta/settings/two_step_authentication"
       {...conditionalUnitRowProps}
+      headerContent={
+        <ButtonIconReload
+          title="Refresh two-step authentication"
+          classNames="mobileLandscape:hidden"
+          disabled={accountLoading}
+          onClick={getAccount}
+        />
+      }
+      actionContent={
+        <ButtonIconReload
+          title="Refresh two-step authentication"
+          classNames="hidden mobileLandscape:inline-block"
+          testId="two-step-refresh"
+          disabled={accountLoading}
+          onClick={getAccount}
+        />
+      }
     >
       <p className="text-sm mt-3">
         Prevent someone else from logging in by requiring a unique code only you

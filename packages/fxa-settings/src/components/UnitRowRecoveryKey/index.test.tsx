@@ -3,9 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
 import UnitRowRecoveryKey from '.';
-import { renderWithRouter, MockedCache } from '../../models/_mocks';
+import {
+  renderWithRouter,
+  MockedCache,
+  mockAccountQuery,
+} from '../../models/_mocks';
 
 describe('UnitRowRecoveryKey', () => {
   it('renders when recovery key is set', () => {
@@ -39,6 +43,26 @@ describe('UnitRowRecoveryKey', () => {
     );
     expect(screen.getByTestId('unit-row-route').textContent).toContain(
       'Create'
+    );
+  });
+
+  it('can be refreshed', async () => {
+    renderWithRouter(
+      <MockedCache
+        account={{ recoveryKey: false }}
+        mocks={[mockAccountQuery({ recoveryKey: true })]}
+      >
+        <UnitRowRecoveryKey />
+      </MockedCache>
+    );
+    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
+      'Not Set'
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('recovery-key-refresh'));
+    });
+    expect(screen.getByTestId('unit-row-header-value')).toHaveTextContent(
+      'Enabled'
     );
   });
 });

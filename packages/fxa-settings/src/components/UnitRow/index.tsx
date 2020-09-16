@@ -59,6 +59,8 @@ type UnitRowProps = {
   secondaryCtaRoute?: string;
   secondaryButtonClassName?: string;
   children?: React.ReactNode;
+  headerContent?: React.ReactNode;
+  actionContent?: React.ReactNode;
   headerValueClassName?: string;
   route?: string;
   revealModal?: () => void;
@@ -71,6 +73,8 @@ export const UnitRow = ({
   headerValue,
   route,
   children,
+  headerContent,
+  actionContent,
   headerValueClassName,
   noHeaderValueText = 'None',
   ctaText,
@@ -89,7 +93,10 @@ export const UnitRow = ({
   return (
     <div className="unit-row">
       <div className="unit-row-header">
-        <h3 data-testid="unit-row-header">{header}</h3>
+        <span className="flex justify-between items-center">
+          <h3 data-testid="unit-row-header">{header}</h3>
+          <span>{headerContent}</span>
+        </span>
       </div>
       <div className="unit-row-content">
         <p
@@ -105,7 +112,7 @@ export const UnitRow = ({
         <div className="flex items-center">
           {route && (
             <Link
-              className="cta-neutral cta-base transition-standard mr-2"
+              className="cta-neutral cta-base transition-standard mr-1"
               data-testid="unit-row-route"
               to={`${route}${location.search}`}
             >
@@ -122,7 +129,7 @@ export const UnitRow = ({
 
           {secondaryCtaRoute && (
             <Link
-              className="cta-neutral cta-base transition-standard mr-2"
+              className="cta-neutral cta-base transition-standard mr-1"
               data-testid="unit-row-route"
               to={`${secondaryCtaRoute}${location.search}`}
             >
@@ -139,6 +146,8 @@ export const UnitRow = ({
               alertBarRevealed={alertBarRevealed}
             />
           )}
+
+          {actionContent}
         </div>
       </div>
     </div>

@@ -6,7 +6,12 @@ import React from 'react';
 import { screen, fireEvent, act, wait } from '@testing-library/react';
 import { DocumentNode } from '@apollo/client';
 import { AlertBarRootAndContextProvider } from '../../lib/AlertBarContext';
-import { MockedCache, renderWithRouter, mockEmail } from '../../models/_mocks';
+import {
+  MockedCache,
+  renderWithRouter,
+  mockEmail,
+  mockAccountQuery,
+} from '../../models/_mocks';
 import {
   UnitRowSecondaryEmail,
   RESEND_EMAIL_CODE_MUTATION,
@@ -122,6 +127,32 @@ describe('UnitRowSecondaryEmail', () => {
         screen.getByTestId('secondary-email-make-primary')
       ).toBeInTheDocument();
       expect(screen.getByTestId('secondary-email-delete')).toBeInTheDocument();
+    });
+
+    it('can refresh from unverified to verified', async () => {
+      const initialEmails = [
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false, false),
+      ];
+      const expectedEmails = [
+        mockEmail('johndope@example.com'),
+        mockEmail('johndope2@example.com', false, true),
+      ];
+
+      renderWithRouter(
+        <MockedCache
+          account={{ emails: initialEmails }}
+          mocks={[mockAccountQuery({ emails: expectedEmails })]}
+        >
+          <UnitRowSecondaryEmail />
+        </MockedCache>
+      );
+
+      expect(screen.getByTestId('unverified-text')).toBeInTheDocument();
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('secondary-email-refresh'));
+      });
+      expect(screen.queryByTestId('unverified-text')).not.toBeInTheDocument();
     });
   });
 

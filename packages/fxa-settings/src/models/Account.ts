@@ -1,4 +1,10 @@
-import { gql, useApolloClient } from '@apollo/client';
+import {
+  gql,
+  useApolloClient,
+  useLazyQuery,
+  ApolloError,
+  QueryLazyOptions,
+} from '@apollo/client';
 
 export interface Email {
   email: string;
@@ -77,4 +83,20 @@ export function useAccount() {
   })!;
 
   return account;
+}
+
+export function useLazyAccount(
+  onError: (error: ApolloError) => void
+): [
+  (options?: QueryLazyOptions<Record<string, any>> | undefined) => void,
+  { accountLoading: boolean }
+] {
+  const [getAccount, { loading: accountLoading }] = useLazyQuery<{
+    account: Account;
+  }>(GET_ACCOUNT, {
+    fetchPolicy: 'network-only',
+    onError,
+  });
+
+  return [getAccount, { accountLoading }];
 }
