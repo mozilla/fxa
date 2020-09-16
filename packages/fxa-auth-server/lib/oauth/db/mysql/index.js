@@ -93,34 +93,35 @@ MysqlStore.connect = function mysqlConnect(options) {
   if (options.logger) {
     logger = options.logger;
   }
-
-  options.createDatabase = options.createSchema;
-  options.dir = path.join(__dirname, 'patches');
-  options.metaTable = 'dbMetadata';
-  options.patchKey = 'schema-patch-level';
-  options.patchLevel = patch.level;
-  options.mysql = mysql;
-  var patcher = new MysqlPatcher(options);
-
-  return P.promisify(patcher.connect, { context: patcher })()
-    .then(function () {
-      if (options.createSchema) {
-        return updateDbSchema(patcher);
-      }
-    })
-    .then(function () {
-      return checkDbPatchLevel(patcher);
-    })
-    .catch(function (error) {
-      logger.error('checkDbPatchLevel', error);
-      throw error;
-    })
-    .finally(function () {
-      return P.promisify(patcher.end, { context: patcher })();
-    })
-    .then(function () {
-      return new MysqlStore(options);
-    });
+  if (options.createSchema) {
+    options.createDatabase = options.createSchema;
+    options.dir = path.join(__dirname, 'patches');
+    options.metaTable = 'dbMetadata';
+    options.patchKey = 'schema-patch-level';
+    options.patchLevel = patch.level;
+    options.mysql = mysql;
+    const patcher = new MysqlPatcher(options);
+    return P.promisify(patcher.connect, { context: patcher })()
+      .then(function () {
+        if (options.createSchema) {
+          return updateDbSchema(patcher);
+        }
+      })
+      .then(function () {
+        return checkDbPatchLevel(patcher);
+      })
+      .catch(function (error) {
+        logger.error('checkDbPatchLevel', error);
+        throw error;
+      })
+      .finally(function () {
+        return P.promisify(patcher.end, { context: patcher })();
+      })
+      .then(function () {
+        return new MysqlStore(options);
+      });
+  }
+  return Promise.resolve(new MysqlStore(options));
 };
 
 const QUERY_GET_LOCK = 'SELECT GET_LOCK(?, ?) AS acquired';
