@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import _ from 'underscore';
+import sinon from 'sinon';
 import { assert } from 'chai';
 import AuthErrors from 'lib/auth-errors';
 import Constants from 'lib/constants';
@@ -10,6 +11,7 @@ import Relier from 'models/reliers/relier';
 import ResumeToken from 'models/resume-token';
 import TestHelpers from '../../../lib/helpers';
 import WindowMock from '../../../mocks/window';
+import xhr from 'lib/xhr';
 
 describe('models/reliers/relier', function () {
   var relier;
@@ -86,6 +88,72 @@ describe('models/reliers/relier', function () {
       assert.equal(relier.get('utmTerm'), UTM_TERM);
 
       assert.isFalse(relier.has('ignored'));
+    });
+  });
+
+  describe('fetchSubscriptionProductName', () => {
+    const subscriptionProductId = 'prod_8675309';
+    const subscriptionProductName = '123 Done Pro';
+    const config = {
+      authServerUrl: 'http://example.com',
+    };
+    const productNameUrl = `${config.authServerUrl}/v1/oauth/subscriptions/productname?productId=${subscriptionProductId}`;
+
+    beforeEach(() => {
+      relier.initialize({}, { config });
+    });
+
+    afterEach(() => {
+      xhr.ajax.restore();
+    });
+
+    it('fetches product name if subscriptionProductId is set', () => {
+      sinon.stub(xhr, 'ajax').resolves({
+        /* eslint-disable camelcase */
+        product_name: subscriptionProductName,
+        /* eslint-enable camelcase */
+      });
+      relier.set({ subscriptionProductId });
+      return relier.fetchSubscriptionProductName().then(() => {
+        assert.isTrue(
+          xhr.ajax.calledWith({ type: 'GET', url: productNameUrl })
+        );
+        assert.isTrue(
+          subscriptionProductName === relier.get('subscriptionProductName')
+        );
+      });
+    });
+
+    it('returns early if subscriptionProductId is not set', () => {
+      sinon.spy(xhr, 'ajax');
+      assert.equal(undefined, relier.fetchSubscriptionProductName());
+      assert.isFalse(xhr.ajax.called);
+      assert.isFalse(
+        subscriptionProductName === relier.get('subscriptionProductName')
+      );
+    });
+
+    it('returns early if subscriptionProductName is already set', () => {
+      sinon.spy(xhr, 'ajax');
+      relier.set({ subscriptionProductId, subscriptionProductName });
+      assert.equal(undefined, relier.fetchSubscriptionProductName());
+      assert.isFalse(xhr.ajax.called);
+    });
+
+    it('clears subscriptionProductId if product name not found', () => {
+      sinon.stub(xhr, 'ajax').resolves({ status: 404 });
+      relier.set({ subscriptionProductId });
+      return relier.fetchSubscriptionProductName().then(() => {
+        assert.isTrue(
+          xhr.ajax.calledWith({ type: 'GET', url: productNameUrl })
+        );
+        assert.isTrue(
+          typeof relier.get('subscriptionProductId') === 'undefined'
+        );
+        assert.isFalse(
+          subscriptionProductName === relier.get('subscriptionProductName')
+        );
+      });
     });
   });
 

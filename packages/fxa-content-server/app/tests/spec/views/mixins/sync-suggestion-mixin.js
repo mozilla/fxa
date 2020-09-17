@@ -142,6 +142,16 @@ describe('views/mixins/sync-suggestion-mixin', () => {
       });
     });
 
+    it('does not display sync suggestion message if there is a subscription product ID set', () => {
+      relier.set('service', null);
+      relier.set('context', 'web');
+      relier.set('subscriptionProductId', 'prod_8675309');
+
+      return view.render().then(() => {
+        assert.lengthOf(view.$('#suggest-sync'), 0);
+      });
+    });
+
     it('logs the link.signin event', () => {
       sinon.stub(view, 'isSyncSuggestionEnabled').callsFake(() => true);
       sinon.stub(view, 'logFlowEvent').callsFake(() => {});

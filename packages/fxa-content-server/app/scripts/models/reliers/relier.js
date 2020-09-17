@@ -18,8 +18,13 @@ import Constants from '../../lib/constants';
 import ResumeTokenMixin from '../mixins/resume-token';
 import UrlMixin from '../mixins/url';
 import Vat from '../../lib/vat';
+import xhr from '../../lib/xhr';
 
 const t = (msg) => msg;
+
+const SUBSCRIPTION_PRODUCT_ROUTE_RE = new RegExp(
+  '/subscriptions/products/(.*)'
+);
 
 const RELIER_FIELDS_IN_RESUME_TOKEN = [
   'entrypoint',
@@ -91,6 +96,8 @@ var Relier = BaseRelier.extend({
     resetPasswordConfirm: true,
     setting: null,
     serviceName: t(Constants.RELIER_DEFAULT_SERVICE_NAME),
+    subscriptionProductId: null,
+    subscriptionProductName: null,
     style: null,
     uid: null,
     utmCampaign: null,
@@ -101,6 +108,7 @@ var Relier = BaseRelier.extend({
   },
 
   initialize(attributes, options = {}) {
+    this._config = options.config;
     this.isVerification = options.isVerification;
     this.sentryMetrics = options.sentryMetrics;
     this.window = options.window || window;
@@ -157,6 +165,39 @@ var Relier = BaseRelier.extend({
       // `entrypoint` (lowcase p). Normalize to `entrypoint`.
       if (this.has('entryPoint') && !this.has('entrypoint')) {
         this.set('entrypoint', this.get('entryPoint'));
+      }
+
+      // HACK: issue #6121 - we want to fetch the subscription product
+      // name as the "service" here if we're starting from a payment flow.
+      // But, this fetch() is called long before router or any view logic
+      // kicks in. So, let's check the URL path here to see if there's a
+      // product ID for name lookup.
+      const subscriptionProductRouteMatch = SUBSCRIPTION_PRODUCT_ROUTE_RE.exec(
+        window.location.pathname
+      );
+      if (subscriptionProductRouteMatch) {
+        const productId = subscriptionProductRouteMatch[1];
+        this.set('subscriptionProductId', productId);
+        return this.fetchSubscriptionProductName();
+      }
+    });
+  },
+
+  fetchSubscriptionProductName() {
+    const subscriptionProductId = this.get('subscriptionProductId');
+    if (!subscriptionProductId) {
+      return;
+    }
+    const subscriptionProductName = this.get('subscriptionProductName');
+    if (subscriptionProductName) {
+      return;
+    }
+    const productNameUrl = `${this._config.authServerUrl}/v1/oauth/subscriptions/productname?productId=${subscriptionProductId}`;
+    return xhr.ajax({ type: 'GET', url: productNameUrl }).then((data) => {
+      if (data && data.product_name) {
+        this.set('subscriptionProductName', data.product_name);
+      } else {
+        this.clear('subscriptionProductId');
       }
     });
   },

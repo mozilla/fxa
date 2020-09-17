@@ -73,6 +73,14 @@ describe('views/mixins/service-mixin', () => {
         Constants.RELIER_DEFAULT_SERVICE_NAME
       );
     });
+
+    it('sets `serviceName` from subscriptionProductName from the relier when available', () => {
+      const subscriptionProductName = '123 Done Pro';
+      relier.set({ subscriptionProductName });
+      const context = new Backbone.Model({});
+      view.setInitialContext(context);
+      assert.equal(context.get('serviceName'), subscriptionProductName);
+    });
   });
 
   describe('render', () => {

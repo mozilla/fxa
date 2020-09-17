@@ -15,6 +15,9 @@ class SubscriptionsProductRedirectView extends FormView {
 
   initialize(options) {
     this._currentPage = options.currentPage;
+    this._productId = this._currentPage.split('/').pop();
+    this.relier.set('subscriptionProductId', this._productId);
+
     this._subscriptionsConfig = {};
     if (options && options.config && options.config.subscriptions) {
       this._subscriptionsConfig = options.config.subscriptions;
@@ -27,8 +30,7 @@ class SubscriptionsProductRedirectView extends FormView {
 
   afterRender() {
     const queryParams = Url.searchParams(this.window.location.search);
-    const productId = this._currentPage.split('/').pop();
-    const redirectPath = `products/${productId}`;
+    const redirectPath = `products/${this._productId}`;
     return PaymentServer.navigateToPaymentServer(
       this,
       this._subscriptionsConfig,

@@ -14,7 +14,15 @@ export default {
   },
 
   setInitialContext(context) {
-    context.set(this.relier.pick('service', this.translate('serviceName')));
+    const { service, subscriptionProductName, serviceName } = this.relier.pick(
+      'service',
+      'subscriptionProductName',
+      this.translate('serviceName')
+    );
+    context.set({
+      service,
+      serviceName: subscriptionProductName || serviceName,
+    });
   },
 
   transformLinks() {

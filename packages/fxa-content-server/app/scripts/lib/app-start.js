@@ -277,6 +277,7 @@ Start.prototype = {
         relier = new BrowserRelier(
           { context },
           {
+            config: this._config,
             isVerification: this._isVerification(),
             sentryMetrics: this._sentryMetrics,
             translator: this._translator,
@@ -287,6 +288,7 @@ Start.prototype = {
         relier = new Relier(
           { context },
           {
+            config: this._config,
             isVerification: this._isVerification(),
             sentryMetrics: this._sentryMetrics,
             window: this._window,

@@ -7,6 +7,7 @@ import Account from 'models/account';
 import { assert } from 'chai';
 import sinon from 'sinon';
 import User from 'models/user';
+import Relier from 'models/reliers/relier';
 import View from 'views/subscriptions_product_redirect';
 import Notifier from 'lib/channels/notifier';
 import WindowMock from '../../mocks/window';
@@ -17,6 +18,7 @@ const SEARCH_QUERY = '?plan=plk_12345';
 
 describe('views/subscriptions_product_redirect', function () {
   let account;
+  let relier;
   let user;
   let view;
   let windowMock;
@@ -30,6 +32,7 @@ describe('views/subscriptions_product_redirect', function () {
   beforeEach(function () {
     user = new User();
     account = new Account();
+    relier = new Relier();
     notifier = new Notifier();
     windowMock = new WindowMock();
     windowMock.location.href = `http://example.com/products${SEARCH_QUERY}`;
@@ -50,6 +53,7 @@ describe('views/subscriptions_product_redirect', function () {
       config,
       currentPage: `subscriptions/product/${PRODUCT_ID}`,
       notifier,
+      relier,
       user,
       window: windowMock,
     });
@@ -67,6 +71,15 @@ describe('views/subscriptions_product_redirect', function () {
     $(view.el).remove();
     view.destroy();
     view = null;
+  });
+
+  describe('initialize', () => {
+    it('sets subscriptionProductId on relier', () => {
+      view.initialize({
+        currentPage: `/subscriptions/products/${PRODUCT_ID}`,
+      });
+      assert.equal(PRODUCT_ID, relier.get('subscriptionProductId'));
+    });
   });
 
   describe('render', () => {
