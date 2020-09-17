@@ -1,3 +1,7 @@
+## 1.188.1
+
+No changes.
+
 ## 1.188.0
 
 ### New features
