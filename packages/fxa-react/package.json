@@ -64,7 +64,7 @@
     "sass": "1.26.10",
     "sass-loader": "^8.0.2",
     "tailwindcss": "^1.7.3",
-    "ts-jest": "^24.3.0",
+    "ts-jest": "^26.3.0",
     "typescript": "3.9.7",
     "webpack": "^4.43.0"
   },

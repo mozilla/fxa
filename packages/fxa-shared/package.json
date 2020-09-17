@@ -84,10 +84,12 @@
     "aws-sdk": "^2.752.0",
     "bluebird": "^3.7.2",
     "celebrate": "^10.0.1",
+    "class-transformer": "^0.3.1",
+    "class-validator": "^0.12.2",
     "cors": "^2.8.5",
     "find-up": "^5.0.0",
     "generic-pool": "^3.7.1",
-    "graphql": "^15.3.0",
+    "graphql": "^14.6.0",
     "hot-shots": "^7.8.0",
     "joi": "^14.3.1",
     "js-md5": "^0.7.3",
@@ -98,7 +100,7 @@
     "node-uap": "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^6.6.3",
+    "rxjs": "^6.5.5",
     "stripe": "^8.69.0"
   },
   "jest": {
