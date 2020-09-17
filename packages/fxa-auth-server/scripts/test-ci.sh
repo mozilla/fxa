@@ -13,6 +13,7 @@ DEFAULT_ARGS="--require ts-node/register --recursive --timeout 5000 --exit --rep
 node -r ts-node/register ./scripts/gen_keys.js
 node -r ts-node/register ./scripts/gen_vapid_keys.js
 node -r ts-node/register ./scripts/oauth_gen_keys.js
+../../_scripts/check-mysql.sh
 node -r ts-node/register ../fxa-auth-db-mysql/bin/db_patcher > /dev/null
 node -r ts-node/register ./scripts/oauth-db-patcher.js
 
