@@ -1,3 +1,22 @@
+## 1.188.0
+
+### New features
+
+- payments: display product name in subscription payment signup / signin flow ([bc6008280](https://github.com/mozilla/fxa/commit/bc6008280))
+- subscriptions: add product specific app/service support field ([e5c6d77e8](https://github.com/mozilla/fxa/commit/e5c6d77e8))
+
+### Bug fixes
+
+- oauthdb: split creating oauthdb from main process startup. possibly a fix for #6100 ([a4407cda0](https://github.com/mozilla/fxa/commit/a4407cda0))
+- docker: Copy version.json into expected path /app/version.json ([a98ab01f0](https://github.com/mozilla/fxa/commit/a98ab01f0))
+- metrics: include the client_id when logging the `oauth.token.created` event ([f6b1de84c](https://github.com/mozilla/fxa/commit/f6b1de84c))
+
+### Other changes
+
+- deps-dev: bump @types/jsrsasign from 8.0.3 to 8.0.5 ([5204b4a44](https://github.com/mozilla/fxa/commit/5204b4a44))
+- deps-dev: bump grunt-newer from 1.2.0 to 1.3.0 ([55445cd1b](https://github.com/mozilla/fxa/commit/55445cd1b))
+- 7d8c9e4e0 Update web-push lib to latest version. ([7d8c9e4e0](https://github.com/mozilla/fxa/commit/7d8c9e4e0))
+
 ## 1.187.3
 
 No changes.

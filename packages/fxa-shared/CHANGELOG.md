@@ -1,5 +1,20 @@
 # Change history
 
+## 1.188.0
+
+### New features
+
+- subscriptions: add product specific app/service support field ([e5c6d77e8](https://github.com/mozilla/fxa/commit/e5c6d77e8))
+- fxa-shared: refactor nestjs shared modules ([a9cf3836b](https://github.com/mozilla/fxa/commit/a9cf3836b))
+
+### Refactorings
+
+- fxa-shared: cleanup sentry and add exc route ([4561064c9](https://github.com/mozilla/fxa/commit/4561064c9))
+
+### Other changes
+
+- deps-dev: bump jest from 24.9.0 to 26.4.2 ([fad65917c](https://github.com/mozilla/fxa/commit/fad65917c))
+
 ## 1.187.3
 
 No changes.

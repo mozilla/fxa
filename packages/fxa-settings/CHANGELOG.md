@@ -1,3 +1,18 @@
+## 1.188.0
+
+### New features
+
+- settings: add ability to refresh account data via buttons in 2fa, secondary email, and recovery key sections ([58de62559](https://github.com/mozilla/fxa/commit/58de62559))
+- settings: move AlertBar up in the z-index stack ([2d5ce5e82](https://github.com/mozilla/fxa/commit/2d5ce5e82))
+
+### Refactorings
+
+- settings: refactor small icon buttons into a component ([9eb577a63](https://github.com/mozilla/fxa/commit/9eb577a63))
+
+### Other changes
+
+- fxa-settings: add change codes modal to 2fa ([03fe47d8d](https://github.com/mozilla/fxa/commit/03fe47d8d))
+
 ## 1.187.3
 
 No changes.

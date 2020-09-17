@@ -1,5 +1,22 @@
 # Change history
 
+## 1.188.0
+
+### New features
+
+- fxa-shared: refactor nestjs shared modules ([a9cf3836b](https://github.com/mozilla/fxa/commit/a9cf3836b))
+
+### Bug fixes
+
+- event-broker: possible guard fix + logging ([b58a66d26](https://github.com/mozilla/fxa/commit/b58a66d26))
+- event-broker: dont use env for local checks ([ce9737d21](https://github.com/mozilla/fxa/commit/ce9737d21))
+- event-broker: include lbheartbeat and dev check ([2adce3f77](https://github.com/mozilla/fxa/commit/2adce3f77))
+
+### Other changes
+
+- deps-dev: bump jest from 24.9.0 to 26.4.2 ([fad65917c](https://github.com/mozilla/fxa/commit/fad65917c))
+- deps-dev: bump @types/passport from 0.4.7 to 1.0.4 ([e032c0317](https://github.com/mozilla/fxa/commit/e032c0317))
+
 ## 1.187.3
 
 No changes.

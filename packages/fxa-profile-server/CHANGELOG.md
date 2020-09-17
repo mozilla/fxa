@@ -1,3 +1,9 @@
+## 1.188.0
+
+### Refactorings
+
+- profile: replaced graphicsmagick with sharp ([6e9d4eaea](https://github.com/mozilla/fxa/commit/6e9d4eaea))
+
 ## 1.187.3
 
 No changes.
