@@ -35,7 +35,7 @@
     "convict-format-with-moment": "^6.0.0",
     "convict-format-with-validator": "^6.0.0",
     "fxa-shared": "workspace:*",
-    "mozlog": "^2.2.0",
+    "mozlog": "^3.0.1",
     "reflect-metadata": "^0.1.13",
     "typedi": "^0.8.0"
   },

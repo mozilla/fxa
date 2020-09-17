@@ -37,7 +37,7 @@
     "fxa-jwtool": "0.7.2",
     "fxa-shared": "workspace:*",
     "ip": "^1.1.5",
-    "mozlog": "2.2.0",
+    "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
     "request": "^2.88.2",
