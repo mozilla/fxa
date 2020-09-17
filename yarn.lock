@@ -2679,20 +2679,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/inert@npm:~6.0.1":
-  version: 6.0.1
-  resolution: "@hapi/inert@npm:6.0.1"
-  dependencies:
-    "@hapi/ammo": 5.x.x
-    "@hapi/boom": 9.x.x
-    "@hapi/bounce": 2.x.x
-    "@hapi/hoek": 9.x.x
-    "@hapi/joi": 17.x.x
-    lru-cache: 5.x.x
-  checksum: 31acf1dfed97083ef9c1190b63927bbf0dd4b85756f427d6df0c4800adc83a6330bf602201a2d2e62fc829996895791ec5f39494361f28bbf1323cfbc25142c2
-  languageName: node
-  linkType: hard
-
 "@hapi/iron@npm:6.x.x, @hapi/iron@npm:^6.0.0":
   version: 6.0.0
   resolution: "@hapi/iron@npm:6.0.0"
@@ -5591,15 +5577,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/helmet@npm:0.0.45":
-  version: 0.0.45
-  resolution: "@types/helmet@npm:0.0.45"
-  dependencies:
-    "@types/express": "*"
-  checksum: 84140a4c786ee4fc2eb0f2a67fc77c44af5ad335debdba80bb87f19e2c1819ebcd951c091417d3d27b5ee86ae3fe67edab65f1377ad740ff7e0b851aa2ec8f6d
-  languageName: node
-  linkType: hard
-
 "@types/helmet@npm:0.0.48":
   version: 0.0.48
   resolution: "@types/helmet@npm:0.0.48"
@@ -6254,7 +6231,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/request@npm:*, @types/request@npm:^2.48.3":
+"@types/request@npm:*":
   version: 2.48.4
   resolution: "@types/request@npm:2.48.4"
   dependencies:
@@ -6308,15 +6285,6 @@ __metadata:
   version: 1.1.2
   resolution: "@types/safe-regex@npm:1.1.2"
   checksum: 93bc6baeace1f931907b4623e04d92900b791d40d2ba43854c1e012f5cfacca2b09c37c8901a2a3abf13c22d4ad1a1f21c421eef460373ce4ebca1c15c247584
-  languageName: node
-  linkType: hard
-
-"@types/sass@npm:^1":
-  version: 1.16.0
-  resolution: "@types/sass@npm:1.16.0"
-  dependencies:
-    "@types/node": "*"
-  checksum: e95d14da2d05dea49e913db55922857234b01f2b1b513dd8cc556b64ffa6d89fb81ce4c1f21a6b4cd20f39d61455975e623ed681502b3d06b2d24a2ddd03a21e
   languageName: node
   linkType: hard
 
@@ -6376,7 +6344,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/sinon@npm:*, @types/sinon@npm:^9.0.0, @types/sinon@npm:^9.0.4":
+"@types/sinon@npm:*, @types/sinon@npm:^9.0.0":
   version: 9.0.4
   resolution: "@types/sinon@npm:9.0.4"
   dependencies:
@@ -6497,15 +6465,6 @@ __metadata:
   version: 1.0.5
   resolution: "@types/tapable@npm:1.0.5"
   checksum: f87cd98a09be272dde705155097d0e02dfdd7fe98395ade968632ff7ee1f39839f03daee59da921345c2177d118f085dcb4e4e4d2d4bea801d354cc0f33a1d2d
-  languageName: node
-  linkType: hard
-
-"@types/temp@npm:^0":
-  version: 0.8.34
-  resolution: "@types/temp@npm:0.8.34"
-  dependencies:
-    "@types/node": "*"
-  checksum: a177d001d70ab5b42aae80ea742728bf3c56cca688545685829b61628c159c33ddbb98170604da6363f52808343cd756e66b8315cb108e06927b68a5f402fc4b
   languageName: node
   linkType: hard
 
@@ -10450,15 +10409,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bl@npm:1.1.2, bl@npm:^1.0.0":
-  version: 1.1.2
-  resolution: "bl@npm:1.1.2"
-  dependencies:
-    readable-stream: ~2.0.5
-  checksum: 0c3fe9f99c2a449baa62e6a4df58c73d36e138e3d9ad7ac57082b31093c8725111d782c1cb677c9754163a293688f94c61e85051fd5d24d10cefcd5749f8caef
-  languageName: node
-  linkType: hard
-
 "bl@npm:4.0.3, bl@npm:^4.0.3":
   version: 4.0.3
   resolution: "bl@npm:4.0.3"
@@ -10467,6 +10417,15 @@ __metadata:
     inherits: ^2.0.4
     readable-stream: ^3.4.0
   checksum: 1f33c5a3da08a87260a7f11acadf088ef331ebb4b86db1160ec332be9326afdf9f73dca1fd5cc431dba7cc9d5574b508192f9fd7c37a9a11c9e4a50025917690
+  languageName: node
+  linkType: hard
+
+"bl@npm:^1.0.0":
+  version: 1.1.2
+  resolution: "bl@npm:1.1.2"
+  dependencies:
+    readable-stream: ~2.0.5
+  checksum: 0c3fe9f99c2a449baa62e6a4df58c73d36e138e3d9ad7ac57082b31093c8725111d782c1cb677c9754163a293688f94c61e85051fd5d24d10cefcd5749f8caef
   languageName: node
   linkType: hard
 
@@ -10837,7 +10796,7 @@ __metadata:
     prettier: ^2.0.5
     request: ^2.88.2
     should: 13.2.3
-    temp: 0.9.0
+    temp: 0.9.1
     toobusy-js: 0.5.1
     underscore: ^1.10.2
     walk: 2.3.14
@@ -17574,7 +17533,7 @@ fsevents@^1.2.7:
     "@types/dateformat": ^3.0.1
     "@types/eslint": 6.8.1
     "@types/express": ^4.17.2
-    "@types/helmet": 0.0.45
+    "@types/helmet": 0.0.48
     "@types/jest": ^24.9.1
     "@types/jsdom": ^12.2.4
     "@types/on-headers": ^1.0.0
@@ -17644,7 +17603,7 @@ fsevents@^1.2.7:
     "@types/mocha": ^8.0.2
     "@types/node": ^13.9.1
     "@types/proxyquire": ^1.3.28
-    "@types/sinon": ^9.0.4
+    "@types/sinon": 9.0.5
     "@types/supertest": ^2.0.10
     "@types/yargs": ^15.0.5
     apollo-server: ^2.16.1
@@ -17761,7 +17720,7 @@ fsevents@^1.2.7:
     "@types/mocha": ^7.0.2
     "@types/nock": ^11.1.0
     "@types/node": ^12.11.7
-    "@types/request": ^2.48.3
+    "@types/request": 2.48.5
     "@types/safe-regex": 1.1.2
     "@types/verror": ^1.10.3
     acorn: ^5.7.3
@@ -18052,7 +18011,7 @@ fsevents@^1.2.7:
     "@hapi/hoek": ^9.0.4
     "@sentry/node": ^5.17.0
     audit-filter: ^0.5.0
-    bl: 1.1.2
+    bl: 4.0.3
     bluebird: ^3.7.2
     bunyan: ^1.8.12
     chai: ^4.2.0
@@ -18147,6 +18106,7 @@ fsevents@^1.2.7:
     "@types/passport": ^1
     "@types/passport-jwt": ^3.0.3
     "@types/rimraf": 3.0.0
+    "@types/sinon": 9.0.5
     "@types/supertest": ^2.0.8
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": 3.0.2
@@ -18233,7 +18193,7 @@ fsevents@^1.2.7:
     "@types/mocha": ^8.0.2
     "@types/node": ^12.x
     "@types/proxyquire": ^1.3.28
-    "@types/sinon": ^9.0.4
+    "@types/sinon": 9.0.5
     "@types/superagent": 4.1.9
     "@types/supertest": ^2.0.10
     "@types/yargs": ^15.0.5
@@ -18300,7 +18260,7 @@ fsevents@^1.2.7:
     "@types/convict": ^5.2.1
     "@types/mocha": ^7.0.2
     "@types/node": ^12.12.7
-    "@types/sinon": ^9.0.4
+    "@types/sinon": 9.0.5
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     chai: ^4.2.0
@@ -18386,7 +18346,7 @@ fsevents@^1.2.7:
     "@types/react-stripe-elements": ^1.3.5
     "@types/react-transition-group": ^4.2.3
     "@types/redux-actions": ^2.6.0
-    "@types/sinon": ^9.0.4
+    "@types/sinon": 9.0.5
     "@types/storybook__addon-actions": ^3.4.2
     "@types/storybook__addon-links": ^3.3.5
     "@types/storybook__react": ^4.0.1
@@ -18470,7 +18430,7 @@ fsevents@^1.2.7:
     "@hapi/catbox-memory": ~5.0.0
     "@hapi/catbox-redis": ~5.0.5
     "@hapi/hapi": ^19.1.1
-    "@hapi/inert": ~6.0.1
+    "@hapi/inert": 6.0.2
     "@hapi/joi": ^17.1.1
     "@sentry/node": ^5.17.0
     "@types/sharp": ^0
@@ -18552,7 +18512,7 @@ fsevents@^1.2.7:
     react-dom: ^16.13.1
     react-transition-group: ^4.3.0
     rimraf: ^3.0.2
-    sass: ^1.26.5
+    sass: 1.26.10
     sass-loader: ^8.0.2
     tailwindcss: ^1.7.3
     ts-jest: ^24.3.0
@@ -18634,7 +18594,7 @@ fsevents@^1.2.7:
     "@types/node": ^14.10.1
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.16
-    "@types/sinon": ^9.0.4
+    "@types/sinon": 9.0.5
     accept-language: ^2.0.17
     ajv: ^6.12.2
     audit-filter: ^0.5.0
@@ -18724,13 +18684,6 @@ fsevents@^1.2.7:
   version: 0.0.0-use.local
   resolution: "fxa@workspace:."
   dependencies:
-    "@hapi/inert": 6.0.2
-    "@types/helmet": 0.0.48
-    "@types/request": 2.48.5
-    "@types/sass": ^1
-    "@types/sinon": 9.0.5
-    "@types/temp": ^0
-    bl: 4.0.3
     diffparser: ^2.0.1
     eslint: ^6.8.0
     eslint-plugin-fxa: ^2.0.2
@@ -18744,11 +18697,9 @@ fsevents@^1.2.7:
     pm2: ^4.4.1
     prettier: ^2.0.5
     replace-in-file: ^6.1.0
-    sass: 1.26.10
     semver: ^7.3.2
     stylelint: ^13.6.1
     stylelint-config-prettier: ^8.0.2
-    temp: 0.9.1
   languageName: unknown
   linkType: soft
 
@@ -33142,17 +33093,6 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.26.5":
-  version: 1.26.5
-  resolution: "sass@npm:1.26.5"
-  dependencies:
-    chokidar: ">=2.0.0 <4.0.0"
-  bin:
-    sass: sass.js
-  checksum: bce01166b0f6db41dc7d685df8b36cf4622c42278fd5700db9f690c89150d39f9f2efaa0c42203351b2a90b2c044b5386927832ffa6f2ec6cfbd499e2cd54795
-  languageName: node
-  linkType: hard
-
 "sax@npm:1.2.1":
   version: 1.2.1
   resolution: "sax@npm:1.2.1"
@@ -35811,15 +35751,6 @@ resolve@~1.11.1:
     lodash: ^4.17.15
     memoizerific: ^1.11.3
   checksum: defa26a7083c9d7e6f1f217dc2236f242452d3f09777d4fc30208ffe464b309d5bea012cd3a48791461b757ec050edd26a68033d376d8a05871b862e7a281723
-  languageName: node
-  linkType: hard
-
-"temp@npm:0.9.0":
-  version: 0.9.0
-  resolution: "temp@npm:0.9.0"
-  dependencies:
-    rimraf: ~2.6.2
-  checksum: b08938d65b24433020823dea58f9571ceb2175c3443345f55de2ad062c4a02414fd45ce751f1944be3c68e8b2c13c80eeb171c2b1f5101c39ca3ccf4b36f4c76
   languageName: node
   linkType: hard
 
