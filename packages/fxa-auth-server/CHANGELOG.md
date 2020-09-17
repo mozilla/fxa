@@ -1,3 +1,9 @@
+## 1.188.1
+
+### Other changes
+
+- ci: wait for mysql to respond on auth-server tests ([87db04dc9](https://github.com/mozilla/fxa/commit/87db04dc9))
+
 ## 1.188.0
 
 ### New features
