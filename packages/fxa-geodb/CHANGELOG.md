@@ -1,5 +1,11 @@
 # Change history
 
+## 1.188.0
+
+### Other changes
+
+- deps: bump cron from 1.5.0 to 1.8.2 ([2eb34abeb](https://github.com/mozilla/fxa/commit/2eb34abeb))
+
 ## 1.187.3
 
 No changes.

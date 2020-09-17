@@ -1,3 +1,9 @@
+## 1.188.0
+
+### Other changes
+
+- deps-dev: bump jest from 24.9.0 to 26.4.2 ([fad65917c](https://github.com/mozilla/fxa/commit/fad65917c))
+
 ## 1.187.3
 
 No changes.

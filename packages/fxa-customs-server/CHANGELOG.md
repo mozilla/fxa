@@ -1,3 +1,9 @@
+## 1.188.0
+
+### Other changes
+
+- deps: bump ip-reputation-js-client from 6.0.0 to 6.0.1 ([f5b6c0eeb](https://github.com/mozilla/fxa/commit/f5b6c0eeb))
+
 ## 1.187.3
 
 No changes.
