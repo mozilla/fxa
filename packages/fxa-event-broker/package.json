@@ -48,6 +48,7 @@
     "@nestjs/schedule": "^0.4.0",
     "@sentry/integrations": "^5.23.0",
     "@sentry/node": "^5.23.0",
+    "@types/sinon": "9.0.5",
     "aws-sdk": "^2.733.0",
     "axios": "^0.20.0",
     "class-validator": "^0.12.2",

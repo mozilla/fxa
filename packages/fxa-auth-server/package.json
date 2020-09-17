@@ -120,7 +120,7 @@
     "@types/mocha": "^7.0.2",
     "@types/nock": "^11.1.0",
     "@types/node": "^12.11.7",
-    "@types/request": "^2.48.3",
+    "@types/request": "2.48.5",
     "@types/safe-regex": "1.1.2",
     "@types/verror": "^1.10.3",
     "acorn": "^5.7.3",
