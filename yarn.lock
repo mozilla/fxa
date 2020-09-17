@@ -35095,6 +35095,7 @@ resolve@~1.11.1:
     semver: ^6.0.0
   peerDependencies:
     typescript: "*"
+  checksum: 2cfdba8538d076fc851ea2ebf02aa39d859e4e62d509fe2004a06c867f5861d7f9cd43ea3b471a09a03b386da0e94a37727400efa7087f814a8d3c6fde431ed1
   languageName: node
   linkType: hard
 

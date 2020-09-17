@@ -8,6 +8,7 @@ import AlertExternal from '../AlertExternal';
 import Nav from '../Nav';
 import Security from '../Security';
 import { Profile } from '../Profile';
+import ConnectedServices from '../ConnectedServices';
 
 import * as Metrics from '../../lib/metrics';
 import { useAccount } from '../../models';
@@ -29,6 +30,7 @@ export const PageSettings = (_: RouteComponentProps) => {
       <div className="flex-7 max-w-full">
         <Profile />
         <Security />
+        <ConnectedServices />
       </div>
     </div>
   );
