@@ -29,7 +29,7 @@
   "readmeFilename": "README.md",
   "dependencies": {
     "@hapi/hapi": "^20.0.0",
-    "@hapi/joi": "^17.1.1",
+    "@hapi/joi": "^15.1.1",
     "@hapi/scooter": "^6.0.0",
     "blankie": "^5.0.0",
     "convict": "^6.0.0",
