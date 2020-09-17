@@ -1,22 +1,28 @@
-import { argv } from 'yargs';
-import { EmailBounces } from '../src/lib/db/models/email-bounces';
-import { Account } from '../src/lib/db/models/account';
-import Config from '../src/config';
-import { setupDatabase } from '../src/lib/db';
+import Knex from 'knex';
+import { Model } from 'objection';
+import yargs from 'yargs';
 
+import Config from '../src/config';
+import { Account, EmailBounces } from '../src/database/model';
 import {
+  AccountIsh,
+  BounceIsh,
   randomAccount,
   randomEmail,
   randomEmailBounce,
-  AccountIsh,
-  BounceIsh
-} from '../src/test/lib/db/models/helpers';
+} from '../src/database/model/helpers';
 
 const config = Config.getProperties();
 
+const argv = yargs.options({
+  count: { type: 'number', default: 1 },
+  email: { type: 'string' },
+}).argv;
+
 async function addBounceToDB() {
-  const knex = setupDatabase(config.database);
-  const count = argv.count || 1;
+  const knex = Knex({ client: 'mysql', connection: config.database });
+  Model.knex(knex);
+  const count = argv.count;
 
   let bounce: BounceIsh;
   let account: AccountIsh;
@@ -34,13 +40,20 @@ async function addBounceToDB() {
     }
 
     await EmailBounces.query().insertGraph(bounce);
+    if (!argv.email) {
+      console.log(`=> Created 1 email bounce for ${bounce.email}`);
+    }
+  }
+
+  if (argv.email) {
+    console.log(
+      `=> Created ${count} email ${count === 1 ? 'bounce' : 'bounces'} for ${
+        argv.email
+      }`
+    );
   }
 
   await knex.destroy();
-
-  console.log(
-    `=> Created ${count} email ${count === 1 ? 'bounce' : 'bounces'} for ${bounce.email}`
-  );
 }
 
 addBounceToDB();

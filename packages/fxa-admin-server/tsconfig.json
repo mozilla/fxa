@@ -5,8 +5,8 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noEmitHelpers": true,
-    "importHelpers": true,
-    "types": ["mocha", "mozlog"]
+    "importHelpers": true
   },
-  "include": ["./src"]
+  "references": [{ "path": "../fxa-shared" }],
+  "include": ["src"]
 }

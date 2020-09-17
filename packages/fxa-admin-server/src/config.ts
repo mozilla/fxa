@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
@@ -54,7 +53,7 @@ const conf = convict({
     env: 'NODE_ENV',
     format: ['development', 'test', 'stage', 'production'],
   },
-  logging: {
+  log: {
     app: { default: 'fxa-user-admin-server' },
     fmt: {
       default: 'heka',
@@ -65,17 +64,12 @@ const conf = convict({
       default: 'info',
       env: 'LOG_LEVEL',
     },
-    routes: {
-      enabled: {
-        default: true,
-        doc: 'Enable route logging. Set to false to trimming CI logs.',
-        env: 'ENABLE_ROUTE_LOGGING',
-      },
-      format: {
-        default: 'default_fxa',
-        format: ['default_fxa', 'dev_fxa', 'default', 'dev', 'short', 'tiny'],
-      },
-    },
+  },
+  port: {
+    default: 8095,
+    doc: 'Default port to listen on',
+    env: 'PORT',
+    format: Number,
   },
   sentryDsn: {
     default: '',
@@ -110,4 +104,5 @@ conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 const Config = conf;
 
+export type AppConfig = ReturnType<typeof Config['getProperties']>;
 export default Config;
