@@ -65,6 +65,7 @@ commands:
 
 jobs:
   test-package:
+    resource_class: medium+
     docker:
       - image: circleci/node:12
       - image: redis
