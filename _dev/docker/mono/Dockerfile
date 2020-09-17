@@ -14,4 +14,5 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=fxa-builder:latest --chown=app:app /fxa /fxa
+COPY --from=fxa-builder:latest --chown=app:app /fxa/packages/version.json /app/version.json
 USER app
