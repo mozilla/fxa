@@ -65,6 +65,16 @@ describe('UnitRow', () => {
     expect(screen.getByTestId('unit-row-modal').textContent).toContain('Add');
   });
 
+  it('renders as expected with `hideCtaText` prop', () => {
+    renderWithRouter(
+      <UnitRow header="Display name" headerValue={null} hideCtaText={true} />
+    );
+
+    const ctaTextElement = screen.queryByTestId('unit-row-route');
+
+    expect(ctaTextElement).not.toBeInTheDocument();
+  });
+
   it('renders non-default `noHeaderValueText` and `ctaText`', () => {
     renderWithRouter(
       <UnitRow

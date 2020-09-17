@@ -8,6 +8,7 @@ import { useEscKeydownEffect, useChangeFocusEffect } from '../../lib/hooks';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { Link, useLocation } from '@reach/router';
 
 type ModalProps = {
   className?: string;
@@ -17,6 +18,7 @@ type ModalProps = {
   hasButtons?: boolean;
   headerId: string;
   descId: string;
+  route?: string;
   confirmText?: string;
   confirmBtnClassName?: string;
   'data-testid'?: string;
@@ -30,12 +32,14 @@ export const Modal = ({
   hasButtons = true,
   headerId,
   descId,
+  route,
   confirmText = 'Confirm',
   confirmBtnClassName = 'cta-primary',
   'data-testid': testid = 'modal',
 }: ModalProps) => {
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   const tabFenceRef = useChangeFocusEffect();
+  const location = useLocation();
   useEscKeydownEffect(onDismiss);
 
   return (
@@ -79,6 +83,16 @@ export const Modal = ({
                 >
                   Cancel
                 </button>
+
+                {route && (
+                  <Link
+                    className={classNames('mx-2 flex-1', confirmBtnClassName)}
+                    data-testid="modal-confirm"
+                    to={`${route}${location.search}`}
+                  >
+                    {confirmText}
+                  </Link>
+                )}
 
                 {onConfirm && (
                   <button

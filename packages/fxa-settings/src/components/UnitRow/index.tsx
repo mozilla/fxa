@@ -66,6 +66,7 @@ type UnitRowProps = {
   revealModal?: () => void;
   revealSecondaryModal?: () => void;
   alertBarRevealed?: boolean;
+  hideCtaText?: boolean;
 };
 
 export const UnitRow = ({
@@ -84,6 +85,7 @@ export const UnitRow = ({
   revealModal,
   revealSecondaryModal,
   alertBarRevealed,
+  hideCtaText,
 }: UnitRowProps & RouteComponentProps) => {
   ctaText = ctaText || (headerValue ? 'Change' : 'Add');
 
@@ -110,7 +112,7 @@ export const UnitRow = ({
 
       <div className="unit-row-actions">
         <div className="flex items-center">
-          {route && (
+          {!hideCtaText && route && (
             <Link
               className="cta-neutral cta-base transition-standard mr-1"
               data-testid="unit-row-route"

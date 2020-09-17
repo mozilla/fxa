@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, wait, screen } from '@testing-library/react';
-import { MockedCache } from '../../models/_mocks';
+import { wait, screen } from '@testing-library/react';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import { VerifiedSessionGuard } from '.';
 import { SEND_SESSION_VERIFICATION_CODE_MUTATION } from '../ModalVerifySession';
 
 it('renders the content when verified', async () => {
   const onDismiss = jest.fn();
   const onError = jest.fn();
-  render(
+  renderWithRouter(
     <MockedCache>
       <VerifiedSessionGuard {...{ onDismiss, onError }}>
         <div data-testid="children">Content</div>
@@ -42,7 +42,7 @@ it('renders the guard when unverified', async () => {
       },
     },
   ];
-  render(
+  renderWithRouter(
     <MockedCache verified={false} mocks={mocks}>
       <VerifiedSessionGuard {...{ onDismiss, onError }}>
         <div>Content</div>

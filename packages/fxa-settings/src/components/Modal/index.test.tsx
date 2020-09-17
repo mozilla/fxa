@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import Modal from './index';
+import { renderWithRouter } from '../../models/_mocks';
 
 it('renders as expected', () => {
   const onDismiss = jest.fn();
-  render(
+  renderWithRouter(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
@@ -20,9 +21,27 @@ it('renders as expected', () => {
   );
 });
 
+it('renders confirm button as a link if route is passed', () => {
+  const route = '/some/route';
+  const onDismiss = jest.fn();
+  const { container } = renderWithRouter(
+    <Modal
+      headerId="some-header"
+      descId="some-description"
+      {...{ route, onDismiss }}
+    >
+      <div data-testid="children">Hi mom</div>
+    </Modal>
+  );
+
+  expect(screen.getByTestId('modal-confirm').getAttribute('href')).toContain(
+    route
+  );
+});
+
 it('accepts an alternate className', () => {
   const onDismiss = jest.fn();
-  render(
+  renderWithRouter(
     <Modal
       headerId="some-header"
       descId="some-description"
@@ -39,7 +58,7 @@ it('accepts an alternate className', () => {
 
 it('calls onDismiss on click outside', () => {
   const onDismiss = jest.fn();
-  const { container } = render(
+  const { container } = renderWithRouter(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
@@ -52,7 +71,7 @@ it('calls onDismiss on click outside', () => {
 
 it('calls onDismiss on esc key press', () => {
   const onDismiss = jest.fn();
-  render(
+  renderWithRouter(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>
@@ -63,7 +82,7 @@ it('calls onDismiss on esc key press', () => {
 
 it('shifts focus to the tab fence when opened', () => {
   const onDismiss = jest.fn();
-  render(
+  renderWithRouter(
     <Modal headerId="some-header" descId="some-description" {...{ onDismiss }}>
       <div data-testid="children">Hi mom</div>
     </Modal>

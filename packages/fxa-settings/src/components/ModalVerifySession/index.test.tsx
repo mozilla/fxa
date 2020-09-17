@@ -3,8 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, wait, screen, fireEvent } from '@testing-library/react';
-import { MockedCache, MOCK_ACCOUNT } from '../../models/_mocks';
+import { wait, screen, fireEvent } from '@testing-library/react';
+import {
+  MockedCache,
+  MOCK_ACCOUNT,
+  renderWithRouter,
+} from '../../models/_mocks';
 import {
   ModalVerifySession,
   SEND_SESSION_VERIFICATION_CODE_MUTATION,
@@ -78,7 +82,7 @@ describe('ModalVerifySession', () => {
   it('renders', async () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
-    render(
+    renderWithRouter(
       <MockedCache verified={false} mocks={happyMocks}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </MockedCache>
@@ -103,7 +107,7 @@ describe('ModalVerifySession', () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
     const onCompleted = jest.fn();
-    render(
+    renderWithRouter(
       <MockedCache verified={false} mocks={happyMocks}>
         <ModalVerifySession {...{ onDismiss, onError, onCompleted }} />
       </MockedCache>
@@ -124,7 +128,7 @@ describe('ModalVerifySession', () => {
   it('renders error messages', async () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
-    render(
+    renderWithRouter(
       <MockedCache verified={false} mocks={sadMocks}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </MockedCache>
@@ -147,7 +151,7 @@ describe('ModalVerifySession', () => {
   it('bubbles other errors', async () => {
     const onDismiss = jest.fn();
     const onError = jest.fn();
-    render(
+    renderWithRouter(
       <MockedCache verified={false} mocks={sadMocks}>
         <ModalVerifySession {...{ onDismiss, onError }} />
       </MockedCache>
