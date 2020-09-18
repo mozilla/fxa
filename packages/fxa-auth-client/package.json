@@ -24,7 +24,7 @@
   "devDependencies": {
     "@types/assert": "^1.5.1",
     "@types/fast-text-encoding": "^1",
-    "@types/mocha": "^7",
+    "@types/mocha": "^8",
     "@types/node-fetch": "^2",
     "asmcrypto.js": "^0.22.0",
     "fast-text-encoding": "^1.0.0",
