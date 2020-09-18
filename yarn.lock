@@ -18034,7 +18034,7 @@ fsevents@^1.2.7:
     helmet: ^4.1.0
     hot-shots: ^7.6.0
     intl: 1.2.5
-    intl-pluralrules: ^1.1.1
+    intl-pluralrules: ^1.2.2
     jest: ^26.4.2
     joi: ^14.3.1
     morgan: ^1.10.0
@@ -20961,10 +20961,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"intl-pluralrules@npm:^1.1.1":
-  version: 1.2.0
-  resolution: "intl-pluralrules@npm:1.2.0"
-  checksum: f0e50b284b277c7a9bbc19b88d96ad7982f72f78d37c3ea0d8633419ac09f02ed9f9cc25960d9f67952a7860562c0d8b4dec466a09dea44d446b7960e6a99c01
+"intl-pluralrules@npm:^1.2.2":
+  version: 1.2.2
+  resolution: "intl-pluralrules@npm:1.2.2"
   languageName: node
   linkType: hard
 
