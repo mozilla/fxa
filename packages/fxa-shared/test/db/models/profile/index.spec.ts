@@ -8,15 +8,21 @@ import { assert } from 'chai';
 import Knex from 'knex';
 import 'mocha';
 
-import { chance, testDatabaseSetup, randomAvatar, randomProfile, defaultProvider } from './helpers';
+import {
+  chance,
+  testDatabaseSetup,
+  randomAvatar,
+  randomProfile,
+  defaultProvider,
+} from './helpers';
 
-import { profileByUid, selectedAvatar } from '../../../../../lib/db/models/profile';
+import { profileByUid, selectedAvatar } from '../../../../db/models/profile';
 import {
   Avatar,
   AvatarProvider,
   AvatarSelected,
   Profile,
-} from '../../../../../lib/db/models/profile';
+} from '../../../../db/models/profile';
 
 const PROFILE_1 = randomProfile();
 const PROFILE_2 = randomProfile();
@@ -34,9 +40,14 @@ describe('auth', () => {
     // Load another random profile
     const profile2 = await Profile.query().insert(PROFILE_2);
     // Load a random avatar
-    avatar = await Avatar.query().insert(randomAvatar(profile.userId, provider.id));
+    avatar = await Avatar.query().insert(
+      randomAvatar(profile.userId, provider.id)
+    );
     // Link the avatar to profile
-    await AvatarSelected.query().insert({ userId: profile.userId, avatarId: avatar.id });
+    await AvatarSelected.query().insert({
+      userId: profile.userId,
+      avatarId: avatar.id,
+    });
   });
 
   after(async () => {

@@ -5076,7 +5076,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chance@npm:^1.0.10, @types/chance@npm:^1.1.0":
+"@types/chance@npm:^1, @types/chance@npm:^1.0.10, @types/chance@npm:^1.1.0":
   version: 1.1.0
   resolution: "@types/chance@npm:1.1.0"
   checksum: daaa9528de2d94060c49cca49d0326c974d089a0bf956e33cf63bc427abfceb449de42f5fde5e622089302b47540dd15709595c38bdcf24996d48c02f3024777
@@ -5778,6 +5778,15 @@ __metadata:
   version: 8.0.2
   resolution: "@types/mocha@npm:8.0.2"
   checksum: 63d14db4920fb351a0cc3e68a1c60c9028242b241ad0a29a43895fa64ba457f9996d1176726ca8bb35fd8b654edf3475c94c0d086f6af644b6d38f999c309c52
+  languageName: node
+  linkType: hard
+
+"@types/mysql@npm:^2":
+  version: 2.15.15
+  resolution: "@types/mysql@npm:2.15.15"
+  dependencies:
+    "@types/node": "*"
+  checksum: c2cf780ab256406297f2a3e7fc962ae67c6d9ec595eed6ae9347c76c5dd89a4e58ecdf5254c65ca389a48dc97d19a2c62fae8f1a50ba890aa2bb9e7088a00334
   languageName: node
   linkType: hard
 
@@ -11242,6 +11251,13 @@ __metadata:
   version: 1.1.6
   resolution: "chance@npm:1.1.6"
   checksum: ac3311b7ed8f0321fc991f1f0ffc60107584532076c32ff0703e81e167480d64b2ff4607101fd3ad9998b8311bd5d6a6a323e011003fb2e8e5a767beba1b7722
+  languageName: node
+  linkType: hard
+
+"chance@npm:^1.1.7":
+  version: 1.1.7
+  resolution: "chance@npm:1.1.7"
+  checksum: 7d2b938178c1c384fcb483d6afa9feeb73949c8f5a8a133599df09c3437a43bb7d5e955d000faa01760a48da18c755ffcf51a9e7707ea3290d6a5231822e0bbe
   languageName: node
   linkType: hard
 
@@ -17777,13 +17793,15 @@ fsevents@^1.2.7:
     "@sentry/integrations": ^5.23.0
     "@sentry/node": ^5.23.0
     "@types/chai": ^4.2.11
+    "@types/chance": ^1
     "@types/generic-pool": ^3.1.9
     "@types/jest": ^26.0.13
     "@types/js-md5": ^0.4.2
     "@types/lodash.omitby": ^4
     "@types/lodash.pick": ^4
     "@types/mocha": ^7.0.2
-    "@types/node": ^14.10.1
+    "@types/mysql": ^2
+    "@types/node": ^12.12.38
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.16
     "@types/sinon": 9.0.5
@@ -17794,6 +17812,7 @@ fsevents@^1.2.7:
     bluebird: ^3.7.2
     celebrate: ^10.0.1
     chai: ^4.2.0
+    chance: ^1.1.7
     class-transformer: ^0.3.1
     class-validator: ^0.12.2
     cors: ^2.8.5
@@ -17808,13 +17827,16 @@ fsevents@^1.2.7:
     js-md5: ^0.7.3
     jsdom: 16.2.2
     jsdom-global: 3.0.2
+    knex: ^0.21.4
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^7.1.2
     moment: ^2.24.0
     mozlog: ^3.0.1
+    mysql: ^2.18.1
     node-uap: "git://github.com/mozilla-fxa/node-uap.git#96dc1f9f224422ec184395b6408cd1fc40ee452a"
     nyc: ^15.0.1
+    objection: ^2.2.3
     pm2: ^4.4.1
     prettier: ^2.0.5
     proxyquire: ^2.1.3
@@ -26615,6 +26637,18 @@ fsevents@^1.2.7:
   peerDependencies:
     knex: 0.x
   checksum: 14e1390adbde8ec24a10d17116792ec98c3eeadd8cf9b7483d7879880a3affad4fc051fe8f40001d99ade9c71164d430e1dd3ea6570680f6245dbe2b475fb85d
+  languageName: node
+  linkType: hard
+
+"objection@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "objection@npm:2.2.3"
+  dependencies:
+    ajv: ^6.12.0
+    db-errors: ^0.2.3
+  peerDependencies:
+    knex: 0.x
+  checksum: 7e8beb59b3a5a7cc730305a7db63aecf856528e711139d24c647bdc52cf126ed51f50e657b0746b2b4dd5b8712e36d9846dd6f64a098fdac29783979b34ba424
   languageName: node
   linkType: hard
 

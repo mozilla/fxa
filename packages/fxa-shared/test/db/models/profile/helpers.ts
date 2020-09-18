@@ -8,12 +8,15 @@ import path from 'path';
 import Chance from 'chance';
 import Knex from 'knex';
 
-import { setupProfileDatabase } from '../../../../../lib/db';
+import { setupProfileDatabase } from '../../../../db';
 
 export const chance = new Chance();
 
 const thisDir = path.dirname(__filename);
-export const avatarTable = fs.readFileSync(path.join(thisDir, './avatar.sql'), 'utf8');
+export const avatarTable = fs.readFileSync(
+  path.join(thisDir, './avatar.sql'),
+  'utf8'
+);
 export const avatarProvidersTable = fs.readFileSync(
   path.join(thisDir, './avatar-provider.sql'),
   'utf8'
@@ -22,7 +25,10 @@ export const avatarSelectedTable = fs.readFileSync(
   path.join(thisDir, './avatar-selected.sql'),
   'utf8'
 );
-export const profileTable = fs.readFileSync(path.join(thisDir, './profile.sql'), 'utf8');
+export const profileTable = fs.readFileSync(
+  path.join(thisDir, './profile.sql'),
+  'utf8'
+);
 
 export function defaultProvider() {
   return {

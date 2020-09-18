@@ -5,8 +5,10 @@
 import express from 'express';
 import 'mocha';
 import request from 'supertest';
+import { assert } from 'chai';
 
-import { loadBalancerRoutes } from '../../lib/middleware';
+import { testDatabaseSetup } from './helpers';
+import { dbHealthCheck, loadBalancerRoutes } from '../../lib/middleware';
 import { version } from '../../lib/version';
 
 describe('loadBalancerRoutes', () => {
@@ -14,11 +16,17 @@ describe('loadBalancerRoutes', () => {
   app.use(loadBalancerRoutes());
 
   it('returns version', () => {
-    return request(app).get('/__version__').expect('Content-Type', /json/).expect(200, version);
+    return request(app)
+      .get('/__version__')
+      .expect('Content-Type', /json/)
+      .expect(200, version);
   });
 
   it('returns lbheartbeat', () => {
-    return request(app).get('/__lbheartbeat__').expect('Content-Type', /json/).expect(200, {});
+    return request(app)
+      .get('/__lbheartbeat__')
+      .expect('Content-Type', /json/)
+      .expect(200, {});
   });
 
   it('returns heartbeat', () => {
@@ -48,5 +56,19 @@ describe('loadBalancerRoutes', () => {
       .get('/__heartbeat__')
       .expect('Content-Type', /json/)
       .expect(200, { status: 'error' });
+  });
+});
+
+describe('dbHealthCheck', () => {
+  it('returns ok when db is configured', async () => {
+    const knex = await testDatabaseSetup();
+    const result = await dbHealthCheck();
+    assert.deepEqual(result, { db: { status: 'ok' } });
+    await knex.destroy();
+  });
+
+  it('returns error when db is not configured', async () => {
+    const result = await dbHealthCheck();
+    assert.deepEqual(result, { db: { status: 'error' } });
   });
 });
