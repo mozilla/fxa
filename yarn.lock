@@ -6421,13 +6421,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/superagent@npm:4.1.9":
-  version: 4.1.9
-  resolution: "@types/superagent@npm:4.1.9"
+"@types/superagent@npm:4.1.10":
+  version: 4.1.10
+  resolution: "@types/superagent@npm:4.1.10"
   dependencies:
     "@types/cookiejar": "*"
     "@types/node": "*"
-  checksum: 29bd14a0f157d7efc87cfb05f0d97b67fbe0d360d2520fa9a560ac8a1b8cae94390f73894f3c6882b98370dba5ed5d8dcb046f4be7ce87cb6057913bfe7a8ac7
+  checksum: 6ef5ebd6e0194ba6197d6ebe96516db751142d8c0c2805c818d02727cef094e2272fab6a9557aed87ef7840984f5c2abdf9af8a7b375417e535d1e3616a31453
   languageName: node
   linkType: hard
 
@@ -17846,7 +17846,7 @@ fsevents@^1.2.7:
     "@types/node": ^12.x
     "@types/proxyquire": ^1.3.28
     "@types/sinon": 9.0.5
-    "@types/superagent": 4.1.9
+    "@types/superagent": 4.1.10
     "@types/supertest": ^2.0.10
     "@types/yargs": ^15.0.5
     apollo-datasource: ^0.7.2
