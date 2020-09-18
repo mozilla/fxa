@@ -123,7 +123,7 @@
     "intl-pluralrules": "^1.2.2",
     "joi": "^14.3.1",
     "morgan": "^1.10.0",
-    "mozlog": "^2.2.0",
+    "mozlog": "^3.0.1",
     "node-sass": "^4.13.1",
     "on-headers": "^1.0.2",
     "react": "^16.12.0",

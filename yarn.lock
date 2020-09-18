@@ -10651,7 +10651,7 @@ __metadata:
     intel: 1.2.0
     mocha: ^7.1.2
     morgan: ^1.10.0
-    mozlog: 2.2.0
+    mozlog: ^3.0.1
     optimist: 0.6.1
     pm2: ^4.4.1
     prettier: ^2.0.5
@@ -17217,7 +17217,7 @@ fsevents@^1.2.7:
     graphql: ^14.6.0
     helmet: ^4.1.0
     jest: ^26.4.2
-    mozlog: ^2.2.0
+    mozlog: ^3.0.1
     node-sass: ^4.13.1
     npm-run-all: ^4.1.5
     on-headers: ^1.0.2
@@ -17327,7 +17327,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     ip: ^1.1.5
     mocha: ^7.1.2
-    mozlog: 2.2.0
+    mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^13.0.4
@@ -17431,7 +17431,7 @@ fsevents@^1.2.7:
     mocha-junit-reporter: ^2.0.0
     moment: ^2.24.0
     moment-timezone: 0.5.11
-    mozlog: 2.2.0
+    mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^12.0.3
@@ -17585,7 +17585,7 @@ fsevents@^1.2.7:
     mkdirp: 0.5.1
     mocha: ^7.1.2
     morgan: ^1.10.0
-    mozlog: 2.2.0
+    mozlog: ^3.0.1
     mustache: 4.0.1
     node-sass: ^4.13.1
     node-uuid: 1.4.8
@@ -17819,7 +17819,7 @@ fsevents@^1.2.7:
     maxmind: 2.8.0
     mkdirp: 0.5.1
     mocha: ^7.1.2
-    mozlog: 2.2.0
+    mozlog: ^3.0.1
     nyc: ^15.0.1
     prettier: ^2.0.5
     request: ^2.88.2
@@ -17923,7 +17923,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     json-schema-to-typescript: ^8.2.0
     mocha: ^7.1.2
-    mozlog: ^2.2.0
+    mozlog: ^3.0.1
     prettier: ^2.0.5
     reflect-metadata: ^0.1.13
     sinon: ^9.0.3
@@ -18038,7 +18038,7 @@ fsevents@^1.2.7:
     jest: ^26.4.2
     joi: ^14.3.1
     morgan: ^1.10.0
-    mozlog: ^2.2.0
+    mozlog: ^3.0.1
     nock: ^13.0.4
     node-sass: ^4.13.1
     npm-run-all: ^4.1.5
@@ -18105,7 +18105,7 @@ fsevents@^1.2.7:
     mkdirp: 0.5.1
     mocha: ^7.1.2
     mocha-text-cov: 0.1.1
-    mozlog: 2.2.0
+    mozlog: ^3.0.1
     mysql: ^2.18.1
     mysql-patcher: 0.7.0
     nock: ^13.0.4
@@ -18319,7 +18319,7 @@ fsevents@^1.2.7:
     fxa-shared: "workspace:*"
     handlebars: ^4.7.6
     mocha: ^8.1.1
-    mozlog: 3.0.1
+    mozlog: ^3.0.1
     nock: ^13.0.4
     pm2: ^4.4.1
     prettier: ^2.0.5
@@ -20856,7 +20856,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"intel@npm:1.2.0, intel@npm:^1.0.0, intel@npm:^1.2.0":
+"intel@npm:1.2.0, intel@npm:^1.2.0":
   version: 1.2.0
   resolution: "intel@npm:1.2.0"
   dependencies:
@@ -25299,7 +25299,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"merge@npm:^1.2.0, merge@npm:^1.2.1":
+"merge@npm:^1.2.1":
   version: 1.2.1
   resolution: "merge@npm:1.2.1"
   checksum: f6a054fa9666ab56eaac9628c24fb5710ba4ccd3a2d3f511247fbbc470f27d0dcf3bbbddbc84ad98dc47304830775caffe95ee3bd67b5e0b0f7c280122f24ca8
@@ -25955,17 +25955,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mozlog@npm:2.2.0, mozlog@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "mozlog@npm:2.2.0"
-  dependencies:
-    intel: ^1.0.0
-    merge: ^1.2.0
-  checksum: abf2800d219de9eb2103d301fab4053b04c45be7ff0e4cfd5e800b73a8235bb387f1b62343433ca20feb164dab0da320ba7df1101a183ee7a7f1542b1f805795
-  languageName: node
-  linkType: hard
-
-"mozlog@npm:3.0.1, mozlog@npm:^3.0.1":
+"mozlog@npm:^3.0.1":
   version: 3.0.1
   resolution: "mozlog@npm:3.0.1"
   dependencies:

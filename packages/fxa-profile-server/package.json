@@ -32,7 +32,7 @@
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "workspace:*",
     "lodash": "^4.17.19",
-    "mozlog": "2.2.0",
+    "mozlog": "^3.0.1",
     "mysql": "^2.18.1",
     "mysql-patcher": "0.7.0",
     "poolee": "^1.0.1",

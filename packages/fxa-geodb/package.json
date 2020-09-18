@@ -32,7 +32,7 @@
     "cron": "1.8.2",
     "maxmind": "2.8.0",
     "mkdirp": "0.5.1",
-    "mozlog": "2.2.0",
+    "mozlog": "^3.0.1",
     "request": "^2.88.2"
   },
   "devDependencies": {
