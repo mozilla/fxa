@@ -17416,7 +17416,7 @@ fsevents@^1.2.7:
     jsonwebtoken: ^8.4.0
     jsrsasign: ^8.0.20
     jsxgettext-recursive-next: 1.1.0
-    jws: 3.1.5
+    jws: 4.0.0
     keypair: 1.0.1
     keyv: 3.0.0
     leftpad: 0.0.0
@@ -23615,7 +23615,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jwa@npm:^1.1.5, jwa@npm:^1.4.1":
+"jwa@npm:^1.4.1":
   version: 1.4.1
   resolution: "jwa@npm:1.4.1"
   dependencies:
@@ -23652,13 +23652,13 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"jws@npm:3.1.5":
-  version: 3.1.5
-  resolution: "jws@npm:3.1.5"
+"jws@npm:4.0.0, jws@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jws@npm:4.0.0"
   dependencies:
-    jwa: ^1.1.5
+    jwa: ^2.0.0
     safe-buffer: ^5.0.1
-  checksum: 44e63b6378d7fa11eae0d5a1062da15c6f155040b8670335885306fbc1ef2232f7b4998f3dcb0b089c173862b5227e55bdbab422926e140a3811c15e957937b8
+  checksum: fb7d2725da5f4a9669024e3e743a3c4bfc193265614e03d52ea24a5251717107491004892d3524fdee525341d91212928bc19b8253f42f0df3dc35bf478dc92e
   languageName: node
   linkType: hard
 
@@ -23669,16 +23669,6 @@ fsevents@^1.2.7:
     jwa: ^1.4.1
     safe-buffer: ^5.0.1
   checksum: 3990b26ebb6f368bf6c53bf580cd327f207052adedeb7900dde665e143fff9ea5d96d0b4282e85a631a6e3af76ada281a1ccc450b1916d579d07e9d36b564a19
-  languageName: node
-  linkType: hard
-
-"jws@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "jws@npm:4.0.0"
-  dependencies:
-    jwa: ^2.0.0
-    safe-buffer: ^5.0.1
-  checksum: fb7d2725da5f4a9669024e3e743a3c4bfc193265614e03d52ea24a5251717107491004892d3524fdee525341d91212928bc19b8253f42f0df3dc35bf478dc92e
   languageName: node
   linkType: hard
 
