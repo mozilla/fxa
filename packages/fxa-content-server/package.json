@@ -45,7 +45,7 @@
     "backbone": "^1.4.0",
     "backbone.cocktail": "0.5.9",
     "base32-decode": "1.0.0",
-    "base64url": "3.0.0",
+    "base64url": "3.0.1",
     "body-parser": "^1.19.0",
     "cache-loader": "^3.0.1",
     "chosen-js": "git://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0",
