@@ -5876,10 +5876,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:2.0.1, @types/prettier@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "@types/prettier@npm:2.0.1"
-  checksum: fba408d98574b9790446bd5d5f1200a1baf164beea676eaad139320a1d1cdf54f2e411a865b253fc75fbadd1a096bb7eacbf13083fa7d26785e98dca57932b47
+"@types/prettier@npm:2.1.1":
+  version: 2.1.1
+  resolution: "@types/prettier@npm:2.1.1"
+  checksum: 3671bedc845a0e61bb8eb698746e1f6d1201ac784f95c536cd653c1406a51c0e9c338ecbbc73f1b5fd5fe0b0af98edf7e85428810357d959355ab46b3a63ebe6
   languageName: node
   linkType: hard
 
@@ -5887,6 +5887,13 @@ __metadata:
   version: 1.19.1
   resolution: "@types/prettier@npm:1.19.1"
   checksum: 394a4364ce5e3364bd230eaeed16cfa816b686bb05fc71968188f6a29b1f69abc235ccd4fd0aef4c4eec124480a6e3420962e99406e2bf2f552c9aae46073546
+  languageName: node
+  linkType: hard
+
+"@types/prettier@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "@types/prettier@npm:2.0.1"
+  checksum: fba408d98574b9790446bd5d5f1200a1baf164beea676eaad139320a1d1cdf54f2e411a865b253fc75fbadd1a096bb7eacbf13083fa7d26785e98dca57932b47
   languageName: node
   linkType: hard
 
@@ -17674,7 +17681,7 @@ fsevents@^1.2.7:
     "@types/file-loader": ^4.2.0
     "@types/jest": ^24.9.1
     "@types/node": ^13.13.0
-    "@types/prettier": 2.0.1
+    "@types/prettier": 2.1.1
     "@types/react": ^16.9.34
     "@types/react-dom": ^16.9.6
     "@types/react-transition-group": ^4.2.4
