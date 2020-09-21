@@ -17160,7 +17160,7 @@ fsevents@^1.2.7:
     speed-trap: 0.0.10
     thread-loader: ^2.1.2
     time-grunt: 1.4.0
-    ts-loader: ^7.0.5
+    ts-loader: ^8.0.4
     ts-node: ^8.10.2
     typescript: 3.9.7
     ua-parser-js: "git://github.com/mozilla-fxa/ua-parser-js.git#fxa-version"
@@ -17342,7 +17342,7 @@ fsevents@^1.2.7:
     sqs-consumer: ^5.4.0
     supertest: ^4.0.2
     ts-jest: 26.1.0
-    ts-loader: ^6.2.1
+    ts-loader: ^8.0.4
     ts-node: ^8.6.2
     tsconfig-paths: ^3.9.0
     typesafe-joi: ^2.1.0
@@ -17831,7 +17831,7 @@ fsevents@^1.2.7:
     sinon: ^9.0.3
     stripe: ^8.69.0
     ts-jest: 26.1.0
-    ts-loader: ^6.2.1
+    ts-loader: ^8.0.4
     ts-node: ^8.10.2
     tsconfig-paths: ^3.9.0
     typescript: 3.9.7
@@ -35050,9 +35050,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"ts-loader@npm:^6.2.1":
-  version: 6.2.2
-  resolution: "ts-loader@npm:6.2.2"
+"ts-loader@npm:^8.0.4":
+  version: 8.0.4
+  resolution: "ts-loader@npm:8.0.4"
   dependencies:
     chalk: ^2.3.0
     enhanced-resolve: ^4.0.0
@@ -35061,22 +35061,6 @@ resolve@~1.11.1:
     semver: ^6.0.0
   peerDependencies:
     typescript: "*"
-  checksum: 3abd8579b630b90398829d8d092684e3d9276e784e63309f035634cd12603fb3bd223414b69264730f1d0e4fe7d4317d6b464064e3777953ba124777cb0d7a23
-  languageName: node
-  linkType: hard
-
-"ts-loader@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "ts-loader@npm:7.0.5"
-  dependencies:
-    chalk: ^2.3.0
-    enhanced-resolve: ^4.0.0
-    loader-utils: ^1.0.2
-    micromatch: ^4.0.0
-    semver: ^6.0.0
-  peerDependencies:
-    typescript: "*"
-  checksum: 4f55f2c9f53b7f0562558b25d2015f4b7a592d91245ce4e059ea0231ff755033dc3b29939f6f7012ba644593f70f656ce8a89354474a7b1741da642b04f17942
   languageName: node
   linkType: hard
 
