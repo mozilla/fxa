@@ -9895,7 +9895,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64url@npm:3.0.0, base64url@npm:^3.0.0":
+"base64url@npm:3.0.1":
+  version: 3.0.1
+  resolution: "base64url@npm:3.0.1"
+  checksum: e7c3424af4c711e1fbfe6b6e7e3976af684a5a080aa7c17a3d1fd375a029ff5f831ada40223571a8032d7c45f91d48266a9c367467a5f0c995cfb69de90cbdd3
+  languageName: node
+  linkType: hard
+
+"base64url@npm:^3.0.0":
   version: 3.0.0
   resolution: "base64url@npm:3.0.0"
   checksum: 612b9229b878a602488cbf2e7c0c546e3c1efeba8f578124901c2f7d5df17c87e97d230dbdf400af0e84661691ec7861564f860b37a2cc7ed7f13d76046de695
@@ -16848,7 +16855,7 @@ fsevents@^1.2.7:
   dependencies:
     "@sentry/node": ^5.17.0
     audit-filter: 0.5.0
-    base64url: 3.0.0
+    base64url: 3.0.1
     bluebird: ^3.7.2
     chai: ^4.2.0
     convict: ^6.0.0
@@ -16910,7 +16917,7 @@ fsevents@^1.2.7:
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.698.0
-    base64url: 3.0.0
+    base64url: 3.0.1
     binary-split: 0.1.2
     bluebird: ^3.7.2
     buf: 0.1.0
@@ -17040,7 +17047,7 @@ fsevents@^1.2.7:
     backbone: ^1.4.0
     backbone.cocktail: 0.5.9
     base32-decode: 1.0.0
-    base64url: 3.0.0
+    base64url: 3.0.1
     body-parser: ^1.19.0
     cache-loader: ^3.0.1
     chai: ^4.2.0
