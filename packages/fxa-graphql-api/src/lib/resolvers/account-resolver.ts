@@ -18,8 +18,12 @@ import {
   Root,
 } from 'type-graphql';
 
-import { Account, accountByUid, AccountOptions } from '../db/models/auth';
-import { profileByUid, selectedAvatar } from '../db/models/profile';
+import {
+  Account,
+  accountByUid,
+  AccountOptions,
+} from 'fxa-shared/db/models/auth';
+import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
 import { CatchGatewayError } from '../error';
 import { Context } from '../server';
 import { Account as AccountType } from './types/account';

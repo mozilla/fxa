@@ -5,6 +5,7 @@
 import { Request, Response, Router } from 'express';
 
 import { version } from './version';
+import { Account } from 'fxa-shared/db/models/auth/account';
 
 export type HealthExtras = {
   [key: string]: string | number | boolean | HealthExtras;
@@ -38,4 +39,16 @@ export function loadBalancerRoutes(
   });
 
   return router;
+}
+
+export async function dbHealthCheck(): Promise<HealthExtras> {
+  let status = 'ok';
+  try {
+    await Account.query().limit(1);
+  } catch (err) {
+    status = 'error';
+  }
+  return {
+    db: { status },
+  };
 }

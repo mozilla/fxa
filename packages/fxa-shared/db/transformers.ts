@@ -20,6 +20,12 @@ function buffer(value: string | Buffer) {
   return value;
 }
 
-export const uuidTransformer = { to: (v: any) => buffer(v), from: (v: any) => unbuffer(v) };
+export const uuidTransformer = {
+  to: (v: any) => buffer(v),
+  from: (v: any) => unbuffer(v),
+};
 
-export const intBoolTransformer = { to: (v: any) => (v ? 1 : 0), from: (v: any) => !!v };
+export const intBoolTransformer = {
+  to: (v: any) => (v ? 1 : 0),
+  from: (v: any) => !!v,
+};

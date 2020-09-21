@@ -8,16 +8,25 @@ import path from 'path';
 import Chance from 'chance';
 import Knex from 'knex';
 
-import { setupAuthDatabase } from '../../../../../lib/db';
-import { Account } from '../../../../../lib/db/models/auth/account';
+import { setupAuthDatabase } from 'fxa-shared/db';
+import { Account } from 'fxa-shared/db/models/auth/account';
 
-export type AccountIsh = Pick<Account, 'uid' | 'email' | 'emails' | 'normalizedEmail'>;
+export type AccountIsh = Pick<
+  Account,
+  'uid' | 'email' | 'emails' | 'normalizedEmail'
+>;
 
 export const chance = new Chance();
 
 const thisDir = path.dirname(__filename);
-export const accountTable = fs.readFileSync(path.join(thisDir, './accounts.sql'), 'utf8');
-export const emailsTable = fs.readFileSync(path.join(thisDir, './emails.sql'), 'utf8');
+export const accountTable = fs.readFileSync(
+  path.join(thisDir, './accounts.sql'),
+  'utf8'
+);
+export const emailsTable = fs.readFileSync(
+  path.join(thisDir, './emails.sql'),
+  'utf8'
+);
 
 export function randomAccount() {
   const email = chance.email();

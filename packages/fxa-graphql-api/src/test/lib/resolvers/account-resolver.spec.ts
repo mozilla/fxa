@@ -10,9 +10,9 @@ import Knex from 'knex';
 import sinon from 'ts-sinon';
 import { buildSchema } from 'type-graphql';
 
-import { Account } from '../../../lib/db/models';
+import { Account } from 'fxa-shared/db/models';
 import { AccountResolver } from '../../../lib/resolvers/account-resolver';
-import { randomAccount, testDatabaseSetup } from '../db/models/auth/helpers';
+import { randomAccount, testDatabaseSetup } from '../helpers';
 import { mockContext } from '../mocks';
 
 const sandbox = sinon.createSandbox();

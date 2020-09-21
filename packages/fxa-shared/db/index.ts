@@ -5,25 +5,11 @@
 import Knex from 'knex';
 import { promisify } from 'util';
 
-import { HealthExtras } from '../middleware';
-import { MySQLConfig } from '../../config';
+import { MySQLConfig } from './config';
 import { AuthBaseModel } from './models/auth';
 import { ProfileBaseModel } from './models/profile';
-import { Account } from './models/auth/account';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
-
-export async function dbHealthCheck(): Promise<HealthExtras> {
-  let status = 'ok';
-  try {
-    await Account.query().limit(1);
-  } catch (err) {
-    status = 'error';
-  }
-  return {
-    db: { status },
-  };
-}
 
 /**
  * Setup a connection after knex establishes it, before its used.

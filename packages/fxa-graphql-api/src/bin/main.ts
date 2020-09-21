@@ -8,6 +8,7 @@ import AuthClient from 'fxa-auth-client';
 import { graphqlUploadExpress } from 'graphql-upload';
 import mozlog from 'mozlog';
 import { Container } from 'typedi';
+import { setupAuthDatabase, setupProfileDatabase } from 'fxa-shared/db';
 
 import Config from '../config';
 import {
@@ -15,12 +16,7 @@ import {
   fxAccountClientToken,
   loggerContainerToken,
 } from '../lib/constants';
-import {
-  dbHealthCheck,
-  setupAuthDatabase,
-  setupProfileDatabase,
-} from '../lib/db';
-import { loadBalancerRoutes } from '../lib/middleware';
+import { dbHealthCheck, loadBalancerRoutes } from '../lib/middleware';
 import { configureSentry } from '../lib/sentry';
 import { createServer } from '../lib/server';
 import { version } from '../lib/version';
@@ -36,10 +32,7 @@ async function run() {
   Container.set(configContainerToken, Config);
 
   // Setup the auth client
-  Container.set(
-    fxAccountClientToken,
-    new AuthClient(config.authServer.url)
-  );
+  Container.set(fxAccountClientToken, new AuthClient(config.authServer.url));
 
   // Setup the databases
   const authKnex = setupAuthDatabase(config.database.mysql.auth);

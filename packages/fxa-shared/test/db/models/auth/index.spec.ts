@@ -8,9 +8,14 @@ import { assert } from 'chai';
 import Knex from 'knex';
 import 'mocha';
 
-import { chance, randomAccount, randomEmail, testDatabaseSetup } from './helpers';
+import {
+  chance,
+  randomAccount,
+  randomEmail,
+  testDatabaseSetup,
+} from './helpers';
 
-import { Account, accountByUid } from '../../../../../lib/db/models/auth';
+import { Account, accountByUid } from '../../../../db/models/auth';
 
 const USER_1 = randomAccount();
 const EMAIL_1 = randomEmail(USER_1);
@@ -37,7 +42,9 @@ describe('auth', () => {
     });
 
     it('retrieves record with emails included successfully', async () => {
-      const result = (await accountByUid(USER_1.uid, { include: ['emails'] })) as Account;
+      const result = (await accountByUid(USER_1.uid, {
+        include: ['emails'],
+      })) as Account;
       assert.isDefined(result);
       assert.equal(result.uid, USER_1.uid);
       assert.equal(result.email, USER_1.email);

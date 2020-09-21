@@ -8,14 +8,6 @@ import path from 'path';
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
-export interface MySQLConfig {
-  database: string;
-  host: string;
-  password: string;
-  port: number;
-  user: string;
-}
-
 export interface RedisConfig {
   host: string;
   keyPrefix: string;
