@@ -85,26 +85,30 @@ describe('views/connect_another_device', () => {
       });
     });
 
-    describe('with a Fx desktop user that can pair', () => {
-      beforeEach(() => {
-        sinon.stub(view, '_isSignedIn').callsFake(() => true);
-        relier.set('entrypoint', 'fxa_discoverability_native');
-        relier.set('context', 'fx_desktop_v3');
-        sinon.spy(view, 'navigate');
+    ['fxa_discoverability_native', 'fxa_app_menu', 'preferences'].forEach(
+      (entrypoint) => {
+        describe(`with a Fx desktop user that can pair from ${entrypoint}`, () => {
+          beforeEach(() => {
+            sinon.stub(view, '_isSignedIn').callsFake(() => true);
+            relier.set('entrypoint', entrypoint);
+            relier.set('context', 'fx_desktop_v3');
+            sinon.spy(view, 'navigate');
 
-        windowMock.navigator.userAgent =
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+            windowMock.navigator.userAgent =
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
 
-        return view.render().then(() => {
-          view.afterVisible();
+            return view.render().then(() => {
+              view.afterVisible();
+            });
+          });
+
+          it('shows pairing', () => {
+            assert.isTrue(view._isSignedIn.called);
+            assert.isTrue(view.navigate.calledWith('/pair'));
+          });
         });
-      });
-
-      it('shows pairing', () => {
-        assert.isTrue(view._isSignedIn.called);
-        assert.isTrue(view.navigate.calledWith('/pair'));
-      });
-    });
+      }
+    );
 
     describe('with a fennec user that is signed in', () => {
       beforeEach(() => {

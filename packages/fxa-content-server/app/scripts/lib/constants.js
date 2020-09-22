@@ -162,9 +162,11 @@ module.exports = {
 
   SIGNUP_CODE_LENGTH: 6,
 
+  // Some common FxA entrypoints for various browsers
   FIREFOX_IOS_OAUTH_ENTRYPOINT: 'ios_settings_manage',
   FIREFOX_TOOLBAR_ENTRYPOINT: 'fxa_discoverability_native',
   FIREFOX_MENU_ENTRYPOINT: 'fxa_app_menu',
+  FIREFOX_PREFERENCES_ENTRYPOINT: 'preferences',
 
   // This is compared against all secondary email
   // records, both verified and unverified
