@@ -145,7 +145,7 @@
     "chai": "^4.2.0",
     "copy-webpack-plugin": "^5.1.1",
     "core-js": "^3.6.5",
-    "css": "2.2.3",
+    "css": "3.0.0",
     "eslint": "7.7.0",
     "eslint-plugin-fxa": "^2.0.2",
     "firefox-profile": "1.2.0",
