@@ -181,6 +181,7 @@ const SupportView = BaseView.extend({
       if (apps.length) {
         this.appEl
           .empty()
+          .append('<option value="">&nbsp;</option>')
           .append(
             apps
               .map(_.escape)

@@ -359,7 +359,7 @@ describe('views/support', function () {
           view.$('#product option:eq(1)').prop('selected', true);
           view.$('#product').trigger('change');
           view.$('#topic option:eq(1)').prop('selected', true);
-          view.$('#app option:eq(0)').prop('selected', true);
+          view.$('#app option:eq(1)').prop('selected', true);
           view.$('#message').val(supportTicket.message).trigger('keyup');
 
           // calling this directly instead of clicking submit so we can have
