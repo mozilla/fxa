@@ -41,6 +41,7 @@
     "lodash.groupby": "^4.6.0",
     "postcss-import": "^12.0.1",
     "react": "^16.13.1",
+    "react-async-hook": "^3.6.1",
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
     "subscriptions-transport-ws": "^0.9.18",
@@ -58,6 +59,7 @@
     "@testing-library/dom": "^6.15.0",
     "@testing-library/jest-dom": "^5.11.0",
     "@testing-library/react": "^9.5.0",
+    "@testing-library/react-hooks": "^3.4.1",
     "@testing-library/user-event": "^7.2.1",
     "@types/babel__core": "7.1.7",
     "@types/classnames": "^2.2.10",
@@ -66,6 +68,8 @@
     "@types/node": "^12.12.35",
     "@types/react": "^16.9.34",
     "@types/react-dom": "^16.9.6",
+    "@types/react-test-renderer": "^16",
+    "@types/testing-library__react-hooks": "^3",
     "@types/webpack": "4.41.16",
     "babel-loader": "^8.0.0",
     "eslint": "^6.8.0",
@@ -77,6 +81,7 @@
     "npm-run-all": "^4.1.5",
     "pm2": "^4.4.1",
     "postcss-cli": "^7.1.1",
+    "react-test-renderer": "^16.13.1",
     "tailwindcss": "^1.7.3",
     "webpack": "^4.43.0"
   }

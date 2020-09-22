@@ -18,6 +18,13 @@ enum tokenType {
   passwordChangeToken = 'passwordChangeToken',
 }
 
+export type AuthServerError = Error & {
+  error?: string;
+  errno?: number;
+  message?: string;
+  code?: number;
+};
+
 export interface MetricsContext {
   deviceId?: string;
   flowId?: string;
@@ -639,7 +646,14 @@ export default class AuthClient {
       keys?: boolean;
       sessionToken?: string;
     } = {}
-  ) {
+  ): Promise<{
+    uid: string;
+    sessionToken: string;
+    verified: boolean;
+    authAt: number;
+    unwrapBKey?: string;
+    keyFetchToken?: string;
+  }> {
     const oldCredentials = await this.passwordChangeStart(email, oldPassword);
     const keys = await this.accountKeys(
       oldCredentials.keyFetchToken,

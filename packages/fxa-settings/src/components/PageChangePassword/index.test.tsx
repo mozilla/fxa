@@ -5,11 +5,20 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { screen } from '@testing-library/react';
+import { AuthContext, createAuthClient } from '../../lib/auth';
+import { MockedCache, renderWithRouter } from '../../models/_mocks';
 import PageChangePassword from '.';
-import { renderWithRouter } from '../../models/_mocks';
+
+const client = createAuthClient('none');
 
 it('renders', async () => {
-  renderWithRouter(<PageChangePassword />);
+  renderWithRouter(
+    <AuthContext.Provider value={{ auth: client }}>
+      <MockedCache>
+        <PageChangePassword />
+      </MockedCache>
+    </AuthContext.Provider>
+  );
   expect(screen.getByTestId('flow-container')).toBeInTheDocument();
   expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
   expect(screen.getByTestId('nav-link-common-passwords')).toBeInTheDocument();

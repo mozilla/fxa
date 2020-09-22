@@ -1887,12 +1887,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.3.4, @babel/runtime@npm:^7.4.5, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
-  version: 7.10.3
-  resolution: "@babel/runtime@npm:7.10.3"
+"@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.10.2, @babel/runtime@npm:^7.2.0, @babel/runtime@npm:^7.3.1, @babel/runtime@npm:^7.3.4, @babel/runtime@npm:^7.4.5, @babel/runtime@npm:^7.5.0, @babel/runtime@npm:^7.5.4, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.6.3, @babel/runtime@npm:^7.7.2, @babel/runtime@npm:^7.7.6, @babel/runtime@npm:^7.8.4, @babel/runtime@npm:^7.8.7, @babel/runtime@npm:^7.9.2":
+  version: 7.11.2
+  resolution: "@babel/runtime@npm:7.11.2"
   dependencies:
     regenerator-runtime: ^0.13.4
-  checksum: 19dc20d10dab2c4fc31c0fb3ba0615d685cc4d7cde38a427c5f0aec8b9efdd4d9c282caf4c67bd264ffe324a48e9a95d0c1f0109c31ae47297b9d87ff912eab6
+  checksum: 2f127ad60a0f0568faa0044e5b48329d8166c7fd3a0a3ce774070010a1c441ebf5570f526dd6bb26e214fb1a01bb987ab6a4c3f60a00f04d02448939f4c61e1e
   languageName: node
   linkType: hard
 
@@ -4824,6 +4824,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@testing-library/react-hooks@npm:^3.4.1":
+  version: 3.4.1
+  resolution: "@testing-library/react-hooks@npm:3.4.1"
+  dependencies:
+    "@babel/runtime": ^7.5.4
+    "@types/testing-library__react-hooks": ^3.3.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-test-renderer: ">=16.9.0"
+  checksum: e1fd838173f5b879cde8a5c91c78f8e6b0b5dc85e083d037b95e9da8ae553524645d3913630163ded11ac82ec357290bcb92fb0ce97d1fe5245c91ff8d32a05b
+  languageName: node
+  linkType: hard
+
 "@testing-library/react@npm:^9.5.0":
   version: 9.5.0
   resolution: "@testing-library/react@npm:9.5.0"
@@ -6030,6 +6043,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-test-renderer@npm:*, @types/react-test-renderer@npm:^16":
+  version: 16.9.3
+  resolution: "@types/react-test-renderer@npm:16.9.3"
+  dependencies:
+    "@types/react": "*"
+  checksum: 43465f5866e2636170ce8baa519aaccc3fee65bb6a312ce7099a29f88b65d10b0b2db0062e81c9aa26f6cfe17ed879a6963ef84442e57496f588c995b5c713aa
+  languageName: node
+  linkType: hard
+
 "@types/react-textarea-autosize@npm:^4.3.3":
   version: 4.3.5
   resolution: "@types/react-textarea-autosize@npm:4.3.5"
@@ -6285,6 +6307,15 @@ __metadata:
   dependencies:
     "@types/jest": "*"
   checksum: 0c3a0522632762a3e2c1a92e47fc5ab957d4a818d3edded00bcdf57db2ebbd16faccebc7c40cb9330c12ba5625b9e4b9f6172f1b05fdb602be70f0550d6b56cd
+  languageName: node
+  linkType: hard
+
+"@types/testing-library__react-hooks@npm:^3, @types/testing-library__react-hooks@npm:^3.3.0":
+  version: 3.4.0
+  resolution: "@types/testing-library__react-hooks@npm:3.4.0"
+  dependencies:
+    "@types/react-test-renderer": "*"
+  checksum: acae19c41b5053897ebb7b203158f6ec319a1befdc349f5961d7f105fdb5c322e3e9b6d713dd99aa8e954966cebfa5f9d9309cffd929e9a84aac21391b600cd9
   languageName: node
   linkType: hard
 
@@ -17747,6 +17778,7 @@ fsevents@^1.2.7:
     "@testing-library/dom": ^6.15.0
     "@testing-library/jest-dom": ^5.11.0
     "@testing-library/react": ^9.5.0
+    "@testing-library/react-hooks": ^3.4.1
     "@testing-library/user-event": ^7.2.1
     "@types/babel__core": 7.1.7
     "@types/classnames": ^2.2.10
@@ -17755,6 +17787,8 @@ fsevents@^1.2.7:
     "@types/node": ^12.12.35
     "@types/react": ^16.9.34
     "@types/react-dom": ^16.9.6
+    "@types/react-test-renderer": ^16
+    "@types/testing-library__react-hooks": ^3
     "@types/webpack": 4.41.16
     babel-loader: ^8.0.0
     classnames: ^2.2.6
@@ -17773,8 +17807,10 @@ fsevents@^1.2.7:
     postcss-cli: ^7.1.1
     postcss-import: ^12.0.1
     react: ^16.13.1
+    react-async-hook: ^3.6.1
     react-dom: ^16.13.1
     react-scripts: ^3.4.1
+    react-test-renderer: ^16.13.1
     subscriptions-transport-ws: ^0.9.18
     tailwindcss: ^1.7.3
     typescript: 3.9.7
@@ -29926,6 +29962,15 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"react-async-hook@npm:^3.6.1":
+  version: 3.6.1
+  resolution: "react-async-hook@npm:3.6.1"
+  peerDependencies:
+    react: ">=16.8"
+  checksum: d9cf6569df5e3614d504e9176188d5ed26d4ecf3e6f040fbb0b45c4d94fd9d549472c25c54631593230b4531590e311294bf124c76904960ee79e1a758e41712
+  languageName: node
+  linkType: hard
+
 "react-clientside-effect@npm:^1.2.2":
   version: 1.2.2
   resolution: "react-clientside-effect@npm:1.2.2"
@@ -30405,7 +30450,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:^16.12.0":
+"react-test-renderer@npm:^16.12.0, react-test-renderer@npm:^16.13.1":
   version: 16.13.1
   resolution: "react-test-renderer@npm:16.13.1"
   dependencies:
