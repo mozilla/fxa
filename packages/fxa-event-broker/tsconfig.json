@@ -4,7 +4,9 @@
     "outDir": "./dist",
     "declaration": true,
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "noEmitHelpers": true,
+    "importHelpers": true
   },
   "references": [{ "path": "../fxa-shared" }],
   "include": ["src"]

@@ -10,17 +10,16 @@ module.exports = {
   apps: [
     {
       name: 'admin-server',
-      script: 'node -r ts-node/register src/bin/main.ts',
+      script: 'nest start --debug=9150 --watch',
       cwd: __dirname,
       max_restarts: '1',
       min_uptime: '2m',
       env: {
         PATH,
         NODE_ENV: 'development',
-        NODE_OPTIONS: '--inspect=9150',
         TS_NODE_TRANSPILE_ONLY: 'true',
         TS_NODE_FILES: 'true',
-        PORT: '8095', // TODO: this needs to get added to src/config.ts
+        PORT: '8095',
       },
       filter_env: ['npm_'],
       watch: ['src'],
