@@ -76,7 +76,7 @@
     "eslint-plugin-fxa": "^2.0.2",
     "eslint-plugin-jest": "^23.13.2",
     "eslint-plugin-react": "7.19.0",
-    "express-http-proxy": "^1.6.0",
+    "express-http-proxy": "^1.6.2",
     "fetch-mock": "^8.1.0",
     "handlebars": "^4.5.3",
     "intl": "1.2.5",

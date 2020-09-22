@@ -43,7 +43,7 @@
     "convict-format-with-validator": "^6.0.0",
     "dateformat": "^3.0.3",
     "express": "^4.17.1",
-    "express-http-proxy": "^1.6.0",
+    "express-http-proxy": "^1.6.2",
     "fxa-react": "workspace:*",
     "graphql": "^14.6.0",
     "helmet": "^4.1.0",
