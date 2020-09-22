@@ -36,6 +36,25 @@
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
-    }
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Coverage: Mocha Current File",
+      "program": "${workspaceFolder}/node_modules/nyc/bin/nyc.js",
+      "args": [
+        "--reporter=lcov",
+        "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+        "--require",
+        "ts-node/register",
+        "--timeout",
+        "999999",
+        "--colors",
+        "${workspaceFolder}/${relativeFile}",
+        "--exit"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+    },
   ]
 }
