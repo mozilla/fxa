@@ -12521,7 +12521,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"coveralls@npm:^3.0.8":
+"coveralls@npm:^3.0.11":
   version: 3.1.0
   resolution: "coveralls@npm:3.1.0"
   dependencies:
@@ -17252,7 +17252,7 @@ fsevents@^1.2.7:
     request: ^2.88.2
     restify-clients: ^2.6.9
     sinon: ^9.0.3
-    tap: ^14.6.1
+    tap: ^14.10.8
     walk: 2.3.x
   languageName: unknown
   linkType: soft
@@ -25222,7 +25222,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:0.5.5, mkdirp@npm:>=0.5 0, mkdirp@npm:^0.5.0, mkdirp@npm:^0.5.1, mkdirp@npm:^0.5.3, mkdirp@npm:~0.5.1":
+"mkdirp@npm:0.5.5, mkdirp@npm:>=0.5 0, mkdirp@npm:^0.5.0, mkdirp@npm:^0.5.1, mkdirp@npm:^0.5.3, mkdirp@npm:^0.5.4, mkdirp@npm:~0.5.1":
   version: 0.5.5
   resolution: "mkdirp@npm:0.5.5"
   dependencies:
@@ -34258,9 +34258,9 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"tap@npm:^14.6.1":
-  version: 14.10.7
-  resolution: "tap@npm:14.10.7"
+"tap@npm:^14.10.8":
+  version: 14.10.8
+  resolution: "tap@npm:14.10.8"
   dependencies:
     "@types/react": ^16.9.16
     async-hook-domain: ^1.1.3
@@ -34268,7 +34268,7 @@ resolve@~1.11.1:
     browser-process-hrtime: ^1.0.0
     chokidar: ^3.3.0
     color-support: ^1.1.0
-    coveralls: ^3.0.8
+    coveralls: ^3.0.11
     diff: ^4.0.1
     esm: ^3.2.25
     findit: ^2.0.0
@@ -34283,7 +34283,7 @@ resolve@~1.11.1:
     istanbul-lib-processinfo: ^1.0.0
     jackspeak: ^1.4.0
     minipass: ^3.1.1
-    mkdirp: ^0.5.1
+    mkdirp: ^0.5.4
     nyc: ^14.1.1
     opener: ^1.5.1
     own-or: ^1.0.0
@@ -34307,7 +34307,6 @@ resolve@~1.11.1:
     yapool: ^1.0.0
   bin:
     tap: bin/run.js
-  checksum: fb6b607ad8b5ef87c4842282688a454bb1d409555d18a544b6c7987251fd8d26f05584bb4a9abd87c094541f3f5a4290d8af3ceb6dcb3c3c8497895f24ddc613
   languageName: node
   linkType: hard
 
