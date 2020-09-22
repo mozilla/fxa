@@ -15395,14 +15395,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"express-http-proxy@npm:^1.6.0":
-  version: 1.6.0
-  resolution: "express-http-proxy@npm:1.6.0"
+"express-http-proxy@npm:^1.6.2":
+  version: 1.6.2
+  resolution: "express-http-proxy@npm:1.6.2"
   dependencies:
     debug: ^3.0.1
     es6-promise: ^4.1.1
     raw-body: ^2.3.0
-  checksum: 2dae1575c78b123a333b0c6e9c6af0b00a061ea41a9458c632066dd8ddf24a0fd84c3e01a4add74d2e4b3386e1286b13abc7e0e94c0f545b0c9e351dfd5093ae
+  checksum: 91b74cb6f25bfa7d8b72b4571897d8a52225e852e148fb6af1464e4916beb47572e7470b24aafc58a5bf261b378bfd1f3f8a3058db1f5a2f65b59c02d2924784
   languageName: node
   linkType: hard
 
@@ -16774,7 +16774,7 @@ fsevents@^1.2.7:
     eslint-plugin-jest: ^23.13.2
     eslint-plugin-react: 7.19.0
     express: ^4.17.1
-    express-http-proxy: ^1.6.0
+    express-http-proxy: ^1.6.2
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     graphql: ^14.6.0
@@ -17586,7 +17586,7 @@ fsevents@^1.2.7:
     eslint-plugin-jest: ^23.13.2
     eslint-plugin-react: 7.19.0
     express: ^4.17.1
-    express-http-proxy: ^1.6.0
+    express-http-proxy: ^1.6.2
     fetch-mock: ^8.1.0
     fxa-content-server: "workspace:*"
     fxa-geodb: "workspace:*"
