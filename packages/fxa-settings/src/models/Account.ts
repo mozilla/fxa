@@ -100,3 +100,19 @@ export function useLazyAccount(
 
   return [getAccount, { accountLoading }];
 }
+
+export function hasSecondaryEmail(account: Account) {
+  return account.emails.length > 1;
+}
+
+export function hasSecondaryVerifiedEmail(account: Account) {
+  return hasSecondaryEmail(account) ? account.emails[1].verified : false;
+}
+
+export function hasAccountRecovery(account: Account) {
+  return account.recoveryKey;
+}
+
+export function hasTwoStepAuthentication(account: Account) {
+  return account.totp.exists && account.totp.verified;
+}

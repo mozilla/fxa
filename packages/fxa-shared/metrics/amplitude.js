@@ -111,8 +111,8 @@ function mapSettingsEventProperties(...args) {
 }
 
 function mapSettingsVersion(eventType, eventCategory, eventTarget, data) {
-  if (data && data.settings_version) {
-    return { settings_version: data.settings_version };
+  if (data && data.settingsVersion) {
+    return { settings_version: data.settingsVersion };
   }
 }
 

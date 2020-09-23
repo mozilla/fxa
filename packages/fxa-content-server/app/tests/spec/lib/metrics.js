@@ -294,7 +294,7 @@ describe('lib/metrics', () => {
 
     it('gets non-optional fields', () => {
       const filteredData = metrics.getFilteredData();
-      assert.lengthOf(Object.keys(filteredData), 36);
+      assert.lengthOf(Object.keys(filteredData), 37);
 
       assert.isTrue(filteredData.hasOwnProperty('events'));
       assert.isTrue(filteredData.hasOwnProperty('timers'));

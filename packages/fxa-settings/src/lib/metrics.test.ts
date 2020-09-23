@@ -15,17 +15,52 @@ import {
   setNewsletters,
   addMarketingImpression,
   setMarketingClick,
+  useUserPreferences,
+  useViewEvent,
+  usePageViewEvent,
 } from './metrics';
 
+import { window } from './window';
+jest.mock('./window', () => {
+  const realWindow = jest.requireActual('./window').window;
+  return {
+    window: {
+      ...realWindow,
+      performance: {
+        timeOrigin: 1596647781678,
+        getEntriesByType: jest.fn().mockReturnValue([{ fetchStart: 250 }]),
+      },
+      location: {
+        ...realWindow.location,
+        search: '?x=y&a=b',
+      },
+    },
+  };
+});
+
+jest.mock('react', () => ({
+  ...jest.requireActual('react'),
+  useEffect: jest.fn().mockImplementation((f) => f()),
+}));
+
+jest.mock('../models/Account', () => ({
+  ...jest.requireActual('../models/Account'),
+  useAccount: jest
+    .fn()
+    // Keep in mind that jest.mock is hoisted, so importing MOCK_ACCOUNT in a
+    // regular fashion "before" this will not work.
+    .mockReturnValue(jest.requireActual('../models/_mocks').MOCK_ACCOUNT),
+}));
+
 const deviceId = 'v8v0b6';
-const flowBeginTime = 1589394215438;
+const flowBeginTime = window.performance.timeOrigin - 500;
 const flowId = 'lWOSc42Ga5g';
 
 const eventGroup = 'great';
 const eventType = 'escape';
 const eventSlug = `${eventGroup}.${eventType}`;
 
-const dateNow = 1596647781678;
+const dateNow = window.performance.timeOrigin + 500;
 
 // Sometimes native properties are read-only,
 // and cannot be traditionally mocked, so let's
@@ -128,6 +163,13 @@ describe('init', () => {
 
     expect(window.navigator.sendBeacon).toHaveBeenCalled();
   });
+
+  it('passes through query params to content server', () => {
+    init({});
+    expect(window.location.replace).toHaveBeenCalledWith(
+      `${window.location.origin}/get_flow?x=y&a=b&redirect_to=%2F%3Fx%3Dy%26a%3Db`
+    );
+  });
 });
 
 describe('postMetrics', () => {
@@ -171,9 +213,13 @@ describe('logEvents', () => {
     initAndLog(eventSlug);
 
     expectPayloadProperties({
-      // this timestamp comes from stubbing Date.now and flowBeginTime
-      events: [{ type: eventSlug, offset: 7253566240 }],
+      // this timestamp comes from stubbing Date.now, flowBeginTime, and performance.timeOrigin
+      events: [{ type: eventSlug, offset: 250 }],
     });
+    expect(window.performance.getEntriesByType).toHaveBeenNthCalledWith(
+      1,
+      'navigation'
+    );
   });
 
   it('includes passed in eventProperties in the payload', () => {
@@ -185,6 +231,11 @@ describe('logEvents', () => {
     initAndLog(eventSlug, eventProperties);
 
     expectPayloadProperties(eventProperties);
+  });
+
+  it('sets the duration property on the payload', () => {
+    initAndLog();
+    expectPayloadProperties({ duration: 250 });
   });
 
   it('sets the flushTime property on the payload', () => {
@@ -240,6 +291,11 @@ describe('logEvents', () => {
       flowId,
     });
   });
+
+  it('sets the settings version to "new"', () => {
+    initAndLog();
+    expectPayloadProperties({ settingsVersion: 'new' });
+  });
 });
 
 describe('setViewNamePrefix', () => {
@@ -273,6 +329,36 @@ describe('logViewEvent', () => {
 
     expectPayloadEvents([eventSlug]);
     expectPayloadProperties(eventProperties);
+  });
+});
+
+describe('useViewEvent', () => {
+  it('logs a view event', () => {
+    initFlow();
+    useViewEvent('x', 'y');
+    expectPayloadEvents(['x.y']);
+    expectPayloadProperties({
+      userPreferences: {
+        'account-recovery': true,
+        emails: false,
+        'two-step-authentication': true,
+      },
+    });
+  });
+});
+
+describe('usePageViewEvent', () => {
+  it('logs a screen.* view event', () => {
+    initFlow();
+    usePageViewEvent('quuz');
+    expectPayloadEvents(['screen.quuz']);
+    expectPayloadProperties({
+      userPreferences: {
+        'account-recovery': true,
+        emails: false,
+        'two-step-authentication': true,
+      },
+    });
   });
 });
 
@@ -327,6 +413,20 @@ describe('setUserPreference', () => {
 
     expectPayloadProperties({
       userPreferences,
+    });
+  });
+});
+
+describe('setUserPreferences', () => {
+  it('sets three user prefs', () => {
+    useUserPreferences();
+    initAndLog();
+    const payloadData = parsePayloadData();
+    // strict equal since _all three_ properties must be present
+    expect(payloadData.userPreferences).toStrictEqual({
+      'account-recovery': true,
+      emails: false,
+      'two-step-authentication': true,
     });
   });
 });

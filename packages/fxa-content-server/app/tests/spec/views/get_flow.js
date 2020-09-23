@@ -44,7 +44,13 @@ describe('views/get_flow', function () {
     sinon.stub(view, 'initializeFlowEvents');
     sinon.stub(view, 'navigateAway');
     sinon.stub(view.metrics, 'getFlowEventMetadata').returns(flowData);
-    sinon.stub(view.metrics, 'getFilteredValue').returns('foo');
+    sinon.stub(view.metrics, 'getFilteredData').returns({
+      broker: 'foo',
+      context: 'foo',
+      isSampledUser: 'foo',
+      service: 'foo',
+      uniqueUserId: 'foo',
+    });
 
     sinon.stub(view.window.console, 'error');
   });
@@ -53,7 +59,7 @@ describe('views/get_flow', function () {
     $(view.el).remove();
     view.window.console.error.restore();
     view.metrics.getFlowEventMetadata.restore();
-    view.metrics.getFilteredValue.restore();
+    view.metrics.getFilteredData.restore();
     view.destroy();
     view = null;
   });
