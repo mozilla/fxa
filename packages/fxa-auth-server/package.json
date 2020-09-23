@@ -66,7 +66,7 @@
     "fxa-jwtool": "0.7.2",
     "fxa-notifier-aws": "1.0.0",
     "fxa-shared": "workspace:*",
-    "google-libphonenumber": "^3.2.7",
+    "google-libphonenumber": "^3.2.13",
     "handlebars": "^4.5.3",
     "hapi-error": "^2.3.0",
     "hkdf": "0.0.2",
