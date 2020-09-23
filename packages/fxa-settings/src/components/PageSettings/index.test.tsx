@@ -14,4 +14,6 @@ it('renders without imploding', async () => {
     </MockedCache>
   );
   expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
+  expect(screen.getByTestId('settings-security')).toBeInTheDocument();
+  expect(screen.getByTestId('settings-connected-services')).toBeInTheDocument();
 });
