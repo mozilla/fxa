@@ -42,7 +42,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
-    "subscriptions-transport-ws": "^0.9.11",
+    "subscriptions-transport-ws": "^0.9.18",
     "typescript": "3.9.7"
   },
   "devDependencies": {
