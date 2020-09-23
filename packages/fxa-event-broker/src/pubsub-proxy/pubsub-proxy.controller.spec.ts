@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Provider } from '@nestjs/common';
+import { Provider, HttpException } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
@@ -66,14 +66,6 @@ const createValidPasswordMessage = (): string => {
   ).toString('base64');
 };
 
-const mockResponse = () => {
-  const res: any = {};
-  res.status = jest.fn().mockReturnValue(res);
-  res.set = jest.fn().mockReturnValue(res);
-  res.send = jest.fn().mockReturnValue(res);
-  return res;
-};
-
 describe('PubsubProxy Controller', () => {
   let controller: PubsubProxyController;
   let jwtset: any;
@@ -82,11 +74,9 @@ describe('PubsubProxy Controller', () => {
   const mockWebhook = () => {
     nock('http://accounts.firefox.com')
       .post('/webhook')
-      .reply(200, '', {
-        'X-AUTH': (req, res, body) => {
-          const auth = req.getHeader('authorization');
-          return typeof auth === 'string' ? auth : 'unknown';
-        },
+      .reply(function (uri, requestBody) {
+        const auth = this.req.getHeader('authorization');
+        return [200, { token: typeof auth === 'string' ? auth : 'unknown' }];
       });
   };
 
@@ -146,17 +136,33 @@ describe('PubsubProxy Controller', () => {
   it('notifies successfully on subscription state change', async () => {
     mockWebhook();
     const message = createValidSubscriptionMessage();
-    const res = mockResponse();
     (controller as any).generateSET = jest.fn().mockResolvedValue(TEST_TOKEN);
-    await controller.proxy(
-      res as any,
-      {
-        message: { data: message, messageId: 'test-message' },
-        subscription: 'test-sub',
-      },
-      'abc1234'
-    );
-    expect(res.set).toBeCalledWith({ 'x-auth': 'Bearer ' + TEST_TOKEN });
+    expect.assertions(2);
+    try {
+      await controller.proxy(
+        {
+          message: { data: message, messageId: 'test-message' },
+          subscription: 'test-sub',
+        },
+        'abc1234'
+      );
+    } catch (err) {
+      const status = err.getStatus();
+      const body = err.getResponse();
+      expect(status).toBe(200);
+      expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
+    }
+  });
+
+  it('throws 404 with invalid clientid', () => {
+    expect.assertions(2);
+    try {
+      (controller as any).lookupWebhookEndpoint('test1234');
+    } catch (err) {
+      const status = err.getStatus();
+      expect(status).toBe(404);
+    }
+    expect(logger.debug).toBeCalledTimes(1);
   });
 
   describe('handles common RP events: ', () => {
@@ -171,17 +177,21 @@ describe('PubsubProxy Controller', () => {
       it(`notifies successfully on ${key}`, async () => {
         mockWebhook();
         const message = creatFunc();
-        const res = mockResponse();
-
-        await controller.proxy(
-          res as any,
-          {
-            message: { data: message, messageId: 'test-message' },
-            subscription: 'test-sub',
-          },
-          'abc1234'
-        );
-        expect(res.set).toBeCalledWith({ 'x-auth': 'Bearer ' + TEST_TOKEN });
+        expect.assertions(3);
+        try {
+          await controller.proxy(
+            {
+              message: { data: message, messageId: 'test-message' },
+              subscription: 'test-sub',
+            },
+            'abc1234'
+          );
+        } catch (err) {
+          const status = err.getStatus();
+          const body = err.getResponse();
+          expect(status).toBe(200);
+          expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
+        }
         expect(jwtset[generateFunc]).toBeCalledTimes(1);
       });
     }
@@ -189,35 +199,39 @@ describe('PubsubProxy Controller', () => {
 
   it('logs an error on invalid message payloads', async () => {
     const message = Buffer.from('invalid payload').toString('base64');
-    const res = mockResponse();
-
-    await controller.proxy(
-      res as any,
-      {
-        message: { data: message, messageId: 'test-message' },
-        subscription: 'test-sub',
-      },
-      'abc1234'
-    );
-
+    expect.assertions(2);
+    try {
+      await controller.proxy(
+        {
+          message: { data: message, messageId: 'test-message' },
+          subscription: 'test-sub',
+        },
+        'abc1234'
+      );
+    } catch (err) {
+      const status = err.getStatus();
+      expect(status).toBe(400);
+    }
     expect(logger.error).toBeCalledTimes(1);
-    expect(res.status).toBeCalledWith(400);
   });
 
   it('proxies an error code back', async () => {
     nock('http://accounts.firefox.com').post('/webhook').reply(400, 'Error123');
     const message = createValidSubscriptionMessage();
-    const res = mockResponse();
-
-    await controller.proxy(
-      res as any,
-      {
-        message: { data: message, messageId: 'test-message' },
-        subscription: 'test-sub',
-      },
-      'abc1234'
-    );
-    expect(res.status).toBeCalledWith(400);
-    expect(res.send).toBeCalledWith('Error123');
+    expect.assertions(2);
+    try {
+      await controller.proxy(
+        {
+          message: { data: message, messageId: 'test-message' },
+          subscription: 'test-sub',
+        },
+        'abc1234'
+      );
+    } catch (err) {
+      const status = err.getStatus();
+      const body = err.getResponse();
+      expect(status).toBe(400);
+      expect(body).toStrictEqual('Error123');
+    }
   });
 });
