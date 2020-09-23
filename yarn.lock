@@ -16967,7 +16967,7 @@ fsevents@^1.2.7:
     fxa-jwtool: 0.7.2
     fxa-notifier-aws: 1.0.0
     fxa-shared: "workspace:*"
-    google-libphonenumber: ^3.2.7
+    google-libphonenumber: ^3.2.13
     grunt: ^1.1.0
     grunt-cli: ~1.2.0
     grunt-contrib-copy: 1.0.0
@@ -18583,7 +18583,14 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-libphonenumber@npm:^3.2.7, google-libphonenumber@npm:^3.2.8":
+"google-libphonenumber@npm:^3.2.13":
+  version: 3.2.13
+  resolution: "google-libphonenumber@npm:3.2.13"
+  checksum: f1a2fbd81e7edc3defbcdcfd5525a91db260c9610ee11d6cffbb1eb16508343a6dcb8c12d104778a36cb0991c8ed15f0269303ee30ad43ea9e9cbf2aa727e961
+  languageName: node
+  linkType: hard
+
+"google-libphonenumber@npm:^3.2.8":
   version: 3.2.9
   resolution: "google-libphonenumber@npm:3.2.9"
   checksum: b7d2f6686667f9704393aed5cfe596dfdb179772d8eca9efb3d9b5b7b07a13e70c4a8b85dde4e0da35a0874ae26df84e2755c0c6e9df41b7299ec5355f3458ae
