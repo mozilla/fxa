@@ -56,7 +56,7 @@
     "buffer-equal-constant-time": "1.0.1",
     "cbor": "^5.0.2",
     "cldr-core": "31.0.1",
-    "cldr-localenames-full": "31.0.1",
+    "cldr-localenames-full": "36.0.0",
     "commander": "2.18.0",
     "convict": "^6.0.0",
     "convict-format-with-moment": "^6.0.0",
