@@ -17785,7 +17785,7 @@ fsevents@^1.2.7:
     react: ^16.13.1
     react-dom: ^16.13.1
     react-scripts: ^3.4.1
-    subscriptions-transport-ws: ^0.9.11
+    subscriptions-transport-ws: ^0.9.18
     tailwindcss: ^1.7.3
     typescript: 3.9.7
     webpack: ^4.43.0
@@ -33998,6 +33998,20 @@ resolve@~1.11.1:
   peerDependencies:
     graphql: ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.1 || ^14.0.2
   checksum: 7671c1cbb904ecfcbe84a3051ea888fb07f61414b5819bf40c92135f255b679ecfb5984680cf56e9576605f1ee08c1f22b6b71fe13af82465e614966f25009f8
+  languageName: node
+  linkType: hard
+
+"subscriptions-transport-ws@npm:^0.9.18":
+  version: 0.9.18
+  resolution: "subscriptions-transport-ws@npm:0.9.18"
+  dependencies:
+    backo2: ^1.0.2
+    eventemitter3: ^3.1.0
+    iterall: ^1.2.1
+    symbol-observable: ^1.0.4
+    ws: ^5.2.0
+  peerDependencies:
+    graphql: ">=0.10.0"
   languageName: node
   linkType: hard
 
