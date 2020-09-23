@@ -7,7 +7,7 @@ import { Container } from 'typedi';
 import { assert } from 'chai';
 import 'mocha';
 import sinon from 'sinon';
-import { AuthenticationError } from 'apollo-server';
+import { ApolloError, AuthenticationError } from 'apollo-server';
 
 import { fxAccountClientToken } from '../../lib/constants';
 import { SessionTokenAuth } from '../../lib/auth';
@@ -35,13 +35,27 @@ describe('SessionTokenAuth', () => {
       assert.equal(result.uid, '9001xyz');
     });
 
-    it('throws when the authClient throws', async () => {
-      fxAccountClient.sessionStatus.rejects(new Error('boom'));
+    it('throws an AuthenticationError when the authClient returns a 400 or 401 error code', async () => {
+      const err: any = new Error('boom');
+      err.code = 401;
+      fxAccountClient.sessionStatus.rejects(err);
       try {
         await sessionAuth.getSessionStatus('token');
         assert.fail('getSessionStatus should have thrown');
       } catch (e) {
         assert.instanceOf(e, AuthenticationError);
+      }
+    });
+
+    it('throws an ApolloError when the authClient throws any other error', async () => {
+      const err: any = new Error('boom');
+      err.code = 500;
+      fxAccountClient.sessionStatus.rejects(err);
+      try {
+        await sessionAuth.getSessionStatus('token');
+        assert.fail('getSessionStatus should have thrown');
+      } catch (e) {
+        assert.instanceOf(e, ApolloError);
       }
     });
   });
