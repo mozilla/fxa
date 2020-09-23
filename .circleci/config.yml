@@ -243,7 +243,7 @@ jobs:
           package: many
       - run:
           name: Build and deploy Storybooks
-          command: ./_scripts/build-storybooks.sh
+          command: npx github:lmorchard/storybook-gcp-publisher
 
 workflows:
   test_pull_request:
