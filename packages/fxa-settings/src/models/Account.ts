@@ -6,10 +6,32 @@ import {
   QueryLazyOptions,
 } from '@apollo/client';
 
+export interface Location {
+  city: string;
+  country: string;
+  state: string;
+  stateCode: string;
+}
+
 export interface Email {
   email: string;
   isPrimary: boolean;
   verified: boolean;
+}
+
+export interface AttachedClient {
+  clientId: string;
+  isCurrentSession: boolean;
+  userAgent: string;
+  deviceType: string;
+  deviceId: string;
+  name: string;
+  lastAccessTime: number;
+  lastAccessTimeFormatted: string;
+  approximateLastAccessTime: number;
+  approximateLastAccessTimeFormatted: string;
+  location: Location;
+  os: string;
 }
 
 export interface Account {
@@ -21,13 +43,7 @@ export interface Account {
   recoveryKey: boolean;
   primaryEmail: Email;
   emails: Email[];
-  attachedClients: {
-    clientId: string;
-    isCurrentSession: boolean;
-    userAgent: string;
-    deviceType: string;
-    deviceId: string;
-  }[];
+  attachedClients: AttachedClient[];
   totp: {
     exists: boolean;
     verified: boolean;
@@ -60,6 +76,18 @@ export const GET_ACCOUNT = gql`
         userAgent
         deviceType
         deviceId
+        name
+        lastAccessTime
+        lastAccessTimeFormatted
+        approximateLastAccessTime
+        approximateLastAccessTimeFormatted
+        location {
+          city
+          country
+          state
+          stateCode
+        }
+        os
       }
       totp {
         exists

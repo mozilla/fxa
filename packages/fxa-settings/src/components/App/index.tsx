@@ -37,6 +37,19 @@ export const GET_INITIAL_STATE = gql`
         userAgent
         deviceType
         deviceId
+        name
+        lastAccessTime
+        lastAccessTimeFormatted
+        approximateLastAccessTime
+        approximateLastAccessTimeFormatted
+        userAgent
+        location {
+          city
+          country
+          state
+          stateCode
+        }
+        os
       }
       totp {
         exists
