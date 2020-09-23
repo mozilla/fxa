@@ -2400,6 +2400,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/address@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "@hapi/address@npm:4.1.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: 2844aceeb993bb767ae2c34e75767e7eff1b0cf811c4655c6500206d8d06a7deacdf4cf4172901e3bcafcbd7e8892b5ff786d0469071b9ba5ec14d0896034497
+  languageName: node
+  linkType: hard
+
 "@hapi/ammo@npm:5.x.x, @hapi/ammo@npm:^5.0.1":
   version: 5.0.1
   resolution: "@hapi/ammo@npm:5.0.1"
@@ -2651,18 +2660,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/joi@npm:15.x.x, @hapi/joi@npm:^15.0.0, @hapi/joi@npm:^15.1.1":
-  version: 15.1.1
-  resolution: "@hapi/joi@npm:15.1.1"
-  dependencies:
-    "@hapi/address": 2.x.x
-    "@hapi/bourne": 1.x.x
-    "@hapi/hoek": 8.x.x
-    "@hapi/topo": 3.x.x
-  checksum: 7edbb0d5a5c1ff376b66243427a3b98a559e9ea89f7d40ee55916e0519bc1be56a9ac69f1e446a2c39c153fe835c57e4ee71297d4266b0ca82c49f7a2e90f681
-  languageName: node
-  linkType: hard
-
 "@hapi/joi@npm:16.x.x":
   version: 16.1.8
   resolution: "@hapi/joi@npm:16.1.8"
@@ -2686,6 +2683,18 @@ __metadata:
     "@hapi/pinpoint": ^2.0.0
     "@hapi/topo": ^5.0.0
   checksum: 7547ccf2a8168e4f68f630069ab069f94d0689bd18a034a6dea40cc9c7e88776665670316f65bdd29068dccde111f3d7164504cfaf6db183110b64f36c5643dd
+  languageName: node
+  linkType: hard
+
+"@hapi/joi@npm:^15.0.0, @hapi/joi@npm:^15.1.1":
+  version: 15.1.1
+  resolution: "@hapi/joi@npm:15.1.1"
+  dependencies:
+    "@hapi/address": 2.x.x
+    "@hapi/bourne": 1.x.x
+    "@hapi/hoek": 8.x.x
+    "@hapi/topo": 3.x.x
+  checksum: 7edbb0d5a5c1ff376b66243427a3b98a559e9ea89f7d40ee55916e0519bc1be56a9ac69f1e446a2c39c153fe835c57e4ee71297d4266b0ca82c49f7a2e90f681
   languageName: node
   linkType: hard
 
@@ -11153,14 +11162,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"celebrate@npm:^10.0.1, celebrate@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "celebrate@npm:10.1.0"
+"celebrate@npm:^13.0.3":
+  version: 13.0.3
+  resolution: "celebrate@npm:13.0.3"
   dependencies:
-    "@hapi/joi": 15.x.x
     escape-html: 1.0.3
-    lodash.get: 4.4.x
-  checksum: f51ad5fb6ab903c1d9078528bfab961ddd6cc44b4d01ef9cf465e2f74b574958ecfade598804c790f1ca661ec692294105dca372b4603474ea11cbd785c1d7a1
+    joi: 17.x.x
+    lodash: 4.17.x
+  checksum: b9b5e260b041e0d35ce12702ed282b547e1fa9fcb38848ec58f92ca3565e49293b5f2341998cb8e455f73ae849d4023935d7fbc82ad2a4ec2fdefa977338c532
   languageName: node
   linkType: hard
 
@@ -17581,7 +17590,7 @@ fsevents@^1.2.7:
     babel-loader: ^8.0.6
     browserslist: ^4.7.2
     caniuse-lite: ^1.0.30001010
-    celebrate: ^10.1.0
+    celebrate: ^13.0.3
     classnames: ^2.2.6
     convict: ^6.0.0
     convict-format-with-moment: ^6.0.0
@@ -17823,7 +17832,7 @@ fsevents@^1.2.7:
     audit-filter: ^0.5.0
     aws-sdk: ^2.752.0
     bluebird: ^3.7.2
-    celebrate: ^10.0.1
+    celebrate: ^13.0.3
     chai: ^4.2.0
     chance: ^1.1.7
     class-transformer: ^0.3.1
@@ -22580,6 +22589,18 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
+"joi@npm:17.x.x":
+  version: 17.2.1
+  resolution: "joi@npm:17.2.1"
+  dependencies:
+    "@hapi/address": ^4.1.0
+    "@hapi/formula": ^2.0.0
+    "@hapi/hoek": ^9.0.0
+    "@hapi/pinpoint": ^2.0.0
+    "@hapi/topo": ^5.0.0
+  languageName: node
+  linkType: hard
+
 "joi@npm:^14.3.1":
   version: 14.3.1
   resolution: "joi@npm:14.3.1"
@@ -23896,7 +23917,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash.get@npm:4.4.2, lodash.get@npm:4.4.x, lodash.get@npm:^4.4.2":
+"lodash.get@npm:4.4.2, lodash.get@npm:^4.4.2":
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
   checksum: 447e575e3caa5131ef44e5a0c135b1614f3c937d86b3be0568f9da7b0fd015010af3b6b4e41edf6e2698c9ce2dcc061ca71b31f274f799c991dceb018be16e4f
@@ -24144,7 +24165,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"lodash@npm:4.17.19, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
+"lodash@npm:4.17.19, lodash@npm:4.17.x, lodash@npm:>=3.5 <5, lodash@npm:^4.0.0, lodash@npm:^4.13.1, lodash@npm:^4.14.0, lodash@npm:^4.17.10, lodash@npm:^4.17.11, lodash@npm:^4.17.12, lodash@npm:^4.17.13, lodash@npm:^4.17.14, lodash@npm:^4.17.15, lodash@npm:^4.17.19, lodash@npm:^4.17.4, lodash@npm:^4.17.5, lodash@npm:^4.8.0, lodash@npm:~4.17.10, lodash@npm:~4.17.12, lodash@npm:~4.17.15, lodash@npm:~4.17.2, lodash@npm:~4.17.5":
   version: 4.17.19
   resolution: "lodash@npm:4.17.19"
   checksum: ff2b7a95f0129dba9101e346d44e0eda0f159d76bbbf23721eec1969b87a32bde3de0cfef0733218c64620e9be08040a973278d46a686540233b356115f3527c
