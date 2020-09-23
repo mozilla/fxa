@@ -87,7 +87,7 @@
     "ajv": "^6.12.2",
     "aws-sdk": "^2.752.0",
     "bluebird": "^3.7.2",
-    "celebrate": "^10.0.1",
+    "celebrate": "^13.0.3",
     "class-transformer": "^0.3.1",
     "class-validator": "^0.12.2",
     "cors": "^2.8.5",
