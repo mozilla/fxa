@@ -143,9 +143,7 @@ describe('ModalVerifySession', () => {
 
     await wait();
 
-    expect(screen.getByTestId('error-tooltip').textContent).toContain(
-      'invalid code'
-    );
+    expect(screen.getByTestId('tooltip').textContent).toContain('invalid code');
   });
 
   it('bubbles other errors', async () => {

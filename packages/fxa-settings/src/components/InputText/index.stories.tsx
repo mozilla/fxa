@@ -8,7 +8,7 @@ import InputText from './index';
 
 storiesOf('Components|InputText', module)
   .add('type text (default)', () => (
-    <div className="p-10 max-w-lg">
+    <div className="p-10 pt-16 max-w-lg">
       <div className="mb-3">
         <InputText
           label="Default label (with error tooltip)"

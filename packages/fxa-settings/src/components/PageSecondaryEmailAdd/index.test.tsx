@@ -85,7 +85,7 @@ describe('PageSecondaryEmailAdd', () => {
         fireEvent.click(screen.getByTestId('save-button'));
       });
 
-      expect(screen.queryByTestId('error-tooltip')).toBeInTheDocument();
+      expect(screen.queryByTestId('tooltip')).toBeInTheDocument();
 
       expect(
         screen.queryByText('Email Address already added')
