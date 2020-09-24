@@ -16987,7 +16987,7 @@ fsevents@^1.2.7:
     jsxgettext-recursive-next: 1.1.0
     jws: 4.0.0
     keypair: 1.0.1
-    keyv: 3.0.0
+    keyv: 4.0.3
     leftpad: 0.0.0
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.19
@@ -22848,10 +22848,9 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"json-buffer@npm:3.0.0":
-  version: 3.0.0
-  resolution: "json-buffer@npm:3.0.0"
-  checksum: 09b53ecc8ffbb1252d9ef07f37ad616eb0769325d749c87555df786dc70e9855d4ad208255bbf232c86069504756277a7efb6725a31f6e6c4ef39a7b072e75f2
+"json-buffer@npm:3.0.1":
+  version: 3.0.1
+  resolution: "json-buffer@npm:3.0.1"
   languageName: node
   linkType: hard
 
@@ -23239,12 +23238,11 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"keyv@npm:3.0.0":
-  version: 3.0.0
-  resolution: "keyv@npm:3.0.0"
+"keyv@npm:4.0.3":
+  version: 4.0.3
+  resolution: "keyv@npm:4.0.3"
   dependencies:
-    json-buffer: 3.0.0
-  checksum: b3e5f5eee0137b07aa14842c80ba27b2405f921b2bb2c2b3411cb3703c8826ae11dc7593157f3a6a3a0694d751635ff49198dd962f79e6a8117fdb77a3f89e42
+    json-buffer: 3.0.1
   languageName: node
   linkType: hard
 
