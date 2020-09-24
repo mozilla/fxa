@@ -46,6 +46,7 @@ tailwind.out.*
 coverage.html
 **/coverage
 **/.nyc_output
+test-results.xml
 
 # System files
 *~

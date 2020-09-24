@@ -76,7 +76,15 @@ const config = {
   fxaPaymentsRoot,
 
   pageLoadTimeout: 20000,
-  reporters: 'runner',
+  reporters: [
+    {
+      name: 'junit',
+      options: {
+        filename: output,
+      },
+    },
+    'runner',
+  ],
   serverPort: 9091,
   serverUrl: 'http://localhost:9091',
   socketPort: 9077,
@@ -113,15 +121,6 @@ if (args.suites) {
       break;
     case 'circle':
       config.functionalSuites = testsCircleCi;
-      config.reporters = [
-        {
-          name: 'junit',
-          options: {
-            filename: output,
-          },
-        },
-        'runner',
-      ];
       console.log('Running tests:', config.functionalSuites);
       break;
     case 'server':
