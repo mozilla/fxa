@@ -1389,13 +1389,13 @@ describe('StripeHelper', () => {
   });
 
   describe('removeCustomer', () => {
-    let stripeCustomerUpdate;
+    let stripeCustomerDel;
     const uid = 'user123';
     const email = 'test@example.com';
 
     beforeEach(() => {
-      stripeCustomerUpdate = sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
+      stripeCustomerDel = sandbox
+        .stub(stripeHelper.stripe.customers, 'del')
         .resolves();
 
       sandbox.spy(stripeHelper, 'removeCustomerFromCache');
@@ -1407,7 +1407,7 @@ describe('StripeHelper', () => {
 
         await stripeHelper.removeCustomer(uid, email);
 
-        assert(stripeCustomerUpdate.calledOnce);
+        assert(stripeCustomerDel.calledOnce);
         assert(stripeHelper.removeCustomerFromCache.calledOnce);
       });
     });
@@ -1418,7 +1418,7 @@ describe('StripeHelper', () => {
 
         await stripeHelper.removeCustomer(uid, email);
 
-        assert(stripeCustomerUpdate.notCalled);
+        assert(stripeCustomerDel.notCalled);
         assert(stripeHelper.removeCustomerFromCache.notCalled);
       });
     });
