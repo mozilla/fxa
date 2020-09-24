@@ -111,7 +111,7 @@
     "node-sass": "^4.13.1",
     "node-uuid": "1.4.8",
     "node-vat": "0.0.9",
-    "normalize.css": "3.0.1",
+    "normalize.css": "8.0.1",
     "on-headers": "1.0.2",
     "photon-colors": "1.0.3",
     "postcss-cli": "7.1.1",
