@@ -7065,12 +7065,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"accept-language@npm:^2.0.17":
-  version: 2.0.17
-  resolution: "accept-language@npm:2.0.17"
+"accept-language@npm:^3.0.18":
+  version: 3.0.18
+  resolution: "accept-language@npm:3.0.18"
   dependencies:
     bcp47: ^1.1.2
-  checksum: a298671675fd78aa967bfefd1046e3bffc64c65e14829a60d53b43f7e5d41652ff00b8a5581ade67f0ec82b34f2ab0d357411a8a6a08efcc6ef453046e36a12c
+    stable: ^0.1.6
+  checksum: 61c09073e880cc359b0e2dc1acff94e8f119e6527700e0729eb02d91ab01148ebec18d10e3bf379fc55c3f491227867259f3582468eb582b757c95c83e557e4e
   languageName: node
   linkType: hard
 
@@ -17818,7 +17819,7 @@ fsevents@^1.2.7:
     "@types/proxyquire": ^1.3.28
     "@types/redis": ^2.8.16
     "@types/sinon": 9.0.5
-    accept-language: ^2.0.17
+    accept-language: ^3.0.18
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.752.0
@@ -33295,7 +33296,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"stable@npm:^0.1.8":
+"stable@npm:^0.1.6, stable@npm:^0.1.8":
   version: 0.1.8
   resolution: "stable@npm:0.1.8"
   checksum: a430967bb543d4d1a5cbec81b48034006a467464f5d4bdf72bd7279da406956e1f8edaa56aab74ec17cc4e56ee61668dc4f1b380255507cf2f70c6ba589f7c48
