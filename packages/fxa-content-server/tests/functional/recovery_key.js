@@ -120,6 +120,11 @@ registerSuite('Recovery key', {
           // enter old key
           .then(fillOutRecoveryKey(recoveryKey))
           .then(
+            testElementExists(
+              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP
+            )
+          )
+          .then(
             testElementTextInclude(
               selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
               'invalid'
@@ -159,6 +164,11 @@ registerSuite('Recovery key', {
 
           // enter invalid recovery key
           .then(fillOutRecoveryKey('N8TVALID'))
+          .then(
+            testElementExists(
+              selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP
+            )
+          )
           .then(
             testElementTextInclude(
               selectors.COMPLETE_RESET_PASSWORD_RECOVERY_KEY.TOOLTIP,
