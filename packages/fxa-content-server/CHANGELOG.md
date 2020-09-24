@@ -1,3 +1,22 @@
+## 1.189.0
+
+### Bug fixes
+
+- pairing: Redirect to pairing from fxa desktop preferences entrypoint ([f3fe6967f](https://github.com/mozilla/fxa/commit/f3fe6967f))
+- support form: add empty option for app/service field ([8e27a9e18](https://github.com/mozilla/fxa/commit/8e27a9e18))
+
+### Other changes
+
+- tests: Add a functional test for the unblock code and primary email change flow ([b977ff1df](https://github.com/mozilla/fxa/commit/b977ff1df))
+- deps: bump normalize.css from 3.0.1 to 8.0.1 ([b04b88c55](https://github.com/mozilla/fxa/commit/b04b88c55))
+- tests: Add settings v2 initial functional testing ([9c8dd7de0](https://github.com/mozilla/fxa/commit/9c8dd7de0))
+- deps-dev: bump css from 2.2.3 to 3.0.0 ([452be6ce7](https://github.com/mozilla/fxa/commit/452be6ce7))
+- functional-smoke: disable a few flaky tests ([c132490a1](https://github.com/mozilla/fxa/commit/c132490a1))
+- deps: bump base64url from 3.0.0 to 3.0.1 ([33aa6370b](https://github.com/mozilla/fxa/commit/33aa6370b))
+- deps-dev: bump ts-loader from 6.2.2 to 8.0.4 ([c8aff3f11](https://github.com/mozilla/fxa/commit/c8aff3f11))
+- deps: update mozlog ([a68310952](https://github.com/mozilla/fxa/commit/a68310952))
+- functional-smoke: add more tests to the suite ([c67848e95](https://github.com/mozilla/fxa/commit/c67848e95))
+
 ## 1.188.1
 
 No changes.

@@ -1,3 +1,14 @@
+## 1.189.0
+
+### New features
+
+- db: Create table to store user-customer relationship Because: ([d994e2f56](https://github.com/mozilla/fxa/commit/d994e2f56))
+
+### Other changes
+
+- deps: bump base64url from 3.0.0 to 3.0.1 ([33aa6370b](https://github.com/mozilla/fxa/commit/33aa6370b))
+- deps: update mozlog ([a68310952](https://github.com/mozilla/fxa/commit/a68310952))
+
 ## 1.188.1
 
 No changes.

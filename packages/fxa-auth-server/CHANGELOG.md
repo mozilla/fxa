@@ -1,3 +1,20 @@
+## 1.189.0
+
+### New features
+
+- auth-server: delete stripe record ([90b9fc4cc](https://github.com/mozilla/fxa/commit/90b9fc4cc))
+
+### Other changes
+
+- deps: updated cldr-core ([158a34a6d](https://github.com/mozilla/fxa/commit/158a34a6d))
+- deps: bump keyv from 3.0.0 to 4.0.3 ([a709d249d](https://github.com/mozilla/fxa/commit/a709d249d))
+- deps: bump cldr-localenames-full from 31.0.1 to 36.0.0 ([0f1a6b5a5](https://github.com/mozilla/fxa/commit/0f1a6b5a5))
+- deps: bump google-libphonenumber from 3.2.9 to 3.2.13 ([fe4334080](https://github.com/mozilla/fxa/commit/fe4334080))
+- deps: bump base64url from 3.0.0 to 3.0.1 ([33aa6370b](https://github.com/mozilla/fxa/commit/33aa6370b))
+- deps-dev: bump jws from 3.1.5 to 4.0.0 ([a128a44e5](https://github.com/mozilla/fxa/commit/a128a44e5))
+- deps: update mozlog ([a68310952](https://github.com/mozilla/fxa/commit/a68310952))
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 ### Other changes

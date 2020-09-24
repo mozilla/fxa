@@ -1,3 +1,18 @@
+## 1.189.0
+
+### Bug fixes
+
+- settings: improve GQL error handling to avoid redirect loop ([64f03a544](https://github.com/mozilla/fxa/commit/64f03a544))
+
+### Refactorings
+
+- db access: 76536e5fe refactor(db access) - Extract direct db access from fxa-graphql-api to fxa-shared ([76536e5fe](https://github.com/mozilla/fxa/commit/76536e5fe))
+
+### Other changes
+
+- deps-dev: bump @types/superagent from 4.1.9 to 4.1.10 ([1f3ba46e3](https://github.com/mozilla/fxa/commit/1f3ba46e3))
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 No changes.
