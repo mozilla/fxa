@@ -25,10 +25,13 @@ const {
   getUnblockInfo,
   openPage,
   openTab,
+  openVerificationLinkInSameTab,
   switchToWindow,
+  testElementTextEquals,
   testErrorTextInclude,
   testElementExists,
   testElementTextInclude,
+  testSuccessWasShown,
   type,
   visibleByQSA,
 } = FunctionalHelpers;
@@ -352,6 +355,55 @@ registerSuite('signin blocked', {
           .then(testElementExists(selectors.CONFIRM_SIGNUP_CODE.HEADER))
 
           .then(fillOutSignInTokenCode(email, 2))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+      );
+    },
+
+    'with primary email changed': function () {
+      email = createEmail('{id}');
+      const secondaryEmail = createEmail('blocked.dIFfCaSe.{id}');
+      const secondaryEmailNormalized = secondaryEmail.toLowerCase();
+
+      return (
+        this.remote
+          .then(createUser(email, PASSWORD, { preVerified: true }))
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+          .then(fillOutEmailFirstSignIn(email, PASSWORD))
+          .then(testElementExists(selectors.SETTINGS.HEADER))
+          .then(click(selectors.EMAIL.MENU_BUTTON))
+
+          // add secondary email, verify
+          .then(type(selectors.EMAIL.INPUT, secondaryEmail))
+          .then(click(selectors.EMAIL.ADD_BUTTON))
+          .then(testElementExists(selectors.EMAIL.NOT_VERIFIED_LABEL))
+          .then(openVerificationLinkInSameTab(secondaryEmail, 0, {}))
+          .then(testSuccessWasShown())
+
+          // set new primary email
+          .then(
+            click(selectors.EMAIL.MENU_BUTTON, selectors.EMAIL.ADDRESS_LABEL)
+          )
+          .then(
+            testElementTextEquals(selectors.EMAIL.ADDRESS_LABEL, secondaryEmail)
+          )
+          .then(testElementExists(selectors.EMAIL.VERIFIED_LABEL))
+          .then(click(selectors.EMAIL.SET_PRIMARY_EMAIL_BUTTON))
+          .then(visibleByQSA(selectors.EMAIL.SUCCESS))
+          .then(click(selectors.SETTINGS.SIGNOUT), selectors.ENTER_EMAIL.HEADER)
+          .then(openPage(ENTER_EMAIL_URL, selectors.ENTER_EMAIL.HEADER))
+
+          // Try login with new primary email but in different email case
+          .then(fillOutEmailFirstSignIn(secondaryEmailNormalized, PASSWORD))
+          .then(
+            testElementTextInclude(
+              selectors.SIGNIN_UNBLOCK.VERIFICATION,
+              secondaryEmailNormalized
+            )
+          )
+
+          .then(testElementExists(selectors.SIGNIN_UNBLOCK.HEADER))
+          .then(fillOutSignInUnblock(email, 2))
+
           .then(testElementExists(selectors.SETTINGS.HEADER))
       );
     },
