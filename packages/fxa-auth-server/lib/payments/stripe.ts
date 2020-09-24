@@ -498,15 +498,13 @@ export class StripeHelper {
 
   /**
    * On FxA deletion, if the user is a Stripe Customer:
-   * - flag the stripe customer to delete
+   * - delete the stripe customer to delete
    * - remove the cache entry
    */
   async removeCustomer(uid: string, email: string) {
     const customer = await this.fetchCustomer(uid, email);
     if (customer) {
-      await this.stripe.customers.update(customer.id, {
-        metadata: { delete: 'true' },
-      });
+      await this.stripe.customers.del(customer.id);
       await this.removeCustomerFromCache(uid, email);
     }
   }
