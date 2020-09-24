@@ -1,3 +1,10 @@
+## 1.189.0
+
+### Other changes
+
+- deps: update mozlog ([a68310952](https://github.com/mozilla/fxa/commit/a68310952))
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 No changes.

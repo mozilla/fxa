@@ -1,3 +1,13 @@
+## 1.189.0
+
+### New features
+
+- admin-server: convert to NestJS ([69f44d78e](https://github.com/mozilla/fxa/commit/69f44d78e))
+
+### Other changes
+
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 No changes.

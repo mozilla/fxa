@@ -1,3 +1,10 @@
+## 1.189.0
+
+### Other changes
+
+- deps-dev: bump tap from 14.10.7 to 14.10.8 ([6cc6c7d89](https://github.com/mozilla/fxa/commit/6cc6c7d89))
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 No changes.

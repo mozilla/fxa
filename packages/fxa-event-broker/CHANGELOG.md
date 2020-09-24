@@ -1,5 +1,21 @@
 # Change history
 
+## 1.189.0
+
+### New features
+
+- admin-server: convert to NestJS ([69f44d78e](https://github.com/mozilla/fxa/commit/69f44d78e))
+
+### Refactorings
+
+- event-broker: cleanup proxy logic ([fd18dd5b0](https://github.com/mozilla/fxa/commit/fd18dd5b0))
+
+### Other changes
+
+- deps-dev: bump ts-loader from 6.2.2 to 8.0.4 ([c8aff3f11](https://github.com/mozilla/fxa/commit/c8aff3f11))
+- deps: fixed yarn dependency warnings ([b32addf86](https://github.com/mozilla/fxa/commit/b32addf86))
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 No changes.

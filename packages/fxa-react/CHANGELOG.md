@@ -1,3 +1,12 @@
+## 1.189.0
+
+### Other changes
+
+- fxa-settings: Tooltip component ([c5a6fafab](https://github.com/mozilla/fxa/commit/c5a6fafab))
+- deps-dev: bump @types/prettier from 2.0.1 to 2.1.1 ([8838585c6](https://github.com/mozilla/fxa/commit/8838585c6))
+- deps: fixed yarn dependency warnings ([b32addf86](https://github.com/mozilla/fxa/commit/b32addf86))
+- monorepo: move deps to correct sub-packages ([a8cc232b9](https://github.com/mozilla/fxa/commit/a8cc232b9))
+
 ## 1.188.1
 
 No changes.

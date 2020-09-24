@@ -1,3 +1,21 @@
+## 1.189.0
+
+### New features
+
+- settings: standardize error/success messages and reporting ([690a6b31f](https://github.com/mozilla/fxa/commit/690a6b31f))
+
+### Bug fixes
+
+- settings: improve GQL error handling to avoid redirect loop ([64f03a544](https://github.com/mozilla/fxa/commit/64f03a544))
+
+### Other changes
+
+- fxa-settings: filtering connected devices ([7af1524b2](https://github.com/mozilla/fxa/commit/7af1524b2))
+- fxa-settings: Connected Services skeleton ([aca7f8aae](https://github.com/mozilla/fxa/commit/aca7f8aae))
+- tests: Add settings v2 initial functional testing ([9c8dd7de0](https://github.com/mozilla/fxa/commit/9c8dd7de0))
+- fxa-settings: Tooltip component ([c5a6fafab](https://github.com/mozilla/fxa/commit/c5a6fafab))
+- deps: bump subscriptions-transport-ws from 0.9.16 to 0.9.18 ([e6d40626a](https://github.com/mozilla/fxa/commit/e6d40626a))
+
 ## 1.188.1
 
 No changes.

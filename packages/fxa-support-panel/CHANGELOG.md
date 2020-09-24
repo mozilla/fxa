@@ -1,5 +1,12 @@
 # Change history
 
+## 1.189.0
+
+### Other changes
+
+- deps: update mozlog ([a68310952](https://github.com/mozilla/fxa/commit/a68310952))
+- deps: fixed yarn dependency warnings ([b32addf86](https://github.com/mozilla/fxa/commit/b32addf86))
+
 ## 1.188.1
 
 No changes.

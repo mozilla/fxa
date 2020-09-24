@@ -1,3 +1,7 @@
+## 1.189.0
+
+No changes.
+
 ## 1.188.1
 
 No changes.
