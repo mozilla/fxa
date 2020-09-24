@@ -6,40 +6,88 @@ import React, { useState } from 'react';
 import { AlertBar } from '../AlertBar';
 import { ButtonIconReload } from '../ButtonIcon';
 import { useAlertBar } from 'fxa-settings/src/lib/hooks';
-import { useAccount, useLazyAccount } from '../../models';
+import { AttachedClient, useAccount, useLazyAccount } from '../../models';
+import { Location } from '../../models/Account';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
+import groupBy from 'lodash.groupby';
 
 const UTM_PARAMS =
   '?utm_source=accounts.firefox.com&utm_medium=referral&utm_campaign=fxa-devices';
 const DEVICES_SUPPORT_URL =
   'https://support.mozilla.org/kb/fxa-managing-devices' + UTM_PARAMS;
 
-export const Service = () => {
+function sortAndFilterConnectedClients(attachedClients: Array<AttachedClient>) {
+  const groupedByName = groupBy(attachedClients, 'name');
+
+  // get a unique (by name) list and sort by time last accessed
+  const sortedAndUniqueClients = Object.keys(groupedByName)
+    .map((key) => {
+      return groupedByName[key].sort(
+        (a: AttachedClient, b: AttachedClient) =>
+          a.lastAccessTime - b.lastAccessTime
+      )[0];
+    })
+    .sort((a, b) => a.lastAccessTime - b.lastAccessTime);
+
+  // move currently active client to the top
+  sortedAndUniqueClients.forEach((client, i) => {
+    if (client.isCurrentSession) {
+      sortedAndUniqueClients.splice(i, 1);
+      sortedAndUniqueClients.unshift(client);
+    }
+  });
+
+  return sortedAndUniqueClients;
+}
+
+export function Service({
+  name,
+  location,
+  lastAccessTimeFormatted,
+  canSignOut,
+}: {
+  name: string;
+  location: Location;
+  lastAccessTimeFormatted: string;
+  canSignOut: boolean;
+}) {
+  const { city, stateCode, country } = location;
+  const locationProvided =
+    city !== null || stateCode !== null || country !== null;
+
   return (
     <div className="my-1" id="service" data-testid="settings-connected-service">
       <div className="border-2 border-solid border-grey-100 rounded flex justify-around items-center">
         <span>icon</span>
 
         <div className="flex flex-col">
-          <h2>Service Name</h2>
-          <p className="text-sm">location</p>
+          <h2>{name}</h2>
+          {locationProvided && (
+            <p className="text-sm">
+              {city}, {stateCode}, {country}
+            </p>
+          )}
         </div>
 
-        <p>Active Now</p>
+        <p>{lastAccessTimeFormatted}</p>
 
-        <button
-          className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
-          data-testid="connected-service-sign-out"
-        >
-          Sign out
-        </button>
+        {canSignOut && (
+          <button
+            className="cta-neutral cta-base disabled:cursor-wait whitespace-no-wrap"
+            data-testid="connected-service-sign-out"
+          >
+            Sign out
+          </button>
+        )}
       </div>
     </div>
   );
-};
+}
 
 export const ConnectedServices = () => {
   const alertBar = useAlertBar();
+  const { attachedClients } = useAccount();
+  const sortedAndUniqueClients = sortAndFilterConnectedClients(attachedClients);
   const [errorText, setErrorText] = useState<string>();
   const onError = (e: Error) => {
     setErrorText(e.message);
@@ -69,11 +117,18 @@ export const ConnectedServices = () => {
           />
         </div>
 
-        <Service />
-        <Service />
-        <Service />
-        <Service />
-        <Service />
+        {!!sortedAndUniqueClients.length &&
+          sortedAndUniqueClients.map((client, i) => (
+            <Service
+              {...{
+                key: client.clientId,
+                name: client.name,
+                location: client.location,
+                lastAccessTimeFormatted: client.lastAccessTimeFormatted,
+                canSignOut: false,
+              }}
+            />
+          ))}
 
         <div className="mt-5">
           <LinkExternal

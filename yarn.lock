@@ -5689,6 +5689,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash.groupby@npm:^4":
+  version: 4.6.6
+  resolution: "@types/lodash.groupby@npm:4.6.6"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 03607aaa6e6d059ce010966138322859dd5438c63f35413e3c9744b6f295a82cc82470a462cfc6987e6b0c97468370cb935a498554c2746e6365de0ea0882e68
+  languageName: node
+  linkType: hard
+
 "@types/lodash.omitby@npm:^4":
   version: 4.6.6
   resolution: "@types/lodash.omitby@npm:4.6.6"
@@ -17763,6 +17772,7 @@ fsevents@^1.2.7:
     "@types/babel__core": 7.1.7
     "@types/classnames": ^2.2.10
     "@types/jest": ^24.9.1
+    "@types/lodash.groupby": ^4
     "@types/node": ^12.12.35
     "@types/react": ^16.9.34
     "@types/react-dom": ^16.9.6
@@ -17777,6 +17787,7 @@ fsevents@^1.2.7:
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     graphql: ^14.6.0
+    lodash.groupby: ^4.6.0
     node-sass: ^4.14.0
     npm-run-all: ^4.1.5
     pm2: ^4.4.1
@@ -23905,6 +23916,13 @@ fsevents@^1.2.7:
   version: 4.4.2
   resolution: "lodash.get@npm:4.4.2"
   checksum: 447e575e3caa5131ef44e5a0c135b1614f3c937d86b3be0568f9da7b0fd015010af3b6b4e41edf6e2698c9ce2dcc061ca71b31f274f799c991dceb018be16e4f
+  languageName: node
+  linkType: hard
+
+"lodash.groupby@npm:^4.6.0":
+  version: 4.6.0
+  resolution: "lodash.groupby@npm:4.6.0"
+  checksum: fb4c30f93ca5a11c4234df33578c1c7f9d86edb8e85a808cffa6fc2064b3a1856e93948489b1774264cf35995a29f82cbf6fd31093d9ebcb9a9c8fd7225f4686
   languageName: node
   linkType: hard
 
@@ -32976,6 +32994,7 @@ resolve@~1.11.1:
   dependencies:
     atob: ^2.1.2
     decode-uri-component: ^0.2.0
+  checksum: 9bbd2656937ce422f1526026638a91dacba0822f1ab954ac34728c9b4f2960dbfc22a8463af9fbf74f28f3722263444df79b2b5ffa07de07dbcda2ec5a8c7513
   languageName: node
   linkType: hard
 
@@ -34341,6 +34360,7 @@ resolve@~1.11.1:
     yapool: ^1.0.0
   bin:
     tap: bin/run.js
+  checksum: be08f69ab8ede0e26ff061127b58b403d0b50d64fd280845cc5a88088b974501383af25d19ba0a38f2089955495e285e9cd9ccbef7032e7fae5571c78b4db32a
   languageName: node
   linkType: hard
 
