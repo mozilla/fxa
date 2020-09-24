@@ -5894,7 +5894,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prettier@npm:2.1.1":
+"@types/prettier@npm:2.1.1, @types/prettier@npm:^2.0.0":
   version: 2.1.1
   resolution: "@types/prettier@npm:2.1.1"
   checksum: 3671bedc845a0e61bb8eb698746e1f6d1201ac784f95c536cd653c1406a51c0e9c338ecbbc73f1b5fd5fe0b0af98edf7e85428810357d959355ab46b3a63ebe6
@@ -5905,13 +5905,6 @@ __metadata:
   version: 1.19.1
   resolution: "@types/prettier@npm:1.19.1"
   checksum: 394a4364ce5e3364bd230eaeed16cfa816b686bb05fc71968188f6a29b1f69abc235ccd4fd0aef4c4eec124480a6e3420962e99406e2bf2f552c9aae46073546
-  languageName: node
-  linkType: hard
-
-"@types/prettier@npm:^2.0.0":
-  version: 2.0.1
-  resolution: "@types/prettier@npm:2.0.1"
-  checksum: fba408d98574b9790446bd5d5f1200a1baf164beea676eaad139320a1d1cdf54f2e411a865b253fc75fbadd1a096bb7eacbf13083fa7d26785e98dca57932b47
   languageName: node
   linkType: hard
 
@@ -9920,17 +9913,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"base64url@npm:3.0.1":
+"base64url@npm:3.0.1, base64url@npm:^3.0.0":
   version: 3.0.1
   resolution: "base64url@npm:3.0.1"
   checksum: e7c3424af4c711e1fbfe6b6e7e3976af684a5a080aa7c17a3d1fd375a029ff5f831ada40223571a8032d7c45f91d48266a9c367467a5f0c995cfb69de90cbdd3
-  languageName: node
-  linkType: hard
-
-"base64url@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "base64url@npm:3.0.0"
-  checksum: 612b9229b878a602488cbf2e7c0c546e3c1efeba8f578124901c2f7d5df17c87e97d230dbdf400af0e84661691ec7861564f860b37a2cc7ed7f13d76046de695
   languageName: node
   linkType: hard
 
@@ -11263,14 +11249,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chance@npm:^1.1.4, chance@npm:^1.1.6":
-  version: 1.1.6
-  resolution: "chance@npm:1.1.6"
-  checksum: ac3311b7ed8f0321fc991f1f0ffc60107584532076c32ff0703e81e167480d64b2ff4607101fd3ad9998b8311bd5d6a6a323e011003fb2e8e5a767beba1b7722
-  languageName: node
-  linkType: hard
-
-"chance@npm:^1.1.7":
+"chance@npm:^1.1.4, chance@npm:^1.1.6, chance@npm:^1.1.7":
   version: 1.1.7
   resolution: "chance@npm:1.1.7"
   checksum: 7d2b938178c1c384fcb483d6afa9feeb73949c8f5a8a133599df09c3437a43bb7d5e955d000faa01760a48da18c755ffcf51a9e7707ea3290d6a5231822e0bbe
@@ -11553,10 +11532,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cldr-core@npm:31.0.1":
-  version: 31.0.1
-  resolution: "cldr-core@npm:31.0.1"
-  checksum: 5b8081a0f0e385a2c6fbe6f084c357f6fdbd6f621f7ebf46131c1bd67ff0cceefb19b40892f2a79508c74410a1264e4e7baa18873971fb15ce21e206a7d597fb
+"cldr-core@npm:^36.0.0":
+  version: 36.0.0
+  resolution: "cldr-core@npm:36.0.0"
+  checksum: ec1e05c00bb48cfd11becd7f6e80d0757d5644d6db5f298e69dcad12b63b831ad4ddfd3da5e149458b8e8028710d9ca3072893fa7080bc58c037abad2ffff463
   languageName: node
   linkType: hard
 
@@ -16962,7 +16941,7 @@ fsevents@^1.2.7:
     buffer-equal-constant-time: 1.0.1
     cbor: ^5.0.2
     chai: ^4.2.0
-    cldr-core: 31.0.1
+    cldr-core: ^36.0.0
     cldr-localenames-full: 36.0.0
     commander: 2.18.0
     convict: ^6.0.0
@@ -18594,17 +18573,10 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"google-libphonenumber@npm:^3.2.13":
+"google-libphonenumber@npm:^3.2.13, google-libphonenumber@npm:^3.2.8":
   version: 3.2.13
   resolution: "google-libphonenumber@npm:3.2.13"
   checksum: f1a2fbd81e7edc3defbcdcfd5525a91db260c9610ee11d6cffbb1eb16508343a6dcb8c12d104778a36cb0991c8ed15f0269303ee30ad43ea9e9cbf2aa727e961
-  languageName: node
-  linkType: hard
-
-"google-libphonenumber@npm:^3.2.8":
-  version: 3.2.9
-  resolution: "google-libphonenumber@npm:3.2.9"
-  checksum: b7d2f6686667f9704393aed5cfe596dfdb179772d8eca9efb3d9b5b7b07a13e70c4a8b85dde4e0da35a0874ae26df84e2755c0c6e9df41b7299ec5355f3458ae
   languageName: node
   linkType: hard
 
@@ -18709,21 +18681,12 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"graphql-tag@npm:^2.11.0":
+"graphql-tag@npm:^2.11.0, graphql-tag@npm:^2.4.2, graphql-tag@npm:^2.9.2":
   version: 2.11.0
   resolution: "graphql-tag@npm:2.11.0"
   peerDependencies:
     graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0
   checksum: 400355590180cce2f39df5c599cad20ee982bb7e4a63ad70857aa0fe2e82e3ef6233a4db2b80a03e6dfa84bf3ecb13dc2947936eaf31753c94876e22be45ea78
-  languageName: node
-  linkType: hard
-
-"graphql-tag@npm:^2.4.2, graphql-tag@npm:^2.9.2":
-  version: 2.10.3
-  resolution: "graphql-tag@npm:2.10.3"
-  peerDependencies:
-    graphql: ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0
-  checksum: ea7746a7ed6f166754bba089c76595a2e9c0fbb4f64421be48974d00baf91be533296a953f700ca96b04fec469af029f199c35ce3bf819a48eb3794f8190fcd0
   languageName: node
   linkType: hard
 
@@ -19427,14 +19390,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"helmet@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "helmet@npm:4.1.0"
-  checksum: be92cb65af5868dd703d039fff6028ede79aeee1c5fabd5d0f4ee09aa0f0c2b0186e9c84bb9f80df273986198921f31eabd6ad0869e6e172adad7550ae7f54dc
-  languageName: node
-  linkType: hard
-
-"helmet@npm:^4.1.1":
+"helmet@npm:^4.1.0, helmet@npm:^4.1.1":
   version: 4.1.1
   resolution: "helmet@npm:4.1.1"
   checksum: 7d4371e3a4b5cb60c9d0b4e1341cade3836bff9734b837e04c6571ebe1237e6c52b928a4c9e308d80d6996bdf8561105e86911d04cff2f8957d355436191a19e
@@ -22862,6 +22818,7 @@ fsevents@^1.2.7:
 "json-buffer@npm:3.0.1":
   version: 3.0.1
   resolution: "json-buffer@npm:3.0.1"
+  checksum: 78011309cb53c19195702ece9e282c8c58d7facd8d6e286857fd4daf511f0bd93424498898d0b9ecfde6ab8e87a2ab0c0a654fba4b1a4ec81fa51f2c48a5ddba
   languageName: node
   linkType: hard
 
@@ -23254,6 +23211,7 @@ fsevents@^1.2.7:
   resolution: "keyv@npm:4.0.3"
   dependencies:
     json-buffer: 3.0.1
+  checksum: 63527e3d010dd9b8f8e62435130cdb1518de7b7d0ebafcff1359611caa0e79c7f80f1863ff73e712d99ce69fa06be62b66a78fb5cfee6483f2f95eeac340f12b
   languageName: node
   linkType: hard
 
@@ -26673,19 +26631,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"objection@npm:^2.2.2":
-  version: 2.2.2
-  resolution: "objection@npm:2.2.2"
-  dependencies:
-    ajv: ^6.12.0
-    db-errors: ^0.2.3
-  peerDependencies:
-    knex: 0.x
-  checksum: 14e1390adbde8ec24a10d17116792ec98c3eeadd8cf9b7483d7879880a3affad4fc051fe8f40001d99ade9c71164d430e1dd3ea6570680f6245dbe2b475fb85d
-  languageName: node
-  linkType: hard
-
-"objection@npm:^2.2.3":
+"objection@npm:^2.2.2, objection@npm:^2.2.3":
   version: 2.2.3
   resolution: "objection@npm:2.2.3"
   dependencies:
@@ -34003,22 +33949,7 @@ resolve@~1.11.1:
   languageName: node
   linkType: hard
 
-"subscriptions-transport-ws@npm:^0.9.11, subscriptions-transport-ws@npm:^0.9.16":
-  version: 0.9.16
-  resolution: "subscriptions-transport-ws@npm:0.9.16"
-  dependencies:
-    backo2: ^1.0.2
-    eventemitter3: ^3.1.0
-    iterall: ^1.2.1
-    symbol-observable: ^1.0.4
-    ws: ^5.2.0
-  peerDependencies:
-    graphql: ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.1 || ^14.0.2
-  checksum: 7671c1cbb904ecfcbe84a3051ea888fb07f61414b5819bf40c92135f255b679ecfb5984680cf56e9576605f1ee08c1f22b6b71fe13af82465e614966f25009f8
-  languageName: node
-  linkType: hard
-
-"subscriptions-transport-ws@npm:^0.9.18":
+"subscriptions-transport-ws@npm:^0.9.11, subscriptions-transport-ws@npm:^0.9.16, subscriptions-transport-ws@npm:^0.9.18":
   version: 0.9.18
   resolution: "subscriptions-transport-ws@npm:0.9.18"
   dependencies:
@@ -34029,6 +33960,7 @@ resolve@~1.11.1:
     ws: ^5.2.0
   peerDependencies:
     graphql: ">=0.10.0"
+  checksum: 54f23dadb344395cff5f4719176fc78f0eced460ee718506981235f3b2ca20b31682ea859afcf988c430d42e1015dbb555f8ad1a219154b2d9f14c33565453ea
   languageName: node
   linkType: hard
 
