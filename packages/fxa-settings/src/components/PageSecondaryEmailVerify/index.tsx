@@ -1,11 +1,11 @@
 import React, { useCallback, useState, useEffect } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
-import sentryMetrics from 'fxa-shared/lib/sentry';
-import InputText from '../InputText';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import FlowContainer from '../FlowContainer';
 import { Account } from '../../models';
+import { useAlertBar, useMutation } from '../../lib/hooks';
+import InputText from '../InputText';
+import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 
 export const VERIFY_SECONDARY_EMAIL_MUTATION = gql`
@@ -21,6 +21,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
   const [errorText, setErrorText] = useState<string>();
   const goBack = useCallback(() => window.history.back(), []);
   const navigate = useNavigate();
+  const alertBar = useAlertBar();
   const email = (location?.state as any)?.email as string | undefined;
 
   const [verifySecondaryEmail] = useMutation(VERIFY_SECONDARY_EMAIL_MUTATION, {
@@ -28,8 +29,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       if (error.graphQLErrors?.length) {
         setErrorText(error.message);
       } else {
-        sentryMetrics.captureException(error);
-        // TODO
+        alertBar.error('There was a problem sending the verification code.');
       }
     },
     update: (cache) => {

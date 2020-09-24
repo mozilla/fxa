@@ -1,6 +1,6 @@
 # Firefox Accounts Settings
 
-This documentation is up to date as of 2020-09-01.
+This documentation is up to date as of 2020-09-23.
 
 ## Table of Contents
 
@@ -8,6 +8,7 @@ This documentation is up to date as of 2020-09-01.
 [Development](#development)\
 [GQL and REST API Calls](#gql-and-rest-api-calls)\
 — [Global Application Data](#global-application-data)\
+— [GQL error handling](#gql-error-handling)\
 [Components to Know](#components-to-know)\
 — [`LinkExternal`](#linkexternal)\
 — [`AlertBar`](#alertbar-and-alertexternal)\
@@ -26,6 +27,7 @@ This documentation is up to date as of 2020-09-01.
 [Testing and Mocks for Tests/Storybook](#testing-and-mocks-for-testsstorybook)\
 — [`AlertBar` or `AlertExternal`](#components-that-use-alertbar-or-alertexternal)\
 — [`useAccount`, `useSession`, or GQL Mocks](#components-that-use-useaccount-usesession-or-need-a-gql-mock)\
+— [Mocking mutation errors](#mocking-mutation-errors)\
 [Storybook](#storybook)\
 [License](#license)
 
@@ -56,6 +58,45 @@ While most API calls can be performed with GQL, there are a few calls that must 
 This application uses [Apollo client cache](https://www.apollographql.com/docs/react/caching/cache-configuration/) to store app-global state, holding both data received from the GQL server and [local data](https://www.apollographql.com/docs/tutorial/local-state/) that needs to be globally accessible. You can see the shape of this data in the schema found within the `GetInitialState` query, noting that a `@client` directive denotes local data.
 
 Access the client cache data in top-level objects via custom `use` hooks. At the time of writing, `useAccount` and `useSession` (see the "Sessions" section) will allow you to access `data.account` and `data.session` respectively inside components where that data is needed. See the "Testing" section of this doc for how to mock calls.
+
+### GQL error handling
+
+When an error occurs from a query or mutation, the Apollo Client GQL response distinguishes between two kinds of errors on the `error` object - `graphQLErrors`, an array of errors provided by a GQL server-side resolver, and `networkError`, an error that is thrown outside of a resolver. Apollo Server [can throw](https://www.apollographql.com/docs/apollo-server/data/errors/) `AuthenticationError`, `ForbiddenError`, `UserInputError`, or a generic `ApolloError` which Apollo Client stores in `graphQLErrors`. We don’t need to send these to Sentry on the client-side because all errors aside from `UserInputError` are logged by the `fxa-gql-api package`, but a `networkError` should be logged because it means the query was rejected and no data was returned, such as if Apollo Client failed to connect to the GQL endpoint. Learn more about [Apollo error handling](https://www.apollographql.com/docs/react/data/error-handling/).
+
+All errors should be handled. As a general rule of thumb, validation errors from `graphQLErrors` should be displayed the user, while `networkErrors` should report to Sentry.
+
+When performing a GraphQL mutation, use our custom [`useMutation`](./lib/hooks.tsx) hook and set the `onError` property to handle GraphQL Errors (such as validations). The hook will automatically send any network-level errors to Sentry and return `ApolloError` for you to access GQL errors and render them in the UI or an AlertBar.
+
+Example of a mutation with errors appearing in an `AlertBar`:
+
+```tsx
+const [destroySession, { data }] = useMutation(DESTROY_SESSION_MUTATION, {
+  onError: (error) => {
+    // The useAlertBar hook's `error` method can take an ApolloError object
+    // and conditionally render GQL errors if they're present, or fall back
+    // to the error string you provided.
+    alertBar.error('Sorry, there was a problem signing you out.', error);
+  },
+});
+```
+
+Example of a mutation with validation errors appearing in a tooltip, and other errors in an `AlertBar`:
+
+```tsx
+const [verifySecondaryEmail] = useMutation(VERIFY_SECONDARY_EMAIL_MUTATION, {
+  onError: (error) => {
+    // If we receive an GQL error it is related to invalid input, so we'll
+    // set it as a state string that is used in a tooltip component.
+    if (error.graphQLErrors?.length) {
+      setErrorText(error.message);
+    } else {
+      alertBar.error('There was a problem sending the verification code.');
+    }
+  },
+});
+```
+
+See the "Testing" section for mocking mutation errors.
 
 ## Components to Know
 
@@ -438,6 +479,37 @@ const mocks = [];
 <MockedCache account={{ avatarUrl: null }} verified={false} {...{ mocks }}>
   <HeaderLockup />
 </MockedCache>;
+```
+
+### Mocking mutation errors
+
+Testing for GQL and network errors is also pretty straightforward. In your tests, wrap your component in a [MockedCache](#components-that-use-useaccount-usesession-or-need-a-gql-mock) and provide it with mock mutations that produce either an array of `GraphQLError`s, or a standard `Error`. Example with both:
+
+```tsx
+const mocks = [
+  {
+    request: {
+      query: VERIFY_SESSION_MUTATION,
+      variables: { input: { code: '12345678' } },
+    },
+    result: {
+      errors: [new GraphQLError('invalid code')],
+    },
+  },
+  {
+    request: {
+      query: VERIFY_SESSION_MUTATION,
+      variables: { input: { code: '87654321' } },
+    },
+    error: new Error('network error'),
+  },
+];
+
+renderWithRouter(
+  <MockedCache verified={false} {...{ mocks }}>
+    <ModalVerifySession {...{ onDismiss, onError }} />
+  </MockedCache>
+);
 ```
 
 ### Common Errors

@@ -13,7 +13,7 @@ import {
   useFocusOnTriggeringElementOnClose,
   useEscKeydownEffect,
   useChangeFocusEffect,
-  useHandledMutation,
+  useMutation,
   useAlertBar,
 } from './hooks';
 
@@ -105,7 +105,7 @@ describe('useHandledMutation', () => {
   });
 
   it('calls useMutation with the correct default params', () => {
-    useHandledMutation(query);
+    useMutation(query);
 
     expect(apolloClient.useMutation).toHaveBeenCalledWith(query, {
       onError: expect.any(Function),
@@ -113,7 +113,7 @@ describe('useHandledMutation', () => {
   });
 
   it('calls useMutation with additional params', () => {
-    useHandledMutation(query, { fetchPolicy: 'no-cache' });
+    useMutation(query, { fetchPolicy: 'no-cache' });
 
     expect(apolloClient.useMutation).toHaveBeenCalledWith(query, {
       onError: expect.any(Function),

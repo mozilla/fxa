@@ -57,6 +57,12 @@ const mock = {
   ),
 };
 
+window.console.error = jest.fn();
+
+afterAll(() => {
+  (window.console.error as jest.Mock).mockReset();
+});
+
 describe('UnitRowSecondaryEmail', () => {
   describe('no secondary email set', () => {
     it('renders as expected', () => {

@@ -1,12 +1,13 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import { gql } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
-import sentryMetrics from 'fxa-shared/lib/sentry';
-import InputText from '../InputText';
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import FlowContainer from '../FlowContainer';
+import { useAlertBar, useMutation } from '../../lib/hooks';
 import { Account } from '../../models';
+import InputText from '../InputText';
+import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import AlertBar from '../AlertBar';
 
 export const CREATE_SECONDARY_EMAIL_MUTATION = gql`
   mutation createSecondaryEmail($input: EmailInput!) {
@@ -22,6 +23,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   const [email, setEmail] = useState<string>();
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const alertBar = useAlertBar();
   const goBack = useCallback(() => window.history.back(), []);
 
   const [createSecondaryEmail] = useMutation(CREATE_SECONDARY_EMAIL_MUTATION, {
@@ -29,8 +31,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
       if (error.graphQLErrors?.length) {
         setErrorText(error.message);
       } else {
-        sentryMetrics.captureException(error);
-        // TODO
+        alertBar.error('There was a problem creating this email.');
       }
     },
     update: (cache) => {
@@ -63,6 +64,11 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer title="Secondary email">
+      {alertBar.visible && (
+        <AlertBar onDismiss={alertBar.hide} type={alertBar.type}>
+          <p data-testid="add-email-error">{alertBar.content}</p>
+        </AlertBar>
+      )}
       <VerifiedSessionGuard onDismiss={goBack} onError={goBack} />
       <form
         onSubmit={(ev) => {

@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode, useState } from 'react';
-import { gql } from '@apollo/client';
+import { ApolloError, gql } from '@apollo/client';
 import { useNavigate } from '@reach/router';
 import { cloneDeep } from '@apollo/client/utilities';
-import { useHandledMutation, useAlertBar } from '../../lib/hooks';
+import { useAlertBar, useMutation } from '../../lib/hooks';
 import { useAccount, useLazyAccount, Email, Account } from '../../models';
 import UnitRow from '../UnitRow';
 import AlertBar from '../AlertBar';
@@ -55,12 +55,11 @@ export const UnitRowSecondaryEmail = () => {
     .map((email) => email.verified)
     .lastIndexOf(true);
 
-  const [getAccount, { accountLoading }] = useLazyAccount((error) => {
+  const [getAccount, { accountLoading }] = useLazyAccount(() => {
     alertBar.error(`Sorry, there was a problem refreshing that email.`);
-    throw error;
   });
 
-  const [resendEmailCode] = useHandledMutation(RESEND_EMAIL_CODE_MUTATION, {
+  const [resendEmailCode] = useMutation(RESEND_EMAIL_CODE_MUTATION, {
     onCompleted() {
       navigate('/beta/settings/emails/verify', { state: { email } });
     },
@@ -68,38 +67,38 @@ export const UnitRowSecondaryEmail = () => {
       alertBar.error(
         `Sorry, there was a problem re-sending the verification code.`
       );
-      throw error;
     },
   });
 
-  const [
-    makeEmailPrimary,
-    { loading: makeEmailPrimaryLoading },
-  ] = useHandledMutation(MAKE_EMAIL_PRIMARY_MUTATION, {
-    onCompleted() {
-      alertBar.success(`${email} is now your primary email.`);
-    },
-    onError(error) {
-      alertBar.error(`Sorry, there was a problem changing your primary email.`);
-      throw error;
-    },
-    update: (cache) => {
-      cache.modify({
-        fields: {
-          account: (existing: Account) => {
-            const account = cloneDeep(existing);
-            account.emails.find((m) => m.email === email)!.isPrimary = true;
-            account.emails.find(
-              (m) => m.isPrimary && m.email !== email
-            )!.isPrimary = false;
-            return account;
+  const [makeEmailPrimary, { loading: makeEmailPrimaryLoading }] = useMutation(
+    MAKE_EMAIL_PRIMARY_MUTATION,
+    {
+      onCompleted() {
+        alertBar.success(`${email} is now your primary email.`);
+      },
+      onError(error) {
+        alertBar.error(
+          `Sorry, there was a problem changing your primary email.`
+        );
+      },
+      update: (cache) => {
+        cache.modify({
+          fields: {
+            account: (existing: Account) => {
+              const account = cloneDeep(existing);
+              account.emails.find((m) => m.email === email)!.isPrimary = true;
+              account.emails.find(
+                (m) => m.isPrimary && m.email !== email
+              )!.isPrimary = false;
+              return account;
+            },
           },
-        },
-      });
-    },
-  });
+        });
+      },
+    }
+  );
 
-  const [deleteEmail, { loading: deleteEmailLoading }] = useHandledMutation(
+  const [deleteEmail, { loading: deleteEmailLoading }] = useMutation(
     DELETE_EMAIL_MUTATION,
     {
       onCompleted() {
@@ -107,7 +106,6 @@ export const UnitRowSecondaryEmail = () => {
       },
       onError(error) {
         alertBar.error(`Sorry, there was a problem deleting this email.`);
-        throw error;
       },
       update: (cache) => {
         cache.modify({
@@ -138,7 +136,10 @@ export const UnitRowSecondaryEmail = () => {
           }}
           onError={(error) => {
             setQueuedAction(undefined);
-            alertBar.error(error.message);
+            alertBar.error(
+              'Sorry, there was a problem verifying your session',
+              error
+            );
           }}
           onCompleted={queuedAction}
         />
