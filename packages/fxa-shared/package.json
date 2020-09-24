@@ -83,7 +83,7 @@
     "@sentry/integrations": "^5.23.0",
     "@sentry/node": "^5.23.0",
     "@types/js-md5": "^0.4.2",
-    "accept-language": "^2.0.17",
+    "accept-language": "^3.0.18",
     "ajv": "^6.12.2",
     "aws-sdk": "^2.752.0",
     "bluebird": "^3.7.2",
