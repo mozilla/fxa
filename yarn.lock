@@ -17159,7 +17159,7 @@ fsevents@^1.2.7:
     node-sass: ^4.13.1
     node-uuid: 1.4.8
     node-vat: 0.0.9
-    normalize.css: 3.0.1
+    normalize.css: 8.0.1
     on-headers: 1.0.2
     otplib: ^11.0.1
     photon-colors: 1.0.3
@@ -26287,14 +26287,7 @@ fsevents@^1.2.7:
   languageName: node
   linkType: hard
 
-"normalize.css@npm:3.0.1":
-  version: 3.0.1
-  resolution: "normalize.css@npm:3.0.1"
-  checksum: 6ba522d4a02587e4601f0c2465e33588b66d4d9d436152f1b3f2158a6cdc1379ac864f0cacebe6dc3eec39a59c579a3d9bb6ee68582bbcd6ae86f3c379564e9d
-  languageName: node
-  linkType: hard
-
-"normalize.css@npm:^8.0.1":
+"normalize.css@npm:8.0.1, normalize.css@npm:^8.0.1":
   version: 8.0.1
   resolution: "normalize.css@npm:8.0.1"
   checksum: de6c137a14291c00fee60a1e9e9ab4b78f93d48dd7ab5baa2783dd62bf19b456403bf0585ad201bb84ed184348fd49b467ccfc707068bf342123d00d31801e98
