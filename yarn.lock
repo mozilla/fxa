@@ -5003,13 +5003,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/backbone@npm:^1.4.1":
-  version: 1.4.2
-  resolution: "@types/backbone@npm:1.4.2"
+"@types/backbone@npm:^1.4.4":
+  version: 1.4.4
+  resolution: "@types/backbone@npm:1.4.4"
   dependencies:
     "@types/jquery": "*"
     "@types/underscore": "*"
-  checksum: cbc5403abb84b415e1129105c207ed1e2fc983951e24f445f497f6e58e91a522e0d89966764d9590a909a7f7297057fd7f5751fa533191e8d0dee13fdefe7fb3
+  checksum: 24059ef65fbc26085f7e0288c2c29bf0ff2615ae2b99474fa44588dfc11a477f8484133725a4de76eec3720cdcc18334f749b5831ee3a5b84aca18d0241fd5b8
   languageName: node
   linkType: hard
 
@@ -17052,7 +17052,7 @@ fsevents@^1.2.7:
     "@sentry/browser": ^5.17.0
     "@sentry/node": ^5.17.0
     "@testing-library/react": ^9.5.0
-    "@types/backbone": ^1.4.1
+    "@types/backbone": ^1.4.4
     "@types/sinon-chai": 3.2.4
     "@types/sinon-express-mock": 1.3.8
     asmcrypto.js: ^0.22.0
