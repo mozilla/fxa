@@ -15615,10 +15615,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-text-encoding@npm:^1.0.0, fast-text-encoding@npm:^1.0.1":
+"fast-text-encoding@npm:^1.0.0":
   version: 1.0.2
   resolution: "fast-text-encoding@npm:1.0.2"
   checksum: b61599e9b9c4eb1926983ff664c0034cf3fe2a6a1aecc8c721661db1335d87ff7fc11b218931fdb7fc1ef58399052fbbf17e5b26850d8a137507ac959db20531
+  languageName: node
+  linkType: hard
+
+"fast-text-encoding@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "fast-text-encoding@npm:1.0.3"
+  checksum: f14fb9242fc8ea942d8b6374f84e918aa5e97bbdf3cafbbf737b04f677277a1900cb9914eab601822cc51787dc607bfff5904e646b3fcc82d84081b21261ba87
   languageName: node
   linkType: hard
 
@@ -16857,7 +16864,7 @@ fsevents@^1.2.7:
     abab: ^2.0.0
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
-    fast-text-encoding: ^1.0.0
+    fast-text-encoding: ^1.0.3
     mocha: ^7.1.2
     node-fetch: ^2.6.0
     ts-node: ^8.10.2
@@ -17085,7 +17092,7 @@ fsevents@^1.2.7:
     expose-loader: 0.7.5
     express: ^4.17.1
     extract-loader: 5.1.0
-    fast-text-encoding: ^1.0.1
+    fast-text-encoding: ^1.0.3
     file-loader: ^6.1.0
     firefox-profile: 1.2.0
     fxa-auth-client: "workspace:*"
