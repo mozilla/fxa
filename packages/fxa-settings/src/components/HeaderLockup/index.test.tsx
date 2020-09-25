@@ -23,7 +23,9 @@ describe('HeaderLockup', () => {
       'https://support.mozilla.org'
     );
     expect(screen.getByTestId('header-help')).toBeInTheDocument();
-    expect(screen.getByTestId('header-bento')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('drop-down-bento-menu-toggle')
+    ).toBeInTheDocument();
     expect(screen.getByTestId('avatar-default')).toBeInTheDocument();
 
     expect(screen.getByTestId('header-menu')).toBeInTheDocument();

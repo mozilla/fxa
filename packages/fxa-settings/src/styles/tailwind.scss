@@ -6,9 +6,11 @@
 @import './ctas.scss';
 @import './unit-row.scss';
 @import './drop-down-menu.scss';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind screens;
 
 body {
   @apply text-base font-body bg-grey-10 text-grey-600;
