@@ -60,7 +60,7 @@
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
     "google-auth-library": "^6.0.6",
-    "graphql": "^14.6.0",
+    "graphql": "^15.3.0",
     "hot-shots": "^7.8.0",
     "jwks-rsa": "^1.9.0",
     "mozlog": "^3.0.1",
