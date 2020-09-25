@@ -4052,7 +4052,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-actions@npm:^5.3.19":
+"@storybook/addon-actions@npm:*, @storybook/addon-actions@npm:^5.3.19":
   version: 5.3.19
   resolution: "@storybook/addon-actions@npm:5.3.19"
   dependencies:
@@ -6233,10 +6233,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/storybook__addon-actions@npm:^3.4.2":
-  version: 3.4.3
-  resolution: "@types/storybook__addon-actions@npm:3.4.3"
-  checksum: ed47a8a9ba2939aa2d197febf1eb3dde7208527b81fa058a3082cdcb3377290f4a145b60b421d3bb961e86a3a5cb2261bcafddfcbde8b18a4069c0dbc2c8f356
+"@types/storybook__addon-actions@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "@types/storybook__addon-actions@npm:5.2.1"
+  dependencies:
+    "@storybook/addon-actions": "*"
+  checksum: de1f9241bdeb8be850edcc048042cc781c7bd3d24beaeb51611ea64e1d5aa2ab17c4fa8bc18271c9a30ec7f68fd9529baaa99f7c6f0e7f7a822f24818dedb64b
   languageName: node
   linkType: hard
 
@@ -17594,7 +17596,7 @@ fsevents@^1.2.7:
     "@types/react-transition-group": ^4.2.3
     "@types/redux-actions": ^2.6.0
     "@types/sinon": 9.0.5
-    "@types/storybook__addon-actions": ^3.4.2
+    "@types/storybook__addon-actions": ^5.2.1
     "@types/storybook__addon-links": ^3.3.5
     "@types/storybook__react": ^4.0.1
     "@types/uuid": ^7.0.2
