@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { gql } from '@apollo/client';
 import { cloneDeep } from '@apollo/client/utilities';
 import { RouteComponentProps, useNavigate } from '@reach/router';
@@ -55,7 +55,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
   });
 
   const checkEmail = useCallback(
-    (ev) => {
+    (ev: ChangeEvent<HTMLInputElement>) => {
       setSaveBtnDisabled(!ev.target.checkValidity());
       setEmail(inputRef.current?.value);
     },

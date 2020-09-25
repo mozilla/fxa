@@ -15,13 +15,20 @@ export const InputPassword = ({
   label,
   placeholder,
   className,
+  onChange,
+  inputRef,
+  errorText,
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
 
-  const onChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    setHasContent(event.target.value.length > 0);
-  }, []);
+  const onInputChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setHasContent(event.target.value.length > 0);
+      onChange && onChange(event);
+    },
+    [onChange]
+  );
 
   return (
     <InputText
@@ -31,8 +38,10 @@ export const InputPassword = ({
         disabled,
         label,
         placeholder,
-        onChange,
+        onChange: onInputChange,
         className,
+        inputRef,
+        errorText,
       }}
     >
       <button

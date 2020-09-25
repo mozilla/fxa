@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
-import AuthClient from 'fxa-auth-client/browser';
+import { useAsyncCallback } from 'react-async-hook';
+import AuthClient, { AuthServerError } from 'fxa-auth-client/browser';
 
 export interface AuthContextValue {
   auth?: AuthClient;
@@ -19,5 +20,38 @@ export function useAuth() {
   return auth!;
 }
 
-// NOTE for future self
-// In cases where the sessionToken changes we should also flush the session { verified } value from apollo cache
+type PasswordChangeResponse = Resolved<
+  ReturnType<typeof AuthClient.prototype.passwordChange>
+>;
+
+export function usePasswordChanger({
+  onSuccess,
+  onError,
+}: {
+  onSuccess?: (r: PasswordChangeResponse) => void;
+  onError?: (e: AuthServerError) => void;
+} = {}) {
+  const auth = useAuth();
+  return useAsyncCallback(
+    async (
+      email: string,
+      oldPassword: string,
+      newPassword: string,
+      sessionToken: hexstring
+    ) => {
+      const response = await auth.passwordChange(
+        email,
+        oldPassword,
+        newPassword,
+        {
+          sessionToken,
+        }
+      );
+      return response;
+    },
+    {
+      onSuccess,
+      onError,
+    }
+  );
+}
