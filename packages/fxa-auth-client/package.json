@@ -27,7 +27,7 @@
     "@types/mocha": "^7",
     "@types/node-fetch": "^2",
     "asmcrypto.js": "^0.22.0",
-    "fast-text-encoding": "^1.0.0",
+    "fast-text-encoding": "^1.0.3",
     "mocha": "^7.1.2",
     "ts-node": "^8.10.2",
     "typescript": "3.9.7",
