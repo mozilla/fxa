@@ -15,7 +15,14 @@ const EVENT_TYPE_PATTERN = /^[\w\s.:-]+$/; // the space is to allow for error co
 const OFFSET_TYPE = joi.number().integer().min(0);
 const STRING_TYPE = joi.string().max(1024);
 const BODY_SCHEMA = {
-  data: joi.object().required(),
+  data: joi
+    .object()
+    .keys({
+      flowBeginTime: OFFSET_TYPE.optional(),
+      flowId: STRING_TYPE.hex().length(64).optional(),
+    })
+    .unknown(true)
+    .required(),
   events: joi
     .array()
     .items(
@@ -25,8 +32,6 @@ const BODY_SCHEMA = {
       })
     )
     .required(),
-  flowBeginTime: OFFSET_TYPE.optional(),
-  flowId: STRING_TYPE.hex().length(64).optional(),
 };
 
 module.exports = {
