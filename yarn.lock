@@ -7182,7 +7182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^5.0.3, acorn@npm:^5.1.2, acorn@npm:^5.2.1, acorn@npm:^5.5.3, acorn@npm:^5.7.3":
+"acorn@npm:^5.0.3, acorn@npm:^5.1.2, acorn@npm:^5.2.1, acorn@npm:^5.5.3":
   version: 5.7.4
   resolution: "acorn@npm:5.7.4"
   bin:
@@ -7206,6 +7206,15 @@ __metadata:
   bin:
     acorn: bin/acorn
   checksum: a25b12d9e803df49593e983f05abd8084be883df23f78a3ceb49bfb9c453fdc43d51b3ce268b6acd7694c34d9cde1707acb1cdcbc5303bde47bee43ffc131491
+  languageName: node
+  linkType: hard
+
+"acorn@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "acorn@npm:8.0.1"
+  bin:
+    acorn: bin/acorn
+  checksum: 11fa4a057db938d2b2a6fd20e8baeb853624439bceac47030ea2fdebe4700b14eadf2f4de146fcbe04b0245ce2c718c5226239092e6bcf5eed0f77edf4b5149a
   languageName: node
   linkType: hard
 
@@ -16970,7 +16979,7 @@ fsevents@^1.2.7:
     "@types/request": 2.48.5
     "@types/safe-regex": 1.1.2
     "@types/verror": ^1.10.3
-    acorn: ^5.7.3
+    acorn: ^8.0.1
     ajv: ^6.12.2
     audit-filter: ^0.5.0
     aws-sdk: ^2.698.0
