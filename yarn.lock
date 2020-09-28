@@ -14823,10 +14823,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"duration-js@npm:3.6.0":
-  version: 3.6.0
-  resolution: "duration-js@npm:3.6.0"
-  checksum: c2b37ec7e0fae29672273d1e2deda6b6a1a057e51ad252858a4e6fa883f8100b3293498949de4981e8d3c42645c116dc78f67513bf61f8263a5dbb68906b5b7b
+"duration-js@npm:4.0.0":
+  version: 4.0.0
+  resolution: "duration-js@npm:4.0.0"
+  checksum: c8ea071976ef965220372c7f2e1ab4334659ff2ff5275fd2707dfeb622e0d232298a794523d3b8448615700e3a7ec66fcc4fa00fad14d202918dabc87f57ab77
   languageName: node
   linkType: hard
 
@@ -17742,7 +17742,7 @@ fsevents@^1.2.7:
     core-js: ^3.6.5
     css: 3.0.0
     css-loader: 1.0.0
-    duration-js: 3.6.0
+    duration-js: 4.0.0
     eslint: 7.7.0
     eslint-plugin-fxa: ^2.0.2
     expose-loader: 0.7.5
