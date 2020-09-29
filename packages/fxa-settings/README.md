@@ -29,6 +29,7 @@ This documentation is up to date as of 2020-09-23.
 — [`useAccount`, `useSession`, or GQL Mocks](#components-that-use-useaccount-usesession-or-need-a-gql-mock)\
 — [Mocking mutation errors](#mocking-mutation-errors)\
 [Storybook](#storybook)\
+[Functional Testing](#functional-testing)\
 [License](#license)
 
 ## Relevant ADRs
@@ -543,6 +544,32 @@ No Apollo Client instance can be found. Please ensure that you have called `Apol
 This project uses [Storybook](https://storybook.js.org/) to show each screen without requiring a full stack.
 
 In local development, `yarn storybook` will start a Storybook server at <http://localhost:6008> with hot module replacement to reflect live changes. Storybook provides a way to document and visually show various component states and application routes. Storybook builds from pull requests and commits can be found at https://mozilla-fxa.github.io/storybooks/.
+
+## Functional Testing
+
+Functional testing for this project requires the entire FxA stack to be running. Check out [Getting Started](https://github.com/mozilla/fxa#getting-started) for more instructions.
+
+Running and adding new functional test for settings is very similar to adding a functional test for the content-server. For an overview of functional testing in content-server check out this [document](https://github.com/mozilla/ecosystem-platform/blob/master/docs/fxa-engineering/functional-testing.md).
+
+### Running tests
+
+```
+cd packages/fxa-content-server
+node tests/intern.js --suites="settings_v2"
+```
+
+#### Single test
+
+```
+cd packages/fxa-content-server
+node tests/intern.js --suites="settings_v2" --grep="name of test here"
+```
+
+### Adding a new test
+
+- Create your test file in [packages/fxa-content-server/tests/functional/settings_v2](https://github.com/mozilla/fxa/tree/main/packages/fxa-content-server/tests/functional/settings_v2)
+  - Existing tests are a good starting point
+- Add your test to the settings [suite](https://github.com/mozilla/fxa/blob/main/packages/fxa-content-server/tests/functional_settings_v2.js)
 
 ## License
 

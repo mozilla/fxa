@@ -14,26 +14,26 @@ const EMAIL_FIRST = config.fxaContentRoot;
 const SETTINGS_V2_URL = `${config.fxaContentRoot}beta/settings`;
 const password = 'passwordzxcv';
 
+const { createEmail } = FunctionalHelpers;
+
 const {
-  createEmail,
   createUser,
-  fillOutEmailFirstSignIn,
   openPage,
+  fillOutEmailFirstSignIn,
   testElementExists,
-} = FunctionalHelpers;
+} = FunctionalHelpers.helpersRemoteWrapped;
 
 describe('settings', () => {
   let email;
   beforeEach(async ({ remote }) => {
     email = createEmail();
-    await remote.then(createUser(email, password, { preVerified: true }));
+    await createUser(email, password, { preVerified: true }, remote);
   });
 
   it('can navigate to settings', async ({ remote }) => {
-    await remote
-      .then(openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER))
-      .then(fillOutEmailFirstSignIn(email, password))
-      .then(testElementExists(selectors.SETTINGS.HEADER))
-      .then(openPage(SETTINGS_V2_URL, '#profile'));
+    await openPage(EMAIL_FIRST, selectors.ENTER_EMAIL.HEADER, remote);
+    await fillOutEmailFirstSignIn(email, password, remote);
+    await testElementExists(selectors.SETTINGS.HEADER, remote);
+    await openPage(SETTINGS_V2_URL, '#profile', remote);
   });
 });
